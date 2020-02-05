@@ -191,7 +191,7 @@ public:
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
-        ERR_FAIL_COND(iter==classes.end())
+        ERR_FAIL_COND(iter==classes.end());
         ClassInfo &ci(iter->second);
         ci.creation_func = &creator<T>;
         ci.exposed = true;
@@ -205,7 +205,7 @@ public:
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
-        ERR_FAIL_COND(iter==classes.end())
+        ERR_FAIL_COND(iter==classes.end());
         ClassInfo &ci(iter->second);
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();
@@ -224,7 +224,7 @@ public:
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
-        ERR_FAIL_COND(iter==classes.end())
+        ERR_FAIL_COND(iter==classes.end());
         ClassInfo &ci(iter->second);
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();

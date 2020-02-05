@@ -387,7 +387,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 
     if (ti.inherits) {
 
-        ERR_FAIL_COND(!classes.contains(ti.inherits)) // it MUST be registered.
+        ERR_FAIL_COND(!classes.contains(ti.inherits)); // it MUST be registered.
         ti.inherits_ptr = &classes[ti.inherits];
 
     } else {
@@ -492,7 +492,7 @@ void ClassDB::bind_integer_constant(
     auto iter=classes.find(p_class);
 
 
-    ERR_FAIL_COND(iter==classes.end())
+    ERR_FAIL_COND(iter==classes.end());
 
     ClassInfo *type = &iter->second;
 
@@ -644,7 +644,7 @@ void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
     OBJTYPE_WLOCK;
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND(iter==classes.end())
+    ERR_FAIL_COND(iter==classes.end());
     ClassInfo *type = &iter->second;
 
     const StringName &sname = p_signal.name;
@@ -665,7 +665,7 @@ void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND(iter==classes.end())
+    ERR_FAIL_COND(iter==classes.end());
     ClassInfo *type = &iter->second;
 
     ClassInfo *check = type;
@@ -720,7 +720,7 @@ void ClassDB::add_property_group(StringName p_class, const char *p_name, const c
     OBJTYPE_WLOCK
     auto iter=classes.find(p_class);
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
-    ERR_FAIL_COND(!type)
+    ERR_FAIL_COND(!type);
 
     type->property_list.push_back(
             PropertyInfo(VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP));
@@ -734,7 +734,7 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     lock->read_unlock();
 
-    ERR_FAIL_COND(!type)
+    ERR_FAIL_COND(!type);
 
     MethodBind *mb_set = nullptr;
     if (p_setter) {
@@ -1009,8 +1009,8 @@ void ClassDB::set_method_flags(StringName p_class, StringName p_method, int p_fl
     auto iter=classes.find(p_class);
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
-    ERR_FAIL_COND(!check)
-    ERR_FAIL_COND(!check->method_map.contains(p_method))
+    ERR_FAIL_COND(!check);
+    ERR_FAIL_COND(!check->method_map.contains(p_method));
     check->method_map[p_method]->set_hint_flags(p_flags);
 }
 
@@ -1096,7 +1096,7 @@ void ClassDB::_set_class_header(const StringName &p_class, se_string_view header
 }
 
 void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual) {
-    ERR_FAIL_COND(!classes.contains(p_class))
+    ERR_FAIL_COND(!classes.contains(p_class));
 
     OBJTYPE_WLOCK
 
@@ -1111,7 +1111,7 @@ void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_
 
 void ClassDB::get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance) {
 
-    ERR_FAIL_COND(!classes.contains(p_class))
+    ERR_FAIL_COND(!classes.contains(p_class));
 
 #ifdef DEBUG_METHODS_ENABLED
 
@@ -1135,7 +1135,7 @@ void ClassDB::set_class_enabled(StringName p_class, bool p_enable) {
 
     OBJTYPE_WLOCK;
 
-    ERR_FAIL_COND(!classes.contains(p_class))
+    ERR_FAIL_COND(!classes.contains(p_class));
     classes[p_class].disabled = !p_enable;
 }
 

@@ -1248,7 +1248,7 @@ void TranslationServer::load_translations() {
     }
     if(cnt>2)
     {
-        ERR_FAIL_COND(cnt+20>=sizeof(buf))
+        ERR_FAIL_COND(cnt+20>=sizeof(buf));
         if(cnt+20<sizeof(buf))
         {
             for(uint32_t i=0; i<cnt-2; ++i)

@@ -64,7 +64,7 @@ Error AudioDriverALSA::init_device() {
             snd_pcm_close(pcm_handle);                           \
             pcm_handle = nullptr;                                \
         }                                                        \
-        ERR_FAIL_COND_V(m_cond, ERR_CANT_OPEN)                  \
+        ERR_FAIL_COND_V(m_cond, ERR_CANT_OPEN);                  \
     }
 
     //todo, add
@@ -82,19 +82,19 @@ Error AudioDriverALSA::init_device() {
         status = snd_pcm_open(&pcm_handle, String(device).c_str(), SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     }
 
-    ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(status < 0, ERR_CANT_OPEN);
 
     snd_pcm_hw_params_alloca(&hwparams);
 
     status = snd_pcm_hw_params_any(pcm_handle, hwparams);
-    CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0);
 
     status = snd_pcm_hw_params_set_access(pcm_handle, hwparams, SND_PCM_ACCESS_RW_INTERLEAVED);
-    CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0);
 
     //not interested in anything else
     status = snd_pcm_hw_params_set_format(pcm_handle, hwparams, SND_PCM_FORMAT_S16_LE);
-    CHECK_FAIL(status < 0)
+    CHECK_FAIL(status < 0);
 
     //todo: support 4 and 6
     status = snd_pcm_hw_params_set_channels(pcm_handle, hwparams, 2);

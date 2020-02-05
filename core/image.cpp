@@ -1437,7 +1437,7 @@ static void _generate_po2_mipmap(const Component *p_src, Component *p_dst, uint3
 
 void Image::expand_x2_hq2x() {
 
-    ERR_FAIL_COND(!_can_modify(format))
+    ERR_FAIL_COND(!_can_modify(format));
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1477,7 +1477,7 @@ void Image::expand_x2_hq2x() {
 
 void Image::shrink_x2() {
 
-    ERR_FAIL_COND(data.size() == 0)
+    ERR_FAIL_COND(data.size() == 0);
 
     if (mipmaps) {
 
@@ -1488,8 +1488,8 @@ void Image::shrink_x2() {
 
         int new_size = data.size() - ofs;
         new_img.resize(new_size);
-        ERR_FAIL_COND(new_img.size() == 0)
-        ERR_FAIL_COND(data.size() == 0)
+        ERR_FAIL_COND(new_img.empty());
+        ERR_FAIL_COND(data.empty());
         {
             PoolVector<uint8_t>::Write w = new_img.write();
             PoolVector<uint8_t>::Read r = data.read();
@@ -1505,10 +1505,10 @@ void Image::shrink_x2() {
 
         PoolVector<uint8_t> new_img;
 
-        ERR_FAIL_COND(!_can_modify(format))
+        ERR_FAIL_COND(!_can_modify(format));
         int ps = get_format_pixel_size(format);
         new_img.resize((width / 2) * (height / 2) * ps);
-        ERR_FAIL_COND(new_img.size() == 0)
+        ERR_FAIL_COND(new_img.size() == 0);
 
         {
             PoolVector<uint8_t>::Write w = new_img.write();
@@ -1795,10 +1795,10 @@ void Image::create(const char **p_xpm) {
                 size_height = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 1));
                 colormap_size = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 2));
                 pixelchars = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 3));
-                ERR_FAIL_COND(colormap_size > 32766)
-                ERR_FAIL_COND(pixelchars > 5)
-                ERR_FAIL_COND(size_width > 32767)
-                ERR_FAIL_COND(size_height > 32767)
+                ERR_FAIL_COND(colormap_size > 32766);
+                ERR_FAIL_COND(pixelchars > 5);
+                ERR_FAIL_COND(size_width > 32767);
+                ERR_FAIL_COND(size_height > 32767);
                 status = READING_COLORS;
             } break;
             case READING_COLORS: {
@@ -1877,7 +1877,7 @@ void Image::create(const char **p_xpm) {
                     se_string_view pixelstr(line_ptr+x * pixelchars,pixelchars);
 
                     auto colorptr = colormap.find(pixelstr);
-                    ERR_FAIL_COND(colorptr!=colormap.end())
+                    ERR_FAIL_COND(colorptr!=colormap.end());
                     uint8_t pixel[4];
                     for (uint32_t i = 0; i < pixel_size; i++) {
                         pixel[i] = CLAMP<float>(colorptr->second[i] * 255, 0, 255);
@@ -2179,10 +2179,10 @@ void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Po
     ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.")
     int dsize = data.size();
     int srcdsize = p_src->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(format != p_src->format)
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot blit_rect in compressed or custom image formats.")
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(format != p_src->format);
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot blit_rect in compressed or custom image formats.");
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2232,12 +2232,12 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(maskdsize == 0)
-    ERR_FAIL_COND_MSG(p_src->width != p_mask->width, "Source image width is different from mask width.")
-    ERR_FAIL_COND_MSG(p_src->height != p_mask->height, "Source image height is different from mask height.")
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(maskdsize == 0);
+    ERR_FAIL_COND_MSG(p_src->width != p_mask->width, "Source image width is different from mask width.");
+    ERR_FAIL_COND_MSG(p_src->height != p_mask->height, "Source image height is different from mask height.");
+    ERR_FAIL_COND(format != p_src->format);
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2290,12 +2290,12 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
 
 void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(not p_src)
+    ERR_FAIL_COND(not p_src);
     int dsize = data.size();
     int srcdsize = p_src->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(format != p_src->format);
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2340,17 +2340,17 @@ void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const P
 
 void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(not p_src)
-    ERR_FAIL_COND(not p_mask)
+    ERR_FAIL_COND(not p_src);
+    ERR_FAIL_COND(not p_mask);
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(maskdsize == 0)
-    ERR_FAIL_COND(p_src->width != p_mask->width)
-    ERR_FAIL_COND(p_src->height != p_mask->height)
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(maskdsize == 0);
+    ERR_FAIL_COND(p_src->width != p_mask->width);
+    ERR_FAIL_COND(p_src->height != p_mask->height);
+    ERR_FAIL_COND(format != p_src->format);
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2487,11 +2487,11 @@ Ref<Image> Image::lossless_unpacker(const PODVector<uint8_t> &p_data)
 
 void Image::_set_data(const Dictionary &p_data) {
 
-    ERR_FAIL_COND(!p_data.has("width"))
-    ERR_FAIL_COND(!p_data.has("height"))
-    ERR_FAIL_COND(!p_data.has("format"))
-    ERR_FAIL_COND(!p_data.has("mipmaps"))
-    ERR_FAIL_COND(!p_data.has("data"))
+    ERR_FAIL_COND(!p_data.has("width"));
+    ERR_FAIL_COND(!p_data.has("height"));
+    ERR_FAIL_COND(!p_data.has("format"));
+    ERR_FAIL_COND(!p_data.has("mipmaps"));
+    ERR_FAIL_COND(!p_data.has("data"));
 
     int dwidth = p_data["width"];
     int dheight = p_data["height"];
@@ -2506,7 +2506,7 @@ void Image::_set_data(const Dictionary &p_data) {
         }
     }
 
-    ERR_FAIL_COND(ddformat == FORMAT_MAX)
+    ERR_FAIL_COND(ddformat == FORMAT_MAX);
 
     create(dwidth, dheight, dmipmaps, ddformat, ddata);
 }
@@ -2524,7 +2524,7 @@ Dictionary Image::_get_data() const {
 
 void Image::lock() {
 
-    ERR_FAIL_COND(data.size() == 0)
+    ERR_FAIL_COND(data.size() == 0);
     write_lock = data.write();
 }
 
@@ -3042,7 +3042,7 @@ Ref<Image> Image::rgbe_to_srgb() {
 }
 
 void Image::bumpmap_to_normalmap(float bump_scale) {
-    ERR_FAIL_COND(!_can_modify(format))
+    ERR_FAIL_COND(!_can_modify(format));
     convert(Image::FORMAT_RF);
 
     PoolVector<uint8_t> result_image; //rgba output
@@ -3098,7 +3098,7 @@ void Image::srgb_to_linear() {
         175, 176, 178, 180, 182, 184, 186, 188, 190, 192, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215,
         218, 220, 222, 224, 226, 228, 230, 232, 235, 237, 239, 241, 243, 245, 248, 250, 252, 255 };
 
-    ERR_FAIL_COND(format != FORMAT_RGB8 && format != FORMAT_RGBA8)
+    ERR_FAIL_COND(format != FORMAT_RGB8 && format != FORMAT_RGBA8);
 
     if (format == FORMAT_RGBA8) {
 

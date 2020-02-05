@@ -313,7 +313,7 @@ private:
                         break;
                     }
                 }
-                ERR_FAIL_COND(!new_root)
+                ERR_FAIL_COND(!new_root);
                 new_root->parent = nullptr;
                 new_root->parent_index = -1;
             }
@@ -776,7 +776,7 @@ void Octree<T, use_pairs, AL>::_remove_element(Element *p_element) {
 
         int remaining = p_element->pair_list.size();
         //p_element->pair_list.clear();
-        ERR_FAIL_COND(remaining)
+        ERR_FAIL_COND(remaining);
     }
 }
 
@@ -825,18 +825,18 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
 
 #ifdef DEBUG_ENABLED
     // check for AABB validity
-    ERR_FAIL_COND(p_aabb.position.x > 1e15 || p_aabb.position.x < -1e15)
-    ERR_FAIL_COND(p_aabb.position.y > 1e15 || p_aabb.position.y < -1e15)
-    ERR_FAIL_COND(p_aabb.position.z > 1e15 || p_aabb.position.z < -1e15)
-    ERR_FAIL_COND(p_aabb.size.x > 1e15 || p_aabb.size.x < 0.0)
-    ERR_FAIL_COND(p_aabb.size.y > 1e15 || p_aabb.size.y < 0.0)
-    ERR_FAIL_COND(p_aabb.size.z > 1e15 || p_aabb.size.z < 0.0)
-    ERR_FAIL_COND(Math::is_nan(p_aabb.size.x))
-    ERR_FAIL_COND(Math::is_nan(p_aabb.size.y))
-    ERR_FAIL_COND(Math::is_nan(p_aabb.size.z))
+    ERR_FAIL_COND(p_aabb.position.x > 1e15 || p_aabb.position.x < -1e15);
+    ERR_FAIL_COND(p_aabb.position.y > 1e15 || p_aabb.position.y < -1e15);
+    ERR_FAIL_COND(p_aabb.position.z > 1e15 || p_aabb.position.z < -1e15);
+    ERR_FAIL_COND(p_aabb.size.x > 1e15 || p_aabb.size.x < 0.0);
+    ERR_FAIL_COND(p_aabb.size.y > 1e15 || p_aabb.size.y < 0.0);
+    ERR_FAIL_COND(p_aabb.size.z > 1e15 || p_aabb.size.z < 0.0);
+    ERR_FAIL_COND(Math::is_nan(p_aabb.size.x));
+    ERR_FAIL_COND(Math::is_nan(p_aabb.size.y));
+    ERR_FAIL_COND(Math::is_nan(p_aabb.size.z));
 #endif
     typename ElementMap::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     Element &e = E->second;
 
     bool old_has_surf = !e.aabb.has_no_surface();
@@ -878,13 +878,13 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
     combined.merge_with(p_aabb);
     _ensure_valid_root(combined);
 
-    ERR_FAIL_COND(e.octant_owners.front() == nullptr)
+    ERR_FAIL_COND(e.octant_owners.front() == nullptr);
 
     /* FIND COMMON PARENT */
 
     List<typename Element::OctantOwner, AL> owners = e.octant_owners; // save the octant owners
     Octant *common_parent = e.common_parent;
-    ERR_FAIL_COND(!common_parent)
+    ERR_FAIL_COND(!common_parent);
 
     //src is now the place towards where insertion is going to happen
     pass++;
@@ -892,7 +892,7 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
     while (common_parent && !common_parent->aabb.encloses(p_aabb))
         common_parent = common_parent->parent;
 
-    ERR_FAIL_COND(!common_parent)
+    ERR_FAIL_COND(!common_parent);
 
     //prepare for reinsert
     e.octant_owners.clear();
@@ -951,7 +951,7 @@ template <class T, bool use_pairs, class AL>
 void Octree<T, use_pairs, AL>::set_pairable(OctreeElementID p_id, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
 
     typename ElementMap::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 
@@ -979,7 +979,7 @@ template <class T, bool use_pairs, class AL>
 void Octree<T, use_pairs, AL>::erase(OctreeElementID p_id) {
 
     typename ElementMap::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 

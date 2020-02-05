@@ -139,7 +139,7 @@ void TriangleMesh::create(const PoolVector<Vector3> &p_faces) {
     valid = false;
 
     int fc = p_faces.size();
-    ERR_FAIL_COND(!fc || ((fc % 3) != 0))
+    ERR_FAIL_COND(!fc || ((fc % 3) != 0));
     fc /= 3;
     triangles.resize(fc);
 

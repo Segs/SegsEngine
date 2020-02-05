@@ -103,13 +103,13 @@ void Array::_ref(const Array &p_from) const {
 
     ArrayPrivate *_fp = p_from._p;
 
-    ERR_FAIL_COND(!_fp) // should NOT happen.
+    ERR_FAIL_COND(!_fp); // should NOT happen.
 
     if (_fp == _p) return; // whatever it is, nothing to do here move along
 
     bool success = _fp->refcount.ref();
 
-    ERR_FAIL_COND(!success) // should really not happen either
+    ERR_FAIL_COND(!success); // should really not happen either
 
     _unref();
 

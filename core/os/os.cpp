@@ -254,7 +254,7 @@ void OS::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const
 
 void OS::print_all_resources(se_string_view p_to_file) {
 
-    ERR_FAIL_COND(!p_to_file.empty() && _OSPRF)
+    ERR_FAIL_COND(!p_to_file.empty() && _OSPRF);
     if (!p_to_file.empty()) {
 
         Error err;

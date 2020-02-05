@@ -721,7 +721,7 @@ Error HTTPClient::_get_http_data(uint8_t *p_buffer, int p_bytes, int &r_received
 }
 
 void HTTPClient::set_read_chunk_size(int p_size) {
-    ERR_FAIL_COND(p_size < 256 || p_size > (1 << 24))
+    ERR_FAIL_COND(p_size < 256 || p_size > (1 << 24));
     read_chunk_size = p_size;
 }
 int HTTPClient::get_read_chunk_size() const {

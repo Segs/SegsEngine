@@ -480,8 +480,8 @@ int StreamPeerBuffer::get_available_bytes() const {
 
 void StreamPeerBuffer::seek(int p_pos) {
 
-    ERR_FAIL_COND(p_pos < 0)
-    ERR_FAIL_COND(p_pos > data.size())
+    ERR_FAIL_COND(p_pos < 0);
+    ERR_FAIL_COND(p_pos > data.size());
     pointer = p_pos;
 }
 int StreamPeerBuffer::get_size() const {

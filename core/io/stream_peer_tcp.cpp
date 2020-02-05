@@ -248,7 +248,7 @@ Error StreamPeerTCP::read(uint8_t *p_buffer, int p_bytes, int &r_received, bool 
 
 void StreamPeerTCP::set_no_delay(bool p_enabled) {
 
-    ERR_FAIL_COND(!is_connected_to_host())
+    ERR_FAIL_COND(!is_connected_to_host());
     _sock->set_tcp_no_delay_enabled(p_enabled);
 }
 

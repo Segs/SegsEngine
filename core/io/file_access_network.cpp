@@ -150,7 +150,7 @@ void FileAccessNetworkClient::_thread_func() {
         if (response != FileAccessNetwork::RESPONSE_DATA) {
             if (!accesses.contains(id)) {
                 unlock_mutex();
-                ERR_FAIL_COND(!accesses.contains(id))
+                ERR_FAIL_COND(!accesses.contains(id));
             }
         }
 
@@ -284,9 +284,9 @@ void FileAccessNetwork::_set_block(int p_offset, const PODVector<uint8_t> &p_blo
     int page = p_offset / page_size;
     ERR_FAIL_INDEX(page, D_PRIV()->pages.size())
     if (page < D_PRIV()->pages.size() - 1) {
-        ERR_FAIL_COND(p_block.size() != page_size)
+        ERR_FAIL_COND(p_block.size() != page_size);
     } else {
-        ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)))
+        ERR_FAIL_COND((p_block.size() != (int)(total_size % page_size)));
     }
 
     buffer_mutex->lock();

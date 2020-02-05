@@ -567,8 +567,8 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(se_string_view p
 
 void ResourceLoader::add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front) {
 
-    ERR_FAIL_COND(not p_format_loader)
-    ERR_FAIL_COND(loader_count >= MAX_LOADERS)
+    ERR_FAIL_COND(not p_format_loader);
+    ERR_FAIL_COND(loader_count >= MAX_LOADERS);
 
     if (p_at_front) {
         for (int i = loader_count; i > 0; i--) {
@@ -583,14 +583,14 @@ void ResourceLoader::add_resource_format_loader(const Ref<ResourceFormatLoader>&
 
 void ResourceLoader::add_resource_format_loader(ResourceLoaderInterface *p_format_loader, bool p_at_front)
 {
-    ERR_FAIL_COND(not p_format_loader)
-    ERR_FAIL_COND(loader_count >= MAX_LOADERS)
+    ERR_FAIL_COND(not p_format_loader);
+    ERR_FAIL_COND(loader_count >= MAX_LOADERS);
 #ifdef DEBUG_ENABLED
     for(int i=0; i<loader_count; ++i)
     {
         Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(loader[i]);
         if(fmt) {
-            ERR_FAIL_COND(fmt->wrapped_same(p_format_loader))
+            ERR_FAIL_COND(fmt->wrapped_same(p_format_loader));
         }
     }
 #endif
@@ -610,7 +610,7 @@ void ResourceLoader::remove_resource_format_loader(const ResourceLoaderInterface
             break;
     }
 
-    ERR_FAIL_COND(i >= loader_count) // Not found
+    ERR_FAIL_COND(i >= loader_count); // Not found
 
     // Shift next loaders up
     for (; i < loader_count - 1; ++i) {
@@ -632,7 +632,7 @@ void ResourceLoader::remove_resource_format_loader(const Ref<ResourceFormatLoade
             break;
     }
 
-    ERR_FAIL_COND(i >= loader_count) // Not found
+    ERR_FAIL_COND(i >= loader_count); // Not found
 
     // Shift next loaders up
     for (; i < loader_count - 1; ++i) {
@@ -975,7 +975,7 @@ void ResourceLoader::load_path_remaps() {
 
     PoolVector<String> remaps = ProjectSettings::get_singleton()->get("path_remap/remapped_paths");
     int rc = remaps.size();
-    ERR_FAIL_COND(rc & 1) //must be even
+    ERR_FAIL_COND(rc & 1); //must be even
     PoolVector<String>::Read r = remaps.read();
 
     for (int i = 0; i < rc; i += 2) {

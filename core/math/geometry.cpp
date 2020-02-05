@@ -392,27 +392,27 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                 }
                 case _CELL_PREV_Y_POS: {
                     y++;
-                    ERR_FAIL_COND(y >= len_y)
+                    ERR_FAIL_COND(y >= len_y);
                 } break;
                 case _CELL_PREV_Y_NEG: {
                     y--;
-                    ERR_FAIL_COND(y < 0)
+                    ERR_FAIL_COND(y < 0);
                 } break;
                 case _CELL_PREV_X_POS: {
                     x++;
-                    ERR_FAIL_COND(x >= len_x)
+                    ERR_FAIL_COND(x >= len_x);
                 } break;
                 case _CELL_PREV_X_NEG: {
                     x--;
-                    ERR_FAIL_COND(x < 0)
+                    ERR_FAIL_COND(x < 0);
                 } break;
                 case _CELL_PREV_Z_POS: {
                     z++;
-                    ERR_FAIL_COND(z >= len_z)
+                    ERR_FAIL_COND(z >= len_z);
                 } break;
                 case _CELL_PREV_Z_NEG: {
                     z--;
-                    ERR_FAIL_COND(z < 0)
+                    ERR_FAIL_COND(z < 0);
                 } break;
                 default: {
                     ERR_FAIL()
@@ -1012,7 +1012,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
     // For example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
     // 256x8192 atlas (won't work anywhere).
 
-    ERR_FAIL_COND(p_rects.empty())
+    ERR_FAIL_COND(p_rects.empty());
 
     PODVector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());
