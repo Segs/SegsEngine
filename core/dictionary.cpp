@@ -186,7 +186,7 @@ void Dictionary::clear() {
 
 void Dictionary::_unref() const {
 
-    ERR_FAIL_COND(!_p)
+    ERR_FAIL_COND(!_p);
     if (_p->refcount.unref()) {
         memdelete(_p);
     }

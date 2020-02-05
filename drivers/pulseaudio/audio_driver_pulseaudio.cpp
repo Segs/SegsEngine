@@ -224,7 +224,7 @@ Error AudioDriverPulseAudio::init_device() {
     String dev = (device_name == "Default") ? "" : device_name;
     pa_stream_flags flags = pa_stream_flags(PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_ADJUST_LATENCY | PA_STREAM_AUTO_TIMING_UPDATE);
     int error_code = pa_stream_connect_playback(pa_str, dev.data(), &attr, flags, nullptr, nullptr);
-    ERR_FAIL_COND_V(error_code < 0, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(error_code < 0, ERR_CANT_OPEN);
 
     samples_in.resize(buffer_frames * channels);
     samples_out.resize(pa_buffer_size);
@@ -245,10 +245,10 @@ Error AudioDriverPulseAudio::init() {
     mix_rate = GLOBAL_DEF_RST("audio/mix_rate", DEFAULT_MIX_RATE);
 
     pa_ml = pa_mainloop_new();
-    ERR_FAIL_COND_V(pa_ml == nullptr, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(pa_ml == nullptr, ERR_CANT_OPEN);
 
     pa_ctx = pa_context_new(pa_mainloop_get_api(pa_ml), "Godot");
-    ERR_FAIL_COND_V(pa_ctx == nullptr, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(pa_ctx == nullptr, ERR_CANT_OPEN);
 
     pa_ready = 0;
     pa_context_set_state_callback(pa_ctx, pa_state_cb, (void *)this);

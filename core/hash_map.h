@@ -108,7 +108,7 @@ private:
 
     void make_hash_table() {
 
-        ERR_FAIL_COND(hash_table)
+        ERR_FAIL_COND(hash_table);
 
         hash_table = memnew_arr(Element *, (1 << MIN_HASH_TABLE_POWER));
 

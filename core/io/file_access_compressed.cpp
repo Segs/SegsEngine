@@ -198,13 +198,13 @@ void FileAccessCompressed::seek(size_t p_position) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
     if (writing) {
 
-        ERR_FAIL_COND(p_position > write_max)
+        ERR_FAIL_COND(p_position > write_max);
 
         write_pos = p_position;
 
     } else {
 
-        ERR_FAIL_COND(p_position > read_total)
+        ERR_FAIL_COND(p_position > read_total);
         if (p_position == read_total) {
             at_end = true;
         } else {

@@ -219,7 +219,7 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
     } while (0)
 
 #define ERR_FAIL_NULL_MSG(m_param, m_msg)                                                                   \
-do {                                                                                                        \
+    do {                                                                                                    \
         if (unlikely(!m_param)) {                                                                           \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Parameter ' \"" _STR(m_param) "\" ' is null.",DEBUG_STR(m_msg)); \
             return;                                                                                         \

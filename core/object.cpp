@@ -493,7 +493,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
     set(p_names[0], value_stack.back()->deref(), r_valid);
     value_stack.pop_back();
 
-    ERR_FAIL_COND(!value_stack.empty())
+    ERR_FAIL_COND(!value_stack.empty());
 }
 
 Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid) const {
@@ -856,9 +856,9 @@ void Object::cancel_delete() {
 void Object::set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance) {
 
     //this function is not meant to be used in any of these ways
-    ERR_FAIL_COND(p_script.is_null())
-    ERR_FAIL_COND(!p_instance)
-    ERR_FAIL_COND(script_instance != nullptr || !script.is_null())
+    ERR_FAIL_COND(p_script.is_null());
+    ERR_FAIL_COND(!p_instance);
+    ERR_FAIL_COND(script_instance != nullptr || !script.is_null());
 
     script = p_script;
     script_instance = p_instance;
@@ -1374,7 +1374,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
 
 bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const {
 
-    ERR_FAIL_NULL_V(p_to_object, false)
+    ERR_FAIL_NULL_V(p_to_object, false);
     const Signal *s = private_data->signal_map.getptr(p_signal);
     if (!s) {
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
@@ -1400,7 +1400,7 @@ void Object::disconnect(const StringName &p_signal, Object *p_to_object, const S
 }
 void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, bool p_force) {
 
-    ERR_FAIL_NULL(p_to_object)
+    ERR_FAIL_NULL(p_to_object);
     Signal *s = private_data->signal_map.getptr(p_signal);
     ERR_FAIL_COND_MSG(!s, FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()))
 

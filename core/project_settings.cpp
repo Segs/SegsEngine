@@ -921,17 +921,17 @@ PODVector<String> ProjectSettings::get_optimizer_presets() const {
 
 void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
 
-    ERR_FAIL_COND(!p_info.has("name"))
-    ERR_FAIL_COND(!p_info.has("type"))
+    ERR_FAIL_COND(!p_info.has("name"));
+    ERR_FAIL_COND(!p_info.has("type"));
 
     PropertyInfo pinfo;
     pinfo.name = p_info["name"];
-    ERR_FAIL_COND(!props.contains(pinfo.name))
-    pinfo.type = VariantType(p_info["type"].operator int());
-    ERR_FAIL_INDEX(int(pinfo.type), int(VariantType::VARIANT_MAX))
+    ERR_FAIL_COND(!props.contains(pinfo.name));
+    pinfo.type = VariantType(p_info["type"].as<int>());
+    ERR_FAIL_INDEX(int(pinfo.type), int(VariantType::VARIANT_MAX));
 
     if (p_info.has("hint"))
-        pinfo.hint = PropertyHint(p_info["hint"].operator int());
+        pinfo.hint = PropertyHint(p_info["hint"].as<int>());
     if (p_info.has("hint_string"))
         pinfo.hint_string = p_info["hint_string"].as<String>();
 
@@ -940,7 +940,7 @@ void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
 
 void ProjectSettings::set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info) {
 
-    ERR_FAIL_COND(!props.contains(p_prop))
+    ERR_FAIL_COND(!props.contains(p_prop));
     custom_prop_info[p_prop] = p_info;
     custom_prop_info[p_prop].name = p_prop;
 }

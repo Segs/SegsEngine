@@ -69,7 +69,7 @@ void Basis::invert() {
                  elements[0][1] * co[1] +
                  elements[0][2] * co[2];
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(det == 0.0f)
+    ERR_FAIL_COND(det == 0.0f);
 #endif
     real_t s = 1.0f / det;
 
@@ -81,7 +81,7 @@ void Basis::invert() {
 void Basis::orthonormalize() {
 
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(determinant() == 0.0f)
+    ERR_FAIL_COND(determinant() == 0.0f);
 #endif
 
     // Gram-Schmidt Process

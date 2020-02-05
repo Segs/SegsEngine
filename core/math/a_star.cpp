@@ -93,8 +93,8 @@ int AStar::get_available_point_id() const {
 
 void AStar::add_point(int p_id, const Vector3 &p_pos, real_t p_weight_scale) {
 
-    ERR_FAIL_COND(p_id < 0)
-    ERR_FAIL_COND(p_weight_scale < 1)
+    ERR_FAIL_COND(p_id < 0);
+    ERR_FAIL_COND(p_weight_scale < 1);
 
     AStarPoint *found_pt;
     bool p_exists = points.lookup(p_id, found_pt);
@@ -128,7 +128,7 @@ void AStar::set_point_position(int p_id, const Vector3 &p_pos) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
+    ERR_FAIL_COND(!p_exists);
 
     p->pos = p_pos;
 }
@@ -146,8 +146,8 @@ void AStar::set_point_weight_scale(int p_id, real_t p_weight_scale) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
-    ERR_FAIL_COND(p_weight_scale < 1)
+    ERR_FAIL_COND(!p_exists);
+    ERR_FAIL_COND(p_weight_scale < 1);
 
     p->weight_scale = p_weight_scale;
 }
@@ -156,7 +156,7 @@ void AStar::remove_point(int p_id) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
+    ERR_FAIL_COND(!p_exists);
 
     for (OAHashMap<int, AStarPoint *>::Iterator it = p->neighbours.iter(); it.valid; it = p->neighbours.next_iter(it)) {
 
@@ -570,7 +570,7 @@ void AStar::set_point_disabled(int p_id, bool p_disabled) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
+    ERR_FAIL_COND(!p_exists);
 
     p->enabled = !p_disabled;
 }

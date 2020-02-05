@@ -458,7 +458,7 @@ public:
     SPACE_SEP_LIST(DECL_PUSH_AND_SYNC, 13)
 
     void wait_and_flush_one() {
-        ERR_FAIL_COND(!sync)
+        ERR_FAIL_COND(!sync);
         sync->wait();
         flush_one();
     }

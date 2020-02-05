@@ -195,7 +195,7 @@ void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>&
     ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
     // Find saver
     auto iter = eastl::find(saver.begin(), saver.end(),p_format_saver);
-    ERR_FAIL_COND(iter == saver.end()) // Not found
+    ERR_FAIL_COND(iter == saver.end()); // Not found
 
     saver.erase(iter);
 }

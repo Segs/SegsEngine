@@ -181,7 +181,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         memcpy(&cw[compressed[i].offset], compressed[i].compressed.data(), compressed[i].compressed.size());
     }
 
-    ERR_FAIL_COND(btindex != bucket_table_size)
+    ERR_FAIL_COND(btindex != bucket_table_size);
     set_locale(p_from->get_locale());
 
 #endif

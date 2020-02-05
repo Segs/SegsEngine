@@ -405,9 +405,9 @@ public:
 
     void swap(Element *p_A, Element *p_B) {
 
-        ERR_FAIL_COND(!p_A || !p_B)
-        ERR_FAIL_COND(p_A->data != _data)
-        ERR_FAIL_COND(p_B->data != _data)
+        ERR_FAIL_COND(!p_A || !p_B);
+        ERR_FAIL_COND(p_A->data != _data);
+        ERR_FAIL_COND(p_B->data != _data);
 
         Element *A_prev = p_A->prev_ptr;
         Element *A_next = p_A->next_ptr;
@@ -754,7 +754,7 @@ public:
         clear();
         if (_data) {
 
-            ERR_FAIL_COND(_data->size_cache)
+            ERR_FAIL_COND(_data->size_cache);
             memdelete_allocator<_Data, A>(_data);
         }
     }

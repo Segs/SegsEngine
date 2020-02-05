@@ -114,7 +114,7 @@ void StringName::setup() {
 
     lock = memnew(Mutex);
 
-    ERR_FAIL_COND(configured)
+    ERR_FAIL_COND(configured);
     for (int i = 0; i < STRING_TABLE_LEN; i++) {
 
         _table[i] = nullptr;
@@ -154,7 +154,7 @@ void StringName::cleanup() {
 
 void StringName::unref() noexcept {
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
     assert(_data);
     if (_data->refcount.unref()) {
         MutexLock mlocker(*lock);
@@ -230,7 +230,7 @@ StringName::StringName(const StringName &p_name) {
 
     _data = nullptr;
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
 
     if (p_name._data && p_name._data->refcount.ref()) {
         _data = p_name._data;
@@ -243,7 +243,7 @@ StringName::StringName(const char *p_name) {
 
     _data = nullptr;
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
 
     if (!p_name || p_name[0] == 0)
         return; //empty, ignore
@@ -334,7 +334,7 @@ StringName::StringName(se_string_view p_name) {
 
     _data = nullptr;
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
 
     if (p_name.empty())
         return;

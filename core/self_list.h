@@ -44,7 +44,7 @@ public:
     public:
         void add(SelfList<T> *p_elem) {
 
-            ERR_FAIL_COND(p_elem->_root)
+            ERR_FAIL_COND(p_elem->_root);
 
             p_elem->_root = this;
             p_elem->_next = _first;
@@ -62,7 +62,7 @@ public:
 
         void add_last(SelfList<T> *p_elem) {
 
-            ERR_FAIL_COND(p_elem->_root)
+            ERR_FAIL_COND(p_elem->_root);
 
             p_elem->_root = this;
             p_elem->_next = nullptr;
@@ -80,7 +80,7 @@ public:
 
         void remove(SelfList<T> *p_elem) {
 
-            ERR_FAIL_COND(p_elem->_root != this)
+            ERR_FAIL_COND(p_elem->_root != this);
             if (p_elem->_next) {
                 p_elem->_next->_prev = p_elem->_prev;
             }

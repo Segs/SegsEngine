@@ -51,7 +51,7 @@ void Transform2D::affine_invert() {
 
     real_t det = basis_determinant();
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(det == 0.0f)
+    ERR_FAIL_COND(det == 0.0f);
 #endif
     real_t idet = 1.0f / det;
 

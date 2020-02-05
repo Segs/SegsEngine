@@ -6083,7 +6083,7 @@ struct _GizmoPluginNameComparator {
 };
 
 void SpatialEditor::add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin) {
-    ERR_FAIL_NULL(p_plugin.get())
+    ERR_FAIL_NULL(p_plugin.get());
 
     gizmo_plugins_by_priority.push_back(p_plugin);
     gizmo_plugins_by_priority.sort_custom<_GizmoPluginPriorityComparator>();

@@ -110,13 +110,13 @@ bool FileAccessMemory::is_open() const {
 
 void FileAccessMemory::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!data)
+    ERR_FAIL_COND(!data);
     pos = p_position;
 }
 
 void FileAccessMemory::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!data)
+    ERR_FAIL_COND(!data);
     pos = length + p_position;
 }
 
@@ -171,13 +171,13 @@ Error FileAccessMemory::get_error() const {
 }
 
 void FileAccessMemory::flush() {
-    ERR_FAIL_COND(!data)
+    ERR_FAIL_COND(!data);
 }
 
 void FileAccessMemory::store_8(uint8_t p_byte) {
 
-    ERR_FAIL_COND(!data)
-    ERR_FAIL_COND(pos >= length)
+    ERR_FAIL_COND(!data);
+    ERR_FAIL_COND(pos >= length);
     data[pos++] = p_byte;
 }
 
