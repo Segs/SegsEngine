@@ -552,6 +552,16 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
             edit_draw->update();
         }
     }
+    Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_input);
+    if (magnify_gesture) {
+        _zoom_on_position(draw_zoom * magnify_gesture->get_factor(), magnify_gesture->get_position());
+    }
+
+    Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_input);
+    if (pan_gesture) {
+        hscroll->set_value(hscroll->get_value() + hscroll->get_page() * pan_gesture->get_delta().x / 8);
+        vscroll->set_value(vscroll->get_value() + vscroll->get_page() * pan_gesture->get_delta().y / 8);
+    }
 }
 
 void TextureRegionEditor::_scroll_changed(float) {
