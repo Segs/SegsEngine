@@ -306,7 +306,7 @@ VisualShaderNodeCustom::VisualShaderNodeCustom() {
 void VisualShader::add_node(Type p_type, const Ref<VisualShaderNode> &p_node, const Vector2 &p_position, int p_id) {
     ERR_FAIL_COND(not p_node)
     ERR_FAIL_COND(p_id < 2)
-    ERR_FAIL_INDEX(p_type, TYPE_MAX)
+    ERR_FAIL_INDEX(p_type, TYPE_MAX);
     Graph *g = &graph[p_type];
     ERR_FAIL_COND(g->nodes.contains(p_id))
     Node n;
@@ -339,7 +339,7 @@ void VisualShader::add_node(Type p_type, const Ref<VisualShaderNode> &p_node, co
 }
 
 void VisualShader::set_node_position(Type p_type, int p_id, const Vector2 &p_position) {
-    ERR_FAIL_INDEX(p_type, TYPE_MAX)
+    ERR_FAIL_INDEX(p_type, TYPE_MAX);
     Graph *g = &graph[p_type];
     ERR_FAIL_COND(!g->nodes.contains(p_id))
     g->nodes[p_id].position = p_position;
@@ -521,7 +521,7 @@ Error VisualShader::connect_nodes(Type p_type, int p_from_node, int p_from_port,
     for (List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
-            ERR_FAIL_V(ERR_ALREADY_EXISTS)
+            ERR_FAIL_V(ERR_ALREADY_EXISTS);
         }
     }
 

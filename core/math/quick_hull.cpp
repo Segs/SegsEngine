@@ -445,10 +445,10 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
             Map<QHEdge, QHRetFaceConnect>::iterator F = ret_edges.find(e);
 
-            ERR_CONTINUE(F==ret_edges.end())
+            ERR_CONTINUE(F==ret_edges.end());
             List<Geometry::MeshData::Face>::Element *O = F->second.left == E ? F->second.right : F->second.left;
-            ERR_CONTINUE(O == E)
-            ERR_CONTINUE(O == nullptr)
+            ERR_CONTINUE(O == E);
+            ERR_CONTINUE(O == nullptr);
 
             if (O->deref().plane.is_equal_approx(f.plane)) {
                 //merge and delete edge and contiguous face, while repointing edges (uuugh!)
@@ -474,7 +474,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
                             QHEdge e2(idx, idxn);
 
                             Map<QHEdge, QHRetFaceConnect>::iterator F2 = ret_edges.find(e2);
-                            ERR_CONTINUE(F2==ret_edges.end())
+                            ERR_CONTINUE(F2==ret_edges.end());
                             //change faceconnect, point to this face instead
                             if (F2->second.left == O)
                                 F2->second.left = E;

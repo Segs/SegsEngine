@@ -2183,7 +2183,7 @@ OS::VideoMode OS_OSX::get_video_mode(int p_screen) const {
     return vm;
 }
 
-void OS_OSX::get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen) const {
+void OS_OSX::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
 }
 
 int OS_OSX::get_screen_count() const {

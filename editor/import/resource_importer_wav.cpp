@@ -111,7 +111,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
 
         file->close();
         memdelete(file);
-        ERR_FAIL_V(ERR_FILE_UNRECOGNIZED)
+        ERR_FAIL_V(ERR_FILE_UNRECOGNIZED);
     }
 
     /* GET FILESIZE */
@@ -127,7 +127,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
 
         file->close();
         memdelete(file);
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).")
+        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).");
     }
 
     uint16_t format_bits = 0;
@@ -169,14 +169,14 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             if (compression_code != 1 && compression_code != 3) {
                 file->close();
                 memdelete(file);
-                ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not PCM). Save WAVE files as uncompressed PCM instead.")
+                ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not PCM). Save WAVE files as uncompressed PCM instead.");
             }
 
             format_channels = file->get_16();
             if (format_channels != 1 && format_channels != 2) {
                 file->close();
                 memdelete(file);
-                ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not stereo or mono).")
+                ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not stereo or mono).");
             }
 
             format_freq = file->get_32(); //sampling rate
@@ -188,7 +188,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             if (format_bits % 8 || format_bits == 0) {
                 file->close();
                 memdelete(file);
-                ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Invalid amount of bits in the sample (should be one of 8, 16, 24 or 32).")
+                ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Invalid amount of bits in the sample (should be one of 8, 16, 24 or 32).");
             }
 
             /* Don't need anything else, continue */
@@ -200,7 +200,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             data_found = true;
 
             if (!format_found) {
-                ERR_PRINT("'data' chunk before 'format' chunk found.")
+                ERR_PRINT("'data' chunk before 'format' chunk found.");
                 break;
             }
 
@@ -258,7 +258,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
             if (file->eof_reached()) {
                 file->close();
                 memdelete(file);
-                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Premature end of file.")
+                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Premature end of file.");
             }
         }
 

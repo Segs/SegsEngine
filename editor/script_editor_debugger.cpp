@@ -350,7 +350,7 @@ void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
             FileAccessRef file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
             if (err != OK) {
-                ERR_PRINT("Failed to open " + String(p_file))
+                ERR_PRINT("Failed to open " + String(p_file));
                 return;
             }
             PODVector<String> line;
@@ -706,10 +706,10 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < p_data.size(); i++) {
 
             Dictionary d = p_data[i];
-            ERR_CONTINUE(!d.has("function"))
-            ERR_CONTINUE(!d.has("file"))
-            ERR_CONTINUE(!d.has("line"))
-            ERR_CONTINUE(!d.has("id"))
+            ERR_CONTINUE(!d.has("function"));
+            ERR_CONTINUE(!d.has("file"));
+            ERR_CONTINUE(!d.has("line"));
+            ERR_CONTINUE(!d.has("id"));
             TreeItem *s = stack_dump->create_item(r);
             d["frame"] = i;
             s->set_metadata(0, d);
@@ -843,11 +843,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     } else if (p_msg == "error") {
 
         // Should have at least two elements, error array and stack items count.
-        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger.")
+        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger."); 
 
         // Error or warning data.
         Array err = p_data[0];
-        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger.")
+        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger."); 
 
         // Format time.
         Array time_vals;

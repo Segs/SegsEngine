@@ -50,7 +50,7 @@ bool StyleBox::test_mask(const Point2 &p_point, const Rect2 &p_rect) const {
 }
 
 void StyleBox::set_default_margin(Margin p_margin, float p_value) {
-    ERR_FAIL_INDEX((int)p_margin, (int)Margin::Max)
+    ERR_FAIL_INDEX((int)p_margin, (int)Margin::Max);
 
     margin[(int)p_margin] = p_value;
     emit_changed();
@@ -272,7 +272,7 @@ Rect2 StyleBoxTexture::get_region_rect() const {
 }
 
 void StyleBoxTexture::set_h_axis_stretch_mode(AxisStretchMode p_mode) {
-    ERR_FAIL_INDEX((int)p_mode, 3)
+    ERR_FAIL_INDEX((int)p_mode, 3);
 
     axis_h = p_mode;
     emit_changed();
@@ -284,7 +284,7 @@ StyleBoxTexture::AxisStretchMode StyleBoxTexture::get_h_axis_stretch_mode() cons
 }
 
 void StyleBoxTexture::set_v_axis_stretch_mode(AxisStretchMode p_mode) {
-    ERR_FAIL_INDEX((int)p_mode, 3)
+    ERR_FAIL_INDEX((int)p_mode, 3);
 
     axis_v = p_mode;
     emit_changed();

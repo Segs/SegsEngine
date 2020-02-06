@@ -69,7 +69,7 @@ VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode)
 void Material::set_next_pass(const Ref<Material> &p_pass) {
 
     for (Ref<Material> pass_child = p_pass; pass_child != nullptr; pass_child = pass_child->get_next_pass()) {
-        ERR_FAIL_COND_MSG(pass_child == this, "Can't set as next_pass one of its parents to prevent crashes due to recursive loop.")
+        ERR_FAIL_COND_MSG(pass_child == this, "Can't set as next_pass one of its parents to prevent crashes due to recursive loop."); 
     }
 
     if (next_pass == p_pass)
@@ -1395,7 +1395,7 @@ SpatialMaterial::SpecularMode SpatialMaterial::get_specular_mode() const {
 
 void SpatialMaterial::set_flag(Flags p_flag, bool p_enabled) {
 
-    ERR_FAIL_INDEX(p_flag, FLAG_MAX)
+    ERR_FAIL_INDEX(p_flag, FLAG_MAX);
 
     if (flags[p_flag] == p_enabled)
         return;
@@ -1415,7 +1415,7 @@ bool SpatialMaterial::get_flag(Flags p_flag) const {
 
 void SpatialMaterial::set_feature(Feature p_feature, bool p_enabled) {
 
-    ERR_FAIL_INDEX(p_feature, FEATURE_MAX)
+    ERR_FAIL_INDEX(p_feature, FEATURE_MAX);
     if (features[p_feature] == p_enabled)
         return;
 
@@ -1432,7 +1432,7 @@ bool SpatialMaterial::get_feature(Feature p_feature) const {
 
 void SpatialMaterial::set_texture(TextureParam p_param, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_INDEX(p_param, TEXTURE_MAX)
+    ERR_FAIL_INDEX(p_param, TEXTURE_MAX);
     textures[p_param] = p_texture;
     RID rid = p_texture ? p_texture->get_rid() : RID();
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->texture_names[p_param], rid);
@@ -1781,7 +1781,7 @@ static Plane _get_texture_mask(SpatialMaterial::TextureChannel p_channel) {
 }
 
 void SpatialMaterial::set_metallic_texture_channel(TextureChannel p_channel) {
-    ERR_FAIL_INDEX(p_channel, 5)
+    ERR_FAIL_INDEX(p_channel, 5);
     metallic_texture_channel = p_channel;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->metallic_texture_channel, _get_texture_mask(p_channel));
 }
@@ -1792,7 +1792,7 @@ SpatialMaterial::TextureChannel SpatialMaterial::get_metallic_texture_channel() 
 
 void SpatialMaterial::set_roughness_texture_channel(TextureChannel p_channel) {
 
-    ERR_FAIL_INDEX(p_channel, 5)
+    ERR_FAIL_INDEX(p_channel, 5);
     roughness_texture_channel = p_channel;
     VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->roughness_texture_channel, _get_texture_mask(p_channel));
 }

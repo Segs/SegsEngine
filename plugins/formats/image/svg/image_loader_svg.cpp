@@ -103,7 +103,7 @@ Error ImageLoaderSVG::_create_image(ImageData &p_image, const PoolVector<uint8_t
     PoolVector<uint8_t>::Read src_r = p_data->read();
     svg_image = nsvgParse((char *)src_r.ptr(), "px", 96);
     if (svg_image == nullptr) {
-        ERR_PRINT("SVG Corrupted")
+        ERR_PRINT("SVG Corrupted");
         return ERR_FILE_CORRUPT;
     }
     if (params.p_convert_colors)

@@ -65,8 +65,8 @@ struct ErrorHandlerList {
 
 GODOT_EXPORT void add_error_handler(ErrorHandlerList *p_handler);
 GODOT_EXPORT void remove_error_handler(ErrorHandlerList *p_handler);
-GODOT_EXPORT void _err_print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_message ={}, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
-GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_view p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal = false);
+GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, se_string_view p_message ={}, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
+GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal = false);
 
 
 #ifndef _STR
@@ -111,7 +111,7 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
             _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, int64_t(m_size), _STR(m_index), _STR(m_size),""); \
             return;                                                                                                 \
         }                                                                                                           \
-    } while (0); // (*)
+    } while (0)
 
 /**
  * If `m_index` is less than 0 or greater than or equal to `m_size`, prints a custom
@@ -262,42 +262,42 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
  * Prints a generic error message for given condition
  */
 #define ERR_REPORT_COND(m_cond)\
-    _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true.");
+    _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true.")
 
 /**
  * If `m_cond` evaluates to `true`, prints a custom error message and returns from the function.
  */
 #define ERR_FAIL_COND_MSG(m_cond, m_msg)                                                                          \
-    {                                                                                                             \
+    do {                                                                                                          \
         if (unlikely(m_cond)) {                                                                                   \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true.", DEBUG_STR(m_msg)); \
             return;                                                                                               \
         }                                                                                                         \
-    }
+    } while (0)
 
 /**
  * If `m_cond` evaluates to `true`, crashes the engine immediately with a generic error message.
  * Only use this if there's no sensible fallback (i.e. the error is unrecoverable).
  */
 #define CRASH_COND(m_cond)                                                                                        \
-    {                                                                                                             \
+    do {                                                                                                          \
         if (unlikely(m_cond)) {                                                                                   \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' \"" _STR(m_cond) "\" ' is true."); \
             GENERATE_TRAP                                                                                         \
         }                                                                                                         \
-    }
+    } while (0)
 
 /**
  * If `m_cond` evaluates to `true`, crashes the engine immediately with a custom error message.
  * Only use this if there's no sensible fallback (i.e. the error is unrecoverable).
  */
 #define CRASH_COND_MSG(m_cond, m_msg)                                                                                    \
-    {                                                                                                                    \
+    do {                                                                                                                 \
         if (unlikely(m_cond)) {                                                                                          \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' \"" _STR(m_cond) "\" ' is true.", DEBUG_STR(m_msg)); \
             GENERATE_TRAP                                                                                                \
         }                                                                                                                \
-    }
+    } while (0)
 
 /**
  * If `m_cond` evaluates to `true`, prints a generic error message and returns the value specified in `m_retval`.
@@ -323,35 +323,36 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
  /**
  * If `m_cond` evaluates to `true`, prints a custom error message and continues the loop the macro is located in.
  */
-#define ERR_CONTINUE(m_cond)                                                                                             \
-    {                                                                                                                    \
+#define ERR_CONTINUE(m_cond)                                                                                            \
+    do {                                                                                                                \
         if (unlikely(m_cond)) {                                                                                          \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Continuing..:"); \
             continue;                                                                                                    \
         }                                                                                                                \
-    }
+    } while (0)
 
 /**
  * If `m_cond` evaluates to `true`, prints a custom error message and continues the loop the macro is located in.
  */
 #define ERR_CONTINUE_MSG(m_cond, m_msg)                                                                                         \
-    {                                                                                                                           \
+    do {                                                                                                                \
         if (unlikely(m_cond)) {                                                                                                 \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Continuing..:", DEBUG_STR(m_msg)); \
             continue;                                                                                                           \
         }                                                                                                                       \
-    }
+    } while (0)
 
 /**
  * If `m_cond` evaluates to `true`, prints a generic error message and breaks from the loop the macro is located in.
  */
 #define ERR_BREAK(m_cond)                                                                                              \
-    {                                                                                                                  \
+    do {                                                                                                                \
         if (unlikely(m_cond)) {                                                                                        \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"" _STR(m_cond) "\" ' is true. Breaking..:"); \
             break;                                                                                                     \
         }                                                                                                              \
-    }
+    } while (0)
+
 /**
  * If `m_cond` evaluates to `true`, prints a custom error message and breaks from the loop the macro is located in.
  */
@@ -367,67 +368,69 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
  * Prints a generic error message and returns from the function.
  */
 #define ERR_FAIL()                                                                     \
-    {                                                                                  \
+    do {                                                                               \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed."); \
         return;                                                                        \
-    }
+    } while(0)
 
-#define ERR_FAIL_MSG(m_msg)                                                                   \
-    {                                                                                         \
+#define ERR_FAIL_MSG(m_msg)                                                                              \
+    do {                                                                                                 \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed.", DEBUG_STR(m_msg)); \
-        return;                                                                               \
-    }
+        return;                                                                                          \
+    } while(0)
 
 /** Print an error string and return with value
  */
 
 #define ERR_FAIL_V(m_value)                                                                                       \
-    {                                                                                                             \
+    do {                                                                                                          \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed, returning: " __STR(m_value)); \
         return m_value;                                                                                           \
-    }
+    } while(0)
 
 #define ERR_FAIL_V_MSG(m_value, m_msg)                                                                                   \
-    {                                                                                                                    \
+    do {                                                                                                          \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Method/Function Failed, returning: " __STR(m_value), DEBUG_STR(m_msg)); \
         return m_value;                                                                                                  \
-    }
+    } while(0)
+
 /** Use this one if there is no sensible fallback, that is, the error is unrecoverable.
  */
 
 #define CRASH_NOW()                                                                           \
-    {                                                                                         \
+    do {                                                              \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Method/Function Failed."); \
         GENERATE_TRAP                                                                         \
-    }
+    } while(0)
 
 #define CRASH_NOW_MSG(m_msg)                                                                         \
-    {                                                                                                \
+    do {                                                              \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Method/Function Failed.", DEBUG_STR(m_msg)); \
         GENERATE_TRAP                                                                                \
-    }
+    } while(0)
 
 
 /** Print an error string.
  */
 
 #define ERR_PRINT(m_string)                                           \
-    {                                                                 \
+    do {                                                              \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string); \
-    }
+    } while(0)
+
 #define ERR_PRINTF(fmt,...)                                           \
-    {                                                                 \
+    do {                                                              \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, FormatVE(fmt,__VA_ARGS__)); \
-    }
+    } while(0)
 
 #define ERR_PRINT_ONCE(m_string)                                          \
-    {                                                                     \
+    do {                                                                  \
         static bool first_print = true;                                   \
         if (first_print) {                                                \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, m_string); \
             first_print = false;                                          \
         }                                                                 \
-    }
+    } while(0)
 
 /** Print a warning string.
  */
@@ -450,10 +453,10 @@ GODOT_EXPORT void _err_print_index_error(se_string_view p_function, se_string_vi
  * This should be preferred to `WARN_PRINT` for deprecation warnings.
  */
 #define WARN_DEPRECATED_MSG(m_msg)                                                                                                                               \
-    {                                                                                                                                                            \
+    do {                                                                                        \
         static volatile bool warning_shown = false;                                                                                                              \
         if (!warning_shown) {                                                                                                                                    \
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "This method has been deprecated and will be removed in the future.", DEBUG_STR(m_msg), ERR_HANDLER_WARNING); \
             warning_shown = true;                                                                                                                                \
         }                                                                                                                                                        \
-    }
+    } while(0)

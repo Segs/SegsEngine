@@ -852,7 +852,7 @@ void Translation::set_locale(se_string_view p_locale) {
     if (!TranslationServer::is_locale_valid(univ_locale)) {
         se_string_view trimmed_locale = TranslationServer::get_language_code(univ_locale);
 
-        ERR_FAIL_COND_MSG(!TranslationServer::is_locale_valid(trimmed_locale), "Invalid locale: " + String(trimmed_locale) + ".")
+        ERR_FAIL_COND_MSG(!TranslationServer::is_locale_valid(trimmed_locale), "Invalid locale: " + String(trimmed_locale) + ".");
 
         locale = trimmed_locale;
     } else {
@@ -974,7 +974,7 @@ void TranslationServer::set_locale(se_string_view p_locale) {
                 trimmed_locale.size(), trimmed_locale));
 
         if (!is_locale_valid(trimmed_locale)) {
-            ERR_PRINT(vformat("Unsupported locale '%s', falling back to 'en'.", trimmed_locale))
+            ERR_PRINT(vformat("Unsupported locale '%s', falling back to 'en'.", trimmed_locale));
             locale = "en";
         } else {
             locale = trimmed_locale;

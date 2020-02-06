@@ -146,7 +146,7 @@ void PhysicsBody::add_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject."); 
     PhysicsServer::get_singleton()->body_add_collision_exception(get_rid(), collision_object->get_rid());
 }
 
@@ -154,7 +154,7 @@ void PhysicsBody::remove_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject."); 
     PhysicsServer::get_singleton()->body_remove_collision_exception(get_rid(), collision_object->get_rid());
 }
 
@@ -756,7 +756,7 @@ void RigidBody::set_contact_monitor(bool p_enabled) {
 
     if (!p_enabled) {
 
-        ERR_FAIL_COND_MSG(contact_monitor->locked, "Can't disable contact monitoring during in/out callback. Use call_deferred(\"set_contact_monitor\", false) instead.")
+        ERR_FAIL_COND_MSG(contact_monitor->locked, "Can't disable contact monitoring during in/out callback. Use call_deferred(\"set_contact_monitor\", false) instead."); 
 
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 

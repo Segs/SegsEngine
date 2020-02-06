@@ -1790,8 +1790,8 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
 
     int lc = e->instance->light_instances.size();
     if (lc) {
-
-        const RID *lights = e->instance->light_instances.ptr();
+        auto rd(e->instance->light_instances.read());
+        const RID *lights = rd.ptr();
 
         for (int i = 0; i < lc; i++) {
             LightInstance *li = light_instance_owner.getornull(lights[i]);
@@ -1826,8 +1826,8 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
     int rc = e->instance->reflection_probe_instances.size();
 
     if (rc) {
-
-        const RID *reflections = e->instance->reflection_probe_instances.ptr();
+        auto rd(e->instance->reflection_probe_instances.read());
+        const RID *reflections = rd.ptr();
 
         for (int i = 0; i < rc; i++) {
             ReflectionProbeInstance *rpi = reflection_probe_instance_owner.getptr(reflections[i]);
@@ -1847,7 +1847,8 @@ void RasterizerSceneGLES3::_setup_light(RenderList::Element *e, const Transform 
 
     int gi_probe_count = e->instance->gi_probe_instances.size();
     if (gi_probe_count) {
-        const RID *ridp = e->instance->gi_probe_instances.ptr();
+        auto rd(e->instance->gi_probe_instances.read());
+        const RID *ridp = rd.ptr();
 
         GIProbeInstance *gipi = gi_probe_instance_owner.getptr(ridp[0]);
 
@@ -2793,7 +2794,7 @@ void RasterizerSceneGLES3::_setup_lights(RID *p_light_cull_result, int p_light_c
                     uint32_t quadrant = (key >> ShadowAtlas::QUADRANT_SHIFT) & 0x3;
                     uint32_t shadow = key & ShadowAtlas::SHADOW_INDEX_MASK;
 
-                    ERR_CONTINUE(shadow >= (uint32_t)shadow_atlas->quadrants[quadrant].shadows.size())
+                    ERR_CONTINUE(shadow >= (uint32_t)shadow_atlas->quadrants[quadrant].shadows.size());
 
                     uint32_t atlas_size = shadow_atlas->size;
                     uint32_t quadrant_size = atlas_size >> 1;
@@ -4227,7 +4228,7 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
                 current_fbo = storage->frame.current_rt->buffers.fbo;
             } else {
                 if (storage->frame.current_rt->effects.mip_maps[0].sizes.empty()) {
-                    ERR_PRINT_ONCE("Can't use canvas background mode in a render target configured without sampling")
+                    ERR_PRINT_ONCE("Can't use canvas background mode in a render target configured without sampling");
                     return;
                 }
                 current_fbo = storage->frame.current_rt->effects.mip_maps[0].sizes[0].fbo;
@@ -4853,7 +4854,7 @@ bool RasterizerSceneGLES3::free(RID p_rid) {
         //remove from shadow atlases..
         for (const RID &E : light_instance->shadow_atlases) {
             ShadowAtlas *shadow_atlas = shadow_atlas_owner.get(E);
-            ERR_CONTINUE(!shadow_atlas->shadow_owners.contains(p_rid))
+            ERR_CONTINUE(!shadow_atlas->shadow_owners.contains(p_rid));
             uint32_t key = shadow_atlas->shadow_owners[p_rid];
             uint32_t q = (key >> ShadowAtlas::QUADRANT_SHIFT) & 0x3;
             uint32_t s = key & ShadowAtlas::SHADOW_INDEX_MASK;
@@ -5052,7 +5053,7 @@ void RasterizerSceneGLES3::initialize() {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, directional_shadow.depth, 0);
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
-            ERR_PRINT("Directional shadow framebuffer status invalid")
+            ERR_PRINT("Directional shadow framebuffer status invalid");
         }
     }
 
@@ -5155,7 +5156,7 @@ void RasterizerSceneGLES3::initialize() {
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, cube.depth, 0);
 
                 GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-                ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE)
+                ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE);
             }
 
             reflection_cubemaps.push_back(cube);
@@ -5232,7 +5233,7 @@ void RasterizerSceneGLES3::initialize() {
         max_exposure_shrink_size /= 3;
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE)
+        ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE);
     }
 
     state.debug_draw = VS::VIEWPORT_DEBUG_DRAW_DISABLED;

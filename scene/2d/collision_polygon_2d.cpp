@@ -218,7 +218,7 @@ void CollisionPolygon2D::set_polygon(const PODVector<Point2> &p_polygon) {
 
 void CollisionPolygon2D::set_build_mode(BuildMode p_mode) {
 
-    ERR_FAIL_INDEX((int)p_mode, 2)
+    ERR_FAIL_INDEX((int)p_mode, 2);
     build_mode = p_mode;
     if (parent) {
         _build_polygon();

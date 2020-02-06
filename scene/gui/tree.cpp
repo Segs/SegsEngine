@@ -215,7 +215,7 @@ String TreeItem::get_text(int p_column) const {
 
 void TreeItem::set_suffix(int p_column, String p_suffix) {
 
-    ERR_FAIL_INDEX(p_column, cells.size())
+    ERR_FAIL_INDEX(p_column, cells.size());
     cells[p_column].suffix = std::move(p_suffix);
 
     _changed_notify(p_column);

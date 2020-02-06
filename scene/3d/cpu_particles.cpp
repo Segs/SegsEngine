@@ -371,7 +371,7 @@ bool CPUParticles::get_particle_flag(Flags p_flag) const {
 }
 
 void CPUParticles::set_emission_shape(EmissionShape p_shape) {
-    ERR_FAIL_INDEX(p_shape, EMISSION_SHAPE_MAX)
+    ERR_FAIL_INDEX(p_shape, EMISSION_SHAPE_MAX);
 
     emission_shape = p_shape;
 }

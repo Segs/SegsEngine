@@ -207,7 +207,7 @@ void ResourcePreloaderEditor::_update_library() {
 
         RES r(preloader->get_resource(E));
 
-        ERR_CONTINUE(not r)
+        ERR_CONTINUE(not r);
 
         StringName type(r->get_class());
         ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type));

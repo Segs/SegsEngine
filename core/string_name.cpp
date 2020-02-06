@@ -163,7 +163,7 @@ void StringName::unref() noexcept {
             _data->prev->next = _data->next;
         } else {
             if (_table[_data->idx] != _data) {
-                ERR_PRINT("BUG!")
+                ERR_PRINT("BUG!");
             }
             _table[_data->idx] = _data->next;
         }

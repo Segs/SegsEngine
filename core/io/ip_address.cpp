@@ -84,7 +84,7 @@ static void _parse_hex(se_string_view p_string, int p_start, uint8_t *p_dst) {
         } else if (c == ':') {
             break;
         } else {
-            ERR_FAIL_MSG("Invalid character in IPv6 address: " + String(p_string) + ".")
+            ERR_FAIL_MSG("Invalid character in IPv6 address: " + String(p_string) + ".");
         }
         ret = ret << 4;
         ret += n;
@@ -128,7 +128,7 @@ void IP_Address::_parse_ipv6(se_string_view p_string) {
                 ++parts_count;
             }
         } else {
-            ERR_FAIL_MSG("Invalid character in IPv6 address: " + String(p_string) + ".")
+            ERR_FAIL_MSG("Invalid character in IPv6 address: " + String(p_string) + ".");
         }
     }
 
@@ -166,7 +166,7 @@ void IP_Address::_parse_ipv4(se_string_view p_string, int p_start, uint8_t *p_re
     }
 
     int slices = StringUtils::get_slice_count(ip,'.');
-    ERR_FAIL_COND_MSG(slices != 4, "Invalid IP address string: " + String(ip) + ".")
+    ERR_FAIL_COND_MSG(slices != 4, "Invalid IP address string: " + String(ip) + ".");
     for (int i = 0; i < 4; i++) {
         p_ret[i] = StringUtils::to_int(StringUtils::get_slice(ip,'.', i));
     }
@@ -227,7 +227,7 @@ IP_Address::IP_Address(se_string_view _string) {
         valid = true;
 
     } else {
-        ERR_PRINT("Invalid IP address.")
+        ERR_PRINT("Invalid IP address.");
     }
 }
 

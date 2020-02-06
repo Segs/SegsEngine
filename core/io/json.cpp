@@ -231,7 +231,7 @@ Error JSON::_get_token(const CharType *p_str, int &index, int p_len, Token &r_to
                                         v = c.toLatin1() - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG")
+                                        ERR_PRINT("BUG");
                                         v = 0;
                                     }
 

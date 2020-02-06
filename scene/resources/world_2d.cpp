@@ -120,7 +120,7 @@ struct SpatialIndexer2D {
                     E->second.notifiers[p_notifier].inc();
                 } else {
 
-                    ERR_CONTINUE(E==cells.end())
+                    ERR_CONTINUE(E==cells.end());
                     if (E->second.notifiers[p_notifier].dec() == 0) {
 
                         E->second.notifiers.erase(p_notifier);

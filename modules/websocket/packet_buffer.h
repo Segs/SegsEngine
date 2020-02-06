@@ -49,12 +49,12 @@ public:
 #ifdef TOOLS_ENABLED
         // Verbose buffer warnings
         if (p_payload && _payload.space_left() < (int32_t)p_size) {
-            ERR_PRINT("Buffer payload full! Dropping data.")
-            ERR_FAIL_V(ERR_OUT_OF_MEMORY)
+            ERR_PRINT("Buffer payload full! Dropping data.");
+            ERR_FAIL_V(ERR_OUT_OF_MEMORY);
         }
         if (p_info && _packets.space_left() < 1) {
-            ERR_PRINT("Too many packets in queue! Dropping data.")
-            ERR_FAIL_V(ERR_OUT_OF_MEMORY)
+            ERR_PRINT("Too many packets in queue! Dropping data.");
+            ERR_FAIL_V(ERR_OUT_OF_MEMORY);
         }
 #else
         ERR_FAIL_COND_V(p_payload && (uint32_t)_payload.space_left() < p_size, ERR_OUT_OF_MEMORY);

@@ -298,7 +298,7 @@ String GDScriptLanguage::debug_get_stack_level_source(int p_level) const {
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].function->get_source().asCString();
 }
-void GDScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void GDScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_line >= 0)
         return;
@@ -308,16 +308,16 @@ void GDScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<String>
 
     GDScriptFunction *f = _call_stack[l].function;
 
-    List<Pair<StringName, int> > locals;
+    PODVector<Pair<StringName, int> > locals;
 
     f->debug_get_stack_member_state(*_call_stack[l].line, &locals);
-    for (List<Pair<StringName, int> >::Element *E = locals.front(); E; E = E->next()) {
+    for (const Pair<StringName, int> &E : locals) {
 
-        p_locals->emplace_back(E->deref().first);
-        p_values->push_back(_call_stack[l].stack[E->deref().second]);
+        p_locals->emplace_back(E.first);
+        p_values->emplace_back(_call_stack[l].stack[E.second]);
     }
 }
-void GDScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void GDScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_line >= 0)
         return;
@@ -338,7 +338,7 @@ void GDScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<String
     for (const eastl::pair<const StringName,GDScript::MemberInfo> &E : mi) {
 
         p_members->emplace_back(E.first);
-        p_values->push_back(instance->debug_get_member_by_index(E.second.index));
+        p_values->emplace_back(instance->debug_get_member_by_index(E.second.index));
     }
 }
 
@@ -355,7 +355,7 @@ ScriptInstance *GDScriptLanguage::debug_get_stack_level_instance(int p_level) {
     return instance;
 }
 
-void GDScriptLanguage::debug_get_globals(ListPOD<String> *p_globals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void GDScriptLanguage::debug_get_globals(PODVector<String> *p_globals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     const Map<StringName, int> &name_idx = GDScriptLanguage::get_singleton()->get_global_map();
     const Variant *globals = GDScriptLanguage::get_singleton()->get_global_array();
@@ -395,7 +395,7 @@ void GDScriptLanguage::debug_get_globals(ListPOD<String> *p_globals, List<Varian
             continue;
 
         p_globals->emplace_back(E.first);
-        p_values->push_back(var);
+        p_values->emplace_back(eastl::move(var));
     }
 }
 
@@ -647,7 +647,7 @@ static GDScriptCompletionIdentifier _type_from_gdtype(const GDScriptDataType &p_
 
     switch (p_gdtype.kind) {
         case GDScriptDataType::UNINITIALIZED: {
-            ERR_PRINT("Uninitialized completion. Please report a bug.")
+            ERR_PRINT("Uninitialized completion. Please report a bug.");
         } break;
         case GDScriptDataType::BUILTIN: {
             ci.type.kind = GDScriptParser::DataType::BUILTIN;

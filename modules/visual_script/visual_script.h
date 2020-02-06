@@ -600,9 +600,9 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_globals(ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_globals(PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
     void reload_all_scripts() override;

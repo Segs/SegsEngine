@@ -988,7 +988,7 @@ void EditorNode::_set_scene_metadata(se_string_view p_file, int p_idx) {
     }
 
     Error err = cf->save(path);
-    ERR_FAIL_COND_MSG(err != OK, "Cannot save config file to '" + path + "'.")
+    ERR_FAIL_COND_MSG(err != OK, "Cannot save config file to '" + path + "'.");
 }
 
 bool EditorNode::_find_and_save_resource(const RES &p_res, Map<RES, bool> &processed, int32_t flags) {
@@ -2027,7 +2027,7 @@ void EditorNode::_run(bool p_current, se_string_view p_custom) {
         make_bottom_panel_item_visible(log);
     }
 
-    List<String> breakpoints;
+    PODVector<String> breakpoints;
     editor_data.get_editor_breakpoints(&breakpoints);
 
     args = ProjectSettings::get_singleton()->get("editor/main_run_args").as<String>();
@@ -2377,7 +2377,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             int cur_idx = editor_data.get_edited_scene();
             _remove_edited_scene();
             Error err = load_scene(filename);
-            if (err != OK) ERR_PRINT("Failed to load scene")
+            if (err != OK) ERR_PRINT("Failed to load scene");
             editor_data.move_edited_scene_to_index(cur_idx);
             get_undo_redo()->clear_history(false);
             scene_tabs->set_current_tab(cur_idx);
@@ -2739,7 +2739,7 @@ void EditorNode::_save_screenshot(const NodePath &p_path) {
     img->flip_y();
     viewport->set_clear_mode(Viewport::CLEAR_MODE_ALWAYS);
     Error error = img->save_png((String)p_path);
-    ERR_FAIL_COND_MSG(error != OK, "Cannot save screenshot to file '" + (String)p_path + "'.")
+    ERR_FAIL_COND_MSG(error != OK, "Cannot save screenshot to file '" + (String)p_path + "'.");
 }
 
 void EditorNode::_tool_menu_option(int p_idx) {
@@ -2759,7 +2759,7 @@ void EditorNode::_tool_menu_option(int p_idx) {
                 handler->call(callback, (const Variant **)&ud, 1, ce);
                 if (ce.error != Variant::CallError::CALL_OK) {
                     String err = Variant::get_call_error_text(handler, callback, (const Variant **)&ud, 1, ce);
-                    ERR_PRINT("Error calling function from tool menu: " + err)
+                    ERR_PRINT("Error calling function from tool menu: " + err);
                 }
             } // else it's a submenu so don't do anything.
         } break;
@@ -2913,7 +2913,7 @@ void EditorNode::_editor_select(int p_which) {
     static bool selecting = false;
     if (selecting || changing_scene) return;
 
-    ERR_FAIL_INDEX(p_which, editor_table.size())
+    ERR_FAIL_INDEX(p_which, editor_table.size());
 
     if (!main_editor_buttons[p_which]->is_visible()) // button hidden, no editor
         return;
@@ -3581,7 +3581,7 @@ void EditorNode::_open_recent_scene(int p_idx) {
     } else {
 
         Array rc = EditorSettings::get_singleton()->get_project_metadata("recent_files", "scenes", Array());
-        ERR_FAIL_INDEX(p_idx, rc.size())
+        ERR_FAIL_INDEX(p_idx, rc.size());
 
         if (load_scene(rc[p_idx].as<String>()) != OK) {
 
@@ -5143,7 +5143,7 @@ void EditorNode::remove_bottom_panel_item(Control *p_item) {
 
 void EditorNode::_bottom_panel_switch(bool p_enable, int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, bottom_panel_items.size())
+    ERR_FAIL_INDEX(p_idx, bottom_panel_items.size());
 
     if (bottom_panel_items[p_idx].control->is_visible() == p_enable) {
         return;
@@ -5233,7 +5233,7 @@ bool EditorNode::get_distraction_free_mode() const {
 }
 
 void EditorNode::add_control_to_dock(DockSlot p_slot, Control *p_control) {
-    ERR_FAIL_INDEX(p_slot, DOCK_SLOT_MAX)
+    ERR_FAIL_INDEX(p_slot, DOCK_SLOT_MAX);
     dock_slot[p_slot]->add_child(p_control);
     _update_dock_slots_visibility();
 }
@@ -5248,7 +5248,7 @@ void EditorNode::remove_control_from_dock(Control *p_control) {
         }
     }
 
-    ERR_FAIL_COND_MSG(!dock, "Control was not in dock.")
+    ERR_FAIL_COND_MSG(!dock, "Control was not in dock.");
 
     dock->remove_child(p_control);
     _update_dock_slots_visibility();

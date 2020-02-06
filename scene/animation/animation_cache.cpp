@@ -193,7 +193,7 @@ void AnimationCache::set_track_transform(int p_idx, const Transform &p_transform
         _update_cache();
 
     ERR_FAIL_COND(!cache_valid)
-    ERR_FAIL_INDEX(p_idx, path_cache.size())
+    ERR_FAIL_INDEX(p_idx, path_cache.size());
     Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
@@ -214,7 +214,7 @@ void AnimationCache::set_track_value(int p_idx, const Variant &p_value) {
         _update_cache();
 
     ERR_FAIL_COND(!cache_valid)
-    ERR_FAIL_INDEX(p_idx, path_cache.size())
+    ERR_FAIL_INDEX(p_idx, path_cache.size());
     Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
@@ -229,7 +229,7 @@ void AnimationCache::call_track(int p_idx, const StringName &p_method, const Var
         _update_cache();
 
     ERR_FAIL_COND(!cache_valid)
-    ERR_FAIL_INDEX(p_idx, path_cache.size())
+    ERR_FAIL_INDEX(p_idx, path_cache.size());
     Path &p = path_cache[p_idx];
     if (!p.valid)
         return;

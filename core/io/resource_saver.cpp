@@ -181,7 +181,7 @@ void ResourceSaver::get_recognized_extensions(const RES &p_resource, PODVector<S
 
 void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
 
-    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
 
     if (p_at_front) {
         saver.push_front(p_format_saver);
@@ -192,7 +192,7 @@ void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_
 
 void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver) {
 
-    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
     // Find saver
     auto iter = eastl::find(saver.begin(), saver.end(),p_format_saver);
     ERR_FAIL_COND(iter == saver.end()); // Not found

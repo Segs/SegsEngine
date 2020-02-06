@@ -141,7 +141,7 @@ void PluginConfigDialog::config(se_string_view p_config_path) {
     if (p_config_path.length()) {
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
         Error err = cf->load(p_config_path);
-        ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'.")
+        ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'."); 
 
         name_edit->set_text_uistring(cf->get_value("plugin", "name", ""));
         subfolder_edit->set_text(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));

@@ -882,7 +882,7 @@ void EditorInspectorPlugin::add_custom_control(Control *control) {
 
     AddedEditor ae;
     ae.property_editor = control;
-    added_editors.push_back(ae);
+    added_editors.emplace_back(ae);
 }
 
 void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, Control *p_prop) {
@@ -890,18 +890,18 @@ void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, C
     ERR_FAIL_COND(object_cast<EditorProperty>(p_prop) == nullptr)
 
     AddedEditor ae;
-    ae.properties.push_back(String(p_for_property));
+    ae.properties.emplace_back(p_for_property);
     ae.property_editor = p_prop;
-    added_editors.push_back(ae);
+    added_editors.emplace_back(ae);
 }
 
-void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const PoolVector<String> &p_properties, Control *p_prop) {
+void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const PODVector<String> &p_properties, Control *p_prop) {
 
     AddedEditor ae;
     ae.properties = p_properties;
     ae.property_editor = p_prop;
     ae.label = p_label;
-    added_editors.push_back(ae);
+    added_editors.emplace_back(ae);
 }
 
 bool EditorInspectorPlugin::can_handle(Object *p_object) {
@@ -1304,7 +1304,7 @@ void EditorInspector::remove_inspector_plugin(const Ref<EditorInspectorPlugin> &
         }
     }
 
-    ERR_FAIL_COND_MSG(idx == -1, "Trying to remove nonexistent inspector plugin.")
+    ERR_FAIL_COND_MSG(idx == -1, "Trying to remove nonexistent inspector plugin.");
     for (int i = idx; i < inspector_plugin_count - 1; i++) {
         inspector_plugins[i] = inspector_plugins[i + 1];
     }
@@ -1333,47 +1333,48 @@ const StringName & EditorInspector::get_selected_path() const {
 
 void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Ref<EditorInspectorPlugin>& ped) {
 
-    for (List<EditorInspectorPlugin::AddedEditor>::Element *F = ped->added_editors.front(); F; F = F->next()) {
+    for (const EditorInspectorPlugin::AddedEditor &F : ped->added_editors) {
 
-        EditorProperty *ep = object_cast<EditorProperty>(F->deref().property_editor);
-        current_vbox->add_child(F->deref().property_editor);
+        EditorProperty *ep = object_cast<EditorProperty>(F.property_editor);
+        current_vbox->add_child(F.property_editor);
 
-        if (ep) {
+        if (!ep)
+            continue;
 
-            ep->object = object;
-            ep->connect("property_changed", this, "_property_changed");
-            ep->connect("property_keyed", this, "_property_keyed");
-            ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
-            ep->connect("property_checked", this, "_property_checked");
-            ep->connect("selected", this, "_property_selected");
-            ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-            ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
-            ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
+        ep->object = object;
+        ep->connect("property_changed", this, "_property_changed");
+        ep->connect("property_keyed", this, "_property_keyed");
+        ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
+        ep->connect("property_checked", this, "_property_checked");
+        ep->connect("selected", this, "_property_selected");
+        ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
+        ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
+        ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
 
-            if (!F->deref().properties.empty()) {
+        if (!F.properties.empty()) {
 
-                if (F->deref().properties.size() == 1) {
-                    //since it's one, associate:
-                    ep->property = StringName(F->deref().properties[0]);
-                    ep->property_usage = 0;
-                }
-
-                if (!F->deref().label.empty()) {
-                    ep->set_label(F->deref().label);
-                }
-
-                for (int i = 0; i < F->deref().properties.size(); i++) {
-                    StringName prop(F->deref().properties[i]);
-
-                    editor_property_map[prop].push_back(ep);
-                }
+            if (F.properties.size() == 1) {
+                //since it's one, associate:
+                ep->property = StringName(F.properties[0]);
+                ep->property_usage = 0;
             }
 
-            ep->set_read_only(read_only);
-            ep->update_property();
-            ep->update_reload_status();
+            if (!F.label.empty()) {
+                ep->set_label(F.label);
+            }
+
+            for (int i = 0; i < F.properties.size(); i++) {
+                StringName prop(F.properties[i]);
+
+                editor_property_map[prop].push_back(ep);
+            }
         }
+
+        ep->set_read_only(read_only);
+        ep->update_property();
+        ep->update_reload_status();
     }
+
     ped->added_editors.clear();
 }
 
@@ -1704,35 +1705,35 @@ void EditorInspector::update_tree() {
         for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
             Ref<EditorInspectorPlugin> ped = E->deref();
             bool exclusive = ped->parse_property(object, p.type, p.name, p.hint, p.hint_string, p.usage);
+            //make to a temporary, since plugins may be used again in a sub-inspector
+            PODVector<EditorInspectorPlugin::AddedEditor> editors = eastl::move(ped->added_editors);
+            ped->added_editors = {}; // reinitialize from moved-from state to empty
 
-            List<EditorInspectorPlugin::AddedEditor> editors = ped->added_editors; //make a copy, since plugins may be used again in a sub-inspector
-            ped->added_editors.clear();
+            for (const EditorInspectorPlugin::AddedEditor &F : editors) {
 
-            for (List<EditorInspectorPlugin::AddedEditor>::Element *F = editors.front(); F; F = F->next()) {
-
-                EditorProperty *ep = object_cast<EditorProperty>(F->deref().property_editor);
+                EditorProperty *ep = object_cast<EditorProperty>(F.property_editor);
 
                 if (ep) {
                     //set all this before the control gets the ENTER_TREE notification
                     ep->object = object;
 
-                    if (!F->deref().properties.empty()) {
+                    if (!F.properties.empty()) {
 
-                        if (F->deref().properties.size() == 1) {
+                        if (F.properties.size() == 1) {
                             //since it's one, associate:
-                            ep->property = StringName(F->deref().properties[0]);
+                            ep->property = StringName(F.properties[0]);
                             ep->property_usage = p.usage;
                             //and set label?
                         }
 
-                        if (!F->deref().label.empty()) {
-                            ep->set_label(F->deref().label);
+                        if (!F.label.empty()) {
+                            ep->set_label(F.label);
                         } else {
                             //use existin one
                             ep->set_label(name);
                         }
-                        for (int i = 0; i < F->deref().properties.size(); i++) {
-                            StringName prop(F->deref().properties[i]);
+                        for (int i = 0; i < F.properties.size(); i++) {
+                            StringName prop(F.properties[i]);
                             editor_property_map[prop].push_back(ep);
                         }
                     }
@@ -1745,7 +1746,7 @@ void EditorInspector::update_tree() {
                     ep->set_read_only(read_only);
                 }
 
-                current_vbox->add_child(F->deref().property_editor);
+                current_vbox->add_child(F.property_editor);
 
                 if (ep) {
 

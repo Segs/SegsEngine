@@ -188,7 +188,7 @@ Vector3 AABB::get_endpoint(int p_point) const {
         case 7: return Vector3(position.x + size.x, position.y + size.y, position.z + size.z);
     }
 
-    ERR_FAIL_V(Vector3())
+    ERR_FAIL_V(Vector3());
 }
 
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {

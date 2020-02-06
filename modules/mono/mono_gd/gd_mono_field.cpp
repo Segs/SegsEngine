@@ -283,7 +283,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 break;
             }
 
-            ERR_FAIL_MSG("Attempted to convert Variant to a managed array of unmarshallable element type.")
+            ERR_FAIL_MSG("Attempted to convert Variant to a managed array of unmarshallable element type.");
         } break;
 
         case MONO_TYPE_CLASS: {
@@ -586,7 +586,7 @@ IMonoClassMember::Visibility GDMonoField::get_visibility() {
         case MONO_FIELD_ATTR_PUBLIC:
             return IMonoClassMember::PUBLIC;
         default:
-            ERR_FAIL_V(IMonoClassMember::PRIVATE)
+            ERR_FAIL_V(IMonoClassMember::PRIVATE);
     }
 }
 

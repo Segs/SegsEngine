@@ -174,11 +174,11 @@ class EditorInspectorPlugin : public RefCounted {
     friend class EditorInspector;
     struct AddedEditor {
         Control *property_editor;
-        PoolVector<String> properties;
+        PODVector<String> properties;
         String label;
     };
 
-    List<AddedEditor> added_editors;
+    PODVector<AddedEditor> added_editors;
 
 protected:
     static void _bind_methods();
@@ -186,7 +186,7 @@ protected:
 public:
     void add_custom_control(Control *control);
     void add_property_editor(se_string_view p_for_property, Control *p_prop);
-    void add_property_editor_for_multiple_properties(se_string_view p_label, const PoolVector<String> &p_properties, Control *p_prop);
+    void add_property_editor_for_multiple_properties(se_string_view p_label, const PODVector<String> &p_properties, Control *p_prop);
 
     virtual bool can_handle(Object *p_object);
     virtual void parse_begin(Object *p_object);

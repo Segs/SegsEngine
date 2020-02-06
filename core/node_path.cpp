@@ -422,7 +422,7 @@ NodePath::NodePath(se_string_view p_path) {
                 if (str.empty()) {
                     if (path[i]==0) continue; // Allow end-of-path :
 
-                    ERR_FAIL_MSG("Invalid NodePath '" + String(p_path) + "'.")
+                    ERR_FAIL_MSG("Invalid NodePath '" + String(p_path) + "'.");
                 }
                 subpath.push_back(StringName(str));
 
@@ -471,7 +471,7 @@ NodePath::NodePath(se_string_view p_path) {
             if (!last_is_slash) {
 
                 se_string_view name = StringUtils::substr(path,from, i - from);
-                ERR_FAIL_INDEX(slice, data->path.size())
+                ERR_FAIL_INDEX(slice, data->path.size());
                 data->path[slice++] = StringName(name);
             }
             from = i + 1;
@@ -484,7 +484,7 @@ NodePath::NodePath(se_string_view p_path) {
     if (!last_is_slash) {
 
         se_string_view name = StringUtils::substr(path,from);
-        ERR_FAIL_INDEX(slice, data->path.size())
+        ERR_FAIL_INDEX(slice, data->path.size());
         data->path[slice++] = StringName(name);
     }
 

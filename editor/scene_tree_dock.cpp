@@ -597,7 +597,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 if (EditorNode::get_singleton()->get_edited_scene()->is_editable_instance(node))
                     editable_children.push_back(dup);
 
-                ERR_CONTINUE(!dup)
+                ERR_CONTINUE(!dup);
 
                 if (selection.size() == 1)
                     dupsingle = dup;
@@ -1000,7 +1000,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 if (!new_node) {
                     new_node = memnew(Node);
-                    ERR_PRINT("Creating root from favorite '" + selected_favorite_root + "' failed. Creating 'Node' instead.")
+                    ERR_PRINT("Creating root from favorite '" + selected_favorite_root + "' failed. Creating 'Node' instead.");
                 }
             } else {
                 switch (p_tool) {
@@ -1034,7 +1034,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 int idx = p_tool - EDIT_SUBRESOURCE_BASE;
 
-                ERR_FAIL_INDEX(idx, subresources.size())
+                ERR_FAIL_INDEX(idx, subresources.size());
 
                 Object *obj = ObjectDB::get_instance(subresources[idx]);
                 ERR_FAIL_COND(!obj)
@@ -1557,7 +1557,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, P
     Node *validate = new_parent;
     while (validate) {
 
-        ERR_FAIL_COND_MSG(p_nodes.contains(validate), "Selection changed at some point. Can't reparent.")
+        ERR_FAIL_COND_MSG(p_nodes.contains(validate), "Selection changed at some point. Can't reparent."); 
         validate = validate->get_parent();
     }
     //TODO: SEGS: is the sorting below actually needed ?
@@ -2273,7 +2273,7 @@ void SceneTreeDock::_normalize_drop(Node *&to_node, int &to_pos, int p_type) {
         //drop at above selected node
         if (to_node == EditorNode::get_singleton()->get_edited_scene()) {
             to_node = nullptr;
-            ERR_FAIL_MSG("Cannot perform drop above the root node!")
+            ERR_FAIL_MSG("Cannot perform drop above the root node!");
         }
 
         to_pos = to_node->get_index();

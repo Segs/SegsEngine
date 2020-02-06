@@ -2138,7 +2138,7 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
 
     RES res(ResourceLoader::load(p_path));
 
-    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'.")
+    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'."); 
 
     ListPOD<PropertyInfo> prop_list;
     get_edited_object()->get_property_list(&prop_list);
@@ -2309,7 +2309,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
                 PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
 
-                ERR_FAIL_INDEX(to_type, conversions.size())
+                ERR_FAIL_INDEX(to_type, conversions.size());
 
                 Ref<Resource> new_res = conversions[to_type]->convert(res);
 

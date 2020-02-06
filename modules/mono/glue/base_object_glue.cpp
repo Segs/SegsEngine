@@ -228,7 +228,7 @@ MonoBoolean godot_icall_DynamicGodotObject_SetMember(Object *p_ptr, MonoString *
 MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 #ifdef DEBUG_ENABLED
     // Cannot happen in C#; would get an ObjectDisposedException instead.
-    CRASH_COND(p_ptr == NULL)
+    CRASH_COND(p_ptr == NULL);
 
     if (ScriptDebugger::get_singleton() && !object_cast<RefCounted>(p_ptr)) { // Only if debugging!
         // Cannot happen either in C#; the handle is nullified when the object is destroyed

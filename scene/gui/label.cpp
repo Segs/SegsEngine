@@ -234,7 +234,7 @@ void Label::_notification(int p_what) {
                 int pos = from->char_pos;
                 if (from->char_pos < 0) {
 
-                    ERR_PRINT("BUG")
+                    ERR_PRINT("BUG");
                     return;
                 }
                 if (from->space_count) {

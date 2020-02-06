@@ -37,6 +37,6 @@ NetSocket *NetSocket::create() {
     if (_create)
         return _create();
 
-    ERR_PRINT("Unable to create network socket, platform not supported")
+    ERR_PRINT("Unable to create network socket, platform not supported");
     return nullptr;
 }

@@ -642,7 +642,7 @@ ShaderLanguage::Token ShaderLanguage::_get_token() {
             }
         }
     }
-    ERR_PRINT("BUG")
+    ERR_PRINT("BUG");
     return Token();
 
 #undef GETCHAR
@@ -1318,7 +1318,7 @@ bool ShaderLanguage::_validate_operator(OperatorNode *p_op, DataType *r_ret_type
             ret_type = nb;
         } break;
         default: {
-            ERR_FAIL_V(false)
+            ERR_FAIL_V(false);
         }
     }
 
@@ -3038,7 +3038,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 case TK_OP_BIT_INVERT: e.op = OP_BIT_INVERT; break;
                 case TK_OP_INCREMENT: e.op = OP_INCREMENT; break;
                 case TK_OP_DECREMENT: e.op = OP_DECREMENT; break;
-                default: ERR_FAIL_V(nullptr)
+                default: ERR_FAIL_V(nullptr);
             }
 
             expression.push_back(e);
@@ -3491,7 +3491,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     break;
 
                 default:
-                    ERR_FAIL_V(nullptr) //unexpected operator
+                    ERR_FAIL_V(nullptr); //unexpected operator
             }
 
             if (priority < min_priority) {
@@ -3549,7 +3549,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
             if (next_op < 1 || next_op >= (expression.size() - 1)) {
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             if (next_op + 2 >= expression.size() || !expression[next_op + 2].is_op || expression[next_op + 2].op != OP_SELECT_ELSE) {
@@ -3578,7 +3578,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
             if (next_op < 1 || next_op >= (expression.size() - 1)) {
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             OperatorNode *op = alloc_node<OperatorNode>();
@@ -3587,7 +3587,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             if (expression[next_op - 1].is_op) {
 
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             if (_is_operator_assign(op->op)) {
@@ -3691,7 +3691,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
                 }
             }
         } else if (values.size() != cardinality) {
-            ERR_PRINT("Failed to reduce expression, values and cardinality mismatch.")
+            ERR_PRINT("Failed to reduce expression, values and cardinality mismatch.");
             return p_node;
         }
 

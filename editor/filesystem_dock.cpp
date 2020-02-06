@@ -487,7 +487,7 @@ void FileSystemDock::_navigate_to_path(se_string_view p_path, bool p_select_in_f
             path = target_path + "/";
         } else {
             memdelete(dirAccess);
-            ERR_FAIL_MSG(FormatVE("Cannot navigate to '%.*s' as it has not been found in the file system!", p_path.size(),p_path.data()))
+            ERR_FAIL_MSG(FormatVE("Cannot navigate to '%.*s' as it has not been found in the file system!", p_path.size(),p_path.data()));
         }
         memdelete(dirAccess);
     }
@@ -1785,7 +1785,7 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
         } break;
 
         case FILE_REIMPORT: {
-            ERR_FAIL_COND_MSG(p_selected.empty(), "You need to select files to reimport them.")
+            ERR_FAIL_COND_MSG(p_selected.empty(), "You need to select files to reimport them."); 
             // TODO: SEGS: Reimport all selected files. ????
         } break;
 
@@ -2183,7 +2183,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
 void FileSystemDock::_file_and_folders_fill_popup(
         PopupMenu *p_popup, const PODVector<String> &p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
-    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty.")
+    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty."); 
 
     PODVector<String> filenames;
     PODVector<String> foldernames;

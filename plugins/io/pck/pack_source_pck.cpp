@@ -51,7 +51,7 @@ public:
 
 Error FileAccessPack::_open(se_string_view p_path, int p_mode_flags) {
 
-    ERR_FAIL_V(ERR_UNAVAILABLE)
+    ERR_FAIL_V(ERR_UNAVAILABLE);
     return ERR_UNAVAILABLE;
 }
 
@@ -138,17 +138,17 @@ Error FileAccessPack::get_error() const {
 
 void FileAccessPack::flush() {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 void FileAccessPack::store_8(uint8_t p_dest) {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 void FileAccessPack::store_buffer(const uint8_t *p_src, int p_length) {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 bool FileAccessPack::file_exists(se_string_view p_name) {
@@ -160,7 +160,7 @@ FileAccessPack::FileAccessPack(se_string_view p_path, const PackedDataFile &p_fi
         pf(p_file),
         f(FileAccess::open(pf.pack, FileAccess::READ)) {
 
-    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + pf.pack + "'.")
+    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + pf.pack + "'."); 
 
     f->seek(pf.offset);
     pos = 0;
@@ -220,12 +220,12 @@ bool PackedSourcePCK::try_open_pack(se_string_view p_path, bool p_replace_files)
     if (version != PACK_FORMAT_VERSION) {
         f->close();
         memdelete(f);
-        ERR_FAIL_V_MSG(false, "Pack version unsupported: " + itos(version) + ".")
+        ERR_FAIL_V_MSG(false, "Pack version unsupported: " + itos(version) + ".");
     }
     if (ver_major > major || (ver_major == major && ver_minor > minor)) {
         f->close();
         memdelete(f);
-        ERR_FAIL_V_MSG(false, "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".")
+        ERR_FAIL_V_MSG(false, "Pack created with a newer version of the engine: " + itos(ver_major) + "." + itos(ver_minor) + ".");
     }
     for (int i = 0; i < 16; i++) {
         //reserved

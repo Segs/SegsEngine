@@ -432,7 +432,7 @@ String NativeScript::get_method_documentation(const StringName &p_method) const 
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_MSG(String(), "Attempt to get method documentation for non-existent method.")
+    ERR_FAIL_V_MSG(String(), "Attempt to get method documentation for non-existent method.");
 }
 
 String NativeScript::get_signal_documentation(const StringName &p_signal_name) const {
@@ -451,7 +451,7 @@ String NativeScript::get_signal_documentation(const StringName &p_signal_name) c
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_MSG(String(), "Attempt to get signal documentation for non-existent signal.")
+    ERR_FAIL_V_MSG(String(), "Attempt to get signal documentation for non-existent signal.");
 }
 
 String NativeScript::get_property_documentation(const StringName &p_path) const {
@@ -470,7 +470,7 @@ String NativeScript::get_property_documentation(const StringName &p_path) const 
         script_data = script_data->base_data;
     }
 
-    ERR_FAIL_V_MSG(String(), "Attempt to get property documentation for non-existent signal.")
+    ERR_FAIL_V_MSG(String(), "Attempt to get property documentation for non-existent signal.");
 }
 
 Variant NativeScript::_new(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
@@ -648,22 +648,22 @@ void NativeScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties
             Variant res = *(Variant *)&result;
             godot_variant_destroy(&result);
 
-            ERR_FAIL_COND_MSG(res.get_type() != VariantType::ARRAY, "_get_property_list must return an array of dictionaries.")
+            ERR_FAIL_COND_MSG(res.get_type() != VariantType::ARRAY, "_get_property_list must return an array of dictionaries.");
 
             Array arr = res;
             for (int i = 0; i < arr.size(); i++) {
                 Dictionary d = arr[i];
 
-                ERR_CONTINUE(!d.has("name"))
-                ERR_CONTINUE(!d.has("type"))
+                ERR_CONTINUE(!d.has("name"));
+                ERR_CONTINUE(!d.has("type"));
 
                 PropertyInfo info;
 
                 info.type = VariantType(d["type"].operator int64_t());
-                ERR_CONTINUE(int8_t(info.type) < 0 || int8_t(info.type) >= int8_t(VariantType::VARIANT_MAX))
+                ERR_CONTINUE(int8_t(info.type) < 0 || int8_t(info.type) >= int8_t(VariantType::VARIANT_MAX));
 
                 info.name = d["name"];
-                ERR_CONTINUE(info.name.empty())
+                ERR_CONTINUE(info.name.empty());
 
                 if (d.has("hint")) {
                     info.hint = PropertyHint(d["hint"].operator int64_t());
@@ -751,7 +751,7 @@ void NativeScriptInstance::notification(int p_notification) {
 #ifdef DEBUG_ENABLED
     if (p_notification == MainLoop::NOTIFICATION_CRASH) {
         if (current_method_call != StringName("")) {
-            ERR_PRINT("NativeScriptInstance detected crash on method: " + current_method_call)
+            ERR_PRINT("NativeScriptInstance detected crash on method: " + current_method_call);
             current_method_call = "";
         }
     }
@@ -1085,7 +1085,7 @@ void NativeScriptLanguage::init() {
 
     if (E!=args.end() && (++E != args.end())) {
         if (generate_c_api(*E) != OK) {
-            ERR_PRINT("Failed to generate C API\n")
+            ERR_PRINT("Failed to generate C API\n");
         }
         exit(0);
     }
@@ -1162,9 +1162,9 @@ String NativeScriptLanguage::debug_get_stack_level_source(int p_level) const {
 }
 void NativeScriptLanguage::debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
-void NativeScriptLanguage::debug_get_stack_level_members(int p_level, List<se_string_view> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<se_string_view> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
-void NativeScriptLanguage::debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_globals(PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
 String NativeScriptLanguage::debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) {
     return String();
@@ -1315,7 +1315,7 @@ int NativeScriptLanguage::register_binding_functions(godot_instance_binding_func
 }
 
 void NativeScriptLanguage::unregister_binding_functions(int p_idx) {
-    ERR_FAIL_INDEX(p_idx, binding_functions.size())
+    ERR_FAIL_INDEX(p_idx, binding_functions.size());
 
     for (const Vector<void *> *E : binding_instances) {
         const Vector<void *> &binding_data = *E;
@@ -1485,7 +1485,7 @@ void NativeScriptLanguage::init_library(const Ref<GDNativeLibrary> &lib) {
 #endif
     // See if this library was "registered" already.
     const String &lib_path = lib->get_current_library_path();
-    ERR_FAIL_COND_MSG(lib_path.length() == 0, lib->get_name() + " does not have a library for the current platform.")
+    ERR_FAIL_COND_MSG(lib_path.length() == 0, lib->get_name() + " does not have a library for the current platform.");
     Map<String, Ref<GDNative> >::iterator E = library_gdnatives.find(lib_path);
 
     if (E==library_gdnatives.end()) {
@@ -1507,7 +1507,7 @@ void NativeScriptLanguage::init_library(const Ref<GDNativeLibrary> &lib) {
         Error err = gdn->get_symbol(StringName(lib->get_symbol_prefix() + _init_call_name), proc_ptr);
 
         if (err != OK) {
-            ERR_PRINT("No " + _init_call_name + " in \"" + lib_path + "\" found")
+            ERR_PRINT("No " + _init_call_name + " in \"" + lib_path + "\" found");
         } else {
             ((void (*)(godot_string *))proc_ptr)((godot_string *)&lib_path);
         }
@@ -1712,7 +1712,7 @@ void NativeReloadNode::_notification(int p_what) {
                 void *proc_ptr;
                 Error err = gdn->get_symbol(StringName(gdn->get_library()->get_symbol_prefix() + "nativescript_init"), proc_ptr);
                 if (err != OK) {
-                    ERR_PRINT("No godot_nativescript_init in \"" + L.first + "\" found")
+                    ERR_PRINT("No godot_nativescript_init in \"" + L.first + "\" found");
                 } else {
                     ((void (*)(void *))proc_ptr)((void *)&L.first);
                 }

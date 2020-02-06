@@ -215,7 +215,7 @@ void ConnectDialog::_remove_bind() {
         return;
     int idx = StringUtils::to_int(StringUtils::get_slice(st,"/", 1)) - 1;
 
-    ERR_FAIL_INDEX(idx, cdbinds->params.size())
+    ERR_FAIL_INDEX(idx, cdbinds->params.size());
     cdbinds->params.erase_at(idx);
     cdbinds->notify_changed();
 }

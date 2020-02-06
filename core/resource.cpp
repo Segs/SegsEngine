@@ -117,7 +117,7 @@ void Resource::set_path(se_string_view p_path, bool p_take_over) {
             bool exists = cached_resources.find_as(p_path)!=cached_resources.end();
             ResourceCache::lock->read_unlock();
 
-            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path '" + String(p_path) + "' (possible cyclic resource inclusion).")
+            ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path '" + String(p_path) + "' (possible cyclic resource inclusion).");
         }
     }
     impl_data->path_cache = p_path;
@@ -318,7 +318,7 @@ void Resource::notify_change_to_owners() {
     for (const ObjectID E : impl_data->owners) {
 
         Object *obj = ObjectDB::get_instance(E);
-        ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource.") //wtf
+        ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
         //TODO store string
         obj->call("resource_changed", RES(this));
     }
@@ -548,7 +548,7 @@ void ResourceCache::setup() {
 
 void ResourceCache::clear() {
     if (!cached_resources.empty())
-        ERR_PRINT("Resources Still in use at Exit!")
+        ERR_PRINT("Resources Still in use at Exit!");
 
     cached_resources.clear();
     memdelete(lock);
@@ -615,7 +615,7 @@ void ResourceCache::dump(se_string_view p_file, bool p_short) {
     FileAccess *f = nullptr;
     if (not p_file.empty()) {
         f = FileAccess::open(p_file, FileAccess::WRITE);
-        ERR_FAIL_COND_MSG(!f, "Cannot create file at path '" + String(p_file) + "'.")
+        ERR_FAIL_COND_MSG(!f, "Cannot create file at path '" + String(p_file) + "'.");
     }
 
     for (eastl::pair<const String, Resource *> & e : cached_resources) {

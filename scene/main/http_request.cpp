@@ -127,7 +127,7 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
         impl.use_ssl = true;
         impl.port = 443;
     } else {
-        ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL: " + impl.url + ".")
+        ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL: " + impl.url + ".");
     }
 
     ERR_FAIL_COND_V_MSG(impl.url.length() < 1, ERR_INVALID_PARAMETER, "URL too short: " + impl.url + ".");
@@ -368,7 +368,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
         }
     }
 
-    ERR_FAIL_V(false)
+    ERR_FAIL_V(false);
 }
 
 static void _thread_func(void *p_userdata) {

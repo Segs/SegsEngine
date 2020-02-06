@@ -150,7 +150,7 @@ static void godot_free(voidpf opaque, voidpf address) {
 
 void ZipArchive::close_handle(unzFile p_file) const {
 
-    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open.")
+    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open."); 
     FileAccess *f = (FileAccess *)unzGetOpaque(p_file);
     unzCloseCurrentFile(p_file);
     unzClose(p_file);
@@ -188,7 +188,7 @@ unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
     if (unz_err != UNZ_OK || unzOpenCurrentFile(pkg) != UNZ_OK) {
 
         unzClose(pkg);
-        ERR_FAIL_V(nullptr)
+        ERR_FAIL_V(nullptr);
     }
 
     return pkg;
@@ -235,7 +235,7 @@ bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
 
         unz_file_info64 file_info;
         err = unzGetCurrentFileInfo64(zfile, &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
-        ERR_CONTINUE(err != UNZ_OK)
+        ERR_CONTINUE(err != UNZ_OK);
 
         File f;
         f.package = pkg_num;
@@ -391,12 +391,12 @@ Error FileAccessZip::get_error() const {
 
 void FileAccessZip::flush() {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 void FileAccessZip::store_8(uint8_t p_dest) {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 bool FileAccessZip::file_exists(se_string_view p_name) {

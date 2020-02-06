@@ -157,7 +157,7 @@ struct UndoRedo::PrivateData
                     if (ce.error != Variant::CallError::CALL_OK) {
                         ERR_PRINT(
                                 "Error calling method from signal '" + String(op.name) + "': " +
-                                Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce))
+                                Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce));
                     }
 
                     Object_set_edited(obj,true);

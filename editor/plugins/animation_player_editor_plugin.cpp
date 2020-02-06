@@ -747,8 +747,8 @@ void AnimationPlayerEditor::_dialog_action(se_string_view p_file) {
             ERR_FAIL_COND(!player)
 
             Ref<Resource> res = ResourceLoader::load(p_file, "Animation");
-            ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + String(p_file) + "'.")
-            ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + String(p_file) + "' is not Animation.")
+            ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + String(p_file) + "'."); 
+            ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + String(p_file) + "' is not Animation."); 
             if (StringUtils::contains(p_file,'/')) {
 
                 p_file = StringUtils::substr(p_file,StringUtils::find_last(p_file,'/') + 1, p_file.length());

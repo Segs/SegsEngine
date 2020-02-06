@@ -207,7 +207,7 @@ void MeshLibraryEditor::_import_scene_cbk(se_string_view p_str) {
     ERR_FAIL_COND(not ps)
     Node *scene = ps->instance();
 
-    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + String(p_str) + "'.")
+    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + String(p_str) + "'."); 
 
     _import_scene(scene, mesh_library, option == MENU_OPTION_UPDATE_FROM_SCENE);
 

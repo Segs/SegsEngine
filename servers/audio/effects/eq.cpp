@@ -108,7 +108,7 @@ void EQ::recalculate_band_coefficients() {
         double r1 = 0, r2 = 0; //roots
         int roots = solve_quadratic(c2a, c2b, c2c, &r1, &r2);
 
-        ERR_CONTINUE(roots == 0)
+        ERR_CONTINUE(roots == 0);
 
         band[i].c1 = 2.0 * ((0.5 - r1) / 2.0f);
         band[i].c2 = 2.0 * r1;

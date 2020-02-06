@@ -201,7 +201,7 @@ Error EditorFeatureProfile::load_from_file(se_string_view p_path) {
     Variant v;
     err = JSON::parse(text, v, err_str, err_line);
     if (err != OK) {
-        ERR_PRINT("Error parsing '" + String(p_path) + "' on line " + itos(err_line) + ": " + err_str)
+        ERR_PRINT("Error parsing '" + String(p_path) + "' on line " + itos(err_line) + ": " + err_str);
         return ERR_PARSE_ERROR;
     }
 
@@ -344,7 +344,7 @@ void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_p
 
     PODVector<String> profiles;
     DirAccessRef d = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
-    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
+    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'."); 
     d->list_dir_begin();
     while (true) {
         String f = d->get_next();
@@ -451,7 +451,7 @@ void EditorFeatureProfileManager::_erase_selected_profile() {
     String selected = _get_selected_profile();
     ERR_FAIL_COND(selected.empty())
     DirAccessRef da = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
-    ERR_FAIL_COND_MSG(!da, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'.")
+    ERR_FAIL_COND_MSG(!da, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'."); 
     da->remove(selected + ".profile");
     if (selected == current_profile) {
         _profile_action(PROFILE_CLEAR);
@@ -688,7 +688,7 @@ void EditorFeatureProfileManager::_update_selected_profile() {
         //reload edited, if different from current
         edited = make_ref_counted<EditorFeatureProfile>();
         Error err = edited->load_from_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),profile + ".profile"));
-        ERR_FAIL_COND_MSG(err != OK, "Error when loading EditorSettings from file '" + PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),profile + ".profile") + "'.")
+        ERR_FAIL_COND_MSG(err != OK, "Error when loading EditorSettings from file '" + PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),profile + ".profile") + "'."); 
     }
 
     updating_features = true;

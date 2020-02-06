@@ -153,8 +153,10 @@ class DirAccessPack : public DirAccess {
 
     PackedData::PackedDir *current;
 
-    List<String> list_dirs;
-    List<String> list_files;
+    PODVector<String> list_dirs;
+    PODVector<String> list_files;
+    int m_dir_offset=0;
+    int m_file_offset=0;
     bool cdir;
 
 public:

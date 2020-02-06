@@ -172,21 +172,21 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
             IMMDevice *tmp_device = nullptr;
 
             hr = devices->Item(i, &tmp_device);
-            ERR_BREAK(hr != S_OK)
+            ERR_BREAK(hr != S_OK); 
 
             IPropertyStore *props = nullptr;
             hr = tmp_device->OpenPropertyStore(STGM_READ, &props);
-            ERR_BREAK(hr != S_OK)
+            ERR_BREAK(hr != S_OK); 
 
             PROPVARIANT propvar;
             PropVariantInit(&propvar);
 
             hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
-            ERR_BREAK(hr != S_OK)
+            ERR_BREAK(hr != S_OK); 
 
             if (StringUtils::from_utf8(p_device->device_name) == StringUtils::from_wchar(propvar.pwszVal)) {
                 hr = tmp_device->GetId(&strId);
-                ERR_BREAK(hr != S_OK)
+                ERR_BREAK(hr != S_OK); 
 
                 found = true;
             }
@@ -280,13 +280,13 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_c
         } else if (wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) {
             p_device->format_tag = WAVE_FORMAT_IEEE_FLOAT;
         } else {
-            ERR_PRINT("WASAPI: Format not supported")
-            ERR_FAIL_V(ERR_CANT_OPEN)
+            ERR_PRINT("WASAPI: Format not supported");
+            ERR_FAIL_V(ERR_CANT_OPEN);
         }
     } else {
         if (p_device->format_tag != WAVE_FORMAT_PCM && p_device->format_tag != WAVE_FORMAT_IEEE_FLOAT) {
-            ERR_PRINT("WASAPI: Format not supported")
-            ERR_FAIL_V(ERR_CANT_OPEN)
+            ERR_PRINT("WASAPI: Format not supported");
+            ERR_FAIL_V(ERR_CANT_OPEN);
         }
     }
 
@@ -402,7 +402,7 @@ Error AudioDriverWASAPI::init() {
 
     Error err = init_render_device();
     if (err != OK) {
-        ERR_PRINT("WASAPI: init_render_device error")
+        ERR_PRINT("WASAPI: init_render_device error");
     }
 
     exit_thread = false;
@@ -448,17 +448,17 @@ Array AudioDriverWASAPI::audio_device_get_list(bool p_capture) {
         IMMDevice *device = nullptr;
 
         hr = devices->Item(i, &device);
-        ERR_BREAK(hr != S_OK)
+        ERR_BREAK(hr != S_OK); 
 
         IPropertyStore *props = nullptr;
         hr = device->OpenPropertyStore(STGM_READ, &props);
-        ERR_BREAK(hr != S_OK)
+        ERR_BREAK(hr != S_OK); 
 
         PROPVARIANT propvar;
         PropVariantInit(&propvar);
 
         hr = props->GetValue(PKEY_Device_FriendlyName, &propvar);
-        ERR_BREAK(hr != S_OK)
+        ERR_BREAK(hr != S_OK); 
 
         list.push_back(StringUtils::to_utf8(StringUtils::from_wchar(propvar.pwszVal)));
 
@@ -520,7 +520,7 @@ int32_t AudioDriverWASAPI::read_sample(WORD format_tag, int bits_per_sample, BYT
     } else if (format_tag == WAVE_FORMAT_IEEE_FLOAT) {
         return int32_t(((float *)buffer)[i] * 32768.0f) << 16;
     } else {
-        ERR_PRINT("WASAPI: Unknown format tag")
+        ERR_PRINT("WASAPI: Unknown format tag");
     }
 
     return 0;
@@ -550,7 +550,7 @@ void AudioDriverWASAPI::write_sample(WORD format_tag, int bits_per_sample, BYTE 
     } else if (format_tag == WAVE_FORMAT_IEEE_FLOAT) {
         ((float *)buffer)[i] = (sample >> 16) / 32768.f;
     } else {
-        ERR_PRINT("WASAPI: Unknown format tag")
+        ERR_PRINT("WASAPI: Unknown format tag");
     }
 }
 
@@ -621,7 +621,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
 
                         hr = ad->audio_output.render_client->ReleaseBuffer(write_frames, 0);
                         if (hr != S_OK) {
-                            ERR_PRINT("WASAPI: Release buffer error")
+                            ERR_PRINT("WASAPI: Release buffer error");
                         }
 
                         avail_frames -= write_frames;
@@ -631,20 +631,20 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
 
                         Error err = ad->finish_render_device();
                         if (err != OK) {
-                            ERR_PRINT("WASAPI: finish_render_device error")
+                            ERR_PRINT("WASAPI: finish_render_device error");
                         } else {
                             // We reopened the device and samples_in may have resized, so invalidate the current avail_frames
                             avail_frames = 0;
                         }
                     } else {
-                        ERR_PRINT("WASAPI: Get buffer error")
+                        ERR_PRINT("WASAPI: Get buffer error");
                         ad->exit_thread = true;
                     }
                 }
             } else if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
                 invalidated = true;
             } else {
-                ERR_PRINT("WASAPI: GetCurrentPadding error")
+                ERR_PRINT("WASAPI: GetCurrentPadding error");
             }
 
             if (invalidated) {
@@ -653,7 +653,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
 
                 Error err = ad->finish_render_device();
                 if (err != OK) {
-                    ERR_PRINT("WASAPI: finish_render_device error")
+                    ERR_PRINT("WASAPI: finish_render_device error");
                 }
             }
         }
@@ -662,7 +662,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
         if (ad->audio_output.device_name == "Default" && default_render_device_changed) {
             Error err = ad->finish_render_device();
             if (err != OK) {
-                ERR_PRINT("WASAPI: finish_render_device error")
+                ERR_PRINT("WASAPI: finish_render_device error");
             }
 
             default_render_device_changed = false;
@@ -673,7 +673,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
             ad->audio_output.device_name = ad->audio_output.new_device;
             Error err = ad->finish_render_device();
             if (err != OK) {
-                ERR_PRINT("WASAPI: finish_render_device error")
+                ERR_PRINT("WASAPI: finish_render_device error");
             }
         }
 
@@ -713,7 +713,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
                                 l = r = read_sample(ad->audio_input.format_tag, ad->audio_input.bits_per_sample, data, j);
                             } else {
                                 l = r = 0;
-                                ERR_PRINT("WASAPI: unsupported channel count in microphone!")
+                                ERR_PRINT("WASAPI: unsupported channel count in microphone!");
                             }
                         }
 
@@ -724,10 +724,10 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
                     read_frames += num_frames_available;
 
                     hr = ad->audio_input.capture_client->ReleaseBuffer(num_frames_available);
-                    ERR_BREAK(hr != S_OK)
+                    ERR_BREAK(hr != S_OK); 
 
                     hr = ad->audio_input.capture_client->GetNextPacketSize(&packet_length);
-                    ERR_BREAK(hr != S_OK)
+                    ERR_BREAK(hr != S_OK); 
                 }
             }
 
@@ -735,7 +735,7 @@ void AudioDriverWASAPI::thread_func(void *p_udata) {
             if (ad->audio_input.device_name == "Default" && default_capture_device_changed) {
                 Error err = ad->finish_capture_device();
                 if (err != OK) {
-                    ERR_PRINT("WASAPI: finish_capture_device error")
+                    ERR_PRINT("WASAPI: finish_capture_device error");
                 }
 
                 default_capture_device_changed = false;
@@ -775,7 +775,7 @@ void AudioDriverWASAPI::start() {
     if (audio_output.audio_client) {
         HRESULT hr = audio_output.audio_client->Start();
         if (hr != S_OK) {
-            ERR_PRINT("WASAPI: Start failed")
+            ERR_PRINT("WASAPI: Start failed");
         } else {
             audio_output.active = true;
         }

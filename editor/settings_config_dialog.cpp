@@ -203,21 +203,21 @@ void EditorSettingsDialog::_update_shortcuts() {
 
     shortcuts->clear();
 
-    List<String> slist;
+    PODVector<String> slist;
     EditorSettings::get_singleton()->get_shortcut_list(&slist);
     TreeItem *root = shortcuts->create_item();
 
     Map<String, TreeItem *> sections;
 
-    for (List<String>::Element *E = slist.front(); E; E = E->next()) {
+    for (const String &E : slist) {
 
-        Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(E->deref());
+        Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(E);
         if (!sc->has_meta("original"))
             continue;
 
         Ref<InputEvent> original(sc->get_meta("original"));
 
-        String section_name(StringUtils::get_slice(E->deref(),"/", 0));
+        String section_name(StringUtils::get_slice(E,"/", 0));
 
         TreeItem *section;
 
@@ -255,8 +255,8 @@ void EditorSettingsDialog::_update_shortcuts() {
             }
             item->add_button(1, get_icon("Edit", "EditorIcons"), 0);
             item->add_button(1, get_icon("Close", "EditorIcons"), 1);
-            item->set_tooltip(0, StringName(E->deref()));
-            item->set_metadata(0, E->deref());
+            item->set_tooltip(0, StringName(E));
+            item->set_metadata(0, E);
         }
     }
 

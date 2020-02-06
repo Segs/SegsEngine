@@ -129,7 +129,7 @@ RES ResourceFormatDDS::load(se_string_view p_path, se_string_view p_original_pat
 
     if (magic != DDS_MAGIC || hsize != 124 || !(flags & DDSD_PIXELFORMAT) || !(flags & DDSD_CAPS)) {
 
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported DDS texture file '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported DDS texture file '" + p_path + "'.");
     }
 
     /* uint32_t format_size = */ f->get_32();
@@ -218,7 +218,7 @@ RES ResourceFormatDDS::load(se_string_view p_path, se_string_view p_original_pat
     } else {
 
         printf("unrecognized fourcc %x format_flags: %x - rgbbits %i - red_mask %x green mask %x blue mask %x alpha mask %x\n", format_fourcc, format_flags, format_rgb_bits, format_red_mask, format_green_mask, format_blue_mask, format_alpha_mask);
-        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.");
     }
 
     if (!(flags & DDSD_MIPMAPCOUNT))

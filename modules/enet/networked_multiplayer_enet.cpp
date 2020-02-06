@@ -823,7 +823,7 @@ int NetworkedMultiplayerENet::get_peer_port(int p_peer_id) const {
 void NetworkedMultiplayerENet::set_transfer_channel(int p_channel) {
 
     ERR_FAIL_COND(p_channel < -1 || p_channel >= channel_count)
-    ERR_FAIL_COND_MSG(p_channel == SYSCH_CONFIG, "Channel " + itos(SYSCH_CONFIG) + " is reserved.")
+    ERR_FAIL_COND_MSG(p_channel == SYSCH_CONFIG, "Channel " + itos(SYSCH_CONFIG) + " is reserved."); 
     transfer_channel = p_channel;
 }
 

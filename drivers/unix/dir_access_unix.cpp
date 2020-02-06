@@ -40,6 +40,7 @@
 #include "core/string_utils.inl"
 #include "core/vector.h"
 
+#include "EASTL/sort.h"
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -123,7 +124,7 @@ uint64_t DirAccessUnix::get_modified_time(se_string_view _file) {
         return flags.st_mtime;
     } else {
 
-        ERR_FAIL_V(0)
+        ERR_FAIL_V(0);
     }
     return 0;
 };
@@ -203,7 +204,7 @@ static bool _filter_drive(struct mntent *mnt) {
 }
 #endif
 
-static void _get_drives(List<String> *list) {
+static void _get_drives(PODVector<String> *vec) {
 
 #if defined(HAVE_MNTENT) && defined(X11_ENABLED)
     // Check /etc/mtab for the list of mounted partitions
@@ -229,8 +230,8 @@ static void _get_drives(List<String> *list) {
     const char *home = getenv("HOME");
     if (home) {
         // Only add if it's not a duplicate
-        if (!list->find(home)) {
-            list->push_back(home);
+        if (!vec->contains(home)) {
+            vec->push_back(home);
         }
 
         // Check $HOME/.config/gtk-3.0/bookmarks
@@ -245,8 +246,8 @@ static void _get_drives(List<String> *list) {
                 if (string_sv.starts_with("file://")) {
                     // Strip any unwanted edges on the strings and push_back if it's not a duplicate
                     String fpath = StringUtils::percent_decode(StringUtils::split_spaces(StringUtils::strip_edges(string_sv.substr(7)))[0]);
-                    if (!list->find(fpath)) {
-                        list->push_back(fpath);
+                    if (!vec->contains(fpath)) {
+                        vec->push_back(fpath);
                     }
                 }
             }
@@ -254,13 +255,12 @@ static void _get_drives(List<String> *list) {
             fclose(fd);
         }
     }
-
-    list->sort();
+    eastl::sort(vec->begin(),vec->end());
 }
 
 int DirAccessUnix::get_drive_count() {
 
-    List<String> list;
+    PODVector<String> list;
     _get_drives(&list);
 
     return list.size();
@@ -268,7 +268,7 @@ int DirAccessUnix::get_drive_count() {
 
 String DirAccessUnix::get_drive(int p_drive) {
 
-    List<String> list;
+    PODVector<String> list;
     _get_drives(&list);
 
     ERR_FAIL_INDEX_V(p_drive, list.size(), String());

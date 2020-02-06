@@ -632,7 +632,7 @@ Error ScriptClassParser::parse(const String &p_code) {
     return OK;
 }
 static se_string_view get_preprocessor_directive(se_string_view p_line, size_t p_from) {
-    CRASH_COND(p_line[p_from] != '#')
+    CRASH_COND(p_line[p_from] != '#');
     p_from++;
     size_t i = p_from;
     while (i < p_line.length() && (p_line[i] == '_' || (p_line[i] >= 'A' && p_line[i] <= 'Z') ||
@@ -675,13 +675,13 @@ static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) 
                     if_level++;
                     is_branch_being_compiled.push_back(if_level == 0 || is_branch_being_compiled[if_level - 1]);
                 } else if (directive == "elif"_sv) {
-                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#elif' directive. File: '") + p_filepath + "'.")
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#elif' directive. File: '") + p_filepath + "'."); 
                     is_branch_being_compiled[if_level] = false;
                 } else if (directive == "else"_sv) {
-                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#else' directive. File: '") + p_filepath + "'.")
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#else' directive. File: '") + p_filepath + "'."); 
                     is_branch_being_compiled[if_level] = false;
                 } else if (directive == "endif"_sv) {
-                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#endif' directive. File: '") + p_filepath + "'.")
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#endif' directive. File: '") + p_filepath + "'."); 
                     is_branch_being_compiled.erase_at(if_level);
                     if_level--;
                 }

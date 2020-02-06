@@ -476,7 +476,7 @@ int Text::get_line_width(int p_line) const {
 
 void Text::set_line_wrap_amount(int p_line, int p_wrap_amount) const {
 
-    ERR_FAIL_INDEX(p_line, text.size())
+    ERR_FAIL_INDEX(p_line, text.size());
 
     text[p_line].wrap_amount_cache = p_wrap_amount;
 }
@@ -1860,7 +1860,7 @@ void TextEdit::_notification(int p_what) {
                 for (int i = 0; i < lines; i++) {
 
                     int l = line_from + i;
-                    ERR_CONTINUE(l < 0 || l >= completion_options.size())
+                    ERR_CONTINUE(l < 0 || l >= completion_options.size());
                     Color text_color = m_priv->cache.completion_font_color;
                     for (size_t j = 0; j < m_priv->color_regions.size(); j++) {
                         if (StringUtils::begins_with(StringUtils::from_utf8(completion_options[l].insert_text),m_priv->color_regions[j].begin_key)) {
@@ -4102,7 +4102,7 @@ void TextEdit::_scroll_lines_down() {
 void TextEdit::_base_insert_text(int p_line, int p_char, const UIString &p_text, int &r_end_line, int &r_end_column) {
 
     // Save for undo.
-    ERR_FAIL_INDEX(p_line, m_priv->text.size())
+    ERR_FAIL_INDEX(p_line, m_priv->text.size());
     ERR_FAIL_COND(p_char < 0)
 
     /* STEP 1: Remove \r from source text and separate in substrings. */
@@ -5887,7 +5887,7 @@ void TextEdit::set_line_as_breakpoint(int p_line, bool p_breakpoint) {
     update();
 }
 
-void TextEdit::get_breakpoints(List<int> *p_breakpoints) const {
+void TextEdit::get_breakpoints(PODVector<int> *p_breakpoints) const {
 
     for (int i = 0; i < m_priv->text.size(); i++) {
         if (m_priv->text.is_breakpoint(i))
@@ -5914,7 +5914,7 @@ void TextEdit::remove_breakpoints() {
 }
 
 void TextEdit::set_line_info_icon(int p_line, const Ref<Texture>& p_icon, StringName p_info) {
-    ERR_FAIL_INDEX(p_line, m_priv->text.size())
+    ERR_FAIL_INDEX(p_line, m_priv->text.size());
     m_priv->text.set_info_icon(p_line, p_icon, std::move(p_info));
     update();
 }
@@ -5926,7 +5926,7 @@ void TextEdit::clear_info_icons() {
 
 void TextEdit::set_line_as_hidden(int p_line, bool p_hidden) {
 
-    ERR_FAIL_INDEX(p_line, m_priv->text.size())
+    ERR_FAIL_INDEX(p_line, m_priv->text.size());
     if (is_hiding_enabled() || !p_hidden)
         m_priv->text.set_hidden(p_line, p_hidden);
     update();
@@ -6217,7 +6217,7 @@ void TextEdit::unfold_line(int p_line) {
 
 void TextEdit::toggle_fold_line(int p_line) {
 
-    ERR_FAIL_INDEX(p_line, m_priv->text.size())
+    ERR_FAIL_INDEX(p_line, m_priv->text.size());
 
     if (!is_folded(p_line))
         fold_line(p_line);

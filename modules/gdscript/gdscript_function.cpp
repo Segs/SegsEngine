@@ -91,7 +91,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
                 }
                 s = s->_base;
             }
-            ERR_FAIL_V_MSG(nullptr, "GDScriptCompiler bug.")
+            ERR_FAIL_V_MSG(nullptr, "GDScriptCompiler bug.");
         }
         case ADDR_TYPE_LOCAL_CONSTANT: {
 #ifdef DEBUG_ENABLED
@@ -132,7 +132,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
         }
     }
 
-    ERR_FAIL_V_MSG(nullptr, "Bad code! (unknown addressing mode).")
+    ERR_FAIL_V_MSG(nullptr, "Bad code! (unknown addressing mode).");
     return nullptr;
 }
 
@@ -406,7 +406,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
     }
 
 #define CHECK_SPACE(m_space) \
-    GD_ERR_BREAK((ip + m_space) > _code_size)
+    GD_ERR_BREAK((ip + m_space) > _code_size);
 
 #define GET_VARIANT_PTR(m_v, m_code_ofs)                                                       \
     Variant *m_v = _get_variant(_code_ptr[ip + m_code_ofs], p_instance, script, self, stack, err_text); \
@@ -414,7 +414,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
         OPCODE_BREAK;
 
 #else
-#define GD_ERR_BREAK(m_cond)
+#define GD_ERR_BREAK(m_cond);
 #define CHECK_SPACE(m_space)
 #define GET_VARIANT_PTR(m_v, m_code_ofs) \
     Variant *m_v;                        \
@@ -1136,7 +1136,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
                 GDScriptFunctions::Function func = GDScriptFunctions::Function(_code_ptr[ip + 1]);
                 int argc = _code_ptr[ip + 2];
-                GD_ERR_BREAK(argc < 0)
+                GD_ERR_BREAK(argc < 0);
 
                 ip += 3;
                 CHECK_SPACE(argc + 1)
@@ -1587,7 +1587,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
         if (!GDScriptLanguage::get_singleton()->debug_break(err_text, false)) {
             // debugger break did not happen
 
-            _err_print_error(err_func, err_file, err_line, err_text,{}, ERR_HANDLER_SCRIPT);
+            _err_print_error(err_func.c_str(), err_file.c_str(), err_line, err_text,{}, ERR_HANDLER_SCRIPT);
         }
 
 #endif
@@ -1695,7 +1695,7 @@ struct _GDFKCS {
     }
 };
 
-void GDScriptFunction::debug_get_stack_member_state(int p_line, List<Pair<StringName, int> > *r_stackvars) const {
+void GDScriptFunction::debug_get_stack_member_state(int p_line, PODVector<Pair<StringName, int> > *r_stackvars) const {
 
     int oc = 0;
     Map<StringName, _GDFKC> sdmap;
@@ -1739,10 +1739,7 @@ void GDScriptFunction::debug_get_stack_member_state(int p_line, List<Pair<String
 
     for (List<_GDFKCS>::Element *E = stackpositions.front(); E; E = E->next()) {
 
-        Pair<StringName, int> p;
-        p.first = E->deref().id;
-        p.second = E->deref().pos;
-        r_stackvars->push_back(p);
+        r_stackvars->emplace_back(E->deref().id,E->deref().pos);
     }
 }
 

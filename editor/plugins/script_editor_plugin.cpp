@@ -533,7 +533,7 @@ void ScriptEditor::_open_recent_script(int p_idx) {
     }
 
     Array rc = EditorSettings::get_singleton()->get_project_metadata("recent_files", "scripts", Array());
-    ERR_FAIL_INDEX(p_idx, rc.size())
+    ERR_FAIL_INDEX(p_idx, rc.size());
 
     String path = rc[p_idx];
     // if its not on disk its a help file or deleted
@@ -806,7 +806,7 @@ void ScriptEditor::_reload_scripts() {
         Ref<Script> script = dynamic_ref_cast<Script>(edited_res);
         if (script != nullptr) {
             Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), script->get_class(), true));
-            ERR_CONTINUE(not rel_script)
+            ERR_CONTINUE(not rel_script);
             script->set_source_code(String(rel_script->get_source_code()));
             script->set_last_modified_time(rel_script->get_last_modified_time());
             script->reload();
@@ -816,7 +816,7 @@ void ScriptEditor::_reload_scripts() {
         if (text_file != nullptr) {
             Error err;
             Ref<TextFile> rel_text_file = _load_text_file(text_file->get_path(), &err);
-            ERR_CONTINUE(not rel_text_file)
+            ERR_CONTINUE(not rel_text_file);
             text_file->set_text(rel_text_file->get_text());
             text_file->set_last_modified_time(rel_text_file->get_last_modified_time());
         }
@@ -1564,7 +1564,7 @@ void ScriptEditor::notify_script_changed(const Ref<Script> &p_script) {
     emit_signal("editor_script_changed", p_script);
 }
 
-void ScriptEditor::get_breakpoints(List<String> *p_breakpoints) {
+void ScriptEditor::get_breakpoints(PODVector<String> *p_breakpoints) {
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
 
@@ -1577,15 +1577,15 @@ void ScriptEditor::get_breakpoints(List<String> *p_breakpoints) {
             continue;
         }
 
-        List<int> bpoints;
+        PODVector<int> bpoints;
         se->get_breakpoints(&bpoints);
         String base = script->get_path();
         //TODO replace below with PathUtils::is_internal_path ?
-        ERR_CONTINUE(StringUtils::begins_with(base,"local://") || base.empty())
+        ERR_CONTINUE(StringUtils::begins_with(base,"local://") || base.empty());
 
-        for (List<int>::Element *E = bpoints.front(); E; E = E->next()) {
+        for (int E : bpoints) {
 
-            p_breakpoints->push_back(base + ":" + itos(E->deref() + 1));
+            p_breakpoints->push_back(base + ":" + itos(E + 1));
         }
     }
 }
@@ -3606,7 +3606,7 @@ void ScriptEditorPlugin::get_window_layout(Ref<ConfigFile> p_layout) {
     script_editor->get_window_layout(p_layout);
 }
 
-void ScriptEditorPlugin::get_breakpoints(List<String> *p_breakpoints) {
+void ScriptEditorPlugin::get_breakpoints(PODVector<String> *p_breakpoints) {
 
     script_editor->get_breakpoints(p_breakpoints);
 }

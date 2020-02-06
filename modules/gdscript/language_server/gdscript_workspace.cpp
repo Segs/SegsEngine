@@ -112,7 +112,7 @@ void GDScriptWorkspace::reload_all_workspace_scripts() {
     for (const String &path : paths) {
         Error err;
         String content = FileAccess::get_file_as_string(path, &err);
-        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(err != OK);
         err = parse_script(path, content);
 
         if (err != OK) {
@@ -121,7 +121,7 @@ void GDScriptWorkspace::reload_all_workspace_scripts() {
             if (S!=parse_results.end()) {
                 err_msg += "\n" + S->second->get_error();
             }
-            ERR_CONTINUE_MSG(err != OK,err_msg)
+            ERR_CONTINUE_MSG(err != OK,err_msg); 
         }
     }
 }

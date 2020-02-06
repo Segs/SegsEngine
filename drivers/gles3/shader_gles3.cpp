@@ -154,7 +154,7 @@ static void _display_error_with_code(const String &p_error, const PODVector<cons
         line++;
     }
 
-    ERR_PRINT(p_error.c_str())
+    ERR_PRINT(p_error.c_str());
 }
 
 ShaderGLES3::Version *ShaderGLES3::get_current_version() {
@@ -300,7 +300,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             glDeleteProgram(v.id);
             v.id = 0;
 
-            ERR_PRINT("Vertex shader compilation failed with empty log")
+            ERR_PRINT("Vertex shader compilation failed with empty log");
         } else {
 
             if (iloglen == 0) {
@@ -322,7 +322,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             v.id = 0;
         }
 
-        ERR_FAIL_V(nullptr)
+        ERR_FAIL_V(nullptr);
     }
 
     //_display_error_with_code("pepo", strings);
@@ -388,7 +388,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             glDeleteShader(v.vert_id);
             glDeleteProgram(v.id);
             v.id = 0;
-            ERR_PRINT("Fragment shader compilation failed with empty log")
+            ERR_PRINT("Fragment shader compilation failed with empty log");
         } else {
 
             if (iloglen == 0) {
@@ -404,7 +404,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
             err_string += ilogmem;
             _display_error_with_code(err_string, strings);
-            ERR_PRINT(err_string.c_str())
+            ERR_PRINT(err_string.c_str());
             memfree(ilogmem);
             glDeleteShader(v.frag_id);
             glDeleteShader(v.vert_id);
@@ -412,7 +412,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
             v.id = 0;
         }
 
-        ERR_FAIL_V(nullptr)
+        ERR_FAIL_V(nullptr);
     }
 
     glAttachShader(v.id, v.frag_id);
@@ -472,14 +472,14 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
         err_string += ilogmem;
         _display_error_with_code(err_string, strings);
-        ERR_PRINT(err_string.c_str())
+        ERR_PRINT(err_string.c_str());
         Memory::free_static(ilogmem);
         glDeleteShader(v.frag_id);
         glDeleteShader(v.vert_id);
         glDeleteProgram(v.id);
         v.id = 0;
 
-        ERR_FAIL_V(nullptr)
+        ERR_FAIL_V(nullptr);
     }
 
     /* UNIFORMS */
@@ -725,7 +725,7 @@ void ShaderGLES3::free_custom_shader(uint32_t p_code_id) {
     key.code_version = p_code_id;
     for (uint32_t E : custom_code_map[p_code_id].versions) {
         key.version = E;
-        ERR_CONTINUE(!version_map.contains(key))
+        ERR_CONTINUE(!version_map.contains(key));
         Version &v = version_map[key];
 
         glDeleteShader(v.vert_id);

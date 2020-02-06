@@ -232,10 +232,10 @@ void IP::clear_cache(const String &p_hostname) {
 Array IP::_get_local_addresses() const {
 
     Array addresses;
-    List<IP_Address> ip_addresses;
+    PODVector<IP_Address> ip_addresses;
     get_local_addresses(&ip_addresses);
-    for (List<IP_Address>::Element *E = ip_addresses.front(); E; E = E->next()) {
-        addresses.push_back(Variant(E->deref()));
+    for (const IP_Address &E : ip_addresses) {
+        addresses.push_back(Variant(E));
     }
 
     return addresses;
@@ -254,8 +254,8 @@ Array IP::_get_local_interfaces() const {
         rc["index"] = c.index;
 
         Array ips;
-        for (const List<IP_Address>::Element *F = c.ip_addresses.front(); F; F = F->next()) {
-            ips.push_front(Variant(F->deref()));
+        for (const IP_Address &F : c.ip_addresses) {
+            ips.push_front(Variant(F));
         }
         rc["addresses"] = ips;
 
@@ -265,13 +265,13 @@ Array IP::_get_local_interfaces() const {
     return results;
 }
 
-void IP::get_local_addresses(List<IP_Address> *r_addresses) const {
+void IP::get_local_addresses(PODVector<IP_Address> *r_addresses) const {
 
     Map<String, Interface_Info> interfaces;
     get_local_interfaces(&interfaces);
     for (eastl::pair<const String,Interface_Info> &E : interfaces) {
-        for (const List<IP_Address>::Element *F = E.second.ip_addresses.front(); F; F = F->next()) {
-            r_addresses->push_front(F->deref());
+        for (const IP_Address &F : E.second.ip_addresses) {
+            r_addresses->push_front(F);
         }
     }
 }

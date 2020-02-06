@@ -530,7 +530,7 @@ Ref<Image> RasterizerStorageGLES3::_get_gl_image_and_format(const Ref<Image> &p_
         } break;
         default: {
 
-            ERR_FAIL_V(Ref<Image>())
+            ERR_FAIL_V(Ref<Image>());
         }
     }
 
@@ -1510,7 +1510,7 @@ RID RasterizerStorageGLES3::texture_create_radiance_cubemap(RID p_source, int p_
             glBindVertexArray(0);
 #ifdef DEBUG_ENABLED
             GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-            ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE)
+            ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE);
 #endif
         }
 
@@ -3216,7 +3216,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     //must have index and bones, both.
     {
         uint32_t bones_weight = VS::ARRAY_FORMAT_BONES | VS::ARRAY_FORMAT_WEIGHTS;
-        ERR_FAIL_COND_MSG((p_format & bones_weight) && (p_format & bones_weight) != bones_weight, "Array must have both bones and weights in format or none.")
+        ERR_FAIL_COND_MSG((p_format & bones_weight) && (p_format & bones_weight) != bones_weight, "Array must have both bones and weights in format or none.");
     }
 
     //bool has_morph = p_blend_shapes.size();
@@ -3883,7 +3883,7 @@ void RasterizerStorageGLES3::mesh_remove_surface(RID p_mesh, int p_surface) {
 
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh)
-    ERR_FAIL_INDEX(p_surface, mesh->surfaces.size())
+    ERR_FAIL_INDEX(p_surface, mesh->surfaces.size());
 
     Surface *surface = mesh->surfaces[p_surface];
 
@@ -5066,7 +5066,7 @@ void RasterizerStorageGLES3::skeleton_bone_set_transform(RID p_skeleton, int p_b
     Skeleton *skeleton = skeleton_owner.getornull(p_skeleton);
 
     ERR_FAIL_COND(!skeleton)
-    ERR_FAIL_INDEX(p_bone, skeleton->size)
+    ERR_FAIL_INDEX(p_bone, skeleton->size);
     ERR_FAIL_COND(skeleton->use_2d)
 
     auto skeleton_wr(skeleton->skel_texture.write());
@@ -7718,10 +7718,10 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
             if (ins->material_override == p_rid) {
                 ins->material_override = RID();
             }
-
+            auto wr(ins->materials.write());
             for (int i = 0; i < ins->materials.size(); i++) {
                 if (ins->materials[i] == p_rid) {
-                    ins->materials.write[i] = RID();
+                    wr[i] = RID();
                 }
             }
         }

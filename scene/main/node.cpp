@@ -408,8 +408,8 @@ void Node::move_child(Node *p_child, int p_pos) {
 
     ERR_FAIL_NULL(p_child);
     ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".")
-    ERR_FAIL_COND_MSG(p_child->data->parent != this, "Child is not a child of this node.")
-    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).")
+    ERR_FAIL_COND_MSG(p_child->data->parent != this, "Child is not a child of this node.");
+    ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).");
 
     // Specifying one place beyond the end
     // means the same as moving to the last position
@@ -1342,7 +1342,7 @@ void Node::remove_child(Node *p_child) {
         }
     }
 
-    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + String(p_child->get_name()) + " as it is not a child of this node.")
+    ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + String(p_child->get_name()) + " as it is not a child of this node.");
     //ERR_FAIL_COND( p_child->blocked > 0 )
 
     //if (data->scene) { does not matter
@@ -2269,11 +2269,11 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
     } else {
 
         Object *obj = ClassDB::instance(get_class_name());
-        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".")
+        ERR_FAIL_COND_MSG(!obj, "Node: Could not duplicate: " + String(get_class()) + ".");
         node = object_cast<Node>(obj);
         if (!node) {
             memdelete(obj);
-            ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".")
+            ERR_FAIL_MSG("Node: Could not duplicate: " + String(get_class()) + ".");
         }
     }
 
@@ -2376,7 +2376,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     Node *node = object_cast<Node>(obj);
     if (!node) {
         memdelete(obj);
-        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".")
+        ERR_FAIL_V_MSG(nullptr, "Node: Could not duplicate: " + String(get_class()) + ".");
     }
     node->set_name(get_name());
 
@@ -2513,7 +2513,7 @@ void Node::_replace_connections_target(Node *p_new_target) {
             bool valid = p_new_target->has_method(c.method) || not refFromRefPtr<Script>(p_new_target->get_script()) ||
                          refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.method);
             ERR_CONTINUE_MSG(!valid, FormatVE("Attempt to connect signal '%s.", c.source->get_class()) + c.signal +
-                                             FormatVE("' to nonexistent method '%s.", c.target->get_class()) + c.method + "'.")
+                                             FormatVE("' to nonexistent method '%s.", c.target->get_class()) + c.method + "'.");
             c.source->connect(c.signal, p_new_target, c.method, c.binds, c.flags);
         }
     }

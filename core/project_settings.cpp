@@ -127,12 +127,12 @@ String ProjectSettings::localize_path(se_string_view p_path) const {
 
 void ProjectSettings::set_initial_value(const StringName &p_name, const Variant &p_value) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".");
     props[p_name].initial = p_value;
 }
 void ProjectSettings::set_restart_if_changed(const StringName &p_name, bool p_restart) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".");
     props[p_name].restart_if_changed = p_restart;
 }
 
@@ -544,7 +544,7 @@ Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
         f->get_buffer(d.data(), vlen);
         Variant value;
         err = decode_variant(value, d.data(), d.size(), nullptr, true);
-        ERR_CONTINUE_MSG(err != OK, "Error decoding property: " + key + ".")
+        ERR_CONTINUE_MSG(err != OK, "Error decoding property: " + key + ".");
         set(StringName(key), value);
     }
 
@@ -590,7 +590,7 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
             _convert_to_last_version(config_version);
             return OK;
         } else if (err != OK) {
-            ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.",String(p_path).c_str(),lines,error_text.c_str())
+            ERR_PRINTF("Error parsing %s at line %d: %s File might be corrupted.",String(p_path).c_str(),lines,error_text.c_str());
             VariantParser::release_stream(stream);
             memdelete(f);
             return err;
@@ -603,9 +603,9 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
                     VariantParser::release_stream(stream);
                     memdelete(f);
                     ERR_FAIL_V_MSG(ERR_FILE_CANT_OPEN,
-                            FormatVE("Can't open project at '%s', its `config_version` (%d) is from a more recent and "
+                            FormatVE("Can't open project at '%.*s', its `config_version` (%d) is from a more recent and "
                                     "incompatible version of the engine. Expected config version: %d.",
-                                    String(p_path).c_str(), config_version, CONFIG_VERSION))
+                                    uint32_t(p_path.length()),p_path.data(), config_version, CONFIG_VERSION));
                 }
             } else {
                 if (section.empty()) {
@@ -628,7 +628,7 @@ Error ProjectSettings::_load_settings_text_or_binary(se_string_view p_text_path,
         return OK;
     } else if (err_text != ERR_FILE_NOT_FOUND) {
         // If the text-based file exists but can't be loaded, we want to know it
-        ERR_PRINT("Couldn't load file '" + String(p_text_path) + "', error code " + ::to_string(err_text) + ".")
+        ERR_PRINT("Couldn't load file '" + String(p_text_path) + "', error code " + ::to_string(err_text) + ".");
         return err_text;
     }
 
@@ -645,12 +645,12 @@ int ProjectSettings::get_order(const StringName &p_name) const {
 
 void ProjectSettings::set_order(const StringName &p_name, int p_order) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".");
     props[p_name].order = p_order;
 }
 
 void ProjectSettings::set_builtin_order(const StringName &p_name) {
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".");
     if (props[p_name].order >= NO_BUILTIN_ORDER_BASE) {
         props[p_name].order = last_builtin_order++;
     }
@@ -658,7 +658,7 @@ void ProjectSettings::set_builtin_order(const StringName &p_name) {
 
 void ProjectSettings::clear(const StringName &p_name) {
 
-    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".")
+    ERR_FAIL_COND_MSG(!props.contains(p_name), "Request for nonexistent project setting: " + String(p_name) + ".");
     props.erase(p_name);
 }
 
@@ -694,7 +694,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
         err = encode_variant(p_custom_features, nullptr, len, false);
         if (err != OK) {
             memdelete(file);
-            ERR_FAIL_V(err)
+            ERR_FAIL_V(err);
         }
 
         PODVector<uint8_t> buff;
@@ -703,7 +703,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
         err = encode_variant(p_custom_features, buff.data(), len, false);
         if (err != OK) {
             memdelete(file);
-            ERR_FAIL_V(err)
+            ERR_FAIL_V(err);
         }
         file->store_32(len);
         file->store_buffer(buff.data(), buff.size());
@@ -885,7 +885,7 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         return _save_settings_binary(p_path, props, p_custom, custom_features);
     else {
 
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + String(p_path) + ".")
+        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unknown config file format: " + String(p_path) + ".");
     }
 }
 

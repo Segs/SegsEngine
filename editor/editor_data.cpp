@@ -328,7 +328,7 @@ void EditorData::copy_object_params(Object *p_object) {
     }
 }
 
-void EditorData::get_editor_breakpoints(List<String> *p_breakpoints) {
+void EditorData::get_editor_breakpoints(PODVector<String> *p_breakpoints) {
 
     for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -483,7 +483,7 @@ EditorPlugin *EditorData::get_editor_plugin(int p_idx) {
 
 void EditorData::add_custom_type(const StringName &p_type, const StringName &p_inherits, const Ref<Script> &p_script, const Ref<Texture> &p_icon) {
 
-    ERR_FAIL_COND_MSG(not p_script, "It's not a reference to a valid Script object.")
+    ERR_FAIL_COND_MSG(not p_script, "It's not a reference to a valid Script object.");
     CustomType ct;
     ct.name = p_type;
     ct.icon = p_icon;
@@ -557,8 +557,8 @@ int EditorData::add_edited_scene(int p_at_pos) {
 
 void EditorData::move_edited_scene_index(int p_idx, int p_to_idx) {
 
-    ERR_FAIL_INDEX(p_idx, edited_scene.size())
-    ERR_FAIL_INDEX(p_to_idx, edited_scene.size())
+    ERR_FAIL_INDEX(p_idx, edited_scene.size());
+    ERR_FAIL_INDEX(p_to_idx, edited_scene.size());
     SWAP(edited_scene[p_idx], edited_scene[p_to_idx]);
 }
 
@@ -742,8 +742,8 @@ UIString EditorData::get_scene_type(int p_idx) const {
 }
 void EditorData::move_edited_scene_to_index(int p_idx) {
 
-    ERR_FAIL_INDEX(current_edited_scene, edited_scene.size())
-    ERR_FAIL_INDEX(p_idx, edited_scene.size())
+    ERR_FAIL_INDEX(current_edited_scene, edited_scene.size());
+    ERR_FAIL_INDEX(p_idx, edited_scene.size());
 
     EditedScene es = eastl::move(edited_scene[current_edited_scene]);
     edited_scene.erase_at(current_edited_scene);
@@ -783,7 +783,7 @@ StringName EditorData::get_scene_title(int p_idx) const {
 
 void EditorData::set_scene_path(int p_idx, se_string_view p_path) {
 
-    ERR_FAIL_INDEX(p_idx, edited_scene.size())
+    ERR_FAIL_INDEX(p_idx, edited_scene.size());
     edited_scene[p_idx].path = p_path;
 
     if (!edited_scene[p_idx].root)

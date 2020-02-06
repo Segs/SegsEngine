@@ -287,7 +287,7 @@ Error WebRTCMultiplayer::get_packet(const uint8_t **r_buffer, int &r_buffer_size
     // Peer not available
     if (next_packet_peer == 0 || !peer_map.contains(next_packet_peer)) {
         _find_next_peer();
-        ERR_FAIL_V(ERR_UNAVAILABLE)
+        ERR_FAIL_V(ERR_UNAVAILABLE);
     }
     for (List<Ref<WebRTCDataChannel> >::Element *E = peer_map[next_packet_peer]->channels.front(); E; E = E->next()) {
         if (E->deref()->get_available_packet_count()) {
@@ -337,7 +337,7 @@ Error WebRTCMultiplayer::put_packet(const uint8_t *p_buffer, int p_buffer_size) 
             if (target_peer != 0 && F.first == exclude)
                 continue;
 
-            ERR_CONTINUE(F.second->channels.size() <= ch || not F.second->channels[ch])
+            ERR_CONTINUE(F.second->channels.size() <= ch || not F.second->channels[ch]);
             F.second->channels[ch]->put_packet(p_buffer, p_buffer_size);
         }
     }

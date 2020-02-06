@@ -91,7 +91,7 @@ Error ContextGL_X11::initialize() {
 
     GLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = (GLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
 
-    ERR_FAIL_COND_V(!glXCreateContextAttribsARB, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!glXCreateContextAttribsARB, ERR_UNCONFIGURED);
 
     static int visual_attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
@@ -127,7 +127,7 @@ Error ContextGL_X11::initialize() {
 
     if (OS::get_singleton()->is_layered_allowed()) {
         GLXFBConfig *fbc = glXChooseFBConfig(x11_display, DefaultScreen(x11_display), visual_attribs_layered, &fbcount);
-        ERR_FAIL_COND_V(!fbc, ERR_UNCONFIGURED)
+        ERR_FAIL_COND_V(!fbc, ERR_UNCONFIGURED);
 
         for (int i = 0; i < fbcount; i++) {
             vi = (XVisualInfo *)glXGetVisualFromFBConfig(x11_display, fbc[i]);
@@ -147,7 +147,7 @@ Error ContextGL_X11::initialize() {
             }
         }
         XFree(fbc);
-        ERR_FAIL_COND_V(!fbconfig, ERR_UNCONFIGURED)
+        ERR_FAIL_COND_V(!fbconfig, ERR_UNCONFIGURED);
 
         swa.background_pixmap = None;
         swa.background_pixel = 0;
@@ -156,7 +156,7 @@ Error ContextGL_X11::initialize() {
 
     } else {
         GLXFBConfig *fbc = glXChooseFBConfig(x11_display, DefaultScreen(x11_display), visual_attribs, &fbcount);
-        ERR_FAIL_COND_V(!fbc, ERR_UNCONFIGURED)
+        ERR_FAIL_COND_V(!fbc, ERR_UNCONFIGURED);
 
         vi = glXGetVisualFromFBConfig(x11_display, fbc[0]);
 
@@ -170,7 +170,7 @@ Error ContextGL_X11::initialize() {
         case OLDSTYLE: {
 
             p->glx_context = glXCreateContext(x11_display, vi, nullptr, GL_TRUE);
-            ERR_FAIL_COND_V(!p->glx_context, ERR_UNCONFIGURED)
+            ERR_FAIL_COND_V(!p->glx_context, ERR_UNCONFIGURED);
         } break;
         case GLES_3_0_COMPATIBLE: {
 
@@ -183,7 +183,7 @@ Error ContextGL_X11::initialize() {
             };
 
             p->glx_context = glXCreateContextAttribsARB(x11_display, fbconfig, nullptr, true, context_attribs);
-            ERR_FAIL_COND_V(ctxErrorOccurred || !p->glx_context, ERR_UNCONFIGURED)
+            ERR_FAIL_COND_V(ctxErrorOccurred || !p->glx_context, ERR_UNCONFIGURED);
         } break;
     }
 
@@ -191,7 +191,7 @@ Error ContextGL_X11::initialize() {
     x11_window = XCreateWindow(x11_display, RootWindow(x11_display, vi->screen), 0, 0, OS::get_singleton()->get_video_mode().width, OS::get_singleton()->get_video_mode().height, 0, vi->depth, InputOutput, vi->visual, valuemask, &swa);
     XStoreName(x11_display, x11_window, "Godot Engine");
 
-    ERR_FAIL_COND_V(!x11_window, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(!x11_window, ERR_UNCONFIGURED);
     set_class_hint(x11_display, x11_window);
     XMapWindow(x11_display, x11_window);
 

@@ -162,13 +162,13 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
                     if (vi1.distance_to(vj1) < 0.00001f && vi2.distance_to(vj2) < 0.00001f) {
                         if (p_faces[i].links[k].face != -1) {
 
-                            ERR_PRINT("already linked\n")
+                            ERR_PRINT("already linked\n");
                             error = true;
                             goto ERR_OUT;
                         }
                         if (p_faces[j].links[l].face != -1) {
 
-                            ERR_PRINT("already linked\n")
+                            ERR_PRINT("already linked\n");
                             error = true;
                             goto ERR_OUT;
                         }
@@ -415,7 +415,7 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                     ERR_FAIL_COND(z < 0);
                 } break;
                 default: {
-                    ERR_FAIL()
+                    ERR_FAIL();
                 }
             }
             continue;
@@ -451,7 +451,7 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                 next_z--;
                 prev = _CELL_PREV_Z_POS;
             } break;
-            default: ERR_FAIL()
+            default: ERR_FAIL();
         }
 
         if (next_x < 0 || next_x >= len_x)
@@ -473,9 +473,9 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
 
 static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, int len_x, int len_y, int len_z, PoolVector<Face3> &p_faces) {
 
-    ERR_FAIL_INDEX(x, len_x)
-    ERR_FAIL_INDEX(y, len_y)
-    ERR_FAIL_INDEX(z, len_z)
+    ERR_FAIL_INDEX(x, len_x);
+    ERR_FAIL_INDEX(y, len_y);
+    ERR_FAIL_INDEX(z, len_z);
 
     if (p_cell_status[x][y][z] & _CELL_EXTERIOR)
         return;
@@ -730,7 +730,7 @@ PODVector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const 
     in_poly.push_back(inp);
     TriangulatorPartition tpart;
     if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
-        ERR_PRINT("Convex decomposing failed!")
+        ERR_PRINT("Convex decomposing failed!");
                 return decomp;
     }
 

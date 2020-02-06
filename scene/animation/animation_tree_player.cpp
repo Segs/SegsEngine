@@ -1190,8 +1190,8 @@ int AnimationTreePlayer::node_get_input_count(const StringName &p_node) const {
     return node_map.at(p_node)->inputs.size();
 }
 #define GET_NODE(m_type, m_cast)                                                             \
-    ERR_FAIL_COND(!node_map.contains(p_node))                                                    \
-    ERR_FAIL_COND_MSG(node_map.at(p_node)->type != m_type, "Invalid parameter for node type.") \
+    ERR_FAIL_COND(!node_map.contains(p_node));                                                    \
+    ERR_FAIL_COND_MSG(node_map.at(p_node)->type != m_type, "Invalid parameter for node type."); \
     m_cast *n = static_cast<m_cast *>(node_map.at(p_node));
 
 void AnimationTreePlayer::animation_node_set_animation(const StringName &p_node, const Ref<Animation> &p_animation) {
@@ -1206,7 +1206,7 @@ void AnimationTreePlayer::animation_node_set_master_animation(const StringName &
     GET_NODE(NODE_ANIMATION, AnimationTreeNode);
     n->from = p_master_animation;
     dirty_caches = true;
-    if (master != NodePath())
+    if (master.empty())
         _update_sources();
 }
 
@@ -1556,7 +1556,7 @@ PODVector<StringName> AnimationTreePlayer::get_node_vector() const {
 void AnimationTreePlayer::remove_node(const StringName &p_node) {
 
     ERR_FAIL_COND(!node_map.contains(p_node))
-    ERR_FAIL_COND_MSG(p_node == out_name, "Node 0 (output) can't be removed.")
+    ERR_FAIL_COND_MSG(p_node == out_name, "Node 0 (output) can't be removed.");
 
     for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 

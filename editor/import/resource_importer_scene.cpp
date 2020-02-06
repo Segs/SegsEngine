@@ -61,7 +61,7 @@ uint32_t EditorSceneImporter::get_import_flags() const {
         return get_script_instance()->call("_get_import_flags");
     }
 
-    ERR_FAIL_V(0)
+    ERR_FAIL_V(0);
 }
 void EditorSceneImporter::get_extensions(PODVector<String> &r_extensions) const {
 
@@ -73,7 +73,7 @@ void EditorSceneImporter::get_extensions(PODVector<String> &r_extensions) const 
         return;
     }
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 Node *EditorSceneImporter::import_scene(
         se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) {
@@ -82,7 +82,7 @@ Node *EditorSceneImporter::import_scene(
         return get_script_instance()->call("_import_scene", p_path, p_flags, p_bake_fps);
     }
 
-    ERR_FAIL_V(nullptr)
+    ERR_FAIL_V(nullptr);
 }
 
 Ref<Animation> EditorSceneImporter::import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
@@ -91,7 +91,7 @@ Ref<Animation> EditorSceneImporter::import_animation(se_string_view p_path, uint
         return refFromRefPtr<Animation>(get_script_instance()->call("_import_animation", p_path, p_flags));
     }
 
-    ERR_FAIL_V(Ref<Animation>())
+    ERR_FAIL_V(Ref<Animation>());
 }
 
 // for documenters, these functions are useful when an importer calls an external conversion helper (like, fbx2gltf),
@@ -381,7 +381,7 @@ Node *ResourceImporterScene::_fix_node(
         for (const StringName &E : anims) {
 
             Ref<Animation> anim = ap->get_animation(E);
-            ERR_CONTINUE(not anim)
+            ERR_CONTINUE(not anim);
             for (int i = 0; i < anim->get_track_count(); i++) {
                 NodePath path = anim->track_get_path(i);
 
@@ -982,7 +982,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, se_string_vie
             for (const StringName &E : anims) {
 
                 Ref<Animation> anim = ap->get_animation(E);
-                ERR_CONTINUE(not anim)
+                ERR_CONTINUE(not anim);
 
                 if (!p_animations.contains(anim)) {
 
@@ -1619,5 +1619,5 @@ Node *EditorSceneImporterESCN::import_scene(se_string_view p_path, uint32_t /*p_
     return scene;
 }
 Ref<Animation> EditorSceneImporterESCN::import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
-    ERR_FAIL_V(Ref<Animation>())
+    ERR_FAIL_V(Ref<Animation>());
 }

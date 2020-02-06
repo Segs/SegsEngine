@@ -604,7 +604,7 @@ void Image::convert(Format p_new_format) {
 
     if (format > FORMAT_RGBE9995 || p_new_format > FORMAT_RGBE9995) {
 
-        ERR_FAIL_MSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.")
+        ERR_FAIL_MSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.");
 
     } else if (format > FORMAT_RGBA8 || p_new_format > FORMAT_RGBA8) {
 
@@ -1044,7 +1044,7 @@ bool Image::is_size_po2() const {
 
 void Image::resize_to_po2(bool p_square) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats."); 
 
     int w = next_power_of_2(width);
     int h = next_power_of_2(height);
@@ -1060,16 +1060,16 @@ void Image::resize_to_po2(bool p_square) {
 
 void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
-    ERR_FAIL_COND_MSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.")
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.")
-    ERR_FAIL_COND_MSG(write_lock.ptr(), "Cannot resize image when it is locked.")
+    ERR_FAIL_COND_MSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first."); 
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats."); 
+    ERR_FAIL_COND_MSG(write_lock.ptr(), "Cannot resize image when it is locked."); 
 
     bool mipmap_aware = p_interpolation == INTERPOLATE_TRILINEAR /* || p_interpolation == INTERPOLATE_TRICUBIC */;
 
-    ERR_FAIL_COND_MSG(p_width <= 0, "Image width must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_height <= 0, "Image height must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_width > MAX_WIDTH, "Image width cannot be greater than " + itos(MAX_WIDTH) + ".")
-    ERR_FAIL_COND_MSG(p_height > MAX_HEIGHT, "Image height cannot be greater than " + itos(MAX_HEIGHT) + ".")
+    ERR_FAIL_COND_MSG(p_width <= 0, "Image width must be greater than 0."); 
+    ERR_FAIL_COND_MSG(p_height <= 0, "Image height must be greater than 0."); 
+    ERR_FAIL_COND_MSG(p_width > MAX_WIDTH, "Image width cannot be greater than " + itos(MAX_WIDTH) + "."); 
+    ERR_FAIL_COND_MSG(p_height > MAX_HEIGHT, "Image height cannot be greater than " + itos(MAX_HEIGHT) + "."); 
 
     if (p_width == width && p_height == height)
         return;
@@ -1275,14 +1275,14 @@ void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
 void Image::crop_from_point(int p_x, int p_y, int p_width, int p_height) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot crop in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot crop in compressed or custom image formats."); 
 
-    ERR_FAIL_COND_MSG(p_x < 0, "Start x position cannot be smaller than 0.")
-    ERR_FAIL_COND_MSG(p_y < 0, "Start y position cannot be smaller than 0.")
-    ERR_FAIL_COND_MSG(p_width <= 0, "Width of image must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_height <= 0, "Height of image must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_x + p_width > MAX_WIDTH, "End x position cannot be greater than " + itos(MAX_WIDTH) + ".")
-    ERR_FAIL_COND_MSG(p_y + p_height > MAX_HEIGHT, "End y position cannot be greater than " + itos(MAX_HEIGHT) + ".")
+    ERR_FAIL_COND_MSG(p_x < 0, "Start x position cannot be smaller than 0."); 
+    ERR_FAIL_COND_MSG(p_y < 0, "Start y position cannot be smaller than 0."); 
+    ERR_FAIL_COND_MSG(p_width <= 0, "Width of image must be greater than 0."); 
+    ERR_FAIL_COND_MSG(p_height <= 0, "Height of image must be greater than 0."); 
+    ERR_FAIL_COND_MSG(p_x + p_width > MAX_WIDTH, "End x position cannot be greater than " + itos(MAX_WIDTH) + "."); 
+    ERR_FAIL_COND_MSG(p_y + p_height > MAX_HEIGHT, "End y position cannot be greater than " + itos(MAX_HEIGHT) + "."); 
 
     /* to save memory, cropping should be done in-place, however, since this function
        will most likely either not be used much, or in critical areas, for now it won't, because
@@ -1330,7 +1330,7 @@ void Image::crop(int p_width, int p_height) {
 
 void Image::flip_y() {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats."); 
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1363,7 +1363,7 @@ void Image::flip_y() {
 
 void Image::flip_x() {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats."); 
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1700,8 +1700,8 @@ bool Image::empty() const {
 
 void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_format) {
 
-    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH)
-    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT)
+    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH);
+    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT);
 
     int mm = 0;
     int size = _get_dst_image_size(p_width, p_height, p_format, mm, p_use_mipmaps ? -1 : 0);
@@ -1718,8 +1718,8 @@ void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_forma
 }
 void Image::create(ImageData &&src) {
 
-    ERR_FAIL_INDEX(src.width - 1, MAX_WIDTH)
-    ERR_FAIL_INDEX(src.height - 1, MAX_HEIGHT)
+    ERR_FAIL_INDEX(src.width - 1, MAX_WIDTH);
+    ERR_FAIL_INDEX(src.height - 1, MAX_HEIGHT);
 
     int mm = 0;
     int size_without_mips = _get_dst_image_size(src.width, src.height, src.format, mm,  0);
@@ -1743,13 +1743,13 @@ void Image::create(ImageData &&src) {
 }
 void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_format, const PoolVector<uint8_t> &p_data) {
 
-    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH)
-    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT)
+    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH);
+    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT);
 
     int mm;
     int size = _get_dst_image_size(p_width, p_height, p_format, mm, p_use_mipmaps ? -1 : 0);
 
-    ERR_FAIL_COND_MSG(p_data.size() != size, "Expected data size of " + itos(size) + " bytes in Image::create(), got instead " + itos(p_data.size()) + " bytes.")
+    ERR_FAIL_COND_MSG(p_data.size() != size, "Expected data size of " + itos(size) + " bytes in Image::create(), got instead " + itos(p_data.size()) + " bytes."); 
 
     height = p_height;
     width = p_width;
@@ -2093,7 +2093,7 @@ Error Image::compress(ImageCompressMode p_mode, ImageCompressSource p_source, fl
         case COMPRESS_BPTC:
             return Image::compress_image(this,{p_lossy_quality,p_mode,p_source});
         default:
-            ERR_PRINT("Unsupported compress mode")
+            ERR_PRINT("Unsupported compress mode");
             return ERR_UNAVAILABLE;
     }
 
@@ -2176,7 +2176,7 @@ Ref<Image> Image::get_rect(const Rect2 &p_area) const {
 
 void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.")
+    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object."); 
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     ERR_FAIL_COND(dsize == 0);
@@ -2227,8 +2227,8 @@ void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Po
 
 void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.")
-    ERR_FAIL_COND_MSG(not p_mask, "It's not a reference to a valid Image object.")
+    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object."); 
+    ERR_FAIL_COND_MSG(not p_mask, "It's not a reference to a valid Image object."); 
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
@@ -2404,7 +2404,7 @@ void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, c
 
 void Image::fill(const Color &c) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot fill in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot fill in compressed or custom image formats."); 
 
     lock();
 
@@ -2670,7 +2670,7 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
 
     uint8_t *ptr = write_lock.ptr();
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_MSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().")
+    ERR_FAIL_COND_MSG(!ptr, "Image must be locked with 'lock()' before using set_pixel()."); 
 
     ERR_FAIL_INDEX(p_x, width);
     ERR_FAIL_INDEX(p_y, height);

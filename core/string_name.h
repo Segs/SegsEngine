@@ -157,7 +157,7 @@ public:
         ERR_FAIL_COND(!configured);
 
         if (unlikely(!p_static_string.ptr || !p_static_string.ptr[0])) {
-            ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
+            ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0]);
             return;
         }
         setupFromCString(p_static_string);

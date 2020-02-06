@@ -82,7 +82,7 @@ void InputMap::_bind_methods() {
 
 void InputMap::add_action(const StringName &p_action, float p_deadzone) {
 
-    ERR_FAIL_COND_MSG(input_map.contains(p_action), "InputMap already has action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(input_map.contains(p_action), "InputMap already has action '" + String(p_action) + "'."); 
     input_map[p_action] = Action();
     static int last_id = 1;
     input_map[p_action].id = last_id;
@@ -92,7 +92,7 @@ void InputMap::add_action(const StringName &p_action, float p_deadzone) {
 
 void InputMap::erase_action(const StringName &p_action) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'."); 
     input_map.erase(p_action);
 }
 
@@ -124,15 +124,15 @@ bool InputMap::has_action(const StringName &p_action) const {
 
 void InputMap::action_set_deadzone(const StringName &p_action, float p_deadzone) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'."); 
 
     input_map[p_action].deadzone = p_deadzone;
 }
 
 void InputMap::action_add_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_MSG(not p_event, "It's not a reference to a valid InputEvent object.")
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(not p_event, "It's not a reference to a valid InputEvent object."); 
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'."); 
     if (_find_event(input_map[p_action], p_event)!=input_map[p_action].inputs.end())
         return; //already gots
 
@@ -147,7 +147,7 @@ bool InputMap::action_has_event(const StringName &p_action, const Ref<InputEvent
 
 void InputMap::action_erase_event(const StringName &p_action, const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'.")
+    ERR_FAIL_COND_MSG(!input_map.contains(p_action), "Request for nonexistent InputMap action '" + String(p_action) + "'."); 
 
     auto iter = _find_event(input_map[p_action], p_event);
     if (input_map[p_action].inputs.end()!=iter)
@@ -278,6 +278,6 @@ void InputMap::load_default() {
 
 InputMap::InputMap() {
 
-    ERR_FAIL_COND_MSG(singleton, "Singleton in InputMap already exist.")
+    ERR_FAIL_COND_MSG(singleton, "Singleton in InputMap already exist."); 
     singleton = this;
 }

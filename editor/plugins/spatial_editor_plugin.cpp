@@ -3293,7 +3293,7 @@ void SpatialEditorViewport::_create_preview(const PODVector<String> &files) cons
     for (int i = 0; i < files.size(); i++) {
         const String &path = files[i];
         RES res(ResourceLoader::load(path));
-        ERR_CONTINUE(not res)
+        ERR_CONTINUE(not res);
         Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
         Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
 

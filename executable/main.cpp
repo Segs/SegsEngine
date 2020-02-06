@@ -115,7 +115,7 @@ int mainT(int argc, char *argv[]) {
     Main::cleanup();
 
     if (!QDir::setCurrent(cwd)) {
-        ERR_PRINT("Couldn't return to previous working directory.")
+        ERR_PRINT("Couldn't return to previous working directory.");
     }
 
     return os->get_exit_code();

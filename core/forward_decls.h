@@ -42,6 +42,9 @@ struct Comparator;
 
 template<class T>
 using PODVector = eastl::vector<T,wrap_allocator>;
+template<class T>
+using Dequeue = eastl::deque<T,wrap_allocator,((sizeof(T) <= 4) ? 64 : ((sizeof(T) <= 8) ? 32 : ((sizeof(T) <= 16) ? 16 : ((sizeof(T) <= 32) ? 8 : 4))))>;
+
 
 using BitVector = eastl::bitvector<wrap_allocator,size_t,PODVector<size_t>>;
 

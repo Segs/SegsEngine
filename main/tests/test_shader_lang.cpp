@@ -98,7 +98,7 @@ static String get_constant_text(SL::DataType p_type, const PODVector<SL::Constan
         case SL::TYPE_VEC2: return String ()+ "vec2(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + ")";
         case SL::TYPE_VEC3: return String() + "vec3(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + "," + to_string(p_values[2].real) + ")";
         case SL::TYPE_VEC4: return String() + "vec4(" + to_string(p_values[0].real) + "," + to_string(p_values[1].real) + "," + to_string(p_values[2].real) + "," + to_string(p_values[3].real) + ")";
-        default: ERR_FAIL_V(String())
+        default: ERR_FAIL_V(String());
     }
 }
 

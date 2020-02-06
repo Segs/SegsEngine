@@ -134,7 +134,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     x11_display = XOpenDisplay(nullptr);
 
     if (!x11_display) {
-        ERR_PRINT("X11 Display is not available")
+        ERR_PRINT("X11 Display is not available");
         return ERR_UNAVAILABLE;
     }
 
@@ -155,10 +155,10 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
     if (modifiers == nullptr) {
         if (is_stdout_verbose()) {
-            WARN_PRINT("IME is disabled")
+            WARN_PRINT("IME is disabled");
         }
         XSetLocaleModifiers("@im=none");
-        WARN_PRINT("Error setting locale modifiers")
+        WARN_PRINT("Error setting locale modifiers");
     }
 
     const char *err;
@@ -200,7 +200,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     xim = XOpenIM(x11_display, nullptr, nullptr, nullptr);
 
     if (xim == nullptr) {
-        WARN_PRINT("XOpenIM failed")
+        WARN_PRINT("XOpenIM failed");
         xim_style = 0L;
     } else {
         ::XIMCallback im_destroy_callback;
@@ -208,7 +208,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         im_destroy_callback.callback = (::XIMProc)(xim_destroy_callback);
         if (XSetIMValues(xim, XNDestroyCallback, &im_destroy_callback,
                     NULL) != nullptr) {
-            WARN_PRINT("Error setting XIM destroy callback")
+            WARN_PRINT("Error setting XIM destroy callback");
         }
 
         ::XIMStyles *xim_styles = nullptr;
@@ -373,8 +373,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         set_window_always_on_top(true);
     }
 
-    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE)
-    ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE);
 
     XSetWindowAttributes new_attr;
 
@@ -443,19 +443,19 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
         xic = XCreateIC(xim, XNInputStyle, xim_style, XNClientWindow, x11_window, XNFocusWindow, x11_window, (char *)nullptr);
         if (XGetICValues(xic, XNFilterEvents, &im_event_mask, nullptr) != nullptr) {
-            WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value")
+            WARN_PRINT("XGetICValues couldn't obtain XNFilterEvents value");
             XDestroyIC(xic);
             xic = nullptr;
         }
         if (xic) {
             XUnsetICFocus(xic);
         } else {
-            WARN_PRINT("XCreateIC couldn't create xic")
+            WARN_PRINT("XCreateIC couldn't create xic");
         }
     } else {
 
         xic = nullptr;
-        WARN_PRINT("XCreateIC couldn't create xic")
+        WARN_PRINT("XCreateIC couldn't create xic");
     }
 
     cursor_size = XcursorGetDefaultSize(x11_display);
@@ -529,7 +529,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         XFreeGC(x11_display, gc);
 
         if (cursor == 0) {
-            ERR_PRINT("FAILED CREATING CURSOR")
+            ERR_PRINT("FAILED CREATING CURSOR");
         }
 
         null_cursor = cursor;
@@ -945,7 +945,7 @@ OS::VideoMode OS_X11::get_video_mode(int p_screen) const {
     return current_videomode;
 }
 
-void OS_X11::get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen) const {
+void OS_X11::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
 }
 
 void OS_X11::set_wm_fullscreen(bool p_enabled) {
@@ -1139,7 +1139,7 @@ int OS_X11::get_screen_dpi(int p_screen) const {
     }
 
     //invalid screen?
-    ERR_FAIL_INDEX_V(p_screen, get_screen_count(), 0)
+    ERR_FAIL_INDEX_V(p_screen, get_screen_count(), 0);
 
     //Get physical monitor Dimensions through XRandR and calculate dpi
     Size2 sc = get_screen_size(p_screen);
@@ -2785,7 +2785,7 @@ void OS_X11::move_window_to_foreground() {
 
 void OS_X11::set_cursor_shape(CursorShape p_shape) {
 
-    ERR_FAIL_INDEX(p_shape, CURSOR_MAX)
+    ERR_FAIL_INDEX(p_shape, CURSOR_MAX);
 
     if (p_shape == current_cursor) {
         return;
@@ -3024,7 +3024,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
             if (g_set_icon_error) {
                 g_set_icon_error = false;
 
-                WARN_PRINT("Icon too large, attempting to resize icon.")
+                WARN_PRINT("Icon too large, attempting to resize icon.");
 
                 int new_width, new_height;
                 if (w > h) {
@@ -3039,7 +3039,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
                 h = new_height;
 
                 if (!w || !h) {
-                    WARN_PRINT("Unable to set icon.")
+                    WARN_PRINT("Unable to set icon.");
                     break;
                 }
 
@@ -3290,17 +3290,17 @@ Error OS_X11::move_to_trash(se_string_view p_path) {
 OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
 
     XkbDescRec *xkbdesc = XkbAllocKeyboard();
-    ERR_FAIL_COND_V(!xkbdesc, LATIN_KEYBOARD_QWERTY)
+    ERR_FAIL_COND_V(!xkbdesc, LATIN_KEYBOARD_QWERTY);
 
     XkbGetNames(x11_display, XkbSymbolsNameMask, xkbdesc);
-    ERR_FAIL_COND_V(!xkbdesc->names, LATIN_KEYBOARD_QWERTY)
-    ERR_FAIL_COND_V(!xkbdesc->names->symbols, LATIN_KEYBOARD_QWERTY)
+    ERR_FAIL_COND_V(!xkbdesc->names, LATIN_KEYBOARD_QWERTY);
+    ERR_FAIL_COND_V(!xkbdesc->names->symbols, LATIN_KEYBOARD_QWERTY);
 
     char *layout = XGetAtomName(x11_display, xkbdesc->names->symbols);
-    ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY)
+    ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY);
 
     PODVector<se_string_view> info = StringUtils::split(layout,'+');
-    ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY)
+    ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY);
 
     if (StringUtils::contains(info[1],"colemak")) {
         return LATIN_KEYBOARD_COLEMAK;

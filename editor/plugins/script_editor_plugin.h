@@ -105,7 +105,7 @@ public:
     virtual void ensure_focus() = 0;
     virtual void tag_saved_version() = 0;
     virtual void reload(bool p_soft) {}
-    virtual void get_breakpoints(List<int> *p_breakpoints) = 0;
+    virtual void get_breakpoints(PODVector<int> *p_breakpoints) = 0;
     virtual void add_callback(const StringName &p_function, const PoolVector<String> &p_args) = 0;
     virtual void update_settings() = 0;
     virtual void set_debugger_active(bool p_active) = 0;
@@ -430,7 +430,7 @@ public:
     _FORCE_INLINE_ bool edit(const RES &p_resource, bool p_grab_focus = true) { return edit(p_resource, -1, 0, p_grab_focus); }
     bool edit(const RES &p_resource, int p_line, int p_col, bool p_grab_focus = true);
 
-    void get_breakpoints(List<String> *p_breakpoints);
+    void get_breakpoints(PODVector<String> *p_breakpoints);
 
     void save_all_scripts();
 
@@ -489,7 +489,7 @@ public:
     void set_window_layout(Ref<ConfigFile> p_layout) override;
     void get_window_layout(Ref<ConfigFile> p_layout) override;
 
-    void get_breakpoints(List<String> *p_breakpoints) override;
+    void get_breakpoints(PODVector<String> *p_breakpoints) override;
 
     void edited_scene_changed() override;
 

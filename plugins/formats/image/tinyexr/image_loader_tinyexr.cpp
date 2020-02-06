@@ -73,7 +73,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     ret = ParseEXRHeaderFromMemory(&exr_header, &exr_version, w.ptr(), src_image_len, &err);
     if (ret != TINYEXR_SUCCESS) {
         if (err) {
-            ERR_PRINT(String(err))
+            ERR_PRINT(String(err));
         }
         return ERR_FILE_CORRUPT;
     }
@@ -89,7 +89,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     ret = LoadEXRImageFromMemory(&exr_image, &exr_header, w.ptr(), src_image_len, &err);
     if (ret != TINYEXR_SUCCESS) {
         if (err) {
-            ERR_PRINT(String(err))
+            ERR_PRINT(String(err));
         }
         return ERR_FILE_CORRUPT;
     }
@@ -120,19 +120,19 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     } else {
         // Assume RGB(A)
         if (idxR == -1) {
-            ERR_PRINT("TinyEXR: R channel not found.")
+            ERR_PRINT("TinyEXR: R channel not found.");
             // @todo { free exr_image }
             return ERR_FILE_CORRUPT;
         }
 
         if (idxG == -1) {
-            ERR_PRINT("TinyEXR: G channel not found.")
+            ERR_PRINT("TinyEXR: G channel not found.");
             // @todo { free exr_image }
             return ERR_FILE_CORRUPT;
         }
 
         if (idxB == -1) {
-            ERR_PRINT("TinyEXR: B channel not found.")
+            ERR_PRINT("TinyEXR: B channel not found.");
             // @todo { free exr_image }
             return ERR_FILE_CORRUPT;
         }

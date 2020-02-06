@@ -382,7 +382,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             } else {
                 //old format, just a string
 
-                ERR_FAIL_V(ERR_INVALID_DATA)
+                ERR_FAIL_V(ERR_INVALID_DATA);
             }
 
         } break;

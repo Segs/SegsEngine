@@ -301,13 +301,13 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
             file = PathUtils::plus_file(base_dir,file);
 
             DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-            ERR_CONTINUE(!da)
+            ERR_CONTINUE(!da);
 
             String output_dir = PathUtils::plus_file(template_path,base_dir);
 
             if (!DirAccess::exists(output_dir)) {
                 Error mkdir_err = da->make_dir_recursive(output_dir);
-                ERR_CONTINUE(mkdir_err != OK)
+                ERR_CONTINUE(mkdir_err != OK);
             }
         }
 
@@ -321,7 +321,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
         if (!f) {
             ret = unzGoToNextFile(pkg);
             fc++;
-            ERR_CONTINUE_MSG(true, "Can't open file from path '" + (to_write) + "'.")
+            ERR_CONTINUE_MSG(true, "Can't open file from path '" + (to_write) + "'."); 
         }
 
         f->store_buffer(data.data(), data.size());
@@ -388,7 +388,7 @@ void ExportTemplateManager::_http_download_mirror_completed(int p_status, int p_
         Array mirrors = d["mirrors"];
         for (int i = 0; i < mirrors.size(); i++) {
             Dictionary m = mirrors[i];
-            ERR_CONTINUE(!m.has("url") || !m.has("name"))
+            ERR_CONTINUE(!m.has("url") || !m.has("name"));
             LinkButton *lb = memnew(LinkButton);
             lb->set_text(m["name"].as<String>());
             lb->connect("pressed", this, "_begin_template_download", varray(m["url"]));
@@ -730,7 +730,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
             FileAccess::set_unix_permissions(to_write, 0755);
 #endif
         } else {
-            ERR_PRINT("Can't uncompress file: " + to_write)
+            ERR_PRINT("Can't uncompress file: " + to_write);
         }
 
         ProgressDialog::get_singleton()->task_step(("extract_libs_from_apk"), path, idx);

@@ -127,7 +127,7 @@ void EditorPath::update_path() {
 
 void EditorPath::_id_pressed(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, objects.size())
+    ERR_FAIL_INDEX(p_idx, objects.size());
 
     Object *obj = ObjectDB::get_instance(objects[p_idx]);
     if (!obj)

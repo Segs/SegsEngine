@@ -905,7 +905,7 @@ Error SceneState::pack(Node *p_scene) {
     Error err = _parse_node(scene, scene, -1, name_map, variant_map, node_map, nodepath_map);
     if (err) {
         clear();
-        ERR_FAIL_V(err)
+        ERR_FAIL_V(err);
     }
 
     err = _parse_connections(scene, scene, name_map, variant_map, node_map, nodepath_map);
@@ -1598,9 +1598,9 @@ int SceneState::add_node(int p_parent, int p_owner, int p_type, int p_name, int 
 }
 void SceneState::add_node_property(int p_node, int p_name, int p_value) {
 
-    ERR_FAIL_INDEX(p_node, nodes.size())
-    ERR_FAIL_INDEX(p_name, names.size())
-    ERR_FAIL_INDEX(p_value, variants.size())
+    ERR_FAIL_INDEX(p_node, nodes.size());
+    ERR_FAIL_INDEX(p_name, names.size());
+    ERR_FAIL_INDEX(p_value, variants.size());
 
     NodeData::Property prop;
     prop.name = p_name;
@@ -1609,22 +1609,22 @@ void SceneState::add_node_property(int p_node, int p_name, int p_value) {
 }
 void SceneState::add_node_group(int p_node, int p_group) {
 
-    ERR_FAIL_INDEX(p_node, nodes.size())
-    ERR_FAIL_INDEX(p_group, names.size())
+    ERR_FAIL_INDEX(p_node, nodes.size());
+    ERR_FAIL_INDEX(p_group, names.size());
     nodes[p_node].groups.push_back(p_group);
 }
 void SceneState::set_base_scene(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, variants.size())
+    ERR_FAIL_INDEX(p_idx, variants.size());
     base_scene_idx = p_idx;
 }
 void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, PODVector<int> &&p_binds) {
 
-    ERR_FAIL_INDEX(p_signal, names.size())
-    ERR_FAIL_INDEX(p_method, names.size())
+    ERR_FAIL_INDEX(p_signal, names.size());
+    ERR_FAIL_INDEX(p_method, names.size());
 
     for (int i = 0; i < p_binds.size(); i++) {
-        ERR_FAIL_INDEX(p_binds[i], variants.size())
+        ERR_FAIL_INDEX(p_binds[i], variants.size());
     }
     ConnectionData c;
     c.from = p_from;

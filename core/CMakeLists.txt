@@ -360,7 +360,7 @@ if(USE_UNITY_BUILDS)
     set_target_properties(se_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
 endif()
 if(USE_PRECOMPILED_HEADERS)
-	
+
     target_precompile_headers(se_core
       PRIVATE
       "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>" # had to add this, otherwise the generated c-header was buggy
@@ -369,9 +369,9 @@ if(USE_PRECOMPILED_HEADERS)
     #Fixme: under visual studio precompiled header is not used when we're doing unity builds as well!
     set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/se_core.dir/cmake_pch.cxx PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif()
-
-target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core)
-target_link_libraries(se_core PRIVATE EASTL zstd_internal minizip thirdparty_misc )
+#zstd_internal is in public part of target_link_libraries to propagate it's flags to all users of se_core
+target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_internal)
+target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
 set_common_target_properties(se_core)
 

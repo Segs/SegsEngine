@@ -115,7 +115,7 @@ Error SSLContextMbedTLS::init_client(int p_transport, int p_authmode, Ref<X509Ce
         cas = CryptoMbedTLS::get_default_certificates();
         if (cas == nullptr) {
         clear();
-        ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "SSL module failed to initialize!")
+        ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "SSL module failed to initialize!");
         }
 
     }

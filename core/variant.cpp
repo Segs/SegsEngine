@@ -3177,18 +3177,18 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
         case CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
             String err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
-            ERR_PRINT(err)
+            ERR_PRINT(err);
 
         } break;
         case CallError::CALL_ERROR_INVALID_METHOD: {
 
             String err = "Invalid method '" + String(p_method) + "' for type '" + Variant::get_type_name(type) + "'.";
-            ERR_PRINT(err)
+            ERR_PRINT(err);
         } break;
         case CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
             String err = "Too many arguments for method '" + String(p_method) + "'";
-            ERR_PRINT(err)
+            ERR_PRINT(err);
         } break;
         default: {
         }

@@ -272,7 +272,7 @@ void GDNative::_bind_methods() {
 }
 
 void GDNative::set_library(Ref<GDNativeLibrary> p_library) {
-    ERR_FAIL_COND_MSG(library, "Tried to change library of GDNative when it is already set.")
+    ERR_FAIL_COND_MSG(library, "Tried to change library of GDNative when it is already set."); 
     library = p_library;
 }
 
@@ -285,13 +285,13 @@ extern "C" void _gdnative_report_loading_error(const godot_object *p_library, co
 
 bool GDNative::initialize() {
     if (not library) {
-        ERR_PRINT("No library set, can't initialize GDNative object")
+        ERR_PRINT("No library set, can't initialize GDNative object");
         return false;
     }
 
     String lib_path(library->get_current_library_path());
     if (lib_path.empty()) {
-        ERR_PRINT("No library set for this platform")
+        ERR_PRINT("No library set for this platform");
         return false;
     }
 #ifdef IPHONE_ENABLED
@@ -343,7 +343,7 @@ bool GDNative::initialize() {
     if (err || !library_init) {
         OS::get_singleton()->close_dynamic_library(native_handle);
         native_handle = nullptr;
-        ERR_PRINT("Failed to obtain " + library->get_symbol_prefix() + "gdnative_init symbol")
+        ERR_PRINT("Failed to obtain " + library->get_symbol_prefix() + "gdnative_init symbol");
         return false;
     }
 
@@ -389,7 +389,7 @@ bool GDNative::initialize() {
 bool GDNative::terminate() {
 
     if (!initialized) {
-        ERR_PRINT("No valid library handle, can't terminate GDNative object")
+        ERR_PRINT("No valid library handle, can't terminate GDNative object");
         return false;
     }
 
@@ -459,7 +459,7 @@ Variant GDNative::call_native(StringName p_native_call_type, StringName p_proced
 
     Map<StringName, native_call_cb>::iterator E = GDNativeCallRegistry::singleton->native_calls.find(p_native_call_type);
     if (E==GDNativeCallRegistry::singleton->native_calls.end()) {
-        ERR_PRINT(FormatV("No handler for native call type \"%s\" found",qPrintable(String(p_native_call_type).m_str)))
+        ERR_PRINT(FormatV("No handler for native call type \"%s\" found",qPrintable(String(p_native_call_type).m_str)));
         return Variant();
     }
 

@@ -797,13 +797,13 @@ void EditorSettings::create() {
         self_contained = true;
         Error err = extra_config->load(exe_path + "/._sc_");
         if (err != OK) {
-            ERR_PRINT("Can't load config from path '" + exe_path + "/._sc_'.")
+            ERR_PRINT("Can't load config from path '" + exe_path + "/._sc_'.");
         }
     } else if (d->file_exists(exe_path + "/_sc_")) {
         self_contained = true;
         Error err = extra_config->load(exe_path + "/_sc_");
         if (err != OK) {
-            ERR_PRINT("Can't load config from path '" + exe_path + "/_sc_'.")
+            ERR_PRINT("Can't load config from path '" + exe_path + "/_sc_'.");
         }
     }
     memdelete(d);
@@ -847,7 +847,7 @@ void EditorSettings::create() {
         if (dir->change_dir(data_dir) != OK) {
             dir->make_dir_recursive(data_dir);
             if (dir->change_dir(data_dir) != OK) {
-                ERR_PRINT("Cannot create data directory!")
+                ERR_PRINT("Cannot create data directory!");
                 memdelete(dir);
                 goto fail;
             }
@@ -1015,7 +1015,7 @@ void EditorSettings::setup_language() {
 
 void EditorSettings::setup_network() {
 
-    List<IP_Address> local_ip;
+    PODVector<IP_Address> local_ip;
     IP::get_singleton()->get_local_addresses(&local_ip);
     String hint;
     const StringName remotehost("network/debug/remote_host");
@@ -1023,9 +1023,9 @@ void EditorSettings::setup_network() {
     String selected("127.0.0.1");
 
     // Check that current remote_host is a valid interface address and populate hints.
-    for (List<IP_Address>::Element *E = local_ip.front(); E; E = E->next()) {
+    for (const IP_Address &E : local_ip) {
 
-        String ip(E->deref());
+        String ip(E);
 
         // link-local IPv6 addresses don't work, skipping them
         if (StringUtils::begins_with(ip, "fe80:0:0:0:")) // fe80::/64
@@ -1034,8 +1034,10 @@ void EditorSettings::setup_network() {
         if (StringUtils::begins_with(ip, "169.254.")) // 169.254.0.0/16
             continue;
         // Select current IP (found)
-        if (ip == current) selected = ip;
-        if (!hint.empty()) hint += ',';
+        if (ip == current)
+            selected = ip;
+        if (!hint.empty())
+            hint += ',';
         hint += ip;
     }
 
@@ -1054,14 +1056,14 @@ void EditorSettings::save() {
         return;
 
     if (singleton->config_file_path.empty()) {
-        ERR_PRINT("Cannot save EditorSettings config, no valid path")
+        ERR_PRINT("Cannot save EditorSettings config, no valid path");
         return;
     }
     assert(singleton->reference_get_count()>=1);
     Error err = ResourceSaver::save(singleton->config_file_path, singleton);
 
     if (err != OK) {
-        ERR_PRINT("Error saving editor settings to " + singleton->config_file_path)
+        ERR_PRINT("Error saving editor settings to " + singleton->config_file_path);
     } else {
         print_verbose("EditorSettings: Save OK!");
     }
@@ -1240,10 +1242,10 @@ void EditorSettings::set_project_metadata(se_string_view p_section, se_string_vi
     String path = PathUtils::plus_file(get_project_settings_dir(),"project_metadata.cfg");
     Error err = cf->load(path);
 
-    ERR_FAIL_COND_MSG(err != OK && err != ERR_FILE_NOT_FOUND, "Cannot load editor settings from file '" + path + "'.")
+    ERR_FAIL_COND_MSG(err != OK && err != ERR_FILE_NOT_FOUND, "Cannot load editor settings from file '" + path + "'.");
     cf->set_value(p_section, p_key, p_data);
     err = cf->save(path);
-    ERR_FAIL_COND_MSG(err != OK, "Cannot save editor settings to file '" + path + "'.")
+    ERR_FAIL_COND_MSG(err != OK, "Cannot save editor settings to file '" + path + "'.");
 }
 
 Variant EditorSettings::get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const {
@@ -1491,7 +1493,7 @@ Ref<ShortCut> EditorSettings::get_shortcut(se_string_view p_name) const {
     return E->second;
 }
 
-void EditorSettings::get_shortcut_list(List<String> *r_shortcuts) {
+void EditorSettings::get_shortcut_list(PODVector<String> *r_shortcuts) {
 
     for (const eastl::pair<const String,Ref<ShortCut> > &E : shortcuts) {
 

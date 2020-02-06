@@ -753,7 +753,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
 
             if (total_size - ofs <= 0) {
                 memdelete(f);
-                ERR_FAIL_V(ERR_FILE_CORRUPT)
+                ERR_FAIL_V(ERR_FILE_CORRUPT);
             }
 
             f->seek(f->get_position() + ofs);
@@ -773,7 +773,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
                     //this is a compatibility workaround for older format, which saved less mipmaps2. It is still recommended the image is reimported.
                     memset(w.ptr() + bytes, 0, (expected - bytes));
                 } else if (bytes != expected) {
-                    ERR_FAIL_V(ERR_FILE_CORRUPT)
+                    ERR_FAIL_V(ERR_FILE_CORRUPT);
                 }
             }
 
@@ -1407,7 +1407,7 @@ void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
 
     ERR_FAIL_COND(p_texture.get() == this)
     ERR_FAIL_COND(not p_texture)
-    ERR_FAIL_INDEX(p_idx, pieces.size())
+    ERR_FAIL_INDEX(p_idx, pieces.size());
     pieces[p_idx].texture = p_texture;
 };
 
@@ -2434,7 +2434,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
         texarr = make_ref_counted<TextureArray>();
         lt = texarr;
     } else {
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.");
     }
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
@@ -2458,7 +2458,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
     } else {
         f->close();
         memdelete(f);
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".");
     }
 
     int tw = f->get_32();
@@ -2495,7 +2495,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
                     }
                     f->close();
                     memdelete(f);
-                    ERR_FAIL_V(RES())
+                    ERR_FAIL_V(RES());
                 }
 
                 mipmap_images.push_back(img);

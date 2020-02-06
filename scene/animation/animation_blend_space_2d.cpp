@@ -222,7 +222,7 @@ int AnimationNodeBlendSpace2D::get_triangle_point(int p_triangle, int p_point) {
     return triangles[p_triangle].points[p_point];
 }
 void AnimationNodeBlendSpace2D::remove_triangle(int p_triangle) {
-    ERR_FAIL_INDEX(p_triangle, triangles.size())
+    ERR_FAIL_INDEX(p_triangle, triangles.size());
 
     triangles.erase_at(p_triangle);
 }

@@ -214,24 +214,23 @@ void AudioStreamPreviewGenerator::_bind_methods() {
 AudioStreamPreviewGenerator *AudioStreamPreviewGenerator::singleton = nullptr;
 
 void AudioStreamPreviewGenerator::_notification(int p_what) {
-    if (p_what == NOTIFICATION_PROCESS) {
-        List<ObjectID> to_erase;
-        for (eastl::pair<const ObjectID,Preview> &E : previews) {
-            if (!E.second.generating) {
-                if (E.second.thread) {
-                    Thread::wait_to_finish(E.second.thread);
-                    E.second.thread = nullptr;
-                }
-                if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
-                    to_erase.push_back(E.first);
-                }
+    if (p_what != NOTIFICATION_PROCESS)
+        return;
+
+    PODVector<ObjectID> to_erase;
+    for (eastl::pair<const ObjectID,Preview> &E : previews) {
+        if (!E.second.generating) {
+            if (E.second.thread) {
+                Thread::wait_to_finish(E.second.thread);
+                E.second.thread = nullptr;
+            }
+            if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
+                to_erase.push_back(E.first);
             }
         }
-
-        while (to_erase.front()) {
-            previews.erase(to_erase.front()->deref());
-            to_erase.pop_front();
-        }
+    }
+    for(const ObjectID & oid : to_erase) {
+        previews.erase(oid);
     }
 }
 

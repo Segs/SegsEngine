@@ -448,7 +448,7 @@ bool Tabs::get_offset_buttons_visible() const {
 
 void Tabs::set_tab_title(int p_tab, const StringName &p_title) {
 
-    ERR_FAIL_INDEX(p_tab, tabs.size())
+    ERR_FAIL_INDEX(p_tab, tabs.size());
     tabs[p_tab].text = p_title;
     tabs[p_tab].xl_text = tr(p_title);
     update();
@@ -463,7 +463,7 @@ StringName Tabs::get_tab_title(int p_tab) const {
 
 void Tabs::set_tab_icon(int p_tab, const Ref<Texture> &p_icon) {
 
-    ERR_FAIL_INDEX(p_tab, tabs.size())
+    ERR_FAIL_INDEX(p_tab, tabs.size());
     tabs[p_tab].icon = p_icon;
     update();
     minimum_size_changed();

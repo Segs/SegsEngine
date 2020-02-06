@@ -305,7 +305,7 @@ static String _parser_expr(const GDScriptParser::Node *p_expr) {
         } break;
         default: {
 
-            ERR_FAIL_V_MSG(String(), "Parser bug at " + itos(p_expr->line) + ", invalid expression type: " + itos(p_expr->type))
+            ERR_FAIL_V_MSG(String(), "Parser bug at " + itos(p_expr->line) + ", invalid expression type: " + itos(p_expr->type));
         }
     }
 

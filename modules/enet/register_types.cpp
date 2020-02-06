@@ -40,7 +40,7 @@ static bool enet_ok = false;
 void register_enet_types() {
 
 	if (enet_initialize() != 0) {
-        ERR_PRINT("ENet initialization failure")
+        ERR_PRINT("ENet initialization failure");
 	} else {
 		enet_ok = true;
 	}

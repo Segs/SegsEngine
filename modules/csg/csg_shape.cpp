@@ -313,7 +313,7 @@ void CSGShape::_update_shape() {
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
-    ERR_FAIL_COND_MSG(!n, "Cannot get CSGBrush.")
+    ERR_FAIL_COND_MSG(!n, "Cannot get CSGBrush."); 
 
     OAHashMap<Vector3, Vector3> vec_map;
 
@@ -1058,7 +1058,7 @@ CSGBrush *CSGSphere::_build_brush() {
         }
 
         if (face != face_count) {
-            ERR_PRINT("Face mismatch bug! fix code")
+            ERR_PRINT("Face mismatch bug! fix code");
         }
     }
 
@@ -1247,7 +1247,7 @@ CSGBrush *CSGBox::_build_brush() {
         }
 
         if (face != face_count) {
-            ERR_PRINT("Face mismatch bug! fix code")
+            ERR_PRINT("Face mismatch bug! fix code");
         }
     }
 

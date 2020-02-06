@@ -326,7 +326,7 @@ void Area2D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
 
 void Area2D::_clear_monitoring() {
 
-    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal.")
+    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal."); 
 
     {
         Map<ObjectID, BodyState> bmcopy = body_map;
@@ -403,7 +403,7 @@ void Area2D::set_monitoring(bool p_enable) {
 
     if (p_enable == monitoring)
         return;
-    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false).")
+    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false)."); 
 
     monitoring = p_enable;
 
@@ -426,7 +426,7 @@ bool Area2D::is_monitoring() const {
 
 void Area2D::set_monitorable(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && Physics2DServer::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false).")
+    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && Physics2DServer::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false)."); 
 
     if (p_enable == monitorable)
         return;

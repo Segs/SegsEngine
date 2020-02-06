@@ -461,12 +461,12 @@ bool _OS::is_video_mode_resizable(int p_screen) const {
 
 Array _OS::get_fullscreen_mode_list(int p_screen) const {
 
-    List<OS::VideoMode> vmlist;
+    PODVector<OS::VideoMode> vmlist;
     OS::get_singleton()->get_fullscreen_mode_list(&vmlist, p_screen);
     Array vmarr;
-    for (List<OS::VideoMode>::Element *E = vmlist.front(); E; E = E->next()) {
+    for (const OS::VideoMode &E : vmlist) {
 
-        vmarr.push_back(Size2(E->deref().width, E->deref().height));
+        vmarr.push_back(Size2(E.width, E.height));
     }
 
     return vmarr;
@@ -1942,12 +1942,12 @@ const String & _File::get_path_absolute() const {
 
 void _File::seek(int64_t p_position) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->seek(p_position);
 }
 void _File::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->seek_end(p_position);
 }
 int64_t _File::get_position() const {
@@ -2095,58 +2095,58 @@ Error _File::get_error() const {
 
 void _File::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_8(p_dest);
 }
 void _File::store_16(uint16_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_16(p_dest);
 }
 void _File::store_32(uint32_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_32(p_dest);
 }
 void _File::store_64(uint64_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_64(p_dest);
 }
 
 void _File::store_float(float p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_float(p_dest);
 }
 void _File::store_double(double p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_double(p_dest);
 }
 void _File::store_real(real_t p_real) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_real(p_real);
 }
 
 void _File::store_string(se_string_view p_string) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_string(p_string);
 }
 
 void _File::store_pascal_string(se_string_view p_string) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_pascal_string(p_string);
 };
@@ -2160,12 +2160,12 @@ String _File::get_pascal_string() {
 
 void _File::store_line(se_string_view p_string) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->store_line(p_string);
 }
 
 void _File::store_csv_line(const PoolVector<String> &p_values, int8_t p_delim) {
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     auto rd = p_values.read();
     PODVector<String> vals(rd.ptr(),rd.ptr()+p_values.size());
     f->store_csv_line(vals, p_delim);
@@ -2173,7 +2173,7 @@ void _File::store_csv_line(const PoolVector<String> &p_values, int8_t p_delim) {
 
 void _File::store_buffer(const PoolVector<uint8_t> &p_buffer) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     int len = p_buffer.size();
     if (len == 0)
@@ -2191,17 +2191,17 @@ bool _File::file_exists(se_string_view p_name) const {
 
 void _File::store_var(const Variant &p_var, bool p_full_objects) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     int len;
     Error err = encode_variant(p_var, nullptr, len, p_full_objects);
-    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.");
 
     PoolVector<uint8_t> buff;
     buff.resize(len);
 
     PoolVector<uint8_t>::Write w = buff.write();
     err = encode_variant(p_var, &w[0], len, p_full_objects);
-    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.");
     w.release();
 
     store_32(len);
@@ -2353,7 +2353,7 @@ bool _Directory::current_is_dir() const {
 
 void _Directory::list_dir_end() {
 
-    ERR_FAIL_COND_MSG(!d, "Directory must be opened before use.")
+    ERR_FAIL_COND_MSG(!d, "Directory must be opened before use.");
     d->list_dir_end();
 }
 
@@ -2709,7 +2709,7 @@ void _Thread::_start_func(void *ud) {
             }
         }
 
-        ERR_FAIL_MSG("Could not call function '" + String(t->target_method.asCString()) + "' to start thread " + t->get_id() + ": " + reason + ".")
+        ERR_FAIL_MSG("Could not call function '" + String(t->target_method.asCString()) + "' to start thread " + t->get_id() + ": " + reason + ".");
     }
 }
 
@@ -2793,7 +2793,7 @@ _Thread::_Thread() {
 
 _Thread::~_Thread() {
 
-    ERR_FAIL_COND_MSG(active, "Reference to a Thread object was lost while the thread is still running...")
+    ERR_FAIL_COND_MSG(active, "Reference to a Thread object was lost while the thread is still running...");
 }
 /////////////////////////////////////
 

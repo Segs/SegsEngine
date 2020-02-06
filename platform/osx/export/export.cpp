@@ -775,7 +775,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 //add shared objects
                 for (int i = 0; i < shared_objects.size(); i++) {
                     PODVector<uint8_t> file = FileAccess::get_file_as_array(shared_objects[i].path);
-                    ERR_CONTINUE(file.empty())
+                    ERR_CONTINUE(file.empty());
 
                     zipOpenNewFileInZip(dst_pkg_zip,
                             (PathUtils::plus_file((pkg_name + ".app/Contents/Frameworks/"),PathUtils::get_file(shared_objects[i].path))).c_str(),

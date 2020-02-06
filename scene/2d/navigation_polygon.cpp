@@ -175,14 +175,14 @@ int NavigationPolygon::get_outline_count() const {
 }
 
 void NavigationPolygon::set_outline(int p_idx, const PoolVector<Vector2> &p_outline) {
-    ERR_FAIL_INDEX(p_idx, outlines.size())
+    ERR_FAIL_INDEX(p_idx, outlines.size());
     outlines[p_idx] = p_outline;
     rect_cache_dirty = true;
 }
 
 void NavigationPolygon::remove_outline(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, outlines.size())
+    ERR_FAIL_INDEX(p_idx, outlines.size());
     outlines.erase_at(p_idx);
     rect_cache_dirty = true;
 }
@@ -263,7 +263,7 @@ void NavigationPolygon::make_polygons_from_outlines() {
 
     TriangulatorPartition tpart;
     if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { //failed!
-        ERR_PRINT("NavigationPolygon: Convex partition failed!")
+        ERR_PRINT("NavigationPolygon: Convex partition failed!");
         return;
     }
 

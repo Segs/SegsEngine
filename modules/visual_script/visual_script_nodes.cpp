@@ -644,7 +644,7 @@ void VisualScriptLists::set_input_data_port_type(int p_idx, VariantType p_type) 
     if (!is_input_port_type_editable())
         return;
 
-    ERR_FAIL_INDEX(p_idx, inputports.size())
+    ERR_FAIL_INDEX(p_idx, inputports.size());
 
     inputports[p_idx].type = p_type;
     ports_changed_notify();
@@ -655,7 +655,7 @@ void VisualScriptLists::set_input_data_port_name(int p_idx, const StringName &p_
     if (!is_input_port_name_editable())
         return;
 
-    ERR_FAIL_INDEX(p_idx, inputports.size())
+    ERR_FAIL_INDEX(p_idx, inputports.size());
 
     inputports[p_idx].name = p_name;
     ports_changed_notify();
@@ -666,7 +666,7 @@ void VisualScriptLists::remove_input_data_port(int p_argidx) {
     if (!is_input_port_editable())
         return;
 
-    ERR_FAIL_INDEX(p_argidx, inputports.size())
+    ERR_FAIL_INDEX(p_argidx, inputports.size());
 
     inputports.erase_at(p_argidx);
 

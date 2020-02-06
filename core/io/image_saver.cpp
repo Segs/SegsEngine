@@ -84,7 +84,7 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
         Error err;
         f = FileAccess::open(p_file, FileAccess::WRITE, &err);
         if (!f) {
-            ERR_PRINT("Error opening file: " + String(p_file))
+            ERR_PRINT("Error opening file: " + String(p_file));
             return err;
         }
     }
@@ -98,13 +98,13 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
         ImageData result_data(static_cast<ImageData>(*p_image));
         Error err = g_saver->save_image(result_data, f, {p_quality,false});
         if (err != OK) {
-            ERR_PRINT("Error saving image: " + String(p_file))
+            ERR_PRINT("Error saving image: " + String(p_file));
         }
         if (err != ERR_FILE_UNRECOGNIZED) {
 
             if (!p_custom)
                 memdelete(f);
-            CRASH_COND(err!=OK)
+            CRASH_COND(err!=OK);
             return err;
         }
     }
@@ -126,10 +126,10 @@ Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, POD
             continue;
         Error err = g_saver->save_image(*p_image, tgt, {p_quality,false});
         if (err != OK) {
-            ERR_PRINT("Error loading image from memory")
+            ERR_PRINT("Error loading image from memory");
         }
         if (err != ERR_FILE_UNRECOGNIZED) {
-            CRASH_COND(err!=OK)
+            CRASH_COND(err!=OK);
             return err;
         }
 

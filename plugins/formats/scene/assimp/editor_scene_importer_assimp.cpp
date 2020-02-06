@@ -520,8 +520,8 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
             const aiNode *assimp_node = key_value_pair.first;
             Spatial *mesh_template = key_value_pair.second;
 
-            ERR_CONTINUE(assimp_node == nullptr)
-            ERR_CONTINUE(mesh_template == nullptr)
+            ERR_CONTINUE(assimp_node == nullptr);
+            ERR_CONTINUE(mesh_template == nullptr);
 
             Node *parent_node = mesh_template->get_parent();
 
@@ -846,13 +846,13 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
         const String prop_name = AssimpUtils::get_assimp_string(anim_mesh->mName);
         const StringName mesh_name(StringUtils::split(prop_name,"*")[0]);
 
-        ERR_CONTINUE(StringUtils::split(prop_name,"*").size() != 2)
+        ERR_CONTINUE(StringUtils::split(prop_name,"*").size() != 2);
 
         Node *item = get_node_by_name(state, mesh_name);
         ERR_CONTINUE_MSG(!item, "failed to look up node by name");
         const MeshInstance *mesh_instance = object_cast<MeshInstance>(item);
 
-        ERR_CONTINUE(mesh_instance == nullptr)
+        ERR_CONTINUE(mesh_instance == nullptr);
 
         String base_path = (String)state.root->get_path_to(mesh_instance);
 

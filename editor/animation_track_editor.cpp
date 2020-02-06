@@ -1231,7 +1231,7 @@ public:
         for (const eastl::pair<const int,List<float> > &E : key_ofs_map) {
 
             int track = E.first;
-            ERR_FAIL_INDEX(track, animation->get_track_count())
+            ERR_FAIL_INDEX(track, animation->get_track_count());
 
             if (first_track < 0)
                 first_track = track;
@@ -1935,7 +1935,7 @@ void AnimationTrackEdit::_notification(int p_what) {
 
         if (not animation)
             return;
-        ERR_FAIL_INDEX(track, animation->get_track_count())
+        ERR_FAIL_INDEX(track, animation->get_track_count());
 
         int limit = timeline->get_name_limit();
 
@@ -4635,7 +4635,7 @@ int AnimationTrackEditor::_get_track_selected() {
 
 void AnimationTrackEditor::_insert_key_from_track(float p_ofs, int p_track) {
 
-    ERR_FAIL_INDEX(p_track, animation->get_track_count())
+    ERR_FAIL_INDEX(p_track, animation->get_track_count());
 
     if (snap->is_pressed() && step->get_value() != 0.0f) {
         p_ofs = snap_time(p_ofs);
@@ -4784,8 +4784,8 @@ void AnimationTrackEditor::_add_method_key(const StringName &p_method) {
 
 void AnimationTrackEditor::_key_selected(int p_key, bool p_single, int p_track) {
 
-    ERR_FAIL_INDEX(p_track, animation->get_track_count())
-    ERR_FAIL_INDEX(p_key, animation->track_get_key_count(p_track))
+    ERR_FAIL_INDEX(p_track, animation->get_track_count());
+    ERR_FAIL_INDEX(p_key, animation->track_get_key_count(p_track));
 
     SelectedKey sk;
     sk.key = p_key;
@@ -4808,8 +4808,8 @@ void AnimationTrackEditor::_key_selected(int p_key, bool p_single, int p_track) 
 
 void AnimationTrackEditor::_key_deselected(int p_key, int p_track) {
 
-    ERR_FAIL_INDEX(p_track, animation->get_track_count())
-    ERR_FAIL_INDEX(p_key, animation->track_get_key_count(p_track))
+    ERR_FAIL_INDEX(p_track, animation->get_track_count());
+    ERR_FAIL_INDEX(p_key, animation->track_get_key_count(p_track));
 
     SelectedKey sk;
     sk.key = p_key;
@@ -5439,7 +5439,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
             float s = scale->get_value();
             if (s == 0) {
-                ERR_PRINT("Can't scale to 0")
+                ERR_PRINT("Can't scale to 0");
             }
 
             undo_redo->create_action_ui(TTR("Anim Scale Keys"));

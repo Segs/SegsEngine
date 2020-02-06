@@ -118,27 +118,27 @@ public:
         }
 
         const K &key() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return *(list_element->deref().first);
         }
 
         V &value() {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         const V &value() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         V &get() {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         const V &get() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
     };
@@ -186,17 +186,17 @@ public:
         }
 
         const K &key() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return *(list_element->deref().first);
         }
 
         const V &value() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         const V &get() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
     };
@@ -252,7 +252,7 @@ public:
 
     const V &operator[](const K &p_key) const {
         ConstElement e = find(p_key);
-        CRASH_COND(!e)
+        CRASH_COND(!e);
         return e.value();
     }
 

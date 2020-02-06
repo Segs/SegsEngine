@@ -445,7 +445,7 @@ bool GDScript::_update_exports() {
                         String base = get_path();
                         if (base.empty() || PathUtils::is_rel_path(base)) {
 
-                            ERR_PRINT("Could not resolve relative path for parent class: " + path)
+                            ERR_PRINT("Could not resolve relative path for parent class: " + path);
                         } else {
                             path = PathUtils::plus_file(PathUtils::get_base_dir(base),path);
                         }
@@ -468,7 +468,7 @@ bool GDScript::_update_exports() {
                             bf->inheriters_cache.insert(get_instance_id());
                         }
                     } else {
-                        ERR_PRINT("Path extending itself in  " + path)
+                        ERR_PRINT("Path extending itself in  " + path);
                     }
                 }
             }
@@ -585,9 +585,9 @@ Error GDScript::reload(bool p_keep_state) {
         if (ScriptDebugger::get_singleton()) {
             GDScriptLanguage::get_singleton()->debug_break_parse(get_path(), parser.get_error_line(), "Parser Error: " + parser.get_error());
         }
-        _err_print_error("GDScript::reload", path.empty() ? "built-in" : path,
+        _err_print_error("GDScript::reload", path.empty() ? "built-in" : path.c_str(),
                          parser.get_error_line(), ("Parse Error: " + parser.get_error()), {},ERR_HANDLER_SCRIPT);
-        ERR_FAIL_V(ERR_PARSE_ERROR)
+        ERR_FAIL_V(ERR_PARSE_ERROR);
     }
 
     bool can_run = ScriptServer::is_scripting_enabled() || parser.is_tool_script();
@@ -603,7 +603,7 @@ Error GDScript::reload(bool p_keep_state) {
             }
             _err_print_error("GDScript::reload", path.empty() ? "built-in" : path.c_str(), compiler.get_error_line(),
                              ("Compile Error: " + compiler.get_error()), {},ERR_HANDLER_SCRIPT);
-            ERR_FAIL_V(ERR_COMPILATION_FAILED)
+            ERR_FAIL_V(ERR_COMPILATION_FAILED);
         } else {
             return err;
         }
@@ -787,18 +787,18 @@ Error GDScript::load_byte_code(se_string_view p_path) {
     GDScriptParser parser;
     Error err = parser.parse_bytecode(bytecode, basedir, get_path());
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path, parser.get_error_line(),
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path.c_str(), parser.get_error_line(),
                 ("Parse Error: " + parser.get_error()), {},ERR_HANDLER_SCRIPT);
-        ERR_FAIL_V(ERR_PARSE_ERROR)
+        ERR_FAIL_V(ERR_PARSE_ERROR);
     }
 
     GDScriptCompiler compiler;
     err = compiler.compile(&parser, this);
 
     if (err) {
-        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path,
+        _err_print_error("GDScript::load_byte_code", path.empty() ? "built-in" : path.c_str(),
                 compiler.get_error_line(), ("Compile Error: " + compiler.get_error()), {},ERR_HANDLER_SCRIPT);
-        ERR_FAIL_V(ERR_COMPILATION_FAILED)
+        ERR_FAIL_V(ERR_COMPILATION_FAILED);
     }
 
     valid = true;
@@ -832,7 +832,7 @@ Error GDScript::load_source_code(se_string_view p_path) {
     se_string_view s((const char *)sourcef.data(),len+1);
     if (s.empty()) {
 
-        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + String(p_path) + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + String(p_path) + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.");
     }
 
     source = s;
@@ -1122,17 +1122,17 @@ void GDScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) co
             Variant ret = const_cast<GDScriptFunction *>(E->second)->call(const_cast<GDScriptInstance *>(this), nullptr, 0, err);
             if (err.error == Variant::CallError::CALL_OK) {
 
-                ERR_FAIL_COND_MSG(ret.get_type() != VariantType::ARRAY, "Wrong type for _get_property_list, must be an array of dictionaries.")
+                ERR_FAIL_COND_MSG(ret.get_type() != VariantType::ARRAY, "Wrong type for _get_property_list, must be an array of dictionaries.");
 
                 Array arr = ret;
                 for (int i = 0; i < arr.size(); i++) {
 
                     Dictionary d = arr[i];
-                    ERR_CONTINUE(!d.has("name"))
-                    ERR_CONTINUE(!d.has("type"))
+                    ERR_CONTINUE(!d.has("name"));
+                    ERR_CONTINUE(!d.has("type"));
                     PropertyInfo pinfo;
                     pinfo.type = VariantType(d["type"].operator int());
-                    ERR_CONTINUE(int8_t(pinfo.type) < 0 || int8_t(pinfo.type) >= int8_t(VariantType::VARIANT_MAX))
+                    ERR_CONTINUE(int8_t(pinfo.type) < 0 || int8_t(pinfo.type) >= int8_t(VariantType::VARIANT_MAX));
                     pinfo.name = d["name"];
                     ERR_CONTINUE(pinfo.name.empty());
                     if (d.has("hint"))
@@ -1280,7 +1280,7 @@ String GDScriptInstance::to_string(bool *r_valid) {
             if (ret.get_type() != VariantType::STRING) {
                 if (r_valid)
                     *r_valid = false;
-                ERR_FAIL_V_MSG(String(), String("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.")
+                ERR_FAIL_V_MSG(String(), String("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.");
             }
             if (r_valid)
                 *r_valid = true;
@@ -2095,7 +2095,7 @@ String GDScriptWarning::get_message() const {
         }
         case WARNING_MAX: break; // Can't happen, but silences warning
     }
-    ERR_FAIL_V_MSG(String(), String("Invalid GDScript warning code: ") + get_name_from_code(code) + ".")
+    ERR_FAIL_V_MSG(String(), String("Invalid GDScript warning code: ") + get_name_from_code(code) + ".");
 
 #undef CHECK_SYMBOLS
 }

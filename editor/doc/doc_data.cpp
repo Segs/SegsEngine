@@ -753,7 +753,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, PODVector<DocData::MethodDoc
                 methods.push_back(method);
 
             } else {
-                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + parser->get_node_name() + ".")
+                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + parser->get_node_name() + ".");
             }
 
         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == section)
@@ -869,7 +869,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 if (parser->get_node_type() == XMLParser::NODE_TEXT)
                                     c.tutorials.emplace_back(StringUtils::strip_edges(parser->get_node_data()));
                             } else {
-                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".")
+                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "tutorials")
                             break; // End of <tutorials>.
@@ -912,7 +912,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
                                 }
                                 c.properties.push_back(prop2);
                             } else {
-                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".")
+                                ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Invalid tag in doc file: " + name3 + ".");
                             }
 
                         } else if (parser->get_node_type() == XMLParser::NODE_ELEMENT_END && parser->get_node_name() == "members")
@@ -1011,7 +1011,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
         String save_file = PathUtils::plus_file(save_path,String(c.name) + ".xml");
         FileAccessRef f = FileAccess::open(save_file, FileAccess::WRITE, &err);
 
-        ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".")
+        ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + "."); 
 
         _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
 
