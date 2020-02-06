@@ -39,6 +39,8 @@
 //#include "scene/resources/animation.h"
 #include "scene_tree_editor.h"
 
+#include "EASTL/deque.h"
+
 class AnimationTimelineEdit : public Range {
     GDCLASS(AnimationTimelineEdit,Range)
 
@@ -360,7 +362,7 @@ class AnimationTrackEditor : public VBoxContainer {
     bool insert_queue;
     bool inserting;
     bool insert_query;
-    List<InsertData> insert_data;
+    Dequeue<InsertData> insert_data;
     uint64_t insert_frame;
 
     void _query_insert(const InsertData &p_id);

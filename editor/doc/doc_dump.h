@@ -28,14 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef DOC_DUMP_H
-#define DOC_DUMP_H
+#pragma once
 
 #include "core/class_db.h"
 
 class DocDump {
 public:
-	static void dump(se_string_view p_file);
+    static void dump(se_string_view p_file);
 };
-
-#endif // DOC_DUMP_H

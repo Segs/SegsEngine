@@ -262,8 +262,8 @@ class EditorInspector : public ScrollContainer {
     VBoxContainer *main_vbox;
 
     //map use to cache the instanced editors
-    Map<StringName, List<EditorProperty *> > editor_property_map;
-    List<EditorInspectorSection *> sections;
+    Map<StringName, PODVector<EditorProperty *> > editor_property_map;
+    PODVector<EditorInspectorSection *> sections;
     Set<StringName> pending;
 
     void _clear();

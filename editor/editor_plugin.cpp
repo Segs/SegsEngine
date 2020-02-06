@@ -706,7 +706,7 @@ void EditorPlugin::get_breakpoints(PODVector<String> *p_breakpoints) {
             p_breakpoints->push_back(arr[i]);
     }
 }
-bool EditorPlugin::get_remove_list(List<Node *> *p_list) {
+bool EditorPlugin::get_remove_list(PODVector<Node *> *p_list) {
 
     return false;
 }

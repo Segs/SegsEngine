@@ -30,10 +30,11 @@ static void load_all_plugins() {
     QDir plugins_dir(base_path+"/plugins");
     QCoreApplication::addLibraryPath( base_path+"/plugins" );
     for (const QString &filename : plugins_dir.entryList(QDir::Files)) {
-        qDebug() << "Filename: " << filename;
 
         if (!filename.contains(QLatin1String("plugin"),Qt::CaseInsensitive))
             continue;
+
+        qDebug() << "Filename: " << filename;
 
         s_common_plugins.add_plugin(plugins_dir.absoluteFilePath(filename));
     }

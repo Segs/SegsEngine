@@ -98,7 +98,14 @@ public:
     FUNC3(texture_set_detect_srgb_callback, RID, TextureDetectCallback, void *)
     FUNC3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
-    FUNC2(texture_set_path, RID, se_string_view)
+    void texture_set_path(RID p1, se_string_view p2) override {
+        if (Thread::get_caller_id() != server_thread) {
+            command_queue.push(server_name, &ServerName::texture_set_path, p1, String(p2));
+        } else {
+            server_name->texture_set_path(p1, p2);
+        }
+    }
+
     const String &texture_get_path(RID p1) const override {
         if (Thread::get_caller_id() != server_thread) {
             thread_local String ret;

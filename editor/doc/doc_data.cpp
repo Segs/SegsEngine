@@ -796,7 +796,7 @@ Error DocData::erase_classes(se_string_view p_dir) {
         return err;
     }
 
-    List<String> to_erase;
+    PODVector<String> to_erase;
 
     da->list_dir_begin();
     String path(da->get_next());
@@ -808,9 +808,8 @@ Error DocData::erase_classes(se_string_view p_dir) {
     }
     da->list_dir_end();
 
-    while (!to_erase.empty()) {
-        da->remove(to_erase.front()->deref());
-        to_erase.pop_front();
+    for(const String &n : to_erase) {
+        da->remove(n);
     }
 
     return OK;
@@ -1010,7 +1009,7 @@ Error DocData::save_classes(se_string_view p_default_path, const Map<StringName,
         String save_file = PathUtils::plus_file(save_path,String(c.name) + ".xml");
         FileAccessRef f = FileAccess::open(save_file, FileAccess::WRITE, &err);
 
-        ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + "."); 
+        ERR_CONTINUE_MSG(err != OK, "Can't write doc file: " + save_file + ".");
 
         _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
 

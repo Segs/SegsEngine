@@ -272,7 +272,7 @@ void DocDump::dump(se_string_view p_file) {
 
         /* constants are sorted in a special way */
 
-        List<_ConstantSort> constant_sort;
+        PODVector<_ConstantSort> constant_sort;
 
         for (const String &E : constant_list) {
             _ConstantSort cs;
@@ -280,12 +280,11 @@ void DocDump::dump(se_string_view p_file) {
             cs.value = ClassDB::get_integer_constant(name, StringName(E));
             constant_sort.push_back(cs);
         }
+        eastl::sort(constant_sort.begin(),constant_sort.end());
 
-        constant_sort.sort();
+        for (const _ConstantSort &E : constant_sort) {
 
-        for (List<_ConstantSort>::Element *E = constant_sort.front(); E; E = E->next()) {
-
-            _write_string(f, 2, "<constant name=\"" + E->deref().name + "\" value=\"" + itos(E->deref().value) + "\">");
+            _write_string(f, 2, "<constant name=\"" + E.name + "\" value=\"" + itos(E.value) + "\">");
             _write_string(f, 2, "</constant>");
         }
 
