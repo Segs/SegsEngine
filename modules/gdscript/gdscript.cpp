@@ -1801,7 +1801,7 @@ void GDScriptLanguage::frame() {
 }
 
 /* EDITOR FUNCTIONS */
-void GDScriptLanguage::get_reserved_words(ListPOD<String> *p_words) const {
+void GDScriptLanguage::get_reserved_words(PODVector<String> *p_words) const {
 
     static const char *_reserved_words[] = {
         // operators

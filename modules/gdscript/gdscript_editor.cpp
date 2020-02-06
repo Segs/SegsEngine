@@ -50,12 +50,12 @@
 
 using namespace eastl;
 
-void GDScriptLanguage::get_comment_delimiters(ListPOD<String> *p_delimiters) const {
+void GDScriptLanguage::get_comment_delimiters(PODVector<String> *p_delimiters) const {
 
     p_delimiters->emplace_back("#");
 }
 
-void GDScriptLanguage::get_string_delimiters(ListPOD<String> *p_delimiters) const {
+void GDScriptLanguage::get_string_delimiters(PODVector<String> *p_delimiters) const {
 
     p_delimiters->emplace_back(("\" \""));
     p_delimiters->emplace_back(("' '"));
@@ -361,7 +361,7 @@ void GDScriptLanguage::debug_get_globals(PODVector<String> *p_globals, PODVector
     const Map<StringName, int> &name_idx = GDScriptLanguage::get_singleton()->get_global_map();
     const Variant *globals = GDScriptLanguage::get_singleton()->get_global_array();
 
-    List<Pair<se_string_view, Variant> > cinfo;
+    PODVector<Pair<se_string_view, Variant> > cinfo;
     get_public_constants(&cinfo);
 
     for (const eastl::pair<const StringName,int> &E : name_idx) {
@@ -370,8 +370,8 @@ void GDScriptLanguage::debug_get_globals(PODVector<String> *p_globals, PODVector
             continue;
 
         bool is_script_constant = false;
-        for (List<Pair<se_string_view, Variant> >::Element *CE = cinfo.front(); CE; CE = CE->next()) {
-            if (E.first == CE->deref().first) {
+        for (const Pair<se_string_view, Variant> & CE : cinfo) {
+            if (E.first == CE.first) {
                 is_script_constant = true;
                 break;
             }
@@ -410,7 +410,7 @@ void GDScriptLanguage::get_recognized_extensions(List<String> *p_extensions) con
     p_extensions->push_back("gd");
 }
 
-void GDScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const {
+void GDScriptLanguage::get_public_functions(PODVector<MethodInfo> *p_functions) const {
 
     for (int i = 0; i < GDScriptFunctions::FUNC_MAX; i++) {
 
@@ -442,7 +442,7 @@ void GDScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const
     }
 }
 
-void GDScriptLanguage::get_public_constants(List<Pair<se_string_view, Variant> > *p_constants) const {
+void GDScriptLanguage::get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const {
 
     Pair<se_string_view, Variant> pi;
     pi.first = "PI";

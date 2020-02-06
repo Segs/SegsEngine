@@ -285,7 +285,7 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     TextEdit *text_edit = code_editor->get_text_edit();
 
-    ListPOD<String> keywords;
+    PODVector<String> keywords;
     script->get_language()->get_reserved_words(&keywords);
 
     for (const String &E : keywords) {
@@ -356,7 +356,7 @@ void ScriptTextEditor::_set_theme_for_script() {
         }
     }
     //colorize comments
-    ListPOD<String> comments;
+    PODVector<String> comments;
     script->get_language()->get_comment_delimiters(&comments);
 
     for (const String &comment : comments) {
@@ -368,7 +368,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
 
     //colorize strings
-    ListPOD<String> strings;
+    PODVector<String> strings;
     script->get_language()->get_string_delimiters(&strings);
     for (const String &string : strings) {
 
@@ -1378,7 +1378,7 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
         return;
 
     String delimiter("#");
-    ListPOD<String> comment_delimiters;
+    PODVector<String> comment_delimiters;
     script->get_language()->get_comment_delimiters(&comment_delimiters);
 
     for (const String &E : comment_delimiters) {

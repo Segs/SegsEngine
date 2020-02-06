@@ -647,13 +647,12 @@ void DocData::generate(bool p_basic_types) {
             ClassDoc &c = class_list[cname];
             c.name = cname;
 
-            List<MethodInfo> minfo;
+            PODVector<MethodInfo> minfo;
 
             lang->get_public_functions(&minfo);
 
-            for (List<MethodInfo>::Element *E = minfo.front(); E; E = E->next()) {
+            for (MethodInfo& mi : minfo) {
 
-                MethodInfo &mi = E->deref();
                 MethodDoc md;
                 md.name = mi.name;
 
@@ -673,7 +672,7 @@ void DocData::generate(bool p_basic_types) {
                     int darg_idx = j - (mi.arguments.size() - mi.default_arguments.size());
 
                     if (darg_idx >= 0) {
-                        Variant default_arg = E->deref().default_arguments[darg_idx];
+                        Variant default_arg = mi.default_arguments[darg_idx];
                         ad.default_value = default_arg.get_construct_string();
                     }
 
@@ -683,14 +682,14 @@ void DocData::generate(bool p_basic_types) {
                 c.methods.push_back(md);
             }
 
-            List<Pair<se_string_view, Variant> > cinfo;
+            PODVector<Pair<se_string_view, Variant> > cinfo;
             lang->get_public_constants(&cinfo);
 
-            for (List<Pair<se_string_view, Variant> >::Element *E = cinfo.front(); E; E = E->next()) {
+            for (const Pair<se_string_view, Variant> & E : cinfo) {
 
                 ConstantDoc cd;
-                cd.name = E->deref().first;
-                cd.value = E->deref().second.as<String>();
+                cd.name = E.first;
+                cd.value = E.second.as<String>();
                 c.constants.push_back(cd);
             }
         }

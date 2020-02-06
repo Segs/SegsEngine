@@ -508,7 +508,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (code.empty())
         return Ref<Texture>();
 
-    ListPOD<String> kwors;
+    PODVector<String> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
     Set<String> keywords;
