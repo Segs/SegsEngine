@@ -758,12 +758,12 @@ void OrphanResourcesDialog::show() {
     popup_centered_ratio();
 }
 
-void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, List<String> &paths) {
+void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, PODVector<String> &paths) {
 
     while (p_item) {
 
         if (p_item->get_cell_mode(0) == TreeItem::CELL_MODE_CHECK && p_item->is_checked(0)) {
-            paths.push_back(p_item->get_metadata(0));
+            paths.emplace_back(p_item->get_metadata(0));
         }
 
         if (p_item->get_children()) {
@@ -777,10 +777,10 @@ void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, List<String> &path
 void OrphanResourcesDialog::_delete_confirm() {
 
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    for (List<String>::Element *E = paths.front(); E; E = E->next()) {
+    for (const String &E : paths) {
 
-        da->remove(E->deref());
-        EditorFileSystem::get_singleton()->update_file(E->deref());
+        da->remove(E);
+        EditorFileSystem::get_singleton()->update_file(E);
     }
     memdelete(da);
     refresh();

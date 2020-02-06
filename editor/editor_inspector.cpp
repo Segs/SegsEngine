@@ -1793,9 +1793,9 @@ void EditorInspector::update_property(const StringName &p_prop) {
     if (!editor_property_map.contains(p_prop))
         return;
 
-    for (List<EditorProperty *>::Element *E = editor_property_map[p_prop].front(); E; E = E->next()) {
-        E->deref()->update_property();
-        E->deref()->update_reload_status();
+    for (EditorProperty *E : editor_property_map[p_prop]) {
+        E->update_property();
+        E->update_reload_status();
     }
 }
 
@@ -1908,24 +1908,24 @@ bool EditorInspector::is_using_folding() {
 
 void EditorInspector::collapse_all_folding() {
 
-    for (List<EditorInspectorSection *>::Element *E = sections.front(); E; E = E->next()) {
-        E->deref()->fold();
+    for (EditorInspectorSection *E : sections) {
+        E->fold();
     }
 
-    for (eastl::pair<const StringName,List<EditorProperty *> > &F : editor_property_map) {
-        for (List<EditorProperty *>::Element *E = F.second.front(); E; E = E->next()) {
-            E->deref()->collapse_all_folding();
+    for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+        for (EditorProperty *E : F.second) {
+            E->collapse_all_folding();
         }
     }
 }
 
 void EditorInspector::expand_all_folding() {
-    for (List<EditorInspectorSection *>::Element *E = sections.front(); E; E = E->next()) {
-        E->deref()->unfold();
+    for (EditorInspectorSection *E : sections) {
+        E->unfold();
     }
-    for (eastl::pair<const StringName,List<EditorProperty *> > &F : editor_property_map) {
-        for (List<EditorProperty *>::Element *E = F.second.front(); E; E = E->next()) {
-            E->deref()->expand_all_folding();
+    for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+        for (EditorProperty *E : F.second) {
+            E->expand_all_folding();
         }
     }
 }
@@ -1970,9 +1970,9 @@ void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, b
 
     auto iter=editor_property_map.find_as(p_name,SNSVComparer());
     if (autoclear && editor_property_map.end()!=iter) {
-        for (List<EditorProperty *>::Element *E = iter->second.front(); E; E = E->next()) {
-            if (E->deref()->is_checkable()) {
-                E->deref()->set_checked(true);
+        for (EditorProperty *E : iter->second) {
+            if (E->is_checkable()) {
+                E->set_checked(true);
             }
         }
     }
@@ -2027,8 +2027,8 @@ void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, b
     }
 
     if (editor_property_map.contains(StringName(p_name))) {
-        for (List<EditorProperty *>::Element *E = editor_property_map[StringName(p_name)].front(); E; E = E->next()) {
-            E->deref()->update_reload_status();
+        for (EditorProperty *E : editor_property_map[StringName(p_name)]) {
+            E->update_reload_status();
         }
     }
 }
@@ -2118,9 +2118,9 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
         }
 
         if (editor_property_map.contains(p_path)) {
-            for (List<EditorProperty *>::Element *E = editor_property_map[p_path].front(); E; E = E->next()) {
-                E->deref()->update_property();
-                E->deref()->update_reload_status();
+            for (EditorProperty *E : editor_property_map[p_path]) {
+                E->update_property();
+                E->update_reload_status();
             }
         }
 
@@ -2134,12 +2134,12 @@ void EditorInspector::_property_selected(const StringName &p_path, int p_focusab
     property_selected = p_path;
     property_focusable = p_focusable;
     //deselect the others
-    for (eastl::pair<const StringName,List<EditorProperty *> > &F : editor_property_map) {
+    for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
         if (F.first == property_selected)
             continue;
-        for (List<EditorProperty *>::Element *E = F.second.front(); E; E = E->next()) {
-            if (E->deref()->is_selected())
-                E->deref()->deselect();
+        for (EditorProperty *E : F.second) {
+            if (E->is_selected())
+                E->deselect();
         }
     }
 
@@ -2197,10 +2197,10 @@ void EditorInspector::_notification(int p_what) {
         if (refresh_countdown > 0) {
             refresh_countdown -= get_process_delta_time();
             if (refresh_countdown <= 0) {
-                for (eastl::pair<const StringName,List<EditorProperty *> > &F : editor_property_map) {
-                    for (List<EditorProperty *>::Element *E = F.second.front(); E; E = E->next()) {
-                        E->deref()->update_property();
-                        E->deref()->update_reload_status();
+                for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+                    for (EditorProperty *E : F.second) {
+                        E->update_property();
+                        E->update_reload_status();
                     }
                 }
             }
@@ -2219,9 +2219,9 @@ void EditorInspector::_notification(int p_what) {
             while (!pending.empty()) {
                 StringName prop = *pending.begin();
                 if (editor_property_map.contains(prop)) {
-                    for (List<EditorProperty *>::Element *E = editor_property_map[prop].front(); E; E = E->next()) {
-                        E->deref()->update_property();
-                        E->deref()->update_reload_status();
+                    for (EditorProperty *E : editor_property_map[prop]) {
+                        E->update_property();
+                        E->update_reload_status();
                     }
                 }
                 pending.erase(pending.begin());

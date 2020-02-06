@@ -770,11 +770,10 @@ public:
         if (animation != p_anim)
             return;
 
-        for (eastl::pair<const int,List<float> > &E : key_ofs_map) {
+        for (eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
 
-            for (List<float>::Element *F = E.second.front(); F; F = F->next()) {
+            for (float key_ofs : E.second) {
 
-                float key_ofs = F->deref();
                 if (from != key_ofs)
                     continue;
 
@@ -796,12 +795,11 @@ public:
 
         bool update_obj = false;
         bool change_notify_deserved = false;
-        for (eastl::pair<const int,List<float> > &E : key_ofs_map) {
+        for (eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
 
             int track = E.first;
-            for (const List<float>::Element *F = E.second.front(); F; F = F->next()) {
+            for (float key_ofs : E.second) {
 
-                float key_ofs = F->deref();
                 int key = animation->track_find_key(track, key_ofs, true);
                 ERR_FAIL_COND_V(key == -1, false);
 
@@ -1080,12 +1078,11 @@ public:
     bool _get(const StringName &p_name, Variant &r_ret) const {
         using namespace eastl;
 
-        for (const eastl::pair<const int,List<float> > &E : key_ofs_map) {
+        for (const eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
 
             int track = E.first;
-            for (const List<float>::Element *F = E.second.front(); F; F = F->next()) {
+            for (float key_ofs : E.second) {
 
-                float key_ofs = F->deref();
                 int key = animation->track_find_key(track, key_ofs, true);
                 ERR_CONTINUE(key == -1);
 
@@ -1228,7 +1225,7 @@ public:
         bool show_time = true;
         bool same_track_type = true;
         bool same_key_type = true;
-        for (const eastl::pair<const int,List<float> > &E : key_ofs_map) {
+        for (const eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
 
             int track = E.first;
             ERR_FAIL_INDEX(track, animation->get_track_count());
@@ -1246,9 +1243,9 @@ public:
                     same_key_type = false;
                 }
 
-                for (const List<float>::Element *F = E.second.front(); F; F = F->next()) {
+                for (float F : E.second) {
 
-                    int key = animation->track_find_key(track, F->deref(), true);
+                    int key = animation->track_find_key(track, F, true);
                     ERR_FAIL_COND(key == -1)
                     if (first_key < 0)
                         first_key = key;
@@ -1372,7 +1369,7 @@ public:
 
     Ref<Animation> animation;
 
-    Map<int, List<float> > key_ofs_map;
+    Map<int, PODVector<float> > key_ofs_map;
     Map<int, NodePath> base_map;
     PropertyInfo hint;
 
@@ -3468,9 +3465,9 @@ void AnimationTrackEditor::_query_insert(const InsertData &p_id) {
     }
     insert_frame = Engine::get_singleton()->get_frames_drawn();
 
-    for (List<InsertData>::Element *E = insert_data.front(); E; E = E->next()) {
+    for (const InsertData &E : insert_data) {
         //prevent insertion of multiple tracks
-        if (E->deref().path == p_id.path)
+        if (E.path == p_id.path)
             return; //already inserted a track for this on this frame
     }
 
@@ -3482,16 +3479,16 @@ void AnimationTrackEditor::_query_insert(const InsertData &p_id) {
             int num_tracks = 0;
 
             bool all_bezier = true;
-            for (int i = 0; i < insert_data.size(); i++) {
-                if (insert_data[i].type != Animation::TYPE_VALUE && insert_data[i].type != Animation::TYPE_BEZIER)
+            for (InsertData & dat : insert_data) {
+                if (dat.type != Animation::TYPE_VALUE && dat.type != Animation::TYPE_BEZIER)
                     all_bezier = false;
 
-                if (insert_data[i].track_idx == -1)
+                if (dat.track_idx == -1)
                     ++num_tracks;
 
-                if (insert_data[i].type != Animation::TYPE_VALUE)
+                if (dat.type != Animation::TYPE_VALUE)
                     continue;
-                switch (insert_data[i].value.get_type()) {
+                switch (dat.value.get_type()) {
                     case VariantType::INT:
                     case VariantType::REAL:
                     case VariantType::VECTOR2:
@@ -3542,9 +3539,9 @@ void AnimationTrackEditor::_insert_delay() {
     bool advance = false;
     while (!insert_data.empty()) {
 
-        if (insert_data.front()->deref().advance)
+        if (insert_data.front().advance)
             advance = true;
-        last_track = _confirm_insert(insert_data.front()->deref(), last_track);
+        last_track = _confirm_insert(insert_data.front(), last_track);
         insert_data.pop_front();
     }
 
@@ -3842,7 +3839,7 @@ void AnimationTrackEditor::_confirm_insert_list() {
     int last_track = animation->get_track_count();
     while (!insert_data.empty()) {
 
-        last_track = _confirm_insert(insert_data.front()->deref(), last_track, insert_confirm_bezier->is_pressed());
+        last_track = _confirm_insert(insert_data.front(), last_track, insert_confirm_bezier->is_pressed());
         insert_data.pop_front();
     }
 
@@ -4906,7 +4903,7 @@ void AnimationTrackEditor::_update_key_edit() {
         multi_key_edit = memnew(AnimationMultiTrackKeyEdit);
         multi_key_edit->animation = animation;
 
-        Map<int, List<float> > key_ofs_map;
+        Map<int, PODVector<float> > key_ofs_map;
         Map<int, NodePath> base_map;
         int first_track = -1;
         for (eastl::pair<const SelectedKey,KeyInfo> &E : selection) {
@@ -4916,7 +4913,7 @@ void AnimationTrackEditor::_update_key_edit() {
                 first_track = track;
 
             if (!key_ofs_map.contains(track)) {
-                key_ofs_map[track] = List<float>();
+                key_ofs_map[track] = PODVector<float>();
                 base_map[track] = NodePath();
             }
 
@@ -4965,7 +4962,7 @@ void AnimationTrackEditor::_move_selection_commit() {
 
     undo_redo->create_action_ui(TTR("Anim Move Keys"));
 
-    List<_AnimMoveRestore> to_restore;
+    PODVector<_AnimMoveRestore> to_restore;
 
     float motion = moving_selection_offset;
     // 1 - remove the keys
@@ -5022,9 +5019,8 @@ void AnimationTrackEditor::_move_selection_commit() {
     }
 
     // 6 - (undo) reinsert overlapped keys
-    for (List<_AnimMoveRestore>::Element *E = to_restore.front(); E; E = E->next()) {
+    for (_AnimMoveRestore & amr : to_restore) {
 
-        _AnimMoveRestore &amr = E->deref();
         undo_redo->add_undo_method(animation.get(), "track_insert_key", amr.track, amr.time, amr.key, amr.transition);
     }
 
@@ -5204,7 +5200,7 @@ void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
 
         undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
 
-        List<Pair<int, float> > new_selection_values;
+        PODVector<Pair<int, float> > new_selection_values;
 
         for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
 
@@ -5244,10 +5240,10 @@ void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
         //reselect duplicated
 
         Map<SelectedKey, KeyInfo> new_selection;
-        for (List<Pair<int, float> >::Element *E = new_selection_values.front(); E; E = E->next()) {
+        for (const Pair<int, float> &E : new_selection_values) {
 
-            int track = E->deref().first;
-            float time = E->deref().second;
+            int track = E.first;
+            float time = E.second;
 
             int existing_idx = animation->track_find_key(track, time, true);
 
@@ -5444,7 +5440,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
             undo_redo->create_action_ui(TTR("Anim Scale Keys"));
 
-            List<_AnimMoveRestore> to_restore;
+            PODVector<_AnimMoveRestore> to_restore;
 
             // 1-remove the keys
             for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
@@ -5501,9 +5497,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
             }
 
             // 6-(undo) reinsert overlapped keys
-            for (List<_AnimMoveRestore>::Element *E = to_restore.front(); E; E = E->next()) {
-
-                _AnimMoveRestore &amr = E->deref();
+            for (_AnimMoveRestore &amr : to_restore) {
                 undo_redo->add_undo_method(animation.get(), "track_insert_key", amr.track, amr.time, amr.key, amr.transition);
             }
 

@@ -1460,7 +1460,7 @@ AudioBusesEditorPlugin::~AudioBusesEditorPlugin() {
 
 void EditorAudioMeterNotches::add_notch(float p_normalized_offset, float p_db_value, bool p_render_value) {
 
-    notches.push_back(AudioNotch(p_normalized_offset, p_db_value, p_render_value));
+    notches.emplace_back(p_normalized_offset, p_db_value, p_render_value);
 }
 
 Size2 EditorAudioMeterNotches::get_minimum_size() const {
@@ -1471,9 +1471,9 @@ Size2 EditorAudioMeterNotches::get_minimum_size() const {
     float width = 0;
     float height = top_padding + btm_padding;
 
-    for (int i = 0; i < notches.size(); i++) {
-        if (notches[i].render_db_value) {
-            width = MAX(width, font->get_ui_string_size(UIString::number(Math::abs(notches[i].db_value)) + "dB").x);
+    for (const auto &notch : notches) {
+        if (notch.render_db_value) {
+            width = MAX(width, font->get_ui_string_size(UIString::number(Math::abs(notch.db_value)) + "dB").x);
             height += font_height;
         }
     }
@@ -1505,8 +1505,7 @@ void EditorAudioMeterNotches::_draw_audio_notches() {
     Ref<Font> font = get_font("font", "Label");
     float font_height = font->get_height();
 
-    for (int i = 0; i < notches.size(); i++) {
-        AudioNotch n = notches[i];
+    for (const AudioNotch &n : notches) {
         draw_line(Vector2(0, (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + top_padding),
                 Vector2(line_length, (1.0f - n.relative_position) * (get_size().y - btm_padding - top_padding) + top_padding),
                 notch_color,

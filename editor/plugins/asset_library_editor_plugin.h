@@ -322,7 +322,7 @@ public:
     void edit(Object *p_object) override {}
     bool handles(Object *p_object) const override { return false; }
     void make_visible(bool p_visible) override;
-    //virtual bool get_remove_list(List<Node*> *p_list) { return canvas_item_editor->get_remove_list(p_list); }
+    //virtual bool get_remove_list(PODVector<Node*> *p_list) { return canvas_item_editor->get_remove_list(p_list); }
     //virtual Dictionary get_state() const;
     //virtual void set_state(const Dictionary& p_state);
 
