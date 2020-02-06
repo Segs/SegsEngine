@@ -8425,8 +8425,8 @@ void GDScriptParser::_add_warning(int p_code, int p_line, const std::initializer
         warn.symbols.push_back(String(s));
     warn.line = p_line == -1 ? tokenizer->get_token_line() : p_line;
 
-    List<GDScriptWarning>::Element *before = nullptr;
-    for (List<GDScriptWarning>::Element *E = warnings.front(); E; E = E->next()) {
+    List<GDScriptWarning>::iterator before = nullptr;
+    for (List<GDScriptWarning>::iterator E = warnings.front(); E; E = E->next()) {
         if (E->deref().line > warn.line) {
             break;
         }

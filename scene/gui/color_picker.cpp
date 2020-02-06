@@ -294,9 +294,11 @@ Color ColorPicker::get_pick_color() const {
 }
 
 void ColorPicker::add_preset(const Color &p_color) {
-
-    if (presets.find(p_color)) {
-        presets.move_to_back(presets.find(p_color));
+    auto iter = presets.find(p_color);
+    if (iter!=presets.end()) {
+        auto tmp = *iter;
+        presets.erase(iter);
+        presets.emplace_back(tmp);
     } else {
         presets.push_back(p_color);
     }
@@ -311,9 +313,9 @@ void ColorPicker::add_preset(const Color &p_color) {
 }
 
 void ColorPicker::erase_preset(const Color &p_color) {
-
-    if (presets.find(p_color)) {
-        presets.erase(presets.find(p_color));
+    auto iter = presets.find(p_color);
+    if (presets.end()!=iter) {
+        presets.erase(iter);
         preset->update();
 
 #ifdef TOOLS_ENABLED

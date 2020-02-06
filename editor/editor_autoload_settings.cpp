@@ -41,6 +41,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 
+#include "EASTL/sort.h"
 #define PREVIEW_LIST_MAX_SIZE 10
 
 IMPL_GDCLASS(EditorAutoloadSettings)
@@ -60,8 +61,7 @@ void EditorAutoloadSettings::_notification(int p_what) {
             file_dialog->add_filter("*." + E);
         }
 
-        for (List<AutoLoadInfo>::Element *E = autoload_cache.front(); E; E = E->next()) {
-            AutoLoadInfo &info = E->deref();
+        for (AutoLoadInfo &info : autoload_cache) {
             if (info.node && info.in_editor) {
                 get_tree()->get_root()->call_deferred("add_child", Variant(info.node));
             }
@@ -385,8 +385,7 @@ void EditorAutoloadSettings::update_autoload() {
     Map<se_string_view, AutoLoadInfo> to_remove;
     List<AutoLoadInfo *> to_add;
 
-    for (List<AutoLoadInfo>::Element *E = autoload_cache.front(); E; E = E->next()) {
-        AutoLoadInfo &info = E->deref();
+    for (AutoLoadInfo &info : autoload_cache) {
         to_remove.emplace(info.name, info);
     }
 
@@ -442,7 +441,7 @@ void EditorAutoloadSettings::update_autoload() {
         autoload_cache.push_back(info);
 
         if (need_to_add) {
-            to_add.push_back(&autoload_cache.back()->deref());
+            to_add.push_back(&autoload_cache.back());
         }
 
         TreeItem *item = tree->create_item(root);
@@ -483,7 +482,7 @@ void EditorAutoloadSettings::update_autoload() {
     }
 
     // Load new/changed autoloads
-    List<Node *> nodes_to_add;
+    PODVector<Node *> nodes_to_add;
     for (List<AutoLoadInfo *>::Element *E = to_add.front(); E; E = E->next()) {
         AutoLoadInfo *info = E->deref();
 
@@ -513,8 +512,8 @@ void EditorAutoloadSettings::update_autoload() {
         }
     }
 
-    for (List<Node *>::Element *E = nodes_to_add.front(); E; E = E->next()) {
-        get_tree()->get_root()->add_child(E->deref());
+    for (Node * E : nodes_to_add) {
+        get_tree()->get_root()->add_child(E);
     }
 
     updating_autoload = false;
@@ -608,7 +607,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     int order = ProjectSettings::get_singleton()->get_order(StringName("autoload/" + name));
 
     AutoLoadInfo aux;
-    List<AutoLoadInfo>::Element *E = nullptr;
+    auto E = autoload_cache.end();
 
     if (!move_to_back) {
         aux.order = order;
@@ -618,42 +617,53 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     Dictionary drop_data = p_data;
     PoolVector<String> autoloads = drop_data["autoloads"].as<PoolVector<String>>();
 
-    Vector<int> orders;
-    orders.resize(autoload_cache.size());
+    PODVector<int> orders;
+    orders.reserve(autoload_cache.size());
+    if(move_to_back) {
+        for (int i = 0; i < autoloads.size(); i++) {
+            aux.order = ProjectSettings::get_singleton()->get_order(StringName("autoload/" + autoloads[i]));
 
-    for (int i = 0; i < autoloads.size(); i++) {
-        aux.order = ProjectSettings::get_singleton()->get_order(StringName("autoload/" + autoloads[i]));
+            auto I = autoload_cache.find(aux);
+            auto tmp = *I;
+            autoload_cache.erase(I);
+            autoload_cache.emplace_back(tmp);
+        }
+    }
+    else {
+        for (int i = 0; i < autoloads.size(); i++) {
+            if (E==autoload_cache.end())
+                break; // everything is before end()
 
-        List<AutoLoadInfo>::Element *I = autoload_cache.find(aux);
+            aux.order = ProjectSettings::get_singleton()->get_order(StringName("autoload/" + autoloads[i]));
 
-        if (move_to_back) {
-            autoload_cache.move_to_back(I);
-        } else if (E != I) {
-            autoload_cache.move_before(I, E);
-        } else if (E->next()) {
-            E = E->next();
-        } else {
-            break;
+            auto I = autoload_cache.find(aux);
+            if(I<E) // already before
+                continue;
+            if(I==E)
+                ++E; // reached E, move goalpost
+            else { // we know that I is after E so iterator E is not invalidated
+                auto tmp = *I;
+                autoload_cache.erase(I);
+                autoload_cache.insert(E,tmp);
+            }
         }
     }
 
-    int i = 0;
 
-    for (List<AutoLoadInfo>::Element *F = autoload_cache.front(); F; F = F->next()) {
-        orders.write[i++] = F->deref().order;
+    for (const AutoLoadInfo &F : autoload_cache) {
+        orders.emplace_back(F.order);
     }
-
-    orders.sort();
+    eastl::sort(orders.begin(),orders.end());
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
     undo_redo->create_action_ui(TTR("Rearrange Autoloads"));
 
-    i = 0;
+    int i = 0;
 
-    for (List<AutoLoadInfo>::Element *F = autoload_cache.front(); F; F = F->next()) {
-        undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", String("autoload/") + F->deref().name, orders[i++]);
-        undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", String("autoload/") + F->deref().name, F->deref().order);
+    for (AutoLoadInfo &F : autoload_cache) {
+        undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", String("autoload/") + F.name, orders[i++]);
+        undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", String("autoload/") + F.name, F.order);
     }
 
     orders.clear();
@@ -799,8 +809,7 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
         autoload_cache.push_back(info);
     }
 
-    for (List<AutoLoadInfo>::Element *E = autoload_cache.front(); E; E = E->next()) {
-        AutoLoadInfo &info = E->deref();
+    for (AutoLoadInfo &info :autoload_cache) {
 
         info.node = _create_autoload(info.path);
 
@@ -893,8 +902,7 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
 }
 
 EditorAutoloadSettings::~EditorAutoloadSettings() {
-    for (List<AutoLoadInfo>::Element *E = autoload_cache.front(); E; E = E->next()) {
-        AutoLoadInfo &info = E->deref();
+    for (AutoLoadInfo &info : autoload_cache) {
         if (info.node && !info.in_editor) {
             memdelete(info.node);
         }
