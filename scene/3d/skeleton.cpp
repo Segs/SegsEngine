@@ -154,7 +154,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 
     return true;
 }
-void Skeleton::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Skeleton::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < bones.size(); i++) {
 

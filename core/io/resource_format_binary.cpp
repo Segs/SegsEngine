@@ -1591,7 +1591,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
             if (resource_set.contains(res))
                 return;
 
-            ListPOD<PropertyInfo> property_list;
+            PODVector<PropertyInfo> property_list;
 
             res->get_property_list(&property_list);
 
@@ -1740,7 +1740,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
     for (int i = 0; i < 14; i++)
         f->store_32(0); // reserved
 
-    ListPOD<ResourceData> resources;
+    PODVector<ResourceData> resources;
 
     {
 
@@ -1749,7 +1749,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
             ResourceData &rd = resources.emplace_back();
             rd.type = E->get_class();
 
-            ListPOD<PropertyInfo> property_list;
+            PODVector<PropertyInfo> property_list;
             E->get_property_list(&property_list);
 
             for(PropertyInfo &F : property_list ) {

@@ -1022,7 +1022,7 @@ bool EditorNode::_find_and_save_resource(const RES &p_res, Map<RES, bool> &proce
 bool EditorNode::_find_and_save_edited_subresources(Object *obj, Map<RES, bool> &processed, int32_t flags) {
 
     bool ret_changed = false;
-    ListPOD<PropertyInfo> pi;
+    PODVector<PropertyInfo> pi;
     obj->get_property_list(&pi);
     for (PropertyInfo &E : pi) {
 
@@ -1200,7 +1200,7 @@ static bool _find_edited_resources(const Ref<Resource> &p_resource, Set<Ref<Reso
         return true;
     }
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
 
     p_resource->get_property_list(&plist);
 

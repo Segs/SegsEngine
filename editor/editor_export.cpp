@@ -125,7 +125,7 @@ bool EditorExportPreset::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void EditorExportPreset::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void EditorExportPreset::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
 

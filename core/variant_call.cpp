@@ -1595,7 +1595,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
     }
 }
 
-void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_constants) {
+void Variant::get_constants_for_type(VariantType p_type, PODVector<StringName> *p_constants) {
 
     ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX);
 

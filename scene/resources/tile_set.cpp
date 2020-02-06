@@ -336,7 +336,7 @@ bool TileSet::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void TileSet::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void TileSet::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     for (const eastl::pair<const int,TileData> &E : tile_map) {
 

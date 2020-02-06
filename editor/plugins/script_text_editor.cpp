@@ -122,16 +122,12 @@ PODVector<String> ScriptTextEditor::get_functions() {
     int line = -1, col;
     TextEdit *te = code_editor->get_text_edit();
     String text(te->get_text_utf8());
-    List<String> fnc;
+    PODVector<String> fnc;
 
     if (script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc)) {
 
         //if valid rewrite functions to latest
-        functions.clear();
-        for (List<String>::Element *E = fnc.front(); E; E = E->next()) {
-
-            functions.push_back(E->deref());
-        }
+        functions = eastl::move(functions);
     }
 
     return functions;
@@ -175,7 +171,7 @@ void ScriptTextEditor::_update_member_keywords() {
 
     if (instance_base == StringName())
         return;
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     ClassDB::get_property_list(instance_base, &plist);
 
     for(const PropertyInfo & E : plist) {
@@ -346,7 +342,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
 
     //colorize singleton autoloads (as types, just as engine singletons are)
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (const PropertyInfo &E : props) {
         se_string_view s(E.name);
@@ -596,9 +592,9 @@ void ScriptTextEditor::_validate_script() {
     TextEdit *te = code_editor->get_text_edit();
 
     String text = te->get_text_utf8();
-    List<String> fnc;
+    PODVector<String> fnc;
     Set<int> safe_lines;
-    List<ScriptLanguage::Warning> warnings;
+    PODVector<ScriptLanguage::Warning> warnings;
 
     if (!script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc, &warnings, &safe_lines)) {
         String error_text = "error(" + itos(line) + "," + itos(col) + "): " + errortxt;
@@ -614,11 +610,7 @@ void ScriptTextEditor::_validate_script() {
             _update_member_keywords();
         }
 
-        functions.clear();
-        for (List<String>::Element *E = fnc.front(); E; E = E->next()) {
-
-            functions.push_back(E->deref());
-        }
+        functions = eastl::move(fnc);
         script_is_valid = true;
     }
     _update_connected_methods();
@@ -635,8 +627,7 @@ void ScriptTextEditor::_validate_script() {
 
     // Add script warnings.
     warnings_panel->push_table(3);
-    for (List<ScriptLanguage::Warning>::Element *E = warnings.front(); E; E = E->next()) {
-        ScriptLanguage::Warning w = E->deref();
+    for (const ScriptLanguage::Warning& w: warnings) {
 
         warnings_panel->push_cell();
         warnings_panel->push_meta(w.line - 1);
@@ -816,13 +807,13 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
     }
 }
 
-void ScriptTextEditor::_code_complete_scripts(void *p_ud, const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_scripts(void *p_ud, const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     ScriptTextEditor *ste = (ScriptTextEditor *)p_ud;
     ste->_code_complete_script(p_code, r_options, r_force);
 }
 
-void ScriptTextEditor::_code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_script(const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     if (color_panel->is_visible_in_tree()) return;
     Node *base = get_tree()->get_edited_scene_root();

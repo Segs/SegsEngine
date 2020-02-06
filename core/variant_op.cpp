@@ -2862,7 +2862,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
     return false;
 }
 
-void Variant::get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Variant::get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     switch (type) {
         case VariantType::VECTOR2: {

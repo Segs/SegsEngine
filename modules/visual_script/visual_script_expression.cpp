@@ -146,7 +146,7 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
 
     return false;
 }
-void VisualScriptExpression::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScriptExpression::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 

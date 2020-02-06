@@ -64,7 +64,7 @@ public:
     void set_code(const String &p_code);
     String get_code() const;
 
-    void get_param_list(ListPOD<PropertyInfo> *p_params) const;
+    void get_param_list(PODVector<PropertyInfo> *p_params) const;
     bool has_param(const StringName &p_param) const;
     //TODO: SEGS: was `Ref<Texture> &p_texture` but can also use CubeMap so it's using common base of Texture/CubeMap, consider introducing a common ?ImageSource? base class?
     void set_default_texture_param(const StringName &p_param, const Ref<Resource> &p_texture);

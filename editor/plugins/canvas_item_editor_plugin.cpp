@@ -5935,7 +5935,7 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_strin
 
     // handle with different property for texture
     se_string_view  property("texture");
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     child->get_property_list(&props);
     for (const PropertyInfo &E : props) {
         if (E.name == "config/texture") { // Particles2D

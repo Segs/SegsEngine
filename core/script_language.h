@@ -145,13 +145,13 @@ public:
     virtual ScriptLanguage *get_language() const = 0;
 
     virtual bool has_script_signal(const StringName &p_signal) const = 0;
-    virtual void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const = 0;
+    virtual void get_script_signal_list(PODVector<MethodInfo> *r_signals) const = 0;
 
     virtual bool get_property_default_value(const StringName &p_property, Variant &r_value) const = 0;
 
     virtual void update_exports() {} //editor tool
     virtual void get_script_method_list(PODVector<MethodInfo> *p_list) const = 0;
-    virtual void get_script_property_list(ListPOD<PropertyInfo> *p_list) const = 0;
+    virtual void get_script_property_list(PODVector<PropertyInfo> *p_list) const = 0;
 
     virtual int get_member_line(const StringName & /*p_member*/) const { return -1; }
 
@@ -167,11 +167,11 @@ class GODOT_EXPORT ScriptInstance {
 public:
     virtual bool set(const StringName &p_name, const Variant &p_value) = 0;
     virtual bool get(const StringName &p_name, Variant &r_ret) const = 0;
-    virtual void get_property_list(ListPOD<PropertyInfo> *p_properties) const = 0;
+    virtual void get_property_list(PODVector<PropertyInfo> *p_properties) const = 0;
     virtual VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const = 0;
 
     virtual Object *get_owner() { return nullptr; }
-    virtual void get_property_state(ListPOD<Pair<StringName, Variant> > &state);
+    virtual void get_property_state(PODVector<Pair<StringName, Variant>> &state);
 
     virtual void get_method_list(PODVector<MethodInfo> *p_list) const = 0;
     [[nodiscard]] virtual bool has_method(const StringName &p_method) const = 0;
@@ -277,8 +277,8 @@ public:
     virtual void make_template(se_string_view /*p_class_name*/, se_string_view /*p_base_class_name*/, const Ref<Script> & /*p_script*/) {}
     virtual bool is_using_templates() { return false; }
     virtual bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-            se_string_view p_path = {}, DefList<String> *r_functions = nullptr,
-            DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
+            se_string_view p_path = {}, PODVector<String> *r_functions = nullptr,
+            PODVector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
     virtual String validate_path(se_string_view /*p_path*/) const { return String(); }
     virtual Script *create_script() const = 0;
     virtual bool has_named_classes() const = 0;
@@ -290,7 +290,7 @@ public:
     virtual bool overrides_external_editor() { return false; }
 
     virtual Error complete_code(const String &/*p_code*/, se_string_view /*p_path*/, Object * /*p_owner*/,
-            DefList<ScriptCodeCompletionOption> * /*r_options*/, bool &/*r_force*/, String &/*r_call_hint*/) {
+            PODVector<ScriptCodeCompletionOption> *, bool &/*r_force*/, String &/*r_call_hint*/) {
         return ERR_UNAVAILABLE;
     }
 
@@ -396,7 +396,7 @@ class PlaceHolderScriptInstance : public ScriptInstance {
 public:
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    void get_property_list(PODVector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
     void get_method_list(PODVector<MethodInfo> *p_list) const override;

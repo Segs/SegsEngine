@@ -98,7 +98,7 @@ public:
         return true;
     }
 
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
         for (size_t i = 0; i < params.size(); i++) {
             p_list->push_back(PropertyInfo(params[i].get_type(), StringName("bind/" + itos(i + 1))));
@@ -909,7 +909,7 @@ void ConnectionsDock::update_tree() {
 
     TreeItem *root = tree->create_item();
 
-    ListPOD<MethodInfo> node_signals;
+    PODVector<MethodInfo> node_signals;
 
     selectedNode->get_signal_list(&node_signals);
 
@@ -918,7 +918,7 @@ void ConnectionsDock::update_tree() {
 
     while (base) {
 
-        ListPOD<MethodInfo> node_signals2;
+        PODVector<MethodInfo> node_signals2;
         Ref<Texture> icon;
         String name;
 
@@ -955,7 +955,7 @@ void ConnectionsDock::update_tree() {
             pitem->set_selectable(0, false);
             pitem->set_editable(0, false);
             pitem->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
-            node_signals2.sort();
+            eastl::sort(node_signals2.begin(), node_signals2.end());
         }
 
         for (MethodInfo &mi : node_signals2) {

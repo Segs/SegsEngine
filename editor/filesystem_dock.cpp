@@ -1202,7 +1202,7 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
     }
 
     // Also search for the file in autoload, as they are stored differently from normal files.
-    ListPOD<PropertyInfo> property_list;
+    PODVector<PropertyInfo> property_list;
     ProjectSettings::get_singleton()->get_property_list(&property_list);
     for (const PropertyInfo &E : property_list) {
         if (StringUtils::begins_with(E.name,"autoload/")) {

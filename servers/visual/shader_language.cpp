@@ -5426,7 +5426,8 @@ Error ShaderLanguage::compile(const String &p_code, const Map<StringName, Functi
     return OK;
 }
 
-Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
+Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, PODVector
+        <ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
 
     clear();
 
@@ -5684,8 +5685,8 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
             }
 
             for (int i = 0; i < limit; i++) {
-                r_options->push_back(ScriptCodeCompletionOption(String(&colv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT));
-                r_options->push_back(ScriptCodeCompletionOption(String(&coordv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT));
+                r_options->emplace_back(String(&colv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT);
+                r_options->emplace_back(String(&coordv[i],1), ScriptCodeCompletionOption::KIND_PLAIN_TEXT);
             }
 
         } break;

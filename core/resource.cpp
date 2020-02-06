@@ -174,7 +174,7 @@ void Resource::reload_from_file() {
     if (not s)
         return;
 
-    ListPOD<PropertyInfo> pi;
+    PODVector<PropertyInfo> pi;
     s->get_property_list(&pi);
 
     for(PropertyInfo &E : pi ) {
@@ -190,7 +190,7 @@ void Resource::reload_from_file() {
 
 Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, Ref<Resource> > &remap_cache) {
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     get_property_list(&plist);
 
     Resource *r = object_cast<Resource>(ClassDB::instance(get_class_name()));
@@ -231,7 +231,7 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
 
 void Resource::configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, Ref<Resource> > &remap_cache) {
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     get_property_list(&plist);
 
     impl_data->local_scene = p_for_scene;
@@ -241,16 +241,16 @@ void Resource::configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, R
         if (!(E.usage & PROPERTY_USAGE_STORAGE))
             continue;
         Variant p = get(E.name);
-        if (p.get_type() == VariantType::OBJECT) {
+        if (p.get_type() != VariantType::OBJECT)
+            continue;
 
-            RES sr(refFromVariant<Resource>(p));
-            if (sr) {
+        RES sr(refFromVariant<Resource>(p));
+        if (sr) {
 
-                if (sr->is_local_to_scene()) {
-                    if (!remap_cache.contains(sr)) {
-                        sr->configure_for_local_scene(p_for_scene, remap_cache);
-                        remap_cache[sr] = sr;
-                    }
+            if (sr->is_local_to_scene()) {
+                if (!remap_cache.contains(sr)) {
+                    sr->configure_for_local_scene(p_for_scene, remap_cache);
+                    remap_cache[sr] = sr;
                 }
             }
         }
@@ -259,7 +259,7 @@ void Resource::configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, R
 
 Ref<Resource> Resource::duplicate(bool p_subresources) const {
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     get_property_list(&plist);
 
     Resource *r = (Resource *)ClassDB::instance(get_class_name());
@@ -330,7 +330,7 @@ uint32_t Resource::hash_edited_version() const {
 
     uint32_t hash = hash_djb2_one_32(get_tooling_interface()->get_edited_version());
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     get_property_list(&plist);
 
     for(PropertyInfo &E : plist ) {

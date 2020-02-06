@@ -234,8 +234,8 @@ public:
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
 
     static void get_class_list(PODVector<StringName> *p_classes);
-    static void get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
-    static void get_direct_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
+    static void get_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes);
+    static void get_direct_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes);
     static StringName get_parent_class_nocheck(const StringName &p_class);
     static StringName get_parent_class(const StringName &p_class);
     static bool class_exists(const StringName &p_class);
@@ -249,12 +249,12 @@ public:
     static void add_signal(StringName p_class, MethodInfo && p_signal);
     static bool has_signal(StringName p_class, StringName p_signal);
     static bool get_signal(StringName p_class, StringName p_signal, MethodInfo *r_signal);
-    static void get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance = false);
+    static void get_signal_list(StringName p_class, PODVector<MethodInfo> *p_signals, bool p_no_inheritance = false);
 
     static void add_property_group(StringName p_class, const char *p_name, const char *p_prefix = nullptr);
     static void add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
     static void set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default);
-    static void get_property_list(StringName p_class, ListPOD<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
+    static void get_property_list(StringName p_class, PODVector<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
     static bool set_property(Object *p_object, const StringName &p_property, const Variant &p_value, bool *r_valid = nullptr);
     static bool get_property(Object *p_object, const StringName &p_property, Variant &r_value);
     static bool has_property(const StringName &p_class, const StringName &p_property, bool p_no_inheritance = false);

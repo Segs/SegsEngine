@@ -589,7 +589,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void AnimationTreePlayer::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void AnimationTreePlayer::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK));
 }

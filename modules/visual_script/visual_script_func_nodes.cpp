@@ -1048,7 +1048,7 @@ PropertyInfo VisualScriptPropertySet::get_input_value_port_info(int p_idx) const
         }
     }
 
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
@@ -1182,7 +1182,7 @@ void VisualScriptPropertySet::_update_cache() {
         Variant::CallError ce;
         v = Variant::construct(basic_type, nullptr, 0, ce);
 
-        ListPOD<PropertyInfo> pinfo;
+        PODVector<PropertyInfo> pinfo;
         v.get_property_list(&pinfo);
 
         for(const PropertyInfo & E : pinfo) {
@@ -1233,7 +1233,7 @@ void VisualScriptPropertySet::_update_cache() {
             }
         }
 
-        ListPOD<PropertyInfo> pinfo;
+        PODVector<PropertyInfo> pinfo;
 
         if (node) {
 
@@ -1423,7 +1423,7 @@ void VisualScriptPropertySet::_validate_property(PropertyInfo &property) const {
 
         Variant::CallError ce;
         Variant v = Variant::construct(type_cache.type, nullptr, 0, ce);
-        ListPOD<PropertyInfo> plist;
+        PODVector<PropertyInfo> plist;
         v.get_property_list(&plist);
         String options;
         for(const PropertyInfo & E : plist) {
@@ -1818,7 +1818,7 @@ PropertyInfo VisualScriptPropertyGet::get_input_value_port_info(int p_idx) const
 }
 
 PropertyInfo VisualScriptPropertyGet::get_output_value_port_info(int p_idx) const {
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
@@ -1889,7 +1889,7 @@ void VisualScriptPropertyGet::_update_cache() {
         Variant::CallError ce;
         v = Variant::construct(basic_type, nullptr, 0, ce);
 
-        ListPOD<PropertyInfo> pinfo;
+        PODVector<PropertyInfo> pinfo;
         v.get_property_list(&pinfo);
 
         for(const PropertyInfo & E : pinfo) {
@@ -2137,7 +2137,7 @@ void VisualScriptPropertyGet::_validate_property(PropertyInfo &property) const {
 
         Variant::CallError ce;
         Variant v = Variant::construct(type_cache, nullptr, 0, ce);
-        ListPOD<PropertyInfo> plist;
+        PODVector<PropertyInfo> plist;
         v.get_property_list(&plist);
         String options;
         for(const PropertyInfo & E : plist) {

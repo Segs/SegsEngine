@@ -76,7 +76,7 @@ public:
     String get_file_uri(se_string_view p_path) const;
 
     void publish_diagnostics(se_string_view p_path);
-    void completion(const lsp::CompletionParams &p_params, List<ScriptCodeCompletionOption> *r_options);
+    void completion(const lsp::CompletionParams &p_params, PODVector<ScriptCodeCompletionOption> *r_options);
 
     const lsp::DocumentSymbol *resolve_symbol(const lsp::TextDocumentPositionParams &p_doc_pos, se_string_view p_symbol_name = {}, bool p_func_requred = false);
     void resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, ListPOD<const lsp::DocumentSymbol *> &r_list);

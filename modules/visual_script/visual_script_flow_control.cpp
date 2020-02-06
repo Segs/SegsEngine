@@ -720,7 +720,7 @@ bool VisualScriptSwitch::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void VisualScriptSwitch::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScriptSwitch::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::INT, "case_count", PropertyHint::Range, "0,128"));
 

@@ -41,7 +41,8 @@ public:
 
     void _save_tex(const Vector<Ref<Image> > &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags);
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
+            *r_platform_variants, PODVector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     void update_imports();
 

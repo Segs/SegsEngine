@@ -167,7 +167,7 @@ void AnimationPlayer::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void AnimationPlayer::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void AnimationPlayer::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     List<PropertyInfo> anim_names;
 

@@ -1437,7 +1437,7 @@ bool PhysicalBone::JointData::_get(const StringName &p_name, Variant &r_ret) con
     return false;
 }
 
-void PhysicalBone::JointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::JointData::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 }
 
 void PhysicalBone::apply_central_impulse(const Vector3 &p_impulse) {
@@ -1494,7 +1494,7 @@ bool PhysicalBone::PinJointData::_get(const StringName &p_name, Variant &r_ret) 
     return true;
 }
 
-void PhysicalBone::PinJointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::PinJointData::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::REAL, "joint_constraints/bias", PropertyHint::Range, "0.01,0.99,0.01"));
@@ -1562,7 +1562,7 @@ bool PhysicalBone::ConeJointData::_get(const StringName &p_name, Variant &r_ret)
     return true;
 }
 
-void PhysicalBone::ConeJointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::ConeJointData::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::REAL, "joint_constraints/swing_span", PropertyHint::Range, "-180,180,0.01"));
@@ -1637,7 +1637,7 @@ bool PhysicalBone::HingeJointData::_get(const StringName &p_name, Variant &r_ret
     return true;
 }
 
-void PhysicalBone::HingeJointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::HingeJointData::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::BOOL, "joint_constraints/angular_limit_enabled"));
@@ -1741,7 +1741,7 @@ bool PhysicalBone::SliderJointData::_get(const StringName &p_name, Variant &r_re
     return true;
 }
 
-void PhysicalBone::SliderJointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::SliderJointData::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::REAL, "joint_constraints/linear_limit_upper"));
@@ -1969,7 +1969,7 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
     return true;
 }
 
-void PhysicalBone::SixDOFJointData::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::SixDOFJointData::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     const char * axis_names[] = { "x", "y", "z" };
     for (int i = 0; i < 3; ++i) {
         String prefix(String("joint_constraints/") + axis_names[i]);
@@ -2029,7 +2029,7 @@ bool PhysicalBone::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void PhysicalBone::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PhysicalBone::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     Skeleton *parent = find_skeleton_parent(get_parent());
 

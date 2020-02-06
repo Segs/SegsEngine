@@ -328,7 +328,7 @@ bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
     return true;
 }
-void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     Ref<Theme> theme = Theme::get_default();
     /* Using the default theme since the properties below are meant for editor only

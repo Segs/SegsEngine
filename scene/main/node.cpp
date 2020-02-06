@@ -2130,7 +2130,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
             }
         }
 
-        ListPOD<PropertyInfo> plist;
+        PODVector<PropertyInfo> plist;
         N->deref()->get_property_list(&plist);
 
         for (const PropertyInfo & E : plist) {
@@ -2277,7 +2277,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
         }
     }
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
 
     get_property_list(&plist);
 
@@ -2380,7 +2380,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     }
     node->set_name(get_name());
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
 
     get_property_list(&plist);
 
@@ -2440,7 +2440,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
     if (p_keep_data) {
 
-        ListPOD<PropertyInfo> plist;
+        PODVector<PropertyInfo> plist;
         get_property_list(&plist);
 
         for (const PropertyInfo &E : plist) {

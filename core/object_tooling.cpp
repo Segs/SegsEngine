@@ -116,7 +116,7 @@ Variant Object_get_fallback(const Object *self,const StringName &p_name,bool &r_
     return ret;
 }
 
-void Object_add_tool_properties(ListPOD<PropertyInfo> *p_list)
+void Object_add_tool_properties(PODVector<PropertyInfo> *p_list)
 {
     p_list->push_back(PropertyInfo(VariantType::NIL, "Script", PropertyHint::None, "", PROPERTY_USAGE_GROUP));
 }

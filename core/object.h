@@ -172,10 +172,10 @@ protected:                                                                      
         }                                                                                                              \
         return false;                                                                                                  \
     }                                                                                                                  \
-    void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
-        return (void (Object::*)(ListPOD<PropertyInfo> *) const) & m_class::_get_property_list;                        \
+    void (Object::*_get_get_property_list() const)(PODVector<PropertyInfo> * p_list) const {             \
+        return (void (Object::*)(PODVector<PropertyInfo> *) const) & m_class::_get_property_list;                        \
     }                                                                                                                  \
-    void _get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const override;                           \
+    void _get_property_listv(PODVector<PropertyInfo> *p_list, bool p_reversed) const override;                           \
     void (Object::*_get_notification() const)(int) {                                                    \
         return (void (Object::*)(int)) & m_class::_notification;                                                       \
     }                                                                                                                  \
@@ -201,7 +201,7 @@ private:
         }                                                                                                              \
         if (p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                       \
     }                                                                                                                  \
-    void m_class::_get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {                          \
+    void m_class::_get_property_listv(PODVector<PropertyInfo> *p_list, bool p_reversed) const {                        \
         if (!p_reversed) {                                                                                             \
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
         }                                                                                                              \
@@ -312,14 +312,14 @@ protected:
     virtual bool _initialize_classv() { return initialize_class(); }
     virtual bool _setv(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
     virtual bool _getv(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
-    virtual void _get_property_listv(ListPOD<PropertyInfo> * /*p_list*/, bool /*p_reversed*/) const {}
+    virtual void _get_property_listv(PODVector<PropertyInfo> *, bool /*p_reversed*/) const {}
     virtual void _notificationv(int /*p_notification*/, bool /*p_reversed*/){}
 
     static const char *_get_category() { return ""; }
     static void _bind_methods();
     bool _set(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
     bool _get(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
-    void _get_property_list(ListPOD<PropertyInfo> * /*p_list*/) const {}
+    void _get_property_list(PODVector<PropertyInfo> * /*p_list*/) const {}
     void _notification(int /*p_notification*/){}
 
     static void (*_get_bind_methods())() {
@@ -331,7 +331,7 @@ protected:
     bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
         return &Object::_set;
     }
-    void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> *p_list) const {
+    void (Object::*_get_get_property_list() const)(PODVector<PropertyInfo> *p_list) const {
         return &Object::_get_property_list;
     }
     void (Object::*_get_notification() const)(int) {
@@ -419,7 +419,7 @@ public:
     void set_indexed(const PODVector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_indexed(const PODVector<StringName> &p_names, bool *r_valid = nullptr) const;
 
-    void get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed = false) const;
+    void get_property_list(PODVector<PropertyInfo> *p_list, bool p_reversed = false) const;
 
     bool has_method(const StringName &p_method) const;
     void get_method_list(PODVector<MethodInfo> *p_list) const;
@@ -460,7 +460,7 @@ public:
     void add_user_signal(MethodInfo &&p_signal);
     Error emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
     Error emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
-    void get_signal_list(ListPOD<MethodInfo> *p_signals) const;
+    void get_signal_list(PODVector<MethodInfo> *p_signals) const;
     void get_signal_connection_list(const StringName &p_signal, ListPOD<Connection> *p_connections) const;
     void get_all_signal_connections(ListPOD<Connection> *p_connections) const;
     int get_persistent_signal_connection_count() const;

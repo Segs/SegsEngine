@@ -394,7 +394,7 @@ void EditorAutoloadSettings::update_autoload() {
     tree->clear();
     TreeItem *root = tree->create_item();
 
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
 
     for (const PropertyInfo &pi : props) {
@@ -775,7 +775,7 @@ void EditorAutoloadSettings::_bind_methods() {
 EditorAutoloadSettings::EditorAutoloadSettings() {
 
     // Make first cache
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (const PropertyInfo &pi : props) {
 

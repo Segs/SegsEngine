@@ -1320,7 +1320,7 @@ void SceneTreeDock::perform_node_renames(Node *p_base, PODVector<Pair<NodePath, 
 
         if (si) {
 
-            ListPOD<PropertyInfo> properties;
+            PODVector<PropertyInfo> properties;
             si->get_property_list(&properties);
 
             for (const PropertyInfo &E : properties) {
@@ -2086,7 +2086,7 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
 
     if (p_keep_properties) {
         Node *default_oldnode = object_cast<Node>(ClassDB::instance(n->get_class_name()));
-        ListPOD<PropertyInfo> pinfo;
+        PODVector<PropertyInfo> pinfo;
         n->get_property_list(&pinfo);
 
         for (const PropertyInfo &E : pinfo) {
@@ -2105,7 +2105,7 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     editor->push_item(nullptr);
 
     //reconnect signals
-    ListPOD<MethodInfo> sl;
+    PODVector<MethodInfo> sl;
 
     n->get_signal_list(&sl);
     for (const MethodInfo &E : sl) {
@@ -2360,7 +2360,7 @@ void SceneTreeDock::_add_children_to_popup(Object *p_obj, int p_depth) {
     if (p_depth > 8)
         return;
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     p_obj->get_property_list(&pinfo);
     for (const PropertyInfo &E : pinfo) {
 

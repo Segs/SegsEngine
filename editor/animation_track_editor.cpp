@@ -560,7 +560,7 @@ public:
 
         return false;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
         if (not animation)
             return;
@@ -1217,7 +1217,7 @@ public:
 
         return false;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
         if (not animation)
             return;
@@ -3901,7 +3901,7 @@ PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_b
         property_info_base = property_info_base.get_named(leftover_path[i]);
     }
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     property_info_base.get_property_list(&pinfo);
 
     for(const PropertyInfo & E : pinfo) {

@@ -1173,7 +1173,7 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
 
         error = OK;
         //get it here
-        ListPOD<PropertyInfo> props;
+        PODVector<PropertyInfo> props;
         packed_scene->get_property_list(&props);
 
         bs_save_unicode_string(wf, se_string_view("local://0"));
@@ -1458,10 +1458,10 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
             if (resource_set.contains(res))
                 return;
 
-            ListPOD<PropertyInfo> property_list;
+            PODVector<PropertyInfo> property_list;
 
             res->get_property_list(&property_list);
-            property_list.sort();
+            eastl::sort(property_list.begin(), property_list.end());
 
             for(PropertyInfo pi : property_list){
 
@@ -1682,7 +1682,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             Object_set_edited(res.get(),false);
         }
 
-        ListPOD<PropertyInfo> property_list;
+        PODVector<PropertyInfo> property_list;
         res->get_property_list(&property_list);
         //property_list.sort();
         for (const PropertyInfo &PE : property_list) {

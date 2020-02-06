@@ -112,7 +112,7 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
         p_folds.push_back(unfolds);
     }
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     p_node->get_property_list(&plist);
     for (const PropertyInfo &E : plist) {
         if (E.usage & PROPERTY_USAGE_EDITOR) {
@@ -223,7 +223,7 @@ bool EditorFolding::has_folding_data(se_string_view p_path) {
 
 void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     p_object->get_property_list(&plist);
     String group_base;
     String group;

@@ -234,7 +234,7 @@ struct _VCSort {
     bool operator<(const _VCSort &p_vcs) const { return order == p_vcs.order ? name < p_vcs.name : order < p_vcs.order; }
 };
 
-void ProjectSettings::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void ProjectSettings::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     _THREAD_SAFE_METHOD_
     using namespace StringUtils;
@@ -904,7 +904,7 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
 }
 PODVector<String> ProjectSettings::get_optimizer_presets() const {
 
-    ListPOD<PropertyInfo> pi;
+    PODVector<PropertyInfo> pi;
     ProjectSettings::get_singleton()->get_property_list(&pi);
     PODVector<String> names;
 

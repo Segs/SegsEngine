@@ -517,9 +517,9 @@ void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const S
 
     class_item->set_checked(0, true); // if its not disabled, its checked
 
-    ListPOD<StringName> child_classes;
+    PODVector<StringName> child_classes;
     ClassDB::get_direct_inheriters_from_class(p_class, &child_classes);
-    child_classes.sort(WrapAlphaCompare());
+    eastl::sort(child_classes.begin(), child_classes.end(), WrapAlphaCompare());
 
     for (const StringName &E : child_classes) {
         if (StringUtils::begins_with(E,"Editor") || ClassDB::get_api_type(E) != ClassDB::API_CORE) {
@@ -570,7 +570,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
     TreeItem *properties = property_list->create_item(root);
     properties->set_text(0, TTR("Enabled Properties:"));
 
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
 
     ClassDB::get_property_list(class_name, &props, true);
 

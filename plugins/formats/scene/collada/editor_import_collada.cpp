@@ -57,14 +57,9 @@ struct ColladaImport {
 
     struct NodeMap {
         //String path;
-        Spatial *node;
-        int bone;
-        List<int> anim_tracks;
-
-        NodeMap() {
-            node = nullptr;
-            bone = -1;
-        }
+        Spatial *node = nullptr;
+        int bone = -1;
+        PODVector<int> anim_tracks;
     };
 
     bool found_ambient;
@@ -702,7 +697,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         }
 
         Set<Collada::Vertex> vertex_set; //vertex set will be the vertices
-        List<int> indices_list; //indices will be the indices
+        PODVector<int> indices_list; //indices will be the indices
 
         /**************************/
         /* CREATE PRIMITIVE ARRAY */
@@ -942,8 +937,8 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                 surftool->add_vertex(vertex_array[k].vertex);
             }
 
-            for (List<int>::Element *E = indices_list.front(); E; E = E->next()) {
-                surftool->add_index(E->deref());
+            for (int E : indices_list) {
+                surftool->add_index(E);
             }
 
             if (!normal_src) {
@@ -1549,7 +1544,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
         if (nm.anim_tracks.size() == 1) {
             //use snapshot keys from anim track instead, because this was most likely exported baked
-            const Collada::AnimationTrack &at = collada.state.animation_tracks[nm.anim_tracks.front()->deref()];
+            const Collada::AnimationTrack &at = collada.state.animation_tracks[nm.anim_tracks.front()];
             snapshots.clear();
             for (int i = 0; i < at.keys.size(); i++)
                 snapshots.push_back(at.keys[i].time);
@@ -1557,24 +1552,24 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
         for (int i = 0; i < snapshots.size(); i++) {
 
-            for (List<int>::Element *ET = nm.anim_tracks.front(); ET; ET = ET->next()) {
+            for (int ET : nm.anim_tracks) {
                 //apply tracks
 
                 if (p_clip == -1) {
 
-                    if (track_filter.contains(ET->deref())) {
+                    if (track_filter.contains(ET)) {
 
                         continue;
                     }
                 } else {
 
-                    if (!track_filter.contains(ET->deref()))
+                    if (!track_filter.contains(ET))
                         continue;
                 }
 
                 found_anim = true;
 
-                const Collada::AnimationTrack &at = collada.state.animation_tracks[ET->deref()];
+                const Collada::AnimationTrack &at = collada.state.animation_tracks[ET];
 
                 int xform_idx = -1;
                 for (int j = 0; j < cn->xform_list.size(); j++) {

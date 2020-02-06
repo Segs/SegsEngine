@@ -2813,7 +2813,7 @@ PoolStringArray _ClassDB::get_class_list() const {
 }
 PoolStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class) const {
 
-    ListPOD<StringName> classes;
+    PODVector<StringName> classes;
     ClassDB::get_inheriters_from_class(p_class, &classes);
 
     PoolStringArray ret;
@@ -2870,7 +2870,7 @@ Dictionary _ClassDB::get_signal(StringName p_class, StringName p_signal) const {
 }
 Array _ClassDB::get_signal_list(StringName p_class, bool p_no_inheritance) const {
 
-    ListPOD<MethodInfo> defined_signals;
+    PODVector<MethodInfo> defined_signals;
     ClassDB::get_signal_list(p_class, &defined_signals, p_no_inheritance);
     Array ret;
 
@@ -2883,7 +2883,7 @@ Array _ClassDB::get_signal_list(StringName p_class, bool p_no_inheritance) const
 
 Array _ClassDB::get_property_list(StringName p_class, bool p_no_inheritance) const {
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     ClassDB::get_property_list(p_class, &plist, p_no_inheritance);
     Array ret;
     for (const PropertyInfo &E : plist) {

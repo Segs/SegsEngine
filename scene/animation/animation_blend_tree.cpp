@@ -1208,7 +1208,7 @@ bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) cons
 
     return false;
 }
-void AnimationNodeBlendTree::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void AnimationNodeBlendTree::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     PODVector<StringName> names;
     names.reserve(nodes.size());

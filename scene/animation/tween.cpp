@@ -162,7 +162,7 @@ bool Tween::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Tween::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Tween::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     // Add the property info for the Tween object
     p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/active", PropertyHint::None, ""));
     p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/repeat", PropertyHint::None, ""));

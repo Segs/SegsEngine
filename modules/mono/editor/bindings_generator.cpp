@@ -2334,7 +2334,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         // Populate properties
 
-        ListPOD<PropertyInfo> property_list;
+        PODVector<PropertyInfo> property_list;
         ClassDB::get_property_list(type_cname, &property_list, true);
 
         Map<StringName, StringName> accessor_methods;

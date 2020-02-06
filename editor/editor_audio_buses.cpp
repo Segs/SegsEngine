@@ -44,6 +44,8 @@
 #include "servers/audio_server.h"
 #include "scene/resources/style_box.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(EditorAudioBus)
 IMPL_GDCLASS(EditorAudioBusDrop)
 IMPL_GDCLASS(EditorAudioBuses)
@@ -949,9 +951,10 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
     effect_options = memnew(PopupMenu);
     effect_options->connect("index_pressed", this, "_effect_add");
     add_child(effect_options);
-    ListPOD<StringName> effects;
+    PODVector<StringName> effects;
     ClassDB::get_inheriters_from_class("AudioEffect", &effects);
-    effects.sort(WrapAlphaCompare());
+    eastl::sort(effects.begin(), effects.end());
+
     for (const StringName &E : effects) {
         if (!ClassDB::can_instance(E))
             continue;

@@ -1215,7 +1215,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     update_timer->set_wait_time(0.5);
     add_child(update_timer);
 
-    script_types = memnew(ListPOD<StringName>);
+    script_types = memnew(PODVector<StringName>);
     ClassDB::get_inheriters_from_class("Script", script_types);
 }
 

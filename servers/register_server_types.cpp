@@ -68,20 +68,20 @@
 
 static void _debugger_get_resource_usage(ListPOD<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
-    List<VisualServer::TextureInfo> tinfo;
+    PODVector<VisualServer::TextureInfo> tinfo;
     VisualServer::get_singleton()->texture_debug_usage(&tinfo);
 
-    for (List<VisualServer::TextureInfo>::Element *E = tinfo.front(); E; E = E->next()) {
+    for (const VisualServer::TextureInfo &E : tinfo) {
 
         ScriptDebuggerRemote::ResourceUsage usage;
-        usage.path = E->deref().path;
-        usage.vram = E->deref().bytes;
-        usage.id = E->deref().texture;
+        usage.path = E.path;
+        usage.vram = E.bytes;
+        usage.id = E.texture;
         usage.type = "Texture";
-        if (E->deref().depth == 0) {
-            usage.format = itos(E->deref().width) + "x" + itos(E->deref().height) + " " + Image::get_format_name(E->deref().format);
+        if (E.depth == 0) {
+            usage.format = itos(E.width) + "x" + itos(E.height) + " " + Image::get_format_name(E.format);
         } else {
-            usage.format = itos(E->deref().width) + "x" + itos(E->deref().height) + "x" + itos(E->deref().depth) + " " + Image::get_format_name(E->deref().format);
+            usage.format = itos(E.width) + "x" + itos(E.height) + "x" + itos(E.depth) + " " + Image::get_format_name(E.format);
         }
         r_usage->push_back(usage);
     }

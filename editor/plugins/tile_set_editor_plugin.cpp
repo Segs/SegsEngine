@@ -3460,7 +3460,7 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
     return v;
 }
 
-void TilesetEditorContext::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void TilesetEditorContext::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     if (snap_options_visible) {
         p_list->push_back(PropertyInfo(VariantType::NIL, "Snap Options", PropertyHint::None, "options_", PROPERTY_USAGE_GROUP));

@@ -716,7 +716,8 @@ public:
 
     static String get_shader_type(const String &p_code);
     Error compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
-    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, String &r_call_hint);
+    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, PODVector
+            <ScriptCodeCompletionOption> *r_options, String &r_call_hint);
 
     const String &get_error_text();
     int get_error_line();

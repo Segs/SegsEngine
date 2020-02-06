@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_SCENE_IMPORT_STATE_H
-#define EDITOR_SCENE_IMPORT_STATE_H
+#pragma once
 
 #include "core/io/resource_importer.h"
 #include "core/vector.h"
@@ -41,6 +40,8 @@
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/surface_tool.h"
+
+#include "EASTL/deque.h"
 
 #include <assimp/matrix4x4.h>
 #include <assimp/scene.h>
@@ -71,21 +72,21 @@ struct ImportState {
 
     // Generation 3 - determinisitic iteration
     // to lower potential recursion errors
-    List<const aiNode *> nodes;
+    PODVector<const aiNode *> nodes;
     Map<const aiNode *, Spatial *> flat_node_map;
     AnimationPlayer *animation_player;
 
     // Generation 3 - deterministic armatures
     // list of armature nodes - flat and simple to parse
     // assimp node, node in godot
-    List<aiNode *> armature_nodes;
+    PODVector<aiNode *> armature_nodes;
     Map<const aiNode *, Skeleton *> armature_skeletons;
     Map<aiBone *, Skeleton *> skeleton_bone_map;
     // Generation 3 - deterministic bone handling
     // bones from the stack are popped when found
     // this means we can detect
     // what bones are for other armatures
-    List<aiBone *> bone_stack;
+    PODVector<aiBone *> bone_stack;
 };
 
 struct AssimpImageData {
@@ -124,5 +125,3 @@ struct RecursiveState {
     aiBone *bone;
 };
 } // namespace AssimpImporter
-
-#endif // EDITOR_SCENE_IMPORT_STATE_H

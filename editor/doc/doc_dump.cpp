@@ -242,7 +242,7 @@ void DocDump::dump(se_string_view p_file) {
 
         _write_string(f, 1, "</methods>");
 
-        ListPOD<MethodInfo> signal_list;
+        PODVector<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
         if (!signal_list.empty()) {

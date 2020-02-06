@@ -6772,12 +6772,11 @@ void TextEdit::_update_completion_candidates() {
     completion_options.clear();
     completion_index = 0;
     completion_base = s;
-    Vector<float> sim_cache;
+    PODVector<float> sim_cache;
     bool single_quote = StringUtils::begins_with(s,"'");
-    Vector<ScriptCodeCompletionOption> completion_options_casei;
+    PODVector<ScriptCodeCompletionOption> completion_options_casei;
 
-    for (List<ScriptCodeCompletionOption>::Element *E = completion_sources.front(); E; E = E->next()) {
-        ScriptCodeCompletionOption &option = E->deref();
+    for (ScriptCodeCompletionOption& option : completion_sources) {
 
         if (single_quote && StringUtils::is_quoted(option.display)) {
             option.display = StringUtils::quote(StringUtils::unquote(option.display),'\'');
@@ -6796,7 +6795,7 @@ void TextEdit::_update_completion_candidates() {
         }
     }
 
-    completion_options.append_array(completion_options_casei);
+    completion_options.push_back(completion_options_casei);
 
     if (completion_options.empty()) {
         for (int i = 0; i < completion_sources.size(); i++) {
@@ -6878,7 +6877,7 @@ void TextEdit::set_code_hint(const String &p_hint) {
     update();
 }
 
-void TextEdit::code_complete(const List<ScriptCodeCompletionOption> &p_strings, bool p_forced) {
+void TextEdit::code_complete(const PODVector<ScriptCodeCompletionOption> &p_strings, bool p_forced) {
 
     completion_sources = p_strings;
     completion_active = true;

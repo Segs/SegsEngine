@@ -436,7 +436,7 @@ public:
     bool iter_next(Variant &r_iter, bool &r_valid) const;
     Variant iter_get(const Variant &r_iter, bool &r_valid) const;
 
-    void get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void get_property_list(PODVector<PropertyInfo> *p_list) const;
 
     //argsVariant call()
 
@@ -451,7 +451,7 @@ public:
 
     void static_assign(const Variant &p_variant);
     static void get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list);
-    static void get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_constants);
+    static void get_constants_for_type(VariantType p_type, PODVector<StringName> *p_constants);
     static bool has_constant(VariantType p_type, const StringName &p_value);
     static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
 

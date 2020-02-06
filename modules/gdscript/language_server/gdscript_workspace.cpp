@@ -375,7 +375,7 @@ void GDScriptWorkspace::publish_diagnostics(se_string_view p_path) {
     GDScriptLanguageProtocol::get_singleton()->notify_client(("textDocument/publishDiagnostics"), params);
 }
 
-void GDScriptWorkspace::completion(const lsp::CompletionParams &p_params, List<ScriptCodeCompletionOption> *r_options) {
+void GDScriptWorkspace::completion(const lsp::CompletionParams &p_params, PODVector<ScriptCodeCompletionOption> *r_options) {
 
     String path = get_file_path(p_params.textDocument.uri);
     String call_hint;

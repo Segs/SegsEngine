@@ -71,7 +71,7 @@ String Shader::get_code() const {
     return VisualServer::get_singleton()->shader_get_code(shader);
 }
 
-void Shader::get_param_list(ListPOD<PropertyInfo> *p_params) const {
+void Shader::get_param_list(PODVector<PropertyInfo> *p_params) const {
 
     _update_shader();
 

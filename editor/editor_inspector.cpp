@@ -510,7 +510,7 @@ void EditorProperty::update_reload_status() {
 }
 
 bool EditorProperty::use_keying_next() const {
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     object->get_property_list(&plist, true);
 
     for (const PropertyInfo &p : plist) {
@@ -1460,7 +1460,7 @@ void EditorInspector::update_tree() {
     String group_base;
     VBoxContainer *category_vbox = nullptr;
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     object->get_property_list(&plist, true);
 
     HashMap<String, VBoxContainer *> item_path;
@@ -2105,7 +2105,7 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
         } else {
 
             Variant to_create;
-            ListPOD<PropertyInfo> pinfo;
+            PODVector<PropertyInfo> pinfo;
             object->get_property_list(&pinfo);
             for (const PropertyInfo &E : pinfo) {
                 if (E.name == p_path) {

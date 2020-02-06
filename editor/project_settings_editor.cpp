@@ -691,7 +691,7 @@ void ProjectSettingsEditor::_update_actions() {
     TreeItem *root = input_editor->create_item();
     input_editor->set_hide_root(true);
 
-    ListPOD<PropertyInfo> props;
+    PODVector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
 
     for (const PropertyInfo &pi : props) {

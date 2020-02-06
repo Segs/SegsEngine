@@ -42,7 +42,7 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
     if (p_depth > 8)
         return;
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     p_obj->get_property_list(&pinfo);
     for (PropertyInfo &E : pinfo) {
 
