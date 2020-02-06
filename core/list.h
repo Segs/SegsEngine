@@ -286,7 +286,7 @@ public:
     }
 
     Element *insert_after(Element *p_element, const T &p_value) {
-        CRASH_COND(p_element && (!_data || p_element->data != _data))
+        CRASH_COND(p_element && (!_data || p_element->data != _data));
 
         if (!p_element) {
             return push_back(p_value);
@@ -312,7 +312,7 @@ public:
     }
 
     Element *insert_before(Element *p_element, const T &p_value) {
-        CRASH_COND(p_element && (!_data || p_element->data != _data))
+        CRASH_COND(p_element && (!_data || p_element->data != _data));
 
         if (!p_element) {
             return push_back(p_value);
@@ -469,7 +469,7 @@ public:
             c++;
         }
 
-        CRASH_NOW() // bug!!
+        CRASH_NOW(); // bug!!
     }
 
     const T &operator[](int p_index) const {
@@ -488,7 +488,7 @@ public:
             c++;
         }
 
-        CRASH_NOW() // bug!!
+        CRASH_NOW(); // bug!!
     }
 
     void move_to_back(Element *p_I) {

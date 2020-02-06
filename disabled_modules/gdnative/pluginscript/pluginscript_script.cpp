@@ -422,7 +422,7 @@ Error PluginScript::load_source_code(const String &p_path) {
 
     String s=StringUtils::from_utf8((const char *)w.ptr());
     if (s.empty()) {
-        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.");
     }
 
     _source = s;

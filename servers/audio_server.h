@@ -234,7 +234,7 @@ public:
             case SPEAKER_SURROUND_51: return 3;
             case SPEAKER_SURROUND_71: return 4;
         }
-        ERR_FAIL_V(1)
+        ERR_FAIL_V(1);
     }
 
     //do not use from outside audio thread

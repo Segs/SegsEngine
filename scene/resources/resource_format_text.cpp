@@ -48,7 +48,7 @@
 
 #include "EASTL/sort.h"
 
-#define _printerr() ERR_PRINT(res_path + ":" + itos(lines) + " - Parse Error: " + error_text)
+#define _printerr() ERR_PRINT(res_path + ":" + itos(lines) + " - Parse Error: " + error_text);
 namespace {
 class ResourceFormatSaverTextInstance {
 
@@ -795,7 +795,7 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_str
                 memdelete(fw);
             }
             error = ERR_FILE_CORRUPT;
-            ERR_FAIL_V(error)
+            ERR_FAIL_V(error);
         }
 
         if (next_tag.name != "ext_resource") {
@@ -1352,7 +1352,7 @@ void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, PODVector
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
 
-        ERR_FAIL()
+        ERR_FAIL();
     }
 
     Ref<ResourceInteractiveLoaderText> ria(make_ref_counted<ResourceInteractiveLoaderText>());
@@ -1367,7 +1367,7 @@ Error ResourceFormatLoaderText::rename_dependencies(se_string_view p_path, const
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
 
-        ERR_FAIL_V(ERR_CANT_OPEN)
+        ERR_FAIL_V(ERR_CANT_OPEN);
     }
 
     Ref<ResourceInteractiveLoaderText> ria(make_ref_counted<ResourceInteractiveLoaderText>());
@@ -1429,7 +1429,7 @@ String ResourceFormatSaverTextInstance::_write_resource(const RES &res) {
             String path = relative_paths ? PathUtils::path_to_file(local_path,res->get_path()) : res->get_path();
             return "Resource( \"" + path + "\" )";
         } else {
-            ERR_FAIL_V_MSG("null", "Resource was not pre cached for the resource section, bug?")
+            ERR_FAIL_V_MSG("null", "Resource was not pre cached for the resource section, bug?");
             //internal resource
         }
     }
@@ -1447,7 +1447,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
 
             if (!p_main && (!bundle_resources) && res->get_path().length() && !StringUtils::contains(res->get_path(),"::") ) {
                 if (res->get_path() == local_path) {
-                    ERR_PRINT("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.")
+                    ERR_PRINT("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.");
                     return;
                 }
                 int index = external_resources.size();
@@ -1651,7 +1651,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
     for (auto E = saved_resources.begin(),fin=saved_resources.end(); E!=fin; ++E) {
 
         RES &res(*E);
-        ERR_CONTINUE(!resource_set.contains(res))
+        ERR_CONTINUE(!resource_set.contains(res));
         bool main = (eastl::next(E)==fin);
 
         if (main && packed_scene)

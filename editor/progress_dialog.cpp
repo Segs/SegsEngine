@@ -45,7 +45,7 @@ IMPL_GDCLASS(ProgressDialog)
 void BackgroundProgress::_add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
     _THREAD_SAFE_METHOD_
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists.")
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists."); 
     BackgroundProgress::Task t;
     t.hb = memnew(HBoxContainer);
     Label *l = memnew(Label);
@@ -184,11 +184,11 @@ void ProgressDialog::_popup() {
 void ProgressDialog::add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel) {
 
     if (MessageQueue::get_singleton()->is_flushing()) {
-        ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!")
+        ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!");
         return;
     }
 
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), String("Task '") + p_task + "' already exists.")
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), String("Task '") + p_task + "' already exists."); 
     ProgressDialog::Task t;
     t.vb = memnew(VBoxContainer);
     VBoxContainer *vb2 = memnew(VBoxContainer);

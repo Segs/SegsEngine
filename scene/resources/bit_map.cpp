@@ -125,8 +125,8 @@ void BitMap::set_bit(const Point2 &p_pos, bool p_value) {
     int x = p_pos.x;
     int y = p_pos.y;
 
-    ERR_FAIL_INDEX(x, width)
-    ERR_FAIL_INDEX(y, height)
+    ERR_FAIL_INDEX(x, width);
+    ERR_FAIL_INDEX(y, height);
 
     int ofs = width * y + x;
     int bbyte = ofs / 8;
@@ -321,7 +321,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
                 }
                 break;
             default:
-                ERR_PRINT("this shouldn't happen.")
+                ERR_PRINT("this shouldn't happen.");
         }
         //little optimization
         // if previous direction is same as current direction,

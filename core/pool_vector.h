@@ -314,7 +314,7 @@ public:
     void remove(int p_index) {
 
         int s = size();
-        ERR_FAIL_INDEX(p_index, s)
+        ERR_FAIL_INDEX(p_index, s);
         Write w = write();
         for (int i = p_index; i < s - 1; i++) {
 

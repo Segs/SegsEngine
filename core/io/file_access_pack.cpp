@@ -147,15 +147,18 @@ Error DirAccessPack::list_dir_begin() {
 
     list_dirs.clear();
     list_files.clear();
-
+    list_dirs.reserve(current->subdirs.size());
+    list_files.reserve(current->files.size());
+    m_dir_offset = 0;
+    m_file_offset = 0;
     for (eastl::pair<const String, PackedData::PackedDir *> &E : current->subdirs) {
 
-        list_dirs.push_back(E.first);
+        list_dirs.emplace_back(E.first);
     }
 
     for (const String &E : current->files) {
 
-        list_files.push_back(E);
+        list_files.emplace_back(E);
     }
 
     return OK;
@@ -163,20 +166,17 @@ Error DirAccessPack::list_dir_begin() {
 
 String DirAccessPack::get_next() {
 
-    if (!list_dirs.empty()) {
+    if (m_dir_offset<list_dirs.size()) {
         cdir = true;
-        String d = list_dirs.front()->deref();
-        list_dirs.pop_front();
-        return d;
-    } else if (!list_files.empty()) {
-        cdir = false;
-        String f = list_files.front()->deref();
-        list_files.pop_front();
-        return f;
-    } else {
-        return String();
+        return list_dirs[m_dir_offset++];
     }
 
+    if (m_file_offset<list_files.size()) {
+        cdir = false;
+        return list_files[m_file_offset++];
+    }
+
+    return String();
 }
 bool DirAccessPack::current_is_dir() const {
 
@@ -187,9 +187,11 @@ bool DirAccessPack::current_is_hidden() const {
     return false;
 }
 void DirAccessPack::list_dir_end() {
+    m_dir_offset = 0;
+    m_file_offset = 0;
 
-    list_dirs.clear();
-    list_files.clear();
+    list_dirs.set_capacity(0); // clear & free memory
+    list_files.set_capacity(0); // clear & free memory
 }
 
 int DirAccessPack::get_drive_count() {

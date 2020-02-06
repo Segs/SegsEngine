@@ -199,7 +199,7 @@ Error RegEx::compile(const String &p_pattern) {
         PCRE2_UCHAR8 buf[256];
         pcre2_get_error_message_8(err, buf, 256);
         String message = FormatVE("%d: %s",offset,buf);
-        ERR_PRINT(message.c_str())
+        ERR_PRINT(message.c_str());
         return FAILED;
     }
     return OK;

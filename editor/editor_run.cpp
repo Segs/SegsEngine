@@ -42,7 +42,7 @@ EditorRun::Status EditorRun::get_status() const {
 
     return status;
 }
-Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const List<String> &p_breakpoints, const bool &p_skip_breakpoints) {
+Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const PODVector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
 
     PODVector<String> args;
 
@@ -156,15 +156,9 @@ Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const
     if (!p_breakpoints.empty()) {
 
         args.push_back("--breakpoints");
-        String bpoints;
-        for (const List<String>::Element *E = p_breakpoints.front(); E; E = E->next()) {
+        String bpoints = String::joined(p_breakpoints,",").replaced(" ","%20");
 
-            bpoints += StringUtils::replace(E->deref()," ", "%20");
-            if (E->next())
-                bpoints += ",";
-        }
-
-        args.push_back(bpoints);
+        args.emplace_back(eastl::move(bpoints));
     }
 
     if (p_skip_breakpoints) {

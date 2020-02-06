@@ -57,7 +57,7 @@ Error image_decompress_squish(Image *p_image) {
     } else if (p_image->get_format() == Image::FORMAT_RGTC_RG) {
         squish_flags = squish::kBc5;
     } else {
-        ERR_FAIL_V_MSG(ERR_INVALID_DATA,"Squish: Can't decompress unknown format: " + itos(p_image->get_format()) + ".")
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA,"Squish: Can't decompress unknown format: " + itos(p_image->get_format()) + ".");
     }
 
     for (int i = 0; i <= mm_count; i++) {
@@ -168,7 +168,7 @@ void image_compress_squish(Image *p_image, float p_lossy_quality, ImageCompressS
 
             } break;
             default: {
-                ERR_PRINT("Unknown image format, defaulting to RGBA8")
+                ERR_PRINT("Unknown image format, defaulting to RGBA8");
                 break;
             }
         }

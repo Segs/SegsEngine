@@ -2572,7 +2572,7 @@ void VisualScriptEditor::reload(bool p_soft) {
     _update_graph();
 }
 
-void VisualScriptEditor::get_breakpoints(List<int> *p_breakpoints) {
+void VisualScriptEditor::get_breakpoints(PODVector<int> *p_breakpoints) {
 
     PODVector<StringName> functions;
     script->get_function_list(&functions);

@@ -438,7 +438,7 @@ Ref<Mesh> Mesh::create_outline(float p_margin) const {
             Vector3 t = r[i];
 
             Map<Vector3, Vector3>::iterator E = normal_accum.find(t);
-            ERR_CONTINUE(E==normal_accum.end())
+            ERR_CONTINUE(E==normal_accum.end());
 
             t += E->second * p_margin;
             r[i] = t;
@@ -697,7 +697,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
             add_surface(format, PrimitiveType(primitive), array_data, vertex_count, array_index_data, index_count, aabb, blend_shapes, bone_aabb);
         } else {
-            ERR_FAIL_V(false)
+            ERR_FAIL_V(false);
         }
 
         if (d.has("material")) {
@@ -891,7 +891,7 @@ int ArrayMesh::get_surface_count() const {
 
 void ArrayMesh::add_blend_shape(const StringName &p_name) {
 
-    ERR_FAIL_COND_MSG(surfaces.size(), "Can't add a shape key count if surfaces are already created.")
+    ERR_FAIL_COND_MSG(surfaces.size(), "Can't add a shape key count if surfaces are already created."); 
 
     StringName name = p_name;
 
@@ -919,7 +919,7 @@ StringName ArrayMesh::get_blend_shape_name(int p_index) const {
 }
 void ArrayMesh::clear_blend_shapes() {
 
-    ERR_FAIL_COND_MSG(surfaces.size(), "Can't set shape key count if surfaces are already created.")
+    ERR_FAIL_COND_MSG(surfaces.size(), "Can't set shape key count if surfaces are already created."); 
 
     blend_shapes.clear();
 }
@@ -995,7 +995,7 @@ int ArrayMesh::surface_find_by_name(const String &p_name) const {
 
 void ArrayMesh::surface_set_name(int p_idx, se_string_view p_name) {
 
-    ERR_FAIL_INDEX(p_idx, surfaces.size())
+    ERR_FAIL_INDEX(p_idx, surfaces.size());
 
     surfaces[p_idx].name = p_name;
     emit_changed();

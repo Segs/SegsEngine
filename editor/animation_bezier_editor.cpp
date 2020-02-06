@@ -849,7 +849,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             undo_redo->create_action_ui(TTR("Move Bezier Points"));
 
-            List<AnimMoveRestore> to_restore;
+            PODVector<AnimMoveRestore> to_restore;
             // 1-remove the keys
             for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 
@@ -874,7 +874,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 amr.track = track;
                 amr.time = newtime;
 
-                to_restore.push_back(amr);
+                to_restore.emplace_back(amr);
             }
 
             // 3-move the keys (re insert them)
@@ -911,9 +911,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             }
 
             // 6-(undo) reinsert overlapped keys
-            for (List<AnimMoveRestore>::Element *E = to_restore.front(); E; E = E->next()) {
-
-                AnimMoveRestore &amr = E->deref();
+            for (AnimMoveRestore & amr : to_restore) {
                 undo_redo->add_undo_method(animation.get(), "track_insert_key", amr.track, amr.time, amr.key, 1);
             }
 
@@ -1085,7 +1083,8 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 
     undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
 
-    List<Pair<int, float> > new_selection_values;
+    PODVector<Pair<int, float> > new_selection_values;
+    new_selection_values.reserve(selection.size());
 
     for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 
@@ -1096,10 +1095,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
         undo_redo->add_do_method(animation.get(), "track_insert_key", track, dst_time, animation->track_get_key_value(track, *E), animation->track_get_key_transition(track, *E));
         undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, dst_time);
 
-        Pair<int, float> p;
-        p.first = track;
-        p.second = dst_time;
-        new_selection_values.push_back(p);
+        new_selection_values.emplace_back(track,dst_time);
 
         if (existing_idx != -1) {
 
@@ -1112,10 +1108,10 @@ void AnimationBezierTrackEdit::duplicate_selection() {
     //reselect duplicated
 
     selection.clear();
-    for (List<Pair<int, float> >::Element *E = new_selection_values.front(); E; E = E->next()) {
+    for (const Pair<int, float> &E : new_selection_values) {
 
-        int track = E->deref().first;
-        float time = E->deref().second;
+        int track = E.first;
+        float time = E.second;
 
         int existing_idx = animation->track_find_key(track, time, true);
 

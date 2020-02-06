@@ -647,7 +647,7 @@ void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surf
     if (instance->materials[p_surface].is_valid()) {
         VSG::storage->material_remove_instance_owner(instance->materials[p_surface], instance);
     }
-    instance->materials.write[p_surface] = p_material;
+    instance->materials.write()[p_surface] = p_material;
     instance->base_changed(false, true);
 
     if (instance->materials[p_surface].is_valid()) {
@@ -1416,7 +1416,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 
                 Vector3 endpoints[8]; // frustum plane endpoints
                 bool res = camera_matrix.get_endpoints(p_cam_transform, endpoints);
-                ERR_CONTINUE(!res)
+                ERR_CONTINUE(!res);
 
                 // obtain the light frustm ranges (given endpoints)
 
@@ -1975,12 +1975,12 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 int l = 0;
                 //only called when lights AABB enter/exit this geometry
                 ins->light_instances.resize(geom->lighting.size());
-
+                auto l_wr(ins->light_instances.write());
                 for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
 
                     InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
 
-                    ins->light_instances.write[l++] = light->instance;
+                    l_wr[l++] = light->instance;
                 }
 
                 geom->lighting_dirty = false;
@@ -1990,12 +1990,12 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->reflection_probe_instances.resize(geom->reflection_probes.size());
-
+                auto wr(ins->reflection_probe_instances.write());
                 for (List<Instance *>::Element *E = geom->reflection_probes.front(); E; E = E->next()) {
 
                     InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->deref()->base_data);
 
-                    ins->reflection_probe_instances.write[l++] = reflection_probe->instance;
+                    wr[l++] = reflection_probe->instance;
                 }
 
                 geom->reflection_dirty = false;
@@ -2005,12 +2005,13 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->gi_probe_instances.resize(geom->gi_probes.size());
+                auto wr(ins->gi_probe_instances.write());
 
                 for (List<Instance *>::Element *E = geom->gi_probes.front(); E; E = E->next()) {
 
                     InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->deref()->base_data);
 
-                    ins->gi_probe_instances.write[l++] = gi_probe->probe_instance;
+                    wr[l++] = gi_probe->probe_instance;
                 }
 
                 geom->gi_probes_dirty = false;

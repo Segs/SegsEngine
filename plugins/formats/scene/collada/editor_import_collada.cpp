@@ -1592,19 +1592,19 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                 }
 
                 PODVector<float> data = at.get_value_at_time(snapshots[i]);
-                ERR_CONTINUE(data.empty())
+                ERR_CONTINUE(data.empty());
 
                 Collada::Node::XForm &xf = cn->xform_list[xform_idx];
 
                 if (at.component == "ANGLE") {
-                    ERR_CONTINUE(data.size() != 1)
-                    ERR_CONTINUE(xf.op != Collada::Node::XForm::OP_ROTATE)
-                    ERR_CONTINUE(xf.data.size() < 4)
+                    ERR_CONTINUE(data.size() != 1);
+                    ERR_CONTINUE(xf.op != Collada::Node::XForm::OP_ROTATE);
+                    ERR_CONTINUE(xf.data.size() < 4);
                     xf.data[3] = data[0];
                 } else if (at.component == "X" || at.component == "Y" || at.component == "Z") {
                     int cn2 = at.component[0] - 'X';
-                    ERR_CONTINUE(cn2 >= xf.data.size())
-                    ERR_CONTINUE(data.size() > 1)
+                    ERR_CONTINUE(cn2 >= xf.data.size());
+                    ERR_CONTINUE(data.size() > 1);
                     xf.data[cn2] = data[0];
                 } else if (data.size() == xf.data.size()) {
                     xf.data = data;
@@ -1624,7 +1624,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
                     xform = sk->get_bone_rest(nm.bone).affine_inverse() * xform;
                 } else {
 
-                    ERR_PRINT("Collada: Invalid skeleton")
+                    ERR_PRINT("Collada: Invalid skeleton");
                 }
             }
 
@@ -1658,7 +1658,7 @@ void ColladaImport::create_animation(int p_clip, bool p_make_tracks_in_all_bones
 
             NodeMap &nm = node_map[E.first];
             String path(scene->get_path_to(nm.node));
-            ERR_CONTINUE(nm.bone < 0)
+            ERR_CONTINUE(nm.bone < 0);
             Skeleton *sk = static_cast<Skeleton *>(nm.node);
             String name = sk->get_bone_name(nm.bone);
             path = path + ":" + name;

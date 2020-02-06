@@ -692,14 +692,14 @@ void TileSetEditor::_on_tileset_toolbar_confirm() {
     switch (option) {
         case TOOL_TILESET_REMOVE_TEXTURE: {
             RID current_rid = get_current_texture()->get_rid();
-            List<int> ids;
+            PODVector<int> ids;
             tileset->get_tile_list(&ids);
 
             undo_redo->create_action_ui(TTR("Remove Texture"));
-            for (List<int>::Element *E = ids.front(); E; E = E->next()) {
-                if (tileset->tile_get_texture(E->deref())->get_rid() == current_rid) {
-                    undo_redo->add_do_method(tileset.get(), "remove_tile", E->deref());
-                    _undo_tile_removal(E->deref());
+            for (int E : ids) {
+                if (tileset->tile_get_texture(E)->get_rid() == current_rid) {
+                    undo_redo->add_do_method(tileset.get(), "remove_tile", E);
+                    _undo_tile_removal(E);
                 }
             }
             undo_redo->add_do_method(this, "remove_texture", get_current_texture());
@@ -715,14 +715,14 @@ void TileSetEditor::_on_tileset_toolbar_confirm() {
             if (!scene)
                 break;
 
-            List<int> ids;
+            PODVector<int> ids;
             tileset->get_tile_list(&ids);
 
             undo_redo->create_action_ui(TTR(option == TOOL_TILESET_MERGE_SCENE ? "Merge Tileset from Scene" : "Create Tileset from Scene"));
             undo_redo->add_do_method(this, "_undo_redo_import_scene", Variant(scene), option == TOOL_TILESET_MERGE_SCENE);
             undo_redo->add_undo_method(tileset.get(), "clear");
-            for (List<int>::Element *E = ids.front(); E; E = E->next()) {
-                _undo_tile_removal(E->deref());
+            for (int E : ids) {
+                _undo_tile_removal(E);
             }
             undo_redo->add_do_method(this, "edit", tileset);
             undo_redo->add_undo_method(this, "edit", tileset);
@@ -753,7 +753,7 @@ void TileSetEditor::_on_textures_added(const PoolVector<String> &p_paths) {
     for (int i = 0; i < p_paths.size(); i++) {
         Ref<Texture> t = dynamic_ref_cast<Texture>(ResourceLoader::load(p_paths[i]));
 
-        ERR_CONTINUE_MSG(not t, "'" + p_paths[i] + "' is not a valid texture.")
+        ERR_CONTINUE_MSG(not t, "'" + p_paths[i] + "' is not a valid texture.");
 
         if (texture_map.contains(t->get_rid())) {
             invalid_count++;
@@ -1061,10 +1061,9 @@ void TileSetEditor::_on_workspace_draw() {
     }
 
     RID current_texture_rid = get_current_texture()->get_rid();
-    List<int> *tiles = new List<int>();
-    tileset->get_tile_list(tiles);
-    for (List<int>::Element *E = tiles->front(); E; E = E->next()) {
-        int t_id = E->deref();
+    PODVector<int> tiles;
+    tileset->get_tile_list(&tiles);
+    for (int t_id : tiles) {
         if (tileset->tile_get_texture(t_id)->get_rid() == current_texture_rid && (t_id != get_current_tile() || edit_mode != EDITMODE_REGION || workspace_mode != WORKSPACE_EDIT)) {
             Rect2i region = tileset->tile_get_region(t_id);
             region.position += WORKSPACE_MARGIN;
@@ -1079,7 +1078,6 @@ void TileSetEditor::_on_workspace_draw() {
             workspace->draw_rect(region, c, false);
         }
     }
-    delete tiles;
 
     if (edit_mode == EDITMODE_REGION) {
         if (workspace_mode != WORKSPACE_EDIT) {
@@ -1149,10 +1147,9 @@ void TileSetEditor::_on_workspace_overlay_draw() {
 
     if (tile_names_visible) {
         RID current_texture_rid = get_current_texture()->get_rid();
-        List<int> *tiles = new List<int>();
-        tileset->get_tile_list(tiles);
-        for (List<int>::Element *E = tiles->front(); E; E = E->next()) {
-            int t_id = E->deref();
+        PODVector<int> tiles;
+        tileset->get_tile_list(&tiles);
+        for (int t_id : tiles) {
             if (tileset->tile_get_texture(t_id)->get_rid() != current_texture_rid)
                 continue;
 
@@ -1174,7 +1171,6 @@ void TileSetEditor::_on_workspace_overlay_draw() {
             c = Color(0.1f, 0.1f, 0.1f);
             workspace_overlay->draw_ui_string(font, region.position, tile_id_name, c);
         }
-        delete tiles;
     }
 
     int t_id = get_current_tile();
@@ -1234,10 +1230,9 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
     if (mb) {
         if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && !creating_shape) {
             if (!current_tile_region.has_point(mb->get_position())) {
-                List<int> *tiles = new List<int>();
-                tileset->get_tile_list(tiles);
-                for (List<int>::Element *E = tiles->front(); E; E = E->next()) {
-                    int t_id = E->deref();
+                PODVector<int> tiles;
+                tileset->get_tile_list(&tiles);
+                for (int t_id : tiles) {
                     if (get_current_texture()->get_rid() == tileset->tile_get_texture(t_id)->get_rid()) {
                         Rect2 r = tileset->tile_get_region(t_id);
                         r.position += WORKSPACE_MARGIN;
@@ -1245,12 +1240,10 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                             set_current_tile(t_id);
                             workspace->update();
                             workspace_overlay->update();
-                            delete tiles;
                             return;
                         }
                     }
                 }
-                delete tiles;
             }
         }
 
@@ -2120,7 +2113,7 @@ void TileSetEditor::_select_previous_tile() {
 
 Array TileSetEditor::_get_tiles_in_current_texture(bool sorted) {
     Array a;
-    List<int> all_tiles;
+    PODVector<int> all_tiles;
     if (not get_current_texture()) {
         return a;
     }
@@ -3114,18 +3107,18 @@ void TileSetEditor::update_texture_list() {
 
     helper->set_tileset(tileset);
 
-    List<int> ids;
+    PODVector<int> ids;
     tileset->get_tile_list(&ids);
     Vector<int> ids_to_remove;
-    for (List<int>::Element *E = ids.front(); E; E = E->next()) {
+    for (int E : ids) {
         // Clear tiles referencing gone textures (user has been already given the chance to fix broken deps)
-        if (not tileset->tile_get_texture(E->deref())) {
-            ids_to_remove.push_back(E->deref());
-            ERR_CONTINUE(not tileset->tile_get_texture(E->deref()))
+        if (not tileset->tile_get_texture(E)) {
+            ids_to_remove.push_back(E);
+            ERR_CONTINUE(not tileset->tile_get_texture(E));
         }
 
-        if (!texture_map.contains(tileset->tile_get_texture(E->deref())->get_rid())) {
-            add_texture(tileset->tile_get_texture(E->deref()));
+        if (!texture_map.contains(tileset->tile_get_texture(E)->get_rid())) {
+            add_texture(tileset->tile_get_texture(E));
         }
     }
     for (int i = 0; i < ids_to_remove.size(); i++) {
@@ -3257,14 +3250,14 @@ void TileSetEditor::update_workspace_tile_mode() {
 void TileSetEditor::update_workspace_minsize() {
     Size2 workspace_min_size = get_current_texture()->get_size();
     RID current_texture_rid = get_current_texture()->get_rid();
-    List<int> *tiles = new List<int>();
-    tileset->get_tile_list(tiles);
-    for (List<int>::Element *E = tiles->front(); E; E = E->next()) {
-        if (tileset->tile_get_texture(E->deref())->get_rid() != current_texture_rid) {
+    PODVector<int> tiles;
+    tileset->get_tile_list(&tiles);
+    for (int E : tiles) {
+        if (tileset->tile_get_texture(E)->get_rid() != current_texture_rid) {
             continue;
         }
 
-        Rect2i region = tileset->tile_get_region(E->deref());
+        Rect2i region = tileset->tile_get_region(E);
         if (region.position.x + region.size.x > workspace_min_size.x) {
             workspace_min_size.x = region.position.x + region.size.x;
         }
@@ -3272,7 +3265,6 @@ void TileSetEditor::update_workspace_minsize() {
             workspace_min_size.y = region.position.y + region.size.y;
         }
     }
-    delete tiles;
 
     workspace->set_custom_minimum_size(workspace_min_size + WORKSPACE_MARGIN * 2);
     workspace_container->set_custom_minimum_size(workspace_min_size * workspace->get_scale() + WORKSPACE_MARGIN * 2);

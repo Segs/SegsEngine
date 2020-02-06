@@ -186,7 +186,7 @@ public:
     void add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortcut);
     bool is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const;
     Ref<ShortCut> get_shortcut(se_string_view p_name) const;
-    void get_shortcut_list(List<String> *r_shortcuts);
+    void get_shortcut_list(PODVector<String> *r_shortcuts);
 
     void notify_changes();
 

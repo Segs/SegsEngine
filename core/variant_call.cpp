@@ -732,7 +732,7 @@ struct _VariantCall {
 
         if (buffer_size <= 0) {
             r_ret = decompressed;
-            ERR_FAIL_MSG("Decompression buffer size must be greater than zero.")
+            ERR_FAIL_MSG("Decompression buffer size must be greater than zero.");
         }
 
         decompressed.resize(buffer_size);
@@ -1561,7 +1561,7 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
 
 void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list) {
 
-    ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX))
+    ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX));
 
     //custom constructors
     for (const _VariantCall::ConstructData &cd : _VariantCall::construct_funcs[(int)p_type].constructors) {
@@ -1597,7 +1597,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
 
 void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_constants) {
 
-    ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX)
+    ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX);
 
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
 

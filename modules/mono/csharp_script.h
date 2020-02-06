@@ -423,9 +423,9 @@ public:
     /* TODO */
     String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override { return ""; }
 
-    void debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
-    void debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
-    void debug_get_globals(ListPOD<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_globals(PODVector<String> *p_globals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
 
     PODVector<StackInfo> debug_get_current_stack_info() override;
 

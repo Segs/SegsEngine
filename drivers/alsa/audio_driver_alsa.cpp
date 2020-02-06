@@ -220,7 +220,7 @@ void AudioDriverALSA::thread_func(void *p_udata) {
 
             Error err = ad->init_device();
             if (err != OK) {
-                ERR_PRINT("ALSA: init_device error")
+                ERR_PRINT("ALSA: init_device error");
                 ad->device_name = "Default";
                 ad->new_device = "Default";
 

@@ -414,7 +414,7 @@ public:
     void clear_executing_line();
     void set_line_as_safe(int p_line, bool p_safe);
     bool is_line_set_as_safe(int p_line) const;
-    void get_breakpoints(List<int> *p_breakpoints) const;
+    void get_breakpoints(PODVector<int> *p_breakpoints) const;
     Array get_breakpoints_array() const;
     void remove_breakpoints();
 

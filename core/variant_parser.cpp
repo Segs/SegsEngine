@@ -271,7 +271,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
                                         v = c.toLatin1() - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG")
+                                        ERR_PRINT("BUG");
                                         v = 0;
                                     }
 

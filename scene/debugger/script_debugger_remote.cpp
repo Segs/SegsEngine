@@ -95,7 +95,7 @@ Error ScriptDebuggerRemote::connect_to_host(se_string_view p_host, uint16_t p_po
 
     if (tcp_client->get_status() != StreamPeerTCP::STATUS_CONNECTED) {
 
-        ERR_PRINT(FormatVE("Remote Debugger: Unable to connect. Status: %d.",tcp_client->get_status()))
+        ERR_PRINT(FormatVE("Remote Debugger: Unable to connect. Status: %d.",tcp_client->get_status()));
         return FAILED;
     }
 
@@ -116,7 +116,7 @@ void ScriptDebuggerRemote::_put_variable(se_string_view p_name, const Variant &p
     int len = 0;
     Error err = encode_variant(var, nullptr, len, true);
     if (err != OK)
-        ERR_PRINT("Failed to encode variant.")
+        ERR_PRINT("Failed to encode variant.");
 
     if (len > packet_peer_stream->get_output_buffer_max_size()) { //limit to max size
         packet_peer_stream->put_var(Variant());
@@ -143,7 +143,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
     if (skip_breakpoints && !p_is_error_breakpoint)
         return;
 
-    ERR_FAIL_COND_MSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.")
+    ERR_FAIL_COND_MSG(!tcp_client->is_connected_to_host(), "Script Debugger failed to connect, but being used anyway.");
 
     packet_peer_stream->put_var("debug_enter");
     packet_peer_stream->put_var(2);
@@ -167,13 +167,13 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
 
             Variant var;
             Error err = packet_peer_stream->get_var(var);
-            ERR_CONTINUE(err != OK)
-            ERR_CONTINUE(var.get_type() != VariantType::ARRAY)
+            ERR_CONTINUE(err != OK);
+            ERR_CONTINUE(var.get_type() != VariantType::ARRAY);
 
             Array cmd = var;
 
-            ERR_CONTINUE(cmd.empty())
-            ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING)
+            ERR_CONTINUE(cmd.empty());
+            ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING);
 
             String command = cmd[0].as<String>();
 
@@ -198,62 +198,52 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
             } else if (command == "get_stack_frame_vars") {
 
                 cmd.remove(0);
-                ERR_CONTINUE(cmd.size() != 1)
+                ERR_CONTINUE(cmd.size() != 1);
                 int lv = cmd[0];
 
-                ListPOD<String> members;
-                List<Variant> member_vals;
+                PODVector<String> members;
+                PODVector<Variant> member_vals;
                 if (ScriptInstance *inst = p_script->debug_get_stack_level_instance(lv)) {
                     members.push_back("self");
                     //TODO: SEGS: member_vals will break Reference pre/post conditions if owner is Reference
                     member_vals.push_back(Variant(inst->get_owner()));
                 }
                 p_script->debug_get_stack_level_members(lv, &members, &member_vals);
-                ERR_CONTINUE(members.size() != member_vals.size())
+                ERR_CONTINUE(members.size() != member_vals.size());
 
-                ListPOD<String> locals;
-                List<Variant> local_vals;
+                PODVector<String> locals;
+                PODVector<Variant> local_vals;
                 p_script->debug_get_stack_level_locals(lv, &locals, &local_vals);
-                ERR_CONTINUE(locals.size() != local_vals.size())
+                ERR_CONTINUE(locals.size() != local_vals.size());
 
-                ListPOD<String> globals;
-                List<Variant> globals_vals;
+                PODVector<String> globals;
+                PODVector<Variant> globals_vals;
                 p_script->debug_get_globals(&globals, &globals_vals);
-                ERR_CONTINUE(globals.size() != globals_vals.size())
+                ERR_CONTINUE(globals.size() != globals_vals.size());
 
                 packet_peer_stream->put_var("stack_frame_vars");
                 packet_peer_stream->put_var(3 + (locals.size() + members.size() + globals.size()) * 2);
 
                 { //locals
                     packet_peer_stream->put_var(locals.size());
-
-                    List<Variant>::Element *F = local_vals.front();
-
-                    for(const auto &E : locals) {
-                        _put_variable(E, F->deref());
-                        F = F->next();
+                    for(size_t idx=0,fin=locals.size(); idx<fin; ++idx) {
+                        _put_variable(locals[idx], local_vals[idx]);
                     }
                 }
 
                 { //members
                     packet_peer_stream->put_var(members.size());
 
-                    List<Variant>::Element *F = member_vals.front();
-
-                    for(const auto &E : members) {
-                        _put_variable(E, F->deref());
-                        F = F->next();
+                    for(size_t idx=0,fin=members.size(); idx<fin; ++idx) {
+                        _put_variable(members[idx], member_vals[idx]);
                     }
-
                 }
 
                 { //globals
                     packet_peer_stream->put_var(globals.size());
 
-                    List<Variant>::Element *F = globals_vals.front();
-                    for(const auto &E : globals) {
-                        _put_variable(E, F->deref());
-                        F = F->next();
+                    for(size_t idx=0,fin=globals.size(); idx<fin; ++idx) {
+                        _put_variable(globals[idx], globals_vals[idx]);
                     }
                 }
 
@@ -275,7 +265,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 OS::get_singleton()->move_window_to_foreground();
                 break;
             } else if (command == "break") {
-                ERR_PRINT("Got break when already broke!")
+                ERR_PRINT("Got break when already broke!");
                 break;
             } else if (command == "request_scene_tree") {
 
@@ -747,13 +737,13 @@ void ScriptDebuggerRemote::_poll_events() {
         Variant var;
         Error err = packet_peer_stream->get_var(var);
 
-        ERR_CONTINUE(err != OK)
-        ERR_CONTINUE(var.get_type() != VariantType::ARRAY)
+        ERR_CONTINUE(err != OK);
+        ERR_CONTINUE(var.get_type() != VariantType::ARRAY);
 
         Array cmd = var;
 
-        ERR_CONTINUE(cmd.empty())
-        ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING)
+        ERR_CONTINUE(cmd.empty());
+        ERR_CONTINUE(cmd[0].get_type() != VariantType::STRING);
 
         String command = cmd[0];
         //cmd.remove(0);

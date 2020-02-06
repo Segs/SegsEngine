@@ -120,7 +120,7 @@ private:
 
     void erase_hash_table() {
 
-        ERR_FAIL_COND_MSG(elements, "Cannot erase hash table if there are still elements inside.")
+        ERR_FAIL_COND_MSG(elements, "Cannot erase hash table if there are still elements inside."); 
 
         memdelete_arr(hash_table);
         hash_table = nullptr;
@@ -159,7 +159,7 @@ private:
             return;
 
         Element **new_hash_table = memnew_arr(Element *, ((uint64_t)1 << new_hash_table_power));
-        ERR_FAIL_COND_MSG(!new_hash_table, "Out of memory.")
+        ERR_FAIL_COND_MSG(!new_hash_table, "Out of memory."); 
 
         for (int i = 0; i < (1 << new_hash_table_power); i++) {
 

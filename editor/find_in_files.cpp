@@ -837,7 +837,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const PODVec
     // however that means either losing changes or losing replaces.
 
     FileAccessRef f = FileAccess::open(fpath, FileAccess::READ);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + fpath + "'.")
+    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + fpath + "'."); 
 
     String buffer;
     int current_line = 1;
@@ -884,7 +884,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const PODVec
     // Now the modified contents are in the buffer, rewrite the file with our changes
 
     Error err = f->reopen(fpath, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'.")
+    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'."); 
 
     f->store_string(buffer);
 

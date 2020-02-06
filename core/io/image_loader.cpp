@@ -93,7 +93,7 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
         Error err;
         f = FileAccess::open(p_file, FileAccess::READ, &err);
         if (!f) {
-            ERR_PRINT("Error opening file '" + String(p_file)+"'.")
+            ERR_PRINT("Error opening file '" + String(p_file)+"'.");
             return err;
         }
     }
@@ -107,7 +107,7 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
         ImageData result_data;
         Error err = ldr->load_image(result_data, f, params);
         if (err != OK) {
-            ERR_PRINT("Error loading image: " + String(p_file))
+            ERR_PRINT("Error loading image: " + String(p_file));
         }
         else
             p_image->create(std::move(result_data));
@@ -115,7 +115,7 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
 
             if (!p_custom)
                 memdelete(f);
-            CRASH_COND(err!=OK)
+            CRASH_COND(err!=OK);
             return err;
         }
     }
@@ -139,18 +139,18 @@ ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data,
         loader_found = true;
         Error err = ldr->load_image(result_data, data,sz, params);
         if (err != OK) {
-            ERR_PRINT("Error loading image from memory")
+            ERR_PRINT("Error loading image from memory");
         }
         else
             return result_data;
         if (err != ERR_FILE_UNRECOGNIZED) {
-            CRASH_COND(err!=OK)
+            CRASH_COND(err!=OK);
             return {};
         }
 
     }
     if(!loader_found)
-        ERR_PRINT("No loader found for file with extension:"+String(extension))
+        ERR_PRINT("No loader found for file with extension:"+String(extension));
     return result_data;
 }
 
@@ -221,7 +221,7 @@ RES ResourceFormatLoaderImage::load(se_string_view p_path, se_string_view p_orig
         if (r_error) {
             *r_error = ERR_FILE_UNRECOGNIZED;
         }
-        ERR_FAIL_V(RES())
+        ERR_FAIL_V(RES());
     }
 
     String extension = f->get_pascal_string();
@@ -240,7 +240,7 @@ RES ResourceFormatLoaderImage::load(se_string_view p_path, se_string_view p_orig
         if (r_error) {
             *r_error = ERR_FILE_UNRECOGNIZED;
         }
-        ERR_FAIL_V(RES())
+        ERR_FAIL_V(RES());
     }
 
     ImageData resdata;

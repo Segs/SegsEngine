@@ -56,7 +56,7 @@ void WSLClient::_do_handshake() {
                 // Header is too big
                 disconnect_from_host();
                 _on_error();
-                ERR_FAIL_MSG("Response headers too big.")
+                ERR_FAIL_MSG("Response headers too big.");
             }
             Error err = _connection->get_partial_data(&_resp_buf[_resp_pos], 1, read);
             if (err == ERR_FILE_EOF) {
@@ -83,7 +83,7 @@ void WSLClient::_do_handshake() {
                 if (!_verify_headers(protocol)) {
                     disconnect_from_host();
                     _on_error();
-                    ERR_FAIL_MSG("Invalid response headers.")
+                    ERR_FAIL_MSG("Invalid response headers.");
                 }
                 // Create peer.
                 WSLPeer::PeerData *data = memnew(struct WSLPeer::PeerData);
@@ -249,7 +249,7 @@ void WSLClient::poll() {
                 if (_connection == _tcp) {
                     // Start SSL handshake
                     ssl = Ref<StreamPeerSSL>(StreamPeerSSL::create());
-                    ERR_FAIL_COND_MSG(not ssl, "SSL is not available in this build.")
+                    ERR_FAIL_COND_MSG(not ssl, "SSL is not available in this build."); 
                     ssl->set_blocking_handshake_enabled(false);
                     if (ssl->connect_to_stream(_tcp, verify_ssl, _host, ssl_cert) != OK) {
                         disconnect_from_host();

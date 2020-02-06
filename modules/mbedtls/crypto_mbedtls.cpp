@@ -144,7 +144,7 @@ Error X509CertificateMbedTLS::save(se_string_view p_path) {
         int ret = mbedtls_pem_write_buffer(PEM_BEGIN_CRT, PEM_END_CRT, cert.raw.p, cert.raw.len, w, sizeof(w), &wrote);
         if (ret != 0 || wrote == 0) {
             memdelete(f);
-            ERR_FAIL_V_MSG(FAILED, "Error writing certificate '" + itos(ret) + "'.")
+            ERR_FAIL_V_MSG(FAILED, "Error writing certificate '" + itos(ret) + "'.");
         }
 
         f->store_buffer(w, wrote - 1); // don't write the string terminator
@@ -277,7 +277,7 @@ Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoK
     if (err != 0) {
         mbedtls_mpi_free(&serial);
         mbedtls_x509write_crt_free(&crt);
-        ERR_PRINT("Generated invalid certificate: " + itos(err))
+        ERR_PRINT("Generated invalid certificate: " + itos(err));
         return Ref<X509Certificate>();
     }
 

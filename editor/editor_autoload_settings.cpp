@@ -472,7 +472,7 @@ void EditorAutoloadSettings::update_autoload() {
             }
         }
         if (info.in_editor) {
-            ERR_CONTINUE(!info.node)
+            ERR_CONTINUE(!info.node);
             get_tree()->get_root()->call_deferred("remove_child", Variant(info.node));
         }
 
@@ -489,7 +489,7 @@ void EditorAutoloadSettings::update_autoload() {
 
         info->node = _create_autoload(info->path);
 
-        ERR_CONTINUE(!info->node)
+        ERR_CONTINUE(!info->node);
         info->node->set_name(info->name);
 
         Ref<Script> scr = refFromRefPtr<Script>(info->node->get_script());

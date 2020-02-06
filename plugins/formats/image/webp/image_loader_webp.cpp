@@ -74,7 +74,7 @@ Error webp_load_image_from_buffer(ImageData &p_image, const uint8_t *p_buffer, i
 
     WebPBitstreamFeatures features;
     if (WebPGetFeatures(p_buffer, p_buffer_len, &features) != VP8_STATUS_OK) {
-        ERR_FAIL_V(ERR_FILE_CORRUPT)
+        ERR_FAIL_V(ERR_FILE_CORRUPT);
     }
 
     int datasize = features.width * features.height * (features.has_alpha ? 4 : 3);

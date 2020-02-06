@@ -42,12 +42,28 @@
 #include "core/string_utils.inl"
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
+#include "core/map.h"
+
+#include "EASTL/deque.h"
 
 //#define DEBUG_PRINT(m_p) print_line(m_p)
 //#define DEBUG_TIME(m_what) printf("MS: %s - %lli\n",m_what,OS::get_singleton()->get_ticks_usec());
 #define DEBUG_PRINT(m_p)
 #define DEBUG_TIME(m_what)
 namespace {
+struct FileAccessNetworkClient_priv {
+    struct BlockRequest {
+
+        uint64_t offset;
+        int id;
+        int size;
+    };
+
+    Dequeue<BlockRequest> block_requests;
+    Map<int, FileAccessNetwork *> accesses;
+
+};
+
 struct FileAccessNetwork_priv {
     mutable int waiting_on_page;
     mutable int last_activity_val;
@@ -113,7 +129,7 @@ int64_t FileAccessNetworkClient::get_64() {
 }
 
 void FileAccessNetworkClient::_thread_func() {
-
+    auto priv = (FileAccessNetworkClient_priv *)m_priv;
     client->set_no_delay(true);
     while (!quit) {
 
@@ -128,12 +144,12 @@ void FileAccessNetworkClient::_thread_func() {
         DEBUG_PRINT("MUTEX PASS");
 
         blockrequest_mutex->lock();
-        while (!block_requests.empty()) {
-            put_32(block_requests.front()->deref().id);
+        while (!priv->block_requests.empty()) {
+            put_32(priv->block_requests.front().id);
             put_32(FileAccessNetwork::COMMAND_READ_BLOCK);
-            put_64(block_requests.front()->deref().offset);
-            put_32(block_requests.front()->deref().size);
-            block_requests.pop_front();
+            put_64(priv->block_requests.front().offset);
+            put_32(priv->block_requests.front().size);
+            priv->block_requests.pop_front();
         }
         blockrequest_mutex->unlock();
 
@@ -148,14 +164,14 @@ void FileAccessNetworkClient::_thread_func() {
         FileAccessNetwork *fa = nullptr;
 
         if (response != FileAccessNetwork::RESPONSE_DATA) {
-            if (!accesses.contains(id)) {
+            if (!priv->accesses.contains(id)) {
                 unlock_mutex();
-                ERR_FAIL_COND(!accesses.contains(id));
+                ERR_FAIL_COND(!priv->accesses.contains(id));
             }
         }
-
-        if (accesses.contains(id))
-            fa = accesses[id];
+        auto iter=priv->accesses.find(id);
+        if (iter!=priv->accesses.end())
+            fa = iter->second;
 
         switch (response) {
 
@@ -253,7 +269,7 @@ Error FileAccessNetworkClient::connect(const String &p_host, int p_port, const S
 FileAccessNetworkClient *FileAccessNetworkClient::singleton = nullptr;
 
 FileAccessNetworkClient::FileAccessNetworkClient() {
-
+    m_priv = memnew(FileAccessNetworkClient_priv);
     thread = nullptr;
     mutex = memnew(Mutex);
     blockrequest_mutex = memnew(Mutex);
@@ -273,16 +289,59 @@ FileAccessNetworkClient::~FileAccessNetworkClient() {
         Thread::wait_to_finish(thread);
         memdelete(thread);
     }
-
+    memdelete((FileAccessNetworkClient_priv *)m_priv);
     memdelete(blockrequest_mutex);
     memdelete(mutex);
     memdelete(sem);
 }
+void FileAccessNetworkClient::add_block_request(int id,int page_size,int page_offset) {
+    using Priv = FileAccessNetworkClient_priv;
 
+    Priv::BlockRequest br;
+    br.offset = size_t(page_offset) * page_size;
+    br.id = id;
+    br.size = page_size;
+    ((Priv *)m_priv)->block_requests.emplace_back(br);
+
+}
+
+int FileAccessNetworkClient::record_access_source(FileAccessNetwork *from)
+{
+    using Priv = FileAccessNetworkClient_priv;
+    lock_mutex();
+    auto id = last_id++;
+    ((Priv *)m_priv)->accesses[id] = from;
+    unlock_mutex();
+    return id;
+}
+
+bool FileAccessNetworkClient::is_my_token_valid(int source_id, FileAccessNetwork *from)
+{
+    using Priv = FileAccessNetworkClient_priv;
+
+    auto iter=((Priv *)m_priv)->accesses.find(source_id);
+    if(((Priv *)m_priv)->accesses.end()==iter)
+        return false;
+    return iter->second==from;
+}
+
+void FileAccessNetworkClient::finish_access(int id, FileAccessNetwork *from)
+{
+    using Priv = FileAccessNetworkClient_priv;
+
+    lock_mutex();
+
+    auto iter=((Priv *)m_priv)->accesses.find(id);
+    ERR_FAIL_COND(((Priv *)m_priv)->accesses.end()==iter);
+    ERR_FAIL_COND(from!=iter->second);
+    ((Priv *)m_priv)->accesses.erase(iter);
+
+    unlock_mutex();
+}
 void FileAccessNetwork::_set_block(int p_offset, const PODVector<uint8_t> &p_block) {
 
     int page = p_offset / page_size;
-    ERR_FAIL_INDEX(page, D_PRIV()->pages.size())
+    ERR_FAIL_INDEX(page, D_PRIV()->pages.size());
     if (page < D_PRIV()->pages.size() - 1) {
         ERR_FAIL_COND(p_block.size() != page_size);
     } else {
@@ -323,8 +382,8 @@ Error FileAccessNetwork::_open(se_string_view p_path, int p_mode_flags) {
     DEBUG_TIME("open_begin");
 
     nc->lock_mutex();
+    ERR_FAIL_COND_V(!nc->is_my_token_valid(id,this), ERR_UNAVAILABLE); //Network access was somehow replaced in client map ?
     nc->put_32(id);
-    nc->accesses[id] = this;
     nc->put_32(COMMAND_OPEN_FILE);
     nc->put_32(p_path.length());
     nc->client->put_data((const uint8_t *)p_path.data(), p_path.length());
@@ -368,7 +427,7 @@ bool FileAccessNetwork::is_open() const {
 
 void FileAccessNetwork::seek(size_t p_position) {
 
-    ERR_FAIL_COND_MSG(!opened, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!opened, "File must be opened before use.");
     eof_flag = p_position > total_size;
 
     if (p_position >= total_size) {
@@ -415,11 +474,7 @@ void FileAccessNetwork::_queue_page(int p_page) const {
         FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
 
         nc->blockrequest_mutex->lock();
-        FileAccessNetworkClient::BlockRequest br;
-        br.id = id;
-        br.offset = size_t(p_page) * page_size;
-        br.size = page_size;
-        nc->block_requests.push_back(br);
+        nc->add_block_request(id,page_size,p_page);
         D_PRIV()->pages[p_page].queued = true;
         nc->blockrequest_mutex->unlock();
         DEBUG_PRINT("QUEUE PAGE POST");
@@ -527,12 +582,12 @@ uint64_t FileAccessNetwork::_get_modified_time(se_string_view p_file) {
 }
 
 uint32_t FileAccessNetwork::_get_unix_permissions(se_string_view p_file) {
-    ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet")
+    ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet");
     return 0;
 }
 
 Error FileAccessNetwork::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
-    ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet")
+    ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet");
     return ERR_UNAVAILABLE;
 }
 
@@ -555,10 +610,7 @@ FileAccessNetwork::FileAccessNetwork() {
     page_sem = Semaphore::create();
     buffer_mutex = memnew(Mutex);
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-    nc->lock_mutex();
-    id = nc->last_id++;
-    nc->accesses[id] = this;
-    nc->unlock_mutex();
+    id = nc->record_access_source(this);
     page_size = GLOBAL_GET("network/remote_fs/page_size");
     read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead");
     D_PRIV()->last_activity_val = 0;
@@ -574,10 +626,7 @@ FileAccessNetwork::~FileAccessNetwork() {
     memdelete(buffer_mutex);
 
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
-    nc->lock_mutex();
-    id = nc->last_id++;
-    nc->accesses.erase(id);
-    nc->unlock_mutex();
+    nc->finish_access(id,this);
     delete D_PRIV();
     m_priv = nullptr;
 }

@@ -576,7 +576,7 @@ void ProjectSettingsEditor::_action_activated() {
     Dictionary action = ProjectSettings::get_singleton()->get(name);
     Array events = action["events"];
 
-    ERR_FAIL_INDEX(idx, events.size())
+    ERR_FAIL_INDEX(idx, events.size());
     Ref<InputEvent> event(events[idx]);
     if (not event)
         return;
@@ -1208,7 +1208,7 @@ void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, in
 
     PoolStringArray translations = ProjectSettings::get_singleton()->get("locale/translations");
 
-    ERR_FAIL_INDEX(idx, translations.size())
+    ERR_FAIL_INDEX(idx, translations.size());
 
     translations.remove(idx);
 
@@ -1312,11 +1312,11 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
 
     PODVector<String> langs = TranslationServer::get_all_locales();
 
-    ERR_FAIL_INDEX(which, langs.size())
+    ERR_FAIL_INDEX(which, langs.size());
 
     ERR_FAIL_COND(!remaps.has(key))
     PoolVector<String> r = remaps[key].as<PoolVector<String>>();
-    ERR_FAIL_INDEX(idx, r.size())
+    ERR_FAIL_INDEX(idx, r.size());
     if (translation_locales_idxs_remap.size() > which) {
         r.set(idx, path + ":" + langs[translation_locales_idxs_remap[which]]);
     } else {
@@ -1383,7 +1383,7 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
 
     ERR_FAIL_COND(!remaps.has(key))
     PoolStringArray r = remaps[key];
-    ERR_FAIL_INDEX(idx, r.size())
+    ERR_FAIL_INDEX(idx, r.size());
     r.remove(idx);
     remaps[key] = r;
 

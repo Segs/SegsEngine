@@ -102,7 +102,7 @@ float BakedLightmapData::get_energy() const {
 
 void BakedLightmapData::add_user(const NodePath &p_path, const Ref<Texture> &p_lightmap, int p_instance) {
 
-    ERR_FAIL_COND_MSG(not p_lightmap, "It's not a reference to a valid Texture object.")
+    ERR_FAIL_COND_MSG(not p_lightmap, "It's not a reference to a valid Texture object."); 
     User user;
     user.path = p_path;
     user.lightmap = p_lightmap;
@@ -694,7 +694,7 @@ void BakedLightmap::_assign_lightmaps() {
 
     for (int i = 0; i < light_data->get_user_count(); i++) {
         Ref<Texture> lightmap = light_data->get_user_lightmap(i);
-        ERR_CONTINUE(not lightmap)
+        ERR_CONTINUE(not lightmap);
 
         Node *node = get_node(light_data->get_user_path(i));
         int instance_idx = light_data->get_user_instance(i);
@@ -705,7 +705,7 @@ void BakedLightmap::_assign_lightmaps() {
             }
         } else {
             VisualInstance *vi = object_cast<VisualInstance>(node);
-            ERR_CONTINUE(!vi)
+            ERR_CONTINUE(!vi);
             VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
         }
     }
@@ -723,7 +723,7 @@ void BakedLightmap::_clear_lightmaps() {
             }
         } else {
             VisualInstance *vi = object_cast<VisualInstance>(node);
-            ERR_CONTINUE(!vi)
+            ERR_CONTINUE(!vi);
             VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
         }
     }

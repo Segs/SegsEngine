@@ -58,7 +58,7 @@ void CPUParticles2D::set_emitting(bool p_emitting) {
 
 void CPUParticles2D::set_amount(int p_amount) {
 
-    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.")
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0."); 
 
     particles.resize(p_amount);
     {

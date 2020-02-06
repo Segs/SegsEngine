@@ -74,7 +74,7 @@ void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, f
             ofs = p_width - length;
         } break;
         default: {
-            ERR_PRINT("Unknown halignment type")
+            ERR_PRINT("Unknown halignment type");
         } break;
     }
     draw_ui_string(p_canvas_item, p_pos + Point2(ofs, 0), p_text, p_modulate, p_width, p_outline_modulate);
@@ -209,7 +209,7 @@ void BitmapFont::_set_textures(const PODVector<Variant> &p_textures) {
     textures.reserve(p_textures.size());
     for (int i = 0; i < p_textures.size(); i++) {
         Ref<Texture> tex = refFromRefPtr<Texture>(p_textures[i]);
-        ERR_CONTINUE(not tex)
+        ERR_CONTINUE(not tex);
         add_texture(tex);
     }
 }
@@ -300,7 +300,7 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
                 String file = PathUtils::plus_file(base_dir,(keys["file"]));
                 Ref<Texture> tex = dynamic_ref_cast<Texture>(ResourceLoader::load(file));
                 if (not tex) {
-                    ERR_PRINT("Can't load font texture!")
+                    ERR_PRINT("Can't load font texture!");
                 } else {
                     add_texture(tex);
                 }
@@ -566,7 +566,7 @@ Size2 Font::get_wordwrap_string_size(se_string_view p_string, float p_width) con
 void BitmapFont::set_fallback(const Ref<BitmapFont> &p_fallback) {
 
     for (Ref<BitmapFont> fallback_child = p_fallback; fallback_child != nullptr; fallback_child = fallback_child->get_fallback()) {
-        ERR_FAIL_COND_MSG(fallback_child == this, "Can't set as fallback one of its parents to prevent crashes due to recursive loop.")
+        ERR_FAIL_COND_MSG(fallback_child == this, "Can't set as fallback one of its parents to prevent crashes due to recursive loop."); 
     }
 
     fallback = p_fallback;

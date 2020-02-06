@@ -248,14 +248,14 @@ void EditorFileSystem::_scan_from_cache()
 
         if (StringUtils::begins_with(l, "::")) {
             PODVector<se_string_view> split = StringUtils::split(l, "::");
-            ERR_CONTINUE(split.size() != 3)
+            ERR_CONTINUE(split.size() != 3);
             se_string_view name = split[1];
 
             cpath = name;
 
         } else {
             PODVector<se_string_view> split = StringUtils::split(l, "::");
-            ERR_CONTINUE(split.size() != 8)
+            ERR_CONTINUE(split.size() != 8);
             String name = PathUtils::plus_file(cpath, split[0]);
 
             FileCache fc;
@@ -352,7 +352,7 @@ void EditorFileSystem::_save_filesystem_cache() {
     String fscache = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),CACHE_FILE_NAME);
 
     FileAccess *f = FileAccess::open(fscache, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(!f, "Cannot create file '" + fscache + "'. Check user write permissions.")
+    ERR_FAIL_COND_MSG(!f, "Cannot create file '" + fscache + "'. Check user write permissions.");
 
     f->store_line(filesystem_settings_version_for_import);
     _save_filesystem_cache(filesystem, f);
@@ -412,7 +412,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
         if (err == ERR_FILE_EOF) {
             break;
         } else if (err != OK) {
-            ERR_PRINT("ResourceFormatImporter::load - '" + String(p_path) + ".import:" + ::to_string(lines) + "' error '" + error_text + "'.")
+            ERR_PRINT("ResourceFormatImporter::load - '" + String(p_path) + ".import:" + ::to_string(lines) + "' error '" + error_text + "'.");
             VariantParser::release_stream(stream);
             memdelete(f);
             return false; //parse error, try reimport manually (Avoid reimport loop on broken file)
@@ -461,7 +461,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
         if (err == ERR_FILE_EOF) {
             break;
         } else if (err != OK) {
-            ERR_PRINT("ResourceFormatImporter::load - '" + String(p_path) + ".import.md5:" + ::to_string(lines) + "' error '" + error_text + "'.")
+            ERR_PRINT("ResourceFormatImporter::load - '" + String(p_path) + ".import.md5:" + ::to_string(lines) + "' error '" + error_text + "'.");
             VariantParser::release_stream(md5_stream);
             memdelete(md5s);
             return false; // parse error
@@ -547,7 +547,7 @@ bool EditorFileSystem::_update_scan_actions() {
             } break;
             case ItemAction::ACTION_DIR_REMOVE: {
 
-                ERR_CONTINUE(!ia.dir->parent)
+                ERR_CONTINUE(!ia.dir->parent);
                 ia.dir->parent->subdirs.erase_first(ia.dir);
                 memdelete(ia.dir);
                 fs_changed = true;
@@ -573,7 +573,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_FILE_REMOVE: {
 
                 int idx = ia.dir->find_file_index(ia.file);
-                ERR_CONTINUE(idx == -1)
+                ERR_CONTINUE(idx == -1);
                 _delete_internal_files(ia.dir->files[idx]->file);
                 memdelete(ia.dir->files[idx]);
                 ia.dir->files.erase_at(idx);
@@ -584,7 +584,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_FILE_TEST_REIMPORT: {
 
                 int idx = ia.dir->find_file_index(ia.file);
-                ERR_CONTINUE(idx == -1)
+                ERR_CONTINUE(idx == -1);
                 String full_path = ia.dir->get_file_path(idx);
                 if (_test_for_reimport(full_path, false)) {
                     //must reimport
@@ -601,7 +601,7 @@ bool EditorFileSystem::_update_scan_actions() {
             case ItemAction::ACTION_FILE_RELOAD: {
 
                 int idx = ia.dir->find_file_index(ia.file);
-                ERR_CONTINUE(idx == -1)
+                ERR_CONTINUE(idx == -1);
                 String full_path = ia.dir->get_file_path(idx);
 
                 reloads.push_back(full_path);
@@ -760,7 +760,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 da->change_dir("..");
             }
         } else {
-            ERR_PRINT("Cannot go into subdir: " + entry)
+            ERR_PRINT("Cannot go into subdir: " + entry);
         }
 
         p_progress.update(idx, total);
@@ -1052,11 +1052,11 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 
 void EditorFileSystem::_delete_internal_files(se_string_view p_file) {
     if (FileAccess::exists(String(p_file) + ".import")) {
-        List<String> paths;
+        PODVector<String> paths;
         ResourceFormatImporter::get_singleton()->get_internal_resource_path_list(p_file, &paths);
         DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-        for (List<String>::Element *E = paths.front(); E; E = E->next()) {
-            da->remove(E->deref());
+        for (const String &E : paths) {
+            da->remove(E);
         }
         da->remove(String(p_file) + ".import");
         memdelete(da);
@@ -1569,15 +1569,15 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
 
         Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
         Error err = config->load(p_files[i] + ".import");
-        ERR_CONTINUE(err != OK)
-        ERR_CONTINUE(!config->has_section_key("remap", "importer"))
+        ERR_CONTINUE(err != OK);
+        ERR_CONTINUE(!config->has_section_key("remap", "importer"));
         String file_importer_name = config->get_value("remap", "importer");
-        ERR_CONTINUE(file_importer_name.empty())
+        ERR_CONTINUE(file_importer_name.empty());
 
         if (!importer_name.empty() && importer_name != file_importer_name) {
             print_line("one importer: " + importer_name + " the other: " + file_importer_name);
             EditorNode::get_singleton()->show_warning(FormatSN(TTR("There are multiple importers for different types pointing to file %.*s, import aborted").asCString(), p_group_file.length(),p_group_file.data()));
-            ERR_FAIL_V(ERR_FILE_CORRUPT)
+            ERR_FAIL_V(ERR_FILE_CORRUPT);
         }
 
         source_file_options[p_files[i]] = Map<StringName, Variant>();
@@ -1723,7 +1723,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
     bool found = _find_file(p_file, &fs, cpos);
-    ERR_FAIL_COND_MSG(!found, "Can't find file '" + p_file + "'.")
+    ERR_FAIL_COND_MSG(!found, "Can't find file '" + p_file + "'.");
 
     //try to obtain existing params
 
@@ -1762,8 +1762,8 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
         importer = ResourceFormatImporter::get_singleton()->get_importer_by_extension(PathUtils::get_extension(p_file));
         load_default = true;
         if (importer==nullptr) {
-            ERR_PRINT("BUG: File queued for import, but can't be imported!")
-            ERR_FAIL()
+            ERR_PRINT("BUG: File queued for import, but can't be imported!");
+            ERR_FAIL();
         }
     }
 
@@ -1796,13 +1796,13 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     Error err = importer->import(p_file, base_path, params, &import_variants, &gen_files, &metadata);
 
     if (err != OK) {
-        ERR_PRINT("Error importing '" + p_file + "'.")
+        ERR_PRINT("Error importing '" + p_file + "'.");
     }
 
     //as import is complete, save the .import file
 
     FileAccess *f = FileAccess::open(p_file + ".import", FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + p_file + ".import'.")
+    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + p_file + ".import'.");
 
     //write manually, as order matters ([remap] has to go first for performance).
     f->store_line("[remap]");
@@ -1940,7 +1940,7 @@ void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
             Error err = da->make_dir(".import");
             if (err) {
                 memdelete(da);
-                ERR_FAIL_MSG("Failed to create 'res://.import' folder.")
+                ERR_FAIL_MSG("Failed to create 'res://.import' folder.");
             }
         }
         memdelete(da);

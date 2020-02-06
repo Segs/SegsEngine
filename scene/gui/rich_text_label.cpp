@@ -2702,7 +2702,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
 void RichTextLabel::scroll_to_line(int p_line) {
 
-    ERR_FAIL_INDEX(p_line, main->lines.size())
+    ERR_FAIL_INDEX(p_line, main->lines.size());
     _validate_line_caches(main);
     vscroll->set_value(main->lines[p_line].height_accum_cache - main->lines[p_line].height_cache);
 }

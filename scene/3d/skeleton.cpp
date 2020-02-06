@@ -102,7 +102,7 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
             for (int i = 0; i < children.size(); i++) {
 
                 NodePath npath = children[i];
-                ERR_CONTINUE(npath.empty())
+                ERR_CONTINUE(npath.empty());
                 Node *node = get_node(npath);
                 ERR_CONTINUE(!node);
                 bind_child_node_to_bone(which, node);
@@ -215,7 +215,7 @@ void Skeleton::_update_process_order() {
     }
 
     if (pass_count == len * len) {
-        ERR_PRINT("Skeleton parenthood graph is cyclic")
+        ERR_PRINT("Skeleton parenthood graph is cyclic");
     }
 
     process_order_dirty = false;
@@ -309,9 +309,9 @@ void Skeleton::_notification(int p_what) {
                 for (List<uint32_t>::Element *E = b.nodes_bound.front(); E; E = E->next()) {
 
                     Object *obj = ObjectDB::get_instance(E->deref());
-                    ERR_CONTINUE(!obj)
+                    ERR_CONTINUE(!obj);
                     Spatial *sp = object_cast<Spatial>(obj);
-                    ERR_CONTINUE(!sp)
+                    ERR_CONTINUE(!sp);
                     sp->set_transform(b.pose_global);
                 }
             }
@@ -329,7 +329,7 @@ void Skeleton::_notification(int p_what) {
 
                 for (uint32_t i = 0; i < bind_count; i++) {
                     uint32_t bone_index = skin->get_bind_bone(i);
-                    ERR_CONTINUE(bone_index >= (uint32_t)len)
+                    ERR_CONTINUE(bone_index >= (uint32_t)len);
                     vs->skeleton_bone_set_transform(skeleton, i, bonesptr[bone_index].pose_global * skin->get_bind_pose(i));
                 }
             }
@@ -340,7 +340,7 @@ void Skeleton::_notification(int p_what) {
 
 void Skeleton::set_bone_global_pose_override(int p_bone, const Transform &p_pose, float p_amount, bool p_persistent) {
 
-    ERR_FAIL_INDEX(p_bone, bones.size())
+    ERR_FAIL_INDEX(p_bone, bones.size());
 
     auto &val(bones[p_bone]);
 
@@ -510,12 +510,12 @@ void Skeleton::unbind_child_node_from_bone(int p_bone, Node *p_node) {
 }
 void Skeleton::get_bound_child_nodes_to_bone(int p_bone, List<Node *> *p_bound) const {
 
-    ERR_FAIL_INDEX(p_bone, bones.size())
+    ERR_FAIL_INDEX(p_bone, bones.size());
 
     for (const List<uint32_t>::Element *E = bones[p_bone].nodes_bound.front(); E; E = E->next()) {
 
         Object *obj = ObjectDB::get_instance(E->deref());
-        ERR_CONTINUE(!obj)
+        ERR_CONTINUE(!obj);
         p_bound->push_back(object_cast<Node>(obj));
     }
 }

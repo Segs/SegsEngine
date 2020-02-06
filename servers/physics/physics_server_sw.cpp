@@ -44,7 +44,7 @@
 IMPL_GDCLASS(PhysicsServerSW)
 
 #define FLUSH_QUERY_CHECK(m_object) \
-    ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.")
+    ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead."); 
 
 RID PhysicsServerSW::shape_create(ShapeType p_shape) {
 
@@ -73,7 +73,7 @@ RID PhysicsServerSW::shape_create(ShapeType p_shape) {
         } break;
         case SHAPE_CYLINDER: {
 
-            ERR_FAIL_V_MSG(RID(), "CylinderShape is not supported in GodotPhysics. Please switch to Bullet in the Project Settings.")
+            ERR_FAIL_V_MSG(RID(), "CylinderShape is not supported in GodotPhysics. Please switch to Bullet in the Project Settings.");
         } break;
         case SHAPE_CONVEX_POLYGON: {
 
@@ -1400,7 +1400,7 @@ void PhysicsServerSW::free_rid(RID p_rid) {
 
     } else {
 
-        ERR_FAIL_MSG("Invalid ID.")
+        ERR_FAIL_MSG("Invalid ID.");
     }
 };
 

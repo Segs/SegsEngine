@@ -329,20 +329,13 @@ void EditorExportPlatform::gen_debug_flags(PODVector<String> &r_flags, int p_fla
 
         r_flags.emplace_back(host + ":" + StringUtils::num(remote_port));
 
-        List<String> breakpoints;
+        PODVector<String> breakpoints;
         ScriptEditor::get_singleton()->get_breakpoints(&breakpoints);
 
         if (!breakpoints.empty()) {
 
+            String bpoints = String::joined(breakpoints,",").replaced(" ","%20");
             r_flags.emplace_back("--breakpoints");
-            String bpoints;
-            for (const List<String>::Element *E = breakpoints.front(); E; E = E->next()) {
-
-                bpoints += StringUtils::replace(E->deref()," ", "%20");
-                if (E->next())
-                    bpoints += ',';
-            }
-
             r_flags.emplace_back(eastl::move(bpoints));
         }
     }
@@ -1013,7 +1006,7 @@ Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, s
     if (!ftmp) {
         memdelete(f);
         DirAccess::remove_file_or_error(tmppath);
-        ERR_FAIL_V_MSG(ERR_CANT_CREATE, "Can't open file to read from path '" + String(tmppath) + "'.")
+        ERR_FAIL_V_MSG(ERR_CANT_CREATE, "Can't open file to read from path '" + String(tmppath) + "'.");
     }
 
     const int bufsize = 16384;
@@ -1066,7 +1059,7 @@ Error EditorExportPlatform::save_zip(const Ref<EditorExportPreset> &p_preset, co
 
     Error err = export_project_files(p_preset, _save_zip_file, &zd);
     if (err != OK && err != ERR_SKIP)
-        ERR_PRINT("Failed to export project files")
+        ERR_PRINT("Failed to export project files");
 
     zipClose(zip, nullptr);
 
@@ -1108,21 +1101,14 @@ void EditorExportPlatform::gen_export_flags(PODVector<String> &r_flags, int p_fl
 
         r_flags.push_back(host + ":" + StringUtils::num(remote_port));
 
-        List<String> breakpoints;
+        PODVector<String> breakpoints;
         ScriptEditor::get_singleton()->get_breakpoints(&breakpoints);
 
         if (!breakpoints.empty()) {
+            String bpoints = String::joined(breakpoints,",").replaced(" ","%20");
 
-            r_flags.push_back("--breakpoints");
-            String bpoints;
-            for (const List<String>::Element *E = breakpoints.front(); E; E = E->next()) {
-
-                bpoints += StringUtils::replace(E->deref()," ", "%20");
-                if (E->next())
-                    bpoints += ',';
-            }
-
-            r_flags.push_back(bpoints);
+            r_flags.emplace_back("--breakpoints");
+            r_flags.emplace_back(bpoints);
         }
     }
 
@@ -1700,12 +1686,12 @@ void EditorExportTextSceneToBinaryPlugin::_export_file(se_string_view p_path, se
     Error err = ResourceFormatLoaderText::convert_file_to_binary(p_path, tmp_path);
     if (err != OK) {
         DirAccess::remove_file_or_error(tmp_path);
-        ERR_FAIL()
+        ERR_FAIL();
     }
     PODVector<uint8_t> data = FileAccess::get_file_as_array(tmp_path);
     if (data.empty()) {
         DirAccess::remove_file_or_error(tmp_path);
-        ERR_FAIL()
+        ERR_FAIL();
     }
     DirAccess::remove_file_or_error(tmp_path);
     add_file(String(p_path) + ".converted.res", data, true);

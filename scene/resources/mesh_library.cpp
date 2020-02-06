@@ -210,7 +210,7 @@ Transform MeshLibrary::get_item_navmesh_transform(int p_item) const {
 Ref<Texture> MeshLibrary::get_item_preview(int p_item) const {
 
     if (!Engine::get_singleton()->is_editor_hint()) {
-        ERR_PRINT("MeshLibrary item previews are only generated in an editor context, which means they aren't available in a running project.")
+        ERR_PRINT("MeshLibrary item previews are only generated in an editor context, which means they aren't available in a running project.");
         return Ref<Texture>();
     }
 

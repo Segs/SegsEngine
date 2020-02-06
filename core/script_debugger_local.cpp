@@ -122,22 +122,22 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
         } else if (line == "lv" || line == "locals") {
 
-            ListPOD<String> locals;
-            List<Variant> values;
+            PODVector<String> locals;
+            PODVector<Variant> values;
             p_script->debug_get_stack_level_locals(current_frame, &locals, &values);
             print_variables(locals, values, variable_prefix);
 
         } else if (line == "gv" || line == "globals") {
 
-            ListPOD<String> globals;
-            List<Variant> values;
+            PODVector<String> globals;
+            PODVector<Variant> values;
             p_script->debug_get_globals(&globals, &values);
             print_variables(globals, values, variable_prefix);
 
         } else if (line == "mv" || line == "members") {
 
-            ListPOD<String> members;
-            List<Variant> values;
+            PODVector<String> members;
+            PODVector<Variant> values;
             p_script->debug_get_stack_level_members(current_frame, &members, &values);
             print_variables(members, values, variable_prefix);
 
@@ -259,18 +259,18 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
     }
 }
 
-void ScriptDebuggerLocal::print_variables(const ListPOD<String> &names, const List<Variant> &values, se_string_view variable_prefix) {
+void ScriptDebuggerLocal::print_variables(const PODVector<String> &names, const PODVector<Variant> &values, se_string_view variable_prefix) {
+
+    //ERR_FAIL_COND(names.size()!=values.size());
 
     PODVector<se_string_view> value_lines;
-    const List<Variant>::Element *V = values.front();
-    for (const String &E : names) {
 
-        String value = V->deref();
-
+    for(size_t idx=0,fin=values.size(); idx<fin; ++idx) {
+        const String &E(names[idx]);
+        const String value(values[idx].as<String>());
         if (variable_prefix.empty()) {
-            print_line(E + ": " + V->deref().as<String>());
+            print_line(E + ": " + value);
         } else {
-
             print_line(E + ":");
             value_lines = StringUtils::split(value,'\n');
             for (size_t i = 0; i < value_lines.size(); ++i) {
@@ -278,7 +278,6 @@ void ScriptDebuggerLocal::print_variables(const ListPOD<String> &names, const Li
             }
         }
 
-        V = V->next();
     }
 }
 

@@ -352,7 +352,7 @@ void WebSocketMultiplayerPeer::_process_multiplayer(Ref<WebSocketPeer> p_peer, u
                 _peer_id = id;
                 break;
             default:
-                ERR_FAIL_MSG("Invalid multiplayer message.")
+                ERR_FAIL_MSG("Invalid multiplayer message.");
         }
     }
 }

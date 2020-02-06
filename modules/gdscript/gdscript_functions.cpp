@@ -166,28 +166,32 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
     r_error.error = Variant::CallError::CALL_OK;
 #ifdef DEBUG_ENABLED
 
-#define VALIDATE_ARG_COUNT(m_count)                                        \
-    if (p_arg_count < m_count) {                                           \
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;  \
-        r_error.argument = m_count;                                        \
-        r_ret = Variant();                                                 \
-        return;                                                            \
-    }                                                                      \
-    if (p_arg_count > m_count) {                                           \
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS; \
-        r_error.argument = m_count;                                        \
-        r_ret = Variant();                                                 \
-        return;                                                            \
-    }
+#define VALIDATE_ARG_COUNT(m_count)                                            \
+    do {                                                                       \
+        if (p_arg_count < m_count) {                                           \
+            r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;  \
+            r_error.argument = m_count;                                        \
+            r_ret = Variant();                                                 \
+            return;                                                            \
+        }                                                                      \
+        if (p_arg_count > m_count) {                                           \
+            r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS; \
+            r_error.argument = m_count;                                        \
+            r_ret = Variant();                                                 \
+            return;                                                            \
+        }                                                                      \
+    } while(0)
 
 #define VALIDATE_ARG_NUM(m_arg)                                          \
-    if (!p_args[m_arg]->is_num()) {                                      \
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; \
-        r_error.argument = m_arg;                                        \
-        r_error.expected = VariantType::REAL;                                \
-        r_ret = Variant();                                               \
-        return;                                                          \
-    }
+    do { \
+        if (!p_args[m_arg]->is_num()) {                                      \
+            r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; \
+            r_error.argument = m_arg;                                        \
+            r_error.expected = VariantType::REAL;                                \
+            r_ret = Variant();                                               \
+            return;                                                          \
+        }\
+    } while(0)
 
 #else
 
@@ -315,7 +319,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             } else if (p_args[0]->get_type() == VariantType::REAL) {
 
                 real_t r = *p_args[0];
-                r_ret = r < 0.0 ? -1.0 : (r > 0.0 ? +1.0 : 0.0);
+                r_ret = r < 0.0f ? -1.0f : (r > 0.0f ? +1.0f : 0.0f);
             } else {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -620,7 +624,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             }
         } break;
         case FUNC_FUNCREF: {
-            VALIDATE_ARG_COUNT(2)
+            VALIDATE_ARG_COUNT(2);
             if (p_args[0]->get_type() != VariantType::OBJECT) {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -647,8 +651,8 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
         } break;
         case TYPE_CONVERT: {
-            VALIDATE_ARG_COUNT(2)
-            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_COUNT(2);
+            VALIDATE_ARG_NUM(1);
             int type = *p_args[1];
             if (type < 0 || type >= int8_t(VariantType::VARIANT_MAX)) {
 
@@ -665,13 +669,13 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
         } break;
         case TYPE_OF: {
 
-            VALIDATE_ARG_COUNT(1)
+            VALIDATE_ARG_COUNT(1);
             r_ret = int8_t(p_args[0]->get_type());
 
         } break;
         case TYPE_EXISTS: {
 
-            VALIDATE_ARG_COUNT(1)
+            VALIDATE_ARG_COUNT(1);
             r_ret = ClassDB::class_exists(*p_args[0]);
 
         } break;
@@ -1242,7 +1246,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
         } break;
         case VALIDATE_JSON: {
 
-            VALIDATE_ARG_COUNT(1)
+            VALIDATE_ARG_COUNT(1);
 
             if (p_args[0]->get_type() != VariantType::STRING) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1266,7 +1270,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
         } break;
         case PARSE_JSON: {
 
-            VALIDATE_ARG_COUNT(1)
+            VALIDATE_ARG_COUNT(1);
 
             if (p_args[0]->get_type() != VariantType::STRING) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1288,7 +1292,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
         } break;
         case TO_JSON: {
-            VALIDATE_ARG_COUNT(1)
+            VALIDATE_ARG_COUNT(1);
 
             r_ret = JSON::print(*p_args[0]);
         } break;

@@ -202,7 +202,7 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
 
         Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
         Error err = config->load(p_paths[i] + ".import");
-        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(err != OK);
 
         if (i == 0) {
             params->importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(config->get_value("remap", "importer").as<String>());
@@ -413,7 +413,7 @@ void ImportDock::_reimport_attempt() {
     for (int i = 0; i < params->paths.size(); i++) {
         Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
         Error err = config->load(params->paths[i] + ".import");
-        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(err != OK);
 
         StringName imported_with(config->get_value("remap", "importer"));
         if (imported_with != params->importer->get_importer_name()) {
@@ -470,11 +470,11 @@ void ImportDock::_reimport() {
 
         //handle group file
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
-        ERR_CONTINUE(importer==nullptr)
+        ERR_CONTINUE(importer==nullptr);
         StringName group_file_property(importer->get_option_group_file());
         if (!group_file_property.empty()) {
             //can import from a group (as in, atlas)
-            ERR_CONTINUE(!params->values.contains(group_file_property))
+            ERR_CONTINUE(!params->values.contains(group_file_property));
             String group_file = params->values[group_file_property];
             config->set_value("remap", "group_file", group_file);
         } else {

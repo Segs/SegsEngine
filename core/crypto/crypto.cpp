@@ -95,15 +95,15 @@ void Crypto::_bind_methods() {
 }
 
 PoolByteArray Crypto::generate_random_bytes(int p_bytes) {
-    ERR_FAIL_V_MSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.");
 }
 
 Ref<CryptoKey> Crypto::generate_rsa(int p_bytes) {
-    ERR_FAIL_V_MSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.");
 }
 
 Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) {
-    ERR_FAIL_V_MSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.");
 }
 
 Crypto::Crypto() = default;
@@ -158,7 +158,7 @@ Error ResourceFormatSaverCrypto::save(se_string_view p_path, const RES &p_resour
     } else if (key) {
         err = key->save(p_path);
     } else {
-        ERR_FAIL_V(ERR_INVALID_PARAMETER)
+        ERR_FAIL_V(ERR_INVALID_PARAMETER);
     }
     ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + String(p_path) + "'.");
     return OK;

@@ -93,7 +93,7 @@ void ResourceImporterTexture::build_reconfigured_list(PODVector<String> &to_reim
         String src_path = String(E.first) + ".import";
 
         Error err = cf->load(src_path);
-        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(err != OK);
 
         bool changed = false;
         if (E.second & MAKE_SRGB_FLAG && int(cf->get_value("params", "flags/srgb")) == 2) {

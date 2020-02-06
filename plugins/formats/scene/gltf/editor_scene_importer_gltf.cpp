@@ -79,7 +79,7 @@ Error EditorSceneImporterGLTF::_parse_json(se_string_view p_path, GLTFState &sta
     Variant v;
     err = JSON::parse(text, v, err_txt, err_line);
     if (err != OK) {
-        _err_print_error("", p_path, err_line, err_txt, {},ERR_HANDLER_SCRIPT);
+        _err_print_error("", String(p_path).c_str(), err_line, err_txt, {},ERR_HANDLER_SCRIPT);
         return err;
     }
     state.json = v;
@@ -116,7 +116,7 @@ Error EditorSceneImporterGLTF::_parse_glb(se_string_view p_path, GLTFState &stat
     Variant v;
     err = JSON::parse(text, v, err_txt, err_line);
     if (err != OK) {
-        _err_print_error("", p_path, err_line, err_txt, {}, ERR_HANDLER_SCRIPT);
+        _err_print_error("", String(p_path).c_str(), err_line, err_txt, {}, ERR_HANDLER_SCRIPT);
         return err;
     }
 
@@ -2261,7 +2261,7 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
                 camera.fov_size = 10;
             }
         } else {
-            ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'")
+            ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'");
         }
 
         state.cameras.push_back(camera);
@@ -2824,7 +2824,7 @@ void EditorSceneImporterGLTF::_import_animation(GLTFState &state, AnimationPlaye
             }
 
             for (int i = 0; i < track.weight_tracks.size(); i++) {
-                ERR_CONTINUE(node->mesh < 0 || node->mesh >= state.meshes.size())
+                ERR_CONTINUE(node->mesh < 0 || node->mesh >= state.meshes.size());
                 const GLTFMesh &mesh = state.meshes[node->mesh];
                 const StringName prop = "blend_shapes/" + mesh.mesh->get_blend_shape_name(i);
 

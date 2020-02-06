@@ -179,7 +179,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
     }
 
     if (!FileAccess::exists(rcedit_path)) {
-        ERR_PRINT("Could not find rcedit executable at " + rcedit_path + ", no icon or app information data will be included.")
+        ERR_PRINT("Could not find rcedit executable at " + rcedit_path + ", no icon or app information data will be included.");
         return;
     }
 
@@ -188,7 +188,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
     String wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
 
     if (not wine_path.empty() && !FileAccess::exists(wine_path)) {
-        ERR_PRINT("Could not find wine executable at " + wine_path + ", no icon or app information data will be included.")
+        ERR_PRINT("Could not find wine executable at " + wine_path + ", no icon or app information data will be included.");
         return;
     }
 
@@ -271,7 +271,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
     String signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
-        ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.")
+        ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.");
         return ERR_FILE_NOT_FOUND;
     }
     if (not signtool_path.empty()) {

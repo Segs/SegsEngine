@@ -301,11 +301,11 @@ Error DynamicFontAtSize::_load() {
     //error = FT_New_Face( library, src_path.utf8().get_data(),0,&face );
 
     if (error == FT_Err_Unknown_File_Format) {
-        ERR_PRINT("Unknown font format.")
+        ERR_PRINT("Unknown font format.");
         FT_Done_FreeType(m_impl->library);
     } else if (error) {
 
-        ERR_PRINT("Error loading font.")
+        ERR_PRINT("Error loading font.");
         FT_Done_FreeType(m_impl->library);
     }
 
@@ -372,7 +372,7 @@ const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFon
 
             fb->_update_char(p_char);
             const Character *fallback_chr = fb->char_map.getptr(p_char);
-            ERR_CONTINUE(!fallback_chr)
+            ERR_CONTINUE(!fallback_chr);
 
             if (!fallback_chr->found)
                 continue;
@@ -927,7 +927,7 @@ float DynamicFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_
 void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {
 
     ERR_FAIL_COND(not p_data)
-    ERR_FAIL_INDEX(p_idx, fallbacks.size())
+    ERR_FAIL_INDEX(p_idx, fallbacks.size());
     fallbacks[p_idx] = p_data;
     fallback_data_at_size[p_idx] = fallbacks[p_idx]->_get_dynamic_font_at_size(cache_id);
 }
@@ -956,7 +956,7 @@ Ref<DynamicFontData> DynamicFont::get_fallback(int p_idx) const {
 }
 void DynamicFont::remove_fallback(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, fallbacks.size())
+    ERR_FAIL_INDEX(p_idx, fallbacks.size());
     fallbacks.erase_at(p_idx);
     fallback_data_at_size.erase_at(p_idx);
     emit_changed();

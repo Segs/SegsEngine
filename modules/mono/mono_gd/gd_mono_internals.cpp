@@ -46,7 +46,7 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 
     // This method should not fail
 
-    CRASH_COND(!unmanaged)
+    CRASH_COND(!unmanaged);
 
     // All mono objects created from the managed world (e.g.: 'new Player()')
     // need to have a CSharpScript in order for their methods to be callable from the unmanaged side
@@ -55,11 +55,11 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 
     GDMonoClass *klass = GDMonoUtils::get_object_class(managed);
 
-    CRASH_COND(!klass)
+    CRASH_COND(!klass);
 
     GDMonoClass *native = GDMonoUtils::get_class_native_base(klass);
 
-    CRASH_COND(native == nullptr)
+    CRASH_COND(native == nullptr);
 
     if (native == klass) {
         // If it's just a wrapper Godot class and not a custom inheriting class, then attach a
@@ -89,7 +89,7 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
         }
 
         // The object was just created, no script instance binding should have been attached
-        CRASH_COND(unmanaged->has_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index()))
+        CRASH_COND(unmanaged->has_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index()));
 
         void *data = (void *)CSharpLanguage::get_singleton()->insert_script_binding(unmanaged, script_binding).mpNode;
 
@@ -103,7 +103,7 @@ void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged) {
 
     Ref<CSharpScript> script = CSharpScript::create_for_managed_type(klass, native);
 
-    CRASH_COND(!script)
+    CRASH_COND(!script);
 
     ScriptInstance *si = CSharpInstance::create_for_managed_type(unmanaged, script.get(), gchandle);
 

@@ -1519,7 +1519,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
         if (next_op == -1) {
 
             _set_error("Yet another parser bug....");
-            ERR_FAIL_V(nullptr)
+            ERR_FAIL_V(nullptr);
         }
 
         // OK! create operator..
@@ -1551,7 +1551,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
         } else if (is_ternary) {
             if (next_op < 1 || next_op >= (expression.size() - 1)) {
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             if (next_op >= (expression.size() - 2) || expression[next_op + 2].op != OperatorNode::OP_TERNARY_ELSE) {
@@ -1570,7 +1570,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
             if (expression[next_op - 1].is_op) {
 
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             if (expression[next_op + 1].is_op) {
@@ -5315,7 +5315,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
 
             if (p_class->extends_class.empty()) {
                 _set_error("Parser bug: undecidable inheritance.", p_class->line);
-                ERR_FAIL()
+                ERR_FAIL();
             }
             //look around for the subclasses
 
@@ -6386,7 +6386,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
 
                     if (op->arguments.size() != 2) {
                         _set_error("Parser bug: binary operation without 2 arguments.", op->line);
-                        ERR_FAIL_V(DataType())
+                        ERR_FAIL_V(DataType());
                     }
 
                     DataType value_type = _reduce_node_type(op->arguments[0]);
@@ -6958,7 +6958,7 @@ bool GDScriptParser::_get_function_signature(DataType &p_base_type, const String
 GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const OperatorNode *p_call) {
     if (p_call->arguments.empty()) {
         _set_error("Parser bug: function call without enough arguments.", p_call->line);
-        ERR_FAIL_V(DataType())
+        ERR_FAIL_V(DataType());
     }
 
     DataType return_type;
@@ -7077,14 +7077,14 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
         default: {
             if (p_call->op == OperatorNode::OP_CALL && p_call->arguments.size() < 2) {
                 _set_error("Parser bug: self method call without enough arguments.", p_call->line);
-                ERR_FAIL_V(DataType())
+                ERR_FAIL_V(DataType());
             }
 
             int arg_id = p_call->op == OperatorNode::OP_CALL ? 1 : 0;
 
             if (p_call->arguments[arg_id]->type != Node::TYPE_IDENTIFIER) {
                 _set_error("Parser bug: invalid function call argument.", p_call->line);
-                ERR_FAIL_V(DataType())
+                ERR_FAIL_V(DataType());
             }
 
             // Check all arguments beforehand to solve warnings
@@ -7398,7 +7398,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
     }
     if (!ClassDB::class_exists(native)) {
         if (!check_types) return false;
-        ERR_FAIL_V_MSG(false, "Parser bug: Class \"" + String(native) + "\" not found.")
+        ERR_FAIL_V_MSG(false, "Parser bug: Class \"" + String(native) + "\" not found.");
     }
 
     bool valid = false;

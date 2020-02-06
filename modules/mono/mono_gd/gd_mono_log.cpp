@@ -143,7 +143,7 @@ void GDMonoLog::initialize() {
     String log_level = OS::get_singleton()->get_environment("GODOT_MONO_LOG_LEVEL");
 
     if (log_level.length() != 0 && get_log_level_id(log_level.data()) == -1) {
-        ERR_PRINT(String() + "Mono: Ignoring invalid log level (GODOT_MONO_LOG_LEVEL): '" + log_level + "'.")
+        ERR_PRINT(String() + "Mono: Ignoring invalid log level (GODOT_MONO_LOG_LEVEL): '" + log_level + "'.");
         log_level.clear();
 	}
 

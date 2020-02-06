@@ -1207,7 +1207,7 @@ int Animation::track_get_key_count(int p_track) const {
         }
     }
 
-    ERR_FAIL_V(-1)
+    ERR_FAIL_V(-1);
 }
 
 Variant Animation::track_get_key_value(int p_track, int p_key_idx) const {

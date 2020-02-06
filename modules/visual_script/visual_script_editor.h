@@ -309,7 +309,7 @@ public:
     void ensure_focus() override;
     void tag_saved_version() override;
     void reload(bool p_soft) override;
-    void get_breakpoints(List<int> *p_breakpoints) override;
+    void get_breakpoints(PODVector<int> *p_breakpoints) override;
     void add_callback(const StringName &p_function, const PoolVector<String> &p_args) override;
     void update_settings() override;
     bool show_members_overview() override;

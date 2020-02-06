@@ -859,7 +859,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
             if (in_box)
                 gn->set_selected(box_selection_mode_aditive);
             else
-                gn->set_selected(previus_selected.find(gn) != nullptr);
+                gn->set_selected(previus_selected.contains(gn));
         }
 
         top_layer->update();
@@ -877,7 +877,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     if (!gn)
                         continue;
 
-                    gn->set_selected(previus_selected.find(gn) != nullptr);
+                    gn->set_selected(previus_selected.contains(gn));
                 }
                 top_layer->update();
             } else {
@@ -981,24 +981,26 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 if (b->get_control()) {
                     box_selection_mode_aditive = true;
                     previus_selected.clear();
+                    previus_selected.reserve(get_child_count());
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
                         GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2 || !gn2->is_selected())
                             continue;
 
-                        previus_selected.push_back(gn2);
+                        previus_selected.emplace_back(gn2);
                     }
                 } else if (b->get_shift()) {
                     box_selection_mode_aditive = false;
                     previus_selected.clear();
+                    previus_selected.reserve(get_child_count());
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
                         GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2 || !gn2->is_selected())
                             continue;
 
-                        previus_selected.push_back(gn2);
+                        previus_selected.emplace_back(gn2);
                     }
                 } else {
                     box_selection_mode_aditive = true;

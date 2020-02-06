@@ -160,7 +160,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
         // get_method implicitly fetches methods and adds them to this->methods
         GDMonoMethod *method = get_method(raw_method, name);
-        ERR_CONTINUE(!method)
+        ERR_CONTINUE(!method);
 
         if (method->get_name() != name) {
 
@@ -219,7 +219,7 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
                 StringName godot_method_name(CACHED_FIELD(GodotMethodAttribute, methodName)->get_string_value(attr));
 #ifdef DEBUG_ENABLED
-                CRASH_COND(godot_method_name == StringName())
+                CRASH_COND(godot_method_name == StringName());
 #endif
                 MethodKey key = MethodKey(godot_method_name, method->get_parameters_count());
                 auto existing_method = methods.find(key);

@@ -202,7 +202,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
     FileAccess *file = FileAccess::open(filename, FileAccess::WRITE);
 
-    ERR_FAIL_COND_MSG(!file, "Can't save theme to file '" + filename + "'.")
+    ERR_FAIL_COND_MSG(!file, "Can't save theme to file '" + filename + "'."); 
 
     file->store_line("; ******************* ");
     file->store_line("; Template Theme File ");

@@ -1066,7 +1066,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                 Item::CommandPrimitive *primitive = static_cast<Item::CommandPrimitive *>(c);
                 _set_texture_rect_mode(false);
 
-                ERR_CONTINUE(primitive->points.empty())
+                ERR_CONTINUE(primitive->points.empty());
 
                 RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(primitive->texture, primitive->normal_map);
 
@@ -1220,7 +1220,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 
 void RasterizerCanvasGLES3::_copy_texscreen(const Rect2 &p_rect) {
 
-    ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers.")
+    ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers."); 
 
     glDisable(GL_BLEND);
 

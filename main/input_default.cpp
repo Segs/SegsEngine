@@ -1167,7 +1167,7 @@ int InputDefault::get_joy_button_index_from_string(se_string_view p_button) {
             return i;
         }
     }
-    ERR_FAIL_V(-1)
+    ERR_FAIL_V(-1);
 }
 
 int InputDefault::get_unused_joy_id() {
@@ -1191,5 +1191,5 @@ int InputDefault::get_joy_axis_index_from_string(se_string_view p_axis) {
             return i;
         }
     }
-    ERR_FAIL_V(-1)
+    ERR_FAIL_V(-1);
 }

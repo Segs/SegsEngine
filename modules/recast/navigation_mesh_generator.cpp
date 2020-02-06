@@ -86,7 +86,7 @@ void EditorNavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Tra
             index_count = p_mesh->surface_get_array_len(i);
         }
 
-        ERR_CONTINUE((index_count == 0 || (index_count % 3) != 0))
+        ERR_CONTINUE((index_count == 0 || (index_count % 3) != 0));
 
         int face_count = index_count / 3;
 

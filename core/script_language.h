@@ -334,10 +334,10 @@ public:
     virtual int debug_get_stack_level_line(int p_level) const = 0;
     virtual String debug_get_stack_level_function(int p_level) const = 0;
     virtual String debug_get_stack_level_source(int p_level) const = 0;
-    virtual void debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
-    virtual void debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual ScriptInstance *debug_get_stack_level_instance(int /*p_level*/) { return nullptr; }
-    virtual void debug_get_globals(ListPOD<String> *p_globals, DefList<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
+    virtual void debug_get_globals(PODVector<String> *p_globals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) = 0;
     virtual String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) = 0;
 
     struct StackInfo {

@@ -382,10 +382,10 @@ void GDMono::initialize() {
 
     // mscorlib assembly MUST be present at initialization
     bool corlib_loaded = _load_corlib_assembly();
-    ERR_FAIL_COND_MSG(!corlib_loaded, "Mono: Failed to load mscorlib assembly.")
+    ERR_FAIL_COND_MSG(!corlib_loaded, "Mono: Failed to load mscorlib assembly.");
 
     Error domain_load_err = _load_scripts_domain();
-    ERR_FAIL_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.")
+    ERR_FAIL_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.");
 
     _register_internal_calls();
 
@@ -405,7 +405,7 @@ void GDMono::initialize_load_assemblies() {
 
 #if defined(TOOLS_ENABLED)
     bool tool_assemblies_loaded = _load_tools_assemblies();
-    CRASH_COND_MSG(!tool_assemblies_loaded, "Mono: Failed to load '" TOOLS_ASM_NAME "' assemblies.")
+    CRASH_COND_MSG(!tool_assemblies_loaded, "Mono: Failed to load '" TOOLS_ASM_NAME "' assemblies.");
 #endif
 
     // Load the project's main assembly. This doesn't necessarily need to succeed.
@@ -509,7 +509,7 @@ GDMonoAssembly **GDMono::get_loaded_assembly(se_string_view  p_name) {
 
 bool GDMono::load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bool p_refonly) {
 
-    CRASH_COND(!r_assembly)
+    CRASH_COND(!r_assembly);
 
     MonoAssemblyName *aname = mono_assembly_name_new(p_name.c_str());
     bool result = load_assembly(p_name, aname, r_assembly, p_refonly);
@@ -521,7 +521,7 @@ bool GDMono::load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bo
 
 bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly) {
 
-    CRASH_COND(!r_assembly)
+    CRASH_COND(!r_assembly);
 
     print_verbose("Mono: Loading assembly " + p_name + (p_refonly ? " (refonly)" : "") + "...");
 
@@ -648,7 +648,7 @@ bool GDMono::copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, se_str
 
     String assembly_file = assembly_name + ".dll";
     if (da->copy(PathUtils::plus_file(src_dir,assembly_file), PathUtils::plus_file(dst_dir,assembly_file)) != OK) {
-        ERR_PRINT("Failed to copy '" + assembly_file + "'.")
+        ERR_PRINT("Failed to copy '" + assembly_file + "'.");
         return false;
     }
 
@@ -912,19 +912,19 @@ void GDMono::_load_api_assemblies() {
         // this time update them from the prebuilt assemblies directory before trying to load them again.
 
         // Shouldn't happen. The project manager loads the prebuilt API assemblies
-        CRASH_COND_MSG(Main::is_project_manager(), "Failed to load one of the prebuilt API assemblies.")
+        CRASH_COND_MSG(Main::is_project_manager(), "Failed to load one of the prebuilt API assemblies.");
 
         // 1. Unload the scripts domain
         Error domain_unload_err = _unload_scripts_domain();
-        CRASH_COND_MSG(domain_unload_err != OK, "Mono: Failed to unload scripts domain.")
+        CRASH_COND_MSG(domain_unload_err != OK, "Mono: Failed to unload scripts domain.");
 
         // 2. Update the API assemblies
         String update_error = update_api_assemblies_from_prebuilt("Debug", &core_api_assembly.out_of_sync, &editor_api_assembly.out_of_sync);
-        CRASH_COND_MSG(!update_error.empty(), update_error)
+        CRASH_COND_MSG(!update_error.empty(), update_error);
 
         // 3. Load the scripts domain again
         Error domain_load_err = _load_scripts_domain();
-        CRASH_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.")
+        CRASH_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.");
 
         // 4. Try loading the updated assemblies
         api_assemblies_loaded = _try_load_api_assemblies_preset();
@@ -936,20 +936,20 @@ void GDMono::_load_api_assemblies() {
 
         if (_are_api_assemblies_out_of_sync()) {
             if (core_api_assembly.out_of_sync) {
-                ERR_PRINT("The assembly '" CORE_API_ASSEMBLY_NAME "' is out of sync.")
+                ERR_PRINT("The assembly '" CORE_API_ASSEMBLY_NAME "' is out of sync.");
             } else if (!GDMonoCache::cached_data.godot_api_cache_updated) {
-                ERR_PRINT("The loaded assembly '" CORE_API_ASSEMBLY_NAME "' is in sync, but the cache update failed.")
+                ERR_PRINT("The loaded assembly '" CORE_API_ASSEMBLY_NAME "' is in sync, but the cache update failed.");
             }
 
 #ifdef TOOLS_ENABLED
             if (editor_api_assembly.out_of_sync) {
-                ERR_PRINT("The assembly '" EDITOR_API_ASSEMBLY_NAME "' is out of sync.")
+                ERR_PRINT("The assembly '" EDITOR_API_ASSEMBLY_NAME "' is out of sync.");
             }
 #endif
 
-            CRASH_NOW()
+            CRASH_NOW();
         } else {
-            CRASH_NOW_MSG("Failed to load one of the API assemblies.")
+            CRASH_NOW_MSG("Failed to load one of the API assemblies.");
         }
     }
 }
@@ -1236,7 +1236,7 @@ GDMono::~GDMono() {
         if (scripts_domain) {
             Error err = _unload_scripts_domain();
             if (err != OK) {
-                ERR_PRINT("Mono: Failed to unload scripts domain.")
+                ERR_PRINT("Mono: Failed to unload scripts domain.");
             }
         }
 
@@ -1283,14 +1283,14 @@ void _GodotSharp::detach_thread() {
 int32_t _GodotSharp::get_domain_id() {
 
     MonoDomain *domain = mono_domain_get();
-    CRASH_COND(!domain) // User must check if runtime is initialized before calling this method
+    CRASH_COND(!domain); // User must check if runtime is initialized before calling this method
     return mono_domain_get_id(domain);
 }
 
 int32_t _GodotSharp::get_scripts_domain_id() {
 
     MonoDomain *domain = GDMono::get_singleton()->get_scripts_domain();
-    CRASH_COND(!domain) // User must check if scripts domain is loaded before calling this method
+    CRASH_COND(!domain); // User must check if scripts domain is loaded before calling this method
     return mono_domain_get_id(domain);
 }
 

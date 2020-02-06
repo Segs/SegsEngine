@@ -181,7 +181,7 @@ public:
         DummyTexture *t = texture_owner.get(p_texture);
 
         ERR_FAIL_COND(!t)
-        ERR_FAIL_COND_MSG(not p_image, "It's not a reference to a valid Image object.")
+        ERR_FAIL_COND_MSG(not p_image, "It's not a reference to a valid Image object."); 
         ERR_FAIL_COND(t->format != p_image->get_format())
         ERR_FAIL_COND(src_w <= 0 || src_h <= 0)
         ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height())

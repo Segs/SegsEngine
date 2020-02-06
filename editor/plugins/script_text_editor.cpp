@@ -808,7 +808,7 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
         if (last_date != date) {
 
             Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), String(script->get_class()), true));
-            ERR_CONTINUE(not rel_script)
+            ERR_CONTINUE(not rel_script);
             script->set_source_code(String(rel_script->get_source_code()));
             script->set_last_modified_time(rel_script->get_last_modified_time());
             script->update_exports();
@@ -1299,11 +1299,10 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case DEBUG_REMOVE_ALL_BREAKPOINTS: {
 
-            List<int> bpoints;
+            PODVector<int> bpoints;
             tx->get_breakpoints(&bpoints);
 
-            for (List<int>::Element *E = bpoints.front(); E; E = E->next()) {
-                int line = E->deref();
+            for (int line : bpoints) {
                 bool dobreak = !tx->is_line_set_as_breakpoint(line);
                 tx->set_line_as_breakpoint(line, dobreak);
                 ScriptEditor::get_singleton()->get_debugger()->set_breakpoint(script->get_path(), line + 1, dobreak);
@@ -1311,7 +1310,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case DEBUG_GOTO_NEXT_BREAKPOINT: {
 
-            List<int> bpoints;
+            PODVector<int> bpoints;
             tx->get_breakpoints(&bpoints);
             if (bpoints.empty()) {
                 return;
@@ -1325,8 +1324,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 tx->cursor_set_line(bpoints[0]);
                 tx->center_viewport_to_cursor();
             } else {
-                for (List<int>::Element *E = bpoints.front(); E; E = E->next()) {
-                    int bline = E->deref();
+                for (int bline : bpoints) {
                     if (bline > line) {
                         tx->unfold_line(bline);
                         tx->cursor_set_line(bline);
@@ -1339,7 +1337,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case DEBUG_GOTO_PREV_BREAKPOINT: {
 
-            List<int> bpoints;
+            PODVector<int> bpoints;
             tx->get_breakpoints(&bpoints);
             if (bpoints.empty()) {
                 return;
@@ -1352,8 +1350,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 tx->cursor_set_line(bpoints[bpoints.size() - 1]);
                 tx->center_viewport_to_cursor();
             } else {
-                for (List<int>::Element *E = bpoints.back(); E; E = E->prev()) {
-                    int bline = E->deref();
+                for (int bline : bpoints) {
                     if (bline < line) {
                         tx->unfold_line(bline);
                         tx->cursor_set_line(bline);
@@ -1474,7 +1471,7 @@ void ScriptTextEditor::reload(bool p_soft) {
     scr->get_language()->reload_tool_script(scr, soft);
 }
 
-void ScriptTextEditor::get_breakpoints(List<int> *p_breakpoints) {
+void ScriptTextEditor::get_breakpoints(PODVector<int> *p_breakpoints) {
 
     code_editor->get_text_edit()->get_breakpoints(p_breakpoints);
 }

@@ -252,8 +252,8 @@ private:
 
     void call_libraries_cb(const StringName &name);
 
-    Vector<Pair<bool, godot_instance_binding_functions> > binding_functions;
-    Set<Vector<void *> *> binding_instances;
+    PODVector<Pair<bool, godot_instance_binding_functions> > binding_functions;
+    Set<PODVector<void *> *> binding_instances;
 
     Map<int, HashMap<StringName, const void *> > global_type_tags;
 
@@ -331,9 +331,9 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_stack_level_members(int p_level, List<se_string_view> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_locals(int p_level, PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_members(int p_level, PODVector<se_string_view> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_globals(PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) override;
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
@@ -394,5 +394,5 @@ public:
 class ResourceFormatSaverNativeScript : public ResourceFormatSaver {
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
-    void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, PODVector<String> *p_extensions) const override;
 };

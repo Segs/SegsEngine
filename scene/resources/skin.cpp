@@ -53,13 +53,13 @@ void Skin::add_bind(int p_bone, const Transform &p_pose) {
 }
 
 void Skin::set_bind_bone(int p_index, int p_bone) {
-    ERR_FAIL_INDEX(p_index, bind_count)
+    ERR_FAIL_INDEX(p_index, bind_count);
     binds_ptr[p_index].bone = p_bone;
     emit_changed();
 }
 
 void Skin::set_bind_pose(int p_index, const Transform &p_pose) {
-    ERR_FAIL_INDEX(p_index, bind_count)
+    ERR_FAIL_INDEX(p_index, bind_count);
     binds_ptr[p_index].pose = p_pose;
     emit_changed();
 }

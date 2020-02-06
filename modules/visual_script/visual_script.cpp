@@ -65,7 +65,7 @@ void VisualScriptNode::ports_changed_notify() {
 
 void VisualScriptNode::set_default_input_value(int p_port, const Variant &p_value) {
 
-    ERR_FAIL_INDEX(p_port, default_input_values.size())
+    ERR_FAIL_INDEX(p_port, default_input_values.size());
 
     default_input_values[p_port] = p_value;
 
@@ -338,7 +338,7 @@ void VisualScript::add_node(const StringName &p_func, int p_id, const Ref<Visual
 
     if (object_cast<VisualScriptFunction>(p_node.get())) {
         //the function indeed
-        ERR_FAIL_COND_MSG(func.function_id >= 0, "A function node has already been set here.")
+        ERR_FAIL_COND_MSG(func.function_id >= 0, "A function node has already been set here.");
 
         func.function_id = p_id;
     }
@@ -763,7 +763,7 @@ void VisualScript::custom_signal_set_argument_type(const StringName &p_func, int
 
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
-    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
+    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
     custom_signals[p_func][p_argidx].type = p_type;
 }
 VariantType VisualScript::custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const {
@@ -775,7 +775,7 @@ VariantType VisualScript::custom_signal_get_argument_type(const StringName &p_fu
 void VisualScript::custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const StringName &p_name) {
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
-    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
+    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
     custom_signals[p_func][p_argidx].name = p_name;
 }
 se_string_view VisualScript::custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const {
@@ -788,7 +788,7 @@ void VisualScript::custom_signal_remove_argument(const StringName &p_func, int p
 
     ERR_FAIL_COND(instances.size())
     ERR_FAIL_COND(!custom_signals.contains(p_func))
-    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size())
+    ERR_FAIL_INDEX(p_argidx, custom_signals[p_func].size());
     custom_signals[p_func].erase_at(p_argidx);
 }
 
@@ -1435,7 +1435,7 @@ VariantType VisualScriptInstance::get_property_type(const StringName &p_name, bo
     if (E==script->variables.end()) {
         if (r_is_valid)
             *r_is_valid = false;
-        ERR_FAIL_V(VariantType::NIL)
+        ERR_FAIL_V(VariantType::NIL);
     }
 
     if (r_is_valid)
@@ -1903,7 +1903,7 @@ Variant VisualScriptInstance::_call_internal(const StringName &p_method, void *p
 
         if (!VisualScriptLanguage::singleton->debug_break(error_str, false)) {
 
-            _err_print_error(err_func, err_file, err_line, error_str,{ }, ERR_HANDLER_SCRIPT);
+            _err_print_error(err_func.c_str(), err_file.c_str(), err_line, error_str,{ }, ERR_HANDLER_SCRIPT);
         }
 
         //}
@@ -1976,7 +1976,7 @@ Variant VisualScriptInstance::call(const StringName &p_method, const Variant **p
     if (E==instances.end()) {
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
 
-        ERR_FAIL_V_MSG(Variant(), "No VisualScriptFunction node in function.")
+        ERR_FAIL_V_MSG(Variant(), "No VisualScriptFunction node in function.");
     }
 
     VisualScriptNodeInstance *node = E->second;
@@ -2032,7 +2032,7 @@ String VisualScriptInstance::to_string(bool *r_valid) {
             if (ret.get_type() != VariantType::STRING) {
                 if (r_valid)
                     *r_valid = false;
-                ERR_FAIL_V_MSG(String(), String("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.")
+                ERR_FAIL_V_MSG(String(), String("Wrong type for ") + CoreStringNames::get_singleton()->_to_string + ", must be a String.");
             }
             if (r_valid)
                 *r_valid = true;
@@ -2120,7 +2120,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
         if (function.node < 0) {
             VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No start node in function: " + String(E.first));
 
-            ERR_CONTINUE(function.node < 0)
+            ERR_CONTINUE(function.node < 0);
         }
 
         {
@@ -2130,7 +2130,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
                 VisualScriptLanguage::singleton->debug_break_parse(get_script()->get_path(), 0, "No VisualScriptFunction typed start node in function: " + String(E.first));
             }
 
-            ERR_CONTINUE(not func_node)
+            ERR_CONTINUE(not func_node);
 
             function.argument_count = func_node->get_argument_count();
             function.max_stack += function.argument_count;
@@ -2247,11 +2247,11 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
 
         for (const VisualScript::SequenceConnection &sc : E.second.sequence_connections) {
 
-            ERR_CONTINUE(!instances.contains(sc.from_node))
+            ERR_CONTINUE(!instances.contains(sc.from_node));
             VisualScriptNodeInstance *from = instances[sc.from_node];
-            ERR_CONTINUE(!instances.contains(sc.to_node))
+            ERR_CONTINUE(!instances.contains(sc.to_node));
             VisualScriptNodeInstance *to = instances[sc.to_node];
-            ERR_CONTINUE(sc.from_output >= from->sequence_output_count)
+            ERR_CONTINUE(sc.from_output >= from->sequence_output_count);
 
             from->sequence_outputs[sc.from_output] = to;
         }
@@ -2262,7 +2262,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
 
         for (const eastl::pair<const int,VisualScript::Function::NodeData> &F : E.second.nodes) {
 
-            ERR_CONTINUE(!instances.contains(F.first))
+            ERR_CONTINUE(!instances.contains(F.first));
 
             Ref<VisualScriptNode> node = F.second.node;
             VisualScriptNodeInstance *instance = instances[F.first];
@@ -2582,12 +2582,12 @@ String VisualScriptLanguage::debug_get_stack_level_source(int p_level) const {
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].instance->get_script_ptr()->get_path();
 }
-void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
 
-    ERR_FAIL_INDEX(p_level, _debug_call_stack_pos)
+    ERR_FAIL_INDEX(p_level, _debug_call_stack_pos);
 
     int l = _debug_call_stack_pos - p_level - 1;
     const StringName *f = _call_stack[l].function;
@@ -2657,12 +2657,12 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, ListPOD<Str
     }
 */
 }
-void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<String> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
 
-    ERR_FAIL_INDEX(p_level, _debug_call_stack_pos)
+    ERR_FAIL_INDEX(p_level, _debug_call_stack_pos);
     int l = _debug_call_stack_pos - p_level - 1;
 
     Ref<VisualScript> vs = dynamic_ref_cast<VisualScript>(_call_stack[l].instance->get_script());
@@ -2680,7 +2680,7 @@ void VisualScriptLanguage::debug_get_stack_level_members(int p_level, ListPOD<St
     }
 }
 
-void VisualScriptLanguage::debug_get_globals(ListPOD<String> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_globals(PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     //no globals are really reachable in gdscript
 }

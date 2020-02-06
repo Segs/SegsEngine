@@ -1071,7 +1071,7 @@ Error Expression::_get_token(Token &r_token) {
                                         v = c - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG")
+                                        ERR_PRINT("BUG");
                                         v = 0;
                                     }
 

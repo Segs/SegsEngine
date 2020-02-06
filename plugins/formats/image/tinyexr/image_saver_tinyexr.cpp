@@ -230,7 +230,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
                 }
 
             } else {
-                CRASH_NOW()
+                CRASH_NOW();
             }
 
             int remapped_index = channel_mapping[channel_index];

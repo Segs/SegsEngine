@@ -1463,7 +1463,7 @@ void SceneTree::_flush_delete_queue() {
 void SceneTree::queue_delete(Object *p_object) {
 
     _THREAD_SAFE_METHOD_
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     p_object->deleteLater();
     delete_queue.push_back(p_object->get_instance_id());
 }
@@ -2086,7 +2086,7 @@ SceneTree::SceneTree() {
                     ProjectSettings::get_singleton()->set("rendering/environment/default_environment", "");
                 } else {
                     //file was erased, notify user.
-                    ERR_PRINT(RTR("Default Environment as specified in Project Settings (Rendering -> Environment -> Default Environment) could not be loaded."))
+                    ERR_PRINT(RTR("Default Environment as specified in Project Settings (Rendering -> Environment -> Default Environment) could not be loaded."));
                 }
             }
         }

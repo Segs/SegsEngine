@@ -91,7 +91,7 @@ static int _get_datatype_size(SL::DataType p_type) {
         case SL::TYPE_SAMPLERCUBE: return 16;
     }
 
-    ERR_FAIL_V(0)
+    ERR_FAIL_V(0);
 }
 
 static int _get_datatype_alignment(SL::DataType p_type) {
@@ -130,7 +130,7 @@ static int _get_datatype_alignment(SL::DataType p_type) {
         case SL::TYPE_SAMPLERCUBE: return 16;
     }
 
-    ERR_FAIL_V(0)
+    ERR_FAIL_V(0);
 }
 static se_string_view _interpstr(SL::DataInterpolation p_interp) {
 
@@ -264,7 +264,7 @@ static String get_constant_text(SL::DataType p_type, const PODVector<SL::Constan
 
         }
         default:
-            ERR_FAIL_V(String())
+            ERR_FAIL_V(String());
     }
 }
 

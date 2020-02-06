@@ -383,7 +383,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                 } break;
                 default: {
 
-                    ERR_FAIL_V(ERR_FILE_CORRUPT)
+                    ERR_FAIL_V(ERR_FILE_CORRUPT);
                 } break;
             }
 
@@ -508,7 +508,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector2 size is NOT 8!")
+                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector2 size is NOT 8!");
             }
             w.release();
             r_v = Variant(array);
@@ -535,7 +535,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!")
+                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!");
             }
             w.release();
             r_v = array;
@@ -562,13 +562,13 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 #endif
 
             } else {
-                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Color size is NOT 16!")
+                ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Color size is NOT 16!");
             }
             w.release();
             r_v = array;
         } break;
         default: {
-            ERR_FAIL_V(ERR_FILE_CORRUPT)
+            ERR_FAIL_V(ERR_FILE_CORRUPT);
         }
     }
 
@@ -607,7 +607,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
             } else {
 
                 error = ERR_FILE_MISSING_DEPENDENCIES;
-                ERR_FAIL_V_MSG(error, "Can't load dependency: " + path + ".")
+                ERR_FAIL_V_MSG(error, "Can't load dependency: " + path + ".");
             }
 
         } else {
@@ -662,7 +662,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
     Object *obj = ClassDB::instance(StringName(t));
     if (!obj) {
         error = ERR_FILE_CORRUPT;
-        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource of unrecognized type in file: " + t + ".")
+        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource of unrecognized type in file: " + t + ".");
     }
 
     Resource *r = object_cast<Resource>(obj);
@@ -670,7 +670,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
         const char *obj_class = obj->get_class();
         error = ERR_FILE_CORRUPT;
         memdelete(obj); //bye
-        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource type in resource field not a resource, type is: " + obj_class + ".")
+        ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, local_path + ":Resource type in resource field not a resource, type is: " + obj_class + ".");
     }
 
     RES res(r);
@@ -688,7 +688,7 @@ Error ResourceInteractiveLoaderBinary::poll() {
 
         if (name == StringName()) {
             error = ERR_FILE_CORRUPT;
-            ERR_FAIL_V(ERR_FILE_CORRUPT)
+            ERR_FAIL_V(ERR_FILE_CORRUPT);
         }
 
         Variant value;
@@ -795,7 +795,7 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
         //not normal
 
         error = ERR_FILE_UNRECOGNIZED;
-        ERR_FAIL_MSG("Unrecognized binary resource file: " + local_path + ".")
+        ERR_FAIL_MSG("Unrecognized binary resource file: " + local_path + ".");
     }
 
     bool big_endian = f->get_32();
@@ -977,7 +977,7 @@ bool ResourceFormatLoaderBinary::handles_type(se_string_view /*p_type*/) const {
 void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + String(p_path) + "'.")
+    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + String(p_path) + "'.");
 
     Ref<ResourceInteractiveLoaderBinary> ria(make_ref_counted<ResourceInteractiveLoaderBinary>());
     ria->local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -1021,7 +1021,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
 
         //error=ERR_FILE_UNRECOGNIZED;
         memdelete(f);
-        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unrecognized binary resource file '" + local_path + "'.")
+        ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Unrecognized binary resource file '" + local_path + "'.");
     } else {
         fw = FileAccess::open(p_path + ".depren", FileAccess::WRITE);
         if (!fw) {
@@ -1432,7 +1432,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
 
                 if (!resource_set.contains(res)) {
                     f->store_32(OBJECT_EMPTY);
-                    ERR_FAIL_MSG("Resource was not pre cached for the resource section, most likely due to circular reference.")
+                    ERR_FAIL_MSG("Resource was not pre cached for the resource section, most likely due to circular reference.");
                 }
 
                 f->store_32(OBJECT_INTERNAL_RESOURCE);
@@ -1562,7 +1562,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         default: {
 
-            ERR_FAIL_MSG("Invalid variant.")
+            ERR_FAIL_MSG("Invalid variant.");
         }
     }
 }
@@ -1581,7 +1581,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
                     !StringUtils::contains(res->get_path(), "::")) {
                 if (res->get_path() == path) {
                     ERR_PRINT("Circular reference to resource being saved found: '" + local_path +
-                              "' will be null next time it's loaded.")
+                              "' will be null next time it's loaded.");
                     return;
                 }
                 int idx = external_resources.size();

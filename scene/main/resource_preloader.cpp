@@ -49,7 +49,7 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
         StringName name(names[i]);
         RES resource(refFromRefPtr<Resource>(resdata[i]));
-        ERR_CONTINUE(not resource)
+        ERR_CONTINUE(not resource);
         resources[name] = resource;
 
         //add_resource(name,resource);

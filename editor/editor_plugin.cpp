@@ -142,7 +142,7 @@ PODVector<Ref<Texture>> EditorInterface::make_mesh_previews(const PODVector<Ref<
         Main::iteration();
         Main::iteration();
         Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-        ERR_CONTINUE(not img || img->empty())
+        ERR_CONTINUE(not img || img->empty());
         Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
         it->create_from_image(img);
 
@@ -698,7 +698,7 @@ void EditorPlugin::apply_changes() {
     }
 }
 
-void EditorPlugin::get_breakpoints(List<String> *p_breakpoints) {
+void EditorPlugin::get_breakpoints(PODVector<String> *p_breakpoints) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_breakpoints")) {
         PoolVector<String> arr(get_script_instance()->call("get_breakpoints").as<PoolVector<String>>());

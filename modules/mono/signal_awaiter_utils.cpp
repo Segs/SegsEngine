@@ -142,7 +142,7 @@ SignalAwaiterHandle::~SignalAwaiterHandle() {
 
             if (exc) {
                 GDMonoUtils::set_pending_exception(exc);
-                ERR_FAIL()
+                ERR_FAIL();
             }
         }
     }

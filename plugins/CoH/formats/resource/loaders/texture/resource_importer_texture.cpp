@@ -145,18 +145,18 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     TexFileHdr hdr;
     f->get_buffer((uint8_t *)&hdr, sizeof(TexFileHdr));
     if (0 != memcmp(hdr.magic, "TX2", 3))
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.");
 
     int name_bytes = hdr.header_size - sizeof(TexFileHdr);
     String data;
     data.resize(name_bytes);
 
     if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes))
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.");
 
     if(PathUtils::get_extension(data)!=se_string_view("dds"))
     {
-        ERR_FAIL_V_MSG(RES(), "Only embedded dds textures are supported for now.")
+        ERR_FAIL_V_MSG(RES(), "Only embedded dds textures are supported for now.");
     }
 
     uint32_t magic = f->get_32();
@@ -176,7 +176,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
 
     if (magic != DDS_MAGIC || hsize != 124 || !(flags & DDSD_PIXELFORMAT) || !(flags & DDSD_CAPS)) {
 
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported DDS texture file '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported DDS texture file '" + p_path + "'.");
     }
 
     /* uint32_t format_size = */ f->get_32();
@@ -265,7 +265,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     } else {
 
         printf("unrecognized fourcc %x format_flags: %x - rgbbits %i - red_mask %x green mask %x blue mask %x alpha mask %x\n", format_fourcc, format_flags, format_rgb_bits, format_red_mask, format_green_mask, format_blue_mask, format_alpha_mask);
-        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.");
     }
 
     if (!(flags & DDSD_MIPMAPCOUNT))

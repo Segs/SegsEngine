@@ -371,7 +371,7 @@ Color Color::html(se_string_view p_color) {
     } else if (p_color.length() == 6) {
         alpha = false;
     } else {
-        ERR_FAIL_V_MSG(Color(), errcode + p_color + ".")
+        ERR_FAIL_V_MSG(Color(), errcode + p_color + ".");
     }
 
     int a = 255;

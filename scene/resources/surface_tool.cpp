@@ -387,7 +387,7 @@ Array SurfaceTool::commit_to_arrays() {
                 for (const Vertex &v : vertex_array) {
 
                     idx += 4;
-                    ERR_CONTINUE(v.bones.size() != 4)
+                    ERR_CONTINUE(v.bones.size() != 4);
 
                     for (int j = 0; j < 4; j++) {
                         w[idx + j] = v.bones[j];
@@ -407,7 +407,7 @@ Array SurfaceTool::commit_to_arrays() {
                 int idx = -4;
                 for (const Vertex &v : vertex_array) {
                     idx += 4;
-                    ERR_CONTINUE(v.weights.size() != 4)
+                    ERR_CONTINUE(v.weights.size() != 4);
 
                     for (int j = 0; j < 4; j++) {
 
@@ -421,7 +421,7 @@ Array SurfaceTool::commit_to_arrays() {
             } break;
             case Mesh::ARRAY_INDEX: {
 
-                ERR_CONTINUE(index_array.empty())
+                ERR_CONTINUE(index_array.empty());
 
                 PoolVector<int> array;
                 array.resize(index_array.size());
@@ -510,7 +510,7 @@ void SurfaceTool::deindex() {
     vertex_array.assign(vertex_array.begin(),vertex_array.end());
     vertex_array.clear();
     for (int E : index_array) {
-        ERR_FAIL_INDEX(E, varr.size())
+        ERR_FAIL_INDEX(E, varr.size());
         vertex_array.emplace_back(varr[E]);
     }
     format &= ~Mesh::ARRAY_FORMAT_INDEX;

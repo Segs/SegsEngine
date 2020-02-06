@@ -44,7 +44,7 @@ class GODOT_EXPORT ScriptDebuggerLocal : public ScriptDebugger {
     PODVector<ScriptLanguage::ProfilingInfo> pinfo;
 
     Pair<String, int> to_breakpoint(const String &p_line);
-    void print_variables(const ListPOD<String> &names, const List<Variant> &values, se_string_view variable_prefix);
+    void print_variables(const PODVector<String> &names, const PODVector<Variant> &values, se_string_view variable_prefix);
 
 public:
     void debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) override;

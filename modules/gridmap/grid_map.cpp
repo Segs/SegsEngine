@@ -80,7 +80,7 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
         for (int i = 0; i < meshes.size(); i++) {
             BakedMesh bm;
             bm.mesh = refFromRefPtr<Mesh>(meshes[i]);
-            ERR_CONTINUE(not bm.mesh)
+            ERR_CONTINUE(not bm.mesh);
             auto vserver=VisualServer::get_singleton();
             bm.instance = vserver->instance_create();
             vserver->get_singleton()->instance_set_base(bm.instance, bm.mesh->get_rid());
@@ -278,9 +278,9 @@ void GridMap::set_cell_item(int p_x, int p_y, int p_z, int p_item, int p_rot) {
         _recreate_octant_data();
     }
 
-    ERR_FAIL_INDEX(ABS(p_x), 1 << 20)
-    ERR_FAIL_INDEX(ABS(p_y), 1 << 20)
-    ERR_FAIL_INDEX(ABS(p_z), 1 << 20)
+    ERR_FAIL_INDEX(ABS(p_x), 1 << 20);
+    ERR_FAIL_INDEX(ABS(p_y), 1 << 20);
+    ERR_FAIL_INDEX(ABS(p_z), 1 << 20);
 
     IndexKey key;
     key.x = p_x;
@@ -460,7 +460,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
 
     for (IndexKey E : g.cells) {
 
-        ERR_CONTINUE(!cell_map.contains(E))
+        ERR_CONTINUE(!cell_map.contains(E));
         const Cell &c = cell_map[E];
 
         if (not mesh_library || !mesh_library->has_item(c.item))

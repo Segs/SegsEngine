@@ -243,7 +243,7 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
             int x = slice_w * j;
             int y = slice_h * i;
             Ref<Image> slice = image->get_rect(Rect2(x, y, slice_w, slice_h));
-            ERR_CONTINUE(not slice || slice->empty())
+            ERR_CONTINUE(not slice || slice->empty());
             if (slice->get_width() != slice_w || slice->get_height() != slice_h) {
                 slice->resize(slice_w, slice_h);
             }

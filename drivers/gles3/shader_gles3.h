@@ -288,7 +288,7 @@ private:
                 glUniformMatrix4fv(p_uniform, 1, false, matrix);
             } break;
             default: {
-                ERR_FAIL()
+                ERR_FAIL();
             } // do nothing
         }
     }
@@ -386,7 +386,7 @@ int ShaderGLES3::_get_uniform(int p_which) const {
 
 void ShaderGLES3::_set_conditional(int p_which, bool p_value) {
 
-    ERR_FAIL_INDEX(p_which, conditional_count)
+    ERR_FAIL_INDEX(p_which, conditional_count);
     if (p_value)
         new_conditional_version.version |= (1 << p_which);
     else

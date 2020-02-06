@@ -698,9 +698,9 @@ void Curve2D::_bake() const {
     }
 
     Vector2 pos = points[0].pos;
-    List<Vector2> pointlist;
 
-    pointlist.push_back(pos); //start always from origin
+    //start always from origin
+    PODVector<Vector2> pointlist {pos};
 
     for (int i = 0; i < points.size() - 1; i++) {
 
@@ -739,7 +739,7 @@ void Curve2D::_bake() const {
 
                 pos = npp;
                 p = mid;
-                pointlist.push_back(pos);
+                pointlist.emplace_back(pos);
             } else {
 
                 p = np;
@@ -751,17 +751,12 @@ void Curve2D::_bake() const {
 
     float rem = pos.distance_to(lastpos);
     baked_max_ofs = (pointlist.size() - 1) * bake_interval + rem;
-    pointlist.push_back(lastpos);
+    pointlist.emplace_back(lastpos);
 
     baked_point_cache.resize(pointlist.size());
     PoolVector2Array::Write w = baked_point_cache.write();
-    int idx = 0;
 
-    for (List<Vector2>::Element *E = pointlist.front(); E; E = E->next()) {
-
-        w[idx] = E->deref();
-        idx++;
-    }
+    memcpy(w.ptr(),points.data(),points.size()*sizeof(Vector2));
 }
 
 float Curve2D::get_baked_length() const {
@@ -1212,8 +1207,8 @@ void Curve3D::_bake() const {
     }
 
     Vector3 pos = points[0].pos;
-    List<Plane> pointlist;
-    pointlist.push_back(Plane(pos, points[0].tilt));
+    PODVector<Plane> pointlist {Plane(pos, points[0].tilt)};
+    // TODO: SEGS: consider calculating size to reserve in pointlist
 
     for (int i = 0; i < points.size() - 1; i++) {
 
@@ -1255,7 +1250,7 @@ void Curve3D::_bake() const {
                 Plane post;
                 post.normal = pos;
                 post.d = Math::lerp(points[i].tilt, points[i + 1].tilt, mid);
-                pointlist.push_back(post);
+                pointlist.emplace_back(post);
             } else {
 
                 p = np;
@@ -1268,7 +1263,7 @@ void Curve3D::_bake() const {
 
     float rem = pos.distance_to(lastpos);
     baked_max_ofs = (pointlist.size() - 1) * bake_interval + rem;
-    pointlist.push_back(Plane(lastpos, lastilt));
+    pointlist.emplace_back(lastpos, lastilt);
 
     baked_point_cache.resize(pointlist.size());
     PoolVector3Array::Write w = baked_point_cache.write();
@@ -1288,10 +1283,10 @@ void Curve3D::_bake() const {
     Vector3 prev_up = Vector3(0, 1, 0);
     Vector3 prev_forward = Vector3(0, 0, 1);
 
-    for (List<Plane>::Element *E = pointlist.front(); E; E = E->next()) {
+    for (const Plane &E : pointlist) {
 
-        w[idx] = E->deref().normal;
-        wt[idx] = E->deref().d;
+        w[idx] = E.normal;
+        wt[idx] = E.d;
 
         if (!up_vector_enabled) {
             idx++;

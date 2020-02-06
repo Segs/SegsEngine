@@ -257,7 +257,7 @@ public:
     bool is_tile_bound(int p_drawn_id, int p_neighbor_id);
 
     int find_tile_by_name(se_string_view p_name) const;
-    void get_tile_list(List<int> *p_tiles) const;
+    void get_tile_list(PODVector<int> *p_tiles) const;
 
     void clear();
 

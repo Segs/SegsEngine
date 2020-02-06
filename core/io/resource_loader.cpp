@@ -314,7 +314,7 @@ RES ResourceLoader::_load(se_string_view p_path, se_string_view p_original_path,
     FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
     ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
 #endif
-    ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".")
+    ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".");
 }
 
 bool ResourceLoader::_add_to_loading_map(se_string_view p_path) {
@@ -426,7 +426,7 @@ RES ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, bool
         if (!p_no_cache) {
             _remove_from_loading_map(local_path);
         }
-        ERR_FAIL_V_MSG(RES(), "Remapping '" + local_path + "' failed.")
+        ERR_FAIL_V_MSG(RES(), "Remapping '" + local_path + "' failed.");
     }
 
     print_verbose("Loading resource: " + path);
@@ -530,7 +530,7 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(se_string_view p
         if (!p_no_cache) {
             _remove_from_loading_map(local_path);
         }
-        ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "Remapping '" + local_path + "' failed.")
+        ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "Remapping '" + local_path + "' failed.");
     }
 
     print_verbose("Loading resource: " + path);
@@ -562,7 +562,7 @@ Ref<ResourceInteractiveLoader> ResourceLoader::load_interactive(se_string_view p
 
     ERR_FAIL_COND_V_MSG(found, Ref<ResourceInteractiveLoader>(), "Failed loading resource: " + path + ".");
 
-    ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "No loader found for resource: " + path + ".")
+    ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "No loader found for resource: " + path + ".");
 }
 
 void ResourceLoader::add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front) {
@@ -886,7 +886,7 @@ String ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation_re
                 if (err == ERR_FILE_EOF) {
                     break;
                 } else if (err != OK) {
-                    ERR_PRINT("Parse error: " + String(p_path) + ".remap:" + ::to_string(lines) + " error: " + error_text + ".")
+                    ERR_PRINT("Parse error: " + String(p_path) + ".remap:" + ::to_string(lines) + " error: " + error_text + ".");
                     break;
                 }
 
@@ -925,11 +925,11 @@ void ResourceLoader::reload_translation_remaps() {
         ResourceCache::lock->read_lock();
     }
 
-    List<Resource *> to_reload;
+    PODVector<Resource *> to_reload;
     SelfList<Resource> *E = remapped_list.first();
 
     while (E) {
-        to_reload.push_back(E->self());
+        to_reload.emplace_back(E->self());
         E = E->next();
     }
 
@@ -938,9 +938,8 @@ void ResourceLoader::reload_translation_remaps() {
     }
 
     //now just make sure to not delete any of these resources while changing locale..
-    while (to_reload.front()) {
-        to_reload.front()->deref()->reload_from_file();
-        to_reload.pop_front();
+    for(Resource * r: to_reload) {
+        r->reload_from_file();
     }
 }
 
@@ -1084,7 +1083,7 @@ void ResourceLoader::finalize() {
 #ifndef NO_THREADS
     const LoadingMapKey *K = nullptr;
     while ((K = loading_map.next(K))) {
-        ERR_PRINT("Exited while resource is being loaded: " + K->path)
+        ERR_PRINT("Exited while resource is being loaded: " + K->path);
     }
     loading_map.clear();
     memdelete(loading_map_mutex);

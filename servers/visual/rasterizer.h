@@ -97,10 +97,10 @@ public:
 
         //RID sampled_light;
 
-        Vector<RID> materials;
-        Vector<RID> light_instances;
-        Vector<RID> reflection_probe_instances;
-        Vector<RID> gi_probe_instances;
+        PoolVector<RID> materials;
+        PoolVector<RID> light_instances;
+        PoolVector<RID> reflection_probe_instances;
+        PoolVector<RID> gi_probe_instances;
 
         PODVector<float> blend_values;
 

@@ -280,7 +280,7 @@ String mono_to_utf8_string(MonoString *p_mono_string) {
     char *utf8 = mono_string_to_utf8_checked(p_mono_string, &error);
 
     if (!mono_error_ok(&error)) {
-        ERR_PRINT(String() + "Failed to convert MonoString* to UTF-8: '" + mono_error_get_message(&error) + "'.")
+        ERR_PRINT(String() + "Failed to convert MonoString* to UTF-8: '" + mono_error_get_message(&error) + "'.");
         mono_error_cleanup(&error);
         return String();
     }
@@ -507,7 +507,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             if (array_type->eklass == CACHED_CLASS_RAW(Color))
                 return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
 
-            ERR_FAIL_V_MSG(nullptr, "Attempted to convert Variant to a managed array of unmarshallable element type.")
+            ERR_FAIL_V_MSG(nullptr, "Attempted to convert Variant to a managed array of unmarshallable element type.");
             break;
         }
 
@@ -803,7 +803,7 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
                 return mono_array_to_PoolColorArray((MonoArray *)p_obj);
 
             if (p_fail_with_err) {
-                ERR_FAIL_V_MSG(Variant(), "Attempted to convert a managed array of unmarshallable element type to Variant.")
+                ERR_FAIL_V_MSG(Variant(), "Attempted to convert a managed array of unmarshallable element type to Variant.");
             } else {
                 return Variant();
             }
@@ -906,7 +906,7 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
 
     if (p_fail_with_err) {
         ERR_FAIL_V_MSG(Variant(), "Attempted to convert an unmarshallable managed type to Variant. Name: '" +
-                                          p_type.type_class->get_name() + "' Encoding: " + itos(p_type.type_encoding) + ".")
+                                          p_type.type_class->get_name() + "' Encoding: " + itos(p_type.type_encoding) + ".");
     } else {
         return Variant();
     }

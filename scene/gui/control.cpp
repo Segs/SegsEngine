@@ -458,11 +458,6 @@ void Control::_update_canvas_item_transform() {
     Transform2D xform = _get_internal_transform();
     xform[2] += get_position();
 
-    // We use a little workaround to avoid flickering when moving the pivot with _edit_set_pivot()
-    if (is_inside_tree() && Math::abs(Math::sin(data.rotation * 4.0f)) < 0.00001f && get_viewport()->is_snap_controls_to_pixels_enabled()) {
-        xform[2] = xform[2].round();
-    }
-
     VisualServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), xform);
 }
 
@@ -1415,7 +1410,7 @@ void Control::_size_changed() {
 }
 
 void Control::set_anchor(Margin p_margin, float p_anchor, bool p_keep_margin, bool p_push_opposite_anchor) {
-    ERR_FAIL_INDEX((int)p_margin, int(Margin::Max))
+    ERR_FAIL_INDEX((int)p_margin, int(Margin::Max));
 
     Rect2 parent_rect = get_parent_anchorable_rect();
     float parent_range = (p_margin == Margin::Left || p_margin == Margin::Right) ? parent_rect.size.x : parent_rect.size.y;
@@ -2333,7 +2328,7 @@ StringName Control::_get_tooltip() const {
 
 void Control::set_focus_neighbour(Margin p_margin, const NodePath &p_neighbour) {
 
-    ERR_FAIL_INDEX((int)p_margin, 4)
+    ERR_FAIL_INDEX((int)p_margin, 4);
     data.focus_neighbour[(int)p_margin] = p_neighbour;
 }
 
@@ -2576,7 +2571,7 @@ int Control::get_v_size_flags() const {
 
 void Control::set_mouse_filter(MouseFilter p_filter) {
 
-    ERR_FAIL_INDEX(p_filter, 3)
+    ERR_FAIL_INDEX(p_filter, 3);
     data.mouse_filter = p_filter;
     update_configuration_warning();
 }

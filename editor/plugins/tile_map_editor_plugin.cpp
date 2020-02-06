@@ -417,7 +417,7 @@ void TileMapEditor::_update_palette() {
     search_box->set_editable(true);
     info_message->hide();
 
-    List<int> tiles;
+    PODVector<int> tiles;
     tileset->get_tile_list(&tiles);
     if (tiles.empty())
         return;
@@ -442,26 +442,26 @@ void TileMapEditor::_update_palette() {
 
     Vector<_PaletteEntry> entries;
 
-    for (List<int>::Element *E = tiles.front(); E; E = E->next()) {
+    for (int E : tiles) {
 
-        String name = tileset->tile_get_name(E->deref());
+        String name = tileset->tile_get_name(E);
 
         if (!name.empty()) {
             if (show_tile_ids) {
                 if (sort_by_name) {
-                    name = name + " - " + itos(E->deref());
+                    name = name + " - " + itos(E);
                 } else {
-                    name = itos(E->deref()) + " - " + name;
+                    name = itos(E) + " - " + name;
                 }
             }
         } else {
-            name = "#" + itos(E->deref());
+            name = "#" + itos(E);
         }
 
         if (!filter.empty() && !StringUtils::is_subsequence_of(filter,name,StringUtils::CaseInsensitive))
             continue;
 
-        const _PaletteEntry entry = { E->deref(), name };
+        const _PaletteEntry entry = { E, name };
         entries.push_back(entry);
     }
 

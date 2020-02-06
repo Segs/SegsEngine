@@ -316,8 +316,8 @@ int AStar::get_point_capacity() const {
 }
 
 void AStar::reserve_space(int p_num_nodes) {
-    ERR_FAIL_COND_MSG(p_num_nodes <= 0, "New capacity must be greater than 0, was: " + itos(p_num_nodes) + ".")
-    ERR_FAIL_COND_MSG((uint32_t)p_num_nodes < points.get_capacity(), "New capacity must be greater than current capacity: " + itos(points.get_capacity()) + ", new was: " + itos(p_num_nodes) + ".")
+    ERR_FAIL_COND_MSG(p_num_nodes <= 0, "New capacity must be greater than 0, was: " + itos(p_num_nodes) + ".");
+    ERR_FAIL_COND_MSG((uint32_t)p_num_nodes < points.get_capacity(), "New capacity must be greater than current capacity: " + itos(points.get_capacity()) + ", new was: " + itos(p_num_nodes) + ".");
     points.reserve(p_num_nodes);
 }
 
@@ -461,11 +461,11 @@ float AStar::_compute_cost(int p_from_id, int p_to_id) {
 
     AStarPoint *from_point;
     bool from_exists = points.lookup(p_from_id, from_point);
-    CRASH_COND(!from_exists)
+    CRASH_COND(!from_exists);
 
     AStarPoint *to_point;
     bool to_exists = points.lookup(p_to_id, to_point);
-    CRASH_COND(!to_exists)
+    CRASH_COND(!to_exists);
 
     return from_point->pos.distance_to(to_point->pos);
 }

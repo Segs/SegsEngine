@@ -279,7 +279,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                         PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
 
-                        ERR_FAIL_INDEX(to_type, conversions.size())
+                        ERR_FAIL_INDEX(to_type, conversions.size());
 
                         Ref<Resource> new_res = conversions[to_type]->convert(refFromRefPtr<Resource>(v));
 
@@ -309,9 +309,9 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                         }
                     }
 
-                    ERR_BREAK(!obj)
+                    ERR_BREAK(!obj); 
                     Resource *res = object_cast<Resource>(obj);
-                    ERR_BREAK(!res)
+                    ERR_BREAK(!res); 
                     if (owner && hint == PropertyHint::ResourceType && hint_text == "Script") {
                         //make visual script the right type
                         res->call("set_instance_base_type", owner->get_class());
@@ -1153,7 +1153,7 @@ void CustomPropertyEditor::_type_create_selected(int p_idx) {
 
     } else if (type == VariantType::OBJECT) {
 
-        ERR_FAIL_INDEX(p_idx, inheritors_array.size())
+        ERR_FAIL_INDEX(p_idx, inheritors_array.size());
 
         StringName intype = inheritors_array[p_idx];
 
@@ -1372,9 +1372,9 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                         }
                     }
 
-                    ERR_BREAK(!obj)
+                    ERR_BREAK(!obj); 
                     Resource *res = object_cast<Resource>(obj);
-                    ERR_BREAK(!res)
+                    ERR_BREAK(!res); 
 
                     v = Variant(Ref<Resource>(res));
                     emit_signal("variant_changed");

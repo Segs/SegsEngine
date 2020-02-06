@@ -1517,7 +1517,7 @@ void OS_Windows::set_clipboard(se_string_view p_text) {
     EmptyClipboard();
 
     HGLOBAL mem = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(CharType));
-    ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
+    ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.");
 
     LPWSTR lptstrCopy = (LPWSTR)GlobalLock(mem);
     StringUtils::from_utf8(text).toWCharArray(lptstrCopy);
@@ -1527,7 +1527,7 @@ void OS_Windows::set_clipboard(se_string_view p_text) {
 
     // set the CF_TEXT version (not needed?)
     mem = GlobalAlloc(GMEM_MOVEABLE, text.length() + 1);
-    ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.")
+    ERR_FAIL_COND_MSG(mem == nullptr, "Unable to allocate memory for clipboard contents.");
 
     LPTSTR ptr = (LPTSTR)GlobalLock(mem);
     memcpy(ptr, text.data(), text.length());
@@ -1543,7 +1543,7 @@ String OS_Windows::get_clipboard() const {
 
     String ret;
     if (!OpenClipboard(hWnd)) {
-        ERR_FAIL_V_MSG("", "Unable to open clipboard.")
+        ERR_FAIL_V_MSG("", "Unable to open clipboard.");
     }
 
     if (IsClipboardFormatAvailable(CF_UNICODETEXT)) {
@@ -1731,7 +1731,7 @@ OS::VideoMode OS_Windows::get_video_mode(int p_screen) const {
 
     return video_mode;
 }
-void OS_Windows::get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen) const {
+void OS_Windows::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
 }
 
 static BOOL CALLBACK _MonitorEnumProcCount(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
@@ -2751,7 +2751,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     pos += sizeof(WORD);
     f->seek(pos);
 
-    ERR_FAIL_COND_MSG(icon_dir->idType != 1, "Invalid icon file format!")
+    ERR_FAIL_COND_MSG(icon_dir->idType != 1, "Invalid icon file format!");
 
     icon_dir->idCount = f->get_32();
     pos += sizeof(WORD);
@@ -2784,7 +2784,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
         }
     }
 
-    ERR_FAIL_COND_MSG(big_icon_index == -1, "No valid icons found!")
+    ERR_FAIL_COND_MSG(big_icon_index == -1, "No valid icons found!");
 
     if (small_icon_index == -1) {
         WARN_PRINT("No small icon found, reusing " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon!");
@@ -2800,7 +2800,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     f->seek(pos);
     f->get_buffer((uint8_t *)data_big.data(), bytecount_big);
     HICON icon_big = CreateIconFromResource((PBYTE)data_big.data(), bytecount_big, TRUE, 0x00030000);
-    ERR_FAIL_COND_MSG(!icon_big, "Could not create " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".")
+    ERR_FAIL_COND_MSG(!icon_big, "Could not create " + itos(big_icon_width) + "x" + itos(big_icon_width) + " @" + itos(big_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".");
 
     // Read the small icon
     DWORD bytecount_small = icon_dir->idEntries[small_icon_index].dwBytesInRes;
@@ -2810,7 +2810,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
     f->seek(pos);
     f->get_buffer((uint8_t *)data_small.data(), bytecount_small);
     HICON icon_small = CreateIconFromResource((PBYTE)data_small.data(), bytecount_small, TRUE, 0x00030000);
-    ERR_FAIL_COND_MSG(!icon_small, "Could not create 16x16 @" + itos(small_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".")
+    ERR_FAIL_COND_MSG(!icon_small, "Could not create 16x16 @" + itos(small_icon_cc) + " icon, error: " + format_error_message(GetLastError()) + ".");
 
     // Online tradition says to be sure last error is cleared and set the small icon first
     int err = 0;
@@ -2818,11 +2818,11 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)icon_small);
     err = GetLastError();
-    ERR_FAIL_COND_MSG(err, "Error setting ICON_SMALL: " + format_error_message(err) + ".")
+    ERR_FAIL_COND_MSG(err, "Error setting ICON_SMALL: " + format_error_message(err) + ".");
 
     SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)icon_big);
     err = GetLastError();
-    ERR_FAIL_COND_MSG(err, "Error setting ICON_BIG: " + format_error_message(err) + ".")
+    ERR_FAIL_COND_MSG(err, "Error setting ICON_BIG: " + format_error_message(err) + ".");
 
     memdelete(f);
     memdelete(icon_dir);

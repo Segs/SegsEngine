@@ -363,7 +363,7 @@ StringName GDScriptTokenizer::get_token_literal(int p_offset) const {
             }
         }
     }
-    ERR_FAIL_V_MSG("", "Failed to get token literal.")
+    ERR_FAIL_V_MSG("", "Failed to get token literal.");
 }
 
 static bool _is_text_char(char c) {

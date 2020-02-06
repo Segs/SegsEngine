@@ -1595,7 +1595,7 @@ size_t StringUtils::findn(se_string_view s,se_string_view p_str, int p_from) {
 
             if (read_pos >= s.length()) {
 
-                ERR_PRINT("read_pos>=length()")
+                ERR_PRINT("read_pos>=length()");
                 return String::npos;
             }
 
@@ -1895,7 +1895,7 @@ String StringUtils::format(se_string_view fmt, const Variant &values) {
                     }
                     new_string.replace("{"+key+"}", val);
                 } else {
-                    ERR_PRINT("STRING.format Inner Array size != 2 ")
+                    ERR_PRINT("STRING.format Inner Array size != 2 ");
                 }
             } else { //Array structure ["RobotGuy","Logis","rookie"]
                 Variant v_val = values_arr[i];
@@ -1927,7 +1927,7 @@ String StringUtils::format(se_string_view fmt, const Variant &values) {
             new_string.replace("{"+key+"}", val);
         }
     } else {
-        ERR_PRINT("Invalid type: use Array or Dictionary.")
+        ERR_PRINT("Invalid type: use Array or Dictionary.");
     }
 
     return new_string;

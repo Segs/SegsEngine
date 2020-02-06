@@ -102,7 +102,7 @@ Variant PackedDataContainer::_iter_get_ofs(const Variant &p_iter, uint32_t p_off
         uint32_t vpos = decode_uint32(rd.ptr() + p_offset + 8 + pos * 12 + 4);
         return _get_at_ofs(vpos, rd.ptr(), err);
     } else {
-        ERR_FAIL_V(Variant::null_variant)
+        ERR_FAIL_V(Variant::null_variant);
     }
 }
 

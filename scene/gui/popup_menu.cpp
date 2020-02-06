@@ -157,9 +157,9 @@ int PopupMenu::_get_mouse_over(const Point2 &p_over) const {
 void PopupMenu::_activate_submenu(int over) {
 
     Node *n = get_node((NodePath)items[over].submenu);
-    ERR_FAIL_COND_MSG(!n, String("Item subnode does not exist: ") + items[over].submenu + ".")
+    ERR_FAIL_COND_MSG(!n, String("Item subnode does not exist: ") + items[over].submenu + ".");
     Popup *pm = object_cast<Popup>(n);
-    ERR_FAIL_COND_MSG(!pm, String("Item subnode is not a Popup: ") + items[over].submenu + ".")
+    ERR_FAIL_COND_MSG(!pm, String("Item subnode is not a Popup: ") + items[over].submenu + ".");
     if (pm->is_visible_in_tree())
         return; //already visible!
 
@@ -357,9 +357,9 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
                 invalidated_click = false;
         }
 
-        for (List<Rect2>::Element *E = autohide_areas.front(); E; E = E->next()) {
+        for (const Rect2 &E : autohide_areas) {
 
-            if (!Rect2(Point2(), get_size()).has_point(m->get_position()) && E->deref().has_point(m->get_position())) {
+            if (!Rect2(Point2(), get_size()).has_point(m->get_position()) && E.has_point(m->get_position())) {
                 call_deferred("hide");
                 return;
             }
@@ -435,9 +435,9 @@ bool PopupMenu::has_point(const Point2 &p_point) const {
 
     if (parent_rect.has_point(p_point))
         return true;
-    for (const List<Rect2>::Element *E = autohide_areas.front(); E; E = E->next()) {
+    for (const Rect2 &E : autohide_areas) {
 
-        if (E->deref().has_point(p_point))
+        if (E.has_point(p_point))
             return true;
     }
 
@@ -846,7 +846,7 @@ void PopupMenu::add_submenu_item(const StringName &p_label, const StringName &p_
 
 void PopupMenu::set_item_text(int p_idx, const StringName &p_text) {
 
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
     items[p_idx].text = p_text;
     items[p_idx].xl_text = tr(p_text);
 
@@ -855,7 +855,7 @@ void PopupMenu::set_item_text(int p_idx, const StringName &p_text) {
 }
 void PopupMenu::set_item_icon(int p_idx, const Ref<Texture> &p_icon) {
 
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
     items[p_idx].icon = p_icon;
 
     update();
@@ -863,7 +863,7 @@ void PopupMenu::set_item_icon(int p_idx, const Ref<Texture> &p_icon) {
 }
 void PopupMenu::set_item_checked(int p_idx, bool p_checked) {
 
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
 
     items[p_idx].checked = p_checked;
 
@@ -1433,7 +1433,7 @@ void PopupMenu::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
 void PopupMenu::add_autohide_area(const Rect2 &p_area) {
 
-    autohide_areas.push_back(p_area);
+    autohide_areas.emplace_back(p_area);
 }
 
 void PopupMenu::clear_autohide_areas() {

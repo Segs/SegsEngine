@@ -81,7 +81,7 @@ void ItemList::add_icon_item(const Ref<Texture> &p_item, bool p_selectable) {
 
 void ItemList::set_item_text(int p_idx, const StringName &p_text) {
 
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
 
     items.write[p_idx].text = p_text;
     update();
@@ -95,7 +95,7 @@ StringName ItemList::get_item_text(int p_idx) const {
 }
 
 void ItemList::set_item_tooltip_enabled(int p_idx, const bool p_enabled) {
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
     items.write[p_idx].tooltip_enabled = p_enabled;
 }
 
@@ -106,7 +106,7 @@ bool ItemList::is_item_tooltip_enabled(int p_idx) const {
 
 void ItemList::set_item_tooltip_utf8(int p_idx, se_string_view p_tooltip) {
 
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
 
     items.write[p_idx].tooltip = StringName(p_tooltip);
     update();
@@ -114,7 +114,7 @@ void ItemList::set_item_tooltip_utf8(int p_idx, se_string_view p_tooltip) {
 }
 void ItemList::set_item_tooltip(int p_idx, StringName p_tooltip) {
 
-    ERR_FAIL_INDEX(p_idx, items.size())
+    ERR_FAIL_INDEX(p_idx, items.size());
 
     items.write[p_idx].tooltip = p_tooltip;
     update();
@@ -448,7 +448,7 @@ ItemList::SelectMode ItemList::get_select_mode() const {
 
 void ItemList::set_icon_mode(IconMode p_mode) {
 
-    ERR_FAIL_INDEX((int)p_mode, int(ICON_MODE_MAX))
+    ERR_FAIL_INDEX((int)p_mode, int(ICON_MODE_MAX));
     icon_mode = p_mode;
     update();
     shape_changed = true;

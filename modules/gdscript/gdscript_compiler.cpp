@@ -169,7 +169,7 @@ GDScriptDataType GDScriptCompiler::_gdtype_from_datatype(const GDScriptParser::D
             Ref<GDScript> script = Ref<GDScript>(main_script);
             while (names.back()) {
                 if (!script->subclasses.contains(names.back())) {
-                    ERR_PRINT("Parser bug: Cannot locate datatype class.")
+                    ERR_PRINT("Parser bug: Cannot locate datatype class.");
                     result.has_type = false;
                     return GDScriptDataType();
                 }
@@ -182,7 +182,7 @@ GDScriptDataType GDScriptCompiler::_gdtype_from_datatype(const GDScriptParser::D
             result.native_type = script->get_instance_base_type();
         } break;
         default: {
-            ERR_PRINT("Parser bug: converting unresolved type.")
+            ERR_PRINT("Parser bug: converting unresolved type.");
             return GDScriptDataType();
         }
     }
@@ -1955,7 +1955,7 @@ Error GDScriptCompiler::_parse_class_level(GDScript *p_script, const GDScriptPar
 
         StringName name = E.first;
 
-        ERR_CONTINUE(E.second.expression->type != GDScriptParser::Node::TYPE_CONSTANT)
+        ERR_CONTINUE(E.second.expression->type != GDScriptParser::Node::TYPE_CONSTANT);
 
         GDScriptParser::ConstantNode *constant = static_cast<GDScriptParser::ConstantNode *>(E.second.expression);
 

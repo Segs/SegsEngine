@@ -79,7 +79,7 @@ TextureRect *EditorAbout::get_logo() const {
     return _logo;
 }
 
-ScrollContainer *EditorAbout::_populate_list(se_string_view p_name, const List<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
+ScrollContainer *EditorAbout::_populate_list(se_string_view p_name, const PODVector<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
 
     ScrollContainer *sc = memnew(ScrollContainer);
     sc->set_name(p_name);
@@ -155,24 +155,24 @@ EditorAbout::EditorAbout() {
 
     // Authors
 
-    List<StringName> dev_sections;
-    dev_sections.push_back(TTR("Project Founders"));
-    dev_sections.push_back(TTR("Lead Developer"));
-    dev_sections.push_back(TTR("Project Manager ")); // " " appended to distinguish between 'project supervisor' and 'project list'
-    dev_sections.push_back(TTR("Developers"));
+    PODVector<StringName> dev_sections;
+    dev_sections.emplace_back(TTR("Project Founders"));
+    dev_sections.emplace_back(TTR("Lead Developer"));
+    dev_sections.emplace_back(TTR("Project Manager ")); // " " appended to distinguish between 'project supervisor' and 'project list'
+    dev_sections.emplace_back(TTR("Developers"));
     const char *const *dev_src[] = { AUTHORS_FOUNDERS, AUTHORS_LEAD_DEVELOPERS,
         AUTHORS_PROJECT_MANAGERS, AUTHORS_DEVELOPERS };
     tc->add_child(_populate_list(TTR("Authors"), dev_sections, dev_src, 1));
 
     // Donors
 
-    List<StringName> donor_sections;
-    donor_sections.push_back(TTR("Platinum Sponsors"));
-    donor_sections.push_back(TTR("Gold Sponsors"));
-    donor_sections.push_back(TTR("Mini Sponsors"));
-    donor_sections.push_back(TTR("Gold Donors"));
-    donor_sections.push_back(TTR("Silver Donors"));
-    donor_sections.push_back(TTR("Bronze Donors"));
+    PODVector<StringName> donor_sections;
+    donor_sections.emplace_back(TTR("Platinum Sponsors"));
+    donor_sections.emplace_back(TTR("Gold Sponsors"));
+    donor_sections.emplace_back(TTR("Mini Sponsors"));
+    donor_sections.emplace_back(TTR("Gold Donors"));
+    donor_sections.emplace_back(TTR("Silver Donors"));
+    donor_sections.emplace_back(TTR("Bronze Donors"));
     const char *const *donor_src[] = { DONORS_SPONSOR_PLAT, DONORS_SPONSOR_GOLD,
         DONORS_SPONSOR_MINI, DONORS_GOLD, DONORS_SILVER, DONORS_BRONZE };
     tc->add_child(_populate_list(TTR("Donors"), donor_sections, donor_src, 3));

@@ -79,7 +79,7 @@ class PopupMenu : public Popup {
     };
 
     class Timer *submenu_timer;
-    List<Rect2> autohide_areas;
+    PODVector<Rect2> autohide_areas;
     PODVector<Item> items;
     int initial_button_mask;
     bool during_grabbed_click;

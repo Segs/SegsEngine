@@ -585,7 +585,7 @@ StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_
         }
     }
 
-    ERR_FAIL_V(StringName())
+    ERR_FAIL_V(StringName());
 }
 
 void AnimationNodeStateMachine::get_child_nodes(List<ChildNode> *r_child_nodes) {

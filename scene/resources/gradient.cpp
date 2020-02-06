@@ -116,7 +116,7 @@ Color Gradient::get_color_at_offset(float p_offset) {
 
 #ifdef DEBUG_ENABLED
     if (low > high)
-        ERR_PRINT("low > high, this may be a bug")
+        ERR_PRINT("low > high, this may be a bug");
         #endif
 
                 while (low <= high) {
@@ -182,7 +182,7 @@ void Gradient::add_point(float p_offset, const Color &p_color) {
 
 void Gradient::remove_point(int p_index) {
 
-    ERR_FAIL_INDEX(p_index, points.size())
+    ERR_FAIL_INDEX(p_index, points.size());
             ERR_FAIL_COND(points.size() <= 2)
             points.erase_at(p_index);
     emit_signal(CoreStringNames::get_singleton()->changed);

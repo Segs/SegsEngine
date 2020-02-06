@@ -80,8 +80,8 @@ Error DirAccess::make_dir_utf8(se_string_view p_dir)
 
 static Error _erase_recursive(DirAccess *da) {
 
-    List<String> dirs;
-    List<String> files;
+    PODVector<String> dirs;
+    PODVector<String> files;
 
     da->list_dir_begin();
     String n(da->get_next());
@@ -100,9 +100,9 @@ static Error _erase_recursive(DirAccess *da) {
 
     da->list_dir_end();
 
-    for (List<String>::Element *E = dirs.front(); E; E = E->next()) {
+    for (const String &E : dirs) {
 
-        Error err = da->change_dir(E->deref());
+        Error err = da->change_dir(E);
         if (err == OK) {
 
             err = _erase_recursive(da);
@@ -114,7 +114,7 @@ static Error _erase_recursive(DirAccess *da) {
             if (err) {
                 return err;
             }
-            err = da->remove(PathUtils::plus_file(da->get_current_dir(),E->deref()));
+            err = da->remove(PathUtils::plus_file(da->get_current_dir(),E));
             if (err) {
                 return err;
             }
@@ -123,9 +123,9 @@ static Error _erase_recursive(DirAccess *da) {
         }
     }
 
-    for (List<String>::Element *E = files.front(); E; E = E->next()) {
+    for (const String &E : files) {
 
-        Error err = da->remove(PathUtils::plus_file(da->get_current_dir(),E->deref()));
+        Error err = da->remove(PathUtils::plus_file(da->get_current_dir(),E));
         if (err) {
             return err;
         }
@@ -170,7 +170,7 @@ Error DirAccess::make_dir_recursive(se_string_view p_dir) {
     else if (StringUtils::contains(full_dir,":/")) {
         base = StringUtils::substr(full_dir,0, StringUtils::find(full_dir,":/") + 2);
     } else {
-        ERR_FAIL_V(ERR_INVALID_PARAMETER)
+        ERR_FAIL_V(ERR_INVALID_PARAMETER);
     }
 
     full_dir = PathUtils::simplify_path(StringUtils::replace_first(full_dir,base, ""));
@@ -185,7 +185,7 @@ Error DirAccess::make_dir_recursive(se_string_view p_dir) {
         Error err = make_dir(curpath);
         if (err != OK && err != ERR_ALREADY_EXISTS) {
 
-            ERR_FAIL_V(err)
+            ERR_FAIL_V(err);
         }
     }
 
@@ -298,7 +298,7 @@ Error DirAccess::copy(se_string_view p_from, se_string_view p_to, int p_chmod_fl
     FileAccess *fsrc = FileAccess::open(p_from, FileAccess::READ, &err);
 
     if (err) {
-        ERR_PRINT("Failed to open " + String(p_from))
+        ERR_PRINT("Failed to open " + String(p_from));
         return err;
     }
 
@@ -307,7 +307,7 @@ Error DirAccess::copy(se_string_view p_from, se_string_view p_to, int p_chmod_fl
 
         fsrc->close();
         memdelete(fsrc);
-        ERR_PRINT("Failed to open " + String(p_to))
+        ERR_PRINT("Failed to open " + String(p_to));
         return err;
     }
 
@@ -347,7 +347,7 @@ void DirAccess::remove_file_or_error(se_string_view  p_path) {
     DirAccess *da = create(ACCESS_FILESYSTEM);
     if (da->file_exists(p_path)) {
         if (da->remove(p_path) != OK) {
-            ERR_FAIL_MSG("Cannot remove file or directory: " + String(p_path))
+            ERR_FAIL_MSG("Cannot remove file or directory: " + String(p_path));
         }
     }
     memdelete(da);
@@ -372,7 +372,7 @@ public:
 };
 
 Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_chmod_flags) {
-    List<se_string_view> dirs;
+    PODVector<se_string_view> dirs;
 
     String curdir = get_current_dir();
     list_dir_begin();
@@ -402,20 +402,20 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_c
 
     list_dir_end();
 
-    for (List<se_string_view>::Element *E = dirs.front(); E; E = E->next()) {
-        se_string_view rel_path = E->deref();
+    for (se_string_view rel_path : dirs) {
+
         String target_dir = String(p_to) + rel_path;
         if (!p_target_da->dir_exists(target_dir)) {
             Error err = p_target_da->make_dir(target_dir);
             ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create directory '" + target_dir + "'.");
         }
 
-        Error err = change_dir(E->deref());
+        Error err = change_dir(rel_path);
         ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot change current directory to '" + String(rel_path) + "'.");
         err = _copy_dir(p_target_da, String(p_to) + rel_path + "/", p_chmod_flags);
         if (err) {
             change_dir("..");
-            ERR_FAIL_V_MSG(err, "Failed to copy recursively.")
+            ERR_FAIL_V_MSG(err, "Failed to copy recursively.");
         }
         err = change_dir("..");
         ERR_FAIL_COND_V_MSG(err != OK, err, "Failed to go back.");

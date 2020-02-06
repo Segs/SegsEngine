@@ -352,7 +352,7 @@ void Collada::_parse_image(XMLParser &parser) {
 
                 } else if (name == "data") {
 
-                    ERR_PRINT("COLLADA Embedded image data not supported!")
+                    ERR_PRINT("COLLADA Embedded image data not supported!");
 
                 } else if (name == "extra" && !parser.is_empty())
                     parser.skip_section();
@@ -653,12 +653,12 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
 
                                         String sampler = parser.get_attribute_value("texture");
                                         if (!effect.params.contains(sampler)) {
-                                            ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id)
+                                            ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id);
                                         } else {
                                             String surface = effect.params[sampler];
 
                                             if (!effect.params.contains(surface)) {
-                                                ERR_PRINT("Couldn't find surface: " + surface + " in material:" + id)
+                                                ERR_PRINT("Couldn't find surface: " + surface + " in material:" + id);
                                             } else {
                                                 String uri = effect.params[surface];
 
@@ -716,12 +716,12 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
 
                             String sampler = parser.get_attribute_value("texture");
                             if (!effect.params.contains(sampler)) {
-                                ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id)
+                                ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id);
                             } else {
                                 String surface = effect.params[sampler];
 
                                 if (!effect.params.contains(surface)) {
-                                    ERR_PRINT("Couldn't find surface: " + surface + " in material:" + id)
+                                    ERR_PRINT("Couldn't find surface: " + surface + " in material:" + id);
                                 } else {
                                     String uri = effect.params[surface];
 
@@ -1859,27 +1859,27 @@ void Collada::_parse_animation(XMLParser &parser) {
         //end of <asset>
     }
 
-    for (int i = 0; i < channel_sources.size(); i++) {
+    for (size_t i = 0; i < channel_sources.size(); i++) {
 
         String source = _uri_to_id(channel_sources[i]);
         String target = channel_targets[i];
-        ERR_CONTINUE(!samplers.contains(source))
+        ERR_CONTINUE(!samplers.contains(source));
         Map<String, String> &sampler = samplers[source];
 
-        ERR_CONTINUE(!sampler.contains("INPUT")) //no input semantic? wtf?
+        ERR_CONTINUE(!sampler.contains("INPUT")); //no input semantic? wtf?
         String input_id = _uri_to_id(sampler["INPUT"]);
         COLLADA_PRINT("input id is " + input_id);
-        ERR_CONTINUE(!float_sources.contains(input_id))
+        ERR_CONTINUE(!float_sources.contains(input_id));
 
-        ERR_CONTINUE(!sampler.contains("OUTPUT"))
+        ERR_CONTINUE(!sampler.contains("OUTPUT"));
         String output_id = _uri_to_id(sampler["OUTPUT"]);
-        ERR_CONTINUE(!float_sources.contains(output_id))
+        ERR_CONTINUE(!float_sources.contains(output_id));
 
-        ERR_CONTINUE(!source_param_names.contains(output_id))
+        ERR_CONTINUE(!source_param_names.contains(output_id));
 
         const PODVector<String> &names = source_param_names[output_id];
 
-        for (int l = 0; l < names.size(); l++) {
+        for (size_t l = 0; l < names.size(); l++) {
 
             const String &name(names[l]);
 
@@ -1898,18 +1898,18 @@ void Collada::_parse_animation(XMLParser &parser) {
 
             //now read actual values
 
-            int stride = 1;
+            size_t stride = 1;
 
             if (source_strides.contains(output_id))
                 stride = source_strides[output_id];
-            int output_len = stride / names.size();
+            size_t output_len = stride / names.size();
 
-            ERR_CONTINUE(output_len == 0)
-            ERR_CONTINUE(!float_sources.contains(output_id))
+            ERR_CONTINUE(output_len == 0);
+            ERR_CONTINUE(!float_sources.contains(output_id));
 
             PODVector<float> &output = float_sources[output_id];
 
-            ERR_CONTINUE_MSG((output.size() / stride) != key_count, "Wrong number of keys in output.")
+            ERR_CONTINUE_MSG((output.size() / stride) != key_count, "Wrong number of keys in output.");
 
             for (int j = 0; j < key_count; j++) {
                 track.keys[j].data.resize(output_len);
@@ -1935,15 +1935,15 @@ void Collada::_parse_animation(XMLParser &parser) {
             if (sampler.contains("IN_TANGENT") && sampler.contains("OUT_TANGENT")) {
                 //bezier control points..
                 String intangent_id = _uri_to_id(sampler["IN_TANGENT"]);
-                ERR_CONTINUE(!float_sources.contains(intangent_id))
+                ERR_CONTINUE(!float_sources.contains(intangent_id));
                 PODVector<float> &intangents = float_sources[intangent_id];
 
-                ERR_CONTINUE(intangents.size() != key_count * 2 * names.size())
+                ERR_CONTINUE(intangents.size() != key_count * 2 * names.size());
 
                 String outangent_id = _uri_to_id(sampler["OUT_TANGENT"]);
-                ERR_CONTINUE(!float_sources.contains(outangent_id))
+                ERR_CONTINUE(!float_sources.contains(outangent_id));
                 PODVector<float> &outangents = float_sources[outangent_id];
-                ERR_CONTINUE(outangents.size() != key_count * 2 * names.size())
+                ERR_CONTINUE(outangents.size() != key_count * 2 * names.size());
 
                 for (int j = 0; j < key_count; j++) {
                     track.keys[j].in_tangent = Vector2(intangents[j * 2 * names.size() + 0 + l * 2], intangents[j * 2 * names.size() + 1 + l * 2]);
@@ -2257,10 +2257,10 @@ void Collada::_merge_skeletons2(VisualScene *p_vscene) {
 
             name = state.sid_to_node_map[F.second];
 
-            ERR_CONTINUE(!state.scene_map.contains(name))
+            ERR_CONTINUE(!state.scene_map.contains(name));
 
             Node *node = state.scene_map[name];
-            ERR_CONTINUE(node->type != Node::TYPE_JOINT)
+            ERR_CONTINUE(node->type != Node::TYPE_JOINT);
 
             NodeSkeleton *sk = nullptr;
 
@@ -2272,7 +2272,7 @@ void Collada::_merge_skeletons2(VisualScene *p_vscene) {
                 node = node->parent;
             }
 
-            ERR_CONTINUE(!sk)
+            ERR_CONTINUE(!sk);
 
             if (!skeleton) {
                 skeleton = sk;
@@ -2325,7 +2325,7 @@ bool Collada::_optimize_skeletons(VisualScene *p_vscene, Node *p_node) {
                 }
             }
             if (!found) {
-                ERR_PRINT("BUG")
+                ERR_PRINT("BUG");
             }
         } else {
 
@@ -2341,7 +2341,7 @@ bool Collada::_optimize_skeletons(VisualScene *p_vscene, Node *p_node) {
                 }
             }
             if (!found) {
-                ERR_PRINT("BUG")
+                ERR_PRINT("BUG");
             }
         }
 
@@ -2451,7 +2451,7 @@ void Collada::_find_morph_nodes(VisualScene *p_vscene, Node *p_node) {
                     state.morph_ownership_map[base] = nj->id;
                     break;
                 } else {
-                    ERR_FAIL_MSG("Invalid scene.")
+                    ERR_FAIL_MSG("Invalid scene.");
                 }
             }
         }

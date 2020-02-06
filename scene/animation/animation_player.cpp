@@ -594,13 +594,13 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     continue;
 
                 Map<StringName, TrackNodeCache::BezierAnim>::iterator E = nc->bezier_anim.find(a->track_get_path(i).get_concatenated_subnames());
-                ERR_CONTINUE(E==nc->bezier_anim.end()) //should it continue, or create a new one?
+                ERR_CONTINUE(E==nc->bezier_anim.end()); //should it continue, or create a new one?
 
                 TrackNodeCache::BezierAnim *ba = &E->second;
 
                 float bezier = a->bezier_track_interpolate(i, p_time);
                 if (ba->accum_pass != accum_pass) {
-                    ERR_CONTINUE(cache_update_bezier_size >= NODE_CACHE_UPDATE_MAX)
+                    ERR_CONTINUE(cache_update_bezier_size >= NODE_CACHE_UPDATE_MAX);
                     cache_update_bezier[cache_update_bezier_size++] = ba;
                     ba->bezier_accum = bezier;
                     ba->accum_pass = accum_pass;
@@ -883,7 +883,7 @@ void AnimationPlayer::_animation_update_transforms() {
 
         TrackNodeCache::PropertyAnim *pa = cache_update_prop[i];
 
-        ERR_CONTINUE(pa->accum_pass != accum_pass)
+        ERR_CONTINUE(pa->accum_pass != accum_pass);
 
         switch (pa->special) {
 
@@ -1103,7 +1103,7 @@ PODVector<StringName> AnimationPlayer::get_animation_list() const {
 
 void AnimationPlayer::set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time) {
 
-    ERR_FAIL_COND_MSG(p_time < 0, "Blend time cannot be smaller than 0.")
+    ERR_FAIL_COND_MSG(p_time < 0, "Blend time cannot be smaller than 0.");
 
     BlendKey bk;
     bk.from = p_animation1;
@@ -1156,7 +1156,7 @@ void AnimationPlayer::play(const StringName &p_name, float p_custom_blend, float
     if (name.empty())
         name = playback.assigned;
 
-    ERR_FAIL_COND_MSG(!animation_set.contains(name), "Animation not found: " + String(name) + ".")
+    ERR_FAIL_COND_MSG(!animation_set.contains(name), "Animation not found: " + String(name) + ".");
 
     Playback &c = playback;
 

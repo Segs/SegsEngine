@@ -414,7 +414,7 @@ void ProjectExportDialog::_patch_edited() {
 
     const PODVector<String> &patches = current->get_patches();
 
-    ERR_FAIL_INDEX(index, patches.size())
+    ERR_FAIL_INDEX(index, patches.size());
 
     String patch = patches[index];
     patch.replace("*", "");
@@ -988,7 +988,7 @@ void ProjectExportDialog::_export_project_to_path(se_string_view p_path) {
                     platform->get_name().c_str()));
         }
 
-        ERR_PRINT(vformat(("Failed to export the project for platform '%s'."), platform->get_name()))
+        ERR_PRINT(vformat(("Failed to export the project for platform '%s'."), platform->get_name()));
         error_dialog->show();
         error_dialog->popup_centered_minsize(Size2(300, 80));
     }
@@ -1032,7 +1032,7 @@ void ProjectExportDialog::_export_all(bool p_debug) {
             }
             error_dialog->show();
             error_dialog->popup_centered_minsize(Size2(300, 80));
-            ERR_PRINT("Failed to export project")
+            ERR_PRINT("Failed to export project");
         }
     }
 }

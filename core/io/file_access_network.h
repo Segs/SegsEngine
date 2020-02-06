@@ -33,8 +33,6 @@
 #include "core/os/file_access.h"
 #include "core/reference.h"
 #include "core/se_string.h"
-#include "core/list.h"
-#include "core/map.h"
 
 class Thread;
 class FileAccessNetwork;
@@ -47,25 +45,16 @@ using Mutex = std::recursive_mutex;
 
 class FileAccessNetworkClient {
 
-    struct BlockRequest {
-
-        uint64_t offset;
-        int id;
-        int size;
-    };
-
-    List<BlockRequest> block_requests;
-
+    void *m_priv;
+    PODVector<uint8_t> block;
+    Ref<StreamPeerTCP> client;
     Semaphore *sem;
     Thread *thread;
-    bool quit;
     Mutex *mutex;
     Mutex *blockrequest_mutex;
-    Map<int, FileAccessNetwork *> accesses;
-    Ref<StreamPeerTCP> client;
     int last_id;
 
-    PODVector<uint8_t> block;
+    bool quit;
 
     void _thread_func();
     static void _thread_func(void *s);
@@ -80,7 +69,10 @@ class FileAccessNetworkClient {
 
     friend class FileAccessNetwork;
     static FileAccessNetworkClient *singleton;
-
+    void add_block_request(int id, int page_size, int page_offset);
+    int record_access_source(FileAccessNetwork *from);
+    bool is_my_token_valid(int source_id,FileAccessNetwork *from);
+    void finish_access(int id,FileAccessNetwork *from);
 public:
     static FileAccessNetworkClient *get_singleton() { return singleton; }
 

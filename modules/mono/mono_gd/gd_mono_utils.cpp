@@ -355,7 +355,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
     if (!ScriptDebugger::get_singleton()) {
 #ifdef TOOLS_ENABLED
         if (Engine::get_singleton()->is_editor_hint()) {
-            ERR_PRINT(GDMonoUtils::get_exception_name_and_message(p_exc))
+            ERR_PRINT(GDMonoUtils::get_exception_name_and_message(p_exc));
         }
 #endif
         return;
@@ -397,7 +397,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 
         GDMonoClass *exc_class = GDMono::get_singleton()->get_class(mono_get_exception_class());
         GDMonoProperty *inner_exc_prop = exc_class->get_property("InnerException");
-        CRASH_COND(inner_exc_prop == NULL)
+        CRASH_COND(inner_exc_prop == NULL);
 
         MonoObject *inner_exc = inner_exc_prop->get_value((MonoObject *)p_exc);
         if (inner_exc != nullptr)
@@ -432,7 +432,7 @@ void set_pending_exception(MonoException *p_exc) {
     }
 
     if (!mono_runtime_set_pending_exception(p_exc, false)) {
-        ERR_PRINT("Exception thrown from managed code, but it could not be set as pending:")
+        ERR_PRINT("Exception thrown from managed code, but it could not be set as pending:");
         GDMonoUtils::debug_print_unhandled_exception(p_exc);
     }
 #endif

@@ -98,7 +98,7 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
             break;
         default:
             png_image_free(&png_img); // only required when we return before finish_read
-            ERR_PRINT("Unsupported png format.")
+            ERR_PRINT("Unsupported png format.");
             return ERR_UNAVAILABLE;
     }
 

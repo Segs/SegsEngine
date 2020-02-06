@@ -226,7 +226,7 @@ Error CowData<T>::insert(int p_pos, const T &p_val) {
 template <class T>
 void CowData<T>::remove(int p_index) {
 
-    ERR_FAIL_INDEX(p_index, size())
+    ERR_FAIL_INDEX(p_index, size());
     T *p = ptrw();
     int len = size();
     for (int i = p_index; i < len - 1; i++) {

@@ -44,87 +44,87 @@
 
 int OS_Server::get_video_driver_count() const {
 
-	return 1;
+    return 1;
 }
 const char *OS_Server::get_video_driver_name(int p_driver) const {
 
-	return "Dummy";
+    return "Dummy";
 }
 
 int OS_Server::get_audio_driver_count() const {
-	return 1;
+    return 1;
 }
 
 const char *OS_Server::get_audio_driver_name(int p_driver) const {
 
-	return "Dummy";
+    return "Dummy";
 }
 
 int OS_Server::get_current_video_driver() const {
-	return video_driver_index;
+    return video_driver_index;
 }
 
 void OS_Server::initialize_core() {
 
-	crash_handler.initialize();
+    crash_handler.initialize();
 
-	OS_Unix::initialize_core();
+    OS_Unix::initialize_core();
 
 #ifdef __APPLE__
-	SemaphoreOSX::make_default();
+    SemaphoreOSX::make_default();
 #endif
 }
 
 Error OS_Server::initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver) {
 
-	args = OS::get_singleton()->get_cmdline_args();
-	current_videomode = p_desired;
-	main_loop = NULL;
+    args = OS::get_singleton()->get_cmdline_args();
+    current_videomode = p_desired;
+    main_loop = NULL;
 
-	RasterizerDummy::make_current();
+    RasterizerDummy::make_current();
 
-	video_driver_index = p_video_driver; // unused in server platform, but should still be initialized
+    video_driver_index = p_video_driver; // unused in server platform, but should still be initialized
 
-	visual_server = memnew(VisualServerRaster);
-	visual_server->init();
+    visual_server = memnew(VisualServerRaster);
+    visual_server->init();
 
-	AudioDriverManager::initialize(p_audio_driver);
+    AudioDriverManager::initialize(p_audio_driver);
 
-	input = memnew(InputDefault);
+    input = memnew(InputDefault);
 
 #ifdef __APPLE__
-	power_manager = memnew(PowerOSX);
+    power_manager = memnew(PowerOSX);
 #else
-	power_manager = memnew(PowerX11);
+    power_manager = memnew(PowerX11);
 #endif
 
-	_ensure_user_data_dir();
+    _ensure_user_data_dir();
 
-	resource_loader_dummy.instance();
-	ResourceLoader::add_resource_format_loader(resource_loader_dummy);
+    resource_loader_dummy.instance();
+    ResourceLoader::add_resource_format_loader(resource_loader_dummy);
 
-	return OK;
+    return OK;
 }
 
 void OS_Server::finalize() {
 
-	if (main_loop)
-		memdelete(main_loop);
-	main_loop = NULL;
+    if (main_loop)
+        memdelete(main_loop);
+    main_loop = NULL;
 
-	visual_server->finish();
-	memdelete(visual_server);
+    visual_server->finish();
+    memdelete(visual_server);
 
-	memdelete(input);
+    memdelete(input);
 
-	memdelete(camera_server);
+    memdelete(camera_server);
 
-	memdelete(power_manager);
+    memdelete(power_manager);
 
-	ResourceLoader::remove_resource_format_loader(resource_loader_dummy);
-	resource_loader_dummy.unref();
+    ResourceLoader::remove_resource_format_loader(resource_loader_dummy);
+    resource_loader_dummy.unref();
 
-	args.clear();
+    args.clear();
 }
 
 void OS_Server::set_mouse_show(bool p_show) {
@@ -132,22 +132,22 @@ void OS_Server::set_mouse_show(bool p_show) {
 
 void OS_Server::set_mouse_grab(bool p_grab) {
 
-	grab = p_grab;
+    grab = p_grab;
 }
 
 bool OS_Server::is_mouse_grab_enabled() const {
 
-	return grab;
+    return grab;
 }
 
 int OS_Server::get_mouse_button_state() const {
 
-	return 0;
+    return 0;
 }
 
 Point2 OS_Server::get_mouse_position() const {
 
-	return Point2();
+    return Point2();
 }
 
 void OS_Server::set_window_title(const String &p_title) {
@@ -158,92 +158,92 @@ void OS_Server::set_video_mode(const VideoMode &p_video_mode, int p_screen) {
 
 OS::VideoMode OS_Server::get_video_mode(int p_screen) const {
 
-	return current_videomode;
+    return current_videomode;
 }
 
 Size2 OS_Server::get_window_size() const {
 
-	return Vector2(current_videomode.width, current_videomode.height);
+    return Vector2(current_videomode.width, current_videomode.height);
 }
 
-void OS_Server::get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen) const {
+void OS_Server::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
 }
 
 MainLoop *OS_Server::get_main_loop() const {
 
-	return main_loop;
+    return main_loop;
 }
 
 void OS_Server::delete_main_loop() {
 
-	if (main_loop)
-		memdelete(main_loop);
-	main_loop = NULL;
+    if (main_loop)
+        memdelete(main_loop);
+    main_loop = NULL;
 }
 
 void OS_Server::set_main_loop(MainLoop *p_main_loop) {
 
-	main_loop = p_main_loop;
-	input->set_main_loop(p_main_loop);
+    main_loop = p_main_loop;
+    input->set_main_loop(p_main_loop);
 }
 
 bool OS_Server::can_draw() const {
 
-	return false; //can never draw
+    return false; //can never draw
 };
 
 String OS_Server::get_name() const {
 
-	return "Server";
+    return "Server";
 }
 
 void OS_Server::move_window_to_foreground() {
 }
 
 OS::PowerState OS_Server::get_power_state() {
-	return power_manager->get_power_state();
+    return power_manager->get_power_state();
 }
 
 int OS_Server::get_power_seconds_left() {
-	return power_manager->get_power_seconds_left();
+    return power_manager->get_power_seconds_left();
 }
 
 int OS_Server::get_power_percent_left() {
-	return power_manager->get_power_percent_left();
+    return power_manager->get_power_percent_left();
 }
 
 bool OS_Server::_check_internal_feature_support(const String &p_feature) {
-	return p_feature == "pc";
+    return p_feature == "pc";
 }
 
 void OS_Server::run() {
 
-	force_quit = false;
+    force_quit = false;
 
-	if (!main_loop)
-		return;
+    if (!main_loop)
+        return;
 
-	main_loop->init();
+    main_loop->init();
 
-	while (!force_quit) {
+    while (!force_quit) {
 
-		if (Main::iteration())
-			break;
-	};
+        if (Main::iteration())
+            break;
+    };
 
-	main_loop->finish();
+    main_loop->finish();
 }
 
 void OS_Server::disable_crash_handler() {
-	crash_handler.disable();
+    crash_handler.disable();
 }
 
 bool OS_Server::is_disable_crash_handler() const {
-	return crash_handler.is_disabled();
+    return crash_handler.is_disabled();
 }
 
 OS_Server::OS_Server() {
 
-	//adriver here
-	grab = false;
+    //adriver here
+    grab = false;
 };

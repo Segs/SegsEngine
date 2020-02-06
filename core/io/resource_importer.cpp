@@ -275,7 +275,7 @@ String ResourceFormatImporter::get_internal_resource_path(se_string_view p_path)
     return pat.path;
 }
 
-void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_path, List<String> *r_paths) {
+void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_path, PODVector<String> *r_paths) {
 
     Error err;
     FileAccess *f = FileAccess::open(String(p_path) + ".import", FileAccess::READ, &err);
@@ -304,7 +304,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_pa
             return;
         } else if (err != OK) {
             ERR_PRINT("ResourceFormatImporter::get_internal_resource_path_list - " + String(p_path) + ".import:" + ::to_string(lines) +
-                      " error: " + error_text)
+                      " error: " + error_text);
             VariantParser::release_stream(stream);
             memdelete(f);
             return;

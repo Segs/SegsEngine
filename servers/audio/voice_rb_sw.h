@@ -125,7 +125,7 @@ public:
 		if (full) {
 #ifdef DEBUG_ENABLED
 			if (OS::get_singleton()->is_stdout_verbose()) {
-				ERR_FAIL_COND_MSG(((write_pos + 1) % VOICE_RB_SIZE) == read_pos, "Audio ring buffer full (too many commands).")
+				ERR_FAIL_COND_MSG(((write_pos + 1) % VOICE_RB_SIZE) == read_pos, "Audio ring buffer full (too many commands)."); 
 			}
 #endif
 			return;

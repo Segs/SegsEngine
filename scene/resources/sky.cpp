@@ -45,7 +45,7 @@ VARIANT_ENUM_CAST(Sky::RadianceSize)
 VARIANT_ENUM_CAST(ProceduralSky::TextureSize)
 
 void Sky::set_radiance_size(RadianceSize p_size) {
-    ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX)
+    ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX);
 
     radiance_size = p_size;
     _radiance_changed();

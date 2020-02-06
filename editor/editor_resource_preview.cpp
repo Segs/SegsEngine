@@ -52,7 +52,7 @@ bool EditorResourcePreviewGenerator::handles(se_string_view p_type) const {
     if (get_script_instance() && get_script_instance()->has_method("handles")) {
         return get_script_instance()->call("handles", p_type);
     }
-    ERR_FAIL_V_MSG(false, "EditorResourcePreviewGenerator::handles needs to be overridden.")
+    ERR_FAIL_V_MSG(false, "EditorResourcePreviewGenerator::handles needs to be overridden.");
 }
 
 Ref<Texture> EditorResourcePreviewGenerator::generate(const RES &p_from, const Size2 &p_size) const {
@@ -60,7 +60,7 @@ Ref<Texture> EditorResourcePreviewGenerator::generate(const RES &p_from, const S
     if (get_script_instance() && get_script_instance()->has_method("generate")) {
         return refFromRefPtr<Texture>(get_script_instance()->call("generate", p_from, p_size));
     }
-    ERR_FAIL_V_MSG(Ref<Texture>(), "EditorResourcePreviewGenerator::generate needs to be overridden.")
+    ERR_FAIL_V_MSG(Ref<Texture>(), "EditorResourcePreviewGenerator::generate needs to be overridden.");
 }
 
 Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
@@ -462,7 +462,7 @@ void EditorResourcePreview::check_for_invalidation(se_string_view p_path) {
 }
 
 void EditorResourcePreview::start() {
-    ERR_FAIL_COND_MSG(thread, "Thread already started.")
+    ERR_FAIL_COND_MSG(thread, "Thread already started."); 
     thread = Thread::create(_thread_func, this);
 }
 

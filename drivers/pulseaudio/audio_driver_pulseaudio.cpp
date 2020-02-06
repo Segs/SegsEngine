@@ -101,13 +101,13 @@ void AudioDriverPulseAudio::detect_channels(bool capture) {
             while (pa_status == 0) {
                 int ret = pa_mainloop_iterate(pa_ml, 1, nullptr);
                 if (ret < 0) {
-                    ERR_PRINT("pa_mainloop_iterate error")
+                    ERR_PRINT("pa_mainloop_iterate error");
                 }
             }
 
             pa_operation_unref(pa_op);
         } else {
-            ERR_PRINT("pa_context_get_server_info error")
+            ERR_PRINT("pa_context_get_server_info error");
         }
     }
 
@@ -131,16 +131,16 @@ void AudioDriverPulseAudio::detect_channels(bool capture) {
         while (pa_status == 0) {
             int ret = pa_mainloop_iterate(pa_ml, 1, nullptr);
             if (ret < 0) {
-                ERR_PRINT("pa_mainloop_iterate error")
+                ERR_PRINT("pa_mainloop_iterate error");
             }
         }
 
         pa_operation_unref(pa_op);
     } else {
         if (capture) {
-            ERR_PRINT("pa_context_get_source_info_by_name error")
+            ERR_PRINT("pa_context_get_source_info_by_name error");
         } else {
-            ERR_PRINT("pa_context_get_sink_info_by_name error")
+            ERR_PRINT("pa_context_get_sink_info_by_name error");
         }
     }
 }
@@ -205,8 +205,8 @@ Error AudioDriverPulseAudio::init_device() {
 
     pa_str = pa_stream_new(pa_ctx, "Sound", &spec, &pa_map);
     if (pa_str == nullptr) {
-        ERR_PRINT("PulseAudio: pa_stream_new error: " + String(pa_strerror(pa_context_errno(pa_ctx))))
-        ERR_FAIL_V(ERR_CANT_OPEN)
+        ERR_PRINT("PulseAudio: pa_stream_new error: " + String(pa_strerror(pa_context_errno(pa_ctx))));
+        ERR_FAIL_V(ERR_CANT_OPEN);
     }
 
     pa_buffer_attr attr;
@@ -271,7 +271,7 @@ Error AudioDriverPulseAudio::init() {
     while (pa_ready == 0) {
         ret = pa_mainloop_iterate(pa_ml, 1, nullptr);
         if (ret < 0) {
-            ERR_PRINT("pa_mainloop_iterate error")
+            ERR_PRINT("pa_mainloop_iterate error");
         }
     }
 
@@ -687,16 +687,16 @@ Error AudioDriverPulseAudio::capture_init_device() {
 
     pa_rec_str = pa_stream_new(pa_ctx, "Record", &spec, &pa_rec_map);
     if (pa_rec_str == nullptr) {
-        ERR_PRINT("PulseAudio: pa_stream_new error: " + String(pa_strerror(pa_context_errno(pa_ctx))))
-        ERR_FAIL_V(ERR_CANT_OPEN)
+        ERR_PRINT("PulseAudio: pa_stream_new error: " + String(pa_strerror(pa_context_errno(pa_ctx))));
+        ERR_FAIL_V(ERR_CANT_OPEN);
     }
 
     const char * dev = (capture_device_name == "Default") ? nullptr : capture_device_name.c_str();
     pa_stream_flags flags = pa_stream_flags(PA_STREAM_INTERPOLATE_TIMING | PA_STREAM_ADJUST_LATENCY | PA_STREAM_AUTO_TIMING_UPDATE);
     int error_code = pa_stream_connect_record(pa_rec_str, dev, &attr, flags);
     if (error_code < 0) {
-        ERR_PRINT("PulseAudio: pa_stream_connect_record error: " + String(pa_strerror(error_code)))
-        ERR_FAIL_V(ERR_CANT_OPEN)
+        ERR_PRINT("PulseAudio: pa_stream_connect_record error: " + String(pa_strerror(error_code)));
+        ERR_FAIL_V(ERR_CANT_OPEN);
     }
 
     input_buffer_init(input_buffer_frames);
@@ -712,7 +712,7 @@ void AudioDriverPulseAudio::capture_finish_device() {
     if (pa_rec_str) {
         int ret = pa_stream_disconnect(pa_rec_str);
         if (ret != 0) {
-            ERR_PRINT("PulseAudio: pa_stream_disconnect error: " + String(pa_strerror(ret)))
+            ERR_PRINT("PulseAudio: pa_stream_disconnect error: " + String(pa_strerror(ret)));
         }
         pa_stream_unref(pa_rec_str);
         pa_rec_str = nullptr;
@@ -776,13 +776,13 @@ Array AudioDriverPulseAudio::capture_get_device_list() {
         while (pa_status == 0) {
             int ret = pa_mainloop_iterate(pa_ml, 1, nullptr);
             if (ret < 0) {
-                ERR_PRINT("pa_mainloop_iterate error")
+                ERR_PRINT("pa_mainloop_iterate error");
             }
         }
 
         pa_operation_unref(pa_op);
     } else {
-        ERR_PRINT("pa_context_get_server_info error")
+        ERR_PRINT("pa_context_get_server_info error");
     }
 
     unlock();

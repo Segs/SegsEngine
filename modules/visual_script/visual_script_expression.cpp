@@ -423,7 +423,7 @@ Error VisualScriptExpression::_get_token(Token &r_token) {
                                         v = c - 'A';
                                         v += 10;
                                     } else {
-                                        ERR_PRINT("BUG")
+                                        ERR_PRINT("BUG");
                                         v = 0;
                                     }
 
@@ -1169,7 +1169,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
 
             if (next_op < 1 || next_op >= (expression.size() - 1)) {
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             OperatorNode *op = alloc_node<OperatorNode>();
@@ -1178,7 +1178,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             if (expression[next_op - 1].is_op) {
 
                 _set_error("Parser bug...");
-                ERR_FAIL_V(nullptr)
+                ERR_FAIL_V(nullptr);
             }
 
             if (expression[next_op + 1].is_op) {

@@ -97,7 +97,7 @@ Error StreamPeerTCP::connect_to_host(const IP_Address &p_host, uint16_t p_port) 
     } else if (err == ERR_BUSY) {
         status = STATUS_CONNECTING;
     } else {
-        ERR_PRINT("Connection to remote host failed!")
+        ERR_PRINT("Connection to remote host failed!");
         disconnect_from_host();
         return FAILED;
     }

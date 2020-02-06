@@ -118,7 +118,7 @@ void ConfigFile::erase_section(se_string_view p_section) {
 void ConfigFile::erase_section_key(se_string_view p_section, se_string_view p_key) {
 
     auto iter=values.find_as(p_section);
-    ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + String(p_section) + "'.")
+    ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + String(p_section) + "'.");
 
     iter->second.erase_as(p_key);
 }
@@ -271,7 +271,7 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
             return OK;
         } else if (err != OK) {
             ERR_PRINT("ConfgFile::load - " + String(p_path) + ":" + ::to_string(lines) +
-                      " error: " + error_text + ".")
+                      " error: " + error_text + ".");
             VariantParser::release_stream(stream);
             memdelete(f);
             return err;

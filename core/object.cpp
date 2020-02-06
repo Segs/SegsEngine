@@ -459,7 +459,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
     bool valid = false;
     if (!r_valid) r_valid = &valid;
 
-    List<Variant> value_stack;
+    PODVector<Variant> value_stack;
 
     value_stack.push_back(get(p_names[0], r_valid));
 
@@ -469,7 +469,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
     }
 
     for (size_t i = 1; i < p_names.size() - 1; i++) {
-        value_stack.push_back(value_stack.back()->deref().get_named(p_names[i], r_valid));
+        value_stack.emplace_back(value_stack.back().get_named(p_names[i], r_valid));
 
         if (!*r_valid) {
             value_stack.clear();
@@ -477,12 +477,12 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
         }
     }
 
-    value_stack.push_back(p_value); // p_names[p_names.size() - 1]
+    value_stack.emplace_back(p_value); // p_names[p_names.size() - 1]
 
     for (int i = p_names.size() - 1; i > 0; i--) {
-
-        value_stack.back()->prev()->deref().set_named(p_names[i], value_stack.back()->deref(), r_valid);
+        Variant back = value_stack.back();
         value_stack.pop_back();
+        value_stack.back().set_named(p_names[i], back, r_valid);
 
         if (!*r_valid) {
             value_stack.clear();
@@ -490,7 +490,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
         }
     }
 
-    set(p_names[0], value_stack.back()->deref(), r_valid);
+    set(p_names[0], value_stack.back(), r_valid);
     value_stack.pop_back();
 
     ERR_FAIL_COND(!value_stack.empty());
@@ -604,19 +604,19 @@ static void _test_call_error(const StringName &p_func, const Variant::CallError 
         case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
             ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Invalid type for argument " +
-                         itos(error.argument) + ", expected " + Variant::get_type_name(error.expected) + ".")
+                         itos(error.argument) + ", expected " + Variant::get_type_name(error.expected) + ".");
             break;
         }
         case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
             ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too many arguments, expected " +
-                         itos(error.argument) + ".")
+                         itos(error.argument) + ".");
             break;
         }
         case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
 
             ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too few arguments, expected " +
-                         itos(error.argument) + ".")
+                         itos(error.argument) + ".");
             break;
         }
         case Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL: break;
@@ -632,9 +632,9 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
 
     if (p_method == CoreStringNames::get_singleton()->_free) {
 #ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_MSG(object_cast<RefCounted>(this), "Can't 'free' a reference.")
+        ERR_FAIL_COND_MSG(object_cast<RefCounted>(this), "Can't 'free' a reference.");
 
-        ERR_FAIL_COND_MSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.")
+        ERR_FAIL_COND_MSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.");
 #endif
 
         //must be here, must be before everything,
@@ -722,7 +722,7 @@ Variant Object::callv(const StringName &p_method, const Array &p_args) {
     Variant::CallError ce;
     Variant ret = call(p_method, argptrs, argc, ce);
     if (ce.error != Variant::CallError::CALL_OK) {
-        ERR_FAIL_V_MSG(Variant(), "Error calling method from 'callv': " + Variant::get_call_error_text(this, p_method, argptrs, argc, ce) + ".")
+        ERR_FAIL_V_MSG(Variant(), "Error calling method from 'callv': " + Variant::get_call_error_text(this, p_method, argptrs, argc, ce) + ".");
     }
     return ret;
 }
@@ -773,13 +773,13 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
         if (object_cast<RefCounted>(this)) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-            ERR_FAIL_V_MSG(Variant(), "Can't 'free' a reference.")
+            ERR_FAIL_V_MSG(Variant(), "Can't 'free' a reference.");
         }
 
         if (private_data->_lock_index.get() > 1) {
             r_error.argument = 0;
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-            ERR_FAIL_V_MSG(Variant(), "Object is locked and can't be freed.")
+            ERR_FAIL_V_MSG(Variant(), "Object is locked and can't be freed.");
         }
 
 #endif
@@ -989,9 +989,9 @@ IObjectTooling *Object::get_tooling_interface() const
 
 void Object::add_user_signal(MethodInfo &&p_signal) {
 
-    ERR_FAIL_COND_MSG(p_signal.name.empty(), "Signal name cannot be empty.")
-    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + String(get_class_name()) + "'.")
-    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + String(p_signal.name) + "'.")
+    ERR_FAIL_COND_MSG(p_signal.name.empty(), "Signal name cannot be empty.");
+    ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + String(get_class_name()) + "'.");
+    ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + String(p_signal.name) + "'.");
     Signal s;
     s.user = eastl::move(p_signal);
     private_data->signal_map[p_signal.name] = eastl::move(s);
@@ -1116,7 +1116,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
                     // most likely object is not initialized yet, do not throw error.
                 } else {
                     ERR_PRINT("Error calling method from signal '" + String(p_name) +
-                               "': " + Variant::get_call_error_text(target, c.method, args, argc, ce) + ".")
+                               "': " + Variant::get_call_error_text(target, c.method, args, argc, ce) + ".");
                     err = ERR_METHOD_NOT_FOUND;
                 }
             }
@@ -1348,12 +1348,14 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
             return OK;
         } else {
             ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER,
-                    "Signal '" + String(p_signal) + "' is already connected to given method '" + p_to_method + "' in that object.")
+                    "Signal '" + String(p_signal) + "' is already connected to given method '" + p_to_method + "' in that object.");
         }
     }
 
     Signal::Slot slot;
-
+    if(p_signal==se_string_view("play_pressed")) {
+        printf("");
+    }
     Connection conn;
     conn.source = this;
     conn.target = p_to_object;
@@ -1384,7 +1386,7 @@ bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const
         if (!script.is_null() && refFromRefPtr<Script>(script)->has_script_signal(p_signal))
             return false;
 
-        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + String(p_signal) + ".")
+        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + String(p_signal) + ".");
     }
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
@@ -1402,12 +1404,12 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
 
     ERR_FAIL_NULL(p_to_object);
     Signal *s = private_data->signal_map.getptr(p_signal);
-    ERR_FAIL_COND_MSG(!s, FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()))
+    ERR_FAIL_COND_MSG(!s, FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()));
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
     ERR_FAIL_COND_MSG(!s->slot_map.has(target),
-            "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".")
+            "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".");
 
     Signal::Slot *slot = &s->slot_map[target];
 
@@ -1757,7 +1759,7 @@ bool Object::has_script_instance_binding(int p_script_language_index) {
 
 void Object::set_script_instance_binding(int p_script_language_index, void *p_data) {
 #ifdef DEBUG_ENABLED
-    CRASH_COND(_script_instance_bindings[p_script_language_index] != nullptr)
+    CRASH_COND(_script_instance_bindings[p_script_language_index] != nullptr);
 #endif
     _script_instance_bindings[p_script_language_index] = p_data;
 }

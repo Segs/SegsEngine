@@ -98,7 +98,7 @@ static Error _check_language_desc(const godot_pluginscript_language_desc *desc) 
 void GDAPI godot_pluginscript_register_language(const godot_pluginscript_language_desc *language_desc) {
 	Error ret = _check_language_desc(language_desc);
 	if (ret) {
-        ERR_FAIL()
+        ERR_FAIL();
 	}
 	PluginScriptLanguage *language = memnew(PluginScriptLanguage(language_desc));
 	ScriptServer::register_language(language);

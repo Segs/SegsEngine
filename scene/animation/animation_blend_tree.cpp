@@ -1044,7 +1044,7 @@ void AnimationNodeBlendTree::disconnect_node(const StringName &p_node, int p_inp
     ERR_FAIL_COND(!nodes.contains(p_node))
 
     Ref<AnimationNode> input = nodes[p_node].node;
-    ERR_FAIL_INDEX(p_input_index, nodes[p_node].connections.size())
+    ERR_FAIL_INDEX(p_input_index, nodes[p_node].connections.size());
 
     nodes[p_node].connections[p_input_index] = StringName();
 }
