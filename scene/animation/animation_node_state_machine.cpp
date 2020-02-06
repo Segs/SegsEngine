@@ -912,7 +912,7 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
 
     return false;
 }
-void AnimationNodeStateMachine::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void AnimationNodeStateMachine::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     PODVector<StringName> names;
     for (const eastl::pair<const StringName,State> &E : states) {

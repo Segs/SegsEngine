@@ -243,7 +243,7 @@ bool ImageTexture::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void ImageTexture::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void ImageTexture::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic,sRGB,Mirrored Repeat"));
     p_list->push_back(PropertyInfo(VariantType::OBJECT, "image", PropertyHint::ResourceType, "Image", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESOURCE_NOT_PERSISTENT));
@@ -1686,7 +1686,7 @@ bool CubeMap::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void CubeMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void CubeMap::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
     p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));

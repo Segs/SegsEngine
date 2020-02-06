@@ -803,7 +803,7 @@ void CodeTextEditor::_code_complete_timer_timeout() {
 
 void CodeTextEditor::_complete_request() {
 
-    List<ScriptCodeCompletionOption> entries;
+    PODVector<ScriptCodeCompletionOption> entries;
     String ctext = text_editor->get_text_for_completion_utf8();
     _code_complete_script(ctext, &entries);
     bool forced = false;
@@ -813,8 +813,8 @@ void CodeTextEditor::_complete_request() {
     if (entries.empty())
         return;
 
-    for (List<ScriptCodeCompletionOption>::Element *E = entries.front(); E; E = E->next()) {
-        E->deref().icon = _get_completion_icon(E->deref());
+    for (ScriptCodeCompletionOption &E : entries) {
+        E.icon = _get_completion_icon(E);
     }
     text_editor->code_complete(entries, forced);
 }

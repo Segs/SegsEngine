@@ -134,7 +134,8 @@ bool EditorImportPlugin::get_option_visibility(const StringName &p_option, const
     return get_script_instance()->call("get_option_visibility", p_option, d);
 }
 
-Error EditorImportPlugin::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error EditorImportPlugin::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
+        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
 
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("import")), ERR_UNAVAILABLE);
     Dictionary options;

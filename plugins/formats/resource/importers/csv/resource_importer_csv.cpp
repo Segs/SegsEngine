@@ -72,7 +72,8 @@ StringName ResourceImporterCSV::get_preset_name(int p_idx) const {
 void ResourceImporterCSV::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterCSV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants, DefList<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterCSV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
+        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
     return OK;
 }
 

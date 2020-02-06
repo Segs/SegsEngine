@@ -91,7 +91,7 @@ void InspectorDock::_menu_option(int p_option) {
         case OBJECT_UNIQUE_RESOURCES: {
             editor_data->apply_changes_in_editors();
             if (current) {
-                ListPOD<PropertyInfo> props;
+                PODVector<PropertyInfo> props;
                 current->get_property_list(&props);
                 Map<RES, RES> duplicates;
                 for (const PropertyInfo &E : props) {

@@ -1113,7 +1113,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 } else {
                     _encode_string(obj->get_class(), buf, r_len);
 
-                    ListPOD<PropertyInfo> props;
+                    PODVector<PropertyInfo> props;
                     obj->get_property_list(&props);
 
                     int pc = 0;

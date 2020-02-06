@@ -88,19 +88,19 @@ void gd_mono_setup_runtime_main_args() {
     // Copy since mono_runtime_set_main_args uses arguments as char *
     ListPOD<String> cmdline_args = OS::get_singleton()->get_cmdline_args();
 
-    List<CharString> cmdline_args_utf8;
-    Vector<char *> main_args;
-    main_args.resize(cmdline_args.size() + 1);
+    PODVector<CharString> cmdline_args_utf8;
+    PODVector<char *> main_args;
+    main_args.reserve(cmdline_args.size() + 1);
 
-    main_args.write[0] = execpath.data();
+    main_args.emplace_back(execpath.data());
 
     int i = 1;
     for (String & str : cmdline_args) {
-        main_args.write[i] = str.data();
+        main_args[i] = str.data();
         i++;
     }
 
-    mono_runtime_set_main_args(main_args.size(), main_args.ptrw());
+    mono_runtime_set_main_args(main_args.size(), main_args.data());
 }
 
 void gd_mono_profiler_init() {
@@ -395,7 +395,7 @@ void GDMono::initialize() {
 void GDMono::initialize_load_assemblies() {
 
 #ifndef MONO_GLUE_ENABLED
-    CRASH_NOW_MSG("Mono: This binary was built with 'mono_glue=no'; cannot load assemblies.")
+    CRASH_NOW_MSG("Mono: This binary was built with 'mono_glue=no'; cannot load assemblies.");
 #endif
 
     // Load assemblies. The API and tools assemblies are required,

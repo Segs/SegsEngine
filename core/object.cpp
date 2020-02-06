@@ -181,7 +181,7 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
     return pi;
 }
 
-Array convert_property_list(const ListPOD<PropertyInfo> *p_list) {
+Array convert_property_list(const PODVector<PropertyInfo> *p_list) {
 
     Array va;
     for (const PropertyInfo & pi : *p_list) {
@@ -517,7 +517,7 @@ Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid)
     return current_value;
 }
 
-void Object::get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {
+void Object::get_property_list(PODVector<PropertyInfo> *p_list, bool p_reversed) const {
 
     if (script_instance && p_reversed) {
         p_list->push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));
@@ -940,7 +940,7 @@ void Object::remove_meta(se_string_view p_name) {
 
 Array Object::_get_property_list_bind() const {
 
-    ListPOD<PropertyInfo> lpi;
+    PODVector<PropertyInfo> lpi;
     get_property_list(&lpi);
     return convert_property_list(&lpi);
 }
@@ -1186,7 +1186,7 @@ void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
 }
 
 Array Object::_get_signal_list() const {
-    ListPOD<MethodInfo> signal_list;
+    PODVector<MethodInfo> signal_list;
     get_signal_list(&signal_list);
 
     Array ret;
@@ -1239,7 +1239,7 @@ Array Object::_get_incoming_connections() const {
     return ret;
 }
 
-void Object::get_signal_list(ListPOD<MethodInfo> *p_signals) const {
+void Object::get_signal_list(PODVector<MethodInfo> *p_signals) const {
 
     if (!script.is_null()) {
         Ref<Script> scr = refFromRefPtr<Script>(script);
@@ -1515,7 +1515,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
 
 void Object::clear_internal_resource_paths() {
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
 
     get_property_list(&pinfo);
 
@@ -1647,7 +1647,7 @@ bool Object::is_blocking_signals() const {
 
 void Object::get_translatable_strings(ListPOD<StringName> *p_strings) const {
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     get_property_list(&plist);
 
     for(PropertyInfo &E : plist ) {

@@ -68,19 +68,19 @@ RID VisualServer::texture_create_from_image(const Ref<Image> &p_image, uint32_t 
 
 Array VisualServer::_texture_debug_usage_bind() {
 
-    List<TextureInfo> list;
-    texture_debug_usage(&list);
+    PODVector<TextureInfo> tex_infos;
+    texture_debug_usage(&tex_infos);
     Array arr;
-    for (const List<TextureInfo>::Element *E = list.front(); E; E = E->next()) {
+    for (const TextureInfo &E : tex_infos) {
 
         Dictionary dict;
-        dict["texture"] = E->deref().texture;
-        dict["width"] = E->deref().width;
-        dict["height"] = E->deref().height;
-        dict["depth"] = E->deref().depth;
-        dict["format"] = E->deref().format;
-        dict["bytes"] = E->deref().bytes;
-        dict["path"] = E->deref().path;
+        dict["texture"] = E.texture;
+        dict["width"] = E.width;
+        dict["height"] = E.height;
+        dict["depth"] = E.depth;
+        dict["format"] = E.format;
+        dict["bytes"] = E.bytes;
+        dict["path"] = E.path;
         arr.push_back(dict);
     }
     return arr;

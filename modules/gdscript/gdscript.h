@@ -98,7 +98,7 @@ class GDScript : public Script {
 
     Map<StringName, Variant> member_default_values;
 
-    List<PropertyInfo> members_cache;
+    PODVector<PropertyInfo> members_cache;
     Map<StringName, Variant> member_default_values_cache;
     Ref<GDScript> base_cache;
     Set<ObjectID> inheriters_cache;
@@ -132,7 +132,7 @@ class GDScript : public Script {
 
 #ifdef DEBUG_ENABLED
 
-    Map<ObjectID, ListPOD<Pair<StringName, Variant> > > pending_reload_state;
+    Map<ObjectID, PODVector<Pair<StringName, Variant> > > pending_reload_state;
 
 #endif
 
@@ -143,7 +143,7 @@ class GDScript : public Script {
 protected:
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(ListPOD<PropertyInfo> *p_properties) const;
+    void _get_property_list(PODVector<PropertyInfo> *p_properties) const;
 
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     //void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount);
@@ -165,7 +165,7 @@ public:
     const StringName &get_script_class_name() const { return name; }
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(PODVector<MethodInfo> *r_signals) const override;
 
     bool is_tool() const override { return tool; }
     Ref<GDScript> get_base() const;
@@ -203,7 +203,7 @@ public:
     bool has_method(const StringName &p_method) const override;
     MethodInfo get_method_info(const StringName &p_method) const override;
 
-    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
+    void get_script_property_list(PODVector<PropertyInfo> *p_list) const override;
 
     ScriptLanguage *get_language() const override;
 
@@ -248,7 +248,7 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    void get_property_list(PODVector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
     void get_method_list(PODVector<MethodInfo> *p_list) const override;
@@ -462,14 +462,15 @@ public:
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
-    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path = {}, List<String> *r_functions = nullptr, List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path = {}, PODVector
+            <String> *r_functions = nullptr, PODVector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
     bool can_inherit_from_file() override { return true; }
     int find_function(se_string_view p_function, se_string_view p_code) const override;
     String make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const override;
-    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) override;
+    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) override;
 #ifdef TOOLS_ENABLED
     Error lookup_code(se_string_view p_code, se_string_view p_symbol, se_string_view p_path, Object *p_owner, LookupResult &r_result) override;
 #endif

@@ -140,8 +140,8 @@ private:
 
     Set<UIString> completion_prefixes;
     bool completion_enabled;
-    List<ScriptCodeCompletionOption> completion_sources;
-    Vector<ScriptCodeCompletionOption> completion_options;
+    PODVector<ScriptCodeCompletionOption> completion_sources;
+    PODVector<ScriptCodeCompletionOption> completion_options;
     bool completion_active;
     bool completion_forced;
     ScriptCodeCompletionOption completion_current;
@@ -619,7 +619,7 @@ public:
     void set_tooltip_request_func(Object *p_obj, const StringName &p_function, const Variant &p_udata);
 
     void set_completion(bool p_enabled, const Vector<UIString> &p_prefixes);
-    void code_complete(const List<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
+    void code_complete(const PODVector<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
     void set_code_hint(const String &p_hint);
     void query_code_comple();
 

@@ -79,7 +79,8 @@ void ResourceImporterCSVTranslation::get_import_options(ListPOD<ImportOption> *r
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
 }
 
-Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
+        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
 
     bool compress = p_options.at("compress").as<bool>();
 

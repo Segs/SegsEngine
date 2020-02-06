@@ -164,7 +164,7 @@ public:
     BIND2(texture_set_path, RID, se_string_view)
     BIND1RC(const String &, texture_get_path, RID)
     BIND1(texture_set_shrink_all_x2_on_set_data, bool)
-    BIND1(texture_debug_usage, List<TextureInfo> *)
+    BIND1(texture_debug_usage, PODVector<TextureInfo> *)
 
     BIND1(textures_keep_original, bool)
 

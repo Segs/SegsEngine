@@ -220,7 +220,7 @@ void InputMap::load_from_globals() {
     using namespace StringUtils;
     input_map.clear();
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     ProjectSettings::get_singleton()->get_property_list(&pinfo);
 
     for (const PropertyInfo &pi :pinfo) {

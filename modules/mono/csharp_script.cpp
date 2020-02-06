@@ -65,6 +65,7 @@
 #include "utils/mutex_utils.h"
 #include "utils/string_utils.h"
 #include "utils/thread_local.h"
+#include "EASTL/sort.h"
 
 
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
@@ -370,7 +371,7 @@ void CSharpLanguage::make_template(se_string_view p_class_name, se_string_view p
 }
 /* TODO */
 bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-        se_string_view p_path, DefList<String> *r_functions, DefList<ScriptLanguage::Warning> *r_warnings,
+        se_string_view p_path, PODVector<String> *r_functions, PODVector<ScriptLanguage::Warning> *r_warnings,
         Set<int> *r_safe_lines) const {
     return true;
 }
@@ -762,7 +763,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
 
     // There is no soft reloading with Mono. It's always hard reloading.
 
-    List<Ref<CSharpScript> > scripts;
+    PODVector<Ref<CSharpScript> > scripts;
 
     {
         SCOPED_MUTEX_LOCK(script_instances_mutex);
@@ -787,11 +788,9 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     }
 
     // As scripts are going to be reloaded, must proceed without locking here
+    eastl::sort(scripts.begin(), scripts.end(), CSharpScriptDepSort()); // Update in inheritance dependency order
 
-    scripts.sort_custom<CSharpScriptDepSort>(); // Update in inheritance dependency order
-
-    for (List<Ref<CSharpScript> >::Element *E = scripts.front(); E; E = E->next()) {
-        Ref<CSharpScript> &script = E->deref();
+    for (Ref<CSharpScript>& script : scripts) {
 
         to_reload.push_back(script);
 
@@ -848,8 +847,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     }
 
     // After the state of all instances is saved, clear scripts and script instances
-    for (List<Ref<CSharpScript> >::Element *E = scripts.front(); E; E = E->next()) {
-        Ref<CSharpScript> &script = E->deref();
+    for (Ref<CSharpScript>& script : scripts) {
 
         while (*script->instances.begin()) {
             Object *obj = *script->instances.begin();
@@ -1616,9 +1614,9 @@ bool CSharpInstance::get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void CSharpInstance::get_properties_state_for_reloading(ListPOD<Pair<StringName, Variant> > &r_state) {
+void CSharpInstance::get_properties_state_for_reloading(PODVector<Pair<StringName, Variant>> &r_state) {
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     get_property_list(&pinfo);
 
     for (const PropertyInfo &E : pinfo) {
@@ -1641,7 +1639,7 @@ void CSharpInstance::get_properties_state_for_reloading(ListPOD<Pair<StringName,
     }
 }
 
-void CSharpInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void CSharpInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
 
     for (const auto &E : script->member_info) {
         p_properties->push_back(E.second);
@@ -2771,9 +2769,9 @@ bool CSharpScript::_set(const StringName &p_name, const Variant &p_value) {
     return false;
 }
 
-void CSharpScript::_get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void CSharpScript::_get_property_list(PODVector<PropertyInfo> *p_properties) const {
 
-    p_properties->push_back(PropertyInfo(VariantType::STRING, CSharpLanguage::singleton->string_names._script_source, PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+    p_properties->emplace_back(VariantType::STRING, CSharpLanguage::singleton->string_names._script_source, PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
 }
 
 void CSharpScript::_bind_methods() {
@@ -3273,7 +3271,7 @@ bool CSharpScript::has_script_signal(const StringName &p_signal) const {
     return _signals.contains(p_signal);
 }
 
-void CSharpScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+void CSharpScript::get_script_signal_list(PODVector<MethodInfo> *r_signals) const {
     for (const auto & E : _signals) {
         MethodInfo mi;
 
@@ -3293,7 +3291,7 @@ Ref<Script> CSharpScript::get_base_script() const {
     return Ref<Script>();
 }
 
-void CSharpScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
+void CSharpScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
 
     for (const auto &E : member_info) {
         p_list->push_back(E.second);

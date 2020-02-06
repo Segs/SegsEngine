@@ -988,7 +988,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
         return;
 
     Ref<Animation> new_anim(make_ref_counted<Animation>());
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     anim->get_property_list(&plist);
     for(const PropertyInfo & E : plist) {
 

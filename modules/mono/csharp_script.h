@@ -91,7 +91,7 @@ class CSharpScript : public Script {
         // TODO
         // Replace with buffer containing the serialized state of managed scripts.
         // Keep variant state backup to use only with script instance placeholders.
-        ListPOD<Pair<StringName, Variant> > properties;
+        PODVector<Pair<StringName, Variant> > properties;
     };
 
     Set<ObjectID> pending_reload_instances;
@@ -154,7 +154,7 @@ protected:
     void _resource_path_changed() override;
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(ListPOD<PropertyInfo> *p_properties) const;
+    void _get_property_list(PODVector<PropertyInfo> *p_properties) const;
 
 public:
     bool can_instance() const override;
@@ -170,10 +170,10 @@ public:
     Error reload(bool p_keep_state = false) override;
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(PODVector<MethodInfo> *r_signals) const override;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
-    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
+    void get_script_property_list(PODVector<PropertyInfo> *p_list) const override;
     void update_exports() override;
 
     bool is_tool() const override { return tool; }
@@ -235,7 +235,7 @@ class CSharpInstance : public ScriptInstance {
 
     MultiplayerAPI_RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
 
-    void get_properties_state_for_reloading(ListPOD<Pair<StringName, Variant> > &r_state);
+    void get_properties_state_for_reloading(PODVector<Pair<StringName, Variant>> &r_state);
 
 public:
     MonoObject *get_mono_object() const;
@@ -246,7 +246,7 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    void get_property_list(PODVector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
 
     /* TODO */ void get_method_list(PODVector<MethodInfo> * /*p_list*/) const override {}
@@ -402,8 +402,8 @@ public:
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
     bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-                             se_string_view p_path = {}, DefList<String> *r_functions = nullptr,
-                             DefList<Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+            se_string_view p_path = {}, PODVector<String> *r_functions = nullptr,
+            PODVector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     String validate_path(se_string_view p_path) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;

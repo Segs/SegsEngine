@@ -985,7 +985,7 @@ bool VisualScript::has_script_signal(const StringName &p_signal) const {
     return custom_signals.contains(p_signal);
 }
 
-void VisualScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+void VisualScript::get_script_signal_list(PODVector<MethodInfo> *r_signals) const {
 
     for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
 
@@ -1067,7 +1067,7 @@ MethodInfo VisualScript::get_method_info(const StringName &p_method) const {
     return mi;
 }
 
-void VisualScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
 
     PODVector<StringName> vars;
     get_variable_list(&vars);
@@ -1417,7 +1417,7 @@ bool VisualScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
     r_ret = E->second;
     return true;
 }
-void VisualScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void VisualScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
 
     for (const eastl::pair<const StringName,VisualScript::Variable> &E : script->variables) {
 
@@ -2480,7 +2480,8 @@ void VisualScriptLanguage::make_template(se_string_view p_class_name, se_string_
     script->set_instance_base_type(StringName(p_base_class_name));
 }
 
-bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, DefList<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
+bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, PODVector<
+        String> *r_functions, PODVector<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
 
     return false;
 }

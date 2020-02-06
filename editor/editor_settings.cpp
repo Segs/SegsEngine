@@ -180,7 +180,7 @@ struct _EVCSort {
     bool operator<(const _EVCSort &p_vcs) const { return order < p_vcs.order; }
 };
 
-void EditorSettings::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void EditorSettings::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     _THREAD_SAFE_METHOD_
 

@@ -67,7 +67,7 @@ class TestPhysicsMainLoop : public MainLoop {
 
     Point2 joy_direction;
 
-    List<RID> bodies;
+    PODVector<RID> bodies;
     Map<PhysicsServer::ShapeType, RID> type_shape_map;
     Map<PhysicsServer::ShapeType, RID> type_mesh_map;
 

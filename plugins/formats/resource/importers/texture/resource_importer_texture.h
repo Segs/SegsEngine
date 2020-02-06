@@ -87,7 +87,7 @@ public:
             bool p_force_po2_for_compressed);
 
     Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
-            DefList<String> *r_platform_variants, DefList<String> *r_gen_files = nullptr,
+            PODVector<String> *r_platform_variants, PODVector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
     void build_reconfigured_list(PODVector<String> &editor_is_scanning_or_importing) override;

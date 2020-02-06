@@ -199,14 +199,17 @@ void ShaderTextEditor::_check_shader_mode() {
     }
 }
 
-void ShaderTextEditor::_code_complete_script(const String &p_code, List<ScriptCodeCompletionOption> *r_options) {
+void ShaderTextEditor::_code_complete_script(const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options) {
 
     _check_shader_mode();
 
     ShaderLanguage sl;
     String calltip;
 
-    sl.complete(p_code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types(), r_options, calltip);
+    sl.complete(p_code,
+            ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_types(), r_options, calltip);
 
     get_text_edit()->set_code_hint(calltip);
 }

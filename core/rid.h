@@ -31,21 +31,9 @@
 #pragma once
 
 #include "core/typedefs.h"
-#include "core/os/memory.h"
 #include "core/safe_refcount.h"
 #include "core/set.h"
 #include "core/error_macros.h"
-
-template <class T, class A>
-class List;
-template <class T>
-using DefList = class List<T, DefaultAllocator>;
-namespace eastl {
-template<class V,class Allocator>
-class list;
-}
-template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
 
 class RID_OwnerBase;
 

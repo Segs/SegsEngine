@@ -64,7 +64,7 @@ Variant Script::_get_property_default_value(const StringName &p_property) {
 
 Array Script::_get_script_property_list() {
     Array ret;
-    ListPOD<PropertyInfo> list;
+    PODVector<PropertyInfo> list;
     get_script_property_list(&list);
     for(PropertyInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -84,7 +84,7 @@ Array Script::_get_script_method_list() {
 
 Array Script::_get_script_signal_list() {
     Array ret;
-    ListPOD<MethodInfo> list;
+    PODVector<MethodInfo> list;
     get_script_signal_list(&list);
     for(MethodInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -287,9 +287,9 @@ void ScriptServer::save_global_classes() {
 }
 
 ////////////////////
-void ScriptInstance::get_property_state(ListPOD<Pair<StringName, Variant> > &state) {
+void ScriptInstance::get_property_state(PODVector<Pair<StringName, Variant>> &state) {
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     get_property_list(&pinfo);
 
     for(PropertyInfo &E : pinfo ) {
@@ -490,7 +490,7 @@ bool PlaceHolderScriptInstance::get(const StringName &p_name, Variant &r_ret) co
     return false;
 }
 
-void PlaceHolderScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void PlaceHolderScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
 
     if (script->is_placeholder_fallback_enabled()) {
         for (const PropertyInfo &E : properties) {

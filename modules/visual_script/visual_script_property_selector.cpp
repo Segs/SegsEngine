@@ -103,7 +103,7 @@ void VisualScriptPropertySelector::_update_search() {
 
     for (const StringName &E : base_list) {
         PODVector<MethodInfo> methods;
-        ListPOD<PropertyInfo> props;
+        PODVector<PropertyInfo> props;
         TreeItem *category = nullptr;
         Ref<Texture> type_icons[(int)VariantType::VARIANT_MAX] = {
             Control::get_icon("Variant", "EditorIcons"),

@@ -164,7 +164,7 @@ Error godot_icall_SignalAwaiter_connect(Object *p_source, MonoString *p_signal, 
 }
 
 MonoArray *godot_icall_DynamicGodotObject_SetMemberList(Object *p_ptr) {
-    ListPOD<PropertyInfo> property_list;
+    PODVector<PropertyInfo> property_list;
     p_ptr->get_property_list(&property_list);
 
     MonoArray *result = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), property_list.size());

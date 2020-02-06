@@ -1359,7 +1359,7 @@ const String &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
     ERR_FAIL_COND_V(!texture, null_se_string);
     return texture->path;
 }
-void RasterizerStorageGLES3::texture_debug_usage(List<VisualServer::TextureInfo> *r_info) {
+void RasterizerStorageGLES3::texture_debug_usage(PODVector<VisualServer::TextureInfo> *r_info) {
 
     ListPOD<RID> textures;
     texture_owner.get_owned_list(&textures);

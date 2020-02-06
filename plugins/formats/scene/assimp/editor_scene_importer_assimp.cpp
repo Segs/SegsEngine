@@ -74,7 +74,7 @@ aiBone *get_bone_by_name(const aiScene *scene, aiString bone_name) {
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 class AssimpStream : public Assimp::LogStream {
@@ -335,18 +335,16 @@ T EditorSceneImporterAssimp::_interpolate_track(const Vector<float> &p_times, co
     ERR_FAIL_V(p_values[0]);
 }
 aiBone *EditorSceneImporterAssimp::get_bone_from_stack(ImportState &state, aiString name) {
-    List<aiBone *>::Element *iter;
-    aiBone *bone = nullptr;
-    for (iter = state.bone_stack.front(); iter; iter = iter->next()) {
-        bone = (aiBone *)iter->deref();
+    for (auto iter = state.bone_stack.begin(),fin= state.bone_stack.end(); iter!=fin; ++iter) {
+        aiBone *bone = *iter;
 
         if (bone && bone->mName == name) {
-            state.bone_stack.erase(bone);
+            state.bone_stack.erase(iter);
             return bone;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiScene *scene, const uint32_t p_flags,
@@ -386,15 +384,13 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
 
         Node *last_valid_parent = nullptr;
 
-        List<const aiNode *>::Element *iter;
-        for (iter = state.nodes.front(); iter; iter = iter->next()) {
-            const aiNode *element_assimp_node = iter->deref();
+        for (const aiNode* element_assimp_node : state.nodes) {
             const aiNode *parent_assimp_node = element_assimp_node->mParent;
 
             String node_name = AssimpUtils::get_assimp_string(element_assimp_node->mName);
             //print_verbose("node: " + node_name);
 
-            Spatial *spatial = NULL;
+            Spatial *spatial = nullptr;
             Transform transform = AssimpUtils::assimp_matrix_transform(element_assimp_node->mTransformation);
 
             // retrieve this node bone
@@ -404,7 +400,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                 spatial = create_light(state, node_name, transform);
             } else if (state.camera_cache.contains(node_name)) {
                 spatial = create_camera(state, node_name, transform);
-            } else if (state.armature_nodes.find(element_assimp_node)) {
+            } else if (state.armature_nodes.contains((aiNode *)element_assimp_node)) {
                 // create skeleton
                 print_verbose("Making skeleton: " + node_name);
                 Skeleton *skeleton = memnew(Skeleton);
@@ -412,20 +408,20 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                 if (!state.armature_skeletons.contains(element_assimp_node)) {
                     state.armature_skeletons.emplace(element_assimp_node, skeleton);
                 }
-            } else if (bone != NULL) {
+            } else if (bone != nullptr) {
                 continue;
             } else {
                 spatial = memnew(Spatial);
             }
 
-            ERR_CONTINUE_MSG(spatial == NULL, "FBX Import - are we out of ram?");
+            ERR_CONTINUE_MSG(spatial == nullptr, "Assimp Import - are we out of ram?");
             // we on purpose set the transform and name after creating the node.
 
             spatial->set_name(node_name);
             spatial->set_global_transform(transform);
 
             // first element is root
-            if (iter == state.nodes.front()) {
+            if (element_assimp_node == state.nodes.front()) {
                 state.root = spatial;
             }
 
@@ -471,8 +467,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
         print_verbose("Godot bone stack count: " + itos(state.bone_stack.size()));
 
         // This is a list of bones, duplicates are from other meshes and must be dealt with properly
-        for (List<aiBone *>::Element *element = state.bone_stack.front(); element; element = element->next()) {
-            aiBone *bone = element->deref();
+        for (aiBone* bone :  state.bone_stack) {
 
             ERR_CONTINUE_MSG(!bone, "invalid bone read from assimp?");
 
@@ -514,7 +509,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
 
         print_verbose("generating mesh phase from skeletal mesh");
 
-        List<Spatial *> cleanup_template_nodes;
+        PODVector<Spatial *> cleanup_template_nodes;
 
         for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
             const aiNode *assimp_node = key_value_pair.first;
@@ -544,7 +539,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                     parent_node->remove_child(mesh_template);
 
                     // re-parent children
-                    List<Node *> children;
+                    PODVector<Node *> children;
                     // re-parent all children to new node
                     // note: since get_child_count will change during execution we must build a list first to be safe.
                     for (int childId = 0; childId < mesh_template->get_child_count(); childId++) {
@@ -553,11 +548,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                         children.push_back(child);
                     }
 
-                    for (List<Node *>::Element *element = children.front(); element; element = element->next()) {
+                    for (Node * element : children) {
                         // reparent the children to the real mesh node.
-                        mesh_template->remove_child(element->deref());
-                        mesh->add_child(element->deref());
-                        element->deref()->set_owner(state.root);
+                        mesh_template->remove_child(element);
+                        mesh->add_child(element);
+                        element->set_owner(state.root);
                     }
 
                     // update mesh in list so that each mesh node is available
@@ -572,9 +567,9 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
             }
         }
 
-        for (List<Spatial *>::Element *element = cleanup_template_nodes.front(); element; element = element->next()) {
-            if (element->deref()) {
-                memdelete(element->deref());
+        for (Spatial * element : cleanup_template_nodes) {
+            if (element) {
+                memdelete(element);
             }
         }
     }
@@ -616,7 +611,7 @@ Node *EditorSceneImporterAssimp::get_node_by_name(ImportState &state, se_string_
             return node;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /* Bone stack is a fifo handler for multiple armatures since armatures aren't a thing in assimp (yet) */
@@ -646,7 +641,7 @@ void EditorSceneImporterAssimp::RegenerateBoneStack(ImportState &state, aiMesh *
     // iterate over all the bones on the mesh for this node only!
     for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++) {
         aiBone *bone = mesh->mBones[boneIndex];
-        if (state.bone_stack.find(bone) == NULL) {
+        if (state.bone_stack.find(bone) == nullptr) {
             state.bone_stack.push_back(bone);
         }
     }
@@ -1535,7 +1530,7 @@ void EditorSceneImporterAssimp::_generate_node(
     // is this an armature
     // parent null
     // and this is the first bone :)
-    if (parent_bone == NULL && current_bone) {
+    if (parent_bone == nullptr && current_bone) {
         state.armature_nodes.push_back(assimp_node->mParent);
         print_verbose("found valid armature: " + parent_name);
     }

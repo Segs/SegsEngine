@@ -221,7 +221,7 @@ static Variant get_documentation_default_value(const StringName &p_class_name, c
         default_value = ClassDB::class_get_default_property_value(p_class_name, p_property_name, &r_default_value_valid);
     } else {
         // Cannot get default value of classes that can't be instanced
-        ListPOD<StringName> inheriting_classes;
+        PODVector<StringName> inheriting_classes;
         ClassDB::get_direct_inheriters_from_class(p_class_name, &inheriting_classes);
         for (const StringName &E2 : inheriting_classes) {
             if (ClassDB::can_instance(E2)) {
@@ -261,8 +261,8 @@ void DocData::generate(bool p_basic_types) {
         c.name = cname;
         c.inherits = ClassDB::get_parent_class(name);
 
-        ListPOD<PropertyInfo> properties;
-        ListPOD<PropertyInfo> own_properties;
+        PODVector<PropertyInfo> properties;
+        PODVector<PropertyInfo> own_properties;
         if (name == "ProjectSettings") {
             //special case for project settings, so settings can be documented
             ProjectSettings::get_singleton()->get_property_list(&properties);
@@ -424,7 +424,7 @@ void DocData::generate(bool p_basic_types) {
             c.methods.push_back(method);
         }
 
-        ListPOD<MethodInfo> signal_list;
+        PODVector<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
         if (!signal_list.empty()) {
@@ -573,7 +573,7 @@ void DocData::generate(bool p_basic_types) {
             c.methods.push_back(method);
         }
 
-        ListPOD<PropertyInfo> properties;
+        PODVector<PropertyInfo> properties;
         v.get_property_list(&properties);
         for (const PropertyInfo &pi : properties) {
 
@@ -585,7 +585,7 @@ void DocData::generate(bool p_basic_types) {
             c.properties.push_back(property);
         }
 
-        ListPOD<StringName> constants;
+        PODVector<StringName> constants;
         Variant::get_constants_for_type(VariantType(i), &constants);
 
         for (const StringName &E : constants) {

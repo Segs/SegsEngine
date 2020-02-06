@@ -940,7 +940,7 @@ static String _make_extname(se_string_view p_str) {
 
 void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes) {
 
-    ListPOD<PropertyInfo> pi;
+    PODVector<PropertyInfo> pi;
     p_node->get_property_list(&pi);
 
     MeshInstance *mi = object_cast<MeshInstance>(p_node);
@@ -972,7 +972,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, se_string_vie
         Map<Ref<Animation>, Ref<Animation>> &p_animations, Map<Ref<Material>, Ref<Material>> &p_materials,
         Map<Ref<ArrayMesh>, Ref<ArrayMesh>> &p_meshes) {
 
-    ListPOD<PropertyInfo> pi;
+    PODVector<PropertyInfo> pi;
 
     if (p_make_animations) {
         if (object_cast<AnimationPlayer>(p_node)) {
@@ -1317,7 +1317,8 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
 }
 
 Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files,
+        const Map<StringName, Variant> &p_options, PODVector<String> *r_platform_variants, PODVector<String> *
+        r_gen_files,
         Variant *r_metadata) {
 
     se_string_view src_path = p_source_file;

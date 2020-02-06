@@ -359,7 +359,7 @@ public:
     ScriptLanguage *get_language() const override;
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(PODVector<MethodInfo> *r_signals) const override;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
     void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
@@ -367,7 +367,7 @@ public:
     bool has_method(const StringName &p_method) const override;
     MethodInfo get_method_info(const StringName &p_method) const override;
 
-    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
+    void get_script_property_list(PODVector<PropertyInfo> *p_list) const override;
 
     int get_member_line(const StringName &p_member) const override;
 
@@ -412,7 +412,7 @@ class VisualScriptInstance : public ScriptInstance {
 public:
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    void get_property_list(PODVector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
     void get_method_list(PODVector<MethodInfo> *p_list) const override;
@@ -583,8 +583,8 @@ public:
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
     bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-                  se_string_view p_path = {}, DefList<String> *r_functions = nullptr,
-            List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+            se_string_view p_path = {}, PODVector<String> *r_functions = nullptr,
+            PODVector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;

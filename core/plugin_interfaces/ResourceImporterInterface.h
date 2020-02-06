@@ -53,8 +53,8 @@ public:
     virtual bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const = 0;
     virtual StringName get_option_group_file() const = 0;
     virtual Error import(se_string_view p_source_file, se_string_view p_save_path,
-            const Map<StringName, Variant> &p_options, DefList<String> *r_platform_variants,
-            DefList<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) = 0;
+            const Map<StringName, Variant> &p_options, PODVector<String> *r_platform_variants,
+            PODVector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) = 0;
     virtual Error import_group_file(se_string_view p_group_file,
             const Map<String, Map<StringName, Variant>> &p_source_file_options,
             const Map<String, String> &p_base_paths) = 0;

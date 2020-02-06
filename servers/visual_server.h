@@ -123,7 +123,7 @@ public:
         String path;
     };
 
-    virtual void texture_debug_usage(DefList<TextureInfo> *r_info) = 0;
+    virtual void texture_debug_usage(PODVector<TextureInfo> *r_info) = 0;
     Array _texture_debug_usage_bind();
 
     virtual void textures_keep_original(bool p_enable) = 0;

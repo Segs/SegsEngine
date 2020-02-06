@@ -87,7 +87,7 @@ class SceneTreeEditor : public Control {
     bool pending_test_update;
     Timer *update_timer;
 
-    ListPOD<StringName> *script_types;
+    PODVector<StringName> *script_types;
     PODVector<StringName> valid_types;
 
     void _compute_hash(Node *p_node, uint64_t &hash);

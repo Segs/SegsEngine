@@ -94,7 +94,8 @@ StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
+        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
 

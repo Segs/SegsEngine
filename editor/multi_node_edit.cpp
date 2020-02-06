@@ -119,7 +119,7 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void MultiNodeEdit::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     HashMap<StringName, PLData> usage;
 
@@ -140,7 +140,7 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         if (!n)
             continue;
 
-        ListPOD<PropertyInfo> plist;
+        PODVector<PropertyInfo> plist;
         n->get_property_list(&plist, true);
 
         for (const PropertyInfo &F : plist) {

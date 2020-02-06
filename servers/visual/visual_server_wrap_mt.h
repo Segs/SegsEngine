@@ -110,7 +110,7 @@ public:
         }
     }
     FUNC1(texture_set_shrink_all_x2_on_set_data, bool)
-    FUNC1S(texture_debug_usage, DefList<TextureInfo> *)
+    FUNC1S(texture_debug_usage, PODVector<TextureInfo> *)
 
     FUNC1(textures_keep_original, bool)
 

@@ -43,6 +43,8 @@
 #include "scene/main/instance_placeholder.h"
 #include "core/method_bind.h"
 
+#include "EASTL/sort.h"
+
 struct SVCompare
 {
     bool operator()(const StringName &a,se_string_view b) const {
@@ -220,7 +222,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                         //https://github.com/godotengine/godot/issues/2958
 
                         //store old state
-                        ListPOD<Pair<StringName, Variant> > old_state;
+                        PODVector<Pair<StringName, Variant> > old_state;
                         if (node->get_script_instance()) {
                             node->get_script_instance()->get_property_state(old_state);
                         }
@@ -502,7 +504,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // all setup, we then proceed to check all properties for the node
     // and save the ones that are worth saving
 
-    ListPOD<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     p_node->get_property_list(&plist);
     StringName type = p_node->get_class_name();
 
@@ -706,9 +708,10 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
     if (p_node != p_owner && p_node->get_owner() && p_node->get_owner() != p_owner && !p_owner->is_editable_instance(p_node->get_owner()))
         return OK;
 
-    ListPOD<MethodInfo> _signals;
+    PODVector<MethodInfo> _signals;
     p_node->get_signal_list(&_signals);
-    _signals.sort();
+    eastl::sort(_signals.begin(), _signals.end());
+    
 
     //ERR_FAIL_COND_V( !node_map.has(p_node), ERR_BUG);
     //NodeData &nd = nodes[node_map[p_node]];

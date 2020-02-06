@@ -655,7 +655,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
         }
     }
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     obj->get_property_list(&pinfo, true);
     for(PropertyInfo &E : pinfo ) {
         if (E.usage & (PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CATEGORY)) {

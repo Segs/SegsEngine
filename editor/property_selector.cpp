@@ -93,7 +93,7 @@ void PropertySelector::_update_search() {
 
     if (properties) {
 
-        ListPOD<PropertyInfo> props;
+        PODVector<PropertyInfo> props;
 
         if (instance) {
             instance->get_property_list(&props, true);

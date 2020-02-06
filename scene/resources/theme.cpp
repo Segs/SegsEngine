@@ -177,7 +177,7 @@ bool Theme::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void Theme::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Theme::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     List<PropertyInfo> list;
 

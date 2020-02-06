@@ -654,7 +654,7 @@ bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Animation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Animation::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     for (int i = 0; i < tracks.size(); i++) {
 
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName("tracks/" + itos(i) + "/type"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));

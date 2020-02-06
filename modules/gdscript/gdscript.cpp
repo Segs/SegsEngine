@@ -47,6 +47,7 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 
+#include "EASTL/deque.h"
 using namespace eastl;
 
 IMPL_GDCLASS(GDScriptNativeClass)
@@ -252,10 +253,10 @@ void GDScript::get_script_method_list(PODVector<MethodInfo> *p_list) const {
     }
 }
 
-void GDScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
+void GDScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
 
     const GDScript *sptr = this;
-    List<PropertyInfo> props;
+    Dequeue<PropertyInfo> props;
 
     while (sptr) {
 
@@ -278,10 +279,7 @@ void GDScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
 
         sptr = sptr->_base;
     }
-
-    for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
-        p_list->push_back(E->deref());
-    }
+    p_list->insert(p_list->end(),props.begin(),props.end());
 }
 
 bool GDScript::has_method(const StringName &p_method) const {
@@ -396,10 +394,7 @@ void GDScript::_update_exports_values(Map<StringName, Variant> &values, PODVecto
     for (eastl::pair<const StringName,Variant> &E : member_default_values_cache) {
         values[E.first] = E.second;
     }
-
-    for (List<PropertyInfo>::Element *E = members_cache.front(); E; E = E->next()) {
-        propnames.push_back(E->deref());
-    }
+    propnames.push_back(members_cache);
 }
 #endif
 
@@ -718,9 +713,9 @@ bool GDScript::_set(const StringName &p_name, const Variant &p_value) {
     return true;
 }
 
-void GDScript::_get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void GDScript::_get_property_list(PODVector<PropertyInfo> *p_properties) const {
 
-    p_properties->push_back(PropertyInfo(VariantType::STRING, "script/source", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+    p_properties->emplace_back(PropertyInfo(VariantType::STRING, "script/source", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 }
 
 void GDScript::_bind_methods() {
@@ -877,7 +872,7 @@ bool GDScript::has_script_signal(const StringName &p_signal) const {
 #endif
     return false;
 }
-void GDScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+void GDScript::get_script_signal_list(PODVector<MethodInfo> *r_signals) const {
 
     for (const eastl::pair<const StringName, PODVector<StringName> > &E : _signals) {
 
@@ -1107,7 +1102,7 @@ VariantType GDScriptInstance::get_property_type(const StringName &p_name, bool *
     return VariantType::NIL;
 }
 
-void GDScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void GDScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
     // exported members, not done yet!
 
     const GDScript *sptr = script.get();
@@ -1667,7 +1662,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 
     //when someone asks you why dynamically typed languages are easier to write....
 
-    Map<Ref<GDScript>, Map<ObjectID, ListPOD<Pair<StringName, Variant> > > > to_reload;
+    Map<Ref<GDScript>, Map<ObjectID, PODVector<Pair<StringName, Variant> > > > to_reload;
 
     //as scripts are going to be reloaded, must proceed without locking here
 
@@ -1680,17 +1675,17 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
         if (!reload)
             continue;
 
-        to_reload.emplace(E->deref(), Map<ObjectID, ListPOD<Pair<StringName, Variant> > >());
+        to_reload.emplace(E->deref(), Map<ObjectID, PODVector<Pair<StringName, Variant> > >());
 
         if (!p_soft_reload) {
 
             //save state and remove script from instances
-            Map<ObjectID, ListPOD<Pair<StringName, Variant> > > &map = to_reload[E->deref()];
+            Map<ObjectID, PODVector<Pair<StringName, Variant> > > &map = to_reload[E->deref()];
 
             while (E->deref()->instances.begin()!=E->deref()->instances.end()) {
                 Object *obj = *E->deref()->instances.begin();
                 //save instance info
-                ListPOD<Pair<StringName, Variant> > state;
+                PODVector<Pair<StringName, Variant> > state;
                 if (obj->get_script_instance()) {
 
                     obj->get_script_instance()->get_property_state(state);
@@ -1708,8 +1703,8 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
                 //save instance info
                 if (obj->get_script_instance()) {
 
-                    map.emplace(obj->get_instance_id(), ListPOD<Pair<StringName, Variant> >());
-                    ListPOD<Pair<StringName, Variant> > &state = map[obj->get_instance_id()];
+                    map.emplace(obj->get_instance_id(), PODVector<Pair<StringName, Variant> >());
+                    PODVector<Pair<StringName, Variant> > &state = map[obj->get_instance_id()];
                     obj->get_script_instance()->get_property_state(state);
                     obj->set_script(RefPtr());
                 } else {
@@ -1734,7 +1729,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
         //restore state if saved
         for (auto &F : E.second) {
 
-            ListPOD<Pair<StringName, Variant> > &saved_state = F.second;
+            PODVector<Pair<StringName, Variant> > &saved_state = F.second;
 
             Object *obj = ObjectDB::get_instance(F.first);
             if (!obj)

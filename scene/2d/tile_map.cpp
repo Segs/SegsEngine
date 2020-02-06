@@ -1603,7 +1603,7 @@ bool TileMap::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void TileMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void TileMap::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     PropertyInfo p(VariantType::INT, "format", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);

@@ -181,7 +181,7 @@ protected:
 
         return false;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
         if (sig == StringName())
             return;
@@ -335,7 +335,7 @@ protected:
 
         return false;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
         if (var == StringName())
             return;

@@ -425,7 +425,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
     if (property.name == "signal") {
         property.hint = PropertyHint::Enum;
 
-        ListPOD<MethodInfo> methods;
+        PODVector<MethodInfo> methods;
 
         ClassDB::get_signal_list(_get_base_type(), &methods);
 

@@ -207,7 +207,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     if (not res_orig)
                         return;
 
-                    ListPOD<PropertyInfo> property_list;
+                    PODVector<PropertyInfo> property_list;
                     res_orig->get_property_list(&property_list);
                     PODVector<Pair<StringName, Variant> > propvalues;
 
@@ -926,7 +926,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
                     Set<StringName> valid_inheritors;
                     valid_inheritors.insert(base);
-                    ListPOD<StringName> inheritors;
+                    PODVector<StringName> inheritors;
                     ClassDB::get_inheriters_from_class(StringName(StringUtils::strip_edges(base)), &inheritors);
 
                     for (int j = 0; j < custom_resources.size(); j++) {
@@ -1417,7 +1417,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 if (not res_orig)
                     return;
 
-                ListPOD<PropertyInfo> property_list;
+                PODVector<PropertyInfo> property_list;
                 res_orig->get_property_list(&property_list);
                 PODVector<Pair<StringName, Variant> > propvalues;
 

@@ -73,7 +73,7 @@ public:
 
         return false;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
         for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
             if (!importer->get_option_visibility(E->deref().name, values))

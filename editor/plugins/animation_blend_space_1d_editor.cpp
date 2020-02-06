@@ -38,6 +38,7 @@
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace1DEditor)
 
@@ -63,9 +64,9 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
         animations_menu->clear();
         animations_to_add.clear();
 
-        ListPOD<StringName> classes;
+        PODVector<StringName> classes;
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
-        classes.sort(WrapAlphaCompare());
+        eastl::sort(classes.begin(), classes.end(),WrapAlphaCompare());
 
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 

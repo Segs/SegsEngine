@@ -94,8 +94,9 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
-        ListPOD<StringName> classes;
-        classes.sort(WrapAlphaCompare());
+        PODVector<StringName> classes;
+        //BUG: SEGS: the original code was attempting to sort empty vector here, maybe it was meant to sort inheriters instead ?
+        //classes.sort(WrapAlphaCompare());
 
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));

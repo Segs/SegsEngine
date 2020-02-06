@@ -1003,7 +1003,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
     }
     return false;
 }
-void VisualShader::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualShader::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     //mode
     p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Spatial,CanvasItem,Particles"));

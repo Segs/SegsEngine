@@ -78,7 +78,8 @@ void ResourceImporterBitMap::get_import_options(ListPOD<ImportOption> *r_options
 }
 
 Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files,
+        const Map<StringName, Variant> &p_options, PODVector<String> *r_platform_variants, PODVector<String> *
+        r_gen_files,
         Variant *r_metadata) {
 
     int create_from = p_options.at("create_from");

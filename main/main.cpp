@@ -1716,7 +1716,7 @@ bool Main::start() {
                     remote_debugger->set_scene_tree(sml);
                 }
                 //autoload
-                ListPOD<PropertyInfo> props;
+                PODVector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
 
                 //first pass, add the constants so they exist before any script is loaded

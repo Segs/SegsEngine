@@ -211,7 +211,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
     return OK;
 }
 
-static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
+static Error _parse_obj(se_string_view p_path, PODVector<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
         bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, PODVector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
@@ -429,7 +429,7 @@ static Error _parse_obj(se_string_view p_path, List<Ref<Mesh>> &r_meshes, bool p
 
 Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) {
 
-    List<Ref<Mesh> > meshes;
+    PODVector<Ref<Mesh> > meshes;
 
     Error err = _parse_obj(p_path, meshes, false, p_flags &IMPORT_GENERATE_TANGENT_ARRAYS, p_flags &IMPORT_USE_COMPRESSION,
             Vector3(1, 1, 1), Vector3(0, 0, 0), r_missing_deps);
@@ -443,11 +443,11 @@ Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags,
 
     Spatial *scene = memnew(Spatial);
 
-    for (List<Ref<Mesh> >::Element *E = meshes.front(); E; E = E->next()) {
+    for (const Ref<Mesh> &E : meshes) {
 
         MeshInstance *mi = memnew(MeshInstance);
-        mi->set_mesh(E->deref());
-        mi->set_name(E->deref()->get_name());
+        mi->set_mesh(E);
+        mi->set_name(E->get_name());
         scene->add_child(mi);
         mi->set_owner(scene);
     }
@@ -508,9 +508,10 @@ bool ResourceImporterOBJ::get_option_visibility(const StringName &p_option, cons
     return true;
 }
 
-Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<String> *r_platform_variants, List<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
+        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
 
-    List<Ref<Mesh> > meshes;
+    PODVector<Ref<Mesh> > meshes;
 
     Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(),
             p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"),p_options.at("offset_mesh"), nullptr);
@@ -520,7 +521,7 @@ Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p
 
     String save_path = String(p_save_path) + ".mesh";
 
-    err = ResourceSaver::save(save_path, meshes.front()->deref());
+    err = ResourceSaver::save(save_path, meshes.front());
 
     ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Mesh to file '" + save_path + "'.");
 

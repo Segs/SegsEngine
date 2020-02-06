@@ -145,7 +145,7 @@ Array GDScriptTextDocument::completion(const Dictionary &p_params) {
     params.load(p_params);
     Dictionary request_data = params.to_json();
 
-    List<ScriptCodeCompletionOption> options;
+    PODVector<ScriptCodeCompletionOption> options;
     GDScriptLanguageProtocol::get_singleton()->get_workspace()->completion(params, &options);
 
     if (!options.empty()) {
@@ -153,9 +153,8 @@ Array GDScriptTextDocument::completion(const Dictionary &p_params) {
         int i = 0;
         arr.resize(options.size());
 
-        for (const List<ScriptCodeCompletionOption>::Element *E = options.front(); E; E = E->next()) {
+        for (const ScriptCodeCompletionOption& option : options) {
 
-            const ScriptCodeCompletionOption &option = E->deref();
             lsp::CompletionItem item;
             item.label = option.display;
             item.data = request_data;

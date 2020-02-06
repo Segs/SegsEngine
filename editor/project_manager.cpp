@@ -1224,7 +1224,7 @@ void ProjectList::load_projects() {
     // TODO Would be nice to change how projects and favourites are stored... it complicates things a bit.
     // Use a dictionary associating project path to metadata (like is_favorite).
 
-    ListPOD<PropertyInfo> properties;
+    PODVector<PropertyInfo> properties;
     EditorSettings::get_singleton()->get_property_list(&properties);
 
     Set<String> favorites;
@@ -1558,7 +1558,7 @@ int ProjectList::refresh_project(se_string_view dir_path) {
     bool should_be_in_list = false;
     StringName property_key("projects/" + project_key);
     {
-        ListPOD<PropertyInfo> properties;
+        PODVector<PropertyInfo> properties;
         EditorSettings::get_singleton()->get_property_list(&properties);
         StringName favorite_property_key("favorite_projects/" + project_key);
 
@@ -2610,7 +2610,7 @@ ProjectManager::ProjectManager() {
     language_btn->set_focus_mode(Control::FOCUS_NONE);
 
     PODVector<se_string_view> editor_languages;
-    ListPOD<PropertyInfo> editor_settings_properties;
+    PODVector<PropertyInfo> editor_settings_properties;
     EditorSettings::get_singleton()->get_property_list(&editor_settings_properties);
     for (const PropertyInfo &pi : editor_settings_properties) {
         if (pi.name == "interface/editor/editor_language") {

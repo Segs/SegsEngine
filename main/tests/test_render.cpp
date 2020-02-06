@@ -61,7 +61,7 @@ class TestMainLoop : public MainLoop {
         Vector3 rot_axis;
     };
 
-    List<InstanceInfo> instances;
+    PODVector<InstanceInfo> instances;
 
     float ofs;
     bool quit;
@@ -175,16 +175,8 @@ public:
         vs->camera_set_transform(camera, Transform(Basis(), Vector3(0, 3, 30)));
         vs->camera_set_perspective(camera, 60, 0.1f, 1000);
 
-        /*
-        RID lightaux = vs->light_create( VisualServer::LIGHT_OMNI );
-        vs->light_set_var( lightaux, VisualServer::LIGHT_VAR_RADIUS, 80 );
-        vs->light_set_var( lightaux, VisualServer::LIGHT_VAR_ATTENUATION, 1 );
-        vs->light_set_var( lightaux, VisualServer::LIGHT_VAR_ENERGY, 1.5 );
-        light = vs->instance_create( lightaux );
-        */
-        RID lightaux;
+        RID lightaux = vs->directional_light_create();
 
-        lightaux = vs->directional_light_create();
         //vs->light_set_color( lightaux, VisualServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,0.0) );
         vs->light_set_color(lightaux, Color(1.0, 1.0, 1.0));
         //vs->light_set_shadow( lightaux, true );
@@ -218,10 +210,10 @@ public:
 
         //return quit;
 
-        for (List<InstanceInfo>::Element *E = instances.front(); E; E = E->next()) {
+        for (const InstanceInfo & E : instances) {
 
-            Transform pre(Basis(E->deref().rot_axis, ofs), Vector3());
-            vs->instance_set_transform(E->deref().instance, pre * E->deref().base);
+            Transform pre(Basis(E.rot_axis, ofs), Vector3());
+            vs->instance_set_transform(E.instance, pre * E.base);
             /*
             if( !E->next() ) {
 

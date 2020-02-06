@@ -268,7 +268,7 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
     return StringName(rstr);
 }
 
-void PHashTranslation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PHashTranslation::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "hash_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "bucket_table"));

@@ -91,7 +91,7 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void MeshInstance::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void MeshInstance::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     List<StringName> ls;
     for (const eastl::pair<const StringName,BlendShapeTrack> &E : blend_shape_tracks) {

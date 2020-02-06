@@ -1626,7 +1626,7 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void AudioBusLayout::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void AudioBusLayout::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < D()->buses.size(); i++) {
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName("bus/" + itos(i) + "/name"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));

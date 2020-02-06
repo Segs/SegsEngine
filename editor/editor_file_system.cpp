@@ -1790,8 +1790,8 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     //finally, perform import!!
     String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(p_file);
 
-    List<String> import_variants;
-    List<String> gen_files;
+    PODVector<String> import_variants;
+    PODVector<String> gen_files;
     Variant metadata;
     Error err = importer->import(p_file, base_path, params, &import_variants, &gen_files, &metadata);
 
@@ -1820,11 +1820,11 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
             //no path
         } else if (!import_variants.empty()) {
             //import with variants
-            for (List<String>::Element *E = import_variants.front(); E; E = E->next()) {
+            for (const String &E : import_variants) {
 
-                String path = StringUtils::c_escape(base_path) + "." + E->deref() + "." + importer->get_save_extension();
+                String path = StringUtils::c_escape(base_path) + "." + E + "." + importer->get_save_extension();
 
-                f->store_line("path." + E->deref() + "=\"" + path + "\"");
+                f->store_line("path." + E + "=\"" + path + "\"");
                 dest_paths.push_back(path);
             }
         } else {
@@ -1848,9 +1848,9 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     if (!gen_files.empty()) {
         Array genf;
-        for (List<String>::Element *E = gen_files.front(); E; E = E->next()) {
-            genf.push_back(E->deref());
-            dest_paths.push_back(E->deref());
+        for (const String &E : gen_files) {
+            genf.push_back(E);
+            dest_paths.push_back(E);
         }
 
         String value;

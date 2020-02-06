@@ -119,7 +119,7 @@ void ClassDB::get_class_list(PODVector<StringName> *p_classes) {
     eastl::sort(p_classes->begin(),p_classes->end());
 }
 
-void ClassDB::get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes) {
+void ClassDB::get_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -130,7 +130,7 @@ void ClassDB::get_inheriters_from_class(const StringName &p_class, ListPOD<Strin
     }
 }
 
-void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes) {
+void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -661,7 +661,7 @@ void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
     class_signal_map(*type)[sname] = eastl::move(p_signal);
 }
 
-void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance) {
+void ClassDB::get_signal_list(StringName p_class, PODVector<MethodInfo> *p_signals, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -796,7 +796,7 @@ void ClassDB::set_property_default_value(StringName p_class, const StringName &p
 }
 
 void ClassDB::get_property_list(
-        StringName p_class, ListPOD<PropertyInfo> *p_list, bool p_no_inheritance, const Object *p_validator) {
+        StringName p_class, PODVector<PropertyInfo> *p_list, bool p_no_inheritance, const Object *p_validator) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -1222,7 +1222,7 @@ Variant ClassDB::class_get_default_property_value(
 
         if (c) {
 
-            ListPOD<PropertyInfo> plist;
+            PODVector<PropertyInfo> plist;
             c->get_property_list(&plist);
             for (const PropertyInfo &pi : plist) {
                 if (pi.usage & (PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR)) {

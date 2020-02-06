@@ -313,7 +313,7 @@ void EditorData::copy_object_params(Object *p_object) {
 
     clipboard.clear();
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     p_object->get_property_list(&pinfo);
 
     for (const PropertyInfo &E : pinfo) {

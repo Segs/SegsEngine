@@ -174,7 +174,7 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void SoftBody::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void SoftBody::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     const int pinned_points_indices_size = pinned_points.size();
 

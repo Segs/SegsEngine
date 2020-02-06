@@ -5332,7 +5332,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                 }
                 p = nullptr;
             } else {
-                ListPOD<PropertyInfo> props;
+                PODVector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
                 for(const PropertyInfo & E : props) {
                     StringName s = E.name;
@@ -5706,7 +5706,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
                 name_part++;
                 continue;
             }
-            ListPOD<PropertyInfo> props;
+            PODVector<PropertyInfo> props;
             ProjectSettings::get_singleton()->get_property_list(&props);
             String singleton_path;
             for(const PropertyInfo & E : props) {
@@ -7372,7 +7372,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             return true;
         }
 
-        ListPOD<PropertyInfo> properties;
+        PODVector<PropertyInfo> properties;
         scr->get_script_property_list(&properties);
         for(const PropertyInfo & E : properties) {
             if (E.name == p_member) {
@@ -7414,7 +7414,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
     }
 
     if (!base_type.is_meta_type) {
-        ListPOD<PropertyInfo> properties;
+        PODVector<PropertyInfo> properties;
         ClassDB::get_property_list(native, &properties);
         for(const PropertyInfo & E : properties) {
             if (E.name == p_member) {
@@ -7454,7 +7454,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             return true;
         }
 
-        ListPOD<PropertyInfo> properties;
+        PODVector<PropertyInfo> properties;
         ClassDB::get_property_list(native, &properties);
         for(const PropertyInfo & E : properties) {
             if (E.name == p_member) {
@@ -7593,7 +7593,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
         }
 
         // Non-tool singletons aren't loaded, check project settings
-        ListPOD<PropertyInfo> props;
+        PODVector<PropertyInfo> props;
         ProjectSettings::get_singleton()->get_property_list(&props);
 
         for(const PropertyInfo & E : props) {

@@ -191,7 +191,7 @@ bool VisualScriptFunction::_get(const StringName &p_name, Variant &r_ret) const 
 
     return false;
 }
-void VisualScriptFunction::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScriptFunction::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PropertyHint::Range, "0,256"));
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
@@ -592,7 +592,7 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void VisualScriptLists::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScriptLists::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
     if (is_input_port_editable()) {
         p_list->push_back(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,256"));
@@ -2167,7 +2167,7 @@ void VisualScriptBasicTypeConstant::_validate_property(PropertyInfo &property) c
 
     if (property.name == "constant") {
 
-        ListPOD<StringName> constants;
+        PODVector<StringName> constants;
         Variant::get_constants_for_type(type, &constants);
 
         if (constants.empty()) {
@@ -3887,29 +3887,28 @@ VisualScriptNodeInstance *VisualScriptInputAction::instance(VisualScriptInstance
 
 void VisualScriptInputAction::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "action") {
+    if (property.name != se_string_view("action"))
+        return;
 
-        property.hint = PropertyHint::Enum;
+    property.hint = PropertyHint::Enum;
+
+    PODVector<PropertyInfo> pinfo;
+    ProjectSettings::get_singleton()->get_property_list(&pinfo);
+    FixedVector<String,32,true> al;
+
+    for(const PropertyInfo &pi : pinfo) {
+
+        if (!StringUtils::begins_with(pi.name,"input/"))
+            continue;
+
+        String name(StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1));
 
 
-        ListPOD<PropertyInfo> pinfo;
-        ProjectSettings::get_singleton()->get_property_list(&pinfo);
-        FixedVector<String,32,true> al;
-
-        for(const PropertyInfo &pi : pinfo) {
-
-            if (!StringUtils::begins_with(pi.name,"input/"))
-                continue;
-
-            String name(StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1));
-
-
-            al.push_back(name);
-        }
-        eastl::sort(al.begin(),al.end());
-
-        property.hint_string = String::joined(al,",");
+        al.push_back(name);
     }
+    eastl::sort(al.begin(),al.end());
+
+    property.hint_string = String::joined(al,",");
 }
 
 void VisualScriptInputAction::_bind_methods() {
@@ -3990,7 +3989,7 @@ void VisualScriptDeconstruct::_update_elements() {
     Variant::CallError ce;
     v = Variant::construct(type, nullptr, 0, ce);
 
-    ListPOD<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
     v.get_property_list(&pinfo);
 
     for(const PropertyInfo & E : pinfo) {
