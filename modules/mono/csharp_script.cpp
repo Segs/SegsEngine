@@ -182,7 +182,7 @@ void CSharpLanguage::finish() {
     finalizing = false;
 }
 
-void CSharpLanguage::get_reserved_words(ListPOD<String> *p_words) const {
+void CSharpLanguage::get_reserved_words(PODVector<String> *p_words) const {
 
     static const char *_reserved_words[] = {
         // Reserved keywords
@@ -298,13 +298,13 @@ void CSharpLanguage::get_reserved_words(ListPOD<String> *p_words) const {
     p_words->assign(eastl::begin(_reserved_words),eastl::end(_reserved_words));
 }
 
-void CSharpLanguage::get_comment_delimiters(ListPOD<String> *p_delimiters) const {
+void CSharpLanguage::get_comment_delimiters(PODVector<String> *p_delimiters) const {
 
     p_delimiters->push_back("//"); // single-line comment
     p_delimiters->push_back("/* */"); // delimited comment
 }
 
-void CSharpLanguage::get_string_delimiters(ListPOD<String> *p_delimiters) const {
+void CSharpLanguage::get_string_delimiters(PODVector<String> *p_delimiters) const {
 
     p_delimiters->push_back("' '"); // character literal
     p_delimiters->push_back("\" \""); // regular string literal
@@ -379,7 +379,7 @@ bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r
 String CSharpLanguage::validate_path(se_string_view p_path) const {
 
     String class_name(PathUtils::get_basename(PathUtils::get_file(p_path)));
-    ListPOD<String> keywords;
+    PODVector<String> keywords;
     get_reserved_words(&keywords);
     if (keywords.contains(class_name)) {
         return TTR("Class name can't be a reserved keyword").asCString();

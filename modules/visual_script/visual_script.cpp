@@ -2457,11 +2457,11 @@ void VisualScriptLanguage::finish() {
 }
 
 /* EDITOR FUNCTIONS */
-void VisualScriptLanguage::get_reserved_words(ListPOD<String> *p_words) const {
+void VisualScriptLanguage::get_reserved_words(PODVector<String> *p_words) const {
 }
-void VisualScriptLanguage::get_comment_delimiters(ListPOD<String> *p_delimiters) const {
+void VisualScriptLanguage::get_comment_delimiters(PODVector<String> *p_delimiters) const {
 }
-void VisualScriptLanguage::get_string_delimiters(ListPOD<String> *p_delimiters) const {
+void VisualScriptLanguage::get_string_delimiters(PODVector<String> *p_delimiters) const {
 }
 Ref<Script> VisualScriptLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
 
@@ -2700,9 +2700,9 @@ void VisualScriptLanguage::get_recognized_extensions(List<String> *p_extensions)
 
     p_extensions->push_back(("vs"));
 }
-void VisualScriptLanguage::get_public_functions(List<MethodInfo> *p_functions) const {
+void VisualScriptLanguage::get_public_functions(PODVector<MethodInfo> *p_functions) const {
 }
-void VisualScriptLanguage::get_public_constants(List<Pair<se_string_view, Variant> > *p_constants) const {
+void VisualScriptLanguage::get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const {
 }
 
 void VisualScriptLanguage::profiling_start() {

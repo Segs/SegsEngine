@@ -455,9 +455,9 @@ public:
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(ListPOD<String> *p_words) const override;
-    void get_comment_delimiters(ListPOD<String> *p_delimiters) const override;
-    void get_string_delimiters(ListPOD<String> *p_delimiters) const override;
+    void get_reserved_words(PODVector<String> *p_words) const override;
+    void get_comment_delimiters(PODVector<String> *p_delimiters) const override;
+    void get_string_delimiters(PODVector<String> *p_delimiters) const override;
     virtual String _get_processed_template(se_string_view p_template, se_string_view p_base_class_name) const;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
@@ -498,8 +498,8 @@ public:
 
     void frame() override;
 
-    void get_public_functions(List<MethodInfo> *p_functions) const override;
-    void get_public_constants(List<Pair<se_string_view, Variant> > *p_constants) const override;
+    void get_public_functions(PODVector<MethodInfo> *p_functions) const override;
+    void get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const override;
 
     void profiling_start() override;
     void profiling_stop() override;

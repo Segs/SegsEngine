@@ -270,9 +270,9 @@ public:
         String message;
     };
 
-    virtual void get_reserved_words(ListPOD<String> *p_words) const = 0;
-    virtual void get_comment_delimiters(ListPOD<String> *p_delimiters) const = 0;
-    virtual void get_string_delimiters(ListPOD<String> *p_delimiters) const = 0;
+    virtual void get_reserved_words(PODVector<String> *p_words) const = 0;
+    virtual void get_comment_delimiters(PODVector<String> *p_delimiters) const = 0;
+    virtual void get_string_delimiters(PODVector<String> *p_delimiters) const = 0;
     virtual Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const = 0;
     virtual void make_template(se_string_view /*p_class_name*/, se_string_view /*p_base_class_name*/, const Ref<Script> & /*p_script*/) {}
     virtual bool is_using_templates() { return false; }
@@ -353,8 +353,8 @@ public:
     /* LOADER FUNCTIONS */
 
     virtual void get_recognized_extensions(DefList<String> *p_extensions) const = 0;
-    virtual void get_public_functions(DefList<MethodInfo> *p_functions) const = 0;
-    virtual void get_public_constants(DefList<Pair<se_string_view, Variant> > *p_constants) const = 0;
+    virtual void get_public_functions(PODVector<MethodInfo> *p_functions) const = 0;
+    virtual void get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const = 0;
 
     struct ProfilingInfo {
         StringName signature;

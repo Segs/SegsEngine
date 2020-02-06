@@ -104,7 +104,7 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, S
     }
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-        ListPOD<String> keywords;
+        PODVector<String> keywords;
         ScriptServer::get_language(i)->get_reserved_words(&keywords);
         for (const String &E : keywords) {
             if (E == p_name) {

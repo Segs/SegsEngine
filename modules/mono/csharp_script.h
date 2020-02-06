@@ -395,9 +395,9 @@ public:
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(ListPOD<String> *p_words) const override;
-    void get_comment_delimiters(ListPOD<String> *p_delimiters) const override;
-    void get_string_delimiters(ListPOD<String> *p_delimiters) const override;
+    void get_reserved_words(PODVector<String> *p_words) const override;
+    void get_comment_delimiters(PODVector<String> *p_delimiters) const override;
+    void get_string_delimiters(PODVector<String> *p_delimiters) const override;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
@@ -437,8 +437,8 @@ public:
 
     void frame() override;
 
-    /* TODO? */ void get_public_functions(DefList<MethodInfo> *p_functions) const override {}
-    /* TODO? */ void get_public_constants(DefList<Pair<se_string_view, Variant> > *p_constants) const override {}
+    /* TODO? */ void get_public_functions(PODVector<MethodInfo> *p_functions) const override {}
+    /* TODO? */ void get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const override {}
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
