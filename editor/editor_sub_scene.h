@@ -39,7 +39,7 @@ class EditorSubScene : public ConfirmationDialog {
 
 	GDCLASS(EditorSubScene,ConfirmationDialog)
 
-	List<Node *> selection;
+    PODVector<Node *> selection;
 	LineEdit *path;
 	Tree *tree;
 	Node *scene;

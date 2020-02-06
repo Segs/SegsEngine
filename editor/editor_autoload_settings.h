@@ -46,15 +46,14 @@ class EditorAutoloadSettings : public VBoxContainer {
         BUTTON_DELETE
     };
 
-    String autoload_changed;
 
     struct AutoLoadInfo {
         StringName name;
         String path;
+        Node *node;
+        int order;
         bool is_singleton;
         bool in_editor;
-        int order;
-        Node *node;
 
         bool operator==(const AutoLoadInfo &p_info) const {
             return order == p_info.order;
@@ -67,16 +66,17 @@ class EditorAutoloadSettings : public VBoxContainer {
         }
     };
 
-    List<AutoLoadInfo> autoload_cache;
-
-    bool updating_autoload;
-    int number_of_autoloads;
-    String selected_autoload;
-
+    PODVector<AutoLoadInfo> autoload_cache;
+    String autoload_changed;
     Tree *tree;
     EditorLineEditFileChooser *autoload_add_path;
     LineEdit *autoload_add_name;
     Button *add_autoload;
+
+    String selected_autoload;
+    int number_of_autoloads;
+    bool updating_autoload;
+
 
     bool _autoload_name_is_valid(const StringName &p_name, String *r_error = nullptr);
 

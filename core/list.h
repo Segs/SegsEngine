@@ -173,6 +173,8 @@ private:
     _Data *_data;
 
 public:
+    using iterator = Element *;
+
     /**
     * return a const iterator to the beginning of the list.
     */
@@ -311,31 +313,31 @@ public:
         return n;
     }
 
-    Element *insert_before(Element *p_element, const T &p_value) {
-        CRASH_COND(p_element && (!_data || p_element->data != _data));
+//    Element *insert_before(Element *p_element, const T &p_value) {
+//        CRASH_COND(p_element && (!_data || p_element->data != _data));
 
-        if (!p_element) {
-            return push_back(p_value);
-        }
+//        if (!p_element) {
+//            return push_back(p_value);
+//        }
 
-        Element *n = memnew_allocator(Element, A);
-        n->value = (T &)p_value;
-        n->prev_ptr = p_element->prev_ptr;
-        n->next_ptr = p_element;
-        n->data = _data;
+//        Element *n = memnew_allocator(Element, A);
+//        n->value = (T &)p_value;
+//        n->prev_ptr = p_element->prev_ptr;
+//        n->next_ptr = p_element;
+//        n->data = _data;
 
-        if (!p_element->prev_ptr) {
-            _data->first = n;
-        } else {
-            p_element->prev_ptr->next_ptr = n;
-        }
+//        if (!p_element->prev_ptr) {
+//            _data->first = n;
+//        } else {
+//            p_element->prev_ptr->next_ptr = n;
+//        }
 
-        p_element->prev_ptr = n;
+//        p_element->prev_ptr = n;
 
-        _data->size_cache++;
+//        _data->size_cache++;
 
-        return n;
-    }
+//        return n;
+//    }
 
     /**
      * find an element in the list,
@@ -403,31 +405,31 @@ public:
         return _data ? _data->size_cache : 0;
     }
 
-    void swap(Element *p_A, Element *p_B) {
+//    void swap(Element *p_A, Element *p_B) {
 
-        ERR_FAIL_COND(!p_A || !p_B);
-        ERR_FAIL_COND(p_A->data != _data);
-        ERR_FAIL_COND(p_B->data != _data);
+//        ERR_FAIL_COND(!p_A || !p_B);
+//        ERR_FAIL_COND(p_A->data != _data);
+//        ERR_FAIL_COND(p_B->data != _data);
 
-        Element *A_prev = p_A->prev_ptr;
-        Element *A_next = p_A->next_ptr;
+//        Element *A_prev = p_A->prev_ptr;
+//        Element *A_next = p_A->next_ptr;
 
-        p_A->next_ptr = p_B->next_ptr;
-        p_A->prev_ptr = p_B->prev_ptr;
+//        p_A->next_ptr = p_B->next_ptr;
+//        p_A->prev_ptr = p_B->prev_ptr;
 
-        p_B->next_ptr = A_next;
-        p_B->prev_ptr = A_prev;
+//        p_B->next_ptr = A_next;
+//        p_B->prev_ptr = A_prev;
 
-        if (p_A->prev_ptr)
-            p_A->prev_ptr->next_ptr = p_A;
-        if (p_A->next_ptr)
-            p_A->next_ptr->prev_ptr = p_A;
+//        if (p_A->prev_ptr)
+//            p_A->prev_ptr->next_ptr = p_A;
+//        if (p_A->next_ptr)
+//            p_A->next_ptr->prev_ptr = p_A;
 
-        if (p_B->prev_ptr)
-            p_B->prev_ptr->next_ptr = p_B;
-        if (p_B->next_ptr)
-            p_B->next_ptr->prev_ptr = p_B;
-    }
+//        if (p_B->prev_ptr)
+//            p_B->prev_ptr->next_ptr = p_B;
+//        if (p_B->next_ptr)
+//            p_B->next_ptr->prev_ptr = p_B;
+//    }
     /**
      * copy the list
      */
@@ -491,30 +493,6 @@ public:
         CRASH_NOW(); // bug!!
     }
 
-    void move_to_back(Element *p_I) {
-
-        ERR_FAIL_COND(p_I->data != _data);
-        if (!p_I->next_ptr)
-            return;
-
-        if (_data->first == p_I) {
-            _data->first = p_I->next_ptr;
-        }
-
-        if (_data->last == p_I)
-            _data->last = p_I->prev_ptr;
-
-        if (p_I->prev_ptr)
-            p_I->prev_ptr->next_ptr = p_I->next_ptr;
-
-        p_I->next_ptr->prev_ptr = p_I->prev_ptr;
-
-        _data->last->next_ptr = p_I;
-        p_I->prev_ptr = _data->last;
-        p_I->next_ptr = nullptr;
-        _data->last = p_I;
-    }
-
     void invert() {
 
         int s = size() / 2;
@@ -550,37 +528,6 @@ public:
         p_I->next_ptr = _data->first;
         p_I->prev_ptr = nullptr;
         _data->first = p_I;
-    }
-
-    void move_before(Element *value, Element *where) {
-
-        if (value->prev_ptr) {
-            value->prev_ptr->next_ptr = value->next_ptr;
-        } else {
-            _data->first = value->next_ptr;
-        }
-        if (value->next_ptr) {
-            value->next_ptr->prev_ptr = value->prev_ptr;
-        } else {
-            _data->last = value->prev_ptr;
-        }
-
-        value->next_ptr = where;
-        if (!where) {
-            value->prev_ptr = _data->last;
-            _data->last = value;
-            return;
-        }
-
-        value->prev_ptr = where->prev_ptr;
-
-        if (where->prev_ptr) {
-            where->prev_ptr->next_ptr = value;
-        } else {
-            _data->first = value;
-        }
-
-        where->prev_ptr = value;
     }
 
     /**

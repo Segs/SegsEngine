@@ -104,7 +104,7 @@ void EditorSubScene::_selected_changed() {
     ERR_FAIL_COND(!item);
     Node *n = item->get_metadata(0);
 
-    if (!n || !selection.find(n)) {
+    if (!n || !selection.contains(n)) {
         selection.clear();
         is_root = false;
     }
@@ -129,25 +129,25 @@ void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_s
         }
         selection.push_back(n);
     } else {
-        List<Node *>::Element *E = selection.find(n);
+        auto E = selection.find(n);
 
-        if (E)
+        if (E!=selection.end())
             selection.erase(E);
     }
 }
 
 void EditorSubScene::_remove_selection_child(Node *p_node) {
-    if (p_node->get_child_count() > 0) {
-        for (int i = 0; i < p_node->get_child_count(); i++) {
-            Node *c = p_node->get_child(i);
-            List<Node *>::Element *E = selection.find(c);
-            if (E) {
-                selection.move_to_back(E);
-                selection.pop_back();
-            }
-            if (c->get_child_count() > 0) {
-                _remove_selection_child(c);
-            }
+    if (p_node->get_child_count() <= 0)
+        return;
+
+    for (int i = 0; i < p_node->get_child_count(); i++) {
+        Node *c = p_node->get_child(i);
+        auto iter = selection.find(c);
+        if (iter!=selection.end()) {
+            selection.erase_unsorted(iter);
+        }
+        if (c->get_child_count() > 0) {
+            _remove_selection_child(c);
         }
     }
 }
@@ -156,8 +156,7 @@ void EditorSubScene::ok_pressed() {
     if (selection.empty()) {
         return;
     }
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Node *c = E->deref();
+    for (Node * c : selection) {
         _remove_selection_child(c);
     }
     emit_signal("subscene_selected");
@@ -191,8 +190,7 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
         return;
     }
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Node *selnode = E->deref();
+    for (Node *selnode : selection) {
         if (!selnode) {
             return;
         }
