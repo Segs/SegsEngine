@@ -213,7 +213,7 @@ Size2 GridContainer::get_minimum_size() const {
     for (int i = 0; i < get_child_count(); i++) {
 
         Control *c = object_cast<Control>(get_child(i));
-		if (!c || !c->is_visible())
+        if (!c || !c->is_visible())
             continue;
         int row = valid_controls_index / columns;
         int col = valid_controls_index % columns;
@@ -250,7 +250,5 @@ Size2 GridContainer::get_minimum_size() const {
 }
 
 GridContainer::GridContainer() {
-
-    set_mouse_filter(MOUSE_FILTER_PASS);
     columns = 1;
 }
