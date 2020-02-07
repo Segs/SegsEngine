@@ -446,13 +446,13 @@ Ref<EditorExportPreset> EditorExportPlatform::create_preset() {
     Ref<EditorExportPreset> preset(make_ref_counted<EditorExportPreset>());
     preset->platform = Ref<EditorExportPlatform>(this);
 
-    List<ExportOption> options;
+    PODVector<ExportOption> options;
     get_export_options(&options);
 
-    for (List<ExportOption>::Element *E = options.front(); E; E = E->next()) {
+    for (const ExportOption &E : options) {
 
-        preset->properties.push_back(E->deref().option);
-        preset->values[E->deref().option.name] = E->deref().default_value;
+        preset->properties.push_back(E.option);
+        preset->values[E.option.name] = E.default_value;
     }
 
     return preset;
@@ -626,14 +626,14 @@ EditorExportPlugin::EditorExportPlugin() {
 
 EditorExportPlatform::FeatureContainers EditorExportPlatform::get_feature_containers(const Ref<EditorExportPreset> &p_preset) {
     Ref<EditorExportPlatform> platform = p_preset->get_platform();
-    List<String> feature_list;
+    PODVector<String> feature_list;
     platform->get_platform_features(&feature_list);
     platform->get_preset_features(p_preset, &feature_list);
 
     FeatureContainers result;
-    for (List<String>::Element *E = feature_list.front(); E; E = E->next()) {
-        result.features.insert(E->deref());
-        result.features_pv.push_back(E->deref());
+    for (const String &E : feature_list) {
+        result.features.insert(E);
+        result.features_pv.push_back(E);
     }
 
     if (!p_preset->get_custom_features().empty()) {
@@ -1406,7 +1406,7 @@ EditorExport::~EditorExport() {
 
 //////////
 
-void EditorExportPlatformPC::get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
+void EditorExportPlatformPC::get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) {
 
     if (p_preset->get("texture_format/s3tc")) {
         r_features->push_back("s3tc");
@@ -1425,7 +1425,7 @@ void EditorExportPlatformPC::get_preset_features(const Ref<EditorExportPreset> &
     }
 }
 
-void EditorExportPlatformPC::get_export_options(List<ExportOption> *r_options) {
+void EditorExportPlatformPC::get_export_options(PODVector<EditorExportPlatform::ExportOption> *r_options) {
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/bptc"), false));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/s3tc"), true));
@@ -1484,8 +1484,8 @@ bool EditorExportPlatformPC::can_export(const Ref<EditorExportPreset> &p_preset,
     return valid;
 }
 
-List<String> EditorExportPlatformPC::get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
-    List<String> list;
+PODVector<String> EditorExportPlatformPC::get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
+    PODVector<String> list;
     for (const eastl::pair<const String,String> &E : extensions) {
         if (p_preset->get(StringName(E.first))) {
             list.push_back(E.second);
@@ -1626,7 +1626,7 @@ void EditorExportPlatformPC::add_platform_feature(se_string_view p_feature) {
     extra_features.insert(p_feature);
 }
 
-void EditorExportPlatformPC::get_platform_features(List<String> *r_features) {
+void EditorExportPlatformPC::get_platform_features(PODVector<String> *r_features) {
     r_features->push_back("pc"); //all pcs support "pc"
     r_features->push_back("s3tc"); //all pcs support "s3tc" compression
     r_features->push_back(get_os_name()); //OS name is a feature

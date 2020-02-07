@@ -119,7 +119,7 @@ class EditorExportPlatformWindows : public EditorExportPlatformPC {
 public:
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
     Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) override;
-    void get_export_options(List<ExportOption> *r_options) override;
+    void get_export_options(PODVector<ExportOption> *r_options) override;
 };
 
 Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) {
@@ -146,7 +146,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
     return err;
 }
 
-void EditorExportPlatformWindows::get_export_options(List<ExportOption> *r_options) {
+void EditorExportPlatformWindows::get_export_options(PODVector<EditorExportPlatform::ExportOption> *r_options) {
     EditorExportPlatformPC::get_export_options(r_options);
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "codesign/enable"), false));

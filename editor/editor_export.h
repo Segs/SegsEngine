@@ -187,7 +187,7 @@ protected:
     void gen_export_flags(PODVector<String> &r_flags, int p_flags);
 
 public:
-    virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) = 0;
+    virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) = 0;
 
     struct ExportOption {
         PropertyInfo option;
@@ -202,7 +202,7 @@ public:
 
     virtual Ref<EditorExportPreset> create_preset();
 
-    virtual void get_export_options(List<ExportOption> *r_options) = 0;
+    virtual void get_export_options(PODVector<ExportOption> *r_options) = 0;
     virtual bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const { return true; }
 
     virtual const String & get_os_name() const = 0;
@@ -235,11 +235,11 @@ public:
     StringName test_etc2() const; //generic test for etc2 since most platforms use it
     virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const = 0;
 
-    virtual List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const = 0;
+    virtual PODVector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const = 0;
     virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) = 0;
     virtual Error export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0);
     virtual Error export_zip(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0);
-    virtual void get_platform_features(List<String> *r_features) = 0;
+    virtual void get_platform_features(PODVector<String> *r_features) = 0;
     virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) = 0;
 
     EditorExportPlatform();
@@ -363,16 +363,16 @@ private:
     FixUpEmbeddedPckFunc fixup_embedded_pck_func;
 
 public:
-    void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) override;
+    void get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) override;
 
-    void get_export_options(List<ExportOption> *r_options) override;
+    void get_export_options(PODVector<ExportOption> *r_options) override;
 
     const String &get_name() const override;
     const String &get_os_name() const override;
     Ref<Texture> get_logo() const override;
 
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
-    List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override;
+    PODVector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override;
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
     virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path);
 
@@ -388,7 +388,7 @@ public:
     void set_debug_32(se_string_view p_file);
 
     void add_platform_feature(se_string_view p_feature);
-    void get_platform_features(List<String> *r_features) override;
+    void get_platform_features(PODVector<String> *r_features) override;
     void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) override;
 
     int get_chmod_flags() const;

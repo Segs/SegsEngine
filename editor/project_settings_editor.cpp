@@ -1021,20 +1021,16 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
     presets.insert("Server");
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_platform_count(); i++) {
-        List<String> p;
+        PODVector<String> p;
         EditorExport::get_singleton()->get_export_platform(i)->get_platform_features(&p);
-        for (List<String>::Element *E = p.front(); E; E = E->next()) {
-            presets.insert(E->deref());
-        }
+        presets.insert(p.begin(), p.end());
     }
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_preset_count(); i++) {
 
-        List<String> p;
+        PODVector<String> p;
         EditorExport::get_singleton()->get_export_preset(i)->get_platform()->get_preset_features(EditorExport::get_singleton()->get_export_preset(i), &p);
-        for (List<String>::Element *E = p.front(); E; E = E->next()) {
-            presets.insert(E->deref());
-        }
+        presets.insert(p.begin(), p.end());
 
         String custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
         PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
