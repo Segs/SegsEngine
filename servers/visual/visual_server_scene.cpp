@@ -780,9 +780,9 @@ void VisualServerScene::instance_set_extra_visibility_margin(RID p_instance, rea
     _instance_queue_update(instance, true, false);
 }
 
-Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID p_scenario) const {
+PODVector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID p_scenario) const {
 
-    Vector<ObjectID> instances;
+    PODVector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
     ERR_FAIL_COND_V(!scenario, instances);
 
@@ -791,7 +791,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID 
     int culled = 0;
     Instance *cull[1024];
     culled = scenario->octree.cull_aabb(p_aabb, cull, 1024);
-
+    instances.reserve();
     for (int i = 0; i < culled; i++) {
 
         Instance *instance = cull[i];
@@ -804,9 +804,9 @@ Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID 
 
     return instances;
 }
-Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario) const {
+PODVector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario) const {
 
-    Vector<ObjectID> instances;
+    PODVector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
     ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
@@ -814,7 +814,7 @@ Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, co
     int culled = 0;
     Instance *cull[1024];
     culled = scenario->octree.cull_segment(p_from, p_from + p_to * 10000, cull, 1024);
-
+    instances.reserve(culled/2);
     for (int i = 0; i < culled; i++) {
         Instance *instance = cull[i];
         ERR_CONTINUE(!instance);
@@ -826,9 +826,9 @@ Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, co
 
     return instances;
 }
-Vector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RID p_scenario) const {
+PODVector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RID p_scenario) const {
 
-    Vector<ObjectID> instances;
+    PODVector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
     ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling

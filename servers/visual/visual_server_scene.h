@@ -433,9 +433,9 @@ public:
     virtual void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin);
 
     // don't use these in a game!
-    virtual Vector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const;
-    virtual Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
-    virtual Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
+    virtual PODVector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const;
+    virtual PODVector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
+    virtual PODVector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
 
     virtual void instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled);
     virtual void instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting);

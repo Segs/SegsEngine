@@ -542,7 +542,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 return false;
 
             } else {
-                List<StringName> names;
+                PODVector<StringName> names;
                 names.push_back(StringName("value:"));
                 config_value_editors(1, 1, 50, names);
                 value_editor[0]->set_text(StringUtils::num(v));
@@ -715,7 +715,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 return false;
 
             } else {
-                List<StringName> names;
+                PODVector<StringName> names;
                 names.push_back(StringName("string:"));
                 config_value_editors(1, 1, 50, names);
                 value_editor[0]->set_text_uistring(v);
@@ -1835,7 +1835,7 @@ void CustomPropertyEditor::config_action_buttons(const List<StringName> &p_strin
     set_size(Size2(max_width, height) + Size2(margin_left + margin_right, margin_top + margin_bottom));
 }
 
-void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int p_label_w, const List<StringName> &p_strings) {
+void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int p_label_w, const PODVector<StringName> &p_strings) {
 
     int cell_width = 95;
     int cell_height = 25;

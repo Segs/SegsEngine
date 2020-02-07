@@ -1435,7 +1435,7 @@ void EditorInspector::update_tree() {
     if (!object)
         return;
 
-    List<Ref<EditorInspectorPlugin> > valid_plugins;
+    PODVector<Ref<EditorInspectorPlugin> > valid_plugins;
 
     for (int i = inspector_plugin_count - 1; i >= 0; i--) { //start by last, so lastly added can override newly added
         if (!inspector_plugins[i]->can_handle(object))
@@ -1470,8 +1470,7 @@ void EditorInspector::update_tree() {
 
     Color sscolor = get_color("prop_subsection", "Editor");
 
-    for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
-        Ref<EditorInspectorPlugin> ped = E->deref();
+    for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {
         ped->parse_begin(object);
         _parse_added_editors(main_vbox, ped);
     }
@@ -1537,8 +1536,7 @@ void EditorInspector::update_tree() {
                 category->set_tooltip_utf8(String(p.name.asCString()) + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
             }
 
-            for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
-                Ref<EditorInspectorPlugin> ped = E->deref();
+            for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {
                 ped->parse_category(object, p.name);
                 _parse_added_editors(main_vbox, ped);
             }
@@ -1702,8 +1700,8 @@ void EditorInspector::update_tree() {
             doc_hint = descr;
         }
 
-        for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
-            Ref<EditorInspectorPlugin> ped = E->deref();
+        for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {
+
             bool exclusive = ped->parse_property(object, p.type, p.name, p.hint, p.hint_string, p.usage);
             //make to a temporary, since plugins may be used again in a sub-inspector
             PODVector<EditorInspectorPlugin::AddedEditor> editors = eastl::move(ped->added_editors);
@@ -1781,8 +1779,7 @@ void EditorInspector::update_tree() {
         }
     }
 
-    for (List<Ref<EditorInspectorPlugin> >::Element *E = valid_plugins.front(); E; E = E->next()) {
-        Ref<EditorInspectorPlugin> ped = E->deref();
+    for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {
         ped->parse_end();
         _parse_added_editors(main_vbox, ped);
     }

@@ -551,9 +551,9 @@ public:
     BIND2(instance_set_extra_visibility_margin, RID, real_t)
 
     // don't use these in a game!
-    BIND2RC(Vector<ObjectID>, instances_cull_aabb, const AABB &, RID)
-    BIND3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
-    BIND2RC(Vector<ObjectID>, instances_cull_convex,  Span<const Plane>, RID)
+    BIND2RC(PODVector<ObjectID>, instances_cull_aabb, const AABB &, RID)
+    BIND3RC(PODVector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
+    BIND2RC(PODVector<ObjectID>, instances_cull_convex,  Span<const Plane>, RID)
 
     BIND3(instance_geometry_set_flag, RID, VS::InstanceFlags, bool)
     BIND2(instance_geometry_set_cast_shadows_setting, RID, VS::ShadowCastingSetting)
