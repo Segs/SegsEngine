@@ -127,10 +127,10 @@ bool EditorExportPreset::_get(const StringName &p_name, Variant &r_ret) const {
 
 void EditorExportPreset::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
-    for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
+    for (const PropertyInfo &E : properties) {
 
-        if (platform->get_option_visibility(E->deref().name, values)) {
-            p_list->push_back(E->deref());
+        if (platform->get_option_visibility(E.name, values)) {
+            p_list->push_back(E);
         }
     }
 }
@@ -1170,8 +1170,8 @@ void EditorExport::_save() {
 
         String option_section = "preset." + ::to_string(i) + ".options";
 
-        for (const List<PropertyInfo>::Element *E = preset->get_properties().front(); E; E = E->next()) {
-            config->set_value(option_section, E->deref().name, preset->get(E->deref().name));
+        for (const PropertyInfo &E : preset->get_properties()) {
+            config->set_value(option_section, E.name, preset->get(E.name));
         }
     }
 

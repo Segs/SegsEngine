@@ -74,7 +74,7 @@ private:
 
     Set<String> selected_files;
     PODVector<String> patches;
-    List<PropertyInfo> properties;
+    PODVector<PropertyInfo> properties;
     Map<StringName, Variant> values;
 
     int script_mode;
@@ -131,7 +131,7 @@ public:
     void set_script_encryption_key(const String &p_key);
     const String &get_script_encryption_key() const;
 
-    const List<PropertyInfo> &get_properties() const { return properties; }
+    const PODVector<PropertyInfo> &get_properties() const { return properties; }
 
     EditorExportPreset();
 };

@@ -1798,17 +1798,17 @@ void Node::remove_from_group(const StringName &p_identifier) {
 Array Node::_get_groups() const {
 
     Array groups;
-    List<GroupInfo> gi;
+    PODVector<GroupInfo> gi;
     get_groups(&gi);
-    for (List<GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
-        groups.push_back(E->deref().name);
+    for (const GroupInfo &E : gi) {
+        groups.push_back(E.name);
     }
 
     return groups;
 }
 
-void Node::get_groups(List<GroupInfo> *p_groups) const {
-
+void Node::get_groups(PODVector<GroupInfo> *p_groups) const {
+    p_groups->reserve(p_groups->size()+data->grouped.size());
     for (const eastl::pair<const StringName, GroupData> &E : data->grouped) {
         GroupInfo gi;
         gi.name = E.first;

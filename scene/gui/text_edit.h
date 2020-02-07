@@ -406,7 +406,7 @@ public:
     void set_line_as_marked(int p_line, bool p_marked);
     void set_line_as_bookmark(int p_line, bool p_bookmark);
     bool is_line_set_as_bookmark(int p_line) const;
-    void get_bookmarks(List<int> *p_bookmarks) const;
+    void get_bookmarks(PODVector<int> *p_bookmarks) const;
     Array get_bookmarks_array() const;
     void set_line_as_breakpoint(int p_line, bool p_breakpoint);
     bool is_line_set_as_breakpoint(int p_line) const;
