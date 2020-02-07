@@ -53,7 +53,7 @@ class GODOT_EXPORT Node : public Object {
     OBJ_CATEGORY("Nodes")
 
 public:
-    enum PauseMode {
+    enum PauseMode : int8_t {
 
         PAUSE_MODE_INHERIT,
         PAUSE_MODE_STOP,
@@ -91,7 +91,6 @@ private:
 
         bool persistent = false;
         SceneTreeGroup *group;
-        GroupData() = default;
     };
 
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.
@@ -103,7 +102,7 @@ private:
     struct PrivData;
     PrivData *data;
 
-    enum NameCasing {
+    enum NameCasing : int8_t {
         NAME_CASING_PASCAL_CASE,
         NAME_CASING_CAMEL_CASE,
         NAME_CASING_SNAKE_CASE

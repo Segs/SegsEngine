@@ -74,19 +74,17 @@ class GODOT_EXPORT Spatial : public Node {
         mutable Transform local_transform;
         mutable Vector3 rotation;
         mutable Vector3 scale;
-
         mutable int dirty;
 
         Viewport *viewport;
 
+        int children_lock;
+        Spatial *parent;
+        PODVector<Spatial *> children;
+
         bool toplevel_active;
         bool toplevel;
         bool inside_world;
-
-        int children_lock;
-        Spatial *parent;
-        List<Spatial *> children;
-        List<Spatial *>::Element *C;
 
         bool ignore_notification;
         bool notify_local_transform;

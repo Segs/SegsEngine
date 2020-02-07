@@ -143,7 +143,7 @@ private:
         Transform local_xform;
     };
 
-    void _find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plot_meshes, List<PlotLight> &plot_lights);
+    void _find_meshes_and_lights(Node *p_at_node, PODVector<PlotMesh> &plot_meshes, PODVector<PlotLight> &plot_lights);
 public:
     void debug_bake();
 private:

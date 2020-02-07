@@ -217,7 +217,7 @@ bool CollisionObject::is_shape_owner_disabled(uint32_t p_owner) const {
     return shapes.at(p_owner).disabled;
 }
 
-void CollisionObject::get_shape_owners(List<uint32_t> *r_owners) {
+void CollisionObject::get_shape_owners(PODVector<uint32_t> *r_owners) {
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         r_owners->push_back(E.first);

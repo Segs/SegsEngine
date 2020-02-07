@@ -40,6 +40,7 @@
 #include "skeleton.h"
 #include "scene/main/scene_tree.h"
 #include "servers/visual_server.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(MeshInstance)
 
@@ -93,16 +94,17 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
 
 void MeshInstance::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
-    List<StringName> ls;
+    PODVector<StringName> ls;
+    ls.reserve(blend_shape_tracks.size());
     for (const eastl::pair<const StringName,BlendShapeTrack> &E : blend_shape_tracks) {
 
-        ls.push_back(E.first);
+        ls.emplace_back(E.first);
     }
 
-    ls.sort();
+    eastl::sort(ls.begin(), ls.end());
 
-    for (List<StringName>::Element *E = ls.front(); E; E = E->next()) {
-        p_list->push_back(PropertyInfo(VariantType::REAL, E->deref(), PropertyHint::Range, "0,1,0.00001"));
+    for (const StringName &E : ls) {
+        p_list->push_back(PropertyInfo(VariantType::REAL, E, PropertyHint::Range, "0,1,0.00001"));
     }
 
     if (mesh) {
