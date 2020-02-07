@@ -325,7 +325,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     Vector3 pos = _get_ray_pos(p_pos);
     Vector2 shrinked_pos = p_pos / viewport_container->get_stretch_shrink();
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
+    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
@@ -392,7 +392,7 @@ void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_incl
     Vector3 ray = _get_ray(p_pos);
     Vector3 pos = _get_ray_pos(p_pos);
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
+    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     r_includes_current = false;
@@ -516,8 +516,8 @@ void SpatialEditorViewport::_select_region() {
         frustum.push_back(far);
     }
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
-    Vector<Node *> selected;
+    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
+    PODVector<Node *> selected;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
 
@@ -545,7 +545,8 @@ void SpatialEditorViewport::_select_region() {
             item = sel;
         }
 
-        if (selected.find(item) != -1) continue;
+        if (selected.contains(item))
+            continue;
 
         if (_is_node_locked(item)) continue;
 
@@ -3209,7 +3210,7 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
     Vector3 world_ray = _get_ray(p_pos);
     Vector3 world_pos = _get_ray_pos(p_pos);
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(world_pos, world_ray, get_tree()->get_root()->get_world()->get_scenario());
+    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(world_pos, world_ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     float closest_dist = MAX_DISTANCE;

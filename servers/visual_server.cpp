@@ -104,7 +104,7 @@ static Array to_array(const Vector<ObjectID> &ids) {
 
 Array VisualServer::_instances_cull_aabb_bind(const AABB &p_aabb, RID p_scenario) const {
 
-    Vector<ObjectID> ids = instances_cull_aabb(p_aabb, p_scenario);
+    PODVector<ObjectID> ids = instances_cull_aabb(p_aabb, p_scenario);
     return to_array(ids);
 }
 

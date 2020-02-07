@@ -44,7 +44,7 @@ class ImportDockParameters : public Object {
 
 public:
     Map<StringName, Variant> values;
-    List<PropertyInfo> properties;
+    PODVector<PropertyInfo> properties;
     ResourceImporterInterface *importer;
     PODVector<String> paths;
     Set<StringName> checked;
@@ -75,13 +75,13 @@ public:
     }
     void _get_property_list(PODVector<PropertyInfo> *p_list) const {
 
-        for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-            if (!importer->get_option_visibility(E->deref().name, values))
+        for (const PropertyInfo &E : properties) {
+            if (!importer->get_option_visibility(E.name, values))
                 continue;
-            PropertyInfo pi = E->deref();
+            PropertyInfo pi = E;
             if (checking) {
                 pi.usage |= PROPERTY_USAGE_CHECKABLE;
-                if (checked.contains(E->deref().name)) {
+                if (checked.contains(E.name)) {
                     pi.usage |= PROPERTY_USAGE_CHECKED;
                 }
             }
@@ -329,8 +329,8 @@ void ImportDock::_preset_selected(int p_idx) {
         case ITEM_SET_AS_DEFAULT: {
             Dictionary d;
 
-            for (const List<PropertyInfo>::Element *E = params->properties.front(); E; E = E->next()) {
-                d[E->deref().name] = params->values[E->deref().name];
+            for (const PropertyInfo &E : params->properties) {
+                d[E.name] = params->values[E.name];
             }
 
             ProjectSettings::get_singleton()->set(importer_defaults, d);
@@ -453,9 +453,9 @@ void ImportDock::_reimport() {
 
         if (params->checking) {
             //update only what edited (checkboxes)
-            for (List<PropertyInfo>::Element *E = params->properties.front(); E; E = E->next()) {
-                if (params->checked.contains(E->deref().name)) {
-                    config->set_value("params", E->deref().name.asCString(), params->values[E->deref().name]);
+            for (const PropertyInfo &E : params->properties) {
+                if (params->checked.contains(E.name)) {
+                    config->set_value("params", E.name.asCString(), params->values[E.name]);
                 }
             }
         } else {
@@ -463,8 +463,8 @@ void ImportDock::_reimport() {
             config->set_value("remap", "importer", importer_name);
             config->erase_section("params");
 
-            for (List<PropertyInfo>::Element *E = params->properties.front(); E; E = E->next()) {
-                config->set_value("params", E->deref().name.asCString(), params->values[E->deref().name]);
+            for (const PropertyInfo &E : params->properties) {
+                config->set_value("params", E.name.asCString(), params->values[E.name]);
             }
         }
 

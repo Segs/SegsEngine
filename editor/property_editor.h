@@ -151,7 +151,7 @@ class CustomPropertyEditor : public Popup {
 
     void _node_path_selected(NodePath p_path);
     void show_value_editors(int p_amount);
-    void config_value_editors(int p_amount, int p_columns, int p_label_w, const List<StringName> &p_strings);
+    void config_value_editors(int p_amount, int p_columns, int p_label_w, const PODVector<StringName> &p_strings);
     void config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const PODVector<se_string_view> &p_strings);
     void config_action_buttons(const List<StringName> &p_strings);
 
