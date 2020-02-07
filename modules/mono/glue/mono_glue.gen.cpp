@@ -13572,7 +13572,7 @@ void godot_icall_EditorInspectorPlugin_add_property_editor_856dce99(Object * ptr
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_5fd89e77(Object * ptr, MonoString* arg1, MonoArray* arg2, Object * arg3) {
+void godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3(Object * ptr, MonoString* arg1, MonoArray* arg2, Object * arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecString(arg2);
@@ -50194,7 +50194,7 @@ uint64_t get_core_api_hash() { return 3106367961743451925U; }
 uint64_t get_editor_api_hash() { return 11503419152231262158U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1580662926; }
+uint32_t get_cs_glue_version() { return 1580668175; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();
@@ -52670,7 +52670,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspector_refresh_c8e54a7b", (void*)godot_icall_EditorInspector_refresh_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c", (void*)godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_856dce99", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_856dce99);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_5fd89e77", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_5fd89e77);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_inspect_object_daca0f32", (void*)godot_icall_EditorInterface_inspect_object_daca0f32);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_selection_780b36ac", (void*)godot_icall_EditorInterface_get_selection_780b36ac);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_editor_settings_99bdc54d", (void*)godot_icall_EditorInterface_get_editor_settings_99bdc54d);

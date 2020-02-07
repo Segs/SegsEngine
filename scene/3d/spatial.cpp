@@ -109,11 +109,11 @@ void Spatial::_propagate_transform_changed(Spatial *p_origin) {
 
     data.children_lock++;
 
-    for (List<Spatial *>::Element *E = data.children.front(); E; E = E->next()) {
+    for (Spatial * E : data.children) {
 
-        if (E->deref()->data.toplevel_active)
+        if (E->data.toplevel_active)
             continue; //don't propagate to a toplevel
-        E->deref()->_propagate_transform_changed(p_origin);
+        E->_propagate_transform_changed(p_origin);
     }
 #ifdef TOOLS_ENABLED
     if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
@@ -138,9 +138,7 @@ void Spatial::_notification(int p_what) {
                 data.parent = object_cast<Spatial>(p);
 
             if (data.parent)
-                data.C = data.parent->data.children.push_back(this);
-            else
-                data.C = nullptr;
+                data.parent->data.children.push_back(this);
 
             if (data.toplevel && !Engine::get_singleton()->is_editor_hint()) {
 
@@ -162,10 +160,10 @@ void Spatial::_notification(int p_what) {
             notification(NOTIFICATION_EXIT_WORLD, true);
             if (xform_change.in_list())
                 get_tree()->xform_change_list.remove(&xform_change);
-            if (data.C)
-                data.parent->data.children.erase(data.C);
+
+            if (data.parent)
+                data.parent->data.children.erase_first(this);
             data.parent = nullptr;
-            data.C = nullptr;
             data.toplevel_active = false;
         } break;
         case NOTIFICATION_ENTER_WORLD: {
@@ -532,9 +530,8 @@ void Spatial::_propagate_visibility_changed() {
         _update_gizmo();
 #endif
 
-    for (List<Spatial *>::Element *E = data.children.front(); E; E = E->next()) {
+    for (Spatial * c : data.children) {
 
-        Spatial *c = E->deref();
         if (!c || !c->data.visible)
             continue;
         c->_propagate_visibility_changed();
@@ -848,7 +845,6 @@ Spatial::Spatial() :
     data.notify_local_transform = false;
     data.notify_transform = false;
     data.parent = nullptr;
-    data.C = nullptr;
 }
 
 Spatial::~Spatial() {

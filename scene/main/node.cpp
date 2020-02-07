@@ -74,7 +74,6 @@ se_string_view _get_name_num_separator() {
     return " ";
 }
 struct Node::PrivData {
-
     String *filename=nullptr;
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
@@ -83,12 +82,10 @@ struct Node::PrivData {
 
     Node *parent;
     Node *owner;
-    Vector<Node *> children; // list of children
+    PODVector<Node *> children; // list of children
     int pos;
     int depth;
     StringName name;
-    bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
-    bool ready_first;
 #ifdef TOOLS_ENABLED
     NodePath import_path; //path used when imported, used by scene editors to keep tracking
 #endif
@@ -105,6 +102,9 @@ struct Node::PrivData {
     Map<StringName, MultiplayerAPI_RPCMode> rpc_methods;
     Map<StringName, MultiplayerAPI_RPCMode> rpc_properties;
 
+
+    bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
+    bool ready_first;
     // variables used to properly sort the node when processing, ignored otherwise
     //should move all the stuff below to bits
     bool physics_process;
@@ -422,8 +422,8 @@ void Node::move_child(Node *p_child, int p_pos) {
     int motion_from = MIN(p_pos, p_child->data->pos);
     int motion_to = MAX(p_pos, p_child->data->pos);
 
-    data->children.remove(p_child->data->pos);
-    data->children.insert(p_pos, p_child);
+    data->children.erase_at(p_child->data->pos);
+    data->children.insert_at(p_pos, p_child);
 
     if (tree) {
         tree->tree_changed();
@@ -1094,7 +1094,7 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
             unique = false;
         } else {
             //check if exists
-            Node **children = data->children.ptrw();
+            Node **children = data->children.data();
             int cc = data->children.size();
 
             for (int i = 0; i < cc; i++) {
@@ -1166,7 +1166,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
 
     //quickly test if proposed name exists
     int cc = data->children.size(); //children count
-    const Node *const *children_ptr = data->children.ptr();
+    const Node *const *children_ptr = data->children.data();
 
     {
 
@@ -1322,7 +1322,7 @@ void Node::remove_child(Node *p_child) {
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, remove_node() failed. Consider using call_deferred(\"remove_child\", child) instead.");
 
     int child_count = data->children.size();
-    Node **children = data->children.ptrw();
+    Node **children = data->children.data();
     int idx = -1;
 
     if (p_child->data->pos >= 0 && p_child->data->pos < child_count) {
@@ -1353,11 +1353,11 @@ void Node::remove_child(Node *p_child) {
     remove_child_notify(p_child);
     p_child->notification(NOTIFICATION_UNPARENTED);
 
-    data->children.remove(idx);
+    data->children.erase_at(idx);
 
     //update pointer and size
     child_count = data->children.size();
-    children = data->children.ptrw();
+    children = data->children.data();
 
     for (int i = idx; i < child_count; i++) {
 
@@ -1390,7 +1390,7 @@ Node *Node::get_child(int p_index) const {
 Node *Node::_get_child_by_name(const StringName &p_name) const {
 
     int cc = data->children.size();
-    Node *const *cd = data->children.ptr();
+    Node *const *cd = data->children.data();
 
     for (int i = 0; i < cc; i++) {
         if (cd[i]->data->name == p_name)
@@ -1478,7 +1478,7 @@ bool Node::has_node(const NodePath &p_path) const {
 
 Node *Node::find_node(se_string_view p_mask, bool p_recursive, bool p_owned) const {
 
-    Node *const *cptr = data->children.ptr();
+    Node *const *cptr = data->children.data();
     int ccount = data->children.size();
     for (int i = 0; i < ccount; i++) {
         if (p_owned && !cptr[i]->data->owner)

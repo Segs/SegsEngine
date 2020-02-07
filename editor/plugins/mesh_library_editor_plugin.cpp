@@ -128,25 +128,25 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
                 continue;
 
             StaticBody *sb = object_cast<StaticBody>(child2);
-            List<uint32_t> shapes;
+            PODVector<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
 
-            for (List<uint32_t>::Element *E = shapes.front(); E; E = E->next()) {
-                if (sb->is_shape_owner_disabled(E->deref()))
+            for (uint32_t E : shapes) {
+                if (sb->is_shape_owner_disabled(E))
                     continue;
 
                 //Transform shape_transform = sb->shape_owner_get_transform(E->get());
 
                 //shape_transform.set_origin(shape_transform.get_origin() - phys_offset);
 
-                for (int k = 0; k < sb->shape_owner_get_shape_count(E->deref()); k++) {
+                for (int k = 0; k < sb->shape_owner_get_shape_count(E); k++) {
 
-                    Ref<Shape> collision = sb->shape_owner_get_shape(E->deref(), k);
+                    Ref<Shape> collision = sb->shape_owner_get_shape(E, k);
                     if (not collision)
                         continue;
                     MeshLibrary::ShapeData shape_data;
                     shape_data.shape = collision;
-                    shape_data.local_transform = sb->get_transform() * sb->shape_owner_get_transform(E->deref());
+                    shape_data.local_transform = sb->get_transform() * sb->shape_owner_get_transform(E);
                     collisions.push_back(shape_data);
                 }
             }

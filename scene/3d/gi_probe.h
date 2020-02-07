@@ -122,7 +122,7 @@ private:
         Transform local_xform;
     };
 public:
-    void _find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes);
+    void _find_meshes(Node *p_at_node, PODVector<PlotMesh> &plot_meshes) const;
     void _debug_bake();
 
 protected:

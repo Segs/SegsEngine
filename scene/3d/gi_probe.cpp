@@ -342,7 +342,7 @@ bool GIProbe::is_compressed() const {
     return compress;
 }
 
-void GIProbe::_find_meshes(Node *p_at_node, List<PlotMesh> &plot_meshes) {
+void GIProbe::_find_meshes(Node *p_at_node, PODVector<GIProbe::PlotMesh> &plot_meshes) const {
 
     MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
@@ -412,7 +412,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
 
     baker.begin_bake(subdiv_value[subdiv], AABB(-extents, extents * 2.0));
 
-    List<PlotMesh> mesh_list;
+    PODVector<PlotMesh> mesh_list;
 
     _find_meshes(p_from_node ? p_from_node : get_parent(), mesh_list);
 
@@ -422,7 +422,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
 
     int pmc = 0;
 
-    for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
+    for (PlotMesh & E : mesh_list) {
 
         if (bake_step_function) {
             bake_step_function(pmc, RTR_utf8("Plotting Meshes") + " " + itos(pmc) + "/" + itos(mesh_list.size()));
@@ -430,7 +430,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
 
         pmc++;
 
-        baker.plot_mesh(E->deref().local_xform, E->deref().mesh, E->deref().instance_materials, E->deref().override_material);
+        baker.plot_mesh(E.local_xform, E.mesh, E.instance_materials, E.override_material);
     }
     if (bake_step_function) {
         bake_step_function(pmc++, RTR_utf8("Finishing Plot"));

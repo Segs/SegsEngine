@@ -245,7 +245,7 @@ float BakedLightmap::get_bake_default_texels_per_unit() const {
     return bake_default_texels_per_unit;
 }
 
-void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, List<PlotMesh> &plot_meshes, List<PlotLight> &plot_lights) {
+void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, PODVector<BakedLightmap::PlotMesh> &plot_meshes, PODVector<BakedLightmap::PlotLight> &plot_lights) {
 
     MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
@@ -404,8 +404,8 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
     baker.begin_bake(bake_subdiv, bake_bounds);
 
-    List<PlotMesh> mesh_list;
-    List<PlotLight> light_list;
+    PODVector<PlotMesh> mesh_list;
+    PODVector<PlotLight> light_list;
 
     _find_meshes_and_lights(p_from_node ? p_from_node : get_parent(), mesh_list, light_list);
 
@@ -417,7 +417,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
     int pmc = 0;
 
-    for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
+    for (PlotMesh &E : mesh_list) {
 
         if (bake_step_function) {
             bake_step_function(
@@ -425,14 +425,14 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
         }
 
         pmc++;
-        baker.plot_mesh(E->deref().local_xform, E->deref().mesh, E->deref().instance_materials, E->deref().override_material);
+        baker.plot_mesh(E.local_xform, E.mesh, E.instance_materials, E.override_material);
     }
 
     pmc = 0;
     baker.begin_bake_light(
             VoxelLightBaker::BakeQuality(bake_quality), VoxelLightBaker::BakeMode(bake_mode), propagation, energy);
 
-    for (List<PlotLight>::Element *E = light_list.front(); E; E = E->next()) {
+    for (const PlotLight &pl : light_list) {
 
         if (bake_step_function) {
             bake_step_function(
@@ -440,7 +440,6 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
         }
 
         pmc++;
-        PlotLight pl = E->deref();
         switch (pl.light->get_light_type()) {
             case VS::LIGHT_DIRECTIONAL: {
                 baker.plot_light_directional(-pl.local_xform.basis.get_axis(2), pl.light->get_color(),
@@ -473,9 +472,9 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
     Set<String> used_mesh_names;
 
     pmc = 0;
-    for (List<PlotMesh>::Element *E = mesh_list.front(); E; E = E->next()) {
+    for (PlotMesh &E : mesh_list) {
 
-        String mesh_name = E->deref().mesh->get_name();
+        String mesh_name = E.mesh->get_name();
         if (mesh_name.empty() || StringUtils::contains(mesh_name, ":") || StringUtils::contains(mesh_name, "/") ) {
             mesh_name = "LightMap";
         }
@@ -501,7 +500,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
             btd.pass = step;
             btd.last_step = 0;
             err = baker.make_lightmap(
-                    E->deref().local_xform, E->deref().mesh, bake_default_texels_per_unit, lm, _bake_time, &btd);
+                    E.local_xform, E.mesh, bake_default_texels_per_unit, lm, _bake_time, &btd);
             if (err != OK) {
                 bake_end_function();
                 if (err == ERR_SKIP) return BAKE_ERROR_USER_ABORTED;
@@ -510,7 +509,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
             step += 100;
         } else {
 
-            err = baker.make_lightmap(E->deref().local_xform, E->deref().mesh, bake_default_texels_per_unit, lm);
+            err = baker.make_lightmap(E.local_xform, E.mesh, bake_default_texels_per_unit, lm);
         }
 
         if (err == OK) {
@@ -623,7 +622,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
                 ERR_FAIL_COND_V(err != OK, BAKE_ERROR_CANT_CREATE_IMAGE);
             }
 
-            new_light_data->add_user(E->deref().path, texture, E->deref().instance_idx);
+            new_light_data->add_user(E.path, texture, E.instance_idx);
         }
     }
 

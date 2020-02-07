@@ -138,9 +138,9 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
     else if (what == se_string_view("bound_children")) {
         Array children;
 
-        for (const List<uint32_t>::Element *E = bones[which].nodes_bound.front(); E; E = E->next()) {
+        for (uint32_t E : bones[which].nodes_bound) {
 
-            Object *obj = ObjectDB::get_instance(E->deref());
+            Object *obj = ObjectDB::get_instance(E);
             ERR_CONTINUE(!obj);
             Node *node = object_cast<Node>(obj);
             ERR_CONTINUE(!node);
@@ -306,9 +306,9 @@ void Skeleton::_notification(int p_what) {
                     b.global_pose_override_amount = 0.0;
                 }
 
-                for (List<uint32_t>::Element *E = b.nodes_bound.front(); E; E = E->next()) {
+                for (uint32_t E : b.nodes_bound) {
 
-                    Object *obj = ObjectDB::get_instance(E->deref());
+                    Object *obj = ObjectDB::get_instance(E);
                     ERR_CONTINUE(!obj);
                     Spatial *sp = object_cast<Spatial>(obj);
                     ERR_CONTINUE(!sp);
@@ -492,11 +492,8 @@ void Skeleton::bind_child_node_to_bone(int p_bone, Node *p_node) {
 
     uint32_t id = p_node->get_instance_id();
 
-    for (const List<uint32_t>::Element *E = bones[p_bone].nodes_bound.front(); E; E = E->next()) {
-
-        if (E->deref() == id)
-            return; // already here
-    }
+    if(bones[p_bone].nodes_bound.contains(id))
+        return; // already here
 
     bones[p_bone].nodes_bound.push_back(id);
 }
@@ -506,15 +503,15 @@ void Skeleton::unbind_child_node_from_bone(int p_bone, Node *p_node) {
     ERR_FAIL_INDEX(p_bone, bones.size());
 
     uint32_t id = p_node->get_instance_id();
-    bones[p_bone].nodes_bound.erase(id);
+    bones[p_bone].nodes_bound.erase_first(id);
 }
 void Skeleton::get_bound_child_nodes_to_bone(int p_bone, List<Node *> *p_bound) const {
 
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    for (const List<uint32_t>::Element *E = bones[p_bone].nodes_bound.front(); E; E = E->next()) {
+    for (uint32_t E : bones[p_bone].nodes_bound) {
 
-        Object *obj = ObjectDB::get_instance(E->deref());
+        Object *obj = ObjectDB::get_instance(E);
         ERR_CONTINUE(!obj);
         p_bound->push_back(object_cast<Node>(obj));
     }
