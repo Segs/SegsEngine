@@ -395,7 +395,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
     int lines = 0;
     String error_text;
 
-    List<String> to_check;
+    PODVector<String> to_check;
 
     String source_file;
     String source_md5;
@@ -480,8 +480,8 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
     memdelete(md5s);
 
     //imported files are gone, reimport
-    for (List<String>::Element *E = to_check.front(); E; E = E->next()) {
-        if (!FileAccess::exists(E->deref())) {
+    for (const String &E : to_check) {
+        if (!FileAccess::exists(E)) {
             return true;
         }
     }
