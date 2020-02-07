@@ -598,10 +598,9 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // save the groups this node is into
     // discard groups that come from the original scene
 
-    List<Node::GroupInfo> groups;
+    PODVector<Node::GroupInfo> groups;
     p_node->get_groups(&groups);
-    for (List<Node::GroupInfo>::Element *E = groups.front(); E; E = E->next()) {
-        Node::GroupInfo &gi = E->deref();
+    for (Node::GroupInfo &gi : groups) {
 
         if (!gi.persistent)
             continue;

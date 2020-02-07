@@ -2167,16 +2167,16 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 #endif
 
     if (p_flags & DUPLICATE_GROUPS) {
-        List<GroupInfo> gi;
+        PODVector<GroupInfo> gi;
         get_groups(&gi);
-        for (List<GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
+        for (const GroupInfo &E : gi) {
 
 #ifdef TOOLS_ENABLED
-            if ((p_flags & DUPLICATE_FROM_EDITOR) && !E->deref().persistent)
+            if ((p_flags & DUPLICATE_FROM_EDITOR) && !E.persistent)
                 continue;
 #endif
 
-            node->add_to_group(E->deref().name, E->deref().persistent);
+            node->add_to_group(E.name, E.persistent);
         }
     }
 
@@ -2292,11 +2292,11 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
         node->set(name, value);
     }
 
-    List<GroupInfo> groups;
+    PODVector<GroupInfo> groups;
     get_groups(&groups);
 
-    for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next())
-        node->add_to_group(E->deref().name, E->deref().persistent);
+    for (const GroupInfo &E : groups)
+        node->add_to_group(E.name, E.persistent);
 
     node->set_name(get_name());
     p_new_parent->add_child(node);
@@ -2392,11 +2392,11 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
         node->set(name, get(name));
     }
 
-    List<GroupInfo> groups;
+    PODVector<GroupInfo> groups;
     get_groups(&groups);
 
-    for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next())
-        node->add_to_group(E->deref().name, E->deref().persistent);
+    for (const GroupInfo &E : groups)
+        node->add_to_group(E.name, E.persistent);
 
     for (int i = 0; i < get_child_count(); i++) {
 
@@ -2452,11 +2452,11 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
             rd.value = get(rd.name);
         }
 
-        List<GroupInfo> groups;
+        PODVector<GroupInfo> groups;
         get_groups(&groups);
 
-        for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next())
-            p_node->add_to_group(E->deref().name, E->deref().persistent);
+        for (const GroupInfo &E : groups)
+            p_node->add_to_group(E.name, E.persistent);
     }
 
     _replace_connections_target(p_node);
