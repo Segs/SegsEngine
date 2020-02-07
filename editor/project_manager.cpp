@@ -2173,7 +2173,7 @@ void ProjectManager::_run_project() {
     }
 }
 
-void ProjectManager::_scan_dir(se_string_view path, List<String> *r_projects) {
+void ProjectManager::_scan_dir(se_string_view path, PODVector<String> *r_projects) {
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     da->change_dir(path);
     da->list_dir_begin();
@@ -2193,13 +2193,13 @@ void ProjectManager::_scan_dir(se_string_view path, List<String> *r_projects) {
 void ProjectManager::_scan_begin(se_string_view p_base) {
 
     print_line(String("Scanning projects at: ") + p_base);
-    List<String> projects;
+    PODVector<String> projects;
     _scan_dir(p_base, &projects);
     print_line("Found " + itos(projects.size()) + " projects.");
 
-    for (List<String>::Element *E = projects.front(); E; E = E->next()) {
-        String proj = get_project_key_from_path(E->deref());
-        EditorSettings::get_singleton()->set(StringName("projects/" + proj), E->deref());
+    for (const String &E : projects) {
+        String proj = get_project_key_from_path(E);
+        EditorSettings::get_singleton()->set(StringName("projects/" + proj), E);
     }
     EditorSettings::get_singleton()->save();
     _load_recent_projects();

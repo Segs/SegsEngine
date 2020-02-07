@@ -383,7 +383,7 @@ void EditorAutoloadSettings::update_autoload() {
     updating_autoload = true;
 
     Map<se_string_view, AutoLoadInfo> to_remove;
-    List<AutoLoadInfo *> to_add;
+    PODVector<AutoLoadInfo *> to_add;
 
     for (AutoLoadInfo &info : autoload_cache) {
         to_remove.emplace(info.name, info);
@@ -483,8 +483,7 @@ void EditorAutoloadSettings::update_autoload() {
 
     // Load new/changed autoloads
     PODVector<Node *> nodes_to_add;
-    for (List<AutoLoadInfo *>::Element *E = to_add.front(); E; E = E->next()) {
-        AutoLoadInfo *info = E->deref();
+    for (AutoLoadInfo *info : to_add) {
 
         info->node = _create_autoload(info->path);
 

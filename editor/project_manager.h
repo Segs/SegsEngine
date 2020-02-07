@@ -103,7 +103,7 @@ class ProjectManager : public Control {
     void _on_project_created(se_string_view dir);
     void _on_projects_updated();
     void _update_scroll_position(const UIString &dir);
-    void _scan_dir(se_string_view path, List<String> *r_projects);
+    void _scan_dir(se_string_view path, PODVector<String> *r_projects);
 
     void _install_project(se_string_view p_zip_path, se_string_view p_title);
 
