@@ -39,6 +39,8 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(GroupDialog)
 IMPL_GDCLASS(GroupsEditor)
 
@@ -288,14 +290,14 @@ void GroupDialog::_rename_group_item(se_string_view p_old_name, se_string_view p
 }
 
 void GroupDialog::_load_groups(Node *p_current) {
-    List<Node::GroupInfo> gi;
+    PODVector<Node::GroupInfo> gi;
     p_current->get_groups(&gi);
 
-    for (List<Node::GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
-        if (!E->deref().persistent) {
+    for (const Node::GroupInfo &E : gi) {
+        if (!E.persistent) {
             continue;
         }
-        _add_group(E->deref().name);
+        _add_group(E.name);
     }
 
     for (int i = 0; i < p_current->get_child_count(); i++) {
@@ -618,15 +620,14 @@ void GroupsEditor::update_tree() {
     if (!node)
         return;
 
-    List<Node::GroupInfo> groups;
+    PODVector<Node::GroupInfo> groups;
     node->get_groups(&groups);
-    groups.sort_custom<_GroupInfoComparator>();
+    eastl::sort(groups.begin(),groups.end(),_GroupInfoComparator());
 
     TreeItem *root = tree->create_item();
 
-    for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next()) {
+    for (const GroupInfo &gi : groups) {
 
-        Node::GroupInfo gi = E->deref();
         if (!gi.persistent)
             continue;
 

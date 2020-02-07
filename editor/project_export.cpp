@@ -611,8 +611,8 @@ void ProjectExportDialog::_duplicate_preset() {
     }
     preset->set_custom_features(current->get_custom_features());
 
-    for (const List<PropertyInfo>::Element *E = current->get_properties().front(); E; E = E->next()) {
-        preset->set(E->deref().name, current->get(E->deref().name));
+    for (const PropertyInfo &E : current->get_properties()) {
+        preset->set(E.name, current->get(E.name));
     }
 
     EditorExport::get_singleton()->add_export_preset(preset);

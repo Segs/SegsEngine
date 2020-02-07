@@ -44,6 +44,7 @@
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
+#include "EASTL/deque.h"
 #include "EASTL/sort.h"
 
 using namespace eastl;
@@ -1231,7 +1232,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
     bbcode = bbcode.replaced("[codeblock]\n", "[codeblock]");
     bbcode = bbcode.replaced("\n[/codeblock]", "[/codeblock]");
 
-    List<se_string_view> tag_stack;
+    Dequeue<se_string_view> tag_stack;
     bool code_tag = false;
 
     size_t pos = 0;
@@ -1267,7 +1268,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
         se_string_view tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
         if (StringUtils::begins_with(tag,"/")) {
-            bool tag_ok = !tag_stack.empty() && tag_stack.front()->deref() == StringUtils::substr(tag,1, tag.length());
+            bool tag_ok = !tag_stack.empty() && tag_stack.front() == StringUtils::substr(tag,1, tag.length());
 
             if (!tag_ok) {
 

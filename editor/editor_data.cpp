@@ -324,7 +324,7 @@ void EditorData::copy_object_params(Object *p_object) {
         PropertyData pd;
         pd.name = E.name;
         pd.value = p_object->get(E.name);
-        clipboard.push_back(pd);
+        clipboard.emplace_back(pd);
     }
 }
 
@@ -437,9 +437,9 @@ void EditorData::restore_editor_global_states() {
 
 void EditorData::paste_object_params(Object *p_object) {
 
-    for (List<PropertyData>::Element *E = clipboard.front(); E; E = E->next()) {
+    for (const PropertyData &E : clipboard) {
 
-        p_object->set(E->deref().name, E->deref().value);
+        p_object->set(E.name, E.value);
     }
 }
 

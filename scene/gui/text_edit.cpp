@@ -5856,7 +5856,7 @@ void TextEdit::set_line_as_bookmark(int p_line, bool p_bookmark) {
     update();
 }
 
-void TextEdit::get_bookmarks(List<int> *p_bookmarks) const {
+void TextEdit::get_bookmarks(PODVector<int> *p_bookmarks) const {
 
     for (int i = 0; i < m_priv->text.size(); i++) {
         if (m_priv->text.is_bookmark(i))

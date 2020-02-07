@@ -257,7 +257,7 @@ public:
         bool persistent;
     };
 
-    void get_groups(DefList<GroupInfo> *p_groups) const;
+    void get_groups(PODVector<GroupInfo> *p_groups) const;
     int get_persistent_group_count() const;
 
     void move_child(Node *p_child, int p_pos);

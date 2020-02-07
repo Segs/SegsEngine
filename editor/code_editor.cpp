@@ -1562,7 +1562,7 @@ void CodeTextEditor::toggle_bookmark() {
 
 void CodeTextEditor::goto_next_bookmark() {
 
-    List<int> bmarks;
+    PODVector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
     if (bmarks.empty()) {
         return;
@@ -1574,8 +1574,7 @@ void CodeTextEditor::goto_next_bookmark() {
         text_editor->cursor_set_line(bmarks[0]);
         text_editor->center_viewport_to_cursor();
     } else {
-        for (List<int>::Element *E = bmarks.front(); E; E = E->next()) {
-            int bline = E->deref();
+        for (int bline : bmarks) {
             if (bline > line) {
                 text_editor->unfold_line(bline);
                 text_editor->cursor_set_line(bline);
@@ -1588,7 +1587,7 @@ void CodeTextEditor::goto_next_bookmark() {
 
 void CodeTextEditor::goto_prev_bookmark() {
 
-    List<int> bmarks;
+    PODVector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
     if (bmarks.empty()) {
         return;
@@ -1600,8 +1599,7 @@ void CodeTextEditor::goto_prev_bookmark() {
         text_editor->cursor_set_line(bmarks[bmarks.size() - 1]);
         text_editor->center_viewport_to_cursor();
     } else {
-        for (List<int>::Element *E = bmarks.back(); E; E = E->prev()) {
-            int bline = E->deref();
+        for (int bline : bmarks) {
             if (bline < line) {
                 text_editor->unfold_line(bline);
                 text_editor->cursor_set_line(bline);
@@ -1614,11 +1612,11 @@ void CodeTextEditor::goto_prev_bookmark() {
 
 void CodeTextEditor::remove_all_bookmarks() {
 
-    List<int> bmarks;
+    PODVector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
 
-    for (List<int>::Element *E = bmarks.front(); E; E = E->next()) {
-        text_editor->set_line_as_bookmark(E->deref(), false);
+    for (int E : bmarks) {
+        text_editor->set_line_as_bookmark(E, false);
     }
 }
 

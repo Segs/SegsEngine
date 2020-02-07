@@ -136,7 +136,7 @@ private:
     };
     Map<StringName, PODVector<CustomType> > custom_types;
 
-    List<PropertyData> clipboard;
+    PODVector<PropertyData> clipboard;
     UndoRedo undo_redo;
 
     void _cleanup_history();
