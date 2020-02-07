@@ -34,11 +34,12 @@
 #include "core/property_info.h"
 #include "core/list.h"
 
+#include "EASTL/deque.h"
 class MultiNodeEdit : public RefCounted {
 
     GDCLASS(MultiNodeEdit,RefCounted)
-    //TODO: SEGS replace NodePath storage with deque here.
-    List<NodePath> nodes;
+
+    Dequeue<NodePath> nodes;
     struct PLData {
         int uses;
         PropertyInfo info;

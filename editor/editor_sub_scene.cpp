@@ -164,7 +164,7 @@ void EditorSubScene::ok_pressed() {
     clear();
 }
 
-void EditorSubScene::_reown(Node *p_node, List<Node *> *p_to_reown) {
+void EditorSubScene::_reown(Node *p_node, PODVector<Node *> *p_to_reown) {
 
     if (p_node == scene) {
 
@@ -194,15 +194,15 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
         if (!selnode) {
             return;
         }
-        List<Node *> to_reown;
+        PODVector<Node *> to_reown;
         _reown(selnode, &to_reown);
         if (selnode != scene) {
             selnode->get_parent()->remove_child(selnode);
         }
 
         p_new_parent->add_child(selnode);
-        for (List<Node *>::Element *F = to_reown.front(); F; F = F->next()) {
-            F->deref()->set_owner(p_new_owner);
+        for (Node *F : to_reown) {
+            F->set_owner(p_new_owner);
         }
     }
     if (!is_root) {

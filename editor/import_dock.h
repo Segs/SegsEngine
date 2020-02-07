@@ -49,7 +49,7 @@ class ImportDock : public VBoxContainer {
     MenuButton *preset;
     EditorInspector *import_opts;
 
-    List<PropertyInfo> properties;
+    PODVector<PropertyInfo> properties;
     Map<StringName, Variant> property_values;
 
     ConfirmationDialog *reimport_confirm;

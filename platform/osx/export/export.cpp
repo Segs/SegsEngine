@@ -55,8 +55,8 @@ class EditorExportPlatformOSX final : public EditorExportPlatform {
 
     Ref<ImageTexture> logo;
 
-    void _fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, se_string_view p_binary);
-    void _make_icon(const Ref<Image> &p_icon, Vector<uint8_t> &p_data);
+    void _fix_plist(const Ref<EditorExportPreset> &p_preset, PODVector<uint8_t> &plist, se_string_view p_binary);
+    void _make_icon(const Ref<Image> &p_icon, PODVector<uint8_t> &p_data);
 
     Error _code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path);
     Error _create_dmg(se_string_view p_dmg_path, se_string_view p_pkg_name, se_string_view p_app_path_name);
@@ -70,31 +70,31 @@ class EditorExportPlatformOSX final : public EditorExportPlatform {
 #endif
 
 protected:
-    void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) override;
-    void get_export_options(List<ExportOption> *r_options) override;
+    void get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) override;
+    void get_export_options(PODVector<ExportOption> *r_options) override;
 
 public:
     const String & get_name() const override { static const String v("Mac OSX"); return v;}
     const String & get_os_name() const override { static const String v("OSX"); return v; }
     Ref<Texture> get_logo() const override { return logo; }
 
-    List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const  override {
-        List<String> list;
+    PODVector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override {
+        PODVector<String> list;
         if (use_dmg()) {
-            list.push_back(("dmg"));
+            list.push_back("dmg");
         }
-        list.push_back(("zip"));
+        list.push_back("zip");
         return list;
     }
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
 
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
 
-    void get_platform_features(List<String> *r_features) override {
+    void get_platform_features(PODVector<String> *r_features) override {
 
-        r_features->push_back(("pc"));
-        r_features->push_back(("s3tc"));
-        r_features->push_back(("OSX"));
+        r_features->push_back("pc");
+        r_features->push_back("s3tc");
+        r_features->push_back("OSX");
     }
 
     void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) override {
@@ -106,21 +106,21 @@ public:
 
 IMPL_GDCLASS(EditorExportPlatformOSX)
 
-void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
+void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) {
     if (p_preset->get("texture_format/s3tc")) {
-        r_features->push_back(("s3tc"));
+        r_features->push_back("s3tc");
     }
     if (p_preset->get("texture_format/etc")) {
-        r_features->push_back(("etc"));
+        r_features->push_back("etc");
     }
     if (p_preset->get("texture_format/etc2")) {
-        r_features->push_back(("etc2"));
+        r_features->push_back("etc2");
     }
 
-    r_features->push_back(("64"));
+    r_features->push_back("64");
 }
 
-void EditorExportPlatformOSX::get_export_options(List<ExportOption> *r_options) {
+void EditorExportPlatformOSX::get_export_options(PODVector<EditorExportPlatform::ExportOption> *r_options) {
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/debug", PropertyHint::GlobalFile, "*.zip"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/release", PropertyHint::GlobalFile, "*.zip"), ""));
@@ -151,7 +151,7 @@ void EditorExportPlatformOSX::get_export_options(List<ExportOption> *r_options) 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/etc2"), false));
 }
 
-void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_source, Vector<uint8_t> &p_dest) {
+void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_source, PODVector<uint8_t> &p_dest) {
 
     int src_len = p_size * p_size;
 
@@ -168,7 +168,7 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
 
         if (i < src_len - 2) {
 
-            if ((p_source.read()[(i + 1) * 4 + p_ch] == cur) && (p_source.read()[(i + 2) * 4 + p_ch] == cur)) {
+            if (p_source.read()[(i + 1) * 4 + p_ch] == cur && p_source.read()[(i + 2) * 4 + p_ch] == cur) {
                 if (buf_size > 0) {
                     result.write[res_size++] = (uint8_t)(buf_size - 1);
                     memcpy(&result.write[res_size], &buf, buf_size);
@@ -215,20 +215,20 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
 
     int ofs = p_dest.size();
     p_dest.resize(p_dest.size() + res_size);
-    memcpy(&p_dest.write[ofs], result.ptr(), res_size);
+    memcpy(&p_dest[ofs], result.ptr(), res_size);
 }
 
-void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_t> &p_data) {
+void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, PODVector<uint8_t> &p_data) {
 
     Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
 
-    Vector<uint8_t> data;
+    PODVector<uint8_t> data;
 
     data.resize(8);
-    data.write[0] = 'i';
-    data.write[1] = 'c';
-    data.write[2] = 'n';
-    data.write[3] = 's';
+    data[0] = 'i';
+    data[1] = 'c';
+    data[2] = 'n';
+    data[3] = 's';
 
     struct MacOSIconInfo {
         const char *name;
@@ -271,12 +271,12 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
             int ofs = data.size();
             uint32_t len = f->get_len();
             data.resize(data.size() + len + 8);
-            f->get_buffer(&data.write[ofs + 8], len);
+            f->get_buffer(&data[ofs + 8], len);
             memdelete(f);
             len += 8;
             len = BSWAP32(len);
-            memcpy(&data.write[ofs], icon_info.name, 4);
-            encode_uint32(len, &data.write[ofs + 4]);
+            memcpy(&data[ofs], icon_info.name, 4);
+            encode_uint32(len, &data[ofs + 4]);
 
             // Clean up generated file.
             DirAccess::remove_file_or_error(path);
@@ -295,8 +295,8 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
 
                 int len = data.size() - ofs;
                 len = BSWAP32(len);
-                memcpy(&data.write[ofs], icon_info.name, 4);
-                encode_uint32(len, &data.write[ofs + 4]);
+                memcpy(&data[ofs], icon_info.name, 4);
+                encode_uint32(len, &data[ofs + 4]);
             }
 
             //encode 8bit mask uncompressed icon
@@ -306,27 +306,27 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
                 data.resize(data.size() + len + 8);
 
                 for (int j = 0; j < len; j++) {
-                    data.write[ofs + 8 + j] = src_data.read()[j * 4 + 3];
+                    data[ofs + 8 + j] = src_data.read()[j * 4 + 3];
                 }
                 len += 8;
                 len = BSWAP32(len);
-                memcpy(&data.write[ofs], icon_info.mask_name, 4);
-                encode_uint32(len, &data.write[ofs + 4]);
+                memcpy(&data[ofs], icon_info.mask_name, 4);
+                encode_uint32(len, &data[ofs + 4]);
             }
         }
     }
 
     uint32_t total_len = data.size();
     total_len = BSWAP32(total_len);
-    encode_uint32(total_len, &data.write[4]);
+    encode_uint32(total_len, &data[4]);
 
     p_data = data;
 }
 
-void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, se_string_view p_binary) {
+void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, PODVector<uint8_t> &plist, se_string_view p_binary) {
 
     String strnew;
-    String str((const char *)plist.ptr(), plist.size());
+    String str((const char *)plist.data(), plist.size());
     PODVector<se_string_view> lines = StringUtils::split(str,'\n');
     const std::pair<const char*,String> replacements[] = {
         {"$binary", String(p_binary)},
@@ -345,14 +345,14 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
         String line(lines[i]);
         for(const std::pair<const char *,String > &en : replacements)
         {
-           line = StringUtils::replace(line,(en.first), en.second);
+           line = StringUtils::replace(line,en.first, en.second);
         }
         strnew += line + "\n";
     }
 
     plist.resize(strnew.size() - 1);
     for (size_t i = 0; i < strnew.size() - 1; i++) {
-        plist.write[i] = strnew[i];
+        plist[i] = strnew[i];
     }
 }
 
@@ -367,16 +367,16 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
     ListPOD<String> args;
 
     if (p_preset->get("codesign/timestamp")) {
-        args.emplace_back(("--timestamp"));
+        args.emplace_back("--timestamp");
     }
     if (p_preset->get("codesign/hardened_runtime")) {
-        args.emplace_back(("--options"));
-        args.emplace_back(("runtime"));
+        args.emplace_back("--options");
+        args.emplace_back("runtime");
     }
 
     if (p_preset->get("codesign/entitlements") != "") {
         /* this should point to our entitlements.plist file that sandboxes our application, I don't know if this should also be placed in our app bundle */
-        args.emplace_back(("--entitlements"));
+        args.emplace_back("--entitlements");
         args.emplace_back(p_preset->get("codesign/entitlements"));
     }
     PoolVector<String> user_args = p_preset->get("codesign/custom_options").as<PoolVector<String>>();
@@ -386,22 +386,22 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
             args.emplace_back(user_arg);
         }
     }
-    args.emplace_back(("-s"));
+    args.emplace_back("-s");
     args.emplace_back(p_preset->get("codesign/identity"));
-    args.emplace_back(("-v")); /* provide some more feedback */
+    args.emplace_back("-v"); /* provide some more feedback */
     args.emplace_back(p_path);
 
     String str;
-    Error err = OS::get_singleton()->execute(("codesign"), args, true, nullptr, &str, nullptr, true);
+    Error err = OS::get_singleton()->execute("codesign", args, true, nullptr, &str, nullptr, true);
     ERR_FAIL_COND_V(err != OK, err);
 
     print_line(String("codesign (") + p_path + "): " + str);
     if (StringUtils::contains(str,"no identity found")) {
-        EditorNode::add_io_error(("codesign: no identity found"));
+        EditorNode::add_io_error("codesign: no identity found");
         return FAILED;
     }
-    if ((StringUtils::contains(str,"unrecognized blob type")) || (StringUtils::contains(str,"cannot read entitlement data"))) {
-        EditorNode::add_io_error(("codesign: invalid entitlements file"));
+    if (StringUtils::contains(str,"unrecognized blob type") || StringUtils::contains(str,"cannot read entitlement data")) {
+        EditorNode::add_io_error("codesign: invalid entitlements file");
         return FAILED;
     }
 
@@ -415,25 +415,25 @@ Error EditorExportPlatformOSX::_create_dmg(se_string_view p_dmg_path, se_string_
         OS::get_singleton()->move_to_trash(p_dmg_path);
     }
 
-    args.emplace_back(("create"));
+    args.emplace_back("create");
     args.emplace_back(p_dmg_path);
-    args.emplace_back(("-volname"));
+    args.emplace_back("-volname");
     args.emplace_back(p_pkg_name);
-    args.emplace_back(("-fs"));
-    args.emplace_back(("HFS+"));
-    args.emplace_back(("-srcfolder"));
+    args.emplace_back("-fs");
+    args.emplace_back("HFS+");
+    args.emplace_back("-srcfolder");
     args.emplace_back(p_app_path_name);
 
     String str;
-    Error err = OS::get_singleton()->execute(("hdiutil"), args, true, nullptr, &str, nullptr, true);
+    Error err = OS::get_singleton()->execute("hdiutil", args, true, nullptr, &str, nullptr, true);
     ERR_FAIL_COND_V(err != OK, err);
 
     print_line("hdiutil returned: " + str);
     if (StringUtils::contains(str,"create failed")) {
         if (StringUtils::contains(str,"File exists")) {
-            EditorNode::add_io_error(("hdiutil: create failed - file exists"));
+            EditorNode::add_io_error("hdiutil: create failed - file exists");
         } else {
-            EditorNode::add_io_error(("hdiutil: create failed"));
+            EditorNode::add_io_error("hdiutil: create failed");
         }
         return FAILED;
     }
@@ -455,7 +455,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
     if (src_pkg_name.empty()) {
         String err;
-        src_pkg_name = find_export_template(("osx.zip"), &err);
+        src_pkg_name = find_export_template("osx.zip", &err);
         if (src_pkg_name.empty()) {
             EditorNode::add_io_error(StringName(err));
             return ERR_FILE_NOT_FOUND;
@@ -469,7 +469,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     FileAccess *src_f = nullptr;
     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-    if (ep.step(("Creating app"), 0)) {
+    if (ep.step("Creating app", 0)) {
         return ERR_SKIP;
     }
 
@@ -549,17 +549,17 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         String file(fname);
 
-        Vector<uint8_t> data;
+        PODVector<uint8_t> data;
         data.resize(info.uncompressed_size);
 
         //read
         unzOpenCurrentFile(src_pkg_zip);
-        unzReadCurrentFile(src_pkg_zip, data.ptrw(), data.size());
+        unzReadCurrentFile(src_pkg_zip, data.data(), data.size());
         unzCloseCurrentFile(src_pkg_zip);
 
         //write
 
-        file =StringUtils::replace_first(file,("osx_template.app/"), String());
+        file =StringUtils::replace_first(file,"osx_template.app/", String());
 
         if (file == "Contents/Info.plist") {
             _fix_plist(p_preset, data, pkg_name);
@@ -588,7 +588,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                     FileAccess *icon = FileAccess::open(iconpath, FileAccess::READ);
                     if (icon) {
                         data.resize(icon->get_len());
-                        icon->get_buffer(&data.write[0], icon->get_len());
+                        icon->get_buffer(data.data(), icon->get_len());
                         icon->close();
                         memdelete(icon);
                     }
@@ -631,7 +631,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                     // write the file, need to add chmod
                     FileAccess *f = FileAccess::open(file, FileAccess::WRITE);
                     if (f) {
-                        f->store_buffer(data.ptr(), data.size());
+                        f->store_buffer(data.data(), data.size());
                         f->close();
                         if (is_execute) {
                             // Chmod with 0755 if the file is executable
@@ -668,7 +668,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                         Z_DEFLATED,
                         Z_DEFAULT_COMPRESSION);
 
-                zipWriteInFileInZip(dst_pkg_zip, data.ptr(), data.size());
+                zipWriteInFileInZip(dst_pkg_zip, data.data(), data.size());
                 zipCloseFileInZip(dst_pkg_zip);
             }
         }
@@ -685,7 +685,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     }
 
     if (err == OK) {
-        if (ep.step(("Making PKG"), 1)) {
+        if (ep.step("Making PKG", 1)) {
             return ERR_SKIP;
         }
 
@@ -709,7 +709,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             }
 
             if (err == OK && sign_enabled) {
-                if (ep.step(("Code signing bundle"), 2)) {
+                if (ep.step("Code signing bundle", 2)) {
                     return ERR_SKIP;
                 }
 
@@ -723,7 +723,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
             // and finally create a DMG
             if (err == OK) {
-                if (ep.step(("Making DMG"), 3)) {
+                if (ep.step("Making DMG", 3)) {
                     return ERR_SKIP;
                 }
                 err = _create_dmg(p_path, pkg_name, tmp_app_path_name);
@@ -778,7 +778,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                     ERR_CONTINUE(file.empty());
 
                     zipOpenNewFileInZip(dst_pkg_zip,
-                            (PathUtils::plus_file((pkg_name + ".app/Contents/Frameworks/"),PathUtils::get_file(shared_objects[i].path))).c_str(),
+                            PathUtils::plus_file(pkg_name + ".app/Contents/Frameworks/",PathUtils::get_file(shared_objects[i].path)).c_str(),
                             nullptr,
                             nullptr,
                             0,

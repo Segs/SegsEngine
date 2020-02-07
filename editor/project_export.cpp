@@ -224,7 +224,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     delete_preset->set_disabled(false);
     name->set_text(current->get_name());
 
-    List<String> extension_list = current->get_platform()->get_binary_extensions(current);
+    PODVector<String> extension_list = current->get_platform()->get_binary_extensions(current);
     PODVector<se_string_view> extension_vector;
     for (int i = 0; i < extension_list.size(); i++) {
         extension_vector.push_back("*." + extension_list[i]);
@@ -338,7 +338,7 @@ void ProjectExportDialog::_update_feature_list() {
     ERR_FAIL_COND(not current)
 
     Set<String> fset;
-    List<String> features;
+    PODVector<String> features;
 
     current->get_platform()->get_platform_features(&features);
     current->get_platform()->get_preset_features(current, &features);
@@ -351,10 +351,7 @@ void ProjectExportDialog::_update_feature_list() {
             features.push_back(String(f));
         }
     }
-
-    for (List<String>::Element *E = features.front(); E; E = E->next()) {
-        fset.insert(E->deref());
-    }
+    fset.insert(features.begin(), features.end());
 
     custom_feature_display->clear();
     for (Set<String>::iterator E = fset.begin(); E!=fset.end(); ) {
@@ -939,9 +936,9 @@ void ProjectExportDialog::_export_project() {
     export_project->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
     export_project->clear_filters();
 
-    List<String> extension_list = platform->get_binary_extensions(current);
-    for (int i = 0; i < extension_list.size(); i++) {
-        export_project->add_filter("*." + extension_list[i] + " ; " + platform->get_name() + " Export");
+    PODVector<String> extension_list = platform->get_binary_extensions(current);
+    for (const auto &ext : extension_list) {
+        export_project->add_filter("*." + ext + " ; " + platform->get_name() + " Export");
     }
 
     if (!current->get_export_path().empty()) {
