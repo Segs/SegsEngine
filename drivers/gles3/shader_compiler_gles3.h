@@ -52,10 +52,10 @@ public:
 
         PODVector<String> defines;
         PODVector<StringName> texture_uniforms;
-        Vector<ShaderLanguage::DataType> texture_types;
-        Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
+        PODVector<ShaderLanguage::DataType> texture_types;
+        PODVector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
 
-        Vector<uint32_t> uniform_offsets;
+        PODVector<uint32_t> uniform_offsets;
         uint32_t uniform_total_size;
         String uniforms;
         String vertex_global;

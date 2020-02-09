@@ -653,7 +653,7 @@ Error NetSocketPosix::set_broadcasting_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_blocking_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open())
+    ERR_FAIL_COND(!is_open());
 
     int ret = 0;
 #if defined(WINDOWS_ENABLED) || defined(NO_FCNTL)
@@ -672,9 +672,9 @@ void NetSocketPosix::set_blocking_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_ipv6_only_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open())
+    ERR_FAIL_COND(!is_open());
     // This option is only available in IPv6 sockets.
-    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV4)
+    ERR_FAIL_COND(_ip_type == IP::TYPE_IPV4);
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock->sock, IPPROTO_IPV6, IPV6_V6ONLY, SOCK_CBUF(&par), sizeof(int)) != 0) {
@@ -683,8 +683,8 @@ void NetSocketPosix::set_ipv6_only_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_tcp_no_delay_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open())
-    ERR_FAIL_COND(!_is_stream) // Not TCP
+    ERR_FAIL_COND(!is_open());
+    ERR_FAIL_COND(!_is_stream); // Not TCP
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock->sock, IPPROTO_TCP, TCP_NODELAY, SOCK_CBUF(&par), sizeof(int)) < 0) {
@@ -693,7 +693,7 @@ void NetSocketPosix::set_tcp_no_delay_enabled(bool p_enabled) {
 }
 
 void NetSocketPosix::set_reuse_address_enabled(bool p_enabled) {
-    ERR_FAIL_COND(!is_open())
+    ERR_FAIL_COND(!is_open());
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock->sock, SOL_SOCKET, SO_REUSEADDR, SOCK_CBUF(&par), sizeof(int)) < 0) {
@@ -704,7 +704,7 @@ void NetSocketPosix::set_reuse_address_enabled(bool p_enabled) {
 void NetSocketPosix::set_reuse_port_enabled(bool p_enabled) {
 // Windows does not have this option, as it is always ON when setting REUSEADDR.
 #ifndef WINDOWS_ENABLED
-    ERR_FAIL_COND(!is_open())
+    ERR_FAIL_COND(!is_open());
 
     int par = p_enabled ? 1 : 0;
     if (setsockopt(_sock->sock, SOL_SOCKET, SO_REUSEPORT, SOCK_CBUF(&par), sizeof(int)) < 0) {

@@ -388,7 +388,7 @@ void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirec
     }
     for (int i = 0; i < efsd->get_file_count(); i++) {
         String file = efsd->get_file_path(i);
-        ERR_FAIL_COND(all_remove_files.contains(file)) //We are deleting a directory which is contained in a directory we are deleting...
+        ERR_FAIL_COND(all_remove_files.contains(file)); //We are deleting a directory which is contained in a directory we are deleting...
         all_remove_files[file] = p_folder; //Point the file to the ancestor directory we are deleting so we know what to parent it under in the tree.
     }
 }

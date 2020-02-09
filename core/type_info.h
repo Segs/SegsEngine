@@ -306,6 +306,16 @@ struct GetTypeInfo<const Variant &> {
         constexpr static inline RawPropertyInfo get_class_info() {\
             return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
+    };\
+    template <>                                                                       \
+    struct GetTypeInfo<m_template<m_type> &&> { \
+        \
+            constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
+            constexpr static const GodotTypeInfo::Metadata METADATA = m_meta; \
+            constexpr static const TypePassBy PASS_BY = TypePassBy::Move; \
+            constexpr static inline RawPropertyInfo get_class_info() { \
+                return RawPropertyInfo{ nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE) }; \
+        }\
     };
 
 MAKE_TEMPLATE_TYPE_INFO(Vector, float, VariantType::POOL_REAL_ARRAY)
@@ -336,11 +346,7 @@ struct GetTypeInfo<PODVector<T *> > {
     }\
 };
 
-MAKE_TEMPLATE_TYPE_INFO(Vector, Variant, VariantType::ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, RID, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, RID, VariantType::ARRAY)
-//MAKE_TEMPLATE_TYPE_INFO(Vector, StringName, VariantType::POOL_STRING_ARRAY)
-
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, Plane, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PoolVector, Face3, VariantType::POOL_VECTOR3_ARRAY)
 

@@ -110,7 +110,7 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
     }
 
     Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(p_platform);
-    ERR_FAIL_COND(not eep)
+    ERR_FAIL_COND(not eep);
 
     if (p_idx == -1) {
         if (eep->get_options_count() == 1) {

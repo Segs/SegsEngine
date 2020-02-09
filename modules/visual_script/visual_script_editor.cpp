@@ -943,7 +943,7 @@ void VisualScriptEditor::_port_name_focus_out(const Node *p_name_box, int p_id, 
 }
 
 void VisualScriptEditor::_update_members() {
-    ERR_FAIL_COND(not script)
+    ERR_FAIL_COND(not script);
 
     updating_members = true;
 
@@ -1087,7 +1087,7 @@ void VisualScriptEditor::_member_edited() {
         return;
 
     TreeItem *ti = members->get_edited();
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
 
     String str_name = ti->get_metadata(0);
     String str_new_name = ti->get_text(0);
@@ -2378,7 +2378,7 @@ void VisualScriptEditor::_draw_color_over_button(Object *obj, Color p_color) {
 void VisualScriptEditor::_button_resource_previewed(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud) {
 
     Array ud = p_ud;
-    ERR_FAIL_COND(ud.size() != 2)
+    ERR_FAIL_COND(ud.size() != 2);
 
     ObjectID id = ud[0];
     Object *obj = ObjectDB::get_instance(id);
@@ -2387,7 +2387,7 @@ void VisualScriptEditor::_button_resource_previewed(se_string_view p_path, const
         return;
 
     Button *b = object_cast<Button>(obj);
-    ERR_FAIL_COND(!b)
+    ERR_FAIL_COND(!b);
 
     if (not p_preview) {
         b->set_text(ud[1]);
@@ -2674,7 +2674,7 @@ void VisualScriptEditor::_change_base_type_callback() {
 
     StringName bt = select_base_type->get_selected_type();
 
-    ERR_FAIL_COND(bt.empty())
+    ERR_FAIL_COND(bt.empty());
     undo_redo->create_action_ui(TTR("Change Base Type"));
     undo_redo->add_do_method(script.get(), "set_instance_base_type", bt);
     undo_redo->add_undo_method(script.get(), "set_instance_base_type", script->get_instance_base_type());
@@ -2825,7 +2825,7 @@ void VisualScriptEditor::_graph_connected(se_string_view p_from, int p_from_slot
     StringName from_func = _get_function_of_node(StringUtils::to_int(p_from));
 
     Ref<VisualScriptNode> from_node = script->get_node(from_func, StringUtils::to_int(p_from));
-    ERR_FAIL_COND(not from_node)
+    ERR_FAIL_COND(not from_node);
 
     bool from_seq;
     int from_port;
@@ -2836,7 +2836,7 @@ void VisualScriptEditor::_graph_connected(se_string_view p_from, int p_from_slot
     StringName to_func = _get_function_of_node(StringUtils::to_int(p_to));
 
     Ref<VisualScriptNode> to_node = script->get_node(to_func, StringUtils::to_int(p_to));
-    ERR_FAIL_COND(not to_node)
+    ERR_FAIL_COND(not to_node);
 
     bool to_seq;
     int to_port;
@@ -2844,7 +2844,7 @@ void VisualScriptEditor::_graph_connected(se_string_view p_from, int p_from_slot
     if (!_get_in_slot(to_node, p_to_slot, to_port, to_seq))
         return; //can't connect this, it's invalid
 
-    ERR_FAIL_COND(from_seq != to_seq)
+    ERR_FAIL_COND(from_seq != to_seq);
 
     // Do all the checks here
     StringName func; // this the func where we store the one the nodes at the end of the resolution on having multiple nodes
@@ -3024,7 +3024,7 @@ void VisualScriptEditor::_graph_disconnected(se_string_view p_from, int p_from_s
     ERR_FAIL_COND(func != _get_function_of_node(StringUtils::to_int(p_to)));
 
     Ref<VisualScriptNode> from_node(dynamic_ref_cast<VisualScriptNode>(script->get_node(func, StringUtils::to_int(p_from))));
-    ERR_FAIL_COND(not from_node)
+    ERR_FAIL_COND(not from_node);
 
     bool from_seq;
     int from_port;
@@ -3033,7 +3033,7 @@ void VisualScriptEditor::_graph_disconnected(se_string_view p_from, int p_from_s
         return; //can't connect this, it's invalid
 
     Ref<VisualScriptNode> to_node(dynamic_ref_cast<VisualScriptNode>(script->get_node(func, StringUtils::to_int(p_to))));
-    ERR_FAIL_COND(not to_node)
+    ERR_FAIL_COND(not to_node);
 
     bool to_seq;
     int to_port;
@@ -3041,7 +3041,7 @@ void VisualScriptEditor::_graph_disconnected(se_string_view p_from, int p_from_s
     if (!_get_in_slot(to_node, p_to_slot, to_port, to_seq))
         return; //can't connect this, it's invalid
 
-    ERR_FAIL_COND(from_seq != to_seq)
+    ERR_FAIL_COND(from_seq != to_seq);
 
     undo_redo->create_action_ui(TTR("Disconnect Nodes"));
 
@@ -3764,7 +3764,7 @@ void VisualScriptEditor::_selected_new_virtual_method(se_string_view p_text, se_
             }
         }
 
-        ERR_FAIL_COND(!found)
+        ERR_FAIL_COND(!found);
     }
 
     selected = name;

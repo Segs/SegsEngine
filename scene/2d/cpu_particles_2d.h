@@ -187,6 +187,7 @@ private:
 
     void _set_redraw(bool p_redraw);
 
+    void _texture_changed();
 protected:
     static void _bind_methods();
     void _notification(int p_what);

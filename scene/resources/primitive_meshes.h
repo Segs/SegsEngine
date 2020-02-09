@@ -63,12 +63,13 @@ protected:
 
 	virtual void _create_mesh_array(Array &p_arr) const = 0;
 	void _request_update();
+    Array _get_mesh_arrays() const;
 
 public:
 	int get_surface_count() const override;
 	int surface_get_array_len(int p_idx) const override;
 	int surface_get_array_index_len(int p_idx) const override;
-	Array surface_get_arrays(int p_surface) const override;
+    SurfaceArrays surface_get_arrays(int p_surface) const override;
 	Array surface_get_blend_shape_arrays(int p_surface) const override;
 	uint32_t surface_get_format(int p_idx) const override;
 	Mesh::PrimitiveType surface_get_primitive_type(int p_idx) const override;
@@ -82,7 +83,7 @@ public:
 	void set_material(const Ref<Material> &p_material);
 	Ref<Material> get_material() const;
 
-	Array get_mesh_arrays() const;
+    SurfaceArrays get_mesh_arrays() const;
 
 	void set_custom_aabb(const AABB &p_custom);
 	AABB get_custom_aabb() const;

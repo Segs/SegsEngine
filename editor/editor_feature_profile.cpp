@@ -103,7 +103,7 @@ void EditorFeatureProfile::set_disable_class_property(const StringName &p_class,
 
         disabled_properties[p_class].insert(p_property);
     } else {
-        ERR_FAIL_COND(!disabled_properties.contains(p_class))
+        ERR_FAIL_COND(!disabled_properties.contains(p_class));
         disabled_properties[p_class].erase(p_property);
         if (disabled_properties[p_class].empty()) {
             disabled_properties.erase(p_class);
@@ -408,7 +408,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
         case PROFILE_SET: {
 
             String selected = _get_selected_profile();
-            ERR_FAIL_COND(selected.empty())
+            ERR_FAIL_COND(selected.empty());
             if (selected == current_profile) {
                 return; // Nothing to do here.
             }
@@ -438,7 +438,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
         case PROFILE_ERASE: {
 
             String selected = _get_selected_profile();
-            ERR_FAIL_COND(selected.empty())
+            ERR_FAIL_COND(selected.empty());
 
             erase_profile_dialog->set_text(FormatSN(TTR("Erase profile '%s'? (no undo)").asCString(), selected.c_str()));
             erase_profile_dialog->popup_centered_minsize();
@@ -449,7 +449,7 @@ void EditorFeatureProfileManager::_profile_action(int p_action) {
 void EditorFeatureProfileManager::_erase_selected_profile() {
 
     String selected = _get_selected_profile();
-    ERR_FAIL_COND(selected.empty())
+    ERR_FAIL_COND(selected.empty());
     DirAccessRef da = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
     ERR_FAIL_COND_MSG(!da, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'."); 
     da->remove(selected + ".profile");
@@ -683,7 +683,7 @@ void EditorFeatureProfileManager::_update_selected_profile() {
 
     if (profile == current_profile) {
         edited = current; //reuse current profile (which is what editor uses)
-        ERR_FAIL_COND(not current) //nothing selected, current should never be null
+        ERR_FAIL_COND(not current); //nothing selected, current should never be null
     } else {
         //reload edited, if different from current
         edited = make_ref_counted<EditorFeatureProfile>();
@@ -762,7 +762,7 @@ void EditorFeatureProfileManager::_import_profiles(const PODVector<String> &p_pa
 
 void EditorFeatureProfileManager::_export_profile(se_string_view p_path) {
 
-    ERR_FAIL_COND(not edited)
+    ERR_FAIL_COND(not edited);
     Error err = edited->save_to_file(p_path);
     if (err != OK) {
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("Error saving profile to path: '%.*s'.").asCString(), p_path.length(),p_path.data()));
@@ -772,8 +772,8 @@ void EditorFeatureProfileManager::_export_profile(se_string_view p_path) {
 void EditorFeatureProfileManager::_save_and_update() {
 
     String edited_path = _get_selected_profile();
-    ERR_FAIL_COND(edited_path.empty())
-    ERR_FAIL_COND(not edited)
+    ERR_FAIL_COND(edited_path.empty());
+    ERR_FAIL_COND(not edited);
 
     edited->save_to_file(PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),edited_path + ".profile"));
 

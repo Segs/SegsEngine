@@ -388,6 +388,12 @@ namespace eastl
         {
             return insert(end(), value.begin(), value.end());
         }
+        iterator emplace_back(this_type && value)
+        {
+            auto res = insert(end(), eastl::make_move_iterator(value.begin()), eastl::make_move_iterator(value.end()));
+            value={}; // uninitialize the passed vector
+        	return res;
+        }
 #endif
 
     protected:

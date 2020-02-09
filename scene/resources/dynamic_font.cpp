@@ -699,7 +699,7 @@ DynamicFontAtSize::~DynamicFontAtSize() {
 
 void DynamicFont::_reload_cache() {
 
-    ERR_FAIL_COND(cache_id.size < 1)
+    ERR_FAIL_COND(cache_id.size < 1);
     if (not data) {
         data_at_size.unref();
         outline_data_at_size.unref();
@@ -759,7 +759,7 @@ int DynamicFont::get_size() const {
 void DynamicFont::set_outline_size(int p_size) {
     if (outline_cache_id.outline_size == p_size)
         return;
-    ERR_FAIL_COND(p_size < 0 || p_size > UINT8_MAX)
+    ERR_FAIL_COND(p_size < 0 || p_size > UINT8_MAX);
     outline_cache_id.outline_size = p_size;
     _reload_cache();
 }
@@ -926,7 +926,7 @@ float DynamicFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_
 
 void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {
 
-    ERR_FAIL_COND(not p_data)
+    ERR_FAIL_COND(not p_data);
     ERR_FAIL_INDEX(p_idx, fallbacks.size());
     fallbacks[p_idx] = p_data;
     fallback_data_at_size[p_idx] = fallbacks[p_idx]->_get_dynamic_font_at_size(cache_id);
@@ -934,7 +934,7 @@ void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {
 
 void DynamicFont::add_fallback(const Ref<DynamicFontData> &p_data) {
 
-    ERR_FAIL_COND(not p_data)
+    ERR_FAIL_COND(not p_data);
     fallbacks.push_back(p_data);
     fallback_data_at_size.push_back(fallbacks[fallbacks.size() - 1]->_get_dynamic_font_at_size(cache_id)); //const..
     if (outline_cache_id.outline_size > 0)
@@ -1104,7 +1104,7 @@ void DynamicFont::finish_dynamic_fonts() {
 
 void DynamicFont::update_oversampling() {
 
-    Vector<Ref<DynamicFont> > changed;
+    PODVector<Ref<DynamicFont> > changed;
 
     if (dynamic_font_mutex)
         dynamic_font_mutex->lock();
@@ -1129,7 +1129,7 @@ void DynamicFont::update_oversampling() {
                 }
             }
 
-            changed.push_back(Ref<DynamicFont>(E->self()));
+            changed.emplace_back(Ref<DynamicFont>(E->self()));
         }
 
         E = E->next();
@@ -1139,7 +1139,7 @@ void DynamicFont::update_oversampling() {
         dynamic_font_mutex->unlock();
 
     for (int i = 0; i < changed.size(); i++) {
-        changed.write[i]->emit_changed();
+        changed[i]->emit_changed();
     }
 }
 
@@ -1161,20 +1161,20 @@ RES ResourceFormatLoaderDynamicFont::load(se_string_view p_path, se_string_view 
 
 void ResourceFormatLoaderDynamicFont::get_recognized_extensions(PODVector<String> &p_extensions) const {
 
-    p_extensions.push_back(("ttf"));
-    p_extensions.push_back(("otf"));
+    p_extensions.emplace_back("ttf");
+    p_extensions.emplace_back("otf");
 }
 
 bool ResourceFormatLoaderDynamicFont::handles_type(se_string_view p_type) const {
 
-    return (p_type == se_string_view("DynamicFontData"));
+    return p_type == se_string_view("DynamicFontData");
 }
 
 String ResourceFormatLoaderDynamicFont::get_resource_type(se_string_view p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "ttf" || el == "otf")
-        return ("DynamicFontData");
+        return "DynamicFontData";
     return {};
 }
 

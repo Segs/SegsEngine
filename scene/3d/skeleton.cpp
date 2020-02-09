@@ -361,11 +361,11 @@ Transform Skeleton::get_bone_global_pose(int p_bone) const {
 // skeleton creation api
 void Skeleton::add_bone(se_string_view p_name) {
 
-    ERR_FAIL_COND(p_name.empty() || StringUtils::contains(p_name,':') || StringUtils::contains(p_name,'/'))
+    ERR_FAIL_COND(p_name.empty() || StringUtils::contains(p_name,':') || StringUtils::contains(p_name,'/'));
 
     for (int i = 0; i < bones.size(); i++) {
 
-        ERR_FAIL_COND(bones[i].name == p_name)
+        ERR_FAIL_COND(bones[i].name == p_name);
     }
 
     Bone b;
@@ -414,7 +414,7 @@ int Skeleton::get_bone_count() const {
 void Skeleton::set_bone_parent(int p_bone, int p_parent) {
 
     ERR_FAIL_INDEX(p_bone, bones.size());
-    ERR_FAIL_COND(p_parent != -1 && (p_parent < 0))
+    ERR_FAIL_COND(p_parent != -1 && (p_parent < 0));
 
     bones[p_bone].parent = p_parent;
     process_order_dirty = true;
@@ -590,8 +590,8 @@ void Skeleton::localize_rests() {
 
 void Skeleton::bind_physical_bone_to_bone(int p_bone, PhysicalBone *p_physical_bone) {
     ERR_FAIL_INDEX(p_bone, bones.size());
-    ERR_FAIL_COND(bones[p_bone].physical_bone)
-    ERR_FAIL_COND(!p_physical_bone)
+    ERR_FAIL_COND(bones[p_bone].physical_bone);
+    ERR_FAIL_COND(!p_physical_bone);
     bones[p_bone].physical_bone = p_physical_bone;
 
     _rebuild_physical_bones_cache();

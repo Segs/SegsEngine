@@ -237,7 +237,7 @@ public:
 
         uint32_t flags=0; // put here to align next field to 8 bytes
         Set<Texture *> proxy_owners;
-        Vector<Ref<Image> > images;
+        PODVector<Ref<Image> > images; //TODO: SEGS: consider using FixedVector here
         String path;
 
         RenderTarget *render_target = nullptr;
@@ -364,9 +364,9 @@ public:
         uint32_t version;
         Map<StringName, ShaderLanguage::ShaderNode::Uniform> uniforms;
         Map<StringName, RID> default_textures;
-        Vector<uint32_t> ubo_offsets;
-        Vector<ShaderLanguage::DataType> texture_types;
-        Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
+        PODVector<uint32_t> ubo_offsets;
+        PODVector<ShaderLanguage::DataType> texture_types;
+        PODVector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
         SelfList<Material>::List materials;
         SelfList<Shader> dirty_list;
         String code;
@@ -385,7 +385,7 @@ public:
             bool uses_screen_texture;
             bool uses_screen_uv;
             bool uses_time;
-            enum BlendMode {
+            enum BlendMode : int8_t {
                 BLEND_MODE_MIX,
                 BLEND_MODE_ADD,
                 BLEND_MODE_SUB,
@@ -396,7 +396,7 @@ public:
 
             int blend_mode;
 
-            enum LightMode {
+            enum LightMode : int8_t {
                 LIGHT_MODE_NORMAL,
                 LIGHT_MODE_UNSHADED,
                 LIGHT_MODE_LIGHT_ONLY
@@ -498,8 +498,8 @@ public:
         Map<RasterizerScene::InstanceBase *, int> instance_owners;
         SelfList<Material> list;
         SelfList<Material> dirty_list;
-        Vector<bool> texture_is_3d;
-        Vector<RID> textures;
+        PODVector<bool> texture_is_3d; //TODO: SEGS: consider using dynamic_bitvector here.
+        PODVector<RID> textures;
         RID next_pass;
         float line_width;
         uint32_t ubo_size=0;
@@ -573,7 +573,7 @@ public:
         };
 
         Attrib attribs[VS::ARRAY_MAX];
-        Vector<AABB> skeleton_bone_aabb;
+        PODVector<AABB> skeleton_bone_aabb;
         PODVector<bool> skeleton_bone_used;
         PODVector<BlendShape> blend_shapes;
 
@@ -665,7 +665,9 @@ public:
 
     RID mesh_create() override;
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) override;
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
+            PODVector<PoolVector<uint8_t>> &p_blend_shapes = PODVector<PoolVector<uint8_t>>(), const PODVector<AABB> &p_bone_aabbs =
+        PODVector<AABB>()) override;
 
     void mesh_set_blend_shape_count(RID p_mesh, int p_amount) override;
     int mesh_get_blend_shape_count(RID p_mesh) const override;
@@ -689,7 +691,7 @@ public:
 
     AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const override;
     PODVector<PoolVector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
-    Vector<AABB> mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
+    const PODVector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
 
     void mesh_remove_surface(RID p_mesh, int p_surface) override;
     int mesh_get_surface_count(RID p_mesh) const override;
@@ -777,13 +779,13 @@ public:
     struct Immediate : public Geometry {
 
         struct Chunk {
-            Vector<Vector3> vertices;
+            PODVector<Vector3> vertices;
             RID texture;
-            Vector<Vector3> normals;
-            Vector<Plane> tangents;
+            PODVector<Vector3> normals;
+            PODVector<Plane> tangents;
             PODVector<Color> colors;
-            Vector<Vector2> uvs;
-            Vector<Vector2> uvs2;
+            PODVector<Vector2> uvs;
+            PODVector<Vector2> uvs2;
             VS::PrimitiveType primitive;
         };
 
@@ -1065,7 +1067,7 @@ public:
 
     struct Particles : public GeometryOwner {
 
-        Vector<RID> draw_passes;
+        PODVector<RID> draw_passes;
         RID process_material;
         AABB custom_aabb;
         Transform emission_transform;
@@ -1211,7 +1213,7 @@ public:
                     int height;
                 };
 
-                Vector<Size> sizes;
+                PODVector<Size> sizes;
                 GLuint color;
                 int levels;
 
@@ -1230,7 +1232,7 @@ public:
 
                 GLuint linear_depth;
 
-                Vector<GLuint> depth_mipmap_fbos; //fbos for depth mipmapsla ver
+                PODVector<GLuint> depth_mipmap_fbos; //fbos for depth mipmapsla ver
 
                 SSAO() :
                         linear_depth(0) {
@@ -1244,11 +1246,9 @@ public:
         } effects;
 
         struct Exposure {
-            GLuint fbo;
+            GLuint fbo=0;
             GLuint color;
 
-            Exposure() :
-                    fbo(0) {}
         } exposure;
 
         // External FBO to render our final result to (mostly used for ARVR)

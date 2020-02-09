@@ -287,7 +287,7 @@ int PacketPeerStream::get_max_packet_size() const {
 
 void PacketPeerStream::set_stream_peer(const Ref<StreamPeer> &p_peer) {
 
-    //ERR_FAIL_COND(not p_peer)
+    //ERR_FAIL_COND();
 
     if (p_peer.get() != peer.get()) {
         ring_buffer.advance_read(ring_buffer.data_left()); // reset the ring buffer

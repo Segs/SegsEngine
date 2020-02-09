@@ -137,7 +137,7 @@ void BitmapFont::_set_chars(const PoolVector<int> &p_chars) {
 
     int len = p_chars.size();
     //char 1 charsize 1 texture, 4 rect, 2 align, advance 1
-    ERR_FAIL_COND(len % 9)
+    ERR_FAIL_COND(len % 9);
     if (!len)
         return; //none to do
     int chars = len / 9;
@@ -177,7 +177,7 @@ PoolVector<int> BitmapFont::_get_chars() const {
 void BitmapFont::_set_kernings(const PoolVector<int> &p_kernings) {
 
     int len = p_kernings.size();
-    ERR_FAIL_COND(len % 3)
+    ERR_FAIL_COND(len % 3);
     if (!len)
         return;
     PoolVector<int>::Read r = p_kernings.read();
@@ -386,7 +386,7 @@ float BitmapFont::get_descent() const {
 
 void BitmapFont::add_texture(const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(not p_texture)
+    ERR_FAIL_COND(not p_texture);
     textures.push_back(p_texture);
 }
 

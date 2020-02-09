@@ -137,7 +137,7 @@ void BakedLightmapData::clear_users() {
 
 void BakedLightmapData::_set_user_data(const Array &p_data) {
 
-    ERR_FAIL_COND(p_data.size() % 3 != 0)
+    ERR_FAIL_COND(p_data.size() % 3 != 0);
 
     for (int i = 0; i < p_data.size(); i += 3) {
         add_user(p_data[i], refFromRefPtr<Texture>(p_data[i + 1]), p_data[i + 2]);
@@ -689,7 +689,7 @@ void BakedLightmap::_notification(int p_what) {
 
 void BakedLightmap::_assign_lightmaps() {
 
-    ERR_FAIL_COND(not light_data)
+    ERR_FAIL_COND(not light_data);
 
     for (int i = 0; i < light_data->get_user_count(); i++) {
         Ref<Texture> lightmap = light_data->get_user_lightmap(i);
@@ -711,7 +711,7 @@ void BakedLightmap::_assign_lightmaps() {
 }
 
 void BakedLightmap::_clear_lightmaps() {
-    ERR_FAIL_COND(not light_data)
+    ERR_FAIL_COND(not light_data);
     for (int i = 0; i < light_data->get_user_count(); i++) {
         Node *node = get_node(light_data->get_user_path(i));
         int instance_idx = light_data->get_user_instance(i);

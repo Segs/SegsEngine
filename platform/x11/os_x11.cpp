@@ -2847,14 +2847,14 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
             texture_size.height = texture->get_height();
         }
 
-        ERR_FAIL_COND(not texture)
-        ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0)
-        ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256)
-        ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height)
+        ERR_FAIL_COND(not texture);
+        ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0);
+        ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256);
+        ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height);
 
         image = texture->get_data();
 
-        ERR_FAIL_COND(not image)
+        ERR_FAIL_COND(not image);
 
         // Create the cursor structure
         XcursorImage *cursor_image = XcursorImageCreate(texture_size.width, texture_size.height);
@@ -2885,7 +2885,7 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
 
         image->unlock();
 
-        ERR_FAIL_COND(cursor_image->pixels == nullptr)
+        ERR_FAIL_COND(cursor_image->pixels == nullptr);
 
         // Save it for a further usage
         cursors[p_shape] = XcursorImageLoadCursor(x11_display, cursor_image);

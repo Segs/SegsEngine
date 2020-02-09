@@ -760,20 +760,20 @@ CSGBrush *CSGMesh::_build_brush() {
             continue;
         }
 
-        Array arrays = mesh->surface_get_arrays(i);
+        SurfaceArrays arrays = mesh->surface_get_arrays(i);
 
         if (arrays.empty()) {
             _make_dirty();
             ERR_FAIL_COND_V(arrays.empty(), nullptr);
         }
 
-        PoolVector<Vector3> avertices = arrays[Mesh::ARRAY_VERTEX];
+        PoolVector<Vector3> avertices = arrays.m_positions;
         if (avertices.size() == 0)
             continue;
 
         PoolVector<Vector3>::Read vr = avertices.read();
 
-        PoolVector<Vector3> anormals = arrays[Mesh::ARRAY_NORMAL];
+        PoolVector<Vector3> anormals = arrays.m_normals;
         PoolVector<Vector3>::Read nr;
         bool nr_used = false;
         if (anormals.size()) {
@@ -781,7 +781,7 @@ CSGBrush *CSGMesh::_build_brush() {
             nr_used = true;
         }
 
-        PoolVector<Vector2> auvs = arrays[Mesh::ARRAY_TEX_UV];
+        PoolVector<Vector2> auvs = arrays.m_uv_1;
         PoolVector<Vector2>::Read uvr;
         bool uvr_used = false;
         if (auvs.size()) {
@@ -796,7 +796,7 @@ CSGBrush *CSGMesh::_build_brush() {
             mat = mesh->surface_get_material(i);
         }
 
-        PoolVector<int> aindices = arrays[Mesh::ARRAY_INDEX];
+        PoolVector<int> aindices = arrays.m_indices;
         if (aindices.size()) {
             int as = vertices.size();
             int is = aindices.size();
@@ -1090,7 +1090,7 @@ void CSGSphere::_bind_methods() {
 }
 
 void CSGSphere::set_radius(const float p_radius) {
-    ERR_FAIL_COND(p_radius <= 0)
+    ERR_FAIL_COND(p_radius <= 0);
     radius = p_radius;
     _make_dirty();
     update_gizmo();
@@ -1515,7 +1515,7 @@ float CSGCylinder::get_height() const {
 }
 
 void CSGCylinder::set_sides(const int p_sides) {
-    ERR_FAIL_COND(p_sides < 3)
+    ERR_FAIL_COND(p_sides < 3);
     sides = p_sides;
     _make_dirty();
     update_gizmo();
@@ -1742,7 +1742,7 @@ float CSGTorus::get_outer_radius() const {
 }
 
 void CSGTorus::set_sides(const int p_sides) {
-    ERR_FAIL_COND(p_sides < 3)
+    ERR_FAIL_COND(p_sides < 3);
     sides = p_sides;
     _make_dirty();
     update_gizmo();
@@ -1753,7 +1753,7 @@ int CSGTorus::get_sides() const {
 }
 
 void CSGTorus::set_ring_sides(const int p_ring_sides) {
-    ERR_FAIL_COND(p_ring_sides < 3)
+    ERR_FAIL_COND(p_ring_sides < 3);
     ring_sides = p_ring_sides;
     _make_dirty();
     update_gizmo();
@@ -2390,7 +2390,7 @@ CSGPolygon::Mode CSGPolygon::get_mode() const {
 }
 
 void CSGPolygon::set_depth(const float p_depth) {
-    ERR_FAIL_COND(p_depth < 0.001f)
+    ERR_FAIL_COND(p_depth < 0.001f);
     depth = p_depth;
     _make_dirty();
     update_gizmo();
@@ -2410,7 +2410,7 @@ bool CSGPolygon::is_path_continuous_u() const {
 }
 
 void CSGPolygon::set_spin_degrees(const float p_spin_degrees) {
-    ERR_FAIL_COND(p_spin_degrees < 0.01f || p_spin_degrees > 360)
+    ERR_FAIL_COND(p_spin_degrees < 0.01f || p_spin_degrees > 360);
     spin_degrees = p_spin_degrees;
     _make_dirty();
     update_gizmo();
@@ -2421,7 +2421,7 @@ float CSGPolygon::get_spin_degrees() const {
 }
 
 void CSGPolygon::set_spin_sides(const int p_spin_sides) {
-    ERR_FAIL_COND(p_spin_sides < 3)
+    ERR_FAIL_COND(p_spin_sides < 3);
     spin_sides = p_spin_sides;
     _make_dirty();
     update_gizmo();
@@ -2442,7 +2442,7 @@ NodePath CSGPolygon::get_path_node() const {
 }
 
 void CSGPolygon::set_path_interval(float p_interval) {
-    ERR_FAIL_COND(p_interval < 0.001)
+    ERR_FAIL_COND(p_interval < 0.001);
     path_interval = p_interval;
     _make_dirty();
     update_gizmo();

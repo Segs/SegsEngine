@@ -229,7 +229,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                     Ref<Resource> res(object_cast<Resource>(inst));
 
-                    ERR_FAIL_COND(not res)
+                    ERR_FAIL_COND(not res);
 
                     for (Pair<StringName, Variant> &p : propvalues) {
                         res->set(p.first, p.second);
@@ -287,7 +287,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                         emit_signal("variant_changed");
                         break;
                     }
-                    ERR_FAIL_COND(inheritors_array.empty())
+                    ERR_FAIL_COND(inheritors_array.empty());
 
                     StringName intype(inheritors_array[p_which - TYPE_BASE_ID]);
 
@@ -1167,10 +1167,10 @@ void CustomPropertyEditor::_type_create_selected(int p_idx) {
             }
         }
 
-        ERR_FAIL_COND(!obj)
+        ERR_FAIL_COND(!obj);
 
         Resource *res = object_cast<Resource>(obj);
-        ERR_FAIL_COND(!res)
+        ERR_FAIL_COND(!res);
 
         v = Variant(Ref<Resource>(res));
         emit_signal("variant_changed");
@@ -1356,7 +1356,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
 
             if (p_which == 0) {
 
-                ERR_FAIL_COND(inheritors_array.empty())
+                ERR_FAIL_COND(inheritors_array.empty());
 
                 StringName intype = inheritors_array[0];
 
@@ -1436,7 +1436,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
 
                 Ref<Resource> res(ObjectNS::cast_to<Resource>(ClassDB::instance(res_orig->get_class_name())));
 
-                ERR_FAIL_COND(not res)
+                ERR_FAIL_COND(not res);
 
                 for (Pair<StringName, Variant> &p : propvalues) {
                     res->set(p.first, p.second);

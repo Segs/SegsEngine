@@ -646,7 +646,7 @@ void CSharpLanguage::pre_unsafe_unreference(Object *p_obj) {
     SCOPED_MUTEX_LOCK(unsafe_object_references_lock)
     ObjectID id = p_obj->get_instance_id();
     auto elem = unsafe_object_references.find(id);
-    ERR_FAIL_COND(elem==unsafe_object_references.end())
+    ERR_FAIL_COND(elem==unsafe_object_references.end());
     if (--elem->second == 0)
         unsafe_object_references.erase(elem);
 #endif
@@ -1647,7 +1647,7 @@ void CSharpInstance::get_property_list(PODVector<PropertyInfo> *p_properties) co
 
     // Call _get_property_list
 
-    ERR_FAIL_COND(!script)
+    ERR_FAIL_COND(!script);
 
     GD_MONO_SCOPE_THREAD_ATTACH
 
@@ -2487,34 +2487,35 @@ bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, PO
 
     MonoType *raw_type = p_delegate->get_mono_type();
 
-    if (mono_type_get_type(raw_type) == MONO_TYPE_CLASS) {
-        // Arguments are accessibles as arguments of .Invoke method
-        GDMonoMethod *invoke = p_delegate->get_method("Invoke", -1);
+    if (mono_type_get_type(raw_type) != MONO_TYPE_CLASS)
+        return false;
+    // Arguments are accessibles as arguments of .Invoke method
+    GDMonoMethod *invoke = p_delegate->get_method("Invoke", -1);
 
-        PODVector<StringName> names;
-        Vector<ManagedType> types;
-        invoke->get_parameter_names(names);
-        invoke->get_parameter_types(types);
+    PODVector<StringName> names;
+    PODVector<ManagedType> types;
+    invoke->get_parameter_names(names);
+    invoke->get_parameter_types(types);
 
-        if (names.size() == types.size()) {
-            for (int i = 0; i < names.size(); ++i) {
-                Argument arg;
-                arg.name = names[i];
-                arg.type = GDMonoMarshal::managed_to_variant_type(types[i]);
-
-                if (arg.type == VariantType::NIL) {
-                    ERR_PRINT("Unknown type of signal parameter: '" + arg.name + "' in '" + p_class->get_full_name() + "'.");
-                    return false;
-                }
-
-                params.push_back(arg);
-            }
-
-            return true;
-        }
+    if (names.size() != types.size()) {
+        return false;
     }
 
-    return false;
+    for (int i = 0; i < names.size(); ++i) {
+        Argument arg;
+        arg.name = names[i];
+        arg.type = GDMonoMarshal::managed_to_variant_type(types[i]);
+
+        if (arg.type == VariantType::NIL) {
+            ERR_PRINT("Unknown type of signal parameter: '" + arg.name + "' in '" + p_class->get_full_name() + "'.");
+            return false;
+        }
+
+        params.push_back(arg);
+    }
+
+    return true;
+
 }
 
 #ifdef TOOLS_ENABLED
@@ -2607,7 +2608,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
     if (p_variant_type == VariantType::INT && p_type.type_encoding == MONO_TYPE_VALUETYPE && mono_class_is_enum(p_type.type_class->get_mono_ptr())) {
         r_hint = PropertyHint::Enum;
 
-        Vector<MonoClassField *> fields = p_type.type_class->get_enum_fields();
+        PODVector<MonoClassField *> fields = p_type.type_class->get_enum_fields();
 
         MonoType *enum_basetype = mono_class_enum_basetype(p_type.type_class->get_mono_ptr());
 

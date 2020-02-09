@@ -184,7 +184,7 @@ void BodySW::set_param(PhysicsServer::BodyParameter p_param, real_t p_value) {
             friction = p_value;
         } break;
         case PhysicsServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value <= 0)
+            ERR_FAIL_COND(p_value <= 0);
             mass = p_value;
             _update_inertia();
 
@@ -455,7 +455,7 @@ void BodySW::integrate_forces(real_t p_step) {
     AreaSW *def_area = get_space()->get_default_area();
     // AreaSW *damp_area = def_area;
 
-    ERR_FAIL_COND(!def_area)
+    ERR_FAIL_COND(!def_area);
 
     int ac = areas.size();
     bool stopped = false;

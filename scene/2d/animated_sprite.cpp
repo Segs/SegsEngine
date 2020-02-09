@@ -247,7 +247,7 @@ void SpriteFrames::_set_frames(const Array &p_frames) {
 
     clear_all();
     Map<StringName, Anim>::iterator E = animations.find(SceneStringNames::get_singleton()->_default);
-    ERR_FAIL_COND(E==animations.end())
+    ERR_FAIL_COND(E==animations.end());
 
     E->second.frames.resize(p_frames.size());
     auto wr(E->second.frames.write());

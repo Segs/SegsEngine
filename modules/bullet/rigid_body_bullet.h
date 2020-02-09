@@ -251,7 +251,7 @@ public:
 
     void set_max_collisions_detection(int p_maxCollisionsDetection) {
 
-        ERR_FAIL_COND(0 > p_maxCollisionsDetection)
+        ERR_FAIL_COND(0 > p_maxCollisionsDetection);
 
         maxCollisionsDetection = p_maxCollisionsDetection;
 

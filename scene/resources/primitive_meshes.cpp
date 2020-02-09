@@ -58,7 +58,7 @@ void PrimitiveMesh::_update() const {
     aabb = AABB();
 
     int pc = points.size();
-    ERR_FAIL_COND(pc == 0)
+    ERR_FAIL_COND(pc == 0);
     {
 
         PoolVector<Vector3>::Read r = points.read();
@@ -139,8 +139,8 @@ int PrimitiveMesh::surface_get_array_index_len(int p_idx) const {
     return VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, 0);
 }
 
-Array PrimitiveMesh::surface_get_arrays(int p_surface) const {
-    ERR_FAIL_INDEX_V(p_surface, 1, Array());
+SurfaceArrays PrimitiveMesh::surface_get_arrays(int p_surface) const {
+    ERR_FAIL_INDEX_V(p_surface, 1, SurfaceArrays());
     if (pending_request) {
         _update();
     }
@@ -211,7 +211,7 @@ void PrimitiveMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &PrimitiveMesh::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &PrimitiveMesh::get_material);
 
-    MethodBinder::bind_method(D_METHOD("get_mesh_arrays"), &PrimitiveMesh::get_mesh_arrays);
+    MethodBinder::bind_method(D_METHOD("get_mesh_arrays"), &PrimitiveMesh::_get_mesh_arrays);
 
     MethodBinder::bind_method(D_METHOD("set_custom_aabb", {"aabb"}), &PrimitiveMesh::set_custom_aabb);
     MethodBinder::bind_method(D_METHOD("get_custom_aabb"), &PrimitiveMesh::get_custom_aabb);
@@ -237,8 +237,11 @@ void PrimitiveMesh::set_material(const Ref<Material> &p_material) {
 Ref<Material> PrimitiveMesh::get_material() const {
     return material;
 }
+Array PrimitiveMesh::_get_mesh_arrays() const {
+    return (Array)get_mesh_arrays();
+}
 
-Array PrimitiveMesh::get_mesh_arrays() const {
+SurfaceArrays PrimitiveMesh::get_mesh_arrays() const {
     return surface_get_arrays(0);
 }
 

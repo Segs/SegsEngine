@@ -151,7 +151,7 @@ Transform ARVRServer::get_hmd_transform() {
 };
 
 void ARVRServer::add_interface(const Ref<ARVRInterface> &p_interface) {
-    ERR_FAIL_COND(not p_interface)
+    ERR_FAIL_COND(not p_interface);
 
     for (int i = 0; i < interfaces.size(); i++) {
 
@@ -166,7 +166,7 @@ void ARVRServer::add_interface(const Ref<ARVRInterface> &p_interface) {
 };
 
 void ARVRServer::remove_interface(const Ref<ARVRInterface> &p_interface) {
-    ERR_FAIL_COND(not p_interface)
+    ERR_FAIL_COND(not p_interface);
 
     int idx = -1;
     for (int i = 0; i < interfaces.size(); i++) {
@@ -178,7 +178,7 @@ void ARVRServer::remove_interface(const Ref<ARVRInterface> &p_interface) {
         };
     }
 
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
 
     print_verbose(String("ARVR: Removed interface") + p_interface->get_name());
 
@@ -287,7 +287,7 @@ void ARVRServer::remove_tracker(ARVRPositionalTracker *p_tracker) {
         };
     };
 
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
 
     emit_signal("tracker_removed", p_tracker->get_name(), p_tracker->get_type(), p_tracker->get_tracker_id());
     trackers.erase_at(idx);

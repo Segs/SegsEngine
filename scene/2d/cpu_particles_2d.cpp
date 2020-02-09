@@ -30,6 +30,7 @@
 
 #include "cpu_particles_2d.h"
 
+#include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/mutex.h"
@@ -39,6 +40,7 @@
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/particles_material.h"
 #include "servers/visual_server.h"
+
 
 IMPL_GDCLASS(CPUParticles2D)
 VARIANT_ENUM_CAST(CPUParticles2D::DrawOrder)
@@ -180,10 +182,20 @@ void CPUParticles2D::_update_mesh_texture() {
     vertices.push_back(-tex_size * 0.5 + Vector2(tex_size.x, tex_size.y));
     vertices.push_back(-tex_size * 0.5 + Vector2(0, tex_size.y));
     PoolVector<Vector2> uvs;
-    uvs.push_back(Vector2(0, 0));
-    uvs.push_back(Vector2(1, 0));
-    uvs.push_back(Vector2(1, 1));
-    uvs.push_back(Vector2(0, 1));
+    AtlasTexture *atlas_texure = object_cast<AtlasTexture>(texture.get());
+    if (atlas_texure && atlas_texure->get_atlas()) {
+        Rect2 region_rect = atlas_texure->get_region();
+        Size2 atlas_size = atlas_texure->get_atlas()->get_size();
+        uvs.push_back(Vector2(region_rect.position.x / atlas_size.x, region_rect.position.y / atlas_size.y));
+        uvs.push_back(Vector2((region_rect.position.x + region_rect.size.x) / atlas_size.x, region_rect.position.y / atlas_size.y));
+        uvs.push_back(Vector2((region_rect.position.x + region_rect.size.x) / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y));
+        uvs.push_back(Vector2(region_rect.position.x / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y));
+    } else {
+        uvs.push_back(Vector2(0, 0));
+        uvs.push_back(Vector2(1, 0));
+        uvs.push_back(Vector2(1, 1));
+        uvs.push_back(Vector2(0, 1));
+    }
     PoolVector<Color> colors;
     colors.push_back(Color(1, 1, 1, 1));
     colors.push_back(Color(1, 1, 1, 1));
@@ -209,10 +221,27 @@ void CPUParticles2D::_update_mesh_texture() {
 }
 
 void CPUParticles2D::set_texture(const Ref<Texture> &p_texture) {
+    if (p_texture == texture)
+        return;
+
+    if (texture)
+        texture->disconnect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
 
     texture = p_texture;
+
+    if (texture)
+        texture->connect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+
     update();
     _update_mesh_texture();
+}
+
+void CPUParticles2D::_texture_changed() {
+
+    if (texture) {
+        update();
+        _update_mesh_texture();
+    }
 }
 
 Ref<Texture> CPUParticles2D::get_texture() const {
@@ -1259,6 +1288,7 @@ void CPUParticles2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("convert_from_particles", {"particles"}), &CPUParticles2D::convert_from_particles);
 
     MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles2D::_update_render_thread);
+    MethodBinder::bind_method(D_METHOD("_texture_changed"), &CPUParticles2D::_texture_changed);
 
     ADD_GROUP("Emission Shape", "emission_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");

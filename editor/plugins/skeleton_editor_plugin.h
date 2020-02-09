@@ -66,7 +66,7 @@ protected:
 	static void _bind_methods();
 
 	void create_physical_skeleton();
-	PhysicalBone *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
+	PhysicalBone *create_physical_bone(int bone_id, int bone_child_id, const PODVector<BoneInfo> &bones_infos);
 
 public:
 	void edit(Skeleton *p_node);

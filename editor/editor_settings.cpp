@@ -238,12 +238,12 @@ void EditorSettings::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
 void EditorSettings::_add_property_info_bind(const Dictionary &p_info) {
 
-    ERR_FAIL_COND(!p_info.has("name"))
-    ERR_FAIL_COND(!p_info.has("type"))
+    ERR_FAIL_COND(!p_info.has("name"));
+    ERR_FAIL_COND(!p_info.has("type"));
 
     PropertyInfo pinfo;
     pinfo.name = p_info["name"];
-    ERR_FAIL_COND(!props.contains(pinfo.name))
+    ERR_FAIL_COND(!props.contains(pinfo.name));
     pinfo.type = VariantType(p_info["type"].operator int());
     ERR_FAIL_INDEX((int)pinfo.type, (int)VariantType::VARIANT_MAX);
 
@@ -757,7 +757,7 @@ static void _create_script_templates(se_string_view p_path) {
     for (const Variant & k : keys) {
         if (!dir->file_exists(k.as<String>())) {
             Error err = file->reopen(PathUtils::plus_file(p_path,k.as<String>()), FileAccess::WRITE);
-            ERR_FAIL_COND(err != OK)
+            ERR_FAIL_COND(err != OK);
             file->store_string(templates[k].as<String>());
             file->close();
         }
@@ -1110,7 +1110,7 @@ void EditorSettings::erase(const StringName &p_setting) {
 void EditorSettings::raise_order(const StringName &p_setting) {
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!props.contains(p_setting))
+    ERR_FAIL_COND(!props.contains(p_setting));
     props[p_setting].order = ++last_order;
 }
 

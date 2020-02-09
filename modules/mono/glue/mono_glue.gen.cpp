@@ -21751,7 +21751,7 @@ Array* godot_icall_Mesh_surface_get_arrays_2ca2fcca(Object * ptr, int32_t arg1) 
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     auto ret = static_cast<Mesh *>(ptr)->surface_get_arrays(arg1_in);
-    return memnew(Array(Variant::from(ret)));
+    return memnew(Array(ret));
 }
 
 Array* godot_icall_Mesh_surface_get_blend_shape_arrays_2ca2fcca(Object * ptr, int32_t arg1) {
@@ -21931,11 +21931,11 @@ void godot_icall_MeshDataTool_get_vertex_color_eaf668ad(Object * ptr, int32_t ar
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
-void godot_icall_MeshDataTool_set_vertex_bones_8df0ebc9(Object * ptr, int32_t arg1, MonoArray* arg2) {
+void godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8(Object * ptr, int32_t arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    PoolIntArray arg2_in = GDMonoMarshal::mono_array_to_PoolIntArray(arg2);
-    static_cast<MeshDataTool *>(ptr)->set_vertex_bones(arg1_in, arg2_in);
+	auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecInt(arg2);
+	static_cast<MeshDataTool *>(ptr)->set_vertex_bones(arg1_in, eastl::move(arg2_in));
 }
 
 MonoArray* godot_icall_MeshDataTool_get_vertex_bones_67f65c91(Object * ptr, int32_t arg1) {
@@ -21945,11 +21945,11 @@ MonoArray* godot_icall_MeshDataTool_get_vertex_bones_67f65c91(Object * ptr, int3
     return GDMonoMarshal::PoolIntArray_to_mono_array(ret);
 }
 
-void godot_icall_MeshDataTool_set_vertex_weights_53629f7e(Object * ptr, int32_t arg1, MonoArray* arg2) {
+void godot_icall_MeshDataTool_set_vertex_weights_aadf79b1(Object * ptr, int32_t arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    PoolRealArray arg2_in = GDMonoMarshal::mono_array_to_PoolRealArray(arg2);
-    static_cast<MeshDataTool *>(ptr)->set_vertex_weights(arg1_in, arg2_in);
+	auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecFloat(arg2);
+	static_cast<MeshDataTool *>(ptr)->set_vertex_weights(arg1_in, eastl::move(arg2_in));
 }
 
 MonoArray* godot_icall_MeshDataTool_get_vertex_weights_8a6351b5(Object * ptr, int32_t arg1) {
@@ -46973,6 +46973,54 @@ Object* godot_icall_VisualShaderNodeScalarSwitch_Ctor(MonoObject* obj) {
     return instance;
 }
 
+void godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9(Object * ptr, int32_t arg1) {
+	ERR_FAIL_NULL(ptr);
+	int64_t arg1_in = (int64_t)arg1;
+	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_hint((VisualShaderNodeScalarUniform::Hint)arg1_in);
+}
+
+int32_t godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_hint();
+	return (int32_t)ret;
+}
+
+void godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_min(arg1_in);
+}
+
+void godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_min();
+	*arg_ret = (float)ret;
+}
+
+void godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_max(arg1_in);
+}
+
+void godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_max();
+	*arg_ret = (float)ret;
+}
+
+void godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_step(arg1_in);
+}
+
+void godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_step();
+	*arg_ret = (float)ret;
+}
+
 Object* godot_icall_VisualShaderNodeScalarUniform_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "VisualShaderNodeScalarUniform")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
@@ -50189,12 +50237,12 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 3106367961743451925U; }
+uint64_t get_core_api_hash() { return 9617781489711829214U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 11503419152231262158U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1580668175; }
+uint32_t get_cs_glue_version() { return 1581037267; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();
@@ -53892,9 +53940,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_uv2_23728632", (void*)godot_icall_MeshDataTool_get_vertex_uv2_23728632);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_color_932531de", (void*)godot_icall_MeshDataTool_set_vertex_color_932531de);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_color_eaf668ad", (void*)godot_icall_MeshDataTool_get_vertex_color_eaf668ad);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_bones_8df0ebc9", (void*)godot_icall_MeshDataTool_set_vertex_bones_8df0ebc9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8", (void*)godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_bones_67f65c91", (void*)godot_icall_MeshDataTool_get_vertex_bones_67f65c91);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_weights_53629f7e", (void*)godot_icall_MeshDataTool_set_vertex_weights_53629f7e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_weights_aadf79b1", (void*)godot_icall_MeshDataTool_set_vertex_weights_aadf79b1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_weights_8a6351b5", (void*)godot_icall_MeshDataTool_get_vertex_weights_8a6351b5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_meta_37bef04", (void*)godot_icall_MeshDataTool_set_vertex_meta_37bef04);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_meta_a9b2673d", (void*)godot_icall_MeshDataTool_get_vertex_meta_a9b2673d);
@@ -57637,6 +57685,14 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarFunc_get_function_cb293e99", (void*)godot_icall_VisualShaderNodeScalarFunc_get_function_cb293e99);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarOp_set_operator_91af01f9", (void*)godot_icall_VisualShaderNodeScalarOp_set_operator_91af01f9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarOp_get_operator_4f328214", (void*)godot_icall_VisualShaderNodeScalarOp_get_operator_4f328214);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9", (void*)godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54", (void*)godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeTexture_set_source_ed1e5f58", (void*)godot_icall_VisualShaderNodeTexture_set_source_ed1e5f58);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeTexture_get_source_7c6576fb", (void*)godot_icall_VisualShaderNodeTexture_get_source_7c6576fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeTexture_set_texture_7eecd31a", (void*)godot_icall_VisualShaderNodeTexture_set_texture_7eecd31a);

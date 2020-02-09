@@ -62,12 +62,12 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     }
 
     TreeItem *item = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     NodePath np = item->get_metadata(0);
 
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
 
     if (p_id == BUTTON_SUBSCENE) {
         if (n == get_scene_node()) {
@@ -89,7 +89,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
         if (selection.size() > 1 && selection.find(n) != nullptr) {
             for (Node * nv : selection) {
-                ERR_FAIL_COND(!nv)
+                ERR_FAIL_COND(!nv);
                 if (nv == n) {
                     continue;
                 }
@@ -457,7 +457,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
     }
 
     int idx = item->get_button_by_id(0, BUTTON_VISIBILITY);
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
 
     bool visible = false;
 
@@ -609,7 +609,7 @@ void SceneTreeEditor::_tree_changed() {
 void SceneTreeEditor::_selected_changed() {
 
     TreeItem *s = tree->get_selected();
-    ERR_FAIL_COND(!s)
+    ERR_FAIL_COND(!s);
     NodePath np = s->get_metadata(0);
 
     Node *n = get_node(np);
@@ -636,7 +636,7 @@ void SceneTreeEditor::_deselect_items() {
 void SceneTreeEditor::_cell_multi_selected(Object *p_object, int p_cell, bool p_selected) {
 
     TreeItem *item = object_cast<TreeItem>(p_object);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     NodePath np = item->get_metadata(0);
 
@@ -709,7 +709,7 @@ TreeItem *SceneTreeEditor::_find(TreeItem *p_node, const NodePath &p_path) {
 
 void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 
-    ERR_FAIL_COND(blocked > 0)
+    ERR_FAIL_COND(blocked > 0);
 
     if (pending_test_update)
         _test_update_tree();
@@ -748,11 +748,11 @@ void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 void SceneTreeEditor::_rename_node(ObjectID p_node, se_string_view p_name) {
 
     Object *o = ObjectDB::get_instance(p_node);
-    ERR_FAIL_COND(!o)
+    ERR_FAIL_COND(!o);
     Node *n = object_cast<Node>(o);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
     TreeItem *item = _find(tree->get_root(), n->get_path());
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     n->set_name(p_name);
     item->set_metadata(0, n->get_path());
@@ -763,10 +763,10 @@ void SceneTreeEditor::_renamed() {
 
     TreeItem *which = tree->get_edited();
 
-    ERR_FAIL_COND(!which)
+    ERR_FAIL_COND(!which);
     NodePath np = which->get_metadata(0);
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
 
     // Empty node names are not allowed, so resets it to previous text and show warning
     if (StringUtils::strip_edges(which->get_text(0)).empty()) {
@@ -863,7 +863,7 @@ void SceneTreeEditor::set_editor_selection(EditorSelection *p_selection) {
 
 void SceneTreeEditor::_update_selection(TreeItem *item) {
 
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     NodePath np = item->get_metadata(0);
 
@@ -917,7 +917,7 @@ void SceneTreeEditor::_cell_collapsed(Object *p_obj) {
     NodePath np = ti->get_metadata(0);
 
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
 
     n->set_display_folded(collapsed);
 }
@@ -926,8 +926,8 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
     if (!can_rename)
         return Variant(); //not editable tree
 
-    Vector<Node *> selected;
-    Vector<Ref<Texture> > icons;
+    PODVector<Node *> selected;
+    PODVector<Ref<Texture> > icons;
     TreeItem *next = tree->get_next_selected(nullptr);
     while (next) {
 
@@ -938,7 +938,7 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
             // Only allow selection if not part of an instanced scene.
             if (!n->get_owner() || n->get_owner() == get_scene_node() || n->get_owner()->get_filename().empty()) {
                 selected.push_back(n);
-                icons.push_back(next->get_icon(0));
+                icons.emplace_back(eastl::move(next->get_icon(0)));
             }
         }
         next = tree->get_next_selected(next);

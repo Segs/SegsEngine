@@ -102,8 +102,8 @@ void AssimpUtils::find_texture_path(const String &r_p_path, String &r_path, bool
 }
 
 void AssimpUtils::set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<ImageTexture> texture) {
-    ERR_FAIL_COND(not texture)
-    ERR_FAIL_COND(map_mode == nullptr)
+    ERR_FAIL_COND(not texture);
+    ERR_FAIL_COND(map_mode == nullptr);
     aiTextureMapMode tex_mode = map_mode[0];
 
     int32_t flags = Texture::FLAGS_DEFAULT;

@@ -238,7 +238,7 @@ void RasterizerGLES3::set_current_render_target(RID p_render_target) {
     if (p_render_target.is_valid()) {
         RasterizerStorageGLES3::RenderTarget *rt = storage->render_target_owner.getornull(p_render_target);
         storage->frame.current_rt = rt;
-        ERR_FAIL_COND(!rt)
+        ERR_FAIL_COND(!rt);
         storage->frame.clear_request = false;
 
         glViewport(0, 0, rt->width, rt->height);
@@ -253,7 +253,7 @@ void RasterizerGLES3::set_current_render_target(RID p_render_target) {
 
 void RasterizerGLES3::restore_render_target(bool p_3d_was_drawn) {
 
-    ERR_FAIL_COND(storage->frame.current_rt == nullptr)
+    ERR_FAIL_COND(storage->frame.current_rt == nullptr);
     RasterizerStorageGLES3::RenderTarget *rt = storage->frame.current_rt;
     if (p_3d_was_drawn && rt->external.fbo != 0) {
         // our external render buffer is now leading, render 2d into that.
@@ -266,7 +266,7 @@ void RasterizerGLES3::restore_render_target(bool p_3d_was_drawn) {
 
 void RasterizerGLES3::clear_render_target(const Color &p_color) {
 
-    ERR_FAIL_COND(!storage->frame.current_rt)
+    ERR_FAIL_COND(!storage->frame.current_rt);
 
     storage->frame.clear_request = true;
     storage->frame.clear_request_color = p_color;
@@ -335,10 +335,10 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
 
 void RasterizerGLES3::blit_render_target_to_screen(RID p_render_target, const Rect2 &p_screen_rect, int p_screen) {
 
-    ERR_FAIL_COND(storage->frame.current_rt)
+    ERR_FAIL_COND(storage->frame.current_rt);
 
     RasterizerStorageGLES3::RenderTarget *rt = storage->render_target_owner.getornull(p_render_target);
-    ERR_FAIL_COND(!rt)
+    ERR_FAIL_COND(!rt);
 
     Size2 win_size = OS::get_singleton()->get_window_size();
     if (rt->external.fbo != 0) {
@@ -356,10 +356,10 @@ void RasterizerGLES3::blit_render_target_to_screen(RID p_render_target, const Re
 }
 
 void RasterizerGLES3::output_lens_distorted_to_screen(RID p_render_target, const Rect2 &p_screen_rect, float p_k1, float p_k2, const Vector2 &p_eye_center, float p_oversample) {
-    ERR_FAIL_COND(storage->frame.current_rt)
+    ERR_FAIL_COND(storage->frame.current_rt);
 
     RasterizerStorageGLES3::RenderTarget *rt = storage->render_target_owner.getornull(p_render_target);
-    ERR_FAIL_COND(!rt)
+    ERR_FAIL_COND(!rt);
 
     glDisable(GL_BLEND);
 

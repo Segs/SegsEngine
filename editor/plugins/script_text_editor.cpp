@@ -50,7 +50,7 @@ IMPL_GDCLASS(ScriptTextEditor)
 void ConnectionInfoDialog::ok_pressed() {
 }
 
-void ConnectionInfoDialog::popup_connections(se_string_view p_method, const Vector<Node *>& p_nodes) {
+void ConnectionInfoDialog::popup_connections(se_string_view p_method, const PODVector<Node *> &p_nodes) {
     method->set_text(StringName(p_method));
 
     tree->clear();
@@ -147,7 +147,7 @@ RES ScriptTextEditor::get_edited_resource() const {
 }
 
 void ScriptTextEditor::set_edited_resource(const RES &p_res) {
-    ERR_FAIL_COND(script)
+    ERR_FAIL_COND(script);
 
     script = dynamic_ref_cast<Script>(p_res);
     _set_theme_for_script();
@@ -399,7 +399,7 @@ void ScriptTextEditor::_warning_clicked(const Variant& p_line) {
 
 void ScriptTextEditor::reload_text() {
 
-    ERR_FAIL_COND(not script)
+    ERR_FAIL_COND(not script);
 
     TextEdit *te = code_editor->get_text_edit();
     int column = te->cursor_get_column();
@@ -718,9 +718,9 @@ void ScriptTextEditor::_bookmark_item_pressed(int p_idx) {
     }
 }
 
-static Vector<Node *> _find_all_node_for_script(Node *p_base, Node *p_current, const Ref<Script> &p_script) {
+static PODVector<Node *> _find_all_node_for_script(Node *p_base, Node *p_current, const Ref<Script> &p_script) {
 
-    Vector<Node *> nodes;
+    PODVector<Node *> nodes;
 
     if (p_current->get_owner() != p_base && p_base != p_current) {
         return nodes;
@@ -732,8 +732,8 @@ static Vector<Node *> _find_all_node_for_script(Node *p_base, Node *p_current, c
     }
 
     for (int i = 0; i < p_current->get_child_count(); i++) {
-        Vector<Node *> found = _find_all_node_for_script(p_base, p_current->get_child(i), p_script);
-        nodes.append_array(found);
+        PODVector<Node *> found = _find_all_node_for_script(p_base, p_current->get_child(i), p_script);
+        nodes.push_back(found);
     }
 
     return nodes;
@@ -774,7 +774,7 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
     if (!bool(EditorSettings::get_singleton()->get("text_editor/external/use_external_editor")))
         return;
 
-    ERR_FAIL_COND(!get_tree())
+    ERR_FAIL_COND(!get_tree());
 
     Set<Ref<Script> > scripts;
 
@@ -991,7 +991,7 @@ void ScriptTextEditor::_update_connected_methods() {
         return;
     }
 
-    Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
+    PODVector<Node *> nodes = _find_all_node_for_script(base, base, script);
     Set<StringName> methods_found;
 
     for (int i = 0; i < nodes.size(); i++) {
@@ -1055,7 +1055,7 @@ void ScriptTextEditor::_lookup_connections(int p_row, se_string_view p_method) {
         return;
     }
 
-    Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
+    PODVector<Node *> nodes = _find_all_node_for_script(base, base, script);
     connection_info_dialog->popup_connections(p_method, nodes);
 }
 

@@ -59,6 +59,19 @@ struct GODOT_EXPORT Rect2 {
 		return true;
 	}
 
+    bool intersects_touch(const Rect2 &p_rect) const {
+        if (position.x > (p_rect.position.x + p_rect.size.width))
+            return false;
+        if ((position.x + size.width) < p_rect.position.x)
+            return false;
+        if (position.y > (p_rect.position.y + p_rect.size.height))
+            return false;
+        if ((position.y + size.height) < p_rect.position.y)
+            return false;
+
+        return true;
+    }
+
 	real_t distance_to(const Vector2 &p_point) const {
 
 		real_t dist = 0.0;

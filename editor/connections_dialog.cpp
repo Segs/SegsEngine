@@ -199,7 +199,7 @@ void ConnectDialog::_add_bind() {
         } break;
     }
 
-    ERR_FAIL_COND(value.get_type() == VariantType::NIL)
+    ERR_FAIL_COND(value.get_type() == VariantType::NIL);
 
     cdbinds->params.push_back(value);
     cdbinds->notify_changed();
@@ -540,11 +540,11 @@ struct _ConnectionsDockMethodInfoSort {
 void ConnectionsDock::_make_or_edit_connection() {
 
     TreeItem *it = tree->get_selected();
-    ERR_FAIL_COND(!it)
+    ERR_FAIL_COND(!it);
 
     NodePath dst_path = connect_dialog->get_dst_path();
     Node *target = selectedNode->get_node(dst_path);
-    ERR_FAIL_COND(!target)
+    ERR_FAIL_COND(!target);
 
     Connection cToMake;
     cToMake.source = connect_dialog->get_source();
@@ -633,7 +633,7 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
 void ConnectionsDock::_disconnect(TreeItem &item) {
 
     Connection c = item.get_metadata(0);
-    ERR_FAIL_COND(c.source != selectedNode) // Shouldn't happen but... Bugcheck.
+    ERR_FAIL_COND(c.source != selectedNode); // Shouldn't happen but... Bugcheck.
 
     String translated_fmt(TTR("Disconnect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), c.signal.asCString(), c.method.asCString()));
@@ -778,7 +778,7 @@ void ConnectionsDock::_go_to_script(TreeItem &item) {
         return;
 
     Connection c = item.get_metadata(0);
-    ERR_FAIL_COND(c.source != selectedNode) //shouldn't happen but...bugcheck
+    ERR_FAIL_COND(c.source != selectedNode); //shouldn't happen but...bugcheck
 
     if (!c.target)
         return;

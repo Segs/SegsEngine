@@ -244,7 +244,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
 
     Node *parent = get_node(root);
 
-    ERR_FAIL_COND(!parent)
+    ERR_FAIL_COND(!parent);
 
     Animation *a = p_anim->animation.operator->();
 
@@ -352,7 +352,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
 void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float p_time, float p_delta, float p_interp, bool p_is_current, bool p_seeked, bool p_started) {
 
     _ensure_node_caches(p_anim);
-    ERR_FAIL_COND(p_anim->node_cache.size() != p_anim->animation->get_track_count())
+    ERR_FAIL_COND(p_anim->node_cache.size() != p_anim->animation->get_track_count());
 
     Animation *a = p_anim->animation.operator->();
     bool can_call = is_inside_tree() && !Engine::get_singleton()->is_editor_hint();
@@ -1005,7 +1005,7 @@ Error AnimationPlayer::add_animation(const StringName &p_name, const Ref<Animati
 
 void AnimationPlayer::remove_animation(const StringName &p_name) {
 
-    ERR_FAIL_COND(!animation_set.contains(p_name))
+    ERR_FAIL_COND(!animation_set.contains(p_name));
 
     stop();
     _unref_anim(animation_set[p_name].animation);
@@ -1027,9 +1027,9 @@ void AnimationPlayer::_unref_anim(const Ref<Animation> &p_anim) {
 
 void AnimationPlayer::rename_animation(const StringName &p_name, const StringName &p_new_name) {
 
-    ERR_FAIL_COND(!animation_set.contains(p_name))
-    ERR_FAIL_COND(StringUtils::contains(p_new_name,'/') || StringUtils::contains(p_new_name,':'))
-    ERR_FAIL_COND(animation_set.contains(p_new_name))
+    ERR_FAIL_COND(!animation_set.contains(p_name));
+    ERR_FAIL_COND(StringUtils::contains(p_new_name,'/') || StringUtils::contains(p_new_name,':'));
+    ERR_FAIL_COND(animation_set.contains(p_new_name));
 
     stop();
     AnimationData ad = animation_set[p_name];
@@ -1280,7 +1280,7 @@ void AnimationPlayer::set_assigned_animation(const StringName &p_anim) {
     if (is_playing()) {
         play(p_anim);
     } else {
-        ERR_FAIL_COND(!animation_set.contains(p_anim))
+        ERR_FAIL_COND(!animation_set.contains(p_anim));
         playback.current.pos = 0;
         playback.current.from = &animation_set[p_anim];
         playback.assigned = p_anim;
@@ -1327,10 +1327,10 @@ void AnimationPlayer::seek(float p_time, bool p_update) {
 
     if (!playback.current.from) {
         if (playback.assigned) {
-            ERR_FAIL_COND(!animation_set.contains(playback.assigned))
+            ERR_FAIL_COND(!animation_set.contains(playback.assigned));
             playback.current.from = &animation_set[playback.assigned];
         }
-        ERR_FAIL_COND(!playback.current.from)
+        ERR_FAIL_COND(!playback.current.from);
     }
 
     playback.current.pos = p_time;
@@ -1344,10 +1344,10 @@ void AnimationPlayer::seek_delta(float p_time, float p_delta) {
 
     if (!playback.current.from) {
         if (playback.assigned) {
-            ERR_FAIL_COND(!animation_set.contains(playback.assigned))
+            ERR_FAIL_COND(!animation_set.contains(playback.assigned));
             playback.current.from = &animation_set[playback.assigned];
         }
-        ERR_FAIL_COND(!playback.current.from)
+        ERR_FAIL_COND(!playback.current.from);
     }
 
     playback.current.pos = p_time - p_delta;
@@ -1504,7 +1504,7 @@ void AnimationPlayer::_set_process(bool p_process, bool p_force) {
 
 void AnimationPlayer::animation_set_next(const StringName &p_animation, const StringName &p_next) {
 
-    ERR_FAIL_COND(!animation_set.contains(p_animation))
+    ERR_FAIL_COND(!animation_set.contains(p_animation));
     animation_set[p_animation].next = p_next;
 }
 

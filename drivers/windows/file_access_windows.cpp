@@ -52,7 +52,7 @@
 
 void FileAccessWindows::check_errors() const {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
 
     if (feof(f)) {
 
@@ -204,7 +204,7 @@ bool FileAccessWindows::is_open() const {
 }
 void FileAccessWindows::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     last_error = OK;
     if (fseek(f, p_position, SEEK_SET))
         check_errors();
@@ -212,7 +212,7 @@ void FileAccessWindows::seek(size_t p_position) {
 }
 void FileAccessWindows::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     if (fseek(f, p_position, SEEK_END))
         check_errors();
     prev_op = 0;
@@ -283,7 +283,7 @@ Error FileAccessWindows::get_error() const {
 
 void FileAccessWindows::flush() {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     fflush(f);
     if (prev_op == WRITE)
         prev_op = 0;
@@ -291,7 +291,7 @@ void FileAccessWindows::flush() {
 
 void FileAccessWindows::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == READ) {
             if (last_error != ERR_FILE_EOF) {
@@ -304,7 +304,7 @@ void FileAccessWindows::store_8(uint8_t p_dest) {
 }
 
 void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == READ) {
             if (last_error != ERR_FILE_EOF) {
@@ -313,7 +313,8 @@ void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
         }
         prev_op = WRITE;
     }
-    ERR_FAIL_COND(fwrite(p_src, 1, p_length, f) != (size_t)p_length)
+    auto wr_size=fwrite(p_src, 1, p_length, f);
+    ERR_FAIL_COND(wr_size != (size_t)p_length);
 }
 
 bool FileAccessWindows::file_exists(se_string_view p_name) {

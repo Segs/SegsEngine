@@ -177,7 +177,7 @@ RES TextEditor::get_edited_resource() const {
 }
 
 void TextEditor::set_edited_resource(const RES &p_res) {
-    ERR_FAIL_COND(text_file)
+    ERR_FAIL_COND(text_file);
 
     text_file = dynamic_ref_cast<TextFile>(p_res);
 
@@ -200,7 +200,7 @@ void TextEditor::get_breakpoints(PODVector<int> *p_breakpoints) {
 
 void TextEditor::reload_text() {
 
-    ERR_FAIL_COND(not text_file)
+    ERR_FAIL_COND(not text_file);
 
     TextEdit *te = code_editor->get_text_edit();
     int column = te->cursor_get_column();

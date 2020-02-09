@@ -125,7 +125,7 @@ public:
     GDMonoClass *get_nesting_class();
 
 #ifdef TOOLS_ENABLED
-    Vector<MonoClassField *> get_enum_fields();
+    PODVector<MonoClassField *> get_enum_fields();
 #endif
 
     GDMonoMethod *get_fetched_method_unknown_params(const StringName &p_name);

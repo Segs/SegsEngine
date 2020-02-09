@@ -148,7 +148,7 @@ struct _VariantCall {
                 }
 
 #endif
-                ERR_FAIL_COND(p_argcount > VARIANT_ARG_MAX)
+                ERR_FAIL_COND(p_argcount > VARIANT_ARG_MAX);
                 const Variant *newargs[VARIANT_ARG_MAX];
                 for (int i = 0; i < p_argcount; i++)
                     newargs[i] = p_args[i];
@@ -1051,7 +1051,7 @@ struct _VariantCall {
     struct ConstructData {
 
         int arg_count;
-        Vector<VariantType> arg_types;
+        PODVector<VariantType> arg_types;
         PODVector<String> arg_names;
         VariantConstructFunc func;
     };

@@ -1910,16 +1910,6 @@ Variant::operator PoolVector<Color>() const {
 /* helpers */
 
 template<>
-Vector<RID> Variant::as<Vector<RID>>() const {
-
-    Array va = operator Array();
-    Vector<RID> rids;
-    rids.resize(va.size());
-    for (int i = 0; i < rids.size(); i++)
-        rids.write[i] = va[i];
-    return rids;
-}
-template<>
 PoolVector<RID> Variant::as<PoolVector<RID>>() const {
 
     Array va = operator Array();
@@ -2018,36 +2008,10 @@ Vector<T> asInternalVector(const Variant &v) {
     }
     return to;
 };
-template<>
-Vector<Variant> Variant::as<Vector<Variant>>() const {
-
-    Array from = operator Array();
-    Vector<Variant> to;
-    int len = from.size();
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = from[i];
-    }
-    return to;
-}
 
 template<>
 Vector<real_t> Variant::as<Vector<real_t>>() const {
     return asInternalVector<real_t>(*this);
-}
-template<>
-Vector<UIString> Variant::as<Vector<UIString>>() const {
-
-    PoolVector<String> from = operator PoolVector<String>();
-    Vector<UIString> to;
-    int len = from.size();
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = StringUtils::from_utf8(from[i]);
-    }
-    return to;
 }
 
 template<>
@@ -2329,6 +2293,14 @@ Variant Variant::fromVectorBuiltin(Span<const T> p_array) {
         w[i] = r[i];
     return res;
 }
+template<>
+Variant Variant::fromVector(Span<const Variant> p_array) {
+    Variant res;
+    res.type = VariantType::ARRAY;
+
+    memnew_placement(res._data._mem, Array(eastl::move(PODVector<Variant>(p_array.begin(),p_array.end()))));
+    return res;
+}
 
 template<>
 Variant Variant::from(const Vector<Plane> &p_array) {
@@ -2337,10 +2309,6 @@ Variant Variant::from(const Vector<Plane> &p_array) {
 template<>
 Variant Variant::from(const Frustum &p_array) {
     return fromVector<Plane>(p_array);
-}
-template<>
-Variant Variant::from(const Vector<RID> &p_array) {
-    return fromVector<RID>({p_array.ptr(),p_array.size()});
 }
 template<>
 Variant Variant::from(const PoolVector<RID> &p_array) {
@@ -2494,16 +2462,6 @@ Variant::Variant(const PoolVector<Face3> &p_face_array) {
 
 /* helpers */
 template<>
-Variant Variant::from(const Vector<Variant> &p_array) {
-    return fromVector<Variant>({p_array.ptr(),p_array.size()});
-}
-
-template<>
-Variant Variant::from(const Vector<uint8_t> &p_array) {
-    return fromVectorBuiltin<uint8_t>({p_array.ptr(),p_array.size()});
-}
-
-template<>
 Variant Variant::from(const Vector<int> &p_array) {
     return fromVectorBuiltin<int>({p_array.ptr(),p_array.size()});
 }
@@ -2512,31 +2470,8 @@ Variant Variant::from(const Vector<float> &p_array) {
     return fromVectorBuiltin<float>({p_array.ptr(),p_array.size()});
 }
 template<>
-Variant Variant::from(const Vector<se_string_view> &p_array) {
-    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<String>));
-
-    if(p_array.empty())
-        return Variant();
-    Variant res;
-    PoolVector<String> *plane_array = memnew_placement(res._data._mem, PoolVector<String>);
-    res.type = getBulitinArrayType(*plane_array);
-
-    int len = p_array.size();
-    plane_array->resize(len);
-    typename PoolVector<String>::Write w = plane_array->write();
-    const se_string_view *r = p_array.ptr();
-
-    for (int i = 0; i < len; i++)
-        w[i] = r[i];
-    return res;
-}
-template<>
 Variant Variant::from(const Vector<Vector3> &p_array) {
     return fromVectorBuiltin<Vector3>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<Color> &p_array) {
-    return fromVectorBuiltin<Color>({p_array.ptr(),p_array.size()});
 }
 
 Variant &Variant::operator=(const Variant &p_variant) {

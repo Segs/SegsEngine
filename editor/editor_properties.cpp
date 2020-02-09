@@ -616,7 +616,7 @@ void EditorPropertyFlags::update_property() {
 }
 
 void EditorPropertyFlags::setup(const PODVector<se_string_view> &p_options) {
-    ERR_FAIL_COND(flags.size())
+    ERR_FAIL_COND(flags.size());
 
     bool first = true;
     for (int i = 0; i < p_options.size(); i++) {
@@ -2004,7 +2004,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
 
     if (!base_node && object_cast<RefCounted>(get_edited_object())) {
         Node *to_node = get_node(p_path);
-        ERR_FAIL_COND(!to_node)
+        ERR_FAIL_COND(!to_node);
         path = get_tree()->get_edited_scene_root()->get_path_to(to_node);
     }
 
@@ -2061,7 +2061,7 @@ void EditorPropertyNodePath::update_property() {
     }
 
     Node *target_node = base_node->get_node(p);
-    ERR_FAIL_COND(!target_node)
+    ERR_FAIL_COND(!target_node);
 
     if (StringUtils::contains(String(target_node->get_name()),"@")) {
         assign->set_button_icon(Ref<Texture>());
@@ -2245,7 +2245,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
             Ref<Resource> res = Ref<Resource>(object_cast<Resource>(inst));
 
-            ERR_FAIL_COND(not res)
+            ERR_FAIL_COND(not res);
 
             for (Pair<StringName, Variant> &p : propvalues) {
                 res->set(p.first, p.second);
@@ -2317,7 +2317,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
                 update_property();
                 break;
             }
-            ERR_FAIL_COND(inheritors_array.empty())
+            ERR_FAIL_COND(inheritors_array.empty());
 
             StringName intype = inheritors_array[p_which - TYPE_BASE_ID];
 
@@ -2873,7 +2873,7 @@ bool EditorPropertyResource::can_drop_data_fw(const Point2 &p_point, const Varia
 }
 void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    ERR_FAIL_COND(!_is_drop_valid(p_data))
+    ERR_FAIL_COND(!_is_drop_valid(p_data));
 
     Dictionary drag_data = p_data;
     if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {

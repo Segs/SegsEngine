@@ -229,7 +229,7 @@ Error DirAccessWindows::remove(se_string_view _path) {
 
     p_path = fix_path(p_path);
 
-    printf("erasing %.*s\n", p_path.length(),p_path.data());
+    printf("erasing %.*s\n", int(p_path.length()),p_path.data());
 
     QString str_path(StringUtils::from_utf8(p_path));
     QFileInfo fi(str_path);

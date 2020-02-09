@@ -127,12 +127,14 @@ Array GDScriptTextDocument::documentSymbol(const Dictionary &p_params) {
     Array arr;
     const auto &scripts(GDScriptLanguageProtocol::get_singleton()->get_workspace()->scripts);
     const auto parser = scripts.find_as(path);
-    if (parser!=scripts.end()) {
-        Vector<lsp::DocumentedSymbolInformation> list;
-        parser->second->get_symbols().symbol_tree_as_list(uri, list);
-        for (int i = 0; i < list.size(); i++) {
-            arr.push_back(list[i].to_json());
-        }
+    if (parser == scripts.end()) {
+        return arr;
+    }
+
+    PODVector<lsp::DocumentedSymbolInformation> list;
+    parser->second->get_symbols().symbol_tree_as_list(uri, list);
+    for (int i = 0; i < list.size(); i++) {
+        arr.push_back(list[i].to_json());
     }
     return arr;
 }
@@ -297,10 +299,10 @@ Array GDScriptTextDocument::documentLink(const Dictionary &p_params) {
     lsp::DocumentLinkParams params;
     params.load(p_params);
 
-    List<lsp::DocumentLink> links;
+    PODVector<lsp::DocumentLink> links;
     GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_document_links(params.textDocument.uri, links);
-    for (const List<lsp::DocumentLink>::Element *E = links.front(); E; E = E->next()) {
-        ret.push_back(E->deref().to_json());
+    for (const lsp::DocumentLink &E : links) {
+        ret.push_back(E.to_json());
     }
     return ret;
 }

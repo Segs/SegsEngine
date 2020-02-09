@@ -184,8 +184,8 @@ bool WebSocketMultiplayerPeer::is_refusing_new_connections() const {
 
 void WebSocketMultiplayerPeer::_send_sys(Ref<WebSocketPeer> p_peer, uint8_t p_type, int32_t p_peer_id) {
 
-    ERR_FAIL_COND(not p_peer)
-    ERR_FAIL_COND(!p_peer->is_connected_to_host())
+    ERR_FAIL_COND(not p_peer);
+    ERR_FAIL_COND(!p_peer->is_connected_to_host());
 
     PoolVector<uint8_t> message = _make_pkt(p_type, 1, 0, (uint8_t *)&p_peer_id, 4);
     p_peer->put_packet(&(message.read()[0]), message.size());
@@ -278,15 +278,15 @@ Error WebSocketMultiplayerPeer::_server_relay(int32_t p_from, int32_t p_to, cons
 
 void WebSocketMultiplayerPeer::_process_multiplayer(Ref<WebSocketPeer> p_peer, uint32_t p_peer_id) {
 
-    ERR_FAIL_COND(not p_peer)
+    ERR_FAIL_COND(not p_peer);
 
     const uint8_t *in_buffer;
     int size = 0;
 
     Error err = p_peer->get_packet(&in_buffer, size);
 
-    ERR_FAIL_COND(err != OK)
-    ERR_FAIL_COND(size < PROTO_SIZE)
+    ERR_FAIL_COND(err != OK);
+    ERR_FAIL_COND(size < PROTO_SIZE);
 
     int data_size = size - PROTO_SIZE;
 
@@ -299,8 +299,8 @@ void WebSocketMultiplayerPeer::_process_multiplayer(Ref<WebSocketPeer> p_peer, u
 
     if (is_server()) { // Server can resend
 
-        ERR_FAIL_COND(type != SYS_NONE) // Only server sends sys messages
-        ERR_FAIL_COND(from != p_peer_id) // Someone is cheating
+        ERR_FAIL_COND(type != SYS_NONE); // Only server sends sys messages
+        ERR_FAIL_COND(from != p_peer_id); // Someone is cheating
 
         if (to == 1) { // This is for the server
 
@@ -331,7 +331,7 @@ void WebSocketMultiplayerPeer::_process_multiplayer(Ref<WebSocketPeer> p_peer, u
         }
 
         // System message
-        ERR_FAIL_COND(data_size < 4)
+        ERR_FAIL_COND(data_size < 4);
         int id = 0;
         memcpy(&id, &in_buffer[PROTO_SIZE], 4);
 

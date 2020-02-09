@@ -233,7 +233,7 @@ private:
     void _zoom_reset();
 
     void draw_highlight_current_tile();
-    void draw_highlight_subtile(Vector2 coord, const Vector<Vector2> &other_highlighted = Vector<Vector2>());
+    void draw_highlight_subtile(Vector2 coord, const PODVector<Vector2> &other_highlighted = PODVector<Vector2>());
     void draw_tile_subdivision(int p_id, Color p_color) const;
     void draw_edited_region_subdivision() const;
     void draw_grid_snap();

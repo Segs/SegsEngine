@@ -1075,13 +1075,13 @@ BroadPhaseSW *SpaceSW::get_broadphase() {
 
 void SpaceSW::add_object(CollisionObjectSW *p_object) {
 
-    ERR_FAIL_COND(objects.contains(p_object))
+    ERR_FAIL_COND(objects.contains(p_object));
     objects.insert(p_object);
 }
 
 void SpaceSW::remove_object(CollisionObjectSW *p_object) {
 
-    ERR_FAIL_COND(!objects.contains(p_object))
+    ERR_FAIL_COND(!objects.contains(p_object));
     objects.erase(p_object);
 }
 

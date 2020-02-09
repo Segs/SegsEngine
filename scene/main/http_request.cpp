@@ -500,7 +500,7 @@ void HTTPRequest::_notification(int p_what) {
 
 void HTTPRequest::set_use_threads(bool p_use) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
     IMPLD()->use_threads = p_use;
 }
 
@@ -511,7 +511,7 @@ bool HTTPRequest::is_using_threads() const {
 
 void HTTPRequest::set_body_size_limit(int p_bytes) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
 
     IMPLD()->body_size_limit = p_bytes;
 }
@@ -523,7 +523,7 @@ int HTTPRequest::get_body_size_limit() const {
 
 void HTTPRequest::set_download_file(se_string_view p_file) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
 
     IMPLD()->download_to_file = p_file;
 }
@@ -568,7 +568,7 @@ int HTTPRequest::get_body_size() const {
 
 void HTTPRequest::set_timeout(int p_timeout) {
 
-    ERR_FAIL_COND(p_timeout < 0)
+    ERR_FAIL_COND(p_timeout < 0);
     IMPLD()->timeout = p_timeout;
 }
 

@@ -894,10 +894,10 @@ AnimationNodeOutput::AnimationNodeOutput() {
 ///////////////////////////////////////////////////////
 void AnimationNodeBlendTree::add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position) {
 
-    ERR_FAIL_COND(nodes.contains(p_name))
-    ERR_FAIL_COND(not p_node)
-    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output)
-    ERR_FAIL_COND(StringUtils::contains(p_name,'/'))
+    ERR_FAIL_COND(nodes.contains(p_name));
+    ERR_FAIL_COND(not p_node);
+    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output);
+    ERR_FAIL_COND(StringUtils::contains(p_name,'/'));
 
     Node n;
     n.node = p_node;
@@ -930,7 +930,7 @@ StringName AnimationNodeBlendTree::get_node_name(const Ref<AnimationNode> &p_nod
 }
 
 void AnimationNodeBlendTree::set_node_position(const StringName &p_node, const Vector2 &p_position) {
-    ERR_FAIL_COND(!nodes.contains(p_node))
+    ERR_FAIL_COND(!nodes.contains(p_node));
     nodes[p_node].position = p_position;
 }
 
@@ -966,8 +966,8 @@ const PODVector<StringName> &AnimationNodeBlendTree::get_node_connection_array(c
 }
 void AnimationNodeBlendTree::remove_node(const StringName &p_name) {
 
-    ERR_FAIL_COND(!nodes.contains(p_name))
-    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output) //can't delete output
+    ERR_FAIL_COND(!nodes.contains(p_name));
+    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output); //can't delete output
 
     {
         Ref<AnimationNode> node = nodes[p_name].node;
@@ -992,10 +992,10 @@ void AnimationNodeBlendTree::remove_node(const StringName &p_name) {
 
 void AnimationNodeBlendTree::rename_node(const StringName &p_name, const StringName &p_new_name) {
 
-    ERR_FAIL_COND(!nodes.contains(p_name))
-    ERR_FAIL_COND(nodes.contains(p_new_name))
-    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output)
-    ERR_FAIL_COND(p_new_name == SceneStringNames::get_singleton()->output)
+    ERR_FAIL_COND(!nodes.contains(p_name));
+    ERR_FAIL_COND(nodes.contains(p_new_name));
+    ERR_FAIL_COND(p_name == SceneStringNames::get_singleton()->output);
+    ERR_FAIL_COND(p_new_name == SceneStringNames::get_singleton()->output);
 
     nodes[p_name].node->disconnect("changed", this, "_node_changed");
 
@@ -1019,10 +1019,10 @@ void AnimationNodeBlendTree::rename_node(const StringName &p_name, const StringN
 
 void AnimationNodeBlendTree::connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) {
 
-    ERR_FAIL_COND(!nodes.contains(p_output_node))
-    ERR_FAIL_COND(!nodes.contains(p_input_node))
-    ERR_FAIL_COND(p_output_node == SceneStringNames::get_singleton()->output)
-    ERR_FAIL_COND(p_input_node == p_output_node)
+    ERR_FAIL_COND(!nodes.contains(p_output_node));
+    ERR_FAIL_COND(!nodes.contains(p_input_node));
+    ERR_FAIL_COND(p_output_node == SceneStringNames::get_singleton()->output);
+    ERR_FAIL_COND(p_input_node == p_output_node);
 
     Ref<AnimationNode> input = nodes[p_input_node].node;
     ERR_FAIL_INDEX(p_input_index, nodes[p_input_node].connections.size());
@@ -1030,7 +1030,7 @@ void AnimationNodeBlendTree::connect_node(const StringName &p_input_node, int p_
     for (eastl::pair<const StringName,Node> &E : nodes) {
         for (int i = 0; i < E.second.connections.size(); i++) {
             StringName output = E.second.connections[i];
-            ERR_FAIL_COND(output == p_output_node)
+            ERR_FAIL_COND(output == p_output_node);
         }
     }
 
@@ -1041,7 +1041,7 @@ void AnimationNodeBlendTree::connect_node(const StringName &p_input_node, int p_
 
 void AnimationNodeBlendTree::disconnect_node(const StringName &p_node, int p_input_index) {
 
-    ERR_FAIL_COND(!nodes.contains(p_node))
+    ERR_FAIL_COND(!nodes.contains(p_node));
 
     Ref<AnimationNode> input = nodes[p_node].node;
     ERR_FAIL_INDEX(p_input_index, nodes[p_node].connections.size());
@@ -1234,7 +1234,7 @@ void AnimationNodeBlendTree::_tree_changed() {
 
 void AnimationNodeBlendTree::_node_changed(const StringName &p_node) {
 
-    ERR_FAIL_COND(!nodes.contains(p_node))
+    ERR_FAIL_COND(!nodes.contains(p_node));
     nodes[p_node].connections.resize(nodes[p_node].node->get_input_count());
 }
 

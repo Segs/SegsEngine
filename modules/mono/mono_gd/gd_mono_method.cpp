@@ -246,7 +246,7 @@ void GDMonoMethod::get_parameter_names(PODVector<StringName> &names) const {
 	}
 }
 
-void GDMonoMethod::get_parameter_types(Vector<ManagedType> &types) const {
+void GDMonoMethod::get_parameter_types(PODVector<ManagedType> &types) const {
 	for (int i = 0; i < param_types.size(); ++i) {
 		types.push_back(param_types[i]);
 	}

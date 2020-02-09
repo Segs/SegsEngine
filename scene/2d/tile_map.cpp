@@ -211,7 +211,7 @@ Ref<TileSet> TileMap::get_tileset() const {
 
 void TileMap::set_cell_size(Size2 p_size) {
 
-    ERR_FAIL_COND(p_size.x < 1 || p_size.y < 1)
+    ERR_FAIL_COND(p_size.x < 1 || p_size.y < 1);
 
     _clear_quadrants();
     cell_size = p_size;
@@ -876,7 +876,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         //erase existing
         tile_map.erase(pk);
         Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
-        ERR_FAIL_COND(Q==quadrant_map.end())
+        ERR_FAIL_COND(Q==quadrant_map.end());
         Quadrant &q = Q->second;
         q.cells.erase(pk);
         if (q.cells.empty())
@@ -898,7 +898,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         Quadrant &q = Q->second;
         q.cells.insert(pk);
     } else {
-        ERR_FAIL_COND(Q==quadrant_map.end()) // quadrant should exist...
+        ERR_FAIL_COND(Q==quadrant_map.end()); // quadrant should exist...
 
         if (E->second.id == p_tile && E->second.flip_h == p_flip_x && E->second.flip_v == p_flip_y &&
                 E->second.transpose == p_transpose && E->second.autotile_coord_x == (uint16_t)p_autotile_coord.x &&
@@ -1218,7 +1218,7 @@ void TileMap::clear() {
 
 void TileMap::_set_tile_data(const PoolVector<int> &p_data) {
 
-    ERR_FAIL_COND(format > FORMAT_2)
+    ERR_FAIL_COND(format > FORMAT_2);
 
     int c = p_data.size();
     PoolVector<int>::Read r = p_data.read();

@@ -332,7 +332,7 @@ void GDScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<Stri
         return;
 
     Ref<GDScript> script = dynamic_ref_cast<GDScript>(instance->get_script());
-    ERR_FAIL_COND(not script)
+    ERR_FAIL_COND(not script);
 
     const Map<StringName, GDScript::MemberInfo> &mi = script->debug_get_member_indices();
 
@@ -821,7 +821,7 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                 MethodBind *mb = ClassDB::get_method(native_type.native_type, id);
                                 if (mb && mb->is_const()) {
                                     bool all_is_const = true;
-                                    Vector<Variant> args;
+                                    PODVector<Variant> args;
                                     GDScriptCompletionContext c2 = p_context;
                                     c2.line = op->line;
                                     for (int i = 2; all_is_const && i < op->arguments.size(); i++) {
@@ -3016,7 +3016,7 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
 
     const char *indent = _get_indentation();
 
-    const Vector<se_string_view> lines(StringUtils::split(p_code,'\n'));
+    const PODVector<se_string_view> lines(StringUtils::split(p_code,'\n'));
     List<int> indent_stack;
     PODVector<String> res;
     res.reserve(p_code.size()+(p_code.size()>>4)); // assume 1.25 overhead for indent

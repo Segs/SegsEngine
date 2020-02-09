@@ -116,7 +116,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
         Rect2 edit;
     };
 
-    Vector<NodeRect> node_rects;
+    PODVector<NodeRect> node_rects;
 
     struct TransitionLine {
         StringName from_node;
@@ -131,7 +131,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
         float width;
     };
 
-    Vector<TransitionLine> transition_lines;
+    PODVector<TransitionLine> transition_lines;
 
     StringName selected_transition_from;
     StringName selected_transition_to;

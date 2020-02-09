@@ -451,7 +451,7 @@ int AudioStreamSample::get_loop_end() const {
 }
 
 void AudioStreamSample::set_mix_rate(int p_hz) {
-    ERR_FAIL_COND(p_hz == 0)
+    ERR_FAIL_COND(p_hz == 0);
     mix_rate = p_hz;
 }
 int AudioStreamSample::get_mix_rate() const {

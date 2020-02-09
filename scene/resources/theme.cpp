@@ -299,7 +299,7 @@ void Theme::set_default_font(const Ref<Font> &p_font) {
 
 void Theme::set_icon(const StringName &p_name, const StringName &p_type, const Ref<Texture> &p_icon) {
 
-    //ERR_FAIL_COND(p_icon.is_null())
+    //ERR_FAIL_COND();
 
     bool new_value = !icon_map.contains(p_type) || !icon_map[p_type].contains(p_name);
 
@@ -336,8 +336,8 @@ bool Theme::has_icon(const StringName &p_name, const StringName &p_type) const {
 
 void Theme::clear_icon(const StringName &p_name, const StringName &p_type) {
 
-    ERR_FAIL_COND(!icon_map.contains(p_type))
-    ERR_FAIL_COND(!icon_map[p_type].contains(p_name))
+    ERR_FAIL_COND(!icon_map.contains(p_type));
+    ERR_FAIL_COND(!icon_map[p_type].contains(p_name));
 
     if (icon_map[p_type][p_name]) {
         icon_map[p_type][p_name]->disconnect("changed", this, "_emit_theme_changed");
@@ -385,8 +385,8 @@ bool Theme::has_shader(const StringName &p_name, const StringName &p_type) const
 }
 
 void Theme::clear_shader(const StringName &p_name, const StringName &p_type) {
-    ERR_FAIL_COND(!shader_map.contains(p_type))
-    ERR_FAIL_COND(!shader_map[p_type].contains(p_name))
+    ERR_FAIL_COND(!shader_map.contains(p_type));
+    ERR_FAIL_COND(!shader_map[p_type].contains(p_name));
 
     shader_map[p_type].erase(p_name);
     Object_change_notify(this);
@@ -405,7 +405,7 @@ void Theme::get_shader_list(const StringName &p_type, PODVector<StringName> *p_l
 
 void Theme::set_stylebox(const StringName &p_name, const StringName &p_type, const Ref<StyleBox> &p_style) {
 
-    //ERR_FAIL_COND(p_style.is_null())
+    //ERR_FAIL_COND();
 
     bool new_value = !style_map.contains(p_type) || !style_map[p_type].contains(p_name);
 
@@ -440,8 +440,8 @@ bool Theme::has_stylebox(const StringName &p_name, const StringName &p_type) con
 
 void Theme::clear_stylebox(const StringName &p_name, const StringName &p_type) {
 
-    ERR_FAIL_COND(!style_map.contains(p_type))
-    ERR_FAIL_COND(!style_map[p_type].contains(p_name))
+    ERR_FAIL_COND(!style_map.contains(p_type));
+    ERR_FAIL_COND(!style_map[p_type].contains(p_name));
 
     if (style_map[p_type][p_name]) {
         style_map[p_type][p_name]->disconnect("changed", this, "_emit_theme_changed");
@@ -477,7 +477,7 @@ PODVector<StringName> Theme::get_stylebox_types() const {
 
 void Theme::set_font(const StringName &p_name, const StringName &p_type, const Ref<Font> &p_font) {
 
-    //ERR_FAIL_COND(p_font.is_null())
+    //ERR_FAIL_COND();
 
     bool new_value = !font_map.contains(p_type) || !font_map[p_type].contains(p_name);
 
@@ -512,8 +512,8 @@ bool Theme::has_font(const StringName &p_name, const StringName &p_type) const {
 
 void Theme::clear_font(const StringName &p_name, const StringName &p_type) {
 
-    ERR_FAIL_COND(!font_map.contains(p_type))
-    ERR_FAIL_COND(!font_map[p_type].contains(p_name))
+    ERR_FAIL_COND(!font_map.contains(p_type));
+    ERR_FAIL_COND(!font_map[p_type].contains(p_name));
 
     if (font_map[p_type][p_name]) {
         font_map[p_type][p_name]->disconnect("changed", this, "_emit_theme_changed");
@@ -587,8 +587,8 @@ bool Theme::has_color(const StringName &p_name, const StringName &p_type) const 
 
 void Theme::clear_color(const StringName &p_name, const StringName &p_type) {
 
-    ERR_FAIL_COND(!color_map.contains(p_type))
-    ERR_FAIL_COND(!color_map[p_type].contains(p_name))
+    ERR_FAIL_COND(!color_map.contains(p_type));
+    ERR_FAIL_COND(!color_map[p_type].contains(p_name));
 
     color_map[p_type].erase(p_name);
     Object_change_notify(this);
@@ -661,8 +661,8 @@ bool Theme::has_constant(const StringName &p_name, const StringName &p_type) con
 
 void Theme::clear_constant(const StringName &p_name, const StringName &p_type) {
 
-    ERR_FAIL_COND(!constant_map.contains(p_type))
-    ERR_FAIL_COND(!constant_map[p_type].contains(p_name))
+    ERR_FAIL_COND(!constant_map.contains(p_type));
+    ERR_FAIL_COND(!constant_map[p_type].contains(p_name));
 
     constant_map[p_type].erase(p_name);
     Object_change_notify(this);

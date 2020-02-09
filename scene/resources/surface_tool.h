@@ -86,7 +86,7 @@ private:
     PODVector<float> last_weights;
     Plane last_tangent;
 
-    void _create_list_from_arrays(Array arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
+    void _create_list_from_arrays(SurfaceArrays &&arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
     void _create_list(const Ref<Mesh> &p_existing, int p_surface, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
 
     //mikktspace callbacks
@@ -100,6 +100,7 @@ private:
 
 protected:
     static void _bind_methods();
+    Array _commit_to_arrays();
 
 public:
     void begin(Mesh::PrimitiveType p_primitive);
@@ -130,8 +131,8 @@ public:
     PODVector<Vertex> &get_vertex_array() { return vertex_array; }
 
     void create_from_triangle_arrays(const Array &p_arrays);
-    static PODVector<Vertex> create_vertex_array_from_triangle_arrays(const Array &p_arrays);
-    Array commit_to_arrays();
+    static PODVector<Vertex> create_vertex_array_from_triangle_arrays(SurfaceArrays &&p_arrays);
+    SurfaceArrays commit_to_arrays();
     void create_from(const Ref<Mesh> &p_existing, int p_surface);
     void create_from_blend_shape(const Ref<Mesh> &p_existing, int p_surface, StringName p_blend_shape_name);
     void append_from(const Ref<Mesh> &p_existing, int p_surface, const Transform &p_xform);

@@ -234,7 +234,7 @@ public:
 
     StringName get_input_port_default_hint(int p_port) const override;
 
-    Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
+    PODVector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
     String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
@@ -292,7 +292,8 @@ public:
     PortType get_output_port_type(int p_port) const override;
     StringName get_output_port_name(int p_port) const override;
 
-    Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const override;
+    PODVector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type,
+            int p_id) const override;
     String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
@@ -1316,6 +1317,21 @@ class VisualShaderNodeScalarUniform : public VisualShaderNodeUniform {
 
 
 public:
+    enum Hint {
+        HINT_NONE,
+        HINT_RANGE,
+        HINT_RANGE_STEP,
+    };
+
+private:
+    Hint hint = HINT_NONE;
+    float hint_range_min=0.0f;
+    float hint_range_max=1.0f;
+    float hint_range_step=0.1f;
+protected:
+    static void _bind_methods();
+
+public:
     se_string_view get_caption() const override;
 
     int get_input_port_count() const override;
@@ -1328,6 +1344,20 @@ public:
 
     String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+
+    void set_hint(Hint p_hint);
+    Hint get_hint() const;
+
+    void set_min(float p_value);
+    float get_min() const;
+
+    void set_max(float p_value);
+    float get_max() const;
+
+    void set_step(float p_value);
+    float get_step() const;
+
+    PODVector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeScalarUniform();
 };

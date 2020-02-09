@@ -289,7 +289,7 @@ int WSLServer::get_peer_port(int p_peer_id) const {
 }
 
 void WSLServer::disconnect_peer(int p_peer_id, int p_code, se_string_view p_reason) {
-    ERR_FAIL_COND(!has_peer(p_peer_id))
+    ERR_FAIL_COND(!has_peer(p_peer_id));
 
     get_peer(p_peer_id)->close(p_code, p_reason);
 }

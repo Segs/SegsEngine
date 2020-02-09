@@ -184,7 +184,7 @@ void ARVRPositionalTracker::set_hand(const ARVRPositionalTracker::TrackerHand p_
 
     if (hand != p_hand) {
         // we can only set this if we've previously set this to be a controller!!
-        ERR_FAIL_COND((type != ARVRServer::TRACKER_CONTROLLER) && (p_hand != ARVRPositionalTracker::TRACKER_HAND_UNKNOWN))
+        ERR_FAIL_COND((type != ARVRServer::TRACKER_CONTROLLER) && (p_hand != ARVRPositionalTracker::TRACKER_HAND_UNKNOWN));
 
         hand = p_hand;
         if (hand == ARVRPositionalTracker::TRACKER_LEFT_HAND) {

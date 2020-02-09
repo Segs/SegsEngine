@@ -359,60 +359,60 @@ void UndoRedo::create_action(se_string_view p_name, MergeMode p_mode) {
 }
 void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_method(p_object,p_method,VARIANT_ARG_PASS);
 }
 //void UndoRedo::add_do_method(Object *p_object, se_string_view p_method, VARIANT_ARG_DECLARE) {
 
-//    ERR_FAIL_COND(p_object == nullptr)
-//    ERR_FAIL_COND(pimpl->action_level <= 0)
-//    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
 //    pimpl->add_do_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
 //}
 
 void UndoRedo::add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_undo_method(p_object,p_method,VARIANT_ARG_PASS);
 }
 //void UndoRedo::add_undo_method(Object *p_object, se_string_view p_method, VARIANT_ARG_DECLARE) {
 
-//    ERR_FAIL_COND(p_object == nullptr)
-//    ERR_FAIL_COND(pimpl->action_level <= 0)
-//    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
 //    pimpl->add_undo_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
 //}
 void UndoRedo::add_do_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_property(p_object,p_property,p_value);
 }
 void UndoRedo::add_undo_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
 
     pimpl->add_undo_property(p_object,p_property,p_value);
 }
 void UndoRedo::add_do_reference(Object *p_object) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_reference(p_object);
 }
 void UndoRedo::add_undo_reference(Object *p_object) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_undo_reference(p_object);
 }
 
@@ -422,7 +422,7 @@ bool UndoRedo::is_committing_action() const {
 
 void UndoRedo::commit_action() {
 
-    ERR_FAIL_COND(pimpl->action_level <= 0)
+    ERR_FAIL_COND(pimpl->action_level <= 0);
     pimpl->commit_action();
 }
 
@@ -448,7 +448,7 @@ bool UndoRedo::undo() {
 
 void UndoRedo::clear_history(bool p_increase_version) {
 
-    ERR_FAIL_COND(pimpl->action_level > 0)
+    ERR_FAIL_COND(pimpl->action_level > 0);
     pimpl->_discard_redo();
 
     while (!pimpl->actions.empty())

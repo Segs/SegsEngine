@@ -117,15 +117,15 @@ void MeshLibrary::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
 void MeshLibrary::create_item(int p_item) {
 
-    ERR_FAIL_COND(p_item < 0)
-    ERR_FAIL_COND(item_map.contains(p_item))
+    ERR_FAIL_COND(p_item < 0);
+    ERR_FAIL_COND(item_map.contains(p_item));
     item_map[p_item] = Item();
     Object_change_notify(this);
 }
 
 void MeshLibrary::set_item_name(int p_item, se_string_view p_name) {
 
-    ERR_FAIL_COND(!item_map.contains(p_item))
+    ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].name = p_name;
     emit_changed();
     Object_change_notify(this);
@@ -133,7 +133,7 @@ void MeshLibrary::set_item_name(int p_item, se_string_view p_name) {
 
 void MeshLibrary::set_item_mesh(int p_item, const Ref<Mesh> &p_mesh) {
 
-    ERR_FAIL_COND(!item_map.contains(p_item))
+    ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].mesh = p_mesh;
     notify_change_to_owners();
     emit_changed();
@@ -142,7 +142,7 @@ void MeshLibrary::set_item_mesh(int p_item, const Ref<Mesh> &p_mesh) {
 
 void MeshLibrary::set_item_shapes(int p_item, const PoolVector<ShapeData> &p_shapes) {
 
-    ERR_FAIL_COND(!item_map.contains(p_item))
+    ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].shapes = p_shapes;
     Object_change_notify(this);
     notify_change_to_owners();
@@ -152,7 +152,7 @@ void MeshLibrary::set_item_shapes(int p_item, const PoolVector<ShapeData> &p_sha
 
 void MeshLibrary::set_item_navmesh(int p_item, const Ref<NavigationMesh> &p_navmesh) {
 
-    ERR_FAIL_COND(!item_map.contains(p_item))
+    ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].navmesh = p_navmesh;
     Object_change_notify(this);
     notify_change_to_owners();
@@ -162,7 +162,7 @@ void MeshLibrary::set_item_navmesh(int p_item, const Ref<NavigationMesh> &p_navm
 
 void MeshLibrary::set_item_navmesh_transform(int p_item, const Transform &p_transform) {
 
-    ERR_FAIL_COND(!item_map.contains(p_item))
+    ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].navmesh_transform = p_transform;
     notify_change_to_owners();
     emit_changed();
@@ -171,7 +171,7 @@ void MeshLibrary::set_item_navmesh_transform(int p_item, const Transform &p_tran
 
 void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
 
-    ERR_FAIL_COND(!item_map.contains(p_item))
+    ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].preview = p_preview;
     emit_changed();
     Object_change_notify(this);
@@ -272,7 +272,7 @@ int MeshLibrary::get_last_unused_item_id() const {
 
 void MeshLibrary::_set_item_shapes(int p_item, const Array &p_shapes) {
 
-    ERR_FAIL_COND(p_shapes.size() & 1)
+    ERR_FAIL_COND(p_shapes.size() & 1);
     PoolVector<ShapeData> shapes;
     for (int i = 0; i < p_shapes.size(); i += 2) {
         ShapeData sd;

@@ -64,7 +64,7 @@ void ShapeSW::add_owner(ShapeOwnerSW *p_owner) {
 void ShapeSW::remove_owner(ShapeOwnerSW *p_owner) {
 
     OwnerStorage::iterator E = owners.find(p_owner);
-    ERR_FAIL_COND(E==owners.end())
+    ERR_FAIL_COND(E==owners.end());
     E->second--;
     if (E->second == 0) {
         owners.erase(E);
@@ -88,7 +88,7 @@ ShapeSW::ShapeSW() {
 
 ShapeSW::~ShapeSW() {
 
-    ERR_FAIL_COND(owners.size())
+    ERR_FAIL_COND(owners.size());
 }
 
 Plane PlaneShapeSW::get_plane() const {
@@ -687,8 +687,8 @@ void CapsuleShapeSW::_setup(real_t p_height, real_t p_radius) {
 void CapsuleShapeSW::set_data(const Variant &p_data) {
 
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("radius"))
-    ERR_FAIL_COND(!d.has("height"))
+    ERR_FAIL_COND(!d.has("radius"));
+    ERR_FAIL_COND(!d.has("height"));
     _setup(d["height"], d["radius"]);
 }
 
@@ -1467,7 +1467,7 @@ void ConcavePolygonShapeSW::_setup(const PoolVector<Vector3>& p_faces) {
         configure(AABB());
         return;
     }
-    ERR_FAIL_COND(src_face_count % 3)
+    ERR_FAIL_COND(src_face_count % 3);
     src_face_count /= 3;
 
     PoolVector<Vector3>::Read r = p_faces.read();
@@ -1629,22 +1629,22 @@ void HeightMapShapeSW::_setup(PoolVector<real_t> p_heights, int p_width, int p_d
 
 void HeightMapShapeSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY);
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("width"))
-    ERR_FAIL_COND(!d.has("depth"))
-    ERR_FAIL_COND(!d.has("cell_size"))
-    ERR_FAIL_COND(!d.has("heights"))
+    ERR_FAIL_COND(!d.has("width"));
+    ERR_FAIL_COND(!d.has("depth"));
+    ERR_FAIL_COND(!d.has("cell_size"));
+    ERR_FAIL_COND(!d.has("heights"));
 
     int width = d["width"];
     int depth = d["depth"];
     real_t cell_size = d["cell_size"];
     PoolVector<real_t> heights = d["heights"];
 
-    ERR_FAIL_COND(width <= 0)
-    ERR_FAIL_COND(depth <= 0)
-    ERR_FAIL_COND(cell_size <= CMP_EPSILON)
-    ERR_FAIL_COND(heights.size() != (width * depth))
+    ERR_FAIL_COND(width <= 0);
+    ERR_FAIL_COND(depth <= 0);
+    ERR_FAIL_COND(cell_size <= CMP_EPSILON);
+    ERR_FAIL_COND(heights.size() != (width * depth));
     _setup(heights, width, depth, cell_size);
 }
 

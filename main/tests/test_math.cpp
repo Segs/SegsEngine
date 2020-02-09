@@ -500,11 +500,11 @@ MainLoop *test() {
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
 
-    Vector<uint8_t> buf;
+    PODVector<uint8_t> buf;
     int flen = fa->get_len();
     buf.resize(fa->get_len() + 1);
-    fa->get_buffer(buf.ptrw(), flen);
-    buf.write[flen] = 0;
+    fa->get_buffer(buf.data(), flen);
+    buf[flen] = 0;
 
     String code((const char *)&buf[0]);
 

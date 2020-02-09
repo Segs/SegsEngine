@@ -122,7 +122,7 @@ void Camera::_notification(int p_what) {
             // and Spatial will handle it first, including clearing its reference to the Viewport,
             // therefore making it impossible to subclasses to access it
             viewport = get_viewport();
-            ERR_FAIL_COND(!viewport)
+            ERR_FAIL_COND(!viewport);
 
             bool first_camera = viewport->_camera_add(this);
             if (current || first_camera)
@@ -596,7 +596,7 @@ Camera::Projection Camera::get_projection() const {
 }
 
 void Camera::set_fov(float p_fov) {
-    ERR_FAIL_COND(p_fov < 1 || p_fov > 179)
+    ERR_FAIL_COND(p_fov < 1 || p_fov > 179);
 
     fov = p_fov;
     _update_camera_mode();
@@ -604,7 +604,7 @@ void Camera::set_fov(float p_fov) {
 }
 
 void Camera::set_size(float p_size) {
-    ERR_FAIL_COND(p_size < 0.1f || p_size > 16384)
+    ERR_FAIL_COND(p_size < 0.1f || p_size > 16384);
 
     size = p_size;
     _update_camera_mode();
@@ -761,7 +761,7 @@ void ClippedCamera::_notification(int p_what) {
         }
 
         PhysicsDirectSpaceState *dspace = get_world()->get_direct_space_state();
-        ERR_FAIL_COND(!dspace) // most likely physics set to threads
+        ERR_FAIL_COND(!dspace); // most likely physics set to threads
 
         Vector3 cam_fw = -get_global_transform().basis.get_axis(Vector3::AXIS_Z).normalized();
         Vector3 cam_pos = get_global_transform().origin;

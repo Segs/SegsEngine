@@ -124,7 +124,7 @@ public:
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
             return;
         }
-        ERR_FAIL_COND(p_idx < 0)
+        ERR_FAIL_COND(p_idx < 0);
         if (p_idx >= E->second.frames.size())
             return;
         E->second.frames.set(p_idx,p_frame);

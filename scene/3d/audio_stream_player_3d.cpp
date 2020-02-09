@@ -386,7 +386,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
             }
 
             Ref<World> world = get_world();
-            ERR_FAIL_COND(not world)
+            ERR_FAIL_COND(not world);
 
             int new_output_count = 0;
 
@@ -701,7 +701,7 @@ float AudioStreamPlayer3D::get_max_db() const {
 }
 
 void AudioStreamPlayer3D::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0)
+    ERR_FAIL_COND(p_pitch_scale <= 0.0);
     pitch_scale = p_pitch_scale;
 }
 float AudioStreamPlayer3D::get_pitch_scale() const {
@@ -813,7 +813,7 @@ void AudioStreamPlayer3D::_bus_layout_changed() {
 
 void AudioStreamPlayer3D::set_max_distance(float p_metres) {
 
-    ERR_FAIL_COND(p_metres < 0.0)
+    ERR_FAIL_COND(p_metres < 0.0);
     max_distance = p_metres;
 }
 
@@ -842,7 +842,7 @@ bool AudioStreamPlayer3D::is_emission_angle_enabled() const {
 }
 
 void AudioStreamPlayer3D::set_emission_angle(float p_angle) {
-    ERR_FAIL_COND(p_angle < 0 || p_angle > 90)
+    ERR_FAIL_COND(p_angle < 0 || p_angle > 90);
     emission_angle = p_angle;
     update_gizmo();
     Object_change_notify(this,"emission_angle");

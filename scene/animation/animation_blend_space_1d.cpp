@@ -105,10 +105,10 @@ void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) 
 }
 
 void AnimationNodeBlendSpace1D::add_blend_point(const Ref<AnimationRootNode> &p_node, float p_position, int p_at_index) {
-    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS)
-    ERR_FAIL_COND(not p_node)
+    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS);
+    ERR_FAIL_COND(not p_node);
 
-    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used)
+    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used);
 
     if (p_at_index == -1 || p_at_index == blend_points_used) {
         p_at_index = blend_points_used;
@@ -135,7 +135,7 @@ void AnimationNodeBlendSpace1D::set_blend_point_position(int p_point, float p_po
 
 void AnimationNodeBlendSpace1D::set_blend_point_node(int p_point, const Ref<AnimationRootNode> &p_node) {
     ERR_FAIL_INDEX(p_point, blend_points_used);
-    ERR_FAIL_COND(not p_node)
+    ERR_FAIL_COND(not p_node);
 
     if (blend_points[p_point].node) {
         blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");

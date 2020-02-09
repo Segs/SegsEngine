@@ -93,7 +93,7 @@ bool Node2D::_edit_use_rotation() const {
 }
 
 void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
-    ERR_FAIL_COND(!_edit_use_rect())
+    ERR_FAIL_COND(!_edit_use_rect());
 
     Rect2 r = _edit_get_rect();
 
@@ -336,8 +336,8 @@ void Node2D::set_global_transform(const Transform2D &p_transform) {
 
 void Node2D::set_z_index(int p_z) {
 
-    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN)
-    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX)
+    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN);
+    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX);
     z_index = p_z;
     VisualServer::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
     Object_change_notify(this,"z_index");

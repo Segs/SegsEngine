@@ -245,14 +245,14 @@ Ref<UPNPDevice> UPNP::get_device(int index) const {
 }
 
 void UPNP::add_device(Ref<UPNPDevice> device) {
-    ERR_FAIL_COND(device == Ref<UPNPDevice>())
+    ERR_FAIL_COND(device == Ref<UPNPDevice>());
 
     devices.push_back(device);
 }
 
 void UPNP::set_device(int index, Ref<UPNPDevice> device) {
     ERR_FAIL_INDEX(index, devices.size());
-    ERR_FAIL_COND(device == nullptr)
+    ERR_FAIL_COND(device == nullptr);
 
     devices[index]=device;
 }

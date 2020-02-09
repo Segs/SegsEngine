@@ -158,7 +158,7 @@ Variant Area2DSW::get_param(Physics2DServer::AreaParameter p_param) const {
 
 void Area2DSW::_queue_monitor_update() {
 
-    ERR_FAIL_COND(!get_space())
+    ERR_FAIL_COND(!get_space());
 
     if (!monitor_query_list.in_list())
         get_space()->area_add_to_monitor_query_list(&monitor_query_list);

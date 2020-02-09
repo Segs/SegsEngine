@@ -92,7 +92,7 @@ void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
 }
 
-void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
+void LayeredTextureImpl::_save_tex(const PODVector<Ref<Image>> &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -221,7 +221,7 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
     if (srgb == 1)
         tex_flags |= Texture::FLAG_CONVERT_TO_LINEAR;
 
-    Vector<Ref<Image> > slices;
+    PODVector<Ref<Image> > slices;
 
     int slice_w = image->get_width() / hslices;
     int slice_h = image->get_height() / vslices;
@@ -248,7 +248,7 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
             if (slice->get_width() != slice_w || slice->get_height() != slice_h) {
                 slice->resize(slice_w, slice_h);
             }
-            slices.push_back(slice);
+            slices.emplace_back(eastl::move(slice));
         }
     }
 

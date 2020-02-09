@@ -136,7 +136,7 @@ void EditorSpatialGizmo::redraw() {
         return;
     }
 
-    ERR_FAIL_COND(!gizmo_plugin)
+    ERR_FAIL_COND(!gizmo_plugin);
     gizmo_plugin->redraw(this);
 }
 
@@ -177,7 +177,7 @@ void EditorSpatialGizmo::set_handle(int p_idx, Camera *p_camera, const Point2 &p
         return;
     }
 
-    ERR_FAIL_COND(!gizmo_plugin)
+    ERR_FAIL_COND(!gizmo_plugin);
     gizmo_plugin->set_handle(this, p_idx, p_camera, p_point);
 }
 
@@ -188,7 +188,7 @@ void EditorSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool
         return;
     }
 
-    ERR_FAIL_COND(!gizmo_plugin)
+    ERR_FAIL_COND(!gizmo_plugin);
     gizmo_plugin->commit_handle(this, p_idx, p_restore, p_cancel);
 }
 
@@ -213,7 +213,7 @@ void EditorSpatialGizmo::Instance::create_instance(Spatial *p_base, bool p_hidde
 
 void EditorSpatialGizmo::add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard, const Ref<SkinReference> &p_skin_reference, const Ref<Material> &p_material) {
 
-    ERR_FAIL_COND(!spatial_node)
+    ERR_FAIL_COND(!spatial_node);
     Instance ins;
 
     ins.billboard = p_billboard;
@@ -237,7 +237,7 @@ void EditorSpatialGizmo::add_lines(const PODVector<Vector3> &p_lines, const Ref<
         return;
     }
 
-    ERR_FAIL_COND(!spatial_node)
+    ERR_FAIL_COND(!spatial_node);
     Instance ins;
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
@@ -287,7 +287,7 @@ void EditorSpatialGizmo::add_lines(const PODVector<Vector3> &p_lines, const Ref<
 
 void EditorSpatialGizmo::add_unscaled_billboard(const Ref<Material> &p_material, float p_scale, const Color &p_modulate) {
 
-    ERR_FAIL_COND(!spatial_node)
+    ERR_FAIL_COND(!spatial_node);
     Instance ins;
 
     PODVector<Vector3> vs {
@@ -355,7 +355,7 @@ void EditorSpatialGizmo::add_collision_segments(const PODVector<Vector3> &p_line
     collision_segments.resize(from + p_lines.size());
     for (size_t i = 0; i < p_lines.size(); i++) {
 
-        collision_segments.write[from + i] = p_lines[i];
+        collision_segments[from + i] = p_lines[i];
     }
 }
 
@@ -366,7 +366,7 @@ void EditorSpatialGizmo::add_handles(const PoolVector<Vector3> &_handles, const 
     if (!is_selected() || !is_editable())
         return;
 
-    ERR_FAIL_COND(!spatial_node)
+    ERR_FAIL_COND(!spatial_node);
 
     Instance ins;
 
@@ -418,26 +418,26 @@ void EditorSpatialGizmo::add_handles(const PoolVector<Vector3> &_handles, const 
         int chs = handles.size();
         handles.resize(chs + _handles.size());
         for (int i = 0; i < _handles.size(); i++) {
-            handles.write[i + chs] = p_handles[i];
+            handles[i + chs] = p_handles[i];
         }
     } else {
 
         int chs = secondary_handles.size();
         secondary_handles.resize(chs + _handles.size());
         for (int i = 0; i < _handles.size(); i++) {
-            secondary_handles.write[i + chs] = p_handles[i];
+            secondary_handles[i + chs] = p_handles[i];
         }
     }
 }
 
 void EditorSpatialGizmo::add_solid_box(Ref<Material> &p_material, Vector3 p_size, Vector3 p_position) {
-    ERR_FAIL_COND(!spatial_node)
+    ERR_FAIL_COND(!spatial_node);
 
     CubeMesh cubem;
     cubem.set_size(p_size);
 
-    Array arrays = cubem.surface_get_arrays(0);
-    PoolVector3Array vertex = arrays[VS::ARRAY_VERTEX];
+    SurfaceArrays arrays = cubem.surface_get_arrays(0);
+    PoolVector3Array vertex = arrays.m_positions;
     PoolVector3Array::Write w = vertex.write();
 
     for (int i = 0; i < vertex.size(); ++i) {
@@ -481,7 +481,7 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, Span<const Pl
     if (!collision_segments.empty()) {
 
         int vc = collision_segments.size();
-        const Vector3 *vptr = collision_segments.ptr();
+        const Vector3 *vptr = collision_segments.data();
         Transform t = spatial_node->get_global_transform();
 
         bool any_out = false;
@@ -507,13 +507,13 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera *p_camera, Span<const Pl
 
         Transform it = t.affine_inverse();
 
-        Vector<Plane> transformed_frustum;
+        PODVector<Plane> transformed_frustum;
 
         for (int i = 0; i < 4; i++) {
-            transformed_frustum.push_back(it.xform(p_frustum[i]));
+            transformed_frustum.emplace_back(it.xform(p_frustum[i]));
         }
 
-        if (collision_mesh->inside_convex_shape(transformed_frustum.ptr(), transformed_frustum.size(), mesh_scale)) {
+        if (collision_mesh->inside_convex_shape(transformed_frustum.data(), transformed_frustum.size(), mesh_scale)) {
             return true;
         }
     }
@@ -641,7 +641,7 @@ bool EditorSpatialGizmo::intersect_ray(Camera *p_camera, const Point2 &p_point, 
         Plane camp(p_camera->get_transform().origin, (-p_camera->get_transform().basis.get_axis(2)).normalized());
 
         int vc = collision_segments.size();
-        const Vector3 *vptr = collision_segments.ptr();
+        const Vector3 *vptr = collision_segments.data();
         Transform t = spatial_node->get_global_transform();
         if (billboard_handle) {
             t.set_look_at(t.origin, t.origin - p_camera->get_transform().basis.get_axis(2), p_camera->get_transform().basis.get_axis(1));
@@ -717,13 +717,13 @@ bool EditorSpatialGizmo::intersect_ray(Camera *p_camera, const Point2 &p_point, 
 
 void EditorSpatialGizmo::create() {
 
-    ERR_FAIL_COND(!spatial_node)
-    ERR_FAIL_COND(valid)
+    ERR_FAIL_COND(!spatial_node);
+    ERR_FAIL_COND(valid);
     valid = true;
 
     for (int i = 0; i < instances.size(); i++) {
 
-        instances.write[i].create_instance(spatial_node, hidden);
+        instances[i].create_instance(spatial_node, hidden);
     }
 
     transform();
@@ -731,8 +731,8 @@ void EditorSpatialGizmo::create() {
 
 void EditorSpatialGizmo::transform() {
 
-    ERR_FAIL_COND(!spatial_node)
-    ERR_FAIL_COND(!valid)
+    ERR_FAIL_COND(!spatial_node);
+    ERR_FAIL_COND(!valid);
     for (int i = 0; i < instances.size(); i++) {
         VisualServer::get_singleton()->instance_set_transform(instances[i].instance, spatial_node->get_global_transform());
     }
@@ -740,14 +740,14 @@ void EditorSpatialGizmo::transform() {
 
 void EditorSpatialGizmo::free() {
 
-    ERR_FAIL_COND(!spatial_node)
-    ERR_FAIL_COND(!valid)
+    ERR_FAIL_COND(!spatial_node);
+    ERR_FAIL_COND(!valid);
 
     for (int i = 0; i < instances.size(); i++) {
 
         if (instances[i].instance.is_valid())
             VisualServer::get_singleton()->free_rid(instances[i].instance);
-        instances.write[i].instance = RID();
+        instances[i].instance = RID();
     }
 
     clear();
@@ -1682,7 +1682,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     surface_tool->begin(Mesh::PRIMITIVE_LINES);
     surface_tool->set_material(material);
-    Vector<Transform> grests;
+    PODVector<Transform> grests;
     grests.resize(skel->get_bone_count());
 
     int bones[4];
@@ -1705,7 +1705,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         int parent = skel->get_bone_parent(i);
 
         if (parent >= 0) {
-            grests.write[i] = grests[parent] * skel->get_bone_rest(i);
+            grests[i] = grests[parent] * skel->get_bone_rest(i);
 
             Vector3 v0 = grests[parent].origin;
             Vector3 v1 = grests[i].origin;
@@ -1810,7 +1810,7 @@ void SkeletonSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 */
         } else {
 
-            grests.write[i] = skel->get_bone_rest(i);
+            grests[i] = skel->get_bone_rest(i);
             bones[0] = i;
         }
         /*

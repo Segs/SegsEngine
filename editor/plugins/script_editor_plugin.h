@@ -263,10 +263,10 @@ class ScriptEditor : public PanelContainer {
         Variant state;
     };
 
-    Vector<ScriptHistory> history;
+    PODVector<ScriptHistory> history;
     int history_pos;
 
-    List<String> previous_scripts;
+    PODVector<String> previous_scripts;
 
     void _tab_changed(int p_which);
     void _menu_option(int p_option);
@@ -438,7 +438,7 @@ public:
     void get_window_layout(Ref<ConfigFile> p_layout);
 
     void set_scene_root_script(const Ref<Script>& p_script);
-    Vector<Ref<Script> > get_open_scripts() const;
+    PODVector<Ref<Script>> get_open_scripts() const;
 
     bool script_goto_method(Ref<Script> p_script, const StringName &p_method);
 

@@ -1749,12 +1749,14 @@ CodeTextEditor::CodeTextEditor() {
     text_editor->connect("cursor_changed", this, "_line_col_changed");
     text_editor->connect("text_changed", this, "_text_changed");
     text_editor->connect("request_completion", this, "_complete_request");
-    Vector<UIString> cs;
-    cs.push_back(UIString("."));
-    cs.push_back(UIString(","));
-    cs.push_back(UIString("("));
-    cs.push_back(UIString("="));
-    cs.push_back(UIString("$"));
+    const PODVector<UIString> cs = {
+        UIString("."),
+        UIString(","),
+        UIString("("),
+        UIString("="),
+        UIString("$")
+    };
+
     text_editor->set_completion(true, cs);
     idle->connect("timeout", this, "_text_changed_idle_timeout");
 

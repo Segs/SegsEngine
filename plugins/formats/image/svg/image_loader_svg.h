@@ -36,7 +36,7 @@ using UIString = class QString;
 
 extern "C" {
 struct NSVGimage;
-using NSVGrasterizer = struct NSVGrasterizer;
+struct NSVGrasterizer;
 }
 /**
     @author Daniel Ramirez <djrmuv@gmail.com>
@@ -59,8 +59,8 @@ class ImageLoaderSVG : public QObject, public ImageFormatLoader {
     Q_OBJECT
 
     static struct ReplaceColors {
-        Vector<uint32_t> old_colors;
-        Vector<uint32_t> new_colors;
+        PODVector<uint32_t> old_colors;
+        PODVector<uint32_t> new_colors;
     } replace_colors;
     static SVGRasterizer rasterizer;
     static void _convert_colors(NSVGimage *p_svg_image);

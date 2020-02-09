@@ -603,7 +603,7 @@ void VisualScriptPropertySelector::select_from_script(const Ref<Script> &p_scrip
 }
 
 void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, const UIString &p_current, const bool p_connecting, bool clear_text) {
-    ERR_FAIL_COND(p_type == VariantType::NIL)
+    ERR_FAIL_COND(p_type == VariantType::NIL);
     base_type = "";
     selected = p_current;
     type = p_type;

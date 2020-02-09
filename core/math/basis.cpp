@@ -499,7 +499,7 @@ Vector3 Basis::get_euler_yxz() const {
 
     /* checking this is a bad idea, because obtaining from scaled transform is a valid use case
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(!is_rotation())
+    ERR_FAIL_COND(!is_rotation());
 #endif
 */
     // Euler angles in YXZ convention.
@@ -719,7 +719,7 @@ void Basis::set_orthogonal_index(int p_index) {
 void Basis::get_axis_angle(Vector3 &r_axis, real_t &r_angle) const {
     /* checking this is a bad idea, because obtaining from scaled transform is a valid use case
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(!is_rotation())
+    ERR_FAIL_COND(!is_rotation());
 #endif
 */
     real_t angle, x, y, z; // variables for result

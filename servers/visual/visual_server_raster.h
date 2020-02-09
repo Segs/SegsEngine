@@ -208,7 +208,7 @@ public:
 
     BIND0R(RID, mesh_create)
 
-    BIND10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const Vector<AABB> &)
+    BIND10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const PODVector<PoolVector<uint8_t> > &, const PODVector<AABB> &)
 
     BIND2(mesh_set_blend_shape_count, RID, int)
     BIND1RC(int, mesh_get_blend_shape_count, RID)
@@ -231,8 +231,8 @@ public:
     BIND2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     BIND2RC(AABB, mesh_surface_get_aabb, RID, int)
-    BIND2RC(PODVector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
-    BIND2RC(Vector<AABB>, mesh_surface_get_skeleton_aabb, RID, int)
+    BIND2RC(const PODVector<PoolVector<uint8_t> > &, mesh_surface_get_blend_shapes, RID, int)
+    BIND2RC(const PODVector<AABB> &, mesh_surface_get_skeleton_aabb, RID, int)
 
     BIND2(mesh_remove_surface, RID, int)
     BIND1RC(int, mesh_get_surface_count, RID)

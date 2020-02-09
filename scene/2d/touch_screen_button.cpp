@@ -216,7 +216,7 @@ void TouchScreenButton::_input(const Ref<InputEvent> &p_event) {
     if (p_event->get_device() != 0)
         return;
 
-    ERR_FAIL_COND(!is_visible_in_tree())
+    ERR_FAIL_COND(!is_visible_in_tree());
 
     const InputEventScreenTouch *st = object_cast<InputEventScreenTouch>(p_event.get());
 

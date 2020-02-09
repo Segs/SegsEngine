@@ -230,7 +230,7 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
         }
     }
 
-    ERR_FAIL_COND(params->importer==nullptr)
+    ERR_FAIL_COND(params->importer==nullptr);
 
     ListPOD<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
@@ -306,7 +306,7 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
 void ImportDock::_importer_selected(int i_idx) {
     String name = import_as->get_selected_metadata();
     ResourceImporterInterface * importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
-    ERR_FAIL_COND(importer==nullptr)
+    ERR_FAIL_COND(importer==nullptr);
 
     params->importer = importer;
 
@@ -339,7 +339,7 @@ void ImportDock::_preset_selected(int p_idx) {
         } break;
         case ITEM_LOAD_DEFAULT: {
 
-            ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults))
+            ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults));
 
             Dictionary d = ProjectSettings::get_singleton()->get(importer_defaults);
             PODVector<Variant> v(d.get_key_list());
@@ -523,7 +523,7 @@ void ImportDock::_bind_methods() {
 
 void ImportDock::initialize_import_options() const {
 
-    ERR_FAIL_COND(!import_opts || !params)
+    ERR_FAIL_COND(!import_opts || !params);
 
     import_opts->edit(params);
 }

@@ -184,7 +184,7 @@ void initialize_physics() {
         // Physics server not found, Use the default physics
         physics_server = PhysicsServerManager::new_default_server();
     }
-    ERR_FAIL_COND(!physics_server)
+    ERR_FAIL_COND(!physics_server);
     physics_server->init();
 
     /// 2D Physics server
@@ -193,7 +193,7 @@ void initialize_physics() {
         // Physics server not found, Use the default physics
         physics_2d_server = Physics2DServerManager::new_default_server();
     }
-    ERR_FAIL_COND(!physics_2d_server)
+    ERR_FAIL_COND(!physics_2d_server);
     physics_2d_server->init();
 }
 
@@ -2216,7 +2216,7 @@ void Main::force_redraw() {
  */
 void Main::cleanup() {
 
-    ERR_FAIL_COND(!_start_success)
+    ERR_FAIL_COND(!_start_success);
     if (script_debugger) {
         // Flush any remaining messages
         script_debugger->idle_poll();

@@ -56,7 +56,7 @@ void Camera2D::_update_scroll() {
 
     if (current) {
 
-        ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id))
+        ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
 
         Transform2D xform = get_camera_transform();
 
@@ -498,7 +498,7 @@ void Camera2D::reset_smoothing() {
 
 void Camera2D::align() {
 
-    ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id))
+    ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
 
     Size2 screen_size = viewport->get_visible_rect().size;
 

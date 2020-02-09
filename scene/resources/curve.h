@@ -53,29 +53,23 @@ public:
 
     struct Point {
         Vector2 pos;
-        real_t left_tangent;
-        real_t right_tangent;
-        TangentMode left_mode;
-        TangentMode right_mode;
+        real_t left_tangent=0;
+        real_t right_tangent=0;
+        TangentMode left_mode= TANGENT_FREE;
+        TangentMode right_mode= TANGENT_FREE;
 
-        Point() {
-            left_tangent = 0;
-            right_tangent = 0;
-            left_mode = TANGENT_FREE;
-            right_mode = TANGENT_FREE;
-        }
+        constexpr Point() noexcept = default;
 
         Point(Vector2 p_pos,
                 real_t p_left = 0,
                 real_t p_right = 0,
                 TangentMode p_left_mode = TANGENT_FREE,
-                TangentMode p_right_mode = TANGENT_FREE) {
+                TangentMode p_right_mode = TANGENT_FREE) noexcept : pos(p_pos),
+        left_tangent(p_left),
+        right_tangent(p_right),
+        left_mode(p_left_mode),
+        right_mode(p_right_mode) {
 
-            pos = p_pos;
-            left_tangent = p_left;
-            right_tangent = p_right;
-            left_mode = p_left_mode;
-            right_mode = p_right_mode;
         }
     };
 

@@ -769,16 +769,16 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 
 void Control::force_drag(const Variant &p_data, Control *p_control) {
 
-    ERR_FAIL_COND(!is_inside_tree())
-    ERR_FAIL_COND(p_data.get_type() == VariantType::NIL)
+    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(p_data.get_type() == VariantType::NIL);
 
     get_viewport()->_gui_force_drag(this, p_data, p_control);
 }
 
 void Control::set_drag_preview(Control *p_control) {
 
-    ERR_FAIL_COND(!is_inside_tree())
-    ERR_FAIL_COND(!get_viewport()->gui_is_dragging())
+    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!get_viewport()->gui_is_dragging());
     get_viewport()->_gui_set_drag_preview(this, p_control);
 }
 
@@ -1776,8 +1776,8 @@ void Control::set_global_position(const Point2 &p_point, bool p_keep_margins) {
 void Control::_compute_anchors(Rect2 p_rect, const float p_margins[4], float (&r_anchors)[4]) {
 
     Size2 parent_rect_size = get_parent_anchorable_rect().size;
-    ERR_FAIL_COND(parent_rect_size.x == 0.0f)
-    ERR_FAIL_COND(parent_rect_size.y == 0.0f)
+    ERR_FAIL_COND(parent_rect_size.x == 0.0f);
+    ERR_FAIL_COND(parent_rect_size.y == 0.0f);
 
     r_anchors[0] = (p_rect.position.x - p_margins[0]) / parent_rect_size.x;
     r_anchors[1] = (p_rect.position.y - p_margins[1]) / parent_rect_size.y;
@@ -2152,7 +2152,7 @@ bool Control::has_focus() const {
 
 void Control::grab_focus() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     if (data.focus_mode == FOCUS_NONE) {
         WARN_PRINT("This control can't grab focus. Use set_focus_mode() to allow a control to get focus.");
@@ -2164,7 +2164,7 @@ void Control::grab_focus() {
 
 void Control::release_focus() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     if (!has_focus())
         return;
@@ -2180,13 +2180,13 @@ bool Control::is_toplevel_control() const {
 
 void Control::show_modal(bool p_exclusive) {
 
-    ERR_FAIL_COND(!is_inside_tree())
-    ERR_FAIL_COND(!data.SI)
+    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!data.SI);
 
     if (is_visible_in_tree())
         hide();
 
-    ERR_FAIL_COND(data.MI != nullptr)
+    ERR_FAIL_COND(data.MI != nullptr);
     show();
     raise();
     data.modal_exclusive = p_exclusive;
@@ -2200,7 +2200,7 @@ void Control::_modal_set_prev_focus_owner(ObjectID p_prev) {
 
 void Control::_modal_stack_remove() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     if (!data.MI)
         return;
@@ -2534,7 +2534,7 @@ float Control::get_stretch_ratio() const {
 
 void Control::grab_click_focus() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     get_viewport()->_gui_grab_click_focus(this);
 }
@@ -2598,7 +2598,7 @@ Control *Control::get_focus_owner() const {
 }
 
 void Control::warp_mouse(const Point2 &p_to_pos) {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     get_viewport()->warp_mouse(get_global_transform().xform(p_to_pos));
 }
 

@@ -167,7 +167,7 @@ void FileAccessUnix::close() {
         }
 
         save_path = "";
-        ERR_FAIL_COND(rename_error != 0)
+        ERR_FAIL_COND(rename_error != 0);
     }
 }
 
@@ -264,14 +264,15 @@ void FileAccessUnix::flush() {
 void FileAccessUnix::store_8(uint8_t p_dest) {
 
     ERR_FAIL_COND_MSG(!f, "File must be opened before use."); 
-    ERR_FAIL_COND(fwrite(&p_dest, 1, 1, f) != 1)
+    auto res=fwrite(&p_dest, 1, 1, f);
+    ERR_FAIL_COND(res != 1);
 }
 
 void FileAccessUnix::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use."); 
-    ERR_FAIL_COND(!p_src)
+    ERR_FAIL_COND(!p_src);
     bool written_size_matched= (int)fwrite(p_src, 1, p_length, f) == p_length;
-    ERR_FAIL_COND(!written_size_matched)
+    ERR_FAIL_COND(!written_size_matched);
 }
 
 bool FileAccessUnix::file_exists(se_string_view p_path) {

@@ -1146,7 +1146,7 @@ struct DocumentSymbol {
     /**
      * Children of this symbol, e.g. properties of a class.
      */
-    Vector<DocumentSymbol> children;
+    PODVector<DocumentSymbol> children;
 
     Dictionary to_json(bool with_doc = false) const {
         Dictionary dict;
@@ -1169,7 +1169,7 @@ struct DocumentSymbol {
         return dict;
     }
 
-    void symbol_tree_as_list(se_string_view p_uri, Vector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
+    void symbol_tree_as_list(se_string_view p_uri, PODVector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
         DocumentedSymbolInformation si;
         if (p_join_name && !p_container.empty()) {
             si.name = String(p_container) + ">" + name;
@@ -1183,7 +1183,7 @@ struct DocumentSymbol {
         si.location.range = range;
         si.detail = detail;
         si.documentation = documentation;
-        r_list.push_back(si);
+        r_list.emplace_back(eastl::move(si));
         for (int i = 0; i < children.size(); i++) {
             children[i].symbol_tree_as_list(p_uri, r_list, si.name, p_join_name);
         }

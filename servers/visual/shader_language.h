@@ -279,6 +279,11 @@ public:
         ARGUMENT_QUALIFIER_INOUT,
     };
 
+    enum SubClassTag {
+        TAG_GLOBAL,
+        TAG_ARRAY,
+    };
+
     struct Node {
         enum Type {
             TYPE_SHADER,
@@ -421,6 +426,7 @@ public:
         Map<StringName, Variable> variables;
         List<Node *> statements;
         int block_type=BLOCK_TYPE_STANDART;
+        SubClassTag block_tag=SubClassTag::TAG_GLOBAL;
         bool single_statement=false;
 
         BlockNode() :
@@ -665,11 +671,6 @@ private:
     bool _is_operator_assign(Operator p_op) const;
     bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, String *r_message = nullptr);
     bool _validate_operator(OperatorNode *p_op, DataType *r_ret_type = nullptr);
-
-    enum SubClassTag {
-        TAG_GLOBAL,
-        TAG_ARRAY,
-    };
 
     struct BuiltinFuncDef {
         enum { MAX_ARGS = 5 };

@@ -2501,14 +2501,14 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
         texture_size.height = texture->get_height();
     }
 
-    ERR_FAIL_COND(not texture)
-    ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0)
-    ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256)
-    ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height)
+    ERR_FAIL_COND(not texture);
+    ERR_FAIL_COND(p_hotspot.x < 0 || p_hotspot.y < 0);
+    ERR_FAIL_COND(texture_size.width > 256 || texture_size.height > 256);
+    ERR_FAIL_COND(p_hotspot.x > texture_size.width || p_hotspot.y > texture_size.height);
 
     image = texture->get_data();
 
-    ERR_FAIL_COND(not image)
+    ERR_FAIL_COND(not image);
 
     UINT image_size = texture_size.width * texture_size.height;
 
@@ -2830,7 +2830,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 
 void OS_Windows::set_icon(const Ref<Image> &p_icon) {
 
-    ERR_FAIL_COND(not p_icon)
+    ERR_FAIL_COND(not p_icon);
     Ref<Image> icon = dynamic_ref_cast<Image>(p_icon->duplicate());
     if (icon->get_format() != Image::FORMAT_RGBA8)
         icon->convert(Image::FORMAT_RGBA8);

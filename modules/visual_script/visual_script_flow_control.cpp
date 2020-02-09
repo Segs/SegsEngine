@@ -526,7 +526,7 @@ String VisualScriptSequence::get_text() const {
 
 void VisualScriptSequence::set_steps(int p_steps) {
 
-    ERR_FAIL_COND(p_steps < 1)
+    ERR_FAIL_COND(p_steps < 1);
     if (steps == p_steps)
         return;
 

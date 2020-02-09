@@ -1745,14 +1745,14 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
 
                     //native type constructor or intrinsic function
                     const Variant **vptr = nullptr;
-                    Vector<Variant *> ptrs;
+                    FixedVector<Variant *,VARIANT_ARG_MAX,true> ptrs;
                     if (op->arguments.size() > 1) {
 
                         ptrs.resize(op->arguments.size() - 1);
                         for (int i = 0; i < ptrs.size(); i++) {
 
                             ConstantNode *cn = static_cast<ConstantNode *>(op->arguments[i + 1]);
-                            ptrs.write[i] = &cn->value;
+                            ptrs[i] = &cn->value;
                         }
 
                         vptr = (const Variant **)&ptrs[0];
@@ -8513,7 +8513,7 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
 #ifdef DEBUG_ENABLED
 
     // Resolve warning ignores
-    Vector<Pair<int, String> > warning_skips(tokenizer->get_warning_skips());
+    PODVector<Pair<int, String> > warning_skips(tokenizer->get_warning_skips());
     bool warning_is_error = GLOBAL_GET("debug/gdscript/warnings/treat_warnings_as_errors").booleanize();
     for (List<GDScriptWarning>::Element *E = warnings.front(); E;) {
         GDScriptWarning &w = E->deref();
@@ -8530,7 +8530,7 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
             if (warning_skips[skip_index].second == (StringUtils::to_lower(GDScriptWarning::get_name_from_code(w.code)))) {
                 erase = true;
             }
-            warning_skips.remove(skip_index);
+            warning_skips.erase_at(skip_index);
         }
         if (erase) {
             warnings.erase(E);

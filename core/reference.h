@@ -76,7 +76,7 @@ class Ref {
     T *reference;
 
 public:
-    constexpr Ref() : reference(nullptr) {}
+    constexpr Ref() noexcept : reference(nullptr) {}
 
     explicit Ref(T *p_reference,RefMode add_ref=AddRef) {
         reference = p_reference;

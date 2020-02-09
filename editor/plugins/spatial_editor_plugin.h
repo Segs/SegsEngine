@@ -91,11 +91,11 @@ public:
         bool billboard;
     };
 
-    Vector<Vector3> collision_segments;
+    PODVector<Vector3> collision_segments;
     Ref<TriangleMesh> collision_mesh;
-    Vector<Vector3> handles;
-    Vector<Vector3> secondary_handles;
-    Vector<Instance> instances;
+    PODVector<Vector3> handles;
+    PODVector<Vector3> secondary_handles;
+    PODVector<Instance> instances;
     Spatial *base;
     Spatial *spatial_node;
     EditorSpatialGizmoPlugin *gizmo_plugin;
@@ -245,7 +245,7 @@ private:
     void _select_clicked(bool p_append, bool p_single);
     void _select(Node *p_node, bool p_append, bool p_single);
     ObjectID _select_ray(const Point2 &p_pos, bool p_append, bool &r_includes_current, int *r_gizmo_handle = nullptr, bool p_alt_select = false);
-    void _find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, Vector<_RayResult> &results, bool p_alt_select = false);
+    void _find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, PODVector<_RayResult> &results, bool p_alt_select = false);
     Vector3 _get_ray_pos(const Vector2 &p_pos) const;
     Vector3 _get_ray(const Vector2 &p_pos) const;
     Point2 _point_to_screen(const Vector3 &p_point);
@@ -269,7 +269,7 @@ private:
     float get_fov() const;
 
     ObjectID clicked;
-    Vector<_RayResult> selection_results;
+    PODVector<_RayResult> selection_results;
     bool clicked_includes_current;
     bool clicked_wants_append;
 
@@ -657,8 +657,8 @@ private:
     static SpatialEditor *singleton;
 
     void _node_removed(Node *p_node);
-    Vector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_priority;
-    Vector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_name;
+    PODVector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_priority;
+    PODVector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_name;
 
     void _register_all_gizmos();
 
@@ -785,7 +785,7 @@ public:
 private:
     int current_state;
     List<EditorSpatialGizmo *> current_gizmos;
-    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
+    DefHashMap<String, PODVector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();

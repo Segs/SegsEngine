@@ -1176,7 +1176,7 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
 void PopupMenu::activate_item(int p_item) {
 
     ERR_FAIL_INDEX(p_item, items.size());
-    ERR_FAIL_COND(items[p_item].separator)
+    ERR_FAIL_COND(items[p_item].separator);
     int id = items[p_item].id >= 0 ? items[p_item].id : p_item;
 
     //hide all parent PopupMenus
@@ -1296,7 +1296,7 @@ void PopupMenu::_ref_shortcut(Ref<ShortCut> p_sc) {
 
 void PopupMenu::_unref_shortcut(Ref<ShortCut> p_sc) {
 
-    ERR_FAIL_COND(!shortcut_refcount.contains(p_sc))
+    ERR_FAIL_COND(!shortcut_refcount.contains(p_sc));
     shortcut_refcount[p_sc]--;
     if (shortcut_refcount[p_sc] == 0) {
         p_sc->disconnect("changed", this, "update");
@@ -1306,7 +1306,7 @@ void PopupMenu::_unref_shortcut(Ref<ShortCut> p_sc) {
 
 void PopupMenu::_set_items(const Array &p_items) {
 
-    ERR_FAIL_COND(p_items.size() % 10)
+    ERR_FAIL_COND(p_items.size() % 10);
     clear();
 
     for (int i = 0; i < p_items.size(); i += 10) {

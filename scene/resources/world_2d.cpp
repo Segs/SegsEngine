@@ -135,7 +135,7 @@ struct SpatialIndexer2D {
 
     void _notifier_add(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
-        ERR_FAIL_COND(notifiers.contains(p_notifier))
+        ERR_FAIL_COND(notifiers.contains(p_notifier));
         notifiers[p_notifier] = p_rect;
         _notifier_update_cells(p_notifier, p_rect, true);
         changed = true;
@@ -144,7 +144,7 @@ struct SpatialIndexer2D {
     void _notifier_update(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
         Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E==notifiers.end())
+        ERR_FAIL_COND(E==notifiers.end());
         if (E->second == p_rect)
             return;
 
@@ -157,7 +157,7 @@ struct SpatialIndexer2D {
     void _notifier_remove(VisibilityNotifier2D *p_notifier) {
 
         Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E==notifiers.end())
+        ERR_FAIL_COND(E==notifiers.end());
         _notifier_update_cells(p_notifier, E->second, false);
         notifiers.erase(p_notifier);
 
@@ -183,7 +183,7 @@ struct SpatialIndexer2D {
 
     void _add_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
-        ERR_FAIL_COND(viewports.contains(p_viewport))
+        ERR_FAIL_COND(viewports.contains(p_viewport));
         ViewportData vd;
         vd.rect = p_rect;
         viewports[p_viewport] = vd;
@@ -193,7 +193,7 @@ struct SpatialIndexer2D {
     void _update_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
         Map<Viewport *, ViewportData>::iterator E = viewports.find(p_viewport);
-        ERR_FAIL_COND(E==viewports.end())
+        ERR_FAIL_COND(E==viewports.end());
         if (E->second.rect == p_rect)
             return;
         E->second.rect = p_rect;
@@ -201,7 +201,7 @@ struct SpatialIndexer2D {
     }
 
     void _remove_viewport(Viewport *p_viewport) {
-        ERR_FAIL_COND(!viewports.contains(p_viewport))
+        ERR_FAIL_COND(!viewports.contains(p_viewport));
         List<VisibilityNotifier2D *> removed;
         for (auto &E : viewports[p_viewport].notifiers) {
 

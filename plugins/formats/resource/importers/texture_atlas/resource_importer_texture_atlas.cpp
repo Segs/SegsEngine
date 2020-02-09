@@ -42,8 +42,8 @@
 struct PackData {
     Rect2 region;
     bool is_mesh;
-    Vector<int> chart_pieces; // one for region, many for mesh
-    Vector<PODVector<Vector2>> chart_vertices; // for mesh
+    PODVector<int> chart_pieces; // one for region, many for mesh
+    PODVector<PODVector<Vector2>> chart_vertices; // for mesh
     Ref<Image> image;
 };
 
@@ -264,13 +264,13 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
             bit_map->create_from_image_alpha(image);
             PODVector<PODVector<Vector2> > polygons(bit_map->clip_opaque_to_polygons(Rect2(0, 0, image->get_width(), image->get_height())));
 
-            for (size_t j = 0; j < polygons.size(); j++) {
+            for (auto & polygon : polygons) {
 
                 EditorAtlasPacker::Chart chart;
-                chart.vertices = polygons[j];
+                chart.vertices = polygon;
                 chart.can_transpose = true;
 
-                PODVector<int> poly = Geometry::triangulate_polygon(polygons[j]);
+                PODVector<int> poly = Geometry::triangulate_polygon(polygon);
                 for (size_t i = 0; i < poly.size(); i += 3) {
 
                     EditorAtlasPacker::Chart::Face f;
@@ -281,9 +281,9 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
                 }
 
                 pack_data.chart_pieces.push_back(charts.size());
-                charts.push_back(chart);
+                charts.emplace_back(eastl::move(chart));
 
-                pack_data.chart_vertices.emplace_back(eastl::move(polygons[j]));
+                pack_data.chart_vertices.emplace_back(eastl::move(polygon));
             }
         }
     }

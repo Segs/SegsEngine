@@ -196,7 +196,7 @@ Particles::DrawOrder Particles::get_draw_order() const {
 
 void Particles::set_draw_passes(int p_count) {
 
-    ERR_FAIL_COND(p_count < 1)
+    ERR_FAIL_COND(p_count < 1);
     draw_passes.resize(p_count);
     VisualServer::get_singleton()->particles_set_draw_passes(particles, p_count);
     Object_change_notify(this);

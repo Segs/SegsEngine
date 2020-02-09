@@ -87,7 +87,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVRInterface::E
     if (!p_viewport->hide_canvas && !p_viewport->disable_environment && VSG::scene->scenario_owner.owns(p_viewport->scenario)) {
 
         VisualServerScene::Scenario *scenario = VSG::scene->scenario_owner.get(p_viewport->scenario);
-        ERR_FAIL_COND(!scenario)
+        ERR_FAIL_COND(!scenario);
         if (VSG::scene_render->is_environment(scenario->environment)) {
             scenario_draw_canvas_bg = VSG::scene_render->environment_get_background(scenario->environment) == VS::ENV_BG_CANVAS;
 
@@ -382,17 +382,17 @@ RID VisualServerViewport::viewport_create() {
 
 void VisualServerViewport::viewport_set_use_arvr(RID p_viewport, bool p_use_arvr) {
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->use_arvr = p_use_arvr;
 }
 
 void VisualServerViewport::viewport_set_size(RID p_viewport, int p_width, int p_height) {
 
-    ERR_FAIL_COND(p_width < 0 && p_height < 0)
+    ERR_FAIL_COND(p_width < 0 && p_height < 0);
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->size = Size2(p_width, p_height);
     VSG::storage->render_target_set_size(viewport->render_target, p_width, p_height);
@@ -401,10 +401,10 @@ void VisualServerViewport::viewport_set_size(RID p_viewport, int p_width, int p_
 void VisualServerViewport::viewport_set_active(RID p_viewport, bool p_active) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     if (p_active) {
-        ERR_FAIL_COND(active_viewports.contains(viewport)) //already active
+        ERR_FAIL_COND(active_viewports.contains(viewport)); //already active
         active_viewports.push_back(viewport);
     } else {
         active_viewports.erase_first(viewport);
@@ -414,7 +414,7 @@ void VisualServerViewport::viewport_set_active(RID p_viewport, bool p_active) {
 void VisualServerViewport::viewport_set_parent_viewport(RID p_viewport, RID p_parent_viewport) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->parent = p_parent_viewport;
 }
@@ -422,7 +422,7 @@ void VisualServerViewport::viewport_set_parent_viewport(RID p_viewport, RID p_pa
 void VisualServerViewport::viewport_set_clear_mode(RID p_viewport, VS::ViewportClearMode p_clear_mode) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->clear_mode = p_clear_mode;
 }
@@ -430,7 +430,7 @@ void VisualServerViewport::viewport_set_clear_mode(RID p_viewport, VS::ViewportC
 void VisualServerViewport::viewport_attach_to_screen(RID p_viewport, const Rect2 &p_rect, int p_screen) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     // If using GLES2 we can optimize this operation by rendering directly to system_fbo
     // instead of rendering to fbo and copying to system_fbo after
@@ -446,7 +446,7 @@ void VisualServerViewport::viewport_attach_to_screen(RID p_viewport, const Rect2
 
 void VisualServerViewport::viewport_set_render_direct_to_screen(RID p_viewport, bool p_enable) {
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     if (p_enable == viewport->viewport_render_direct_to_screen)
         return;
@@ -472,7 +472,7 @@ void VisualServerViewport::viewport_set_render_direct_to_screen(RID p_viewport, 
 void VisualServerViewport::viewport_detach(RID p_viewport) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     // if render_direct_to_screen was used, reset size and position
     if (VSG::rasterizer->is_low_end() && viewport->viewport_render_direct_to_screen) {
@@ -488,14 +488,14 @@ void VisualServerViewport::viewport_detach(RID p_viewport) {
 void VisualServerViewport::viewport_set_update_mode(RID p_viewport, VS::ViewportUpdateMode p_mode) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->update_mode = p_mode;
 }
 void VisualServerViewport::viewport_set_vflip(RID p_viewport, bool p_enable) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_VFLIP, p_enable);
 }
@@ -511,21 +511,21 @@ RID VisualServerViewport::viewport_get_texture(RID p_viewport) const {
 void VisualServerViewport::viewport_set_hide_scenario(RID p_viewport, bool p_hide) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->hide_scenario = p_hide;
 }
 void VisualServerViewport::viewport_set_hide_canvas(RID p_viewport, bool p_hide) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->hide_canvas = p_hide;
 }
 void VisualServerViewport::viewport_set_disable_environment(RID p_viewport, bool p_disable) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->disable_environment = p_disable;
 }
@@ -533,7 +533,7 @@ void VisualServerViewport::viewport_set_disable_environment(RID p_viewport, bool
 void VisualServerViewport::viewport_set_disable_3d(RID p_viewport, bool p_disable) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->disable_3d = p_disable;
     //VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D, p_disable);
@@ -543,7 +543,7 @@ void VisualServerViewport::viewport_set_disable_3d(RID p_viewport, bool p_disabl
 void VisualServerViewport::viewport_set_keep_3d_linear(RID p_viewport, bool p_keep_3d_linear) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->keep_3d_linear = p_keep_3d_linear;
     VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_KEEP_3D_LINEAR, p_keep_3d_linear);
@@ -552,25 +552,25 @@ void VisualServerViewport::viewport_set_keep_3d_linear(RID p_viewport, bool p_ke
 void VisualServerViewport::viewport_attach_camera(RID p_viewport, RID p_camera) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->camera = p_camera;
 }
 void VisualServerViewport::viewport_set_scenario(RID p_viewport, RID p_scenario) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->scenario = p_scenario;
 }
 void VisualServerViewport::viewport_attach_canvas(RID p_viewport, RID p_canvas) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
-    ERR_FAIL_COND(viewport->canvas_map.contains(p_canvas))
+    ERR_FAIL_COND(viewport->canvas_map.contains(p_canvas));
     VisualServerCanvas::Canvas *canvas = VSG::canvas->canvas_owner.getornull(p_canvas);
-    ERR_FAIL_COND(!canvas)
+    ERR_FAIL_COND(!canvas);
 
     canvas->viewports.insert(p_viewport);
     viewport->canvas_map[p_canvas] = Viewport::CanvasData();
@@ -582,10 +582,10 @@ void VisualServerViewport::viewport_attach_canvas(RID p_viewport, RID p_canvas) 
 void VisualServerViewport::viewport_remove_canvas(RID p_viewport, RID p_canvas) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     VisualServerCanvas::Canvas *canvas = VSG::canvas->canvas_owner.getornull(p_canvas);
-    ERR_FAIL_COND(!canvas)
+    ERR_FAIL_COND(!canvas);
 
     viewport->canvas_map.erase(p_canvas);
     canvas->viewports.erase(p_viewport);
@@ -593,15 +593,15 @@ void VisualServerViewport::viewport_remove_canvas(RID p_viewport, RID p_canvas) 
 void VisualServerViewport::viewport_set_canvas_transform(RID p_viewport, RID p_canvas, const Transform2D &p_offset) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
-    ERR_FAIL_COND(!viewport->canvas_map.contains(p_canvas))
+    ERR_FAIL_COND(!viewport->canvas_map.contains(p_canvas));
     viewport->canvas_map[p_canvas].transform = p_offset;
 }
 void VisualServerViewport::viewport_set_transparent_background(RID p_viewport, bool p_enabled) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_TRANSPARENT, p_enabled);
     viewport->transparent_bg = p_enabled;
@@ -610,16 +610,16 @@ void VisualServerViewport::viewport_set_transparent_background(RID p_viewport, b
 void VisualServerViewport::viewport_set_global_canvas_transform(RID p_viewport, const Transform2D &p_transform) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->global_transform = p_transform;
 }
 void VisualServerViewport::viewport_set_canvas_stacking(RID p_viewport, RID p_canvas, int p_layer, int p_sublayer) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
-    ERR_FAIL_COND(!viewport->canvas_map.contains(p_canvas))
+    ERR_FAIL_COND(!viewport->canvas_map.contains(p_canvas));
     viewport->canvas_map[p_canvas].layer = p_layer;
     viewport->canvas_map[p_canvas].sublayer = p_sublayer;
 }
@@ -627,7 +627,7 @@ void VisualServerViewport::viewport_set_canvas_stacking(RID p_viewport, RID p_ca
 void VisualServerViewport::viewport_set_shadow_atlas_size(RID p_viewport, int p_size) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->shadow_atlas_size = p_size;
 
@@ -637,7 +637,7 @@ void VisualServerViewport::viewport_set_shadow_atlas_size(RID p_viewport, int p_
 void VisualServerViewport::viewport_set_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     VSG::scene_render->shadow_atlas_set_quadrant_subdivision(viewport->shadow_atlas, p_quadrant, p_subdiv);
 }
@@ -645,7 +645,7 @@ void VisualServerViewport::viewport_set_shadow_atlas_quadrant_subdivision(RID p_
 void VisualServerViewport::viewport_set_msaa(RID p_viewport, VS::ViewportMSAA p_msaa) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     VSG::storage->render_target_set_msaa(viewport->render_target, p_msaa);
 }
@@ -653,7 +653,7 @@ void VisualServerViewport::viewport_set_msaa(RID p_viewport, VS::ViewportMSAA p_
 void VisualServerViewport::viewport_set_hdr(RID p_viewport, bool p_enabled) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_HDR, p_enabled);
 }
@@ -661,7 +661,7 @@ void VisualServerViewport::viewport_set_hdr(RID p_viewport, bool p_enabled) {
 void VisualServerViewport::viewport_set_usage(RID p_viewport, VS::ViewportUsage p_usage) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     switch (p_usage) {
         case VS::VIEWPORT_USAGE_2D: {
@@ -710,7 +710,7 @@ int VisualServerViewport::viewport_get_render_info(RID p_viewport, VS::ViewportR
 void VisualServerViewport::viewport_set_debug_draw(RID p_viewport, VS::ViewportDebugDraw p_draw) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
-    ERR_FAIL_COND(!viewport)
+    ERR_FAIL_COND(!viewport);
 
     viewport->debug_draw = p_draw;
 }

@@ -1981,7 +1981,10 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             }
             else if(!arg_type->c_in.empty()) // Provided de-marshalling code was used.
             {
-                c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
+                if (iarg.type.pass_by==TypePassBy::Move) // but type is passed by move
+                    c_args_var_content += "eastl::move("+sformat(arg_type->c_arg_in, c_param_name)+")";
+                else
+                    c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
             }
             else {
                 switch(iarg.type.pass_by) {
@@ -1992,6 +1995,9 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                     break;
                 case TypePassBy::Reference:
                     c_args_var_content += "*"+sformat(arg_type->c_arg_in, c_param_name);
+                    break;
+                case TypePassBy::Move:
+                    c_args_var_content += "eastl::move(*" + sformat(arg_type->c_arg_in, c_param_name) +")";
                     break;
                 case TypePassBy::Pointer:
                     c_args_var_content += "("+String(arg_type->cname)+"*)";
@@ -2013,7 +2019,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
         i++;
     }
-    //-e d:\development\Zc1\project.godot
+
     //TODO: generate code that checks that p_itype.cname.asCString() is a class inheriting from class_type
 
     if (return_type->ret_as_byref_arg) {

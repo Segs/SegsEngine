@@ -91,7 +91,7 @@ void GDScriptLanguageServer::start() {
     if (protocol.start(port, IP_Address("127.0.0.1")) == OK) {
         EditorNode::get_log()->add_message("--- GDScript language server started ---", EditorLog::MSG_TYPE_EDITOR);
         if (use_thread) {
-            ERR_FAIL_COND(thread != nullptr)
+            ERR_FAIL_COND(thread != nullptr);
             thread_running = true;
             thread = Thread::create(GDScriptLanguageServer::thread_main, this);
         }
@@ -102,7 +102,7 @@ void GDScriptLanguageServer::start() {
 
 void GDScriptLanguageServer::stop() {
     if (use_thread) {
-        ERR_FAIL_COND(nullptr == thread)
+        ERR_FAIL_COND(nullptr == thread);
         thread_running = false;
         Thread::wait_to_finish(thread);
         memdelete(thread);

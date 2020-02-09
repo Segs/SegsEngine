@@ -38,10 +38,10 @@ IMPL_GDCLASS(Navigation)
 
 void Navigation::_navmesh_link(int p_id) {
 
-    ERR_FAIL_COND(!navmesh_map.contains(p_id))
+    ERR_FAIL_COND(!navmesh_map.contains(p_id));
     NavMesh &nm = navmesh_map[p_id];
-    ERR_FAIL_COND(nm.linked)
-    ERR_FAIL_COND(not nm.navmesh)
+    ERR_FAIL_COND(nm.linked);
+    ERR_FAIL_COND(not nm.navmesh);
 
     PoolVector<Vector3> vertices = nm.navmesh->get_vertices();
     int len = vertices.size();
@@ -144,9 +144,9 @@ void Navigation::_navmesh_link(int p_id) {
 
 void Navigation::_navmesh_unlink(int p_id) {
 
-    ERR_FAIL_COND(!navmesh_map.contains(p_id))
+    ERR_FAIL_COND(!navmesh_map.contains(p_id));
     NavMesh &nm = navmesh_map[p_id];
-    ERR_FAIL_COND(!nm.linked)
+    ERR_FAIL_COND(!nm.linked);
 
     for (List<Polygon>::Element *E = nm.polygons.front(); E; E = E->next()) {
 
@@ -225,7 +225,7 @@ int Navigation::navmesh_add(const Ref<NavigationMesh> &p_mesh, const Transform &
 
 void Navigation::navmesh_set_transform(int p_id, const Transform &p_xform) {
 
-    ERR_FAIL_COND(!navmesh_map.contains(p_id))
+    ERR_FAIL_COND(!navmesh_map.contains(p_id));
     NavMesh &nm = navmesh_map[p_id];
     if (nm.xform == p_xform)
         return; //bleh
@@ -260,7 +260,7 @@ void Navigation::_clip_path(PODVector<Vector3> &path, Polygon *from_poly, const 
         Vector3 b = _get_vertex(from_poly->edges[(pe + 1) % from_poly->edges.size()].point);
 
         from_poly = from_poly->edges[pe].C;
-        ERR_FAIL_COND(!from_poly)
+        ERR_FAIL_COND(!from_poly);
 
         if (a.distance_to(b) > CMP_EPSILON) {
 
@@ -718,7 +718,7 @@ void Navigation::_bind_methods() {
 
 Navigation::Navigation() {
 
-    ERR_FAIL_COND(sizeof(Point) != 8)
+    ERR_FAIL_COND(sizeof(Point) != 8);
     cell_size = 0.01f; //one centimeter
     last_id = 1;
     up = Vector3(0, 1, 0);

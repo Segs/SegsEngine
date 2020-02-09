@@ -117,6 +117,7 @@ enum PropertyUsageFlags {
 enum class TypePassBy : int8_t {
     Value,
     Reference,
+    Move,
     Pointer,
 };
 

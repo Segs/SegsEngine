@@ -153,8 +153,8 @@ struct GODOT_EXPORT Vector3 {
 
     operator String() const;
 
-    _FORCE_INLINE_ constexpr Vector3() : x(0),y(0),z(0) {}
-    _FORCE_INLINE_ constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) : x(p_x),y(p_y),z(p_z) {
+    constexpr Vector3() noexcept : x(0),y(0),z(0) {}
+    constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) noexcept : x(p_x),y(p_y),z(p_z) {
     }
 };
 static_assert (std::is_trivially_copyable<Vector3>() );

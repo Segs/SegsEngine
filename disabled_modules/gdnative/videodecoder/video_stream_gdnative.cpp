@@ -150,7 +150,7 @@ void VideoStreamPlaybackGDNative::update(float p_delta) {
         return;
     }
     time += p_delta;
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
     interface->update(data_struct, p_delta);
 
     // Don't mix if there's no audio (num_channels == 0).
@@ -236,7 +236,7 @@ void VideoStreamPlaybackGDNative::cleanup() {
 }
 
 void VideoStreamPlaybackGDNative::set_interface(const godot_videodecoder_interface_gdnative *p_interface) {
-    ERR_FAIL_COND(p_interface == nullptr)
+    ERR_FAIL_COND(p_interface == nullptr);
     if (interface != nullptr) {
         cleanup();
     }
@@ -272,7 +272,7 @@ void VideoStreamPlaybackGDNative::stop() {
 }
 
 void VideoStreamPlaybackGDNative::seek(float p_time) {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
     interface->seek(data_struct, p_time);
     if (p_time < time)
         seek_backward = true;
@@ -312,7 +312,7 @@ void VideoStreamPlaybackGDNative::set_loop(bool p_enable) {
 }
 
 void VideoStreamPlaybackGDNative::set_audio_track(int p_idx) {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
     interface->set_audio_track(data_struct, p_idx);
 }
 

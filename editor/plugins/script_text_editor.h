@@ -46,7 +46,7 @@ class ConnectionInfoDialog : public AcceptDialog {
     void ok_pressed() override;
 
 public:
-    void popup_connections(se_string_view p_method, const Vector<Node *>& p_nodes);
+    void popup_connections(se_string_view p_method, const PODVector<Node *> &p_nodes);
 
     ConnectionInfoDialog();
 };

@@ -100,7 +100,7 @@ class EditorAssetLibraryItemDescription : public ConfirmationDialog {
         Ref<Texture> image;
     };
 
-    Vector<Preview> preview_images;
+    PODVector<Preview> preview_images;
     TextureRect *preview;
 
     void set_image(int p_type, int p_index, const Ref<Texture> &p_image);

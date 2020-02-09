@@ -464,6 +464,8 @@ bool make_authors_header(const QStringList &source)
     QString line;
     QTextStream authors_stream(&f);
     authors_stream.setCodec("UTF-8");
+    authors_stream.setGenerateByteOrderMark(true);
+
     while(authors_stream.readLineInto(&line))
     {
         if (reading)

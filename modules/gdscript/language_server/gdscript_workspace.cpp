@@ -171,14 +171,15 @@ ExtendGDScriptParser *GDScriptWorkspace::get_parse_result(se_string_view p_path)
 Array GDScriptWorkspace::symbol(const Dictionary &p_params) {
     String query = p_params["query"].as<String>();
     Array arr;
-    if (!query.empty()) {
-        for (const auto &E : scripts) {
-            Vector<lsp::DocumentedSymbolInformation> script_symbols;
-            E.second->get_symbols().symbol_tree_as_list(E.first, script_symbols);
-            for (int i = 0; i < script_symbols.size(); ++i) {
-                if (StringUtils::is_subsequence_of(query,script_symbols[i].name,StringUtils::CaseInsensitive)) {
-                    arr.push_back(script_symbols[i].to_json());
-                }
+    if (query.empty()) {
+        return arr;
+    }
+    for (const auto &E : scripts) {
+        PODVector<lsp::DocumentedSymbolInformation> script_symbols;
+        E.second->get_symbols().symbol_tree_as_list(E.first, script_symbols);
+        for (size_t i = 0; i < script_symbols.size(); ++i) {
+            if (StringUtils::is_subsequence_of(query,script_symbols[i].name,StringUtils::CaseInsensitive)) {
+                arr.push_back(script_symbols[i].to_json());
             }
         }
     }
@@ -364,7 +365,7 @@ void GDScriptWorkspace::publish_diagnostics(se_string_view p_path) {
     Array errors;
     const auto ele = parse_results.find_as(p_path);
     if (ele!=parse_results.end()) {
-        const Vector<lsp::Diagnostic> &list = ele->second->get_diagnostics();
+        const PODVector<lsp::Diagnostic> &list = ele->second->get_diagnostics();
         errors.resize(list.size());
         for (int i = 0; i < list.size(); ++i) {
             errors[i] = list[i].to_json();
@@ -504,11 +505,11 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_native_symbol(const lsp::N
     return nullptr;
 }
 
-void GDScriptWorkspace::resolve_document_links(se_string_view p_uri, List<lsp::DocumentLink> &r_list) {
+void GDScriptWorkspace::resolve_document_links(se_string_view p_uri, PODVector<lsp::DocumentLink> &r_list) {
     if (const ExtendGDScriptParser *parser = get_parse_successed_script(get_file_path(p_uri))) {
-        const List<lsp::DocumentLink> &links = parser->get_document_links();
-        for (const List<lsp::DocumentLink>::Element *E = links.front(); E; E = E->next()) {
-            r_list.push_back(E->deref());
+        const PODVector<lsp::DocumentLink> &links = parser->get_document_links();
+        for (const lsp::DocumentLink &E : links) {
+            r_list.push_back(E);
         }
     }
 }

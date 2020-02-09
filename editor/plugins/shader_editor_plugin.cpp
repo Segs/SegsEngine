@@ -70,7 +70,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
 }
 
 void ShaderTextEditor::reload_text() {
-    ERR_FAIL_COND(not shader)
+    ERR_FAIL_COND(not shader);
 
     TextEdit *te = get_text_edit();
     int column = te->cursor_get_column();
@@ -456,7 +456,7 @@ void ShaderEditor::_check_for_external_edit() {
 void ShaderEditor::_reload_shader_from_disk() {
 
     Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), shader->get_class(), true));
-    ERR_FAIL_COND(not rel_shader)
+    ERR_FAIL_COND(not rel_shader);
 
     shader->set_code(rel_shader->get_code());
     shader->set_last_modified_time(rel_shader->get_last_modified_time());

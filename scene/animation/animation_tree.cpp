@@ -67,9 +67,9 @@ Variant AnimationNode::get_parameter_default_value(const StringName &p_parameter
 }
 
 void AnimationNode::set_parameter(const StringName &p_name, const Variant &p_value) {
-    ERR_FAIL_COND(!state)
-    ERR_FAIL_COND(!state->tree->property_parent_map.contains(base_path))
-    ERR_FAIL_COND(!state->tree->property_parent_map[base_path].contains(p_name))
+    ERR_FAIL_COND(!state);
+    ERR_FAIL_COND(!state->tree->property_parent_map.contains(base_path));
+    ERR_FAIL_COND(!state->tree->property_parent_map[base_path].contains(p_name));
     StringName path = state->tree->property_parent_map[base_path][p_name];
 
     state->tree->property_map[path] = p_value;
@@ -100,8 +100,8 @@ void AnimationNode::get_child_nodes(List<ChildNode> *r_child_nodes) {
 
 void AnimationNode::blend_animation(const StringName &p_animation, float p_time, float p_delta, bool p_seeked, float p_blend) {
 
-    ERR_FAIL_COND(!state)
-    ERR_FAIL_COND(!state->player->has_animation(p_animation))
+    ERR_FAIL_COND(!state);
+    ERR_FAIL_COND(!state->player->has_animation(p_animation));
 
     Ref<Animation> animation = state->player->get_animation(p_animation);
 
@@ -117,7 +117,7 @@ void AnimationNode::blend_animation(const StringName &p_animation, float p_time,
         return;
     }
 
-    ERR_FAIL_COND(not animation)
+    ERR_FAIL_COND(not animation);
 
     AnimationState anim_state;
     anim_state.blend = p_blend;
@@ -149,7 +149,7 @@ float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *
 }
 
 void AnimationNode::make_invalid(const String &p_reason) {
-    ERR_FAIL_COND(!state)
+    ERR_FAIL_COND(!state);
     state->valid = false;
     if (!state->invalid_reasons.empty()) {
         state->invalid_reasons += '\n';
@@ -334,9 +334,9 @@ se_string_view AnimationNode::get_caption() const {
 
 void AnimationNode::add_input(const String &p_name) {
     //root nodes can't add inputs
-    ERR_FAIL_COND(object_cast<AnimationRootNode>(this) != nullptr)
+    ERR_FAIL_COND(object_cast<AnimationRootNode>(this) != nullptr);
     Input input;
-    ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/") )
+    ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/") );
     input.name = p_name;
     inputs.push_back(input);
     emit_changed();
@@ -344,7 +344,7 @@ void AnimationNode::add_input(const String &p_name) {
 
 void AnimationNode::set_input_name(int p_input, se_string_view p_name) {
     ERR_FAIL_INDEX(p_input, inputs.size());
-    ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/"))
+    ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/"));
     inputs[p_input].name = p_name;
     emit_changed();
 }

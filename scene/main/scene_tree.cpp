@@ -489,7 +489,7 @@ SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node)
 void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 
     Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
-    ERR_FAIL_COND(E==group_map.end())
+    ERR_FAIL_COND(E==group_map.end());
 
     E->second.nodes.erase_first(p_node);
     if (E->second.nodes.empty())
@@ -566,7 +566,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
     if (p_call_flags & GROUP_CALL_UNIQUE && !(p_call_flags & GROUP_CALL_REALTIME)) {
 
-        ERR_FAIL_COND(ugc_locked)
+        ERR_FAIL_COND(ugc_locked);
 
         UGCall ug;
         ug.call = p_function;
@@ -1290,7 +1290,7 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
             continue;
 
         n->call_multilevel(p_method, (const Variant **)v, 1);
-        //ERR_FAIL_COND(node_count != g.nodes.size())
+        //ERR_FAIL_COND();
     }
 
     call_lock--;
@@ -1330,7 +1330,7 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
             continue;
 
         n->notification(p_notification);
-        //ERR_FAIL_COND(node_count != g.nodes.size())
+        //ERR_FAIL_COND();
     }
 
     call_lock--;
@@ -1613,7 +1613,7 @@ Node *SceneTree::get_edited_scene_root() const {
 
 void SceneTree::set_current_scene(Node *p_scene) {
 
-    ERR_FAIL_COND(p_scene && p_scene->get_parent() != root)
+    ERR_FAIL_COND(p_scene && p_scene->get_parent() != root);
     current_scene = p_scene;
 }
 
@@ -1733,7 +1733,7 @@ bool SceneTree::is_multiplayer_poll_enabled() const {
 }
 
 void SceneTree::set_multiplayer(const Ref<MultiplayerAPI>& p_multiplayer) {
-    ERR_FAIL_COND(not p_multiplayer)
+    ERR_FAIL_COND(not p_multiplayer);
 
     if (multiplayer) {
         multiplayer->disconnect("network_peer_connected", this, "_network_peer_connected");
@@ -1938,7 +1938,7 @@ void SceneTree::_call_idle_callbacks() {
 }
 
 void SceneTree::add_idle_callback(IdleCallback p_callback) {
-    ERR_FAIL_COND(idle_callback_count >= MAX_IDLE_CALLBACKS)
+    ERR_FAIL_COND(idle_callback_count >= MAX_IDLE_CALLBACKS);
     idle_callbacks[idle_callback_count++] = p_callback;
 }
 

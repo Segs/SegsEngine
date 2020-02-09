@@ -50,7 +50,7 @@ StringName EditorImportPlugin::get_visible_name() const {
 }
 
 void EditorImportPlugin::get_recognized_extensions(PODVector<String> &p_extensions) const {
-    ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")))
+    ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")));
     Array extensions = get_script_instance()->call("get_recognized_extensions");
     p_extensions.reserve(p_extensions.size()+extensions.size());
     for (int i = 0; i < extensions.size(); i++) {
@@ -94,14 +94,14 @@ int EditorImportPlugin::get_import_order() const {
 
 void EditorImportPlugin::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
 
-    ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_import_options")))
+    ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_import_options")));
     Array needed;
     needed.push_back("name");
     needed.push_back("default_value");
     Array options = get_script_instance()->call("get_import_options", p_preset);
     for (int i = 0; i < options.size(); i++) {
         Dictionary d = options[i];
-        ERR_FAIL_COND(!d.has_all(needed))
+        ERR_FAIL_COND(!d.has_all(needed));
         String name = d["name"].as<String>();
         Variant default_value = d["default_value"];
 

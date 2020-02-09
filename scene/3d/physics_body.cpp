@@ -281,12 +281,12 @@ void RigidBody::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
-    ERR_FAIL_COND(!contact_monitor)
+    ERR_FAIL_COND(!contact_monitor);
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
-    ERR_FAIL_COND(E==contact_monitor->body_map.end())
-    ERR_FAIL_COND(E->second.in_tree)
+    ERR_FAIL_COND(E==contact_monitor->body_map.end());
+    ERR_FAIL_COND(E->second.in_tree);
 
     E->second.in_tree = true;
 
@@ -306,11 +306,11 @@ void RigidBody::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
-    ERR_FAIL_COND(!contact_monitor)
+    ERR_FAIL_COND(!node);
+    ERR_FAIL_COND(!contact_monitor);
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
-    ERR_FAIL_COND(E==contact_monitor->body_map.end())
-    ERR_FAIL_COND(!E->second.in_tree)
+    ERR_FAIL_COND(E==contact_monitor->body_map.end());
+    ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
 
     contact_monitor->locked = true;
@@ -333,10 +333,10 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
     Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
-    ERR_FAIL_COND(!contact_monitor)
+    ERR_FAIL_COND(!contact_monitor);
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(objid);
 
-    ERR_FAIL_COND(!body_in && E==contact_monitor->body_map.end())
+    ERR_FAIL_COND(!body_in && E==contact_monitor->body_map.end());
 
     if (body_in) {
         if (E==contact_monitor->body_map.end()) {
@@ -551,7 +551,7 @@ RigidBody::Mode RigidBody::get_mode() const {
 
 void RigidBody::set_mass(real_t p_mass) {
 
-    ERR_FAIL_COND(p_mass <= 0)
+    ERR_FAIL_COND(p_mass <= 0);
     mass = p_mass;
     Object_change_notify(this,"mass");
     Object_change_notify(this,"weight");
@@ -606,7 +606,7 @@ real_t RigidBody::get_gravity_scale() const {
 
 void RigidBody::set_linear_damp(real_t p_linear_damp) {
 
-    ERR_FAIL_COND(p_linear_damp < -1)
+    ERR_FAIL_COND(p_linear_damp < -1);
     linear_damp = p_linear_damp;
     PhysicsServer::get_singleton()->body_set_param(get_rid(), PhysicsServer::BODY_PARAM_LINEAR_DAMP, linear_damp);
 }
@@ -617,7 +617,7 @@ real_t RigidBody::get_linear_damp() const {
 
 void RigidBody::set_angular_damp(real_t p_angular_damp) {
 
-    ERR_FAIL_COND(p_angular_damp < -1)
+    ERR_FAIL_COND(p_angular_damp < -1);
     angular_damp = p_angular_damp;
     PhysicsServer::get_singleton()->body_set_param(get_rid(), PhysicsServer::BODY_PARAM_ANGULAR_DAMP, angular_damp);
 }
@@ -2446,7 +2446,7 @@ const StringName &PhysicalBone::get_bone_name() const {
 
 void PhysicalBone::set_mass(real_t p_mass) {
 
-    ERR_FAIL_COND(p_mass <= 0)
+    ERR_FAIL_COND(p_mass <= 0);
     mass = p_mass;
     PhysicsServer::get_singleton()->body_set_param(get_rid(), PhysicsServer::BODY_PARAM_MASS, mass);
 }
@@ -2468,7 +2468,7 @@ real_t PhysicalBone::get_weight() const {
 
 void PhysicalBone::set_friction(real_t p_friction) {
 
-    ERR_FAIL_COND(p_friction < 0 || p_friction > 1)
+    ERR_FAIL_COND(p_friction < 0 || p_friction > 1);
 
     friction = p_friction;
     PhysicsServer::get_singleton()->body_set_param(get_rid(), PhysicsServer::BODY_PARAM_FRICTION, friction);
@@ -2481,7 +2481,7 @@ real_t PhysicalBone::get_friction() const {
 
 void PhysicalBone::set_bounce(real_t p_bounce) {
 
-    ERR_FAIL_COND(p_bounce < 0 || p_bounce > 1)
+    ERR_FAIL_COND(p_bounce < 0 || p_bounce > 1);
 
     bounce = p_bounce;
     PhysicsServer::get_singleton()->body_set_param(get_rid(), PhysicsServer::BODY_PARAM_BOUNCE, bounce);

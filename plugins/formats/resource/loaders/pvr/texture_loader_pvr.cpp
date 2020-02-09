@@ -154,7 +154,7 @@ static void unpack_modulations(const PVRTCBlock *p_block, const int p_2bit, int 
         }
     }
 
-    ERR_FAIL_COND(modulation_bits != 0)
+    ERR_FAIL_COND(modulation_bits != 0);
 }
 
 static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], const int p_colorr[4], const int p_colors[4], bool p_2bit, const int x, const int y, int r_result[4]) {
@@ -211,7 +211,7 @@ static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], con
     }
 
     for (k = 0; k < 4; k++) {
-        ERR_FAIL_COND(r_result[k] >= 256)
+        ERR_FAIL_COND(r_result[k] >= 256);
     }
 
     for (k = 0; k < 3; k++) {
@@ -221,7 +221,7 @@ static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], con
     r_result[3] += r_result[3] >> 4;
 
     for (k = 0; k < 4; k++) {
-        ERR_FAIL_COND(r_result[k] >= 256)
+        ERR_FAIL_COND(r_result[k] >= 256);
     }
 }
 

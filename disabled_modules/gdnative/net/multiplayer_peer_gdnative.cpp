@@ -67,7 +67,7 @@ int MultiplayerPeerGDNative::get_available_packet_count() const {
 
 /* NetworkedMultiplayerPeer */
 void MultiplayerPeerGDNative::set_transfer_mode(TransferMode p_mode) {
-	ERR_FAIL_COND(interface == nullptr)
+	ERR_FAIL_COND(interface == nullptr);
 	interface->set_transfer_mode(interface->data, (godot_int)p_mode);
 }
 
@@ -77,7 +77,7 @@ NetworkedMultiplayerPeer::TransferMode MultiplayerPeerGDNative::get_transfer_mod
 }
 
 void MultiplayerPeerGDNative::set_target_peer(int p_peer_id) {
-	ERR_FAIL_COND(interface == nullptr)
+	ERR_FAIL_COND(interface == nullptr);
 	interface->set_target_peer(interface->data, p_peer_id);
 }
 
@@ -92,7 +92,7 @@ bool MultiplayerPeerGDNative::is_server() const {
 }
 
 void MultiplayerPeerGDNative::poll() {
-	ERR_FAIL_COND(interface == nullptr)
+	ERR_FAIL_COND(interface == nullptr);
 	interface->poll(interface->data);
 }
 
@@ -102,7 +102,7 @@ int MultiplayerPeerGDNative::get_unique_id() const {
 }
 
 void MultiplayerPeerGDNative::set_refuse_new_connections(bool p_enable) {
-	ERR_FAIL_COND(interface == nullptr)
+	ERR_FAIL_COND(interface == nullptr);
 	interface->set_refuse_new_connections(interface->data, p_enable);
 }
 

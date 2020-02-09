@@ -164,7 +164,7 @@ void SceneTreeDock::instance(se_string_view p_file) {
         return;
     }
 
-    ERR_FAIL_COND(!parent)
+    ERR_FAIL_COND(!parent);
 
     String scenes[1] {String(p_file)};
     _perform_instance_scenes(scenes, parent, -1);
@@ -190,9 +190,9 @@ void SceneTreeDock::instance_scenes(const PODVector<String> &p_files, Node *p_pa
 
 void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *parent, int p_pos) {
 
-    ERR_FAIL_COND(!parent)
+    ERR_FAIL_COND(!parent);
 
-    Vector<Node *> instances;
+    PODVector<Node *> instances;
 
     bool error = false;
 
@@ -332,7 +332,7 @@ bool SceneTreeDock::_cyclical_dependency_exists(se_string_view p_target_scene_pa
 bool SceneTreeDock::_track_inherit(se_string_view p_target_scene_path, Node *p_desired_node) {
     Node *p = p_desired_node;
     bool result = false;
-    Vector<Node *> instances;
+    PODVector<Node *> instances;
     while (true) {
         if (p->get_filename() == p_target_scene_path) {
             result = true;
@@ -537,8 +537,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 Node *top_node = selection[i];
                 Node *bottom_node = selection[selection.size() - 1 - i];
 
-                ERR_FAIL_COND(!top_node->get_parent())
-                ERR_FAIL_COND(!bottom_node->get_parent())
+                ERR_FAIL_COND(!top_node->get_parent());
+                ERR_FAIL_COND(!bottom_node->get_parent());
 
                 int bottom_node_pos = bottom_node->get_index();
                 int top_node_pos_next = top_node->get_index() + (MOVING_DOWN ? 1 : -1);
@@ -670,7 +670,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             }
 
             const PODVector<Node *> &nodes = editor_selection->get_selected_node_list();
-            ERR_FAIL_COND(nodes.size() != 1)
+            ERR_FAIL_COND(nodes.size() != 1);
 
             Node *node = nodes.front();
             Node *root = get_tree()->get_edited_scene_root();
@@ -925,7 +925,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                     if (!root)
                         break;
 
-                    ERR_FAIL_COND(node->get_filename().empty())
+                    ERR_FAIL_COND(node->get_filename().empty());
                     undo_redo->create_action_ui(TTR("Make Local"));
                     undo_redo->add_do_method(node, "set_filename", "");
                     undo_redo->add_undo_method(node, "set_filename", node->get_filename());
@@ -1037,7 +1037,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 ERR_FAIL_INDEX(idx, subresources.size());
 
                 Object *obj = ObjectDB::get_instance(subresources[idx]);
-                ERR_FAIL_COND(!obj)
+                ERR_FAIL_COND(!obj);
 
                 editor->push_item(obj);
             }
@@ -1419,11 +1419,11 @@ void SceneTreeDock::perform_node_renames(Node *p_base, PODVector<Pair<NodePath, 
 
                                     int idx = 0;
                                     Set<int>::iterator EI = ran.begin();
-                                    ERR_FAIL_COND(EI==ran.end() )//bug
+                                    ERR_FAIL_COND(EI==ran.end() ); //bug
                                     while (*EI != i) {
                                         idx++;
                                         ++EI;
-                                        ERR_FAIL_COND(EI==ran.end() )//another bug
+                                        ERR_FAIL_COND(EI==ran.end() ); //another bug
                                     }
 
                                     editor_data->get_undo_redo().add_do_method(anim.get(), "remove_track", idx);
@@ -1518,7 +1518,7 @@ bool SceneTreeDock::_validate_no_foreign() {
 void SceneTreeDock::_node_reparent(const NodePath& p_path, bool p_keep_global_xform) {
 
     Node *new_parent = scene_root->get_node(p_path);
-    ERR_FAIL_COND(!new_parent)
+    ERR_FAIL_COND(!new_parent);
 
     const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
 
@@ -1533,7 +1533,7 @@ void SceneTreeDock::_node_reparent(const NodePath& p_path, bool p_keep_global_xf
 void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, PODVector<Node *> p_nodes, bool p_keep_global_xform) {
 
     Node *new_parent = p_new_parent;
-    ERR_FAIL_COND(!new_parent)
+    ERR_FAIL_COND(!new_parent);
 
     if (p_nodes.empty())
         return; // Nothing to reparent.
@@ -1940,9 +1940,9 @@ Node *SceneTreeDock::_get_selection_group_tail(Node *p_node, const PODVector<Nod
 void SceneTreeDock::_do_create(Node *p_parent) {
     Object *c = create_dialog->instance_selected();
 
-    ERR_FAIL_COND(!c)
+    ERR_FAIL_COND(!c);
     Node *child = object_cast<Node>(c);
-    ERR_FAIL_COND(!child)
+    ERR_FAIL_COND(!child);
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
@@ -2000,26 +2000,26 @@ void SceneTreeDock::_create() {
         } else {
             // If no root exist in edited scene
             parent = scene_root;
-            ERR_FAIL_COND(!parent)
+            ERR_FAIL_COND(!parent);
         }
 
         _do_create(parent);
 
     } else if (current_option == TOOL_REPLACE) {
         const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
-        ERR_FAIL_COND(selection.empty())
+        ERR_FAIL_COND(selection.empty());
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
         ur->create_action_ui(TTR("Change type of node(s)"));
 
         for (Node *n : selection) {
-            ERR_FAIL_COND(!n)
+            ERR_FAIL_COND(!n);
 
             Object *c = create_dialog->instance_selected();
 
-            ERR_FAIL_COND(!c)
+            ERR_FAIL_COND(!c);
             Node *newnode = object_cast<Node>(c);
-            ERR_FAIL_COND(!newnode)
+            ERR_FAIL_COND(!newnode);
 
             ur->add_do_method(this, "replace_node", Variant(n), Variant(newnode), true, false);
             ur->add_do_reference(newnode);
@@ -2030,18 +2030,18 @@ void SceneTreeDock::_create() {
         ur->commit_action();
     } else if (current_option == TOOL_REPARENT_TO_NEW_NODE) {
         const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
-        ERR_FAIL_COND(selection.empty())
+        ERR_FAIL_COND(selection.empty());
 
         // Find top level node in selection
         bool only_one_top_node = true;
 
         Node *first = selection.front();
-        ERR_FAIL_COND(!first)
+        ERR_FAIL_COND(!first);
         int smaller_path_to_top = first->get_path_to(scene_root).get_name_count();
         Node *top_node = first;
 
         for (Node *n : selection) {
-            ERR_FAIL_COND(!n)
+            ERR_FAIL_COND(!n);
 
             int path_length = n->get_path_to(scene_root).get_name_count();
 
@@ -2179,7 +2179,7 @@ void SceneTreeDock::_import_subscene() {
     Node *parent = scene_tree->get_selected();
     if (!parent) {
         parent = editor_data->get_edited_scene_root();
-        ERR_FAIL_COND(!parent)
+        ERR_FAIL_COND(!parent);
     }
 
     import_subscene_dialog->move(parent, edited_scene);
@@ -2311,7 +2311,7 @@ void SceneTreeDock::_normalize_drop(Node *&to_node, int &to_pos, int p_type) {
 void SceneTreeDock::_files_dropped(const PODVector<String> &p_files, const NodePath& p_to, int p_type) {
 
     Node *node = get_node(p_to);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     int to_pos = -1;
     _normalize_drop(node, to_pos, p_type);
@@ -2320,7 +2320,7 @@ void SceneTreeDock::_files_dropped(const PODVector<String> &p_files, const NodeP
 
 void SceneTreeDock::_script_dropped(se_string_view p_file, const NodePath& p_to) {
     Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(p_file));
-    ERR_FAIL_COND(not scr)
+    ERR_FAIL_COND(not scr);
     Node *n = get_node(p_to);
     if (n) {
         editor_data->get_undo_redo().create_action_ui(TTR("Attach Script"));
@@ -2569,7 +2569,7 @@ void SceneTreeDock::set_filter(const UIString &p_filter) {
 void SceneTreeDock::_focus_node() {
 
     Node *node = scene_tree->get_selected();
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     if (node->is_class("CanvasItem")) {
         CanvasItemEditorPlugin *editor = object_cast<CanvasItemEditorPlugin>(editor_data->get_editor("2D"));
@@ -2638,7 +2638,7 @@ void SceneTreeDock::open_script_dialog(Node *p_for_node, bool p_extend) {
 }
 
 void SceneTreeDock::add_remote_tree_editor(Control *p_remote) {
-    ERR_FAIL_COND(remote_tree != nullptr)
+    ERR_FAIL_COND(remote_tree != nullptr);
     add_child(p_remote);
     remote_tree = p_remote;
     remote_tree->hide();

@@ -187,7 +187,7 @@ void SpriteEditor::_update_mesh_data() {
         return;
     }
     Ref<Image> image = texture->get_data();
-    ERR_FAIL_COND(not image)
+    ERR_FAIL_COND(not image);
     Rect2 rect;
     if (node->is_region())
         rect = node->get_region_rect();
@@ -264,8 +264,8 @@ void SpriteEditor::_update_mesh_data() {
     computed_outline_lines.clear();
 
     if (selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) {
-        outline_lines.resize(lines.size());
-        computed_outline_lines.resize(lines.size());
+        outline_lines.reserve(lines.size());
+        computed_outline_lines.reserve(lines.size());
         for (int pi = 0; pi < lines.size(); pi++) {
 
             PODVector<Vector2> ol;
@@ -293,8 +293,8 @@ void SpriteEditor::_update_mesh_data() {
                 col.emplace_back(vtx);
             }
 
-            outline_lines.write[pi] = eastl::move(ol);
-            computed_outline_lines.write[pi] = col;
+            outline_lines.emplace_back(eastl::move(ol));
+            computed_outline_lines.emplace_back(eastl::move(col));
         }
     }
 
@@ -474,7 +474,7 @@ void SpriteEditor::_add_as_sibling_or_child(Node *p_own_node, Node *p_new_node) 
 void SpriteEditor::_debug_uv_draw() {
 
     Ref<Texture> tex = node->get_texture();
-    ERR_FAIL_COND(not tex)
+    ERR_FAIL_COND(not tex);
 
     Point2 draw_pos_offset = Point2(1.0f, 1.0f);
     Size2 draw_size_offset = Size2(2.0f, 2.0f);

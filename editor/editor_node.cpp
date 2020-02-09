@@ -1535,12 +1535,12 @@ void EditorNode::_dialog_action(se_string_view p_file) {
         case RESOURCE_SAVE:
         case RESOURCE_SAVE_AS: {
 
-            ERR_FAIL_COND(not saving_resource)
+            ERR_FAIL_COND(not saving_resource);
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
             Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
-            ERR_FAIL_COND(!current_obj)
+            ERR_FAIL_COND(!current_obj);
             Object_change_notify(current_obj);
         } break;
         case SETTINGS_LAYOUT_SAVE: {
@@ -1770,7 +1770,7 @@ void EditorNode::_edit_current() {
     if (is_resource) {
 
         Resource *current_res = object_cast<Resource>(current_obj);
-        ERR_FAIL_COND(!current_res)
+        ERR_FAIL_COND(!current_res);
         get_inspector()->edit(current_res);
         scene_tree_dock->set_selected(nullptr);
         node_dock->set_node(nullptr);
@@ -1800,7 +1800,7 @@ void EditorNode::_edit_current() {
     } else if (is_node) {
 
         Node *current_node = object_cast<Node>(current_obj);
-        ERR_FAIL_COND(!current_node)
+        ERR_FAIL_COND(!current_node);
 
         get_inspector()->edit(current_node);
         if (current_node->is_inside_tree()) {
@@ -2859,7 +2859,7 @@ void EditorNode::_discard_changes(se_string_view p_str) {
 
             OS::ProcessID pid = 0;
             Error err = OS::get_singleton()->execute(exec, args, false, &pid);
-            ERR_FAIL_COND(err)
+            ERR_FAIL_COND(err);
         } break;
     }
 }
@@ -2927,7 +2927,7 @@ void EditorNode::_editor_select(int p_which) {
     selecting = false;
 
     EditorPlugin *new_editor = editor_table[p_which];
-    ERR_FAIL_COND(!new_editor)
+    ERR_FAIL_COND(!new_editor);
 
     if (editor_plugin_screen == new_editor) return;
 
@@ -2954,7 +2954,7 @@ void EditorNode::_editor_select(int p_which) {
 }
 
 void EditorNode::select_editor_by_name(const StringName &p_name) {
-    ERR_FAIL_COND(p_name.empty())
+    ERR_FAIL_COND(p_name.empty());
 
     for (size_t i = 0; i < main_editor_buttons.size(); i++) {
         if (main_editor_buttons[i]->get_text() == p_name) {
@@ -3045,8 +3045,8 @@ void EditorNode::_update_addon_config() {
 
 void EditorNode::set_addon_plugin_enabled(const StringName &p_addon, bool p_enabled, bool p_config_changed) {
 
-    ERR_FAIL_COND(p_enabled && plugin_addons.contains(p_addon))
-    ERR_FAIL_COND(!p_enabled && !plugin_addons.contains(p_addon))
+    ERR_FAIL_COND(p_enabled && plugin_addons.contains(p_addon));
+    ERR_FAIL_COND(!p_enabled && !plugin_addons.contains(p_addon));
 
     if (!p_enabled) {
 
@@ -5529,7 +5529,7 @@ int EditorNode::plugin_init_callback_count = 0;
 
 void EditorNode::add_plugin_init_callback(EditorPluginInitializeCallback p_callback) {
 
-    ERR_FAIL_COND(plugin_init_callback_count == MAX_INIT_CALLBACKS)
+    ERR_FAIL_COND(plugin_init_callback_count == MAX_INIT_CALLBACKS);
 
     plugin_init_callbacks[plugin_init_callback_count++] = p_callback;
 }
@@ -5546,7 +5546,7 @@ int EditorNode::build_callback_count = 0;
 
 void EditorNode::add_build_callback(EditorBuildCallback p_callback) {
 
-    ERR_FAIL_COND(build_callback_count == MAX_INIT_CALLBACKS)
+    ERR_FAIL_COND(build_callback_count == MAX_INIT_CALLBACKS);
 
     build_callbacks[build_callback_count++] = p_callback;
 }

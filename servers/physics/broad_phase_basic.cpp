@@ -50,19 +50,19 @@ BroadPhaseSW::ID BroadPhaseBasic::create(CollisionObjectSW *p_object, int p_subi
 void BroadPhaseBasic::move(ID p_id, const AABB &p_aabb) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     E->second.aabb = p_aabb;
 }
 void BroadPhaseBasic::set_static(ID p_id, bool p_static) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     E->second._static = p_static;
 }
 void BroadPhaseBasic::remove(ID p_id) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     List<PairKey> to_erase;
     //unpair must be done immediately on removal to avoid potential invalid pointers
     for (eastl::pair<const PairKey,void *> &F : pair_map) {

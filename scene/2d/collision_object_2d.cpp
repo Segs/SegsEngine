@@ -130,7 +130,7 @@ uint32_t CollisionObject2D::create_shape_owner(Object *p_owner) {
 
 void CollisionObject2D::remove_shape_owner(uint32_t owner) {
 
-    ERR_FAIL_COND(!shapes.contains(owner))
+    ERR_FAIL_COND(!shapes.contains(owner));
 
     shape_owner_clear_shapes(owner);
 
@@ -138,7 +138,7 @@ void CollisionObject2D::remove_shape_owner(uint32_t owner) {
 }
 
 void CollisionObject2D::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled) {
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.disabled = p_disabled;
@@ -163,7 +163,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision(uint32_t p_owner, bool
     if (area)
         return; //not for areas
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.one_way_collision = p_enable;
@@ -184,7 +184,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision_margin(uint32_t p_owne
     if (area)
         return; //not for areas
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.one_way_collision_margin = p_margin;
@@ -219,7 +219,7 @@ Array CollisionObject2D::_get_shape_owners() {
 
 void CollisionObject2D::shape_owner_set_transform(uint32_t p_owner, const Transform2D &p_transform) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
 
@@ -248,8 +248,8 @@ Object *CollisionObject2D::shape_owner_get_owner(uint32_t p_owner) const {
 
 void CollisionObject2D::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2D> &p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
-    ERR_FAIL_COND(not p_shape)
+    ERR_FAIL_COND(!shapes.contains(p_owner));
+    ERR_FAIL_COND(not p_shape);
 
     ShapeData &sd = shapes[p_owner];
     ShapeData::Shape s;
@@ -274,8 +274,8 @@ int CollisionObject2D::shape_owner_get_shape_count(uint32_t p_owner) const {
 Ref<Shape2D> CollisionObject2D::shape_owner_get_shape(uint32_t p_owner, int p_shape) const {
 
     ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape2D>());
-    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape2D>());
-;
+    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape2D>());
+;
     return shapes.at(p_owner).shapes[p_shape].shape;
 }
 int CollisionObject2D::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) const {
@@ -288,7 +288,7 @@ int CollisionObject2D::shape_owner_get_shape_index(uint32_t p_owner, int p_shape
 
 void CollisionObject2D::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
     ERR_FAIL_INDEX(p_shape, shapes[p_owner].shapes.size());
 
     int index_to_remove = shapes[p_owner].shapes[p_shape].index;
@@ -313,7 +313,7 @@ void CollisionObject2D::shape_owner_remove_shape(uint32_t p_owner, int p_shape) 
 
 void CollisionObject2D::shape_owner_clear_shapes(uint32_t p_owner) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     while (shape_owner_get_shape_count(p_owner) > 0) {
         shape_owner_remove_shape(p_owner, 0);

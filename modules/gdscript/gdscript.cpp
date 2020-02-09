@@ -48,6 +48,7 @@
 #include "core/project_settings.h"
 
 #include "EASTL/deque.h"
+#include "EASTL/sort.h"
 using namespace eastl;
 
 IMPL_GDCLASS(GDScriptNativeClass)
@@ -260,7 +261,7 @@ void GDScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
 
     while (sptr) {
 
-        Vector<_GDScriptMemberSort> msort;
+        PODVector<_GDScriptMemberSort> msort;
         for (const eastl::pair<const StringName,PropertyInfo> &E : sptr->member_info) {
 
             _GDScriptMemberSort ms;
@@ -269,9 +270,9 @@ void GDScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
             ms.name = E.first;
             msort.push_back(ms);
         }
-
-        msort.sort();
-        msort.invert();
+        //TODO: SEGS: code below is inefficient, it should sort in reverse instead of sorting+reversing
+        eastl::sort(msort.begin(), msort.end());
+        eastl::reverse(msort.begin(), msort.end());
         for (int i = 0; i < msort.size(); i++) {
 
             props.push_front(sptr->member_info.at(msort[i].name));
@@ -928,7 +929,7 @@ void GDScript::_save_orphaned_subclasses() {
         ObjectID id;
         String fully_qualified_name;
     };
-    Vector<ClassRefWithName> weak_subclasses;
+    PODVector<ClassRefWithName> weak_subclasses;
     // collect subclasses ObjectID and name
     for (const auto &E : subclasses) {
         E.second->_owner = nullptr; //bye, you are no longer owned cause I died
@@ -1144,7 +1145,7 @@ void GDScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) 
 
         //instance a fake script for editing the values
 
-        Vector<_GDScriptMemberSort> msort;
+        PODVector<_GDScriptMemberSort> msort;
         for (const eastl::pair<const StringName,PropertyInfo> &F : sptr->member_info) {
 
             _GDScriptMemberSort ms;
@@ -1153,9 +1154,10 @@ void GDScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) 
             ms.name = F.first;
             msort.push_back(ms);
         }
+        //TODO: SEGS: code below is inefficient, it should sort in reverse instead of sorting+reversing
+        eastl::sort(msort.begin(), msort.end());
+        eastl::reverse(msort.begin(), msort.end());
 
-        msort.sort();
-        msort.invert();
         for (int i = 0; i < msort.size(); i++) {
 
             props.push_front(sptr->member_info.at(msort[i].name));
@@ -1415,7 +1417,7 @@ void GDScriptLanguage::add_named_global_constant(const StringName &p_name, const
 }
 
 void GDScriptLanguage::remove_named_global_constant(const StringName &p_name) {
-    ERR_FAIL_COND(!named_globals.contains(p_name))
+    ERR_FAIL_COND(!named_globals.contains(p_name));
     named_globals.erase(p_name);
 }
 
@@ -2151,7 +2153,7 @@ GDScriptWarning::Code GDScriptWarning::get_code_from_name(const String &p_name) 
 GDScriptLanguage::GDScriptLanguage() {
 
     calls = 0;
-    ERR_FAIL_COND(singleton)
+    ERR_FAIL_COND(singleton);
     singleton = this;
     strings._init = StringName("_init");
     strings._notification = StringName("_notification");

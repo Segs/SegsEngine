@@ -115,7 +115,7 @@ void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_s
         return;
 
     TreeItem *item = object_cast<TreeItem>(p_object);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     Node *n = item->get_metadata(0);
 

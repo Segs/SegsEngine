@@ -117,7 +117,7 @@ void LineBuilder::build() {
         return;
     }
 
-    ERR_FAIL_COND(tile_aspect <= 0.f)
+    ERR_FAIL_COND(tile_aspect <= 0.f);
 
     const float hw = width / 2.f;
     const float hw_sq = hw * hw;

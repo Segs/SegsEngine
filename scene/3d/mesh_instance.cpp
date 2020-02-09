@@ -242,7 +242,7 @@ Node *MeshInstance::create_trimesh_collision_node() {
 void MeshInstance::create_trimesh_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_trimesh_collision_node());
-    ERR_FAIL_COND(!static_body)
+    ERR_FAIL_COND(!static_body);
     static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
@@ -272,7 +272,7 @@ Node *MeshInstance::create_convex_collision_node() {
 void MeshInstance::create_convex_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_convex_collision_node());
-    ERR_FAIL_COND(!static_body)
+    ERR_FAIL_COND(!static_body);
     static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);

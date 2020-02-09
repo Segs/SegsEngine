@@ -995,17 +995,6 @@ MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array) {
 
     return ret;
 }
-MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array) {
-    auto r = p_array.ptr();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        mono_array_set(ret, int32_t, i, r[i]);
-    }
-
-    return ret;
-}
 
 MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array) {
 

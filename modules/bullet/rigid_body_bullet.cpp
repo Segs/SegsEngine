@@ -505,7 +505,7 @@ void RigidBodyBullet::set_param(PhysicsServer::BodyParameter p_param, real_t p_v
             btBody->setFriction(p_value);
             break;
         case PhysicsServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value < 0)
+            ERR_FAIL_COND(p_value < 0);
             mass = p_value;
             _internal_set_mass(p_value);
             break;
@@ -877,7 +877,7 @@ void RigidBodyBullet::on_enter_area(AreaBullet *p_area) {
 
     if (p_area->is_spOv_gravityPoint()) {
         ++countGravityPointSpaces;
-        ERR_FAIL_COND(countGravityPointSpaces <= 0)
+        ERR_FAIL_COND(countGravityPointSpaces <= 0);
     }
 }
 
@@ -899,7 +899,7 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
     if (wasTheAreaFound) {
         if (p_area->is_spOv_gravityPoint()) {
             --countGravityPointSpaces;
-            ERR_FAIL_COND(countGravityPointSpaces < 0)
+            ERR_FAIL_COND(countGravityPointSpaces < 0);
         }
 
         --areaWhereIamCount;

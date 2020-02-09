@@ -387,7 +387,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     return closest;
 }
 
-void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, Vector<_RayResult> &results, bool p_alt_select) {
+void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, PODVector<SpatialEditorViewport::_RayResult> &results, bool p_alt_select) {
 
     Vector3 ray = _get_ray(p_pos);
     Vector3 pos = _get_ray_pos(p_pos);
@@ -439,8 +439,7 @@ void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_incl
 
     if (results.empty())
         return;
-
-    results.sort();
+    eastl::sort(results.begin(), results.end());
 }
 
 Vector3 SpatialEditorViewport::_get_screen_to_space(const Vector3 &p_vector3) {
@@ -860,7 +859,7 @@ void SpatialEditorViewport::_list_select(Ref<InputEventMouseButton> b) {
         Spatial *item = selection_results[i].item;
         if (item != scene && item->get_owner() != scene && !scene->is_editable_instance(item->get_owner())) {
             //invalid result
-            selection_results.remove(i);
+            selection_results.erase_at(i);
             i--;
         }
     }
@@ -2868,8 +2867,8 @@ void SpatialEditorViewport::_finish_gizmo_instances() {
 }
 void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
 
-    ERR_FAIL_COND(p_activate && !preview)
-    ERR_FAIL_COND(!p_activate && !previewing)
+    ERR_FAIL_COND(p_activate && !preview);
+    ERR_FAIL_COND(!p_activate && !previewing);
 
     if (!p_activate) {
 
@@ -3926,7 +3925,7 @@ void SpatialEditorViewportContainer::_notification(int p_what) {
             }
         }
 
-        ERR_FAIL_COND(vc != 4)
+        ERR_FAIL_COND(vc != 4);
 
         Size2 size = get_size();
 
@@ -4346,13 +4345,13 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
             if (!gizmo_plugins_by_name[j]->can_be_hidden()) continue;
             int state = EditorSpatialGizmoPlugin::VISIBLE;
             for (const Variant &k :keys) {
-                if (gizmo_plugins_by_name.write[j]->get_name() == se_string_view(k.as<String>())) {
+                if (gizmo_plugins_by_name[j]->get_name() == se_string_view(k.as<String>())) {
                     state = gizmos_status[k];
                     break;
                 }
             }
 
-            gizmo_plugins_by_name.write[j]->set_state(state);
+            gizmo_plugins_by_name[j]->set_state(state);
         }
         _update_gizmos_menu();
     }
@@ -4482,7 +4481,7 @@ void SpatialEditor::_menu_gizmo_toggled(int p_option) {
             break;
     }
 
-    gizmo_plugins_by_name.write[p_option]->set_state(state);
+    gizmo_plugins_by_name[p_option]->set_state(state);
 
     update_all_gizmos();
 }
@@ -5476,23 +5475,23 @@ void SpatialEditor::_request_gizmo(Object *p_obj) {
     Spatial *sp = object_cast<Spatial>(p_obj);
     if (!sp)
         return;
-    if (editor->get_edited_scene() && (sp == editor->get_edited_scene() || sp->get_owner() && editor->get_edited_scene()->is_a_parent_of(sp))) {
+    if (!editor->get_edited_scene() || sp != editor->get_edited_scene() && (!sp->get_owner() || !editor->get_edited_scene()->is_a_parent_of(sp)))
+        return;
 
-        Ref<EditorSpatialGizmo> seg;
+    Ref<EditorSpatialGizmo> seg;
 
-        for (int i = 0; i < gizmo_plugins_by_priority.size(); ++i) {
-            seg = gizmo_plugins_by_priority.write[i]->get_gizmo(sp);
+    for (int i = 0; i < gizmo_plugins_by_priority.size(); ++i) {
+        seg = gizmo_plugins_by_priority[i]->get_gizmo(sp);
 
-            if (seg) {
-                sp->set_gizmo(seg);
+        if (seg) {
+            sp->set_gizmo(seg);
 
-                if (sp == selected) {
-                    seg->set_selected(true);
-                    selected->update_gizmo();
-                }
-
-                break;
+            if (sp == selected) {
+                seg->set_selected(true);
+                selected->update_gizmo();
             }
+
+            break;
         }
     }
 }
@@ -6085,20 +6084,21 @@ struct _GizmoPluginNameComparator {
 
 void SpatialEditor::add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin) {
     ERR_FAIL_NULL(p_plugin.get());
+    
+    //TODO: SEGS: consider using vector_set since the elements are meant to be always sorted
+    gizmo_plugins_by_priority.emplace_back(p_plugin);
+    eastl::sort(gizmo_plugins_by_priority.begin(), gizmo_plugins_by_priority.end(), _GizmoPluginPriorityComparator());
 
-    gizmo_plugins_by_priority.push_back(p_plugin);
-    gizmo_plugins_by_priority.sort_custom<_GizmoPluginPriorityComparator>();
-
-    gizmo_plugins_by_name.push_back(p_plugin);
-    gizmo_plugins_by_name.sort_custom<_GizmoPluginNameComparator>();
+    gizmo_plugins_by_name.emplace_back(p_plugin);
+    eastl::sort(gizmo_plugins_by_name.begin(), gizmo_plugins_by_name.end(), _GizmoPluginNameComparator());
 
     _update_gizmos_menu();
     SpatialEditor::get_singleton()->update_all_gizmos();
 }
 
 void SpatialEditor::remove_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin>& p_plugin) {
-    gizmo_plugins_by_priority.erase(p_plugin);
-    gizmo_plugins_by_name.erase(p_plugin);
+    gizmo_plugins_by_priority.erase_first(p_plugin);
+    gizmo_plugins_by_name.erase_first(p_plugin);
     _update_gizmos_menu();
 }
 
@@ -6120,7 +6120,7 @@ void EditorSpatialGizmoPlugin::create_material(se_string_view p_name, const Colo
 
     Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
-    Vector<Ref<SpatialMaterial> > mats;
+    PODVector<Ref<SpatialMaterial> > mats;
 
     for (int i = 0; i < 4; i++) {
         bool selected = i % 2 == 1;
@@ -6152,17 +6152,17 @@ void EditorSpatialGizmoPlugin::create_material(se_string_view p_name, const Colo
             material->set_on_top_of_alpha();
         }
 
-        mats.push_back(material);
+        mats.emplace_back(eastl::move(material));
     }
 
-    materials[String(p_name)] = mats;
+    materials[String(p_name)] = eastl::move(mats);
 }
 
 void EditorSpatialGizmoPlugin::create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top, const Color &p_albedo) {
 
     Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
-    Vector<Ref<SpatialMaterial> > icons;
+    PODVector<Ref<SpatialMaterial> > icons;
 
     for (int i = 0; i < 4; i++) {
         bool selected = i % 2 == 1;
@@ -6193,10 +6193,10 @@ void EditorSpatialGizmoPlugin::create_icon_material(const String &p_name, const 
             icon->set_on_top_of_alpha();
         }
 
-        icons.push_back(icon);
+        icons.emplace_back(eastl::move(icon));
     }
 
-    materials[p_name] = icons;
+    materials[p_name] = eastl::move(icons);
 }
 
 void EditorSpatialGizmoPlugin::create_handle_material(const String &p_name, bool p_billboard) {
@@ -6217,12 +6217,12 @@ void EditorSpatialGizmoPlugin::create_handle_material(const String &p_name, bool
         handle_material->set_on_top_of_alpha();
     }
 
-    materials[p_name] = Vector<Ref<SpatialMaterial> >();
+    materials[p_name] = {};
     materials[p_name].push_back(handle_material);
 }
 
 void EditorSpatialGizmoPlugin::add_material(const String &p_name, const Ref<SpatialMaterial>& p_material) {
-    materials[p_name] = Vector<Ref<SpatialMaterial> >();
+    materials[p_name] = {};
     materials[p_name].push_back(p_material);
 }
 

@@ -158,7 +158,7 @@ private:
     };
     FileOrFolder to_rename;
     FileOrFolder to_duplicate;
-    Vector<FileOrFolder> to_move;
+    PODVector<FileOrFolder> to_move;
     String to_move_path;
 
     PODVector<String> history;

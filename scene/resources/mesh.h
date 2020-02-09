@@ -38,17 +38,10 @@
 //#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
 #include "servers/visual_server_enums.h"
+#include "servers/visual_server.h"
 
 class Material;
-//SEGS: In the future this is meant to replace passing Surface data in Array
-class GODOT_EXPORT SurfaceArrays {
-public:
-    explicit operator Array() {
-        Array res;
-        res.resize(VS::ARRAY_MAX);
-        return res;
-    }
-};
+
 class GODOT_EXPORT Mesh : public Resource {
     GDCLASS(Mesh,Resource)
 
@@ -58,6 +51,7 @@ class GODOT_EXPORT Mesh : public Resource {
 
 protected:
     static void _bind_methods();
+    Array _surface_get_arrays(int p_surface) const;
 
 public:
     enum {
@@ -132,7 +126,7 @@ public:
     virtual int surface_get_array_len(int p_idx) const = 0;
     virtual int surface_get_array_index_len(int p_idx) const = 0;
     virtual bool surface_is_softbody_friendly(int p_idx) const;
-    virtual Array surface_get_arrays(int p_surface) const = 0;
+    virtual SurfaceArrays surface_get_arrays(int p_surface) const = 0;
     virtual Array surface_get_blend_shape_arrays(int p_surface) const = 0;
     virtual uint32_t surface_get_format(int p_idx) const = 0;
     virtual PrimitiveType surface_get_primitive_type(int p_idx) const = 0;
@@ -194,14 +188,15 @@ protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _add_surface_from_arrays(PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
 
     static void _bind_methods();
 
 public:
-    void add_surface_from_arrays(PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
-    void add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>());
+    void add_surface_from_arrays(PrimitiveType p_primitive, SurfaceArrays &&p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
+    void add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes = PODVector<PoolVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>());
 
-    Array surface_get_arrays(int p_surface) const override;
+    SurfaceArrays surface_get_arrays(int p_surface) const override;
     Array surface_get_blend_shape_arrays(int p_surface) const override;
 
     void add_blend_shape(const StringName &p_name);

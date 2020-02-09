@@ -89,8 +89,8 @@ Ref<Material> Material::get_next_pass() const {
 
 void Material::set_render_priority(int p_priority) {
 
-    ERR_FAIL_COND(p_priority < RENDER_PRIORITY_MIN)
-    ERR_FAIL_COND(p_priority > RENDER_PRIORITY_MAX)
+    ERR_FAIL_COND(p_priority < RENDER_PRIORITY_MIN);
+    ERR_FAIL_COND(p_priority > RENDER_PRIORITY_MAX);
     render_priority = p_priority;
     VisualServer::get_singleton()->material_set_render_priority(material, p_priority);
 }

@@ -289,7 +289,7 @@ Array OptionButton::_get_items() const {
 }
 void OptionButton::_set_items(const Array &p_items) {
 
-    ERR_FAIL_COND(p_items.size() % 5)
+    ERR_FAIL_COND(p_items.size() % 5);
     clear();
 
     for (int i = 0; i < p_items.size(); i += 5) {

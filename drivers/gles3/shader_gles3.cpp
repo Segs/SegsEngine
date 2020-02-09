@@ -543,7 +543,7 @@ GLint ShaderGLES3::get_uniform_location(se_string_view p_name) const {
 
 void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_count, const char **p_uniform_names, int p_uniform_count, const AttributePair *p_attribute_pairs, int p_attribute_count, const TexUnitPair *p_texunit_pairs, int p_texunit_pair_count, const UBOPair *p_ubo_pairs, int p_ubo_pair_count, const Feedback *p_feedback, int p_feedback_count, const char *p_vertex_code, const char *p_fragment_code, int p_vertex_code_start, int p_fragment_code_start) {
 
-    ERR_FAIL_COND(version)
+    ERR_FAIL_COND(version);
     conditional_version.key = 0;
     new_conditional_version.key = 0;
     uniform_count = p_uniform_count;
@@ -694,7 +694,7 @@ void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_ver
         const String &p_fragment_globals, const String &p_uniforms, const PODVector<StringName> &p_texture_uniforms,
         const PODVector<String> &p_custom_defines) {
 
-    ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
+    ERR_FAIL_COND(!custom_code_map.contains(p_code_id));
     CustomCode *cc = &custom_code_map[p_code_id];
 
     cc->vertex = p_vertex;
@@ -715,7 +715,7 @@ void ShaderGLES3::set_custom_shader(uint32_t p_code_id) {
 
 void ShaderGLES3::free_custom_shader(uint32_t p_code_id) {
 
-    ERR_FAIL_COND(!custom_code_map.contains(p_code_id))
+    ERR_FAIL_COND(!custom_code_map.contains(p_code_id));
     if (conditional_version.code_version == p_code_id) {
         conditional_version.code_version = 0; //do not keep using a version that is going away
         unbind();

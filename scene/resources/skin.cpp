@@ -38,7 +38,7 @@
 IMPL_GDCLASS(Skin)
 
 void Skin::set_bind_count(int p_size) {
-    ERR_FAIL_COND(p_size < 0)
+    ERR_FAIL_COND(p_size < 0);
     binds.resize(p_size);
     binds_ptr = binds.data();
     bind_count = p_size;

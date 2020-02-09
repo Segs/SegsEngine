@@ -166,7 +166,7 @@ PhysicsDirectBodyState::PhysicsDirectBodyState() {}
 
 void PhysicsShapeQueryParameters::set_shape(const RES &p_shape) {
 
-    ERR_FAIL_COND(not p_shape)
+    ERR_FAIL_COND(not p_shape);
     shape = p_shape->get_rid();
 }
 
@@ -752,7 +752,7 @@ void PhysicsServer::_bind_methods() {
 
 PhysicsServer::PhysicsServer() {
 
-    ERR_FAIL_COND(singleton != nullptr)
+    ERR_FAIL_COND(singleton != nullptr);
     singleton = this;
 }
 
@@ -778,8 +778,8 @@ void PhysicsServerManager::on_servers_changed() {
 
 void PhysicsServerManager::register_server(const StringName &p_name, CreatePhysicsServerCallback p_creat_callback) {
 
-    ERR_FAIL_COND(!p_creat_callback)
-    ERR_FAIL_COND(find_server_id(p_name) != -1)
+    ERR_FAIL_COND(!p_creat_callback);
+    ERR_FAIL_COND(find_server_id(p_name) != -1);
     physics_servers.push_back(ClassInfo(p_name, p_creat_callback));
     on_servers_changed();
 }
@@ -787,7 +787,7 @@ void PhysicsServerManager::register_server(const StringName &p_name, CreatePhysi
 void PhysicsServerManager::set_default_server(const StringName &p_name, int p_priority) {
 
     const int id = find_server_id(p_name);
-    ERR_FAIL_COND(id == -1 )// Not found
+    ERR_FAIL_COND(id == -1 ); // Not found
     if (default_server_priority < p_priority) {
         default_server_id = id;
         default_server_priority = p_priority;

@@ -107,7 +107,7 @@ void VideoPlayer::_mix_audio() {
 
     if (cc == 1) {
         AudioFrame *target = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, 0);
-        ERR_FAIL_COND(!target)
+        ERR_FAIL_COND(!target);
 
         for (int j = 0; j < buffer_size; j++) {
 
@@ -119,7 +119,7 @@ void VideoPlayer::_mix_audio() {
 
         for (int k = 0; k < cc; k++) {
             targets[k] = AudioServer::get_singleton()->thread_get_channel_mix_buffer(bus_index, k);
-            ERR_FAIL_COND(!targets[k])
+            ERR_FAIL_COND(!targets[k]);
         }
 
         for (int j = 0; j < buffer_size; j++) {
@@ -262,7 +262,7 @@ Ref<VideoStream> VideoPlayer::get_stream() const {
 
 void VideoPlayer::play() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     if (not playback)
         return;
     playback->stop();

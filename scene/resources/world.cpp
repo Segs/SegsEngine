@@ -71,7 +71,7 @@ struct SpatialIndexer {
 
     void _notifier_add(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        ERR_FAIL_COND(notifiers.contains(p_notifier))
+        ERR_FAIL_COND(notifiers.contains(p_notifier));
         notifiers[p_notifier].aabb = p_rect;
         notifiers[p_notifier].id = octree.create(p_notifier, p_rect);
         changed = true;
@@ -80,7 +80,7 @@ struct SpatialIndexer {
     void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
         Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E==notifiers.end())
+        ERR_FAIL_COND(E==notifiers.end());
         if (E->second.aabb == p_rect)
             return;
 
@@ -92,7 +92,7 @@ struct SpatialIndexer {
     void _notifier_remove(VisibilityNotifier *p_notifier) {
 
         Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E!=notifiers.end())
+        ERR_FAIL_COND(E!=notifiers.end());
 
         octree.erase(E->second.id);
         notifiers.erase(p_notifier);
@@ -119,7 +119,7 @@ struct SpatialIndexer {
 
     void _add_camera(Camera *p_camera) {
 
-        ERR_FAIL_COND(cameras.contains(p_camera))
+        ERR_FAIL_COND(cameras.contains(p_camera));
         CameraData vd;
         cameras[p_camera] = vd;
         changed = true;
@@ -128,12 +128,12 @@ struct SpatialIndexer {
     void _update_camera(Camera *p_camera) {
 
         Map<Camera *, CameraData>::iterator E = cameras.find(p_camera);
-        ERR_FAIL_COND(E==cameras.end())
+        ERR_FAIL_COND(E==cameras.end());
         changed = true;
     }
 
     void _remove_camera(Camera *p_camera) {
-        ERR_FAIL_COND(!cameras.contains(p_camera))
+        ERR_FAIL_COND(!cameras.contains(p_camera));
         List<VisibilityNotifier *> removed;
         for (auto &E : cameras[p_camera].notifiers) {
 
