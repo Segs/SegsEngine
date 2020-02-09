@@ -180,7 +180,7 @@ void AnimationTreeEditor::_bind_methods() {
 AnimationTreeEditor *AnimationTreeEditor::singleton = nullptr;
 
 void AnimationTreeEditor::add_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
-    ERR_FAIL_COND(p_editor->get_parent())
+    ERR_FAIL_COND(p_editor->get_parent());
     editor_base->add_child(p_editor);
     editors.push_back(p_editor);
     p_editor->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -189,7 +189,7 @@ void AnimationTreeEditor::add_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
 }
 
 void AnimationTreeEditor::remove_plugin(AnimationTreeNodeEditorPlugin *p_editor) {
-    ERR_FAIL_COND(p_editor->get_parent() != editor_base)
+    ERR_FAIL_COND(p_editor->get_parent() != editor_base);
     editor_base->remove_child(p_editor);
     editors.erase_first(p_editor);
 }

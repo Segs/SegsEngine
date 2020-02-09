@@ -129,7 +129,7 @@ void InspectorDock::_menu_option(int p_option) {
 
         default: {
             if (p_option >= OBJECT_METHOD_BASE) {
-                ERR_FAIL_COND(!current)
+                ERR_FAIL_COND(!current);
 
                 int idx = p_option - OBJECT_METHOD_BASE;
 
@@ -179,7 +179,7 @@ void InspectorDock::_save_resource(bool save_as) const {
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
-    ERR_FAIL_COND(not current_res)
+    ERR_FAIL_COND(not current_res);
 
 
     if (save_as)
@@ -193,7 +193,7 @@ void InspectorDock::_unref_resource() const {
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
-    ERR_FAIL_COND(not current_res)
+    ERR_FAIL_COND(not current_res);
 
     current_res->set_path(se_string_view());
     editor->edit_current();
@@ -204,7 +204,7 @@ void InspectorDock::_copy_resource() const {
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
-    ERR_FAIL_COND(not current_res)
+    ERR_FAIL_COND(not current_res);
 
 
     EditorSettings::get_singleton()->set_resource_clipboard(current_res);
@@ -281,9 +281,9 @@ void InspectorDock::_select_history(int p_idx) const {
 void InspectorDock::_resource_created() const {
     Object *c = new_resource_dialog->instance_selected();
 
-    ERR_FAIL_COND(!c)
+    ERR_FAIL_COND(!c);
     Resource *r = object_cast<Resource>(c);
-    ERR_FAIL_COND(!r)
+    ERR_FAIL_COND(!r);
 
     REF res(r);
     editor->push_item(c);

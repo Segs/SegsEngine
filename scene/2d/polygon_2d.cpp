@@ -564,7 +564,7 @@ Array Polygon2D::_get_bones() const {
 }
 void Polygon2D::_set_bones(const Array &p_bones) {
 
-    ERR_FAIL_COND(p_bones.size() & 1)
+    ERR_FAIL_COND(p_bones.size() & 1);
     clear_bones();
     for (int i = 0; i < p_bones.size(); i += 2) {
         add_bone(p_bones[i], p_bones[i + 1]);

@@ -263,7 +263,7 @@ struct EditorSceneImporterAssetImportInterpolate<Quat> {
 };
 
 template <class T>
-T EditorSceneImporterAssimp::_interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp) {
+T EditorSceneImporterAssimp::_interpolate_track(const PODVector<float> &p_times, const PODVector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp) {
     //could use binary search, worth it?
     int idx = -1;
     for (int i = 0; i < p_times.size(); i++) {
@@ -664,12 +664,12 @@ void EditorSceneImporterAssimp::_insert_animation_track(ImportState &scene, cons
 
     bool last = false;
 
-    Vector<Vector3> pos_values;
-    Vector<float> pos_times;
-    Vector<Vector3> scale_values;
-    Vector<float> scale_times;
-    Vector<Quat> rot_values;
-    Vector<float> rot_times;
+    PODVector<Vector3> pos_values;
+    PODVector<float> pos_times;
+    PODVector<Vector3> scale_values;
+    PODVector<float> scale_times;
+    PODVector<Quat> rot_values;
+    PODVector<float> rot_times;
 
     for (size_t p = 0; p < assimp_track->mNumPositionKeys; p++) {
         aiVector3D pos = assimp_track->mPositionKeys[p].mValue;
@@ -700,7 +700,7 @@ void EditorSceneImporterAssimp::_insert_animation_track(ImportState &scene, cons
 
         if (rot_values.size()) {
             rot = _interpolate_track<Quat>(rot_times, rot_values, time,
-                    AssetImportAnimation::INTERP_LINEAR)
+                            AssetImportAnimation::INTERP_LINEAR)
                           .normalized();
         }
 
@@ -882,7 +882,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 // Mesh Generation from indices ? why do we need so much mesh code
 // [debt needs looked into]
 Ref<Mesh>
-EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices,
+EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &state, const PODVector<int> &p_surface_indices,
         const aiNode *assimp_node, Ref<Skin> &skin,
         Skeleton *&skeleton_assigned) {
 
@@ -914,7 +914,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
         const unsigned int mesh_idx = p_surface_indices[i];
         const aiMesh *ai_mesh = state.assimp_scene->mMeshes[mesh_idx];
 
-        Map<uint32_t, Vector<BoneInfo> > vertex_weights;
+        Map<uint32_t, PODVector<BoneInfo> > vertex_weights;
 
         if (ai_mesh->mNumBones > 0) {
             for (size_t b = 0; b < ai_mesh->mNumBones; b++) {
@@ -944,11 +944,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
                     bi.bone = bone_index;
                     bi.weight = ai_weights.mWeight;
 
-                    if (!vertex_weights.contains(vertex_index)) {
-                        vertex_weights[vertex_index] = Vector<BoneInfo>();
-                    }
-
-                    vertex_weights[vertex_index].push_back(bi);
+                    vertex_weights[vertex_index].emplace_back(bi);
                 }
             }
         }
@@ -992,7 +988,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             // We have vertex weights right?
             if (vertex_weights.contains(j)) {
 
-                Vector<BoneInfo> bone_info = vertex_weights[j];
+                const PODVector<BoneInfo> &bone_info = vertex_weights[j];
                 PODVector<int> bones;
                 bones.resize(bone_info.size());
                 PODVector<float> weights;
@@ -1337,7 +1333,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
     Ref<Mesh> mesh;
     Ref<Skin> skin;
     // see if we have mesh cache for this.
-    Vector<int> surface_indices;
+    PODVector<int> surface_indices;
 
     RegenerateBoneStack(state);
 

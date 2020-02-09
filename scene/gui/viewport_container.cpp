@@ -71,7 +71,7 @@ bool ViewportContainer::is_stretch_enabled() const {
 
 void ViewportContainer::set_stretch_shrink(int p_shrink) {
 
-    ERR_FAIL_COND(p_shrink < 1)
+    ERR_FAIL_COND(p_shrink < 1);
     if (shrink == p_shrink)
         return;
 

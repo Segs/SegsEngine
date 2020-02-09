@@ -36,41 +36,37 @@ class MeshDataTool : public RefCounted {
 
 	GDCLASS(MeshDataTool,RefCounted)
 
+    struct Vertex {
+        Vector3 vertex;
+        Color color;
+        Vector3 normal; // normal, binormal, tangent
+        Plane tangent;
+        Vector2 uv;
+        Vector2 uv2;
+        PODVector<int> bones;
+        PODVector<float> weights;
+        PODVector<int> edges;
+        PODVector<int> faces;
+        Variant meta;
+    };
+    struct Edge {
+
+        int vertex[2];
+        PODVector<int> faces;
+        Variant meta;
+    };
+    struct Face {
+
+        int v[3];
+        int edges[3];
+        Variant meta;
+    };
+
 	int format;
-	struct Vertex {
-		Vector3 vertex;
-		Color color;
-		Vector3 normal; // normal, binormal, tangent
-		Plane tangent;
-		Vector2 uv;
-		Vector2 uv2;
-		PoolVector<int> bones;
-        PoolVector<float> weights;
-        PoolVector<int> edges;
-        PoolVector<int> faces;
-		Variant meta;
-	};
 
-	Vector<Vertex> vertices;
-
-	struct Edge {
-
-		int vertex[2];
-		PoolVector<int> faces;
-		Variant meta;
-	};
-
-	Vector<Edge> edges;
-
-	struct Face {
-
-		int v[3];
-		int edges[3];
-		Variant meta;
-	};
-
-	Vector<Face> faces;
-
+	PODVector<Vertex> vertices;
+    PODVector<Edge> edges;
+    PODVector<Face> faces;
 	Ref<Material> material;
 
 protected:
@@ -105,20 +101,20 @@ public:
 	Color get_vertex_color(int p_idx) const;
 	void set_vertex_color(int p_idx, const Color &p_color);
 
-    const PoolVector<int> &get_vertex_bones(int p_idx) const;
-	void set_vertex_bones(int p_idx, const PoolVector<int>& p_bones);
+    const PODVector<int> &get_vertex_bones(int p_idx) const;
+	void set_vertex_bones(int p_idx, PODVector<int> &&p_bones);
 
-	const PoolVector<float> &get_vertex_weights(int p_idx) const;
-	void set_vertex_weights(int p_idx, const PoolVector<float> &p_weights);
+    const PODVector<float> &get_vertex_weights(int p_idx) const;
+	void set_vertex_weights(int p_idx, PODVector<float> &&p_weights);
 
 	Variant get_vertex_meta(int p_idx) const;
 	void set_vertex_meta(int p_idx, const Variant &p_meta);
 
-	PoolVector<int> get_vertex_edges(int p_idx) const;
-	PoolVector<int> get_vertex_faces(int p_idx) const;
+    const PODVector<int> &get_vertex_edges(int p_idx) const;
+    const PODVector<int> &get_vertex_faces(int p_idx) const;
 
 	int get_edge_vertex(int p_edge, int p_vertex) const;
-	PoolVector<int> get_edge_faces(int p_edge) const;
+    const PODVector<int> &get_edge_faces(int p_edge) const;
 	Variant get_edge_meta(int p_idx) const;
 	void set_edge_meta(int p_idx, const Variant &p_meta);
 

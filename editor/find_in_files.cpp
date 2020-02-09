@@ -470,8 +470,8 @@ void FindInFilesDialog::custom_action(se_string_view p_action) {
 
 void FindInFilesDialog::_on_search_text_modified(se_string_view text) {
 
-    ERR_FAIL_COND(!_find_button)
-    ERR_FAIL_COND(!_replace_button)
+    ERR_FAIL_COND(!_find_button);
+    ERR_FAIL_COND(!_replace_button);
 
     _find_button->set_disabled(get_search_text().empty());
     _replace_button->set_disabled(get_search_text().empty());
@@ -778,7 +778,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
                 continue;
 
             Map<TreeItem *, Result>::iterator F = _result_items.find(item);
-            ERR_FAIL_COND(F == _result_items.end())
+            ERR_FAIL_COND(F == _result_items.end());
             locations.push_back(F->second);
         }
 

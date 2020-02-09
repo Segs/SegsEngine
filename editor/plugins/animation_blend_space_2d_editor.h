@@ -106,7 +106,7 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 	Vector2 drag_from;
 	Vector2 drag_ofs;
 
-	Vector<int> making_triangle;
+    FixedVector<int,3,true> making_triangle; //TODO: SEGS: consider making the FixedVector non-growing
 
 	void _add_menu_type(int p_index);
 	void _add_animation_type(int p_index);

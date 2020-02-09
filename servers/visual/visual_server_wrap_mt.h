@@ -161,7 +161,7 @@ public:
 
     FUNCRID(mesh)
 
-    FUNC10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const Vector<AABB> &)
+    FUNC10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const PODVector<PoolVector<uint8_t> > &, const PODVector<AABB> &)
 
     FUNC2(mesh_set_blend_shape_count, RID, int)
     FUNC1RC(int, mesh_get_blend_shape_count, RID)
@@ -184,8 +184,32 @@ public:
     FUNC2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     FUNC2RC(AABB, mesh_surface_get_aabb, RID, int)
-    FUNC2RC(PODVector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
-    FUNC2RC(Vector<AABB>, mesh_surface_get_skeleton_aabb, RID, int)
+    //TODO: SEGS: This is a hacky way of passing const &, since it's basically a pointer to a storage area, we tell command queue it's a pointer
+    const PODVector<PoolVector<uint8_t> > &mesh_surface_get_blend_shapes(RID p1, int p2) const override {
+        if (Thread::get_caller_id() != server_thread) {
+            using RetType = const PODVector<PoolVector<uint8_t> > *;
+            RetType ret;
+            command_queue.push_and_ret(server_name, (RetType (ServerName::*)(RID,int))&ServerName::mesh_surface_get_blend_shapes, p1, p2, &ret);
+            SYNC_DEBUG                                                                  
+            return *ret;                                                                
+        } else {                                                                        
+            return server_name->mesh_surface_get_blend_shapes(p1, p2);
+        }                                                                               
+    }
+    const PODVector<AABB> & mesh_surface_get_skeleton_aabb(RID p1, int p2) const override {
+        if (Thread::get_caller_id() != server_thread) {
+            using RetType = const PODVector<AABB> *;
+
+            RetType ret;                                    
+            command_queue.push_and_ret(server_name, (RetType(ServerName::*)(RID, int))&ServerName::mesh_surface_get_skeleton_aabb, p1, p2, &ret);
+            SYNC_DEBUG                                                                  
+            return *ret;                                                                
+        }
+        else {
+            
+                return server_name->mesh_surface_get_skeleton_aabb(p1, p2);
+        }                                                                               
+    }
 
     FUNC2(mesh_remove_surface, RID, int)
     FUNC1RC(int, mesh_get_surface_count, RID)

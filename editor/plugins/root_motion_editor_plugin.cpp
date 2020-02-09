@@ -235,7 +235,7 @@ void EditorPropertyRootMotion::update_property() {
     }
 
     Node *target_node = base_node->get_node(p);
-    ERR_FAIL_COND(!target_node)
+    ERR_FAIL_COND(!target_node);
 
     assign->set_text(target_node->get_name());
     assign->set_button_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));

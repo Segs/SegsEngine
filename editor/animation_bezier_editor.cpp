@@ -595,7 +595,7 @@ void AnimationBezierTrackEdit::_select_at_anim(const Ref<Animation> &p_anim, int
         return;
 
     int idx = animation->track_find_key(p_track, p_pos, true);
-    ERR_FAIL_COND(idx < 0)
+    ERR_FAIL_COND(idx < 0);
 
     selection.insert(idx);
     emit_signal("select_key", idx, true);
@@ -773,7 +773,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             //then attempt to move
             int index = animation->track_find_key(track, time, true);
-            ERR_FAIL_COND(index == -1)
+            ERR_FAIL_COND(index == -1);
             _clear_selection();
             selection.insert(index);
 

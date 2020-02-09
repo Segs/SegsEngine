@@ -359,7 +359,7 @@ void EditorResourcePreview::_thread() {
 void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p_res, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata) {
 
     ERR_FAIL_NULL(p_receiver);
-    ERR_FAIL_COND(not p_res)
+    ERR_FAIL_COND(not p_res);
 
     preview_mutex->lock();
 

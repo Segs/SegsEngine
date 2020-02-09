@@ -98,7 +98,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
-        ERR_FAIL_COND(!gp)
+        ERR_FAIL_COND(!gp);
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
@@ -444,9 +444,9 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
-        ERR_FAIL_COND(!obj)
+        ERR_FAIL_COND(!obj);
         AnimationNode *an = object_cast<AnimationNode>(obj);
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
         base_name = StringUtils::replace_first(type,"AnimationNode", "");
@@ -771,7 +771,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Ref<StyleBox> sb = name == selected_node ? style_selected : style;
         int strsize = font->get_string_size(name).width;
 
-        NodeRect &nr = node_rects.write[i];
+        NodeRect &nr = node_rects[i];
 
         Vector2 offset = nr.node.position;
         int h = nr.node.size.height;
@@ -1109,7 +1109,7 @@ void AnimationNodeStateMachineEditor::_name_edited(se_string_view p_text) {
 
     String new_name(p_text);
 
-    ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,'.') || StringUtils::contains(p_text,'/'))
+    ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,'.') || StringUtils::contains(p_text,'/'));
 
     if (prev_name == p_text) {
         return; // Nothing to do.

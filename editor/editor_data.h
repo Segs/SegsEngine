@@ -127,7 +127,7 @@ public:
     };
 
 private:
-    Vector<EditorPlugin *> editor_plugins;
+    PODVector<EditorPlugin *> editor_plugins;
 
     struct PropertyData {
 
@@ -190,7 +190,7 @@ public:
     int get_edited_scene() const;
     Node *get_edited_scene_root(int p_idx = -1);
     int get_edited_scene_count() const;
-    Vector<EditedScene> get_edited_scenes() const;
+    const PODVector<EditedScene> &get_edited_scenes() const;
     StringName get_scene_title(int p_idx) const;
     String get_scene_path(int p_idx) const;
     UIString get_scene_type(int p_idx) const;

@@ -178,8 +178,8 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
         nodes_folded = config->get_value("folding", "nodes_folded");
     }
 
-    ERR_FAIL_COND(unfolds.size() & 1)
-    ERR_FAIL_COND(res_unfolds.size() & 1)
+    ERR_FAIL_COND(unfolds.size() & 1);
+    ERR_FAIL_COND(res_unfolds.size() & 1);
 
     for (int i = 0; i < unfolds.size(); i += 2) {
         NodePath path2 = unfolds[i];

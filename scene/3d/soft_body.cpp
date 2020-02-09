@@ -52,7 +52,7 @@ SoftBodyVisualServerHandler::SoftBodyVisualServerHandler() {}
 void SoftBodyVisualServerHandler::prepare(RID p_mesh, int p_surface) {
     clear();
 
-    ERR_FAIL_COND(!p_mesh.is_valid())
+    ERR_FAIL_COND(!p_mesh.is_valid());
 
     mesh = p_mesh;
     surface = p_surface;
@@ -488,7 +488,7 @@ void SoftBody::become_mesh_owner() {
 
     PODVector<Ref<Material> > copy_materials(materials);
 
-    ERR_FAIL_COND(!mesh->get_surface_count())
+    ERR_FAIL_COND(!mesh->get_surface_count());
 
     // Get current mesh array and create new mesh array with necessary flag for softbody
     Array surface_arrays = mesh->surface_get_arrays(0);

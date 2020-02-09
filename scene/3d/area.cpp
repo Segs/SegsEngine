@@ -122,11 +122,11 @@ void Area::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
-    ERR_FAIL_COND(E==body_map.end())
-    ERR_FAIL_COND(E->second.in_tree)
+    ERR_FAIL_COND(E==body_map.end());
+    ERR_FAIL_COND(E->second.in_tree);
 
     E->second.in_tree = true;
     emit_signal(SceneStringNames::get_singleton()->body_entered,  Variant(node));
@@ -140,10 +140,10 @@ void Area::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
-    ERR_FAIL_COND(E==body_map.end())
-    ERR_FAIL_COND(!E->second.in_tree)
+    ERR_FAIL_COND(E==body_map.end());
+    ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
@@ -315,11 +315,11 @@ void Area::_area_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
-    ERR_FAIL_COND(E==area_map.end())
-    ERR_FAIL_COND(E->second.in_tree)
+    ERR_FAIL_COND(E==area_map.end());
+    ERR_FAIL_COND(E->second.in_tree);
 
     E->second.in_tree = true;
     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
@@ -333,10 +333,10 @@ void Area::_area_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
-    ERR_FAIL_COND(E==area_map.end())
-    ERR_FAIL_COND(!E->second.in_tree)
+    ERR_FAIL_COND(E==area_map.end());
+    ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {

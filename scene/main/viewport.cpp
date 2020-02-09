@@ -274,8 +274,8 @@ void Viewport::_collision_object_input_event(CollisionObject *p_object, Camera *
     physics_last_id = id;
 }
 void Viewport::_own_world_changed() {
-    ERR_FAIL_COND(not world)
-    ERR_FAIL_COND(not own_world)
+    ERR_FAIL_COND(not world);
+    ERR_FAIL_COND(not own_world);
 
     if (is_inside_tree()) {
         _propagate_exit_world(this);
@@ -1857,7 +1857,7 @@ bool Viewport::_gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_che
 
 void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
-    ERR_FAIL_COND(not p_event)
+    ERR_FAIL_COND(not p_event);
 
     //?
     /*
@@ -2568,9 +2568,9 @@ void Viewport::_gui_force_drag(Control *p_base, const Variant &p_data, Control *
 void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
 
     ERR_FAIL_NULL(p_control);
-    ERR_FAIL_COND(!object_cast<Control>((Object *)p_control))
-    ERR_FAIL_COND(p_control->is_inside_tree())
-    ERR_FAIL_COND(p_control->get_parent() != nullptr)
+    ERR_FAIL_COND(!object_cast<Control>((Object *)p_control));
+    ERR_FAIL_COND(p_control->is_inside_tree());
+    ERR_FAIL_COND(p_control->get_parent() != nullptr);
 
     if (gui.drag_preview) {
         memdelete(gui.drag_preview);
@@ -2590,7 +2590,7 @@ void Viewport::_gui_remove_root_control(List<Control *>::Element *RI) {
 
 void Viewport::_gui_remove_subwindow_control(List<Control *>::Element *SI) {
 
-    ERR_FAIL_COND(!SI)
+    ERR_FAIL_COND(!SI);
 
     Control *control = SI->deref();
 
@@ -2821,7 +2821,7 @@ void Viewport::_post_gui_grab_click_focus() {
 
 void Viewport::input(const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     local_input_handled = false;
 
@@ -2837,7 +2837,7 @@ void Viewport::input(const Ref<InputEvent> &p_event) {
 
 void Viewport::unhandled_input(const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     get_tree()->_call_input_pause(unhandled_input_group, "_unhandled_input", p_event);
     //call_group(GROUP_CALL_REVERSE|GROUP_CALL_REALTIME|GROUP_CALL_MULIILEVEL,"unhandled_input","_unhandled_input",ev);
@@ -3079,7 +3079,7 @@ void Viewport::set_input_as_handled() {
     if (handle_input_locally) {
         local_input_handled = true;
     } else {
-        ERR_FAIL_COND(!is_inside_tree())
+        ERR_FAIL_COND(!is_inside_tree());
         get_tree()->set_input_as_handled();
     }
 }

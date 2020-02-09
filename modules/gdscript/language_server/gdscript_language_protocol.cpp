@@ -197,7 +197,7 @@ void GDScriptLanguageProtocol::notify_client(se_string_view p_method, const Vari
     }
 
     Ref<WebSocketPeer> *peer = clients.getptr(p_client);
-    ERR_FAIL_COND(peer == nullptr)
+    ERR_FAIL_COND(peer == nullptr);
 
     Dictionary message = make_notification(p_method, p_params);
     String msg = JSON::print(message);

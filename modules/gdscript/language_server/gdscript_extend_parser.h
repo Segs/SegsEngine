@@ -32,7 +32,7 @@
 
 #include "../gdscript_parser.h"
 #include "core/math/vector2.h"
-#include "core/variant.h"
+
 #include "lsp.hpp"
 
 #ifndef LINE_NUMBER_TO_INDEX
@@ -55,8 +55,8 @@ class ExtendGDScriptParser : public GDScriptParser {
     PODVector<String> lines;
 
     lsp::DocumentSymbol class_symbol;
-    Vector<lsp::Diagnostic> diagnostics;
-    List<lsp::DocumentLink> document_links;
+    PODVector<lsp::Diagnostic> diagnostics;
+    PODVector<lsp::DocumentLink> document_links;
     ClassMembers members;
     DefHashMap<String, ClassMembers> inner_classes;
 
@@ -80,7 +80,7 @@ public:
     const String &get_path() const { return path; }
     const PODVector<String> &get_lines() const { return lines; }
     const lsp::DocumentSymbol &get_symbols() const { return class_symbol; }
-    const Vector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
+    const PODVector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
     const ClassMembers &get_members() const { return members; }
     const DefHashMap<String, ClassMembers> &get_inner_classes() const { return inner_classes; }
 
@@ -93,7 +93,7 @@ public:
 
     const lsp::DocumentSymbol *get_symbol_defined_at_line(int p_line) const;
     const lsp::DocumentSymbol *get_member_symbol(se_string_view p_name, se_string_view p_subclass = {}) const;
-    const List<lsp::DocumentLink> &get_document_links() const;
+    const PODVector<lsp::DocumentLink> &get_document_links() const;
 
     const Array &get_member_completions();
     Dictionary generate_api() const;

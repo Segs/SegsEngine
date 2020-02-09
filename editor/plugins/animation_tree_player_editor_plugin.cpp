@@ -1155,7 +1155,7 @@ Size2 AnimationTreePlayerEditor::get_minimum_size() const {
 
 void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<String> &paths) {
 
-    ERR_FAIL_COND(!anim_tree->node_exists(p_node))
+    ERR_FAIL_COND(!anim_tree->node_exists(p_node));
 
     for (int i = 0; i < anim_tree->node_get_input_count(p_node); i++) {
 

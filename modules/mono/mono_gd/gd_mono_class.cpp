@@ -85,12 +85,12 @@ GDMonoClass *GDMonoClass::get_nesting_class() {
 }
 
 #ifdef TOOLS_ENABLED
-Vector<MonoClassField *> GDMonoClass::get_enum_fields() {
+PODVector<MonoClassField *> GDMonoClass::get_enum_fields() {
 
     bool class_is_enum = mono_class_is_enum(mono_class);
-    ERR_FAIL_COND_V(!class_is_enum, Vector<MonoClassField *>());
+    ERR_FAIL_COND_V(!class_is_enum, PODVector<MonoClassField *>());
 
-    Vector<MonoClassField *> enum_fields;
+    PODVector<MonoClassField *> enum_fields;
 
     void *iter = nullptr;
     MonoClassField *raw_field = nullptr;
@@ -510,7 +510,7 @@ GDMonoClass::~GDMonoClass() {
         // Therefore, we must avoid deleting the same pointer twice.
 
         int offset = 0;
-        Vector<GDMonoMethod *> deleted_methods;
+        PODVector<GDMonoMethod *> deleted_methods;
         deleted_methods.resize(methods.size());
 
         for( auto & k : methods) {
@@ -524,7 +524,7 @@ GDMonoClass::~GDMonoClass() {
                     }
                 }
 
-                deleted_methods.write[offset] = method;
+                deleted_methods[offset] = method;
                 ++offset;
 
                 memdelete(method);

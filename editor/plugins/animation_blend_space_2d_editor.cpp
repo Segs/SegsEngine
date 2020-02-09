@@ -102,7 +102,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
-        ERR_FAIL_COND(!gp)
+        ERR_FAIL_COND(!gp);
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
@@ -170,7 +170,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         //then try to see if a triangle can be selected
         if (!blend_space->get_auto_triangles()) { //if autotriangles use, disable this
             for (int i = 0; i < blend_space->get_triangle_count(); i++) {
-                Vector<Vector2> triangle;
+                PODVector<Vector2> triangle;
 
                 for (int j = 0; j < 3; j++) {
                     int idx = blend_space->get_triangle_point(i, j);
@@ -195,31 +195,32 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
         for (int i = 0; i < points.size(); i++) {
 
-            if (making_triangle.find(i) != -1)
+            if (making_triangle.contains(i))
                 continue;
 
-            if (points[i].distance_to(mb->get_position()) < 10 * EDSCALE) {
-                making_triangle.push_back(i);
-                if (making_triangle.size() == 3) {
-                    //add triangle!
-                    if (blend_space->has_triangle(making_triangle[0], making_triangle[1], making_triangle[2])) {
-                        making_triangle.clear();
-                        EditorNode::get_singleton()->show_warning(TTR("Triangle already exists."));
-                        return;
-                    }
+            if (points[i].distance_to(mb->get_position()) >= 10 * EDSCALE)
+                continue;
 
-                    updating = true;
-                    undo_redo->create_action_ui(TTR("Add Triangle"));
-                    undo_redo->add_do_method(blend_space.get(), "add_triangle", making_triangle[0], making_triangle[1], making_triangle[2]);
-                    undo_redo->add_undo_method(blend_space.get(), "remove_triangle", blend_space->get_triangle_count());
-                    undo_redo->add_do_method(this, "_update_space");
-                    undo_redo->add_undo_method(this, "_update_space");
-                    undo_redo->commit_action();
-                    updating = false;
+            making_triangle.push_back(i);
+            if (making_triangle.size() == 3) {
+                //add triangle!
+                if (blend_space->has_triangle(making_triangle[0], making_triangle[1], making_triangle[2])) {
                     making_triangle.clear();
+                    EditorNode::get_singleton()->show_warning(TTR("Triangle already exists."));
+                    return;
                 }
-                return;
+
+                updating = true;
+                undo_redo->create_action_ui(TTR("Add Triangle"));
+                undo_redo->add_do_method(blend_space.get(), "add_triangle", making_triangle[0], making_triangle[1], making_triangle[2]);
+                undo_redo->add_undo_method(blend_space.get(), "remove_triangle", blend_space->get_triangle_count());
+                undo_redo->add_do_method(this, "_update_space");
+                undo_redo->add_undo_method(this, "_update_space");
+                undo_redo->commit_action();
+                updating = false;
+                making_triangle.clear();
             }
+            return;
         }
     }
 
@@ -329,9 +330,9 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
         String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
-        ERR_FAIL_COND(!obj)
+        ERR_FAIL_COND(!obj);
         AnimationNode *an = object_cast<AnimationNode>(obj);
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
     }
@@ -551,7 +552,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
     }
 
     if (!making_triangle.empty()) {
-        Vector<Vector2> points;
+        PODVector<Vector2> points;
         for (int i = 0; i < making_triangle.size(); i++) {
             Vector2 point = blend_space->get_blend_point_position(making_triangle[i]);
             point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
@@ -812,7 +813,7 @@ void AnimationNodeBlendSpace2DEditor::_open_editor() {
 
     if (selected_point >= 0 && selected_point < blend_space->get_blend_point_count()) {
         Ref<AnimationNode> an = blend_space->get_blend_point_node(selected_point);
-        ERR_FAIL_COND(not an)
+        ERR_FAIL_COND(not an);
         AnimationTreeEditor::get_singleton()->enter_editor(itos(selected_point));
     }
 }

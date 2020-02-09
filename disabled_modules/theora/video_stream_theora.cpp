@@ -169,7 +169,7 @@ void VideoStreamPlaybackTheora::clear() {
 
 void VideoStreamPlaybackTheora::set_file(const String &p_file) {
 
-    ERR_FAIL_COND(playing)
+    ERR_FAIL_COND(playing);
     ogg_packet op;
     th_setup_info *ts = NULL;
 
@@ -178,7 +178,7 @@ void VideoStreamPlaybackTheora::set_file(const String &p_file) {
         memdelete(file);
     }
     file = FileAccess::open(p_file, FileAccess::READ);
-    ERR_FAIL_COND(!file)
+    ERR_FAIL_COND(!file);
 
 #ifdef THEORA_USE_THREAD_STREAMING
     thread_exit = false;
@@ -367,8 +367,10 @@ void VideoStreamPlaybackTheora::set_file(const String &p_file) {
 };
 
 float VideoStreamPlaybackTheora::get_time() const {
-
-    return time - AudioServer::get_singleton()->get_output_latency() - delay_compensation; //-((get_total())/(float)vi.rate);
+    // FIXME: AudioServer output latency was fixed in af9bb0e, previously it used to
+    // systematically return 0. Now that it gives a proper latency, it broke this
+    // code where the delay compensation likely never really worked.
+    return time - /* AudioServer::get_singleton()->get_output_latency() - */ delay_compensation;
 };
 
 Ref<Texture> VideoStreamPlaybackTheora::get_texture() {

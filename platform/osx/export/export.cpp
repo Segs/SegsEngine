@@ -155,7 +155,7 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
 
     int src_len = p_size * p_size;
 
-    Vector<uint8_t> result;
+    PODVector<uint8_t> result;
     result.resize(src_len * 1.25f); //temp vector for rle encoded data, make it 25% larger for worst case scenario
     int res_size = 0;
 
@@ -170,8 +170,8 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
 
             if (p_source.read()[(i + 1) * 4 + p_ch] == cur && p_source.read()[(i + 2) * 4 + p_ch] == cur) {
                 if (buf_size > 0) {
-                    result.write[res_size++] = (uint8_t)(buf_size - 1);
-                    memcpy(&result.write[res_size], &buf, buf_size);
+                    result[res_size++] = (uint8_t)(buf_size - 1);
+                    memcpy(&result[res_size], &buf, buf_size);
                     res_size += buf_size;
                     buf_size = 0;
                 }
@@ -183,29 +183,29 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
                     if (p_source.read()[(i + j) * 4 + p_ch] != cur) {
                         hit_lim = false;
                         i = i + j - 1;
-                        result.write[res_size++] = (uint8_t)(j - 3 + 0x80);
-                        result.write[res_size++] = cur;
+                        result[res_size++] = (uint8_t)(j - 3 + 0x80);
+                        result[res_size++] = cur;
                         break;
                     }
                 }
                 if (hit_lim) {
-                    result.write[res_size++] = (uint8_t)(lim - 3 + 0x80);
-                    result.write[res_size++] = cur;
+                    result[res_size++] = (uint8_t)(lim - 3 + 0x80);
+                    result[res_size++] = cur;
                     i = i + lim;
                 }
             } else {
                 buf[buf_size++] = cur;
                 if (buf_size == 128) {
-                    result.write[res_size++] = (uint8_t)(buf_size - 1);
-                    memcpy(&result.write[res_size], &buf, buf_size);
+                    result[res_size++] = (uint8_t)(buf_size - 1);
+                    memcpy(&result[res_size], &buf, buf_size);
                     res_size += buf_size;
                     buf_size = 0;
                 }
             }
         } else {
             buf[buf_size++] = cur;
-            result.write[res_size++] = (uint8_t)(buf_size - 1);
-            memcpy(&result.write[res_size], &buf, buf_size);
+            result[res_size++] = (uint8_t)(buf_size - 1);
+            memcpy(&result[res_size], &buf, buf_size);
             res_size += buf_size;
             buf_size = 0;
         }
@@ -215,7 +215,7 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
 
     int ofs = p_dest.size();
     p_dest.resize(p_dest.size() + res_size);
-    memcpy(&p_dest[ofs], result.ptr(), res_size);
+    memcpy(&p_dest[ofs], result.data(), res_size);
 }
 
 void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, PODVector<uint8_t> &p_data) {

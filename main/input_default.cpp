@@ -654,7 +654,7 @@ void InputDefault::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_sh
 }
 
 void InputDefault::accumulate_input_event(const Ref<InputEvent> &p_event) {
-    ERR_FAIL_COND(not p_event)
+    ERR_FAIL_COND(not p_event);
 
     if (!use_accumulated_input) {
         parse_input_event(p_event);

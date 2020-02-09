@@ -541,7 +541,7 @@ void VehicleBody::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vec
         PhysicsBody *body2, const Vector3 &pos2, const Vector3 &normal, real_t &impulse, const real_t p_rollInfluence) {
 
     real_t normalLenSqr = normal.length_squared();
-    //ERR_FAIL_COND( normalLenSqr < real_t(1.1))
+    //ERR_FAIL_COND();
 
     if (normalLenSqr > real_t(1.1)) {
         impulse = real_t(0.);

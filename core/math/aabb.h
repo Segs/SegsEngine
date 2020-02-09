@@ -104,8 +104,9 @@ public:
 
     operator String() const;
 
-    constexpr AABB() = default;
-    constexpr inline AABB(Vector3 p_pos, Vector3 p_size) :
+    constexpr AABB() noexcept = default;
+    constexpr AABB(const AABB &) noexcept = default;
+    constexpr inline AABB(Vector3 p_pos, Vector3 p_size) noexcept :
             position(p_pos),
             size(p_size) {
     }

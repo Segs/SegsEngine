@@ -31,6 +31,7 @@
 #include "visual_shader_nodes.h"
 
 #include "core/method_bind.h"
+#include "core/method_bind_interface.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 
@@ -108,7 +109,7 @@ VARIANT_ENUM_CAST(VisualShaderNodeIs::Function)
 VARIANT_ENUM_CAST(VisualShaderNodeCompare::ComparisonType)
 VARIANT_ENUM_CAST(VisualShaderNodeCompare::Function)
 VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition)
-
+VARIANT_ENUM_CAST(VisualShaderNodeScalarUniform::Hint)
 ////////////// Scalar
 
 se_string_view VisualShaderNodeScalarConstant::get_caption() const {
@@ -483,11 +484,12 @@ static String make_unique_id(VisualShader::Type p_type, int p_id, const String &
     return p_name + "_" + (typepf[p_type]) + "_" + itos(p_id);
 }
 
-Vector<VisualShader::DefaultTextureParam> VisualShaderNodeTexture::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
+PODVector<VisualShader::DefaultTextureParam> VisualShaderNodeTexture::get_default_texture_parameters(
+        VisualShader::Type p_type, int p_id) const {
     VisualShader::DefaultTextureParam dtp;
     dtp.name = StringName(make_unique_id(p_type, p_id, "tex"));
     dtp.param = texture;
-    Vector<VisualShader::DefaultTextureParam> ret;
+    PODVector<VisualShader::DefaultTextureParam> ret;
     ret.push_back(dtp);
     return ret;
 }
@@ -843,27 +845,28 @@ StringName VisualShaderNodeCubeMap::get_output_port_name(int p_port) const {
     return StringName(p_port == 0 ? "rgb" : "alpha");
 }
 
-Vector<VisualShader::DefaultTextureParam> VisualShaderNodeCubeMap::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
+PODVector<VisualShader::DefaultTextureParam> VisualShaderNodeCubeMap::get_default_texture_parameters(
+        VisualShader::Type p_type, int p_id) const {
     VisualShader::DefaultTextureParam dtp;
     dtp.name = StringName(make_unique_id(p_type, p_id, ("cube")));
     dtp.param = cube_map;
-    Vector<VisualShader::DefaultTextureParam> ret;
-    ret.push_back(dtp);
+    PODVector<VisualShader::DefaultTextureParam> ret;
+    ret.emplace_back(eastl::move(dtp));
     return ret;
 }
 
 String VisualShaderNodeCubeMap::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
 
-    if (source == SOURCE_TEXTURE) {
-        String u = "uniform samplerCube " + make_unique_id(p_type, p_id, ("cube"));
-        switch (texture_type) {
-            case TYPE_DATA: break;
-            case TYPE_COLOR: u += (" : hint_albedo"); break;
-            case TYPE_NORMALMAP: u += (" : hint_normal"); break;
-        }
-        return u + ";\n";
+    if (source != SOURCE_TEXTURE)
+        return String();
+
+    String u = "uniform samplerCube " + make_unique_id(p_type, p_id, ("cube"));
+    switch (texture_type) {
+        case TYPE_DATA: break;
+        case TYPE_COLOR: u += (" : hint_albedo"); break;
+        case TYPE_NORMALMAP: u += (" : hint_normal"); break;
     }
-    return String();
+    return u + ";\n";
 }
 
 String VisualShaderNodeCubeMap::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
@@ -3037,10 +3040,88 @@ StringName VisualShaderNodeScalarUniform::get_output_port_name(int p_port) const
 }
 
 String VisualShaderNodeScalarUniform::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+    if (hint == HINT_RANGE) {
+        return String("uniform float ") + get_uniform_name() + " : hint_range(" + StringUtils::num(hint_range_min) + ", " + StringUtils::num(hint_range_max) + ");\n";
+    } else if (hint == HINT_RANGE_STEP) {
+        return String("uniform float ") + get_uniform_name() + " : hint_range(" + StringUtils::num(hint_range_min) + ", " + StringUtils::num(hint_range_max) + ", " + StringUtils::num(hint_range_step) + ");\n";
+    }
     return String("uniform float ") + get_uniform_name() + ";\n";
 }
+
 String VisualShaderNodeScalarUniform::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
     return "\t" + p_output_vars[0] + " = " + get_uniform_name() + ";\n";
+}
+
+void VisualShaderNodeScalarUniform::set_hint(Hint p_hint) {
+    hint = p_hint;
+    emit_changed();
+}
+
+VisualShaderNodeScalarUniform::Hint VisualShaderNodeScalarUniform::get_hint() const {
+    return hint;
+}
+
+void VisualShaderNodeScalarUniform::set_min(float p_value) {
+    hint_range_min = p_value;
+    emit_changed();
+}
+
+float VisualShaderNodeScalarUniform::get_min() const {
+    return hint_range_min;
+}
+
+void VisualShaderNodeScalarUniform::set_max(float p_value) {
+    hint_range_max = p_value;
+    emit_changed();
+}
+
+float VisualShaderNodeScalarUniform::get_max() const {
+    return hint_range_max;
+}
+
+void VisualShaderNodeScalarUniform::set_step(float p_value) {
+    hint_range_step = p_value;
+    emit_changed();
+}
+
+float VisualShaderNodeScalarUniform::get_step() const {
+    return hint_range_step;
+}
+
+void VisualShaderNodeScalarUniform::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("set_hint", {"hint"}), &VisualShaderNodeScalarUniform::set_hint);
+    MethodBinder::bind_method(D_METHOD("get_hint"), &VisualShaderNodeScalarUniform::get_hint);
+
+    MethodBinder::bind_method(D_METHOD("set_min", {"value"}), &VisualShaderNodeScalarUniform::set_min);
+    MethodBinder::bind_method(D_METHOD("get_min"), &VisualShaderNodeScalarUniform::get_min);
+
+    MethodBinder::bind_method(D_METHOD("set_max", {"value"}), &VisualShaderNodeScalarUniform::set_max);
+    MethodBinder::bind_method(D_METHOD("get_max"), &VisualShaderNodeScalarUniform::get_max);
+
+    MethodBinder::bind_method(D_METHOD("set_step", {"value"}), &VisualShaderNodeScalarUniform::set_step);
+    MethodBinder::bind_method(D_METHOD("get_step"), &VisualShaderNodeScalarUniform::get_step);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "hint", PropertyHint::Enum, "None,Range,Range+Step"), "set_hint", "get_hint");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min"), "set_min", "get_min");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max"), "set_max", "get_max");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step"), "set_step", "get_step");
+
+    BIND_ENUM_CONSTANT(HINT_NONE);
+    BIND_ENUM_CONSTANT(HINT_RANGE);
+    BIND_ENUM_CONSTANT(HINT_RANGE_STEP);
+}
+
+PODVector<StringName> VisualShaderNodeScalarUniform::get_editable_properties() const {
+    PODVector<StringName> props;
+    props.emplace_back("hint");
+    if (hint == HINT_RANGE || hint == HINT_RANGE_STEP) {
+        props.emplace_back("min");
+        props.emplace_back("max");
+    }
+    if (hint == HINT_RANGE_STEP) {
+        props.emplace_back("step");
+    }
+    return props;
 }
 
 VisualShaderNodeScalarUniform::VisualShaderNodeScalarUniform() {

@@ -189,7 +189,7 @@ uint32_t CollisionObject::create_shape_owner(Object *p_owner) {
 
 void CollisionObject::remove_shape_owner(uint32_t owner) {
 
-    ERR_FAIL_COND(!shapes.contains(owner))
+    ERR_FAIL_COND(!shapes.contains(owner));
 
     shape_owner_clear_shapes(owner);
 
@@ -197,7 +197,7 @@ void CollisionObject::remove_shape_owner(uint32_t owner) {
 }
 
 void CollisionObject::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled) {
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.disabled = p_disabled;
@@ -236,7 +236,7 @@ Array CollisionObject::_get_shape_owners() {
 
 void CollisionObject::shape_owner_set_transform(uint32_t p_owner, const Transform &p_transform) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.xform = p_transform;
@@ -264,8 +264,8 @@ Object *CollisionObject::shape_owner_get_owner(uint32_t p_owner) const {
 
 void CollisionObject::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape> &p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
-    ERR_FAIL_COND(not p_shape)
+    ERR_FAIL_COND(!shapes.contains(p_owner));
+    ERR_FAIL_COND(not p_shape);
 
     ShapeData &sd = shapes[p_owner];
     ShapeData::ShapeBase s;
@@ -303,7 +303,7 @@ int CollisionObject::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) 
 
 void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
     ERR_FAIL_INDEX(p_shape, shapes[p_owner].shapes.size());
 
     int index_to_remove = shapes[p_owner].shapes[p_shape].index;
@@ -328,7 +328,7 @@ void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
 void CollisionObject::shape_owner_clear_shapes(uint32_t p_owner) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     while (shape_owner_get_shape_count(p_owner) > 0) {
         shape_owner_remove_shape(p_owner, 0);

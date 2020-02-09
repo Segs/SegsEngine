@@ -128,7 +128,7 @@ void ScriptDebuggerRemote::_put_variable(se_string_view p_name, const Variant &p
 void ScriptDebuggerRemote::_save_node(ObjectID id, se_string_view p_path) {
 
     Node *node = object_cast<Node>(ObjectDB::get_instance(id));
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     Ref<PackedScene> ps(make_ref_counted<PackedScene>());
     ps->pack(node);
@@ -972,7 +972,7 @@ void ScriptDebuggerRemote::idle_poll() {
 }
 
 void ScriptDebuggerRemote::_send_network_profiling_data() {
-    ERR_FAIL_COND(not multiplayer)
+    ERR_FAIL_COND(not multiplayer);
 
     int n_nodes = multiplayer->get_profiling_frame(&network_profile_info[0]);
 
@@ -989,7 +989,7 @@ void ScriptDebuggerRemote::_send_network_profiling_data() {
 }
 
 void ScriptDebuggerRemote::_send_network_bandwidth_usage() {
-    ERR_FAIL_COND(not multiplayer)
+    ERR_FAIL_COND(not multiplayer);
 
     int incoming_bandwidth = multiplayer->get_incoming_bandwidth_usage();
     int outgoing_bandwidth = multiplayer->get_outgoing_bandwidth_usage();

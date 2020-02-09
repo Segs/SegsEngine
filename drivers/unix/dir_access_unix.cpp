@@ -421,7 +421,8 @@ DirAccessUnix::DirAccessUnix() {
 
     // set current directory to an absolute path of the current directory
     char real_current_dir_name[2048];
-    ERR_FAIL_COND(getcwd(real_current_dir_name, 2048) == nullptr)
+    auto res=getcwd(real_current_dir_name, 2048);
+    ERR_FAIL_COND(res == nullptr);
     current_dir = real_current_dir_name;
 
     change_dir(current_dir);

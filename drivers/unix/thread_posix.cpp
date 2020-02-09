@@ -109,8 +109,8 @@ Thread::ID ThreadPosix::get_thread_id_func_posix() {
 void ThreadPosix::wait_to_finish_func_posix(Thread *p_thread) {
 
     ThreadPosix *tp = static_cast<ThreadPosix *>(p_thread);
-    ERR_FAIL_COND(!tp)
-    ERR_FAIL_COND(tp->pthread == 0)
+    ERR_FAIL_COND(!tp);
+    ERR_FAIL_COND(tp->pthread == 0);
 
     pthread_join(tp->pthread, nullptr);
     tp->pthread = 0;

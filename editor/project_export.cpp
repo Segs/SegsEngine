@@ -102,7 +102,7 @@ void ProjectExportDialog::popup_export() {
 void ProjectExportDialog::_add_preset(int p_platform) {
 
     Ref<EditorExportPreset> preset = EditorExport::get_singleton()->get_export_platform(p_platform)->create_preset();
-    ERR_FAIL_COND(not preset)
+    ERR_FAIL_COND(not preset);
 
     String name(EditorExport::get_singleton()->get_export_platform(p_platform)->get_name());
     bool make_runnable = true;
@@ -211,7 +211,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     }
 
     Ref<EditorExportPreset> current = EditorExport::get_singleton()->get_export_preset(p_index);
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     updating = true;
 
@@ -335,7 +335,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 void ProjectExportDialog::_update_feature_list() {
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     Set<String> fset;
     PODVector<String> features;
@@ -369,7 +369,7 @@ void ProjectExportDialog::_custom_features_changed(se_string_view p_text) {
         return;
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     current->set_custom_features(p_text);
     _update_feature_list();
@@ -386,7 +386,7 @@ void ProjectExportDialog::_patch_button_pressed(Object *p_item, int p_column, in
     patch_index = ti->get_metadata(0);
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     if (p_id == 0) {
         const PODVector<String> &patches = current->get_patches();
@@ -407,7 +407,7 @@ void ProjectExportDialog::_patch_edited() {
     int index = item->get_metadata(0);
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     const PODVector<String> &patches = current->get_patches();
 
@@ -426,7 +426,7 @@ void ProjectExportDialog::_patch_edited() {
 void ProjectExportDialog::_patch_selected(se_string_view p_path) {
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     const PODVector<String> &patches = current->get_patches();
 
@@ -444,7 +444,7 @@ void ProjectExportDialog::_patch_selected(se_string_view p_path) {
 void ProjectExportDialog::_patch_deleted() {
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     const PODVector<String> &patches = current->get_patches();
     if (patch_index < patches.size()) {
@@ -465,7 +465,7 @@ void ProjectExportDialog::_runnable_pressed() {
         return;
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     if (runnable->is_pressed()) {
 
@@ -489,7 +489,7 @@ void ProjectExportDialog::_name_changed(se_string_view p_string) {
         return;
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     current->set_name(p_string);
     _update_presets();
@@ -497,7 +497,7 @@ void ProjectExportDialog::_name_changed(se_string_view p_string) {
 
 void ProjectExportDialog::set_export_path(se_string_view p_value) {
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     current->set_export_path(p_value);
 }
@@ -520,7 +520,7 @@ void ProjectExportDialog::_export_path_changed(const StringName &p_property, con
         return;
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     current->set_export_path(p_value.as<String>());
     _update_presets();
@@ -532,7 +532,7 @@ void ProjectExportDialog::_script_export_mode_changed(int p_mode) {
         return;
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     current->set_script_export_mode(p_mode);
 
@@ -545,7 +545,7 @@ void ProjectExportDialog::_script_encryption_key_changed(const String &p_key) {
         return;
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
 
     current->set_script_encryption_key(p_key);
 
@@ -571,7 +571,7 @@ void ProjectExportDialog::_duplicate_preset() {
         return;
 
     Ref<EditorExportPreset> preset = current->get_platform()->create_preset();
-    ERR_FAIL_COND(not preset)
+    ERR_FAIL_COND(not preset);
 
     String name = current->get_name() + " (copy)";
     bool make_runnable = true;
@@ -890,9 +890,9 @@ void ProjectExportDialog::_export_pck_zip() {
 void ProjectExportDialog::_export_pck_zip_selected(se_string_view p_path) {
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
     Ref<EditorExportPlatform> platform = current->get_platform();
-    ERR_FAIL_COND(not platform)
+    ERR_FAIL_COND(not platform);
 
     if (StringUtils::ends_with(p_path,".zip")) {
         platform->export_zip(current, export_pck_zip_debug->is_pressed(), p_path);
@@ -929,9 +929,9 @@ void ProjectExportDialog::_validate_export_path(se_string_view p_path) {
 void ProjectExportDialog::_export_project() {
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
     Ref<EditorExportPlatform> platform = current->get_platform();
-    ERR_FAIL_COND(not platform)
+    ERR_FAIL_COND(not platform);
 
     export_project->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
     export_project->clear_filters();
@@ -967,9 +967,9 @@ void ProjectExportDialog::_export_project_to_path(se_string_view p_path) {
     EditorSettings::get_singleton()->set_project_metadata("export_options", "default_filename", default_filename);
 
     Ref<EditorExportPreset> current = get_current_preset();
-    ERR_FAIL_COND(not current)
+    ERR_FAIL_COND(not current);
     Ref<EditorExportPlatform> platform = current->get_platform();
-    ERR_FAIL_COND(not platform)
+    ERR_FAIL_COND(not platform);
     current->set_export_path(p_path);
 
     Error err = platform->export_project(current, export_debug->is_pressed(), p_path, 0);
@@ -1011,9 +1011,9 @@ void ProjectExportDialog::_export_all(bool p_debug) {
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_preset_count(); i++) {
         Ref<EditorExportPreset> preset = EditorExport::get_singleton()->get_export_preset(i);
-        ERR_FAIL_COND(not preset)
+        ERR_FAIL_COND(not preset);
         Ref<EditorExportPlatform> platform = preset->get_platform();
-        ERR_FAIL_COND(not platform)
+        ERR_FAIL_COND(not platform);
 
         ep.step(StringName(preset->get_name()), i);
 

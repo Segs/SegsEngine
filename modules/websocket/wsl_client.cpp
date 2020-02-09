@@ -259,7 +259,7 @@ void WSLClient::poll() {
                     _connection = ssl;
                 } else {
                     ssl = dynamic_ref_cast<StreamPeerSSL>(_connection);
-                    ERR_FAIL_COND(not ssl) // Bug?
+                    ERR_FAIL_COND(not ssl); // Bug?
                     ssl->poll();
                 }
                 if (ssl->get_status() == StreamPeerSSL::STATUS_HANDSHAKING)

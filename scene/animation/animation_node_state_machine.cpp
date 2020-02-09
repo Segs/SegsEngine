@@ -59,7 +59,7 @@ bool AnimationNodeStateMachineTransition::has_auto_advance() const {
 
 void AnimationNodeStateMachineTransition::set_advance_condition(const StringName &p_condition) {
 
-    ERR_FAIL_COND(StringUtils::contains(p_condition,"/") || StringUtils::contains(p_condition,":"))
+    ERR_FAIL_COND(StringUtils::contains(p_condition,"/") || StringUtils::contains(p_condition,":"));
     advance_condition = p_condition;
     if (not p_condition.empty()) {
         advance_condition_name = StringName(String("conditions/") + p_condition);
@@ -79,7 +79,7 @@ StringName AnimationNodeStateMachineTransition::get_advance_condition_name() con
 
 void AnimationNodeStateMachineTransition::set_xfade_time(float p_xfade) {
 
-    ERR_FAIL_COND(p_xfade < 0)
+    ERR_FAIL_COND(p_xfade < 0);
     xfade = p_xfade;
     emit_changed();
 }
@@ -555,9 +555,9 @@ Variant AnimationNodeStateMachine::get_parameter_default_value(const StringName 
 
 void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position) {
 
-    ERR_FAIL_COND(states.contains(p_name))
-    ERR_FAIL_COND(not p_node)
-    ERR_FAIL_COND(StringUtils::contains(p_name,'/'))
+    ERR_FAIL_COND(states.contains(p_name));
+    ERR_FAIL_COND(not p_node);
+    ERR_FAIL_COND(StringUtils::contains(p_name,'/'));
 
     State state;
     state.node = dynamic_ref_cast<AnimationRootNode>(p_node);
@@ -610,12 +610,12 @@ bool AnimationNodeStateMachine::has_node(const StringName &p_name) const {
 }
 void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
 
-    ERR_FAIL_COND(!states.contains(p_name))
+    ERR_FAIL_COND(!states.contains(p_name));
 
     {
         Ref<AnimationNode> node = states[p_name].node;
 
-        ERR_FAIL_COND(not node)
+        ERR_FAIL_COND(not node);
 
         node->disconnect("tree_changed", this, "_tree_changed");
     }
@@ -649,8 +649,8 @@ void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
 
 void AnimationNodeStateMachine::rename_node(const StringName &p_name, const StringName &p_new_name) {
 
-    ERR_FAIL_COND(!states.contains(p_name))
-    ERR_FAIL_COND(states.contains(p_new_name))
+    ERR_FAIL_COND(!states.contains(p_name));
+    ERR_FAIL_COND(states.contains(p_new_name));
 
     states[p_new_name] = states[p_name];
     states.erase(p_name);
@@ -711,13 +711,13 @@ int AnimationNodeStateMachine::find_transition(const StringName &p_from, const S
 
 void AnimationNodeStateMachine::add_transition(const StringName &p_from, const StringName &p_to, const Ref<AnimationNodeStateMachineTransition> &p_transition) {
 
-    ERR_FAIL_COND(p_from == p_to)
-    ERR_FAIL_COND(!states.contains(p_from))
-    ERR_FAIL_COND(!states.contains(p_to))
-    ERR_FAIL_COND(not p_transition)
+    ERR_FAIL_COND(p_from == p_to);
+    ERR_FAIL_COND(!states.contains(p_from));
+    ERR_FAIL_COND(!states.contains(p_to));
+    ERR_FAIL_COND(not p_transition);
 
     for (int i = 0; i < transitions.size(); i++) {
-        ERR_FAIL_COND(transitions[i].from == p_from && transitions[i].to == p_to)
+        ERR_FAIL_COND(transitions[i].from == p_from && transitions[i].to == p_to);
     }
 
     Transition tr;
@@ -776,7 +776,7 @@ void AnimationNodeStateMachine::remove_transition_by_index(int p_transition) {
 
 void AnimationNodeStateMachine::set_start_node(const StringName &p_node) {
 
-    ERR_FAIL_COND(p_node != StringName() && !states.contains(p_node))
+    ERR_FAIL_COND(p_node != StringName() && !states.contains(p_node));
     start_node = p_node;
 }
 
@@ -787,7 +787,7 @@ StringName AnimationNodeStateMachine::get_start_node() const {
 
 void AnimationNodeStateMachine::set_end_node(const StringName &p_node) {
 
-    ERR_FAIL_COND(p_node != StringName() && !states.contains(p_node))
+    ERR_FAIL_COND(p_node != StringName() && !states.contains(p_node));
     end_node = p_node;
 }
 
@@ -932,7 +932,7 @@ void AnimationNodeStateMachine::_get_property_list(PODVector<PropertyInfo> *p_li
 }
 
 void AnimationNodeStateMachine::set_node_position(const StringName &p_name, const Vector2 &p_position) {
-    ERR_FAIL_COND(!states.contains(p_name))
+    ERR_FAIL_COND(!states.contains(p_name));
     states[p_name].position = p_position;
 }
 

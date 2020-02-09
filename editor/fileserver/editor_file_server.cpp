@@ -68,7 +68,7 @@ void EditorFileServer::_subthread_start(void *s) {
     Error err = cd->connection->get_data(buf4, 4);
     if (err != OK) {
         _close_client(cd);
-        ERR_FAIL_COND(err != OK)
+        ERR_FAIL_COND(err != OK);
     }
 
     int passlen = decode_uint32(buf4);
@@ -76,7 +76,7 @@ void EditorFileServer::_subthread_start(void *s) {
     if (passlen > 512) {
 
         _close_client(cd);
-        ERR_FAIL_COND(passlen > 512)
+        ERR_FAIL_COND(passlen > 512);
     } else if (passlen > 0) {
 
         PODVector<char> passutf8;
@@ -84,7 +84,7 @@ void EditorFileServer::_subthread_start(void *s) {
         err = cd->connection->get_data((uint8_t *)passutf8.data(), passlen);
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK)
+            ERR_FAIL_COND(err != OK);
         }
         passutf8[passlen] = 0;
         String s2(passutf8.data());
@@ -118,7 +118,7 @@ void EditorFileServer::_subthread_start(void *s) {
 
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK)
+            ERR_FAIL_COND(err != OK);
         }
         int id = decode_uint32(buf4);
 
@@ -126,7 +126,7 @@ void EditorFileServer::_subthread_start(void *s) {
         err = cd->connection->get_data(buf4, 4);
         if (err != OK) {
             _close_client(cd);
-            ERR_FAIL_COND(err != OK)
+            ERR_FAIL_COND(err != OK);
         }
         int cmd = decode_uint32(buf4);
 
@@ -140,7 +140,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data(buf4, 4);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK)
+                    ERR_FAIL_COND(err != OK);
                 }
 
                 int namelen = decode_uint32(buf4);
@@ -149,7 +149,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data((uint8_t *)fileutf8.data(), namelen);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK)
+                    ERR_FAIL_COND(err != OK);
                 }
                 fileutf8[namelen] = 0;
                 String s2(fileutf8.data());
@@ -167,7 +167,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 if (!StringUtils::begins_with(s2,"res://")) {
 
                     _close_client(cd);
-                    ERR_FAIL_COND(!StringUtils::begins_with(s2,"res://"))
+                    ERR_FAIL_COND(!StringUtils::begins_with(s2,"res://"));
                 }
                 ERR_CONTINUE(cd->files.contains(id));
 
@@ -226,7 +226,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data(buf4, 8);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK)
+                    ERR_FAIL_COND(err != OK);
                 }
 
                 ERR_CONTINUE(!cd->files.contains(id));
@@ -236,7 +236,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 err = cd->connection->get_data(buf4, 4);
                 if (err != OK) {
                     _close_client(cd);
-                    ERR_FAIL_COND(err != OK)
+                    ERR_FAIL_COND(err != OK);
                 }
 
                 int blocklen = decode_uint32(buf4);

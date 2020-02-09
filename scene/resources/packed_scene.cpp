@@ -1111,13 +1111,13 @@ bool SceneState::is_connection(int p_node, const StringName &p_signal, int p_to_
 
 void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
-    ERR_FAIL_COND(!p_dictionary.has("names"))
-    ERR_FAIL_COND(!p_dictionary.has("variants"))
-    ERR_FAIL_COND(!p_dictionary.has("node_count"))
-    ERR_FAIL_COND(!p_dictionary.has("nodes"))
-    ERR_FAIL_COND(!p_dictionary.has("conn_count"))
-    ERR_FAIL_COND(!p_dictionary.has("conns"))
-    //ERR_FAIL_COND( !p_dictionary.has("path"))
+    ERR_FAIL_COND(!p_dictionary.has("names"));
+    ERR_FAIL_COND(!p_dictionary.has("variants"));
+    ERR_FAIL_COND(!p_dictionary.has("node_count"));
+    ERR_FAIL_COND(!p_dictionary.has("nodes"));
+    ERR_FAIL_COND(!p_dictionary.has("conn_count"));
+    ERR_FAIL_COND(!p_dictionary.has("conns"));
+    //ERR_FAIL_COND();
 
     int version = 1;
     if (p_dictionary.has("version"))
@@ -1127,11 +1127,11 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
 
     const int node_count = p_dictionary["node_count"];
     const PoolVector<int> snodes = p_dictionary["nodes"];
-    ERR_FAIL_COND(snodes.size() < node_count)
+    ERR_FAIL_COND(snodes.size() < node_count);
 
     const int conn_count = p_dictionary["conn_count"];
     const PoolVector<int> sconns = p_dictionary["conns"];
-    ERR_FAIL_COND(sconns.size() < conn_count)
+    ERR_FAIL_COND(sconns.size() < conn_count);
 
     PoolVector<String> snames = p_dictionary["names"].as<PoolVector<String>>();
     if (snames.size()) {

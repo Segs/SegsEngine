@@ -263,18 +263,17 @@ void EditorAssetInstaller::ok_pressed() {
                 memdelete(da);
 
             } else {
-
-                Vector<uint8_t> data;
-                data.resize(info.uncompressed_size);
+                size_t sz= info.uncompressed_size;
+                auto data = eastl::make_unique<uint8_t[]>(sz);
 
                 //read
                 unzOpenCurrentFile(pkg);
-                unzReadCurrentFile(pkg, data.ptrw(), data.size());
+                unzReadCurrentFile(pkg, data.get(), sz);
                 unzCloseCurrentFile(pkg);
 
                 FileAccess *f = FileAccess::open(path, FileAccess::WRITE);
                 if (f) {
-                    f->store_buffer(data.ptr(), data.size());
+                    f->store_buffer(data.get(), info.uncompressed_size);
                     memdelete(f);
                 } else {
                     failed_files.push_back(path);

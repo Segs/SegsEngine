@@ -76,13 +76,6 @@ private:
 
 public:
     bool push_back(T p_elem);
-    template<class... Args>
-    bool emplace_back(Args&&... args) {
-        Error err = resize(size() + 1);
-        ERR_FAIL_COND_V(err, true);
-        memnew_placement(&ptrw()[size() - 1],T(eastl::forward<Args>(args)...));
-        return false;
-    }
     void remove(int p_index) { _cowdata.remove(p_index); }
     void erase(const T &p_val) {
         int idx = find(p_val);
@@ -102,7 +95,6 @@ public:
     Error insert(int p_pos, T p_val) { return _cowdata.insert(p_pos, p_val); }
     int find(const T &p_val, int p_from = 0) const { return _cowdata.find(p_val, p_from); }
 
-    void append_array(Vector<T> p_other);
     template <class C>
     void sort_custom() {
 
@@ -146,17 +138,6 @@ void Vector<T>::invert() {
 }
 
 template <class T>
-void Vector<T>::append_array(Vector<T> p_other) {
-    const int ds = p_other.size();
-    if (ds == 0)
-        return;
-    const int bs = size();
-    resize(bs + ds);
-    for (int i = 0; i < ds; ++i)
-        ptrw()[bs + i] = p_other[i];
-}
-
-template <class T>
 bool Vector<T>::push_back(T p_elem) {
 
     Error err = resize(size() + 1);
@@ -177,10 +158,11 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<UIString>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) Vector<Variant>;
+
 #endif
-extern const Vector<Variant> null_variant_vec;
 extern const PODVector<struct Vector2> null_vec2_pvec;
 extern const PODVector<struct Vector3> null_vec3_pvec;
 extern const PODVector<Variant> null_variant_pvec;
 extern const PODVector<String> null_string_pvec;
+extern const PODVector<int> null_int_pvec;
+extern const PODVector<float> null_float_pvec;

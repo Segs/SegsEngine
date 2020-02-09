@@ -181,7 +181,7 @@ void AudioStreamPlayer2D::_notification(int p_what) {
         if (!output_ready) {
             List<Viewport *> viewports;
             Ref<World2D> world_2d = get_world_2d();
-            ERR_FAIL_COND(not world_2d)
+            ERR_FAIL_COND(not world_2d);
 
             int new_output_count = 0;
 
@@ -312,7 +312,7 @@ float AudioStreamPlayer2D::get_volume_db() const {
 }
 
 void AudioStreamPlayer2D::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0)
+    ERR_FAIL_COND(p_pitch_scale <= 0.0);
     pitch_scale = p_pitch_scale;
 }
 float AudioStreamPlayer2D::get_pitch_scale() const {
@@ -429,7 +429,7 @@ void AudioStreamPlayer2D::_bus_layout_changed() {
 
 void AudioStreamPlayer2D::set_max_distance(float p_pixels) {
 
-    ERR_FAIL_COND(p_pixels <= 0.0)
+    ERR_FAIL_COND(p_pixels <= 0.0);
     max_distance = p_pixels;
 }
 

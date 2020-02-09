@@ -54,7 +54,7 @@ bool PolygonPathFinder::_is_point_inside(const Vector2 &p_point) const {
 
 void PolygonPathFinder::setup(const PODVector<Vector2> &p_points, const PODVector<int> &p_connections) {
 
-    ERR_FAIL_COND(p_connections.size() & 1)
+    ERR_FAIL_COND(p_connections.size() & 1);
 
     points.clear();
     edges.clear();
@@ -405,15 +405,15 @@ PODVector<Vector2> PolygonPathFinder::find_path(const Vector2 &p_from, const Vec
 
 void PolygonPathFinder::_set_data(const Dictionary &p_data) {
 
-    ERR_FAIL_COND(!p_data.has("points"))
-    ERR_FAIL_COND(!p_data.has("connections"))
-    ERR_FAIL_COND(!p_data.has("segments"))
-    ERR_FAIL_COND(!p_data.has("bounds"))
+    ERR_FAIL_COND(!p_data.has("points"));
+    ERR_FAIL_COND(!p_data.has("connections"));
+    ERR_FAIL_COND(!p_data.has("segments"));
+    ERR_FAIL_COND(!p_data.has("bounds"));
 
     PoolVector<Vector2> p = p_data["points"];
     Array c = p_data["connections"];
 
-    ERR_FAIL_COND(c.size() != p.size())
+    ERR_FAIL_COND(c.size() != p.size());
     if (!c.empty())
         return;
 
@@ -445,7 +445,7 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
 
     PoolVector<int> segs = p_data["segments"];
     int sc = segs.size();
-    ERR_FAIL_COND(sc & 1)
+    ERR_FAIL_COND(sc & 1);
     PoolVector<int>::Read sr = segs.read();
     for (int i = 0; i < sc; i += 2) {
 

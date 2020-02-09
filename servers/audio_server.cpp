@@ -225,7 +225,7 @@ int AudioDriverManager::driver_count = 1;
 
 void AudioDriverManager::add_driver(AudioDriver *p_driver) {
 
-    ERR_FAIL_COND(driver_count >= MAX_DRIVERS)
+    ERR_FAIL_COND(driver_count >= MAX_DRIVERS);
     drivers[driver_count - 1] = p_driver;
 
     // Last driver is always our dummy driver
@@ -565,7 +565,7 @@ int AudioServer::thread_find_bus_index(const StringName &p_name) {
 
 void AudioServer::set_bus_count(int p_count) {
 
-    ERR_FAIL_COND(p_count < 1)
+    ERR_FAIL_COND(p_count < 1);
     ERR_FAIL_INDEX(p_count, 256);
 
     Object_set_edited(this,true);
@@ -631,7 +631,7 @@ void AudioServer::set_bus_count(int p_count) {
 void AudioServer::remove_bus(int p_index) {
 
     ERR_FAIL_INDEX(p_index, buses.size());
-    ERR_FAIL_COND(p_index == 0)
+    ERR_FAIL_COND(p_index == 0);
 
     Object_set_edited(this,true);
 
@@ -701,8 +701,8 @@ void AudioServer::add_bus(int p_at_pos) {
 
 void AudioServer::move_bus(int p_bus, int p_to_pos) {
 
-    ERR_FAIL_COND(p_bus < 1 || p_bus >= buses.size())
-    ERR_FAIL_COND(p_to_pos != -1 && (p_to_pos < 1 || p_to_pos > buses.size()))
+    ERR_FAIL_COND(p_bus < 1 || p_bus >= buses.size());
+    ERR_FAIL_COND(p_to_pos != -1 && (p_to_pos < 1 || p_to_pos > buses.size()));
 
     Object_set_edited(this,true);
 
@@ -884,7 +884,7 @@ void AudioServer::_update_bus_effects(int p_bus) {
 
 void AudioServer::add_bus_effect(int p_bus, const Ref<AudioEffect> &p_effect, int p_at_pos) {
 
-    ERR_FAIL_COND(not p_effect)
+    ERR_FAIL_COND(not p_effect);
     ERR_FAIL_INDEX(p_bus, buses.size());
 
     Object_set_edited(this,true);
@@ -1263,7 +1263,7 @@ void AudioServer::remove_update_callback(AudioCallback p_callback, void *p_userd
 
 void AudioServer::set_bus_layout(const Ref<AudioBusLayout> &p_bus_layout) {
 
-    ERR_FAIL_COND(not p_bus_layout || p_bus_layout->bus_count()==0)
+    ERR_FAIL_COND(not p_bus_layout || p_bus_layout->bus_count()==0);
 
     lock();
     for (int i = 0; i < buses.size(); i++) {
@@ -1414,8 +1414,6 @@ AudioServer::AudioServer() {
     mix_frames = 0;
     channel_count = 0;
     to_mix = 0;
-    output_latency = 0;
-    output_latency_ticks = 0;
 #ifdef DEBUG_ENABLED
     prof_time = 0;
 #endif

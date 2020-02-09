@@ -1202,13 +1202,13 @@ BroadPhase2DSW *Space2DSW::get_broadphase() {
 
 void Space2DSW::add_object(CollisionObject2DSW *p_object) {
 
-    ERR_FAIL_COND(objects.contains(p_object))
+    ERR_FAIL_COND(objects.contains(p_object));
     objects.insert(p_object);
 }
 
 void Space2DSW::remove_object(CollisionObject2DSW *p_object) {
 
-    ERR_FAIL_COND(!objects.contains(p_object))
+    ERR_FAIL_COND(!objects.contains(p_object));
     objects.erase(p_object);
 }
 

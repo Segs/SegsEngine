@@ -679,9 +679,9 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
     if (!scene->has_node(NodePath("AnimationPlayer"))) return;
 
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
-    ERR_FAIL_COND(!anim)
+    ERR_FAIL_COND(!anim);
 
     if (!anim->has_animation("default")) return;
 
@@ -792,7 +792,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 void ResourceImporterScene::_filter_anim_tracks(const Ref<Animation> &anim, Set<String> &keep) {
 
     const Ref<Animation> &a(anim);
-    ERR_FAIL_COND(!a)
+    ERR_FAIL_COND(!a);
 
     for (int j = 0; j < a->get_track_count(); j++) {
 
@@ -809,9 +809,9 @@ void ResourceImporterScene::_filter_tracks(Node *scene, se_string_view p_text) {
 
     if (!scene->has_node(NodePath("AnimationPlayer"))) return;
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
-    ERR_FAIL_COND(!anim)
+    ERR_FAIL_COND(!anim);
 
     PODVector<se_string_view> strings = StringUtils::split(p_text, '\n');
     for (se_string_view &sv : strings) {
@@ -909,9 +909,9 @@ void ResourceImporterScene::_optimize_animations(
 
     if (!scene->has_node(NodePath("AnimationPlayer"))) return;
     Node *n = scene->get_node(NodePath("AnimationPlayer"));
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
-    ERR_FAIL_COND(!anim)
+    ERR_FAIL_COND(!anim);
 
     PODVector<StringName> anim_names(anim->get_animation_list());
     for (const StringName &E : anim_names) {

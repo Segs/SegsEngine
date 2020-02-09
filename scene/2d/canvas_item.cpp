@@ -617,7 +617,7 @@ void CanvasItem::_notification(int p_what) {
                 get_tree()->call_group_flags(SceneTree::GROUP_CALL_UNIQUE, StringName(group), "_toplevel_raise_self");
             } else {
                 CanvasItem *p = get_parent_item();
-                ERR_FAIL_COND(!p)
+                ERR_FAIL_COND(!p);
                 VisualServer::get_singleton()->canvas_item_set_draw_index(canvas_item, get_index());
             }
 
@@ -860,7 +860,7 @@ void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
 
-    ERR_FAIL_COND(not p_texture)
+    ERR_FAIL_COND(not p_texture);
 
     p_texture->draw(canvas_item, p_pos, p_modulate, false, p_normal_map);
 }
@@ -869,20 +869,20 @@ void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
 
-    ERR_FAIL_COND(not p_texture)
+    ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose, p_normal_map);
 }
 void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map, bool p_clip_uv) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
-    ERR_FAIL_COND(not p_texture)
+    ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, p_normal_map, p_clip_uv);
 }
 
 void CanvasItem::draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect) {
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
 
-    ERR_FAIL_COND(not p_style_box)
+    ERR_FAIL_COND(not p_style_box);
 
     p_style_box->draw(canvas_item, p_rect);
 }
@@ -935,7 +935,7 @@ void CanvasItem::draw_colored_polygon(Span<const Point2> p_points, const Color &
 
 void CanvasItem::draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Transform2D &p_transform, const Color &p_modulate) {
 
-    ERR_FAIL_COND(not p_mesh)
+    ERR_FAIL_COND(not p_mesh);
     RID texture_rid = p_texture ? p_texture->get_rid() : RID();
     RID normal_map_rid = p_normal_map ? p_normal_map->get_rid() : RID();
 
@@ -943,7 +943,7 @@ void CanvasItem::draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_textur
 }
 void CanvasItem::draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND(not p_multimesh)
+    ERR_FAIL_COND(not p_multimesh);
     RID texture_rid = p_texture ? p_texture->get_rid() : RID();
     RID normal_map_rid = p_normal_map ? p_normal_map->get_rid() : RID();
     VisualServer::get_singleton()->canvas_item_add_multimesh(canvas_item, p_multimesh->get_rid(), texture_rid, normal_map_rid);
@@ -953,14 +953,14 @@ void CanvasItem::draw_ui_string(const Ref<Font> &p_font, const Point2 &p_pos, co
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
 
-    ERR_FAIL_COND(not p_font)
+    ERR_FAIL_COND(not p_font);
     p_font->draw_ui_string(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
 }
 void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
 
-    ERR_FAIL_COND(not p_font)
+    ERR_FAIL_COND(not p_font);
     p_font->draw_ui_string(canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w);
 }
 
@@ -1138,7 +1138,7 @@ Vector2 CanvasItem::get_local_mouse_position() const {
 }
 
 void CanvasItem::force_update_transform() {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     if (!xform_change.in_list()) {
         return;
     }

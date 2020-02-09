@@ -309,7 +309,7 @@ void EditorFileSystem::_scan_mark_updates()
 
 void EditorFileSystem::_scan_filesystem() {
 
-    ERR_FAIL_COND(!scanning || new_filesystem)
+    ERR_FAIL_COND(!scanning || new_filesystem);
 
     sources_changed.clear();
     file_cache.clear();
@@ -657,7 +657,7 @@ void EditorFileSystem::scan() {
         first_scan = false;
     } else {
 
-        ERR_FAIL_COND(thread)
+        ERR_FAIL_COND(thread);
         set_process(true);
         Thread::Settings s;
         scanning = true;
@@ -1111,7 +1111,7 @@ void EditorFileSystem::scan_changes() {
         emit_signal("sources_changed", !sources_changed.empty());
     } else {
 
-        ERR_FAIL_COND(thread_sources)
+        ERR_FAIL_COND(thread_sources);
         set_process(true);
         scan_total = 0;
         Thread::Settings s;
@@ -1887,7 +1887,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     // Store the md5's of the various files. These are stored separately so that the .import files can be version controlled.
     FileAccess *md5s = FileAccess::open(base_path + ".md5", FileAccess::WRITE);
-    ERR_FAIL_COND(!md5s)
+    ERR_FAIL_COND(!md5s);
     md5s->store_line("source_md5=\"" + FileAccess::get_md5(p_file) + "\"");
     if (!dest_paths.empty()) {
         md5s->store_line("dest_md5=\"" + FileAccess::get_multiple_md5(dest_paths) + "\"\n");

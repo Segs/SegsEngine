@@ -57,7 +57,7 @@ class CollisionShape2DEditor : public Control {
     CanvasItemEditor *canvas_item_editor;
     CollisionShape2D *node;
 
-    Vector<Point2> handles;
+    PODVector<Point2> handles;
 
     int shape_type;
     int edit_handle;

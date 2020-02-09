@@ -176,7 +176,7 @@ void Spatial::_notification(int p_what) {
                 parent = parent->get_parent();
             }
 
-            ERR_FAIL_COND(!data.viewport)
+            ERR_FAIL_COND(!data.viewport);
 
             if (get_script_instance()) {
 
@@ -731,7 +731,7 @@ bool Spatial::is_local_transform_notification_enabled() const {
 }
 
 void Spatial::force_update_transform() {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     if (!xform_change.in_list()) {
         return; //nothing to update
     }

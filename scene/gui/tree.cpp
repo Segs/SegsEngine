@@ -554,7 +554,7 @@ void TreeItem::deselect(int p_column) {
 void TreeItem::add_button(int p_column, const Ref<Texture> &p_button, int p_id, bool p_disabled, const StringName &p_tooltip) {
 
     ERR_FAIL_INDEX(p_column, cells.size());
-    ERR_FAIL_COND(not p_button)
+    ERR_FAIL_COND(not p_button);
     TreeItem::Cell::Button button;
     button.texture = p_button;
     if (p_id < 0)
@@ -610,7 +610,7 @@ int TreeItem::get_button_by_id(int p_column, int p_id) const {
 
 void TreeItem::set_button(int p_column, int p_idx, const Ref<Texture> &p_button) {
 
-    ERR_FAIL_COND(not p_button)
+    ERR_FAIL_COND(not p_button);
     ERR_FAIL_INDEX(p_column, cells.size());
     ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
     cells[p_column].buttons[p_idx].texture = p_button;
@@ -1104,7 +1104,7 @@ int Tree::get_item_height(TreeItem *p_item) const {
 
 void Tree::draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, const Color &p_color, const Color &p_icon_color) {
 
-    ERR_FAIL_COND(not cache.font)
+    ERR_FAIL_COND(not cache.font);
 
     Rect2i rect = p_rect;
     Ref<Font> font = cache.font;
@@ -3247,7 +3247,7 @@ void Tree::deselect_all() {
         item->deselect(selected_col);
         TreeItem *prev_item = item;
         item = get_next_selected(get_root());
-        ERR_FAIL_COND(item == prev_item)
+        ERR_FAIL_COND(item == prev_item);
     }
 
     selected_item = nullptr;
@@ -3263,7 +3263,7 @@ bool Tree::is_anything_selected() {
 
 void Tree::clear() {
 
-    ERR_FAIL_COND(blocked > 0)
+    ERR_FAIL_COND(blocked > 0);
 
     if (pressing_for_editor) {
         if (range_drag_enabled) {
@@ -3425,8 +3425,8 @@ void Tree::propagate_set_columns(TreeItem *p_item) {
 
 void Tree::set_columns(int p_columns) {
 
-    ERR_FAIL_COND(p_columns < 1)
-    ERR_FAIL_COND(blocked > 0)
+    ERR_FAIL_COND(p_columns < 1);
+    ERR_FAIL_COND(blocked > 0);
     columns.resize(p_columns);
 
     if (root)

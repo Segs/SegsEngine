@@ -42,7 +42,7 @@ void RWLockPosix::read_lock() {
 	if (err != 0) {
 		perror("Acquiring lock failed");
 	}
-	ERR_FAIL_COND(err != 0)
+	ERR_FAIL_COND(err != 0);
 }
 
 void RWLockPosix::read_unlock() {
@@ -62,7 +62,7 @@ Error RWLockPosix::read_try_lock() {
 void RWLockPosix::write_lock() {
 
 	int err = pthread_rwlock_wrlock(&rwlock);
-	ERR_FAIL_COND(err != 0)
+	ERR_FAIL_COND(err != 0);
 }
 
 void RWLockPosix::write_unlock() {

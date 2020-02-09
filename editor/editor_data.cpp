@@ -85,7 +85,7 @@ void EditorHistory::cleanup_history() {
 void EditorHistory::_add_object(ObjectID p_object, se_string_view p_property, int p_level_change, bool p_inspector_only) {
 
     Object *obj = ObjectDB::get_instance(p_object);
-    ERR_FAIL_COND(!obj)
+    ERR_FAIL_COND(!obj);
     RefCounted *r = object_cast<RefCounted>(obj);
     Obj o;
     if (r)
@@ -463,7 +463,7 @@ UndoRedo &EditorData::get_undo_redo() {
 void EditorData::remove_editor_plugin(EditorPlugin *p_plugin) {
 
     p_plugin->undo_redo = nullptr;
-    editor_plugins.erase(p_plugin);
+    editor_plugins.erase_first(p_plugin);
 }
 
 void EditorData::add_editor_plugin(EditorPlugin *p_plugin) {
@@ -702,15 +702,8 @@ int EditorData::get_edited_scene_count() const {
     return edited_scene.size();
 }
 
-Vector<EditorData::EditedScene> EditorData::get_edited_scenes() const {
-
-    Vector<EditedScene> out_edited_scenes_list = Vector<EditedScene>();
-
-    for (int i = 0; i < edited_scene.size(); i++) {
-        out_edited_scenes_list.push_back(edited_scene[i]);
-    }
-
-    return out_edited_scenes_list;
+const PODVector<EditorData::EditedScene> &EditorData::get_edited_scenes() const {
+    return edited_scene;
 }
 
 void EditorData::set_edited_scene_version(uint64_t version, int p_scene_idx) {

@@ -151,7 +151,7 @@ void CanvasLayer::_notification(int p_what) {
             } else {
                 vp = Node::get_viewport();
             }
-            ERR_FAIL_COND(!vp)
+            ERR_FAIL_COND(!vp);
 
             vp->_canvas_layer_add(this);
             viewport = vp->get_viewport_rid();

@@ -118,7 +118,7 @@ void BoxContainer::_resort() {
             if (c->is_set_as_toplevel())
                 continue;
 
-            ERR_FAIL_COND(!min_size_cache.contains(c))
+            ERR_FAIL_COND(!min_size_cache.contains(c));
             _MinSizeCache &msc = min_size_cache[c];
 
             if (msc.will_stretch) { //wants to stretch

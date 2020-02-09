@@ -383,7 +383,7 @@ void RenameDialog::_post_popup() {
     preview_node = nullptr;
 
     Array selected_node_list = editor_selection->get_selected_nodes();
-    ERR_FAIL_COND(selected_node_list.empty())
+    ERR_FAIL_COND(selected_node_list.empty());
 
     preview_node = selected_node_list[0];
 

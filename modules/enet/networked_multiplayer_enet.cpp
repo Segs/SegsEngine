@@ -34,6 +34,7 @@
 #include "core/os/os.h"
 #include "core/method_bind.h"
 #include "core/string_utils.inl"
+#include "EASTL/deque.h"
 
 #include <enet/enet.h>
 
@@ -54,9 +55,9 @@ struct NetworkedMultiplayerENet_Priv {
         int from;
         int channel;
     };
-    List<Packet> incoming_packets;
-    Vector<uint8_t> src_compressor_mem;
-    Vector<uint8_t> dst_compressor_mem;
+    Dequeue<Packet> incoming_packets;
+    PODVector<uint8_t> src_compressor_mem;
+    PODVector<uint8_t> dst_compressor_mem;
 
     Packet current_packet;
     ENetCompressor enet_compressor;
@@ -128,7 +129,7 @@ int NetworkedMultiplayerENet::get_packet_peer() const {
     ERR_FAIL_COND_V(!active, 1);
     ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), 1);
 
-    return D(private_data)->incoming_packets.front()->deref().from;
+    return D(private_data)->incoming_packets.front().from;
 }
 
 int NetworkedMultiplayerENet::get_packet_channel() const {
@@ -136,7 +137,7 @@ int NetworkedMultiplayerENet::get_packet_channel() const {
     ERR_FAIL_COND_V(!active, -1);
     ERR_FAIL_COND_V(D(private_data)->incoming_packets.empty(), -1);
 
-    return D(private_data)->incoming_packets.front()->deref().channel;
+    return D(private_data)->incoming_packets.front().channel;
 }
 
 int NetworkedMultiplayerENet::get_last_packet_channel() const {
@@ -252,7 +253,7 @@ Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_po
 
 void NetworkedMultiplayerENet::poll() {
 
-    ERR_FAIL_COND(!active)
+    ERR_FAIL_COND(!active);
 
     _pop_current_packet();
 
@@ -489,7 +490,7 @@ bool NetworkedMultiplayerENet::is_server() const {
 
 void NetworkedMultiplayerENet::close_connection(uint32_t wait_usec) {
 
-    ERR_FAIL_COND(!active)
+    ERR_FAIL_COND(!active);
 
     _pop_current_packet();
     D(private_data)->close_connection(wait_usec,unique_id);
@@ -501,9 +502,9 @@ void NetworkedMultiplayerENet::close_connection(uint32_t wait_usec) {
 
 void NetworkedMultiplayerENet::disconnect_peer(int p_peer, bool now) {
 
-    ERR_FAIL_COND(!active)
-    ERR_FAIL_COND(!is_server())
-    ERR_FAIL_COND(!D(private_data)->peer_map.contains(p_peer))
+    ERR_FAIL_COND(!active);
+    ERR_FAIL_COND(!is_server());
+    ERR_FAIL_COND(!D(private_data)->peer_map.contains(p_peer));
 
     if (now) {
         int *id = (int *)D(private_data)->peer_map[p_peer]->data;
@@ -545,7 +546,7 @@ Error NetworkedMultiplayerENet::get_packet(const uint8_t **r_buffer, int &r_buff
 
     _pop_current_packet();
 
-    D(private_data)->current_packet = D(private_data)->incoming_packets.front()->deref();
+    D(private_data)->current_packet = D(private_data)->incoming_packets.front();
     D(private_data)->incoming_packets.pop_front();
 
     *r_buffer = (const uint8_t *)(&D(private_data)->current_packet.packet->data[8]);
@@ -708,7 +709,7 @@ size_t NetworkedMultiplayerENet_Priv::enet_compress(void *context, const ENetBuf
     while (total) {
         for (size_t i = 0; i < inBufferCount; i++) {
             int to_copy = MIN(total, int(inBuffers[i].dataLength));
-            memcpy(&enet->src_compressor_mem.write[ofs], inBuffers[i].data, to_copy);
+            memcpy(&enet->src_compressor_mem[ofs], inBuffers[i].data, to_copy);
             ofs += to_copy;
             total -= to_copy;
         }
@@ -735,7 +736,7 @@ size_t NetworkedMultiplayerENet_Priv::enet_compress(void *context, const ENetBuf
     if (enet->dst_compressor_mem.size() < req_size) {
         enet->dst_compressor_mem.resize(req_size);
     }
-    int ret = Compression::compress(enet->dst_compressor_mem.ptrw(), enet->src_compressor_mem.ptr(), ofs, mode);
+    int ret = Compression::compress(enet->dst_compressor_mem.data(), enet->src_compressor_mem.data(), ofs, mode);
 
     if (ret < 0)
         return 0;
@@ -743,7 +744,7 @@ size_t NetworkedMultiplayerENet_Priv::enet_compress(void *context, const ENetBuf
     if (ret > int(outLimit))
         return 0; // Do not bother
 
-    memcpy(outData, enet->dst_compressor_mem.ptr(), ret);
+    memcpy(outData, enet->dst_compressor_mem.data(), ret);
 
     return ret;
 }
@@ -822,7 +823,7 @@ int NetworkedMultiplayerENet::get_peer_port(int p_peer_id) const {
 
 void NetworkedMultiplayerENet::set_transfer_channel(int p_channel) {
 
-    ERR_FAIL_COND(p_channel < -1 || p_channel >= channel_count)
+    ERR_FAIL_COND(p_channel < -1 || p_channel >= channel_count);
     ERR_FAIL_COND_MSG(p_channel == SYSCH_CONFIG, "Channel " + itos(SYSCH_CONFIG) + " is reserved."); 
     transfer_channel = p_channel;
 }
@@ -833,8 +834,8 @@ int NetworkedMultiplayerENet::get_transfer_channel() const {
 
 void NetworkedMultiplayerENet::set_channel_count(int p_channel) {
 
-    ERR_FAIL_COND(active)
-    ERR_FAIL_COND(p_channel < SYSCH_MAX)
+    ERR_FAIL_COND(active);
+    ERR_FAIL_COND(p_channel < SYSCH_MAX);
     channel_count = p_channel;
 }
 
@@ -922,7 +923,7 @@ NetworkedMultiplayerENet::~NetworkedMultiplayerENet() {
 // Sets IP for ENet to bind when using create_server or create_client
 // if no IP is set, then ENet bind to ENET_HOST_ANY
 void NetworkedMultiplayerENet::set_bind_ip(const IP_Address &p_ip) {
-    ERR_FAIL_COND(!p_ip.is_valid() && !p_ip.is_wildcard())
+    ERR_FAIL_COND(!p_ip.is_valid() && !p_ip.is_wildcard());
 
     bind_ip = p_ip;
 }

@@ -424,7 +424,7 @@ void ParticlesEditor::_generate_emission_points() {
     tex->create_from_image(image, Texture::FLAG_FILTER);
 
     Ref<ParticlesMaterial> material = dynamic_ref_cast<ParticlesMaterial>(node->get_process_material());
-    ERR_FAIL_COND(not material)
+    ERR_FAIL_COND(not material);
 
     if (normals.size() > 0) {
 

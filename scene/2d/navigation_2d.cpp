@@ -38,9 +38,9 @@ IMPL_GDCLASS(Navigation2D)
 
 void Navigation2D::_navpoly_link(int p_id) {
 
-    ERR_FAIL_COND(!navpoly_map.contains(p_id))
+    ERR_FAIL_COND(!navpoly_map.contains(p_id));
     NavMesh &nm = navpoly_map[p_id];
-    ERR_FAIL_COND(nm.linked)
+    ERR_FAIL_COND(nm.linked);
 
     PoolVector<Vector2> vertices = nm.navpoly->get_vertices();
     int len = vertices.size();
@@ -143,9 +143,9 @@ void Navigation2D::_navpoly_link(int p_id) {
 
 void Navigation2D::_navpoly_unlink(int p_id) {
 
-    ERR_FAIL_COND(!navpoly_map.contains(p_id))
+    ERR_FAIL_COND(!navpoly_map.contains(p_id));
     NavMesh &nm = navpoly_map[p_id];
-    ERR_FAIL_COND(!nm.linked)
+    ERR_FAIL_COND(!nm.linked);
 
     for (List<Polygon>::Element *E = nm.polygons.front(); E; E = E->next()) {
 
@@ -224,7 +224,7 @@ int Navigation2D::navpoly_add(const Ref<NavigationPolygon> &p_mesh, const Transf
 
 void Navigation2D::navpoly_set_transform(int p_id, const Transform2D &p_xform) {
 
-    ERR_FAIL_COND(!navpoly_map.contains(p_id))
+    ERR_FAIL_COND(!navpoly_map.contains(p_id));
     NavMesh &nm = navpoly_map[p_id];
     if (nm.xform == p_xform)
         return; //bleh
@@ -234,7 +234,7 @@ void Navigation2D::navpoly_set_transform(int p_id, const Transform2D &p_xform) {
 }
 void Navigation2D::navpoly_remove(int p_id) {
 
-    ERR_FAIL_COND(!navpoly_map.contains(p_id))
+    ERR_FAIL_COND(!navpoly_map.contains(p_id));
     _navpoly_unlink(p_id);
     navpoly_map.erase(p_id);
 }
@@ -734,7 +734,7 @@ void Navigation2D::_bind_methods() {
 
 Navigation2D::Navigation2D() {
 
-    ERR_FAIL_COND(sizeof(Point) != 8)
+    ERR_FAIL_COND(sizeof(Point) != 8);
     cell_size = 1; // one pixel
     last_id = 1;
 }

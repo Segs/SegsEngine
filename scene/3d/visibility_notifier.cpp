@@ -45,7 +45,7 @@ VARIANT_ENUM_CAST(VisibilityEnabler::Enabler);
 
 void VisibilityNotifier::_enter_camera(Camera *p_camera) {
 
-    ERR_FAIL_COND(cameras.contains(p_camera))
+    ERR_FAIL_COND(cameras.contains(p_camera));
     cameras.insert(p_camera);
     if (cameras.size() == 1) {
         emit_signal(SceneStringNames::get_singleton()->screen_entered);
@@ -57,7 +57,7 @@ void VisibilityNotifier::_enter_camera(Camera *p_camera) {
 
 void VisibilityNotifier::_exit_camera(Camera *p_camera) {
 
-    ERR_FAIL_COND(!cameras.contains(p_camera))
+    ERR_FAIL_COND(!cameras.contains(p_camera));
     cameras.erase(p_camera);
 
     emit_signal(SceneStringNames::get_singleton()->camera_exited, Variant(p_camera));
@@ -224,7 +224,7 @@ void VisibilityEnabler::_notification(int p_what) {
 
 void VisibilityEnabler::_change_node_state(Node *p_node, bool p_enabled) {
 
-    ERR_FAIL_COND(!nodes.contains(p_node))
+    ERR_FAIL_COND(!nodes.contains(p_node));
 
     {
         RigidBody *rb = object_cast<RigidBody>(p_node);

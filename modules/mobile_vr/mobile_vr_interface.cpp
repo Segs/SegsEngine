@@ -405,10 +405,10 @@ void MobileVRInterface::commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_t
 	_THREAD_SAFE_METHOD_
 
 	// We must have a valid render target
-	ERR_FAIL_COND(!p_render_target.is_valid())
+	ERR_FAIL_COND(!p_render_target.is_valid());
 
 	// Because we are rendering to our device we must use our main viewport!
-	ERR_FAIL_COND(p_screen_rect == Rect2())
+	ERR_FAIL_COND(p_screen_rect == Rect2());
 
 	Rect2 dest = p_screen_rect;
 	Vector2 eye_center;

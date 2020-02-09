@@ -645,8 +645,6 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
     theme->set_color("title_button_color", "Tree", control_font_color);
     theme->set_color("font_color", "Tree", control_font_color_low);
     theme->set_color("font_color_selected", "Tree", control_font_color_pressed);
-    theme->set_color("selection_color", "Tree", Color(0.1f, 0.1f, 1, 0.8f));
-    theme->set_color("cursor_color", "Tree", Color(0, 0, 0));
     theme->set_color("guide_color", "Tree", Color(0, 0, 0, 0.1f));
     theme->set_color("drop_position_color", "Tree", Color(1, 0.3f, 0.2f));
     theme->set_color("relationship_line_color", "Tree", Color(0.27f, 0.27f, 0.27f));

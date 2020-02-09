@@ -62,7 +62,7 @@ void NavigationMeshEditor::_notification(int p_option) {
 void NavigationMeshEditor::_bake_pressed() {
     button_bake->set_pressed(false);
 
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     const StringName conf_warning = node->get_configuration_warning();
     if (!conf_warning.empty()) {
         err_dialog->set_text(conf_warning);

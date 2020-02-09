@@ -195,7 +195,7 @@ real_t Range::get_as_ratio() const {
 void Range::_share(Node *p_range) {
 
     Range *r = object_cast<Range>(p_range);
-    ERR_FAIL_COND(!r)
+    ERR_FAIL_COND(!r);
     share(r);
 }
 

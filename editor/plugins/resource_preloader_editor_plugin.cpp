@@ -231,7 +231,7 @@ void ResourcePreloaderEditor::_update_library() {
 void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column, int p_id) {
 
     TreeItem *item = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     if (p_id == BUTTON_OPEN_SCENE) {
         String rpath(item->get_text(p_column));

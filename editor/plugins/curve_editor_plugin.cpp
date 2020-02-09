@@ -255,8 +255,8 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 }
 
 void CurveEditor::on_preset_item_selected(int preset_id) {
-    ERR_FAIL_COND(preset_id < 0 || preset_id >= PRESET_COUNT)
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(preset_id < 0 || preset_id >= PRESET_COUNT);
+    ERR_FAIL_COND(not _curve_ref);
 
     Curve &curve = *_curve_ref;
     Array previous_data = curve.get_data();
@@ -432,7 +432,7 @@ CurveEditor::TangentIndex CurveEditor::get_tangent_at(Vector2 pos) const {
 }
 
 void CurveEditor::add_point(Vector2 pos) {
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action_ui(TTR("Remove Curve Point"));
@@ -454,7 +454,7 @@ void CurveEditor::add_point(Vector2 pos) {
 }
 
 void CurveEditor::remove_point(int index) {
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action_ui(TTR("Remove Curve Point"));
@@ -474,7 +474,7 @@ void CurveEditor::remove_point(int index) {
 }
 
 void CurveEditor::toggle_linear(TangentIndex tangent) {
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action_ui(TTR("Toggle Curve Linear Tangent"));
@@ -770,7 +770,7 @@ bool EditorInspectorPluginCurve::can_handle(Object *p_object) {
 void EditorInspectorPluginCurve::parse_begin(Object *p_object) {
 
     Curve *curve = object_cast<Curve>(p_object);
-    ERR_FAIL_COND(!curve)
+    ERR_FAIL_COND(!curve);
     Ref<Curve> c(curve);
 
     CurveEditor *editor = memnew(CurveEditor);

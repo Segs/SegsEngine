@@ -394,7 +394,7 @@ Error GDMonoAssembly::wrapper_for_image(MonoImage *p_image) {
 
 void GDMonoAssembly::unload() {
 
-    ERR_FAIL_COND(!loaded)
+    ERR_FAIL_COND(!loaded);
 
     for (auto &E : cached_raw) {
         memdelete(E.second);

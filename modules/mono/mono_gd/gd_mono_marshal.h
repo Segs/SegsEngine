@@ -133,7 +133,6 @@ Array mono_array_to_Array(MonoArray *p_array);
 
 // PoolIntArray
 
-MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array);
 MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array);
 MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array);
 PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array);

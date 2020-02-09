@@ -555,7 +555,7 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
     }
     popup_mode = p_option;
 
-    ERR_FAIL_COND(not theme)
+    ERR_FAIL_COND(not theme);
 
     PODVector<StringName> types;
     base_theme->get_type_list(&types);

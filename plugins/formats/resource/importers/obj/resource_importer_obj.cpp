@@ -225,9 +225,9 @@ static Error _parse_obj(se_string_view p_path, PODVector<Ref<Mesh>> &r_meshes, b
 
     int mesh_flags = p_optimize ? Mesh::ARRAY_COMPRESS_DEFAULT : 0;
 
-    Vector<Vector3> vertices;
-    Vector<Vector3> normals;
-    Vector<Vector2> uvs;
+    PODVector<Vector3> vertices;
+    PODVector<Vector3> normals;
+    PODVector<Vector2> uvs;
     String name;
 
     Map<String, Map<String, Ref<SpatialMaterial> > > material_map;

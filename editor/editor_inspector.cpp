@@ -887,7 +887,7 @@ void EditorInspectorPlugin::add_custom_control(Control *control) {
 
 void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, Control *p_prop) {
 
-    ERR_FAIL_COND(object_cast<EditorProperty>(p_prop) == nullptr)
+    ERR_FAIL_COND(object_cast<EditorProperty>(p_prop) == nullptr);
 
     AddedEditor ae;
     ae.properties.emplace_back(p_for_property);
@@ -1283,7 +1283,7 @@ EditorProperty *EditorInspector::instantiate_property_editor(Object *p_object, V
 
 void EditorInspector::add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {
 
-    ERR_FAIL_COND(inspector_plugin_count == MAX_PLUGINS)
+    ERR_FAIL_COND(inspector_plugin_count == MAX_PLUGINS);
 
     for (int i = 0; i < inspector_plugin_count; i++) {
         if (inspector_plugins[i] == p_plugin)
@@ -1294,7 +1294,7 @@ void EditorInspector::add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_p
 
 void EditorInspector::remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {
 
-    ERR_FAIL_COND(inspector_plugin_count == MAX_PLUGINS)
+    ERR_FAIL_COND(inspector_plugin_count == MAX_PLUGINS);
 
     int idx = -1;
     for (int i = 0; i < inspector_plugin_count; i++) {
@@ -2053,8 +2053,8 @@ void EditorInspector::_property_changed_update_all(se_string_view /*p_path*/, co
 
 void EditorInspector::_multiple_properties_changed(const PODVector<String> &p_paths, Array p_values) {
 
-    ERR_FAIL_COND(p_paths.empty() || p_values.empty())
-    ERR_FAIL_COND(p_paths.size() != p_values.size())
+    ERR_FAIL_COND(p_paths.empty() || p_values.empty());
+    ERR_FAIL_COND(p_paths.size() != p_values.size());
     String names;
     for (int i = 0; i < p_paths.size(); i++) {
         if (i > 0)

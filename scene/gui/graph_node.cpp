@@ -302,7 +302,7 @@ void GraphNode::_notification(int p_what) {
 
 void GraphNode::set_slot(int p_idx, bool p_enable_left, int p_type_left, const Color &p_color_left, bool p_enable_right, int p_type_right, const Color &p_color_right, const Ref<Texture> &p_custom_left, const Ref<Texture> &p_custom_right) {
 
-    ERR_FAIL_COND(p_idx < 0)
+    ERR_FAIL_COND(p_idx < 0);
 
     if (!p_enable_left && p_type_left == 0 && p_color_left == Color(1, 1, 1, 1) && !p_enable_right && p_type_right == 0 && p_color_right == Color(1, 1, 1, 1)) {
         slot_info.erase(p_idx);

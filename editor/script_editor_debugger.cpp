@@ -235,9 +235,9 @@ void ScriptEditorDebugger::debug_skip_breakpoints() {
 
 void ScriptEditorDebugger::debug_next() {
 
-    ERR_FAIL_COND(!breaked)
-    ERR_FAIL_COND(not connection)
-    ERR_FAIL_COND(!connection->is_connected_to_host())
+    ERR_FAIL_COND(!breaked);
+    ERR_FAIL_COND(not connection);
+    ERR_FAIL_COND(!connection->is_connected_to_host());
     Array msg;
     msg.push_back("next");
     ppeer->put_var(msg);
@@ -246,9 +246,9 @@ void ScriptEditorDebugger::debug_next() {
 }
 void ScriptEditorDebugger::debug_step() {
 
-    ERR_FAIL_COND(!breaked)
-    ERR_FAIL_COND(not connection)
-    ERR_FAIL_COND(!connection->is_connected_to_host())
+    ERR_FAIL_COND(!breaked);
+    ERR_FAIL_COND(not connection);
+    ERR_FAIL_COND(!connection->is_connected_to_host());
 
     Array msg;
     msg.push_back("step");
@@ -259,9 +259,9 @@ void ScriptEditorDebugger::debug_step() {
 
 void ScriptEditorDebugger::debug_break() {
 
-    ERR_FAIL_COND(breaked)
-    ERR_FAIL_COND(not connection)
-    ERR_FAIL_COND(!connection->is_connected_to_host())
+    ERR_FAIL_COND(breaked);
+    ERR_FAIL_COND(not connection);
+    ERR_FAIL_COND(!connection->is_connected_to_host());
 
     Array msg;
     msg.push_back("break");
@@ -270,9 +270,9 @@ void ScriptEditorDebugger::debug_break() {
 
 void ScriptEditorDebugger::debug_continue() {
 
-    ERR_FAIL_COND(!breaked)
-    ERR_FAIL_COND(not connection)
-    ERR_FAIL_COND(!connection->is_connected_to_host())
+    ERR_FAIL_COND(!breaked);
+    ERR_FAIL_COND(not connection);
+    ERR_FAIL_COND(!connection->is_connected_to_host());
 
     OS::get_singleton()->enable_for_stealing_focus(EditorNode::get_singleton()->get_child_process_id());
 
@@ -404,8 +404,8 @@ void ScriptEditorDebugger::_scene_tree_property_select_object(ObjectID p_object)
 
 void ScriptEditorDebugger::_scene_tree_request() {
 
-    ERR_FAIL_COND(not connection)
-    ERR_FAIL_COND(!connection->is_connected_to_host())
+    ERR_FAIL_COND(not connection);
+    ERR_FAIL_COND(!connection->is_connected_to_host());
 
     Array msg;
     msg.push_back("request_scene_tree");
@@ -514,7 +514,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         Array msg;
         msg.push_back("get_stack_dump");
         ppeer->put_var(msg);
-        ERR_FAIL_COND(p_data.size() != 2)
+        ERR_FAIL_COND(p_data.size() != 2);
         bool can_continue = p_data[0];
         StringName error = p_data[1];
         step->set_disabled(!can_continue);
@@ -1126,7 +1126,7 @@ void ScriptEditorDebugger::_performance_select() {
 
 void ScriptEditorDebugger::_performance_draw() {
 
-    Vector<int> which;
+    PODVector<int> which;
     for (int i = 0; i < perf_items.size(); i++) {
 
         if (perf_items[i]->is_checked(0))
@@ -1380,7 +1380,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         Error ret = ppeer->get_var(cmd);
                         if (ret != OK) {
                             stop();
-                            ERR_FAIL_COND(ret != OK)
+                            ERR_FAIL_COND(ret != OK);
                         }
 
                         message.push_back(cmd);
@@ -1400,11 +1400,11 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         Error ret = ppeer->get_var(cmd);
                         if (ret != OK) {
                             stop();
-                            ERR_FAIL_COND(ret != OK)
+                            ERR_FAIL_COND(ret != OK);
                         }
                         if (cmd.get_type() != VariantType::STRING) {
                             stop();
-                            ERR_FAIL_COND(cmd.get_type() != VariantType::STRING)
+                            ERR_FAIL_COND(cmd.get_type() != VariantType::STRING);
                         }
 
                         message_type = cmd.as<String>();
@@ -1412,11 +1412,11 @@ void ScriptEditorDebugger::_notification(int p_what) {
                         ret = ppeer->get_var(cmd);
                         if (ret != OK) {
                             stop();
-                            ERR_FAIL_COND(ret != OK)
+                            ERR_FAIL_COND(ret != OK);
                         }
                         if (cmd.get_type() != VariantType::INT) {
                             stop();
-                            ERR_FAIL_COND(cmd.get_type() != VariantType::INT)
+                            ERR_FAIL_COND(cmd.get_type() != VariantType::INT);
                         }
 
                         pending_in_queue = cmd;
@@ -2076,8 +2076,8 @@ Ref<Script> ScriptEditorDebugger::get_dump_stack_script() const {
 
 void ScriptEditorDebugger::_paused() {
 
-    ERR_FAIL_COND(not connection)
-    ERR_FAIL_COND(!connection->is_connected_to_host())
+    ERR_FAIL_COND(not connection);
+    ERR_FAIL_COND(!connection->is_connected_to_host());
 
     if (!breaked && EditorNode::get_singleton()->get_pause_button()->is_pressed()) {
         debug_break();

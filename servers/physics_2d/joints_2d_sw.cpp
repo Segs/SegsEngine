@@ -246,7 +246,7 @@ k_tensor(Body2DSW *a, Body2DSW *b, Vector2 r1, Vector2 r2, Vector2 *k1, Vector2 
 
 	// invert
 	real_t determinant = k11 * k22 - k12 * k21;
-	ERR_FAIL_COND(determinant == 0.0)
+	ERR_FAIL_COND(determinant == 0.0);
 
 	real_t det_inv = 1.0f / determinant;
 	*k1 = Vector2(k22 * det_inv, -k12 * det_inv);

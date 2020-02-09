@@ -56,8 +56,8 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
         }
     };
     Map<StringName, ProgressBar *> animations;
-    Vector<EditorProperty *> visible_properties;
-    Vector<AddOption> add_options;
+    PODVector<EditorProperty *> visible_properties;
+    PODVector<AddOption> add_options;
 
     Vector2 popup_menu_position;
     Ref<AnimationNodeBlendTree> blend_tree;

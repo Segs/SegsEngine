@@ -82,7 +82,7 @@ public:
     void resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, ListPOD<const lsp::DocumentSymbol *> &r_list);
 
     const lsp::DocumentSymbol *resolve_native_symbol(const lsp::NativeSymbolInspectParams &p_params);
-    void resolve_document_links(se_string_view p_uri, List<lsp::DocumentLink> &r_list);
+    void resolve_document_links(se_string_view p_uri, PODVector<lsp::DocumentLink> &r_list);
     Dictionary generate_script_api(se_string_view p_path);
     Error resolve_signature(const lsp::TextDocumentPositionParams &p_doc_pos, lsp::SignatureHelp &r_signature);
 

@@ -48,7 +48,7 @@ RID VisualServerScene::camera_create() {
 void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
     camera->type = Camera::PERSPECTIVE;
     camera->fov = p_fovy_degrees;
     camera->znear = p_z_near;
@@ -58,7 +58,7 @@ void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degree
 void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
     camera->type = Camera::ORTHOGONAL;
     camera->size = p_size;
     camera->znear = p_z_near;
@@ -67,7 +67,7 @@ void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float 
 
 void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
     camera->type = Camera::FRUSTUM;
     camera->size = p_size;
     camera->offset = p_offset;
@@ -78,14 +78,14 @@ void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p
 void VisualServerScene::camera_set_transform(RID p_camera, const Transform &p_transform) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
     camera->transform = p_transform.orthonormalized();
 }
 
 void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
 
     camera->visible_layers = p_layers;
 }
@@ -93,14 +93,14 @@ void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
 void VisualServerScene::camera_set_environment(RID p_camera, RID p_env) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
     camera->env = p_env;
 }
 
 void VisualServerScene::camera_set_use_vertical_aspect(RID p_camera, bool p_enable) {
 
     Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
     camera->vaspect = p_enable;
 }
 
@@ -278,28 +278,28 @@ RID VisualServerScene::scenario_create() {
 void VisualServerScene::scenario_set_debug(RID p_scenario, VS::ScenarioDebugMode p_debug_mode) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario)
+    ERR_FAIL_COND(!scenario);
     scenario->debug = p_debug_mode;
 }
 
 void VisualServerScene::scenario_set_environment(RID p_scenario, RID p_environment) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario)
+    ERR_FAIL_COND(!scenario);
     scenario->environment = p_environment;
 }
 
 void VisualServerScene::scenario_set_fallback_environment(RID p_scenario, RID p_environment) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario)
+    ERR_FAIL_COND(!scenario);
     scenario->fallback_environment = p_environment;
 }
 
 void VisualServerScene::scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv) {
 
     Scenario *scenario = scenario_owner.get(p_scenario);
-    ERR_FAIL_COND(!scenario)
+    ERR_FAIL_COND(!scenario);
     VSG::scene_render->reflection_atlas_set_size(scenario->reflection_atlas, p_size);
     VSG::scene_render->reflection_atlas_set_subdivision(scenario->reflection_atlas, p_subdiv);
 }
@@ -333,7 +333,7 @@ RID VisualServerScene::instance_create() {
 void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     Scenario *scenario = instance->scenario;
 
@@ -438,7 +438,7 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
     if (p_base.is_valid()) {
 
         instance->base_type = VSG::storage->get_base_type(p_base);
-        ERR_FAIL_COND(instance->base_type == VS::INSTANCE_NONE)
+        ERR_FAIL_COND(instance->base_type == VS::INSTANCE_NONE);
 
         switch (instance->base_type) {
             case VS::INSTANCE_LIGHT: {
@@ -507,7 +507,7 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
 void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->scenario) {
 
@@ -550,7 +550,7 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
     if (p_scenario.is_valid()) {
 
         Scenario *scenario = scenario_owner.get(p_scenario);
-        ERR_FAIL_COND(!scenario)
+        ERR_FAIL_COND(!scenario);
 
         instance->scenario = scenario;
 
@@ -584,14 +584,14 @@ void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 void VisualServerScene::instance_set_layer_mask(RID p_instance, uint32_t p_mask) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     instance->layer_mask = p_mask;
 }
 void VisualServerScene::instance_set_transform(RID p_instance, const Transform &p_transform) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->transform == p_transform)
         return; //must be checked to avoid worst evil
@@ -600,12 +600,12 @@ void VisualServerScene::instance_set_transform(RID p_instance, const Transform &
 
     for (int i = 0; i < 4; i++) {
         const Vector3 &v = i < 3 ? p_transform.basis.elements[i] : p_transform.origin;
-        ERR_FAIL_COND(Math::is_inf(v.x))
-        ERR_FAIL_COND(Math::is_nan(v.x))
-        ERR_FAIL_COND(Math::is_inf(v.y))
-        ERR_FAIL_COND(Math::is_nan(v.y))
-        ERR_FAIL_COND(Math::is_inf(v.z))
-        ERR_FAIL_COND(Math::is_nan(v.z))
+        ERR_FAIL_COND(Math::is_inf(v.x));
+        ERR_FAIL_COND(Math::is_nan(v.x));
+        ERR_FAIL_COND(Math::is_inf(v.y));
+        ERR_FAIL_COND(Math::is_nan(v.y));
+        ERR_FAIL_COND(Math::is_inf(v.z));
+        ERR_FAIL_COND(Math::is_nan(v.z));
     }
 
 #endif
@@ -615,14 +615,14 @@ void VisualServerScene::instance_set_transform(RID p_instance, const Transform &
 void VisualServerScene::instance_attach_object_instance_id(RID p_instance, ObjectID p_id) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     instance->object_id = p_id;
 }
 void VisualServerScene::instance_set_blend_shape_weight(RID p_instance, int p_shape, float p_weight) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->update_item.in_list()) {
         _update_dirty_instance(instance);
@@ -635,7 +635,7 @@ void VisualServerScene::instance_set_blend_shape_weight(RID p_instance, int p_sh
 void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surface, RID p_material) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->base_type == VS::INSTANCE_MESH) {
         //may not have been updated yet
@@ -658,7 +658,7 @@ void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surf
 void VisualServerScene::instance_set_visible(RID p_instance, bool p_visible) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->visible == p_visible)
         return;
@@ -701,7 +701,7 @@ inline bool is_geometry_instance(VS::InstanceType p_type) {
 void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap_instance, RID p_lightmap) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->lightmap_capture) {
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(((Instance *)instance->lightmap_capture)->base_data);
@@ -712,8 +712,8 @@ void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap
 
     if (p_lightmap_instance.is_valid()) {
         Instance *lightmap_instance = instance_owner.get(p_lightmap_instance);
-        ERR_FAIL_COND(!lightmap_instance)
-        ERR_FAIL_COND(lightmap_instance->base_type != VS::INSTANCE_LIGHTMAP_CAPTURE)
+        ERR_FAIL_COND(!lightmap_instance);
+        ERR_FAIL_COND(lightmap_instance->base_type != VS::INSTANCE_LIGHTMAP_CAPTURE);
         instance->lightmap_capture = lightmap_instance;
 
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(((Instance *)instance->lightmap_capture)->base_data);
@@ -725,8 +725,8 @@ void VisualServerScene::instance_set_use_lightmap(RID p_instance, RID p_lightmap
 void VisualServerScene::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
-    ERR_FAIL_COND(!is_geometry_instance(instance->base_type))
+    ERR_FAIL_COND(!instance);
+    ERR_FAIL_COND(!is_geometry_instance(instance->base_type));
 
     if (p_aabb != AABB()) {
 
@@ -751,7 +751,7 @@ void VisualServerScene::instance_set_custom_aabb(RID p_instance, AABB p_aabb) {
 void VisualServerScene::instance_attach_skeleton(RID p_instance, RID p_skeleton) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->skeleton == p_skeleton)
         return;
@@ -774,7 +774,7 @@ void VisualServerScene::instance_set_exterior(RID p_instance, bool p_enabled) {
 
 void VisualServerScene::instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) {
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     instance->extra_margin = p_margin;
     _instance_queue_update(instance, true, false);
@@ -788,10 +788,11 @@ PODVector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, R
 
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
-    int culled = 0;
     Instance *cull[1024];
-    culled = scenario->octree.cull_aabb(p_aabb, cull, 1024);
-    instances.reserve();
+    int culled = scenario->octree.cull_aabb(p_aabb, cull, 1024);
+
+    instances.reserve(culled/2);
+
     for (int i = 0; i < culled; i++) {
 
         Instance *instance = cull[i];
@@ -811,9 +812,9 @@ PODVector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from,
     ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
 
-    int culled = 0;
     Instance *cull[1024];
-    culled = scenario->octree.cull_segment(p_from, p_from + p_to * 10000, cull, 1024);
+    int culled = scenario->octree.cull_segment(p_from, p_from + p_to * 10000, cull, 1024);
+
     instances.reserve(culled/2);
     for (int i = 0; i < culled; i++) {
         Instance *instance = cull[i];
@@ -854,7 +855,7 @@ PODVector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p
 void VisualServerScene::instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     switch (p_flags) {
 
@@ -875,7 +876,7 @@ void VisualServerScene::instance_geometry_set_flag(RID p_instance, VS::InstanceF
 void VisualServerScene::instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     instance->cast_shadows = p_shadow_casting_setting;
     instance->base_changed(false, true); // to actually compute if shadows are visible or not
@@ -883,7 +884,7 @@ void VisualServerScene::instance_geometry_set_cast_shadows_setting(RID p_instanc
 void VisualServerScene::instance_geometry_set_material_override(RID p_instance, RID p_material) {
 
     Instance *instance = instance_owner.get(p_instance);
-    ERR_FAIL_COND(!instance)
+    ERR_FAIL_COND(!instance);
 
     if (instance->material_override.is_valid()) {
         VSG::storage->material_remove_instance_owner(instance->material_override, instance);
@@ -1001,7 +1002,7 @@ void VisualServerScene::_update_instance_aabb(Instance *p_instance) {
 
     AABB new_aabb;
 
-    ERR_FAIL_COND(p_instance->base_type != VS::INSTANCE_NONE && !p_instance->base.is_valid())
+    ERR_FAIL_COND(p_instance->base_type != VS::INSTANCE_NONE && !p_instance->base.is_valid());
 
     switch (p_instance->base_type) {
         case VS::INSTANCE_NONE: {
@@ -1716,7 +1717,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
 #ifndef _3D_DISABLED
 
     Camera *camera = camera_owner.getornull(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
 
     /* STEP 1 - SETUP CAMERA */
     CameraMatrix camera_matrix;
@@ -1766,7 +1767,7 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
     // render for AR/VR interface
 
     Camera *camera = camera_owner.getornull(p_camera);
-    ERR_FAIL_COND(!camera)
+    ERR_FAIL_COND(!camera);
 
     /* SETUP CAMERA, we are ignoring type and FOV here */
     float aspect = p_viewport_size.width / (float)p_viewport_size.height;
@@ -2433,7 +2434,7 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
     if (probe->dynamic.compression == RasterizerStorage::GI_PROBE_S3TC) {
 
         //create all blocks
-        Vector<Map<uint32_t, InstanceGIProbeData::CompBlockS3TC> > comp_blocks;
+        FixedVector<Map<uint32_t, InstanceGIProbeData::CompBlockS3TC>,8,true> comp_blocks;
         int mipmap_count = probe->dynamic.mipmaps_3d.size();
         comp_blocks.resize(mipmap_count);
 
@@ -2457,7 +2458,7 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
 
             uint32_t key = blockz * blockw * blockh + blocky * blockw + blockx;
 
-            Map<uint32_t, InstanceGIProbeData::CompBlockS3TC> &cmap = comp_blocks.write[mipmap];
+            Map<uint32_t, InstanceGIProbeData::CompBlockS3TC> &cmap = comp_blocks[mipmap];
 
             if (!cmap.contains(key)) {
 

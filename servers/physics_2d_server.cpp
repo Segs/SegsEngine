@@ -184,7 +184,7 @@ Physics2DDirectBodyState::Physics2DDirectBodyState() {}
 
 void Physics2DShapeQueryParameters::set_shape(const RES &p_shape) {
 
-    ERR_FAIL_COND(not p_shape)
+    ERR_FAIL_COND(not p_shape);
     shape = p_shape->get_rid();
 }
 
@@ -840,8 +840,8 @@ void Physics2DServerManager::on_servers_changed() {
 
 void Physics2DServerManager::register_server(const StringName &p_name, CreatePhysics2DServerCallback p_creat_callback) {
 
-    ERR_FAIL_COND(!p_creat_callback)
-    ERR_FAIL_COND(find_server_id(p_name) != -1)
+    ERR_FAIL_COND(!p_creat_callback);
+    ERR_FAIL_COND(find_server_id(p_name) != -1);
     physics_2d_servers.push_back(ClassInfo(p_name, p_creat_callback));
     on_servers_changed();
 }
@@ -849,7 +849,7 @@ void Physics2DServerManager::register_server(const StringName &p_name, CreatePhy
 void Physics2DServerManager::set_default_server(const StringName &p_name, int p_priority) {
 
     const int id = find_server_id(p_name);
-    ERR_FAIL_COND(id == -1) // Not found
+    ERR_FAIL_COND(id == -1); // Not found
     if (default_server_priority < p_priority) {
         default_server_id = id;
         default_server_priority = p_priority;

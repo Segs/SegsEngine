@@ -39,10 +39,87 @@
 #include "core/se_string.h"
 #include "core/variant.h"
 #include "servers/visual_server_enums.h"
+
+//SEGS: In the future this is meant to replace passing Surface data in Array
+class GODOT_EXPORT SurfaceArrays {
+public:
+    Variant m_positions;
+    PODVector<float> m_position_data;
+    PoolVector<Vector3> m_normals;
+    PoolVector<float> m_tangents;
+    PoolVector<Color> m_colors;
+    PoolVector<Vector2> m_uv_1;
+    PoolVector<Vector2> m_uv_2;
+    PoolVector<float> m_weights;
+    PoolVector<int> m_bones;
+    PoolVector<int> m_indices;
+    Span<Vector2> positions2() const {
+        Span<Vector2>((Vector2 *)m_position_data.data(), m_position_data.size()/2);
+    }
+    Span<Vector3> positions3() const {
+        Span<Vector3>((Vector3 *)m_position_data.data(), m_position_data.size() / 3);
+    }
+    explicit operator Array() {
+        Array res;
+        res.resize(VS::ARRAY_MAX);
+        res[VS::ARRAY_VERTEX] = m_positions;
+        res[VS::ARRAY_NORMAL] = m_normals;
+        res[VS::ARRAY_TANGENT] = m_tangents;
+        res[VS::ARRAY_COLOR] = m_colors;
+        res[VS::ARRAY_TEX_UV] = Variant::from(m_uv_1);
+        res[VS::ARRAY_TEX_UV2] = Variant::from(m_uv_2);
+        res[VS::ARRAY_BONES] = m_bones;
+        res[VS::ARRAY_WEIGHTS] = m_weights;
+        res[VS::ARRAY_INDEX] = m_indices;
+        return res;
+    }
+    static SurfaceArrays fromArray(Array a) {
+        if(a.empty())
+            return SurfaceArrays();
+        SurfaceArrays res;
+        res.m_positions = a[VS::ARRAY_VERTEX];
+        res.m_normals= a[VS::ARRAY_NORMAL];
+        res.m_tangents = a[VS::ARRAY_TANGENT];
+        //res[VS::ARRAY_TANGENT] = m_normal_data;
+        res.m_colors = a[VS::ARRAY_COLOR];
+        res.m_uv_1 = a[VS::ARRAY_TEX_UV];
+        res.m_uv_2 = a[VS::ARRAY_TEX_UV2];
+        res.m_bones = a[VS::ARRAY_BONES];
+        res.m_weights = a[VS::ARRAY_WEIGHTS];
+        res.m_indices = a[VS::ARRAY_INDEX];
+        return res;
+    }
+    bool empty() const { return m_positions==Variant(); }
+    bool check_sanity() const {
+        auto expected= ((Array)m_positions).size();
+        if(m_normals.size()!=expected && !m_normals.empty())
+            return false;
+        if (m_tangents.size() != expected && !m_tangents.empty())
+            return false;
+        if (m_colors.size() != expected && !m_colors.empty())
+            return false;
+        if (m_uv_1.size() != expected && !m_uv_1.empty())
+            return false;
+        if (m_uv_2.size() != expected && !m_uv_2.empty())
+            return false;
+        if (m_weights.size() != expected && !m_weights.empty())
+            return false;
+        if (m_bones.size() != expected && !m_bones.empty())
+            return false;
+        if (m_indices.size() != expected && !m_indices.empty())
+            return false;
+    }
+    SurfaceArrays();
+    SurfaceArrays(SurfaceArrays &&) noexcept = default;
+    SurfaceArrays &operator=(SurfaceArrays &&) noexcept = default;
+    // Move only type!
+    SurfaceArrays(const SurfaceArrays &) = delete;
+    SurfaceArrays & operator=(const SurfaceArrays &) = delete;
+};
+
 /*
     TODO: SEGS: Add function overrides that take ownership of passed buffers Span<> -> PODVector<>&&
 */
-
 class VisualServer : public Object {
 
     GDCLASS(VisualServer,Object)
@@ -52,8 +129,9 @@ class VisualServer : public Object {
     int mm_policy;
 
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
-    void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
-    Array _get_array_from_surface(uint32_t p_format, const PoolVector<uint8_t>& p_vertex_data, int p_vertex_len, const PoolVector<uint8_t>& p_index_data, int p_index_len) const;
+    void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const PODVector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
+    SurfaceArrays _get_array_from_surface(uint32_t p_format, const PoolVector<uint8_t> &p_vertex_data, int p_vertex_len,
+            const PoolVector<uint8_t> &p_index_data, int p_index_len) const;
 
 protected:
     RID _make_test_cube();
@@ -62,7 +140,10 @@ protected:
     RID white_texture;
     RID test_material;
 
-    Error _surface_set_data(Array p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
+    Error _surface_set_data(Array p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector
+            <AABB> &r_bone_aabb);
+    Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
+    void _mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
 
     static VisualServer *(*create_func)();
     static void _bind_methods();
@@ -171,8 +252,8 @@ public:
     virtual uint32_t mesh_surface_get_format_stride(uint32_t p_format, int p_vertex_len, int p_index_len) const;
     /// Returns stride
     virtual uint32_t mesh_surface_make_offsets_from_format(uint32_t p_format, int p_vertex_len, int p_index_len, uint32_t *r_offsets) const;
-    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
-    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) = 0;
+    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
+    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes = PODVector<PoolVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>()) = 0;
 
     virtual void mesh_set_blend_shape_count(RID p_mesh, int p_amount) = 0;
     virtual int mesh_get_blend_shape_count(RID p_mesh) const = 0;
@@ -191,15 +272,15 @@ public:
     virtual PoolVector<uint8_t> mesh_surface_get_array(RID p_mesh, int p_surface) const = 0;
     virtual PoolVector<uint8_t> mesh_surface_get_index_array(RID p_mesh, int p_surface) const = 0;
 
-    virtual Array mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
+    virtual SurfaceArrays mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
     virtual Array mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
     virtual uint32_t mesh_surface_get_format(RID p_mesh, int p_surface) const = 0;
     virtual VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
 
     virtual AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const = 0;
-    virtual PODVector<PoolVector<uint8_t> > mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
-    virtual Vector<AABB> mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
+    virtual const PODVector<PoolVector<uint8_t>> &mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
+    virtual const PODVector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
     Array _mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const;
 
     virtual void mesh_remove_surface(RID p_mesh, int p_index) = 0;

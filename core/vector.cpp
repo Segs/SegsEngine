@@ -10,11 +10,8 @@ template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<float,wrap_all
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<Vector2,wrap_allocator>;
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<Vector3,wrap_allocator>;
 
-template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) Vector<UIString>;
-template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) Vector<Variant>;
-
-
-const Vector<Variant> null_variant_vec;
 const PODVector<Variant> null_variant_pvec;
 const PODVector<Vector2> null_vec2_pvec;
 const PODVector<Vector3> null_vec3_pvec;
+const PODVector<int> null_int_pvec;
+const PODVector<float> null_float_pvec;

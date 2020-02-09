@@ -39,7 +39,7 @@ RES_BASE_EXTENSION_IMPL(AudioStreamOGGVorbis,"oggstr")
 
 void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_frames) {
 
-    ERR_FAIL_COND(!active)
+    ERR_FAIL_COND(!active);
 
     int todo = p_frames;
 
@@ -197,8 +197,8 @@ void AudioStreamOGGVorbis::set_data(const PoolVector<uint8_t> &p_data) {
             alloc_try *= 2;
         } else {
 
-            ERR_FAIL_COND(alloc_try == MAX_TEST_MEM)
-            ERR_FAIL_COND(ogg_stream == nullptr)
+            ERR_FAIL_COND(alloc_try == MAX_TEST_MEM);
+            ERR_FAIL_COND(ogg_stream == nullptr);
 
             stb_vorbis_info info = stb_vorbis_get_info(ogg_stream);
 

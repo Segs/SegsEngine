@@ -226,7 +226,7 @@ void GraphEdit::_update_scroll() {
 void GraphEdit::_graph_node_raised(Node *p_gn) {
 
     GraphNode *gn = object_cast<GraphNode>(p_gn);
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
     if (gn->is_comment()) {
         move_child(gn, 0);
     } else {
@@ -249,7 +249,7 @@ void GraphEdit::_graph_node_raised(Node *p_gn) {
 void GraphEdit::_graph_node_moved(Node *p_gn) {
 
     GraphNode *gn = object_cast<GraphNode>(p_gn);
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
     top_layer->update();
     update();
     connections_layer->update();
@@ -762,9 +762,9 @@ void GraphEdit::_top_layer_draw() {
     if (connecting) {
 
         Node *fromn = get_node((NodePath)connecting_from);
-        ERR_FAIL_COND(!fromn)
+        ERR_FAIL_COND(!fromn);
         GraphNode *from = object_cast<GraphNode>(fromn);
-        ERR_FAIL_COND(!from)
+        ERR_FAIL_COND(!from);
         Vector2 pos;
         if (connecting_out)
             pos = from->get_connection_output_position(connecting_index);
@@ -1249,7 +1249,7 @@ int GraphEdit::get_snap() const {
 
 void GraphEdit::set_snap(int p_snap) {
 
-    ERR_FAIL_COND(p_snap < 5)
+    ERR_FAIL_COND(p_snap < 5);
     snap_amount->set_value(p_snap);
     update();
 }

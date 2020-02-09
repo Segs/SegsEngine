@@ -605,7 +605,7 @@ void EditorHelp::_update_doc() {
     bool method_descr = false;
     bool sort_methods = EditorSettings::get_singleton()->get("text_editor/help/sort_functions_alphabetically");
 
-    Vector<DocData::MethodDoc> methods;
+    PODVector<DocData::MethodDoc> methods;
 
     for (int i = 0; i < cd.methods.size(); i++) {
         if (skip_methods.contains_as(cd.methods[i].name)) {
@@ -619,7 +619,7 @@ void EditorHelp::_update_doc() {
     if (!methods.empty()) {
 
         if (sort_methods)
-            methods.sort();
+            eastl::sort(methods.begin(), methods.end());
 
         section_line.push_back(Pair<String, int>(TTR("Methods").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
@@ -636,7 +636,7 @@ void EditorHelp::_update_doc() {
 
         bool any_previous = false;
         for (int pass = 0; pass < 2; pass++) {
-            Vector<DocData::MethodDoc> m;
+            PODVector<DocData::MethodDoc> m;
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
@@ -824,8 +824,8 @@ void EditorHelp::_update_doc() {
     // Constants and enums
     if (!cd.constants.empty()) {
 
-        Map<String, Vector<DocData::ConstantDoc> > enums;
-        Vector<DocData::ConstantDoc> constants;
+        Map<String, PODVector<DocData::ConstantDoc> > enums;
+        PODVector<DocData::ConstantDoc> constants;
 
         for (int i = 0; i < cd.constants.size(); i++) {
 
@@ -850,7 +850,7 @@ void EditorHelp::_update_doc() {
 
             class_desc->add_newline();
 
-            for (eastl::pair<const String,Vector<DocData::ConstantDoc> > &E : enums) {
+            for (eastl::pair<const String, PODVector<DocData::ConstantDoc> > &E : enums) {
 
                 enum_line[E.first] = class_desc->get_line_count() - 2;
 
@@ -873,7 +873,7 @@ void EditorHelp::_update_doc() {
                 class_desc->add_newline();
 
                 class_desc->push_indent(1);
-                Vector<DocData::ConstantDoc> enum_list = E.second;
+                PODVector<DocData::ConstantDoc> enum_list = E.second;
 
                 Map<String, int> enumValuesContainer;
                 int enumStartingLine = enum_line[E.first];
@@ -1111,7 +1111,7 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
 
         for (int pass = 0; pass < 2; pass++) {
-            Vector<DocData::MethodDoc> methods_filtered;
+            PODVector<DocData::MethodDoc> methods_filtered;
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;

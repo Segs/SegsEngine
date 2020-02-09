@@ -39,7 +39,7 @@ void AnimationCache::_node_exit_tree(Node *p_node) {
 
     //it is one shot, so it disconnects upon arrival
 
-    ERR_FAIL_COND(!connected_nodes.contains(p_node))
+    ERR_FAIL_COND(!connected_nodes.contains(p_node));
 
     connected_nodes.erase(p_node);
 
@@ -73,9 +73,9 @@ void AnimationCache::_update_cache() {
 
     cache_valid = false;
 
-    ERR_FAIL_COND(!root)
-    ERR_FAIL_COND(!root->is_inside_tree())
-    ERR_FAIL_COND(not animation)
+    ERR_FAIL_COND(!root);
+    ERR_FAIL_COND(!root->is_inside_tree());
+    ERR_FAIL_COND(not animation);
 
     for (int i = 0; i < animation->get_track_count(); i++) {
 
@@ -192,14 +192,14 @@ void AnimationCache::set_track_transform(int p_idx, const Transform &p_transform
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
+    ERR_FAIL_COND(!cache_valid);
     ERR_FAIL_INDEX(p_idx, path_cache.size());
     Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
 
-    ERR_FAIL_COND(!p.node)
-    ERR_FAIL_COND(!p.spatial)
+    ERR_FAIL_COND(!p.node);
+    ERR_FAIL_COND(!p.spatial);
 
     if (p.skeleton) {
         p.skeleton->set_bone_pose(p.bone_idx, p_transform);
@@ -213,13 +213,13 @@ void AnimationCache::set_track_value(int p_idx, const Variant &p_value) {
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
+    ERR_FAIL_COND(!cache_valid);
     ERR_FAIL_INDEX(p_idx, path_cache.size());
     Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
 
-    ERR_FAIL_COND(!p.object)
+    ERR_FAIL_COND(!p.object);
     p.object->set_indexed(p.subpath, p_value);
 }
 
@@ -228,13 +228,13 @@ void AnimationCache::call_track(int p_idx, const StringName &p_method, const Var
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
+    ERR_FAIL_COND(!cache_valid);
     ERR_FAIL_INDEX(p_idx, path_cache.size());
     Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
 
-    ERR_FAIL_COND(!p.object)
+    ERR_FAIL_COND(!p.object);
     p.object->call(p_method, p_args, p_argcount, r_error);
 }
 
@@ -243,7 +243,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
+    ERR_FAIL_COND(!cache_valid);
 
     int tc = animation->get_track_count();
     for (int i = 0; i < tc; i++) {

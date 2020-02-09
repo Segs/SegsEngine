@@ -590,7 +590,7 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
 
     TreeItem *ti = object_cast<TreeItem>(p_obj);
 
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
 
     if (p_id == 1) {
         // Add action event
@@ -1198,7 +1198,7 @@ void ProjectSettingsEditor::_translation_file_open() {
 void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, int p_button) {
 
     TreeItem *ti = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
 
     int idx = ti->get_metadata(0);
 
@@ -1254,16 +1254,16 @@ void ProjectSettingsEditor::_translation_res_option_file_open() {
 }
 void ProjectSettingsEditor::_translation_res_option_add(se_string_view p_path) {
 
-    ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
+    ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"));
 
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
     TreeItem *k = translation_remap->get_selected();
-    ERR_FAIL_COND(!k)
+    ERR_FAIL_COND(!k);
 
     String key = k->get_metadata(0);
 
-    ERR_FAIL_COND(!remaps.has(key))
+    ERR_FAIL_COND(!remaps.has(key));
     PoolVector<String> r(remaps[key].as<PoolVector<String>>());
     r.push_back(String(p_path) + ":" + "en");
     remaps[key] = r;
@@ -1297,9 +1297,9 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
     TreeItem *k = translation_remap->get_selected();
-    ERR_FAIL_COND(!k)
+    ERR_FAIL_COND(!k);
     TreeItem *ed = translation_remap_options->get_edited();
-    ERR_FAIL_COND(!ed)
+    ERR_FAIL_COND(!ed);
 
     String key = k->get_metadata(0);
     int idx = ed->get_metadata(0);
@@ -1310,7 +1310,7 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
 
     ERR_FAIL_INDEX(which, langs.size());
 
-    ERR_FAIL_COND(!remaps.has(key))
+    ERR_FAIL_COND(!remaps.has(key));
     PoolVector<String> r = remaps[key].as<PoolVector<String>>();
     ERR_FAIL_INDEX(idx, r.size());
     if (translation_locales_idxs_remap.size() > which) {
@@ -1345,7 +1345,7 @@ void ProjectSettingsEditor::_translation_res_delete(Object *p_item, int p_column
     TreeItem *k = object_cast<TreeItem>(p_item);
 
     String key = k->get_metadata(0);
-    ERR_FAIL_COND(!remaps.has(key))
+    ERR_FAIL_COND(!remaps.has(key));
 
     remaps.erase(key);
 
@@ -1370,14 +1370,14 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
     TreeItem *k = translation_remap->get_selected();
-    ERR_FAIL_COND(!k)
+    ERR_FAIL_COND(!k);
     TreeItem *ed = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!ed)
+    ERR_FAIL_COND(!ed);
 
     String key = k->get_metadata(0);
     int idx = ed->get_metadata(0);
 
-    ERR_FAIL_COND(!remaps.has(key))
+    ERR_FAIL_COND(!remaps.has(key));
     PoolStringArray r = remaps[key];
     ERR_FAIL_INDEX(idx, r.size());
     r.remove(idx);
@@ -1592,7 +1592,7 @@ void ProjectSettingsEditor::_update_translations() {
                     if (langnames.length() > 0)
                         langnames += ',';
                     langnames += names[i];
-                    translation_locales_idxs_remap.write[l_idx] = i;
+                    translation_locales_idxs_remap[l_idx] = i;
                     l_idx++;
                 }
             }
@@ -1651,8 +1651,9 @@ void ProjectSettingsEditor::_update_translations() {
                 if (iter==langs.end())
                     iter = langs.begin();
                 int idx = eastl::distance(langs.begin(),iter);
+                auto re_iter = translation_locales_idxs_remap.find(idx);
+                int f_idx = re_iter!= translation_locales_idxs_remap.end() ? eastl::distance(translation_locales_idxs_remap.begin(),re_iter): -1 ;
 
-                int f_idx = translation_locales_idxs_remap.find(idx);
                 if (f_idx != -1 && fl_idx_count > 0 && filter_mode == SHOW_ONLY_SELECTED_LOCALES) {
 
                     t2->set_range(1, f_idx);
@@ -2007,7 +2008,7 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
     translations->set_name(TTR("Localization"));
     tab_container->add_child(translations);
     //remap for properly select language in popup
-    translation_locales_idxs_remap = Vector<int>();
+    translation_locales_idxs_remap = {};
     translation_locales_list_created = false;
 
     {

@@ -371,7 +371,7 @@ void VersionControlEditorPlugin::fetch_available_vcs_addon_names() {
 
         se_string_view path = ScriptServer::get_global_class_path(global_classes[i]);
         Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
-        ERR_FAIL_COND(not script)
+        ERR_FAIL_COND(not script);
         if (script->get_instance_base_type() == "EditorVCSInterface") {
 
             available_addons.push_back(global_classes[i]);

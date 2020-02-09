@@ -147,9 +147,9 @@ struct GODOT_EXPORT Vector2 {
 
     operator String() const;
 
-    _FORCE_INLINE_ constexpr Vector2(real_t p_x, real_t p_y) : x(p_x),y(p_y) {
+    constexpr Vector2(real_t p_x, real_t p_y) noexcept : x(p_x),y(p_y) {
     }
-    _FORCE_INLINE_ constexpr Vector2() : x(0),y(0) {
+    constexpr Vector2() noexcept : x(0),y(0) {
     }
 };
 static_assert (std::is_trivially_copyable<Vector2>() );

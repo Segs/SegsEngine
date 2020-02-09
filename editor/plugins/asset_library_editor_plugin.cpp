@@ -65,8 +65,8 @@ void EditorAssetLibraryItem::configure(const StringName &p_title, int p_asset_id
 
 void EditorAssetLibraryItem::set_image(int p_type, int p_index, const Ref<Texture> &p_image) {
 
-    ERR_FAIL_COND(p_type != EditorAssetLibrary::IMAGE_QUEUE_ICON)
-    ERR_FAIL_COND(p_index != 0)
+    ERR_FAIL_COND(p_type != EditorAssetLibrary::IMAGE_QUEUE_ICON);
+    ERR_FAIL_COND(p_index != 0);
 
     icon->set_normal_texture(p_image);
 }
@@ -198,7 +198,7 @@ void EditorAssetLibraryItemDescription::set_image(int p_type, int p_index, const
 
             for (int i = 0; i < preview_images.size(); i++) {
                 if (preview_images[i].id == p_index) {
-                    preview_images.write[i].image = p_image;
+                    preview_images[i].image = p_image;
                     if (preview_images[i].button->is_pressed()) {
                         _preview_click(p_index);
                     }
@@ -222,7 +222,7 @@ void EditorAssetLibraryItemDescription::_bind_methods() {
 }
 
 void EditorAssetLibraryItemDescription::_link_click(se_string_view p_url) {
-    ERR_FAIL_COND(!StringUtils::begins_with(p_url,"http"))
+    ERR_FAIL_COND(!StringUtils::begins_with(p_url,"http"));
     OS::get_singleton()->shell_open(p_url);
 }
 
@@ -637,7 +637,7 @@ void EditorAssetLibrary::_notification(int p_what) {
 
 void EditorAssetLibrary::_install_asset() {
 
-    ERR_FAIL_COND(!description)
+    ERR_FAIL_COND(!description);
 
     for (int i = 0; i < downloads_hb->get_child_count(); i++) {
 
@@ -791,7 +791,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
 void EditorAssetLibrary::_image_request_completed(
         int p_status, int p_code, const PoolVector<String> &headers, const PoolByteArray &p_data, int p_queue_id) {
 
-    ERR_FAIL_COND(!image_queue.contains(p_queue_id))
+    ERR_FAIL_COND(!image_queue.contains(p_queue_id));
 
     if (p_status == HTTPRequest::RESULT_SUCCESS && p_code < HTTPClient::RESPONSE_BAD_REQUEST) {
 
@@ -1225,7 +1225,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                 ERR_CONTINUE(!r.has("author"));
                 ERR_CONTINUE(!r.has("author_id"));
                 ERR_CONTINUE(!r.has("category_id"));
-                ERR_FAIL_COND(!category_map.has(r["category_id"]))
+                ERR_FAIL_COND(!category_map.has(r["category_id"]));
                 ERR_CONTINUE(!r.has("cost"));
 
                 EditorAssetLibraryItem *item = memnew(EditorAssetLibraryItem);
@@ -1243,19 +1243,19 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         case REQUESTING_ASSET: {
             Dictionary r = d;
 
-            ERR_FAIL_COND(!r.has("title"))
-            ERR_FAIL_COND(!r.has("asset_id"))
-            ERR_FAIL_COND(!r.has("author"))
-            ERR_FAIL_COND(!r.has("author_id"))
-            ERR_FAIL_COND(!r.has("version"))
-            ERR_FAIL_COND(!r.has("version_string"))
-            ERR_FAIL_COND(!r.has("category_id"))
-            ERR_FAIL_COND(!category_map.has(r["category_id"]))
-            ERR_FAIL_COND(!r.has("cost"))
-            ERR_FAIL_COND(!r.has("description"))
-            ERR_FAIL_COND(!r.has("download_url"))
-            ERR_FAIL_COND(!r.has("download_hash"))
-            ERR_FAIL_COND(!r.has("browse_url"))
+            ERR_FAIL_COND(!r.has("title"));
+            ERR_FAIL_COND(!r.has("asset_id"));
+            ERR_FAIL_COND(!r.has("author"));
+            ERR_FAIL_COND(!r.has("author_id"));
+            ERR_FAIL_COND(!r.has("version"));
+            ERR_FAIL_COND(!r.has("version_string"));
+            ERR_FAIL_COND(!r.has("category_id"));
+            ERR_FAIL_COND(!category_map.has(r["category_id"]));
+            ERR_FAIL_COND(!r.has("cost"));
+            ERR_FAIL_COND(!r.has("description"));
+            ERR_FAIL_COND(!r.has("download_url"));
+            ERR_FAIL_COND(!r.has("download_hash"));
+            ERR_FAIL_COND(!r.has("browse_url"));
 
             if (description) {
                 memdelete(description);

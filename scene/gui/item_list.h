@@ -86,8 +86,8 @@ private:
     bool auto_height;
     float auto_height_value;
 
-    Vector<Item> items;
-    Vector<int> separators;
+    PODVector<Item> items;
+    PODVector<int> separators;
 
     SelectMode select_mode;
     IconMode icon_mode;

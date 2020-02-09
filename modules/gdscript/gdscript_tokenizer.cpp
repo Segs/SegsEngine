@@ -1203,7 +1203,7 @@ String GDScriptTokenizerText::get_token_error(int p_offset) const {
 
 void GDScriptTokenizerText::advance(int p_amount) {
 
-    ERR_FAIL_COND(p_amount <= 0)
+    ERR_FAIL_COND(p_amount <= 0);
     for (int i = 0; i < p_amount; i++)
         _advance();
 }

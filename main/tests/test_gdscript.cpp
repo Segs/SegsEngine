@@ -327,10 +327,10 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
 
                     case GDScriptParser::ControlFlowNode::CF_IF: {
 
-                        ERR_FAIL_COND(cf_node->arguments.size() != 1)
+                        ERR_FAIL_COND(cf_node->arguments.size() != 1);
                         String txt = FormatVE("if %s:",_parser_expr(cf_node->arguments[0]).c_str());
                         _print_indent(p_indent, txt);
-                        ERR_FAIL_COND(!cf_node->body)
+                        ERR_FAIL_COND(!cf_node->body);
                         _parser_show_block(cf_node->body, p_indent + 1);
                         if (cf_node->body_else) {
                             _print_indent(p_indent, "else:");
@@ -339,21 +339,21 @@ static void _parser_show_block(const GDScriptParser::BlockNode *p_block, int p_i
 
                     } break;
                     case GDScriptParser::ControlFlowNode::CF_FOR: {
-                        ERR_FAIL_COND(cf_node->arguments.size() != 2)
+                        ERR_FAIL_COND(cf_node->arguments.size() != 2);
                         String txt;
                         txt = FormatVE("for %s in %s:",_parser_expr(cf_node->arguments[0]).c_str(),_parser_expr(cf_node->arguments[1]).c_str());
                         _print_indent(p_indent, txt);
-                        ERR_FAIL_COND(!cf_node->body)
+                        ERR_FAIL_COND(!cf_node->body);
                         _parser_show_block(cf_node->body, p_indent + 1);
 
                     } break;
                     case GDScriptParser::ControlFlowNode::CF_WHILE: {
 
-                        ERR_FAIL_COND(cf_node->arguments.size() != 1)
+                        ERR_FAIL_COND(cf_node->arguments.size() != 1);
                         String txt;
                         txt += "while " + _parser_expr(cf_node->arguments[0]) + ':';
                         _print_indent(p_indent, txt);
-                        ERR_FAIL_COND(!cf_node->body)
+                        ERR_FAIL_COND(!cf_node->body);
                         _parser_show_block(cf_node->body, p_indent + 1);
 
                     } break;

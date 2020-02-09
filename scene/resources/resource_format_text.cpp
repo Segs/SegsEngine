@@ -730,7 +730,7 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, PODVector<
 
     open(p_f);
     ignore_resource_parsing = true;
-    ERR_FAIL_COND(error != OK)
+    ERR_FAIL_COND(error != OK);
 
     while (next_tag.name == "ext_resource") {
 
@@ -1069,8 +1069,8 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
         return ERR_CANT_OPEN;
     }
 
-    Vector<size_t> local_offsets;
-    Vector<size_t> local_pointers_pos;
+    PODVector<size_t> local_offsets;
+    PODVector<size_t> local_pointers_pos;
 
     while (next_tag.name == "sub_resource" || next_tag.name == "resource") {
 
@@ -1610,17 +1610,16 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
     }
 #endif
 
-    Vector<ResourceSort> sorted_er;
+    PODVector<ResourceSort> sorted_er;
 
     for (eastl::pair<const RES,int> &E : external_resources) {
 
         ResourceSort rs;
         rs.resource = E.first;
         rs.index = E.second;
-        sorted_er.push_back(rs);
+        sorted_er.emplace_back(eastl::move(rs));
     }
-
-    sorted_er.sort();
+    eastl::sort(sorted_er.begin(), sorted_er.end());
 
     for (int i = 0; i < sorted_er.size(); i++) {
         auto p(sorted_er[i].resource->get_path());

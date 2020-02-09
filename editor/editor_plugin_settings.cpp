@@ -170,7 +170,7 @@ void EditorPluginSettings::_plugin_activity_changed() {
         return;
 
     TreeItem *ti = plugin_list->get_edited();
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
     bool active = ti->get_range(3);
     StringName name(ti->get_metadata(0));
 

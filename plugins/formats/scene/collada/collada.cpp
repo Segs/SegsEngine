@@ -1305,19 +1305,19 @@ void Collada::_parse_skin_controller(XMLParser &parser, String p_id) {
     /* STORE REST MATRICES */
 
     PODVector<Transform> rests;
-    ERR_FAIL_COND(!skindata.joints.sources.contains("JOINT"))
-    ERR_FAIL_COND(!skindata.joints.sources.contains("INV_BIND_MATRIX"))
+    ERR_FAIL_COND(!skindata.joints.sources.contains("JOINT"));
+    ERR_FAIL_COND(!skindata.joints.sources.contains("INV_BIND_MATRIX"));
 
     String joint_arr = skindata.joints.sources["JOINT"];
     String ibm = skindata.joints.sources["INV_BIND_MATRIX"];
 
-    ERR_FAIL_COND(!skindata.sources.contains(joint_arr))
-    ERR_FAIL_COND(!skindata.sources.contains(ibm))
+    ERR_FAIL_COND(!skindata.sources.contains(joint_arr));
+    ERR_FAIL_COND(!skindata.sources.contains(ibm));
 
     SkinControllerData::Source &joint_source = skindata.sources[joint_arr];
     SkinControllerData::Source &ibm_source = skindata.sources[ibm];
 
-    ERR_FAIL_COND(joint_source.sarray.size() != ibm_source.array.size() / 16)
+    ERR_FAIL_COND(joint_source.sarray.size() != ibm_source.array.size() / 16);
 
     for (int i = 0; i < joint_source.sarray.size(); i++) {
 

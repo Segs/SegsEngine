@@ -108,7 +108,7 @@ void JoypadLinux::joy_thread_func(void *p_user) {
 void JoypadLinux::run_joypad_thread() {
 #ifdef UDEV_ENABLED
     udev *_udev = udev_new();
-    ERR_FAIL_COND(!_udev)
+    ERR_FAIL_COND(!_udev);
     enumerate_joypads(_udev);
     monitor_joypads(_udev);
     udev_unref(_udev);

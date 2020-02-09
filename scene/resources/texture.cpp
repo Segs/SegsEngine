@@ -259,7 +259,7 @@ void ImageTexture::_reload_hook(const RID &p_hook) {
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(path, img);
 
-    ERR_FAIL_COND(err != OK)
+    ERR_FAIL_COND(err != OK);
 
     VisualServer::get_singleton()->texture_set_data(texture, img);
 
@@ -279,7 +279,7 @@ void ImageTexture::create(int p_width, int p_height, Image::Format p_format, uin
 }
 void ImageTexture::create_from_image(const Ref<Image> &p_image, uint32_t p_flags) {
 
-    ERR_FAIL_COND(not p_image)
+    ERR_FAIL_COND(not p_image);
     flags = p_flags;
     w = p_image->get_width();
     h = p_image->get_height();
@@ -319,7 +319,7 @@ Image::Format ImageTexture::get_format() const {
 
 void ImageTexture::set_data(const Ref<Image> &p_image) {
 
-    ERR_FAIL_COND(not p_image)
+    ERR_FAIL_COND(not p_image);
 
     VisualServer::get_singleton()->texture_set_data(texture, p_image);
 
@@ -463,7 +463,7 @@ float ImageTexture::get_lossy_storage_quality() const {
 void ImageTexture::_set_data(Dictionary p_data) {
 
     Ref<Image> img(p_data["image"]);
-    ERR_FAIL_COND(not img)
+    ERR_FAIL_COND(not img);
     uint32_t flags = p_data["flags"];
 
     create_from_image(img, flags);
@@ -535,7 +535,7 @@ void StreamTexture::_requested_3d(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_3d_callback)
+    ERR_FAIL_COND(!request_3d_callback);
     request_3d_callback(StringName(stex->get_path()));
 }
 
@@ -543,7 +543,7 @@ void StreamTexture::_requested_srgb(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_srgb_callback)
+    ERR_FAIL_COND(!request_srgb_callback);
     request_srgb_callback(StringName(stex->get_path()));
 }
 
@@ -551,7 +551,7 @@ void StreamTexture::_requested_normal(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_normal_callback)
+    ERR_FAIL_COND(!request_normal_callback);
     request_normal_callback(StringName(stex->get_path()));
 }
 
@@ -651,7 +651,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
         }
 
         //mipmaps need to be read independently, they will be later combined
-        Vector<Ref<Image> > mipmap_images;
+        PODVector<Ref<Image> > mipmap_images;
         int total_size = 0;
         PODVector<uint8_t> pv;
 
@@ -1031,7 +1031,7 @@ uint32_t AtlasTexture::get_flags() const {
 
 void AtlasTexture::set_atlas(const Ref<Texture> &p_atlas) {
 
-    ERR_FAIL_COND(this == p_atlas.get())
+    ERR_FAIL_COND(this == p_atlas.get());
     if (atlas == p_atlas)
         return;
     atlas = p_atlas;
@@ -1405,8 +1405,8 @@ void LargeTexture::set_piece_offset(int p_idx, const Point2 &p_offset) {
 
 void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(p_texture.get() == this)
-    ERR_FAIL_COND(not p_texture)
+    ERR_FAIL_COND(p_texture.get() == this);
+    ERR_FAIL_COND(not p_texture);
     ERR_FAIL_INDEX(p_idx, pieces.size());
     pieces[p_idx].texture = p_texture;
 };
@@ -1433,8 +1433,8 @@ Array LargeTexture::_get_data() const {
 }
 void LargeTexture::_set_data(const Array &p_array) {
 
-    ERR_FAIL_COND(p_array.empty())
-    ERR_FAIL_COND(!(p_array.size() & 1))
+    ERR_FAIL_COND(p_array.empty());
+    ERR_FAIL_COND(!(p_array.size() & 1));
     clear();
     for (int i = 0; i < p_array.size() - 1; i += 2) {
         add_piece(p_array[i], refFromRefPtr<Texture>(p_array[i + 1]));
@@ -1568,8 +1568,8 @@ uint32_t CubeMap::get_flags() const {
 
 void CubeMap::set_side(Side p_side, const Ref<Image> &p_image) {
 
-    ERR_FAIL_COND(not p_image)
-    ERR_FAIL_COND(p_image->empty())
+    ERR_FAIL_COND(not p_image);
+    ERR_FAIL_COND(p_image->empty());
     ERR_FAIL_INDEX(p_side, 6);
 
     if (!_is_valid()) {
@@ -1773,7 +1773,7 @@ void CurveTexture::_bind_methods() {
 
 void CurveTexture::set_width(int p_width) {
 
-    ERR_FAIL_COND(p_width < 32 || p_width > 4096)
+    ERR_FAIL_COND(p_width < 32 || p_width > 4096);
     _width = p_width;
     _update();
 }
@@ -1976,7 +1976,7 @@ void ProxyTexture::_bind_methods() {
 
 void ProxyTexture::set_base(const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(p_texture.get() == this)
+    ERR_FAIL_COND(p_texture.get() == this);
     base = p_texture;
     if (base) {
         VisualServer::get_singleton()->texture_set_proxy(proxy, base->get_rid());
@@ -2081,7 +2081,7 @@ void AnimatedTexture::_update_proxy() {
 }
 
 void AnimatedTexture::set_frames(int p_frames) {
-    ERR_FAIL_COND(p_frames < 1 || p_frames > MAX_FRAMES)
+    ERR_FAIL_COND(p_frames < 1 || p_frames > MAX_FRAMES);
 
     RWLockWrite r(rw_lock);
 
@@ -2093,7 +2093,7 @@ int AnimatedTexture::get_frames() const {
 
 void AnimatedTexture::set_frame_texture(int p_frame, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(p_texture.get() == this)
+    ERR_FAIL_COND(p_texture.get() == this);
     ERR_FAIL_INDEX(p_frame, MAX_FRAMES);
 
     RWLockWrite w(rw_lock);
@@ -2124,7 +2124,7 @@ float AnimatedTexture::get_frame_delay(int p_frame) const {
 }
 
 void AnimatedTexture::set_fps(float p_fps) {
-    ERR_FAIL_COND(p_fps < 0 || p_fps >= 1000)
+    ERR_FAIL_COND(p_fps < 0 || p_fps >= 1000);
 
     fps = p_fps;
 }
@@ -2290,19 +2290,19 @@ uint32_t TextureLayered::get_depth() const {
 }
 
 void TextureLayered::_set_data(const Dictionary &p_data) {
-    ERR_FAIL_COND(!p_data.has("width"))
-    ERR_FAIL_COND(!p_data.has("height"))
-    ERR_FAIL_COND(!p_data.has("depth"))
-    ERR_FAIL_COND(!p_data.has("format"))
-    ERR_FAIL_COND(!p_data.has("flags"))
-    ERR_FAIL_COND(!p_data.has("layers"))
+    ERR_FAIL_COND(!p_data.has("width"));
+    ERR_FAIL_COND(!p_data.has("height"));
+    ERR_FAIL_COND(!p_data.has("depth"));
+    ERR_FAIL_COND(!p_data.has("format"));
+    ERR_FAIL_COND(!p_data.has("flags"));
+    ERR_FAIL_COND(!p_data.has("layers"));
     int w = p_data["width"];
     int h = p_data["height"];
     int d = p_data["depth"];
     Image::Format format = Image::Format(int(p_data["format"]));
     int flags = p_data["flags"];
     Array layers = p_data["layers"];
-    ERR_FAIL_COND(layers.size() != d)
+    ERR_FAIL_COND(layers.size() != d);
 
     create(w, h, d, format, flags);
 
@@ -2343,7 +2343,7 @@ void TextureLayered::create(uint32_t p_width, uint32_t p_height, uint32_t p_dept
 }
 
 void TextureLayered::set_layer_data(const Ref<Image> &p_image, int p_layer) {
-    ERR_FAIL_COND(!texture.is_valid())
+    ERR_FAIL_COND(!texture.is_valid());
     ERR_FAIL_COND(!p_image);
     VisualServer::get_singleton()->texture_set_data(texture, p_image, p_layer);
 }
@@ -2355,7 +2355,7 @@ Ref<Image> TextureLayered::get_layer_data(int p_layer) const {
 }
 
 void TextureLayered::set_data_partial(const Ref<Image> &p_image, int p_x_ofs, int p_y_ofs, int p_z, int p_mipmap) {
-    ERR_FAIL_COND(!texture.is_valid())
+    ERR_FAIL_COND(!texture.is_valid());
     ERR_FAIL_COND(!p_image);
     VisualServer::get_singleton()->texture_set_data_partial(texture, p_image, 0, 0, p_image->get_width(), p_image->get_height(), p_x_ofs, p_y_ofs, p_mipmap, p_z);
 }
@@ -2478,7 +2478,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
             //look for a PNG file inside
 
             int mipmaps = f->get_32();
-            Vector<Ref<Image> > mipmap_images;
+            PODVector<Ref<Image> > mipmap_images;
 
             for (int i = 0; i < mipmaps; i++) {
                 uint32_t size = f->get_32();

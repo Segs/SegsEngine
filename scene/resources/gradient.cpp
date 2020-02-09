@@ -183,7 +183,7 @@ void Gradient::add_point(float p_offset, const Color &p_color) {
 void Gradient::remove_point(int p_index) {
 
     ERR_FAIL_INDEX(p_index, points.size());
-            ERR_FAIL_COND(points.size() <= 2)
+            ERR_FAIL_COND(points.size() <= 2);
             points.erase_at(p_index);
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
@@ -196,7 +196,7 @@ void Gradient::set_points(const PODVector<Gradient::Point> &p_points) {
 
 void Gradient::set_offset(int pos, const float offset) {
 
-    ERR_FAIL_COND(pos < 0)
+    ERR_FAIL_COND(pos < 0);
     if (points.size() <= pos)
         points.resize(pos + 1);
     points[pos].offset = offset;
@@ -210,7 +210,7 @@ float Gradient::get_offset(int pos) const {
 }
 
 void Gradient::set_color(int pos, const Color &color) {
-    ERR_FAIL_COND(pos < 0)
+    ERR_FAIL_COND(pos < 0);
     if (points.size() <= pos) {
         points.resize(pos + 1);
         is_sorted = false;

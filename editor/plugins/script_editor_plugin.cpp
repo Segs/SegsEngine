@@ -395,11 +395,11 @@ void ScriptEditor::_save_history() {
 
         if (object_cast<ScriptEditorBase>(n)) {
 
-            history.write[history_pos].state = object_cast<ScriptEditorBase>(n)->get_edit_state();
+            history[history_pos].state = object_cast<ScriptEditorBase>(n)->get_edit_state();
         }
         if (object_cast<EditorHelp>(n)) {
 
-            history.write[history_pos].state = object_cast<EditorHelp>(n)->get_scroll();
+            history[history_pos].state = object_cast<EditorHelp>(n)->get_scroll();
         }
     }
 
@@ -434,11 +434,11 @@ void ScriptEditor::_go_to_tab(int p_idx) {
 
         if (object_cast<ScriptEditorBase>(n)) {
 
-            history.write[history_pos].state = object_cast<ScriptEditorBase>(n)->get_edit_state();
+            history[history_pos].state = object_cast<ScriptEditorBase>(n)->get_edit_state();
         }
         if (object_cast<EditorHelp>(n)) {
 
-            history.write[history_pos].state = object_cast<EditorHelp>(n)->get_scroll();
+            history[history_pos].state = object_cast<EditorHelp>(n)->get_scroll();
         }
     }
 
@@ -620,7 +620,7 @@ void ScriptEditor::_close_tab(int p_idx, bool p_save, bool p_history_back) {
 
     for (int i = 0; i < history.size(); i++) {
         if (history[i].control == tselected) {
-            history.remove(i);
+            history.erase_at(i);
             i--;
             history_pos--;
         }
@@ -999,7 +999,7 @@ Ref<Script> ScriptEditor::_get_current_script() {
 Array ScriptEditor::_get_open_scripts() const {
 
     Array ret;
-    Vector<Ref<Script> > scripts = get_open_scripts();
+    PODVector<Ref<Script> > scripts = get_open_scripts();
     int scrits_amount = scripts.size();
     for (int idx_script = 0; idx_script < scrits_amount; idx_script++) {
         ret.push_back(scripts[idx_script]);
@@ -1054,7 +1054,7 @@ void ScriptEditor::_menu_option(int p_option) {
             if (previous_scripts.empty())
                 return;
 
-            String path = previous_scripts.back()->deref();
+            String path = previous_scripts.back();
             previous_scripts.pop_back();
 
             PODVector<String> extensions;
@@ -1843,7 +1843,7 @@ void ScriptEditor::_update_script_names() {
     ScriptSortBy sort_by = (ScriptSortBy)(int)EditorSettings::get_singleton()->get("text_editor/script_list/sort_scripts_by");
     ScriptListName display_as = (ScriptListName)(int)EditorSettings::get_singleton()->get("text_editor/script_list/list_script_names_as");
 
-    Vector<_ScriptEditorItemData> sedata;
+    PODVector<_ScriptEditorItemData> sedata;
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
 
@@ -1904,7 +1904,7 @@ void ScriptEditor::_update_script_names() {
                 } break;
             }
 
-            sedata.push_back(sd);
+            sedata.emplace_back(eastl::move(sd));
         }
 
         EditorHelp *eh = object_cast<EditorHelp>(tab_container->get_child(i));
@@ -1929,7 +1929,7 @@ void ScriptEditor::_update_script_names() {
     }
 
     if (_sort_list_on_update && !sedata.empty()) {
-        sedata.sort();
+        eastl::sort(sedata.begin(), sedata.end());
 
         // change actual order of tab_container so that the order can be rearranged by user
         int cur_tab = tab_container->get_current_tab();
@@ -1950,7 +1950,7 @@ void ScriptEditor::_update_script_names() {
         _sort_list_on_update = false;
     }
 
-    Vector<_ScriptEditorItemData> sedata_filtered;
+    PODVector<_ScriptEditorItemData> sedata_filtered;
     for (int i = 0; i < sedata.size(); i++) {
         String filter = filter_scripts->get_text();
         if (filter.empty() || StringUtils::is_subsequence_of(filter,sedata[i].name,StringUtils::CaseInsensitive)) {
@@ -2323,9 +2323,9 @@ void ScriptEditor::_editor_stop() {
 
 void ScriptEditor::_add_callback(Object *p_obj, const StringName &p_function, const PoolVector<String> &p_args) {
 
-    ERR_FAIL_COND(!p_obj)
+    ERR_FAIL_COND(!p_obj);
     Ref<Script> script(refFromRefPtr<Script>(p_obj->get_script()));
-    ERR_FAIL_COND(not script)
+    ERR_FAIL_COND(not script);
 
     editor->push_item(script.get());
 
@@ -2905,11 +2905,11 @@ void ScriptEditor::_update_history_pos(int p_new_pos) {
 
     if (object_cast<ScriptEditorBase>(n)) {
 
-        history.write[history_pos].state = object_cast<ScriptEditorBase>(n)->get_edit_state();
+        history[history_pos].state = object_cast<ScriptEditorBase>(n)->get_edit_state();
     }
     if (object_cast<EditorHelp>(n)) {
 
-        history.write[history_pos].state = object_cast<EditorHelp>(n)->get_scroll();
+        history[history_pos].state = object_cast<EditorHelp>(n)->get_scroll();
     }
 
     history_pos = p_new_pos;
@@ -2954,9 +2954,9 @@ void ScriptEditor::_history_back() {
     }
 }
 
-Vector<Ref<Script> > ScriptEditor::get_open_scripts() const {
+PODVector<Ref<Script>> ScriptEditor::get_open_scripts() const {
 
-    Vector<Ref<Script> > out_scripts = Vector<Ref<Script> >();
+    PODVector<Ref<Script> > out_scripts;
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
         ScriptEditorBase *se = object_cast<ScriptEditorBase>(tab_container->get_child(i));
@@ -2965,7 +2965,7 @@ Vector<Ref<Script> > ScriptEditor::get_open_scripts() const {
 
         Ref<Script> script = dynamic_ref_cast<Script>(se->get_edited_resource());
         if (script != nullptr) {
-            out_scripts.push_back(script);
+            out_scripts.emplace_back(eastl::move(script));
         }
     }
 
@@ -3023,7 +3023,7 @@ int ScriptEditor::syntax_highlighters_func_count = 0;
 CreateSyntaxHighlighterFunc ScriptEditor::syntax_highlighters_funcs[ScriptEditor::SYNTAX_HIGHLIGHTER_FUNC_MAX];
 
 void ScriptEditor::register_create_syntax_highlighter_function(CreateSyntaxHighlighterFunc p_func) {
-    ERR_FAIL_COND(syntax_highlighters_func_count == SYNTAX_HIGHLIGHTER_FUNC_MAX)
+    ERR_FAIL_COND(syntax_highlighters_func_count == SYNTAX_HIGHLIGHTER_FUNC_MAX);
     syntax_highlighters_funcs[syntax_highlighters_func_count++] = p_func;
 }
 
@@ -3032,7 +3032,7 @@ CreateScriptEditorFunc ScriptEditor::script_editor_funcs[ScriptEditor::SCRIPT_ED
 
 void ScriptEditor::register_create_script_editor_function(CreateScriptEditorFunc p_func) {
 
-    ERR_FAIL_COND(script_editor_func_count == SCRIPT_EDITOR_FUNC_MAX)
+    ERR_FAIL_COND(script_editor_func_count == SCRIPT_EDITOR_FUNC_MAX);
     script_editor_funcs[script_editor_func_count++] = p_func;
 }
 

@@ -396,23 +396,23 @@ Array Curve::get_data() const {
 
 void Curve::set_data(Array input) {
     const unsigned int ELEMS = 5;
-    ERR_FAIL_COND(input.size() % ELEMS != 0)
+    ERR_FAIL_COND(input.size() % ELEMS != 0);
 
     _points.clear();
 
     // Validate input
     for (int i = 0; i < input.size(); i += ELEMS) {
-        ERR_FAIL_COND(input[i].get_type() != VariantType::VECTOR2)
-        ERR_FAIL_COND(!input[i + 1].is_num())
-        ERR_FAIL_COND(input[i + 2].get_type() != VariantType::REAL)
+        ERR_FAIL_COND(input[i].get_type() != VariantType::VECTOR2);
+        ERR_FAIL_COND(!input[i + 1].is_num());
+        ERR_FAIL_COND(input[i + 2].get_type() != VariantType::REAL);
 
-        ERR_FAIL_COND(input[i + 3].get_type() != VariantType::INT)
+        ERR_FAIL_COND(input[i + 3].get_type() != VariantType::INT);
         int left_mode = input[i + 3];
-        ERR_FAIL_COND(left_mode < 0 || left_mode >= TANGENT_MODE_COUNT)
+        ERR_FAIL_COND(left_mode < 0 || left_mode >= TANGENT_MODE_COUNT);
 
-        ERR_FAIL_COND(input[i + 4].get_type() != VariantType::INT)
+        ERR_FAIL_COND(input[i + 4].get_type() != VariantType::INT);
         int right_mode = input[i + 4];
-        ERR_FAIL_COND(right_mode < 0 || right_mode >= TANGENT_MODE_COUNT)
+        ERR_FAIL_COND(right_mode < 0 || right_mode >= TANGENT_MODE_COUNT);
     }
 
     _points.resize(input.size() / ELEMS);
@@ -456,8 +456,8 @@ void Curve::bake() {
 }
 
 void Curve::set_bake_resolution(int p_resolution) {
-    ERR_FAIL_COND(p_resolution < 1)
-    ERR_FAIL_COND(p_resolution > 1000)
+    ERR_FAIL_COND(p_resolution < 1);
+    ERR_FAIL_COND(p_resolution > 1000);
     _bake_resolution = p_resolution;
     _baked_cache_dirty = true;
 }
@@ -926,11 +926,11 @@ Dictionary Curve2D::_get_data() const {
 }
 void Curve2D::_set_data(const Dictionary &p_data) {
 
-    ERR_FAIL_COND(!p_data.has("points"))
+    ERR_FAIL_COND(!p_data.has("points"));
 
     PoolVector2Array rp = p_data["points"];
     int pc = rp.size();
-    ERR_FAIL_COND(pc % 3 != 0)
+    ERR_FAIL_COND(pc % 3 != 0);
     points.resize(pc / 3);
     PoolVector2Array::Read r = rp.read();
 
@@ -980,7 +980,7 @@ PoolVector2Array Curve2D::tessellate(int p_max_stages, float p_tolerance) const 
         bpw[pidx] = points[i + 1].pos;
     }
 
-    bpw = PoolVector2Array::Write();
+    //bpw = PoolVector2Array::Write();
 
     return tess;
 }
@@ -1601,12 +1601,12 @@ Dictionary Curve3D::_get_data() const {
 }
 void Curve3D::_set_data(const Dictionary &p_data) {
 
-    ERR_FAIL_COND(!p_data.has("points"))
-    ERR_FAIL_COND(!p_data.has("tilts"))
+    ERR_FAIL_COND(!p_data.has("points"));
+    ERR_FAIL_COND(!p_data.has("tilts"));
 
     PoolVector3Array rp = p_data["points"];
     int pc = rp.size();
-    ERR_FAIL_COND(pc % 3 != 0)
+    ERR_FAIL_COND(pc % 3 != 0);
     points.resize(pc / 3);
     PoolVector3Array::Read r = rp.read();
     PoolRealArray rtl = p_data["tilts"];
@@ -1659,7 +1659,7 @@ PoolVector3Array Curve3D::tessellate(int p_max_stages, float p_tolerance) const 
         bpw[pidx] = points[i + 1].pos;
     }
 
-    bpw = PoolVector3Array::Write();
+    //bpw = PoolVector3Array::Write();
 
     return tess;
 }

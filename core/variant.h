@@ -519,7 +519,10 @@ template <> GODOT_EXPORT IP_Address Variant::as<IP_Address>() const;
 template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
 template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
+
 template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
+template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
+
 template <> GODOT_EXPORT PODVector<String> Variant::as<PODVector<String>>() const;
 template <> GODOT_EXPORT PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const;
 template <> GODOT_EXPORT PODVector<int> Variant::asVector<int>() const;
@@ -537,7 +540,6 @@ template <> GODOT_EXPORT Vector<Variant> Variant::as<Vector<Variant>>() const;
 template <> GODOT_EXPORT Vector<Vector2> Variant::as<Vector<Vector2>>() const;
 template <> GODOT_EXPORT Vector<Vector3> Variant::as<Vector<Vector3>>() const;
 template <> GODOT_EXPORT Vector<RID> Variant::as<Vector<RID>>() const;
-template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<float> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);

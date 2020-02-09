@@ -459,7 +459,7 @@ void GradientEdit::_color_changed(const Color &p_color) {
 
 void GradientEdit::set_ramp(Span<const float> p_offsets, const PODVector<Color> &p_colors) {
 
-    ERR_FAIL_COND(p_offsets.size() != p_colors.size())
+    ERR_FAIL_COND(p_offsets.size() != p_colors.size());
     points.clear();
     points.reserve(p_offsets.size());
     for (int i = 0; i < p_offsets.size(); i++) {

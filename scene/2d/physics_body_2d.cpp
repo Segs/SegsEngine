@@ -265,12 +265,12 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
-    ERR_FAIL_COND(!contact_monitor)
+    ERR_FAIL_COND(!contact_monitor);
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
-    ERR_FAIL_COND(E==contact_monitor->body_map.end())
-    ERR_FAIL_COND(E->second.in_scene)
+    ERR_FAIL_COND(E==contact_monitor->body_map.end());
+    ERR_FAIL_COND(E->second.in_scene);
 
     contact_monitor->locked = true;
 
@@ -289,11 +289,11 @@ void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
-    ERR_FAIL_COND(!contact_monitor)
+    ERR_FAIL_COND(!node);
+    ERR_FAIL_COND(!contact_monitor);
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
-    ERR_FAIL_COND(E==contact_monitor->body_map.end())
-    ERR_FAIL_COND(!E->second.in_scene)
+    ERR_FAIL_COND(E==contact_monitor->body_map.end());
+    ERR_FAIL_COND(!E->second.in_scene);
     E->second.in_scene = false;
 
     contact_monitor->locked = true;
@@ -316,10 +316,10 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
     Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
-    ERR_FAIL_COND(!contact_monitor)
+    ERR_FAIL_COND(!contact_monitor);
     Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(objid);
 
-    ERR_FAIL_COND(!body_in && E==contact_monitor->body_map.end())
+    ERR_FAIL_COND(!body_in && E==contact_monitor->body_map.end());
 
     if (body_in) {
         if (E==contact_monitor->body_map.end()) {
@@ -528,7 +528,7 @@ RigidBody2D::Mode RigidBody2D::get_mode() const {
 
 void RigidBody2D::set_mass(real_t p_mass) {
 
-    ERR_FAIL_COND(p_mass <= 0)
+    ERR_FAIL_COND(p_mass <= 0);
     mass = p_mass;
     Object_change_notify(this,"mass");
     Object_change_notify(this,"weight");
@@ -541,7 +541,7 @@ real_t RigidBody2D::get_mass() const {
 
 void RigidBody2D::set_inertia(real_t p_inertia) {
 
-    ERR_FAIL_COND(p_inertia < 0)
+    ERR_FAIL_COND(p_inertia < 0);
     Physics2DServer::get_singleton()->body_set_param(get_rid(), Physics2DServer::BODY_PARAM_INERTIA, p_inertia);
 }
 
@@ -595,7 +595,7 @@ real_t RigidBody2D::get_gravity_scale() const {
 
 void RigidBody2D::set_linear_damp(real_t p_linear_damp) {
 
-    ERR_FAIL_COND(p_linear_damp < -1)
+    ERR_FAIL_COND(p_linear_damp < -1);
     linear_damp = p_linear_damp;
     Physics2DServer::get_singleton()->body_set_param(get_rid(), Physics2DServer::BODY_PARAM_LINEAR_DAMP, linear_damp);
 }
@@ -606,7 +606,7 @@ real_t RigidBody2D::get_linear_damp() const {
 
 void RigidBody2D::set_angular_damp(real_t p_angular_damp) {
 
-    ERR_FAIL_COND(p_angular_damp < -1)
+    ERR_FAIL_COND(p_angular_damp < -1);
     angular_damp = p_angular_damp;
     Physics2DServer::get_singleton()->body_set_param(get_rid(), Physics2DServer::BODY_PARAM_ANGULAR_DAMP, angular_damp);
 }

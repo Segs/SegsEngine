@@ -315,7 +315,7 @@ void FileAccessZip::close() {
         return;
 
     ZipArchive *arch = ZipArchive::get_singleton();
-    ERR_FAIL_COND(!arch)
+    ERR_FAIL_COND(!arch);
     arch->close_handle(zfile);
     zfile = nullptr;
 }
@@ -327,13 +327,13 @@ bool FileAccessZip::is_open() const {
 
 void FileAccessZip::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!zfile)
+    ERR_FAIL_COND(!zfile);
     unzSeekCurrentFile(zfile, p_position);
 }
 
 void FileAccessZip::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!zfile)
+    ERR_FAIL_COND(!zfile);
     unzSeekCurrentFile(zfile, get_len() + p_position);
 }
 

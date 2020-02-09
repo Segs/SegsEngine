@@ -202,10 +202,10 @@ X509CertificateMbedTLS *CryptoMbedTLS::get_default_certificates() {
 }
 
 void CryptoMbedTLS::load_default_certificates(se_string_view p_path) {
-    ERR_FAIL_COND(default_certs != nullptr)
+    ERR_FAIL_COND(default_certs != nullptr);
 
     default_certs = memnew(X509CertificateMbedTLS);
-    ERR_FAIL_COND(default_certs == nullptr)
+    ERR_FAIL_COND(default_certs == nullptr);
 
     if (!p_path.empty()) {
         // Use certs defined in project settings.

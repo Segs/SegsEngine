@@ -202,10 +202,10 @@ void RayCast::_notification(int p_what) {
 
 void RayCast::_update_raycast_state() {
     Ref<World> w3d = get_world();
-    ERR_FAIL_COND(not w3d)
+    ERR_FAIL_COND(not w3d);
 
     PhysicsDirectSpaceState *dss = PhysicsServer::get_singleton()->space_get_direct_state(w3d->get_space());
-    ERR_FAIL_COND(!dss)
+    ERR_FAIL_COND(!dss);
 
     Transform gt = get_global_transform();
 

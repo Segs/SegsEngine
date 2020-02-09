@@ -104,8 +104,8 @@ class ProjectSettingsEditor : public AcceptDialog {
     Tree *translation_filter;
     bool translation_locales_list_created;
     OptionButton *translation_locale_filter_mode;
-    Vector<TreeItem *> translation_filter_treeitems;
-    Vector<int> translation_locales_idxs_remap;
+    PODVector<TreeItem *> translation_filter_treeitems;
+    PODVector<int> translation_locales_idxs_remap;
 
     EditorAutoloadSettings *autoload_settings;
 

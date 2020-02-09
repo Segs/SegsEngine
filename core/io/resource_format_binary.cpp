@@ -1792,11 +1792,11 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
 
     // save external resource table
     f->store_32(external_resources.size()); //amount of external resources
-    Vector<RES> save_order;
+    PODVector<RES> save_order;
     save_order.resize(external_resources.size());
 
     for (const eastl::pair<const RES,int> &E : external_resources) {
-        save_order.write[E.second] = E.first;
+        save_order[E.second] = E.first;
     }
 
     for (int i = 0; i < save_order.size(); i++) {
@@ -1808,7 +1808,9 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
     }
     // save internal resource table
     f->store_32(saved_resources.size()); //amount of internal resources
-    Vector<uint64_t> ofs_pos;
+    PODVector<uint64_t> ofs_pos;
+    ofs_pos.reserve(saved_resources.size());
+
     Set<int> used_indices;
 
     for(const RES &r : saved_resources ) {
@@ -1850,7 +1852,8 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
         f->store_64(0); //offset in 64 bits
     }
 
-    Vector<uint64_t> ofs_table;
+    PODVector<uint64_t> ofs_table;
+    ofs_table.reserve(resources.size());
 
     //now actually save the resources
     for(ResourceData &rd : resources ) {

@@ -96,10 +96,10 @@ public:
         Node *root = EditorNode::get_singleton()->get_tree()->get_root();
 
         Node *np_node = root->get_node(np);
-        ERR_FAIL_COND(!np_node)
+        ERR_FAIL_COND(!np_node);
 
         Node *edited_node = root->get_node(base);
-        ERR_FAIL_COND(!edited_node)
+        ERR_FAIL_COND(!edited_node);
 
         value = edited_node->get_path_to(np_node);
     }
@@ -487,7 +487,7 @@ public:
 
                 ERR_FAIL_COND_V(!d.has("args"), false);
 
-                Vector<Variant> args = d["args"].as<Vector<Variant>>();;
+                Array args = d["args"].as<Array>();
 
                 if (name == "arg_count"_sv) {
                     r_ret = args.size();
@@ -567,7 +567,7 @@ public:
 
         ERR_FAIL_INDEX(track, animation->get_track_count());
         int key = animation->track_find_key(track, key_ofs, true);
-        ERR_FAIL_COND(key == -1)
+        ERR_FAIL_COND(key == -1);
 
         if (use_fps && animation->get_step() > 0) {
             float max_frame = animation->get_length() / animation->get_step();
@@ -620,8 +620,8 @@ public:
                 p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
                 Dictionary d = animation->track_get_key_value(track, key);
-                ERR_FAIL_COND(!d.has("args"))
-                Vector<Variant> args = d["args"].as<Vector<Variant>>();;
+                ERR_FAIL_COND(!d.has("args"));
+                Array args = d["args"].as<Array>();
                 String vtypes;
                 for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
@@ -749,10 +749,10 @@ public:
         Node *root = EditorNode::get_singleton()->get_tree()->get_root();
 
         Node *np_node = root->get_node(np);
-        ERR_FAIL_COND(!np_node)
+        ERR_FAIL_COND(!np_node);
 
         Node *edited_node = root->get_node(base);
-        ERR_FAIL_COND(!edited_node)
+        ERR_FAIL_COND(!edited_node);
 
         value = edited_node->get_path_to(np_node);
     }
@@ -900,13 +900,13 @@ public:
                             d_new["method"] = p_value;
                         } else if (name == "arg_count"_sv) {
 
-                            Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
+                            Array args = d_old["args"].as<Array>();
                             args.resize(p_value);
-                            d_new["args"] = Variant::from(args);
+                            d_new["args"] = Variant::move_from(eastl::move(args));
                             change_notify_deserved = true;
                         } else if (StringUtils::begins_with(name,"args/")) {
 
-                            Vector<Variant> args = d_old["args"].as<Vector<Variant>>();
+                            Array args = d_old["args"].as<Array>();
                             int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                             ERR_FAIL_INDEX_V(idx, args.size(), false);
 
@@ -919,10 +919,10 @@ public:
                                     if (Variant::can_convert(args[idx].get_type(), t)) {
                                         Variant old = args[idx];
                                         Variant *ptrs[1] = { &old };
-                                        args.write[idx] = Variant::construct(t, (const Variant **)ptrs, 1, err);
+                                        args[idx] = Variant::construct(t, (const Variant **)ptrs, 1, err);
                                     } else {
 
-                                        args.write[idx] = Variant::construct(t, nullptr, 0, err);
+                                        args[idx] = Variant::construct(t, nullptr, 0, err);
                                     }
                                     change_notify_deserved = true;
                                     d_new["args"] = Variant::from(args);
@@ -935,8 +935,8 @@ public:
                                     _fix_node_path(value, base_map[track]);
                                 }
 
-                                args.write[idx] = value;
-                                d_new["args"] = Variant::from(args);
+                                args[idx] = value;
+                                d_new["args"] = Variant::move_from(eastl::move(args));
                                 mergeable = true;
                             }
                         }
@@ -1138,7 +1138,7 @@ public:
 
                         ERR_FAIL_COND_V(!d.has("args"), false);
 
-                        Vector<Variant> args = d["args"].as<Vector<Variant>>();
+                        Array args = d["args"].as<Array>();
 
                         if (name == "arg_count"_sv) {
 
@@ -1246,7 +1246,7 @@ public:
                 for (float F : E.second) {
 
                     int key = animation->track_find_key(track, F, true);
-                    ERR_FAIL_COND(key == -1)
+                    ERR_FAIL_COND(key == -1);
                     if (first_key < 0)
                         first_key = key;
 
@@ -1314,8 +1314,8 @@ public:
                     p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
                     Dictionary d = animation->track_get_key_value(first_track, first_key);
-                    ERR_FAIL_COND(!d.has("args"))
-                    Vector<Variant> args = d["args"].as<Vector<Variant>>();
+                    ERR_FAIL_COND(!d.has("args"));
+                    Array args = d["args"].as<Array>();
                     String vtypes;
                     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
@@ -1324,7 +1324,7 @@ public:
                         vtypes += Variant::get_type_name(VariantType(i));
                     }
 
-                    for (int i = 0; i < args.size(); i++) {
+                    for (int i = 0,fin=args.size(); i < fin; i++) {
 
                         p_list->push_back(PropertyInfo(VariantType::INT, StringName("args/" + itos(i) + "/type"), PropertyHint::Enum, vtypes));
                         if (args[i].get_type() != VariantType::NIL)
@@ -2306,9 +2306,9 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
         if (d.has("method"))
             text += d["method"].as<String>();
         text += '(';
-        Vector<Variant> args;
+        Array args;
         if (d.has("args"))
-            args = d["args"].as<Vector<Variant>>();
+            args = d["args"].as<Array>();
         for (int i = 0; i < args.size(); i++) {
 
             if (i > 0)
@@ -2603,9 +2603,9 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                     if (d.has("method"))
                         text += String(d["method"]);
                     text += '(';
-                    Vector<Variant> args;
+                    Array args;
                     if (d.has("args"))
-                        args = d["args"].as<Vector<Variant>>();
+                        args = d["args"].as<Array>();
                     for (int i = 0; i < args.size(); i++) {
 
                         if (i > 0)
@@ -3570,7 +3570,7 @@ void AnimationTrackEditor::insert_transform_key(Spatial *p_node, se_string_view 
     if (not animation)
         return;
 
-    ERR_FAIL_COND(!root)
+    ERR_FAIL_COND(!root);
     //let's build a node path
     String path(root->get_path_to(p_node));
     if (!p_sub.empty())
@@ -3643,7 +3643,7 @@ void AnimationTrackEditor::_insert_animation_key(const NodePath& p_path, const V
 
 void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_property, const Variant &p_value, bool p_only_if_exists) {
 
-    ERR_FAIL_COND(!root)
+    ERR_FAIL_COND(!root);
     //let's build a node path
 
     Node *node = p_node;
@@ -3663,7 +3663,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
     for (int i = 1; i < history->get_path_size(); i++) {
 
         String prop = history->get_path_property(i);
-        ERR_FAIL_COND(prop.empty())
+        ERR_FAIL_COND(prop.empty());
         path += ":" + prop;
     }
 
@@ -3740,11 +3740,11 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
 
     EditorHistory *history = EditorNode::get_singleton()->get_editor_history();
 
-    ERR_FAIL_COND(!root)
+    ERR_FAIL_COND(!root);
     //let's build a node path
-    ERR_FAIL_COND(history->get_path_size() == 0)
+    ERR_FAIL_COND(history->get_path_size() == 0);
     Object *obj = ObjectDB::get_instance(history->get_path_object(0));
-    ERR_FAIL_COND(!object_cast<Node>(obj))
+    ERR_FAIL_COND(!object_cast<Node>(obj));
 
     Node *node = object_cast<Node>(obj);
 
@@ -3762,7 +3762,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
     for (int i = 1; i < history->get_path_size(); i++) {
 
         String prop = history->get_path_property(i);
-        ERR_FAIL_COND(prop.empty())
+        ERR_FAIL_COND(prop.empty());
         path += ":" + prop;
     }
 
@@ -4450,9 +4450,9 @@ void AnimationTrackEditor::_dropped_track(int p_from_track, int p_to_track) {
 
 void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
 
-    ERR_FAIL_COND(!root)
+    ERR_FAIL_COND(!root);
     Node *node = get_node(p_path);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     NodePath path_to = root->get_path_to(node);
 
     if (adding_track_type == Animation::TYPE_TRANSFORM && !node->is_class("Spatial")) {
@@ -4463,7 +4463,7 @@ void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
     switch (adding_track_type) {
         case Animation::TYPE_VALUE: {
             adding_track_path = path_to;
-            prop_selector->set_type_filter(Vector<VariantType>());
+            prop_selector->set_type_filter({});
             prop_selector->select_property_from_instance(node);
         } break;
         case Animation::TYPE_TRANSFORM:
@@ -4478,14 +4478,15 @@ void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
         } break;
         case Animation::TYPE_BEZIER: {
 
-            Vector<VariantType> filter;
-            filter.push_back(VariantType::INT);
-            filter.push_back(VariantType::REAL);
-            filter.push_back(VariantType::VECTOR2);
-            filter.push_back(VariantType::VECTOR3);
-            filter.push_back(VariantType::QUAT);
-            filter.push_back(VariantType::PLANE);
-            filter.push_back(VariantType::COLOR);
+            const PODVector<VariantType> filter = {
+                VariantType::INT,
+                VariantType::REAL,
+                VariantType::VECTOR2,
+                VariantType::VECTOR3,
+                VariantType::QUAT,
+                VariantType::PLANE,
+                VariantType::COLOR,
+            };
 
             adding_track_path = path_to;
             prop_selector->set_type_filter(filter);
@@ -4947,7 +4948,7 @@ void AnimationTrackEditor::_select_at_anim(const Ref<Animation> &p_anim, int p_t
         return;
 
     int idx = animation->track_find_key(p_track, p_pos, true);
-    ERR_FAIL_COND(idx < 0)
+    ERR_FAIL_COND(idx < 0);
 
     SelectedKey sk;
     sk.track = p_track;
@@ -5192,7 +5193,7 @@ void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
             if (sk.track < top_track)
                 top_track = sk.track;
         }
-        ERR_FAIL_COND(top_track == 0x7FFFFFFF || top_time == 1e10)
+        ERR_FAIL_COND(top_track == 0x7FFFFFFF || top_time == 1e10);
 
         //
 

@@ -151,8 +151,8 @@ void Node::_notification(int p_notification) {
 
         } break;
         case NOTIFICATION_ENTER_TREE: {
-            ERR_FAIL_COND(!get_viewport())
-            ERR_FAIL_COND(!get_tree())
+            ERR_FAIL_COND(!get_viewport());
+            ERR_FAIL_COND(!get_tree());
 
             if (data->pause_mode == PAUSE_MODE_INHERIT) {
 
@@ -176,8 +176,8 @@ void Node::_notification(int p_notification) {
 
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            ERR_FAIL_COND(!get_viewport())
-            ERR_FAIL_COND(!get_tree())
+            ERR_FAIL_COND(!get_viewport());
+            ERR_FAIL_COND(!get_tree());
 
             get_tree()->node_count--;
             orphan_node_count++;
@@ -407,7 +407,7 @@ void Node::_propagate_exit_tree() {
 void Node::move_child(Node *p_child, int p_pos) {
 
     ERR_FAIL_NULL(p_child);
-    ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".")
+    ERR_FAIL_INDEX_MSG(p_pos, data->children.size() + 1, "Invalid new child position: " + itos(p_pos) + ".");
     ERR_FAIL_COND_MSG(p_child->data->parent != this, "Child is not a child of this node.");
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, move_child() failed. Consider using call_deferred(\"move_child\") instead (or \"popup\" if this is from a popup).");
 
@@ -763,12 +763,12 @@ Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Va
 }
 
 void Node::rpcp(int p_peer_id, bool p_unreliable, const StringName &p_method, const Variant **p_arg, int p_argcount) {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     get_multiplayer()->rpcp(this, p_peer_id, p_unreliable, p_method, p_arg, p_argcount);
 }
 
 void Node::rsetp(int p_peer_id, bool p_unreliable, const StringName &p_property, const Variant &p_value) {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     get_multiplayer()->rsetp(this, p_peer_id, p_unreliable, p_property, p_value);
 }
 
@@ -1031,7 +1031,7 @@ void Node::set_name(se_string_view p_name) {
     String name(p_name);
     _validate_node_name(name);
 
-    ERR_FAIL_COND(name.empty())
+    ERR_FAIL_COND(name.empty());
     data->name = StringName(name);
 
     if (data->parent) {
@@ -1109,7 +1109,7 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
 
         if (!unique) {
 
-            ERR_FAIL_COND(!node_hrcr_count.ref())
+            ERR_FAIL_COND(!node_hrcr_count.ref());
             String name = "@" + String(p_child->get_name()) + "@" + itos(node_hrcr_count.get());
             p_child->data->name = StringName(name);
         }
@@ -1343,7 +1343,7 @@ void Node::remove_child(Node *p_child) {
     }
 
     ERR_FAIL_COND_MSG(idx == -1, "Cannot remove child node " + String(p_child->get_name()) + " as it is not a child of this node.");
-    //ERR_FAIL_COND( p_child->blocked > 0 )
+    //ERR_FAIL_COND();
 
     //if (data->scene) { does not matter
 
@@ -1763,7 +1763,7 @@ bool Node::is_in_group(const StringName &p_identifier) const {
 
 void Node::add_to_group(const StringName &p_identifier, bool p_persistent) {
 
-    ERR_FAIL_COND(!p_identifier.asString().length())
+    ERR_FAIL_COND(!p_identifier.asString().length());
 
     if (data->grouped.contains(p_identifier))
         return;
@@ -1783,11 +1783,11 @@ void Node::add_to_group(const StringName &p_identifier, bool p_persistent) {
 
 void Node::remove_from_group(const StringName &p_identifier) {
 
-    ERR_FAIL_COND(!data->grouped.contains(p_identifier))
+    ERR_FAIL_COND(!data->grouped.contains(p_identifier));
 
     Map<StringName, GroupData>::iterator E = data->grouped.find(p_identifier);
 
-    ERR_FAIL_COND(E==data->grouped.end())
+    ERR_FAIL_COND(E==data->grouped.end());
 
     if (tree)
         tree->remove_from_group(E->first, this);
@@ -1855,7 +1855,7 @@ void Node::_propagate_reverse_notification(int p_notification) {
 
 void Node::_propagate_deferred_notification(int p_notification, bool p_reverse) {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     blocked++;
 
@@ -1918,7 +1918,7 @@ int Node::get_index() const {
 }
 void Node::remove_and_skip() {
 
-    ERR_FAIL_COND(!data->parent)
+    ERR_FAIL_COND(!data->parent);
 
     Node *new_owner = get_owner();
 
@@ -2263,9 +2263,9 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
     if (!get_filename().empty()) {
 
         Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
-        ERR_FAIL_COND(not res)
+        ERR_FAIL_COND(not res);
         node = res->instance();
-        ERR_FAIL_COND(!node)
+        ERR_FAIL_COND(!node);
     } else {
 
         Object *obj = ClassDB::instance(get_class_name());
@@ -2625,7 +2625,7 @@ void Node::_set_tree(SceneTree *p_tree) {
     SceneTree *tree_changed_a = nullptr;
     SceneTree *tree_changed_b = nullptr;
 
-    //ERR_FAIL_COND(p_scene && data->parent && !data->parent->data->scene) //nobug if both are null
+    //ERR_FAIL_COND(p_scene && data->parent && !data->parent->data->scene); //nobug if both are null
 
     if (tree) {
         _propagate_exit_tree();
@@ -3038,8 +3038,8 @@ Node::~Node() {
     data->owned.clear();
     data->children.clear();
 
-    ERR_FAIL_COND(data->parent)
-    ERR_FAIL_COND(data->children.size())
+    ERR_FAIL_COND(data->parent);
+    ERR_FAIL_COND(data->children.size());
     memdelete(data);
     orphan_node_count--;
 }

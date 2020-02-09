@@ -1932,14 +1932,14 @@ const ShaderLanguage::BuiltinFuncDef ShaderLanguage::builtin_func_defs[] = {
     { "texture", TYPE_UVEC4, { TYPE_USAMPLER2D, TYPE_VEC2, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_IVEC4, { TYPE_ISAMPLER2D, TYPE_VEC2, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_IVEC4, { TYPE_ISAMPLER2D, TYPE_VEC2, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
-    { "texture", TYPE_VEC4, { TYPE_SAMPLER2DARRAY, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, true },
-    { "texture", TYPE_VEC4, { TYPE_SAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
+    { "texture", TYPE_VEC4, { TYPE_SAMPLER2DARRAY, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, false },
+    { "texture", TYPE_VEC4, { TYPE_SAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
     { "texture", TYPE_UVEC4, { TYPE_USAMPLER2DARRAY, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_UVEC4, { TYPE_USAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_IVEC4, { TYPE_ISAMPLER2DARRAY, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_IVEC4, { TYPE_ISAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
-    { "texture", TYPE_VEC4, { TYPE_SAMPLER3D, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, true },
-    { "texture", TYPE_VEC4, { TYPE_SAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
+    { "texture", TYPE_VEC4, { TYPE_SAMPLER3D, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, false },
+    { "texture", TYPE_VEC4, { TYPE_SAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
     { "texture", TYPE_UVEC4, { TYPE_USAMPLER3D, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_UVEC4, { TYPE_USAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "texture", TYPE_IVEC4, { TYPE_ISAMPLER3D, TYPE_VEC3, TYPE_VOID }, TAG_GLOBAL, true },
@@ -1969,10 +1969,10 @@ const ShaderLanguage::BuiltinFuncDef ShaderLanguage::builtin_func_defs[] = {
     { "textureLod", TYPE_VEC4, { TYPE_SAMPLER2D, TYPE_VEC2, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
     { "textureLod", TYPE_IVEC4, { TYPE_ISAMPLER2D, TYPE_VEC2, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "textureLod", TYPE_UVEC4, { TYPE_USAMPLER2D, TYPE_VEC2, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
-    { "textureLod", TYPE_VEC4, { TYPE_SAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
+    { "textureLod", TYPE_VEC4, { TYPE_SAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
     { "textureLod", TYPE_IVEC4, { TYPE_ISAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "textureLod", TYPE_UVEC4, { TYPE_USAMPLER2DARRAY, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
-    { "textureLod", TYPE_VEC4, { TYPE_SAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
+    { "textureLod", TYPE_VEC4, { TYPE_SAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
     { "textureLod", TYPE_IVEC4, { TYPE_ISAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "textureLod", TYPE_UVEC4, { TYPE_USAMPLER3D, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, true },
     { "textureLod", TYPE_VEC4, { TYPE_SAMPLERCUBE, TYPE_VEC3, TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
@@ -2762,7 +2762,7 @@ static String join_args(const PODVector<ShaderLanguage::Node *> &arguments) {
 }
 ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types) {
 
-    Vector<Expression> expression;
+    PODVector<Expression> expression;
 
     //Vector<TokenType> operators;
 
@@ -2948,15 +2948,31 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 IdentifierType ident_type;
                 bool is_const = false;
                 int array_size = 0;
+                if (p_block && p_block->block_tag != SubClassTag::TAG_GLOBAL) {
+                    int idx = 0;
+                    bool found = false;
 
-                if (!_find_identifier(p_block, p_builtin_types, identifier, &data_type, &ident_type, &is_const, &array_size)) {
-                    _set_error("Unknown identifier in expression: " + String(identifier));
-                    return nullptr;
-                }
+                    while (builtin_func_defs[idx].name) {
+                        if (builtin_func_defs[idx].tag == p_block->block_tag && builtin_func_defs[idx].name == identifier) {
+                            found = true;
+                            break;
+                        }
+                        idx++;
+                    }
+                    if (!found) {
+                        _set_error("Unknown identifier in expression: " + String(identifier));
+                        return NULL;
+                    }
+                } else {
+                    if (!_find_identifier(p_block, p_builtin_types, identifier, &data_type, &ident_type, &is_const, &array_size)) {
+                        _set_error("Unknown identifier in expression: " + String(identifier));
+                        return nullptr;
+                    }
 
-                if (ident_type == IDENTIFIER_FUNCTION) {
-                    _set_error("Can't use function as identifier: " + String(identifier));
-                    return nullptr;
+                    if (ident_type == IDENTIFIER_FUNCTION) {
+                        _set_error("Can't use function as identifier: " + String(identifier));
+                        return nullptr;
+                    }
                 }
 
                 Node *index_expression = nullptr;
@@ -2972,7 +2988,10 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
                     if (tk.type == TK_PERIOD) {
                         completion_class = TAG_ARRAY;
+                        p_block->block_tag = SubClassTag::TAG_ARRAY;
                         call_expression = _parse_and_reduce_expression(p_block, p_builtin_types);
+                        p_block->block_tag = SubClassTag::TAG_GLOBAL;
+
                         if (!call_expression)
                             return nullptr;
                         data_type = call_expression->get_datatype();
@@ -3244,9 +3263,6 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                                 _set_error("Index out of range (0-1)");
                                 return nullptr;
                             }
-                        } else {
-                            _set_error("Only integer constants are allowed as index at the moment");
-                            return nullptr;
                         }
 
                         switch (expr->get_datatype()) {
@@ -3270,9 +3286,6 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                                 _set_error("Index out of range (0-2)");
                                 return nullptr;
                             }
-                        } else {
-                            _set_error("Only integer constants are allowed as index at the moment");
-                            return nullptr;
                         }
 
                         switch (expr->get_datatype()) {
@@ -3295,9 +3308,6 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                                 _set_error("Index out of range (0-3)");
                                 return nullptr;
                             }
-                        } else {
-                            _set_error("Only integer constants are allowed as index at the moment");
-                            return nullptr;
                         }
 
                         switch (expr->get_datatype()) {
@@ -3533,8 +3543,8 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 }
                 op->arguments.push_back(expression[i + 1].node);
 
-                expression.write[i].is_op = false;
-                expression.write[i].node = op;
+                expression[i].is_op = false;
+                expression[i].node = op;
 
                 if (!_validate_operator(op, &op->return_cache)) {
 
@@ -3542,7 +3552,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     _set_error(FormatVE("Invalid arguments to unary operator '%s' :%s",get_operator_text(op->op),at.c_str()));
                     return nullptr;
                 }
-                expression.remove(i + 1);
+                expression.erase_at(i + 1);
             }
 
         } else if (is_ternary) {
@@ -3561,8 +3571,8 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             op->op = expression[next_op].op;
             op->arguments = { expression[next_op - 1].node, expression[next_op + 1].node, expression[next_op + 3].node };
 
-            expression.write[next_op - 1].is_op = false;
-            expression.write[next_op - 1].node = op;
+            expression[next_op - 1].is_op = false;
+            expression[next_op - 1].node = op;
             if (!_validate_operator(op, &op->return_cache)) {
 
                 String at = join_args(op->arguments);
@@ -3571,7 +3581,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             }
 
             for (int i = 0; i < 4; i++) {
-                expression.remove(next_op);
+                expression.erase_at(next_op);
             }
 
         } else {
@@ -3611,7 +3621,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
 
             op->arguments.push_back(expression[next_op - 1].node); //expression goes as left
             op->arguments.push_back(expression[next_op + 1].node); //next expression goes as right
-            expression.write[next_op - 1].node = op;
+            expression[next_op - 1].node = op;
 
             //replace all 3 nodes by this operator and make it an expression
 
@@ -3622,8 +3632,8 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                 return nullptr;
             }
 
-            expression.remove(next_op);
-            expression.remove(next_op);
+            expression.erase_at(next_op);
+            expression.erase_at(next_op);
         }
     }
 

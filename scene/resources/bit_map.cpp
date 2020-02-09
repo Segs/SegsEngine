@@ -38,8 +38,8 @@ IMPL_GDCLASS(BitMap)
 
 void BitMap::create(const Size2 &p_size) {
 
-    ERR_FAIL_COND(p_size.width < 1)
-    ERR_FAIL_COND(p_size.height < 1)
+    ERR_FAIL_COND(p_size.width < 1);
+    ERR_FAIL_COND(p_size.height < 1);
 
     width = p_size.width;
     height = p_size.height;
@@ -49,10 +49,10 @@ void BitMap::create(const Size2 &p_size) {
 
 void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshold) {
 
-    ERR_FAIL_COND(not p_image || p_image->empty())
+    ERR_FAIL_COND(not p_image || p_image->empty());
     Ref<Image> img(dynamic_ref_cast<Image>(p_image->duplicate()));
     img->convert(Image::FORMAT_LA8);
-    ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8)
+    ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8);
 
     create(Size2(img->get_width(), img->get_height()));
 
@@ -163,8 +163,8 @@ Size2 BitMap::get_size() const {
 
 void BitMap::_set_data(const Dictionary &p_d) {
 
-    ERR_FAIL_COND(!p_d.has("size"))
-    ERR_FAIL_COND(!p_d.has("data"))
+    ERR_FAIL_COND(!p_d.has("size"));
+    ERR_FAIL_COND(!p_d.has("data"));
 
     create(p_d["size"]);
     bitmask = p_d["data"].as<PoolVector<uint8_t>>();

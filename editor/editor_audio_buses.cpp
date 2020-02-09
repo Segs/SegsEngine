@@ -543,9 +543,9 @@ void EditorAudioBus::_effect_add(int p_which) {
     StringName name = effect_options->get_item_metadata(p_which);
 
     Object *fx = ClassDB::instance(name);
-    ERR_FAIL_COND(!fx)
+    ERR_FAIL_COND(!fx);
     AudioEffect *afx = object_cast<AudioEffect>(fx);
-    ERR_FAIL_COND(!afx)
+    ERR_FAIL_COND(!afx);
     Ref<AudioEffect> afxr = Ref<AudioEffect>(afx);
 
     afxr->set_name(effect_options->get_item_text_utf8(p_which));

@@ -39,11 +39,11 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
     resources.clear();
 
-    ERR_FAIL_COND(p_data.size() != 2)
+    ERR_FAIL_COND(p_data.size() != 2);
     PoolVector<String> names = p_data[0].as<PoolVector<String>>();
     Array resdata = p_data[1];
 
-    ERR_FAIL_COND(names.size() != resdata.size())
+    ERR_FAIL_COND(names.size() != resdata.size());
 
     for (int i = 0; i < resdata.size(); i++) {
 
@@ -85,7 +85,7 @@ Array ResourcePreloader::_get_resources() const {
 
 void ResourcePreloader::add_resource(const StringName &p_name, const RES &p_resource) {
 
-    ERR_FAIL_COND(not p_resource)
+    ERR_FAIL_COND(not p_resource);
     if (resources.contains(p_name)) {
 
         StringName new_name;
@@ -111,12 +111,12 @@ void ResourcePreloader::add_resource(const StringName &p_name, const RES &p_reso
 
 void ResourcePreloader::remove_resource(const StringName &p_name) {
 
-    ERR_FAIL_COND(!resources.contains(p_name))
+    ERR_FAIL_COND(!resources.contains(p_name));
     resources.erase(p_name);
 }
 void ResourcePreloader::rename_resource(const StringName &p_from_name, const StringName &p_to_name) {
 
-    ERR_FAIL_COND(!resources.contains(p_from_name))
+    ERR_FAIL_COND(!resources.contains(p_from_name));
 
     RES res(resources[p_from_name]);
 

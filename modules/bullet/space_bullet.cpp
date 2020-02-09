@@ -1111,7 +1111,7 @@ public:
         int compound_child_index;
     };
 
-    Vector<BroadphaseResult> results;
+    PODVector<BroadphaseResult> results;
 
 public:
     RecoverPenetrationBroadPhaseCallback(const btCollisionObject *p_self_collision_object, uint32_t p_collision_layer, uint32_t p_collision_mask, btVector3 p_aabb_min, btVector3 p_aabb_max) :
@@ -1127,44 +1127,46 @@ public:
     bool process(const btBroadphaseProxy *proxy) override {
 
         btCollisionObject *co = static_cast<btCollisionObject *>(proxy->m_clientObject);
-        if (co->getInternalType() <= btCollisionObject::CO_RIGID_BODY) {
-            if (self_collision_object != proxy->m_clientObject && GodotFilterCallback::test_collision_filters(collision_layer, collision_mask, proxy->m_collisionFilterGroup, proxy->m_collisionFilterMask)) {
-                if (co->getCollisionShape()->isCompound()) {
-                    const btCompoundShape *cs = static_cast<btCompoundShape *>(co->getCollisionShape());
-
-                    if (cs->getNumChildShapes() > 1) {
-                        const btDbvt *tree = cs->getDynamicAabbTree();
-                        ERR_FAIL_COND_V(tree == nullptr, true);
-
-                        // Transform bounds into compound shape local space
-                        const btTransform other_in_compound_space = co->getWorldTransform().inverse();
-                        const btMatrix3x3 abs_b = other_in_compound_space.getBasis().absolute();
-                        const btVector3 local_center = other_in_compound_space(bounds.Center());
-                        const btVector3 local_extent = bounds.Extents().dot3(abs_b[0], abs_b[1], abs_b[2]);
-                        const btVector3 local_aabb_min = local_center - local_extent;
-                        const btVector3 local_aabb_max = local_center + local_extent;
-                        const btDbvtVolume local_bounds = btDbvtVolume::FromMM(local_aabb_min, local_aabb_max);
-
-                        // Test collision against compound child shapes using its AABB tree
-                        CompoundLeafCallback compound_leaf_callback(this, co);
-                        tree->collideTV(tree->m_root, local_bounds, compound_leaf_callback);
-                    } else {
-                        // If there's only a single child shape then there's no need to search any more, we know which child overlaps
-                        BroadphaseResult result;
-                        result.collision_object = co;
-                        result.compound_child_index = 0;
-                        results.push_back(result);
-                    }
-                } else {
-                    BroadphaseResult result;
-                    result.collision_object = co;
-                    result.compound_child_index = -1;
-                    results.push_back(result);
-                }
-                return true;
-            }
+        if (co->getInternalType() > btCollisionObject::CO_RIGID_BODY) {
+            return false;
         }
-        return false;
+
+        if (self_collision_object == proxy->m_clientObject || !GodotFilterCallback::test_collision_filters(collision_layer, collision_mask, proxy->m_collisionFilterGroup, proxy->m_collisionFilterMask))
+            return false;
+
+        if (co->getCollisionShape()->isCompound()) {
+            const btCompoundShape *cs = static_cast<btCompoundShape *>(co->getCollisionShape());
+
+            if (cs->getNumChildShapes() > 1) {
+                const btDbvt *tree = cs->getDynamicAabbTree();
+                ERR_FAIL_COND_V(tree == nullptr, true);
+
+                // Transform bounds into compound shape local space
+                const btTransform other_in_compound_space = co->getWorldTransform().inverse();
+                const btMatrix3x3 abs_b = other_in_compound_space.getBasis().absolute();
+                const btVector3 local_center = other_in_compound_space(bounds.Center());
+                const btVector3 local_extent = bounds.Extents().dot3(abs_b[0], abs_b[1], abs_b[2]);
+                const btVector3 local_aabb_min = local_center - local_extent;
+                const btVector3 local_aabb_max = local_center + local_extent;
+                const btDbvtVolume local_bounds = btDbvtVolume::FromMM(local_aabb_min, local_aabb_max);
+
+                // Test collision against compound child shapes using its AABB tree
+                CompoundLeafCallback compound_leaf_callback(this, co);
+                tree->collideTV(tree->m_root, local_bounds, compound_leaf_callback);
+            } else {
+                // If there's only a single child shape then there's no need to search any more, we know which child overlaps
+                BroadphaseResult result;
+                result.collision_object = co;
+                result.compound_child_index = 0;
+                results.emplace_back(result);
+            }
+        } else {
+            BroadphaseResult result;
+            result.collision_object = co;
+            result.compound_child_index = -1;
+            results.emplace_back(result);
+        }
+        return true;
     }
 };
 

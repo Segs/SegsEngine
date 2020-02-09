@@ -106,7 +106,7 @@ Error WebRTCPeerConnectionGDNative::poll() {
 }
 
 void WebRTCPeerConnectionGDNative::close() {
-	ERR_FAIL_COND(interface == NULL)
+	ERR_FAIL_COND(interface == NULL);
 	interface->close(interface->data);
 }
 

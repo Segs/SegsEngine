@@ -102,7 +102,8 @@ private:
 public:
     Array _get_node_connections(Type p_type) const;
     void _queue_update();
-    Error _write_node(Type p_type, StringBuilder &global_code, StringBuilder &global_code_per_node, Map<Type, StringBuilder> &global_code_per_func, StringBuilder &code, Vector<DefaultTextureParam> &def_tex_params, const VMap<ConnectionKey, const List<Connection>::Element *> &input_connections, const VMap<ConnectionKey, const List<Connection>::Element *> &output_connections, int node, Set<int> &processed, bool for_preview, Set<StringName> &r_classes) const;
+    Error _write_node(Type p_type, StringBuilder &global_code, StringBuilder &global_code_per_node, Map<Type, StringBuilder> &global_code_per_func, StringBuilder &code, PODVector
+            <VisualShader::DefaultTextureParam> &def_tex_params, const VMap<ConnectionKey, const List<Connection>::Element *> &input_connections, const VMap<ConnectionKey, const List<Connection>::Element *> &output_connections, int node, Set<int> &processed, bool for_preview, Set<StringName> &r_classes) const;
     void _input_type_changed(Type p_type, int p_id);
 
 protected:
@@ -150,7 +151,7 @@ public:
     void set_graph_offset(const Vector2 &p_offset);
     Vector2 get_graph_offset() const;
 
-    String generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &r_default_tex_params) const;
+    String generate_preview_shader(Type p_type, int p_node, int p_port, PODVector<DefaultTextureParam> &r_default_tex_params) const;
 
     String validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const;
     String validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
@@ -209,7 +210,7 @@ public:
 
     virtual PODVector<StringName> get_editable_properties() const;
 
-    virtual Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
+    virtual PODVector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
     virtual String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
     virtual String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
     virtual String generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;

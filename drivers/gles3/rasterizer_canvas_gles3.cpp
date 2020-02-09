@@ -88,7 +88,7 @@ RID RasterizerCanvasGLES3::light_internal_create() {
 void RasterizerCanvasGLES3::light_internal_update(RID p_rid, Light *p_light) {
 
     LightInternal *li = light_internal_owner.getornull(p_rid);
-    ERR_FAIL_COND(!li)
+    ERR_FAIL_COND(!li);
 
     store_transform2d(p_light->light_shader_xform, li->ubo_data.light_matrix);
     store_transform2d(p_light->xform_cache.affine_inverse(), li->ubo_data.local_matrix);
@@ -120,7 +120,7 @@ void RasterizerCanvasGLES3::light_internal_update(RID p_rid, Light *p_light) {
 void RasterizerCanvasGLES3::light_internal_free(RID p_rid) {
 
     LightInternal *li = light_internal_owner.getornull(p_rid);
-    ERR_FAIL_COND(!li)
+    ERR_FAIL_COND(!li);
 
     glDeleteBuffers(1, &li->ubo);
     light_internal_owner.free(p_rid);
@@ -320,7 +320,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     buffer_ofs += sizeof(Vector2) * p_vertex_count;
     //color
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     if (p_singlecolor) {
@@ -339,7 +339,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     }
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     if (p_uvs) {
@@ -354,7 +354,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     }
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     if (p_bones && p_weights) {
@@ -376,7 +376,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     }
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     //bind the indices buffer.
@@ -638,7 +638,7 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
 
     if (!pline->triangles.empty()) {
 
-        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.data(), pline->triangle_colors.size() == 1);
+        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.data(), nullptr, pline->triangle_colors.data(), pline->triangle_colors.size() == 1);
         glEnable(GL_LINE_SMOOTH);
         if (pline->multiline) {
             //needs to be different
@@ -1027,13 +1027,12 @@ void _render_particles(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
     self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, false);
     self->state.using_texture_rect = true;
     self->_set_texture_rect_mode(false);
-    return;
 }
 
 void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip) {
 
     int cc = p_item->commands.size();
-    Item::Command **commands = p_item->commands.ptrw();
+    Item::Command **commands = p_item->commands.data();
 
     for (int i = 0; i < cc; i++) {
 
@@ -1435,8 +1434,8 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
                 }
 
                 int tc = material_ptr->textures.size();
-                RID *textures = material_ptr->textures.ptrw();
-                ShaderLanguage::ShaderNode::Uniform::Hint *texture_hints = shader_ptr->texture_hints.ptrw();
+                RID *textures = material_ptr->textures.data();
+                ShaderLanguage::ShaderNode::Uniform::Hint *texture_hints = shader_ptr->texture_hints.data();
 
                 for (int i = 0; i < tc; i++) {
 
@@ -1789,7 +1788,7 @@ void RasterizerCanvasGLES3::canvas_debug_viewport_shadows(Light *p_lights_with_s
 void RasterizerCanvasGLES3::canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache) {
 
     RasterizerStorageGLES3::CanvasLightShadow *cls = storage->canvas_light_shadow_owner.get(p_buffer);
-    ERR_FAIL_COND(!cls)
+    ERR_FAIL_COND(!cls);
 
     glDisable(GL_BLEND);
     glDisable(GL_SCISSOR_TEST);

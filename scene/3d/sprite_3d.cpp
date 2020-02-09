@@ -613,7 +613,7 @@ Vector2 Sprite3D::get_frame_coords() const {
 
 void Sprite3D::set_vframes(int p_amount) {
 
-    ERR_FAIL_COND(p_amount < 1)
+    ERR_FAIL_COND(p_amount < 1);
     vframes = p_amount;
     _queue_update();
     Object_change_notify(this);
@@ -625,7 +625,7 @@ int Sprite3D::get_vframes() const {
 
 void Sprite3D::set_hframes(int p_amount) {
 
-    ERR_FAIL_COND(p_amount < 1)
+    ERR_FAIL_COND(p_amount < 1);
     hframes = p_amount;
     _queue_update();
     Object_change_notify(this);

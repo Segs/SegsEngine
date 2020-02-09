@@ -1125,8 +1125,8 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
 
 void AnimationTreePlayer::add_node(NodeType p_type, const StringName &p_node) {
 
-    ERR_FAIL_COND(p_type == NODE_OUTPUT)
-    ERR_FAIL_COND(node_map.contains(p_node))
+    ERR_FAIL_COND(p_type == NODE_OUTPUT);
+    ERR_FAIL_COND(node_map.contains(p_node));
 
     AnimationTreeNodeBase *n = nullptr;
 
@@ -1344,7 +1344,7 @@ void AnimationTreePlayer::timeseek_node_seek(const StringName &p_node, float p_p
 void AnimationTreePlayer::transition_node_set_input_count(const StringName &p_node, int p_inputs) {
 
     GET_NODE(NODE_TRANSITION, TransitionNode);
-    ERR_FAIL_COND(p_inputs < 1)
+    ERR_FAIL_COND(p_inputs < 1);
 
     n->inputs.resize(p_inputs);
     n->input_data.resize(p_inputs);
@@ -1376,7 +1376,7 @@ void AnimationTreePlayer::transition_node_set_current(const StringName &p_node, 
 
 void AnimationTreePlayer::node_set_position(const StringName &p_node, const Vector2 &p_pos) {
 
-    ERR_FAIL_COND(!node_map.contains(p_node))
+    ERR_FAIL_COND(!node_map.contains(p_node));
     node_map[p_node]->pos = p_pos;
 }
 
@@ -1555,7 +1555,7 @@ PODVector<StringName> AnimationTreePlayer::get_node_vector() const {
 }
 void AnimationTreePlayer::remove_node(const StringName &p_node) {
 
-    ERR_FAIL_COND(!node_map.contains(p_node))
+    ERR_FAIL_COND(!node_map.contains(p_node));
     ERR_FAIL_COND_MSG(p_node == out_name, "Node 0 (output) can't be removed.");
 
     for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
@@ -1658,7 +1658,7 @@ bool AnimationTreePlayer::are_nodes_connected(const StringName &p_src_node, cons
 
 void AnimationTreePlayer::disconnect_nodes(const StringName &p_node, int p_input) {
 
-    ERR_FAIL_COND(!node_map.contains(p_node))
+    ERR_FAIL_COND(!node_map.contains(p_node));
 
     AnimationTreeNodeBase *dst = node_map[p_node];
     ERR_FAIL_INDEX(p_input, dst->inputs.size());
@@ -1738,7 +1738,7 @@ void AnimationTreePlayer::_recompute_caches() {
 
 void AnimationTreePlayer::_recompute_caches(const StringName &p_node) {
 
-    ERR_FAIL_COND(!node_map.contains(p_node))
+    ERR_FAIL_COND(!node_map.contains(p_node));
 
     AnimationTreeNodeBase *nb = node_map[p_node];
 
@@ -1855,7 +1855,7 @@ void AnimationTreePlayer::_update_sources() {
     Node *m = get_node(master);
     if (!m) {
         master = NodePath();
-        ERR_FAIL_COND(!m)
+        ERR_FAIL_COND(!m);
     }
 
     AnimationPlayer *ap = object_cast<AnimationPlayer>(m);
@@ -1863,7 +1863,7 @@ void AnimationTreePlayer::_update_sources() {
     if (!ap) {
 
         master = NodePath();
-        ERR_FAIL_COND(!ap)
+        ERR_FAIL_COND(!ap);
     }
 
     for (eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {

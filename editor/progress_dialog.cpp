@@ -85,7 +85,7 @@ void BackgroundProgress::_task_step(const StringName &p_task, int p_step) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!tasks.contains(p_task))
+    ERR_FAIL_COND(!tasks.contains(p_task));
 
     Task &t = tasks[p_task];
     if (p_step < 0)
@@ -97,7 +97,7 @@ void BackgroundProgress::_end_task(const StringName &p_task) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!tasks.contains(p_task))
+    ERR_FAIL_COND(!tasks.contains(p_task));
     Task &t = tasks[p_task];
 
     memdelete(t.hb);
@@ -268,7 +268,7 @@ bool ProgressDialog::task_step(const StringName &p_task, se_string_view p_state,
 }
 void ProgressDialog::end_task(const StringName &p_task) {
 
-    ERR_FAIL_COND(!tasks.contains(p_task))
+    ERR_FAIL_COND(!tasks.contains(p_task));
     Task &t = tasks[p_task];
 
     memdelete(t.vb);

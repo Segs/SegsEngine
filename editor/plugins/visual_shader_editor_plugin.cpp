@@ -115,13 +115,13 @@ void VisualShaderEditor::edit(VisualShader *p_visual_shader) {
 }
 
 void VisualShaderEditor::add_plugin(const Ref<VisualShaderNodePlugin> &p_plugin) {
-    if (plugins.find(p_plugin) != -1)
+    if (plugins.contains(p_plugin))
         return;
     plugins.push_back(p_plugin);
 }
 
 void VisualShaderEditor::remove_plugin(const Ref<VisualShaderNodePlugin> &p_plugin) {
-    plugins.erase(p_plugin);
+    plugins.erase_first(p_plugin);
 }
 
 void VisualShaderEditor::clear_custom_types() {
@@ -137,8 +137,8 @@ void VisualShaderEditor::clear_custom_types() {
 
 void VisualShaderEditor::add_custom_type(const StringName &p_name, const Ref<Script> &p_script, const StringName &p_description, int p_return_icon_type, const StringName &p_category, const StringName &p_subcategory) {
 
-    ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_name))
-    ERR_FAIL_COND(not p_script)
+    ERR_FAIL_COND(!StringUtils::is_valid_identifier(p_name));
+    ERR_FAIL_COND(not p_script);
 
     for (int i = 0; i < add_options.size(); i++) {
         if (add_options[i].is_custom) {
@@ -235,8 +235,8 @@ void VisualShaderEditor::update_custom_nodes() {
 
             se_string_view script_path = ScriptServer::get_global_class_path(class_list[i]);
             Ref<Resource> res = ResourceLoader::load(script_path);
-            ERR_FAIL_COND(not res)
-            ERR_FAIL_COND(!res->is_class("Script"))
+            ERR_FAIL_COND(not res);
+            ERR_FAIL_COND(!res->is_class("Script"));
             Ref<Script> script = dynamic_ref_cast<Script>(res);
 
             Ref<VisualShaderNodeCustom> ref(make_ref_counted<VisualShaderNodeCustom>());
@@ -316,8 +316,8 @@ void VisualShaderEditor::_update_options_menu() {
     UIString filter = StringUtils::strip_edges(node_filter->get_text_ui());
     bool use_filter = !filter.isEmpty();
 
-    Vector<UIString> categories;
-    Vector<UIString> sub_categories;
+    PODVector<UIString> categories;
+    PODVector<UIString> sub_categories;
 
     int item_count = 0;
     int item_count2 = 0;
@@ -565,6 +565,7 @@ void VisualShaderEditor::_update_graph() {
         }
 
         Ref<VisualShaderNodeUniform> uniform = dynamic_ref_cast<VisualShaderNodeUniform>(vsnode);
+        Ref<VisualShaderNodeScalarUniform> scalar_uniform = dynamic_ref_cast<VisualShaderNodeScalarUniform>(vsnode);
         if (uniform) {
             graph->add_child(node);
             _update_created_node(node);
@@ -580,23 +581,28 @@ void VisualShaderEditor::_update_graph() {
                 //shortcut
                 VisualShaderNode::PortType port_right = vsnode->get_output_port_type(0);
                 node->set_slot(0, false, VisualShaderNode::PORT_TYPE_SCALAR, Color(), true, port_right, type_color[port_right]);
-                continue;
+                if (!scalar_uniform) {
+                    continue;
+                }
             }
             port_offset++;
         }
 
         for (int i = 0; i < plugins.size(); i++) {
-            custom_editor = plugins.write[i]->create_editor(visual_shader, vsnode);
+            custom_editor = plugins[i]->create_editor(visual_shader, vsnode);
             if (custom_editor) {
                 break;
             }
         }
-
-        if (custom_editor && vsnode->get_output_port_count() > 0 && vsnode->get_output_port_name(0).empty() && (vsnode->get_input_port_count() == 0 || vsnode->get_input_port_name(0).empty())) {
+        if (custom_editor && !scalar_uniform && vsnode->get_output_port_count() > 0 && vsnode->get_output_port_name(0).empty() && (vsnode->get_input_port_count() == 0 || vsnode->get_input_port_name(0).empty())) {
             //will be embedded in first port
         } else if (custom_editor) {
             port_offset++;
             node->add_child(custom_editor);
+            if (scalar_uniform) {
+                custom_editor->call_deferred("_show_prop_names", true);
+                continue;
+            }
             custom_editor = nullptr;
         }
 
@@ -962,7 +968,7 @@ void VisualShaderEditor::_change_input_port_name(se_string_view p_text, Object *
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
     Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
-    ERR_FAIL_COND(not node)
+    ERR_FAIL_COND(not node);
 
     undo_redo->create_action_ui(TTR("Change input port name"));
     undo_redo->add_do_method(node.get(), "set_input_port_name", p_port_id, p_text);
@@ -977,7 +983,7 @@ void VisualShaderEditor::_change_output_port_name(se_string_view p_text, Object 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
     Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
-    ERR_FAIL_COND(not node)
+    ERR_FAIL_COND(not node);
 
     undo_redo->create_action_ui(TTR("Change output port name"));
     undo_redo->add_do_method(node.get(), "set_output_port_name", p_port_id, p_text);
@@ -1190,7 +1196,7 @@ void VisualShaderEditor::_line_edit_changed(se_string_view p_text, Object *line_
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
     Ref<VisualShaderNodeUniform> node = dynamic_ref_cast<VisualShaderNodeUniform>(visual_shader->get_node(type, p_node_id));
-    ERR_FAIL_COND(not node)
+    ERR_FAIL_COND(not node);
 
     String validated_name = visual_shader->validate_uniform_name(p_text, node);
 
@@ -1217,7 +1223,7 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
     Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node_id));
-    ERR_FAIL_COND(not node)
+    ERR_FAIL_COND(not node);
 
     StringName text(object_cast<LineEdit>(line_edit)->get_text());
 
@@ -1264,7 +1270,7 @@ void VisualShaderEditor::_port_edited() {
 
     Variant value = property_editor->get_variant();
     Ref<VisualShaderNode> vsn = visual_shader->get_node(type, editing_node);
-    ERR_FAIL_COND(not vsn)
+    ERR_FAIL_COND(not vsn);
 
     undo_redo->create_action_ui(TTR("Set Input Default Port"));
     undo_redo->add_do_method(vsn.get(), "set_input_port_default_value", editing_port, value);
@@ -1283,7 +1289,7 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
     Ref<VisualShaderNode> vsn = visual_shader->get_node(type, p_node);
 
     Button *button = object_cast<Button>(p_button);
-    ERR_FAIL_COND(!button)
+    ERR_FAIL_COND(!button);
     Variant value = vsn->get_input_port_default_value(p_port);
     property_editor->set_global_position(button->get_global_position() + Vector2(0, button->get_size().height));
     property_editor->edit(nullptr, String(), value.get_type(), value, PropertyHint::None, String());
@@ -1589,12 +1595,12 @@ void VisualShaderEditor::_node_selected(Object *p_node) {
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
     GraphNode *gn = object_cast<GraphNode>(p_node);
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
 
     int id = StringUtils::to_int(gn->get_name());
 
     Ref<VisualShaderNode> vsnode = visual_shader->get_node(type, id);
-    ERR_FAIL_COND(not vsnode)
+    ERR_FAIL_COND(not vsnode);
 
     //do not rely on this, makes editor more complex
     //EditorNode::get_singleton()->push_item(vsnode.ptr(), "", true);
@@ -2986,9 +2992,16 @@ public:
 
     bool updating;
     Ref<VisualShaderNode> node;
-    Vector<EditorProperty *> properties;
+    PODVector<EditorProperty *> properties;
+    PODVector<Label *> prop_names;
 
-    void setup(const Ref<Resource>& p_parent_resource, const Vector<EditorProperty *>& p_properties, const PODVector<StringName> &
+    void _show_prop_names(bool p_show) {
+        for (int i = 0; i < prop_names.size(); i++) {
+            prop_names[i]->set_visible(p_show);
+        }
+    }
+
+    void setup(const Ref<Resource>& p_parent_resource, const PODVector<EditorProperty *>& p_properties, const PODVector<StringName> &
             p_names, const Ref<VisualShaderNode>& p_node) {
         parent_resource = p_parent_resource;
         updating = false;
@@ -2997,7 +3010,20 @@ public:
 
         for (int i = 0; i < p_properties.size(); i++) {
 
-            add_child(p_properties[i]);
+            HBoxContainer *hbox = memnew(HBoxContainer);
+            hbox->set_h_size_flags(SIZE_EXPAND_FILL);
+            add_child(hbox);
+
+            Label *prop_name = memnew(Label);
+            String prop_name_str(p_names[i]);
+            prop_name_str = StringUtils::capitalize(prop_name_str) + ":";
+            prop_name->set_text(StringName(prop_name_str));
+            prop_name->set_visible(false);
+            hbox->add_child(prop_name);
+            prop_names.push_back(prop_name);
+
+            p_properties[i]->set_h_size_flags(SIZE_EXPAND_FILL);
+            hbox->add_child(p_properties[i]);
 
             bool res_prop = object_cast<EditorPropertyResource>(p_properties[i]);
             if (res_prop) {
@@ -3019,6 +3045,8 @@ public:
         MethodBinder::bind_method("_refresh_request", &VisualShaderNodePluginDefaultEditor::_refresh_request);
         MethodBinder::bind_method("_resource_selected", &VisualShaderNodePluginDefaultEditor::_resource_selected);
         MethodBinder::bind_method("_open_inspector", &VisualShaderNodePluginDefaultEditor::_open_inspector);
+        MethodBinder::bind_method("_show_prop_names", &VisualShaderNodePluginDefaultEditor::_show_prop_names);
+
     }
 };
 
@@ -3041,7 +3069,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
     PODVector<PropertyInfo> props;
     p_node->get_property_list(&props);
 
-    Vector<PropertyInfo> pinfo;
+    PODVector<PropertyInfo> pinfo;
 
     for(const PropertyInfo & E : props) {
 
@@ -3058,7 +3086,7 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
     properties.clear();
 
     const Ref<VisualShaderNode>& node = p_node;
-    Vector<EditorProperty *> editors;
+    PODVector<EditorProperty *> editors;
 
     for (int i = 0; i < pinfo.size(); i++) {
 
@@ -3213,7 +3241,7 @@ void VisualShaderNodePortPreview::_shader_changed() {
         return;
     }
 
-    Vector<VisualShader::DefaultTextureParam> default_textures;
+    PODVector<VisualShader::DefaultTextureParam> default_textures;
     String shader_code = shader->generate_preview_shader(type, node, port, default_textures);
 
     Ref<Shader> preview_shader(make_ref_counted<Shader>());

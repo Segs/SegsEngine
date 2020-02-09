@@ -179,7 +179,7 @@ void PropertySelector::_update_search() {
             if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(E.name,search_box->get_text()))
                 continue;
 
-            if (!type_filter.empty() && type_filter.find(E.type) == -1)
+            if (!type_filter.empty() && !type_filter.contains(E.type))
                 continue;
 
             TreeItem *item = search_options->create_item(category ? category : root);
@@ -421,7 +421,7 @@ void PropertySelector::select_method_from_base_type(const StringName &p_base, co
 
 void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
-    ERR_FAIL_COND(not p_script)
+    ERR_FAIL_COND(not p_script);
     base_type = p_script->get_instance_base_type();
     selected = p_current;
     type = VariantType::NIL;
@@ -437,7 +437,7 @@ void PropertySelector::select_method_from_script(const Ref<Script> &p_script, co
 }
 void PropertySelector::select_method_from_basic_type(VariantType p_type, const UIString &p_current) {
 
-    ERR_FAIL_COND(p_type == VariantType::NIL)
+    ERR_FAIL_COND(p_type == VariantType::NIL);
     base_type = "";
     selected = p_current;
     type = p_type;
@@ -491,7 +491,7 @@ void PropertySelector::select_property_from_base_type(const StringName &p_base, 
 
 void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
-    ERR_FAIL_COND(not p_script)
+    ERR_FAIL_COND(not p_script);
 
     base_type = p_script->get_instance_base_type();
     selected = p_current;
@@ -509,7 +509,7 @@ void PropertySelector::select_property_from_script(const Ref<Script> &p_script, 
 
 void PropertySelector::select_property_from_basic_type(VariantType p_type, const UIString &p_current) {
 
-    ERR_FAIL_COND(p_type == VariantType::NIL)
+    ERR_FAIL_COND(p_type == VariantType::NIL);
     base_type = "";
     selected = p_current;
     type = p_type;
@@ -540,7 +540,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const U
     _update_search();
 }
 
-void PropertySelector::set_type_filter(const Vector<VariantType> &p_type_filter) {
+void PropertySelector::set_type_filter(const PODVector<VariantType> &p_type_filter) {
     type_filter = p_type_filter;
 }
 

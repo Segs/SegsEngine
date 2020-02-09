@@ -6,7 +6,6 @@ IF(MSVC)
     if(${MSVC_VERSION} VERSION_LESS "1910")
         MESSAGE(FATAL_ERROR "SEGS requires visual studio 2017 to build")
     endif()
-
     # get root path so we can search for 5.3, 5.4, 5.5, etc
     STRING(REPLACE "/Tools" ";" QT_BIN "${QT_BIN}")
     LIST(GET QT_BIN 0 QT_BIN)
@@ -30,6 +29,10 @@ IF(MSVC)
     endif()
 
     SET(QT_PATH "${QT_VERSION}/msvc${QT_MSVC}")
+    if(QT_GIVEN_PATH)
+        set(QT_PATH "${QT_GIVEN_PATH}")
+    endif()
+
     SET(QT_MISSING False)
     file(TO_NATIVE_PATH "${QT_PATH}/bin" QT_BIN_DIR_WINDOWS)
     set(CMAKE_MSVCIDE_RUN_PATH "${QT_BIN_DIR_WINDOWS}" CACHE STATIC "MSVC IDE Run path" FORCE)

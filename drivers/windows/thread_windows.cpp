@@ -77,7 +77,7 @@ Thread::ID ThreadWindows::get_thread_id_func_windows() {
 void ThreadWindows::wait_to_finish_func_windows(Thread *p_thread) {
 
 	ThreadWindows *tp = static_cast<ThreadWindows *>(p_thread);
-	ERR_FAIL_COND(!tp)
+	ERR_FAIL_COND(!tp);
 	WaitForSingleObject(tp->handle, INFINITE);
 	CloseHandle(tp->handle);
 	//`memdelete(tp);

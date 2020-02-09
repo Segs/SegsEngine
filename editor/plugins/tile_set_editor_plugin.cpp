@@ -1038,7 +1038,7 @@ void TileSetEditor::_on_workspace_draw() {
             case EDITMODE_PRIORITY: {
                 spin_priority->set_value(tileset->autotile_get_subtile_priority(get_current_tile(), edited_shape_coord));
                 uint32_t mask = tileset->autotile_get_bitmask(get_current_tile(), edited_shape_coord);
-                Vector<Vector2> queue_others;
+                PODVector<Vector2> queue_others;
                 int total = 0;
                 for (eastl::pair<Vector2, uint32_t> E : tileset->autotile_get_bitmask_map(get_current_tile())) {
                     if (E.second == mask) {
@@ -2433,7 +2433,7 @@ void TileSetEditor::draw_highlight_current_tile() {
     }
 }
 
-void TileSetEditor::draw_highlight_subtile(Vector2 coord, const Vector<Vector2> &other_highlighted) {
+void TileSetEditor::draw_highlight_subtile(Vector2 coord, const PODVector<Vector2> &other_highlighted) {
 
     Color shadow_color = Color(0.3f, 0.3f, 0.3f, 0.3f);
     Vector2 size = tileset->autotile_get_size(get_current_tile());
@@ -3109,7 +3109,7 @@ void TileSetEditor::update_texture_list() {
 
     PODVector<int> ids;
     tileset->get_tile_list(&ids);
-    Vector<int> ids_to_remove;
+    PODVector<int> ids_to_remove;
     for (int E : ids) {
         // Clear tiles referencing gone textures (user has been already given the chance to fix broken deps)
         if (not tileset->tile_get_texture(E)) {

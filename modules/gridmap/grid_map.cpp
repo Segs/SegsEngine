@@ -219,7 +219,7 @@ Ref<MeshLibrary> GridMap::get_mesh_library() const {
 
 void GridMap::set_cell_size(const Vector3 &p_size) {
 
-    ERR_FAIL_COND(p_size.x < 0.001f || p_size.y < 0.001f || p_size.z < 0.001f)
+    ERR_FAIL_COND(p_size.x < 0.001f || p_size.y < 0.001f || p_size.z < 0.001f);
     cell_size = p_size;
     _recreate_octant_data();
     emit_signal("cell_size_changed", cell_size);
@@ -231,7 +231,7 @@ Vector3 GridMap::get_cell_size() const {
 
 void GridMap::set_octant_size(int p_size) {
 
-    ERR_FAIL_COND(p_size == 0)
+    ERR_FAIL_COND(p_size == 0);
     octant_size = p_size;
     _recreate_octant_data();
 }
@@ -297,7 +297,7 @@ void GridMap::set_cell_item(int p_x, int p_y, int p_z, int p_item, int p_rot) {
         if (cell_map.contains(key)) {
             OctantKey octantkey = ok;
 
-            ERR_FAIL_COND(!octant_map.contains(octantkey))
+            ERR_FAIL_COND(!octant_map.contains(octantkey));
             Octant &g = *octant_map[octantkey];
             g.cells.erase(key);
             g.dirty = true;
@@ -397,7 +397,7 @@ Vector3 GridMap::map_to_world(int p_x, int p_y, int p_z) const {
 
 void GridMap::_octant_transform(const OctantKey &p_key) {
 
-    ERR_FAIL_COND(!octant_map.contains(p_key))
+    ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
     PhysicsServer::get_singleton()->body_set_state(g.static_body, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
 
@@ -582,7 +582,7 @@ void GridMap::_reset_physic_bodies_collision_filters() {
 
 void GridMap::_octant_enter_world(const OctantKey &p_key) {
 
-    ERR_FAIL_COND(!octant_map.contains(p_key))
+    ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
     PhysicsServer::get_singleton()->body_set_state(g.static_body, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
     PhysicsServer::get_singleton()->body_set_space(g.static_body, get_world()->get_space());
@@ -612,7 +612,7 @@ void GridMap::_octant_enter_world(const OctantKey &p_key) {
 
 void GridMap::_octant_exit_world(const OctantKey &p_key) {
 
-    ERR_FAIL_COND(!octant_map.contains(p_key))
+    ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
     PhysicsServer::get_singleton()->body_set_state(g.static_body, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
     PhysicsServer::get_singleton()->body_set_space(g.static_body, RID());
@@ -639,7 +639,7 @@ void GridMap::_octant_exit_world(const OctantKey &p_key) {
 
 void GridMap::_octant_clean_up(const OctantKey &p_key) {
 
-    ERR_FAIL_COND(!octant_map.contains(p_key))
+    ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
 
     if (g.collision_debug.is_valid())

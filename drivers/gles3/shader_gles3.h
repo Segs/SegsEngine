@@ -351,7 +351,7 @@ public:
 
     _FORCE_INLINE_ void set_texture_uniform(int p_idx, const Variant &p_value) {
 
-        ERR_FAIL_COND(!version)
+        ERR_FAIL_COND(!version);
         ERR_FAIL_INDEX(p_idx, version->texture_uniform_locations.size());
         _set_uniform_variant(version->texture_uniform_locations[p_idx], p_value);
     }

@@ -63,7 +63,7 @@ void MeshLibraryEditor::_menu_confirm() {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
             String existing = mesh_library->get_meta("_editor_source_scene");
-            ERR_FAIL_COND(existing.empty())
+            ERR_FAIL_COND(existing.empty());
             _import_scene_cbk(existing);
 
         } break;
@@ -204,7 +204,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
 void MeshLibraryEditor::_import_scene_cbk(se_string_view p_str) {
 
     Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_str, "PackedScene"));
-    ERR_FAIL_COND(not ps)
+    ERR_FAIL_COND(not ps);
     Node *scene = ps->instance();
 
     ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + String(p_str) + "'."); 

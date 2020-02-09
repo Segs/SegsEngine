@@ -835,7 +835,7 @@ PoolStringArray Translation::_get_message_list() const {
 void Translation::_set_messages(const PoolVector<String> &p_messages) {
 
     int msg_count = p_messages.size();
-    ERR_FAIL_COND(msg_count % 2)
+    ERR_FAIL_COND(msg_count % 2);
 
     PoolVector<String>::Read r = p_messages.read();
 

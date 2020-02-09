@@ -50,7 +50,7 @@ IMPL_GDCLASS(AnimationNodeBlendTreeEditor)
 void AnimationNodeBlendTreeEditor::add_custom_type(se_string_view p_name, const Ref<Script> &p_script) {
 
     for (int i = 0; i < add_options.size(); i++) {
-        ERR_FAIL_COND(add_options[i].script == p_script)
+        ERR_FAIL_COND(add_options[i].script == p_script);
     }
 
     AddOption ao;
@@ -62,10 +62,9 @@ void AnimationNodeBlendTreeEditor::add_custom_type(se_string_view p_name, const 
 }
 
 void AnimationNodeBlendTreeEditor::remove_custom_type(const Ref<Script> &p_script) {
-
     for (int i = 0; i < add_options.size(); i++) {
         if (add_options[i].script == p_script) {
-            add_options.remove(i);
+            add_options.erase_at(i);
             return;
         }
     }
@@ -303,18 +302,18 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
     } else if (p_idx == MENU_PASTE) {
 
         anode = dynamic_ref_cast<AnimationNode>(EditorSettings::get_singleton()->get_resource_clipboard());
-        ERR_FAIL_COND(not anode)
+        ERR_FAIL_COND(not anode);
         base_name = anode->get_class();
     } else if (!add_options[p_idx].type.empty()) {
         AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(StringName(add_options[p_idx].type)));
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
         anode = Ref<AnimationNode>(an);
         base_name = add_options[p_idx].name;
     } else {
-        ERR_FAIL_COND(not add_options[p_idx].script)
+        ERR_FAIL_COND(not add_options[p_idx].script);
         StringName base_type(add_options[p_idx].script->get_instance_base_type());
         AnimationNode *an = object_cast<AnimationNode>(ClassDB::instance(base_type));
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
         anode = Ref<AnimationNode>(an);
         anode->set_script(add_options[p_idx].script.get_ref_ptr());
         base_name = add_options[p_idx].name;
@@ -398,7 +397,7 @@ void AnimationNodeBlendTreeEditor::_anim_selected(int p_index, Array p_options, 
     String option = p_options[p_index];
 
     Ref<AnimationNodeAnimation> anim = dynamic_ref_cast<AnimationNodeAnimation>(blend_tree->get_node(p_node));
-    ERR_FAIL_COND(not anim)
+    ERR_FAIL_COND(not anim);
 
     undo_redo->create_action_ui(TTR("Set Animation"));
     undo_redo->add_do_method(anim.get(), "set_animation", option);
@@ -465,12 +464,12 @@ void AnimationNodeBlendTreeEditor::_popup_request(const Vector2 &p_position) {
 void AnimationNodeBlendTreeEditor::_node_selected(Object *p_node) {
 
     GraphNode *gn = object_cast<GraphNode>(p_node);
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
 
     const StringName &name = gn->get_name();
 
     Ref<AnimationNode> anode = blend_tree->get_node(name);
-    ERR_FAIL_COND(not anode)
+    ERR_FAIL_COND(not anode);
 
     EditorNode::get_singleton()->push_item(anode.get(), {}, true);
 }
@@ -478,7 +477,7 @@ void AnimationNodeBlendTreeEditor::_node_selected(Object *p_node) {
 void AnimationNodeBlendTreeEditor::_open_in_editor(const StringName &p_which) {
 
     Ref<AnimationNode> an = blend_tree->get_node(p_which);
-    ERR_FAIL_COND(not an)
+    ERR_FAIL_COND(not an);
     AnimationTreeEditor::get_singleton()->enter_editor(p_which);
 }
 
@@ -497,7 +496,7 @@ void AnimationNodeBlendTreeEditor::_filter_toggled() {
 void AnimationNodeBlendTreeEditor::_filter_edited() {
 
     TreeItem *edited = filters->get_edited();
-    ERR_FAIL_COND(!edited)
+    ERR_FAIL_COND(!edited);
 
     NodePath edited_path = edited->get_metadata(0);
     bool filtered = edited->is_checked(0);
@@ -703,7 +702,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
 void AnimationNodeBlendTreeEditor::_edit_filters(const StringName &p_which) {
 
     Ref<AnimationNode> anode = blend_tree->get_node(p_which);
-    ERR_FAIL_COND(not anode)
+    ERR_FAIL_COND(not anode);
 
     _filter_edit = anode;
     if (!_update_filters(anode))
@@ -832,11 +831,11 @@ AnimationNodeBlendTreeEditor *AnimationNodeBlendTreeEditor::singleton = nullptr;
 void AnimationNodeBlendTreeEditor::_node_renamed(se_string_view p_text, const Ref<AnimationNode>& p_node) {
 
     StringName prev_name = blend_tree->get_node_name(p_node);
-    ERR_FAIL_COND(prev_name.empty())
+    ERR_FAIL_COND(prev_name.empty());
     GraphNode *gn = object_cast<GraphNode>(graph->get_node(NodePath(prev_name)));
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
 
-    ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,".") || StringUtils::contains(p_text,"/"))
+    ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,".") || StringUtils::contains(p_text,"/"));
 
     if (prev_name == p_text) {
         return; //nothing to do

@@ -1221,7 +1221,7 @@ float LineEdit::cursor_get_blink_speed() const {
 }
 
 void LineEdit::cursor_set_blink_speed(const float p_speed) {
-    ERR_FAIL_COND(p_speed <= 0)
+    ERR_FAIL_COND(p_speed <= 0);
     caret_blink_timer->set_wait_time(p_speed);
 }
 
@@ -1517,7 +1517,7 @@ void LineEdit::selection_delete() {
 
 void LineEdit::set_max_length(int p_max_length) {
 
-    ERR_FAIL_COND(p_max_length < 0)
+    ERR_FAIL_COND(p_max_length < 0);
     max_length = p_max_length;
     set_text_uistring(m_priv->text);
 }

@@ -387,7 +387,7 @@ bool VisualScriptFunction::is_sequenced() const {
 
 void VisualScriptFunction::set_stack_size(int p_size) {
 
-    ERR_FAIL_COND(p_size < 1 || p_size > 100000)
+    ERR_FAIL_COND(p_size < 1 || p_size > 100000);
     stack_size = p_size;
 }
 
@@ -4038,7 +4038,7 @@ VariantType VisualScriptDeconstruct::get_deconstruct_type() const {
 
 void VisualScriptDeconstruct::_set_elem_cache(const Array &p_elements) {
 
-    ERR_FAIL_COND(p_elements.size() % 2 == 1)
+    ERR_FAIL_COND(p_elements.size() % 2 == 1);
     elements.resize(p_elements.size() / 2);
     for (int i = 0; i < elements.size(); i++) {
         elements[i].name = p_elements[i * 2 + 0];

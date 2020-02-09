@@ -69,7 +69,7 @@ void VisualInstance::_notification(int p_what) {
             if (skeleton)
                 VisualServer::get_singleton()->instance_attach_skeleton( instance, skeleton->get_skeleton() );
             */
-            ERR_FAIL_COND(not get_world())
+            ERR_FAIL_COND(not get_world());
             VisualServer::get_singleton()->instance_set_scenario(instance, get_world()->get_scenario());
             _update_visibility();
 
@@ -257,7 +257,7 @@ GeometryInstance::ShadowCastingSetting GeometryInstance::get_cast_shadows_settin
 
 void GeometryInstance::set_extra_cull_margin(float p_margin) {
 
-    ERR_FAIL_COND(p_margin < 0)
+    ERR_FAIL_COND(p_margin < 0);
     extra_cull_margin = p_margin;
     VisualServer::get_singleton()->instance_set_extra_visibility_margin(get_instance(), extra_cull_margin);
 }

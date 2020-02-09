@@ -172,7 +172,7 @@ PODVector<String> FileSystemDock::_compute_uncollapsed_paths() {
 
     TreeItem *resTree = root->get_children()->get_next();
     if (resTree) {
-        Vector<TreeItem *> needs_check;
+        Dequeue<TreeItem *> needs_check;
         needs_check.push_back(resTree);
 
         while (!needs_check.empty()) {
@@ -184,7 +184,7 @@ PODVector<String> FileSystemDock::_compute_uncollapsed_paths() {
                     child = child->get_next();
                 }
             }
-            needs_check.remove(0);
+            needs_check.pop_front();
         }
     }
     return uncollapsed_paths;
@@ -1563,7 +1563,7 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
             if (selected_strings.size() == 1) {
                 bool is_collapsed = p_option == FOLDER_COLLAPSE_ALL;
 
-                Vector<TreeItem *> needs_check;
+                Dequeue<TreeItem *> needs_check;
                 needs_check.push_back(tree->get_selected());
 
                 while (!needs_check.empty()) {
@@ -1575,7 +1575,7 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
                         child = child->get_next();
                     }
 
-                    needs_check.remove(0);
+                    needs_check.pop_front();
                 }
             }
         } break;
@@ -1828,9 +1828,9 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
 void FileSystemDock::_resource_created() const {
     Object *c = new_resource_dialog->instance_selected();
 
-    ERR_FAIL_COND(!c)
+    ERR_FAIL_COND(!c);
     Resource *r = object_cast<Resource>(c);
-    ERR_FAIL_COND(!r)
+    ERR_FAIL_COND(!r);
 
     REF res(r);
     editor->push_item(c);
@@ -2049,7 +2049,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         }
 
         // Remove dragged favorites.
-        Vector<int> to_remove;
+        PODVector<int> to_remove;
         int offset = 0;
         for (int i = 0; i < files.size(); i++) {
             int to_remove_pos = dirs.index_of(files[i]);
@@ -2059,7 +2059,8 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
             }
         }
         drop_position -= offset;
-        to_remove.sort();
+        eastl::sort(to_remove.begin(), to_remove.end());
+
         for (int i = 0; i < to_remove.size(); i++) {
             dirs.erase_at(to_remove[i] - i);
         }

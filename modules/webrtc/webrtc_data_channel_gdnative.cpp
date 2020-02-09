@@ -51,12 +51,12 @@ Error WebRTCDataChannelGDNative::poll() {
 }
 
 void WebRTCDataChannelGDNative::close() {
-	ERR_FAIL_COND(interface == NULL)
+	ERR_FAIL_COND(interface == NULL);
 	interface->close(interface->data);
 }
 
 void WebRTCDataChannelGDNative::set_write_mode(WriteMode p_mode) {
-	ERR_FAIL_COND(interface == NULL)
+	ERR_FAIL_COND(interface == NULL);
 	interface->set_write_mode(interface->data, p_mode);
 }
 

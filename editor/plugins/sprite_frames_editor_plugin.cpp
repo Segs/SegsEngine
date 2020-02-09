@@ -214,7 +214,7 @@ void SpriteFramesEditor::_prepare_sprite_sheet(se_string_view p_file) {
     Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(p_file));
     if (not texture) {
         EditorNode::get_singleton()->show_warning("Unable to load images");
-        ERR_FAIL_COND(not texture)
+        ERR_FAIL_COND(not texture);
     }
     if (texture != split_sheet_preview->get_texture()) {
         //different texture, reset to 4x4
@@ -256,7 +256,7 @@ void SpriteFramesEditor::_notification(int p_what) {
 
 void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, int p_at_pos) {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     List<Ref<Texture> > resources;
 
@@ -300,7 +300,7 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
 
 void SpriteFramesEditor::_load_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
     loading_scene = false;
 
     file->clear_filters();
@@ -316,7 +316,7 @@ void SpriteFramesEditor::_load_pressed() {
 
 void SpriteFramesEditor::_paste_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     Ref<Texture> r = dynamic_ref_cast<Texture>(EditorSettings::get_singleton()->get_resource_clipboard());
     if (not r) {
@@ -337,7 +337,7 @@ void SpriteFramesEditor::_paste_pressed() {
 }
 
 void SpriteFramesEditor::_copy_pressed() {
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -351,7 +351,7 @@ void SpriteFramesEditor::_copy_pressed() {
 
 void SpriteFramesEditor::_empty_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     int from = -1;
 
@@ -376,7 +376,7 @@ void SpriteFramesEditor::_empty_pressed() {
 
 void SpriteFramesEditor::_empty2_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     int from = -1;
 
@@ -401,7 +401,7 @@ void SpriteFramesEditor::_empty2_pressed() {
 
 void SpriteFramesEditor::_up_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -425,7 +425,7 @@ void SpriteFramesEditor::_up_pressed() {
 
 void SpriteFramesEditor::_down_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -449,7 +449,7 @@ void SpriteFramesEditor::_down_pressed() {
 
 void SpriteFramesEditor::_delete_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -479,7 +479,7 @@ void SpriteFramesEditor::_animation_select() {
     }
 
     TreeItem *selected = animations->get_selected();
-    ERR_FAIL_COND(!selected)
+    ERR_FAIL_COND(!selected);
     edited_anim = StringName(selected->get_text(0));
     _update_library(true);
 }

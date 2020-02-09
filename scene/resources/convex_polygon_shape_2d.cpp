@@ -55,7 +55,7 @@ void ConvexPolygonShape2D::_update_shape() {
 void ConvexPolygonShape2D::set_point_cloud(Span<const Vector2> p_points) {
 
     PODVector<Point2> hull = Geometry::convex_hull_2d(p_points);
-    ERR_FAIL_COND(hull.size() < 3)
+    ERR_FAIL_COND(hull.size() < 3);
     set_points(hull);
 }
 

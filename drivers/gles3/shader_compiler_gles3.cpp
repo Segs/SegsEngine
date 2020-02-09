@@ -279,7 +279,7 @@ void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const Stri
         }
     }
 
-    ERR_FAIL_COND(fidx == -1)
+    ERR_FAIL_COND(fidx == -1);
 
     for (const StringName &E : p_node->functions[fidx].uses_function) {
 
@@ -298,7 +298,7 @@ void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const Stri
             }
         }
 
-        ERR_FAIL_COND(!fnode)
+        ERR_FAIL_COND(!fnode);
 
         r_to_add += "\n";
 
@@ -383,8 +383,8 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                     r_gen_code.vertex_global += ucode;
                     r_gen_code.fragment_global += ucode;
                     r_gen_code.texture_uniforms[E.second.texture_order] = StringName(_mkid(E.first.asCString()).c_str());
-                    r_gen_code.texture_hints.write[E.second.texture_order] = E.second.hint;
-                    r_gen_code.texture_types.write[E.second.texture_order] = E.second.type;
+                    r_gen_code.texture_hints[E.second.texture_order] = E.second.hint;
+                    r_gen_code.texture_types[E.second.texture_order] = E.second.type;
                 } else {
                     if (!uses_uniforms) {
 

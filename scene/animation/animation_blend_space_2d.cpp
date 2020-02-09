@@ -62,9 +62,9 @@ void AnimationNodeBlendSpace2D::get_child_nodes(List<ChildNode> *r_child_nodes) 
 }
 
 void AnimationNodeBlendSpace2D::add_blend_point(const Ref<AnimationRootNode> &p_node, const Vector2 &p_position, int p_at_index) {
-    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS)
-    ERR_FAIL_COND(not p_node)
-    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used)
+    ERR_FAIL_COND(blend_points_used >= MAX_BLEND_POINTS);
+    ERR_FAIL_COND(not p_node);
+    ERR_FAIL_COND(p_at_index < -1 || p_at_index > blend_points_used);
 
     if (p_at_index == -1 || p_at_index == blend_points_used) {
         p_at_index = blend_points_used;
@@ -98,7 +98,7 @@ void AnimationNodeBlendSpace2D::set_blend_point_position(int p_point, const Vect
 }
 void AnimationNodeBlendSpace2D::set_blend_point_node(int p_point, const Ref<AnimationRootNode> &p_node) {
     ERR_FAIL_INDEX(p_point, blend_points_used);
-    ERR_FAIL_COND(not p_node)
+    ERR_FAIL_COND(not p_node);
 
     if (blend_points[p_point].node) {
         blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
@@ -204,7 +204,7 @@ void AnimationNodeBlendSpace2D::add_triangle(int p_x, int p_y, int p_z, int p_at
                 break;
             }
         }
-        ERR_FAIL_COND(all_equal)
+        ERR_FAIL_COND(all_equal);
     }
 
     if (p_at_index == -1 || p_at_index == triangles.size()) {
@@ -292,7 +292,7 @@ void AnimationNodeBlendSpace2D::_set_triangles(const PODVector<int> &p_triangles
 
     if (auto_triangles)
         return;
-    ERR_FAIL_COND(p_triangles.size() % 3 != 0)
+    ERR_FAIL_COND(p_triangles.size() % 3 != 0);
     for (size_t i = 0; i < p_triangles.size(); i += 3) {
         add_triangle(p_triangles[i + 0], p_triangles[i + 1], p_triangles[i + 2]);
     }

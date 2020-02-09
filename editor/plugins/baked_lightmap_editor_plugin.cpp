@@ -91,7 +91,7 @@ EditorProgress *BakedLightmapEditorPlugin::tmp_progress = nullptr;
 
 void BakedLightmapEditorPlugin::bake_func_begin(int p_steps) {
 
-    ERR_FAIL_COND(tmp_progress != nullptr)
+    ERR_FAIL_COND(tmp_progress != nullptr);
 
     tmp_progress = memnew(EditorProgress(("bake_lightmaps"), TTR("Bake Lightmaps"), p_steps, true));
 }
@@ -103,7 +103,7 @@ bool BakedLightmapEditorPlugin::bake_func_step(int p_step, se_string_view p_desc
 }
 
 void BakedLightmapEditorPlugin::bake_func_end() {
-    ERR_FAIL_COND(tmp_progress == nullptr)
+    ERR_FAIL_COND(tmp_progress == nullptr);
     memdelete(tmp_progress);
     tmp_progress = nullptr;
 }

@@ -48,7 +48,7 @@ void SkeletonIKEditorPlugin::_play() {
 
         initial_bone_poses.resize(skeleton_ik->get_parent_skeleton()->get_bone_count());
         for (int i = 0; i < skeleton_ik->get_parent_skeleton()->get_bone_count(); ++i) {
-            initial_bone_poses.write[i] = skeleton_ik->get_parent_skeleton()->get_bone_pose(i);
+            initial_bone_poses[i] = skeleton_ik->get_parent_skeleton()->get_bone_pose(i);
         }
 
         skeleton_ik->start();

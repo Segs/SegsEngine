@@ -122,7 +122,7 @@ namespace {
         Quat rotation;
         Vector3 scale;
 
-        Vector<int> children;
+        PODVector<int> children;
         GLTFNodeIndex fake_joint_parent;
 
         GLTFNode() :
@@ -178,11 +178,11 @@ namespace {
 
     struct GLTFSkeleton {
         // The *synthesized* skeletons joints
-        Vector<GLTFNodeIndex> joints;
+        PODVector<GLTFNodeIndex> joints;
 
         // The roots of the skeleton. If there are multiple, each root must have the same parent
         // (ie roots are siblings)
-        Vector<GLTFNodeIndex> roots;
+        PODVector<GLTFNodeIndex> roots;
 
         // The created Skeleton for the scene
         Skeleton* godot_skeleton;
@@ -201,18 +201,18 @@ namespace {
         // The "skeleton" property defined in the gltf spec. -1 = Scene Root
         GLTFNodeIndex skin_root;
 
-        Vector<GLTFNodeIndex> joints_original;
-        Vector<Transform> inverse_binds;
+        PODVector<GLTFNodeIndex> joints_original;
+        PODVector<Transform> inverse_binds;
 
         // Note: joints + non_joints should form a complete subtree, or subtrees with a common parent
 
         // All nodes that are skins that are caught in-between the original joints
         // (inclusive of joints_original)
-        Vector<GLTFNodeIndex> joints;
+        PODVector<GLTFNodeIndex> joints;
 
         // All Nodes that are caught in-between skin joint nodes, and are not defined
         // as joints by any skin
-        Vector<GLTFNodeIndex> non_joints;
+        PODVector<GLTFNodeIndex> non_joints;
 
         // The roots of the skin. In the case of multiple roots, their parent *must*
         // be the same (the roots must be siblings)
@@ -236,7 +236,7 @@ namespace {
 
     struct GLTFMesh {
         Ref<ArrayMesh> mesh;
-        Vector<float> blend_weights;
+        PODVector<float> blend_weights;
     };
 
     struct GLTFCamera {
@@ -275,7 +275,7 @@ namespace {
             Channel<Vector3> translation_track;
             Channel<Quat> rotation_track;
             Channel<Vector3> scale_track;
-            Vector<Channel<float> > weight_tracks;
+            PODVector<Channel<float> > weight_tracks;
         };
 
         String name;
@@ -290,27 +290,27 @@ namespace {
         int minor_version;
         PODVector<uint8_t> glb_data;
 
-        Vector<GLTFNode*> nodes;
-        Vector<PODVector<uint8_t> > buffers;
-        Vector<GLTFBufferView> buffer_views;
-        Vector<GLTFAccessor> accessors;
+        PODVector<GLTFNode*> nodes;
+        PODVector<PODVector<uint8_t> > buffers;
+        PODVector<GLTFBufferView> buffer_views;
+        PODVector<GLTFAccessor> accessors;
 
-        Vector<GLTFMesh> meshes; //meshes are loaded directly, no reason not to.
-        Vector<Ref<Material> > materials;
+        PODVector<GLTFMesh> meshes; //meshes are loaded directly, no reason not to.
+        PODVector<Ref<Material> > materials;
 
         String scene_name;
-        Vector<int> root_nodes;
+        PODVector<int> root_nodes;
 
-        Vector<GLTFTexture> textures;
-        Vector<Ref<Texture> > images;
+        PODVector<GLTFTexture> textures;
+        PODVector<Ref<Texture> > images;
 
         PODVector<GLTFSkin> skins;
-        Vector<GLTFCamera> cameras;
+        PODVector<GLTFCamera> cameras;
 
         Set<String> unique_names;
 
-        Vector<GLTFSkeleton> skeletons;
-        Vector<GLTFAnimation> animations;
+        PODVector<GLTFSkeleton> skeletons;
+        PODVector<GLTFAnimation> animations;
 
         Map<GLTFNodeIndex, Node*> scene_nodes;
 
@@ -585,11 +585,10 @@ namespace {
         if (!f) {
             return err;
         }
-
-        Vector<uint8_t> array;
-        array.resize(f->get_len());
-        f->get_buffer(array.ptrw(), array.size());
-        String text((const char*)array.ptr(), array.size());
+        size_t sz= f->get_len();
+        auto val=eastl::make_unique<uint8_t[]>(sz);
+        f->get_buffer(val.get(), sz);
+        String text((const char*)val.get(), f->get_len());
 
         String err_txt;
         int err_line;
@@ -621,12 +620,10 @@ namespace {
         uint32_t chunk_type = f->get_32();
 
         ERR_FAIL_COND_V(chunk_type != 0x4E4F534A, ERR_PARSE_ERROR); //JSON
-        Vector<uint8_t> json_data;
-        json_data.resize(chunk_length);
-        uint32_t len = f->get_buffer(json_data.ptrw(), chunk_length);
+        String text;
+        text.resize(chunk_length);
+        uint32_t len = f->get_buffer((uint8_t *)text.data(), chunk_length);
         ERR_FAIL_COND_V(len != chunk_length, ERR_FILE_CORRUPT);
-
-        String text((const char*)json_data.ptr(), json_data.size());
 
         String err_txt;
         int err_line;
@@ -744,7 +741,7 @@ namespace {
             index++;
         }
 
-        state.skeletons.write[skel_i].unique_names.insert(name);
+        state.skeletons[skel_i].unique_names.insert(name);
 
         return name;
     }
@@ -760,7 +757,7 @@ namespace {
             WARN_PRINT("The load-time scene is not defined in the glTF2 file. Picking the first scene.");
         }
 
-        if (scenes.size()) {
+        if (!scenes.empty()) {
             ERR_FAIL_COND_V(loaded_scene >= scenes.size(), ERR_FILE_CORRUPT);
             const Dictionary& s = scenes[loaded_scene];
             ERR_FAIL_COND_V(!s.has("nodes"), ERR_UNAVAILABLE);
@@ -896,7 +893,7 @@ namespace {
             return OK;
 
         const Array& buffers = state.json["buffers"];
-        if (buffers.size() != 0 && not state.glb_data.empty())
+        if (!buffers.empty() && not state.glb_data.empty())
         {
             state.buffers.emplace_back(eastl::move(state.glb_data));
         }
@@ -1053,12 +1050,12 @@ namespace {
         return 0;
     }
 
-    Vector<double> _decode_accessor(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    PODVector<double> _decode_accessor(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
         //spec, for reference:
         //https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#data-alignment
 
-        ERR_FAIL_INDEX_V(p_accessor, state.accessors.size(), Vector<double>());
+        ERR_FAIL_INDEX_V(p_accessor, state.accessors.size(), PODVector<double>());
 
         const GLTFAccessor& a = state.accessors[p_accessor];
 
@@ -1068,7 +1065,7 @@ namespace {
 
         const int component_count = component_count_for_type[a.type];
         const int component_size = _get_component_type_size(a.component_type);
-        ERR_FAIL_COND_V(component_size == 0, Vector<double>());
+        ERR_FAIL_COND_V(component_size == 0, PODVector<double>());
         int element_size = component_count * component_size;
 
         int skip_every = 0;
@@ -1102,41 +1099,41 @@ namespace {
         }
         }
 
-        Vector<double> dst_buffer;
+        PODVector<double> dst_buffer;
         dst_buffer.resize(component_count * a.count);
-        double* dst = dst_buffer.ptrw();
+        double* dst = dst_buffer.data();
 
         if (a.buffer_view >= 0) {
 
-            ERR_FAIL_INDEX_V(a.buffer_view, state.buffer_views.size(), Vector<double>());
+            ERR_FAIL_INDEX_V(a.buffer_view, state.buffer_views.size(), PODVector<double>());
 
             const Error err = _decode_buffer_view(state, dst, a.buffer_view, skip_every, skip_bytes, element_size, a.count, a.type, component_count, a.component_type, component_size, a.normalized, a.byte_offset, p_for_vertex);
             if (err != OK)
-                return Vector<double>();
+                return PODVector<double>();
 
         }
         else {
             //fill with zeros, as bufferview is not defined.
             for (int i = 0; i < (a.count * component_count); i++) {
-                dst_buffer.write[i] = 0;
+                dst_buffer[i] = 0;
             }
         }
 
         if (a.sparse_count > 0) {
             // I could not find any file using this, so this code is so far untested
-            Vector<double> indices;
+            PODVector<double> indices;
             indices.resize(a.sparse_count);
             const int indices_component_size = _get_component_type_size(a.sparse_indices_component_type);
 
-            Error err = _decode_buffer_view(state, indices.ptrw(), a.sparse_indices_buffer_view, 0, 0, indices_component_size, a.sparse_count, TYPE_SCALAR, 1, a.sparse_indices_component_type, indices_component_size, false, a.sparse_indices_byte_offset, false);
+            Error err = _decode_buffer_view(state, indices.data(), a.sparse_indices_buffer_view, 0, 0, indices_component_size, a.sparse_count, TYPE_SCALAR, 1, a.sparse_indices_component_type, indices_component_size, false, a.sparse_indices_byte_offset, false);
             if (err != OK)
-                return Vector<double>();
+                return PODVector<double>();
 
-            Vector<double> data;
+            PODVector<double> data;
             data.resize(component_count * a.sparse_count);
-            err = _decode_buffer_view(state, data.ptrw(), a.sparse_values_buffer_view, skip_every, skip_bytes, element_size, a.sparse_count, a.type, component_count, a.component_type, component_size, a.normalized, a.sparse_values_byte_offset, p_for_vertex);
+            err = _decode_buffer_view(state, data.data(), a.sparse_values_buffer_view, skip_every, skip_bytes, element_size, a.sparse_count, a.type, component_count, a.component_type, component_size, a.normalized, a.sparse_values_byte_offset, p_for_vertex);
             if (err != OK)
-                return Vector<double>();
+                return PODVector<double>();
 
             for (int i = 0; i < indices.size(); i++) {
                 const int write_offset = int(indices[i]) * component_count;
@@ -1152,11 +1149,11 @@ namespace {
 
     PODVector<int> _decode_accessor_as_ints(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
         PODVector<int> ret;
         if (attribs.empty())
             return ret;
-        const double* attribs_ptr = attribs.ptr();
+        const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size();
         ret.reserve(ret_size);
         for (int i = 0; i < ret_size; i++) {
@@ -1167,11 +1164,11 @@ namespace {
 
     PODVector<float> _decode_accessor_as_floats(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
         PODVector<float> ret;
         if (attribs.empty())
             return ret;
-        const double* attribs_ptr = attribs.ptr();
+        const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size();
         ret.reserve(ret_size);
         for (int i = 0; i < ret_size; i++) {
@@ -1182,12 +1179,12 @@ namespace {
 
     PODVector<Vector2> _decode_accessor_as_vec2(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
         PODVector<Vector2> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 2 != 0, ret);
-        const double* attribs_ptr = attribs.ptr();
+        const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size() / 2;
         ret.reserve(ret_size);
         for (int i = 0; i < ret_size; i++) {
@@ -1198,12 +1195,12 @@ namespace {
 
     PODVector<Vector3> _decode_accessor_as_vec3(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
         PODVector<Vector3> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 3 != 0, ret);
-        const double* attribs_ptr = attribs.ptr();
+        const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size() / 3;
         ret.reserve(ret_size);
         for (int i = 0; i < ret_size; i++) {
@@ -1214,10 +1211,10 @@ namespace {
 
     PoolVector<Color> _decode_accessor_as_color(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
         PoolVector<Color> ret;
 
-        if (attribs.size() == 0)
+        if (attribs.empty())
             return ret;
 
         const int type = state.accessors[p_accessor].type;
@@ -1228,7 +1225,7 @@ namespace {
         }
 
         ERR_FAIL_COND_V(attribs.size() % vec_len != 0, ret);
-        const double* attribs_ptr = attribs.ptr();
+        const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size() / vec_len;
         ret.resize(ret_size);
         {
@@ -1241,12 +1238,12 @@ namespace {
     }
     PODVector<Quat> _decode_accessor_as_quat(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
         PODVector<Quat> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 4 != 0, ret);
-        const double* attribs_ptr = attribs.ptr();
+        const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size() / 4;
         ret.reserve(ret_size);
         for (int i = 0; i < ret_size; i++) {
@@ -1254,50 +1251,53 @@ namespace {
         }
         return ret;
     }
-    Vector<Transform2D> _decode_accessor_as_xform2d(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        Vector<Transform2D> ret;
+    PODVector<Transform2D> _decode_accessor_as_xform2d(GLTFState &state, const GLTFAccessorIndex p_accessor,
+            const bool p_for_vertex) {
+
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        PODVector<Transform2D> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 4 != 0, ret);
         ret.resize(attribs.size() / 4);
         for (int i = 0; i < ret.size(); i++) {
-            ret.write[i][0] = Vector2(attribs[i * 4 + 0], attribs[i * 4 + 1]);
-            ret.write[i][1] = Vector2(attribs[i * 4 + 2], attribs[i * 4 + 3]);
+            ret[i][0] = Vector2(attribs[i * 4 + 0], attribs[i * 4 + 1]);
+            ret[i][1] = Vector2(attribs[i * 4 + 2], attribs[i * 4 + 3]);
         }
         return ret;
     }
 
-    Vector<Basis> _decode_accessor_as_basis(GLTFState& state, const GLTFAccessorIndex p_accessor, bool p_for_vertex) {
+    PODVector<Basis> _decode_accessor_as_basis(GLTFState &state, const GLTFAccessorIndex p_accessor, bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        Vector<Basis> ret;
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        PODVector<Basis> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 9 != 0, ret);
         ret.resize(attribs.size() / 9);
         for (int i = 0; i < ret.size(); i++) {
-            ret.write[i].set_axis(0, Vector3(attribs[i * 9 + 0], attribs[i * 9 + 1], attribs[i * 9 + 2]));
-            ret.write[i].set_axis(1, Vector3(attribs[i * 9 + 3], attribs[i * 9 + 4], attribs[i * 9 + 5]));
-            ret.write[i].set_axis(2, Vector3(attribs[i * 9 + 6], attribs[i * 9 + 7], attribs[i * 9 + 8]));
+            ret[i].set_axis(0, Vector3(attribs[i * 9 + 0], attribs[i * 9 + 1], attribs[i * 9 + 2]));
+            ret[i].set_axis(1, Vector3(attribs[i * 9 + 3], attribs[i * 9 + 4], attribs[i * 9 + 5]));
+            ret[i].set_axis(2, Vector3(attribs[i * 9 + 6], attribs[i * 9 + 7], attribs[i * 9 + 8]));
         }
         return ret;
     }
 
-    Vector<Transform> _decode_accessor_as_xform(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    PODVector<Transform> _decode_accessor_as_xform(GLTFState &state, const GLTFAccessorIndex p_accessor,
+            const bool p_for_vertex) {
 
-        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        Vector<Transform> ret;
+        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        PODVector<Transform> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 16 != 0, ret);
         ret.resize(attribs.size() / 16);
         for (int i = 0; i < ret.size(); i++) {
-            ret.write[i].basis.set_axis(0, Vector3(attribs[i * 16 + 0], attribs[i * 16 + 1], attribs[i * 16 + 2]));
-            ret.write[i].basis.set_axis(1, Vector3(attribs[i * 16 + 4], attribs[i * 16 + 5], attribs[i * 16 + 6]));
-            ret.write[i].basis.set_axis(2, Vector3(attribs[i * 16 + 8], attribs[i * 16 + 9], attribs[i * 16 + 10]));
-            ret.write[i].set_origin(Vector3(attribs[i * 16 + 12], attribs[i * 16 + 13], attribs[i * 16 + 14]));
+            ret[i].basis.set_axis(0, Vector3(attribs[i * 16 + 0], attribs[i * 16 + 1], attribs[i * 16 + 2]));
+            ret[i].basis.set_axis(1, Vector3(attribs[i * 16 + 4], attribs[i * 16 + 5], attribs[i * 16 + 6]));
+            ret[i].basis.set_axis(2, Vector3(attribs[i * 16 + 8], attribs[i * 16 + 9], attribs[i * 16 + 10]));
+            ret[i].set_origin(Vector3(attribs[i * 16 + 12], attribs[i * 16 + 13], attribs[i * 16 + 14]));
         }
         return ret;
     }
@@ -1412,7 +1412,7 @@ namespace {
                 else if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
                     //generate indices because they need to be swapped for CW/CCW
                     const PoolVector<Vector3>& vertices = array[Mesh::ARRAY_VERTEX];
-                    ERR_FAIL_COND_V(vertices.size() == 0, ERR_PARSE_ERROR);
+                    ERR_FAIL_COND_V(vertices.empty(), ERR_PARSE_ERROR);
                     PoolVector<int> indices;
                     const int vs = vertices.size();
                     indices.resize(vs);
@@ -1524,7 +1524,7 @@ namespace {
                         if (t.has("TANGENT")) {
                             const PODVector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
                             const PoolVector<float> src_tangents = array[Mesh::ARRAY_TANGENT];
-                            ERR_FAIL_COND_V(src_tangents.size() == 0, ERR_PARSE_ERROR);
+                            ERR_FAIL_COND_V(src_tangents.empty(), ERR_PARSE_ERROR);
                             PoolVector<float> tangents_v4;
 
                             {
@@ -1586,7 +1586,7 @@ namespace {
                 ERR_FAIL_COND_V(mesh.mesh->get_blend_shape_count() != weights.size(), ERR_PARSE_ERROR);
                 mesh.blend_weights.resize(weights.size());
                 for (int j = 0; j < weights.size(); j++) {
-                    mesh.blend_weights.write[j] = weights[j];
+                    mesh.blend_weights[j] = weights[j];
                 }
             }
 
@@ -1658,7 +1658,7 @@ namespace {
                 //is a png
                 ImageData img_data = ImageLoader::load_image("png", data_ptr, data_size);
 
-                ERR_FAIL_COND_V(img_data.data.size() == 0, ERR_FILE_CORRUPT);
+                ERR_FAIL_COND_V(img_data.data.empty(), ERR_FILE_CORRUPT);
                 Ref<Image> img(make_ref_counted<Image>());
 
                 img->create(std::move(img_data));
@@ -1674,7 +1674,7 @@ namespace {
                 //is a jpg
                 ImageData img_data = ImageLoader::load_image("jpeg", data_ptr, data_size);
 
-                ERR_FAIL_COND_V(img_data.data.size() == 0, ERR_FILE_CORRUPT);
+                ERR_FAIL_COND_V(img_data.data.empty(), ERR_FILE_CORRUPT);
                 Ref<Image> img(make_ref_counted<Image>());
 
                 img->create(std::move(img_data));
@@ -1995,9 +1995,9 @@ namespace {
         // Grab all nodes that lay in between skin joints/nodes
         DisjointSet<GLTFNodeIndex> disjoint_set;
 
-        Vector<GLTFNodeIndex> all_skin_nodes;
-        all_skin_nodes.append_array(skin.joints);
-        all_skin_nodes.append_array(skin.non_joints);
+        PODVector<GLTFNodeIndex> all_skin_nodes;
+        all_skin_nodes.push_back(skin.joints);
+        all_skin_nodes.push_back(skin.non_joints);
 
         for (int i = 0; i < all_skin_nodes.size(); ++i) {
             const GLTFNodeIndex node_index = all_skin_nodes[i];
@@ -2044,9 +2044,9 @@ namespace {
         // Grab all nodes that lay in between skin joints/nodes
         DisjointSet<GLTFNodeIndex> disjoint_set;
 
-        Vector<GLTFNodeIndex> all_skin_nodes;
-        all_skin_nodes.append_array(skin.joints);
-        all_skin_nodes.append_array(skin.non_joints);
+        PODVector<GLTFNodeIndex> all_skin_nodes;
+        all_skin_nodes.push_back(skin.joints);
+        all_skin_nodes.push_back(skin.non_joints);
 
         for (int i = 0; i < all_skin_nodes.size(); ++i) {
             const GLTFNodeIndex node_index = all_skin_nodes[i];
@@ -2071,7 +2071,7 @@ namespace {
         }
         eastl::sort(out_roots.begin(), out_roots.end());
 
-        ERR_FAIL_COND_V(out_roots.size() == 0, FAILED);
+        ERR_FAIL_COND_V(out_roots.empty(), FAILED);
         // Make sure the roots are the exact same (they better be)
         ERR_FAIL_COND_V(out_roots.size() != skin.roots.size(), FAILED);
         for (int i = 0; i < out_roots.size(); ++i) {
@@ -2160,9 +2160,9 @@ namespace {
         for (GLTFSkinIndex skin_i = 0; skin_i < state.skins.size(); ++skin_i) {
             const GLTFSkin& skin = state.skins[skin_i];
 
-            Vector<GLTFNodeIndex> all_skin_nodes;
-            all_skin_nodes.append_array(skin.joints);
-            all_skin_nodes.append_array(skin.non_joints);
+            PODVector<GLTFNodeIndex> all_skin_nodes;
+            all_skin_nodes.push_back(skin.joints);
+            all_skin_nodes.push_back(skin.non_joints);
 
             for (int i = 0; i < all_skin_nodes.size(); ++i) {
                 const GLTFNodeIndex node_index = all_skin_nodes[i];
@@ -2263,11 +2263,11 @@ namespace {
 
             state.skeletons.push_back(skeleton);
 
-            _reparent_non_joint_skeleton_subtrees(state, state.skeletons.write[skel_i], non_joints);
+            _reparent_non_joint_skeleton_subtrees(state, state.skeletons[skel_i], non_joints);
         }
 
         for (GLTFSkeletonIndex skel_i = 0; skel_i < state.skeletons.size(); ++skel_i) {
-            GLTFSkeleton& skeleton = state.skeletons.write[skel_i];
+            GLTFSkeleton& skeleton = state.skeletons[skel_i];
 
             for (int i = 0; i < skeleton.joints.size(); ++i) {
                 const GLTFNodeIndex node_i = skeleton.joints[i];
@@ -2375,7 +2375,7 @@ namespace {
         // add the fake joint to the parent and remove the original joint
         if (node->parent >= 0) {
             GLTFNode* parent = state.nodes[node->parent];
-            parent->children.erase(node_index);
+            parent->children.erase_at(node_index);
             parent->children.push_back(fake_joint_index);
             fake_joint->parent = node->parent;
         }
@@ -2417,13 +2417,13 @@ namespace {
             }
         }
 
-        GLTFSkeleton& skeleton = state.skeletons.write[skel_i];
+        GLTFSkeleton& skeleton = state.skeletons[skel_i];
 
         PODVector<GLTFNodeIndex> owners;
         disjoint_set.get_representatives(owners);
 
-        Vector<GLTFNodeIndex> roots;
-
+        PODVector<GLTFNodeIndex> roots;
+        roots.reserve(owners.size());
         for (int i = 0; i < owners.size(); ++i) {
             PODVector<GLTFNodeIndex> set;
             disjoint_set.get_members(set, owners[i]);
@@ -2431,12 +2431,11 @@ namespace {
             ERR_FAIL_COND_V(root < 0, FAILED);
             roots.push_back(root);
         }
-
-        roots.sort();
+        eastl::sort(roots.begin(), roots.end());
 
         skeleton.roots = roots;
 
-        if (roots.size() == 0) {
+        if (roots.empty()) {
             return FAILED;
         }
         else if (roots.size() == 1) {
@@ -2457,7 +2456,7 @@ namespace {
     Error _create_skeletons(GLTFState& state) {
         for (GLTFSkeletonIndex skel_i = 0; skel_i < state.skeletons.size(); ++skel_i) {
 
-            GLTFSkeleton& gltf_skeleton = state.skeletons.write[skel_i];
+            GLTFSkeleton& gltf_skeleton = state.skeletons[skel_i];
 
             Skeleton* skeleton = memnew(Skeleton);
             gltf_skeleton.godot_skeleton = skeleton;
@@ -2483,7 +2482,7 @@ namespace {
                 ERR_FAIL_COND_V(node->skeleton != skel_i, FAILED);
 
                 { // Add all child nodes to the stack (deterministically)
-                    Vector<GLTFNodeIndex> child_nodes;
+                    PODVector<GLTFNodeIndex> child_nodes;
                     for (int i = 0; i < node->children.size(); ++i) {
                         const GLTFNodeIndex child_i = node->children[i];
                         if (state.nodes[child_i]->skeleton == skel_i) {
@@ -2492,7 +2491,8 @@ namespace {
                     }
 
                     // Depth first insertion
-                    child_nodes.sort();
+                    eastl::sort(child_nodes.begin(), child_nodes.end());
+
                     for (int i = child_nodes.size() - 1; i >= 0; --i) {
                         bones.push_front(child_nodes[i]);
                     }
@@ -2781,7 +2781,7 @@ namespace {
 
                     ERR_FAIL_INDEX_V(state.nodes[node]->mesh, state.meshes.size(), ERR_PARSE_ERROR);
                     const GLTFMesh* mesh = &state.meshes[state.nodes[node]->mesh];
-                    ERR_FAIL_COND_V(mesh->blend_weights.size() == 0, ERR_PARSE_ERROR);
+                    ERR_FAIL_COND_V(mesh->blend_weights.empty(), ERR_PARSE_ERROR);
                     const int wc = mesh->blend_weights.size();
 
                     track->weight_tracks.resize(wc);
@@ -2803,7 +2803,7 @@ namespace {
                         }
 
                         cf.values = eastl::move(wdata);
-                        track->weight_tracks.write[k] = cf;
+                        track->weight_tracks[k] = eastl::move(cf);
                     }
                 }
                 else {
@@ -2865,9 +2865,9 @@ namespace {
         MeshInstance* mi = memnew(MeshInstance);
         print_verbose("glTF: Creating mesh for: " + gltf_node->name);
 
-        GLTFMesh& mesh = state.meshes.write[gltf_node->mesh];
+        GLTFMesh& mesh = state.meshes[gltf_node->mesh];
         mi->set_mesh(mesh.mesh);
-        if (mesh.mesh->get_name() == "") {
+        if (mesh.mesh->get_name().empty()) {
             mesh.mesh->set_name(gltf_node->name);
         }
         for (int i = 0; i < mesh.blend_weights.size(); i++) {
@@ -3033,7 +3033,7 @@ namespace {
 
             if (node->skeleton >= 0) {
                 const Skeleton* sk = object_cast<Skeleton>(state.scene_nodes.find(node_index)->second);
-                ERR_FAIL_COND(sk == nullptr)
+                ERR_FAIL_COND(sk == nullptr);
 
                     const String path = (String)ap->get_parent()->get_path_to(sk);
                 const String bone = node->name;
@@ -3191,12 +3191,12 @@ namespace {
 
                 auto mi_element = state.scene_nodes.find(node_i);
                 MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
-                ERR_FAIL_COND(mi == nullptr)
+                ERR_FAIL_COND(mi == nullptr);
 
                     const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;
                 const GLTFSkeleton& gltf_skeleton = state.skeletons[skel_i];
                 Skeleton* skeleton = gltf_skeleton.godot_skeleton;
-                ERR_FAIL_COND(skeleton == nullptr)
+                ERR_FAIL_COND(skeleton == nullptr);
 
                     mi->get_parent()->remove_child(mi);
                 skeleton->add_child(mi);
@@ -3222,7 +3222,7 @@ namespace {
 
         _process_mesh_instances(state, root);
 
-        if (state.animations.size()) {
+        if (!state.animations.empty()) {
             AnimationPlayer* ap = memnew(AnimationPlayer);
             ap->set_name("AnimationPlayer");
             root->add_child(ap);

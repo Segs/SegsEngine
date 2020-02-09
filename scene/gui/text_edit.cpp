@@ -1201,7 +1201,7 @@ void TextEdit::_notification(int p_what) {
                         current_color = m_priv->cache.font_color_readonly;
                     }
 
-                    Vector<UIString> wrap_rows = get_wrap_rows_text(minimap_line);
+                    PODVector<UIString> wrap_rows = get_wrap_rows_text(minimap_line);
                     int line_wrap_amount = times_line_wraps(minimap_line);
                     int last_wrap_column = 0;
 
@@ -1326,7 +1326,7 @@ void TextEdit::_notification(int p_what) {
 
                 bool underlined = false;
 
-                Vector<UIString> wrap_rows = get_wrap_rows_text(line);
+                PODVector<UIString> wrap_rows = get_wrap_rows_text(line);
                 int line_wrap_amount = times_line_wraps(line);
                 int last_wrap_column = 0;
 
@@ -2309,7 +2309,7 @@ void TextEdit::_get_mouse_pos(const Point2i &p_mouse, int &r_row, int &r_col) co
         col = get_char_pos_for_line(colx, row, wrap_index);
         if (is_wrap_enabled() && wrap_index < times_line_wraps(row)) {
             // Move back one if we are at the end of the row.
-            Vector<UIString> rows2 = get_wrap_rows_text(row);
+            PODVector<UIString> rows2 = get_wrap_rows_text(row);
             int row_end_col = 0;
             for (int i = 0; i < wrap_index + 1; i++) {
                 row_end_col += rows2[i].length();
@@ -2335,11 +2335,11 @@ Vector2i TextEdit::_get_cursor_pixel_pos() {
         row += times_line_wraps(i);
     }
     // Row might be wrapped. Adjust row and r_column
-    Vector<UIString> rows2 = get_wrap_rows_text(cursor.line);
+    PODVector<UIString> rows2 = get_wrap_rows_text(cursor.line);
     while (rows2.size() > 1) {
         if (cursor.column >= rows2[0].length()) {
             cursor.column -= rows2[0].length();
-            rows2.remove(0);
+            rows2.pop_front();
             row++;
         } else {
             break;
@@ -3635,7 +3635,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 } else {
 
                     // Move cursor column to start of wrapped row and then to start of text.
-                    Vector<UIString> rows = get_wrap_rows_text(cursor.line);
+                    PODVector<UIString> rows = get_wrap_rows_text(cursor.line);
                     int wi = get_cursor_wrap_index();
                     int row_start_col = 0;
                     for (int i = 0; i < wi; i++) {
@@ -3694,7 +3694,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     cursor_set_line(get_last_unhidden_line(), true, false, 9999);
 
                 // Move cursor column to end of wrapped row and then to end of text.
-                Vector<UIString> rows = get_wrap_rows_text(cursor.line);
+                PODVector<UIString> rows = get_wrap_rows_text(cursor.line);
                 int wi = get_cursor_wrap_index();
                 int row_end_col = -1;
                 for (int i = 0; i < wi + 1; i++) {
@@ -4103,7 +4103,7 @@ void TextEdit::_base_insert_text(int p_line, int p_char, const UIString &p_text,
 
     // Save for undo.
     ERR_FAIL_INDEX(p_line, m_priv->text.size());
-    ERR_FAIL_COND(p_char < 0)
+    ERR_FAIL_COND(p_char < 0);
 
     /* STEP 1: Remove \r from source text and separate in substrings. */
     UIString without_slash_r(p_text);
@@ -4208,8 +4208,8 @@ void TextEdit::_base_remove_text(int p_from_line, int p_from_column, int p_to_li
     ERR_FAIL_INDEX(p_from_column, m_priv->text[p_from_line].length() + 1);
     ERR_FAIL_INDEX(p_to_line, m_priv->text.size());
     ERR_FAIL_INDEX(p_to_column, m_priv->text[p_to_line].length() + 1);
-    ERR_FAIL_COND(p_to_line < p_from_line) // 'from > to'.
-    ERR_FAIL_COND(p_to_line == p_from_line && p_to_column < p_from_column) // 'from > to'.
+    ERR_FAIL_COND(p_to_line < p_from_line); // 'from > to'.
+    ERR_FAIL_COND(p_to_line == p_from_line && p_to_column < p_from_column); // 'from > to'.
 
     UIString pre_text = StringUtils::substr(m_priv->text[p_from_line],0, p_from_column);
     UIString post_text = StringUtils::substr(m_priv->text[p_to_line],p_to_column, m_priv->text[p_to_line].length());
@@ -4452,7 +4452,7 @@ void TextEdit::_update_wrap_at() {
         // Update all values that wrap.
         if (!line_wraps(i))
             continue;
-        Vector<UIString> rows = get_wrap_rows_text(i);
+        PODVector<UIString> rows = get_wrap_rows_text(i);
         m_priv->text.set_line_wrap_amount(i, rows.size() - 1);
     }
 }
@@ -4560,7 +4560,7 @@ int TextEdit::times_line_wraps(int line) const {
     int wrap_amount = m_priv->text.get_line_wrap_amount(line);
     if (wrap_amount == -1) {
         // Update the value.
-        Vector<UIString> rows = get_wrap_rows_text(line);
+        PODVector<UIString> rows = get_wrap_rows_text(line);
         wrap_amount = rows.size() - 1;
         m_priv->text.set_line_wrap_amount(line, wrap_amount);
     }
@@ -4568,13 +4568,13 @@ int TextEdit::times_line_wraps(int line) const {
     return wrap_amount;
 }
 
-Vector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
+PODVector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
 
-    ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), Vector<UIString>());
+    ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), PODVector<UIString>());
 
-    Vector<UIString> lines;
+    PODVector<UIString> lines;
     if (!line_wraps(p_line)) {
-        lines.push_back(m_priv->text[p_line]);
+        lines.emplace_back(m_priv->text[p_line]);
         return lines;
     }
 
@@ -4657,7 +4657,7 @@ int TextEdit::get_line_wrap_index_at_col(int p_line, int p_column) const {
     // Loop through wraps in the line text until we get to the column.
     int wrap_index = 0;
     int col = 0;
-    Vector<UIString> rows = get_wrap_rows_text(p_line);
+    PODVector<UIString> rows = get_wrap_rows_text(p_line);
     for (int i = 0; i < rows.size(); i++) {
         wrap_index = i;
         UIString s = rows[wrap_index];
@@ -4720,7 +4720,7 @@ void TextEdit::cursor_set_line(int p_row, bool p_adjust_viewport, bool p_can_be_
 
     int n_col = get_char_pos_for_line(cursor.last_fit_x, p_row, p_wrap_index);
     if (n_col != 0 && is_wrap_enabled() && p_wrap_index < times_line_wraps(p_row)) {
-        Vector<UIString> rows = get_wrap_rows_text(p_row);
+        PODVector<UIString> rows = get_wrap_rows_text(p_row);
         int row_end_col = 0;
         for (int i = 0; i < p_wrap_index + 1; i++) {
             row_end_col += rows[i].length();
@@ -4774,7 +4774,7 @@ float TextEdit::cursor_get_blink_speed() const {
 }
 
 void TextEdit::cursor_set_blink_speed(const float p_speed) {
-    ERR_FAIL_COND(p_speed <= 0)
+    ERR_FAIL_COND(p_speed <= 0);
     caret_blink_timer->set_wait_time(p_speed);
 }
 
@@ -4854,7 +4854,7 @@ int TextEdit::get_char_pos_for_line(int p_px, int p_line, int p_wrap_index) cons
             p_px -= wrap_offset_px;
         else
             p_wrap_index = 0;
-        Vector<UIString> rows = get_wrap_rows_text(p_line);
+        PODVector<UIString> rows = get_wrap_rows_text(p_line);
         int c_pos = get_char_pos_for(p_px, rows[p_wrap_index]);
         for (int i = 0; i < p_wrap_index; i++) {
             UIString s = rows[i];
@@ -4872,34 +4872,33 @@ int TextEdit::get_column_x_offset_for_line(int p_char, int p_line) const {
 
     ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), 0);
 
-    if (line_wraps(p_line)) {
-
-        int n_char = p_char;
-        int col = 0;
-        Vector<UIString> rows = get_wrap_rows_text(p_line);
-        int wrap_index = 0;
-        for (int i = 0; i < rows.size(); i++) {
-            wrap_index = i;
-            UIString s = rows[wrap_index];
-            col += s.length();
-            if (col > p_char)
-                break;
-            n_char -= s.length();
-        }
-        int px = get_column_x_offset(n_char, rows[wrap_index]);
-
-        int wrap_offset_px = get_indent_level(p_line) * m_priv->cache.font->get_char_size(' ').width;
-        if (wrap_offset_px >= wrap_at) {
-            wrap_offset_px = 0;
-        }
-        if (wrap_index != 0)
-            px += wrap_offset_px;
-
-        return px;
-    } else {
+    if (!line_wraps(p_line)) {
 
         return get_column_x_offset(p_char, m_priv->text[p_line]);
     }
+
+    int n_char = p_char;
+    int col = 0;
+    PODVector<UIString> rows = get_wrap_rows_text(p_line);
+    int wrap_index = 0;
+    for (int i = 0; i < rows.size(); i++) {
+        wrap_index = i;
+        UIString s = rows[wrap_index];
+        col += s.length();
+        if (col > p_char)
+            break;
+        n_char -= s.length();
+    }
+    int px = get_column_x_offset(n_char, rows[wrap_index]);
+
+    int wrap_offset_px = get_indent_level(p_line) * m_priv->cache.font->get_char_size(' ').width;
+    if (wrap_offset_px >= wrap_at) {
+        wrap_offset_px = 0;
+    }
+    if (wrap_index != 0)
+        px += wrap_offset_px;
+
+    return px;
 }
 
 int TextEdit::get_char_pos_for(int p_px, const UIString& p_str) const {
@@ -6246,7 +6245,7 @@ int TextEdit::get_line_count() const {
 
 void TextEdit::_do_text_op(const TextOperation &p_op, bool p_reverse) {
 
-    ERR_FAIL_COND(p_op.type == TextOperation::TYPE_NONE)
+    ERR_FAIL_COND(p_op.type == TextOperation::TYPE_NONE);
 
     bool insert = p_op.type == TextOperation::TYPE_INSERT;
     if (p_reverse)
@@ -6257,8 +6256,8 @@ void TextEdit::_do_text_op(const TextOperation &p_op, bool p_reverse) {
         int check_line;
         int check_column;
         _base_insert_text(p_op.from_line, p_op.from_column, p_op.text, check_line, check_column);
-        ERR_FAIL_COND(check_line != p_op.to_line) // BUG.
-        ERR_FAIL_COND(check_column != p_op.to_column) // BUG.
+        ERR_FAIL_COND(check_line != p_op.to_line); // BUG.
+        ERR_FAIL_COND(check_column != p_op.to_column); // BUG.
     } else {
 
         _base_remove_text(p_op.from_line, p_op.from_column, p_op.to_line, p_op.to_column);
@@ -6377,7 +6376,7 @@ void TextEdit::begin_complex_operation() {
 void TextEdit::end_complex_operation() {
 
     _push_current_op();
-    ERR_FAIL_COND(undo_stack.empty())
+    ERR_FAIL_COND(undo_stack.empty());
 
     if (undo_stack.back()->deref().chain_forward) {
         undo_stack.back()->deref().chain_forward = false;
@@ -6412,7 +6411,7 @@ bool TextEdit::is_indent_using_spaces() const {
 }
 
 void TextEdit::set_indent_size(const int p_size) {
-    ERR_FAIL_COND(p_size <= 0)
+    ERR_FAIL_COND(p_size <= 0);
     indent_size = p_size;
     m_priv->text.set_indent_size(p_size);
 
@@ -6615,7 +6614,7 @@ float TextEdit::get_v_scroll_speed() const {
     return v_scroll_speed;
 }
 
-void TextEdit::set_completion(bool p_enabled, const Vector<UIString> &p_prefixes) {
+void TextEdit::set_completion(bool p_enabled, const PODVector<UIString> &p_prefixes) {
 
     completion_prefixes.clear();
     completion_enabled = p_enabled;

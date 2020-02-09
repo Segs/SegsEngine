@@ -294,16 +294,16 @@ struct MeshInstanceEditorEdgeSort {
 void MeshInstanceEditor::_create_uv_lines(int p_layer) {
 
     Ref<Mesh> mesh = node->get_mesh();
-    ERR_FAIL_COND(not mesh)
+    ERR_FAIL_COND(not mesh);
 
     Set<MeshInstanceEditorEdgeSort> edges;
     uv_lines.clear();
     for (int i = 0; i < mesh->get_surface_count(); i++) {
         if (mesh->surface_get_primitive_type(i) != Mesh::PRIMITIVE_TRIANGLES)
             continue;
-        Array a = mesh->surface_get_arrays(i);
+        SurfaceArrays a = mesh->surface_get_arrays(i);
 
-        PoolVector<Vector2> uv = a[p_layer == 0 ? Mesh::ARRAY_TEX_UV : Mesh::ARRAY_TEX_UV2];
+        PoolVector<Vector2> uv = p_layer == 0 ? a.m_uv_1 : a.m_uv_2;
         if (uv.size() == 0) {
             err_dialog->set_text(TTR("Model has no UV in this layer"));
             err_dialog->popup_centered_minsize();
@@ -312,7 +312,7 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
 
         PoolVector<Vector2>::Read r = uv.read();
 
-        PoolVector<int> indices = a[Mesh::ARRAY_INDEX];
+        PoolVector<int> indices = a.m_indices;
         PoolVector<int>::Read ri;
 
         int ic;

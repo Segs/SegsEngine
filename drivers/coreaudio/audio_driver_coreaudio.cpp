@@ -632,14 +632,14 @@ void AudioDriverCoreAudio::_set_device(const String &device, bool capture) {
         AudioObjectPropertyAddress property = { elem, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
 
         OSStatus result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &property, 0, NULL, &size, &deviceId);
-        ERR_FAIL_COND(result != noErr)
+        ERR_FAIL_COND(result != noErr);
 
         found = true;
     }
 
     if (found) {
         OSStatus result = AudioUnitSetProperty(capture ? input_unit : audio_unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0, &deviceId, sizeof(AudioDeviceID));
-        ERR_FAIL_COND(result != noErr)
+        ERR_FAIL_COND(result != noErr);
 
         if (capture) {
             // Reset audio input to keep synchronisation.
