@@ -3204,10 +3204,11 @@ RID RasterizerStorageGLES3::mesh_create() {
     return mesh_owner.make_rid(mesh);
 }
 
-void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
-        PODVector<PoolVector<uint8_t>> &p_blend_shapes, const PODVector<AABB> &p_bone_aabbs) {
+void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
+        PODVector<PODVector<uint8_t>> &p_blend_shapes, const PODVector<AABB> &p_bone_aabbs) {
 
-    PoolVector<uint8_t> array = p_array;
+    Span<const uint8_t> array = p_array;
+    PODVector<uint8_t> converted_array;
 
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh);
@@ -3395,15 +3396,14 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     int index_array_size = 0;
     if (array.size() != array_size && array.size() + p_vertex_count * 2 == array_size) {
         //old format, convert
-        array = PoolVector<uint8_t>();
+        converted_array.resize(p_array.size() + p_vertex_count * 2);
+        array = converted_array;
 
-        array.resize(p_array.size() + p_vertex_count * 2);
+        uint8_t *w = converted_array.data();
+        const uint8_t *r = p_array.data();
 
-        PoolVector<uint8_t>::Write w = array.write();
-        PoolVector<uint8_t>::Read r = p_array.read();
-
-        uint16_t *w16 = (uint16_t *)w.ptr();
-        const uint16_t *r16 = (uint16_t *)r.ptr();
+        uint16_t *w16 = (uint16_t *)w;
+        const uint16_t *r16 = (uint16_t *)r;
 
         uint16_t one = Math::make_half_float(1);
 
@@ -3463,20 +3463,20 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
     {
 
-        PoolVector<uint8_t>::Read vr = array.read();
+        const uint8_t *vr = array.data();
 
         glGenBuffers(1, &surface->vertex_id);
         glBindBuffer(GL_ARRAY_BUFFER, surface->vertex_id);
-        glBufferData(GL_ARRAY_BUFFER, array_size, vr.ptr(), (p_format & VS::ARRAY_FLAG_USE_DYNAMIC_UPDATE) ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, array_size, vr, (p_format & VS::ARRAY_FLAG_USE_DYNAMIC_UPDATE) ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
 
         if (p_format & VS::ARRAY_FORMAT_INDEX) {
 
-            PoolVector<uint8_t>::Read ir = p_index_array.read();
+            const uint8_t *ir = p_index_array.data();
 
             glGenBuffers(1, &surface->index_id);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surface->index_id);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_array_size, ir.ptr(), GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_array_size, ir, GL_STATIC_DRAW);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //unbind
         }
 
@@ -3522,7 +3522,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
         if (config.generate_wireframes && p_primitive == VS::PRIMITIVE_TRIANGLES) {
             //generate wireframes, this is used mostly by editor
-            PoolVector<uint32_t> wf_indices;
+            PODVector<uint32_t> wf_indices;
             int index_count;
 
             if (p_format & VS::ARRAY_FORMAT_INDEX) {
@@ -3530,12 +3530,11 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
                 index_count = p_index_count * 2;
                 wf_indices.resize(index_count);
 
-                PoolVector<uint8_t>::Read ir = p_index_array.read();
-                PoolVector<uint32_t>::Write wr = wf_indices.write();
+                uint32_t *wr = wf_indices.data();
 
                 if (p_vertex_count < (1 << 16)) {
                     //read 16 bit indices
-                    const uint16_t *src_idx = (const uint16_t *)ir.ptr();
+                    const uint16_t *src_idx = (const uint16_t *)p_index_array.data();
                     for (int i = 0; i + 5 < index_count; i += 6) {
 
                         wr[i + 0] = src_idx[i / 2];
@@ -3549,7 +3548,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
                 } else {
 
                     //read 16 bit indices
-                    const uint32_t *src_idx = (const uint32_t *)ir.ptr();
+                    const uint32_t *src_idx = (const uint32_t *)p_index_array.data();
                     for (int i = 0; i + 5 < index_count; i += 6) {
 
                         wr[i + 0] = src_idx[i / 2];
@@ -3565,7 +3564,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
                 index_count = p_vertex_count * 2;
                 wf_indices.resize(index_count);
-                PoolVector<uint32_t>::Write wr = wf_indices.write();
+                uint32_t *wr = wf_indices.data();
                 for (int i = 0; i + 5 < index_count; i += 6) {
 
                     wr[i + 0] = i / 2;
@@ -3577,11 +3576,11 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
                 }
             }
             {
-                PoolVector<uint32_t>::Read ir = wf_indices.read();
+                const uint32_t *ir = wf_indices.data();
 
                 glGenBuffers(1, &surface->index_wireframe_id);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, surface->index_wireframe_id);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(uint32_t), ir.ptr(), GL_STATIC_DRAW);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(uint32_t), ir, GL_STATIC_DRAW);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //unbind
 
                 surface->index_wireframe_len = index_count;
@@ -3633,13 +3632,13 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
             Surface::BlendShape mt;
 
-            PoolVector<uint8_t>::Read vr = p_blend_shapes[i].read();
+            const PODVector<uint8_t> &vr = p_blend_shapes[i];
 
             surface->total_data_size += array_size;
 
             glGenBuffers(1, &mt.vertex_id);
             glBindBuffer(GL_ARRAY_BUFFER, mt.vertex_id);
-            glBufferData(GL_ARRAY_BUFFER, array_size, vr.ptr(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, array_size, vr.data(), GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
 
             glGenVertexArrays(1, &mt.array_id);
@@ -3706,7 +3705,7 @@ VS::BlendShapeMode RasterizerStorageGLES3::mesh_get_blend_shape_mode(RID p_mesh)
     return mesh->blend_shape_mode;
 }
 
-void RasterizerStorageGLES3::mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) {
+void RasterizerStorageGLES3::mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PODVector<uint8_t> &p_data) {
 
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh);
@@ -3715,10 +3714,8 @@ void RasterizerStorageGLES3::mesh_surface_update_region(RID p_mesh, int p_surfac
     int total_size = p_data.size();
     ERR_FAIL_COND(p_offset + total_size > mesh->surfaces[p_surface]->array_byte_size);
 
-    PoolVector<uint8_t>::Read r = p_data.read();
-
     glBindBuffer(GL_ARRAY_BUFFER, mesh->surfaces[p_surface]->vertex_id);
-    glBufferSubData(GL_ARRAY_BUFFER, p_offset, total_size, r.ptr());
+    glBufferSubData(GL_ARRAY_BUFFER, p_offset, total_size, p_data.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0); //unbind
 }
 
@@ -3842,25 +3839,21 @@ AABB RasterizerStorageGLES3::mesh_surface_get_aabb(RID p_mesh, int p_surface) co
     return mesh->surfaces[p_surface]->aabb;
 }
 
-PODVector<PoolVector<uint8_t>> RasterizerStorageGLES3::mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const {
+PODVector<PODVector<uint8_t>> RasterizerStorageGLES3::mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const {
 
-    PODVector<PoolVector<uint8_t> > bsarr;
+    PODVector<PODVector<uint8_t> > bsarr;
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND_V(!mesh, bsarr);
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), bsarr);
 
-
-
-
     for (size_t i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
 
-        PoolVector<uint8_t> ret;
+        PODVector<uint8_t> ret;
         ret.resize(mesh->surfaces[p_surface]->array_byte_size);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->surfaces[p_surface]->blend_shapes[i].vertex_id);
 
         {
-            PoolVector<uint8_t>::Write w = ret.write();
-            glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, mesh->surfaces[p_surface]->array_byte_size, w.ptr());
+            glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, mesh->surfaces[p_surface]->array_byte_size, ret.data());
         }
 
         bsarr.emplace_back(ret);

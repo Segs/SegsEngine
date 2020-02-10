@@ -4257,7 +4257,7 @@ void godot_icall_ArrayMesh_surface_update_region_677e35b2(Object * ptr, int32_t 
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    PoolByteArray arg3_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg3);
+    auto arg3_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg3);
     static_cast<ArrayMesh *>(ptr)->surface_update_region(arg1_in, arg2_in, arg3_in);
 }
 
@@ -44266,7 +44266,7 @@ void godot_icall_VisualServer_mesh_surface_update_region_a8abd755(Object * ptr, 
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    PoolByteArray arg4_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg4);
+    auto arg4_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg4);
     static_cast<VisualServer *>(ptr)->mesh_surface_update_region(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
