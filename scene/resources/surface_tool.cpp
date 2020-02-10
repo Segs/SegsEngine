@@ -215,6 +215,7 @@ void SurfaceTool::add_bones(Span<const int> p_bones) {
 
     ERR_FAIL_COND(!begun);
     ERR_FAIL_COND(!first && !(format & Mesh::ARRAY_FORMAT_BONES));
+    ERR_FAIL_COND(p_bones.size()>4);
 
     format |= Mesh::ARRAY_FORMAT_BONES;
     last_bones.assign(p_bones.begin(),p_bones.end());
@@ -224,6 +225,7 @@ void SurfaceTool::add_weights(Span<const float> p_weights) {
 
     ERR_FAIL_COND(!begun);
     ERR_FAIL_COND(!first && !(format & Mesh::ARRAY_FORMAT_WEIGHTS));
+    ERR_FAIL_COND(p_weights.size()>4);
 
     format |= Mesh::ARRAY_FORMAT_WEIGHTS;
     last_weights.assign(p_weights.begin(), p_weights.end());
@@ -368,9 +370,8 @@ SurfaceArrays SurfaceTool::commit_to_arrays() {
                 PODVector<Color> array;
                 array.reserve(varr_len);
 
-                int idx = 0;
                 for (const Vertex &v : vertex_array) {
-                    array[idx++] = v.color;
+                    array.emplace_back(v.color);
                 }
 
                 a.m_colors = eastl::move(array);
@@ -382,7 +383,7 @@ SurfaceArrays SurfaceTool::commit_to_arrays() {
 
                 for (const Vertex &v : vertex_array) {
                     ERR_CONTINUE(v.bones.size() != 4);
-                    array.push_back(v.bones);
+                    array.insert(array.end(),v.bones.begin(),v.bones.end());
                 }
 
                 a.m_bones = eastl::move(array);
@@ -396,7 +397,7 @@ SurfaceArrays SurfaceTool::commit_to_arrays() {
                 int idx = -4;
                 for (const Vertex &v : vertex_array) {
                     ERR_CONTINUE(v.weights.size() != 4);
-                    array.push_back(v.weights);
+                    array.insert(array.end(),v.weights.begin(),v.weights.end());
                 }
 
                 a.m_weights = eastl::move(array);

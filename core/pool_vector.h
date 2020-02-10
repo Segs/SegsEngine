@@ -30,11 +30,13 @@
 
 #pragma once
 
+
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
 
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
+#include "core/vector.h"
 
 #include <type_traits>
 
@@ -390,6 +392,10 @@ public:
 
     const T & operator[](int p_index) const;
 
+    eastl::span<const T> toSpan() const {
+        return { read().ptr(),size()};
+    }
+
     Error resize(int p_size);
 
     PoolVector & operator=(const PoolVector &p_pool_vector) { _reference(p_pool_vector); return *this; }
@@ -402,8 +408,13 @@ public:
         return *this;
     }
     constexpr PoolVector() : alloc(nullptr) {}
-    PoolVector(PODVector<T> &&from) {
-
+    explicit PoolVector(PODVector<T> &from) : PoolVector() {
+        resize(from.size());
+        auto wr(write());
+        int idx=0;
+        for(T &v : from) {
+            wr[idx++] = eastl::move(v);
+        }
     }
     PoolVector(const PoolVector &p_pool_vector) {
         alloc = nullptr;

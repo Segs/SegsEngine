@@ -637,12 +637,14 @@ bool GDMono::copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, se_str
     DirAccessRef da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
 
     String xml_file = assembly_name + ".xml";
-    if (da->copy(PathUtils::plus_file(src_dir,xml_file), PathUtils::plus_file(dst_dir,xml_file)) != OK)
+    if (da->copy(PathUtils::plus_file(src_dir,xml_file), PathUtils::plus_file(dst_dir,xml_file)) != OK) {
         WARN_PRINT("Failed to copy '" + xml_file + "'.");
+    }
 
     String pdb_file = assembly_name + ".pdb";
-    if (da->copy(PathUtils::plus_file(src_dir,pdb_file), PathUtils::plus_file(dst_dir,pdb_file)) != OK)
+    if (da->copy(PathUtils::plus_file(src_dir,pdb_file), PathUtils::plus_file(dst_dir,pdb_file)) != OK) {
         WARN_PRINT("Failed to copy '" + pdb_file + "'.");
+    }
 
     String assembly_file = assembly_name + ".dll";
     if (da->copy(PathUtils::plus_file(src_dir,assembly_file), PathUtils::plus_file(dst_dir,assembly_file)) != OK) {

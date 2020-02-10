@@ -50,8 +50,8 @@ public:
         Vector3 tangent;
         Vector2 uv;
         Vector2 uv2;
-        PODVector<int> bones;
-        PODVector<float> weights;
+        FixedVector<int,4,false> bones;
+        FixedVector<float,4,false> weights;
 
         bool operator==(const Vertex &p_vertex) const;
 
@@ -82,8 +82,8 @@ private:
     Vector3 last_normal;
     Vector2 last_uv;
     Vector2 last_uv2;
-    PODVector<int> last_bones;
-    PODVector<float> last_weights;
+    FixedVector<int,4,false> last_bones;
+    FixedVector<float,4,false> last_weights;
     Plane last_tangent;
 
     void _create_list_from_arrays(const SurfaceArrays &arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);

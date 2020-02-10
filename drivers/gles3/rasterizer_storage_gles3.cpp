@@ -3204,8 +3204,7 @@ RID RasterizerStorageGLES3::mesh_create() {
     return mesh_owner.make_rid(mesh);
 }
 
-void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
-        PODVector<PODVector<uint8_t>> &p_blend_shapes, const PODVector<AABB> &p_bone_aabbs) {
+void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
 
     Span<const uint8_t> array = p_array;
     PODVector<uint8_t> converted_array;
@@ -3446,7 +3445,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
     surface->primitive = p_primitive;
     surface->mesh = mesh;
     surface->format = p_format;
-    surface->skeleton_bone_aabb = p_bone_aabbs;
+    surface->skeleton_bone_aabb.assign(p_bone_aabbs.begin(),p_bone_aabbs.end());
     surface->skeleton_bone_used.resize(surface->skeleton_bone_aabb.size(),false); // mark all unused
     surface->aabb = p_aabb;
     surface->max_bone = p_bone_aabbs.size();
@@ -3632,7 +3631,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
             Surface::BlendShape mt;
 
-            const PODVector<uint8_t> &vr = p_blend_shapes[i];
+            Span<const uint8_t> vr = p_blend_shapes[i].toSpan();
 
             surface->total_data_size += array_size;
 
@@ -3705,7 +3704,7 @@ VS::BlendShapeMode RasterizerStorageGLES3::mesh_get_blend_shape_mode(RID p_mesh)
     return mesh->blend_shape_mode;
 }
 
-void RasterizerStorageGLES3::mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PODVector<uint8_t> &p_data) {
+void RasterizerStorageGLES3::mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, Span<const uint8_t> p_data) {
 
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh);

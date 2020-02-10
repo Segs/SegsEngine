@@ -4257,7 +4257,7 @@ void godot_icall_ArrayMesh_surface_update_region_677e35b2(Object * ptr, int32_t 
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto arg3_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg3);
+    auto arg3_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg3);
     static_cast<ArrayMesh *>(ptr)->surface_update_region(arg1_in, arg2_in, arg3_in);
 }
 
@@ -11911,7 +11911,7 @@ Object* godot_icall_Control_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_ConvexPolygonShape_set_points_88c6a314(Object * ptr, MonoArray* arg1) {
+void godot_icall_ConvexPolygonShape_set_points_b8a866b9(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector3(arg1);
     static_cast<ConvexPolygonShape *>(ptr)->set_points(eastl::move(arg1_in));
@@ -14559,7 +14559,7 @@ void godot_icall_EditorSpatialGizmo_add_unscaled_billboard_514f3e17(Object * ptr
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorSpatialGizmo_add_handles_3f39657(Object * ptr, MonoArray* arg1, Object * arg2, MonoBoolean arg3, MonoBoolean arg4) {
+void godot_icall_EditorSpatialGizmo_add_handles_daf2f38f(Object * ptr, MonoArray* arg1, Object * arg2, MonoBoolean arg3, MonoBoolean arg4) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector3(arg1);
     bool arg3_in = static_cast<bool>(arg3);
@@ -17482,7 +17482,7 @@ MonoObject* godot_icall_HTTPClient_get_connection_b6f76265(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-int32_t godot_icall_HTTPClient_request_raw_183030e5(Object * ptr, int32_t arg1, MonoString* arg2, MonoArray* arg3, MonoArray* arg4) {
+int32_t godot_icall_HTTPClient_request_raw_e02d49ea(Object * ptr, int32_t arg1, MonoString* arg2, MonoArray* arg3, MonoArray* arg4) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int64_t arg1_in = (int64_t)arg1;
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -23080,7 +23080,7 @@ MonoBoolean godot_icall_NavigationMesh_get_filter_walkable_low_height_spans_68fe
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_NavigationMesh_set_vertices_88c6a314(Object * ptr, MonoArray* arg1) {
+void godot_icall_NavigationMesh_set_vertices_b8a866b9(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector3(arg1);
     static_cast<NavigationMesh *>(ptr)->set_vertices(eastl::move(arg1_in));
@@ -23092,7 +23092,7 @@ MonoArray* godot_icall_NavigationMesh_get_vertices_36607e58(Object * ptr) {
     return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
 }
 
-void godot_icall_NavigationMesh_add_polygon_fb3c9f9f(Object * ptr, MonoArray* arg1) {
+void godot_icall_NavigationMesh_add_polygon_6b64efb8(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecInt(arg1);
     static_cast<NavigationMesh *>(ptr)->add_polygon(eastl::move(arg1_in));
@@ -44266,7 +44266,7 @@ void godot_icall_VisualServer_mesh_surface_update_region_a8abd755(Object * ptr, 
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    auto arg4_in = GDMonoMarshal::mono_array_to_PoolVectorByte(arg4);
+    auto arg4_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg4);
     static_cast<VisualServer *>(ptr)->mesh_surface_update_region(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
@@ -50242,7 +50242,7 @@ uint64_t get_core_api_hash() { return 9617781489711829214U; }
 uint64_t get_editor_api_hash() { return 11503419152231262158U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1581037267; }
+uint32_t get_cs_glue_version() { return 1580938708; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();
@@ -52495,7 +52495,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Control_set_drag_preview_3dddc41c", (void*)godot_icall_Control_set_drag_preview_3dddc41c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Control_warp_mouse_6df7471e", (void*)godot_icall_Control_warp_mouse_6df7471e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Control_minimum_size_changed_c8e54a7b", (void*)godot_icall_Control_minimum_size_changed_c8e54a7b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape_set_points_88c6a314", (void*)godot_icall_ConvexPolygonShape_set_points_88c6a314);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape_set_points_b8a866b9", (void*)godot_icall_ConvexPolygonShape_set_points_b8a866b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape_get_points_36607e58", (void*)godot_icall_ConvexPolygonShape_get_points_36607e58);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape2D_set_point_cloud_2923a790", (void*)godot_icall_ConvexPolygonShape2D_set_point_cloud_2923a790);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape2D_set_points_2923a790", (void*)godot_icall_ConvexPolygonShape2D_set_points_2923a790);
@@ -52833,7 +52833,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_collision_segments_b8a866b9", (void*)godot_icall_EditorSpatialGizmo_add_collision_segments_b8a866b9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_collision_triangles_3616c62", (void*)godot_icall_EditorSpatialGizmo_add_collision_triangles_3616c62);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_unscaled_billboard_514f3e17", (void*)godot_icall_EditorSpatialGizmo_add_unscaled_billboard_514f3e17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_handles_3f39657", (void*)godot_icall_EditorSpatialGizmo_add_handles_3f39657);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_handles_daf2f38f", (void*)godot_icall_EditorSpatialGizmo_add_handles_daf2f38f);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_set_spatial_node_598860a7", (void*)godot_icall_EditorSpatialGizmo_set_spatial_node_598860a7);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_get_spatial_node_5ca237df", (void*)godot_icall_EditorSpatialGizmo_get_spatial_node_5ca237df);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_get_plugin_a8b6fbf9", (void*)godot_icall_EditorSpatialGizmo_get_plugin_a8b6fbf9);
@@ -53268,7 +53268,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_connect_to_host_3c965c6e", (void*)godot_icall_HTTPClient_connect_to_host_3c965c6e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_set_connection_85f8707", (void*)godot_icall_HTTPClient_set_connection_85f8707);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_get_connection_b6f76265", (void*)godot_icall_HTTPClient_get_connection_b6f76265);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_raw_183030e5", (void*)godot_icall_HTTPClient_request_raw_183030e5);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_raw_e02d49ea", (void*)godot_icall_HTTPClient_request_raw_e02d49ea);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_eb01527f", (void*)godot_icall_HTTPClient_request_eb01527f);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_close_c8e54a7b", (void*)godot_icall_HTTPClient_close_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_has_response_68fe5f59", (void*)godot_icall_HTTPClient_has_response_68fe5f59);
@@ -54114,9 +54114,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_filter_ledge_spans_68fe5f59", (void*)godot_icall_NavigationMesh_get_filter_ledge_spans_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_filter_walkable_low_height_spans_ba24800b", (void*)godot_icall_NavigationMesh_set_filter_walkable_low_height_spans_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_filter_walkable_low_height_spans_68fe5f59", (void*)godot_icall_NavigationMesh_get_filter_walkable_low_height_spans_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_vertices_88c6a314", (void*)godot_icall_NavigationMesh_set_vertices_88c6a314);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_vertices_b8a866b9", (void*)godot_icall_NavigationMesh_set_vertices_b8a866b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_vertices_36607e58", (void*)godot_icall_NavigationMesh_get_vertices_36607e58);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_add_polygon_fb3c9f9f", (void*)godot_icall_NavigationMesh_add_polygon_fb3c9f9f);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_add_polygon_6b64efb8", (void*)godot_icall_NavigationMesh_add_polygon_6b64efb8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_polygon_count_1f886eb0", (void*)godot_icall_NavigationMesh_get_polygon_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_polygon_67f65c91", (void*)godot_icall_NavigationMesh_get_polygon_67f65c91);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_clear_polygons_c8e54a7b", (void*)godot_icall_NavigationMesh_clear_polygons_c8e54a7b);
