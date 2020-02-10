@@ -120,7 +120,7 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
     return connection;
 }
 
-Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const PoolVector<uint8_t> &p_body) {
+Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const PODVector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
@@ -162,14 +162,14 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
     request += ("\r\n");
 
     //TODO: SEGS: why on earth are there allocations made here, when it could just call connection->put_data a few times?
-    PoolVector<uint8_t> data;
+    PODVector<uint8_t> data;
+    data.reserve(request.length()+p_body.size());
     data.resize(request.length());
-    memcpy(data.write().ptr(),request.data(),request.size());
+    memcpy(data.data(),request.data(),request.size());
 
-    data.append_array(p_body);
+    data.push_back(p_body);
 
-    PoolVector<uint8_t>::Read r = data.read();
-    Error err = connection->put_data(&r[0], data.size());
+    Error err = connection->put_data(&data[0], data.size());
 
     if (err) {
         close();
@@ -799,18 +799,17 @@ Dictionary HTTPClient::get_response_headers_as_dictionary() {
     return ret;
 }
 
-PoolVector<String> HTTPClient::_get_response_headers() {
+PODVector<String> HTTPClient::_get_response_headers() {
 
     ListPOD<String> response_headers;
     get_response_headers(&response_headers);
 
-    PoolVector<String> ret;
+    PODVector<String> ret;
     ret.resize(response_headers.size());
     {
-        auto wr = ret.write();
         int idx = 0;
         for (const String &s : response_headers) {
-            wr[idx++] = s;
+            ret[idx++] = s;
         }
     }
     return ret;

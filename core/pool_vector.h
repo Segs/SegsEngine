@@ -402,6 +402,9 @@ public:
         return *this;
     }
     constexpr PoolVector() : alloc(nullptr) {}
+    PoolVector(PODVector<T> &&from) {
+
+    }
     PoolVector(const PoolVector &p_pool_vector) {
         alloc = nullptr;
         _reference(p_pool_vector);

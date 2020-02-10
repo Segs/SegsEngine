@@ -17487,7 +17487,7 @@ int32_t godot_icall_HTTPClient_request_raw_183030e5(Object * ptr, int32_t arg1, 
     int64_t arg1_in = (int64_t)arg1;
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     auto arg3_in = GDMonoMarshal::mono_array_to_NC_VecString(arg3);
-    PoolByteArray arg4_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg4);
+    auto arg4_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg4);
     auto ret = static_cast<HTTPClient *>(ptr)->request_raw((HTTPClient::Method)arg1_in, arg2_in, arg3_in, arg4_in);
     return (int32_t)ret;
 }
@@ -44266,7 +44266,7 @@ void godot_icall_VisualServer_mesh_surface_update_region_a8abd755(Object * ptr, 
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    auto arg4_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg4);
+    auto arg4_in = GDMonoMarshal::mono_array_to_PoolVectorByte(arg4);
     static_cast<VisualServer *>(ptr)->mesh_surface_update_region(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
