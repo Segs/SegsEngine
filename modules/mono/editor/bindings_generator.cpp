@@ -3323,21 +3323,25 @@ void BindingsGenerator::handle_cmdline_args(const ListPOD<String> &p_cmdline_arg
         }
 
         if (glue_dir_path.length()) {
-            if (bindings_generator.generate_glue(glue_dir_path) != OK)
+            if (bindings_generator.generate_glue(glue_dir_path) != OK) {
                 ERR_PRINT(generate_all_glue_option + ": Failed to generate the C++ glue.");
+            }
 
-            if (bindings_generator.generate_cs_api(PathUtils::plus_file(glue_dir_path,API_SOLUTION_NAME)) != OK)
+            if (bindings_generator.generate_cs_api(PathUtils::plus_file(glue_dir_path,API_SOLUTION_NAME)) != OK) {
                 ERR_PRINT(generate_all_glue_option + ": Failed to generate the C# API.");
+            }
         }
 
         if (cs_dir_path.length()) {
-            if (bindings_generator.generate_cs_api(cs_dir_path) != OK)
+            if (bindings_generator.generate_cs_api(cs_dir_path) != OK) {
                 ERR_PRINT(generate_cs_glue_option + ": Failed to generate the C# API.");
+            }
         }
 
         if (cpp_dir_path.length()) {
-            if (bindings_generator.generate_glue(cpp_dir_path) != OK)
+            if (bindings_generator.generate_glue(cpp_dir_path) != OK) {
                 ERR_PRINT(generate_cpp_glue_option + ": Failed to generate the C++ glue.");
+            }
         }
 
         // Exit once done

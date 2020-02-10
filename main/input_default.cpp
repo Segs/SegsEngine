@@ -1071,7 +1071,7 @@ void InputDefault::add_joy_mapping(se_string_view p_mapping, bool p_update_exist
 void InputDefault::remove_joy_mapping(StringName p_guid) {
     for (int i = map_db.size() - 1; i >= 0; i--) {
         if (p_guid == map_db[i].uid) {
-            map_db.remove(i);
+            map_db.erase_at(i);
         }
     }
     for (eastl::pair<const int, Joypad> & e : joy_names) {

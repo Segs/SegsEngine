@@ -547,8 +547,9 @@ void ResourceCache::setup() {
 }
 
 void ResourceCache::clear() {
-    if (!cached_resources.empty())
+    if (!cached_resources.empty()) {
         ERR_PRINT("Resources Still in use at Exit!");
+    }
 
     cached_resources.clear();
     memdelete(lock);

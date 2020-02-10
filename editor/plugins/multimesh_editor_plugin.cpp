@@ -131,7 +131,7 @@ void MultiMeshEditor::_populate() {
 
     Transform geom_xform = node->get_global_transform().affine_inverse() * ss_instance->get_global_transform();
 
-    PoolVector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
+    PODVector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
 
     if (geometry.size() == 0) {
 
@@ -143,35 +143,30 @@ void MultiMeshEditor::_populate() {
     //make all faces local
 
     int gc = geometry.size();
-    PoolVector<Face3>::Write w = geometry.write();
 
     for (int i = 0; i < gc; i++) {
         for (int j = 0; j < 3; j++) {
-            w[i].vertex[j] = geom_xform.xform(w[i].vertex[j]);
+            geometry[i].vertex[j] = geom_xform.xform(geometry[i].vertex[j]);
         }
     }
 
-    w.release();
-
-    PoolVector<Face3> faces = geometry;
+    PODVector<Face3> &faces = geometry;
     int facecount = faces.size();
-    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate."); 
-
-    PoolVector<Face3>::Read r = faces.read();
+    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.");
 
     float area_accum = 0;
     Map<float, int> triangle_area_map;
     for (int i = 0; i < facecount; i++) {
 
-        float area = r[i].get_area();
+        float area = faces[i].get_area();
         if (area < CMP_EPSILON)
             continue;
         triangle_area_map[area_accum] = i;
         area_accum += area;
     }
 
-    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area."); 
-    ERR_FAIL_COND_MSG(area_accum == 0.0f, "Couldn't map area."); 
+    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.");
+    ERR_FAIL_COND_MSG(area_accum == 0.0f, "Couldn't map area.");
 
     Ref<MultiMesh> multimesh(make_ref_counted<MultiMesh>());
     multimesh->set_mesh(mesh);
@@ -206,7 +201,7 @@ void MultiMeshEditor::_populate() {
         ERR_FAIL_INDEX(index, facecount);
 
         // ok FINALLY get face
-        Face3 face = r[index];
+        Face3 face = faces[index];
         //now compute some position inside the face...
 
         Vector3 pos = face.get_random_point_inside();

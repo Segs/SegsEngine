@@ -1219,20 +1219,18 @@ Ref<ArrayMesh> SceneTree::get_debug_contact_mesh() {
     };
     /* clang-format on */
 
-    PoolVector<int> indices;
+    PODVector<int> indices;
     for (int i = 0; i < 8 * 3; i++)
         indices.push_back(diamond_faces[i]);
 
-    PoolVector<Vector3> vertices;
+    PODVector<Vector3> vertices;
     for (int i = 0; i < 6; i++)
         vertices.push_back(diamond[i] * 0.1f);
 
-    Array arr;
-    arr.resize(Mesh::ARRAY_MAX);
-    arr[Mesh::ARRAY_VERTEX] = vertices;
-    arr[Mesh::ARRAY_INDEX] = indices;
+    SurfaceArrays arr(eastl::move(vertices));
+    arr.m_indices = eastl::move(indices);
 
-    debug_contact_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+    debug_contact_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arr));
     debug_contact_mesh->surface_set_material(0, mat);
 
     return debug_contact_mesh;

@@ -43,26 +43,56 @@
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {
 public:
-    Variant m_positions;
     PODVector<float> m_position_data;
-    PoolVector<Vector3> m_normals;
-    PoolVector<float> m_tangents;
-    PoolVector<Color> m_colors;
-    PoolVector<Vector2> m_uv_1;
-    PoolVector<Vector2> m_uv_2;
-    PoolVector<float> m_weights;
-    PoolVector<int> m_bones;
-    PoolVector<int> m_indices;
-    Span<Vector2> positions2() const {
-        Span<Vector2>((Vector2 *)m_position_data.data(), m_position_data.size()/2);
+    PODVector<Vector3> m_normals;
+    PODVector<float> m_tangents;
+    PODVector<Color> m_colors;
+    PODVector<Vector2> m_uv_1;
+    PODVector<Vector2> m_uv_2;
+    PODVector<float> m_weights;
+    PODVector<int> m_bones;
+    PODVector<int> m_indices;
+    bool m_vertices_2d;
+    explicit SurfaceArrays(PODVector<Vector3> && positions) :
+        m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
+        m_vertices_2d(false)
+    {
+
     }
-    Span<Vector3> positions3() const {
-        Span<Vector3>((Vector3 *)m_position_data.data(), m_position_data.size() / 3);
+    explicit SurfaceArrays(PODVector<Vector2> && positions) :
+        m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
+        m_vertices_2d(true)
+    {
+
     }
-    explicit operator Array() {
+    void set_positions(PODVector<Vector2> &&from) {
+        m_position_data = PODVector<float>(eastl::move(from),eastl::I_LIVE_DANGEROUSLY);
+        m_vertices_2d = true;
+    }
+    void set_positions(PODVector<Vector3> &&from) {
+        m_position_data = PODVector<float>(eastl::move(from),eastl::I_LIVE_DANGEROUSLY);
+        m_vertices_2d = false;
+    }
+
+    Span<const Vector2> positions2() const {
+        ERR_FAIL_COND_V(m_vertices_2d==false,Span<const Vector2>());
+        return Span<Vector2>((Vector2 *)m_position_data.data(), m_position_data.size()/2);
+    }
+    Span<const Vector3> positions3() const {
+        ERR_FAIL_COND_V(m_vertices_2d==true,Span<const Vector3>());
+        return Span<const Vector3>((Vector3 *)m_position_data.data(), m_position_data.size() / 3);
+    }
+    Span<Vector3> writeable_positions3() const {
+        ERR_FAIL_COND_V(m_vertices_2d==true,Span<Vector3>());
+        return Span<Vector3>((Vector3 *)m_position_data.data(), m_position_data.size() / 3);
+    }
+    explicit operator Array() const {
         Array res;
         res.resize(VS::ARRAY_MAX);
-        res[VS::ARRAY_VERTEX] = m_positions;
+        if(m_vertices_2d)
+            res[VS::ARRAY_VERTEX] = Variant::from(positions2());
+        else
+            res[VS::ARRAY_VERTEX] = Variant::from(positions3());
         res[VS::ARRAY_NORMAL] = m_normals;
         res[VS::ARRAY_TANGENT] = m_tangents;
         res[VS::ARRAY_COLOR] = m_colors;
@@ -77,21 +107,26 @@ public:
         if(a.empty())
             return SurfaceArrays();
         SurfaceArrays res;
-        res.m_positions = a[VS::ARRAY_VERTEX];
-        res.m_normals= a[VS::ARRAY_NORMAL];
-        res.m_tangents = a[VS::ARRAY_TANGENT];
+        Variant dat=a[VS::ARRAY_VERTEX];
+        if(dat.get_type()==VariantType::POOL_VECTOR2_ARRAY)
+            res.m_position_data = PODVector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<PODVector<Vector2>>()),eastl::I_LIVE_DANGEROUSLY);
+        else if (dat.get_type()==VariantType::POOL_VECTOR3_ARRAY) {
+            res.m_position_data = PODVector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<PODVector<Vector3>>()),eastl::I_LIVE_DANGEROUSLY);
+        }
+        res.m_normals = a[VS::ARRAY_NORMAL].as<PODVector<Vector3>>();
+        res.m_tangents = a[VS::ARRAY_TANGENT].as<PODVector<float>>();
         //res[VS::ARRAY_TANGENT] = m_normal_data;
-        res.m_colors = a[VS::ARRAY_COLOR];
-        res.m_uv_1 = a[VS::ARRAY_TEX_UV];
-        res.m_uv_2 = a[VS::ARRAY_TEX_UV2];
-        res.m_bones = a[VS::ARRAY_BONES];
-        res.m_weights = a[VS::ARRAY_WEIGHTS];
-        res.m_indices = a[VS::ARRAY_INDEX];
+        res.m_colors = a[VS::ARRAY_COLOR].as<PODVector<Color>>();
+        res.m_uv_1 = a[VS::ARRAY_TEX_UV].as<PODVector<Vector2>>();
+        res.m_uv_2 = a[VS::ARRAY_TEX_UV2].as<PODVector<Vector2>>();
+        res.m_bones = a[VS::ARRAY_BONES].as<PODVector<int>>();
+        res.m_weights = a[VS::ARRAY_WEIGHTS].as<PODVector<float>>();
+        res.m_indices = a[VS::ARRAY_INDEX].as<PODVector<int>>();
         return res;
     }
-    bool empty() const { return m_positions==Variant(); }
+    bool empty() const { return m_position_data.empty(); }
     bool check_sanity() const {
-        auto expected= ((Array)m_positions).size();
+        auto expected= m_position_data.size();
         if(m_normals.size()!=expected && !m_normals.empty())
             return false;
         if (m_tangents.size() != expected && !m_tangents.empty())
@@ -108,8 +143,51 @@ public:
             return false;
         if (m_indices.size() != expected && !m_indices.empty())
             return false;
+        return true;
     }
-    SurfaceArrays();
+    uint32_t get_flags() const {
+        uint32_t lformat=0;
+        if (!m_position_data.empty()) {
+            lformat |= VS::ARRAY_FORMAT_VERTEX;
+        }
+        if (!m_normals.empty()) {
+            lformat |= VS::ARRAY_FORMAT_NORMAL;
+        }
+        if (!m_tangents.empty()) {
+            lformat |= VS::ARRAY_FORMAT_TANGENT;
+        }
+        if (!m_colors.empty()) {
+            lformat |= VS::ARRAY_FORMAT_COLOR;
+        }
+        if (!m_uv_1.empty()) {
+            lformat |= VS::ARRAY_FORMAT_TEX_UV;
+        }
+        if (!m_uv_2.empty()) {
+            lformat |= VS::ARRAY_FORMAT_TEX_UV2;
+        }
+        if (!m_bones.empty()) {
+            lformat |= VS::ARRAY_FORMAT_BONES;
+        }
+        if (!m_weights.empty()) {
+            lformat |= VS::ARRAY_FORMAT_WEIGHTS;
+        }
+        return lformat;
+    }
+    SurfaceArrays clone() const {
+        SurfaceArrays res;
+        res.m_position_data = m_position_data;
+        res.m_normals = m_normals;
+        res.m_tangents = m_tangents;
+        res.m_colors = m_colors;
+        res.m_uv_1 = m_uv_1;
+        res.m_uv_2 = m_uv_2;
+        res.m_weights = m_weights;
+        res.m_bones = m_bones;
+        res.m_indices = m_indices;
+        res.m_vertices_2d=m_vertices_2d;
+        return res;
+    }
+    SurfaceArrays() = default;
     SurfaceArrays(SurfaceArrays &&) noexcept = default;
     SurfaceArrays &operator=(SurfaceArrays &&) noexcept = default;
     // Move only type!
@@ -140,13 +218,14 @@ protected:
     RID white_texture;
     RID test_material;
 
-    Error _surface_set_data(Array p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector
-            <AABB> &r_bone_aabb);
-    Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
-    void _mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
+    Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb);
 
     static VisualServer *(*create_func)();
     static void _bind_methods();
+public: // scripting glue helpers
+    Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
+    void _mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
+    Array _mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
 public:
     static VisualServer *get_singleton();
@@ -252,7 +331,7 @@ public:
     virtual uint32_t mesh_surface_get_format_stride(uint32_t p_format, int p_vertex_len, int p_index_len) const;
     /// Returns stride
     virtual uint32_t mesh_surface_make_offsets_from_format(uint32_t p_format, int p_vertex_len, int p_index_len, uint32_t *r_offsets) const;
-    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
+    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, PODVector<SurfaceArrays> &&p_blend_shapes = PODVector<SurfaceArrays>(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
     virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes = PODVector<PoolVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>()) = 0;
 
     virtual void mesh_set_blend_shape_count(RID p_mesh, int p_amount) = 0;
@@ -273,7 +352,7 @@ public:
     virtual PoolVector<uint8_t> mesh_surface_get_index_array(RID p_mesh, int p_surface) const = 0;
 
     virtual SurfaceArrays mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
-    virtual Array mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
+    virtual PODVector<SurfaceArrays> mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
     virtual uint32_t mesh_surface_get_format(RID p_mesh, int p_surface) const = 0;
     virtual VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
@@ -742,7 +821,7 @@ public:
 
     virtual RID make_sphere_mesh(int p_lats, int p_lons, float p_radius);
 
-    virtual void mesh_add_surface_from_mesh_data(RID p_mesh, Geometry::MeshData &&p_mesh_data);
+    virtual void mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry::MeshData &p_mesh_data);
     virtual void mesh_add_surface_from_planes(RID p_mesh, const PoolVector<Plane> &p_planes);
 
     virtual void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) = 0;

@@ -32,6 +32,7 @@
 
 #include "core/string_builder.h"
 #include "core/se_string.h"
+#include "core/vmap.h"
 #include "scene/gui/control.h"
 #include "scene/resources/shader.h"
 
@@ -102,8 +103,12 @@ private:
 public:
     Array _get_node_connections(Type p_type) const;
     void _queue_update();
-    Error _write_node(Type p_type, StringBuilder &global_code, StringBuilder &global_code_per_node, Map<Type, StringBuilder> &global_code_per_func, StringBuilder &code, PODVector
-            <VisualShader::DefaultTextureParam> &def_tex_params, const VMap<ConnectionKey, const List<Connection>::Element *> &input_connections, const VMap<ConnectionKey, const List<Connection>::Element *> &output_connections, int node, Set<int> &processed, bool for_preview, Set<StringName> &r_classes) const;
+    Error _write_node(Type p_type, StringBuilder &global_code, StringBuilder &global_code_per_node,
+            Map<Type, StringBuilder> &global_code_per_func, StringBuilder &code,
+            PODVector<VisualShader::DefaultTextureParam> &def_tex_params,
+            const VMap<ConnectionKey, const List<Connection>::Element *> &input_connections,
+            const VMap<ConnectionKey, const List<Connection>::Element *> &output_connections, int node, Set<int> &processed,
+            bool for_preview, Set<StringName> &r_classes) const;
     void _input_type_changed(Type p_type, int p_id);
 
 protected:

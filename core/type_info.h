@@ -331,6 +331,7 @@ MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Vector2, VariantType::POOL_VECTOR2_ARRAY
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Vector3, VariantType::POOL_VECTOR3_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Color, VariantType::POOL_COLOR_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, RID, VariantType::ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
+MAKE_TEMPLATE_TYPE_INFO_META(PODVector, Face3, VariantType::POOL_VECTOR3_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
 
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Variant, VariantType::ARRAY)
 MAKE_TEMPLATE_TYPE_INFO(PODVector, Plane, VariantType::ARRAY)
@@ -397,8 +398,9 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
 
 template <typename T>
 inline StringName __constant_get_enum_name(T /*param*/, const char *p_constant) {
-    if (GetTypeInfo<T>::VARIANT_TYPE == VariantType::NIL)
+    if (GetTypeInfo<T>::VARIANT_TYPE == VariantType::NIL) {
         ERR_PRINT(String("Missing VARIANT_ENUM_CAST for constant's enum: ") + p_constant);
+    }
     const char *name=GetTypeInfo<T>::get_class_info().class_name;
     return StringName(name ? StaticCString(name,true) : StringName());
 }

@@ -303,49 +303,57 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
             continue;
         SurfaceArrays a = mesh->surface_get_arrays(i);
 
-        PoolVector<Vector2> uv = p_layer == 0 ? a.m_uv_1 : a.m_uv_2;
+        const PODVector<Vector2> &uv = p_layer == 0 ? a.m_uv_1 : a.m_uv_2;
         if (uv.size() == 0) {
             err_dialog->set_text(TTR("Model has no UV in this layer"));
             err_dialog->popup_centered_minsize();
             return;
         }
 
-        PoolVector<Vector2>::Read r = uv.read();
-
-        PoolVector<int> indices = a.m_indices;
-        PoolVector<int>::Read ri;
+        const PODVector<int> &indices = a.m_indices;
 
         int ic;
-        bool use_indices;
+        bool use_indices = !indices.empty();
 
         if (indices.size()) {
             ic = indices.size();
-            ri = indices.read();
-            use_indices = true;
         } else {
             ic = uv.size();
-            use_indices = false;
         }
+        uv_lines.reserve(uv_lines.size()+(ic*3*2)/2);
+        if (use_indices) {
+            for (int j = 0; j < ic; j += 3) {
 
-        for (int j = 0; j < ic; j += 3) {
+                for (int k = 0; k < 3; k++) {
 
-            for (int k = 0; k < 3; k++) {
+                    MeshInstanceEditorEdgeSort edge;
+                    edge.a = uv[indices[j + k]];
+                    edge.b = uv[indices[j + (k + 1) % 3]];
 
-                MeshInstanceEditorEdgeSort edge;
-                if (use_indices) {
-                    edge.a = r[ri[j + k]];
-                    edge.b = r[ri[j + (k + 1) % 3]];
-                } else {
-                    edge.a = r[j + k];
-                    edge.b = r[j + (k + 1) % 3];
+                    if (edges.contains(edge))
+                        continue;
+
+                    uv_lines.push_back(edge.a);
+                    uv_lines.push_back(edge.b);
+                    edges.insert(edge);
                 }
+            }
+        } else {
+            for (int j = 0; j < ic; j += 3) {
 
-                if (edges.contains(edge))
-                    continue;
+                for (int k = 0; k < 3; k++) {
 
-                uv_lines.push_back(edge.a);
-                uv_lines.push_back(edge.b);
-                edges.insert(edge);
+                    MeshInstanceEditorEdgeSort edge;
+                    edge.a = uv[j + k];
+                    edge.b = uv[j + (k + 1) % 3];
+
+                    if (edges.contains(edge))
+                        continue;
+
+                    uv_lines.push_back(edge.a);
+                    uv_lines.push_back(edge.b);
+                    edges.insert(edge);
+                }
             }
         }
     }

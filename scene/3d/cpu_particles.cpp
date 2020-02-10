@@ -51,9 +51,9 @@ AABB CPUParticles::get_aabb() const {
 
     return AABB();
 }
-PoolVector<Face3> CPUParticles::get_faces(uint32_t p_usage_flags) const {
+PODVector<Face3> CPUParticles::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return PODVector<Face3>();
 }
 
 void CPUParticles::set_emitting(bool p_emitting) {

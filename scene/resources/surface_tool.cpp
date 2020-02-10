@@ -284,8 +284,7 @@ SurfaceArrays SurfaceTool::commit_to_arrays() {
 
     int varr_len = vertex_array.size();
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
+    SurfaceArrays a;
 
     for (int i = 0; i < Mesh::ARRAY_MAX; i++) {
 
@@ -297,148 +296,118 @@ SurfaceArrays SurfaceTool::commit_to_arrays() {
             case Mesh::ARRAY_VERTEX:
             case Mesh::ARRAY_NORMAL: {
 
-                PoolVector<Vector3> array;
-                array.resize(varr_len);
-                PoolVector<Vector3>::Write w = array.write();
+                PODVector<Vector3> array;
+                array.reserve(varr_len);
 
-                int idx = 0;
-                for (const Vertex &v : vertex_array) {
-                    switch (i) {
-                        case Mesh::ARRAY_VERTEX: {
-                            w[idx] = v.vertex;
-                        } break;
-                        case Mesh::ARRAY_NORMAL: {
-                            w[idx] = v.normal;
-                        } break;
-                    }
-                    idx++;
+                switch (i) {
+                    case Mesh::ARRAY_VERTEX: {
+                        for (const Vertex &v : vertex_array) {
+                            array.emplace_back(v.vertex);
+                        }
+                    } break;
+                    case Mesh::ARRAY_NORMAL: {
+                        for (const Vertex &v : vertex_array) {
+                            array.emplace_back(v.normal);
+                        }
+                    } break;
                 }
 
-                w.release();
-                a[i] = array;
+                if(i==Mesh::ARRAY_VERTEX)
+                    a.set_positions(eastl::move(array));
+                else
+                    a.m_normals = eastl::move(array);
 
             } break;
 
             case Mesh::ARRAY_TEX_UV:
             case Mesh::ARRAY_TEX_UV2: {
 
-                PoolVector<Vector2> array;
-                array.resize(varr_len);
-                PoolVector<Vector2>::Write w = array.write();
+                PODVector<Vector2> array;
+                array.reserve(varr_len);
 
-                int idx = 0;
-                for (const Vertex &v : vertex_array) {
-                    switch (i) {
-
-                        case Mesh::ARRAY_TEX_UV: {
-                            w[idx] = v.uv;
-                        } break;
-                        case Mesh::ARRAY_TEX_UV2: {
-                            w[idx] = v.uv2;
-                        } break;
+                switch (i) {
+                    case Mesh::ARRAY_TEX_UV: {
+                        for (const Vertex &v : vertex_array) {
+                            array.emplace_back(v.uv);
+                        }
+                    } break;
+                    case Mesh::ARRAY_TEX_UV2: {
+                    for (const Vertex &v : vertex_array) {
+                        array.emplace_back(v.uv2);
                     }
-                    idx++;
+                    } break;
                 }
 
-                w.release();
-                a[i] = Variant(array);
+                if(i==Mesh::ARRAY_TEX_UV)
+                    a.m_uv_1 = eastl::move(array);
+                else
+                    a.m_uv_2 = eastl::move(array);
             } break;
             case Mesh::ARRAY_TANGENT: {
 
-                PoolVector<float> array;
+                PODVector<float> array;
                 array.resize(varr_len * 4);
-                PoolVector<float>::Write w = array.write();
 
                 int idx = 0;
                 for (const Vertex &v : vertex_array) {
 
-                    w[idx + 0] = v.tangent.x;
-                    w[idx + 1] = v.tangent.y;
-                    w[idx + 2] = v.tangent.z;
+                    array[idx + 0] = v.tangent.x;
+                    array[idx + 1] = v.tangent.y;
+                    array[idx + 2] = v.tangent.z;
 
                     //float d = v.tangent.dot(v.binormal,v.normal);
                     float d = v.binormal.dot(v.normal.cross(v.tangent));
-                    w[idx + 3] = d < 0 ? -1 : 1;
+                    array[idx + 3] = d < 0 ? -1 : 1;
                     idx += 4;
                 }
-
-                w.release();
-                a[i] = array;
+                a.m_tangents = eastl::move(array);
 
             } break;
             case Mesh::ARRAY_COLOR: {
 
-                PoolVector<Color> array;
-                array.resize(varr_len);
-                PoolVector<Color>::Write w = array.write();
+                PODVector<Color> array;
+                array.reserve(varr_len);
 
                 int idx = 0;
                 for (const Vertex &v : vertex_array) {
-                    w[idx++] = v.color;
+                    array[idx++] = v.color;
                 }
 
-                w.release();
-                a[i] = array;
+                a.m_colors = eastl::move(array);
             } break;
             case Mesh::ARRAY_BONES: {
 
-                PoolVector<int> array;
-                array.resize(varr_len * 4);
-                PoolVector<int>::Write w = array.write();
+                PODVector<int> array;
+                array.reserve(varr_len * 4);
 
-                int idx = -4;
                 for (const Vertex &v : vertex_array) {
-
-                    idx += 4;
                     ERR_CONTINUE(v.bones.size() != 4);
-
-                    for (int j = 0; j < 4; j++) {
-                        w[idx + j] = v.bones[j];
-                    }
+                    array.push_back(v.bones);
                 }
 
-                w.release();
-                a[i] = array;
+                a.m_bones = eastl::move(array);
 
             } break;
             case Mesh::ARRAY_WEIGHTS: {
 
-                PoolVector<float> array;
-                array.resize(varr_len * 4);
-                PoolVector<float>::Write w = array.write();
+                PODVector<float> array;
+                array.reserve(varr_len * 4);
 
                 int idx = -4;
                 for (const Vertex &v : vertex_array) {
-                    idx += 4;
                     ERR_CONTINUE(v.weights.size() != 4);
-
-                    for (int j = 0; j < 4; j++) {
-
-                        w[idx + j] = v.weights[j];
-                    }
+                    array.push_back(v.weights);
                 }
 
-                w.release();
-                a[i] = array;
+                a.m_weights = eastl::move(array);
 
             } break;
             case Mesh::ARRAY_INDEX: {
 
                 ERR_CONTINUE(index_array.empty());
 
-                PoolVector<int> array;
-                array.resize(index_array.size());
-                PoolVector<int>::Write w = array.write();
-
-                int idx = 0;
-                for (int v : index_array) {
-
-                    w[idx++] = v;
-                }
-
-                w.release();
-
-                a[i] = array;
+                PODVector<int> array(index_array);
+                a.m_indices = eastl::move(array);
             } break;
 
             default: {
@@ -464,9 +433,9 @@ Ref<ArrayMesh> SurfaceTool::commit(const Ref<ArrayMesh> &p_existing, uint32_t p_
 
     int surface = mesh->get_surface_count();
 
-    Array a = commit_to_arrays();
+    SurfaceArrays a = commit_to_arrays();
 
-    mesh->add_surface_from_arrays(primitive, a, Array(), p_flags);
+    mesh->add_surface_from_arrays(primitive, eastl::move(a), {}, p_flags);
 
     if (material)
         mesh->surface_set_material(surface, material);
@@ -523,73 +492,28 @@ void SurfaceTool::deindex() {
 void SurfaceTool::_create_list(const Ref<Mesh> &p_existing, int p_surface, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat) {
 
     SurfaceArrays arr = p_existing->surface_get_arrays(p_surface);
-    ERR_FAIL_COND(arr.size() != VS::ARRAY_MAX);
     _create_list_from_arrays(arr, r_vertex, r_index, lformat);
 }
 
-PODVector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_arrays(SurfaceArrays &&p_arrays) {
+PODVector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_arrays(const SurfaceArrays &p_arrays) {
 
     PODVector<SurfaceTool::Vertex> ret;
 
-    PoolVector<Vector3> varr = p_arrays.m_positions;
-    PoolVector<Vector3> narr = p_arrays.m_normals;
-    PoolVector<float> tarr = p_arrays.m_tangents;
-    PoolVector<Color> carr = p_arrays.m_colors;
-    PoolVector<Vector2> uvarr = p_arrays.m_uv_1;
-    PoolVector<Vector2> uv2arr = p_arrays.m_uv_2;
-    PoolVector<int> barr = p_arrays.m_bones;
-    PoolVector<float> warr = p_arrays.m_weights;
+    auto varr = p_arrays.positions3();
+    const auto &narr = p_arrays.m_normals;
+    const auto &tarr = p_arrays.m_tangents;
+    const auto &carr = p_arrays.m_colors;
+    const auto &uvarr = p_arrays.m_uv_1;
+    const auto &uv2arr = p_arrays.m_uv_2;
+    const auto &barr = p_arrays.m_bones;
+    const auto &warr = p_arrays.m_weights;
 
     int vc = varr.size();
 
     if (vc == 0)
         return ret;
-    int lformat = 0;
+    int lformat = p_arrays.get_flags();
 
-    PoolVector<Vector3>::Read rv;
-    if (!varr.empty()) {
-        lformat |= VS::ARRAY_FORMAT_VERTEX;
-        rv = varr.read();
-    }
-    PoolVector<Vector3>::Read rn;
-    if (!narr.empty()) {
-        lformat |= VS::ARRAY_FORMAT_NORMAL;
-        rn = narr.read();
-    }
-    PoolVector<float>::Read rt;
-    if (!tarr.empty()) {
-        lformat |= VS::ARRAY_FORMAT_TANGENT;
-        rt = tarr.read();
-    }
-    PoolVector<Color>::Read rc;
-    if (carr.size()) {
-        lformat |= VS::ARRAY_FORMAT_COLOR;
-        rc = carr.read();
-    }
-
-    PoolVector<Vector2>::Read ruv;
-    if (!uvarr.empty()) {
-        lformat |= VS::ARRAY_FORMAT_TEX_UV;
-        ruv = uvarr.read();
-    }
-
-    PoolVector<Vector2>::Read ruv2;
-    if (uv2arr.size()) {
-        lformat |= VS::ARRAY_FORMAT_TEX_UV2;
-        ruv2 = uv2arr.read();
-    }
-
-    PoolVector<int>::Read rb;
-    if (barr.size()) {
-        lformat |= VS::ARRAY_FORMAT_BONES;
-        rb = barr.read();
-    }
-
-    PoolVector<float>::Read rw;
-    if (warr.size()) {
-        lformat |= VS::ARRAY_FORMAT_WEIGHTS;
-        rw = warr.read();
-    }
     ret.resize(vc);
     Vertex *tgt = ret.data();
     if (lformat & VS::ARRAY_FORMAT_VERTEX)
@@ -645,67 +569,22 @@ PODVector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_ar
     return ret;
 }
 
-void SurfaceTool::_create_list_from_arrays(SurfaceArrays &&arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat) {
+void SurfaceTool::_create_list_from_arrays(const SurfaceArrays &arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat) {
 
-    PoolVector<Vector3> varr = arr.m_positions;
-    PoolVector<Vector3> narr = arr.m_normals;
-    PoolVector<float> tarr = arr.m_tangents;
-    PoolVector<Color> carr = arr.m_colors;
-    PoolVector<Vector2> uvarr = arr.m_uv_1;
-    PoolVector<Vector2> uv2arr = arr.m_uv_2;
-    PoolVector<int> barr = arr.m_bones;
-    PoolVector<float> warr = arr.m_weights;
+    auto varr = arr.positions3();
+    const auto &narr = arr.m_normals;
+    const auto &tarr = arr.m_tangents;
+    const auto &carr = arr.m_colors;
+    const auto &uvarr = arr.m_uv_1;
+    const auto &uv2arr = arr.m_uv_2;
+    const auto &barr = arr.m_bones;
+    const auto &warr = arr.m_weights;
 
     int vc = varr.size();
 
     if (vc == 0)
         return;
-    lformat = 0;
-
-    PoolVector<Vector3>::Read rv;
-    if (varr.size()) {
-        lformat |= VS::ARRAY_FORMAT_VERTEX;
-        rv = varr.read();
-    }
-    PoolVector<Vector3>::Read rn;
-    if (narr.size()) {
-        lformat |= VS::ARRAY_FORMAT_NORMAL;
-        rn = narr.read();
-    }
-    PoolVector<float>::Read rt;
-    if (tarr.size()) {
-        lformat |= VS::ARRAY_FORMAT_TANGENT;
-        rt = tarr.read();
-    }
-    PoolVector<Color>::Read rc;
-    if (carr.size()) {
-        lformat |= VS::ARRAY_FORMAT_COLOR;
-        rc = carr.read();
-    }
-
-    PoolVector<Vector2>::Read ruv;
-    if (uvarr.size()) {
-        lformat |= VS::ARRAY_FORMAT_TEX_UV;
-        ruv = uvarr.read();
-    }
-
-    PoolVector<Vector2>::Read ruv2;
-    if (uv2arr.size()) {
-        lformat |= VS::ARRAY_FORMAT_TEX_UV2;
-        ruv2 = uv2arr.read();
-    }
-
-    PoolVector<int>::Read rb;
-    if (barr.size()) {
-        lformat |= VS::ARRAY_FORMAT_BONES;
-        rb = barr.read();
-    }
-
-    PoolVector<float>::Read rw;
-    if (warr.size()) {
-        lformat |= VS::ARRAY_FORMAT_WEIGHTS;
-        rw = warr.read();
-    }
+    lformat |= arr.get_flags();
 
     for (int i = 0; i < vc; i++) {
 
@@ -749,19 +628,16 @@ void SurfaceTool::_create_list_from_arrays(SurfaceArrays &&arr, PODVector<Vertex
 
     //indices
 
-    PoolVector<int> idx = arr[VS::ARRAY_INDEX];
+    const PODVector<int> &idx = arr.m_indices;
     int is = idx.size();
     if (is) {
 
         lformat |= VS::ARRAY_FORMAT_INDEX;
-        PoolVector<int>::Read iarr = idx.read();
-        for (int i = 0; i < is; i++) {
-            r_index->push_back(iarr[i]);
-        }
+        r_index->push_back(idx);
     }
 }
 
-void SurfaceTool::create_from_triangle_arrays(const Array &p_arrays) {
+void SurfaceTool::create_from_triangle_arrays(const SurfaceArrays &p_arrays) {
 
     clear();
     primitive = Mesh::PRIMITIVE_TRIANGLES;
@@ -779,7 +655,7 @@ void SurfaceTool::create_from(const Ref<Mesh> &p_existing, int p_surface) {
 void SurfaceTool::create_from_blend_shape(const Ref<Mesh> &p_existing, int p_surface, StringName p_blend_shape_name) {
     clear();
     primitive = p_existing->surface_get_primitive_type(p_surface);
-    Array arr = p_existing->surface_get_blend_shape_arrays(p_surface);
+    PODVector<SurfaceArrays> arr = p_existing->surface_get_blend_shape_arrays(p_surface);
     Array blend_shape_names;
     int32_t shape_idx = -1;
     for (int32_t i = 0; i < p_existing->get_blend_shape_count(); i++) {
@@ -791,8 +667,8 @@ void SurfaceTool::create_from_blend_shape(const Ref<Mesh> &p_existing, int p_sur
     }
     ERR_FAIL_COND(shape_idx == -1);
     ERR_FAIL_COND(shape_idx >= arr.size());
-    Array mesh = arr[shape_idx];
-    ERR_FAIL_COND(mesh.size() != VS::ARRAY_MAX);
+    const SurfaceArrays &mesh = arr[shape_idx];
+    ERR_FAIL_COND(mesh.empty());
     _create_list_from_arrays(arr[shape_idx], &vertex_array, &index_array, format);
 }
 

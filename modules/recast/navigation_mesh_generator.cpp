@@ -93,30 +93,32 @@ void EditorNavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Tra
 
         SurfaceArrays a = p_mesh->surface_get_arrays(i);
 
-        PoolVector<Vector3> mesh_vertices = a.m_positions;
-        PoolVector<Vector3>::Read vr = mesh_vertices.read();
+        Span<const Vector3> mesh_vertices = a.positions3();
 
+        p_verticies.reserve(p_verticies.size()+mesh_vertices.size());
         if (p_mesh->surface_get_format(i) & Mesh::ARRAY_FORMAT_INDEX) {
 
-            PoolVector<int> mesh_indices = a.m_indices;
-            PoolVector<int>::Read ir = mesh_indices.read();
+            const auto &mesh_indices = a.m_indices;
 
             for (int j = 0; j < mesh_vertices.size(); j++) {
-                _add_vertex(p_xform.xform(vr[j]), p_verticies);
+                _add_vertex(p_xform.xform(mesh_vertices[j]), p_verticies);
             }
 
+            p_indices.reserve(p_indices.size()+face_count);
             for (int j = 0; j < face_count; j++) {
                 // CCW
-                p_indices.push_back(current_vertex_count + (ir[j * 3 + 0]));
-                p_indices.push_back(current_vertex_count + (ir[j * 3 + 2]));
-                p_indices.push_back(current_vertex_count + (ir[j * 3 + 1]));
+                p_indices.push_back(current_vertex_count + (mesh_indices[j * 3 + 0]));
+                p_indices.push_back(current_vertex_count + (mesh_indices[j * 3 + 2]));
+                p_indices.push_back(current_vertex_count + (mesh_indices[j * 3 + 1]));
             }
         } else {
             face_count = mesh_vertices.size() / 3;
+
+            p_indices.reserve(p_indices.size()+face_count);
             for (int j = 0; j < face_count; j++) {
-                _add_vertex(p_xform.xform(vr[j * 3 + 0]), p_verticies);
-                _add_vertex(p_xform.xform(vr[j * 3 + 2]), p_verticies);
-                _add_vertex(p_xform.xform(vr[j * 3 + 1]), p_verticies);
+                _add_vertex(p_xform.xform(mesh_vertices[j * 3 + 0]), p_verticies);
+                _add_vertex(p_xform.xform(mesh_vertices[j * 3 + 2]), p_verticies);
+                _add_vertex(p_xform.xform(mesh_vertices[j * 3 + 1]), p_verticies);
 
                 p_indices.push_back(current_vertex_count + (j * 3 + 0));
                 p_indices.push_back(current_vertex_count + (j * 3 + 1));
@@ -279,13 +281,13 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
 
 void EditorNavigationMeshGenerator::_convert_detail_mesh_to_native_navigation_mesh(const rcPolyMeshDetail *p_detail_mesh, Ref<NavigationMesh> p_nav_mesh) {
 
-    PoolVector<Vector3> nav_vertices;
+    PODVector<Vector3> nav_vertices;
 
     for (int i = 0; i < p_detail_mesh->nverts; i++) {
         const float *v = &p_detail_mesh->verts[i * 3];
-        nav_vertices.append(Vector3(v[0], v[1], v[2]));
+        nav_vertices.emplace_back(v[0], v[1], v[2]);
     }
-    p_nav_mesh->set_vertices(nav_vertices);
+    p_nav_mesh->set_vertices(eastl::move(nav_vertices));
 
     for (int i = 0; i < p_detail_mesh->nmeshes; i++) {
         const unsigned int *m = &p_detail_mesh->meshes[i * 4];
@@ -294,14 +296,13 @@ void EditorNavigationMeshGenerator::_convert_detail_mesh_to_native_navigation_me
         const unsigned int ntris = m[3];
         const unsigned char *tris = &p_detail_mesh->tris[btris * 4];
         for (unsigned int j = 0; j < ntris; j++) {
-            PoolVector<int> nav_indices;
-            auto wr(nav_indices.write());
-            nav_indices.resize(3);
             // Polygon order in recast is opposite than godot's
-            wr[0] = ((int)(bverts + tris[j * 4 + 0]));
-            wr[1] = ((int)(bverts + tris[j * 4 + 2]));
-            wr[2] = ((int)(bverts + tris[j * 4 + 1]));
-            p_nav_mesh->add_polygon(nav_indices);
+            PODVector<int> nav_indices {
+                (int)(bverts + tris[j * 4 + 0]),
+                (int)(bverts + tris[j * 4 + 2]),
+                (int)(bverts + tris[j * 4 + 1]),
+            };
+            p_nav_mesh->add_polygon(eastl::move(nav_indices));
         }
     }
 }
@@ -503,7 +504,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
 void EditorNavigationMeshGenerator::clear(Ref<NavigationMesh> p_nav_mesh) {
     if (p_nav_mesh) {
         p_nav_mesh->clear_polygons();
-        p_nav_mesh->set_vertices(PoolVector<Vector3>());
+        p_nav_mesh->set_vertices({});
     }
 }
 

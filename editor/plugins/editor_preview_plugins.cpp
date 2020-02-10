@@ -404,10 +404,10 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
     int lons = 32;
     float radius = 1.0;
 
-    PoolVector<Vector3> vertices;
-    PoolVector<Vector3> normals;
-    PoolVector<Vector2> uvs;
-    PoolVector<float> tangents;
+    PODVector<Vector3> vertices;
+    PODVector<Vector3> normals;
+    PODVector<Vector2> uvs;
+    PODVector<float> tangents;
     Basis tt = Basis(Vector3(0, 1, 0), Math_PI * 0.5);
 
     for (int i = 1; i <= lats; i++) {
@@ -464,12 +464,10 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
         }
     }
 
-    Array arr;
-    arr.resize(VS::ARRAY_MAX);
-    arr[VS::ARRAY_VERTEX] = vertices;
-    arr[VS::ARRAY_NORMAL] = normals;
-    arr[VS::ARRAY_TANGENT] = tangents;
-    arr[VS::ARRAY_TEX_UV] = Variant(uvs);
+    SurfaceArrays arr(eastl::move(vertices));
+    arr.m_normals = eastl::move(normals);
+    arr.m_tangents = eastl::move(tangents);
+    arr.m_uv_1 = eastl::move(uvs);
     VisualServer::get_singleton()->mesh_add_surface_from_arrays(sphere, VS::PRIMITIVE_TRIANGLES, arr);
 }
 

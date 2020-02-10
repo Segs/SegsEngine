@@ -263,7 +263,7 @@ int CSGShape::mikktGetNumVerticesOfFace(const SMikkTSpaceContext *pContext, cons
 void CSGShape::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvPosOut[], const int iFace, const int iVert) {
     const ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
-    Vector3 v = surface.verticesw[iFace * 3 + iVert];
+    Vector3 v = surface.vertices[iFace * 3 + iVert];
     fvPosOut[0] = v.x;
     fvPosOut[1] = v.y;
     fvPosOut[2] = v.z;
@@ -272,7 +272,7 @@ void CSGShape::mikktGetPosition(const SMikkTSpaceContext *pContext, float fvPosO
 void CSGShape::mikktGetNormal(const SMikkTSpaceContext *pContext, float fvNormOut[], const int iFace, const int iVert) {
     const ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
-    Vector3 n = surface.normalsw[iFace * 3 + iVert];
+    Vector3 n = surface.normals[iFace * 3 + iVert];
     fvNormOut[0] = n.x;
     fvNormOut[1] = n.y;
     fvNormOut[2] = n.z;
@@ -281,7 +281,7 @@ void CSGShape::mikktGetNormal(const SMikkTSpaceContext *pContext, float fvNormOu
 void CSGShape::mikktGetTexCoord(const SMikkTSpaceContext *pContext, float fvTexcOut[], const int iFace, const int iVert) {
     const ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
-    Vector2 t = surface.uvsw[iFace * 3 + iVert];
+    Vector2 t = surface.uvs[iFace * 3 + iVert];
     fvTexcOut[0] = t.x;
     fvTexcOut[1] = t.y;
 }
@@ -292,16 +292,16 @@ void CSGShape::mikktSetTSpaceDefault(const SMikkTSpaceContext *pContext, const f
     ShapeUpdateSurface &surface = *((ShapeUpdateSurface *)pContext->m_pUserData);
 
     int i = iFace * 3 + iVert;
-    Vector3 normal = surface.normalsw[i];
+    Vector3 normal = surface.normals[i];
     Vector3 tangent = Vector3(fvTangent[0], fvTangent[1], fvTangent[2]);
     Vector3 bitangent = Vector3(-fvBiTangent[0], -fvBiTangent[1], -fvBiTangent[2]); // for some reason these are reversed, something with the coordinate system in Godot
     float d = bitangent.dot(normal.cross(tangent));
 
     i *= 4;
-    surface.tansw[i++] = tangent.x;
-    surface.tansw[i++] = tangent.y;
-    surface.tansw[i++] = tangent.z;
-    surface.tansw[i++] = d < 0 ? -1 : 1;
+    surface.tans[i++] = tangent.x;
+    surface.tans[i++] = tangent.y;
+    surface.tans[i++] = tangent.z;
+    surface.tans[i++] = d < 0 ? -1 : 1;
 }
 
 void CSGShape::_update_shape() {
@@ -313,7 +313,7 @@ void CSGShape::_update_shape() {
     root_mesh.unref(); //byebye root mesh
 
     CSGBrush *n = _get_brush();
-    ERR_FAIL_COND_MSG(!n, "Cannot get CSGBrush."); 
+    ERR_FAIL_COND_MSG(!n, "Cannot get CSGBrush.");
 
     OAHashMap<Vector3, Vector3> vec_map;
 
@@ -360,13 +360,6 @@ void CSGShape::_update_shape() {
 
         if (i != surfaces.size() - 1) {
             surfaces[i].material = n->materials[i];
-        }
-
-        surfaces[i].verticesw = surfaces[i].vertices.write();
-        surfaces[i].normalsw = surfaces[i].normals.write();
-        surfaces[i].uvsw = surfaces[i].uvs.write();
-        if (calculate_tangents) {
-            surfaces[i].tansw = surfaces[i].tans.write();
         }
     }
 
@@ -423,17 +416,17 @@ void CSGShape::_update_shape() {
                 }
 
                 int k = last + order[j];
-                surfaces[idx].verticesw[k] = v;
-                surfaces[idx].uvsw[k] = n->faces[i].uvs[j];
-                surfaces[idx].normalsw[k] = normal;
+                surfaces[idx].vertices[k] = v;
+                surfaces[idx].uvs[k] = n->faces[i].uvs[j];
+                surfaces[idx].normals[k] = normal;
 
                 if (calculate_tangents) {
                     // zero out our tangents for now
                     k *= 4;
-                    surfaces[idx].tansw[k++] = 0.0;
-                    surfaces[idx].tansw[k++] = 0.0;
-                    surfaces[idx].tansw[k++] = 0.0;
-                    surfaces[idx].tansw[k++] = 0.0;
+                    surfaces[idx].tans[k++] = 0.0;
+                    surfaces[idx].tans[k++] = 0.0;
+                    surfaces[idx].tans[k++] = 0.0;
+                    surfaces[idx].tans[k++] = 0.0;
                 }
             }
 
@@ -463,28 +456,21 @@ void CSGShape::_update_shape() {
             have_tangents = genTangSpaceDefault(&msc);
         }
 
-        // unset write access
-        surfaces[i].verticesw.release();
-        surfaces[i].normalsw.release();
-        surfaces[i].uvsw.release();
-        surfaces[i].tansw.release();
-
         if (surfaces[i].last_added == 0)
             continue;
 
         // and convert to surface array
-        Array array;
-        array.resize(Mesh::ARRAY_MAX);
+        SurfaceArrays array;
 
-        array[Mesh::ARRAY_VERTEX] = surfaces[i].vertices;
-        array[Mesh::ARRAY_NORMAL] = surfaces[i].normals;
-        array[Mesh::ARRAY_TEX_UV] = Variant(surfaces[i].uvs);
+        array.set_positions(eastl::move(surfaces[i].vertices));
+        array.m_normals = eastl::move(surfaces[i].normals);
+        array.m_uv_1 = eastl::move(surfaces[i].uvs);
         if (have_tangents) {
-            array[Mesh::ARRAY_TANGENT] = surfaces[i].tans;
+            array.m_tangents = eastl::move(surfaces[i].tans);
         }
 
         int idx = root_mesh->get_surface_count();
-        root_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, array);
+        root_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(array));
         root_mesh->surface_set_material(idx, surfaces[i].material);
     }
 
@@ -498,31 +484,30 @@ AABB CSGShape::get_aabb() const {
     return node_aabb;
 }
 
-PoolVector<Vector3> CSGShape::get_brush_faces() {
-    ERR_FAIL_COND_V(!is_inside_tree(), PoolVector<Vector3>());
+PODVector<Vector3> CSGShape::get_brush_faces() {
+    ERR_FAIL_COND_V(!is_inside_tree(), {});
     CSGBrush *b = _get_brush();
     if (!b) {
-        return PoolVector<Vector3>();
+        return {};
     }
 
-    PoolVector<Vector3> faces;
+    PODVector<Vector3> faces;
     int fc = b->faces.size();
     faces.resize(fc * 3);
     {
-        PoolVector<Vector3>::Write w = faces.write();
         for (int i = 0; i < fc; i++) {
-            w[i * 3 + 0] = b->faces[i].vertices[0];
-            w[i * 3 + 1] = b->faces[i].vertices[1];
-            w[i * 3 + 2] = b->faces[i].vertices[2];
+            faces[i * 3 + 0] = b->faces[i].vertices[0];
+            faces[i * 3 + 1] = b->faces[i].vertices[1];
+            faces[i * 3 + 2] = b->faces[i].vertices[2];
         }
     }
 
     return faces;
 }
 
-PoolVector<Face3> CSGShape::get_faces(uint32_t p_usage_flags) const {
+PODVector<Face3> CSGShape::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return PODVector<Face3>();
 }
 
 void CSGShape::_notification(int p_what) {
@@ -767,27 +752,15 @@ CSGBrush *CSGMesh::_build_brush() {
             ERR_FAIL_COND_V(arrays.empty(), nullptr);
         }
 
-        PoolVector<Vector3> avertices = arrays.m_positions;
-        if (avertices.size() == 0)
+        Span<const Vector3> avertices = arrays.positions3();
+        if (avertices.empty())
             continue;
 
-        PoolVector<Vector3>::Read vr = avertices.read();
+        const PODVector<Vector3> &anormals = arrays.m_normals;
+        bool nr_used = !anormals.empty();
 
-        PoolVector<Vector3> anormals = arrays.m_normals;
-        PoolVector<Vector3>::Read nr;
-        bool nr_used = false;
-        if (anormals.size()) {
-            nr = anormals.read();
-            nr_used = true;
-        }
-
-        PoolVector<Vector2> auvs = arrays.m_uv_1;
-        PoolVector<Vector2>::Read uvr;
-        bool uvr_used = false;
-        if (auvs.size()) {
-            uvr = auvs.read();
-            uvr_used = true;
-        }
+        const PODVector<Vector2> &auvs = arrays.m_uv_1;
+        bool uvr_used = !auvs.empty();
 
         Ref<Material> mat;
         if (material) {
@@ -796,7 +769,7 @@ CSGBrush *CSGMesh::_build_brush() {
             mat = mesh->surface_get_material(i);
         }
 
-        PoolVector<int> aindices = arrays.m_indices;
+        const PODVector<int> &aindices = arrays.m_indices;
         if (aindices.size()) {
             int as = vertices.size();
             int is = aindices.size();
@@ -811,8 +784,6 @@ CSGBrush *CSGMesh::_build_brush() {
             PoolVector<Vector2>::Write uvw = uvs.write();
             PoolVector<Ref<Material> >::Write mw = materials.write();
 
-            PoolVector<int>::Read ir = aindices.read();
-
             for (int j = 0; j < is; j += 3) {
 
                 Vector3 vertex[3];
@@ -820,13 +791,13 @@ CSGBrush *CSGMesh::_build_brush() {
                 Vector2 uv[3];
 
                 for (int k = 0; k < 3; k++) {
-                    int idx = ir[j + k];
-                    vertex[k] = vr[idx];
+                    int idx = aindices[j + k];
+                    vertex[k] = avertices[idx];
                     if (nr_used) {
-                        normal[k] = nr[idx];
+                        normal[k] = anormals[idx];
                     }
                     if (uvr_used) {
-                        uv[k] = uvr[idx];
+                        uv[k] = auvs[idx];
                     }
                 }
 
@@ -864,12 +835,12 @@ CSGBrush *CSGMesh::_build_brush() {
                 Vector2 uv[3];
 
                 for (int k = 0; k < 3; k++) {
-                    vertex[k] = vr[j + k];
+                    vertex[k] = avertices[j + k];
                     if (nr_used) {
-                        normal[k] = nr[j + k];
+                        normal[k] = anormals[j + k];
                     }
                     if (uvr_used) {
-                        uv[k] = uvr[j + k];
+                        uv[k] = auvs[j + k];
                     }
                 }
 

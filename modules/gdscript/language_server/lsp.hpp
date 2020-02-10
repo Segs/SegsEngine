@@ -677,7 +677,7 @@ struct Diagnostic {
      * An array of related diagnostic information, e.g. when symbol-names within
      * a scope collide all definitions can be marked via this property.
      */
-    Vector<DiagnosticRelatedInformation> relatedInformation;
+    PODVector<DiagnosticRelatedInformation> relatedInformation;
 
     Dictionary to_json() const {
         Dictionary dict;
@@ -910,14 +910,14 @@ struct CompletionItem {
      * (for example adding an import statement at the top of the file if the completion item will
      * insert an unqualified type).
      */
-    Vector<TextEdit> additionalTextEdits;
+    PODVector<TextEdit> additionalTextEdits;
 
     /**
      * An optional set of characters that when pressed while this completion is active will accept it first and
      * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
      * characters will be ignored.
      */
-    PoolVector<String> commitCharacters;
+    PODVector<String> commitCharacters;
 
     /**
      * An optional command that is executed *after* inserting this completion. *Note* that
@@ -945,7 +945,8 @@ struct CompletionItem {
             dict["preselect"] = preselect;
             dict["sortText"] = sortText;
             dict["filterText"] = filterText;
-            if (commitCharacters.size()) dict["commitCharacters"] = Variant(commitCharacters);
+            if (commitCharacters.size())
+                dict["commitCharacters"] = Variant::from(commitCharacters);
             dict["command"] = command.to_json();
         }
         return dict;
@@ -987,7 +988,7 @@ struct CompletionList {
     /**
      * The completion items.
      */
-    Vector<CompletionItem> items;
+    PODVector<CompletionItem> items;
 };
 
 // Use namespace instead of enumeration to follow the LSP specifications

@@ -493,9 +493,9 @@ AABB GIProbe::get_aabb() const {
     return AABB(-extents, extents * 2);
 }
 
-PoolVector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
+PODVector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return PODVector<Face3>();
 }
 
 StringName GIProbe::get_configuration_warning() const {

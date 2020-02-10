@@ -149,8 +149,9 @@ ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data,
         }
 
     }
-    if(!loader_found)
+    if(!loader_found) {
         ERR_PRINT("No loader found for file with extension:"+String(extension));
+    }
     return result_data;
 }
 

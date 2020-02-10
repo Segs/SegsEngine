@@ -60,7 +60,7 @@ void CPUParticles2D::set_emitting(bool p_emitting) {
 
 void CPUParticles2D::set_amount(int p_amount) {
 
-    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0."); 
+    ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
 
     particles.resize(p_amount);
     {
@@ -176,12 +176,14 @@ void CPUParticles2D::_update_mesh_texture() {
     } else {
         tex_size = Size2(1, 1);
     }
-    PoolVector<Vector2> vertices;
-    vertices.push_back(-tex_size * 0.5);
-    vertices.push_back(-tex_size * 0.5 + Vector2(tex_size.x, 0));
-    vertices.push_back(-tex_size * 0.5 + Vector2(tex_size.x, tex_size.y));
-    vertices.push_back(-tex_size * 0.5 + Vector2(0, tex_size.y));
-    PoolVector<Vector2> uvs;
+    PODVector<Vector2> vertices {
+        Vector2(-tex_size * 0.5),
+        Vector2(-tex_size * 0.5 + Vector2(tex_size.x, 0)),
+        Vector2(-tex_size * 0.5 + Vector2(tex_size.x, tex_size.y)),
+        Vector2(-tex_size * 0.5 + Vector2(0, tex_size.y)),
+    };
+
+    PODVector<Vector2> uvs;
     AtlasTexture *atlas_texure = object_cast<AtlasTexture>(texture.get());
     if (atlas_texure && atlas_texure->get_atlas()) {
         Rect2 region_rect = atlas_texure->get_region();
@@ -196,28 +198,28 @@ void CPUParticles2D::_update_mesh_texture() {
         uvs.push_back(Vector2(1, 1));
         uvs.push_back(Vector2(0, 1));
     }
-    PoolVector<Color> colors;
-    colors.push_back(Color(1, 1, 1, 1));
-    colors.push_back(Color(1, 1, 1, 1));
-    colors.push_back(Color(1, 1, 1, 1));
-    colors.push_back(Color(1, 1, 1, 1));
-    PoolVector<int> indices;
-    indices.push_back(0);
-    indices.push_back(1);
-    indices.push_back(2);
-    indices.push_back(2);
-    indices.push_back(3);
-    indices.push_back(0);
+    PODVector<Color> colors {
+        Color(1, 1, 1, 1),
+        Color(1, 1, 1, 1),
+        Color(1, 1, 1, 1),
+        Color(1, 1, 1, 1),
+    };
+    PODVector<int> indices{
+        0,
+        1,
+        2,
+        2,
+        3,
+        0,
+    };
 
-    Array arr;
-    arr.resize(VS::ARRAY_MAX);
-    arr[VS::ARRAY_VERTEX] =Variant(vertices);
-    arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    arr[VS::ARRAY_COLOR] = colors;
-    arr[VS::ARRAY_INDEX] = indices;
+    SurfaceArrays arr(eastl::move(vertices));
+    arr.m_uv_1 = eastl::move(uvs);
+    arr.m_colors = eastl::move(colors);
+    arr.m_indices = eastl::move(indices);
 
     VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, arr);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, eastl::move(arr));
 }
 
 void CPUParticles2D::set_texture(const Ref<Texture> &p_texture) {

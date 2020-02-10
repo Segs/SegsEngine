@@ -210,7 +210,7 @@ void JoypadLinux::monitor_joypads() {
         for (int i = 0; i < 32; i++) {
             char fname[64];
             sprintf(fname, "/dev/input/event%d", i);
-            if (attached_devices.find(fname) == -1) {
+            if (!attached_devices.contains(fname)) {
                 open_joypad(fname);
             }
         }
@@ -246,7 +246,7 @@ void JoypadLinux::close_joypad(int p_id) {
 
         close(joy.fd);
         joy.fd = -1;
-        attached_devices.remove(attached_devices.find(joy.devpath));
+        attached_devices.erase(attached_devices.find(joy.devpath));
         input->joy_connection_changed(p_id, false, StringName());
     }
 }

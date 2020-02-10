@@ -40,18 +40,18 @@
 IMPL_GDCLASS(Shape)
 RES_BASE_EXTENSION_IMPL(Shape,"shape")
 
-void Shape::add_vertices_to_array(PoolVector<Vector3> &array, const Transform &p_xform) {
+void Shape::add_vertices_to_array(PODVector<Vector3> &array, const Transform &p_xform) {
 
-    PODVector<Vector3> toadd = get_debug_mesh_lines();
+    PODVector<Vector3> toadd(get_debug_mesh_lines());
 
     if (!toadd.empty()) {
-
-        int base = array.size();
-        array.resize(base + toadd.size());
-        PoolVector<Vector3>::Write w = array.write();
-        for (int i = 0; i < toadd.size(); i++) {
-            w[i + base] = p_xform.xform(toadd[i]);
+        // Do transform in temporary buffer
+        for (Vector3 &v : toadd) {
+            v = p_xform.xform(v);
         }
+
+        array.insert(array.end(),toadd.begin(),toadd.end());
+
     }
 }
 
@@ -75,23 +75,12 @@ Ref<ArrayMesh> Shape::get_debug_mesh() {
 
     if (!lines.empty()) {
         //make mesh
-        PoolVector<Vector3> array;
-        array.resize(lines.size());
-        {
-
-            PoolVector<Vector3>::Write w = array.write();
-            for (int i = 0; i < lines.size(); i++) {
-                w[i] = lines[i];
-            }
-        }
-
-        Array arr;
-        arr.resize(Mesh::ARRAY_MAX);
-        arr[Mesh::ARRAY_VERTEX] = array;
+        PODVector<Vector3> array = lines;
+        SurfaceArrays arr(eastl::move(array));
 
         SceneTree *st = object_cast<SceneTree>(OS::get_singleton()->get_main_loop());
 
-        debug_mesh_cache->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, arr);
+        debug_mesh_cache->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(arr));
 
         if (st) {
             debug_mesh_cache->surface_set_material(0, st->get_debug_collision_material());
@@ -115,7 +104,7 @@ void Shape::_bind_methods() {
 }
 
 Shape::Shape() :
-        margin(0.04) {
+        margin(0.04f) {
 
     ERR_PRINT("Constructor must not be called!");
 }

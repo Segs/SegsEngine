@@ -4244,7 +4244,7 @@ void godot_icall_ArrayMesh_add_surface_from_arrays_11c236d3(Object * ptr, int32_
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     uint32_t arg4_in = static_cast<uint32_t>(arg4);
-    static_cast<ArrayMesh *>(ptr)->add_surface_from_arrays((Mesh::PrimitiveType)arg1_in, *arg2, *arg3, arg4_in);
+    static_cast<ArrayMesh *>(ptr)->_add_surface_from_arrays((Mesh::PrimitiveType)arg1_in, *arg2, *arg3, arg4_in);
 }
 
 void godot_icall_ArrayMesh_surface_remove_e1ae93bc(Object * ptr, int32_t arg1) {
@@ -11913,8 +11913,8 @@ Object* godot_icall_Control_Ctor(MonoObject* obj) {
 
 void godot_icall_ConvexPolygonShape_set_points_88c6a314(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
-    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
-    static_cast<ConvexPolygonShape *>(ptr)->set_points(arg1_in);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector3(arg1);
+    static_cast<ConvexPolygonShape *>(ptr)->set_points(eastl::move(arg1_in));
 }
 
 MonoArray* godot_icall_ConvexPolygonShape_get_points_36607e58(Object * ptr) {
@@ -14561,10 +14561,10 @@ void godot_icall_EditorSpatialGizmo_add_unscaled_billboard_514f3e17(Object * ptr
 #ifdef TOOLS_ENABLED
 void godot_icall_EditorSpatialGizmo_add_handles_3f39657(Object * ptr, MonoArray* arg1, Object * arg2, MonoBoolean arg3, MonoBoolean arg4) {
     ERR_FAIL_NULL(ptr);
-    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector3(arg1);
     bool arg3_in = static_cast<bool>(arg3);
     bool arg4_in = static_cast<bool>(arg4);
-    static_cast<EditorSpatialGizmo *>(ptr)->add_handles(arg1_in, AutoRef(arg2), arg3_in, arg4_in);
+    static_cast<EditorSpatialGizmo *>(ptr)->add_handles(eastl::move(arg1_in), AutoRef(arg2), arg3_in, arg4_in);
 }
 
 #endif // TOOLS_ENABLED
@@ -21757,8 +21757,8 @@ Array* godot_icall_Mesh_surface_get_arrays_2ca2fcca(Object * ptr, int32_t arg1) 
 Array* godot_icall_Mesh_surface_get_blend_shape_arrays_2ca2fcca(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<Mesh *>(ptr)->surface_get_blend_shape_arrays(arg1_in);
-    return memnew(Array(Variant::from(ret)));
+    auto ret = static_cast<Mesh *>(ptr)->_surface_get_blend_shape_arrays(arg1_in);
+    return memnew(Array(ret));
 }
 
 void godot_icall_Mesh_surface_set_material_4ee274f6(Object * ptr, int32_t arg1, Object * arg2) {
@@ -21934,8 +21934,8 @@ void godot_icall_MeshDataTool_get_vertex_color_eaf668ad(Object * ptr, int32_t ar
 void godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8(Object * ptr, int32_t arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-	auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecInt(arg2);
-	static_cast<MeshDataTool *>(ptr)->set_vertex_bones(arg1_in, eastl::move(arg2_in));
+    auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecInt(arg2);
+    static_cast<MeshDataTool *>(ptr)->set_vertex_bones(arg1_in, eastl::move(arg2_in));
 }
 
 MonoArray* godot_icall_MeshDataTool_get_vertex_bones_67f65c91(Object * ptr, int32_t arg1) {
@@ -21948,8 +21948,8 @@ MonoArray* godot_icall_MeshDataTool_get_vertex_bones_67f65c91(Object * ptr, int3
 void godot_icall_MeshDataTool_set_vertex_weights_aadf79b1(Object * ptr, int32_t arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-	auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecFloat(arg2);
-	static_cast<MeshDataTool *>(ptr)->set_vertex_weights(arg1_in, eastl::move(arg2_in));
+    auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecFloat(arg2);
+    static_cast<MeshDataTool *>(ptr)->set_vertex_weights(arg1_in, eastl::move(arg2_in));
 }
 
 MonoArray* godot_icall_MeshDataTool_get_vertex_weights_8a6351b5(Object * ptr, int32_t arg1) {
@@ -23082,8 +23082,8 @@ MonoBoolean godot_icall_NavigationMesh_get_filter_walkable_low_height_spans_68fe
 
 void godot_icall_NavigationMesh_set_vertices_88c6a314(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
-    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
-    static_cast<NavigationMesh *>(ptr)->set_vertices(arg1_in);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector3(arg1);
+    static_cast<NavigationMesh *>(ptr)->set_vertices(eastl::move(arg1_in));
 }
 
 MonoArray* godot_icall_NavigationMesh_get_vertices_36607e58(Object * ptr) {
@@ -23094,8 +23094,8 @@ MonoArray* godot_icall_NavigationMesh_get_vertices_36607e58(Object * ptr) {
 
 void godot_icall_NavigationMesh_add_polygon_fb3c9f9f(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
-    PoolIntArray arg1_in = GDMonoMarshal::mono_array_to_PoolIntArray(arg1);
-    static_cast<NavigationMesh *>(ptr)->add_polygon(arg1_in);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecInt(arg1);
+    static_cast<NavigationMesh *>(ptr)->add_polygon(eastl::move(arg1_in));
 }
 
 int32_t godot_icall_NavigationMesh_get_polygon_count_1f886eb0(Object * ptr) {
@@ -30002,7 +30002,7 @@ MonoObject* godot_icall_PrimitiveMesh_get_material_6d04d9a2(Object * ptr) {
 
 Array* godot_icall_PrimitiveMesh_get_mesh_arrays_d80382d4(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PrimitiveMesh *>(ptr)->get_mesh_arrays();
+    auto ret = static_cast<PrimitiveMesh *>(ptr)->_get_mesh_arrays();
     return memnew(Array(Variant::from(ret)));
 }
 
@@ -37184,7 +37184,7 @@ MonoObject* godot_icall_SurfaceTool_commit_5ae3e369(Object * ptr, Object * arg1,
 Array* godot_icall_SurfaceTool_commit_to_arrays_d80382d4(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<SurfaceTool *>(ptr)->commit_to_arrays();
-    return memnew(Array(Variant::from(ret)));
+    return memnew(Array(ret));
 }
 
 Object* godot_icall_SurfaceTool_Ctor(MonoObject* obj) {
@@ -44235,7 +44235,7 @@ void godot_icall_VisualServer_mesh_add_surface_from_arrays_36892d9(Object * ptr,
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     uint32_t arg5_in = static_cast<uint32_t>(arg5);
-    static_cast<VisualServer *>(ptr)->mesh_add_surface_from_arrays(*arg1, (VS::PrimitiveType)arg2_in, *arg3, *arg4, arg5_in);
+    static_cast<VisualServer *>(ptr)->_mesh_add_surface_from_arrays(*arg1, (VS::PrimitiveType)arg2_in, *arg3, *arg4, arg5_in);
 }
 
 void godot_icall_VisualServer_mesh_set_blend_shape_count_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
@@ -44315,13 +44315,13 @@ Array* godot_icall_VisualServer_mesh_surface_get_arrays_25b24b67(Object * ptr, R
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_arrays(*arg1, arg2_in);
-    return memnew(Array(Variant::from(ret)));
+    return memnew(Array(ret));
 }
 
 Array* godot_icall_VisualServer_mesh_surface_get_blend_shape_arrays_25b24b67(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_blend_shape_arrays(*arg1, arg2_in);
+    auto ret = static_cast<VisualServer *>(ptr)->_mesh_surface_get_blend_shape_arrays(*arg1, arg2_in);
     return memnew(Array(Variant::from(ret)));
 }
 
@@ -46974,51 +46974,51 @@ Object* godot_icall_VisualShaderNodeScalarSwitch_Ctor(MonoObject* obj) {
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9(Object * ptr, int32_t arg1) {
-	ERR_FAIL_NULL(ptr);
-	int64_t arg1_in = (int64_t)arg1;
-	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_hint((VisualShaderNodeScalarUniform::Hint)arg1_in);
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_hint((VisualShaderNodeScalarUniform::Hint)arg1_in);
 }
 
 int32_t godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, int32_t());
-	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_hint();
-	return (int32_t)ret;
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_hint();
+    return (int32_t)ret;
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_min(arg1_in);
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_min(arg1_in);
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_min();
-	*arg_ret = (float)ret;
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_min();
+    *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_max(arg1_in);
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_max(arg1_in);
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_max();
-	*arg_ret = (float)ret;
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_max();
+    *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_step(arg1_in);
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<VisualShaderNodeScalarUniform *>(ptr)->set_step(arg1_in);
 }
 
 void godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_step();
-	*arg_ret = (float)ret;
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<VisualShaderNodeScalarUniform *>(ptr)->get_step();
+    *arg_ret = (float)ret;
 }
 
 Object* godot_icall_VisualShaderNodeScalarUniform_Ctor(MonoObject* obj) {
@@ -52718,7 +52718,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspector_refresh_c8e54a7b", (void*)godot_icall_EditorInspector_refresh_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c", (void*)godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_856dce99", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_856dce99);
-	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3);
+    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_inspect_object_daca0f32", (void*)godot_icall_EditorInterface_inspect_object_daca0f32);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_selection_780b36ac", (void*)godot_icall_EditorInterface_get_selection_780b36ac);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_editor_settings_99bdc54d", (void*)godot_icall_EditorInterface_get_editor_settings_99bdc54d);
@@ -53940,9 +53940,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_uv2_23728632", (void*)godot_icall_MeshDataTool_get_vertex_uv2_23728632);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_color_932531de", (void*)godot_icall_MeshDataTool_set_vertex_color_932531de);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_color_eaf668ad", (void*)godot_icall_MeshDataTool_get_vertex_color_eaf668ad);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8", (void*)godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8", (void*)godot_icall_MeshDataTool_set_vertex_bones_3da8dbe8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_bones_67f65c91", (void*)godot_icall_MeshDataTool_get_vertex_bones_67f65c91);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_weights_aadf79b1", (void*)godot_icall_MeshDataTool_set_vertex_weights_aadf79b1);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_weights_aadf79b1", (void*)godot_icall_MeshDataTool_set_vertex_weights_aadf79b1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_weights_8a6351b5", (void*)godot_icall_MeshDataTool_get_vertex_weights_8a6351b5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_set_vertex_meta_37bef04", (void*)godot_icall_MeshDataTool_set_vertex_meta_37bef04);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshDataTool_get_vertex_meta_a9b2673d", (void*)godot_icall_MeshDataTool_get_vertex_meta_a9b2673d);
@@ -57685,14 +57685,14 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarFunc_get_function_cb293e99", (void*)godot_icall_VisualShaderNodeScalarFunc_get_function_cb293e99);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarOp_set_operator_91af01f9", (void*)godot_icall_VisualShaderNodeScalarOp_set_operator_91af01f9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarOp_get_operator_4f328214", (void*)godot_icall_VisualShaderNodeScalarOp_get_operator_4f328214);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9", (void*)godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54", (void*)godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9", (void*)godot_icall_VisualShaderNodeScalarUniform_set_hint_e8b939b9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54", (void*)godot_icall_VisualShaderNodeScalarUniform_get_hint_dee4ff54);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_min_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_min_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_max_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_max_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb", (void*)godot_icall_VisualShaderNodeScalarUniform_set_step_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9", (void*)godot_icall_VisualShaderNodeScalarUniform_get_step_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeTexture_set_source_ed1e5f58", (void*)godot_icall_VisualShaderNodeTexture_set_source_ed1e5f58);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeTexture_get_source_7c6576fb", (void*)godot_icall_VisualShaderNodeTexture_get_source_7c6576fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualShaderNodeTexture_set_texture_7eecd31a", (void*)godot_icall_VisualShaderNodeTexture_set_texture_7eecd31a);

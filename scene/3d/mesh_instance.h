@@ -94,7 +94,7 @@ public:
     void create_debug_tangents();
 
     AABB get_aabb() const override;
-    PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     MeshInstance();
     ~MeshInstance() override;

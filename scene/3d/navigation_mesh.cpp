@@ -41,33 +41,30 @@ IMPL_GDCLASS(NavigationMeshInstance)
 
 void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
 
-    vertices = PoolVector<Vector3>();
+    vertices.clear();
     clear_polygons();
 
     for (int i = 0; i < p_mesh->get_surface_count(); i++) {
 
         if (p_mesh->surface_get_primitive_type(i) != Mesh::PRIMITIVE_TRIANGLES)
             continue;
-        Array arr = p_mesh->surface_get_arrays(i);
-        PoolVector<Vector3> varr = arr[Mesh::ARRAY_VERTEX];
-        PoolVector<int> iarr = arr[Mesh::ARRAY_INDEX];
+        SurfaceArrays arr = p_mesh->surface_get_arrays(i);
+        Span<const Vector3> varr = arr.positions3();
+        const auto & iarr = arr.m_indices;
         if (varr.size() == 0 || iarr.size() == 0)
             continue;
 
         int from = vertices.size();
-        vertices.append_array(varr);
+        vertices.insert(vertices.end(),varr.begin(),varr.end());
         int rlen = iarr.size();
-        PoolVector<int>::Read r = iarr.read();
-
         for (int j = 0; j < rlen; j += 3) {
-            PoolVector<int> vi;
-            vi.resize(3);
-            auto wr(vi.write());
-            wr[0] = r[j + 0] + from;
-            wr[1] = r[j + 1] + from;
-            wr[2] = r[j + 2] + from;
+            PODVector<int> vi {
+                iarr[j + 0] + from,
+                iarr[j + 1] + from,
+                iarr[j + 2] + from,
+            };
 
-            add_polygon(vi);
+            add_polygon(eastl::move(vi));
         }
     }
 }
@@ -261,13 +258,13 @@ bool NavigationMesh::get_filter_walkable_low_height_spans() const {
     return filter_walkable_low_height_spans;
 }
 
-void NavigationMesh::set_vertices(const PoolVector<Vector3> &p_vertices) {
+void NavigationMesh::set_vertices(PODVector<Vector3> &&p_vertices) {
 
     vertices = p_vertices;
     Object_change_notify(this);
 }
 
-const PoolVector<Vector3> &NavigationMesh::get_vertices() const {
+const PODVector<Vector3> &NavigationMesh::get_vertices() const {
 
     return vertices;
 }
@@ -276,7 +273,7 @@ void NavigationMesh::_set_polygons(const Array &p_array) {
     polygons.clear();
     polygons.reserve(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.emplace_back(Polygon{p_array[i].as<PoolVector<int>>()});
+        polygons.emplace_back(Polygon{p_array[i].as<PODVector<int>>()});
     }
     Object_change_notify(this);
 }
@@ -292,20 +289,20 @@ Array NavigationMesh::_get_polygons() const {
     return ret;
 }
 
-void NavigationMesh::add_polygon(const PoolVector<int> &p_polygon) {
+void NavigationMesh::add_polygon(PODVector<int> &&p_polygon) {
 
     Polygon polygon;
-    polygon.indices = p_polygon;
-    polygons.push_back(polygon);
+    polygon.indices = eastl::move(p_polygon);
+    polygons.emplace_back(eastl::move(polygon));
     Object_change_notify(this);
 }
 int NavigationMesh::get_polygon_count() const {
 
     return polygons.size();
 }
-PoolVector<int> NavigationMesh::get_polygon(int p_idx) {
+const PODVector<int> &NavigationMesh::get_polygon(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, polygons.size(), PoolVector<int>());
+    ERR_FAIL_INDEX_V(p_idx, polygons.size(), null_int_pvec);
     return polygons[p_idx].indices;
 }
 void NavigationMesh::clear_polygons() {
@@ -318,17 +315,16 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
     if (debug_mesh)
         return debug_mesh;
 
-    PoolVector<Vector3> vertices = get_vertices();
-    PoolVector<Vector3>::Read vr = vertices.read();
-    List<Face3> faces;
+    const PODVector<Vector3> &vertices = get_vertices();
+    PODVector<Face3> faces;
     for (int i = 0; i < get_polygon_count(); i++) {
-        PoolVector<int> p = get_polygon(i);
+        const PODVector<int> &p = get_polygon(i);
 
         for (int j = 2; j < p.size(); j++) {
             Face3 f;
-            f.vertex[0] = vr[p[0]];
-            f.vertex[1] = vr[p[j - 1]];
-            f.vertex[2] = vr[p[j]];
+            f.vertex[0] = vertices[p[0]];
+            f.vertex[1] = vertices[p[j - 1]];
+            f.vertex[2] = vertices[p[j]];
 
             faces.push_back(f);
         }
@@ -342,9 +338,7 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
         PoolVector<Vector3>::Write tw = tmeshfaces.write();
         int tidx = 0;
 
-        for (List<Face3>::Element *E = faces.front(); E; E = E->next()) {
-
-            const Face3 &f = E->deref();
+        for (const Face3 &f :faces) {
 
             for (int j = 0; j < 3; j++) {
 
@@ -368,7 +362,8 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
             }
         }
     }
-    List<Vector3> lines;
+    PODVector<Vector3> lines;
+    lines.reserve(edge_map.size()*2);
 
     for (eastl::pair<const _EdgeKey,bool> &E : edge_map) {
 
@@ -378,23 +373,11 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
         }
     }
 
-    PoolVector<Vector3> varr;
-    varr.resize(lines.size());
-    {
-        PoolVector<Vector3>::Write w = varr.write();
-        int idx = 0;
-        for (List<Vector3>::Element *E = lines.front(); E; E = E->next()) {
-            w[idx++] = E->deref();
-        }
-    }
-
     debug_mesh = make_ref_counted<ArrayMesh>();
 
-    Array arr;
-    arr.resize(Mesh::ARRAY_MAX);
-    arr[Mesh::ARRAY_VERTEX] = varr;
+    SurfaceArrays arr(eastl::move(lines));
 
-    debug_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, arr);
+    debug_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(arr));
 
     return debug_mesh;
 }

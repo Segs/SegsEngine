@@ -31,7 +31,8 @@
 #pragma once
 
 #include "core/vector.h"
-
+#include "core/forward_decls.h"
+#include "core/error_list.h"
 struct ImageData;
 
 Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale);

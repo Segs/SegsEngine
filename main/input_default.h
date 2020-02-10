@@ -181,7 +181,7 @@ private:
 
     JoyEvent hat_map_default[HAT_MAX];
 
-    Vector<JoyDeviceMapping> map_db;
+    PODVector<JoyDeviceMapping> map_db;
 
     JoyEvent _find_to_event(StringName p_to);
     void _button_event(int p_device, int p_index, bool p_pressed);

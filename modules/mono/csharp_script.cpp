@@ -2554,13 +2554,15 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
     if (p_member->get_member_type() == IMonoClassMember::MEMBER_TYPE_PROPERTY) {
         GDMonoProperty *property = static_cast<GDMonoProperty *>(p_member);
         if (!property->has_getter()) {
-            if (exported)
+            if (exported) {
                 ERR_PRINT("Read-only property cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+            }
             return false;
         }
         if (!property->has_setter()) {
-            if (exported)
+            if (exported) {
                 ERR_PRINT("Write-only property (without getter) cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+            }
             return false;
         }
     }

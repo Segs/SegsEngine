@@ -102,7 +102,7 @@ float BakedLightmapData::get_energy() const {
 
 void BakedLightmapData::add_user(const NodePath &p_path, const Ref<Texture> &p_lightmap, int p_instance) {
 
-    ERR_FAIL_COND_MSG(not p_lightmap, "It's not a reference to a valid Texture object."); 
+    ERR_FAIL_COND_MSG(not p_lightmap, "It's not a reference to a valid Texture object.");
     User user;
     user.path = p_path;
     user.lightmap = p_lightmap;
@@ -800,8 +800,8 @@ const String &BakedLightmap::get_image_path() const {
 AABB BakedLightmap::get_aabb() const {
     return AABB(-extents, extents * 2);
 }
-PoolVector<Face3> BakedLightmap::get_faces(uint32_t p_usage_flags) const {
-    return PoolVector<Face3>();
+PODVector<Face3> BakedLightmap::get_faces(uint32_t p_usage_flags) const {
+    return PODVector<Face3>();
 }
 
 void BakedLightmap::_bind_methods() {

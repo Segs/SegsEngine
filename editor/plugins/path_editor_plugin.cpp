@@ -256,37 +256,39 @@ void PathSpatialGizmo::redraw() {
         add_collision_segments(v3p);
     }
 
-    if (PathEditorPlugin::singleton->get_edited_path() == path) {
-        v3p.clear();
-        PoolVector<Vector3> handles;
-        PoolVector<Vector3> sec_handles;
+    if (PathEditorPlugin::singleton->get_edited_path() != path) {
+        return;
+    }
 
-        for (int i = 0; i < c->get_point_count(); i++) {
+    v3p.clear();
+    PODVector<Vector3> handles;
+    PODVector<Vector3> sec_handles;
 
-            Vector3 p = c->get_point_position(i);
-            handles.push_back(p);
-            if (i > 0) {
-                v3p.push_back(p);
-                v3p.push_back(p + c->get_point_in(i));
-                sec_handles.push_back(p + c->get_point_in(i));
-            }
+    for (int i = 0; i < c->get_point_count(); i++) {
 
-            if (i < c->get_point_count() - 1) {
-                v3p.push_back(p);
-                v3p.push_back(p + c->get_point_out(i));
-                sec_handles.push_back(p + c->get_point_out(i));
-            }
+        Vector3 p = c->get_point_position(i);
+        handles.push_back(p);
+        if (i > 0) {
+            v3p.push_back(p);
+            v3p.push_back(p + c->get_point_in(i));
+            sec_handles.push_back(p + c->get_point_in(i));
         }
 
-        if (v3p.size() > 1) {
-            add_lines(v3p, path_thin_material);
+        if (i < c->get_point_count() - 1) {
+            v3p.push_back(p);
+            v3p.push_back(p + c->get_point_out(i));
+            sec_handles.push_back(p + c->get_point_out(i));
         }
-        if (!handles.empty()) {
-            add_handles(handles, handles_material);
-        }
-        if (!sec_handles.empty()) {
-            add_handles(sec_handles, handles_material, false, true);
-        }
+    }
+
+    if (v3p.size() > 1) {
+        add_lines(v3p, path_thin_material);
+    }
+    if (!handles.empty()) {
+        add_handles(eastl::move(handles), handles_material);
+    }
+    if (!sec_handles.empty()) {
+        add_handles(eastl::move(sec_handles), handles_material, false, true);
     }
 }
 

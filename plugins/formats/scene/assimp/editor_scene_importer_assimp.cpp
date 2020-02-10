@@ -1220,9 +1220,9 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             }
         }
 
-        Array array_mesh = st->commit_to_arrays();
-        Array morphs;
-        morphs.resize(ai_mesh->mNumAnimMeshes);
+        SurfaceArrays array_mesh = st->commit_to_arrays();
+        PODVector<SurfaceArrays> morphs;
+        morphs.reserve(ai_mesh->mNumAnimMeshes);
         Mesh::PrimitiveType primitive = Mesh::PRIMITIVE_TRIANGLES;
         for (size_t j = 0; j < ai_mesh->mNumAnimMeshes; j++) {
 
@@ -1231,68 +1231,46 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
                     ai_anim_mesh_name = StringName("morph_" + itos(j));
                 }
 
-            Array array_copy;
-            array_copy.resize(VS::ARRAY_MAX);
-
-            for (int l = 0; l < VS::ARRAY_MAX; l++) {
-                array_copy[l] = array_mesh[l].duplicate(true);
-            }
+            SurfaceArrays array_copy = array_mesh.clone();
 
             const size_t num_vertices = ai_mesh->mAnimMeshes[j]->mNumVertices;
-            array_copy[Mesh::ARRAY_INDEX] = Variant();
+            array_copy.m_indices.clear();
             if (ai_mesh->mAnimMeshes[j]->HasPositions()) {
-                PoolVector3Array vertices;
+                PODVector<Vector3> vertices;
                 vertices.resize(num_vertices);
                 for (size_t l = 0; l < num_vertices; l++) {
                     const aiVector3D ai_pos = ai_mesh->mAnimMeshes[j]->mVertices[l];
                     Vector3 position = Vector3(ai_pos.x, ai_pos.y, ai_pos.z);
-                    vertices.write()[l] = position;
+                    vertices[l] = position;
                 }
-                PoolVector3Array new_vertices = array_copy[VS::ARRAY_VERTEX].duplicate(true);
-
-                ERR_CONTINUE(vertices.size() != new_vertices.size());
-                for (int32_t l = 0; l < new_vertices.size(); l++) {
-                    PoolVector3Array::Write w = new_vertices.write();
-                    w[l] = vertices[l];
-                }
-                array_copy[VS::ARRAY_VERTEX] = new_vertices;
+                auto src_pos(array_copy.positions3());
+                ERR_CONTINUE(vertices.size() != src_pos.size());
+                array_copy.set_positions(eastl::move(vertices));
             }
 
             int32_t color_set = 0;
             if (ai_mesh->mAnimMeshes[j]->HasVertexColors(color_set)) {
-                PoolColorArray colors;
+                PODVector<Color> colors;
                 colors.resize(num_vertices);
                 for (size_t l = 0; l < num_vertices; l++) {
                     const aiColor4D ai_color = ai_mesh->mAnimMeshes[j]->mColors[color_set][l];
                     Color color = Color(ai_color.r, ai_color.g, ai_color.b, ai_color.a);
-                    colors.write()[l] = color;
+                    colors[l] = color;
                 }
-                PoolColorArray new_colors = array_copy[VS::ARRAY_COLOR].duplicate(true);
-
-                ERR_CONTINUE(colors.size() != new_colors.size());
-                for (int32_t l = 0; l < colors.size(); l++) {
-                    PoolColorArray::Write w = new_colors.write();
-                    w[l] = colors[l];
-                }
-                array_copy[VS::ARRAY_COLOR] = new_colors;
+                ERR_CONTINUE(colors.size() != array_copy.m_colors.size());
+                array_copy.m_colors = eastl::move(colors);
             }
 
             if (ai_mesh->mAnimMeshes[j]->HasNormals()) {
-                PoolVector3Array normals;
+                PODVector<Vector3> normals;
                 normals.resize(num_vertices);
                 for (size_t l = 0; l < num_vertices; l++) {
                     const aiVector3D ai_normal = ai_mesh->mAnimMeshes[j]->mNormals[l];
                     Vector3 normal = Vector3(ai_normal.x, ai_normal.y, ai_normal.z);
-                    normals.write()[l] = normal;
+                    normals[l] = normal;
                 }
-                PoolVector3Array new_normals = array_copy[VS::ARRAY_NORMAL].duplicate(true);
-
-                ERR_CONTINUE(normals.size() != new_normals.size());
-                for (int l = 0; l < normals.size(); l++) {
-                    PoolVector3Array::Write w = new_normals.write();
-                    w[l] = normals[l];
-                }
-                array_copy[VS::ARRAY_NORMAL] = new_normals;
+                ERR_CONTINUE(normals.size() != array_copy.m_normals.size());
+                array_copy.m_normals = eastl::move(normals);
             }
 
             if (ai_mesh->mAnimMeshes[j]->HasTangentsAndBitangents()) {
@@ -1302,22 +1280,24 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
                 for (size_t l = 0; l < num_vertices; l++) {
                     AssimpUtils::calc_tangent_from_mesh(ai_mesh, j, l, l, w);
                 }
-                PoolRealArray new_tangents = array_copy[VS::ARRAY_TANGENT].duplicate(true);
-                ERR_CONTINUE(new_tangents.size() != tangents.size() * 4);
+                PODVector<float> new_tangents;
+                ERR_CONTINUE(array_copy.m_tangents.size() != tangents.size() * 4);
+                new_tangents.reserve(tangents.size()*4);
                 for (int32_t l = 0; l < tangents.size(); l++) {
-                    new_tangents.write()[l + 0] = tangents[l].r;
-                    new_tangents.write()[l + 1] = tangents[l].g;
-                    new_tangents.write()[l + 2] = tangents[l].b;
-                    new_tangents.write()[l + 3] = tangents[l].a;
+                    new_tangents.emplace_back(tangents[l].r);
+                    new_tangents.emplace_back(tangents[l].g);
+                    new_tangents.emplace_back(tangents[l].b);
+                    new_tangents.emplace_back(tangents[l].a);
                 }
 
-                array_copy[VS::ARRAY_TANGENT] = new_tangents;
+                array_copy.m_tangents = eastl::move(new_tangents);
+
             }
 
-            morphs[j] = array_copy;
+            morphs[j] = eastl::move(array_copy);
         }
 
-        mesh->add_surface_from_arrays(primitive, array_mesh, morphs);
+        mesh->add_surface_from_arrays(primitive, eastl::move(array_mesh), eastl::move(morphs));
         mesh->surface_set_material(i, mat);
         mesh->surface_set_name(i, AssimpUtils::get_assimp_string(ai_mesh->mName));
     }

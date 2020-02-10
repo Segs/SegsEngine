@@ -476,23 +476,20 @@ void Polygon3DEditor::_polygon_draw() {
     if (poly.empty())
         return;
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
-    PoolVector<Vector3> va;
+    PODVector<Vector3> va;
     {
 
         va.resize(poly.size());
-        PoolVector<Vector3>::Write w = va.write();
         for (int i = 0; i < poly.size(); i++) {
 
             Vector2 p = i == edited_point ? edited_point_pos : poly[i];
 
             Vector3 point = Vector3(p.x, p.y, depth);
-            w[i] = point;
+            va[i] = point;
         }
     }
-    a[Mesh::ARRAY_VERTEX] = va;
-    m->add_surface_from_arrays(Mesh::PRIMITIVE_POINTS, a);
+    SurfaceArrays a(eastl::move(va));
+    m->add_surface_from_arrays(Mesh::PRIMITIVE_POINTS, eastl::move(a));
     m->surface_set_material(0, handle_material);
 }
 

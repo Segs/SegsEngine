@@ -1209,10 +1209,10 @@ namespace {
         return ret;
     }
 
-    PoolVector<Color> _decode_accessor_as_color(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    PODVector<Color> _decode_accessor_as_color(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
         const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PoolVector<Color> ret;
+        PODVector<Color> ret;
 
         if (attribs.empty())
             return ret;
@@ -1227,11 +1227,10 @@ namespace {
         ERR_FAIL_COND_V(attribs.size() % vec_len != 0, ret);
         const double* attribs_ptr = attribs.data();
         const int ret_size = attribs.size() / vec_len;
-        ret.resize(ret_size);
+        ret.reserve(ret_size);
         {
-            PoolVector<Color>::Write w = ret.write();
             for (int i = 0; i < ret_size; i++) {
-                w[i] = Color(attribs_ptr[i * vec_len + 0], attribs_ptr[i * vec_len + 1], attribs_ptr[i * vec_len + 2], vec_len == 4 ? attribs_ptr[i * 4 + 3] : 1.0);
+                ret.emplace_back(attribs_ptr[i * vec_len + 0], attribs_ptr[i * vec_len + 1], attribs_ptr[i * vec_len + 2], vec_len == 4 ? attribs_ptr[i * 4 + 3] : 1.0f);
             }
         }
         return ret;
@@ -1325,8 +1324,7 @@ namespace {
 
                 Dictionary p = primitives[j];
 
-                Array array;
-                array.resize(Mesh::ARRAY_MAX);
+                SurfaceArrays array;
 
                 ERR_FAIL_COND_V(!p.has("attributes"), ERR_PARSE_ERROR);
 
@@ -1351,29 +1349,29 @@ namespace {
 
                 ERR_FAIL_COND_V(!a.has("POSITION"), ERR_PARSE_ERROR);
                 if (a.has("POSITION")) {
-                    array[Mesh::ARRAY_VERTEX] = _decode_accessor_as_vec3(state, a["POSITION"], true);
+                    array.set_positions(_decode_accessor_as_vec3(state, a["POSITION"], true));
                 }
 
                 if (a.has("NORMAL")) {
-                    array[Mesh::ARRAY_NORMAL] = _decode_accessor_as_vec3(state, a["NORMAL"], true);
+                    array.m_normals = eastl::move(_decode_accessor_as_vec3(state, a["NORMAL"], true));
                 }
                 if (a.has("TANGENT")) {
-                    array[Mesh::ARRAY_TANGENT] = _decode_accessor_as_floats(state, a["TANGENT"], true);
+                    array.m_tangents = eastl::move(_decode_accessor_as_floats(state, a["TANGENT"], true));
                 }
                 if (a.has("TEXCOORD_0")) {
-                    array[Mesh::ARRAY_TEX_UV] = Variant(_decode_accessor_as_vec2(state, a["TEXCOORD_0"], true));
+                    array.m_uv_1 = eastl::move(_decode_accessor_as_vec2(state, a["TEXCOORD_0"], true));
                 }
                 if (a.has("TEXCOORD_1")) {
-                    array[Mesh::ARRAY_TEX_UV2] = Variant(_decode_accessor_as_vec2(state, a["TEXCOORD_1"], true));
+                    array.m_uv_2 = eastl::move(_decode_accessor_as_vec2(state, a["TEXCOORD_1"], true));
                 }
                 if (a.has("COLOR_0")) {
-                    array[Mesh::ARRAY_COLOR] = _decode_accessor_as_color(state, a["COLOR_0"], true);
+                    array.m_colors = eastl::move(_decode_accessor_as_color(state, a["COLOR_0"], true));
                 }
                 if (a.has("JOINTS_0")) {
-                    array[Mesh::ARRAY_BONES] = _decode_accessor_as_ints(state, a["JOINTS_0"], true);
+                    array.m_bones = eastl::move(_decode_accessor_as_ints(state, a["JOINTS_0"], true));
                 }
                 if (a.has("WEIGHTS_0")) {
-                    PODVector<float> weights = _decode_accessor_as_floats(state, a["WEIGHTS_0"], true);
+                    PODVector<float> weights(_decode_accessor_as_floats(state, a["WEIGHTS_0"], true));
                     { //gltf does not seem to normalize the weights for some reason..
                         int wc = weights.size();
 
@@ -1392,7 +1390,7 @@ namespace {
 
                         }
                     }
-                    array[Mesh::ARRAY_WEIGHTS] = weights;
+                    array.m_weights = eastl::move(weights);
                 }
 
                 if (p.has("indices")) {
@@ -1407,28 +1405,27 @@ namespace {
                             SWAP(indices[k + 1], indices[k + 2]);
                         }
                     }
-                    array[Mesh::ARRAY_INDEX] = indices;
+                    array.m_indices = eastl::move(indices);
                 }
                 else if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
                     //generate indices because they need to be swapped for CW/CCW
-                    const PoolVector<Vector3>& vertices = array[Mesh::ARRAY_VERTEX];
+                    auto vertices = array.positions3();
                     ERR_FAIL_COND_V(vertices.empty(), ERR_PARSE_ERROR);
-                    PoolVector<int> indices;
+                    PODVector<int> indices;
                     const int vs = vertices.size();
                     indices.resize(vs);
                     {
-                        const PoolVector<int>::Write w = indices.write();
                         for (int k = 0; k < vs; k += 3) {
-                            w[k] = k;
-                            w[k + 1] = k + 2;
-                            w[k + 2] = k + 1;
+                            indices[k] = k;
+                            indices[k + 1] = k + 2;
+                            indices[k + 2] = k + 1;
                         }
                     }
-                    array[Mesh::ARRAY_INDEX] = indices;
+                    array.m_indices = eastl::move(indices);
                 }
 
                 bool generated_tangents = false;
-                Variant erased_indices;
+                PODVector<int> erased_indices;
 
                 if (primitive == Mesh::PRIMITIVE_TRIANGLES && !a.has("TANGENT") && a.has("TEXCOORD_0") && a.has("NORMAL")) {
                     //must generate mikktspace tangents.. ergh..
@@ -1439,7 +1436,7 @@ namespace {
                         //morph targets should not be reindexed, as array size might differ
                         //removing indices is the best bet here
                         st->deindex();
-                        erased_indices = a[Mesh::ARRAY_INDEX];
+                        erased_indices = a[Mesh::ARRAY_INDEX].as<PODVector<int>>();
                         a[Mesh::ARRAY_INDEX] = Variant();
                     }
                     st->generate_tangents();
@@ -1447,7 +1444,7 @@ namespace {
                     generated_tangents = true;
                 }
 
-                Array morphs;
+                PODVector<SurfaceArrays> morphs;
                 //blend shapes
                 if (p.has("targets")) {
                     print_verbose("glTF: Mesh has targets");
@@ -1469,18 +1466,13 @@ namespace {
 
                         const Dictionary& t = targets[k];
 
-                        Array array_copy;
-                        array_copy.resize(Mesh::ARRAY_MAX);
+                        SurfaceArrays array_copy(array.clone());
 
-                        for (int l = 0; l < Mesh::ARRAY_MAX; l++) {
-                            array_copy[l] = array[l];
-                        }
-
-                        array_copy[Mesh::ARRAY_INDEX] = Variant();
+                        array_copy.m_indices.clear();
 
                         if (t.has("POSITION")) {
                             PODVector<Vector3> varr(_decode_accessor_as_vec3(state, t["POSITION"], true));
-                            const PoolVector<Vector3> src_varr = array[Mesh::ARRAY_VERTEX];
+                            auto src_varr = array.positions3();
                             const int size = src_varr.size();
                             ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
                             {
@@ -1488,89 +1480,85 @@ namespace {
                                 const int max_idx = varr.size();
                                 varr.resize(size);
 
-                                const PoolVector<Vector3>::Read r_src_varr = src_varr.read();
                                 for (int l = 0; l < size; l++) {
                                     if (l < max_idx) {
-                                        varr[l] += r_src_varr[l];
+                                        varr[l] += src_varr[l];
                                     }
                                     else {
-                                        varr[l] = r_src_varr[l];
+                                        varr[l] = src_varr[l];
                                     }
                                 }
                             }
-                            array_copy[Mesh::ARRAY_VERTEX] = varr;
+                            array_copy.set_positions(eastl::move(varr));
                         }
                         if (t.has("NORMAL")) {
                             PODVector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"], true);
-                            const PoolVector<Vector3> src_narr = array[Mesh::ARRAY_NORMAL];
-                            int size = src_narr.size();
+                            const auto &src_narr = array.m_normals;
+                            size_t size = src_narr.size();
                             ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
                             {
-                                int max_idx = narr.size();
+                                size_t max_idx = narr.size();
                                 narr.resize(size);
 
-                                const PoolVector<Vector3>::Read r_src_narr = src_narr.read();
-                                for (int l = 0; l < size; l++) {
+                                for (size_t l = 0; l < size; l++) {
                                     if (l < max_idx) {
-                                        narr[l] += r_src_narr[l];
+                                        narr[l] += src_narr[l];
                                     }
                                     else {
-                                        narr[l] = r_src_narr[l];
+                                        narr[l] = src_narr[l];
                                     }
                                 }
                             }
-                            array_copy[Mesh::ARRAY_NORMAL] = narr;
+                            array_copy.m_normals = eastl::move(narr);
                         }
                         if (t.has("TANGENT")) {
                             const PODVector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
-                            const PoolVector<float> src_tangents = array[Mesh::ARRAY_TANGENT];
+                            const auto & src_tangents = array.m_tangents;
                             ERR_FAIL_COND_V(src_tangents.empty(), ERR_PARSE_ERROR);
-                            PoolVector<float> tangents_v4;
+                            PODVector<float> tangents_v4;
 
                             {
 
-                                int max_idx = tangents_v3.size();
+                                size_t max_idx = tangents_v3.size();
 
-                                int size4 = src_tangents.size();
+                                size_t size4 = src_tangents.size();
                                 tangents_v4.resize(size4);
-                                const PoolVector<float>::Write w4 = tangents_v4.write();
-                                const PoolVector<float>::Read r4 = src_tangents.read();
 
-                                for (int l = 0; l < size4 / 4; l++) {
+                                for (size_t l = 0; l < size4 / 4; l++) {
 
                                     if (l < max_idx) {
-                                        w4[l * 4 + 0] = tangents_v3[l].x + r4[l * 4 + 0];
-                                        w4[l * 4 + 1] = tangents_v3[l].y + r4[l * 4 + 1];
-                                        w4[l * 4 + 2] = tangents_v3[l].z + r4[l * 4 + 2];
+                                        tangents_v4[l * 4 + 0] = tangents_v3[l].x + src_tangents[l * 4 + 0];
+                                        tangents_v4[l * 4 + 1] = tangents_v3[l].y + src_tangents[l * 4 + 1];
+                                        tangents_v4[l * 4 + 2] = tangents_v3[l].z + src_tangents[l * 4 + 2];
                                     }
                                     else {
-                                        w4[l * 4 + 0] = r4[l * 4 + 0];
-                                        w4[l * 4 + 1] = r4[l * 4 + 1];
-                                        w4[l * 4 + 2] = r4[l * 4 + 2];
+                                        tangents_v4[l * 4 + 0] = src_tangents[l * 4 + 0];
+                                        tangents_v4[l * 4 + 1] = src_tangents[l * 4 + 1];
+                                        tangents_v4[l * 4 + 2] = src_tangents[l * 4 + 2];
                                     }
-                                    w4[l * 4 + 3] = r4[l * 4 + 3]; //copy flip value
+                                    tangents_v4[l * 4 + 3] = src_tangents[l * 4 + 3]; //copy flip value
                                 }
                             }
 
-                            array_copy[Mesh::ARRAY_TANGENT] = tangents_v4;
+                            array_copy.m_tangents = eastl::move(tangents_v4);
                         }
 
                         if (generated_tangents) {
                             Ref<SurfaceTool> st(make_ref_counted<SurfaceTool>());
 
-                            array_copy[Mesh::ARRAY_INDEX] = erased_indices; //needed for tangent generation, erased by deindex
+                            array_copy.m_indices = eastl::move(erased_indices); //needed for tangent generation, erased by deindex
                             st->create_from_triangle_arrays(array_copy);
                             st->deindex();
                             st->generate_tangents();
                             array_copy = st->commit_to_arrays();
                         }
 
-                        morphs.push_back(array_copy);
+                        morphs.emplace_back(eastl::move(array_copy));
                     }
                 }
 
                 //just add it
-                mesh.mesh->add_surface_from_arrays(primitive, array, morphs);
+                mesh.mesh->add_surface_from_arrays(primitive, eastl::move(array), eastl::move(morphs));
 
                 if (p.has("material")) {
                     const int material = p["material"];
@@ -1889,15 +1877,15 @@ namespace {
 
         if (found_joint) {
             // Mark it if we happen to find another skins joint...
-            if (state.nodes[node_index]->joint && skin.joints.find(node_index) < 0) {
+            if (state.nodes[node_index]->joint && !skin.joints.contains(node_index)) {
                 skin.joints.push_back(node_index);
             }
-            else if (skin.non_joints.find(node_index) < 0) {
+            else if (!skin.non_joints.contains(node_index)) {
                 skin.non_joints.push_back(node_index);
             }
         }
-
-        if (skin.joints.find(node_index) > 0) {
+        //TODO: SEGS: it was checking for find result > 0, so it was checking the node_idx was not first in skin.joints ?
+        if (skin.joints.contains(node_index)) {
             return true;
         }
 
@@ -1913,7 +1901,7 @@ namespace {
             const GLTFNodeIndex parent = state.nodes[node_index]->parent;
             disjoint_set.insert(node_index);
 
-            if (skin.joints.find(parent) >= 0) {
+            if (skin.joints.contains(parent)) {
                 disjoint_set.create_union(parent, node_index);
             }
         }
@@ -1938,16 +1926,16 @@ namespace {
 
         // Go up the tree till all of the multiple roots of the skin are at the same hierarchy level.
         // This sucks, but 99% of all game engines (not just Godot) would have this same issue.
-        for (int i = 0; i < roots.size(); ++i) {
+        for (size_t i = 0; i < roots.size(); ++i) {
 
             GLTFNodeIndex current_node = roots[i];
             while (state.nodes[current_node]->height > maxHeight) {
                 GLTFNodeIndex parent = state.nodes[current_node]->parent;
 
-                if (state.nodes[parent]->joint && skin.joints.find(parent) < 0) {
+                if (state.nodes[parent]->joint && !skin.joints.contains(parent)) {
                     skin.joints.push_back(parent);
                 }
-                else if (skin.non_joints.find(parent) < 0) {
+                else if (!skin.non_joints.contains(parent)) {
                     skin.non_joints.push_back(parent);
                 }
 
@@ -1965,19 +1953,19 @@ namespace {
             all_same = true;
             const GLTFNodeIndex first_parent = state.nodes[roots[0]]->parent;
 
-            for (int i = 1; i < roots.size(); ++i) {
+            for (size_t i = 1; i < roots.size(); ++i) {
                 all_same &= (first_parent == state.nodes[roots[i]]->parent);
             }
 
             if (!all_same) {
-                for (int i = 0; i < roots.size(); ++i) {
+                for (size_t i = 0; i < roots.size(); ++i) {
                     const GLTFNodeIndex current_node = roots[i];
                     const GLTFNodeIndex parent = state.nodes[current_node]->parent;
 
-                    if (state.nodes[parent]->joint && skin.joints.find(parent) < 0) {
+                    if (state.nodes[parent]->joint && !skin.joints.contains(parent)) {
                         skin.joints.push_back(parent);
                     }
-                    else if (skin.non_joints.find(parent) < 0) {
+                    else if (!skin.non_joints.contains(parent) ) {
                         skin.non_joints.push_back(parent);
                     }
 
@@ -1999,12 +1987,12 @@ namespace {
         all_skin_nodes.push_back(skin.joints);
         all_skin_nodes.push_back(skin.non_joints);
 
-        for (int i = 0; i < all_skin_nodes.size(); ++i) {
+        for (size_t i = 0; i < all_skin_nodes.size(); ++i) {
             const GLTFNodeIndex node_index = all_skin_nodes[i];
             const GLTFNodeIndex parent = state.nodes[node_index]->parent;
             disjoint_set.insert(node_index);
 
-            if (all_skin_nodes.find(parent) >= 0) {
+            if (all_skin_nodes.contains(parent)) {
                 disjoint_set.create_union(parent, node_index);
             }
         }
@@ -2014,7 +2002,7 @@ namespace {
 
         PODVector<GLTFNodeIndex> out_roots;
 
-        for (int i = 0; i < out_owners.size(); ++i) {
+        for (size_t i = 0; i < out_owners.size(); ++i) {
             PODVector<GLTFNodeIndex> set;
             disjoint_set.get_members(set, out_owners[i]);
 
@@ -2024,7 +2012,7 @@ namespace {
         }
         eastl::sort(out_roots.begin(), out_roots.end());
 
-        for (int i = 0; i < out_roots.size(); ++i) {
+        for (size_t i = 0; i < out_roots.size(); ++i) {
             _capture_nodes_in_skin(state, skin, out_roots[i]);
         }
 
@@ -2053,7 +2041,7 @@ namespace {
             const GLTFNodeIndex parent = state.nodes[node_index]->parent;
             disjoint_set.insert(node_index);
 
-            if (all_skin_nodes.find(parent) >= 0) {
+            if (all_skin_nodes.contains(parent)) {
                 disjoint_set.create_union(parent, node_index);
             }
         }
@@ -2169,7 +2157,7 @@ namespace {
                 const GLTFNodeIndex parent = state.nodes[node_index]->parent;
                 skeleton_sets.insert(node_index);
 
-                if (all_skin_nodes.find(parent) >= 0) {
+                if (all_skin_nodes.contains(parent)) {
                     skeleton_sets.create_union(parent, node_index);
                 }
             }
@@ -2242,7 +2230,7 @@ namespace {
                 // If any of the the skeletons nodes exist in a skin, that skin now maps to the skeleton
                 for (int i = 0; i < skeleton_nodes.size(); ++i) {
                     GLTFNodeIndex skel_node_i = skeleton_nodes[i];
-                    if (skin.joints.find(skel_node_i) >= 0 || skin.non_joints.find(skel_node_i) >= 0) {
+                    if (skin.joints.contains(skel_node_i) || skin.non_joints.contains(skel_node_i)) {
                         skin.skeleton = skel_i;
                         continue;
                     }

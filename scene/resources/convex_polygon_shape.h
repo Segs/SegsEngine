@@ -47,7 +47,7 @@ protected:
     PODVector<Vector3> get_debug_mesh_lines() override;
 
 public:
-    void set_points(const PoolVector<Vector3> &p_points);
+    void set_points(PODVector<Vector3> &&p_points);
     const PODVector<Vector3> &get_points() const { return points; }
 
     ConvexPolygonShape();

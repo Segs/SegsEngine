@@ -166,7 +166,7 @@ public:
     void bake(Node *p_from_node = nullptr, bool p_create_visual_debug = false);
 
     AABB get_aabb() const override;
-    PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     StringName get_configuration_warning() const override;
 

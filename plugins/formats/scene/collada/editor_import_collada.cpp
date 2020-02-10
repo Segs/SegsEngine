@@ -959,10 +959,8 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
             // FINALLY CREATE SUFRACE //
             ////////////////////////////
 
-            Array d = surftool->commit_to_arrays();
-            d.resize(VS::ARRAY_MAX);
-
-            Array mr;
+            SurfaceArrays d = surftool->commit_to_arrays();
+            PODVector<SurfaceArrays> mr;
 
             ////////////////////////////
             // THEN THE MORPH TARGETS //
@@ -970,20 +968,20 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
 
             for (int mi = 0; mi < p_morph_meshes.size(); mi++) {
 
-                Array a = p_morph_meshes[mi]->surface_get_arrays(surface);
+                SurfaceArrays a = p_morph_meshes[mi]->surface_get_arrays(surface);
                 //add valid weight and bone arrays if they exist, TODO check if they are unique to shape (generally not)
 
                 if (has_weights) {
-                    a[Mesh::ARRAY_WEIGHTS] = d[Mesh::ARRAY_WEIGHTS];
-                    a[Mesh::ARRAY_BONES] = d[Mesh::ARRAY_BONES];
+                    a.m_weights= d.m_weights;
+                    a.m_bones= d.m_bones;
                 }
 
-                a[Mesh::ARRAY_INDEX] = Variant();
+                a.m_indices.clear();
                 //a.resize(Mesh::ARRAY_MAX); //no need for index
-                mr.push_back(a);
+                mr.emplace_back(eastl::move(a));
             }
 
-            p_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, d, mr, p_use_compression ? Mesh::ARRAY_COMPRESS_DEFAULT : 0);
+            p_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(d), eastl::move(mr), p_use_compression ? Mesh::ARRAY_COMPRESS_DEFAULT : 0);
 
             if (material) {
                 if (p_use_mesh_material) {

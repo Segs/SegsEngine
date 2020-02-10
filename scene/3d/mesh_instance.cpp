@@ -212,13 +212,13 @@ AABB MeshInstance::get_aabb() const {
     return AABB();
 }
 
-PoolVector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
+PODVector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
 
     if (!(p_usage_flags & (FACES_SOLID | FACES_ENCLOSING)))
-        return PoolVector<Face3>();
+        return PODVector<Face3>();
 
     if (not mesh)
-        return PoolVector<Face3>();
+        return PODVector<Face3>();
 
     return mesh->get_faces();
 }
@@ -329,12 +329,12 @@ void MeshInstance::create_debug_tangents() {
         return;
 
     for (int i = 0; i < mesh->get_surface_count(); i++) {
-        Array arrays = mesh->surface_get_arrays(i);
-        Vector<Vector3> verts = arrays[Mesh::ARRAY_VERTEX].as<Vector<Vector3>>();
-        Vector<Vector3> norms = arrays[Mesh::ARRAY_NORMAL].as<Vector<Vector3>>();
+        SurfaceArrays arrays(mesh->surface_get_arrays(i));
+        auto verts = arrays.positions3();
+        const auto &norms = arrays.m_normals;
         if (norms.empty())
             continue;
-        Vector<float> tangents = arrays[Mesh::ARRAY_TANGENT].as<Vector<float>>();
+        const auto &tangents = arrays.m_tangents;
         if (tangents.empty())
             continue;
         lines.reserve(6*verts.size());
@@ -370,12 +370,10 @@ void MeshInstance::create_debug_tangents() {
         sm->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 
         Ref<ArrayMesh> am(make_ref_counted<ArrayMesh>());
-        Array a;
-        a.resize(Mesh::ARRAY_MAX);
-        a[Mesh::ARRAY_VERTEX] = Variant::from(lines);
-        a[Mesh::ARRAY_COLOR] = Variant::from(colors);
+        SurfaceArrays a(eastl::move(lines));
+        a.m_colors = eastl::move(colors);
 
-        am->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, a);
+        am->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(a));
         am->surface_set_material(0, sm);
 
         MeshInstance *mi = memnew(MeshInstance);

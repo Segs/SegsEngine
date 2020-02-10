@@ -1034,7 +1034,8 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         axis_n1[(i + 1) % 3] = cell_size[(i + 1) % 3];
         Vector3 axis_n2;
         axis_n2[(i + 2) % 3] = cell_size[(i + 2) % 3];
-
+        grid_points[i].reserve(GRID_CURSOR_SIZE*GRID_CURSOR_SIZE);
+        grid_colors[i].reserve(GRID_CURSOR_SIZE*GRID_CURSOR_SIZE);
         for (int j = -GRID_CURSOR_SIZE; j <= GRID_CURSOR_SIZE; j++) {
 
             for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
@@ -1060,10 +1061,9 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
             }
         }
 
-        Array d;
-        d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = grid_points[i];
-        d[VS::ARRAY_COLOR] = grid_colors[i];
+        SurfaceArrays d;
+        d.set_positions(eastl::move(grid_points[i]));
+        d.m_colors = eastl::move(grid_colors[i]);
         VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VisualServerEnums::PRIMITIVE_LINES, d);
         VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
     }
@@ -1364,9 +1364,11 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     {
         // Selection mesh create.
 
-        PoolVector<Vector3> lines;
-        PoolVector<Vector3> triangles;
-        PoolVector<Vector3> square[3];
+        PODVector<Vector3> lines;
+        PODVector<Vector3> triangles;
+        PODVector<Vector3> square[3];
+
+        triangles.reserve(6*6);
 
         for (int i = 0; i < 6; i++) {
 
@@ -1397,6 +1399,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
             triangles.push_back(face_points[0] * 0.5 + Vector3(0.5, 0.5, 0.5));
         }
 
+        lines.reserve(12*2);
         for (int i = 0; i < 12; i++) {
 
             AABB base(Vector3(0, 0, 0), Vector3(1, 1, 1));
@@ -1435,16 +1438,15 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
             }
         }
 
-        Array d;
-        d.resize(VS::ARRAY_MAX);
+        SurfaceArrays triangles_arr(eastl::move(triangles));
+        SurfaceArrays lines_arr(eastl::move(lines));
 
         inner_mat = make_ref_counted<SpatialMaterial>();
         inner_mat->set_albedo(Color(0.7f, 0.7f, 1.0f, 0.2f));
         inner_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         inner_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
 
-        d[VS::ARRAY_VERTEX] = triangles;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_TRIANGLES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_TRIANGLES, triangles_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 0, inner_mat->get_rid());
 
         outer_mat = make_ref_counted<SpatialMaterial>();
@@ -1460,22 +1462,19 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         selection_floor_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         selection_floor_mat->set_line_width(3.0);
 
-        d[VS::ARRAY_VERTEX] = lines;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_LINES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_LINES, lines_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 1, outer_mat->get_rid());
 
-        d[VS::ARRAY_VERTEX] = triangles;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_TRIANGLES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_TRIANGLES, triangles_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(paste_mesh, 0, inner_mat->get_rid());
 
-        d[VS::ARRAY_VERTEX] = lines;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_LINES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_LINES, lines_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(paste_mesh, 1, outer_mat->get_rid());
 
         for (int i = 0; i < 3; i++) {
-            d[VS::ARRAY_VERTEX] = square[i];
+            SurfaceArrays sq_arr(eastl::move(square[i]));
             selection_level_mesh[i] = VisualServer::get_singleton()->mesh_create();
-            VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], VS::PRIMITIVE_LINES, d);
+            VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], VS::PRIMITIVE_LINES, sq_arr);
             VisualServer::get_singleton()->mesh_surface_set_material(selection_level_mesh[i], 0, selection_floor_mat->get_rid());
         }
     }

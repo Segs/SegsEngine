@@ -177,6 +177,7 @@ PODVector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array);
 
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array);
 MonoArray *PoolVector3Array_to_mono_array(const PODVector<Vector3> &p_array);
+MonoArray *PoolVector3Array_to_mono_array(const PODVector<Face3> &p_array);
 PODVector<Vector3> mono_array_to_NC_VecVector3(MonoArray* p_array);
 PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array);
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector<Face3> &p_array);
