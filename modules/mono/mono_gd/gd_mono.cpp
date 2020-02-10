@@ -94,10 +94,8 @@ void gd_mono_setup_runtime_main_args() {
 
     main_args.emplace_back(execpath.data());
 
-    int i = 1;
     for (String & str : cmdline_args) {
-        main_args[i] = str.data();
-        i++;
+        main_args.emplace_back(str.data());
     }
 
     mono_runtime_set_main_args(main_args.size(), main_args.data());

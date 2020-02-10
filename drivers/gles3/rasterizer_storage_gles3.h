@@ -665,8 +665,8 @@ public:
 
     RID mesh_create() override;
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
-            PODVector<PoolVector<uint8_t>> &p_blend_shapes = PODVector<PoolVector<uint8_t>>(), const PODVector<AABB> &p_bone_aabbs =
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
+            PODVector<PODVector<uint8_t>> &p_blend_shapes = PODVector<PODVector<uint8_t>>(), const PODVector<AABB> &p_bone_aabbs =
         PODVector<AABB>()) override;
 
     void mesh_set_blend_shape_count(RID p_mesh, int p_amount) override;
@@ -675,7 +675,7 @@ public:
     void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) override;
     VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const override;
 
-    void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) override;
+    void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PODVector<uint8_t> &p_data) override;
 
     void mesh_surface_set_material(RID p_mesh, int p_surface, RID p_material) override;
     RID mesh_surface_get_material(RID p_mesh, int p_surface) const override;
@@ -690,7 +690,7 @@ public:
     VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const override;
 
     AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const override;
-    PODVector<PoolVector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
+    PODVector<PODVector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
     const PODVector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
 
     void mesh_remove_surface(RID p_mesh, int p_surface) override;

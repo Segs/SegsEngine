@@ -323,8 +323,8 @@ namespace eastl
         template <typename OtherType>
         explicit vector(OtherType &&x,Confirmation) : vector()  {
             EASTL_ASSERT(internalAllocator() == x.internalAllocator());
-            *(void **)mpBegin = *(void **)x.mpBegin;
-            *(void **)mpEnd = *(void **)x.mpEnd;
+            mpBegin = (pointer)x.mpBegin;
+            mpEnd = (pointer)x.mpEnd;
             internalCapacityPtr() = (T*)x.internalCapacityPtr();
 
             x.internalCapacityPtr()=nullptr;

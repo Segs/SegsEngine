@@ -719,7 +719,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     }
     d["skeleton_aabb"] = arr;
 
-    PODVector<PoolVector<uint8_t> > blend_shape_data = VisualServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
+    const PODVector<PODVector<uint8_t> > &blend_shape_data = VisualServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
 
     Array md;
     for (int i = 0; i < blend_shape_data.size(); i++) {
@@ -776,7 +776,7 @@ void ArrayMesh::_recompute_aabb() {
     }
 }
 
-void ArrayMesh::add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes, const PODVector<AABB> &p_bone_aabbs) {
+void ArrayMesh::add_surface(uint32_t p_format, PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PODVector<uint8_t> > &p_blend_shapes, const PODVector<AABB> &p_bone_aabbs) {
 
     Surface s;
     s.aabb = p_aabb;
@@ -978,7 +978,7 @@ String ArrayMesh::surface_get_name(int p_idx) const {
     return surfaces[p_idx].name;
 }
 
-void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) {
+void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PODVector<uint8_t> &p_data) {
 
     ERR_FAIL_INDEX(p_surface, surfaces.size());
     VisualServer::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);

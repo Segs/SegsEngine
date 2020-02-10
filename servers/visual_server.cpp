@@ -343,14 +343,7 @@ constexpr Vector3 SMALL_VEC3(0.00001f, 0.00001f, 0.00001f);
 
 }
 
-Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb) {
-
-    PoolVector<uint8_t>::Write vw = r_vertex_array.write();
-
-    PoolVector<uint8_t>::Write iw;
-    if (r_index_array.size()) {
-        iw = r_index_array.write();
-    }
+Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PODVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PODVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb) {
 
     int max_bone = 0;
 
@@ -379,7 +372,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                             uint16_t vector[2] = { Math::make_half_float(src[i].x), Math::make_half_float(src[i].y) };
 
-                            memcpy(&vw[p_offsets[ai] + i * p_stride], vector, sizeof(uint16_t) * 2);
+                            memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], vector, sizeof(uint16_t) * 2);
 
                             if (i == 0) {
 
@@ -395,7 +388,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                             float vector[2] = { src[i].x, src[i].y };
 
-                            memcpy(&vw[p_offsets[ai] + i * p_stride], vector, sizeof(float) * 2);
+                            memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], vector, sizeof(float) * 2);
 
                             if (i == 0) {
 
@@ -424,7 +417,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                             uint16_t vector[4] = { Math::make_half_float(src[i].x), Math::make_half_float(src[i].y), Math::make_half_float(src[i].z), Math::make_half_float(1.0) };
 
-                            memcpy(&vw[p_offsets[ai] + i * p_stride], vector, sizeof(uint16_t) * 4);
+                            memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], vector, sizeof(uint16_t) * 4);
 
                             if (i == 0) {
 
@@ -440,7 +433,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                             float vector[3] = { src[i].x, src[i].y, src[i].z };
 
-                            memcpy(&vw[p_offsets[ai] + i * p_stride], vector, sizeof(float) * 3);
+                            memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], vector, sizeof(float) * 3);
 
                             if (i == 0) {
 
@@ -476,14 +469,14 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                             0,
                         };
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], vector, 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], vector, 4);
                     }
 
                 } else {
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
                         float vector[3] = { src[i].x, src[i].y, src[i].z };
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], vector, 3 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], vector, 3 * 4);
                     }
                 }
 
@@ -508,7 +501,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                             (int8_t)CLAMP(src[i * 4 + 3] * 127, -128, 127)
                         };
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], xyzw, 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], xyzw, 4);
                     }
 
                 } else {
@@ -521,7 +514,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                             src[i * 4 + 3]
                         };
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], xyzw, 4 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], xyzw, 4 * 4);
                     }
                 }
 
@@ -545,13 +538,13 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                             colors[j] = CLAMP(int((src[i][j]) * 255.0f), 0, 255);
                         }
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], colors, 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], colors, 4);
                     }
                 } else {
 
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], &src[i], 4 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], &src[i], 4 * 4);
                     }
                 }
 
@@ -571,7 +564,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
                         uint16_t uv[2] = { Math::make_half_float(src[i].x), Math::make_half_float(src[i].y) };
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], uv, 2 * 2);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], uv, 2 * 2);
                     }
 
                 } else {
@@ -579,7 +572,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                         float uv[2] = { src[i].x, src[i].y };
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], uv, 2 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], uv, 2 * 4);
                     }
                 }
 
@@ -598,7 +591,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                     for (int i = 0; i < p_vertex_array_len; i++) {
 
                         uint16_t uv[2] = { Math::make_half_float(src[i].x), Math::make_half_float(src[i].y) };
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], uv, 2 * 2);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], uv, 2 * 2);
                     }
 
                 } else {
@@ -606,7 +599,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                         float uv[2] = { src[i].x, src[i].y };
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], uv, 2 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], uv, 2 * 4);
                     }
                 }
             } break;
@@ -622,25 +615,25 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                 if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
 
-                    for (int i = 0; i < p_vertex_array_len; i++) {
+                    for (size_t i = 0; i < p_vertex_array_len; i++) {
 
                         uint16_t data[VS::ARRAY_WEIGHTS_SIZE];
-                        for (int j = 0; j < VS::ARRAY_WEIGHTS_SIZE; j++) {
+                        for (size_t j = 0; j < VS::ARRAY_WEIGHTS_SIZE; j++) {
                             data[j] = CLAMP(src[i * VS::ARRAY_WEIGHTS_SIZE + j] * 65535, 0, 65535);
                         }
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], data, 2 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], data, 2 * 4);
                     }
                 } else {
 
-                    for (int i = 0; i < p_vertex_array_len; i++) {
+                    for (size_t i = 0; i < p_vertex_array_len; i++) {
 
                         float data[VS::ARRAY_WEIGHTS_SIZE];
                         for (int j = 0; j < VS::ARRAY_WEIGHTS_SIZE; j++) {
                             data[j] = src[i * VS::ARRAY_WEIGHTS_SIZE + j];
                         }
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], data, 4 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], data, 4 * 4);
                     }
                 }
 
@@ -665,19 +658,19 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                             max_bone = MAX(data[j], max_bone);
                         }
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], data, 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], data, 4);
                     }
 
                 } else {
-                    for (int i = 0; i < p_vertex_array_len; i++) {
+                    for (size_t i = 0; i < p_vertex_array_len; i++) {
 
                         uint16_t data[VS::ARRAY_WEIGHTS_SIZE];
-                        for (int j = 0; j < VS::ARRAY_WEIGHTS_SIZE; j++) {
+                        for (size_t j = 0; j < VS::ARRAY_WEIGHTS_SIZE; j++) {
                             data[j] = src[i * VS::ARRAY_WEIGHTS_SIZE + j];
                             max_bone = MAX(data[j], max_bone);
                         }
 
-                        memcpy(&vw[p_offsets[ai] + i * p_stride], data, 2 * 4);
+                        memcpy(&r_vertex_array[p_offsets[ai] + i * p_stride], data, 2 * 4);
                     }
                 }
 
@@ -700,11 +693,11 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                     if (p_vertex_array_len < (1 << 16)) {
                         uint16_t v = src[i];
 
-                        memcpy(&iw[i * 2], &v, 2);
+                        memcpy(&r_index_array[i * 2], &v, 2);
                     } else {
                         uint32_t v = src[i];
 
-                        memcpy(&iw[i * 4], &v, 4);
+                        memcpy(&r_index_array[i * 4], &v, 4);
                     }
                 }
             } break;
@@ -1066,12 +1059,12 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
 
     int array_size = total_elem_size * array_len;
 
-    PoolVector<uint8_t> vertex_array;
+    PODVector<uint8_t> vertex_array;
     vertex_array.resize(array_size);
 
     int index_array_size = offsets[VS::ARRAY_INDEX] * index_array_len;
 
-    PoolVector<uint8_t> index_array;
+    PODVector<uint8_t> index_array;
     index_array.resize(index_array_size);
 
     AABB aabb;
@@ -1080,13 +1073,13 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
     Error err = _surface_set_data(p_arrays, format, offsets, total_elem_size, vertex_array, array_len, index_array, index_array_len, aabb, bone_aabb);
     ERR_FAIL_COND_MSG(err, "Invalid array format for surface.");
 
-    PODVector<PoolVector<uint8_t> > blend_shape_data;
+    PODVector<PODVector<uint8_t> > blend_shape_data;
 
     for (int i = 0; i < p_blend_shapes.size(); i++) {
 
-        PoolVector<uint8_t> vertex_array_shape;
+        PODVector<uint8_t> vertex_array_shape;
         vertex_array_shape.resize(array_size);
-        PoolVector<uint8_t> noindex;
+        PODVector<uint8_t> noindex;
 
         AABB laabb;
         Error err2 = _surface_set_data(p_blend_shapes[i], format & ~VS::ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
@@ -1520,7 +1513,7 @@ Array VisualServer::_mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surfa
 }
 PODVector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
 
-    PODVector<PoolVector<uint8_t> > blend_shape_data(mesh_surface_get_blend_shapes(p_mesh, p_surface));
+    const PODVector<PODVector<uint8_t> > &blend_shape_data(mesh_surface_get_blend_shapes(p_mesh, p_surface));
     if (blend_shape_data.empty()) {
         return PODVector<SurfaceArrays>();
     }

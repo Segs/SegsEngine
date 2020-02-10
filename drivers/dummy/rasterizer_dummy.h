@@ -294,7 +294,7 @@ public:
         return mesh_owner.make_rid(mesh);
     }
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) {
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PODVector<uint8_t> > &p_blend_shapes = PODVector<PODVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>()) {
         DummyMesh *m = mesh_owner.getornull(p_mesh);
         ERR_FAIL_COND(!m);
 
