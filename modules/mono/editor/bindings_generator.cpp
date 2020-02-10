@@ -1649,8 +1649,9 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
         }
 
         if (p_imethod.is_deprecated) {
-            if (p_imethod.deprecation_message.empty())
+            if (p_imethod.deprecation_message.empty()) {
                 WARN_PRINT("An empty deprecation message is discouraged. Method: '" + p_imethod.proxy_name + "'.");
+            }
 
             p_output.append(MEMBER_BEGIN "[Obsolete(\"");
             p_output.append(p_imethod.deprecation_message);

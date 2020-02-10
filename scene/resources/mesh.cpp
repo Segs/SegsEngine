@@ -571,14 +571,15 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
     if (StringUtils::begins_with(p_name,"surface_")) {
 
-        int sl = StringUtils::find(p_name,"/");
-        if (sl == -1)
+        auto sl = StringUtils::find(p_name,"/");
+        if (sl == String::npos)
             return false;
+
         int idx = StringUtils::to_int(StringUtils::substr(p_name,8, sl - 8)) - 1;
         StringName what( StringUtils::get_slice(p_name,'/', 1));
-        if (what == "material")
+        if (what == se_string_view("material"))
             surface_set_material(idx, refFromRefPtr<Material>(p_value));
-        else if (what == "name")
+        else if (what == se_string_view("name"))
             surface_set_name(idx, p_value.as<String>());
         return true;
     }
@@ -589,82 +590,81 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
     StringName what(StringUtils::get_slice(p_name,'/', 2));
 
-    if (idx == surfaces.size()) {
-
-        //create
-        Dictionary d = p_value;
-        ERR_FAIL_COND_V(!d.has("primitive"), false);
-
-        if (d.has("arrays")) {
-            //old format
-            ERR_FAIL_COND_V(!d.has("morph_arrays"), false);
-            PODVector<SurfaceArrays> morph_arrays;
-            Array ma=d["morph_arrays"];
-            morph_arrays.reserve(ma.size());
-            for(int i=0; i<ma.size(); ++i)
-                morph_arrays.emplace_back(SurfaceArrays::fromArray(ma[i].as<Array>()));
-            add_surface_from_arrays(PrimitiveType(int(d["primitive"])), SurfaceArrays::fromArray(d["arrays"]), eastl::move(morph_arrays));
-
-        } else if (d.has("array_data")) {
-
-            PoolVector<uint8_t> array_data = d["array_data"];
-            PoolVector<uint8_t> array_index_data;
-            if (d.has("array_index_data"))
-                array_index_data = d["array_index_data"];
-
-            ERR_FAIL_COND_V(!d.has("format"), false);
-            uint32_t format = d["format"];
-
-            uint32_t primitive = d["primitive"];
-
-            ERR_FAIL_COND_V(!d.has("vertex_count"), false);
-            int vertex_count = d["vertex_count"];
-
-            int index_count = 0;
-            if (d.has("index_count"))
-                index_count = d["index_count"];
-
-            PODVector<PoolVector<uint8_t> > blend_shapes;
-
-            if (d.has("blend_shape_data")) {
-                Array blend_shape_data = d["blend_shape_data"];
-                blend_shapes.reserve(blend_shape_data.size());
-                for (int i = 0; i < blend_shape_data.size(); i++) {
-                    PoolVector<uint8_t> shape = blend_shape_data[i];
-                    blend_shapes.emplace_back(eastl::move(shape));
-                }
-            }
-
-            ERR_FAIL_COND_V(!d.has("aabb"), false);
-            AABB aabb = d["aabb"];
-
-            PODVector<AABB> bone_aabb;
-            if (d.has("skeleton_aabb")) {
-                Array baabb = d["skeleton_aabb"];
-                bone_aabb.reserve(baabb.size());
-
-                for (int i = 0; i < baabb.size(); i++) {
-                    bone_aabb.emplace_back(baabb[i]);
-                }
-            }
-
-            add_surface(format, PrimitiveType(primitive), array_data, vertex_count, array_index_data, index_count, aabb, blend_shapes, bone_aabb);
-        } else {
-            ERR_FAIL_V(false);
-        }
-
-        if (d.has("material")) {
-
-            surface_set_material(idx, refFromRefPtr<Material>(d["material"]));
-        }
-        if (d.has("name")) {
-            surface_set_name(idx, d["name"].as<String>());
-        }
-
-        return true;
+    if (idx != surfaces.size()) {
+        return false;
     }
 
-    return false;
+    //create
+    Dictionary d = p_value;
+    ERR_FAIL_COND_V(!d.has("primitive"), false);
+
+    if (d.has("arrays")) {
+        //old format
+        ERR_FAIL_COND_V(!d.has("morph_arrays"), false);
+        PODVector<SurfaceArrays> morph_arrays;
+        Array ma=d["morph_arrays"];
+        morph_arrays.reserve(ma.size());
+        for(int i=0; i<ma.size(); ++i)
+            morph_arrays.emplace_back(SurfaceArrays::fromArray(ma[i].as<Array>()));
+        add_surface_from_arrays(PrimitiveType(int(d["primitive"])), SurfaceArrays::fromArray(d["arrays"]), eastl::move(morph_arrays));
+
+    } else if (d.has("array_data")) {
+
+        PoolVector<uint8_t> array_data = d["array_data"];
+        PoolVector<uint8_t> array_index_data;
+        if (d.has("array_index_data"))
+            array_index_data = d["array_index_data"];
+
+        ERR_FAIL_COND_V(!d.has("format"), false);
+        uint32_t format = d["format"];
+
+        uint32_t primitive = d["primitive"];
+
+        ERR_FAIL_COND_V(!d.has("vertex_count"), false);
+        int vertex_count = d["vertex_count"];
+
+        int index_count = 0;
+        if (d.has("index_count"))
+            index_count = d["index_count"];
+
+        PODVector<PoolVector<uint8_t> > blend_shapes;
+
+        if (d.has("blend_shape_data")) {
+            Array blend_shape_data = d["blend_shape_data"];
+            blend_shapes.reserve(blend_shape_data.size());
+            for (int i = 0; i < blend_shape_data.size(); i++) {
+                PoolVector<uint8_t> shape = blend_shape_data[i];
+                blend_shapes.emplace_back(eastl::move(shape));
+            }
+        }
+
+        ERR_FAIL_COND_V(!d.has("aabb"), false);
+        AABB aabb = d["aabb"];
+
+        PoolVector<AABB> bone_aabb;
+        if (d.has("skeleton_aabb")) {
+            Array baabb = d["skeleton_aabb"];
+            bone_aabb.resize(baabb.size());
+            auto wr(bone_aabb.write());
+            for (int i = 0; i < baabb.size(); i++) {
+                wr[i] = baabb[i];
+            }
+        }
+
+        add_surface(format, PrimitiveType(primitive), array_data, vertex_count, array_index_data, index_count, aabb, blend_shapes, bone_aabb);
+    } else {
+        ERR_FAIL_V(false);
+    }
+
+    if (d.has("material")) {
+
+        surface_set_material(idx, refFromRefPtr<Material>(d["material"]));
+    }
+    if (d.has("name")) {
+        surface_set_name(idx, d["name"].as<String>());
+    }
+
+    return true;
 }
 
 bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
@@ -776,7 +776,7 @@ void ArrayMesh::_recompute_aabb() {
     }
 }
 
-void ArrayMesh::add_surface(uint32_t p_format, PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PODVector<uint8_t> > &p_blend_shapes, const PODVector<AABB> &p_bone_aabbs) {
+void ArrayMesh::add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes, const PoolVector<AABB> &p_bone_aabbs) {
 
     Surface s;
     s.aabb = p_aabb;
@@ -978,7 +978,7 @@ String ArrayMesh::surface_get_name(int p_idx) const {
     return surfaces[p_idx].name;
 }
 
-void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PODVector<uint8_t> &p_data) {
+void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) {
 
     ERR_FAIL_INDEX(p_surface, surfaces.size());
     VisualServer::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);

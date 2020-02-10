@@ -1711,8 +1711,9 @@ bool CSharpInstance::has_method(const StringName &p_method) const {
 }
 
 Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
-    if (!script)
+    if (!script) {
         ERR_FAIL_V(Variant());
+    }
 
     GD_MONO_SCOPE_THREAD_ATTACH
 
@@ -2531,8 +2532,9 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
     (m_member->get_enclosing_class()->get_full_name() + "." + (String)m_member->get_name())
 
     if (p_member->is_static()) {
-        if (p_member->has_attribute(CACHED_CLASS(ExportAttribute)))
+        if (p_member->has_attribute(CACHED_CLASS(ExportAttribute))) {
             ERR_PRINT("Cannot export member because it is static: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+        }
         return false;
     }
 

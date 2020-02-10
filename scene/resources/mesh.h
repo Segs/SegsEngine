@@ -198,7 +198,10 @@ public:
 public:
 
     void add_surface_from_arrays(PrimitiveType p_primitive, SurfaceArrays &&p_arrays, PODVector<SurfaceArrays> &&p_blend_shapes = PODVector<SurfaceArrays>(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
-    void add_surface(uint32_t p_format, PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PODVector<uint8_t> > &p_blend_shapes = PODVector<PODVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>());
+    void add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count,
+            const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb,
+            const PODVector<PoolVector<uint8_t>> &p_blend_shapes = PODVector<PoolVector<uint8_t>>(),
+            const PoolVector<AABB> &p_bone_aabbs = PoolVector<AABB>());
 
     SurfaceArrays surface_get_arrays(int p_surface) const override;
     PODVector<SurfaceArrays> surface_get_blend_shape_arrays(int p_surface) const override;
@@ -211,7 +214,7 @@ public:
     void set_blend_shape_mode(BlendShapeMode p_mode);
     BlendShapeMode get_blend_shape_mode() const;
 
-    void surface_update_region(int p_surface, int p_offset, const PODVector<uint8_t> &p_data);
+    void surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data);
 
     int get_surface_count() const override;
     void surface_remove(int p_idx);

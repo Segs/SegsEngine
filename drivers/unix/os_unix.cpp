@@ -75,7 +75,7 @@ static double _clock_scale = 0;
 static void _setup_clock() {
     mach_timebase_info_data_t info;
     kern_return_t ret = mach_timebase_info(&info);
-    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!"); 
+    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!");
     _clock_scale = ((double)info.numer / (double)info.denom) / 1000.0;
     _clock_start = mach_absolute_time() * _clock_scale;
 }
@@ -87,7 +87,7 @@ static void _setup_clock() {
 #endif
 static void _setup_clock() {
     struct timespec tv_now = { 0, 0 };
-    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!"); 
+    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!");
     _clock_start = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 }
 #endif
@@ -154,7 +154,7 @@ void OS_Unix::finalize_core() {
 
 void OS_Unix::alert(se_string_view p_alert, se_string_view p_title) {
 
-    fprintf(stderr, "ERROR: [%.*s] %.*s\n", p_title.length(),p_title.data(),p_alert.length(),p_alert.data());
+    fprintf(stderr, "ERROR: [%.*s] %.*s\n", int(p_title.length()),p_title.data(),int(p_alert.length()),p_alert.data());
 }
 
 String OS_Unix::get_stdin_string(bool p_block) {
@@ -515,13 +515,9 @@ void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_f
     // stdout and stderr to a file.
     const bool tty = isatty(fileno(stdout));
     const char *red = tty ? "\E[0;31m" : "";
-    const char *red_bold = tty ? "\E[1;31m" : "";
     const char *yellow = tty ? "\E[0;33m" : "";
-    const char *yellow_bold = tty ? "\E[1;33m" : "";
     const char *magenta = tty ? "\E[0;35m" : "";
-    const char *magenta_bold = tty ? "\E[1;35m" : "";
     const char *cyan = tty ? "\E[0;36m" : "";
-    const char *cyan_bold = tty ? "\E[1;36m" : "";
     const char *reset = tty ? "\E[0m" : "";
     const char *bold = tty ? "\E[1m" : "";
 

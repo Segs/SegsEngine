@@ -269,9 +269,8 @@ public:
 
     virtual RID mesh_create() = 0;
 
-    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const
-            PODVector<PODVector<uint8_t>> &p_blend_shapes = PODVector<PODVector<uint8_t>>(), const PODVector<AABB> &p_bone_aabbs =
-        PODVector<AABB>()) = 0;
+    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const
+                                  PODVector<PoolVector<uint8_t>> &p_blend_shapes = PODVector<PoolVector<uint8_t>>(), Span<const AABB> p_bone_aabbs = {}) = 0;
 
     virtual void mesh_set_blend_shape_count(RID p_mesh, int p_amount) = 0;
     virtual int mesh_get_blend_shape_count(RID p_mesh) const = 0;
@@ -279,7 +278,7 @@ public:
     virtual void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) = 0;
     virtual VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const = 0;
 
-    virtual void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PODVector<uint8_t> &p_data) = 0;
+    virtual void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, Span<const uint8_t> p_data) = 0;
 
     virtual void mesh_surface_set_material(RID p_mesh, int p_surface, RID p_material) = 0;
     virtual RID mesh_surface_get_material(RID p_mesh, int p_surface) const = 0;

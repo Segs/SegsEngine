@@ -115,26 +115,27 @@ Color Gradient::get_color_at_offset(float p_offset) {
     int middle = 0;
 
 #ifdef DEBUG_ENABLED
-    if (low > high)
+    if (low > high) {
         ERR_PRINT("low > high, this may be a bug");
-        #endif
+    }
+#endif
 
-                while (low <= high) {
-            middle = (low + high) / 2;
-            const Point &point = points[middle];
-            if (point.offset > p_offset) {
-                high = middle - 1; //search low end of array
-            } else if (point.offset < p_offset) {
-                low = middle + 1; //search high end of array
-            } else {
-                return point.color;
-            }
+    while (low <= high) {
+        middle = (low + high) / 2;
+        const Point &point = points[middle];
+        if (point.offset > p_offset) {
+            high = middle - 1; // search low end of array
+        } else if (point.offset < p_offset) {
+            low = middle + 1; // search high end of array
+        } else {
+            return point.color;
         }
+    }
 
-            //return interpolated value
-            if (points[middle].offset > p_offset) {
-                middle--;
-            }
+    //return interpolated value
+    if (points[middle].offset > p_offset) {
+        middle--;
+    }
     int first = middle;
     int second = middle + 1;
     if (second >= points.size())

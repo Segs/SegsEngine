@@ -667,8 +667,9 @@ void NetSocketPosix::set_blocking_enabled(bool p_enabled) {
         ret = fcntl(_sock->sock, F_SETFL, opts | O_NONBLOCK);
 #endif
 
-    if (ret != 0)
+    if (ret != 0) {
         WARN_PRINT("Unable to change non-block mode");
+    }
 }
 
 void NetSocketPosix::set_ipv6_only_enabled(bool p_enabled) {

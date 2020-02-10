@@ -957,7 +957,7 @@ Error Main::setup(bool p_second_phase) {
         for (se_string_view bp : breakpoints) {
 
             auto sp = StringUtils::find_last(bp,':');
-            ERR_CONTINUE_MSG(sp == String::npos, "Invalid breakpoint: '" + bp + "', expected file:line format."); 
+            ERR_CONTINUE_MSG(sp == String::npos, "Invalid breakpoint: '" + bp + "', expected file:line format.");
 
             script_debugger->insert_breakpoint(StringUtils::to_int(StringUtils::substr(bp,sp + 1, bp.length())), StringName(StringUtils::substr(bp,0, sp)));
         }
@@ -1332,8 +1332,9 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
         if (!boot_logo_path.empty()) {
             boot_logo = make_ref_counted<Image>();
             Error load_err = ImageLoader::load_image(boot_logo_path, boot_logo);
-            if (load_err)
+            if (load_err) {
                 ERR_PRINT("Non-existing or invalid boot splash at '" + boot_logo_path + "'. Loading default splash.");
+            }
         }
 
         Color boot_bg_color = GLOBAL_DEF("application/boot_splash/bg_color", boot_splash_bg_color);
@@ -1755,7 +1756,7 @@ bool Main::start() {
                     }
 
                     RES res(ResourceLoader::load(path));
-                    ERR_CONTINUE_MSG(not res, "Can't autoload: " + path); 
+                    ERR_CONTINUE_MSG(not res, "Can't autoload: " + path);
                     Node *n = nullptr;
                     if (res->is_class("PackedScene")) {
                         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(res);
@@ -1764,17 +1765,17 @@ bool Main::start() {
                         Ref<Script> script_res = dynamic_ref_cast<Script>(res);
                         StringName ibt = script_res->get_instance_base_type();
                         bool valid_type = ClassDB::is_parent_class(ibt, "Node");
-                        ERR_CONTINUE_MSG(!valid_type, "Script does not inherit a Node: " + path); 
+                        ERR_CONTINUE_MSG(!valid_type, "Script does not inherit a Node: " + path);
 
                         Object *obj = ClassDB::instance(ibt);
 
-                        ERR_CONTINUE_MSG(obj == nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt)); 
+                        ERR_CONTINUE_MSG(obj == nullptr, "Cannot instance script for autoload, expected 'Node' inheritance, got: " + String(ibt));
 
                         n = object_cast<Node>(obj);
                         n->set_script(script_res.get_ref_ptr());
                     }
 
-                    ERR_CONTINUE_MSG(!n, "Path in autoload not a node or script: " + path); 
+                    ERR_CONTINUE_MSG(!n, "Path in autoload not a node or script: " + path);
                     n->set_name(name);
 
                     //defer so references are all valid on _ready()
@@ -1918,9 +1919,10 @@ bool Main::start() {
             if (editor) {
 
                 if (game_path != (String)GLOBAL_GET("application/run/main_scene") || !editor_node->has_scenes_in_session()) {
-                Error serr = editor_node->load_scene(local_game_path);
-                if (serr != OK)
-                    ERR_PRINT("Failed to load scene");
+                    Error serr = editor_node->load_scene(local_game_path);
+                    if (serr != OK) {
+                        ERR_PRINT("Failed to load scene");
+                    }
                 }
                 OS::get_singleton()->set_context(OS::CONTEXT_EDITOR);
             }

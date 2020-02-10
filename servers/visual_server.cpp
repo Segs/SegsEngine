@@ -1073,7 +1073,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
     Error err = _surface_set_data(p_arrays, format, offsets, total_elem_size, vertex_array, array_len, index_array, index_array_len, aabb, bone_aabb);
     ERR_FAIL_COND_MSG(err, "Invalid array format for surface.");
 
-    PODVector<PODVector<uint8_t> > blend_shape_data;
+    PODVector<PoolVector<uint8_t> > blend_shape_data;
 
     for (int i = 0; i < p_blend_shapes.size(); i++) {
 
@@ -1085,15 +1085,18 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
         Error err2 = _surface_set_data(p_blend_shapes[i], format & ~VS::ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
         aabb.merge_with(laabb);
         ERR_FAIL_COND_MSG(err2 != OK, "Invalid blend shape array format for surface.");
-
-        blend_shape_data.emplace_back(eastl::move(vertex_array_shape));
+        blend_shape_data.emplace_back(eastl::move(PoolVector<uint8_t>(vertex_array_shape)));
     }
+    WARN_PRINT("Inefficient surface arrays operation");
 
-    mesh_add_surface(p_mesh, format, p_primitive, vertex_array, array_len, index_array, index_array_len, aabb, blend_shape_data, bone_aabb);
+
+    mesh_add_surface(p_mesh, format, p_primitive, PoolVector(vertex_array), array_len,
+            PoolVector(index_array), index_array_len, aabb, blend_shape_data,
+            PoolVector(bone_aabb));
 }
 
-SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const PoolVector<uint8_t> &p_vertex_data,
-        int p_vertex_len, const PoolVector<uint8_t> &p_index_data, int p_index_len) const {
+SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data,
+        int p_vertex_len, Span<const uint8_t> p_index_data, int p_index_len) const {
 
     uint32_t offsets[VS::ARRAY_MAX];
 
@@ -1217,7 +1220,6 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
     }
 
     SurfaceArrays ret;
-    PoolVector<uint8_t>::Read r = p_vertex_data.read();
 
     for (int i = 0; i < VS::ARRAY_MAX; i++) {
 
@@ -1237,14 +1239,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                         for (int j = 0; j < p_vertex_len; j++) {
 
-                            const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
+                            const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_2d[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                         }
                     } else {
 
                         for (int j = 0; j < p_vertex_len; j++) {
 
-                            const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                            const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_2d[j] = Vector2(v[0], v[1]);
                         }
                     }
@@ -1259,14 +1261,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                         for (int j = 0; j < p_vertex_len; j++) {
 
-                            const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
+                            const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_3d[j] = Vector3(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]), Math::halfptr_to_float(&v[2]));
                         }
                     } else {
 
                         for (int j = 0; j < p_vertex_len; j++) {
 
-                            const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                            const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_3d[j] = Vector3(v[0], v[1], v[2]);
                         }
                     }
@@ -1285,13 +1287,13 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const int8_t *v = (const int8_t *)&r[j * total_elem_size + offsets[i]];
+                        const int8_t *v = (const int8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr.emplace_back(float(v[0]) * multiplier, float(v[1]) * multiplier, float(v[2]) * multiplier);
                     }
                 } else {
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                        const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr.emplace_back(v[0], v[1], v[2]);
                     }
                 }
@@ -1306,14 +1308,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
                 if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const int8_t *v = (const int8_t *)&r[j * total_elem_size + offsets[i]];
+                        const int8_t *v = (const int8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
                             arr.emplace_back(float(v[k] / 127.0));
                         }
                     }
                 } else {
                     for (int j = 0; j < p_vertex_len; j++) {
-                        const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                        const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
                             arr.emplace_back(v[k]);
                         }
@@ -1332,14 +1334,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const uint8_t *v = (const uint8_t *)&r[j * total_elem_size + offsets[i]];
+                        const uint8_t *v = (const uint8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr.emplace_back(float(v[0] / 255.0), float(v[1] / 255.0), float(v[2] / 255.0), float(v[3] / 255.0));
                     }
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                        const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr.emplace_back(v[0], v[1], v[2], v[3]);
                     }
                 }
@@ -1355,14 +1357,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
+                        const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                     }
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                        const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr[j] = Vector2(v[0], v[1]);
                     }
                 }
@@ -1378,14 +1380,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
+                        const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                     }
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                        const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr[j] = Vector2(v[0], v[1]);
                     }
                 }
@@ -1401,7 +1403,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
+                        const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
                             arr[j * 4 + k] = float(v[k] / 65535.0);
                         }
@@ -1409,7 +1411,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
-                        const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
+                        const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
                             arr[j * 4 + k] = v[k];
                         }
@@ -1427,7 +1429,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
-                        const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
+                        const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
                             arr[j * 4 + k] = v[k];
                         }
@@ -1435,7 +1437,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
-                        const uint8_t *v = (const uint8_t *)&r[j * total_elem_size + offsets[i]];
+                        const uint8_t *v = (const uint8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
                             arr[j * 4 + k] = v[k];
                         }
@@ -1448,21 +1450,19 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
             case VS::ARRAY_INDEX: {
                 /* determine whether using 16 or 32 bits indices */
 
-                PoolVector<uint8_t>::Read ir = p_index_data.read();
-
                 PODVector<int> arr;
                 arr.resize(p_index_len);
                 if (p_vertex_len < (1 << 16)) {
 
                     for (int j = 0; j < p_index_len; j++) {
 
-                        const uint16_t *v = (const uint16_t *)&ir[j * 2];
+                        const uint16_t *v = (const uint16_t *)&p_index_data[j * 2];
                         arr[j] = *v;
                     }
                 } else {
 
                     for (int j = 0; j < p_index_len; j++) {
-                        const int *v = (const int *)&ir[j * 4];
+                        const int *v = (const int *)&p_index_data[j * 4];
                         arr[j] = *v;
                     }
                 }
@@ -1488,7 +1488,7 @@ SurfaceArrays VisualServer::mesh_surface_get_arrays(RID p_mesh, int p_surface) c
 
     uint32_t format = mesh_surface_get_format(p_mesh, p_surface);
 
-    return _get_array_from_surface(format, vertex_data, vertex_len, index_data, index_len);
+    return _get_array_from_surface(format, vertex_data.toSpan(), vertex_len, index_data.toSpan(), index_len);
 }
 Array VisualServer::_mesh_surface_get_arrays(RID p_mesh, int p_surface) const {
     return (Array)mesh_surface_get_arrays(p_mesh,p_surface);
@@ -1528,7 +1528,7 @@ PODVector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p
     PODVector<SurfaceArrays> blend_shape_array;
     blend_shape_array.reserve(blend_shape_data.size());
     for (int i = 0; i < blend_shape_data.size(); i++) {
-        blend_shape_array.emplace_back(eastl::move(_get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data, index_len)));
+        blend_shape_array.emplace_back(eastl::move(_get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data.toSpan(), index_len)));
     }
 
     return blend_shape_array;

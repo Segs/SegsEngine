@@ -601,7 +601,7 @@ void CanvasItem::_notification(int p_what) {
             if (get_parent()) {
                 CanvasItem *ci = object_cast<CanvasItem>(get_parent());
                 if (ci)
-                    C = ci->children_items.push_back(this);
+                    C = ci->children_items.insert(ci->children_items.end(),this);
             }
             _enter_canvas();
             if (!block_transform_notify && !xform_change.in_list()) {
@@ -626,9 +626,9 @@ void CanvasItem::_notification(int p_what) {
             if (xform_change.in_list())
                 get_tree()->xform_change_list.remove(&xform_change);
             _exit_canvas();
-            if (C) {
+            if (C!=ListPOD<CanvasItem *>::iterator()) {
                 object_cast<CanvasItem>(get_parent())->children_items.erase(C);
-                C = nullptr;
+                C = {};
             }
             global_invalid = true;
         } break;
@@ -744,14 +744,14 @@ void CanvasItem::item_rect_changed(bool p_size_changed) {
 
 void CanvasItem::draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     VisualServer::get_singleton()->canvas_item_add_line(canvas_item, p_from, p_to, p_color, p_width, p_antialiased);
 }
 
 void CanvasItem::draw_polyline(const PODVector<Vector2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     PODVector<Color> colors;
     colors.push_back(p_color);
@@ -760,7 +760,7 @@ void CanvasItem::draw_polyline(const PODVector<Vector2> &p_points, const Color &
 
 void CanvasItem::draw_polyline_colors(const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     VisualServer::get_singleton()->canvas_item_add_polyline(canvas_item, p_points, p_colors, p_width, p_antialiased);
 }
@@ -780,7 +780,7 @@ void CanvasItem::draw_arc(const Vector2 &p_center, float p_radius, float p_start
 
 void CanvasItem::draw_multiline(const PODVector<Vector2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     PODVector<Color> colors;
     colors.push_back(p_color);
@@ -789,14 +789,14 @@ void CanvasItem::draw_multiline(const PODVector<Vector2> &p_points, const Color 
 
 void CanvasItem::draw_multiline_colors(const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     VisualServer::get_singleton()->canvas_item_add_multiline(canvas_item, p_points, p_colors, p_width, p_antialiased);
 }
 
 void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_filled, float p_width, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     if (p_filled) {
         if (p_width != 1.0f) {
@@ -851,14 +851,14 @@ void CanvasItem::draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_fil
 
 void CanvasItem::draw_circle(const Point2 &p_pos, float p_radius, const Color &p_color) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     VisualServer::get_singleton()->canvas_item_add_circle(canvas_item, p_pos, p_radius, p_color);
 }
 
 void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_texture);
 
@@ -867,20 +867,20 @@ void CanvasItem::draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos
 
 void CanvasItem::draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect(canvas_item, p_rect, p_tile, p_modulate, p_transpose, p_normal_map);
 }
 void CanvasItem::draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map, bool p_clip_uv) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
     ERR_FAIL_COND(not p_texture);
     p_texture->draw_rect_region(canvas_item, p_rect, p_src_rect, p_modulate, p_transpose, p_normal_map, p_clip_uv);
 }
 
 void CanvasItem::draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect) {
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_style_box);
 
@@ -888,7 +888,7 @@ void CanvasItem::draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p
 }
 void CanvasItem::draw_primitive(const PODVector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture, float p_width, const Ref<Texture> &p_normal_map) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     RID rid = p_texture ? p_texture->get_rid() : RID();
     RID rid_normal = p_normal_map ? p_normal_map->get_rid() : RID();
@@ -897,7 +897,7 @@ void CanvasItem::draw_primitive(const PODVector<Vector2> &p_points, const PoolVe
 }
 void CanvasItem::draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     Transform2D xform(p_rot, p_offset);
     xform.scale_basis(p_scale);
@@ -906,14 +906,14 @@ void CanvasItem::draw_set_transform(const Point2 &p_offset, float p_rot, const S
 
 void CanvasItem::draw_set_transform_matrix(const Transform2D &p_matrix) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     VisualServer::get_singleton()->canvas_item_add_set_transform(canvas_item, p_matrix);
 }
 
 void CanvasItem::draw_polygon(Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     RID rid = p_texture ? p_texture->get_rid() : RID();
     RID rid_normal = p_normal_map ? p_normal_map->get_rid() : RID();
@@ -923,7 +923,7 @@ void CanvasItem::draw_polygon(Span<const Point2> p_points, const PoolVector<Colo
 
 void CanvasItem::draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture, const Ref<Texture> &p_normal_map, bool p_antialiased) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     PoolVector<Color> colors;
     colors.push_back(p_color);
@@ -951,14 +951,14 @@ void CanvasItem::draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Tex
 
 void CanvasItem::draw_ui_string(const Ref<Font> &p_font, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_font);
     p_font->draw_ui_string(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
 }
 void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w) {
 
-    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal."); 
+    ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
     ERR_FAIL_COND(not p_font);
     p_font->draw_ui_string(canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w);
@@ -996,9 +996,8 @@ void CanvasItem::_notify_transform(CanvasItem *p_node) {
         }
     }
 
-    for (List<CanvasItem *>::Element *E = p_node->children_items.front(); E; E = E->next()) {
+    for (CanvasItem *ci : p_node->children_items) {
 
-        CanvasItem *ci = E->deref();
         if (ci->toplevel)
             continue;
         _notify_transform(ci);
@@ -1349,7 +1348,7 @@ int CanvasItem::get_canvas_layer() const {
 
 CanvasItem::CanvasItem() :
         xform_change(this) {
-
+    memset(group,0,32);
     canvas_item = VisualServer::get_singleton()->canvas_item_create();
     visible = true;
     pending_update = false;
