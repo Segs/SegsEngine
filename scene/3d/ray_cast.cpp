@@ -371,13 +371,10 @@ void RayCast::_update_debug_shape() {
     if (mesh->get_surface_count() > 0)
         mesh->surface_remove(0);
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
-
     PODVector<Vector3> verts = {Vector3(0,0,0),cast_to};
-    a[Mesh::ARRAY_VERTEX] = Variant::from(verts);
+    SurfaceArrays a(eastl::move(verts));
 
-    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, a);
+    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(a));
     mesh->surface_set_material(0, debug_material);
 }
 

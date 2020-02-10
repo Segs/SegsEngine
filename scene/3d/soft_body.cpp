@@ -491,15 +491,15 @@ void SoftBody::become_mesh_owner() {
     ERR_FAIL_COND(!mesh->get_surface_count());
 
     // Get current mesh array and create new mesh array with necessary flag for softbody
-    Array surface_arrays = mesh->surface_get_arrays(0);
-    Array surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
+    SurfaceArrays surface_arrays = mesh->surface_get_arrays(0);
+    PODVector<SurfaceArrays> surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
     uint32_t surface_format = mesh->surface_get_format(0);
 
     surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
     surface_format |= Mesh::ARRAY_FLAG_USE_DYNAMIC_UPDATE;
 
     Ref<ArrayMesh> soft_mesh(make_ref_counted<ArrayMesh>());
-    soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surface_arrays, surface_blend_arrays, surface_format);
+    soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(surface_arrays), eastl::move(surface_blend_arrays), surface_format);
     soft_mesh->surface_set_material(0, mesh->surface_get_material(0));
 
     set_mesh(soft_mesh);
@@ -589,14 +589,14 @@ Array SoftBody::get_collision_exceptions() {
 void SoftBody::add_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject."); 
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
     PhysicsServer::get_singleton()->soft_body_add_collision_exception(physics_rid, collision_object->get_rid());
 }
 
 void SoftBody::remove_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject."); 
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
     PhysicsServer::get_singleton()->soft_body_remove_collision_exception(physics_rid, collision_object->get_rid());
 }
 

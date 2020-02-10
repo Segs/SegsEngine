@@ -590,35 +590,19 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
         }
         MaterialCache material = _get_material_cache(src_material);
 
-        Array a = p_mesh->surface_get_arrays(i);
+        SurfaceArrays a(p_mesh->surface_get_arrays(i));
 
-        PoolVector<Vector3> vertices = a[Mesh::ARRAY_VERTEX];
-        PoolVector<Vector3>::Read vr = vertices.read();
-        PoolVector<Vector2> uv = a[Mesh::ARRAY_TEX_UV];
-        PoolVector<Vector2>::Read uvr;
-        PoolVector<Vector3> normals = a[Mesh::ARRAY_NORMAL];
-        PoolVector<Vector3>::Read nr;
-        PoolVector<int> index = a[Mesh::ARRAY_INDEX];
+        auto vertices = a.positions3();
+        const auto &uv = a.m_uv_1;
+        const auto &normals = a.m_normals;
+        const auto &index = a.m_indices;
 
-        bool read_uv = false;
-        bool read_normals = false;
-
-        if (uv.size()) {
-
-            uvr = uv.read();
-            read_uv = true;
-        }
-
-        if (normals.size()) {
-            read_normals = true;
-            nr = normals.read();
-        }
+        bool read_uv = !uv.empty();
+        bool read_normals = !normals.empty();
 
         if (index.size()) {
 
             int facecount = index.size() / 3;
-            PoolVector<int>::Read ir = index.read();
-
             for (int j = 0; j < facecount; j++) {
 
                 Vector3 vtxs[3];
@@ -626,18 +610,18 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
                 Vector3 normal[3];
 
                 for (int k = 0; k < 3; k++) {
-                    vtxs[k] = p_xform.xform(vr[ir[j * 3 + k]]);
+                    vtxs[k] = p_xform.xform(vertices[index[j * 3 + k]]);
                 }
 
                 if (read_uv) {
                     for (int k = 0; k < 3; k++) {
-                        uvs[k] = uvr[ir[j * 3 + k]];
+                        uvs[k] = uv[index[j * 3 + k]];
                     }
                 }
 
                 if (read_normals) {
                     for (int k = 0; k < 3; k++) {
-                        normal[k] = nr[ir[j * 3 + k]];
+                        normal[k] = normals[index[j * 3 + k]];
                     }
                 }
 
@@ -659,18 +643,18 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
                 Vector3 normal[3];
 
                 for (int k = 0; k < 3; k++) {
-                    vtxs[k] = p_xform.xform(vr[j * 3 + k]);
+                    vtxs[k] = p_xform.xform(vertices[j * 3 + k]);
                 }
 
                 if (read_uv) {
                     for (int k = 0; k < 3; k++) {
-                        uvs[k] = uvr[j * 3 + k];
+                        uvs[k] = uv[j * 3 + k];
                     }
                 }
 
                 if (read_normals) {
                     for (int k = 0; k < 3; k++) {
-                        normal[k] = nr[j * 3 + k];
+                        normal[k] = normals[j * 3 + k];
                     }
                 }
 
@@ -1813,24 +1797,16 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
         double area = 0;
         double uv_area = 0;
         for (int i = 0; i < mesh->get_surface_count(); i++) {
-            Array arrays = mesh->surface_get_arrays(i);
-            PoolVector<Vector3> vertices = arrays[Mesh::ARRAY_VERTEX];
-            PoolVector<Vector2> uv2 = arrays[Mesh::ARRAY_TEX_UV2];
-            PoolVector<int> indices = arrays[Mesh::ARRAY_INDEX];
+            SurfaceArrays arrays = mesh->surface_get_arrays(i);
+            Span<const Vector3> vertices = arrays.positions3();
+            const auto &uv2 = arrays.m_uv_2;
+            const auto &indices = arrays.m_indices;
 
             ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
             ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER);
 
             int vc = vertices.size();
-            PoolVector<Vector3>::Read vr = vertices.read();
-            PoolVector<Vector2>::Read u2r = uv2.read();
-            PoolVector<int>::Read ir;
-            int ic = 0;
-
-            if (indices.size()) {
-                ic = indices.size();
-                ir = indices.read();
-            }
+            int ic = indices.size();
 
             int faces = ic ? ic / 3 : vc / 3;
             for (int j = 0; j < faces; j++) {
@@ -1838,9 +1814,9 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
                 Vector2 uv[3];
 
                 for (int k = 0; k < 3; k++) {
-                    int idx = ic ? ir[j * 3 + k] : j * 3 + k;
-                    vertex[k] = xform.xform(vr[idx]);
-                    uv[k] = u2r[idx];
+                    int idx = ic ? indices[j * 3 + k] : j * 3 + k;
+                    vertex[k] = xform.xform(vertices[idx]);
+                    uv[k] = uv2[idx];
                 }
 
                 Vector3 p1 = vertex[0];
@@ -1878,27 +1854,18 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
 
     //step 2 plot faces to lightmap
     for (int i = 0; i < mesh->get_surface_count(); i++) {
-        Array arrays = mesh->surface_get_arrays(i);
-        PoolVector<Vector3> vertices = arrays[Mesh::ARRAY_VERTEX];
-        PoolVector<Vector3> normals = arrays[Mesh::ARRAY_NORMAL];
-        PoolVector<Vector2> uv2 = arrays[Mesh::ARRAY_TEX_UV2];
-        PoolVector<int> indices = arrays[Mesh::ARRAY_INDEX];
+        SurfaceArrays arrays = mesh->surface_get_arrays(i);
+        Span<const Vector3> vertices = arrays.positions3();
+        const PODVector<Vector3> &normals = arrays.m_normals;
+        const PODVector<Vector2> &uv2 = arrays.m_uv_2;
+        const PODVector<int> &indices = arrays.m_indices;
 
         ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
         ERR_FAIL_COND_V(normals.size() == 0, ERR_INVALID_PARAMETER);
         ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER);
 
         int vc = vertices.size();
-        PoolVector<Vector3>::Read vr = vertices.read();
-        PoolVector<Vector3>::Read nr = normals.read();
-        PoolVector<Vector2>::Read u2r = uv2.read();
-        PoolVector<int>::Read ir;
-        int ic = 0;
-
-        if (indices.size()) {
-            ic = indices.size();
-            ir = indices.read();
-        }
+        int ic = indices.size();
 
         int faces = ic ? ic / 3 : vc / 3;
         for (int j = 0; j < faces; j++) {
@@ -1907,10 +1874,10 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
             Vector2 uv[3];
 
             for (int k = 0; k < 3; k++) {
-                int idx = ic ? ir[j * 3 + k] : j * 3 + k;
-                vertex[k] = xform.xform(vr[idx]);
-                normal[k] = xform.basis.xform(nr[idx]).normalized();
-                uv[k] = u2r[idx];
+                int idx = ic ? indices[j * 3 + k] : j * 3 + k;
+                vertex[k] = xform.xform(vertices[idx]);
+                normal[k] = xform.basis.xform(normals[idx]).normalized();
+                uv[k] = uv2[idx];
             }
 
             _plot_triangle(uv, vertex, normal, lightmap.data(), width, height);
@@ -2351,11 +2318,10 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
     {
-        Array arr;
-        arr.resize(Mesh::ARRAY_MAX);
+        SurfaceArrays arr;
 
-        PoolVector<Vector3> vertices;
-        PoolVector<Color> colors;
+        PODVector<Vector3> vertices;
+        PODVector<Color> colors;
 #define ADD_VTX(m_idx)                      \
     ;                                       \
     vertices.push_back(face_points[m_idx]); \
@@ -2391,9 +2357,9 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
             ADD_VTX(0);
         }
 
-        arr[Mesh::ARRAY_VERTEX] = vertices;
-        arr[Mesh::ARRAY_COLOR] = colors;
-        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+        arr.set_positions(eastl::move(vertices));
+        arr.m_colors = eastl::move(colors);
+        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arr));
     }
 
     {

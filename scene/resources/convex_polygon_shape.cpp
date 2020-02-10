@@ -63,9 +63,8 @@ void ConvexPolygonShape::_update_shape() {
     Shape::_update_shape();
 }
 
-void ConvexPolygonShape::set_points(const PoolVector<Vector3> &p_points) {
-    auto rd(p_points.read());
-    points.assign(rd.ptr(),rd.ptr()+p_points.size());
+void ConvexPolygonShape::set_points(PODVector<Vector3> &&p_points) {
+    points = eastl::move(p_points);
     _update_shape();
     notify_change_to_owners();
 }

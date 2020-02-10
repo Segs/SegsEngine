@@ -328,13 +328,11 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
-    a[Mesh::ARRAY_VERTEX] = Variant::from(computed_vertices);
-    a[Mesh::ARRAY_TEX_UV] = Variant::from(computed_uv);
-    a[Mesh::ARRAY_INDEX] = Variant::from(computed_indices);
+    SurfaceArrays a(eastl::move(PODVector<Vector2>(computed_vertices)));
+    a.m_uv_1 = computed_uv;
+    a.m_indices = computed_indices;
 
-    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, a, Array(), Mesh::ARRAY_FLAG_USE_2D_VERTICES);
+    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(a), {}, Mesh::ARRAY_FLAG_USE_2D_VERTICES);
 
     MeshInstance2D *mesh_instance = memnew(MeshInstance2D);
     mesh_instance->set_mesh(mesh);

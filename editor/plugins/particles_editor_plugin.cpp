@@ -105,8 +105,6 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
             return false;
         }
 
-        PoolVector<Face3>::Read r = geometry.read();
-
         AABB aabb;
 
         for (int i = 0; i < gcount; i++) {
@@ -114,9 +112,9 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
             for (int j = 0; j < 3; j++) {
 
                 if (i == 0 && j == 0)
-                    aabb.position = r[i].vertex[j];
+                    aabb.position = geometry[i].vertex[j];
                 else
-                    aabb.expand_to(r[i].vertex[j]);
+                    aabb.expand_to(geometry[i].vertex[j]);
             }
         }
 
@@ -142,7 +140,7 @@ bool ParticlesEditorBase::_generate(PoolVector<Vector3> &points, PoolVector<Vect
 
                 for (int k = 0; k < gcount; k++) {
 
-                    const Face3 &f3 = r[k];
+                    const Face3 &f3 = geometry[k];
 
                     Vector3 res;
                     if (f3.intersects_segment(ofs, ofsv, &res)) {
@@ -194,7 +192,7 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
 
     geometry = vi->get_faces(VisualInstance::FACES_SOLID);
 
-    if (geometry.size() == 0) {
+    if (geometry.empty()) {
 
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't contain face geometry.").asCString(), sel->get_name().asCString()));
         return;
@@ -203,15 +201,11 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
     Transform geom_xform = base_node->get_global_transform().affine_inverse() * vi->get_global_transform();
 
     int gc = geometry.size();
-    PoolVector<Face3>::Write w = geometry.write();
-
     for (int i = 0; i < gc; i++) {
         for (int j = 0; j < 3; j++) {
-            w[i].vertex[j] = geom_xform.xform(w[i].vertex[j]);
+            geometry[i].vertex[j] = geom_xform.xform(geometry[i].vertex[j]);
         }
     }
-
-    w.release();
 
     emission_dialog->popup_centered(Size2(300, 130));
 }

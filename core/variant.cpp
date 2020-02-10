@@ -1920,23 +1920,6 @@ PoolVector<RID> Variant::as<PoolVector<RID>>() const {
         wr[i] = va[i];
     return rids;
 }
-template<>
-Vector<Vector2> Variant::as<Vector<Vector2>>() const {
-
-    PoolVector<Vector2> from = operator PoolVector<Vector2>();
-    Vector<Vector2> to;
-    int len = from.size();
-    if (len == 0)
-        return Vector<Vector2>();
-    to.resize(len);
-    PoolVector<Vector2>::Read r = from.read();
-    Vector2 *w = to.ptrw();
-    for (int i = 0; i < len; i++) {
-
-        w[i] = r[i];
-    }
-    return to;
-}
 
 Variant::operator PoolVector<Plane>() const {
 
@@ -1989,35 +1972,6 @@ PODVector<Plane> Variant::asVector<Plane>() const {
 
     return planes;
 }
-template<class T>
-Vector<T> asVector(const Variant &v) {
-
-};
-template<class T>
-Vector<T> asInternalVector(const Variant &v) {
-    PoolVector<T> from = v.as<PoolVector<T>>();
-    Vector<T> to;
-    int len = from.size();
-    if (len == 0)
-    return to;
-
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = from[i];
-    }
-    return to;
-};
-
-template<>
-Vector<real_t> Variant::as<Vector<real_t>>() const {
-    return asInternalVector<real_t>(*this);
-}
-
-template<>
-Vector<Vector3> Variant::as<Vector<Vector3>>() const {
-    return asInternalVector<Vector3>(*this);
-    }
 
 Variant::operator Margin() const {
 
@@ -2230,6 +2184,20 @@ Variant::Variant(const PODVector<Vector3> &from) {
     auto w = plane_array->write();
     eastl::copy(from.begin(),from.end(),w.ptr());
 }
+Variant::Variant(const PODVector<Face3> &from) {
+    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<Vector3>));
+    auto plane_array = memnew_placement(_data._mem, PoolVector<Vector3>);
+    type = getBulitinArrayType(*plane_array);
+
+    int len = from.size();
+    plane_array->resize(len*3);
+    auto w = plane_array->write();
+    for(int i=0; i<len; ++i) {
+        w[i*3+0] = from[i].vertex[0];
+        w[i*3+1] = from[i].vertex[1];
+        w[i*3+2] = from[i].vertex[2];
+    }
+}
 Variant::Variant(const PODVector<Vector2> &from) {
     static_assert(sizeof(_data._mem)>=sizeof(PoolVector<Vector2>));
     auto plane_array = memnew_placement(_data._mem, PoolVector<Vector2>);
@@ -2303,10 +2271,6 @@ Variant Variant::fromVector(Span<const Variant> p_array) {
 }
 
 template<>
-Variant Variant::from(const Vector<Plane> &p_array) {
-    return fromVector<Plane>({p_array.ptr(),p_array.size()});
-}
-template<>
 Variant Variant::from(const Frustum &p_array) {
     return fromVector<Plane>(p_array);
 }
@@ -2316,12 +2280,12 @@ Variant Variant::from(const PoolVector<RID> &p_array) {
 }
 
 template<>
-Variant Variant::from(const Vector<Vector2> &p_array) {
-    return fromVectorBuiltin<Vector2>({p_array.ptr(),p_array.size()});
+Variant Variant::from(const Span<const Vector2> &p_array) {
+    return fromVectorBuiltin<Vector2>(p_array);
 }
 template<>
-Variant Variant::from(const Span<const Vector2> &p_array) {
-    return fromVectorBuiltin<Vector2>({p_array.data(),p_array.size()});
+Variant Variant::from(const Span<const Vector3> &p_array) {
+    return fromVectorBuiltin<Vector3>(p_array);
 }
 template<>
 Variant Variant::from(const PODVector<String> &p_array) {
@@ -2458,20 +2422,6 @@ Variant::Variant(const PoolVector<Face3> &p_face_array) {
     type = VariantType::NIL;
 
     *this = vertices;
-}
-
-/* helpers */
-template<>
-Variant Variant::from(const Vector<int> &p_array) {
-    return fromVectorBuiltin<int>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<float> &p_array) {
-    return fromVectorBuiltin<float>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<Vector3> &p_array) {
-    return fromVectorBuiltin<Vector3>({p_array.ptr(),p_array.size()});
 }
 
 Variant &Variant::operator=(const Variant &p_variant) {

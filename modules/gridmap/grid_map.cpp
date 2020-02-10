@@ -448,7 +448,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         return true;
     }
 
-    PoolVector<Vector3> col_debug;
+    PODVector<Vector3> col_debug;
 
     /*
      * foreach item in this octant,
@@ -555,13 +555,12 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         }
     }
 
-    if (col_debug.size()) {
+    if (!col_debug.empty()) {
 
-        Array arr;
-        arr.resize(VS::ARRAY_MAX);
-        arr[VS::ARRAY_VERTEX] = col_debug;
+        SurfaceArrays arr;
+        arr.set_positions(eastl::move(col_debug));
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(g.collision_debug, VS::PRIMITIVE_LINES, arr);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(g.collision_debug, VS::PRIMITIVE_LINES, eastl::move(arr));
         SceneTree *st = SceneTree::get_singleton();
         if (st) {
             VisualServer::get_singleton()->mesh_surface_set_material(g.collision_debug, 0, st->get_debug_collision_material()->get_rid());

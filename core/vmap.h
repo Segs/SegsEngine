@@ -67,8 +67,9 @@ private:
         int middle = 0;
 
 #ifdef DEBUG_ENABLED
-        if (low > high)
+        if (low > high) {
             ERR_PRINT("low > high, this may be a bug");
+        }
 #endif
         while (low <= high) {
             middle = (low + high) / 2;

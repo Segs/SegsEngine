@@ -1349,7 +1349,21 @@ MonoArray * PoolVector3Array_to_mono_array(const PoolVector<Face3>& p_array)
 
     return ret;
 }
+MonoArray * PoolVector3Array_to_mono_array(const PODVector<Face3>& p_array)
+{
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
 
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3*i+0);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[0]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 1);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[1]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 2);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[2]);
+    }
+
+    return ret;
+}
 
 
 } // namespace GDMonoMarshal

@@ -43,12 +43,10 @@ void Navigation::_navmesh_link(int p_id) {
     ERR_FAIL_COND(nm.linked);
     ERR_FAIL_COND(not nm.navmesh);
 
-    PoolVector<Vector3> vertices = nm.navmesh->get_vertices();
+    const PODVector<Vector3> &vertices = nm.navmesh->get_vertices();
     int len = vertices.size();
     if (len == 0)
         return;
-
-    PoolVector<Vector3>::Read r = vertices.read();
 
     for (int i = 0; i < nm.navmesh->get_polygon_count(); i++) {
 
@@ -58,10 +56,9 @@ void Navigation::_navmesh_link(int p_id) {
         Polygon &p = P->deref();
         p.owner = &nm;
 
-        PoolVector<int> poly = nm.navmesh->get_polygon(i);
+        const PODVector<int> &poly = nm.navmesh->get_polygon(i);
         int plen = poly.size();
-        auto rd(poly.read());
-        const int *indices = rd.ptr();
+        const int *indices = poly.data();
         bool valid = true;
         p.edges.resize(plen);
 
@@ -77,14 +74,14 @@ void Navigation::_navmesh_link(int p_id) {
             }
 
             Polygon::Edge e;
-            Vector3 ep = nm.xform.xform(r[idx]);
+            Vector3 ep = nm.xform.xform(vertices[idx]);
             center += ep;
             e.point = _get_point(ep);
             p.edges[j] = e;
 
             if (j >= 2) {
-                Vector3 epa = nm.xform.xform(r[indices[j - 2]]);
-                Vector3 epb = nm.xform.xform(r[indices[j - 1]]);
+                Vector3 epa = nm.xform.xform(vertices[indices[j - 2]]);
+                Vector3 epb = nm.xform.xform(vertices[indices[j - 1]]);
 
                 sum += up.dot((epb - epa).cross(ep - epa));
             }

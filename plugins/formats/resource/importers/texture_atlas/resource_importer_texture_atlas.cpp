@@ -357,47 +357,41 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
         } else {
             Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
-            for (int i = 0; i < pack_data.chart_pieces.size(); i++) {
+            for (size_t i = 0; i < pack_data.chart_pieces.size(); i++) {
                 const EditorAtlasPacker::Chart &chart = charts[pack_data.chart_pieces[i]];
-                PoolVector<Vector2> vertices;
-                PoolVector<int> indices;
-                PoolVector<Vector2> uvs;
-                int vc = chart.vertices.size();
-                int fc = chart.faces.size();
+                PODVector<Vector2> vertices;
+                PODVector<int> indices;
+                PODVector<Vector2> uvs;
+                size_t vc = chart.vertices.size();
+                size_t fc = chart.faces.size();
                 vertices.resize(vc);
                 uvs.resize(vc);
                 indices.resize(fc * 3);
 
                 {
-                    PoolVector<Vector2>::Write vw = vertices.write();
-                    PoolVector<int>::Write iw = indices.write();
-                    PoolVector<Vector2>::Write uvw = uvs.write();
-
-                    for (int j = 0; j < vc; j++) {
-                        vw[j] = chart.vertices[j];
+                    for (size_t j = 0; j < vc; j++) {
+                        vertices[j] = chart.vertices[j];
                         Vector2 uv = chart.vertices[j];
                         if (chart.transposed) {
                             SWAP(uv.x, uv.y);
                         }
                         uv += chart.final_offset;
                         uv /= new_atlas->get_size(); //normalize uv to 0-1 range
-                        uvw[j] = uv;
+                        uvs[j] = uv;
                     }
 
-                    for (int j = 0; j < fc; j++) {
-                        iw[j * 3 + 0] = chart.faces[j].vertex[0];
-                        iw[j * 3 + 1] = chart.faces[j].vertex[1];
-                        iw[j * 3 + 2] = chart.faces[j].vertex[2];
+                    for (size_t j = 0; j < fc; j++) {
+                        indices[j * 3 + 0] = chart.faces[j].vertex[0];
+                        indices[j * 3 + 1] = chart.faces[j].vertex[1];
+                        indices[j * 3 + 2] = chart.faces[j].vertex[2];
                     }
                 }
 
-                Array arrays;
-                arrays.resize(Mesh::ARRAY_MAX);
-                arrays[Mesh::ARRAY_VERTEX] = Variant(vertices);
-                arrays[Mesh::ARRAY_TEX_UV] = Variant(uvs);
-                arrays[Mesh::ARRAY_INDEX] = indices;
+                SurfaceArrays arrays(eastl::move(vertices));
+                arrays.m_uv_1 = eastl::move(uvs);
+                arrays.m_indices = eastl::move(indices);
 
-                mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+                mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arrays));
             }
 
             Ref<MeshTexture> mesh_texture(make_ref_counted<MeshTexture>());

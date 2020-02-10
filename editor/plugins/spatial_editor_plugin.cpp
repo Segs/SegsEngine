@@ -4786,12 +4786,10 @@ void SpatialEditor::_init_indicators() {
         _init_grid();
 
         origin = VisualServer::get_singleton()->mesh_create();
-        Array d;
-        d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = origin_points;
-        d[VS::ARRAY_COLOR] = origin_colors;
+        SurfaceArrays d(eastl::move(origin_points));
+        d.m_colors = eastl::move(origin_colors);
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(origin, VS::PRIMITIVE_LINES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(origin, VS::PRIMITIVE_LINES, eastl::move(d));
         VisualServer::get_singleton()->mesh_surface_set_material(origin, 0, indicator_mat->get_rid());
 
         origin_instance = VisualServer::get_singleton()->instance_create2(origin, get_tree()->get_root()->get_world()->get_scenario());
@@ -5105,8 +5103,8 @@ void SpatialEditor::_update_gizmos_menu_theme() {
 
 void SpatialEditor::_init_grid() {
 
-    PoolVector<Color> grid_colors[3];
-    PoolVector<Vector3> grid_points[3];
+    PODVector<Color> grid_colors[3];
+    PODVector<Vector3> grid_points[3];
 
     Color primary_grid_color = EditorSettings::get_singleton()->get("editors/3d/primary_grid_color");
     Color secondary_grid_color = EditorSettings::get_singleton()->get("editors/3d/secondary_grid_color");
@@ -5148,11 +5146,10 @@ void SpatialEditor::_init_grid() {
         }
 
         grid[i] = VisualServer::get_singleton()->mesh_create();
-        Array d;
-        d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = grid_points[i];
-        d[VS::ARRAY_COLOR] = grid_colors[i];
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VS::PRIMITIVE_LINES, d);
+        SurfaceArrays d(eastl::move(grid_points[i]));
+        d.m_colors = eastl::move(grid_colors[i]);
+
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VS::PRIMITIVE_LINES, eastl::move(d));
         VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
         grid_instance[i] = VisualServer::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
 
@@ -6084,7 +6081,7 @@ struct _GizmoPluginNameComparator {
 
 void SpatialEditor::add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin) {
     ERR_FAIL_NULL(p_plugin.get());
-    
+
     //TODO: SEGS: consider using vector_set since the elements are meant to be always sorted
     gizmo_plugins_by_priority.emplace_back(p_plugin);
     eastl::sort(gizmo_plugins_by_priority.begin(), gizmo_plugins_by_priority.end(), _GizmoPluginPriorityComparator());

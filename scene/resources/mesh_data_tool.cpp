@@ -49,10 +49,10 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
     ERR_FAIL_COND_V(not p_mesh, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(p_mesh->surface_get_primitive_type(p_surface) != Mesh::PRIMITIVE_TRIANGLES, ERR_INVALID_PARAMETER);
 
-    Array arrays = p_mesh->surface_get_arrays(p_surface);
+    SurfaceArrays arrays = p_mesh->surface_get_arrays(p_surface);
     ERR_FAIL_COND_V(arrays.empty(), ERR_INVALID_PARAMETER);
 
-    PoolVector<Vector3> varray = arrays[Mesh::ARRAY_VERTEX];
+    Span<const Vector3> varray = arrays.positions3();
 
     int vcount = varray.size();
     ERR_FAIL_COND_V(vcount == 0, ERR_INVALID_PARAMETER);
@@ -61,53 +61,53 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
     format = p_mesh->surface_get_format(p_surface);
     material = p_mesh->surface_get_material(p_surface);
 
-    PoolVector<Vector3>::Read vr = varray.read();
+    Vector3 *nr=nullptr;
+    if (!arrays.m_normals.empty())
+        nr = arrays.m_normals.data();
 
-    PoolVector<Vector3>::Read nr;
-    if (arrays[Mesh::ARRAY_NORMAL].get_type() != VariantType::NIL)
-        nr = arrays[Mesh::ARRAY_NORMAL].as<PoolVector<Vector3>>().read();
+    float *ta=nullptr;
+    if (!arrays.m_tangents.empty())
+        ta = arrays.m_tangents.data();
 
-    PoolVector<real_t>::Read ta;
-    if (arrays[Mesh::ARRAY_TANGENT].get_type() != VariantType::NIL)
-        ta = arrays[Mesh::ARRAY_TANGENT].as<PoolVector<real_t>>().read();
 
-    PoolVector<Vector2>::Read uv;
-    if (arrays[Mesh::ARRAY_TEX_UV].get_type() != VariantType::NIL)
-        uv = arrays[Mesh::ARRAY_TEX_UV].as<PoolVector<Vector2>>().read();
-    PoolVector<Vector2>::Read uv2;
-    if (arrays[Mesh::ARRAY_TEX_UV2].get_type() != VariantType::NIL)
-        uv2 = arrays[Mesh::ARRAY_TEX_UV2].as<PoolVector<Vector2>>().read();
+    Vector2 *uv=nullptr;
+    if (!arrays.m_uv_1.empty())
+        uv = arrays.m_uv_1.data();
 
-    PoolVector<Color>::Read col;
-    if (arrays[Mesh::ARRAY_COLOR].get_type() != VariantType::NIL)
-        col = arrays[Mesh::ARRAY_COLOR].as<PoolVector<Color>>().read();
+    Vector2 *uv2=nullptr;
+    if (!arrays.m_uv_2.empty())
+        uv2 = arrays.m_uv_2.data();
 
-    PoolVector<int>::Read bo;
-    if (arrays[Mesh::ARRAY_BONES].get_type() != VariantType::NIL)
-        bo = arrays[Mesh::ARRAY_BONES].as<PoolVector<int>>().read();
+    Color *col=nullptr;
+    if (!arrays.m_colors.empty())
+        col = arrays.m_colors.data();
 
-    PoolVector<real_t>::Read we;
-    if (arrays[Mesh::ARRAY_WEIGHTS].get_type() != VariantType::NIL)
-        we = arrays[Mesh::ARRAY_WEIGHTS].as<PoolVector<real_t>>().read();
+    int *bo = nullptr;
+    if (!arrays.m_bones.empty())
+        bo = arrays.m_bones.data();
+
+    float *we = nullptr;
+    if (!arrays.m_weights.empty())
+        we = arrays.m_weights.data();
 
     vertices.resize(vcount);
 
     for (int i = 0; i < vcount; i++) {
 
         Vertex v;
-        v.vertex = vr[i];
-        if (nr.ptr())
+        v.vertex = varray[i];
+        if (nr)
             v.normal = nr[i];
-        if (ta.ptr())
+        if (ta)
             v.tangent = Plane(ta[i * 4 + 0], ta[i * 4 + 1], ta[i * 4 + 2], ta[i * 4 + 3]);
-        if (uv.ptr())
+        if (uv)
             v.uv = uv[i];
-        if (uv2.ptr())
+        if (uv2)
             v.uv2 = uv2[i];
-        if (col.ptr())
+        if (col)
             v.color = col[i];
 
-        if (we.ptr()) {
+        if (we) {
 
             v.weights.push_back(we[i * 4 + 0]);
             v.weights.push_back(we[i * 4 + 1]);
@@ -115,7 +115,7 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
             v.weights.push_back(we[i * 4 + 3]);
         }
 
-        if (bo.ptr()) {
+        if (bo) {
 
             v.bones.push_back(bo[i * 4 + 0]);
             v.bones.push_back(bo[i * 4 + 1]);
@@ -126,36 +126,34 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
         vertices[i] = v;
     }
 
-    PoolVector<int> indices;
+    PODVector<int> indices;
 
-    if (arrays[Mesh::ARRAY_INDEX].get_type() != VariantType::NIL) {
+    if (!arrays.m_indices.empty()) {
 
-        indices = arrays[Mesh::ARRAY_INDEX];
+        indices = eastl::move(arrays.m_indices);
     } else {
         //make code simpler
         indices.resize(vcount);
-        PoolVector<int>::Write iw = indices.write();
         for (int i = 0; i < vcount; i++)
-            iw[i] = i;
+            indices[i] = i;
     }
 
     int icount = indices.size();
-    PoolVector<int>::Read r = indices.read();
 
     Map<Point2i, int> edge_indices;
 
     for (int i = 0; i < icount; i += 3) {
 
-        Vertex *v[3] = { &vertices[r[i + 0]], &vertices[r[i + 1]], &vertices[r[i + 2]] };
+        Vertex *v[3] = { &vertices[indices[i + 0]], &vertices[indices[i + 1]], &vertices[indices[i + 2]] };
 
         int fidx = faces.size();
         Face face;
 
         for (int j = 0; j < 3; j++) {
 
-            face.v[j] = r[i + j];
+            face.v[j] = indices[i + j];
 
-            Point2i edge(r[i + j], r[i + (j + 1) % 3]);
+            Point2i edge(indices[i + j], indices[i + (j + 1) % 3]);
             if (edge.x > edge.y) {
                 SWAP(edge.x, edge.y);
             }
@@ -187,136 +185,117 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
 Error MeshDataTool::commit_to_surface(const Ref<ArrayMesh> &p_mesh) {
 
     ERR_FAIL_COND_V(not p_mesh, ERR_INVALID_PARAMETER);
-    Array arr;
-    arr.resize(Mesh::ARRAY_MAX);
-
+    SurfaceArrays arr;
     int vcount = vertices.size();
 
-    PoolVector<Vector3> v;
-    PoolVector<Vector3> n;
-    PoolVector<real_t> t;
-    PoolVector<Vector2> u;
-    PoolVector<Vector2> u2;
-    PoolVector<Color> c;
-    PoolVector<int> b;
-    PoolVector<real_t> w;
-    PoolVector<int> in;
+    PODVector<Vector3> v;
+    PODVector<Vector3> n;
+    PODVector<real_t> t;
+    PODVector<Vector2> u;
+    PODVector<Vector2> u2;
+    PODVector<Color> c;
+    PODVector<int> b;
+    PODVector<real_t> w;
+    PODVector<int> in;
 
     {
 
         v.resize(vcount);
-        PoolVector<Vector3>::Write vr = v.write();
-
-        PoolVector<Vector3>::Write nr;
         if (format & Mesh::ARRAY_FORMAT_NORMAL) {
             n.resize(vcount);
-            nr = n.write();
         }
 
-        PoolVector<real_t>::Write ta;
         if (format & Mesh::ARRAY_FORMAT_TANGENT) {
             t.resize(vcount * 4);
-            ta = t.write();
         }
 
-        PoolVector<Vector2>::Write uv;
         if (format & Mesh::ARRAY_FORMAT_TEX_UV) {
             u.resize(vcount);
-            uv = u.write();
         }
 
-        PoolVector<Vector2>::Write uv2;
         if (format & Mesh::ARRAY_FORMAT_TEX_UV2) {
             u2.resize(vcount);
-            uv2 = u2.write();
         }
 
-        PoolVector<Color>::Write col;
         if (format & Mesh::ARRAY_FORMAT_COLOR) {
             c.resize(vcount);
-            col = c.write();
         }
 
-        PoolVector<int>::Write bo;
         if (format & Mesh::ARRAY_FORMAT_BONES) {
             b.resize(vcount * 4);
-            bo = b.write();
         }
 
-        PoolVector<real_t>::Write we;
         if (format & Mesh::ARRAY_FORMAT_WEIGHTS) {
             w.resize(vcount * 4);
-            we = w.write();
         }
 
         for (int i = 0; i < vcount; i++) {
 
             const Vertex &vtx = vertices[i];
 
-            vr[i] = vtx.vertex;
-            if (nr.ptr())
-                nr[i] = vtx.normal;
-            if (ta.ptr()) {
-                ta[i * 4 + 0] = vtx.tangent.normal.x;
-                ta[i * 4 + 1] = vtx.tangent.normal.y;
-                ta[i * 4 + 2] = vtx.tangent.normal.z;
-                ta[i * 4 + 3] = vtx.tangent.d;
+            v[i] = vtx.vertex;
+            if (format & Mesh::ARRAY_FORMAT_NORMAL)
+                n[i] = vtx.normal;
+            if (format & Mesh::ARRAY_FORMAT_TANGENT) {
+                t[i * 4 + 0] = vtx.tangent.normal.x;
+                t[i * 4 + 1] = vtx.tangent.normal.y;
+                t[i * 4 + 2] = vtx.tangent.normal.z;
+                t[i * 4 + 3] = vtx.tangent.d;
             }
-            if (uv.ptr())
-                uv[i] = vtx.uv;
-            if (uv2.ptr())
-                uv2[i] = vtx.uv2;
-            if (col.ptr())
-                col[i] = vtx.color;
+            if (format & Mesh::ARRAY_FORMAT_TEX_UV)
+                u[i] = vtx.uv;
+            if (format & Mesh::ARRAY_FORMAT_TEX_UV2)
+                u2[i] = vtx.uv2;
+            if (format & Mesh::ARRAY_FORMAT_COLOR)
+                c[i] = vtx.color;
 
-            if (we.ptr()) {
+            if (format & Mesh::ARRAY_FORMAT_WEIGHTS) {
 
-                we[i * 4 + 0] = vtx.weights[0];
-                we[i * 4 + 1] = vtx.weights[1];
-                we[i * 4 + 2] = vtx.weights[2];
-                we[i * 4 + 3] = vtx.weights[3];
+                w[i * 4 + 0] = vtx.weights[0];
+                w[i * 4 + 1] = vtx.weights[1];
+                w[i * 4 + 2] = vtx.weights[2];
+                w[i * 4 + 3] = vtx.weights[3];
             }
 
-            if (bo.ptr()) {
+            if (format & Mesh::ARRAY_FORMAT_BONES) {
 
-                bo[i * 4 + 0] = vtx.bones[0];
-                bo[i * 4 + 1] = vtx.bones[1];
-                bo[i * 4 + 2] = vtx.bones[2];
-                bo[i * 4 + 3] = vtx.bones[3];
+                b[i * 4 + 0] = vtx.bones[0];
+                b[i * 4 + 1] = vtx.bones[1];
+                b[i * 4 + 2] = vtx.bones[2];
+                b[i * 4 + 3] = vtx.bones[3];
             }
         }
 
         int fc = faces.size();
         in.resize(fc * 3);
-        PoolVector<int>::Write iw = in.write();
         for (int i = 0; i < fc; i++) {
 
-            iw[i * 3 + 0] = faces[i].v[0];
-            iw[i * 3 + 1] = faces[i].v[1];
-            iw[i * 3 + 2] = faces[i].v[2];
+            in[i * 3 + 0] = faces[i].v[0];
+            in[i * 3 + 1] = faces[i].v[1];
+            in[i * 3 + 2] = faces[i].v[2];
         }
     }
 
-    arr[Mesh::ARRAY_VERTEX] = v;
-    arr[Mesh::ARRAY_INDEX] = in;
-    if (n.size())
-        arr[Mesh::ARRAY_NORMAL] = n;
+    arr.set_positions(eastl::move(v));
+    arr.m_indices = eastl::move(in);
+    if (!n.empty())
+        arr.m_normals = eastl::move(n);
     if (c.size())
-        arr[Mesh::ARRAY_COLOR] = c;
+        arr.m_colors = eastl::move(c);
     if (u.size())
-        arr[Mesh::ARRAY_TEX_UV] = Variant(u);
+        arr.m_uv_1 = eastl::move(u);
     if (u2.size())
-        arr[Mesh::ARRAY_TEX_UV2] = Variant(u2);
+        arr.m_uv_2 = eastl::move(u2);
     if (t.size())
-        arr[Mesh::ARRAY_TANGENT] = t;
+        arr.m_tangents = eastl::move(t);
     if (b.size())
-        arr[Mesh::ARRAY_BONES] = b;
+        arr.m_bones = eastl::move(b);
     if (w.size())
-        arr[Mesh::ARRAY_WEIGHTS] = w;
+        arr.m_weights = eastl::move(w);
 
     Ref<ArrayMesh> ncmesh = p_mesh;
     int sc = ncmesh->get_surface_count();
-    ncmesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+    ncmesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arr));
     ncmesh->surface_set_material(sc, material);
 
     return OK;

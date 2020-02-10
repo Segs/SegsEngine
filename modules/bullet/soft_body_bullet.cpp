@@ -127,9 +127,9 @@ void SoftBodyBullet::set_soft_mesh(const Ref<Mesh> &p_mesh) {
         return;
     }
 
-    Array arrays = soft_mesh->surface_get_arrays(0);
+    SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
     ERR_FAIL_COND(!(soft_mesh->surface_get_format(0) & VS::ARRAY_FORMAT_INDEX));
-    set_trimesh_body_shape(arrays[VS::ARRAY_INDEX], arrays[VS::ARRAY_VERTEX]);
+    set_trimesh_body_shape(arrays.m_indices, arrays.positions3());
 }
 
 void SoftBodyBullet::destroy_soft_body() {
@@ -181,8 +181,8 @@ void SoftBodyBullet::get_node_offset(int p_node_index, Vector3 &r_offset) const 
     if (not soft_mesh)
         return;
 
-    Array arrays = soft_mesh->surface_get_arrays(0);
-    PoolVector<Vector3> vertices(arrays[VS::ARRAY_VERTEX]);
+    SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
+    Span<const Vector3> vertices(arrays.positions3());
 
     if (0 <= p_node_index && vertices.size() > p_node_index) {
         r_offset = vertices[p_node_index];
@@ -227,13 +227,12 @@ void SoftBodyBullet::reset_all_node_positions() {
     if (not soft_mesh)
         return;
 
-    Array arrays = soft_mesh->surface_get_arrays(0);
-    PoolVector<Vector3> vs_vertices(arrays[VS::ARRAY_VERTEX]);
-    PoolVector<Vector3>::Read vs_vertices_read = vs_vertices.read();
+    SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
+    Span<const Vector3> vs_vertices(arrays.positions3());
 
     for (int vertex_index = bt_soft_body->m_nodes.size() - 1; 0 <= vertex_index; --vertex_index) {
 
-        G_TO_B(vs_vertices_read[indices_table[vertex_index][0]], bt_soft_body->m_nodes[vertex_index].m_x);
+        G_TO_B(vs_vertices[indices_table[vertex_index][0]], bt_soft_body->m_nodes[vertex_index].m_x);
 
         bt_soft_body->m_nodes[vertex_index].m_q = bt_soft_body->m_nodes[vertex_index].m_x;
         bt_soft_body->m_nodes[vertex_index].m_v = btVector3(0, 0, 0);
@@ -318,7 +317,7 @@ void SoftBodyBullet::set_drag_coefficient(real_t p_val) {
     }
 }
 
-void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, const PoolVector<Vector3>& p_vertices) {
+void SoftBodyBullet::set_trimesh_body_shape(const PODVector<int>& p_indices, Span<const Vector3> p_vertices) {
     /// Assert the current soft body is destroyed
     destroy_soft_body();
 
@@ -338,18 +337,16 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
 
             const int vs_vertices_size(p_vertices.size());
 
-            PoolVector<Vector3>::Read p_vertices_read = p_vertices.read();
-
             for (int vs_vertex_index = 0; vs_vertex_index < vs_vertices_size; ++vs_vertex_index) {
 
-                Map<Vector3, int>::iterator e = unique_vertices.find(p_vertices_read[vs_vertex_index]);
+                Map<Vector3, int>::iterator e = unique_vertices.find(p_vertices[vs_vertex_index]);
                 int vertex_id;
                 if (e!=unique_vertices.end()) {
                     // Already rxisting
                     vertex_id = e->second;
                 } else {
                     // Create new one
-                    unique_vertices[p_vertices_read[vs_vertex_index]] = vertex_id = index++;
+                    unique_vertices[p_vertices[vs_vertex_index]] = vertex_id = index++;
                     indices_table.emplace_back();
                 }
 
@@ -365,12 +362,11 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
         { // Parse vertices to bullet
 
             bt_vertices.resize(indices_map_size * 3);
-            PoolVector<Vector3>::Read p_vertices_read = p_vertices.read();
 
             for (int i = 0; i < indices_map_size; ++i) {
-                bt_vertices[3 * i + 0] = p_vertices_read[indices_table[i][0]].x;
-                bt_vertices[3 * i + 1] = p_vertices_read[indices_table[i][0]].y;
-                bt_vertices[3 * i + 2] = p_vertices_read[indices_table[i][0]].z;
+                bt_vertices[3 * i + 0] = p_vertices[indices_table[i][0]].x;
+                bt_vertices[3 * i + 1] = p_vertices[indices_table[i][0]].y;
+                bt_vertices[3 * i + 2] = p_vertices[indices_table[i][0]].z;
             }
         }
 
@@ -381,12 +377,10 @@ void SoftBodyBullet::set_trimesh_body_shape(const PoolVector<int>& p_indices, co
 
             bt_triangles.resize(triangles_size * 3);
 
-            PoolVector<int>::Read p_indices_read = p_indices.read();
-
             for (int i = 0; i < triangles_size; ++i) {
-                bt_triangles[3 * i + 0] = vs_indices_to_physics_table[p_indices_read[3 * i + 2]];
-                bt_triangles[3 * i + 1] = vs_indices_to_physics_table[p_indices_read[3 * i + 1]];
-                bt_triangles[3 * i + 2] = vs_indices_to_physics_table[p_indices_read[3 * i + 0]];
+                bt_triangles[3 * i + 0] = vs_indices_to_physics_table[p_indices[3 * i + 2]];
+                bt_triangles[3 * i + 1] = vs_indices_to_physics_table[p_indices[3 * i + 1]];
+                bt_triangles[3 * i + 2] = vs_indices_to_physics_table[p_indices[3 * i + 0]];
             }
         }
 

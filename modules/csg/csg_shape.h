@@ -81,17 +81,12 @@ private:
     };
 
     struct ShapeUpdateSurface {
-        PoolVector<Vector3> vertices;
-        PoolVector<Vector3> normals;
-        PoolVector<Vector2> uvs;
-        PoolVector<float> tans;
+        PODVector<Vector3> vertices;
+        PODVector<Vector3> normals;
+        PODVector<Vector2> uvs;
+        PODVector<float> tans;
         Ref<Material> material;
         int last_added;
-
-        PoolVector<Vector3>::Write verticesw;
-        PoolVector<Vector3>::Write normalsw;
-        PoolVector<Vector2>::Write uvsw;
-        PoolVector<float>::Write tansw;
     };
 
     //mikktspace callbacks
@@ -123,10 +118,10 @@ public:
     void set_operation(Operation p_operation);
     Operation get_operation() const;
 
-    virtual PoolVector<Vector3> get_brush_faces();
+    virtual PODVector<Vector3> get_brush_faces();
 
     AABB get_aabb() const override;
-    PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     void set_use_collision(bool p_enable);
     bool is_using_collision() const;

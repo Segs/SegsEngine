@@ -316,6 +316,7 @@ public:
     Variant(const PODVector<float> &);
     Variant(const PODVector<Vector2> &);
     Variant(const PODVector<Vector3> &);
+    Variant(const PODVector<Face3> &);
     Variant(const PODVector<Color> &);
     Variant(const PODVector<Plane> &);
 
@@ -535,18 +536,6 @@ template <> GODOT_EXPORT Span<const float> Variant::as<Span<const float>>() cons
 template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
 template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
 
-template <> GODOT_EXPORT Vector<float> Variant::as<Vector<float>>() const;
-template <> GODOT_EXPORT Vector<Variant> Variant::as<Vector<Variant>>() const;
-template <> GODOT_EXPORT Vector<Vector2> Variant::as<Vector<Vector2>>() const;
-template <> GODOT_EXPORT Vector<Vector3> Variant::as<Vector<Vector3>>() const;
-template <> GODOT_EXPORT Vector<RID> Variant::as<Vector<RID>>() const;
-
-template <> GODOT_EXPORT Variant Variant::from(const Vector<float> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector2> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<Vector3> &);
-
-template <> GODOT_EXPORT Variant Variant::from(const Vector<RID> &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<String> &);
@@ -555,6 +544,7 @@ template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const PODVector<Variant> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
+template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector3> &);
 
 template <> GODOT_EXPORT Variant Variant::move_from(PODVector<Variant> &&);
 

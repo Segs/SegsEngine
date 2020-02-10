@@ -210,18 +210,17 @@ AABB SpriteBase3D::get_aabb() const {
 
     return aabb;
 }
-PoolVector<Face3> SpriteBase3D::get_faces(uint32_t p_usage_flags) const {
+PODVector<Face3> SpriteBase3D::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return PODVector<Face3>();
 }
 
 Ref<TriangleMesh> SpriteBase3D::generate_triangle_mesh() const {
     if (triangle_mesh)
         return triangle_mesh;
 
-    PoolVector<Vector3> faces;
+    PODVector<Vector3> faces;
     faces.resize(6);
-    PoolVector<Vector3>::Write facesw = faces.write();
 
     Rect2 final_rect = get_item_rect();
 
@@ -264,13 +263,11 @@ Ref<TriangleMesh> SpriteBase3D::generate_triangle_mesh() const {
         Vector3 vtx;
         vtx[x_axis] = vertices[i][0];
         vtx[y_axis] = vertices[i][1];
-        facesw[j] = vtx;
+        faces[j] = vtx;
     }
 
-    facesw.release();
-
     triangle_mesh = make_ref_counted<TriangleMesh>();
-    triangle_mesh->create(faces);
+    triangle_mesh->create(eastl::move(faces));
 
     return triangle_mesh;
 }

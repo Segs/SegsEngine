@@ -113,7 +113,7 @@ public:
     void add_collision_segments(const PODVector<Vector3> &p_lines);
     void add_collision_triangles(const Ref<TriangleMesh> &p_tmesh);
     void add_unscaled_billboard(const Ref<Material> &p_material, float p_scale = 1, const Color &p_modulate = Color(1, 1, 1));
-    void add_handles(const PoolVector<Vector3> &p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
+    void add_handles(PODVector<Vector3> &&p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
     void add_solid_box(Ref<Material> &p_material, Vector3 p_size, Vector3 p_position = Vector3());
 
     virtual bool is_handle_highlighted(int p_idx) const;

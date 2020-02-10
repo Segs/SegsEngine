@@ -60,7 +60,7 @@ public:
 
     Ref<ArrayMesh> get_debug_mesh();
 
-    void add_vertices_to_array(PoolVector<Vector3> &array, const Transform &p_xform);
+    void add_vertices_to_array(PODVector<Vector3> &array, const Transform &p_xform);
 
     real_t get_margin() const;
     void set_margin(real_t p_margin);

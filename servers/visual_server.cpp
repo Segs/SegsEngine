@@ -187,10 +187,10 @@ void VisualServer::_free_internal_rids() {
 
 RID VisualServer::_make_test_cube() {
 
-    PoolVector<Vector3> vertices;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector3> uvs;
+    PODVector<Vector3> vertices;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
 
 #define ADD_VTX(m_idx)                           \
     vertices.push_back(face_points[m_idx]);      \
@@ -199,7 +199,7 @@ RID VisualServer::_make_test_cube() {
     tangents.push_back(normal_points[m_idx][2]); \
     tangents.push_back(normal_points[m_idx][0]); \
     tangents.push_back(1.0);                     \
-    uvs.push_back(Vector3(uv_points[m_idx * 2 + 0], uv_points[m_idx * 2 + 1], 0));
+    uvs.push_back(Vector2(uv_points[m_idx * 2 + 0], uv_points[m_idx * 2 + 1]));
 
     for (int i = 0; i < 6; i++) {
 
@@ -237,17 +237,16 @@ RID VisualServer::_make_test_cube() {
 
     RID test_cube = mesh_create();
 
-    SurfaceArrays d;
-    d.m_normals = normals;
-    d.m_tangents = tangents;
-    d.m_uv_1 = Variant::from(uvs);
-    d.m_positions = vertices;
+    PODVector<int> indices(vertices.size());
 
-    PoolVector<int> indices;
-    indices.resize(vertices.size());
-    for (int i = 0; i < vertices.size(); i++)
-        indices.set(i, i);
-    d.m_indices = indices;
+    SurfaceArrays d(eastl::move(vertices));
+    d.m_normals = eastl::move(normals);
+    d.m_tangents = eastl::move(tangents);
+    d.m_uv_1 = eastl::move(uvs);
+
+    for (int i = 0; i < indices.size(); i++)
+        indices[i]=i;
+    d.m_indices = eastl::move(indices);
 
     mesh_add_surface_from_arrays(test_cube, VS::PRIMITIVE_TRIANGLES, d);
 
@@ -268,8 +267,8 @@ RID VisualServer::_make_test_cube() {
 
 RID VisualServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
 
-    PoolVector<Vector3> vertices;
-    PoolVector<Vector3> normals;
+    PODVector<Vector3> vertices;
+    PODVector<Vector3> normals;
 
     for (int i = 1; i <= p_lats; i++) {
         double lat0 = Math_PI * (-0.5 + (double)(i - 1) / p_lats);
@@ -312,9 +311,8 @@ RID VisualServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
     }
 
     RID mesh = mesh_create();
-    SurfaceArrays d;
-    d.m_positions = vertices;
-    d.m_normals = normals;
+    SurfaceArrays d(eastl::move(vertices));
+    d.m_normals = eastl::move(normals);
 
     mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, d);
 
@@ -345,7 +343,7 @@ constexpr Vector3 SMALL_VEC3(0.00001f, 0.00001f, 0.00001f);
 
 }
 
-Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb) {
+Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PoolVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PoolVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb) {
 
     PoolVector<uint8_t>::Write vw = r_vertex_array.write();
 
@@ -367,11 +365,10 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
                 if (p_format & VS::ARRAY_FLAG_USE_2D_VERTICES) {
 
-                    PoolVector<Vector2> array = p_arrays[ai];
+                    Span<const Vector2> array = p_arrays.positions2();
                     ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
-                    PoolVector<Vector2>::Read read = array.read();
-                    const Vector2 *src = read.ptr();
+                    const Vector2 *src = array.data();
 
                     // setting vertices means regenerating the AABB
                     Rect2 aabb;
@@ -413,11 +410,10 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
                     r_aabb = AABB(Vector3(aabb.position.x, aabb.position.y, 0), Vector3(aabb.size.x, aabb.size.y, 0));
 
                 } else {
-                    PoolVector<Vector3> array = p_arrays[ai];
+                    Span<const Vector3> array = p_arrays.positions3();
                     ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
-                    PoolVector<Vector3>::Read read = array.read();
-                    const Vector3 *src = read.ptr();
+                    const Vector3 *src = array.data();
 
                     // setting vertices means regenerating the AABB
                     AABB aabb;
@@ -462,13 +458,10 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             } break;
             case VS::ARRAY_NORMAL: {
 
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_VECTOR3_ARRAY, ERR_INVALID_PARAMETER);
-
-                PoolVector<Vector3> array = p_arrays[ai];
+                const auto &array = p_arrays.m_normals;
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
-                PoolVector<Vector3>::Read read = array.read();
-                const Vector3 *src = read.ptr();
+                const Vector3 *src = array.data();
 
                 // setting vertices means regenerating the AABB
 
@@ -498,14 +491,11 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
 
             case VS::ARRAY_TANGENT: {
 
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_REAL_ARRAY, ERR_INVALID_PARAMETER);
-
-                PoolVector<real_t> array = p_arrays[ai];
+                const PODVector<float> &array = p_arrays.m_tangents;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len * 4, ERR_INVALID_PARAMETER);
 
-                PoolVector<real_t>::Read read = array.read();
-                const real_t *src = read.ptr();
+                const real_t *src = array.data();
 
                 if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
 
@@ -538,14 +528,11 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             } break;
             case VS::ARRAY_COLOR: {
 
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_COLOR_ARRAY, ERR_INVALID_PARAMETER);
-
-                PoolVector<Color> array = p_arrays[ai];
+                const PODVector<Color> &array = p_arrays.m_colors;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
-                PoolVector<Color>::Read read = array.read();
-                const Color *src = read.ptr();
+                const Color *src = array.data();
 
                 if (p_format & VS::ARRAY_COMPRESS_COLOR) {
 
@@ -571,15 +558,13 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             } break;
             case VS::ARRAY_TEX_UV: {
 
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_VECTOR3_ARRAY && p_arrays[ai].get_type() != VariantType::POOL_VECTOR2_ARRAY, ERR_INVALID_PARAMETER);
+                //TODO: ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_VECTOR3_ARRAY && p_arrays[ai].get_type() != VariantType::POOL_VECTOR2_ARRAY, ERR_INVALID_PARAMETER);
 
-                PoolVector<Vector2> array = p_arrays[ai];
+                const auto &array = p_arrays.m_uv_1;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
-                PoolVector<Vector2>::Read read = array.read();
-
-                const Vector2 *src = read.ptr();
+                const Vector2 *src = array.data();
 
                 if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
 
@@ -601,16 +586,12 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             } break;
 
             case VS::ARRAY_TEX_UV2: {
-
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_VECTOR3_ARRAY && p_arrays[ai].get_type() != VariantType::POOL_VECTOR2_ARRAY, ERR_INVALID_PARAMETER);
-
-                PoolVector<Vector2> array = p_arrays[ai];
+                //TODO: ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_VECTOR3_ARRAY && p_arrays[ai].get_type() != VariantType::POOL_VECTOR2_ARRAY, ERR_INVALID_PARAMETER);
+                const auto &array = p_arrays.m_uv_2;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
-                PoolVector<Vector2>::Read read = array.read();
-
-                const Vector2 *src = read.ptr();
+                const Vector2 *src = array.data();
 
                 if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
 
@@ -631,15 +612,13 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             } break;
             case VS::ARRAY_WEIGHTS: {
 
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_REAL_ARRAY, ERR_INVALID_PARAMETER);
+                //ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_REAL_ARRAY, ERR_INVALID_PARAMETER);
 
-                PoolVector<real_t> array = p_arrays[ai];
+                const PODVector<real_t> &array = p_arrays.m_weights;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len * VS::ARRAY_WEIGHTS_SIZE, ERR_INVALID_PARAMETER);
 
-                PoolVector<real_t>::Read read = array.read();
-
-                const real_t *src = read.ptr();
+                const real_t *src = array.data();
 
                 if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
 
@@ -668,15 +647,13 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             } break;
             case VS::ARRAY_BONES: {
 
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_INT_ARRAY && p_arrays[ai].get_type() != VariantType::POOL_REAL_ARRAY, ERR_INVALID_PARAMETER);
+                //ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_INT_ARRAY && p_arrays[ai].get_type() != VariantType::POOL_REAL_ARRAY, ERR_INVALID_PARAMETER);
 
-                PoolVector<int> array = p_arrays[ai];
+                const auto &array = p_arrays.m_bones;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len * VS::ARRAY_WEIGHTS_SIZE, ERR_INVALID_PARAMETER);
 
-                PoolVector<int>::Read read = array.read();
-
-                const int *src = read.ptr();
+                const int *src = array.data();
 
                 if (!(p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES)) {
 
@@ -708,16 +685,15 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             case VS::ARRAY_INDEX: {
 
                 ERR_FAIL_COND_V(p_index_array_len <= 0, ERR_INVALID_DATA);
-                ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_INT_ARRAY, ERR_INVALID_PARAMETER);
+                //ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_INT_ARRAY, ERR_INVALID_PARAMETER);
 
-                PoolVector<int> indices = p_arrays[ai];
+                const PODVector<int> &indices = p_arrays.m_indices;
                 ERR_FAIL_COND_V(indices.size() == 0, ERR_INVALID_PARAMETER);
                 ERR_FAIL_COND_V(indices.size() != p_index_array_len, ERR_INVALID_PARAMETER);
 
                 /* determine whether using 16 or 32 bits indices */
 
-                PoolVector<int>::Read read = indices.read();
-                const int *src = read.ptr();
+                const int *src = indices.data();
 
                 for (int i = 0; i < p_index_array_len; i++) {
 
@@ -752,29 +728,26 @@ Error VisualServer::_surface_set_data(Array p_arrays, uint32_t p_format, uint32_
             }
         }
 
-        PoolVector<Vector3> vertices = p_arrays[VS::ARRAY_VERTEX];
-        PoolVector<int> bones = p_arrays[VS::ARRAY_BONES];
-        PoolVector<float> weights = p_arrays[VS::ARRAY_WEIGHTS];
+        auto vertices = p_arrays.positions3();
+        const PODVector<int> &bones = p_arrays.m_bones;
+        const PODVector<float> &weights = p_arrays.m_weights;
 
         bool any_valid = false;
 
         if (vertices.size() && bones.size() == vertices.size() * 4 && weights.size() == bones.size()) {
 
-            int vs = vertices.size();
-            PoolVector<Vector3>::Read rv = vertices.read();
-            PoolVector<int>::Read rb = bones.read();
-            PoolVector<float>::Read rw = weights.read();
+            uint32_t vs = vertices.size();
 
             AABB *bptr = r_bone_aabb.data();
 
-            for (int i = 0; i < vs; i++) {
+            for (uint32_t i = 0; i < vs; i++) {
 
-                Vector3 v = rv[i];
-                for (int j = 0; j < 4; j++) {
+                Vector3 v = vertices[i];
+                for (uint32_t j = 0; j < 4; j++) {
 
-                    int idx = rb[i * 4 + j];
-                    float w = rw[i * 4 + j];
-                    if (w == 0)
+                    int idx = bones[i * 4 + j];
+                    float w = weights[i * 4 + j];
+                    if (w == 0.0f)
                         continue; //break;
                     ERR_FAIL_INDEX_V(idx, total_bones, ERR_INVALID_DATA);
 
@@ -931,43 +904,147 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
     return total_elem_size;
 }
 
-void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, const Array &p_blend_shapes, uint32_t p_compress_format) {
+void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, PODVector<SurfaceArrays> &&p_blend_shapes, uint32_t p_compress_format) {
 
     ERR_FAIL_INDEX(p_primitive, VS::PRIMITIVE_MAX);
 
-    uint32_t format = 0;
+    uint32_t format = p_arrays.get_flags();
 
     // validation
     int index_array_len = 0;
     int array_len = 0;
+    ERR_FAIL_COND(p_arrays.empty());
 
-    for (int i = 0; i < p_arrays.size(); i++) {
+    if(!p_arrays.empty()) {
+        if(p_arrays.m_vertices_2d)
+            array_len = p_arrays.positions2().size();
+        else
+            array_len = p_arrays.positions3().size();
+    }
+    uint32_t offsets[VS::ARRAY_MAX];
+    memset(offsets,0,VS::ARRAY_MAX*sizeof(uint32_t));
 
-        if (p_arrays[i].get_type() == VariantType::NIL)
-            continue;
+    int total_elem_size = 0;
 
-        format |= (1 << i);
+    int elem_size = 0;
 
-        if (i == VS::ARRAY_VERTEX) {
+    { // per-Vertex calc
+        if (p_arrays.m_vertices_2d) {
+            elem_size = 2;
+            p_compress_format |= VS::ARRAY_FLAG_USE_2D_VERTICES;
+        } else {
+            p_compress_format &= ~VS::ARRAY_FLAG_USE_2D_VERTICES;
+            elem_size = 3;
+        }
 
-            Variant var = p_arrays[i];
-            switch (var.get_type()) {
-                case VariantType::POOL_VECTOR2_ARRAY: {
-                    PoolVector<Vector2> v2 = var;
-                } break;
-                case VariantType::POOL_VECTOR3_ARRAY: {
-                    PoolVector<Vector3> v3 = var;
-                } break;
-                default: {
-                    Array v = var;
-                } break;
+        if (p_compress_format & VS::ARRAY_COMPRESS_VERTEX) {
+            elem_size *= sizeof(int16_t);
+        } else {
+            elem_size *= sizeof(float);
+        }
+
+        if (elem_size == 6) {
+            //had to pad
+            elem_size = 8;
+        }
+        offsets[VS::ARRAY_VERTEX] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_normals.empty()) {
+
+        if (p_compress_format & VS::ARRAY_COMPRESS_NORMAL) {
+            elem_size = sizeof(uint32_t);
+        } else {
+            elem_size = sizeof(float) * 3;
+        }
+
+        offsets[VS::ARRAY_NORMAL] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_tangents.empty()) {
+
+        if (p_compress_format & VS::ARRAY_COMPRESS_TANGENT) {
+            elem_size = sizeof(uint32_t);
+        } else {
+            elem_size = sizeof(float) * 4;
+        }
+
+        offsets[VS::ARRAY_TANGENT] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_colors.empty()) {
+        if (p_compress_format & VS::ARRAY_COMPRESS_COLOR) {
+            elem_size = sizeof(uint32_t);
+        } else {
+            elem_size = sizeof(float) * 4;
+        }
+        offsets[VS::ARRAY_COLOR] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_uv_1.empty()) {
+        if (p_compress_format & VS::ARRAY_COMPRESS_TEX_UV) {
+            elem_size = sizeof(uint32_t);
+        } else {
+            elem_size = sizeof(float) * 2;
+        }
+        offsets[VS::ARRAY_TEX_UV] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_uv_2.empty()) {
+        if (p_compress_format & VS::ARRAY_COMPRESS_TEX_UV2) {
+            elem_size = sizeof(uint32_t);
+        } else {
+            elem_size = sizeof(float) * 2;
+        }
+        offsets[VS::ARRAY_TEX_UV2] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_weights.empty()) {
+        if (p_compress_format & VS::ARRAY_COMPRESS_WEIGHTS) {
+            elem_size = sizeof(uint16_t) * 4;
+        } else {
+            elem_size = sizeof(float) * 4;
+        }
+        offsets[VS::ARRAY_WEIGHTS] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_bones.empty()) {
+        const auto &bones = p_arrays.m_bones;
+        int max_bone = 0;
+
+        int bc = bones.size();
+        for (int j = 0; j < bc; j++) {
+            max_bone = MAX(bones[j], max_bone);
+        }
+
+        if (max_bone > 255) {
+            p_compress_format |= VS::ARRAY_FLAG_USE_16_BIT_BONES;
+            elem_size = sizeof(uint16_t) * 4;
+        } else {
+            p_compress_format &= ~VS::ARRAY_FLAG_USE_16_BIT_BONES;
+            elem_size = sizeof(uint32_t);
+        }
+        offsets[VS::ARRAY_BONES] = total_elem_size;
+        total_elem_size += elem_size;
+    }
+    if(!p_arrays.m_indices.empty()) {
+        index_array_len = p_arrays.m_indices.size();
+        if (index_array_len <= 0) {
+            ERR_PRINT("index_array_len==NO_INDEX_ARRAY");
+        }
+        else
+        {
+            /* determine whether using 16 or 32 bits indices */
+            if (array_len >= (1 << 16)) {
+
+                elem_size = 4;
+
+            } else {
+                elem_size = 2;
             }
-
-            array_len = PoolVector3Array(p_arrays[i]).size();
-            ERR_FAIL_COND(array_len == 0);
-        } else if (i == VS::ARRAY_INDEX) {
-
-            index_array_len = p_arrays.m_indices.size();
+            //TODO: SEGS: this is likely a bug, indices are meant to live in another buffer, and as such their index has no influence on offset + total element size
+            offsets[VS::ARRAY_INDEX] = elem_size;
+            total_elem_size += elem_size;
         }
     }
 
@@ -977,156 +1054,11 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
         //validate format for morphs
         for (int i = 0; i < p_blend_shapes.size(); i++) {
 
-            uint32_t bsformat = 0;
-            Array arr = p_blend_shapes[i];
-            for (int j = 0; j < arr.size(); j++) {
-
-                if (arr[j].get_type() != VariantType::NIL)
-                    bsformat |= (1 << j);
-            }
+            const SurfaceArrays &arr = p_blend_shapes[i];
+            uint32_t bsformat = arr.get_flags();
 
             ERR_FAIL_COND((bsformat) != (format & (VS::ARRAY_FORMAT_INDEX - 1)));
         }
-    }
-
-    uint32_t offsets[VS::ARRAY_MAX];
-
-    int total_elem_size = 0;
-
-    for (int i = 0; i < VS::ARRAY_MAX; i++) {
-
-        offsets[i] = 0; //reset
-
-        if (!(format & (1 << i))) // no array
-            continue;
-
-        int elem_size = 0;
-
-        switch (i) {
-
-            case VS::ARRAY_VERTEX: {
-
-                Variant arr = p_arrays[0];
-                if (arr.get_type() == VariantType::POOL_VECTOR2_ARRAY) {
-                    elem_size = 2;
-                    p_compress_format |= VS::ARRAY_FLAG_USE_2D_VERTICES;
-                } else if (arr.get_type() == VariantType::POOL_VECTOR3_ARRAY) {
-                    p_compress_format &= ~VS::ARRAY_FLAG_USE_2D_VERTICES;
-                    elem_size = 3;
-                } else {
-                    elem_size = (p_compress_format & VS::ARRAY_FLAG_USE_2D_VERTICES) ? 2 : 3;
-                }
-
-                if (p_compress_format & VS::ARRAY_COMPRESS_VERTEX) {
-                    elem_size *= sizeof(int16_t);
-                } else {
-                    elem_size *= sizeof(float);
-                }
-
-                if (elem_size == 6) {
-                    //had to pad
-                    elem_size = 8;
-                }
-
-            } break;
-            case VS::ARRAY_NORMAL: {
-
-                if (p_compress_format & VS::ARRAY_COMPRESS_NORMAL) {
-                    elem_size = sizeof(uint32_t);
-                } else {
-                    elem_size = sizeof(float) * 3;
-                }
-
-            } break;
-
-            case VS::ARRAY_TANGENT: {
-                if (p_compress_format & VS::ARRAY_COMPRESS_TANGENT) {
-                    elem_size = sizeof(uint32_t);
-                } else {
-                    elem_size = sizeof(float) * 4;
-                }
-
-            } break;
-            case VS::ARRAY_COLOR: {
-
-                if (p_compress_format & VS::ARRAY_COMPRESS_COLOR) {
-                    elem_size = sizeof(uint32_t);
-                } else {
-                    elem_size = sizeof(float) * 4;
-                }
-            } break;
-            case VS::ARRAY_TEX_UV: {
-                if (p_compress_format & VS::ARRAY_COMPRESS_TEX_UV) {
-                    elem_size = sizeof(uint32_t);
-                } else {
-                    elem_size = sizeof(float) * 2;
-                }
-
-            } break;
-
-            case VS::ARRAY_TEX_UV2: {
-                if (p_compress_format & VS::ARRAY_COMPRESS_TEX_UV2) {
-                    elem_size = sizeof(uint32_t);
-                } else {
-                    elem_size = sizeof(float) * 2;
-                }
-
-            } break;
-            case VS::ARRAY_WEIGHTS: {
-
-                if (p_compress_format & VS::ARRAY_COMPRESS_WEIGHTS) {
-                    elem_size = sizeof(uint16_t) * 4;
-                } else {
-                    elem_size = sizeof(float) * 4;
-                }
-
-            } break;
-            case VS::ARRAY_BONES: {
-
-                PoolVector<int> bones = p_arrays[VS::ARRAY_BONES];
-                int max_bone = 0;
-
-                {
-                    int bc = bones.size();
-                    PoolVector<int>::Read r = bones.read();
-                    for (int j = 0; j < bc; j++) {
-                        max_bone = MAX(r[j], max_bone);
-                    }
-                }
-
-                if (max_bone > 255) {
-                    p_compress_format |= VS::ARRAY_FLAG_USE_16_BIT_BONES;
-                    elem_size = sizeof(uint16_t) * 4;
-                } else {
-                    p_compress_format &= ~VS::ARRAY_FLAG_USE_16_BIT_BONES;
-                    elem_size = sizeof(uint32_t);
-                }
-
-            } break;
-            case VS::ARRAY_INDEX: {
-
-                if (index_array_len <= 0) {
-                    ERR_PRINT("index_array_len==NO_INDEX_ARRAY");
-                    break;
-                }
-                /* determine whether using 16 or 32 bits indices */
-                if (array_len >= (1 << 16)) {
-
-                    elem_size = 4;
-
-                } else {
-                    elem_size = 2;
-                }
-                offsets[i] = elem_size;
-                continue;
-            }
-            default: {
-                ERR_FAIL();
-            }
-        }
-
-        offsets[i] = total_elem_size;
-        total_elem_size += elem_size;
     }
 
     uint32_t mask = (1 << VS::ARRAY_MAX) - 1;
@@ -1305,253 +1237,219 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                 if (p_format & VS::ARRAY_FLAG_USE_2D_VERTICES) {
 
-                    PoolVector<Vector2> arr_2d;
+                    PODVector<Vector2> arr_2d;
                     arr_2d.resize(p_vertex_len);
 
                     if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
-                        PoolVector<Vector2>::Write w = arr_2d.write();
-
                         for (int j = 0; j < p_vertex_len; j++) {
 
                             const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
-                            w[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
+                            arr_2d[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                         }
                     } else {
-
-                        PoolVector<Vector2>::Write w = arr_2d.write();
 
                         for (int j = 0; j < p_vertex_len; j++) {
 
                             const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
-                            w[j] = Vector2(v[0], v[1]);
+                            arr_2d[j] = Vector2(v[0], v[1]);
                         }
                     }
 
-                    ret.m_positions = Variant(arr_2d);
+                    ret.set_positions(eastl::move(arr_2d));
                 } else {
 
-                    PoolVector<Vector3> arr_3d;
+                    PODVector<Vector3> arr_3d;
                     arr_3d.resize(p_vertex_len);
 
                     if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
-                        PoolVector<Vector3>::Write w = arr_3d.write();
-
                         for (int j = 0; j < p_vertex_len; j++) {
 
                             const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
-                            w[j] = Vector3(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]), Math::halfptr_to_float(&v[2]));
+                            arr_3d[j] = Vector3(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]), Math::halfptr_to_float(&v[2]));
                         }
                     } else {
-
-                        PoolVector<Vector3>::Write w = arr_3d.write();
 
                         for (int j = 0; j < p_vertex_len; j++) {
 
                             const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
-                            w[j] = Vector3(v[0], v[1], v[2]);
+                            arr_3d[j] = Vector3(v[0], v[1], v[2]);
                         }
                     }
 
-                    ret.m_positions = Variant(arr_3d);
+                    ret.set_positions(eastl::move(arr_3d));
                 }
 
             } break;
             case VS::ARRAY_NORMAL: {
-                PoolVector<Vector3> arr;
-                arr.resize(p_vertex_len);
+                PODVector<Vector3> arr;
+                arr.reserve(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_NORMAL) {
 
-                    PoolVector<Vector3>::Write w = arr.write();
                     const float multiplier = 1.f / 127.f;
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const int8_t *v = (const int8_t *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Vector3(float(v[0]) * multiplier, float(v[1]) * multiplier, float(v[2]) * multiplier);
+                        arr.emplace_back(float(v[0]) * multiplier, float(v[1]) * multiplier, float(v[2]) * multiplier);
                     }
                 } else {
-                    PoolVector<Vector3>::Write w = arr.write();
-
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Vector3(v[0], v[1], v[2]);
+                        arr.emplace_back(v[0], v[1], v[2]);
                     }
                 }
 
-                ret.m_normals = arr;
+                ret.m_normals = eastl::move(arr);
 
             } break;
 
             case VS::ARRAY_TANGENT: {
-                PoolVector<float> arr;
-                arr.resize(p_vertex_len * 4);
+                PODVector<float> arr;
+                arr.reserve(p_vertex_len*4);
                 if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
-                    PoolVector<float>::Write w = arr.write();
-
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const int8_t *v = (const int8_t *)&r[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            w[j * 4 + k] = float(v[k] / 127.0);
+                            arr.emplace_back(float(v[k] / 127.0));
                         }
                     }
                 } else {
-
-                    PoolVector<float>::Write w = arr.write();
-
                     for (int j = 0; j < p_vertex_len; j++) {
                         const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            w[j * 4 + k] = v[k];
+                            arr.emplace_back(v[k]);
                         }
                     }
                 }
 
-                ret.m_normals = arr;
+                ret.m_tangents = eastl::move(arr);
 
             } break;
             case VS::ARRAY_COLOR: {
 
-                PoolVector<Color> arr;
-                arr.resize(p_vertex_len);
+                PODVector<Color> arr;
+                arr.reserve(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_COLOR) {
-
-                    PoolVector<Color>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint8_t *v = (const uint8_t *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Color(float(v[0] / 255.0), float(v[1] / 255.0), float(v[2] / 255.0), float(v[3] / 255.0));
+                        arr.emplace_back(float(v[0] / 255.0), float(v[1] / 255.0), float(v[2] / 255.0), float(v[3] / 255.0));
                     }
                 } else {
-                    PoolVector<Color>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Color(v[0], v[1], v[2], v[3]);
+                        arr.emplace_back(v[0], v[1], v[2], v[3]);
                     }
                 }
 
-                ret.m_colors = arr;
+                ret.m_colors = eastl::move(arr);
             } break;
             case VS::ARRAY_TEX_UV: {
 
-                PoolVector<Vector2> arr;
+                PODVector<Vector2> arr;
                 arr.resize(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
 
-                    PoolVector<Vector2>::Write w = arr.write();
-
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
+                        arr[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                     }
                 } else {
-
-                    PoolVector<Vector2>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Vector2(v[0], v[1]);
+                        arr[j] = Vector2(v[0], v[1]);
                     }
                 }
 
-                ret.m_uv_1 = Variant(arr);
+                ret.m_uv_1 = eastl::move(arr);
             } break;
 
             case VS::ARRAY_TEX_UV2: {
-                PoolVector<Vector2> arr;
+                PODVector<Vector2> arr;
                 arr.resize(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
 
-                    PoolVector<Vector2>::Write w = arr.write();
-
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
+                        arr[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                     }
                 } else {
-
-                    PoolVector<Vector2>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
-                        w[j] = Vector2(v[0], v[1]);
+                        arr[j] = Vector2(v[0], v[1]);
                     }
                 }
 
-                ret.m_uv_2 = Variant(arr);
+                ret.m_uv_2 = eastl::move(arr);
 
             } break;
             case VS::ARRAY_WEIGHTS: {
 
-                PoolVector<float> arr;
+                PODVector<float> arr;
                 arr.resize(p_vertex_len * 4);
                 if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
-                    PoolVector<float>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            w[j * 4 + k] = float(v[k] / 65535.0);
+                            arr[j * 4 + k] = float(v[k] / 65535.0);
                         }
                     }
                 } else {
-
-                    PoolVector<float>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
                         const float *v = (const float *)&r[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            w[j * 4 + k] = v[k];
+                            arr[j * 4 + k] = v[k];
                         }
                     }
                 }
 
-                ret.m_weights = Variant(arr);
+                ret.m_weights = eastl::move(arr);
 
             } break;
             case VS::ARRAY_BONES: {
 
-                PoolVector<int> arr;
+                PODVector<int> arr;
                 arr.resize(p_vertex_len * 4);
                 if (p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES) {
-
-                    PoolVector<int>::Write w = arr.write();
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&r[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            w[j * 4 + k] = v[k];
+                            arr[j * 4 + k] = v[k];
                         }
                     }
                 } else {
 
-                    PoolVector<int>::Write w = arr.write();
-
                     for (int j = 0; j < p_vertex_len; j++) {
                         const uint8_t *v = (const uint8_t *)&r[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            w[j * 4 + k] = v[k];
+                            arr[j * 4 + k] = v[k];
                         }
                     }
                 }
 
-                ret.m_bones = Variant(arr);
+                ret.m_bones = eastl::move(arr);
 
             } break;
             case VS::ARRAY_INDEX: {
@@ -1559,27 +1457,23 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, const Poo
 
                 PoolVector<uint8_t>::Read ir = p_index_data.read();
 
-                PoolVector<int> arr;
+                PODVector<int> arr;
                 arr.resize(p_index_len);
                 if (p_vertex_len < (1 << 16)) {
-
-                    PoolVector<int>::Write w = arr.write();
 
                     for (int j = 0; j < p_index_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&ir[j * 2];
-                        w[j] = *v;
+                        arr[j] = *v;
                     }
                 } else {
 
-                    PoolVector<int>::Write w = arr.write();
-
                     for (int j = 0; j < p_index_len; j++) {
                         const int *v = (const int *)&ir[j * 4];
-                        w[j] = *v;
+                        arr[j] = *v;
                     }
                 }
-                ret.m_indices = Variant(arr);
+                ret.m_indices = eastl::move(arr);
             } break;
             default: {
                 ERR_FAIL_V(ret);
@@ -1608,13 +1502,27 @@ Array VisualServer::_mesh_surface_get_arrays(RID p_mesh, int p_surface) const {
 }
 void VisualServer::_mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes, uint32_t p_compress_format) {
     ERR_FAIL_COND(p_arrays.size() != VS::ARRAY_MAX);
-    mesh_add_surface_from_arrays(p_mesh, p_primitive,SurfaceArrays::fromArray(p_arrays),p_blend_shapes,p_compress_format);
+    PODVector<SurfaceArrays> blend_shapes;
+    blend_shapes.reserve(p_blend_shapes.size());
+    for(int i=0; i<p_blend_shapes.size(); ++i) {
+        blend_shapes.emplace_back(SurfaceArrays::fromArray(p_blend_shapes[i].as<Array>()));
+    }
+    mesh_add_surface_from_arrays(p_mesh, p_primitive,SurfaceArrays::fromArray(p_arrays),eastl::move(blend_shapes),p_compress_format);
 }
-Array VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
+Array VisualServer::_mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
+    Array res;
+    PODVector<SurfaceArrays> from=mesh_surface_get_blend_shape_arrays(p_mesh,p_surface);
+    res.resize(from.size());
+    int idx=0;
+    for(const SurfaceArrays & s : from)
+        res[idx++] = (Array)s;
+    return res;
+}
+PODVector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
 
     PODVector<PoolVector<uint8_t> > blend_shape_data(mesh_surface_get_blend_shapes(p_mesh, p_surface));
     if (blend_shape_data.empty()) {
-        return Array();
+        return PODVector<SurfaceArrays>();
     }
 
     int vertex_len = mesh_surface_get_array_len(p_mesh, p_surface);
@@ -1624,10 +1532,10 @@ Array VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surfac
 
     uint32_t format = mesh_surface_get_format(p_mesh, p_surface);
 
-    Array blend_shape_array;
-    blend_shape_array.resize(blend_shape_data.size());
+    PODVector<SurfaceArrays> blend_shape_array;
+    blend_shape_array.reserve(blend_shape_data.size());
     for (int i = 0; i < blend_shape_data.size(); i++) {
-        blend_shape_array.set(i, (Array)_get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data, index_len));
+        blend_shape_array.emplace_back(eastl::move(_get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data, index_len)));
     }
 
     return blend_shape_array;
@@ -1713,7 +1621,7 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_array", {"mesh", "surface"}), &VisualServer::mesh_surface_get_array);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_index_array", {"mesh", "surface"}), &VisualServer::mesh_surface_get_index_array);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_arrays", {"mesh", "surface"}), &VisualServer::_mesh_surface_get_arrays);
-    MethodBinder::bind_method(D_METHOD("mesh_surface_get_blend_shape_arrays", {"mesh", "surface"}), &VisualServer::mesh_surface_get_blend_shape_arrays);
+    MethodBinder::bind_method(D_METHOD("mesh_surface_get_blend_shape_arrays", {"mesh", "surface"}), &VisualServer::_mesh_surface_get_blend_shape_arrays);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_format", {"mesh", "surface"}), &VisualServer::mesh_surface_get_format);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_primitive_type", {"mesh", "surface"}), &VisualServer::mesh_surface_get_primitive_type);
     MethodBinder::bind_method(D_METHOD("mesh_surface_get_aabb", {"mesh", "surface"}), &VisualServer::mesh_surface_get_aabb);
@@ -2331,10 +2239,16 @@ void VisualServer::_camera_set_orthogonal(RID p_camera, float p_size, float p_z_
     camera_set_orthogonal(p_camera, p_size, p_z_near, p_z_far);
 }
 
-void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, Geometry::MeshData &&p_mesh_data) {
+void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry::MeshData &p_mesh_data) {
 
-    PoolVector<Vector3> vertices;
-    PoolVector<Vector3> normals;
+    PODVector<Vector3> vertices;
+    PODVector<Vector3> normals;
+    size_t cnt=0;
+    for (const Geometry::MeshData::Face &f : p_mesh_data.faces) {
+        cnt += f.indices.size()-2;
+    }
+    vertices.reserve(cnt*3);
+    normals.reserve(cnt*3);
 
 #define _ADD_VERTEX(m_idx)                                      \
     vertices.push_back(p_mesh_data.vertices[f.indices[m_idx]]); \
@@ -2349,12 +2263,9 @@ void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, Geometry::MeshDat
         }
     }
 
-    Array d;
-    d.resize(VS::ARRAY_MAX);
-    d[VS::ARRAY_VERTEX] = vertices;
-    d[VS::ARRAY_NORMAL] = normals;
-    mesh_add_surface_from_arrays(p_mesh, VS::PRIMITIVE_TRIANGLES, d);
-    p_mesh_data = {}; // Set with empty to properly clean the passed in object
+    SurfaceArrays d(eastl::move(vertices));
+    d.m_normals = eastl::move(normals);
+    mesh_add_surface_from_arrays(p_mesh, VS::PRIMITIVE_TRIANGLES, eastl::move(d));
 #undef _ADD_VERTEX
 }
 

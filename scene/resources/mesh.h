@@ -51,7 +51,9 @@ class GODOT_EXPORT Mesh : public Resource {
 
 protected:
     static void _bind_methods();
+public: // scripting glue helpers
     Array _surface_get_arrays(int p_surface) const;
+    Array _surface_get_blend_shape_arrays(int p_surface) const;
 
 public:
     enum {
@@ -127,7 +129,7 @@ public:
     virtual int surface_get_array_index_len(int p_idx) const = 0;
     virtual bool surface_is_softbody_friendly(int p_idx) const;
     virtual SurfaceArrays surface_get_arrays(int p_surface) const = 0;
-    virtual Array surface_get_blend_shape_arrays(int p_surface) const = 0;
+    virtual PODVector<SurfaceArrays> surface_get_blend_shape_arrays(int p_surface) const = 0;
     virtual uint32_t surface_get_format(int p_idx) const = 0;
     virtual PrimitiveType surface_get_primitive_type(int p_idx) const = 0;
     virtual void surface_set_material(int p_idx, const Ref<Material> &p_material) = 0;
@@ -135,10 +137,10 @@ public:
     virtual int get_blend_shape_count() const = 0;
     virtual StringName get_blend_shape_name(int p_index) const = 0;
 
-    PoolVector<Face3> get_faces() const;
+    PODVector<Face3> get_faces() const;
     Ref<TriangleMesh> generate_triangle_mesh() const;
     void generate_debug_mesh_lines(PODVector<Vector3> &r_lines);
-    void generate_debug_mesh_indices(PoolVector<Vector3> &r_points);
+    void generate_debug_mesh_indices(PODVector<Vector3> &r_points);
 
     Ref<Shape> create_trimesh_shape() const;
     Ref<Shape> create_convex_shape() const;
@@ -188,16 +190,18 @@ protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _get_property_list(PODVector<PropertyInfo> *p_list) const;
-    void _add_surface_from_arrays(PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
 
     static void _bind_methods();
-
 public:
-    void add_surface_from_arrays(PrimitiveType p_primitive, SurfaceArrays &&p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
+    // Accessed from scripting glue
+    void _add_surface_from_arrays(PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
+public:
+
+    void add_surface_from_arrays(PrimitiveType p_primitive, SurfaceArrays &&p_arrays, PODVector<SurfaceArrays> &&p_blend_shapes = PODVector<SurfaceArrays>(), uint32_t p_flags = ARRAY_COMPRESS_DEFAULT);
     void add_surface(uint32_t p_format, PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes = PODVector<PoolVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>());
 
     SurfaceArrays surface_get_arrays(int p_surface) const override;
-    Array surface_get_blend_shape_arrays(int p_surface) const override;
+    PODVector<SurfaceArrays> surface_get_blend_shape_arrays(int p_surface) const override;
 
     void add_blend_shape(const StringName &p_name);
     int get_blend_shape_count() const override;

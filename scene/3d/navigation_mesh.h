@@ -40,9 +40,9 @@ class NavigationMesh : public Resource {
 
     GDCLASS(NavigationMesh,Resource)
 
-    PoolVector<Vector3> vertices;
+    PODVector<Vector3> vertices;
     struct Polygon {
-        PoolVector<int> indices;
+        PODVector<int> indices;
     };
     PODVector<Polygon> polygons;
     Ref<ArrayMesh> debug_mesh;
@@ -179,12 +179,12 @@ public:
 
     void create_from_mesh(const Ref<Mesh> &p_mesh);
 
-    void set_vertices(const PoolVector<Vector3> &p_vertices);
-    const PoolVector<Vector3> &get_vertices() const;
+    void set_vertices(PODVector<Vector3> &&p_vertices);
+    const PODVector<Vector3> &get_vertices() const;
 
-    void add_polygon(const PoolVector<int> &p_polygon);
+    void add_polygon(PODVector<int> &&p_polygon);
     int get_polygon_count() const;
-    PoolVector<int> get_polygon(int p_idx);
+    const PODVector<int> &get_polygon(int p_idx);
     void clear_polygons();
 
     Ref<Mesh> get_debug_mesh();

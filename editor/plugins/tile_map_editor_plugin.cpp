@@ -657,7 +657,7 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
     }
 
     PoolVector<Vector2> points;
-    PODVector<Vector2> non_preview_cache;
+    eastl::vector_set<Vector2> non_preview_cache;
     int count = 0;
     int limit = 0;
 
@@ -668,6 +668,7 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
     }
 
     bucket_queue.push_back(p_start);
+    non_preview_cache.reserve(bucket_queue.size()/2);
 
     while (!bucket_queue.empty()) {
 
@@ -686,10 +687,10 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
                 bucket_cache_visited[loc] = true;
                 bucket_cache.push_back(n);
             } else {
-                if (non_preview_cache.find(n) >= 0)
+                if (non_preview_cache.contains(n))
                     continue;
                 points.push_back(n);
-                non_preview_cache.push_back(n);
+                non_preview_cache.insert(n);
             }
 
             bucket_queue.push_back(Point2i(n.x, n.y + 1));

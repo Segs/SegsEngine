@@ -207,10 +207,9 @@ protected:
         }
 
         RID trimesh_mesh = vs->mesh_create();
-        Array d;
-        d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = Variant::from(p_faces);
-        d[VS::ARRAY_NORMAL] = Variant::from(normals);
+        SurfaceArrays d;
+        d.set_positions(eastl::move(p_faces));
+        d.m_normals = eastl::move(normals);
         vs->mesh_add_surface_from_arrays(trimesh_mesh, VS::PRIMITIVE_TRIANGLES, d);
 
         RID triins = vs->instance_create2(trimesh_mesh, scenario);

@@ -49,11 +49,10 @@ IMPL_GDCLASS(PointMesh)
 */
 void PrimitiveMesh::_update() const {
 
-    Array arr;
-    arr.resize(VS::ARRAY_MAX);
+    SurfaceArrays arr;
     _create_mesh_array(arr);
 
-    PoolVector<Vector3> points = arr[VS::ARRAY_VERTEX];
+    Span<const Vector3> points = arr.positions3();
 
     aabb = AABB();
 
@@ -61,43 +60,38 @@ void PrimitiveMesh::_update() const {
     ERR_FAIL_COND(pc == 0);
     {
 
-        PoolVector<Vector3>::Read r = points.read();
         for (int i = 0; i < pc; i++) {
             if (i == 0)
-                aabb.position = r[i];
+                aabb.position = points[i];
             else
-                aabb.expand_to(r[i]);
+                aabb.expand_to(points[i]);
         }
     }
 
     if (flip_faces) {
-        PoolVector<Vector3> normals = arr[VS::ARRAY_NORMAL];
-        PoolVector<int> indices = arr[VS::ARRAY_INDEX];
+        PODVector<Vector3> &normals = arr.m_normals;
+        PODVector<int> &indices = arr.m_indices;
         if (normals.size() && indices.size()) {
 
             {
                 int nc = normals.size();
-                PoolVector<Vector3>::Write w = normals.write();
                 for (int i = 0; i < nc; i++) {
-                    w[i] = -w[i];
+                    normals[i] = -normals[i];
                 }
             }
 
             {
                 int ic = indices.size();
-                PoolVector<int>::Write w = indices.write();
                 for (int i = 0; i < ic; i += 3) {
-                    SWAP(w[i + 0], w[i + 1]);
+                    SWAP(indices[i + 0], indices[i + 1]);
                 }
             }
-            arr[VS::ARRAY_NORMAL] = normals;
-            arr[VS::ARRAY_INDEX] = indices;
         }
     }
 
     // in with the new
     VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, arr);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, eastl::move(arr));
     VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
 
     pending_request = false;
@@ -148,13 +142,13 @@ SurfaceArrays PrimitiveMesh::surface_get_arrays(int p_surface) const {
     return VisualServer::get_singleton()->mesh_surface_get_arrays(mesh, 0);
 }
 
-Array PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
-    ERR_FAIL_INDEX_V(p_surface, 1, Array());
+PODVector<SurfaceArrays> PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
+    ERR_FAIL_INDEX_V(p_surface, 1, PODVector<SurfaceArrays>());
     if (pending_request) {
         _update();
     }
 
-    return Array();
+    return PODVector<SurfaceArrays>();
 }
 
 uint32_t PrimitiveMesh::surface_get_format(int p_idx) const {
@@ -287,7 +281,7 @@ PrimitiveMesh::~PrimitiveMesh() {
     CapsuleMesh
 */
 
-void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
+void CapsuleMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z, u, v, w;
     float onethird = 1.0f / 3.0f;
@@ -295,11 +289,11 @@ void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
 
     // note, this has been aligned with our collision shape but I've left the descriptions as top/middle/bottom
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    PODVector<Vector3> points;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
+    PODVector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -426,11 +420,11 @@ void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);
 }
 
 void CapsuleMesh::_bind_methods() {
@@ -498,7 +492,7 @@ CapsuleMesh::CapsuleMesh() {
   CubeMesh
 */
 
-void CubeMesh::_create_mesh_array(Array &p_arr) const {
+void CubeMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
     const float onethird = 1.0f / 3.0f;
@@ -508,11 +502,11 @@ void CubeMesh::_create_mesh_array(Array &p_arr) const {
 
     // set our bounding box
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    PODVector<Vector3> points;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
+    PODVector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -683,11 +677,11 @@ void CubeMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void CubeMesh::_bind_methods() {
@@ -755,15 +749,15 @@ CubeMesh::CubeMesh() {
   CylinderMesh
 */
 
-void CylinderMesh::_create_mesh_array(Array &p_arr) const {
+void CylinderMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z, u, v, radius;
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    PODVector<Vector3> points;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
+    PODVector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -850,13 +844,13 @@ void CylinderMesh::_create_mesh_array(Array &p_arr) const {
 
     // add bottom
     if (bottom_radius > 0.0) {
-        y = height * -0.5;
+        y = height * -0.5f;
 
         thisrow = point;
         points.push_back(Vector3(0.0, y, 0.0));
         normals.push_back(Vector3(0.0, -1.0, 0.0));
         ADD_TANGENT(1.0, 0.0, 0.0, 1.0)
-        uvs.push_back(Vector2(0.75, 0.75));
+        uvs.push_back(Vector2(0.75f, 0.75f));
         point++;
 
         for (i = 0; i <= radial_segments; i++) {
@@ -884,11 +878,11 @@ void CylinderMesh::_create_mesh_array(Array &p_arr) const {
         };
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void CylinderMesh::_bind_methods() {
@@ -969,17 +963,17 @@ CylinderMesh::CylinderMesh() {
   PlaneMesh
 */
 
-void PlaneMesh::_create_mesh_array(Array &p_arr) const {
+void PlaneMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, z;
 
     Size2 start_pos = size * -0.5;
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    PODVector<Vector3> points;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
+    PODVector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1023,11 +1017,11 @@ void PlaneMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void PlaneMesh::_bind_methods() {
@@ -1082,7 +1076,7 @@ PlaneMesh::PlaneMesh() {
   PrismMesh
 */
 
-void PrismMesh::_create_mesh_array(Array &p_arr) const {
+void PrismMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
     const float onethird = 1.0f / 3.0f;
@@ -1092,11 +1086,11 @@ void PrismMesh::_create_mesh_array(Array &p_arr) const {
 
     // set our bounding box
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    PODVector<Vector3> points;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
+    PODVector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1283,11 +1277,11 @@ void PrismMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void PrismMesh::_bind_methods() {
@@ -1369,11 +1363,11 @@ PrismMesh::PrismMesh() {
   QuadMesh
 */
 
-void QuadMesh::_create_mesh_array(Array &p_arr) const {
-    PoolVector<Vector3> faces;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
+void QuadMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
+    PODVector<Vector3> faces;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
 
     faces.resize(6);
     normals.resize(6);
@@ -1397,12 +1391,12 @@ void QuadMesh::_create_mesh_array(Array &p_arr) const {
     for (int i = 0; i < 6; i++) {
 
         int j = indices[i];
-        faces.set(i, quad_faces[j]);
-        normals.set(i, Vector3(0, 0, 1));
-        tangents.set(i * 4 + 0, 1.0);
-        tangents.set(i * 4 + 1, 0.0);
-        tangents.set(i * 4 + 2, 0.0);
-        tangents.set(i * 4 + 3, 1.0);
+        faces[i] = quad_faces[j];
+        normals[i] = Vector3(0, 0, 1);
+        tangents[i * 4 + 0] = 1.0;
+        tangents[i * 4 + 1] = 0.0;
+        tangents[i * 4 + 2] = 0.0;
+        tangents[i * 4 + 3] = 1.0;
 
         static const Vector2 quad_uv[4] = {
             Vector2(0, 1),
@@ -1411,13 +1405,13 @@ void QuadMesh::_create_mesh_array(Array &p_arr) const {
             Vector2(1, 1),
         };
 
-        uvs.set(i, quad_uv[j]);
+        uvs[i]=quad_uv[j];
     }
 
-    p_arr[VS::ARRAY_VERTEX] = faces;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
+    p_arr.set_positions(eastl::move(faces));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
 }
 
 void QuadMesh::_bind_methods() {
@@ -1444,17 +1438,17 @@ Size2 QuadMesh::get_size() const {
   SphereMesh
 */
 
-void SphereMesh::_create_mesh_array(Array &p_arr) const {
+void SphereMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
 
     // set our bounding box
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    PODVector<Vector3> points;
+    PODVector<Vector3> normals;
+    PODVector<float> tangents;
+    PODVector<Vector2> uvs;
+    PODVector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1507,11 +1501,11 @@ void SphereMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void SphereMesh::_bind_methods() {
@@ -1593,12 +1587,12 @@ SphereMesh::SphereMesh() {
   PointMesh
 */
 
-void PointMesh::_create_mesh_array(Array &p_arr) const {
-    PoolVector<Vector3> faces;
-    faces.resize(1);
-    faces.set(0, Vector3(0.0, 0.0, 0.0));
+void PointMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
+    PODVector<Vector3> faces {
+        Vector3(0.0, 0.0, 0.0)
+    };
 
-    p_arr[VS::ARRAY_VERTEX] = faces;
+    p_arr.set_positions(eastl::move(faces));
 }
 
 PointMesh::PointMesh() {

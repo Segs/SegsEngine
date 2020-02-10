@@ -128,7 +128,7 @@ class OS_X11 : public OS_Unix {
 
     struct {
         int opcode;
-        Vector<int> touch_devices;
+        PODVector<int> touch_devices;
         Map<int, Vector2> absolute_devices;
         Map<int, Vector3> pen_devices;
         XIEventMask all_event_mask;
@@ -168,7 +168,7 @@ class OS_X11 : public OS_Unix {
     Cursor cursors[CURSOR_MAX];
     Cursor null_cursor;
     CursorShape current_cursor;
-    Map<CursorShape, Vector<Variant> > cursors_cache;
+    Map<CursorShape, PODVector<Variant> > cursors_cache;
 
     InputDefault *input;
 
