@@ -6395,7 +6395,7 @@ int EditorSpatialGizmoPlugin::get_state() const {
 }
 
 void EditorSpatialGizmoPlugin::unregister_gizmo(EditorSpatialGizmo *p_gizmo) {
-    current_gizmos.erase(p_gizmo);
+    current_gizmos.erase_first(p_gizmo);
 }
 
 EditorSpatialGizmoPlugin::EditorSpatialGizmoPlugin() {

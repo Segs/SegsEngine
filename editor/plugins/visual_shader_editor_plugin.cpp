@@ -1235,8 +1235,8 @@ void VisualShaderEditor::_port_name_focus_out(Object *line_edit, int p_node_id, 
             return;
     }
 
-    List<StringName> input_names;
-    List<StringName> output_names;
+    PODVector<StringName> input_names;
+    PODVector<StringName> output_names;
 
     for (int i = 0; i < node->get_input_port_count(); i++) {
         if (!p_output && i == p_port_id) continue;

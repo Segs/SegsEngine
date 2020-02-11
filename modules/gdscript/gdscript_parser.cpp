@@ -6778,7 +6778,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
     return node_type;
 }
 
-bool GDScriptParser::_get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, List<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const {
+bool GDScriptParser::_get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, PODVector<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const {
 
     r_static = false;
     r_default_arg_count = 0;
@@ -6962,7 +6962,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
     }
 
     DataType return_type;
-    List<DataType> arg_types;
+    PODVector<DataType> arg_types;
     int default_args_count = 0;
     int arg_count = p_call->arguments.size();
     StringName callee_name;
@@ -7639,7 +7639,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
 #ifdef DEBUG_ENABLED
     {
         DataType tmp_type;
-        List<DataType> arg_types;
+        PODVector<DataType> arg_types;
         int argcount;
         bool _static;
         bool vararg;
@@ -7905,7 +7905,7 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
         // Signature for the initializer may vary
 #ifdef DEBUG_ENABLED
         DataType return_type;
-        List<DataType> arg_types;
+        PODVector<DataType> arg_types;
         int default_arg_count = 0;
         bool _static = false;
         bool vararg = false;
@@ -7918,8 +7918,8 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
             valid = valid && argsize_diff >= 0;
             valid = valid && p_function->default_values.size() >= default_arg_count + argsize_diff;
             int i = 0;
-            for (List<DataType>::Element *E = arg_types.front(); valid && E; E = E->next()) {
-                valid = valid && E->deref() == p_function->argument_types[i++];
+            for (const DataType &dt : arg_types) {
+                valid = valid && dt == p_function->argument_types[i++];
             }
 
             if (!valid) {
@@ -7930,11 +7930,11 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
                 parent_signature += " " + String(p_function->name) + "(";
                 if (!arg_types.empty()) {
                     int j = 0;
-                    for (List<DataType>::Element *E = arg_types.front(); E; E = E->next()) {
-                        if (E != arg_types.front()) {
+                    for (const DataType &E : arg_types) {
+                        if (&E != &arg_types.front()) {
                             parent_signature += (", ");
                         }
-                        String arg = E->deref().to_string();
+                        String arg = E.to_string();
                         if (arg == "null" || arg == "var") {
                             arg = "Variant";
                         }

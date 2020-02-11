@@ -77,7 +77,7 @@ class EditorResourcePreview : public Node {
         uint64_t modified_time;
     };
 
-    List<QueueItem> queue;
+    ListPOD<QueueItem> queue;
 
     Mutex *preview_mutex;
     Semaphore *preview_sem;

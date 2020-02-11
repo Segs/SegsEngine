@@ -92,8 +92,8 @@ struct Node::PrivData {
 
 
     Map<StringName, GroupData> grouped;
-    List<Node *>::Element *OW; // owned element
-    List<Node *> owned;
+    ListPOD<Node *>::iterator OW; // owned element
+    ListPOD<Node *> owned;
 
     PauseMode pause_mode;
     Node *pause_owner;
@@ -239,7 +239,7 @@ void Node::_notification(int p_notification) {
 
             while (!data->owned.empty()) {
 
-                data->owned.front()->deref()->set_owner(nullptr);
+                data->owned.front()->set_owner(nullptr);
             }
 
             if (data->parent) {
@@ -1610,7 +1610,9 @@ void Node::_set_owner_nocheck(Node *p_owner) {
     ERR_FAIL_COND(data->owner);
     data->owner = p_owner;
     data->owner->data->owned.push_back(this);
-    data->OW = data->owner->data->owned.back();
+    auto tgtiter=data->owner->data->owned.rbegin();
+    ++tgtiter;
+    data->OW = tgtiter.base();
 }
 
 void Node::set_owner(Node *p_owner) {
@@ -2410,7 +2412,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     return node;
 }
 
-static void find_owned_by(Node *p_by, Node *p_node, List<Node *> *p_owned) {
+static void find_owned_by(Node *p_by, Node *p_node, ListPOD<Node *> *p_owned) {
 
     if (p_node->get_owner() == p_by)
         p_owned->push_back(p_node);
@@ -2432,11 +2434,11 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_COND(p_node->data->parent);
 
-    List<Node *> owned = data->owned;
-    List<Node *> owned_by_owner;
+    ListPOD<Node *> owned = data->owned;
+    ListPOD<Node *> owned_by_owner;
     Node *owner = (data->owner == this) ? p_node : data->owner;
 
-    List<_NodeReplaceByPair> replace_data;
+    PODVector<_NodeReplaceByPair> replace_data;
 
     if (p_keep_data) {
 
@@ -2487,17 +2489,17 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     }
 
     p_node->set_owner(owner);
-    for (int i = 0; i < owned.size(); i++)
-        owned[i]->set_owner(p_node);
+    for (auto & e: owned)
+        e->set_owner(p_node);
 
-    for (int i = 0; i < owned_by_owner.size(); i++)
-        owned_by_owner[i]->set_owner(owner);
+    for (Node * n: owned_by_owner)
+        n->set_owner(owner);
 
     p_node->set_filename(get_filename());
 
-    for (List<_NodeReplaceByPair>::Element *E = replace_data.front(); E; E = E->next()) {
+    for (_NodeReplaceByPair & E : replace_data) {
 
-        p_node->set(E->deref().name, E->deref().value);
+        p_node->set(E.name, E.value);
     }
 }
 

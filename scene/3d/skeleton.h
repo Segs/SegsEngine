@@ -44,28 +44,28 @@ class PhysicalBone;
 class Skeleton;
 
 class GODOT_EXPORT SkinReference : public RefCounted {
-	GDCLASS(SkinReference, RefCounted)
-	friend class Skeleton;
+    GDCLASS(SkinReference, RefCounted)
+    friend class Skeleton;
 
-	Skeleton *skeleton_node;
-	RID skeleton;
-	Ref<Skin> skin;
-	uint32_t bind_count = 0;
-	void _skin_changed();
+    Skeleton *skeleton_node;
+    RID skeleton;
+    Ref<Skin> skin;
+    uint32_t bind_count = 0;
+    void _skin_changed();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	RID get_skeleton() const;
-	Ref<Skin> get_skin() const;
-	~SkinReference();
+    RID get_skeleton() const;
+    Ref<Skin> get_skin() const;
+    ~SkinReference();
 };
 class GODOT_EXPORT Skeleton : public Spatial {
 
     GDCLASS(Skeleton,Spatial)
 private:
-	friend class SkinReference;
+    friend class SkinReference;
     struct Bone {
 
         String name;
@@ -109,22 +109,21 @@ private:
     };
 
 
-	Set<SkinReference *> skin_bindings;
+    Set<SkinReference *> skin_bindings;
     PODVector<Bone> bones;
     PODVector<int> process_order;
     bool process_order_dirty;
     bool dirty;
 
-	void _skin_changed();
+    void _skin_changed();
     void _make_dirty();
 public:
     // bind helpers
     Array _get_bound_child_nodes_to_bone(int p_bone) const {
 
         Array bound;
-        List<Node *> children;
+        PODVector<Node *> children;
         get_bound_child_nodes_to_bone(p_bone, &children);
-
         for (int i = 0; i < children.size(); i++) {
             bound.push_back(Variant(children[i]));
         }
@@ -169,14 +168,14 @@ public:
     Transform get_bone_rest(int p_bone) const;
     Transform get_bone_global_pose(int p_bone) const;
 
-	void set_bone_global_pose_override(int p_bone, const Transform &p_pose, float p_amount, bool p_persistent = false);
+    void set_bone_global_pose_override(int p_bone, const Transform &p_pose, float p_amount, bool p_persistent = false);
 
     void set_bone_enabled(int p_bone, bool p_enabled);
     bool is_bone_enabled(int p_bone) const;
 
     void bind_child_node_to_bone(int p_bone, Node *p_node);
     void unbind_child_node_from_bone(int p_bone, Node *p_node);
-    void get_bound_child_nodes_to_bone(int p_bone, List<Node *> *p_bound) const;
+    void get_bound_child_nodes_to_bone(int p_bone, PODVector<Node *> *p_bound) const;
 
     void clear_bones();
 
@@ -185,13 +184,13 @@ public:
     void set_bone_pose(int p_bone, const Transform &p_pose);
     Transform get_bone_pose(int p_bone) const;
 
-	void set_bone_custom_pose(int p_bone, const Transform &p_custom_pose);
-	Transform get_bone_custom_pose(int p_bone) const;
+    void set_bone_custom_pose(int p_bone, const Transform &p_custom_pose);
+    Transform get_bone_custom_pose(int p_bone) const;
 
     void localize_rests(); // used for loaders and tools
     int get_process_order(int p_idx);
 
-	Ref<SkinReference> register_skin(const Ref<Skin> &p_skin);
+    Ref<SkinReference> register_skin(const Ref<Skin> &p_skin);
 
 #ifndef _3D_DISABLED
     // Physical bone API

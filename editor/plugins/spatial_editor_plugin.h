@@ -784,7 +784,7 @@ public:
 
 private:
     int current_state;
-    List<EditorSpatialGizmo *> current_gizmos;
+    PODVector<EditorSpatialGizmo *> current_gizmos;
     DefHashMap<String, PODVector<Ref<SpatialMaterial> > > materials;
 
 protected:

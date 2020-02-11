@@ -660,7 +660,7 @@ void InputDefault::accumulate_input_event(const Ref<InputEvent> &p_event) {
         parse_input_event(p_event);
         return;
     }
-    if (!accumulated_events.empty() && accumulated_events.back()->deref()->accumulate(p_event)) {
+    if (!accumulated_events.empty() && accumulated_events.back()->accumulate(p_event)) {
         return; //event was accumulated, exit
     }
 
@@ -669,7 +669,7 @@ void InputDefault::accumulate_input_event(const Ref<InputEvent> &p_event) {
 void InputDefault::flush_accumulated_events() {
 
     while (accumulated_events.front()) {
-        parse_input_event(accumulated_events.front()->deref());
+        parse_input_event(accumulated_events.front());
         accumulated_events.pop_front();
     }
 }

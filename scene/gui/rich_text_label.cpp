@@ -56,13 +56,13 @@ struct RichTextItem {
     int index;
     RichTextItem *parent;
     RichTextLabel::ItemType type;
-    List<RichTextItem *> subitems;
-    List<RichTextItem *>::Element *E;
+    ListPOD<RichTextItem *> subitems;
+    ListPOD<RichTextItem *>::iterator E;
     int line;
 
     void _clear_children() {
         while (!subitems.empty()) {
-            memdelete(subitems.front()->deref());
+            memdelete(subitems.front());
             subitems.pop_front();
         }
     }
@@ -307,20 +307,20 @@ RichTextItem *RichTextLabel::_get_next_item(RichTextItem *p_item, bool p_free) {
 
         if (!p_item->subitems.empty()) {
 
-            return p_item->subitems.front()->deref();
+            return p_item->subitems.front();
         } else if (!p_item->parent) {
             return nullptr;
-        } else if (p_item->E->next()) {
+        } else if (p_item->E.next()!=p_item->parent->subitems.end()) {
 
-            return p_item->E->next()->deref();
+            return *p_item->E.next();
         } else {
             //go up until something with a next is found
-            while (p_item->parent && !p_item->E->next()) {
+            while (p_item->parent && p_item->parent->subitems.end()==p_item->E.next()) {
                 p_item = p_item->parent;
             }
 
             if (p_item->parent)
-                return p_item->E->next()->deref();
+                return *p_item->E.next();
             else
                 return nullptr;
         }
@@ -328,20 +328,20 @@ RichTextItem *RichTextLabel::_get_next_item(RichTextItem *p_item, bool p_free) {
     } else {
         if (!p_item->subitems.empty() && p_item->type != ITEM_TABLE) {
 
-            return p_item->subitems.front()->deref();
+            return p_item->subitems.front();
         } else if (p_item->type == ITEM_FRAME) {
             return nullptr;
-        } else if (p_item->E->next()) {
+        } else if (p_item->parent->subitems.end()!=p_item->E.next()) {
 
-            return p_item->E->next()->deref();
+            return *p_item->E.next();
         } else {
             //go up until something with a next is found
-            while (p_item->type != ITEM_FRAME && !p_item->E->next()) {
+            while (p_item->type != ITEM_FRAME && p_item->parent->subitems.end()==p_item->E.next()) {
                 p_item = p_item->parent;
             }
 
             if (p_item->type != ITEM_FRAME)
-                return p_item->E->next()->deref();
+                return *p_item->E.next();
             else
                 return nullptr;
         }
@@ -355,20 +355,20 @@ RichTextItem *RichTextLabel::_get_prev_item(RichTextItem *p_item, bool p_free) {
 
         if (!p_item->subitems.empty()) {
 
-            return p_item->subitems.back()->deref();
+            return p_item->subitems.back();
         } else if (!p_item->parent) {
             return nullptr;
-        } else if (p_item->E->prev()) {
+        } else if (p_item->E.prev()!=p_item->parent->subitems.end()) {
 
-            return p_item->E->prev()->deref();
+            return *p_item->E.prev();
         } else {
             //go back until something with a prev is found
-            while (p_item->parent && !p_item->E->prev()) {
+            while (p_item->parent && p_item->parent->subitems.end()==p_item->E.prev()) {
                 p_item = p_item->parent;
             }
 
             if (p_item->parent)
-                return p_item->E->prev()->deref();
+                return *p_item->E.prev();
             else
                 return nullptr;
         }
@@ -376,20 +376,20 @@ RichTextItem *RichTextLabel::_get_prev_item(RichTextItem *p_item, bool p_free) {
     } else {
         if (!p_item->subitems.empty() && p_item->type != ITEM_TABLE) {
 
-            return p_item->subitems.back()->deref();
+            return p_item->subitems.back();
         } else if (p_item->type == ITEM_FRAME) {
             return nullptr;
-        } else if (p_item->E->prev()) {
+        } else if (p_item->E.prev()!=p_item->parent->subitems.end()) {
 
-            return p_item->E->prev()->deref();
+            return *p_item->E.prev();
         } else {
             //go back until something with a prev is found
-            while (p_item->type != ITEM_FRAME && !p_item->E->prev()) {
+            while (p_item->type != ITEM_FRAME && p_item->parent->subitems.end()==p_item->E.prev()) {
                 p_item = p_item->parent;
             }
 
             if (p_item->type != ITEM_FRAME)
-                return p_item->E->prev()->deref();
+                return *p_item->E.prev();
             else
                 return nullptr;
         }
@@ -930,9 +930,9 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                     //compute minimum width for each cell
                     const int available_width = p_width - hseparation * (table->columns.size() - 1) - wofs;
 
-                    for (List<RichTextItem *>::Element *E = table->subitems.front(); E; E = E->next()) {
-                        ERR_CONTINUE(E->deref()->type != ITEM_FRAME); //children should all be frames
-                        RichTextItemFrame *frame = static_cast<RichTextItemFrame *>(E->deref());
+                    for (RichTextItem * E : table->subitems) {
+                        ERR_CONTINUE(E->type != ITEM_FRAME); //children should all be frames
+                        RichTextItemFrame *frame = static_cast<RichTextItemFrame *>(E);
 
                         int column = idx % table->columns.size();
 
@@ -1004,9 +1004,9 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 
                     //compute caches properly again with the right width
                     idx = 0;
-                    for (List<RichTextItem *>::Element *E = table->subitems.front(); E; E = E->next()) {
-                        ERR_CONTINUE(E->deref()->type != ITEM_FRAME); //children should all be frames
-                        RichTextItemFrame *frame = static_cast<RichTextItemFrame *>(E->deref());
+                    for (RichTextItem *E : table->subitems) {
+                        ERR_CONTINUE(E->type != ITEM_FRAME); //children should all be frames
+                        RichTextItemFrame *frame = static_cast<RichTextItemFrame *>(E);
 
                         int column = idx % table->columns.size();
 
@@ -1026,9 +1026,9 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                 int row_height = 0;
                 //draw using computed caches
                 int idx = 0;
-                for (List<RichTextItem *>::Element *E = table->subitems.front(); E; E = E->next()) {
-                    ERR_CONTINUE(E->deref()->type != ITEM_FRAME); //children should all be frames
-                    RichTextItemFrame *frame = static_cast<RichTextItemFrame *>(E->deref());
+                for (RichTextItem *E : table->subitems) {
+                    ERR_CONTINUE(E->type != ITEM_FRAME); //children should all be frames
+                    RichTextItemFrame *frame = static_cast<RichTextItemFrame *>(E);
 
                     int column = idx % table->columns.size();
 
@@ -1739,8 +1739,8 @@ bool RichTextLabel::_find_layout_subitem(RichTextItem *from, RichTextItem *to) {
         if (from->type != ITEM_FONT && from->type != ITEM_COLOR && from->type != ITEM_UNDERLINE && from->type != ITEM_STRIKETHROUGH)
             return true;
 
-        for (List<RichTextItem *>::Element *E = from->subitems.front(); E; E = E->next()) {
-            bool layout = _find_layout_subitem(E->deref(), to);
+        for (RichTextItem *E : from->subitems) {
+            bool layout = _find_layout_subitem(E, to);
 
             if (layout)
                 return true;
@@ -1833,9 +1833,9 @@ void RichTextLabel::add_text_uistring(const UIString &p_text) {
 
         if (line.length() > 0) {
 
-            if (!current->subitems.empty() && current->subitems.back()->deref()->type == ITEM_TEXT) {
+            if (!current->subitems.empty() && current->subitems.back()->type == ITEM_TEXT) {
                 //append text condition!
-                ItemText *ti = static_cast<ItemText *>(current->subitems.back()->deref());
+                ItemText *ti = static_cast<ItemText *>(current->subitems.back());
                 ti->text += line;
                 _invalidate_current_line(main);
 
@@ -1865,7 +1865,7 @@ void RichTextLabel::add_text_uistring(const UIString &p_text) {
 void RichTextLabel::_add_item(RichTextItem *p_item, bool p_enter, bool p_ensure_newline) {
 
     p_item->parent = current;
-    p_item->E = current->subitems.push_back(p_item);
+    p_item->E = current->subitems.insert(current->subitems.end(),p_item);
     p_item->index = current_idx++;
 
     if (p_enter)
@@ -1892,17 +1892,21 @@ void RichTextLabel::_remove_item(RichTextItem *p_item, const int p_line, const i
 
     int size = p_item->subitems.size();
     if (size == 0) {
-        p_item->parent->subitems.erase(p_item);
+        auto &parent_subs(p_item->parent->subitems);
+        parent_subs.erase(eastl::find(parent_subs.begin(),parent_subs.end(),p_item));
         if (p_item->type == ITEM_NEWLINE) {
             current_frame->lines.erase_at(p_line);
+            ListPOD<RichTextItem *>::iterator iter=current->subitems.begin();
+            eastl::advance(iter,p_subitem_line);
             for (int i = p_subitem_line; i < current->subitems.size(); i++) {
-                if (current->subitems[i]->line > 0)
-                    current->subitems[i]->line--;
+                if ((*iter)->line > 0)
+                    (*iter)->line--;
+                ++iter;
             }
         }
     } else {
         for (int i = 0; i < size; i++) {
-            _remove_item(p_item->subitems.front()->deref(), p_line, p_subitem_line);
+            _remove_item(p_item->subitems.front(), p_line, p_subitem_line);
         }
     }
 }
@@ -1958,16 +1962,20 @@ bool RichTextLabel::remove_line(const int p_line) {
         return false;
 
     int i = 0;
-    while (i < current->subitems.size() && current->subitems[i]->line < p_line) {
+    auto iter= current->subitems.begin();
+    while (i < current->subitems.size() && (*iter)->line < p_line) {
         i++;
+        ++iter;
     }
 
     bool was_newline = false;
     while (i < current->subitems.size()) {
-        was_newline = current->subitems[i]->type == ITEM_NEWLINE;
-        _remove_item(current->subitems[i], current->subitems[i]->line, p_line);
+        was_newline = (*iter)->type == ITEM_NEWLINE;
+        _remove_item((*iter), (*iter)->line, p_line);
         if (was_newline)
             break;
+        iter = current->subitems.begin();
+        eastl::advance(iter,i);
     }
 
     if (!was_newline) {
