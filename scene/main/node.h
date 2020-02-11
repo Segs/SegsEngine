@@ -265,7 +265,7 @@ public:
 
     void set_owner(Node *p_owner);
     Node *get_owner() const;
-    void get_owned_by(Node *p_by, DefList<Node *> *p_owned);
+    void get_owned_by(Node *p_by, PODVector<Node *> *p_owned);
 
     void remove_and_skip();
     int get_index() const;

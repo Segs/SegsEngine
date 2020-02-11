@@ -509,7 +509,7 @@ public:
 
     /* LOADER FUNCTIONS */
 
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> *p_extensions) const override;
 
     /* GLOBAL CLASSES */
 

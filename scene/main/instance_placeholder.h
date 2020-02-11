@@ -46,7 +46,7 @@ class InstancePlaceholder : public Node {
         Variant value;
     };
 
-    List<PropSet> stored_values;
+    PODVector<PropSet> stored_values;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);

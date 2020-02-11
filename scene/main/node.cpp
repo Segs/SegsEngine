@@ -1593,7 +1593,7 @@ bool Node::is_greater_than(const Node *p_node) const {
     return res;
 }
 
-void Node::get_owned_by(Node *p_by, List<Node *> *p_owned) {
+void Node::get_owned_by(Node *p_by, PODVector<Node *> *p_owned) {
 
     if (data->owner == p_by)
         p_owned->push_back(this);

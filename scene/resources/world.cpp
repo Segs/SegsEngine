@@ -97,7 +97,7 @@ struct SpatialIndexer {
         octree.erase(E->second.id);
         notifiers.erase(p_notifier);
 
-        List<Camera *> removed;
+        PODVector<Camera *> removed;
         for (eastl::pair< Camera *const,CameraData> &F : cameras) {
 
             Map<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
@@ -108,10 +108,8 @@ struct SpatialIndexer {
             }
         }
 
-        while (!removed.empty()) {
-
-            p_notifier->_exit_camera(removed.front()->deref());
-            removed.pop_front();
+        for(Camera *c : removed) {
+            p_notifier->_exit_camera(c);
         }
 
         changed = true;
@@ -169,8 +167,8 @@ struct SpatialIndexer {
 
             VisibilityNotifier **ptr = cull.data();
 
-            List<VisibilityNotifier *> added;
-            List<VisibilityNotifier *> removed;
+            PODVector<VisibilityNotifier *> added;
+            PODVector<VisibilityNotifier *> removed;
 
             for (int i = 0; i < culled; i++) {
 
@@ -192,15 +190,13 @@ struct SpatialIndexer {
                     removed.push_back(F.first);
             }
 
-            while (!added.empty()) {
-                added.front()->deref()->_enter_camera(E.first);
-                added.pop_front();
+            for(VisibilityNotifier * vn : added) {
+                vn->_enter_camera(E.first);
             }
 
-            while (!removed.empty()) {
-                E.second.notifiers.erase(removed.front()->deref());
-                removed.front()->deref()->_exit_camera(E.first);
-                removed.pop_front();
+            for(VisibilityNotifier * r : removed) {
+                E.second.notifiers.erase(r);
+                r->_exit_camera(E.first);
             }
         }
         changed = false;
@@ -308,7 +304,7 @@ PhysicsDirectSpaceState *World::get_direct_space_state() {
     return PhysicsServer::get_singleton()->space_get_direct_state(space);
 }
 
-void World::get_camera_list(List<Camera *> *r_cameras) {
+void World::get_camera_list(PODVector<Camera *> *r_cameras) {
 
     for (const eastl::pair<Camera *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
         r_cameras->push_back(E.first);

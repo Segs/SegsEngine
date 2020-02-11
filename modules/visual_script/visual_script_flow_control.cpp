@@ -910,16 +910,16 @@ void VisualScriptTypeCast::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_base_script", {"path"}), &VisualScriptTypeCast::set_base_script);
     MethodBinder::bind_method(D_METHOD("get_base_script"), &VisualScriptTypeCast::get_base_script);
 
-    List<String> script_extensions;
+    PODVector<String> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
 
     String script_ext_hint;
-    for (List<String>::Element *E = script_extensions.front(); E; E = E->next()) {
+    for (const String &E : script_extensions) {
         if (!script_ext_hint.empty())
             script_ext_hint += ",";
-        script_ext_hint += "*." + E->deref();
+        script_ext_hint += "*." + E;
     }
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PropertyHint::TypeString, "Object"), "set_base_type", "get_base_type");

@@ -424,7 +424,7 @@ private:
     void _get_canvas_items_at_pos(const Point2 &p_pos, PODVector<_SelectResult> &r_items);
     void _get_bones_at_pos(const Point2 &p_pos, PODVector<_SelectResult> &r_items);
 
-    void _find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, List<CanvasItem *> *r_items, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D());
+    void _find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, PODVector<CanvasItem *> *r_items, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D());
     bool _select_click_on_item(CanvasItem *item, Point2 p_click_pos, bool p_append);
 
     ConfirmationDialog *snap_dialog;

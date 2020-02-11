@@ -2696,9 +2696,9 @@ void VisualScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool 
 }
 /* LOADER FUNCTIONS */
 
-void VisualScriptLanguage::get_recognized_extensions(List<String> *p_extensions) const {
+void VisualScriptLanguage::get_recognized_extensions(PODVector<String> *p_extensions) const {
 
-    p_extensions->push_back(("vs"));
+    p_extensions->emplace_back("vs");
 }
 void VisualScriptLanguage::get_public_functions(PODVector<MethodInfo> *p_functions) const {
 }

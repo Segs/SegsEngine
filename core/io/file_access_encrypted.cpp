@@ -228,8 +228,8 @@ int FileAccessEncrypted::get_buffer(uint8_t *p_dst, int p_length) const {
 
     ERR_FAIL_COND_V_MSG(writing, 0, "File has not been opened in read mode.");
 
-    int to_copy = MIN(p_length, data.size() - pos);
-    for (int i = 0; i < to_copy; i++) {
+    size_t to_copy = eastl::min(size_t(p_length), size_t(data.size() - pos));
+    for (size_t i = 0; i < to_copy; i++) {
 
         p_dst[i] = data[pos++];
     }

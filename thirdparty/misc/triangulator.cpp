@@ -39,7 +39,7 @@ TriangulatorPoly::TriangulatorPoly() {
 }
 TriangulatorPoly::TriangulatorPoly(const TriangulatorPoint *src, int size) {
     hole = false;
-    this->numpoints = numpoints;
+    this->numpoints = size;
     points = new TriangulatorPoint[numpoints];
     memcpy(points,src,sizeof(TriangulatorPoint)*size);
 }

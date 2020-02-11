@@ -49,7 +49,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
 
     static PODVector<String> (*get_editable_animation_list)();
 
@@ -97,7 +97,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -139,7 +139,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -163,7 +163,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -187,7 +187,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -210,7 +210,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -231,7 +231,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -250,7 +250,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -298,7 +298,7 @@ protected:
     void _validate_property(PropertyInfo &property) const override;
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;

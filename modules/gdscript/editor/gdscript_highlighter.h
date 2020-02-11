@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GDSCRIPT_HIGHLIGHTER_H
-#define GDSCRIPT_HIGHLIGHTER_H
+#pragma once
 
 #include "scene/gui/text_edit.h"
 
@@ -66,7 +65,5 @@ public:
 	Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) override;
 
     String get_name() const override;
-    List<String> get_supported_languages() override;
+    PODVector<String> get_supported_languages() override;
 };
-
-#endif // GDSCRIPT_HIGHLIGHTER_H

@@ -164,15 +164,15 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             node->set_slot(base + i, true, 0, get_color("font_color", "Label"), false, 0, Color());
         }
 
-        List<PropertyInfo> pinfo;
+        PODVector<PropertyInfo> pinfo;
         agnode->get_parameter_list(&pinfo);
-        for (List<PropertyInfo>::Element *F = pinfo.front(); F; F = F->next()) {
+        for (const PropertyInfo &F : pinfo) {
 
-            if (!(F->deref().usage & PROPERTY_USAGE_EDITOR)) {
+            if (!(F.usage & PROPERTY_USAGE_EDITOR)) {
                 continue;
             }
-            String base_path = AnimationTreeEditor::get_singleton()->get_base_path() + String(E) + "/" + F->deref().name;
-            EditorProperty *prop = EditorInspector::instantiate_property_editor(AnimationTreeEditor::get_singleton()->get_tree(), F->deref().type, base_path, F->deref().hint, F->deref().hint_string, F->deref().usage);
+            String base_path = AnimationTreeEditor::get_singleton()->get_base_path() + String(E) + "/" + F.name;
+            EditorProperty *prop = EditorInspector::instantiate_property_editor(AnimationTreeEditor::get_singleton()->get_tree(), F.type, base_path, F.hint, F.hint_string, F.usage);
             if (prop) {
                 prop->set_object_and_property(AnimationTreeEditor::get_singleton()->get_tree(), StringName(base_path));
                 prop->update_property();

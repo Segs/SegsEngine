@@ -1476,7 +1476,7 @@ bool Main::start() {
 
     bool hasicon = false;
     String doc_tool;
-    List<String> removal_docs;
+    PODVector<String> removal_docs;
     String positional_arg;
     String game_path;
     String script;
@@ -1741,7 +1741,7 @@ bool Main::start() {
                 }
 
                 //second pass, load into global constants
-                List<Node *> to_add;
+                PODVector<Node *> to_add;
                 for (const PropertyInfo &E : props) {
 
                     StringName s(E.name);
@@ -1788,9 +1788,9 @@ bool Main::start() {
                     }
                 }
 
-                for (List<Node *>::Element *E = to_add.front(); E; E = E->next()) {
+                for (Node * n : to_add) {
 
-                    sml->get_root()->add_child(E->deref());
+                    sml->get_root()->add_child(n);
                 }
             }
         }

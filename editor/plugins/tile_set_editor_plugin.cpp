@@ -135,20 +135,20 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
 
             StaticBody2D *sb = object_cast<StaticBody2D>(child2);
 
-            List<uint32_t> shapes;
+            PODVector<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
 
-            for (List<uint32_t>::Element *E = shapes.front(); E; E = E->next()) {
-                if (sb->is_shape_owner_disabled(E->deref())) continue;
+            for (uint32_t E : shapes) {
+                if (sb->is_shape_owner_disabled(E)) continue;
 
-                Transform2D shape_transform = sb->get_transform() * sb->shape_owner_get_transform(E->deref());
-                bool one_way = sb->is_shape_owner_one_way_collision_enabled(E->deref());
+                Transform2D shape_transform = sb->get_transform() * sb->shape_owner_get_transform(E);
+                bool one_way = sb->is_shape_owner_one_way_collision_enabled(E);
 
                 shape_transform[2] -= phys_offset;
 
-                for (int k = 0; k < sb->shape_owner_get_shape_count(E->deref()); k++) {
+                for (int k = 0; k < sb->shape_owner_get_shape_count(E); k++) {
 
-                    Ref<Shape2D> shape = sb->shape_owner_get_shape(E->deref(), k);
+                    Ref<Shape2D> shape = sb->shape_owner_get_shape(E, k);
                     TileSet::ShapeData shape_data;
                     shape_data.shape = shape;
                     shape_data.shape_transform = shape_transform;

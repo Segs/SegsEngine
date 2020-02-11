@@ -1088,9 +1088,9 @@ void CSharpLanguage::_load_scripts_metadata() {
     }
 }
 
-void CSharpLanguage::get_recognized_extensions(DefList<String> *p_extensions) const {
+void CSharpLanguage::get_recognized_extensions(PODVector<String> *p_extensions) const {
 
-    p_extensions->push_back("cs");
+    p_extensions->emplace_back("cs");
 }
 
 #ifdef TOOLS_ENABLED

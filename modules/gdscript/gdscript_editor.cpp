@@ -405,7 +405,7 @@ String GDScriptLanguage::debug_parse_stack_level_expression(int p_level, se_stri
     return String();
 }
 
-void GDScriptLanguage::get_recognized_extensions(List<String> *p_extensions) const {
+void GDScriptLanguage::get_recognized_extensions(PODVector<String> *p_extensions) const {
 
     p_extensions->push_back("gd");
 }

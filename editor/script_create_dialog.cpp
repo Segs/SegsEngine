@@ -199,7 +199,7 @@ StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file
 
     /* Check file extension */
     se_string_view extension = PathUtils::get_extension(p);
-    List<String> extensions;
+    PODVector<String> extensions;
 
     // get all possible extensions for script
     for (int l = 0; l < language_menu->get_item_count(); l++) {
@@ -209,12 +209,12 @@ StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file
     bool found = false;
     bool match = false;
     int index = 0;
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        if (StringUtils::compare(E->deref(),extension,StringUtils::CaseInsensitive) == 0) {
+    for (const String &E : extensions) {
+        if (StringUtils::compare(E,extension,StringUtils::CaseInsensitive) == 0) {
             //FIXME (?) - changing language this way doesn't update controls, needs rework
             //language_menu->select(index); // change Language option by extension
             found = true;
-            if (E->deref() == ScriptServer::get_language(language_menu->get_selected())->get_extension()) {
+            if (E == ScriptServer::get_language(language_menu->get_selected())->get_extension()) {
                 match = true;
             }
             break;
@@ -364,14 +364,14 @@ void ScriptCreateDialog::_lang_changed(int l) {
             _path_changed(path);
         } else {
             // change extension by selected language
-            List<String> extensions;
+            PODVector<String> extensions;
             // get all possible extensions for script
             for (int m = 0; m < language_menu->get_item_count(); m++) {
                 ScriptServer::get_language(m)->get_recognized_extensions(&extensions);
             }
 
-            for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-                if (StringUtils::compare(E->deref(),extension,StringUtils::CaseInsensitive) == 0) {
+            for (const String &E : extensions) {
+                if (StringUtils::compare(E,extension,StringUtils::CaseInsensitive) == 0) {
                     path = String(PathUtils::get_basename(path)) + selected_ext;
                     _path_changed(path);
                     break;
@@ -531,13 +531,13 @@ void ScriptCreateDialog::_browse_path(bool browse_parent, bool p_save) {
 
     file_browse->set_disable_overwrite_warning(true);
     file_browse->clear_filters();
-    List<String> extensions;
+    PODVector<String> extensions;
 
     int lang = language_menu->get_selected();
     ScriptServer::get_language(lang)->get_recognized_extensions(&extensions);
 
-    for (List<String>::Element *E = extensions.front(); E; E = E->next()) {
-        file_browse->add_filter("*." + E->deref());
+    for (const String &E : extensions) {
+        file_browse->add_filter("*." + E);
     }
 
     file_browse->set_current_path(file_path->get_text());

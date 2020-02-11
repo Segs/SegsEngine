@@ -115,7 +115,7 @@ protected:
     void _set_parent(Object *p_parent);
 
 public:
-    virtual void get_parameter_list(List<PropertyInfo> *r_list) const;
+    virtual void get_parameter_list(PODVector<PropertyInfo> *r_list) const;
     virtual Variant get_parameter_default_value(const StringName &p_parameter) const;
 
     void set_parameter(const StringName &p_name, const Variant &p_value);
@@ -283,7 +283,7 @@ private:
     bool properties_dirty;
     void _tree_changed();
     void _update_properties();
-    List<PropertyInfo> properties;
+    PODVector<PropertyInfo> properties;
     DefHashMap<StringName, DefHashMap<StringName, StringName> > property_parent_map;
     DefHashMap<StringName, Variant> property_map;
 
