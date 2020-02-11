@@ -127,7 +127,7 @@ private:
     };
 
     Map<PosKey, Cell> tile_map;
-    List<PosKey> dirty_bitmask;
+    PODVector<PosKey> dirty_bitmask;
 
     struct Quadrant {
 

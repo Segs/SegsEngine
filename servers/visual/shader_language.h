@@ -424,7 +424,7 @@ public:
         FunctionNode *parent_function=nullptr;
         BlockNode *parent_block=nullptr;
         Map<StringName, Variable> variables;
-        List<Node *> statements;
+        PODVector<Node *> statements;
         int block_type=BLOCK_TYPE_STANDART;
         SubClassTag block_tag=SubClassTag::TAG_GLOBAL;
         bool single_statement=false;

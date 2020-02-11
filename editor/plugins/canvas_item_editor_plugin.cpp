@@ -1419,8 +1419,8 @@ void CanvasItemEditor::_solve_IK(Node2D *leaf_node, Point2 target_position) {
         // Build the node list
         Point2 leaf_pos = target_position;
 
-        List<Node2D *> joints_list;
-        List<Point2> joints_pos;
+        PODVector<Node2D *> joints_list;
+        PODVector<Point2> joints_pos;
         Node2D *joint = leaf_node;
         Transform2D joint_transform = leaf_node->get_global_transform_with_canvas();
         for (int i = 0; i < nb_bones + 1; i++) {
@@ -1429,7 +1429,7 @@ void CanvasItemEditor::_solve_IK(Node2D *leaf_node, Point2 target_position) {
             joint_transform = joint_transform * joint->get_transform().affine_inverse();
             joint = object_cast<Node2D>(joint->get_parent());
         }
-        Point2 root_pos = joints_list.back()->deref()->get_global_transform_with_canvas().get_origin();
+        Point2 root_pos = joints_list.back()->get_global_transform_with_canvas().get_origin();
 
         // Restraints the node to a maximum distance is necessary
         float total_len = 0;

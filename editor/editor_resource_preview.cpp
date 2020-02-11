@@ -233,7 +233,7 @@ void EditorResourcePreview::_thread() {
             continue;
         }
 
-        QueueItem item = queue.front()->deref();
+        QueueItem item = queue.front();
         queue.pop_front();
 
         if (cache.contains(item.path)) {
@@ -382,7 +382,7 @@ void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p
     item.path = path_id;
     item.userdata = p_userdata;
 
-    queue.push_back(item);
+    queue.emplace_back(item);
     preview_mutex->unlock();
     preview_sem->post();
 }
@@ -405,7 +405,7 @@ void EditorResourcePreview::queue_resource_preview(se_string_view p_path, Object
     item.path = p_path;
     item.userdata = p_userdata;
 
-    queue.push_back(item);
+    queue.emplace_back(item);
     preview_mutex->unlock();
     preview_sem->post();
 }
@@ -462,7 +462,7 @@ void EditorResourcePreview::check_for_invalidation(se_string_view p_path) {
 }
 
 void EditorResourcePreview::start() {
-    ERR_FAIL_COND_MSG(thread, "Thread already started."); 
+    ERR_FAIL_COND_MSG(thread, "Thread already started.");
     thread = Thread::create(_thread_func, this);
 }
 

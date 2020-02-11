@@ -735,7 +735,7 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
 
 #define IS_SYMBOL_CHAR(m_d) (((m_d) >= 'a' && (m_d) <= 'z') || ((m_d) >= 'A' && (m_d) <= 'Z') || ((m_d) >= '0' && (m_d) <= '9') || (m_d) == '_')
 
-String VisualShader::validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const {
+String VisualShader::validate_port_name(se_string_view p_name, const PODVector<StringName> &p_input_ports, const PODVector<StringName> &p_output_ports) const {
     String name(p_name);
 
     while (name.length() && !IS_INITIAL_CHAR(name[0])) {

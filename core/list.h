@@ -455,43 +455,43 @@ public:
         return *this;
     }
 
-    T &operator[](int p_index) {
+//    T &operator[](int p_index) {
 
-        CRASH_BAD_INDEX(p_index, size());
+//        CRASH_BAD_INDEX(p_index, size());
 
-        Element *I = front();
-        int c = 0;
-        while (I) {
+//        Element *I = front();
+//        int c = 0;
+//        while (I) {
 
-            if (c == p_index) {
+//            if (c == p_index) {
 
-                return I->deref();
-            }
-            I = I->next();
-            c++;
-        }
+//                return I->deref();
+//            }
+//            I = I->next();
+//            c++;
+//        }
 
-        CRASH_NOW(); // bug!!
-    }
+//        CRASH_NOW(); // bug!!
+//    }
 
-    const T &operator[](int p_index) const {
+//    const T &operator[](int p_index) const {
 
-        CRASH_BAD_INDEX(p_index, size());
+//        CRASH_BAD_INDEX(p_index, size());
 
-        const Element *I = front();
-        int c = 0;
-        while (I) {
+//        const Element *I = front();
+//        int c = 0;
+//        while (I) {
 
-            if (c == p_index) {
+//            if (c == p_index) {
 
-                return I->deref();
-            }
-            I = I->next();
-            c++;
-        }
+//                return I->deref();
+//            }
+//            I = I->next();
+//            c++;
+//        }
 
-        CRASH_NOW(); // bug!!
-    }
+//        CRASH_NOW(); // bug!!
+//    }
 
     void invert() {
 

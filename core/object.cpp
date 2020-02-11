@@ -65,7 +65,7 @@ struct Object::Signal  {
 
     struct Slot {
         Connection conn;
-        List<Connection>::Element *cE=nullptr;
+        ListPOD<Connection>::iterator cE=nullptr;
         int reference_count=0;
     };
 
@@ -76,7 +76,7 @@ struct Object::Signal  {
 struct Object::ObjectPrivate {
     IObjectTooling *m_tooling;
     HashMap<StringName, Signal> signal_map;
-    List<Connection> connections;
+    ListPOD<Connection> connections;
 
 #ifdef DEBUG_ENABLED
     SafeRefCount _lock_index;
@@ -110,7 +110,7 @@ struct Object::ObjectPrivate {
         }
         //signals from nodes that connect to this node
         while (!connections.empty()) {
-            Connection c = connections.front()->deref();
+            Connection c = connections.front();
             c.source->_disconnect(c.signal, c.target, c.method, true);
         }
         relase_tooling(m_tooling);
@@ -1226,13 +1226,12 @@ Array Object::_get_signal_connection_list(StringName p_signal) const {
 Array Object::_get_incoming_connections() const {
 
     Array ret;
-    int connections_amount = private_data->connections.size();
-    for (int idx_conn = 0; idx_conn < connections_amount; idx_conn++) {
+    for (const Connection &cn : private_data->connections) {
         Dictionary conn_data;
         //TODO: SEGS: source will not be properly preserved if it inherits from Reference
-        conn_data["source"] = Variant(private_data->connections[idx_conn].source);
-        conn_data["signal_name"] = private_data->connections[idx_conn].signal;
-        conn_data["method_name"] = private_data->connections[idx_conn].method;
+        conn_data["source"] = Variant(cn.source);
+        conn_data["signal_name"] = cn.signal;
+        conn_data["method_name"] = cn.method;
         ret.push_back(conn_data);
     }
 
@@ -1308,8 +1307,8 @@ int Object::get_persistent_signal_connection_count() const {
 
 void Object::get_signals_connected_to_this(ListPOD<Connection> *p_connections) const {
 
-    for (const List<Connection>::Element *E = private_data->connections.front(); E; E = E->next()) {
-        p_connections->push_back(E->deref());
+    for (const Connection &E : private_data->connections) {
+        p_connections->emplace_back(E);
     }
 }
 
@@ -1364,7 +1363,8 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
     conn.flags = p_flags;
     conn.binds = p_binds;
     slot.conn = conn;
-    slot.cE = p_to_object->private_data->connections.push_back(conn);
+    auto &conns(p_to_object->private_data->connections);
+    slot.cE = conns.emplace(conns.end(),conn);
     if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {
         slot.reference_count = 1;
     }

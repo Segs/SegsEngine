@@ -309,9 +309,9 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                         }
                     }
 
-                    ERR_BREAK(!obj); 
+                    ERR_BREAK(!obj);
                     Resource *res = object_cast<Resource>(obj);
-                    ERR_BREAK(!res); 
+                    ERR_BREAK(!res);
                     if (owner && hint == PropertyHint::ResourceType && hint_text == "Script") {
                         //make visual script the right type
                         res->call("set_instance_base_type", owner->get_class());
@@ -553,16 +553,18 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             if (hint == PropertyHint::File || hint == PropertyHint::GlobalFile) {
 
-                List<StringName> names;
-                names.push_back(TTR("File..."));
-                names.push_back(TTR("Clear"));
+                const StringName names[2] {
+                    TTR("File..."),
+                    TTR("Clear")
+                };
                 config_action_buttons(names);
 
             } else if (hint == PropertyHint::Dir || hint == PropertyHint::GlobalDir) {
 
-                List<StringName> names;
-                names.push_back(TTR("Dir..."));
-                names.push_back(TTR("Clear"));
+                const StringName names[2] {
+                    TTR("Dir..."),
+                    TTR("Clear")
+                };
                 config_action_buttons(names);
             } else if (hint == PropertyHint::Enum) {
 
@@ -893,12 +895,12 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
         case VariantType::NODE_PATH: {
 
-            List<StringName> names;
-            names.push_back(TTR("Assign"));
-            names.push_back(TTR("Clear"));
+            FixedVector<StringName,3> names;
+            names.emplace_back(TTR("Assign"));
+            names.emplace_back(TTR("Clear"));
 
             if (owner && owner->is_class("Node") && v.get_type() == VariantType::NODE_PATH && object_cast<Node>(owner)->has_node(v))
-                names.push_back(TTR("Select Node"));
+                names.emplace_back(TTR("Select Node"));
 
             config_action_buttons(names);
 
@@ -1372,9 +1374,9 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                         }
                     }
 
-                    ERR_BREAK(!obj); 
+                    ERR_BREAK(!obj);
                     Resource *res = object_cast<Resource>(obj);
-                    ERR_BREAK(!res); 
+                    ERR_BREAK(!res);
 
                     v = Variant(Ref<Resource>(res));
                     emit_signal("variant_changed");
@@ -1797,7 +1799,7 @@ void CustomPropertyEditor::_focus_exit() {
     }
 }
 
-void CustomPropertyEditor::config_action_buttons(const List<StringName> &p_strings) {
+void CustomPropertyEditor::config_action_buttons(Span<const StringName> p_strings) {
 
     Ref<StyleBox> sb = get_stylebox("panel");
     int margin_top = sb->get_margin(Margin::Top);

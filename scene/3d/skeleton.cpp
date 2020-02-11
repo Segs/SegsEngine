@@ -505,7 +505,7 @@ void Skeleton::unbind_child_node_from_bone(int p_bone, Node *p_node) {
     uint32_t id = p_node->get_instance_id();
     bones[p_bone].nodes_bound.erase_first(id);
 }
-void Skeleton::get_bound_child_nodes_to_bone(int p_bone, List<Node *> *p_bound) const {
+void Skeleton::get_bound_child_nodes_to_bone(int p_bone, PODVector<Node *> *p_bound) const {
 
     ERR_FAIL_INDEX(p_bone, bones.size());
 

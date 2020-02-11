@@ -158,7 +158,7 @@ public:
 
     String generate_preview_shader(Type p_type, int p_node, int p_port, PODVector<DefaultTextureParam> &r_default_tex_params) const;
 
-    String validate_port_name(se_string_view p_name, const List<StringName> &p_input_ports, const List<StringName> &p_output_ports) const;
+    String validate_port_name(se_string_view p_name, const PODVector<StringName> &p_input_ports, const PODVector<StringName> &p_output_ports) const;
     String validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
 
     VisualShader();
@@ -235,8 +235,8 @@ class VisualShaderNodeCustom : public VisualShaderNode {
         int type;
     };
 
-    List<Port> input_ports;
-    List<Port> output_ports;
+    PODVector<Port> input_ports;
+    PODVector<Port> output_ports;
 
     friend class VisualShaderEditor;
 
