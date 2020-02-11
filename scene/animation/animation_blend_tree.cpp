@@ -61,8 +61,8 @@ StringName AnimationNodeAnimation::get_animation() const {
 
 PODVector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
 
-void AnimationNodeAnimation::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, time, PropertyHint::None, "", 0));
+void AnimationNodeAnimation::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, time, PropertyHint::None, "", 0);
 }
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 
@@ -156,12 +156,12 @@ AnimationNodeAnimation::AnimationNodeAnimation() {
 
 ////////////////////////////////////////////////////////
 
-void AnimationNodeOneShot::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::BOOL, active));
-    r_list->push_back(PropertyInfo(VariantType::BOOL, prev_active, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::REAL, time, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::REAL, remaining, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::REAL, time_to_restart, PropertyHint::None, "", 0));
+void AnimationNodeOneShot::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::BOOL, active);
+    r_list->emplace_back(VariantType::BOOL, prev_active, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::REAL, time, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::REAL, remaining, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::REAL, time_to_restart, PropertyHint::None, "", 0);
 }
 
 Variant AnimationNodeOneShot::get_parameter_default_value(const StringName &p_parameter) const {
@@ -397,8 +397,8 @@ AnimationNodeOneShot::AnimationNodeOneShot() {
 
 ////////////////////////////////////////////////
 
-void AnimationNodeAdd2::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, add_amount, PropertyHint::Range, "0,1,0.01"));
+void AnimationNodeAdd2::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, add_amount, PropertyHint::Range, "0,1,0.01");
 }
 Variant AnimationNodeAdd2::get_parameter_default_value(const StringName &p_parameter) const {
     return 0;
@@ -449,8 +449,8 @@ AnimationNodeAdd2::AnimationNodeAdd2() {
 
 ////////////////////////////////////////////////
 
-void AnimationNodeAdd3::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, add_amount, PropertyHint::Range, "-1,1,0.01"));
+void AnimationNodeAdd3::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, add_amount, PropertyHint::Range, "-1,1,0.01");
 }
 Variant AnimationNodeAdd3::get_parameter_default_value(const StringName &p_parameter) const {
     return 0;
@@ -502,8 +502,8 @@ AnimationNodeAdd3::AnimationNodeAdd3() {
 }
 /////////////////////////////////////////////
 
-void AnimationNodeBlend2::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, blend_amount, PropertyHint::Range, "0,1,0.01"));
+void AnimationNodeBlend2::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, blend_amount, PropertyHint::Range, "0,1,0.01");
 }
 Variant AnimationNodeBlend2::get_parameter_default_value(const StringName &p_parameter) const {
     return 0; //for blend amount
@@ -553,8 +553,8 @@ AnimationNodeBlend2::AnimationNodeBlend2() {
 
 //////////////////////////////////////
 
-void AnimationNodeBlend3::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, blend_amount, PropertyHint::Range, "-1,1,0.01"));
+void AnimationNodeBlend3::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, blend_amount, PropertyHint::Range, "-1,1,0.01");
 }
 Variant AnimationNodeBlend3::get_parameter_default_value(const StringName &p_parameter) const {
     return 0; //for blend amount
@@ -601,8 +601,8 @@ AnimationNodeBlend3::AnimationNodeBlend3() {
 
 /////////////////////////////////
 
-void AnimationNodeTimeScale::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, scale, PropertyHint::Range, "0,32,0.01,or_greater"));
+void AnimationNodeTimeScale::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, scale, PropertyHint::Range, "0,32,0.01,or_greater");
 }
 Variant AnimationNodeTimeScale::get_parameter_default_value(const StringName &p_parameter) const {
     return 1.0; //initial timescale
@@ -631,8 +631,8 @@ AnimationNodeTimeScale::AnimationNodeTimeScale() {
 
 ////////////////////////////////////
 
-void AnimationNodeTimeSeek::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::REAL, seek_pos, PropertyHint::Range, "-1,3600,0.01,or_greater"));
+void AnimationNodeTimeSeek::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::REAL, seek_pos, PropertyHint::Range, "-1,3600,0.01,or_greater");
 }
 Variant AnimationNodeTimeSeek::get_parameter_default_value(const StringName &p_parameter) const {
     return 1.0; //initial timescale
@@ -667,7 +667,7 @@ AnimationNodeTimeSeek::AnimationNodeTimeSeek() {
 
 /////////////////////////////////////////////////
 
-void AnimationNodeTransition::get_parameter_list(List<PropertyInfo> *r_list) const {
+void AnimationNodeTransition::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
 
     String anims;
     for (int i = 0; i < enabled_inputs; i++) {
@@ -677,11 +677,11 @@ void AnimationNodeTransition::get_parameter_list(List<PropertyInfo> *r_list) con
         anims += inputs[i].name;
     }
 
-    r_list->push_back(PropertyInfo(VariantType::INT, current, PropertyHint::Enum, anims));
-    r_list->push_back(PropertyInfo(VariantType::INT, prev_current, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::INT, prev, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::REAL, time, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::REAL, prev_xfading, PropertyHint::None, "", 0));
+    r_list->emplace_back(VariantType::INT, current, PropertyHint::Enum, anims);
+    r_list->emplace_back(VariantType::INT, prev_current, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::INT, prev, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::REAL, time, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::REAL, prev_xfading, PropertyHint::None, "", 0);
 }
 Variant AnimationNodeTransition::get_parameter_default_value(const StringName &p_parameter) const {
     if (p_parameter == time || p_parameter == prev_xfading) {
@@ -1220,12 +1220,12 @@ void AnimationNodeBlendTree::_get_property_list(PODVector<PropertyInfo> *p_list)
     for (const StringName &E : names) {
         StringName name(E);
         if (E != se_string_view("output")) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(String("nodes/") + name + "/node"), PropertyHint::ResourceType, "AnimationNode", PROPERTY_USAGE_NOEDITOR));
+            p_list->emplace_back(VariantType::OBJECT, StringName(String("nodes/") + name + "/node"), PropertyHint::ResourceType, "AnimationNode", PROPERTY_USAGE_NOEDITOR);
         }
-        p_list->push_back(PropertyInfo(VariantType::VECTOR2, StringName(String("nodes/") + name + "/position"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+        p_list->emplace_back(VariantType::VECTOR2, StringName(String("nodes/") + name + "/position"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR);
     }
 
-    p_list->push_back(PropertyInfo(VariantType::ARRAY, "node_connections", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->emplace_back(VariantType::ARRAY, "node_connections", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR);
 }
 
 void AnimationNodeBlendTree::_tree_changed() {

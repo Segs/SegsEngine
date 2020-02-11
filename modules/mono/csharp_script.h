@@ -444,7 +444,7 @@ public:
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
 
     /* LOADER FUNCTIONS */
-    void get_recognized_extensions(DefList<String> *p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> *p_extensions) const override;
 
 #ifdef TOOLS_ENABLED
     Error open_in_external_editor(const Ref<Script> &p_script, int p_line, int p_col) override;

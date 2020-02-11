@@ -179,7 +179,7 @@ void AudioStreamPlayer2D::_notification(int p_what) {
         //update anything related to position first, if possible of course
 
         if (!output_ready) {
-            List<Viewport *> viewports;
+            PODVector<Viewport *> viewports;
             Ref<World2D> world_2d = get_world_2d();
             ERR_FAIL_COND(not world_2d);
 
@@ -212,41 +212,40 @@ void AudioStreamPlayer2D::_notification(int p_what) {
             }
 
             world_2d->get_viewport_list(&viewports);
-            for (List<Viewport *>::Element *E = viewports.front(); E; E = E->next()) {
+            for (Viewport *vp : viewports) {
 
-                Viewport *vp = E->deref();
-                if (vp->is_audio_listener_2d()) {
+                if (!vp->is_audio_listener_2d())
+                    continue;
 
-                    //compute matrix to convert to screen
-                    Transform2D to_screen = vp->get_global_canvas_transform() * vp->get_canvas_transform();
-                    Vector2 screen_size = vp->get_visible_rect().size;
+                //compute matrix to convert to screen
+                Transform2D to_screen = vp->get_global_canvas_transform() * vp->get_canvas_transform();
+                Vector2 screen_size = vp->get_visible_rect().size;
 
-                    //screen in global is used for attenuation
-                    Vector2 screen_in_global = to_screen.affine_inverse().xform(screen_size * 0.5);
+                //screen in global is used for attenuation
+                Vector2 screen_in_global = to_screen.affine_inverse().xform(screen_size * 0.5);
 
-                    float dist = global_pos.distance_to(screen_in_global); //distance to screen center
+                float dist = global_pos.distance_to(screen_in_global); //distance to screen center
 
-                    if (dist > max_distance)
-                        continue; //can't hear this sound in this viewport
+                if (dist > max_distance)
+                    continue; //can't hear this sound in this viewport
 
-                    float multiplier = Math::pow(1.0f - dist / max_distance, attenuation);
-                    multiplier *= Math::db2linear(volume_db); //also apply player volume!
+                float multiplier = Math::pow(1.0f - dist / max_distance, attenuation);
+                multiplier *= Math::db2linear(volume_db); //also apply player volume!
 
-                    //point in screen is used for panning
-                    Vector2 point_in_screen = to_screen.xform(global_pos);
+                //point in screen is used for panning
+                Vector2 point_in_screen = to_screen.xform(global_pos);
 
-                    float pan = CLAMP(point_in_screen.x / screen_size.width, 0.0, 1.0);
+                float pan = CLAMP(point_in_screen.x / screen_size.width, 0.0, 1.0);
 
-                    float l = 1.0 - pan;
-                    float r = pan;
+                float l = 1.0 - pan;
+                float r = pan;
 
-                    outputs[new_output_count].vol = AudioFrame(l, r) * multiplier;
-                    outputs[new_output_count].bus_index = bus_index;
-                    outputs[new_output_count].viewport = vp; //keep pointer only for reference
-                    new_output_count++;
-                    if (new_output_count == MAX_OUTPUTS)
-                        break;
-                }
+                outputs[new_output_count].vol = AudioFrame(l, r) * multiplier;
+                outputs[new_output_count].bus_index = bus_index;
+                outputs[new_output_count].viewport = vp; //keep pointer only for reference
+                new_output_count++;
+                if (new_output_count == MAX_OUTPUTS)
+                    break;
             }
 
             output_count = new_output_count;

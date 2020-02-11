@@ -290,11 +290,11 @@ void SceneTreeDock::_replace_with_branch_scene(se_string_view p_file, Node *base
     undo_redo->add_do_method(parent, "move_child", Variant(instanced_scene), pos);
     undo_redo->add_undo_method(parent, "move_child", Variant(base), pos);
 
-    List<Node *> owned;
+    PODVector<Node *> owned;
     base->get_owned_by(base->get_owner(), &owned);
     Array owners;
-    for (List<Node *>::Element *F = owned.front(); F; F = F->next()) {
-        owners.push_back(Variant(F->deref()));
+    for (Node *F : owned) {
+        owners.push_back(Variant(F));
     }
     undo_redo->add_do_method(instanced_scene, "set_owner", Variant(edited_scene));
     undo_redo->add_undo_method(this, "_set_owners", Variant(edited_scene), owners);
@@ -588,7 +588,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 Node *parent = node->get_parent();
                 Node *selection_tail = _get_selection_group_tail(node, selection);
 
-                List<Node *> owned;
+                PODVector<Node *> owned;
                 node->get_owned_by(node->get_owner(), &owned);
 
                 Map<const Node *, Node *> duplimap;
@@ -605,13 +605,13 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 dup->set_name(parent->validate_child_name(dup));
 
                 editor_data->get_undo_redo().add_do_method(parent, "add_child_below_node", Variant(selection_tail), Variant(dup));
-                for (List<Node *>::Element *F = owned.front(); F; F = F->next()) {
+                for (Node * F : owned) {
 
-                    if (!duplimap.contains(F->deref())) {
+                    if (!duplimap.contains(F)) {
 
                         continue;
                     }
-                    Node *d = duplimap[F->deref()];
+                    Node *d = duplimap[F];
                     editor_data->get_undo_redo().add_do_method(d, "set_owner", Variant(selection_tail->get_owner()));
                 }
                 editor_data->get_undo_redo().add_do_method(editor_selection, "add_node", Variant(dup));
@@ -1579,12 +1579,12 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, P
         fill_path_renames(node, new_parent, path_renames);
         former_names.emplace_back(node->get_name());
 
-        List<Node *> owned;
+        PODVector<Node *> owned;
         node->get_owned_by(node->get_owner(), &owned);
         Array owners;
-        for (List<Node *>::Element *E = owned.front(); E; E = E->next()) {
+        for (Node *E : owned) {
 
-            owners.push_back(Variant(E->deref()));
+            owners.push_back(Variant(E));
         }
 
         if (new_parent == node->get_parent() && node->get_index() < p_position_in_parent + ni)
@@ -1650,12 +1650,12 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, P
 
         Node *node = p_nodes[ni];
 
-        List<Node *> owned;
+        PODVector<Node *> owned;
         node->get_owned_by(node->get_owner(), &owned);
         Array owners;
-        for (List<Node *>::Element *E = owned.front(); E; E = E->next()) {
+        for (Node *E : owned) {
 
-            owners.push_back(Variant(E->deref()));
+            owners.push_back(Variant(E));
         }
 
         int child_pos = node->get_position_in_parent();
@@ -1839,12 +1839,12 @@ void SceneTreeDock::_delete_confirm() {
             if (!n->is_inside_tree() || !n->get_parent())
                 continue;
 
-            List<Node *> owned;
+            PODVector<Node *> owned;
             n->get_owned_by(n->get_owner(), &owned);
             Array owners;
-            for (List<Node *>::Element *F = owned.front(); F; F = F->next()) {
+            for (Node *F : owned) {
 
-                owners.push_back(Variant(F->deref()));
+                owners.push_back(Variant(F));
             }
 
             editor_data->get_undo_redo().add_do_method(n->get_parent(), "remove_child", Variant(n));

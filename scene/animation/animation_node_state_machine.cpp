@@ -527,7 +527,7 @@ AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
 
 ///////////////////////////////////////////////////////
 
-void AnimationNodeStateMachine::get_parameter_list(List<PropertyInfo> *r_list) const {
+void AnimationNodeStateMachine::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::OBJECT, playback, PropertyHint::ResourceType, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
     PODVector<StringName> advance_conditions;
     for (int i = 0; i < transitions.size(); i++) {

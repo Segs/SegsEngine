@@ -609,7 +609,7 @@ public:
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
     /* LOADER FUNCTIONS */
 
-    void get_recognized_extensions(List<String> *p_extensions) const override;
+    void get_recognized_extensions(PODVector<String> *p_extensions) const override;
     void get_public_functions(PODVector<MethodInfo> *p_functions) const override;
     void get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const override;
 

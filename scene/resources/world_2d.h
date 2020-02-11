@@ -68,7 +68,7 @@ public:
 
 	Physics2DDirectSpaceState *get_direct_space_state();
 
-	void get_viewport_list(List<Viewport *> *r_viewports);
+    void get_viewport_list(PODVector<Viewport *> *r_viewports);
 
 	World2D();
 	~World2D() override;

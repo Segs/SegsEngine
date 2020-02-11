@@ -48,9 +48,9 @@ bool InstancePlaceholder::_set(const StringName &p_name, const Variant &p_value)
 
 bool InstancePlaceholder::_get(const StringName &p_name, Variant &r_ret) const {
 
-    for (const List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
-        if (E->deref().name == p_name) {
-            r_ret = E->deref().value;
+    for (const auto & E : stored_values) {
+        if (E.name == p_name) {
+            r_ret = E.value;
             return true;
         }
     }
@@ -59,10 +59,10 @@ bool InstancePlaceholder::_get(const StringName &p_name, Variant &r_ret) const {
 
 void InstancePlaceholder::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
-    for (const List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
+    for (const auto & E : stored_values) {
         PropertyInfo pi;
-        pi.name = E->deref().name;
-        pi.type = E->deref().value.get_type();
+        pi.name = E.name;
+        pi.type = E.value.get_type();
         pi.usage = PROPERTY_USAGE_STORAGE;
 
         p_list->push_back(pi);
@@ -101,8 +101,8 @@ Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene
     scene->set_name(get_name());
     int pos = get_position_in_parent();
 
-    for (List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
-        scene->set(E->deref().name, E->deref().value);
+    for (const auto & E : stored_values) {
+        scene->set(E.name, E.value);
     }
 
     if (p_replace) {
@@ -126,10 +126,10 @@ Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
     Dictionary ret;
     PoolVector<String> order;
 
-    for (List<PropSet>::Element *E = stored_values.front(); E; E = E->next()) {
-        ret[E->deref().name] = E->deref().value;
+    for (const auto & E : stored_values) {
+        ret[E.name] = E.value;
         if (p_with_order)
-            order.push_back(E->deref().name.asCString());
+            order.push_back(E.name.asCString());
     }
 
     if (p_with_order)

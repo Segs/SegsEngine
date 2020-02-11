@@ -128,7 +128,7 @@ class Navigation2D : public Node2D {
 		Transform2D xform;
 		bool linked;
 		Ref<NavigationPolygon> navpoly;
-		List<Polygon> polygons;
+        ListPOD<Polygon> polygons;
 	};
 
 	_FORCE_INLINE_ Point _get_point(const Vector2 &p_pos) const {

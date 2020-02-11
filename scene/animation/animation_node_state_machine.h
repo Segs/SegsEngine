@@ -173,7 +173,7 @@ protected:
     void _get_property_list(PODVector<PropertyInfo> *p_list) const;
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     void add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position = Vector2());

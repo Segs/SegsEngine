@@ -738,8 +738,8 @@ bool CanvasItemEditor::_get_bone_shape(PODVector<Vector2> *shape, PODVector<Vect
     }
     return true;
 }
-
-void CanvasItemEditor::_find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, List<CanvasItem *> *r_items, const Transform2D &p_parent_xform, const Transform2D &p_canvas_xform) {
+//TODO: SEGS: r_items could be a deque instead
+void CanvasItemEditor::_find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, PODVector<CanvasItem *> *r_items, const Transform2D &p_parent_xform, const Transform2D &p_canvas_xform) {
     if (!p_node)
         return;
     if (object_cast<Viewport>(p_node))
@@ -2334,7 +2334,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
             // Confirms box selection
             Node *scene = editor->get_edited_scene();
             if (scene) {
-                List<CanvasItem *> selitems;
+                PODVector<CanvasItem *> selitems;
 
                 Point2 bsfrom = drag_from;
                 Point2 bsto = box_selecting_to;
@@ -2344,8 +2344,8 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
                     SWAP(bsfrom.y, bsto.y);
 
                 _find_canvas_items_in_rect(Rect2(bsfrom, bsto - bsfrom), scene, &selitems);
-                for (List<CanvasItem *>::Element *E = selitems.front(); E; E = E->next()) {
-                    editor_selection->add_node(E->deref());
+                for (CanvasItem * E : selitems) {
+                    editor_selection->add_node(E);
                 }
             }
 

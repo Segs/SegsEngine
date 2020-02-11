@@ -63,7 +63,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     void get_child_nodes(List<ChildNode> *r_child_nodes) override;

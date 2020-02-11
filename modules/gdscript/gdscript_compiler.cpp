@@ -992,7 +992,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                         StringName assign_property;
 
-                        List<GDScriptParser::OperatorNode *> chain;
+                        PODVector<GDScriptParser::OperatorNode *> chain;
 
                         {
                             //create get/set chain
@@ -1021,7 +1021,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                         /* Chain of gets */
 
                         //get at (potential) root stack pos, so it can be returned
-                        int prev_pos = _parse_expression(codegen, chain.back()->deref()->arguments[0], slevel);
+                        int prev_pos = _parse_expression(codegen, chain.back()->arguments[0], slevel);
                         if (prev_pos < 0)
                             return prev_pos;
                         int retval = prev_pos;
@@ -1043,17 +1043,17 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                             setchain.push_back(GDScriptFunction::OPCODE_SET_MEMBER);
                         }
 
-                        for (List<GDScriptParser::OperatorNode *>::Element *E = chain.back(); E; E = E->prev()) {
-
+                        for (auto iter=chain.rbegin(),rfin=chain.rend(); iter!=rfin; ++iter) {
+                            auto E = *iter;
                             if (E == chain.front()) //ignore first
                                 break;
 
-                            bool named = E->deref()->op == GDScriptParser::OperatorNode::OP_INDEX_NAMED;
+                            bool named = E->op == GDScriptParser::OperatorNode::OP_INDEX_NAMED;
                             int key_idx;
 
                             if (named) {
 
-                                key_idx = codegen.get_name_map_pos(static_cast<const GDScriptParser::IdentifierNode *>(E->deref()->arguments[1])->name);
+                                key_idx = codegen.get_name_map_pos(static_cast<const GDScriptParser::IdentifierNode *>(E->arguments[1])->name);
                                 //printf("named key %x\n",key_idx);
 
                             } else {
@@ -1063,7 +1063,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                                     codegen.alloc_stack(slevel);
                                 }
 
-                                GDScriptParser::Node *key = E->deref()->arguments[1];
+                                GDScriptParser::Node *key = E->arguments[1];
                                 key_idx = _parse_expression(codegen, key, slevel);
                                 //printf("expr key %x\n",key_idx);
 
@@ -1124,7 +1124,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                         codegen.opcodes.push_back(set_index);
                         codegen.opcodes.push_back(set_value);
 
-                        for (int i = 0; i < setchain.size(); i++) {
+                        for (size_t i = 0; i < setchain.size(); i++) {
 
                             codegen.opcodes.push_back(setchain[i]);
                         }
@@ -1336,7 +1336,7 @@ Error GDScriptCompiler::_parse_block(CodeGen &codegen, const GDScriptParser::Blo
                         // break address
                         codegen.opcodes.push_back(GDScriptFunction::OPCODE_JUMP);
                         codegen.opcodes.push_back(codegen.opcodes.size() + 3);
-                        int break_addr = codegen.opcodes.size();
+                        size_t break_addr = codegen.opcodes.size();
                         codegen.opcodes.push_back(GDScriptFunction::OPCODE_JUMP);
                         codegen.opcodes.push_back(0); // break addr
 
@@ -1606,7 +1606,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
     int stack_level = 0;
 
     if (p_func) {
-        for (int i = 0; i < p_func->arguments.size(); i++) {
+        for (size_t i = 0; i < p_func->arguments.size(); i++) {
             // since we are using properties now for most class access, allow shadowing of class members to make user's life easier.
             //
             //if (_is_class_member_property(p_script, p_func->arguments[i])) {

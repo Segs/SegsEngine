@@ -418,12 +418,11 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 break;
             }
 
-            List<Camera *> cameras;
+            PODVector<Camera *> cameras;
             world->get_camera_list(&cameras);
 
-            for (List<Camera *>::Element *E = cameras.front(); E; E = E->next()) {
+            for (Camera *camera : cameras) {
 
-                Camera *camera = E->deref();
                 Viewport *vp = camera->get_viewport();
                 if (!vp->is_audio_listener())
                     continue;
@@ -463,7 +462,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
                 float multiplier = Math::db2linear(_get_attenuation_db(dist));
                 if (max_distance > 0) {
-                    multiplier *= MAX(0, 1.0 - (dist / max_distance));
+                    multiplier *= MAX(0, 1.0f - (dist / max_distance));
                 }
 
                 Output output;
@@ -485,7 +484,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
                 //TODO: The lower the second parameter (tightness) the more the sound will "enclose" the listener (more undirected / playing from
                 //      speakers not facing the source) - this could be made distance dependent.
-                _calc_output_vol(local_pos.normalized(), 4.0, output);
+                _calc_output_vol(local_pos.normalized(), 4.0f, output);
 
                 unsigned int cc = AudioServer::get_singleton()->get_channel_count();
                 for (unsigned int k = 0; k < cc; k++) {

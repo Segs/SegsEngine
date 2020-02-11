@@ -63,7 +63,7 @@ void BroadPhaseBasic::remove(ID p_id) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
-    List<PairKey> to_erase;
+    PODVector<PairKey> to_erase;
     //unpair must be done immediately on removal to avoid potential invalid pointers
     for (eastl::pair<const PairKey,void *> &F : pair_map) {
 
@@ -77,10 +77,8 @@ void BroadPhaseBasic::remove(ID p_id) {
             to_erase.push_back(F.first);
         }
     }
-    while (!to_erase.empty()) {
-
-        pair_map.erase(to_erase.front()->deref());
-        to_erase.pop_front();
+    for(const auto & te: to_erase) {
+        pair_map.erase(te);
     }
     element_map.erase(E);
 }

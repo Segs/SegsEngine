@@ -62,7 +62,7 @@ public:
 #endif
 
     void set_vertices(const PoolVector<Vector2> &p_vertices);
-    PoolVector<Vector2> get_vertices() const;
+    const PoolVector<Vector2> &get_vertices() const;
 
     void add_polygon(const PoolVector<int> &p_polygon);
     int get_polygon_count() const;

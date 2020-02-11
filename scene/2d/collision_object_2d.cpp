@@ -200,7 +200,7 @@ float CollisionObject2D::get_shape_owner_one_way_collision_margin(uint32_t p_own
     return shapes.at(p_owner).one_way_collision_margin;
 }
 
-void CollisionObject2D::get_shape_owners(List<uint32_t> *r_owners) {
+void CollisionObject2D::get_shape_owners(PODVector<uint32_t> *r_owners) {
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         r_owners->push_back(E.first);

@@ -657,7 +657,7 @@ public:
     virtual Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) = 0;
 
     virtual String get_name() const = 0;
-    virtual List<String> get_supported_languages() = 0;
+    virtual PODVector<String> get_supported_languages() = 0;
 
     void set_text_editor(TextEdit *p_text_editor);
     TextEdit *get_text_editor();

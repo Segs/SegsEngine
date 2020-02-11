@@ -37,10 +37,10 @@
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
 VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)
 
-void AnimationNodeBlendSpace2D::get_parameter_list(List<PropertyInfo> *r_list) const {
-    r_list->push_back(PropertyInfo(VariantType::VECTOR2, blend_position));
-    r_list->push_back(PropertyInfo(VariantType::INT, closest, PropertyHint::None, "", 0));
-    r_list->push_back(PropertyInfo(VariantType::REAL, length_internal, PropertyHint::None, "", 0));
+void AnimationNodeBlendSpace2D::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+    r_list->emplace_back(VariantType::VECTOR2, blend_position);
+    r_list->emplace_back(VariantType::INT, closest, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::REAL, length_internal, PropertyHint::None, "", 0);
 }
 Variant AnimationNodeBlendSpace2D::get_parameter_default_value(const StringName &p_parameter) const {
     if (p_parameter == closest) {

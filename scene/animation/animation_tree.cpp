@@ -48,7 +48,7 @@ IMPL_GDCLASS(AnimationTree)
 VARIANT_ENUM_CAST(AnimationNode::FilterAction)
 VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
 
-void AnimationNode::get_parameter_list(List<PropertyInfo> *r_list) const {
+void AnimationNode::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
         Array parameters = get_script_instance()->call("get_parameter_list");
         for (int i = 0; i < parameters.size(); i++) {
@@ -1436,10 +1436,9 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
                 &input_activity_map[p_base_path];
     }
 
-    List<PropertyInfo> plist;
+    PODVector<PropertyInfo> plist;
     node->get_parameter_list(&plist);
-    for (List<PropertyInfo>::Element *E = plist.front(); E; E = E->next()) {
-        PropertyInfo pinfo = E->deref();
+    for (PropertyInfo pinfo : plist) {
 
         StringName key = pinfo.name;
         StringName concat(String(p_base_path)+key);
@@ -1450,7 +1449,7 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
         property_parent_map[p_base_path][key] = concat;
 
         pinfo.name = concat;
-        properties.push_back(pinfo);
+        properties.emplace_back(eastl::move(pinfo));
     }
 
     List<AnimationNode::ChildNode> children;
@@ -1510,19 +1509,16 @@ void AnimationTree::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     if (properties_dirty) {
         const_cast<AnimationTree *>(this)->_update_properties();
     }
-
-    for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-        p_list->push_back(E->deref());
-    }
+    p_list->push_back(properties);
 }
 
 void AnimationTree::rename_parameter(se_string_view p_base, se_string_view p_new_base) {
 
     //rename values first
-    for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-        if (StringUtils::begins_with(E->deref().name,p_base)) {
-            StringName new_name(StringUtils::replace_first(E->deref().name,p_base, p_new_base));
-            property_map[new_name] = property_map[E->deref().name];
+    for (const PropertyInfo &E : properties) {
+        if (StringUtils::begins_with(E.name,p_base)) {
+            StringName new_name(StringUtils::replace_first(E.name,p_base, p_new_base));
+            property_map[new_name] = property_map[E.name];
         }
     }
 
