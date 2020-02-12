@@ -90,19 +90,19 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
-        ListPOD<StringName> classes;
-        classes.sort(WrapAlphaCompare());
+        Vector<StringName> classes;
+        //BUG: SEGS: the original code was attempting to sort empty vector here, maybe it was meant to sort inheriters instead ?
+        //classes.sort(WrapAlphaCompare());
 
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
-        ERR_FAIL_COND(!gp)
+        ERR_FAIL_COND(!gp);
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
-                PODVector<StringName> names;
-                ap->get_animation_list(&names);
+                Vector<StringName> names(ap->get_animation_list());
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
                     animations_to_add.push_back(E);
@@ -112,7 +112,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
         for (const StringName &E : classes) {
 
-            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
+            String name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == se_string_view("Animation"))
                 continue; // nope
             int idx = menu->get_item_count();
@@ -164,7 +164,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
                 name_edit->set_global_position(state_machine_draw->get_global_transform().xform(edit_rect.position));
                 name_edit->set_size(edit_rect.size);
-                name_edit->set_text_utf8(node_rects[i].node_name);
+                name_edit->set_text(node_rects[i].node_name);
                 name_edit->show_modal();
                 name_edit->grab_focus();
                 name_edit->select_all();
@@ -332,7 +332,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         {
             //snap
             Vector2 cpos = state_machine->get_node_position(selected_node) + drag_ofs / EDSCALE;
-            ListPOD<StringName> nodes;
+            List<StringName> nodes;
             state_machine->get_node_list(&nodes);
 
             float best_d_x = 1e20f;
@@ -420,15 +420,15 @@ void AnimationNodeStateMachineEditor::_file_opened(se_string_view p_file) {
 
 void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
-    se_string base_name;
+    String base_name;
     Ref<AnimationRootNode> node;
 
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<se_string> filters;
+        Vector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
-        for (const se_string &E : filters) {
+        for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -441,12 +441,12 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
 
     } else {
-        se_string type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
-        ERR_FAIL_COND(!obj)
+        ERR_FAIL_COND(!obj);
         AnimationNode *an = object_cast<AnimationNode>(obj);
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
         base_name = StringUtils::replace_first(type,"AnimationNode", "");
@@ -463,7 +463,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
     }
 
     int base = 1;
-    se_string name(base_name);
+    String name(base_name);
     while (state_machine->has_node(StringName(name))) {
         base++;
         name = base_name + " " + itos(base);
@@ -492,7 +492,7 @@ void AnimationNodeStateMachineEditor::_add_animation_type(int p_index) {
     StringName name = base_name;
     while (state_machine->has_node(name)) {
         base++;
-        name = StringName(se_string(base_name.asCString()) + " " + itos(base));
+        name = StringName(String(base_name.asCString()) + " " + itos(base));
     }
 
     updating = true;
@@ -595,7 +595,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     bool playing = false;
     StringName current;
     StringName blend_from;
-    PODVector<StringName> travel_path;
+    Vector<StringName> travel_path;
 
     if (playback) {
         playing = playback->is_playing();
@@ -609,7 +609,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     }
     int sep = 3 * EDSCALE;
 
-    ListPOD<StringName> nodes;
+    List<StringName> nodes;
     state_machine->get_node_list(&nodes);
 
     node_rects.clear();
@@ -637,7 +637,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Ref<StyleBox> sb = E == selected_node ? style_selected : style;
 
         Size2 s = sb->get_minimum_size();
-        int strsize = font->get_string_size_utf8(E).width;
+        int strsize = font->get_string_size(E).width;
         s.width += strsize;
         s.height += MAX(font->get_height(), play->get_height());
         s.width += sep + play->get_width();
@@ -769,9 +769,9 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Ref<AnimationNode> anode = state_machine->get_node(name);
         bool needs_editor = AnimationTreeEditor::get_singleton()->can_edit(anode);
         Ref<StyleBox> sb = name == selected_node ? style_selected : style;
-        int strsize = font->get_string_size_utf8(name).width;
+        int strsize = font->get_string_size(name).width;
 
-        NodeRect &nr = node_rects.write[i];
+        NodeRect &nr = node_rects[i];
 
         Vector2 offset = nr.node.position;
         int h = nr.node.size.height;
@@ -787,13 +787,13 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
         bool onstart = state_machine->get_start_node() == name;
         if (onstart) {
-            state_machine_draw->draw_string(font, offset + Vector2(0, -font->get_height() - 3 * EDSCALE + font->get_ascent()), StringUtils::from_utf8(TTR("Start")), font_color);
+            state_machine_draw->draw_ui_string(font, offset + Vector2(0, -font->get_height() - 3 * EDSCALE + font->get_ascent()), StringUtils::from_utf8(TTR("Start")), font_color);
         }
 
         if (state_machine->get_end_node() == name) {
 
-            int endofs = nr.node.size.x - font->get_string_size_utf8(TTR("End")).x;
-            state_machine_draw->draw_string(font, offset + Vector2(endofs, -font->get_height() - 3 * EDSCALE + font->get_ascent()),
+            int endofs = nr.node.size.x - font->get_string_size(TTR("End")).x;
+            state_machine_draw->draw_ui_string(font, offset + Vector2(endofs, -font->get_height() - 3 * EDSCALE + font->get_ascent()),
                     StringUtils::from_utf8(TTR("End")), font_color);
         }
 
@@ -814,7 +814,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         nr.name.position = offset + Vector2(0, (h - font->get_height()) / 2).floor();
         nr.name.size = Vector2(strsize, font->get_height());
 
-        state_machine_draw->draw_string_utf8(font, nr.name.position + Vector2(0, font->get_ascent()), name, font_color);
+        state_machine_draw->draw_string(font, nr.name.position + Vector2(0, font->get_ascent()), name, font_color);
         offset.x += strsize + sep;
 
         if (needs_editor) {
@@ -916,9 +916,9 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         error_label->add_color_override("font_color", get_color("error_color", "Editor"));
         panel->add_style_override("panel", get_stylebox("bg", "Tree"));
 
-        tool_select->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_create->set_icon(get_icon("ToolAddNode", "EditorIcons"));
-        tool_connect->set_icon(get_icon("ToolConnect", "EditorIcons"));
+        tool_select->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_create->set_button_icon(get_icon("ToolAddNode", "EditorIcons"));
+        tool_connect->set_button_icon(get_icon("ToolConnect", "EditorIcons"));
 
         transition_mode->clear();
         transition_mode->add_icon_item(get_icon("TransitionImmediate", "EditorIcons"), TTR("Immediate"));
@@ -933,9 +933,9 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         get_icon("TransitionEndAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
         get_icon("TransitionSyncAutoBig", "EditorIcons")->set_flags(Texture::FLAG_FILTER);
 
-        tool_erase->set_icon(get_icon("Remove", "EditorIcons"));
-        tool_autoplay->set_icon(get_icon("AutoPlay", "EditorIcons"));
-        tool_end->set_icon(get_icon("AutoEnd", "EditorIcons"));
+        tool_erase->set_button_icon(get_icon("Remove", "EditorIcons"));
+        tool_autoplay->set_button_icon(get_icon("AutoPlay", "EditorIcons"));
+        tool_end->set_button_icon(get_icon("AutoEnd", "EditorIcons"));
 
         play_mode->clear();
         play_mode->add_icon_item(get_icon("PlayTravel", "EditorIcons"), TTR("Travel"));
@@ -1019,7 +1019,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         }
 
         bool same_travel_path = true;
-        PODVector<StringName> tp;
+        Vector<StringName> tp;
         bool is_playing = false;
         StringName current_node;
         StringName blend_from_node;
@@ -1070,7 +1070,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
                 while (anodesm) {
                     current_node_playback = refFromVariant<AnimationNodeStateMachinePlayback>(editor->get_tree()->get(
                             StringName(editor->get_base_path() + next + "/playback")));
-                    next = StringName(se_string(next) + "/" + current_node_playback->get_current_node());
+                    next = StringName(String(next) + "/" + current_node_playback->get_current_node());
                     anodesm = dynamic_ref_cast<AnimationNodeStateMachine>(anodesm->get_node(current_node_playback->get_current_node()));
                 }
 
@@ -1107,19 +1107,19 @@ void AnimationNodeStateMachineEditor::_removed_from_graph() {
 
 void AnimationNodeStateMachineEditor::_name_edited(se_string_view p_text) {
 
-    se_string new_name(p_text);
+    String new_name(p_text);
 
-    ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,'.') || StringUtils::contains(p_text,'/'))
+    ERR_FAIL_COND(p_text.empty() || StringUtils::contains(p_text,'.') || StringUtils::contains(p_text,'/'));
 
     if (prev_name == p_text) {
         return; // Nothing to do.
     }
 
     int base = 1;
-    se_string name(p_text);
+    String name(p_text);
     while (state_machine->has_node(StringName(name))) {
         base++;
-        name = se_string(p_text) + " " + itos(base);
+        name = String(p_text) + " " + itos(base);
     }
 
     updating = true;
@@ -1368,7 +1368,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     h_scroll = memnew(HScrollBar);
     state_machine_draw->add_child(h_scroll);
     h_scroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
-    h_scroll->set_margin(MARGIN_RIGHT, -v_scroll->get_size().x * EDSCALE);
+    h_scroll->set_margin(Margin::Right, -v_scroll->get_size().x * EDSCALE);
     h_scroll->connect("value_changed", this, "_scroll_changed");
 
     error_panel = memnew(PanelContainer);

@@ -115,7 +115,7 @@ bool ARVRInterfaceGDNative::get_anchor_detection_is_enabled() const {
 
 void ARVRInterfaceGDNative::set_anchor_detection_is_enabled(bool p_enable) {
 
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
 
     interface->set_anchor_detection_is_enabled(data, p_enable);
 }
@@ -166,7 +166,7 @@ bool ARVRInterfaceGDNative::initialize() {
 }
 
 void ARVRInterfaceGDNative::uninitialize() {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
 
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     if (arvr_server != nullptr) {
@@ -222,19 +222,19 @@ unsigned int ARVRInterfaceGDNative::get_external_texture_for_eye(ARVRInterface::
 
 void ARVRInterfaceGDNative::commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) {
 
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
 
     interface->commit_for_eye(data, (godot_int)p_eye, (godot_rid *)&p_render_target, (godot_rect2 *)&p_screen_rect);
 }
 
 void ARVRInterfaceGDNative::process() {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
 
     interface->process(data);
 }
 
 void ARVRInterfaceGDNative::notification(int p_what) {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
 
     // this is only available in interfaces that implement 1.1 or later
     if ((interface->version.major > 1) || ((interface->version.major == 1) && (interface->version.minor > 0))) {
@@ -249,7 +249,7 @@ extern "C" {
 
 void GDAPI godot_arvr_register_interface(const godot_arvr_interface_gdnative *p_interface) {
     // If our major version is 0 or bigger then 10, we're likely looking at our constructor pointer from an older plugin
-    ERR_FAIL_COND_MSG((p_interface->version.major == 0) || (p_interface->version.major > 10), "GDNative ARVR interfaces build for Godot 3.0 are not supported.")
+    ERR_FAIL_COND_MSG((p_interface->version.major == 0) || (p_interface->version.major > 10), "GDNative ARVR interfaces build for Godot 3.0 are not supported."); 
 
     Ref<ARVRInterfaceGDNative> new_interface(make_ref_counted<ARVRInterfaceGDNative>());
     new_interface->set_interface((const godot_arvr_interface_gdnative *)p_interface);

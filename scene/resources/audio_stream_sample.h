@@ -145,7 +145,7 @@ public:
     Error save_to_wav(se_string_view p_path);
 
     Ref<AudioStreamPlayback> instance_playback() override;
-    se_string get_stream_name() const override;
+    String get_stream_name() const override;
 
     AudioStreamSample();
     ~AudioStreamSample() override;

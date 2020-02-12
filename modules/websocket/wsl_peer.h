@@ -74,8 +74,8 @@ public:
         }
     };
 
-    static se_string compute_key_response(se_string_view p_key);
-    static se_string generate_key();
+    static String compute_key_response(se_string_view p_key);
+    static String generate_key();
 
 private:
     static bool _wsl_poll(struct PeerData *p_data);
@@ -92,7 +92,7 @@ private:
 
 public:
     int close_code;
-    se_string close_reason;
+    String close_reason;
     void poll(); // Used by client and server.
 
     int get_available_packet_count() const override;
@@ -109,6 +109,7 @@ public:
     WriteMode get_write_mode() const override;
     void set_write_mode(WriteMode p_mode) override;
     bool was_string_packet() const override;
+    void set_no_delay(bool p_enabled) override;
 
     void make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigned int p_in_pkt_size, unsigned int p_out_buf_size, unsigned int p_out_pkt_size);
     Error parse_message(const wslay_event_on_msg_recv_arg *arg);

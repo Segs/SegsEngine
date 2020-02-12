@@ -132,7 +132,7 @@ void AudioDriverXAudio2::start() {
 
 	active = true;
 	HRESULT hr = source_voice->Start(0);
-	ERR_FAIL_COND_MSG(hr != S_OK, "Error starting XAudio2 driver. Error code: " + itos(hr) + ".")
+	ERR_FAIL_COND_MSG(hr != S_OK, "Error starting XAudio2 driver. Error code: " + itos(hr) + "."); 
 }
 
 int AudioDriverXAudio2::get_mix_rate() const {

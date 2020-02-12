@@ -92,13 +92,15 @@ class GODOT_EXPORT ShaderMaterial : public Material {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
+public:
     bool property_can_revert(StringName p_name);
     Variant property_get_revert(StringName p_name);
+protected:
 
     static void _bind_methods();
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     bool _can_do_next_pass() const override;
 
@@ -260,7 +262,7 @@ private:
             uint64_t blend_mode : 2;
             uint64_t depth_draw_mode : 2;
             uint64_t cull_mode : 2;
-            uint64_t flags : 18;
+            uint64_t flags : 19;
             uint64_t detail_blend_mode : 2;
             uint64_t diffuse_mode : 3;
             uint64_t specular_mode : 3;

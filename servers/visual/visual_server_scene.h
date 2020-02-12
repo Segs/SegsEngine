@@ -100,7 +100,7 @@ public:
 
         Octree<Instance, true> octree;
 
-        PODVector<Instance *> directional_lights;
+        Vector<Instance *> directional_lights;
         RID environment;
         RID fallback_environment;
         RID reflection_probe_shadow_atlas;
@@ -206,18 +206,18 @@ public:
 
     struct InstanceGeometryData : public InstanceBaseData {
 
-        List<Instance *> lighting;
+        ListOld<Instance *> lighting;
         bool lighting_dirty;
         bool can_cast_shadows;
         bool material_is_animated;
 
-        List<Instance *> reflection_probes;
+        ListOld<Instance *> reflection_probes;
         bool reflection_dirty;
 
-        List<Instance *> gi_probes;
+        ListOld<Instance *> gi_probes;
         bool gi_probes_dirty;
 
-        List<Instance *> lightmap_captures;
+        ListOld<Instance *> lightmap_captures;
 
         InstanceGeometryData() {
 
@@ -234,10 +234,10 @@ public:
         Instance *owner;
 
         struct PairInfo {
-            List<Instance *>::Element *L; //reflection iterator in geometry
+            ListOld<Instance *>::Element *L; //reflection iterator in geometry
             Instance *geometry;
         };
-        List<PairInfo> geometries;
+        ListOld<PairInfo> geometries;
 
         RID instance;
         bool reflection_dirty;
@@ -258,7 +258,7 @@ public:
     struct InstanceLightData : public InstanceBaseData {
 
         struct PairInfo {
-            List<Instance *>::Element *L; //light iterator in geometry
+            ListOld<Instance *>::Element *L; //light iterator in geometry
             Instance *geometry;
         };
 
@@ -267,7 +267,7 @@ public:
         bool D; // directional light in scenario
         bool shadow_dirty;
 
-        List<PairInfo> geometries;
+        ListOld<PairInfo> geometries;
 
         Instance *baked_light;
 
@@ -285,11 +285,11 @@ public:
         Instance *owner;
 
         struct PairInfo {
-            List<Instance *>::Element *L; //gi probe iterator in geometry
+            ListOld<Instance *>::Element *L; //gi probe iterator in geometry
             Instance *geometry;
         };
 
-        List<PairInfo> geometries;
+        ListOld<PairInfo> geometries;
 
         Set<Instance *> lights;
 
@@ -391,10 +391,10 @@ public:
     struct InstanceLightmapCaptureData : public InstanceBaseData {
 
         struct PairInfo {
-            List<Instance *>::Element *L; //iterator in geometry
+            ListOld<Instance *>::Element *L; //iterator in geometry
             Instance *geometry;
         };
-        List<PairInfo> geometries;
+        ListOld<PairInfo> geometries;
 
         Set<Instance *> users;
 
@@ -413,8 +413,7 @@ public:
 
     RID_Owner<Instance> instance_owner;
 
-    // from can be mesh, light,  area and portal so far.
-    virtual RID instance_create(); // from can be mesh, light, poly, area and portal so far.
+    virtual RID instance_create();
 
     virtual void instance_set_base(RID p_instance, RID p_base); // from can be mesh, light, poly, area and portal so far.
     virtual void instance_set_scenario(RID p_instance, RID p_scenario); // from can be mesh, light, poly, area and portal so far.
@@ -436,7 +435,7 @@ public:
     // don't use these in a game!
     virtual Vector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const;
     virtual Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
-    virtual Vector<ObjectID> instances_cull_convex(const Vector<Plane> &p_convex, RID p_scenario = RID()) const;
+    virtual Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
 
     virtual void instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled);
     virtual void instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting);
@@ -492,9 +491,9 @@ public:
 
     volatile bool probe_bake_thread_exit;
     Thread *probe_bake_thread;
-    Semaphore *probe_bake_sem;
+    SemaphoreOld *probe_bake_sem;
     Mutex *probe_bake_mutex;
-    List<Instance *> probe_bake_list;
+    ListOld<Instance *> probe_bake_list;
 
     bool _render_reflection_probe_step(Instance *p_instance, int p_step);
     void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell);

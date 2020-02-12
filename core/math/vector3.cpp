@@ -47,12 +47,12 @@ Vector3 Vector3::rotated(const Vector3 &p_axis, real_t p_phi) const {
 }
 
 void Vector3::set_axis(int p_axis, real_t p_value) {
-    ERR_FAIL_INDEX(p_axis, 3)
+    ERR_FAIL_INDEX(p_axis, 3);
     coord[p_axis] = p_value;
 }
 real_t Vector3::get_axis(int p_axis) const {
 
-    ERR_FAIL_INDEX_V(p_axis, 3, 0)
+    ERR_FAIL_INDEX_V(p_axis, 3, 0);
     return operator[](p_axis);
 }
 
@@ -134,7 +134,7 @@ Vector3 Vector3::move_toward(const Vector3 &p_to, const real_t p_delta) const {
     return len <= p_delta || len < CMP_EPSILON ? p_to : v + vd / len * p_delta;
 }
 
-Vector3::operator se_string() const {
+Vector3::operator String() const {
 
     return (rtos(x) + ", " + rtos(y) + ", " + rtos(z));
 }

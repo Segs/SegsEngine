@@ -46,12 +46,12 @@ class PCKPacker : public RefCounted {
 
     struct File {
 
-        se_string path;
-        se_string src_path;
+        String path;
+        String src_path;
         int size;
         uint64_t offset_offset;
     };
-    PODVector<File> files;
+    Vector<File> files;
 
 public:
     Error pck_start(se_string_view p_file, int p_alignment = 0);

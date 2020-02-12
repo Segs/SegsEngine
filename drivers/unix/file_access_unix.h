@@ -46,9 +46,9 @@ class FileAccessUnix : public FileAccess {
     FILE *f=nullptr;
     int flags=0;
     mutable Error last_error=OK;
-    se_string save_path;
-    se_string path;
-    se_string path_src;
+    String save_path;
+    String path;
+    String path_src;
 
     void check_errors() const;
 
@@ -61,10 +61,10 @@ public:
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
-    const se_string &get_path() const override {
+    const String &get_path() const override {
         return path_src;
     } /// returns the path for the current open file
-    const se_string &get_path_absolute() const override; /// returns the absolute path for the current open file
+    const String &get_path_absolute() const override; /// returns the absolute path for the current open file
 
     void seek(size_t p_position) override; ///< seek to a given position
     void seek_end(int64_t p_position = 0) override; ///< seek from the end of file

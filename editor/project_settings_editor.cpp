@@ -43,6 +43,7 @@
 #include "scene/gui/margin_container.h"
 #include "scene/gui/tab_container.h"
 #include "scene/resources/style_box.h"
+#include "EASTL/sort.h"
 
 
 IMPL_GDCLASS(ProjectSettingsEditor)
@@ -108,7 +109,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
             globals_editor->edit(ProjectSettings::get_singleton());
 
-            search_button->set_icon(get_icon("Search", "EditorIcons"));
+            search_button->set_button_icon(get_icon("Search", "EditorIcons"));
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
 
@@ -121,21 +122,21 @@ void ProjectSettingsEditor::_notification(int p_what) {
             popup_add->add_icon_item(get_icon("JoyAxis", "EditorIcons"), TTR("Joy Axis"), INPUT_JOY_MOTION);
             popup_add->add_icon_item(get_icon("Mouse", "EditorIcons"), TTR("Mouse Button"), INPUT_MOUSE_BUTTON);
 
-            PODVector<se_string> tfn;
+            Vector<String> tfn;
             ResourceLoader::get_recognized_extensions_for_type("Translation", tfn);
-            for (const se_string &E : tfn) {
+            for (const String &E : tfn) {
 
                 translation_file_open->add_filter("*." + E);
             }
 
-            PODVector<se_string> rfn;
+            Vector<String> rfn;
             ResourceLoader::get_recognized_extensions_for_type("Resource", rfn);
-            for (const se_string &E : rfn) {
+            for (const String &E : rfn) {
                 translation_res_file_open->add_filter("*." + E);
                 translation_res_option_file_open->add_filter("*." + E);
             }
 
-            restart_close_button->set_icon(get_icon("Close", "EditorIcons"));
+            restart_close_button->set_button_icon(get_icon("Close", "EditorIcons"));
             restart_container->add_style_override("panel", get_stylebox("bg", "Tree"));
             restart_icon->set_texture(get_icon("StatusWarning", "EditorIcons"));
             restart_label->add_color_override("font_color", get_color("warning_color", "Editor"));
@@ -146,7 +147,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
             set_process_unhandled_input(false);
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
-            search_button->set_icon(get_icon("Search", "EditorIcons"));
+            search_button->set_button_icon(get_icon("Search", "EditorIcons"));
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
             action_add_error->add_color_override("font_color", get_color("error_color", "Editor"));
@@ -185,8 +186,8 @@ void ProjectSettingsEditor::_action_edited() {
 
     if (input_editor->get_selected_column() == 0) {
 
-        se_string new_name = ti->get_text(0);
-        se_string old_name(StringUtils::substr(add_at,StringUtils::find(add_at,"/") + 1));
+        String new_name = ti->get_text(0);
+        String old_name(StringUtils::substr(add_at,StringUtils::find(add_at,"/") + 1));
 
         if (new_name == old_name)
             return;
@@ -406,7 +407,7 @@ void ProjectSettingsEditor::_press_a_key_confirm() {
 void ProjectSettingsEditor::_show_last_added(const Ref<InputEvent> &p_event, se_string_view p_name) {
     TreeItem *r = input_editor->get_root();
 
-    se_string name(p_name);
+    String name(p_name);
     StringUtils::erase(name,0, 6);
     if (!r)
         return;
@@ -444,7 +445,7 @@ void ProjectSettingsEditor::_wait_for_key(const Ref<InputEvent> &p_event) {
     if (k && k->is_pressed() && k->get_scancode() != 0) {
 
         last_wait_for_key = dynamic_ref_cast<InputEventKey>(p_event);
-        const se_string str = keycode_get_string(k->get_scancode_with_modifiers());
+        const String str = keycode_get_string(k->get_scancode_with_modifiers());
         press_a_key_label->set_text(StringName(str));
         press_a_key->get_ok()->set_disabled(false);
         press_a_key->accept_event();
@@ -498,7 +499,7 @@ void ProjectSettingsEditor::_add_item(int p_item, const Ref<InputEvent>& p_exiti
             device_index->clear();
             for (int i = 0; i < JOY_AXIS_MAX * 2; i++) {
 
-                se_string desc(_axis_names[i]);
+                String desc(_axis_names[i]);
                 device_index->add_item(TTR("Axis") + " " + itos(i / 2) + " " + (i & 1 ? "+" : "-") + desc);
             }
             device_input->popup_centered_minsize(Size2(350, 95) * EDSCALE);
@@ -575,7 +576,7 @@ void ProjectSettingsEditor::_action_activated() {
     Dictionary action = ProjectSettings::get_singleton()->get(name);
     Array events = action["events"];
 
-    ERR_FAIL_INDEX(idx, events.size())
+    ERR_FAIL_INDEX(idx, events.size());
     Ref<InputEvent> event(events[idx]);
     if (not event)
         return;
@@ -589,7 +590,7 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
 
     TreeItem *ti = object_cast<TreeItem>(p_obj);
 
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
 
     if (p_id == 1) {
         // Add action event
@@ -678,7 +679,7 @@ void ProjectSettingsEditor::_update_actions() {
     if (setting)
         return;
 
-    Map<se_string, bool> collapsed;
+    Map<String, bool> collapsed;
 
     if (input_editor->get_root() && input_editor->get_root()->get_children()) {
         for (TreeItem *item = input_editor->get_root()->get_children(); item; item = item->get_next()) {
@@ -690,7 +691,7 @@ void ProjectSettingsEditor::_update_actions() {
     TreeItem *root = input_editor->create_item();
     input_editor->set_hide_root(true);
 
-    ListPOD<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
 
     for (const PropertyInfo &pi : props) {
@@ -719,7 +720,7 @@ void ProjectSettingsEditor::_update_actions() {
         item->set_custom_bg_color(1, get_color("prop_subsection", "Editor"));
 
         item->add_button(2, get_icon("Add", "EditorIcons"), 1, false, TTR("Add Event"));
-        const ListPOD<se_string> &presets(ProjectSettings::get_singleton()->get_input_presets());
+        const List<String> &presets(ProjectSettings::get_singleton()->get_input_presets());
         bool has_pi = eastl::find(presets.begin(),presets.end(),pi.name)!=presets.end();
         if (!has_pi) {
             item->add_button(2, get_icon("Remove", "EditorIcons"), 2, false, TTR("Remove"));
@@ -736,7 +737,7 @@ void ProjectSettingsEditor::_update_actions() {
 
             Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(event);
             if (k) {
-                const se_string str = keycode_get_string(k->get_scancode_with_modifiers());
+                const String str = keycode_get_string(k->get_scancode_with_modifiers());
                 action2->set_text_utf8(0, str);
                 action2->set_icon(0, get_icon("Keyboard", "EditorIcons"));
             }
@@ -745,9 +746,9 @@ void ProjectSettingsEditor::_update_actions() {
 
             if (jb) {
 
-                se_string str(_get_device_string(jb->get_device()) + ", " + TTR("Button") + " " + StringUtils::num(jb->get_button_index()));
+                String str(_get_device_string(jb->get_device()) + ", " + TTR("Button") + " " + StringUtils::num(jb->get_button_index()));
                 if (jb->get_button_index() >= 0 && jb->get_button_index() < JOY_BUTTON_MAX)
-                    str += se_string(" (") + _button_names[jb->get_button_index()] + ").";
+                    str += String(" (") + _button_names[jb->get_button_index()] + ").";
                 else
                     str += '.';
 
@@ -758,7 +759,7 @@ void ProjectSettingsEditor::_update_actions() {
             Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(event);
 
             if (mb) {
-                se_string str(_get_device_string(mb->get_device()) + ", ");
+                String str(_get_device_string(mb->get_device()) + ", ");
                 switch (mb->get_button_index()) {
                     case BUTTON_LEFT: str += TTR("Left Button."); break;
                     case BUTTON_RIGHT: str += TTR("Right Button."); break;
@@ -819,8 +820,8 @@ void ProjectSettingsEditor::_item_selected(se_string_view p_path) {
 
     if (p_path.empty())
         return;
-    category->set_text_utf8(globals_editor->get_current_section());
-    property->set_text_utf8(p_path);
+    category->set_text(globals_editor->get_current_section());
+    property->set_text(p_path);
     popup_copy_to_feature->set_disabled(false);
 }
 
@@ -836,8 +837,8 @@ void ProjectSettingsEditor::_item_add() {
     Variant::CallError ce;
     const Variant value = Variant::construct(VariantType(type->get_selected() + 1), nullptr, 0, ce);
 
-    se_string catname(StringUtils::strip_edges(category->get_text()));
-    se_string propname(StringUtils::strip_edges(property->get_text()));
+    String catname(StringUtils::strip_edges(category->get_text()));
+    String propname(StringUtils::strip_edges(property->get_text()));
 
     if (propname.empty()) {
         return;
@@ -924,7 +925,7 @@ void ProjectSettingsEditor::_action_check(se_string_view p_action) {
             action_add->set_disabled(true);
             return;
         }
-        if (ProjectSettings::get_singleton()->has_setting(StringName("input/" + se_string(p_action)))) {
+        if (ProjectSettings::get_singleton()->has_setting(StringName("input/" + String(p_action)))) {
 
             action_add_error->set_text(FormatSN(TTR("An action with the name '%.*s' already exists.").asCString(), p_action.length(),p_action.data()));
             action_add_error->show();
@@ -950,7 +951,7 @@ void ProjectSettingsEditor::_action_add() {
     Dictionary action;
     action["events"] = Array();
     action["deadzone"] = 0.5f;
-    se_string name = "input/" + action_name->get_text();
+    String name = "input/" + action_name->get_text();
     undo_redo->create_action_ui(TTR("Add Input Action"));
     undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", name, action);
     undo_redo->add_undo_method(ProjectSettings::get_singleton(), "clear", name);
@@ -1020,25 +1021,21 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
     presets.insert("Server");
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_platform_count(); i++) {
-        List<se_string> p;
+        Vector<String> p;
         EditorExport::get_singleton()->get_export_platform(i)->get_platform_features(&p);
-        for (List<se_string>::Element *E = p.front(); E; E = E->next()) {
-            presets.insert(E->deref());
-        }
+        presets.insert(p.begin(), p.end());
     }
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_preset_count(); i++) {
 
-        List<se_string> p;
+        Vector<String> p;
         EditorExport::get_singleton()->get_export_preset(i)->get_platform()->get_preset_features(EditorExport::get_singleton()->get_export_preset(i), &p);
-        for (List<se_string>::Element *E = p.front(); E; E = E->next()) {
-            presets.insert(E->deref());
-        }
+        presets.insert(p.begin(), p.end());
 
-        se_string custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
-        PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
+        String custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
+        Vector<se_string_view> custom_list = StringUtils::split(custom,',');
         for (int j = 0; j < custom_list.size(); j++) {
-            se_string f(StringUtils::strip_edges( custom_list[j]));
+            String f(StringUtils::strip_edges( custom_list[j]));
             if (!f.empty()) {
                 presets.insert(f);
             }
@@ -1149,8 +1146,8 @@ void ProjectSettingsEditor::_copy_to_platform(int p_which) {
         undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", property, value);
     }
 
-    se_string feature = popup_copy_to_feature->get_popup()->get_item_text_utf8(p_which);
-    StringName new_path(property + se_string(".") + feature);
+    String feature = popup_copy_to_feature->get_popup()->get_item_text_utf8(p_which);
+    StringName new_path(property + String(".") + feature);
 
     undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", new_path, value);
     if (ProjectSettings::get_singleton()->has_setting(new_path)) {
@@ -1166,15 +1163,15 @@ void ProjectSettingsEditor::_copy_to_platform(int p_which) {
     undo_redo->commit_action();
 }
 
-void ProjectSettingsEditor::add_translation(const String &p_translation) {
+void ProjectSettingsEditor::add_translation(const UIString &p_translation) {
 
     _translation_add(StringUtils::to_utf8(p_translation));
 }
 
 void ProjectSettingsEditor::_translation_add(se_string_view p_path) {
 
-    PoolVector<se_string> translations =
-            ProjectSettings::get_singleton()->get("locale/translations").as<PoolVector<se_string>>();
+    PoolVector<String> translations =
+            ProjectSettings::get_singleton()->get("locale/translations").as<PoolVector<String>>();
 
     for (int i = 0; i < translations.size(); i++) {
 
@@ -1182,7 +1179,7 @@ void ProjectSettingsEditor::_translation_add(se_string_view p_path) {
             return; //exists
     }
 
-    translations.push_back(se_string(p_path));
+    translations.push_back(String(p_path));
     undo_redo->create_action_ui(TTR("Add Translation"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translations", translations);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translations", ProjectSettings::get_singleton()->get("locale/translations"));
@@ -1201,13 +1198,13 @@ void ProjectSettingsEditor::_translation_file_open() {
 void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, int p_button) {
 
     TreeItem *ti = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
 
     int idx = ti->get_metadata(0);
 
-    PoolSeStringArray translations = ProjectSettings::get_singleton()->get("locale/translations");
+    PoolStringArray translations = ProjectSettings::get_singleton()->get("locale/translations");
 
-    ERR_FAIL_INDEX(idx, translations.size())
+    ERR_FAIL_INDEX(idx, translations.size());
 
     translations.remove(idx);
 
@@ -1257,18 +1254,18 @@ void ProjectSettingsEditor::_translation_res_option_file_open() {
 }
 void ProjectSettingsEditor::_translation_res_option_add(se_string_view p_path) {
 
-    ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
+    ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"));
 
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
     TreeItem *k = translation_remap->get_selected();
-    ERR_FAIL_COND(!k)
+    ERR_FAIL_COND(!k);
 
-    se_string key = k->get_metadata(0);
+    String key = k->get_metadata(0);
 
-    ERR_FAIL_COND(!remaps.has(key))
-    PoolVector<se_string> r(remaps[key].as<PoolVector<se_string>>());
-    r.push_back(se_string(p_path) + ":" + "en");
+    ERR_FAIL_COND(!remaps.has(key));
+    PoolVector<String> r(remaps[key].as<PoolVector<String>>());
+    r.push_back(String(p_path) + ":" + "en");
     remaps[key] = r;
 
     undo_redo->create_action_ui(TTR("Resource Remap Add Remap"));
@@ -1300,22 +1297,22 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
     TreeItem *k = translation_remap->get_selected();
-    ERR_FAIL_COND(!k)
+    ERR_FAIL_COND(!k);
     TreeItem *ed = translation_remap_options->get_edited();
-    ERR_FAIL_COND(!ed)
+    ERR_FAIL_COND(!ed);
 
-    se_string key = k->get_metadata(0);
+    String key = k->get_metadata(0);
     int idx = ed->get_metadata(0);
-    se_string path = ed->get_metadata(1);
+    String path = ed->get_metadata(1);
     int which = ed->get_range(1);
 
-    Vector<se_string> langs = TranslationServer::get_all_locales();
+    Vector<String> langs = TranslationServer::get_all_locales();
 
-    ERR_FAIL_INDEX(which, langs.size())
+    ERR_FAIL_INDEX(which, langs.size());
 
-    ERR_FAIL_COND(!remaps.has(key))
-    PoolVector<se_string> r = remaps[key].as<PoolVector<se_string>>();
-    ERR_FAIL_INDEX(idx, r.size())
+    ERR_FAIL_COND(!remaps.has(key));
+    PoolVector<String> r = remaps[key].as<PoolVector<String>>();
+    ERR_FAIL_INDEX(idx, r.size());
     if (translation_locales_idxs_remap.size() > which) {
         r.set(idx, path + ":" + langs[translation_locales_idxs_remap[which]]);
     } else {
@@ -1347,8 +1344,8 @@ void ProjectSettingsEditor::_translation_res_delete(Object *p_item, int p_column
 
     TreeItem *k = object_cast<TreeItem>(p_item);
 
-    se_string key = k->get_metadata(0);
-    ERR_FAIL_COND(!remaps.has(key))
+    String key = k->get_metadata(0);
+    ERR_FAIL_COND(!remaps.has(key));
 
     remaps.erase(key);
 
@@ -1373,16 +1370,16 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
 
     TreeItem *k = translation_remap->get_selected();
-    ERR_FAIL_COND(!k)
+    ERR_FAIL_COND(!k);
     TreeItem *ed = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!ed)
+    ERR_FAIL_COND(!ed);
 
-    se_string key = k->get_metadata(0);
+    String key = k->get_metadata(0);
     int idx = ed->get_metadata(0);
 
-    ERR_FAIL_COND(!remaps.has(key))
-    PoolSeStringArray r = remaps[key];
-    ERR_FAIL_INDEX(idx, r.size())
+    ERR_FAIL_COND(!remaps.has(key));
+    PoolStringArray r = remaps[key];
+    ERR_FAIL_INDEX(idx, r.size());
     r.remove(idx);
     remaps[key] = r;
 
@@ -1492,7 +1489,7 @@ void ProjectSettingsEditor::_update_translations() {
     translation_list->set_hide_root(true);
     if (ProjectSettings::get_singleton()->has_setting("locale/translations")) {
 
-        PoolVector<se_string> translations(ProjectSettings::get_singleton()->get("locale/translations").as<PoolVector<se_string>>());
+        PoolVector<String> translations(ProjectSettings::get_singleton()->get("locale/translations").as<PoolVector<String>>());
         for (int i = 0; i < translations.size(); i++) {
 
             TreeItem *t = translation_list->create_item(root);
@@ -1504,8 +1501,8 @@ void ProjectSettingsEditor::_update_translations() {
         }
     }
 
-    Vector<se_string> langs = TranslationServer::get_all_locales();
-    Vector<se_string> names = TranslationServer::get_all_locale_names();
+    Vector<String> langs = TranslationServer::get_all_locales();
+    Vector<String> names = TranslationServer::get_all_locale_names();
 
     //update filter tab
     Array l_filter_all;
@@ -1567,9 +1564,9 @@ void ProjectSettingsEditor::_update_translations() {
 
     //update translation remaps
 
-    se_string remap_selected;
+    String remap_selected;
     if (translation_remap->get_selected()) {
-        remap_selected = translation_remap->get_selected()->get_metadata(0).as<se_string>();
+        remap_selected = translation_remap->get_selected()->get_metadata(0).as<String>();
     }
 
     translation_remap->clear();
@@ -1584,7 +1581,7 @@ void ProjectSettingsEditor::_update_translations() {
     translation_locales_idxs_remap.resize(l_filter.size());
     int fl_idx_count = translation_locales_idxs_remap.size();
 
-    se_string langnames;
+    String langnames;
     int l_idx = 0;
     for (int i = 0; i < names.size(); i++) {
 
@@ -1595,7 +1592,7 @@ void ProjectSettingsEditor::_update_translations() {
                     if (langnames.length() > 0)
                         langnames += ',';
                     langnames += names[i];
-                    translation_locales_idxs_remap.write[l_idx] = i;
+                    translation_locales_idxs_remap[l_idx] = i;
                     l_idx++;
                 }
             }
@@ -1609,56 +1606,60 @@ void ProjectSettingsEditor::_update_translations() {
     if (ProjectSettings::get_singleton()->has_setting("locale/translation_remaps")) {
 
         Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
-        PODVector<Variant> rk(remaps.get_key_list());
+        Vector<Variant> rk(remaps.get_key_list());
 
-        Vector<se_string> keys;
+        Vector<String> keys;
         for (const Variant &E : rk) {
-            keys.push_back(E);
+            keys.emplace_back(E.as<String>());
         }
-        keys.sort();
+        eastl::sort(keys.begin(), keys.end());
 
         for (int i = 0; i < keys.size(); i++) {
 
             TreeItem *t = translation_remap->create_item(root);
             t->set_editable(0, false);
-            t->set_text_utf8(0, StringUtils::replace_first(keys[i],"res://", se_string()));
+            t->set_text_utf8(0, StringUtils::replace_first(keys[i],"res://", String()));
             t->set_tooltip(0, StringName(keys[i]));
             t->set_metadata(0, keys[i]);
             t->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
-            if (keys[i] == remap_selected) {
-                t->select(0);
-                translation_res_option_add_button->set_disabled(false);
 
-                PoolVector<se_string> selected(remaps[keys[i]].as<PoolVector<se_string>>());
-                for (int j = 0; j < selected.size(); j++) {
+            if (keys[i] != remap_selected)
+                continue;
 
-                    se_string s2 = selected[j];
-                    int qp = StringUtils::find_last(s2,':');
-                    se_string path(StringUtils::substr(s2,0, qp));
-                    se_string locale(StringUtils::substr(s2,qp + 1, s2.length()));
+            t->select(0);
+            translation_res_option_add_button->set_disabled(false);
 
-                    TreeItem *t2 = translation_remap_options->create_item(root2);
-                    t2->set_editable(0, false);
-                    t2->set_text(0, StringName(StringUtils::replace_first(path,"res://", se_string_view())));
-                    t2->set_tooltip(0, StringName(path));
-                    t2->set_metadata(0, j);
-                    t2->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
-                    t2->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
-                    t2->set_text(1, StringName(langnames));
-                    t2->set_editable(1, true);
-                    t2->set_metadata(1, path);
-                    int idx = langs.find(locale);
-                    if (idx < 0)
-                        idx = 0;
+            PoolVector<String> selected(remaps[keys[i]].as<PoolVector<String>>());
+            for (int j = 0; j < selected.size(); j++) {
 
-                    int f_idx = translation_locales_idxs_remap.find(idx);
-                    if (f_idx != -1 && fl_idx_count > 0 && filter_mode == SHOW_ONLY_SELECTED_LOCALES) {
+                String s2 = selected[j];
+                int qp = StringUtils::find_last(s2,':');
+                String path(StringUtils::substr(s2,0, qp));
+                String locale(StringUtils::substr(s2,qp + 1, s2.length()));
 
-                        t2->set_range(1, f_idx);
-                    } else {
+                TreeItem *t2 = translation_remap_options->create_item(root2);
+                t2->set_editable(0, false);
+                t2->set_text(0, StringName(StringUtils::replace_first(path,"res://", se_string_view())));
+                t2->set_tooltip(0, StringName(path));
+                t2->set_metadata(0, j);
+                t2->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
+                t2->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
+                t2->set_text(1, StringName(langnames));
+                t2->set_editable(1, true);
+                t2->set_metadata(1, path);
+                auto iter = langs.find(locale);
+                if (iter==langs.end())
+                    iter = langs.begin();
+                int idx = eastl::distance(langs.begin(),iter);
+                auto re_iter = translation_locales_idxs_remap.find(idx);
+                int f_idx = re_iter!= translation_locales_idxs_remap.end() ? eastl::distance(translation_locales_idxs_remap.begin(),re_iter): -1 ;
 
-                        t2->set_range(1, idx);
-                    }
+                if (f_idx != -1 && fl_idx_count > 0 && filter_mode == SHOW_ONLY_SELECTED_LOCALES) {
+
+                    t2->set_range(1, f_idx);
+                } else {
+
+                    t2->set_range(1, idx);
                 }
             }
         }
@@ -1900,10 +1901,10 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
 
     VBoxContainer *vbc = memnew(VBoxContainer);
     input_base->add_child(vbc);
-    vbc->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 0);
-    vbc->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, 0);
-    vbc->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 0);
-    vbc->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, 0);
+    vbc->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 0);
+    vbc->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
+    vbc->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 0);
+    vbc->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
 
     hbc = memnew(HBoxContainer);
     vbc->add_child(hbc);
@@ -1958,8 +1959,8 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
     l->set_text(TTR("Press a Key..."));
     l->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     l->set_align(Label::ALIGN_CENTER);
-    l->set_margin(MARGIN_TOP, 20);
-    l->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_BEGIN, 30);
+    l->set_margin(Margin::Top, 20);
+    l->set_anchor_and_margin(Margin::Bottom, ANCHOR_BEGIN, 30);
     press_a_key->get_ok()->set_disabled(true);
     press_a_key_label = l;
     press_a_key->add_child(l);
@@ -2007,7 +2008,7 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
     translations->set_name(TTR("Localization"));
     tab_container->add_child(translations);
     //remap for properly select language in popup
-    translation_locales_idxs_remap = Vector<int>();
+    translation_locales_idxs_remap = {};
     translation_locales_list_created = false;
 
     {

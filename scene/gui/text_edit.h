@@ -58,11 +58,11 @@ public:
     struct ColorRegion {
 
         Color color;
-        String begin_key;
-        String end_key;
+        UIString begin_key;
+        UIString end_key;
         bool line_only;
         bool eq;
-        ColorRegion(const String &p_begin_key = String(), const String &p_end_key = String(), const Color &p_color = Color(), bool p_line_only = false) {
+        ColorRegion(const UIString &p_begin_key = UIString(), const UIString &p_end_key = UIString(), const Color &p_color = Color(), bool p_line_only = false) {
             begin_key = p_begin_key;
             end_key = p_end_key;
             color = p_color;
@@ -116,7 +116,7 @@ private:
             TYPE_REMOVE
         };
 
-        String text;
+        UIString text;
         int from_line=0, from_column=0;
         int to_line=0, to_column=0;
         uint32_t prev_version=0;
@@ -126,30 +126,30 @@ private:
         bool chain_backward=false;
     };
 
-    String ime_text;
+    UIString ime_text;
     Point2 ime_selection;
 
     TextOperation current_op;
 
-    List<TextOperation> undo_stack;
-    List<TextOperation>::Element *undo_stack_pos;
+    ListOld<TextOperation> undo_stack;
+    ListOld<TextOperation>::Element *undo_stack_pos;
 
     void _clear_redo();
     void _do_text_op(const TextOperation &p_op, bool p_reverse);
 
 
-    Set<String> completion_prefixes;
+    Set<UIString> completion_prefixes;
     bool completion_enabled;
-    List<ScriptCodeCompletionOption> completion_sources;
+    Vector<ScriptCodeCompletionOption> completion_sources;
     Vector<ScriptCodeCompletionOption> completion_options;
     bool completion_active;
     bool completion_forced;
     ScriptCodeCompletionOption completion_current;
-    se_string completion_base;
+    String completion_base;
     int completion_index;
     Rect2i completion_rect;
     int completion_line_ofs;
-    se_string completion_hint;
+    String completion_hint;
     int completion_hint_offset;
 
     bool setting_text;
@@ -162,7 +162,7 @@ private:
     bool syntax_coloring;
     bool indent_using_spaces;
     int indent_size;
-    String space_indent;
+    UIString space_indent;
 
     Timer *caret_blink_timer;
     bool caret_blink_enabled;
@@ -206,7 +206,7 @@ private:
     bool brace_matching_enabled;
     bool highlight_current_line;
     bool auto_indent;
-    String cut_copy_line;
+    UIString cut_copy_line;
     bool insert_mode;
     bool select_identifiers_enabled;
 
@@ -221,7 +221,7 @@ private:
     float target_v_scroll;
     float v_scroll_speed;
 
-    String highlighted_word;
+    UIString highlighted_word;
 
     uint64_t last_dblclk;
 
@@ -240,7 +240,7 @@ private:
     bool callhint_below;
     Vector2 callhint_offset;
 
-    String search_text;
+    UIString search_text;
     uint32_t search_flags;
     int search_result_line;
     int search_result_col;
@@ -250,7 +250,7 @@ private:
     bool shortcut_keys_enabled;
 
     int executing_line;
-
+public:
     void _generate_context_menu();
     int get_visible_rows() const;
     int get_total_visible_rows() const;
@@ -260,7 +260,7 @@ private:
     void _update_wrap_at();
     bool line_wraps(int line) const;
     int times_line_wraps(int line) const;
-    Vector<String> get_wrap_rows_text(int p_line) const;
+    Vector<UIString> get_wrap_rows_text(int p_line) const;
     int get_cursor_wrap_index() const;
     int get_line_wrap_index_at_col(int p_line, int p_column) const;
     int get_char_count();
@@ -277,8 +277,8 @@ private:
 
     int get_char_pos_for_line(int p_px, int p_line, int p_wrap_index = 0) const;
     int get_column_x_offset_for_line(int p_char, int p_line) const;
-    int get_char_pos_for(int p_px, const String& p_str) const;
-    int get_column_x_offset(int p_char, const String& p_str) const;
+    int get_char_pos_for(int p_px, const UIString& p_str) const;
+    int get_column_x_offset(int p_char, const UIString& p_str) const;
 
     void adjust_viewport_to_cursor();
     double get_scroll_line_diff() const;
@@ -320,11 +320,11 @@ private:
 
     /* super internal api, undo/redo builds on it */
 
-    void _base_insert_text(int p_line, int p_char, const String &p_text, int &r_end_line, int &r_end_column);
-    String _base_get_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column) const;
+    void _base_insert_text(int p_line, int p_char, const UIString &p_text, int &r_end_line, int &r_end_column);
+    UIString _base_get_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column) const;
     void _base_remove_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column);
 
-    int _get_column_pos_of_word(const String &p_key, const String &p_search, uint32_t p_search_flags, int p_from_column);
+    int _get_column_pos_of_word(const UIString &p_key, const UIString &p_search, uint32_t p_search_flags, int p_from_column);
 
     PoolVector<int> _search_bind(se_string_view p_key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
 
@@ -342,9 +342,9 @@ private:
 protected:
     StringName get_tooltip(const Point2 &p_pos) const override;
 
-    void _insert_text(int p_line, int p_char, const String &p_text, int *r_end_line = nullptr, int *r_end_char = nullptr);
+    void _insert_text(int p_line, int p_char, const UIString &p_text, int *r_end_line = nullptr, int *r_end_char = nullptr);
     void _remove_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column);
-    void _insert_text_at_cursor(const String &p_text);
+    void _insert_text_at_cursor(const UIString &p_text);
     void _gui_input(const Ref<InputEvent> &p_gui_input);
     void _notification(int p_what);
 
@@ -398,15 +398,15 @@ public:
     bool is_insert_text_operation();
 
     void set_text_utf8(se_string_view p_text);
-    void set_text(const String& p_text);
+    void set_text(const UIString& p_text);
     void insert_text_at_cursor_utf8(se_string_view p_text);
-    void insert_text_at_cursor(const String &p_text);
-    void insert_at(const String &p_text, int at);
+    void insert_text_at_cursor(const UIString &p_text);
+    void insert_at(const UIString &p_text, int at);
     int get_line_count() const;
     void set_line_as_marked(int p_line, bool p_marked);
     void set_line_as_bookmark(int p_line, bool p_bookmark);
     bool is_line_set_as_bookmark(int p_line) const;
-    void get_bookmarks(List<int> *p_bookmarks) const;
+    void get_bookmarks(Vector<int> *p_bookmarks) const;
     Array get_bookmarks_array() const;
     void set_line_as_breakpoint(int p_line, bool p_breakpoint);
     bool is_line_set_as_breakpoint(int p_line) const;
@@ -414,7 +414,7 @@ public:
     void clear_executing_line();
     void set_line_as_safe(int p_line, bool p_safe);
     bool is_line_set_as_safe(int p_line) const;
-    void get_breakpoints(List<int> *p_breakpoints) const;
+    void get_breakpoints(Vector<int> *p_breakpoints) const;
     Array get_breakpoints_array() const;
     void remove_breakpoints();
 
@@ -436,10 +436,10 @@ public:
     void unfold_line(int p_line);
     void toggle_fold_line(int p_line);
 
-    se_string get_text_utf8() const;
-    se_string get_text();
+    String get_text_utf8() const;
+    String get_text();
     //String get_line(int line) const;
-    se_string get_line(int line) const;
+    String get_line(int line) const;
     void set_line(int line, se_string_view new_text);
     void backspace_at_cursor();
 
@@ -508,7 +508,7 @@ public:
     void deselect();
     void swap_lines(int line1, int line2);
 
-    void set_search_text(const String &p_search_text);
+    void set_search_text(const UIString &p_search_text);
     void set_search_flags(uint32_t p_flags);
     void set_current_search_result(int line, int col);
 
@@ -519,12 +519,12 @@ public:
     int get_selection_from_column() const;
     int get_selection_to_line() const;
     int get_selection_to_column() const;
-    se_string get_selection_text() const;
+    String get_selection_text() const;
 
-    se_string get_word_under_cursor() const;
-    se_string get_word_at_pos(const Vector2 &p_pos) const;
+    String get_word_under_cursor() const;
+    String get_word_at_pos(const Vector2 &p_pos) const;
 
-    bool search(const String &p_key, uint32_t p_search_flags, int p_from_line, int p_from_column, int &r_line, int &r_column) const;
+    bool search(const UIString &p_key, uint32_t p_search_flags, int p_from_line, int p_from_column, int &r_line, int &r_column) const;
 
     void undo();
     void redo();
@@ -545,17 +545,17 @@ public:
     bool is_insert_mode() const;
 
     void add_keyword_color(se_string_view p_keyword, const Color &p_color);
-    bool has_keyword_color(const String& p_keyword) const;
-    bool has_keyword_color_utf8(se_string_view p_keyword) const;
-    Color get_keyword_color(const String& p_keyword) const;
-    Color get_keyword_color_utf8(se_string_view p_keyword) const;
+    bool has_keyword_color_uistr(const UIString& p_keyword) const;
+    bool has_keyword_color(se_string_view p_keyword) const;
+    Color get_keyword_color_uistr(const UIString& p_keyword) const;
+    Color get_keyword_color(se_string_view p_keyword) const;
 
     void add_color_region(se_string_view p_begin_key = {}, se_string_view p_end_key = {}, const Color &p_color = Color(), bool p_line_only = false);
     void clear_colors();
 
     void add_member_keyword(se_string_view p_keyword, const Color &p_color);
-    bool has_member_color(const String& p_member) const;
-    Color get_member_color(const String& p_member) const;
+    bool has_member_color(const UIString& p_member) const;
+    Color get_member_color(const UIString& p_member) const;
     void clear_member_keywords();
 
     double get_v_scroll() const;
@@ -618,9 +618,9 @@ public:
 
     void set_tooltip_request_func(Object *p_obj, const StringName &p_function, const Variant &p_udata);
 
-    void set_completion(bool p_enabled, const Vector<String> &p_prefixes);
-    void code_complete(const List<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
-    void set_code_hint(const se_string &p_hint);
+    void set_completion(bool p_enabled, const Vector<UIString> &p_prefixes);
+    void code_complete(const Vector<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
+    void set_code_hint(const String &p_hint);
     void query_code_comple();
 
     void set_select_identifiers_on_hover(bool p_enable);
@@ -637,9 +637,9 @@ public:
 
     PopupMenu *get_menu() const;
 
-    String get_text_for_completion();
-    se_string get_text_for_completion_utf8() const;
-    se_string get_text_for_lookup_completion();
+    UIString get_text_for_completion();
+    String get_text_for_completion_utf8() const;
+    String get_text_for_lookup_completion();
 
     bool is_text_field() const override;
     TextEdit();
@@ -656,8 +656,8 @@ public:
     virtual void _update_cache() = 0;
     virtual Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) = 0;
 
-    virtual se_string get_name() const = 0;
-    virtual List<se_string> get_supported_languages() = 0;
+    virtual String get_name() const = 0;
+    virtual Vector<String> get_supported_languages() = 0;
 
     void set_text_editor(TextEdit *p_text_editor);
     TextEdit *get_text_editor();

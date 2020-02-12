@@ -90,6 +90,7 @@ public:
     constexpr void        set_name(const char* /*pName*/) {}
 };
 
+
 GODOT_EXPORT void *operator new(size_t p_size, const char *p_description); ///< operator new that takes a description and uses MemoryStaticPool
 GODOT_EXPORT void *operator new(size_t p_size, void *(*p_allocfunc)(size_t p_size)); ///< operator new that takes a description and uses MemoryStaticPool
 GODOT_EXPORT void *operator new(size_t p_size, void *p_pointer, size_t check, const char *p_description); ///< operator new that takes a description and uses a pointer to the preallocated memory
@@ -115,7 +116,7 @@ inline T *_post_initialize(T *p_obj) {
 }
 inline void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*check*/, const char * /*p_description*/) {
     //void *failptr=0;
-    //ERR_FAIL_COND_V( check < p_size , failptr) /** bug, or strange compiler, most likely */
+    //ERR_FAIL_COND_V( check < p_size , failptr) /** bug, or strange compiler, most likely */;
 
     return p_pointer;
 }
@@ -154,7 +155,13 @@ void memdelete_allocator(T *p_class) {
 
     A::free(p_class);
 }
-
+struct GODOT_EXPORT wrap_deleter {
+    constexpr wrap_deleter() noexcept = default;
+    template<class T>
+    void operator()(T *v)  const noexcept {
+        memdelete<T>(v);
+    }
+};
 #define memnew_arr(m_class, m_count) memnew_arr_template<m_class>(m_count)
 
 template <typename T>

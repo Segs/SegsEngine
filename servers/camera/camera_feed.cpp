@@ -103,7 +103,7 @@ void CameraFeed::set_active(bool p_is_active) {
     }
 }
 
-se_string CameraFeed::get_name() const {
+String CameraFeed::get_name() const {
     return name;
 }
 
@@ -178,8 +178,8 @@ CameraFeed::CameraFeed(se_string_view p_name, FeedPosition p_position) {
 CameraFeed::~CameraFeed() {
     // Free our textures
     VisualServer *vs = VisualServer::get_singleton();
-    vs->free(texture[CameraServer::FEED_Y_IMAGE]);
-    vs->free(texture[CameraServer::FEED_CBCR_IMAGE]);
+    vs->free_rid(texture[CameraServer::FEED_Y_IMAGE]);
+    vs->free_rid(texture[CameraServer::FEED_CBCR_IMAGE]);
 }
 
 void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {

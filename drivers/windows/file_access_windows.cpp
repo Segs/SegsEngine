@@ -52,7 +52,7 @@
 
 void FileAccessWindows::check_errors() const {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
 
     if (feof(f)) {
 
@@ -100,7 +100,7 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
         WIN32_FIND_DATAW d;
         HANDLE f = FindFirstFileW(stored.c_str(), &d);
         if (f != INVALID_HANDLE_VALUE) {
-            se_string fname = StringUtils::to_utf8(StringUtils::from_wchar(d.cFileName));
+            String fname = StringUtils::to_utf8(StringUtils::from_wchar(d.cFileName));
             if (!fname.empty()) {
 
                 se_string_view base_file = PathUtils::get_file(path);
@@ -187,14 +187,14 @@ void FileAccessWindows::close() {
 
     save_path = "";
 
-    ERR_FAIL_COND_MSG(rename_error, "Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash.")
+    ERR_FAIL_COND_MSG(rename_error, "Safe save failed. This may be a permissions problem, but also may happen because you are running a paranoid antivirus. If this is the case, please switch to Windows Defender or disable the 'safe save' option in editor settings. This makes it work, but increases the risk of file corruption in a crash."); 
 }
 
-const se_string &FileAccessWindows::get_path() const {
+const String &FileAccessWindows::get_path() const {
     return path_src;
 }
 
-const se_string &FileAccessWindows::get_path_absolute() const {
+const String &FileAccessWindows::get_path_absolute() const {
     return path;
 }
 
@@ -204,7 +204,7 @@ bool FileAccessWindows::is_open() const {
 }
 void FileAccessWindows::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     last_error = OK;
     if (fseek(f, p_position, SEEK_SET))
         check_errors();
@@ -212,7 +212,7 @@ void FileAccessWindows::seek(size_t p_position) {
 }
 void FileAccessWindows::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     if (fseek(f, p_position, SEEK_END))
         check_errors();
     prev_op = 0;
@@ -228,7 +228,7 @@ size_t FileAccessWindows::get_position() const {
 }
 size_t FileAccessWindows::get_len() const {
 
-    ERR_FAIL_COND_V(!f, 0)
+    ERR_FAIL_COND_V(!f, 0);
 
     size_t pos = get_position();
     fseek(f, 0, SEEK_END);
@@ -246,7 +246,7 @@ bool FileAccessWindows::eof_reached() const {
 
 uint8_t FileAccessWindows::get_8() const {
 
-    ERR_FAIL_COND_V(!f, 0)
+    ERR_FAIL_COND_V(!f, 0);
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == WRITE) {
             fflush(f);
@@ -264,7 +264,7 @@ uint8_t FileAccessWindows::get_8() const {
 
 int FileAccessWindows::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V(!f, -1)
+    ERR_FAIL_COND_V(!f, -1);
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == WRITE) {
             fflush(f);
@@ -283,7 +283,7 @@ Error FileAccessWindows::get_error() const {
 
 void FileAccessWindows::flush() {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     fflush(f);
     if (prev_op == WRITE)
         prev_op = 0;
@@ -291,7 +291,7 @@ void FileAccessWindows::flush() {
 
 void FileAccessWindows::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == READ) {
             if (last_error != ERR_FILE_EOF) {
@@ -304,7 +304,7 @@ void FileAccessWindows::store_8(uint8_t p_dest) {
 }
 
 void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
-    ERR_FAIL_COND(!f)
+    ERR_FAIL_COND(!f);
     if (flags == READ_WRITE || flags == WRITE_READ) {
         if (prev_op == READ) {
             if (last_error != ERR_FILE_EOF) {
@@ -313,14 +313,15 @@ void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
         }
         prev_op = WRITE;
     }
-    ERR_FAIL_COND(fwrite(p_src, 1, p_length, f) != (size_t)p_length)
+    auto wr_size=fwrite(p_src, 1, p_length, f);
+    ERR_FAIL_COND(wr_size != (size_t)p_length);
 }
 
 bool FileAccessWindows::file_exists(se_string_view p_name) {
 
     FILE *g;
     //printf("opening file %s\n", p_fname.c_str());
-    se_string filename = fix_path(p_name);
+    String filename = fix_path(p_name);
     _wfopen_s(&g, StringUtils::from_utf8(filename).toStdWString().c_str(), L"rb");
     if (g == nullptr) {
 
@@ -334,7 +335,7 @@ bool FileAccessWindows::file_exists(se_string_view p_name) {
 
 uint64_t FileAccessWindows::_get_modified_time(se_string_view p_file) {
 
-    se_string file = fix_path(p_file);
+    String file = fix_path(p_file);
     if (StringUtils::ends_with(file,"/") && file != "/")
         file = StringUtils::substr(file,0, file.length() - 1);
 

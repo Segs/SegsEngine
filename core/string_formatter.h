@@ -58,5 +58,5 @@
 //    return ret;
 //}
 
-#define FormatVE(FMT,...) se_string(se_string::CtorSprintf(),FMT,__VA_ARGS__)
-#define FormatSN(FMT,...) StringName(se_string(se_string::CtorSprintf(),FMT,__VA_ARGS__))
+#define FormatVE(FMT,...) String(String::CtorSprintf(),FMT,__VA_ARGS__)
+#define FormatSN(FMT,...) StringName(String(String::CtorSprintf(),FMT,__VA_ARGS__))

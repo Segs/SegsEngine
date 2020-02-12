@@ -178,7 +178,7 @@ class TileSetEditor : public HSplitContainer {
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
-    void _file_load_request(const PoolVector<String> &p_path, int p_at_pos = -1);
+    void _file_load_request(const PoolVector<UIString> &p_path, int p_at_pos = -1);
 
 protected:
     static void _bind_methods();
@@ -195,7 +195,7 @@ private:
     void _on_tileset_toolbar_button_pressed(int p_index);
     void _on_tileset_toolbar_confirm();
     void _on_texture_list_selected(int p_index);
-    void _on_textures_added(const PoolVector<se_string> &p_paths);
+    void _on_textures_added(const PoolVector<String> &p_paths);
     void _on_edit_mode_changed(int p_edit_mode);
     void _on_workspace_mode_changed(int p_workspace_mode);
     void _on_workspace_overlay_draw();
@@ -206,9 +206,9 @@ private:
     void _on_priority_changed(float val);
     void _on_z_index_changed(float val);
     void _on_grid_snap_toggled(bool p_val);
-    PODVector<Vector2> _get_collision_shape_points(const Ref<Shape2D> &p_shape);
-    PODVector<Vector2> _get_edited_shape_points();
-    void _set_edited_shape_points(const PODVector<Vector2> &points);
+    Vector<Vector2> _get_collision_shape_points(const Ref<Shape2D> &p_shape);
+    Vector<Vector2> _get_edited_shape_points();
+    void _set_edited_shape_points(const Vector<Vector2> &points);
     void _update_tile_data();
     void _update_toggle_shape_button();
     void _select_next_tile();
@@ -271,7 +271,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     static void _bind_methods();
 
 public:

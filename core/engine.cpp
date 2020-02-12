@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "engine.h"
+#include "engine.h"
 
 #include "core/dictionary.h"
 #include "core/variant.h"
@@ -42,7 +43,7 @@
 
 void Engine::set_iterations_per_second(int p_ips) {
 
-    ERR_FAIL_COND_MSG(p_ips <= 0, "Engine iterations per second must be greater than 0.")
+    ERR_FAIL_COND_MSG(p_ips <= 0, "Engine iterations per second must be greater than 0.");
     ips = p_ips;
 }
 int Engine::get_iterations_per_second() const {
@@ -104,13 +105,13 @@ Dictionary Engine::get_version_info() const {
     dict["build"] = VERSION_BUILD;
     dict["year"] = VERSION_YEAR;
 
-    se_string hash(VERSION_HASH);
+    String hash(VERSION_HASH);
     dict["hash"] = hash.length() == 0 ? Variant("unknown") : Variant(hash);
 
-    se_string stringver = dict["major"].as<se_string>() + "." + dict["minor"].as<se_string>();
+    String stringver = dict["major"].as<String>() + "." + dict["minor"].as<String>();
     if ((int)dict["patch"] != 0)
-        stringver += "." + dict["patch"].as<se_string>();
-    stringver += "-" + dict["status"].as<se_string>() + " (" + dict["build"].as<se_string>() + ")";
+        stringver += "." + dict["patch"].as<String>();
+    stringver += "-" + dict["status"].as<String>() + " (" + dict["build"].as<String>() + ")";
     dict["string"] = Variant(stringver);
 
     return dict;
@@ -183,8 +184,8 @@ Dictionary Engine::get_license_info() const {
     return licenses;
 }
 
-se_string Engine::get_license_text() const {
-    return se_string(GODOT_LICENSE_TEXT);
+String Engine::get_license_text() const {
+    return String(GODOT_LICENSE_TEXT);
 }
 
 void Engine::add_singleton(const Singleton &p_singleton) {
@@ -195,7 +196,7 @@ void Engine::add_singleton(const Singleton &p_singleton) {
 
 Object *Engine::get_singleton_object(const StringName &p_name) const {
     Map<StringName, Object *>::const_iterator E = singleton_ptrs.find(p_name);
-    ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + se_string(p_name) + "'.")
+    ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + String(p_name) + "'.");
     return E->second;
 };
 
@@ -235,7 +236,7 @@ public:
     }
     void reportError(se_string_view msg, const char *retval, const char *funcstr,const char *file, int line) override
     {
-        _err_print_error(funcstr, file, line, se_string("Method/Function Failed, returning: ")+ retval,msg);
+        _err_print_error(funcstr, file, line, String("Method/Function Failed, returning: ")+ retval,msg);
     }
     void clearLastError() override
     {

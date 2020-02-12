@@ -54,8 +54,8 @@ class AudioDriverWASAPI : public AudioDriver {
         unsigned int channels=0;
         unsigned int frame_size=0;
 
-        se_string device_name;
-        se_string new_device;
+        String device_name;
+        String new_device;
 
         AudioDeviceWASAPI() :
                 device_name("Default"),
@@ -112,7 +112,7 @@ public:
     Error capture_stop() override;
     Array capture_get_device_list() override;
     void capture_set_device(se_string_view p_name) override;
-    se_string capture_get_device() override;
+    String capture_get_device() override;
 
     AudioDriverWASAPI();
 };

@@ -64,6 +64,17 @@ PoolVector<Vector2> ConcavePolygonShape2D::get_segments() const {
     return Physics2DServer::get_singleton()->shape_get_data(get_rid());
 }
 
+real_t ConcavePolygonShape2D::get_enclosing_radius() const {
+    PoolVector<Vector2> data = get_segments();
+    PoolVector<Vector2>::Read read = data.read();
+    real_t r = 0;
+    for (int i(0); i < data.size(); i++) {
+        r = MAX(read[i].length_squared(), r);
+    }
+    return Math::sqrt(r);
+}
+
+
 void ConcavePolygonShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     PoolVector<Vector2> s = get_segments();

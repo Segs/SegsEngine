@@ -93,8 +93,8 @@ int AStar::get_available_point_id() const {
 
 void AStar::add_point(int p_id, const Vector3 &p_pos, real_t p_weight_scale) {
 
-    ERR_FAIL_COND(p_id < 0)
-    ERR_FAIL_COND(p_weight_scale < 1)
+    ERR_FAIL_COND(p_id < 0);
+    ERR_FAIL_COND(p_weight_scale < 1);
 
     AStarPoint *found_pt;
     bool p_exists = points.lookup(p_id, found_pt);
@@ -119,7 +119,7 @@ Vector3 AStar::get_point_position(int p_id) const {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, Vector3())
+    ERR_FAIL_COND_V(!p_exists, Vector3());
 
     return p->pos;
 }
@@ -128,7 +128,7 @@ void AStar::set_point_position(int p_id, const Vector3 &p_pos) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
+    ERR_FAIL_COND(!p_exists);
 
     p->pos = p_pos;
 }
@@ -137,7 +137,7 @@ real_t AStar::get_point_weight_scale(int p_id) const {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, 0)
+    ERR_FAIL_COND_V(!p_exists, 0);
 
     return p->weight_scale;
 }
@@ -146,8 +146,8 @@ void AStar::set_point_weight_scale(int p_id, real_t p_weight_scale) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
-    ERR_FAIL_COND(p_weight_scale < 1)
+    ERR_FAIL_COND(!p_exists);
+    ERR_FAIL_COND(p_weight_scale < 1);
 
     p->weight_scale = p_weight_scale;
 }
@@ -156,7 +156,7 @@ void AStar::remove_point(int p_id) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
+    ERR_FAIL_COND(!p_exists);
 
     for (OAHashMap<int, AStarPoint *>::Iterator it = p->neighbours.iter(); it.valid; it = p->neighbours.next_iter(it)) {
 
@@ -273,13 +273,13 @@ Array AStar::get_points() {
     return point_list;
 }
 
-PODVector<int> AStar::get_point_connections(int p_id) {
+Vector<int> AStar::get_point_connections(int p_id) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, PODVector<int>())
+    ERR_FAIL_COND_V(!p_exists, Vector<int>());
 
-    PODVector<int> point_list;
+    Vector<int> point_list;
     point_list.reserve(p->neighbours.get_num_elements());
     for (OAHashMap<int, AStarPoint *>::Iterator it = p->neighbours.iter(); it.valid; it = p->neighbours.next_iter(it)) {
         point_list.push_back((*it.key));
@@ -316,8 +316,8 @@ int AStar::get_point_capacity() const {
 }
 
 void AStar::reserve_space(int p_num_nodes) {
-    ERR_FAIL_COND_MSG(p_num_nodes <= 0, "New capacity must be greater than 0, was: " + itos(p_num_nodes) + ".")
-    ERR_FAIL_COND_MSG((uint32_t)p_num_nodes < points.get_capacity(), "New capacity must be greater than current capacity: " + itos(points.get_capacity()) + ", new was: " + itos(p_num_nodes) + ".")
+    ERR_FAIL_COND_MSG(p_num_nodes <= 0, "New capacity must be greater than 0, was: " + itos(p_num_nodes) + ".");
+    ERR_FAIL_COND_MSG((uint32_t)p_num_nodes < points.get_capacity(), "New capacity must be greater than current capacity: " + itos(points.get_capacity()) + ", new was: " + itos(p_num_nodes) + ".");
     points.reserve(p_num_nodes);
 }
 
@@ -383,7 +383,7 @@ bool AStar::_solve(AStarPoint *begin_point, AStarPoint *end_point) {
 
     bool found_route = false;
 
-    PODVector<AStarPoint *> open_list;
+    Vector<AStarPoint *> open_list;
     SortArray<AStarPoint *, SortPoints> sorter;
 
     begin_point->g_score = 0;
@@ -445,11 +445,11 @@ float AStar::_estimate_cost(int p_from_id, int p_to_id) {
 
     AStarPoint *from_point;
     bool from_exists = points.lookup(p_from_id, from_point);
-    ERR_FAIL_COND_V(!from_exists, 0)
+    ERR_FAIL_COND_V(!from_exists, 0);
 
     AStarPoint *to_point;
     bool to_exists = points.lookup(p_to_id, to_point);
-    ERR_FAIL_COND_V(!to_exists, 0)
+    ERR_FAIL_COND_V(!to_exists, 0);
 
     return from_point->pos.distance_to(to_point->pos);
 }
@@ -461,11 +461,11 @@ float AStar::_compute_cost(int p_from_id, int p_to_id) {
 
     AStarPoint *from_point;
     bool from_exists = points.lookup(p_from_id, from_point);
-    CRASH_COND(!from_exists)
+    CRASH_COND(!from_exists);
 
     AStarPoint *to_point;
     bool to_exists = points.lookup(p_to_id, to_point);
-    CRASH_COND(!to_exists)
+    CRASH_COND(!to_exists);
 
     return from_point->pos.distance_to(to_point->pos);
 }
@@ -474,11 +474,11 @@ PoolVector<Vector3> AStar::get_point_path(int p_from_id, int p_to_id) {
 
     AStarPoint *a;
     bool from_exists = points.lookup(p_from_id, a);
-    ERR_FAIL_COND_V(!from_exists, PoolVector<Vector3>())
+    ERR_FAIL_COND_V(!from_exists, PoolVector<Vector3>());
 
     AStarPoint *b;
     bool to_exists = points.lookup(p_to_id, b);
-    ERR_FAIL_COND_V(!to_exists, PoolVector<Vector3>())
+    ERR_FAIL_COND_V(!to_exists, PoolVector<Vector3>());
 
     if (a == b) {
         PoolVector<Vector3> ret;
@@ -522,11 +522,11 @@ PoolVector<int> AStar::get_id_path(int p_from_id, int p_to_id) {
 
     AStarPoint *a;
     bool from_exists = points.lookup(p_from_id, a);
-    ERR_FAIL_COND_V(!from_exists, PoolVector<int>())
+    ERR_FAIL_COND_V(!from_exists, PoolVector<int>());
 
     AStarPoint *b;
     bool to_exists = points.lookup(p_to_id, b);
-    ERR_FAIL_COND_V(!to_exists, PoolVector<int>())
+    ERR_FAIL_COND_V(!to_exists, PoolVector<int>());
 
     if (a == b) {
         PoolVector<int> ret;
@@ -570,7 +570,7 @@ void AStar::set_point_disabled(int p_id, bool p_disabled) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND(!p_exists)
+    ERR_FAIL_COND(!p_exists);
 
     p->enabled = !p_disabled;
 }
@@ -579,7 +579,7 @@ bool AStar::is_point_disabled(int p_id) const {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, false)
+    ERR_FAIL_COND_V(!p_exists, false);
 
     return !p->enabled;
 }
@@ -664,7 +664,7 @@ bool AStar2D::has_point(int p_id) const {
     return astar.has_point(p_id);
 }
 
-PODVector<int> AStar2D::get_point_connections(int p_id) {
+Vector<int> AStar2D::get_point_connections(int p_id) {
     return astar.get_point_connections(p_id);
 }
 

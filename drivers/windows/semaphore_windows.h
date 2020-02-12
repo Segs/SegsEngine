@@ -37,21 +37,21 @@
 
 #include <windows.h>
 
-class SemaphoreWindows : public Semaphore {
+class SemaphoreWindows : public SemaphoreOld {
 
-	mutable HANDLE semaphore;
+    mutable HANDLE semaphore;
 
-	static Semaphore *create_semaphore_windows();
+    static SemaphoreOld *create_semaphore_windows();
 
 public:
-	virtual Error wait();
-	virtual Error post();
-	virtual int get() const;
+    virtual Error wait();
+    virtual Error post();
+    virtual int get() const;
 
-	static void make_default();
-	SemaphoreWindows();
+    static void make_default();
+    SemaphoreWindows();
 
-	~SemaphoreWindows();
+    ~SemaphoreWindows();
 };
 
 #endif

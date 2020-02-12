@@ -156,13 +156,13 @@ private:
     Ref<StreamPeerTCP> connection;
     Ref<PacketPeerStream> ppeer;
 
-    se_string message_type;
+    String message_type;
     Array message;
     int pending_in_queue;
 
     HashMap<NodePath, int> node_path_cache;
     int last_path_id;
-    Map<se_string, int> res_path_cache;
+    Map<String, int> res_path_cache;
 
     EditorProfiler *profiler;
     EditorNetworkProfiler *network_profiler;
@@ -185,7 +185,7 @@ private:
     void _scene_tree_rmb_selected(const Vector2 &p_position);
     void _file_selected(se_string_view p_file);
     void _scene_tree_request();
-    void _parse_message(const se_string &p_msg, const Array &p_data);
+    void _parse_message(const String &p_msg, const Array &p_data);
     void _set_reason_text(const StringName &p_reason, MessageType p_type);
     void _scene_tree_property_select_object(ObjectID p_object);
     void _scene_tree_property_value_edited(se_string_view p_prop, const Variant &p_value);
@@ -222,6 +222,7 @@ private:
 
     void _error_tree_item_rmb_selected(const Vector2 &p_pos);
     void _item_menu_id_pressed(int p_option);
+    void _tab_changed(int p_tab);
 
     void _export_csv();
 
@@ -245,7 +246,7 @@ public:
     void debug_break();
     void debug_continue();
 
-    se_string get_var_value(se_string_view p_var) const;
+    String get_var_value(se_string_view p_var) const;
 
     void set_live_debugging(bool p_enable);
 

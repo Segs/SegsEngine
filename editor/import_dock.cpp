@@ -44,9 +44,9 @@ class ImportDockParameters : public Object {
 
 public:
     Map<StringName, Variant> values;
-    List<PropertyInfo> properties;
+    Vector<PropertyInfo> properties;
     ResourceImporterInterface *importer;
-    Vector<se_string> paths;
+    Vector<String> paths;
     Set<StringName> checked;
     bool checking;
 
@@ -73,15 +73,15 @@ public:
 
         return false;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
-        for (const List<PropertyInfo>::Element *E = properties.front(); E; E = E->next()) {
-            if (!importer->get_option_visibility(E->deref().name, values))
+        for (const PropertyInfo &E : properties) {
+            if (!importer->get_option_visibility(E.name, values))
                 continue;
-            PropertyInfo pi = E->deref();
+            PropertyInfo pi = E;
             if (checking) {
                 pi.usage |= PROPERTY_USAGE_CHECKABLE;
-                if (checked.contains(E->deref().name)) {
+                if (checked.contains(E.name)) {
                     pi.usage |= PROPERTY_USAGE_CHECKED;
                 }
             }
@@ -107,13 +107,13 @@ void register_import_dock_classes()
 void ImportDock::set_edit_path(se_string_view p_path) {
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
-    Error err = config->load(se_string(p_path) + ".import");
+    Error err = config->load(String(p_path) + ".import");
     if (err != OK) {
         clear();
         return;
     }
 
-    params->importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(config->get_value("remap", "importer").as<se_string>());
+    params->importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(config->get_value("remap", "importer").as<String>());
     if (params->importer==nullptr) {
         clear();
         return;
@@ -121,9 +121,9 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
     _update_options(config);
 
-    PODVector<ResourceImporterInterface *> importers;
+    Vector<ResourceImporterInterface *> importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
-    ListPOD<Pair<StringName, StringName> > importer_names;
+    List<Pair<StringName, StringName> > importer_names;
 
     for (size_t i=0,fin=importers.size(); i<fin; ++i) {
         importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
@@ -152,7 +152,7 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
 void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
 
-    ListPOD<ResourceImporter::ImportOption> options;
+    List<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -184,14 +184,14 @@ void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
 
     preset->get_popup()->add_separator();
     preset->get_popup()->add_item(FormatSN(TTR("Set as Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_SET_AS_DEFAULT);
-    if (ProjectSettings::get_singleton()->has_setting(StringName(se_string("importer_defaults/") + params->importer->get_importer_name()))) {
+    if (ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + params->importer->get_importer_name()))) {
         preset->get_popup()->add_item(TTR("Load Default"), ITEM_LOAD_DEFAULT);
         preset->get_popup()->add_separator();
         preset->get_popup()->add_item(FormatSN(TTR("Clear Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_CLEAR_DEFAULT);
     }
 }
 
-void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
+void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
     clear();
 
@@ -202,20 +202,19 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 
         Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
         Error err = config->load(p_paths[i] + ".import");
-        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(err != OK);
 
         if (i == 0) {
-            params->importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(config->get_value("remap", "importer").as<se_string>());
+            params->importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(config->get_value("remap", "importer").as<String>());
             if (params->importer==nullptr) {
                 clear();
                 return;
             }
         }
 
-        PODVector<se_string> keys;
-        config->get_section_keys("params", &keys);
+        Vector<String> keys = config->get_section_keys("params");
 
-        for (const se_string &E : keys) {
+        for (const String &E : keys) {
 
             if (!value_frequency.contains(E)) {
                 value_frequency[E] = Dictionary();
@@ -231,9 +230,9 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
         }
     }
 
-    ERR_FAIL_COND(params->importer==nullptr)
+    ERR_FAIL_COND(params->importer==nullptr);
 
-    ListPOD<ResourceImporter::ImportOption> options;
+    List<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -249,7 +248,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 
             Dictionary d = value_frequency[E.option.name.asCString()];
             int freq = 0;
-            PODVector<Variant> v(d.get_key_list());
+            Vector<Variant> v(d.get_key_list());
             Variant value;
             for (const Variant &F : v) {
                 int f = d[F];
@@ -266,9 +265,9 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 
     params->update();
 
-    PODVector<ResourceImporterInterface * > importers;
+    Vector<ResourceImporterInterface * > importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
-    ListPOD<Pair<StringName, StringName> > importer_names;
+    List<Pair<StringName, StringName> > importer_names;
 
     for (int i=0,fin=importers.size(); i<fin; ++i) {
         importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
@@ -305,9 +304,9 @@ void ImportDock::set_edit_multiple_paths(const Vector<se_string> &p_paths) {
 }
 
 void ImportDock::_importer_selected(int i_idx) {
-    se_string name = import_as->get_selected_metadata();
+    String name = import_as->get_selected_metadata();
     ResourceImporterInterface * importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
-    ERR_FAIL_COND(importer==nullptr)
+    ERR_FAIL_COND(importer==nullptr);
 
     params->importer = importer;
 
@@ -325,13 +324,13 @@ void ImportDock::_importer_selected(int i_idx) {
 void ImportDock::_preset_selected(int p_idx) {
 
     int item_id = preset->get_popup()->get_item_id(p_idx);
-    StringName importer_defaults(se_string("importer_defaults/")+params->importer->get_importer_name());
+    StringName importer_defaults(String("importer_defaults/")+params->importer->get_importer_name());
     switch (item_id) {
         case ITEM_SET_AS_DEFAULT: {
             Dictionary d;
 
-            for (const List<PropertyInfo>::Element *E = params->properties.front(); E; E = E->next()) {
-                d[E->deref().name] = params->values[E->deref().name];
+            for (const PropertyInfo &E : params->properties) {
+                d[E.name] = params->values[E.name];
             }
 
             ProjectSettings::get_singleton()->set(importer_defaults, d);
@@ -340,10 +339,10 @@ void ImportDock::_preset_selected(int p_idx) {
         } break;
         case ITEM_LOAD_DEFAULT: {
 
-            ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults))
+            ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults));
 
             Dictionary d = ProjectSettings::get_singleton()->get(importer_defaults);
-            PODVector<Variant> v(d.get_key_list());
+            Vector<Variant> v(d.get_key_list());
 
             for (const Variant &E : v) {
                 params->values[E] = d[E];
@@ -359,7 +358,7 @@ void ImportDock::_preset_selected(int p_idx) {
         } break;
         default: {
 
-            ListPOD<ResourceImporter::ImportOption> options;
+            List<ResourceImporter::ImportOption> options;
 
             params->importer->get_import_options(&options, p_idx);
 
@@ -400,8 +399,8 @@ static bool _find_owners(EditorFileSystemDirectory *efsd, se_string_view p_path)
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        Vector<se_string> deps = efsd->get_file_deps(i);
-        if (deps.find(se_string(p_path)) != -1)
+        const Vector<String> &deps = efsd->get_file_deps(i);
+        if (deps.contains(String(p_path)))
             return true;
     }
 
@@ -414,7 +413,7 @@ void ImportDock::_reimport_attempt() {
     for (int i = 0; i < params->paths.size(); i++) {
         Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
         Error err = config->load(params->paths[i] + ".import");
-        ERR_CONTINUE(err != OK)
+        ERR_CONTINUE(err != OK);
 
         StringName imported_with(config->get_value("remap", "importer"));
         if (imported_with != params->importer->get_importer_name()) {
@@ -454,9 +453,9 @@ void ImportDock::_reimport() {
 
         if (params->checking) {
             //update only what edited (checkboxes)
-            for (List<PropertyInfo>::Element *E = params->properties.front(); E; E = E->next()) {
-                if (params->checked.contains(E->deref().name)) {
-                    config->set_value("params", E->deref().name.asCString(), params->values[E->deref().name]);
+            for (const PropertyInfo &E : params->properties) {
+                if (params->checked.contains(E.name)) {
+                    config->set_value("params", E.name.asCString(), params->values[E.name]);
                 }
             }
         } else {
@@ -464,19 +463,19 @@ void ImportDock::_reimport() {
             config->set_value("remap", "importer", importer_name);
             config->erase_section("params");
 
-            for (List<PropertyInfo>::Element *E = params->properties.front(); E; E = E->next()) {
-                config->set_value("params", E->deref().name.asCString(), params->values[E->deref().name]);
+            for (const PropertyInfo &E : params->properties) {
+                config->set_value("params", E.name.asCString(), params->values[E.name]);
             }
         }
 
         //handle group file
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
-        ERR_CONTINUE(importer==nullptr)
+        ERR_CONTINUE(importer==nullptr);
         StringName group_file_property(importer->get_option_group_file());
         if (!group_file_property.empty()) {
             //can import from a group (as in, atlas)
-            ERR_CONTINUE(!params->values.contains(group_file_property))
-            se_string group_file = params->values[group_file_property];
+            ERR_CONTINUE(!params->values.contains(group_file_property));
+            String group_file = params->values[group_file_property];
             config->set_value("remap", "group_file", group_file);
         } else {
             config->set_value("remap", "group_file", Variant()); //clear group file if unused
@@ -524,7 +523,7 @@ void ImportDock::_bind_methods() {
 
 void ImportDock::initialize_import_options() const {
 
-    ERR_FAIL_COND(!import_opts || !params)
+    ERR_FAIL_COND(!import_opts || !params);
 
     import_opts->edit(params);
 }

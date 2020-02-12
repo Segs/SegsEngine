@@ -57,6 +57,9 @@
 #include "core/rid.h"
 #include "core/container_tools.h"
 
+
+using String = String;
+
 using VariantFunc = void (*)(Variant &, Variant &, const Variant **);
 using VariantConstructFunc = void (*)(Variant &, const Variant **);
 
@@ -88,8 +91,8 @@ struct _VariantCall {
         VariantFunc func;
 
         FuncData() = default;
-        constexpr FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func,
-                const std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) :
+        FuncData(bool p_const, VariantType p_return, bool p_has_return, VariantFunc p_func,
+                std::initializer_list<Variant> p_defaultarg, std::initializer_list<const Arg> p_argtype1) :
                 return_type(p_return), _const(p_const), returns(p_has_return), func(p_func) {
 
             for(const Arg & a : p_argtype1) {
@@ -145,7 +148,7 @@ struct _VariantCall {
                 }
 
 #endif
-                ERR_FAIL_COND(p_argcount > VARIANT_ARG_MAX)
+                ERR_FAIL_COND(p_argcount > VARIANT_ARG_MAX);
                 const Variant *newargs[VARIANT_ARG_MAX];
                 for (int i = 0; i < p_argcount; i++)
                     newargs[i] = p_args[i];
@@ -262,20 +265,20 @@ struct _VariantCall {
     // built-in functions of localmem based types
 #define VCALL_SU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem))); }
 #define VCALL_SU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0])); }
 #define VCALL_SU_LOCALMEM2R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0],*p_args[1])); }
 #define VCALL_SU_LOCALMEM2(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1]); }
+    StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1]); }
 
 #define VCALL_SU_LOCALMEM3R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2])); }
 #define VCALL_PU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
     r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem)); }
@@ -287,79 +290,80 @@ struct _VariantCall {
     r_ret = PathUtils::m_method(*p_args[0]); }
 
     static void _call_String_casecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::compare(*reinterpret_cast<se_string *>(p_self._data._mem),(*p_args[0]).as<se_string>());
+        r_ret = StringUtils::compare(*reinterpret_cast<String *>(p_self._data._mem),(*p_args[0]).as<String>());
     }
     static void _call_String_nocasecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::compare(*reinterpret_cast<se_string *>(p_self._data._mem),(*p_args[0]).as<se_string>(),StringUtils::CaseInsensitive);
+        r_ret = StringUtils::compare(*reinterpret_cast<String *>(p_self._data._mem),(*p_args[0]).as<String>(),StringUtils::CaseInsensitive);
     }
-    VCALL_LOCALMEM0R(String, length)
+    static void _call_String_length(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        r_ret = reinterpret_cast<String *>(p_self._data._mem)->length(); }
     static void _call_String_count(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::count(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1],*p_args[2]));
+        r_ret = Variant(StringUtils::count(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1],*p_args[2]));
     }
     static void _call_String_countn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::countn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1],*p_args[2]));
+        r_ret = Variant(StringUtils::countn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1],*p_args[2]));
     }
     VCALL_SU_LOCALMEM2R(String, substr)
     static void _call_String_find(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::find(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+        r_ret = Variant(StringUtils::find(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
     }
     static void _call_String_find_last(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::find_last(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::find_last(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_findn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::findn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+        r_ret = Variant(StringUtils::findn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
     }
     static void _call_String_rfind(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::rfind(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+        r_ret = Variant(StringUtils::rfind(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
     }
     static void _call_String_rfindn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::rfindn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(),*p_args[1]));
+        r_ret = Variant(StringUtils::rfindn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
     }
     static void _call_String_match(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::match(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::match(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_matchn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::matchn(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::matchn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_begins_with(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::begins_with(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::begins_with(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_ends_with(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::ends_with(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::ends_with(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_is_subsequence_of(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::is_subsequence_of(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::is_subsequence_of(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_is_subsequence_ofi(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::is_subsequence_ofi(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant(StringUtils::is_subsequence_ofi(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
 //    VCALL_SU_LOCALMEM0R(String, bigrams)
 //    VCALL_SU_LOCALMEM1R(String, similarity)
 
     static void _call_String_format(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::format(*reinterpret_cast<se_string *>(p_self._data._mem),*p_args[0]);
+        r_ret = StringUtils::format(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0]);
     }
     static void _call_String_replace(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::replace(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[1]->as<se_string>());
+        r_ret = StringUtils::replace(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[1]->as<String>());
     }
     static void _call_String_replacen(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::replacen(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[1]->as<se_string>());
+        r_ret = StringUtils::replacen(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[1]->as<String>());
     }
     VCALL_SU_LOCALMEM1R(String, repeat)
     static void _call_String_insert(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::insert(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<int>(), p_args[1]->as<se_string>());
+        r_ret = StringUtils::insert(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<int>(), p_args[1]->as<String>());
     }
     VCALL_SU_LOCALMEM0R(String, capitalize)
     static void _call_String_split(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        PODVector<se_string_view> parts(StringUtils::split(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
+        Vector<se_string_view> parts(StringUtils::split(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_rsplit(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        PODVector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>(), p_args[2]->as<bool>()));
+        Vector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_split_floats(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = Variant::from(StringUtils::split_floats(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>()));
+        r_ret = Variant::from(StringUtils::split_floats(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     VCALL_SU_LOCALMEM0R(String, to_upper)
     VCALL_SU_LOCALMEM0R(String, to_lower)
@@ -369,43 +373,43 @@ struct _VariantCall {
     VCALL_SU_LOCALMEM2R(String, strip_edges)
     VCALL_SU_LOCALMEM0R(String, strip_escapes)
     static void _call_String_lstrip(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::lstrip(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+        r_ret = StringUtils::lstrip(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>());
     }
     static void _call_String_rstrip(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::rstrip(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+        r_ret = StringUtils::rstrip(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>());
     }
     //VCALL_SU_LOCALMEM1R(String, ord_at)
     VCALL_SU_LOCALMEM2(String, erase)
     VCALL_SU_LOCALMEM0R(String, hash)
     static void _call_String_md5_text(Variant &r_ret, Variant &p_self, const Variant **) {
-        r_ret = se_string(StringUtils::md5_text(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+        r_ret = String(StringUtils::md5_text(*reinterpret_cast<String *>(p_self._data._mem))); }
     static void _call_String_sha1_text(Variant &r_ret, Variant &p_self, const Variant **) {
-        r_ret = se_string(StringUtils::sha1_text(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+        r_ret = String(StringUtils::sha1_text(*reinterpret_cast<String *>(p_self._data._mem))); }
     static void _call_String_sha256_text(Variant &r_ret, Variant &p_self, const Variant **) {
-        r_ret = se_string(StringUtils::sha256_text(*reinterpret_cast<se_string *>(p_self._data._mem))); }
+        r_ret = String(StringUtils::sha256_text(*reinterpret_cast<String *>(p_self._data._mem))); }
     VCALL_SU_LOCALMEM0R(String, md5_buffer)
     VCALL_SU_LOCALMEM0R(String, sha1_buffer)
     VCALL_SU_LOCALMEM0R(String, sha256_buffer)
     static void _call_String_empty(Variant &r_ret, Variant &p_self, const Variant **) {
-        r_ret = Variant(reinterpret_cast<se_string *>(p_self._data._mem)->empty()); }
+        r_ret = Variant(reinterpret_cast<String *>(p_self._data._mem)->empty()); }
 
     VCALL_SPU_LOCALMEM1R(String, humanize_size)
     VCALL_PU_LOCALMEM0R(String, is_abs_path)
     VCALL_PU_LOCALMEM0R(String, is_rel_path)
     static void _call_String_get_extension(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = PathUtils::get_extension(*reinterpret_cast<se_string *>(p_self._data._mem));
+        r_ret = PathUtils::get_extension(*reinterpret_cast<String *>(p_self._data._mem));
     }
     static void _call_String_get_basename(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = PathUtils::get_basename(*reinterpret_cast<se_string *>(p_self._data._mem));
+        r_ret = PathUtils::get_basename(*reinterpret_cast<String *>(p_self._data._mem));
     }
     static void _call_String_plus_file(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = PathUtils::plus_file(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+        r_ret = PathUtils::plus_file(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>());
     }
     static void _call_String_get_base_dir(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = PathUtils::get_base_dir(*reinterpret_cast<se_string *>(p_self._data._mem));
+        r_ret = PathUtils::get_base_dir(*reinterpret_cast<String *>(p_self._data._mem));
     }
     static void _call_String_get_file(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = PathUtils::get_file(*reinterpret_cast<se_string *>(p_self._data._mem));
+        r_ret = PathUtils::get_file(*reinterpret_cast<String *>(p_self._data._mem));
     }
     VCALL_SU_LOCALMEM0R(String, xml_escape)
     VCALL_SU_LOCALMEM0R(String, xml_unescape)
@@ -429,19 +433,19 @@ struct _VariantCall {
     VCALL_SU_LOCALMEM1R(String, pad_decimals)
     VCALL_SU_LOCALMEM1R(String, pad_zeros)
     static void _call_String_trim_prefix(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::trim_prefix(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+        r_ret = StringUtils::trim_prefix(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>());
     }
     static void _call_String_trim_suffix(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::trim_suffix(*reinterpret_cast<se_string *>(p_self._data._mem),p_args[0]->as<se_string>());
+        r_ret = StringUtils::trim_suffix(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>());
     }
     static void _call_String_to_ascii(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
-        se_string *s = reinterpret_cast<se_string *>(p_self._data._mem);
+        String *s = reinterpret_cast<String *>(p_self._data._mem);
         if (s->empty()) {
             r_ret = PoolByteArray();
             return;
         }
-        String tmp(String::fromUtf8(s->data(),s->size()));
+        UIString tmp(UIString::fromUtf8(s->data(),s->size()));
         CharString charstr(tmp.toLatin1());
 
         PoolByteArray retval;
@@ -456,7 +460,7 @@ struct _VariantCall {
 
     static void _call_String_to_utf8(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
-        se_string *s = reinterpret_cast<se_string *>(p_self._data._mem);
+        String *s = reinterpret_cast<String *>(p_self._data._mem);
         if (s->empty()) {
             r_ret = PoolByteArray();
             return;
@@ -678,10 +682,10 @@ struct _VariantCall {
     static void _call_PoolByteArray_get_string_from_ascii(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
-        se_string s;
+        String s;
         if (ba->size() > 0) {
             PoolByteArray::Read r = ba->read();
-            se_string cs;
+            String cs;
             cs.resize(ba->size() + 1);
             memcpy(cs.data(), r.ptr(), ba->size());
             cs[ba->size()] = 0;
@@ -694,10 +698,10 @@ struct _VariantCall {
     static void _call_PoolByteArray_get_string_from_utf8(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
-        se_string s;
+        String s;
         if (ba->size() > 0) {
             PoolByteArray::Read r = ba->read();
-            s = se_string((const char *)r.ptr(), ba->size());
+            s = String((const char *)r.ptr(), ba->size());
         }
         r_ret = s;
     }
@@ -728,7 +732,7 @@ struct _VariantCall {
 
         if (buffer_size <= 0) {
             r_ret = decompressed;
-            ERR_FAIL_MSG("Decompression buffer size must be greater than zero.")
+            ERR_FAIL_MSG("Decompression buffer size must be greater than zero.");
         }
 
         decompressed.resize(buffer_size);
@@ -743,11 +747,11 @@ struct _VariantCall {
     static void _call_PoolByteArray_hex_encode(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         if (ba->size() == 0) {
-            r_ret = se_string();
+            r_ret = String();
             return;
         }
         PoolByteArray::Read r = ba->read();
-        se_string s(StringUtils::hex_encode_buffer(&r[0], ba->size()));
+        String s(StringUtils::hex_encode_buffer(&r[0], ba->size()));
         r_ret = s;
     }
 
@@ -792,23 +796,23 @@ struct _VariantCall {
     static void _call_PoolRealArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolRealArray *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolSeStringArray, size)
-    VCALL_LOCALMEM0R(PoolSeStringArray, empty)
-    VCALL_LOCALMEM2(PoolSeStringArray, set)
-    VCALL_LOCALMEM1R(PoolSeStringArray, get)
-    VCALL_LOCALMEM1(PoolSeStringArray, push_back)
-    VCALL_LOCALMEM1(PoolSeStringArray, resize)
-    VCALL_LOCALMEM2R(PoolSeStringArray, insert)
-    VCALL_LOCALMEM1(PoolSeStringArray, remove)
-    VCALL_LOCALMEM1(PoolSeStringArray, append)
-    VCALL_LOCALMEM1(PoolSeStringArray, append_array)
-    static void _call_PoolSeStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
-        invert(*reinterpret_cast<PoolSeStringArray *>(p_self._data._mem)); }
+    VCALL_LOCALMEM0R(PoolStringArray, size)
+    VCALL_LOCALMEM0R(PoolStringArray, empty)
+    VCALL_LOCALMEM2(PoolStringArray, set)
+    VCALL_LOCALMEM1R(PoolStringArray, get)
+    VCALL_LOCALMEM1(PoolStringArray, push_back)
+    VCALL_LOCALMEM1(PoolStringArray, resize)
+    VCALL_LOCALMEM2R(PoolStringArray, insert)
+    VCALL_LOCALMEM1(PoolStringArray, remove)
+    VCALL_LOCALMEM1(PoolStringArray, append)
+    VCALL_LOCALMEM1(PoolStringArray, append_array)
+    static void _call_PoolStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
+        invert(*reinterpret_cast<PoolStringArray *>(p_self._data._mem)); }
 
-    static void _call_PoolSeStringArray_join(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        const PoolSeStringArray &lhs(*reinterpret_cast<PoolSeStringArray *>(p_self._data._mem));
-        se_string delimiter(*p_args[0]);
-        se_string rs;
+    static void _call_PoolStringArray_join(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+        const PoolStringArray &lhs(*reinterpret_cast<PoolStringArray *>(p_self._data._mem));
+        String delimiter(*p_args[0]);
+        String rs;
         int s = lhs.size();
         auto r = lhs.read();
         for (int i = 0; i < s; i++) {
@@ -1048,13 +1052,13 @@ struct _VariantCall {
 
         int arg_count;
         Vector<VariantType> arg_types;
-        Vector<se_string> arg_names;
+        Vector<String> arg_names;
         VariantConstructFunc func;
     };
 
     struct ConstructFunc {
 
-        PODVector<ConstructData> constructors;
+        Vector<ConstructData> constructors;
     };
 
     static ConstructFunc *construct_funcs;
@@ -1140,7 +1144,7 @@ struct _VariantCall {
 
     static void Color_init3(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Color::html(p_args[0]->as<se_string>());
+        r_ret = Color::html(p_args[0]->as<String>());
     }
 
     static void Color_init4(Variant &r_ret, const Variant **p_args) {
@@ -1225,7 +1229,7 @@ struct _VariantCall {
 
         Map<StringName, int> value;
 #ifdef DEBUG_ENABLED
-        ListPOD<StringName> value_ordered;
+        List<StringName> value_ordered;
 #endif
         Map<StringName, Variant> variant_value;
     };
@@ -1305,7 +1309,7 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
 Variant Variant::construct(const VariantType p_type, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict) {
 
     r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-    ERR_FAIL_INDEX_V(int(p_type), int(VariantType::VARIANT_MAX), Variant())
+    ERR_FAIL_INDEX_V(int(p_type), int(VariantType::VARIANT_MAX), Variant());
 
     r_error.error = Variant::CallError::CALL_OK;
     if (p_argcount == 0) { //generic construct
@@ -1319,7 +1323,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::INT: return 0;
             case VariantType::REAL: return 0.0f;
             case VariantType::STRING:
-                return se_string();
+                return String();
 
             // math types
             case VariantType::VECTOR2:
@@ -1347,7 +1351,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::POOL_BYTE_ARRAY: return PoolByteArray();
             case VariantType::POOL_INT_ARRAY: return PoolIntArray();
             case VariantType::POOL_REAL_ARRAY: return PoolRealArray();
-            case VariantType::POOL_STRING_ARRAY: return PoolSeStringArray();
+            case VariantType::POOL_STRING_ARRAY: return PoolStringArray();
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(PoolVector2Array()); // 25
             case VariantType::POOL_VECTOR3_ARRAY: return PoolVector3Array();
@@ -1375,7 +1379,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
                 return real_t(*p_args[0]);
             }
             case VariantType::STRING: {
-                return se_string(*p_args[0]);
+                return String(*p_args[0]);
             }
             case VariantType::VECTOR2: {
                 return Vector2(*p_args[0]);
@@ -1391,7 +1395,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
                 return (Transform(p_args[0]->operator Transform()));
 
             // misc types
-            case VariantType::COLOR: return p_args[0]->type == VariantType::STRING ? Color::html(p_args[0]->as<se_string>()) : Color::hex(*p_args[0]);
+            case VariantType::COLOR: return p_args[0]->type == VariantType::STRING ? Color::html(p_args[0]->as<String>()) : Color::hex(*p_args[0]);
             case VariantType::NODE_PATH:
                 return (NodePath(p_args[0]->operator NodePath())); // 15
             case VariantType::_RID: return (RID(*p_args[0]));
@@ -1404,7 +1408,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::POOL_BYTE_ARRAY: return (PoolByteArray(*p_args[0]));
             case VariantType::POOL_INT_ARRAY: return (PoolIntArray(*p_args[0]));
             case VariantType::POOL_REAL_ARRAY: return (PoolRealArray(*p_args[0]));
-            case VariantType::POOL_STRING_ARRAY: return (PoolSeStringArray(*p_args[0]));
+            case VariantType::POOL_STRING_ARRAY: return (PoolStringArray(*p_args[0]));
             case VariantType::POOL_VECTOR2_ARRAY:
                 return Variant(PoolVector2Array(*p_args[0])); // 25
             case VariantType::POOL_VECTOR3_ARRAY: return (PoolVector3Array(*p_args[0]));
@@ -1505,7 +1509,7 @@ VariantType Variant::get_method_return_type(VariantType p_type, const StringName
 
     return E->second.return_type;
 }
-static const PODVector<Variant> s_empty;
+static const Vector<Variant> s_empty;
 
 Span<const Variant> Variant::get_method_default_arguments(VariantType p_type, const StringName &p_method) {
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
@@ -1517,7 +1521,7 @@ Span<const Variant> Variant::get_method_default_arguments(VariantType p_type, co
     return E->second.default_args;
 }
 
-void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
+void Variant::get_method_list(Vector<MethodInfo> *p_list) const {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)type];
 
@@ -1539,7 +1543,7 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
 #ifdef DEBUG_ENABLED
             pi.name = StaticCString(fd.arg_names[i].data(),true);
 #endif
-            mi.arguments.push_back(pi);
+            mi.arguments.emplace_back(eastl::move(pi));
         }
 
         mi.default_arguments.assign(fd.default_args, fd.default_args+fd.def_count);
@@ -1555,9 +1559,9 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
     }
 }
 
-void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list) {
+void Variant::get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list) {
 
-    ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX))
+    ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX));
 
     //custom constructors
     for (const _VariantCall::ConstructData &cd : _VariantCall::construct_funcs[(int)p_type].constructors) {
@@ -1570,7 +1574,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
             PropertyInfo pi;
             pi.name = StringName(cd.arg_names[i]);
             pi.type = cd.arg_types[i];
-            mi.arguments.push_back(pi);
+            mi.arguments.emplace_back(eastl::move(pi));
         }
         p_list->push_back(mi);
     }
@@ -1581,20 +1585,19 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
         if (!Variant::can_convert(VariantType(i), p_type))
             continue;
 
-        MethodInfo mi;
-        mi.name = Variant::interned_type_name(p_type);
+        MethodInfo mi(p_type);
+        mi.name = eastl::move(Variant::interned_type_name(p_type));
         PropertyInfo pi;
         pi.name = "from";
         pi.type = VariantType(i);
-        mi.arguments.push_back(pi);
-        mi.return_val.type = p_type;
-        p_list->push_back(mi);
+        mi.arguments.emplace_back(eastl::move(pi));
+        p_list->emplace_back(eastl::move(mi));
     }
 }
 
-void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_constants) {
+void Variant::get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants) {
 
-    ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX)
+    ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX);
 
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
 
@@ -1616,7 +1619,7 @@ void Variant::get_constants_for_type(VariantType p_type, ListPOD<StringName> *p_
 
 bool Variant::has_constant(VariantType p_type, const StringName &p_value) {
 
-    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, false)
+    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, false);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
     return cd.value.contains(p_value) || cd.variant_value.contains(p_value);
 }
@@ -1626,7 +1629,7 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
     if (r_valid)
         *r_valid = false;
 
-    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0)
+    ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
 
     Map<StringName, int>::iterator E = cd.value.find(p_value);
@@ -2013,17 +2016,17 @@ void register_variant_methods() {
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, resize, INT, "idx")
     ADDFUNC0(POOL_REAL_ARRAY, NIL, PoolRealArray, invert)
 
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolSeStringArray, size)
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolSeStringArray, empty)
-    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolSeStringArray, set, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, push_back, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, append, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, append_array, POOL_STRING_ARRAY, "array")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolSeStringArray, insert, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolSeStringArray, resize, INT, "idx")
-    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolSeStringArray, invert)
-    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolSeStringArray, join, STRING, "delimiter")
+    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, size)
+    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, empty)
+    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolStringArray, set, INT, "idx", STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, push_back, STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append, STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append_array, POOL_STRING_ARRAY, "array")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, remove, INT, "idx")
+    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolStringArray, insert, INT, "idx", STRING, "string")
+    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, resize, INT, "idx")
+    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolStringArray, invert)
+    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolStringArray, join, STRING, "delimiter")
 
     ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, size)
     ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, empty)

@@ -65,7 +65,7 @@ private:
         }
     };
 
-    se_string title;
+    String title;
     bool show_close;
     Vector2 offset;
     bool comment;
@@ -107,7 +107,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     bool has_point(const Point2 &p_point) const override;
@@ -123,7 +123,7 @@ public:
     Color get_slot_color_right(int p_idx) const;
 
     void set_title(se_string_view p_title);
-    se_string get_title() const;
+    String get_title() const;
 
     void set_offset(const Vector2 &p_offset);
     Vector2 get_offset() const;

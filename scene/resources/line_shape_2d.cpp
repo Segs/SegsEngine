@@ -103,6 +103,7 @@ Rect2 LineShape2D::get_rect() const {
     return rect;
 }
 
+
 void LineShape2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_normal", {"normal"}), &LineShape2D::set_normal);

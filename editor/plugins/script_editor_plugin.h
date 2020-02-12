@@ -53,12 +53,12 @@ class ScriptEditorQuickOpen : public ConfirmationDialog {
 
     LineEdit *search_box;
     Tree *search_options;
-    String function;
+    UIString function;
 
     void _update_search();
 
     void _sbox_input(const Ref<InputEvent> &p_ie);
-    Vector<se_string> functions;
+    Vector<String> functions;
 
     void _confirmed();
     void _text_changed(se_string_view p_newtext);
@@ -68,7 +68,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void popup_dialog(const Vector<se_string> &p_functions, bool p_dontclear = false);
+    void popup_dialog(const Vector<String> &p_functions, bool p_dontclear = false);
     ScriptEditorQuickOpen();
 };
 
@@ -87,10 +87,10 @@ public:
 
     virtual void apply_code() = 0;
     virtual RES get_edited_resource() const = 0;
-    virtual Vector<se_string> get_functions() = 0;
+    virtual Vector<String> get_functions() = 0;
     virtual void set_edited_resource(const RES &p_res) = 0;
     virtual void reload_text() = 0;
-    virtual se_string get_name() = 0;
+    virtual String get_name() = 0;
     virtual Ref<Texture> get_icon() = 0;
     virtual bool is_unsaved() = 0;
     virtual Variant get_edit_state() = 0;
@@ -105,8 +105,8 @@ public:
     virtual void ensure_focus() = 0;
     virtual void tag_saved_version() = 0;
     virtual void reload(bool p_soft) {}
-    virtual void get_breakpoints(List<int> *p_breakpoints) = 0;
-    virtual void add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) = 0;
+    virtual void get_breakpoints(Vector<int> *p_breakpoints) = 0;
+    virtual void add_callback(const StringName &p_function, const PoolVector<String> &p_args) = 0;
     virtual void update_settings() = 0;
     virtual void set_debugger_active(bool p_active) = 0;
     virtual bool can_lose_focus_on_node_selection() { return true; }
@@ -234,7 +234,7 @@ class ScriptEditor : public PanelContainer {
     ScriptEditorDebugger *debugger;
     ToolButton *scripts_visible;
 
-    se_string current_theme;
+    String current_theme;
 
     TextureRect *script_icon;
     Label *script_name_label;
@@ -266,7 +266,7 @@ class ScriptEditor : public PanelContainer {
     Vector<ScriptHistory> history;
     int history_pos;
 
-    List<se_string> previous_scripts;
+    Vector<String> previous_scripts;
 
     void _tab_changed(int p_which);
     void _menu_option(int p_option);
@@ -278,7 +278,7 @@ class ScriptEditor : public PanelContainer {
 
     bool restoring_layout;
 
-    se_string _get_debug_tooltip(se_string_view p_text, Node *_se);
+    String _get_debug_tooltip(se_string_view p_text, Node *_se);
 
     void _resave_scripts(se_string_view p_str);
     void _reload_scripts();
@@ -319,7 +319,7 @@ class ScriptEditor : public PanelContainer {
 
     int edit_pass;
 
-    void _add_callback(Object *p_obj, const StringName &p_function, const PoolVector<se_string> &p_args);
+    void _add_callback(Object *p_obj, const StringName &p_function, const PoolVector<String> &p_args);
     void _res_saved_callback(const Ref<Resource> &p_res);
 
     bool trim_trailing_whitespace_on_save;
@@ -328,8 +328,6 @@ class ScriptEditor : public PanelContainer {
 
     void _trim_trailing_whitespace(TextEdit *tx);
 
-    void _goto_script_line2(int p_line);
-    void _goto_script_line(REF p_script, int p_line);
     void _set_execution(REF p_script, int p_line);
     void _clear_execution(REF p_script);
     void _breaked(bool p_breaked, bool p_can_debug);
@@ -366,9 +364,6 @@ class ScriptEditor : public PanelContainer {
 
     void _script_split_dragged(float);
 
-    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
-    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
-    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
     void _unhandled_input(const Ref<InputEvent> &p_event);
 
@@ -376,7 +371,7 @@ class ScriptEditor : public PanelContainer {
     void _make_script_list_context_menu();
 
     void _help_search(se_string_view p_text);
-    void _help_index(String p_text);
+    void _help_index(UIString p_text);
 
     void _history_forward();
     void _history_back();
@@ -396,8 +391,6 @@ class ScriptEditor : public PanelContainer {
     int file_dialog_option;
     void _file_dialog_action(se_string_view p_file);
 
-    Ref<Script> _get_current_script();
-    Array _get_open_scripts() const;
 
     Ref<TextFile> _load_text_file(se_string_view p_path, Error *r_error);
     Error _save_text_file(Ref<TextFile> p_text_file, se_string_view p_path);
@@ -405,11 +398,19 @@ class ScriptEditor : public PanelContainer {
     void _on_find_in_files_requested(se_string_view text);
     void _on_find_in_files_result_selected(se_string_view fpath, int line_number, int begin, int end);
     void _start_find_in_files(bool with_replace);
-    void _on_find_in_files_modified_files(const PoolSeStringArray &paths);
+    void _on_find_in_files_modified_files(const PoolStringArray &paths);
 
     static void _open_script_request(se_string_view p_path);
 
     static ScriptEditor *script_editor;
+public:
+    Ref<Script> _get_current_script();
+    Array _get_open_scripts() const;
+    void _goto_script_line2(int p_line);
+    void _goto_script_line(REF p_script, int p_line);
+    Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
+    bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
+    void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
 
 protected:
     void _notification(int p_what);
@@ -429,7 +430,7 @@ public:
     _FORCE_INLINE_ bool edit(const RES &p_resource, bool p_grab_focus = true) { return edit(p_resource, -1, 0, p_grab_focus); }
     bool edit(const RES &p_resource, int p_line, int p_col, bool p_grab_focus = true);
 
-    void get_breakpoints(List<se_string> *p_breakpoints);
+    void get_breakpoints(Vector<String> *p_breakpoints);
 
     void save_all_scripts();
 
@@ -437,7 +438,7 @@ public:
     void get_window_layout(Ref<ConfigFile> p_layout);
 
     void set_scene_root_script(const Ref<Script>& p_script);
-    Vector<Ref<Script> > get_open_scripts() const;
+    Vector<Ref<Script>> get_open_scripts() const;
 
     bool script_goto_method(Ref<Script> p_script, const StringName &p_method);
 
@@ -488,7 +489,7 @@ public:
     void set_window_layout(Ref<ConfigFile> p_layout) override;
     void get_window_layout(Ref<ConfigFile> p_layout) override;
 
-    void get_breakpoints(List<se_string> *p_breakpoints) override;
+    void get_breakpoints(Vector<String> *p_breakpoints) override;
 
     void edited_scene_changed() override;
 

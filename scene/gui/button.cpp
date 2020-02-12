@@ -41,7 +41,7 @@ VARIANT_ENUM_CAST(Button::TextAlign);
 
 Size2 Button::get_minimum_size() const {
 
-    Size2 minsize = get_font("font")->get_string_size_utf8(xl_text);
+    Size2 minsize = get_font("font")->get_string_size(xl_text);
     if (clip_text)
         minsize.width = 0;
 
@@ -64,7 +64,7 @@ Size2 Button::get_minimum_size() const {
 }
 
 void Button::_set_internal_margin(Margin p_margin, float p_value) {
-    _internal_margin[p_margin] = p_value;
+    _internal_margin[(int8_t)p_margin] = p_value;
 }
 
 void Button::_notification(int p_what) {
@@ -159,14 +159,14 @@ void Button::_notification(int p_what) {
                 }
 
                 float icon_ofs_region = 0;
-                if (_internal_margin[MARGIN_LEFT] > 0) {
-                    icon_ofs_region = _internal_margin[MARGIN_LEFT] + get_constant("hseparation");
+                if (_internal_margin[(int8_t)Margin::Left] > 0) {
+                    icon_ofs_region = _internal_margin[(int8_t)Margin::Left] + get_constant("hseparation");
                 }
 
                 if (expand_icon) {
                     Size2 _size = get_size() - style->get_offset() * 2;
                     _size.width -= get_constant("hseparation") + icon_ofs_region;
-                    if (!clip_text) _size.width -= get_font("font")->get_string_size_utf8(xl_text).width;
+                    if (!clip_text) _size.width -= get_font("font")->get_string_size(xl_text).width;
                     float icon_width = _icon->get_width() * _size.height / _icon->get_height();
                     float icon_height = _size.height;
 
@@ -188,23 +188,23 @@ void Button::_notification(int p_what) {
             Point2 icon_ofs =
                     _icon ? Point2(icon_region.size.width + get_constant("hseparation"), 0) : Point2();
             int text_clip = size.width - style->get_minimum_size().width - icon_ofs.width;
-            if (_internal_margin[MARGIN_LEFT] > 0) {
-                text_clip -= _internal_margin[MARGIN_LEFT] + get_constant("hseparation");
+            if (_internal_margin[(int8_t)Margin::Left] > 0) {
+                text_clip -= _internal_margin[(int8_t)Margin::Left] + get_constant("hseparation");
             }
-            if (_internal_margin[MARGIN_RIGHT] > 0) {
-                text_clip -= _internal_margin[MARGIN_RIGHT] + get_constant("hseparation");
+            if (_internal_margin[(int8_t)Margin::Right] > 0) {
+                text_clip -= _internal_margin[(int8_t)Margin::Right] + get_constant("hseparation");
             }
-            Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size_utf8(xl_text) -
-                                      Point2(_internal_margin[MARGIN_RIGHT] - _internal_margin[MARGIN_LEFT], 0)) /
+            Point2 text_ofs = (size - style->get_minimum_size() - icon_ofs - font->get_string_size(xl_text) -
+                                      Point2(_internal_margin[(int8_t)Margin::Right] - _internal_margin[(int8_t)Margin::Left], 0)) /
                               2.0;
 
             switch (align) {
                 case ALIGN_LEFT: {
-                    if (_internal_margin[MARGIN_LEFT] > 0) {
-                        text_ofs.x = style->get_margin(MARGIN_LEFT) + icon_ofs.x + _internal_margin[MARGIN_LEFT] +
+                    if (_internal_margin[(int8_t)Margin::Left] > 0) {
+                        text_ofs.x = style->get_margin(Margin::Left) + icon_ofs.x + _internal_margin[(int8_t)Margin::Left] +
                                      get_constant("hseparation");
                     } else {
-                        text_ofs.x = style->get_margin(MARGIN_LEFT) + icon_ofs.x;
+                        text_ofs.x = style->get_margin(Margin::Left) + icon_ofs.x;
                     }
                     text_ofs.y += style->get_offset().y;
                 } break;
@@ -214,18 +214,18 @@ void Button::_notification(int p_what) {
                     text_ofs += style->get_offset();
                 } break;
                 case ALIGN_RIGHT: {
-                    if (_internal_margin[MARGIN_RIGHT] > 0) {
-                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(xl_text).x -
-                                     _internal_margin[MARGIN_RIGHT] - get_constant("hseparation");
+                    if (_internal_margin[(int8_t)Margin::Right] > 0) {
+                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size(xl_text).x -
+                                     _internal_margin[(int8_t)Margin::Right] - get_constant("hseparation");
                     } else {
-                        text_ofs.x = size.x - style->get_margin(MARGIN_RIGHT) - font->get_string_size_utf8(xl_text).x;
+                        text_ofs.x = size.x - style->get_margin(Margin::Right) - font->get_string_size(xl_text).x;
                     }
                     text_ofs.y += style->get_offset().y;
                 } break;
             }
 
             text_ofs.y += font->get_ascent();
-            font->draw_utf8(ci, text_ofs.floor(), xl_text, color, clip_text ? text_clip : -1);
+            font->draw(ci, text_ofs.floor(), xl_text, color, clip_text ? text_clip : -1);
 
             if (_icon && icon_region.size.width > 0) {
                 draw_texture_rect_region(_icon, icon_region, Rect2(Point2(), _icon->get_size()), color_icon);
@@ -261,7 +261,7 @@ StringName Button::get_text() const {
 }
 
 
-void Button::set_icon(const Ref<Texture> &p_icon) {
+void Button::set_button_icon(const Ref<Texture> &p_icon) {
 
     if (icon == p_icon)
         return;
@@ -271,7 +271,7 @@ void Button::set_icon(const Ref<Texture> &p_icon) {
     minimum_size_changed();
 }
 
-Ref<Texture> Button::get_icon() const {
+Ref<Texture> Button::get_button_icon() const {
 
     return icon;
 }
@@ -327,8 +327,8 @@ void Button::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &Button::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &Button::get_text);
-    MethodBinder::bind_method(D_METHOD("set_button_icon", {"texture"}), &Button::set_icon);
-    MethodBinder::bind_method(D_METHOD("get_button_icon"), &Button::get_icon);
+    MethodBinder::bind_method(D_METHOD("set_button_icon", {"texture"}), &Button::set_button_icon);
+    MethodBinder::bind_method(D_METHOD("get_button_icon"), &Button::get_button_icon);
     MethodBinder::bind_method(D_METHOD("set_expand_icon"), &Button::set_expand_icon);
     MethodBinder::bind_method(D_METHOD("is_expand_icon"), &Button::is_expand_icon);
     MethodBinder::bind_method(D_METHOD("set_flat", {"enabled"}), &Button::set_flat);
@@ -342,11 +342,11 @@ void Button::_bind_methods() {
     BIND_ENUM_CONSTANT(ALIGN_CENTER)
     BIND_ENUM_CONSTANT(ALIGN_RIGHT)
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "icon", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_button_icon", "get_button_icon");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "set_button_icon", "get_button_icon");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flat"), "set_flat", "is_flat");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "get_clip_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_text_align", "get_text_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right"), "set_text_align", "get_text_align");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand_icon"), "set_expand_icon", "is_expand_icon");
 }
 
@@ -359,8 +359,8 @@ Button::Button(const StringName &p_text) {
     set_text(p_text);
     align = ALIGN_CENTER;
 
-    for (int i = 0; i < 4; i++) {
-        _internal_margin[i] = 0;
+    for (float & margin : _internal_margin) {
+        margin = 0;
     }
 }
 

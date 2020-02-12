@@ -205,9 +205,9 @@ namespace GodotTools
             if (what == EditorSettings.NotificationEditorSettingsChanged)
             {
                 var editorBaseControl = editorInterface.GetBaseControl();
-                panelTabs.AddStyleboxOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
-                panelTabs.AddStyleboxOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
-                panelTabs.AddStyleboxOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
+                panelTabs.AddStyleOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
+                panelTabs.AddStyleOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
+                panelTabs.AddStyleOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
             }
         }
 
@@ -254,13 +254,13 @@ namespace GodotTools
 
             panelTabs = new TabContainer
             {
-                TabAlign = TabContainer.TabAlignEnum.Left,
+                TabAlign = (int)TabContainer.TabAlignEnum.Left,
                 RectMinSize = new Vector2(0, 228) * EditorScale,
                 SizeFlagsVertical = (int)SizeFlags.ExpandFill
             };
-            panelTabs.AddStyleboxOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
-            panelTabs.AddStyleboxOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
-            panelTabs.AddStyleboxOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
+            panelTabs.AddStyleOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
+            panelTabs.AddStyleOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
+            panelTabs.AddStyleOverride("tab_bg", editorBaseControl.GetStylebox("DebuggerTabBG", "EditorStyles"));
             AddChild(panelTabs);
 
             {
@@ -278,12 +278,12 @@ namespace GodotTools
                 var buildProjectBtn = new Button
                 {
                     Text = "Build Project".TTR(),
-                    FocusMode = FocusModeEnum.None
+                    FocusMode = (int)FocusModeEnum.None
                 };
                 buildProjectBtn.Connect("pressed", this, nameof(BuildProjectPressed));
                 toolBarHBox.AddChild(buildProjectBtn);
 
-                toolBarHBox.AddSpacer(begin: false);
+                toolBarHBox.AddSpacer(false);
 
                 warningsBtn = new ToolButton
                 {
@@ -291,7 +291,7 @@ namespace GodotTools
                     ToggleMode = true,
                     Pressed = true,
                     Visible = false,
-                    FocusMode = FocusModeEnum.None
+                    FocusMode = (int)FocusModeEnum.None
                 };
                 warningsBtn.Connect("toggled", this, nameof(_WarningsToggled));
                 toolBarHBox.AddChild(warningsBtn);
@@ -302,17 +302,17 @@ namespace GodotTools
                     ToggleMode = true,
                     Pressed = true,
                     Visible = false,
-                    FocusMode = FocusModeEnum.None
+                    FocusMode = (int)FocusModeEnum.None
                 };
                 errorsBtn.Connect("toggled", this, nameof(_ErrorsToggled));
                 toolBarHBox.AddChild(errorsBtn);
 
-                toolBarHBox.AddSpacer(begin: false);
+                toolBarHBox.AddSpacer(false);
 
                 viewLogBtn = new Button
                 {
                     Text = "View log".TTR(),
-                    FocusMode = FocusModeEnum.None,
+                    FocusMode = (int)FocusModeEnum.None,
                     Visible = false
                 };
                 viewLogBtn.Connect("pressed", this, nameof(_ViewLogPressed));
@@ -332,7 +332,7 @@ namespace GodotTools
 
                 buildTabs = new TabContainer
                 {
-                    TabAlign = TabContainer.TabAlignEnum.Left,
+                    TabAlign = (int)TabContainer.TabAlignEnum.Left,
                     SizeFlagsHorizontal = (int)SizeFlags.ExpandFill,
                     TabsVisible = false
                 };

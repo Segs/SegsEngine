@@ -53,9 +53,9 @@
 IMPL_GDCLASS(LineEdit)
 
 struct LineEdit::PrivateData {
-    String undo_text;
-    String text;
-    String ime_text;
+    UIString undo_text;
+    UIString text;
+    UIString ime_text;
     int cached_width;
     int window_pos;
 
@@ -64,10 +64,10 @@ struct LineEdit::PrivateData {
         int cursor_pos;
         int window_pos;
         int cached_width;
-        String text;
+        UIString text;
     };
-    List<TextOperation> undo_stack;
-    List<TextOperation>::Element *undo_stack_pos;
+    ListOld<TextOperation> undo_stack;
+    ListOld<TextOperation>::Element *undo_stack_pos;
     void _create_undo_state(int cursor_pos) {
         TextOperation op;
         op.text = text;
@@ -84,7 +84,7 @@ struct LineEdit::PrivateData {
 
         undo_stack_pos = undo_stack_pos->next();
         while (undo_stack_pos) {
-            List<TextOperation>::Element *elem = undo_stack_pos;
+            ListOld<TextOperation>::Element *elem = undo_stack_pos;
             undo_stack_pos = undo_stack_pos->next();
             undo_stack.erase(elem);
         }
@@ -213,7 +213,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             selection.doubleclick = false;
 
             if (OS::get_singleton()->has_virtual_keyboard())
-                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect());
+                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect(), max_length);
         }
 
         update();
@@ -641,7 +641,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                     if (editable) {
                         selection_delete();
                         int prev_len = m_priv->text.length();
-                        append_at_cursor(StringUtils::to_utf8(String(k->get_unicode())));
+                        append_at_cursor(StringUtils::to_utf8(UIString(k->get_unicode())));
                         if(prev_len!=m_priv->text.length()) {
                             _text_changed();
                         }
@@ -675,7 +675,7 @@ LineEdit::Align LineEdit::get_align() const {
 Variant LineEdit::get_drag_data(const Point2 &p_point) {
 
     if (selection.drag_attempt && selection.enabled) {
-        String t = StringUtils::substr(m_priv->text,selection.begin, selection.end - selection.begin);
+        UIString t = StringUtils::substr(m_priv->text,selection.begin, selection.end - selection.begin);
         Label *l = memnew(Label);
         l->set_text(StringName(StringUtils::to_utf8(t)));
         set_drag_preview(l);
@@ -702,7 +702,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
 
         StringUtils::erase(m_priv->text,selection.begin, selected);
 
-        append_at_cursor(p_data.as<se_string>());
+        append_at_cursor(p_data.as<String>());
         selection.begin = cursor_pos - selected;
         selection.end = cursor_pos;
     }
@@ -805,15 +805,15 @@ void LineEdit::_notification(int p_what) {
                     if (m_priv->window_pos != 0)
                         x_ofs = style->get_offset().x;
                     else
-                        x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - (cached_text_width)) / 2);
+                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
                 } break;
                 case ALIGN_RIGHT: {
 
-                    x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - style->get_margin(MARGIN_RIGHT) - (cached_text_width)));
+                    x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - style->get_margin(Margin::Right) - (cached_text_width)));
                 } break;
             }
 
-            int ofs_max = width - style->get_margin(MARGIN_RIGHT);
+            int ofs_max = width - style->get_margin(Margin::Right);
             int char_ofs = m_priv->window_pos;
 
             int y_area = height - style->get_minimum_size().height;
@@ -826,7 +826,7 @@ void LineEdit::_notification(int p_what) {
             Color font_color_selected = get_color("font_color_selected");
             Color cursor_color = get_color("cursor_color");
 
-            const String t = using_placeholder ? StringUtils::from_utf8(placeholder_translated) : m_priv->text;
+            const UIString t = using_placeholder ? StringUtils::from_utf8(placeholder_translated) : m_priv->text;
             // Draw placeholder color.
             if (using_placeholder)
                 font_color.a *= placeholder_alpha;
@@ -842,14 +842,14 @@ void LineEdit::_notification(int p_what) {
                         color_icon = get_color("clear_button_color");
                     }
                 }
-                r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(MARGIN_RIGHT), height / 2 - r_icon->get_height() / 2), color_icon);
+                r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(Margin::Right), height / 2 - r_icon->get_height() / 2), color_icon);
 
                 if (align == ALIGN_CENTER) {
                     if (m_priv->window_pos == 0) {
-                        x_ofs = MAX(style->get_margin(MARGIN_LEFT), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(MARGIN_RIGHT) * 2) / 2);
+                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
                     }
                 } else {
-                    x_ofs = MAX(style->get_margin(MARGIN_LEFT), x_ofs - r_icon->get_width() - style->get_margin(MARGIN_RIGHT));
+                    x_ofs = MAX(style->get_margin(Margin::Left), x_ofs - r_icon->get_width() - style->get_margin(Margin::Right));
                 }
 
                 ofs_max -= r_icon->get_width();
@@ -997,7 +997,7 @@ void LineEdit::_notification(int p_what) {
             OS::get_singleton()->set_ime_position(get_global_position() + cursor_pos);
 
             if (OS::get_singleton()->has_virtual_keyboard())
-                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect());
+                OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect(), max_length);
 
         } break;
         case NOTIFICATION_FOCUS_EXIT: {
@@ -1043,7 +1043,7 @@ void LineEdit::cut_text() {
 void LineEdit::paste_text() {
 
     // Strip escape characters like \n and \t as they can't be displayed on LineEdit.
-    se_string paste_buffer = StringUtils::strip_escapes(OS::get_singleton()->get_clipboard());
+    String paste_buffer = StringUtils::strip_escapes(OS::get_singleton()->get_clipboard());
 
     if (!paste_buffer.empty()) {
 
@@ -1125,14 +1125,14 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
                 pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(Margin::Right));
         } break;
         case ALIGN_RIGHT: {
 
-            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (m_priv->cached_width));
+            pixel_ofs = int(size.width - style->get_margin(Margin::Right) - (m_priv->cached_width));
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width + style->get_margin(Margin::Right));
         } break;
     }
 
@@ -1179,14 +1179,14 @@ int LineEdit::get_cursor_pixel_pos() {
                 pixel_ofs = int(size.width - (m_priv->cached_width)) / 2;
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width / 2 + style->get_margin(Margin::Right));
         } break;
         case ALIGN_RIGHT: {
 
-            pixel_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (m_priv->cached_width));
+            pixel_ofs = int(size.width - style->get_margin(Margin::Right) - (m_priv->cached_width));
 
             if (display_clear_icon)
-                pixel_ofs -= int(r_icon_width + style->get_margin(MARGIN_RIGHT));
+                pixel_ofs -= int(r_icon_width + style->get_margin(Margin::Right));
         } break;
     }
 
@@ -1221,7 +1221,7 @@ float LineEdit::cursor_get_blink_speed() const {
 }
 
 void LineEdit::cursor_set_blink_speed(const float p_speed) {
-    ERR_FAIL_COND(p_speed <= 0)
+    ERR_FAIL_COND(p_speed <= 0);
     caret_blink_timer->set_wait_time(p_speed);
 }
 
@@ -1295,18 +1295,27 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
     }
 }
 
-void LineEdit::set_text(const String& p_text) {
+void LineEdit::set_text_uistring(const UIString& p_text) {
 
     clear_internal();
     append_at_cursor(StringUtils::to_utf8(p_text));
+
+    if (expand_to_text_length) {
+        minimum_size_changed();
+    }
+
     update();
     cursor_pos = 0;
     m_priv->window_pos = 0;
 }
-void LineEdit::set_text_utf8(se_string_view p_text) {
+void LineEdit::set_text(se_string_view p_text) {
 
     clear_internal();
     append_at_cursor(p_text);
+    if (expand_to_text_length) {
+        minimum_size_changed();
+    }
+
     update();
     cursor_pos = 0;
     m_priv->window_pos = 0;
@@ -1317,12 +1326,12 @@ void LineEdit::clear() {
     _text_changed();
 }
 
-const String &LineEdit::get_text_ui() const {
+const UIString &LineEdit::get_text_ui() const {
 
     return m_priv->text;
 }
 
-se_string LineEdit::get_text() const
+String LineEdit::get_text() const
 {
     return StringUtils::to_utf8(m_priv->text);
 }
@@ -1424,7 +1433,7 @@ void LineEdit::set_window_pos(int p_pos) {
 
 void LineEdit::append_at_cursor(se_string_view _text) {
 
-    String p_text(StringUtils::from_utf8(_text));
+    UIString p_text(StringUtils::from_utf8(_text));
     if ((max_length <= 0) || (m_priv->text.length() + p_text.length() <= max_length)) {
 
         Ref<Font> font = get_font("font");
@@ -1435,8 +1444,8 @@ void LineEdit::append_at_cursor(se_string_view _text) {
             m_priv->cached_width = 0;
         }
 
-        String pre = StringUtils::substr(m_priv->text,0, cursor_pos);
-        String post = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
+        UIString pre = StringUtils::substr(m_priv->text,0, cursor_pos);
+        UIString post = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
         m_priv->text = pre + p_text + post;
         set_cursor_position(cursor_pos + p_text.length());
     } else {
@@ -1469,7 +1478,7 @@ Size2 LineEdit::get_minimum_size() const {
 
     if (expand_to_text_length) {
         // Add a space because some fonts are too exact, and because cursor needs a bit more when at the end.
-        min_size.width = MAX(min_size.width, font->get_string_size(m_priv->text).x + space_size);
+        min_size.width = MAX(min_size.width, font->get_ui_string_size(m_priv->text).x + space_size);
     }
 
     min_size.height = font->get_height();
@@ -1508,9 +1517,9 @@ void LineEdit::selection_delete() {
 
 void LineEdit::set_max_length(int p_max_length) {
 
-    ERR_FAIL_COND(p_max_length < 0)
+    ERR_FAIL_COND(p_max_length < 0);
     max_length = p_max_length;
-    set_text(m_priv->text);
+    set_text_uistring(m_priv->text);
 }
 
 int LineEdit::get_max_length() const {
@@ -1556,6 +1565,7 @@ void LineEdit::set_editable(bool p_editable) {
 
     _generate_context_menu();
 
+    minimum_size_changed();
     update();
 }
 
@@ -1575,17 +1585,17 @@ bool LineEdit::is_secret() const {
     return pass;
 }
 
-void LineEdit::set_secret_character(const se_string &p_string) {
+void LineEdit::set_secret_character(const String &p_string) {
 
     // An empty string as the secret character would crash the engine
     // It also wouldn't make sense to use multiple characters as the secret character
-    ERR_FAIL_COND_MSG(p_string.length() != 1, "Secret character must be exactly one character long (" + itos(p_string.length()) + " characters given).")
+    ERR_FAIL_COND_MSG(p_string.length() != 1, "Secret character must be exactly one character long (" + itos(p_string.length()) + " characters given)."); 
 
     secret_character = p_string;
     update();
 }
 
-const se_string &LineEdit::get_secret_character() const {
+const String &LineEdit::get_secret_character() const {
     return secret_character;
 }
 
@@ -1691,7 +1701,11 @@ bool LineEdit::get_expand_to_text_length() const {
 }
 
 void LineEdit::set_clear_button_enabled(bool p_enabled) {
+    if (clear_button_enabled == p_enabled) {
+        return;
+    }
     clear_button_enabled = p_enabled;
+    minimum_size_changed();
     update();
 }
 
@@ -1726,6 +1740,8 @@ void LineEdit::set_right_icon(const Ref<Texture> &p_icon) {
         return;
     }
     right_icon = p_icon;
+
+    minimum_size_changed();
     update();
 }
 
@@ -1753,7 +1769,7 @@ void LineEdit::update_placeholder_width() {
         Ref<Font> font = get_font("font");
         cached_placeholder_width = 0;
         if (font != nullptr) {
-            String ph_ui_string(placeholder_translated.asString());
+            UIString ph_ui_string(placeholder_translated.asString());
             for (int i = 0; i < ph_ui_string.length(); i++) {
                 cached_placeholder_width += font->get_char_size(ph_ui_string[i]).width;
             }
@@ -1794,7 +1810,7 @@ void LineEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("select", {"from", "to"}), &LineEdit::select, {DEFVAL(0), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("select_all"), &LineEdit::select_all);
     MethodBinder::bind_method(D_METHOD("deselect"), &LineEdit::deselect);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &LineEdit::set_text_utf8);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &LineEdit::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &LineEdit::get_text);
     MethodBinder::bind_method(D_METHOD("set_placeholder", {"text"}), &LineEdit::set_placeholder);
     MethodBinder::bind_method(D_METHOD("get_placeholder"), &LineEdit::get_placeholder);
@@ -1849,7 +1865,7 @@ void LineEdit::_bind_methods() {
     BIND_ENUM_CONSTANT(MENU_MAX)
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text"), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_length"), "set_max_length", "get_max_length");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "secret"), "set_secret", "is_secret");
@@ -1859,13 +1875,13 @@ void LineEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clear_button_enabled"), "set_clear_button_enabled", "is_clear_button_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shortcut_keys_enabled"), "set_shortcut_keys_enabled", "is_shortcut_keys_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "selecting_enabled"), "set_selecting_enabled", "is_selecting_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "right_icon", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_right_icon", "get_right_icon");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "right_icon", PropertyHint::ResourceType, "Texture"), "set_right_icon", "get_right_icon");
     ADD_GROUP("Placeholder", "placeholder_");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "placeholder_text"), "set_placeholder", "get_placeholder");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "placeholder_alpha", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_placeholder_alpha", "get_placeholder_alpha");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "placeholder_alpha", PropertyHint::Range, "0,1,0.001"), "set_placeholder_alpha", "get_placeholder_alpha");
     ADD_GROUP("Caret", "caret_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_blink"), "cursor_set_blink_enabled", "cursor_get_blink_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PROPERTY_HINT_RANGE, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "caret_position"), "set_cursor_position", "get_cursor_position");
 }
 

@@ -134,7 +134,7 @@ void Line2D::set_point_position(int i, Vector2 p_pos) {
 }
 
 Vector2 Line2D::get_point_position(int i) const {
-    ERR_FAIL_INDEX_V(i, _points.size(), Vector2())
+    ERR_FAIL_INDEX_V(i, _points.size(), Vector2());
     return _points.get(i);
 }
 
@@ -290,13 +290,13 @@ void Line2D::_draw() {
     {
         PoolVector<Vector2>::Read points_read = _points.read();
         for (int i = 0; i < len; ++i) {
-            points.write[i] = points_read[i];
+            points[i] = points_read[i];
         }
     }
 
     // TODO Maybe have it as member rather than copying parameters and allocating memory?
     LineBuilder lb;
-    lb.points = points;
+    lb.points = eastl::move(points);
     lb.default_color = _default_color;
     lb.gradient = _gradient.get();
     lb.texture_mode = _texture_mode;
@@ -322,7 +322,7 @@ void Line2D::_draw() {
                 lb.indices,
                 lb.vertices,
                 lb.colors,
-                lb.uvs, Vector<int>(), Vector<float>(),
+                lb.uvs, {}, {},
                 texture_rid, -1, RID(),
                 _antialiased,true);
 
@@ -409,16 +409,16 @@ void Line2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "width"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "width_curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "width_curve", PropertyHint::ResourceType, "Curve"), "set_curve", "get_curve");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "default_color"), "set_default_color", "get_default_color");
     ADD_GROUP("Fill", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PROPERTY_HINT_RESOURCE_TYPE, "Gradient"), "set_gradient", "get_gradient");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_mode", PROPERTY_HINT_ENUM, "None,Tile,Stretch"), "set_texture_mode", "get_texture_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PropertyHint::ResourceType, "Gradient"), "set_gradient", "get_gradient");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_mode", PropertyHint::Enum, "None,Tile,Stretch"), "set_texture_mode", "get_texture_mode");
     ADD_GROUP("Capping", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "joint_mode", PROPERTY_HINT_ENUM, "Sharp,Bevel,Round"), "set_joint_mode", "get_joint_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "begin_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_begin_cap_mode", "get_begin_cap_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "end_cap_mode", PROPERTY_HINT_ENUM, "None,Box,Round"), "set_end_cap_mode", "get_end_cap_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "joint_mode", PropertyHint::Enum, "Sharp,Bevel,Round"), "set_joint_mode", "get_joint_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "begin_cap_mode", PropertyHint::Enum, "None,Box,Round"), "set_begin_cap_mode", "get_begin_cap_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "end_cap_mode", PropertyHint::Enum, "None,Box,Round"), "set_end_cap_mode", "get_end_cap_mode");
     ADD_GROUP("Border", "");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "round_precision"), "set_round_precision", "get_round_precision");

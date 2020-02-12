@@ -111,7 +111,7 @@ namespace GodotTools.ProjectEditor
                     g.Condition == string.Empty || g.Condition == condition))
                 {
                     var references = itemGroup.Items.Where(item =>
-                        item.ItemType == "Reference" &&
+                        item.ItemType == "RefCounted" &&
                         item.Include == referenceName &&
                         (item.Condition == condition || itemGroup.Condition == condition));
 
@@ -152,7 +152,7 @@ namespace GodotTools.ProjectEditor
                 }
 
                 // Found no Reference item at all. Add it.
-                root.AddItem("Reference", referenceName).Condition = condition;
+                root.AddItem("RefCounted", referenceName).Condition = condition;
                 dirty = true;
             }
 

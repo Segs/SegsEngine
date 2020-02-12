@@ -51,12 +51,12 @@ bool ShortCut::is_shortcut(const Ref<InputEvent> &p_event) const {
     return shortcut && shortcut->shortcut_match(p_event);
 }
 
-se_string ShortCut::get_as_text() const {
+String ShortCut::get_as_text() const {
 
     if (shortcut)
         return shortcut->as_text();
     else
-        return se_string("None");
+        return String("None");
 }
 
 bool ShortCut::is_valid() const {
@@ -74,7 +74,7 @@ void ShortCut::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_shortcut", {"event"}), &ShortCut::is_shortcut);
     MethodBinder::bind_method(D_METHOD("get_as_text"), &ShortCut::get_as_text);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), "set_shortcut", "get_shortcut");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PropertyHint::ResourceType, "InputEvent"), "set_shortcut", "get_shortcut");
 }
 
 ShortCut::ShortCut() {

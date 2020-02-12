@@ -44,13 +44,13 @@ public:
         TARGET_PEER_BROADCAST = 0,
         TARGET_PEER_SERVER = 1
     };
-    enum TransferMode {
+    enum TransferMode : int8_t {
         TRANSFER_MODE_UNRELIABLE,
         TRANSFER_MODE_UNRELIABLE_ORDERED,
         TRANSFER_MODE_RELIABLE,
     };
 
-    enum ConnectionStatus {
+    enum ConnectionStatus : int8_t {
         CONNECTION_DISCONNECTED,
         CONNECTION_CONNECTING,
         CONNECTION_CONNECTED,

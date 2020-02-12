@@ -47,7 +47,6 @@
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/mesh.h"
-#include "servers/camera/camera_feed.h"
 #include "servers/visual_server.h"
 
 IMPL_GDCLASS(Texture)
@@ -80,13 +79,13 @@ namespace  {
             Error err;
             Ref<ImageTexture> texture(dynamic_ref_cast<ImageTexture>(p_resource));
 
-            ERR_FAIL_COND_V_MSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.")
-            ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
+            ERR_FAIL_COND_V_MSG(not texture, ERR_INVALID_PARAMETER, "Can't save invalid texture as PNG.");
+            ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.");
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path))
-            PODVector<uint8_t> buffer;
+            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path));
+            Vector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 
             file->store_buffer(buffer.data(), buffer.size());
@@ -105,7 +104,7 @@ namespace  {
 
             return dynamic_ref_cast<ImageTexture>(p_resource)!=nullptr;
         }
-        void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const final {
+        void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const final {
             if (object_cast<ImageTexture>(p_resource.get()))
                 return m_saver->get_saved_extensions(p_extensions);
         }
@@ -170,7 +169,7 @@ void Texture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_data"), &Texture::get_data);
 
     ADD_GROUP("Flags", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter,Anisotropic Linear,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic Linear,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
     ADD_GROUP("", "");
 
     BIND_ENUM_CONSTANT(FLAGS_DEFAULT)
@@ -190,7 +189,7 @@ Texture::Texture() {
 
 void ImageTexture::reload_from_file() {
 
-    se_string path = ResourceLoader::path_remap(get_path());
+    String path = ResourceLoader::path_remap(get_path());
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -244,23 +243,23 @@ bool ImageTexture::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void ImageTexture::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void ImageTexture::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter,Anisotropic,sRGB,Mirrored Repeat"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "image", PROPERTY_HINT_RESOURCE_TYPE, "Image", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESOURCE_NOT_PERSISTENT));
-    p_list->push_back(PropertyInfo(VariantType::VECTOR2, "size", PROPERTY_HINT_NONE, ""));
+    p_list->push_back(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic,sRGB,Mirrored Repeat"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "image", PropertyHint::ResourceType, "Image", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESOURCE_NOT_PERSISTENT));
+    p_list->push_back(PropertyInfo(VariantType::VECTOR2, "size", PropertyHint::None, ""));
 }
 
 void ImageTexture::_reload_hook(const RID &p_hook) {
 
-    se_string path = get_path();
+    String path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(path, img);
 
-    ERR_FAIL_COND(err != OK)
+    ERR_FAIL_COND(err != OK);
 
     VisualServer::get_singleton()->texture_set_data(texture, img);
 
@@ -280,7 +279,7 @@ void ImageTexture::create(int p_width, int p_height, Image::Format p_format, uin
 }
 void ImageTexture::create_from_image(const Ref<Image> &p_image, uint32_t p_flags) {
 
-    ERR_FAIL_COND(not p_image)
+    ERR_FAIL_COND(not p_image);
     flags = p_flags;
     w = p_image->get_width();
     h = p_image->get_height();
@@ -320,7 +319,7 @@ Image::Format ImageTexture::get_format() const {
 
 void ImageTexture::set_data(const Ref<Image> &p_image) {
 
-    ERR_FAIL_COND(not p_image)
+    ERR_FAIL_COND(not p_image);
 
     VisualServer::get_singleton()->texture_set_data(texture, p_image);
 
@@ -333,7 +332,7 @@ void ImageTexture::set_data(const Ref<Image> &p_image) {
 
 void ImageTexture::_resource_path_changed() {
     //TODO: SEGS: ImageTexture::_resource_path_changed - this looks like a dead code?
-    se_string path = get_path();
+    String path = get_path();
 }
 
 Ref<Image> ImageTexture::get_data() const {
@@ -464,7 +463,7 @@ float ImageTexture::get_lossy_storage_quality() const {
 void ImageTexture::_set_data(Dictionary p_data) {
 
     Ref<Image> img(p_data["image"]);
-    ERR_FAIL_COND(not img)
+    ERR_FAIL_COND(not img);
     uint32_t flags = p_data["flags"];
 
     create_from_image(img, flags);
@@ -489,8 +488,8 @@ void ImageTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_size_override", {"size"}), &ImageTexture::set_size_override);
     MethodBinder::bind_method(D_METHOD("_reload_hook", {"rid"}), &ImageTexture::_reload_hook);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage", PROPERTY_HINT_ENUM, "Uncompressed,Compress Lossy,Compress Lossless"), "set_storage", "get_storage");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lossy_quality", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage", PropertyHint::Enum, "Uncompressed,Compress Lossy,Compress Lossless"), "set_storage", "get_storage");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lossy_quality", PropertyHint::Range, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
 
     BIND_ENUM_CONSTANT(STORAGE_RAW)
     BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY)
@@ -510,12 +509,12 @@ ImageTexture::ImageTexture() {
 
 ImageTexture::~ImageTexture() {
 
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(texture);
 }
 
 //////////////////////////////////////////
 struct StreamTexture::StreamTextureData {
-    se_string path_to_file;
+    String path_to_file;
     RID texture;
     Image::Format format;
     uint32_t flags;
@@ -536,7 +535,7 @@ void StreamTexture::_requested_3d(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_3d_callback)
+    ERR_FAIL_COND(!request_3d_callback);
     request_3d_callback(StringName(stex->get_path()));
 }
 
@@ -544,7 +543,7 @@ void StreamTexture::_requested_srgb(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_srgb_callback)
+    ERR_FAIL_COND(!request_srgb_callback);
     request_srgb_callback(StringName(stex->get_path()));
 }
 
@@ -552,7 +551,7 @@ void StreamTexture::_requested_normal(void *p_ud) {
 
     StreamTexture *st = (StreamTexture *)p_ud;
     Ref<StreamTexture> stex(st);
-    ERR_FAIL_COND(!request_normal_callback)
+    ERR_FAIL_COND(!request_normal_callback);
     request_normal_callback(StringName(stex->get_path()));
 }
 
@@ -573,16 +572,16 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
 
     m_impl_data->alpha_cache.reset(nullptr); // TODO: memory de-allocation, check if actually needed ?
 
-    ERR_FAIL_COND_V(not image, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not image, ERR_INVALID_PARAMETER);
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN)
+    ERR_FAIL_COND_V(!f, ERR_CANT_OPEN);
 
     uint8_t header[4];
     f->get_buffer(header, 4);
     if (header[0] != 'G' || header[1] != 'D' || header[2] != 'S' || header[3] != 'T') {
         memdelete(f);
-        ERR_FAIL_COND_V(header[0] != 'G' || header[1] != 'D' || header[2] != 'S' || header[3] != 'T', ERR_FILE_CORRUPT)
+        ERR_FAIL_COND_V(header[0] != 'G' || header[1] != 'D' || header[2] != 'S' || header[3] != 'T', ERR_FILE_CORRUPT);
     }
 
     tw = f->get_16();
@@ -654,7 +653,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
         //mipmaps need to be read independently, they will be later combined
         Vector<Ref<Image> > mipmap_images;
         int total_size = 0;
-        PODVector<uint8_t> pv;
+        Vector<uint8_t> pv;
 
         for (uint32_t i = 0; i < mipmaps; i++) {
 
@@ -673,7 +672,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
 
             if (not img || img->empty()) {
                 memdelete(f);
-                ERR_FAIL_COND_V(not img || img->empty(), ERR_FILE_CORRUPT)
+                ERR_FAIL_COND_V(not img || img->empty(), ERR_FILE_CORRUPT);
             }
 
             total_size += img->get_data().size();
@@ -698,7 +697,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
                 PoolVector<uint8_t>::Write w = img_data.write();
 
                 int ofs = 0;
-                for (int i = 0; i < mipmap_images.size(); i++) {
+                for (size_t i = 0; i < mipmap_images.size(); i++) {
 
                     PoolVector<uint8_t> id = mipmap_images[i]->get_data();
                     int len = id.size();
@@ -754,7 +753,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
 
             if (total_size - ofs <= 0) {
                 memdelete(f);
-                ERR_FAIL_V(ERR_FILE_CORRUPT)
+                ERR_FAIL_V(ERR_FILE_CORRUPT);
             }
 
             f->seek(f->get_position() + ofs);
@@ -774,7 +773,7 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
                     //this is a compatibility workaround for older format, which saved less mipmaps2. It is still recommended the image is reimported.
                     memset(w.ptr() + bytes, 0, (expected - bytes));
                 } else if (bytes != expected) {
-                    ERR_FAIL_V(ERR_FILE_CORRUPT)
+                    ERR_FAIL_V(ERR_FILE_CORRUPT);
                 }
             }
 
@@ -817,7 +816,7 @@ Error StreamTexture::load(se_string_view p_path) {
     emit_changed();
     return OK;
 }
-se_string StreamTexture::get_load_path() const {
+String StreamTexture::get_load_path() const {
 
     return m_impl_data->path_to_file;
 }
@@ -911,7 +910,7 @@ void StreamTexture::set_flags(uint32_t p_flags) {
 
 void StreamTexture::reload_from_file() {
 
-    se_string path = get_path();
+    String path = get_path();
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -934,7 +933,7 @@ void StreamTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("load", {"path"}), &StreamTexture::load);
     MethodBinder::bind_method(D_METHOD("get_load_path"), &StreamTexture::get_load_path);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "load_path", PROPERTY_HINT_FILE, "*.stex"), "load", "get_load_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "load_path", PropertyHint::File, "*.stex"), "load", "get_load_path");
 }
 
 StreamTexture::StreamTexture() {
@@ -948,7 +947,7 @@ StreamTexture::StreamTexture() {
 }
 
 StreamTexture::~StreamTexture() {
-    VisualServer::get_singleton()->free(m_impl_data->texture);
+    VisualServer::get_singleton()->free_rid(m_impl_data->texture);
     delete m_impl_data;
 }
 
@@ -964,14 +963,14 @@ RES ResourceFormatLoaderStreamTexture::load(se_string_view p_path, se_string_vie
     return st;
 }
 
-void ResourceFormatLoaderStreamTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderStreamTexture::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("stex"));
 }
 bool ResourceFormatLoaderStreamTexture::handles_type(se_string_view p_type) const {
     return p_type == se_string_view("StreamTexture");
 }
-se_string ResourceFormatLoaderStreamTexture::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderStreamTexture::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "stex")
         return ("StreamTexture");
@@ -1032,7 +1031,7 @@ uint32_t AtlasTexture::get_flags() const {
 
 void AtlasTexture::set_atlas(const Ref<Texture> &p_atlas) {
 
-    ERR_FAIL_COND(this == p_atlas.get())
+    ERR_FAIL_COND(this == p_atlas.get());
     if (atlas == p_atlas)
         return;
     atlas = p_atlas;
@@ -1098,7 +1097,7 @@ void AtlasTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_filter_clip", {"enable"}), &AtlasTexture::set_filter_clip);
     MethodBinder::bind_method(D_METHOD("has_filter_clip"), &AtlasTexture::has_filter_clip);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "atlas", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_atlas", "get_atlas");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "atlas", PropertyHint::ResourceType, "Texture"), "set_atlas", "get_atlas");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region"), "set_region", "get_region");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "margin"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter_clip"), "set_filter_clip", "has_filter_clip");
@@ -1337,9 +1336,9 @@ void MeshTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_base_texture", {"texture"}), &MeshTexture::set_base_texture);
     MethodBinder::bind_method(D_METHOD("get_base_texture"), &MeshTexture::get_base_texture);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "base_texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_base_texture", "get_base_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "image_size", PROPERTY_HINT_RANGE, "0,16384,1"), "set_image_size", "get_image_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "base_texture", PropertyHint::ResourceType, "Texture"), "set_base_texture", "get_base_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "image_size", PropertyHint::Range, "0,16384,1"), "set_image_size", "get_image_size");
 }
 
 MeshTexture::MeshTexture() {
@@ -1364,7 +1363,7 @@ RID LargeTexture::get_rid() const {
 
 bool LargeTexture::has_alpha() const {
 
-    for (int i = 0; i < pieces.size(); i++) {
+    for (size_t i = 0; i < pieces.size(); i++) {
         if (pieces[i].texture->has_alpha())
             return true;
     }
@@ -1374,8 +1373,8 @@ bool LargeTexture::has_alpha() const {
 
 void LargeTexture::set_flags(uint32_t p_flags) {
 
-    for (int i = 0; i < pieces.size(); i++) {
-        pieces.write[i].texture->set_flags(p_flags);
+    for (size_t i = 0; i < pieces.size(); i++) {
+        pieces[i].texture->set_flags(p_flags);
     }
 }
 
@@ -1389,7 +1388,7 @@ uint32_t LargeTexture::get_flags() const {
 
 int LargeTexture::add_piece(const Point2 &p_offset, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND_V(not p_texture, -1)
+    ERR_FAIL_COND_V(not p_texture, -1);
     Piece p;
     p.offset = p_offset;
     p.texture = p_texture;
@@ -1401,15 +1400,15 @@ int LargeTexture::add_piece(const Point2 &p_offset, const Ref<Texture> &p_textur
 void LargeTexture::set_piece_offset(int p_idx, const Point2 &p_offset) {
 
     ERR_FAIL_INDEX(p_idx, pieces.size());
-    pieces.write[p_idx].offset = p_offset;
+    pieces[p_idx].offset = p_offset;
 };
 
 void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(p_texture.get() == this)
-    ERR_FAIL_COND(not p_texture)
-    ERR_FAIL_INDEX(p_idx, pieces.size())
-    pieces.write[p_idx].texture = p_texture;
+    ERR_FAIL_COND(p_texture.get() == this);
+    ERR_FAIL_COND(not p_texture);
+    ERR_FAIL_INDEX(p_idx, pieces.size());
+    pieces[p_idx].texture = p_texture;
 };
 
 void LargeTexture::set_size(const Size2 &p_size) {
@@ -1425,7 +1424,7 @@ void LargeTexture::clear() {
 Array LargeTexture::_get_data() const {
 
     Array arr;
-    for (int i = 0; i < pieces.size(); i++) {
+    for (size_t i = 0; i < pieces.size(); i++) {
         arr.push_back(pieces[i].offset);
         arr.push_back(pieces[i].texture);
     }
@@ -1434,8 +1433,8 @@ Array LargeTexture::_get_data() const {
 }
 void LargeTexture::_set_data(const Array &p_array) {
 
-    ERR_FAIL_COND(p_array.empty())
-    ERR_FAIL_COND(!(p_array.size() & 1))
+    ERR_FAIL_COND(p_array.empty());
+    ERR_FAIL_COND(!(p_array.size() & 1));
     clear();
     for (int i = 0; i < p_array.size() - 1; i += 2) {
         add_piece(p_array[i], refFromRefPtr<Texture>(p_array[i + 1]));
@@ -1460,7 +1459,7 @@ Ref<Texture> LargeTexture::get_piece_texture(int p_idx) const {
 Ref<Image> LargeTexture::to_image() const {
 
     Ref<Image> img(make_ref_counted<Image>(this->get_width(), this->get_height(), false, Image::FORMAT_RGBA8));
-    for (int i = 0; i < pieces.size(); i++) {
+    for (size_t i = 0; i < pieces.size(); i++) {
 
         Ref<Image> src_img = pieces[i].texture->get_data();
         img->blit_rect(src_img, Rect2(0, 0, src_img->get_width(), src_img->get_height()), pieces[i].offset);
@@ -1484,7 +1483,7 @@ void LargeTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_data", {"data"}), &LargeTexture::_set_data);
     MethodBinder::bind_method(D_METHOD("_get_data"), &LargeTexture::_get_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }
 
 void LargeTexture::draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate, bool p_transpose, const Ref<Texture> &p_normal_map) const {
@@ -1569,8 +1568,8 @@ uint32_t CubeMap::get_flags() const {
 
 void CubeMap::set_side(Side p_side, const Ref<Image> &p_image) {
 
-    ERR_FAIL_COND(not p_image)
-    ERR_FAIL_COND(p_image->empty())
+    ERR_FAIL_COND(not p_image);
+    ERR_FAIL_COND(p_image->empty());
     ERR_FAIL_INDEX(p_side, 6);
 
     if (!_is_valid()) {
@@ -1687,14 +1686,14 @@ bool CubeMap::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void CubeMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void CubeMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/left", PROPERTY_HINT_RESOURCE_TYPE, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/right", PROPERTY_HINT_RESOURCE_TYPE, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/bottom", PROPERTY_HINT_RESOURCE_TYPE, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/top", PROPERTY_HINT_RESOURCE_TYPE, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/front", PROPERTY_HINT_RESOURCE_TYPE, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/back", PROPERTY_HINT_RESOURCE_TYPE, "Image"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/bottom", PropertyHint::ResourceType, "Image"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/top", PropertyHint::ResourceType, "Image"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/front", PropertyHint::ResourceType, "Image"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/back", PropertyHint::ResourceType, "Image"));
 }
 
 void CubeMap::_bind_methods() {
@@ -1710,8 +1709,8 @@ void CubeMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_lossy_storage_quality", {"quality"}), &CubeMap::set_lossy_storage_quality);
     MethodBinder::bind_method(D_METHOD("get_lossy_storage_quality"), &CubeMap::get_lossy_storage_quality);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage_mode", PROPERTY_HINT_ENUM, "Raw,Lossy Compressed,Lossless Compressed"), "set_storage", "get_storage");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage_mode", PropertyHint::Enum, "Raw,Lossy Compressed,Lossless Compressed"), "set_storage", "get_storage");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lossy_storage_quality"), "set_lossy_storage_quality", "get_lossy_storage_quality");
 
     BIND_ENUM_CONSTANT(STORAGE_RAW)
@@ -1745,7 +1744,7 @@ CubeMap::CubeMap() {
 
 CubeMap::~CubeMap() {
 
-    VisualServer::get_singleton()->free(cubemap);
+    VisualServer::get_singleton()->free_rid(cubemap);
 }
 
 /*	BIND_ENUM(CubeMapSize);
@@ -1768,13 +1767,13 @@ void CurveTexture::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_update"), &CurveTexture::_update);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PROPERTY_HINT_RANGE, "32,4096"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PROPERTY_HINT_RESOURCE_TYPE, "Curve"), "set_curve", "get_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "32,4096"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve"), "set_curve", "get_curve");
 }
 
 void CurveTexture::set_width(int p_width) {
 
-    ERR_FAIL_COND(p_width < 32 || p_width > 4096)
+    ERR_FAIL_COND(p_width < 32 || p_width > 4096);
     _width = p_width;
     _update();
 }
@@ -1856,7 +1855,7 @@ CurveTexture::CurveTexture() {
     _texture = VisualServer::get_singleton()->texture_create();
 }
 CurveTexture::~CurveTexture() {
-    VisualServer::get_singleton()->free(_texture);
+    VisualServer::get_singleton()->free_rid(_texture);
 }
 //////////////////
 
@@ -1875,7 +1874,7 @@ GradientTexture::GradientTexture() {
 }
 
 GradientTexture::~GradientTexture() {
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(texture);
 }
 
 void GradientTexture::_bind_methods() {
@@ -1887,8 +1886,8 @@ void GradientTexture::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_update"), &GradientTexture::_update);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PROPERTY_HINT_RESOURCE_TYPE, "Gradient"), "set_gradient", "get_gradient");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PropertyHint::ResourceType, "Gradient"), "set_gradient", "get_gradient");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
 }
 
 void GradientTexture::set_gradient(const Ref<Gradient>& p_gradient) {
@@ -1972,12 +1971,12 @@ void ProxyTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_base", {"base"}), &ProxyTexture::set_base);
     MethodBinder::bind_method(D_METHOD("get_base"), &ProxyTexture::get_base);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "base", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_base", "get_base");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "base", PropertyHint::ResourceType, "Texture"), "set_base", "get_base");
 }
 
 void ProxyTexture::set_base(const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(p_texture.get() == this)
+    ERR_FAIL_COND(p_texture.get() == this);
     base = p_texture;
     if (base) {
         VisualServer::get_singleton()->texture_set_proxy(proxy, base->get_rid());
@@ -2032,7 +2031,7 @@ ProxyTexture::ProxyTexture() {
 
 ProxyTexture::~ProxyTexture() {
 
-    VisualServer::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free_rid(proxy);
 }
 //////////////////////////////////////////////
 
@@ -2082,7 +2081,7 @@ void AnimatedTexture::_update_proxy() {
 }
 
 void AnimatedTexture::set_frames(int p_frames) {
-    ERR_FAIL_COND(p_frames < 1 || p_frames > MAX_FRAMES)
+    ERR_FAIL_COND(p_frames < 1 || p_frames > MAX_FRAMES);
 
     RWLockWrite r(rw_lock);
 
@@ -2094,7 +2093,7 @@ int AnimatedTexture::get_frames() const {
 
 void AnimatedTexture::set_frame_texture(int p_frame, const Ref<Texture> &p_texture) {
 
-    ERR_FAIL_COND(p_texture.get() == this)
+    ERR_FAIL_COND(p_texture.get() == this);
     ERR_FAIL_INDEX(p_frame, MAX_FRAMES);
 
     RWLockWrite w(rw_lock);
@@ -2125,7 +2124,7 @@ float AnimatedTexture::get_frame_delay(int p_frame) const {
 }
 
 void AnimatedTexture::set_fps(float p_fps) {
-    ERR_FAIL_COND(p_fps < 0 || p_fps >= 1000)
+    ERR_FAIL_COND(p_fps < 0 || p_fps >= 1000);
 
     fps = p_fps;
 }
@@ -2226,12 +2225,12 @@ void AnimatedTexture::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_update_proxy"), &AnimatedTexture::_update_proxy);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "frames", PROPERTY_HINT_RANGE, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fps", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_fps", "get_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "frames", PropertyHint::Range, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fps", PropertyHint::Range, "0,1024,0.1"), "set_fps", "get_fps");
 
     for (int i = 0; i < MAX_FRAMES; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame_" + itos(i) + "/texture"), PROPERTY_HINT_RESOURCE_TYPE, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("frame_" + itos(i) + "/delay_sec"), PROPERTY_HINT_RANGE, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame_" + itos(i) + "/texture"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("frame_" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
     }
 
     BIND_CONSTANT(MAX_FRAMES);
@@ -2255,7 +2254,7 @@ AnimatedTexture::AnimatedTexture() {
 }
 
 AnimatedTexture::~AnimatedTexture() {
-    VisualServer::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free_rid(proxy);
     if (rw_lock) {
         memdelete(rw_lock);
     }
@@ -2291,19 +2290,19 @@ uint32_t TextureLayered::get_depth() const {
 }
 
 void TextureLayered::_set_data(const Dictionary &p_data) {
-    ERR_FAIL_COND(!p_data.has("width"))
-    ERR_FAIL_COND(!p_data.has("height"))
-    ERR_FAIL_COND(!p_data.has("depth"))
-    ERR_FAIL_COND(!p_data.has("format"))
-    ERR_FAIL_COND(!p_data.has("flags"))
-    ERR_FAIL_COND(!p_data.has("layers"))
+    ERR_FAIL_COND(!p_data.has("width"));
+    ERR_FAIL_COND(!p_data.has("height"));
+    ERR_FAIL_COND(!p_data.has("depth"));
+    ERR_FAIL_COND(!p_data.has("format"));
+    ERR_FAIL_COND(!p_data.has("flags"));
+    ERR_FAIL_COND(!p_data.has("layers"));
     int w = p_data["width"];
     int h = p_data["height"];
     int d = p_data["depth"];
     Image::Format format = Image::Format(int(p_data["format"]));
     int flags = p_data["flags"];
     Array layers = p_data["layers"];
-    ERR_FAIL_COND(layers.size() != d)
+    ERR_FAIL_COND(layers.size() != d);
 
     create(w, h, d, format, flags);
 
@@ -2344,19 +2343,19 @@ void TextureLayered::create(uint32_t p_width, uint32_t p_height, uint32_t p_dept
 }
 
 void TextureLayered::set_layer_data(const Ref<Image> &p_image, int p_layer) {
-    ERR_FAIL_COND(!texture.is_valid())
+    ERR_FAIL_COND(!texture.is_valid());
     ERR_FAIL_COND(!p_image);
     VisualServer::get_singleton()->texture_set_data(texture, p_image, p_layer);
 }
 
 Ref<Image> TextureLayered::get_layer_data(int p_layer) const {
 
-    ERR_FAIL_COND_V(!texture.is_valid(), Ref<Image>())
+    ERR_FAIL_COND_V(!texture.is_valid(), Ref<Image>());
     return VisualServer::get_singleton()->texture_get_data(texture, p_layer);
 }
 
 void TextureLayered::set_data_partial(const Ref<Image> &p_image, int p_x_ofs, int p_y_ofs, int p_z, int p_mipmap) {
-    ERR_FAIL_COND(!texture.is_valid())
+    ERR_FAIL_COND(!texture.is_valid());
     ERR_FAIL_COND(!p_image);
     VisualServer::get_singleton()->texture_set_data_partial(texture, p_image, 0, 0, p_image->get_width(), p_image->get_height(), p_x_ofs, p_y_ofs, p_mipmap, p_z);
 }
@@ -2391,8 +2390,8 @@ void TextureLayered::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_data", {"data"}), &TextureLayered::_set_data);
     MethodBinder::bind_method(D_METHOD("_get_data"), &TextureLayered::_get_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PROPERTY_HINT_FLAGS, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_data", "_get_data");
 
     BIND_ENUM_CONSTANT(FLAG_MIPMAPS)
     BIND_ENUM_CONSTANT(FLAG_REPEAT)
@@ -2414,7 +2413,7 @@ TextureLayered::TextureLayered(bool p_3d) {
 
 TextureLayered::~TextureLayered() {
     if (texture.is_valid()) {
-        VisualServer::get_singleton()->free(texture);
+        VisualServer::get_singleton()->free_rid(texture);
     }
 }
 
@@ -2435,11 +2434,11 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
         texarr = make_ref_counted<TextureArray>();
         lt = texarr;
     } else {
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture extension.");
     }
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V(!f, RES())
+    ERR_FAIL_COND_V(!f, RES());
 
     uint8_t header[5] = { 0, 0, 0, 0, 0 };
     f->get_buffer(header, 4);
@@ -2448,18 +2447,18 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
         if (not tex3d) {
             f->close();
             memdelete(f);
-            ERR_FAIL_COND_V(not tex3d, RES())
+            ERR_FAIL_COND_V(not tex3d, RES());
         }
     } else if (header[0] == 'G' && header[1] == 'D' && header[2] == 'A' && header[3] == 'T') {
         if (not texarr) {
             f->close();
             memdelete(f);
-            ERR_FAIL_COND_V(not texarr, RES())
+            ERR_FAIL_COND_V(not texarr, RES());
         }
     } else {
         f->close();
         memdelete(f);
-        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + se_string((const char *)header) + ".")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized layered texture file format: " + String((const char *)header) + ".");
     }
 
     int tw = f->get_32();
@@ -2484,7 +2483,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
             for (int i = 0; i < mipmaps; i++) {
                 uint32_t size = f->get_32();
 
-                PODVector<uint8_t> pv;
+                Vector<uint8_t> pv;
                 pv.resize(size);
                 f->get_buffer(pv.data(), size);
 
@@ -2496,7 +2495,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
                     }
                     f->close();
                     memdelete(f);
-                    ERR_FAIL_V(RES())
+                    ERR_FAIL_V(RES());
                 }
 
                 mipmap_images.push_back(img);
@@ -2570,7 +2569,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
     return lt;
 }
 
-void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderTextureLayered::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("tex3d"));
     p_extensions.push_back(("texarr"));
@@ -2578,7 +2577,7 @@ void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<se_
 bool ResourceFormatLoaderTextureLayered::handles_type(se_string_view p_type) const {
     return p_type == se_string_view("Texture3D") || p_type == se_string_view("TextureArray");
 }
-se_string ResourceFormatLoaderTextureLayered::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderTextureLayered::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "tex3d")
         return ("Texture3D");
@@ -2587,112 +2586,4 @@ se_string ResourceFormatLoaderTextureLayered::get_resource_type(se_string_view p
     return {};
 }
 
-#include "camera_texture.h"
-#include "servers/camera_server_enum_casters.h"
 
-
-IMPL_GDCLASS(CameraTexture)
-
-void CameraTexture::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_camera_feed_id", {"feed_id"}), &CameraTexture::set_camera_feed_id);
-    MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &CameraTexture::get_camera_feed_id);
-
-    MethodBinder::bind_method(D_METHOD("set_which_feed", {"which_feed"}), &CameraTexture::set_which_feed);
-    MethodBinder::bind_method(D_METHOD("get_which_feed"), &CameraTexture::get_which_feed);
-
-    MethodBinder::bind_method(D_METHOD("set_camera_active", {"active"}), &CameraTexture::set_camera_active);
-    MethodBinder::bind_method(D_METHOD("get_camera_active"), &CameraTexture::get_camera_active);
-
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "camera_feed_id"), "set_camera_feed_id", "get_camera_feed_id");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "which_feed"), "set_which_feed", "get_which_feed");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "camera_is_active"), "set_camera_active", "get_camera_active");
-}
-
-int CameraTexture::get_width() const {
-    Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
-    if (feed) {
-        return feed->get_base_width();
-    } else {
-        return 0;
-    }
-}
-
-int CameraTexture::get_height() const {
-    Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
-    if (feed) {
-        return feed->get_base_height();
-    } else {
-        return 0;
-    }
-}
-
-bool CameraTexture::has_alpha() const {
-    return false;
-}
-
-RID CameraTexture::get_rid() const {
-    Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
-    if (feed) {
-        return feed->get_texture(which_feed);
-    } else {
-        return RID();
-    }
-}
-
-void CameraTexture::set_flags(uint32_t p_flags) {
-    // not supported
-}
-
-uint32_t CameraTexture::get_flags() const {
-    // not supported
-    return 0;
-}
-
-Ref<Image> CameraTexture::get_data() const {
-    // not (yet) supported
-    return Ref<Image>();
-}
-
-void CameraTexture::set_camera_feed_id(int p_new_id) {
-    camera_feed_id = p_new_id;
-    Object_change_notify(this);
-}
-
-int CameraTexture::get_camera_feed_id() const {
-    return camera_feed_id;
-}
-
-void CameraTexture::set_which_feed(CameraServer::FeedImage p_which) {
-    which_feed = p_which;
-    Object_change_notify(this);
-}
-
-CameraServer::FeedImage CameraTexture::get_which_feed() const {
-    return which_feed;
-}
-
-void CameraTexture::set_camera_active(bool p_active) {
-    Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
-    if (feed) {
-        feed->set_active(p_active);
-        Object_change_notify(this);
-    }
-}
-
-bool CameraTexture::get_camera_active() const {
-    Ref<CameraFeed> feed = CameraServer::get_singleton()->get_feed_by_id(camera_feed_id);
-    if (feed) {
-        return feed->is_active();
-    } else {
-        return false;
-    }
-}
-
-CameraTexture::CameraTexture() {
-    camera_feed_id = 0;
-    which_feed = CameraServer::FEED_RGBA_IMAGE;
-}
-
-CameraTexture::~CameraTexture() {
-    // nothing to do here yet
-}

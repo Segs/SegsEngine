@@ -35,12 +35,12 @@
 
 IMPL_GDCLASS(CapsuleShape)
 
-PODVector<Vector3> CapsuleShape::get_debug_mesh_lines() {
+Vector<Vector3> CapsuleShape::get_debug_mesh_lines() {
 
     float radius = get_radius();
     float height = get_height();
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
 
     Vector3 d(0, 0, height * 0.5f);
     for (int i = 0; i < 360; i++) {
@@ -115,8 +115,8 @@ void CapsuleShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CapsuleShape::set_height);
     MethodBinder::bind_method(D_METHOD("get_height"), &CapsuleShape::get_height);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_RANGE, "0.01,4096,0.01"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.01,4096,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "0.01,4096,0.01"), "set_height", "get_height");
 }
 
 CapsuleShape::CapsuleShape() :

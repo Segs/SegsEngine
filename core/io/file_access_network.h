@@ -33,12 +33,10 @@
 #include "core/os/file_access.h"
 #include "core/reference.h"
 #include "core/se_string.h"
-#include "core/list.h"
-#include "core/map.h"
 
 class Thread;
 class FileAccessNetwork;
-class Semaphore;
+class SemaphoreOld;
 class StreamPeerTCP;
 namespace std {
 class recursive_mutex;
@@ -47,25 +45,16 @@ using Mutex = std::recursive_mutex;
 
 class FileAccessNetworkClient {
 
-    struct BlockRequest {
-
-        uint64_t offset;
-        int id;
-        int size;
-    };
-
-    List<BlockRequest> block_requests;
-
-    Semaphore *sem;
+    void *m_priv;
+    Vector<uint8_t> block;
+    Ref<StreamPeerTCP> client;
+    SemaphoreOld *sem;
     Thread *thread;
-    bool quit;
     Mutex *mutex;
     Mutex *blockrequest_mutex;
-    Map<int, FileAccessNetwork *> accesses;
-    Ref<StreamPeerTCP> client;
     int last_id;
 
-    Vector<uint8_t> block;
+    bool quit;
 
     void _thread_func();
     static void _thread_func(void *s);
@@ -80,11 +69,14 @@ class FileAccessNetworkClient {
 
     friend class FileAccessNetwork;
     static FileAccessNetworkClient *singleton;
-
+    void add_block_request(int id, int page_size, int page_offset);
+    int record_access_source(FileAccessNetwork *from);
+    bool is_my_token_valid(int source_id,FileAccessNetwork *from);
+    void finish_access(int id,FileAccessNetwork *from);
 public:
     static FileAccessNetworkClient *get_singleton() { return singleton; }
 
-    Error connect(const se_string &p_host, int p_port, const se_string &p_password = se_string());
+    Error connect(const String &p_host, int p_port, const String &p_password = String());
 
     FileAccessNetworkClient();
     ~FileAccessNetworkClient();
@@ -92,8 +84,8 @@ public:
 
 class FileAccessNetwork : public FileAccess {
 
-    Semaphore *sem;
-    Semaphore *page_sem;
+    SemaphoreOld *sem;
+    SemaphoreOld *page_sem;
     Mutex *buffer_mutex;
     bool opened;
     size_t total_size;
@@ -105,28 +97,13 @@ class FileAccessNetwork : public FileAccess {
 
     int page_size;
     int read_ahead;
-
-    mutable int waiting_on_page;
-    mutable int last_activity_val;
-    struct Page {
-        int activity;
-        bool queued;
-        PODVector<uint8_t> buffer;
-        Page() {
-            activity = 0;
-            queued = false;
-        }
-    };
-
-    mutable Vector<Page> pages;
-
-    mutable Error response;
-
     uint64_t exists_modtime;
+    void *m_priv;
+
     friend class FileAccessNetworkClient;
     void _queue_page(int p_page) const;
     void _respond(size_t p_len, Error p_status);
-    void _set_block(int p_offset, const PODVector<uint8_t> &p_block);
+    void _set_block(int p_offset, const Vector<uint8_t> &p_block);
 
 public:
     enum Command {

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/godot_export.h"
 #include <stdint.h>
+#include <stddef.h>
 
 namespace eastl {
     template <typename T, typename Allocator>
@@ -17,6 +18,11 @@ namespace eastl {
     class basic_string;
     template<class T>
     class basic_string_view;
+    template <typename T, ptrdiff_t Extent>
+    class span;
+    template <typename Allocator, typename Element,
+        typename Container >
+    class bitvector;
 }
 
 template <class T>
@@ -35,24 +41,26 @@ template <class T>
 struct Comparator;
 
 template<class T>
-using PODVector = eastl::vector<T,wrap_allocator>;
-
-template <class T>
-class Vector;
-
-template <class T, class A>
-class List;
-
-template <class T>
-using DefList = List<T,DefaultAllocator>;
+using Vector = eastl::vector<T,wrap_allocator>;
 template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
+using Dequeue = eastl::deque<T,wrap_allocator,((sizeof(T) <= 4) ? 64 : ((sizeof(T) <= 8) ? 32 : ((sizeof(T) <= 16) ? 16 : ((sizeof(T) <= 32) ? 8 : 4))))>;
+
+
+using BitVector = eastl::bitvector<wrap_allocator,size_t,Vector<size_t>>;
+
+template <class T>
+class ListOld;
+
+template <class T>
+using DefList = ListOld<T>;
+template<class T>
+using List = eastl::list<T,wrap_allocator>;
 template <class T>
 using Set = eastl::set<T, Comparator<T>, wrap_allocator>;
 template <class K,class V>
 using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 
-using se_string = eastl::basic_string<char, wrap_allocator>;
+using String = eastl::basic_string<char, wrap_allocator>;
 using se_string_view = eastl::basic_string_view<char>;
 
 template <class T> struct Hasher;
@@ -66,5 +74,5 @@ template <class TKey, class TData, class Hasher = Hasher<TKey>,
         class Comparator = HashMapComparatorDefault<TKey> >
 using BaseHashMap = HashMap<TKey,TData,Hasher,Comparator,3,8>;
 
-using String = class QString;
+using UIString = class QString;
 

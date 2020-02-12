@@ -118,9 +118,9 @@ void AudioEffectSpectrumAnalyzerInstance::process(const AudioFrame *p_src_frames
         int to_fill = fft_size * 2 - temporal_fft_pos;
         to_fill = MIN(to_fill, p_frame_count);
 
-        float *fftw = temporal_fft.ptrw();
+        float *fftw = temporal_fft.data();
         for (int i = 0; i < to_fill; i++) { //left and right buffers
-            float window = -0.5 * Math::cos(2.0 * Math_PI * (double)i / (double)to_fill) + 0.5;
+            float window = -0.5f * Math::cos(2.0f * Math_PI * (double)i / (double)to_fill) + 0.5f;
             fftw[(i + temporal_fft_pos) * 2] = window * p_src_frames[i].l;
             fftw[(i + temporal_fft_pos) * 2 + 1] = 0;
             fftw[(i + temporal_fft_pos + fft_size * 2) * 2] = window * p_src_frames[i].r;
@@ -137,7 +137,7 @@ void AudioEffectSpectrumAnalyzerInstance::process(const AudioFrame *p_src_frames
             smbFft(fftw + fft_size * 4, fft_size * 2, -1);
             int next = (fft_pos + 1) % fft_count;
 
-            AudioFrame *hw = (AudioFrame *)fft_history[next].ptr(); //do not use write, avoid cow
+            AudioFrame *hw = fft_history[next].data(); //do not use write, avoid cow
 
             for (int i = 0; i < fft_size; i++) {
                 //abs(vec)/fft_size normalizes each frequency
@@ -192,7 +192,7 @@ Vector2 AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range(f
     if (begin_pos > end_pos) {
         SWAP(begin_pos, end_pos);
     }
-    const AudioFrame *r = fft_history[fft_index].ptr();
+    const AudioFrame *r = fft_history[fft_index].data();
 
     if (p_mode == MAGNITUDE_AVERAGE) {
         Vector2 avg;
@@ -231,9 +231,9 @@ Ref<AudioEffectInstance> AudioEffectSpectrumAnalyzer::instance() {
     ins->temporal_fft.resize(ins->fft_size * 8); //x2 stereo, x2 amount of samples for freqs, x2 for input
     ins->temporal_fft_pos = 0;
     for (int i = 0; i < ins->fft_count; i++) {
-        ins->fft_history.write[i].resize(ins->fft_size); //only magnitude matters
+        ins->fft_history[i].resize(ins->fft_size); //only magnitude matters
         for (int j = 0; j < ins->fft_size; j++) {
-            ins->fft_history.write[i].write[j] = AudioFrame(0, 0);
+            ins->fft_history[i][j] = AudioFrame(0, 0);
         }
     }
     return ins;
@@ -276,9 +276,9 @@ void AudioEffectSpectrumAnalyzer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_fft_size", {"size"}), &AudioEffectSpectrumAnalyzer::set_fft_size);
     MethodBinder::bind_method(D_METHOD("get_fft_size"), &AudioEffectSpectrumAnalyzer::get_fft_size);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "buffer_length", PROPERTY_HINT_RANGE, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap_back_pos", PROPERTY_HINT_RANGE, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PROPERTY_HINT_ENUM, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "buffer_length", PropertyHint::Range, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap_back_pos", PropertyHint::Range, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
 
     BIND_ENUM_CONSTANT(FFT_SIZE_256)
     BIND_ENUM_CONSTANT(FFT_SIZE_512)

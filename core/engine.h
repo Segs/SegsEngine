@@ -51,7 +51,7 @@ public:
 private:
     friend class Main;
 
-    PODVector<Singleton> singletons;
+    Vector<Singleton> singletons;
     Map<StringName, Object *> singleton_ptrs;
     uint64_t frames_drawn=0;
     uint64_t _frame_ticks=0;
@@ -70,6 +70,7 @@ private:
     bool _pixel_snap=false;
     bool _in_physics=false;
     bool editor_hint=false;
+    bool abort_on_gpu_errors=false;
 
     static Engine *singleton;
 
@@ -103,11 +104,11 @@ public:
     uint32_t get_frame_delay() const;
 
     void add_singleton(const Singleton &p_singleton);
-    const PODVector<Singleton> &get_singletons() { return singletons; }
+    const Vector<Singleton> &get_singletons() { return singletons; }
     bool has_singleton(const StringName &p_name) const;
     Object *get_singleton_object(const StringName &p_name) const;
 
-    _FORCE_INLINE_ bool get_use_pixel_snap() const { return _pixel_snap; }
+    bool get_use_pixel_snap() const { return _pixel_snap; }
 
 #ifdef TOOLS_ENABLED
     void set_editor_hint(bool p_enabled) { editor_hint = p_enabled; }
@@ -122,7 +123,9 @@ public:
     Array get_copyright_info() const;
     Dictionary get_donor_info() const;
     Dictionary get_license_info() const;
-    se_string get_license_text() const;
+    String get_license_text() const;
+
+    bool is_abort_on_gpu_errors_enabled() const { return abort_on_gpu_errors; }
 
     Engine();
     virtual ~Engine() = default;

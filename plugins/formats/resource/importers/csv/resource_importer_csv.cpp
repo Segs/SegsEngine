@@ -42,7 +42,7 @@ StringName ResourceImporterCSV::get_visible_name() const {
 
     return "CSV";
 }
-void ResourceImporterCSV::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterCSV::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("csv");
 }
@@ -69,10 +69,11 @@ StringName ResourceImporterCSV::get_preset_name(int p_idx) const {
     return "";
 }
 
-void ResourceImporterCSV::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterCSV::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterCSV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterCSV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
     return OK;
 }
 

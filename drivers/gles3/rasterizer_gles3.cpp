@@ -123,7 +123,7 @@ static void GLAPIENTRY _gl_debug_print(GLenum source, GLenum type, GLuint id, GL
     else if (severity == _EXT_DEBUG_SEVERITY_LOW_ARB)
         strcpy(debSev, "Low");
 
-    se_string output = se_string() + "GL ERROR: Source: " + debSource + "\tType: " + debType + "\tID: " + itos(id) + "\tSeverity: " + debSev + "\tMessage: " + message;
+    String output = String() + "GL ERROR: Source: " + debSource + "\tType: " + debType + "\tID: " + itos(id) + "\tSeverity: " + debSev + "\tMessage: " + message;
 
     ERR_PRINT(output);
 }
@@ -185,7 +185,7 @@ void RasterizerGLES3::initialize() {
     }
     */
 
-    print_line(se_string("OpenGL ES 3.0 Renderer: ") + VisualServer::get_singleton()->get_video_adapter_name());
+    print_line(String("OpenGL ES 3.0 Renderer: ") + VisualServer::get_singleton()->get_video_adapter_name());
     storage->initialize();
     canvas->initialize();
     scene->initialize();
@@ -238,7 +238,7 @@ void RasterizerGLES3::set_current_render_target(RID p_render_target) {
     if (p_render_target.is_valid()) {
         RasterizerStorageGLES3::RenderTarget *rt = storage->render_target_owner.getornull(p_render_target);
         storage->frame.current_rt = rt;
-        ERR_FAIL_COND(!rt)
+        ERR_FAIL_COND(!rt);
         storage->frame.clear_request = false;
 
         glViewport(0, 0, rt->width, rt->height);
@@ -253,7 +253,7 @@ void RasterizerGLES3::set_current_render_target(RID p_render_target) {
 
 void RasterizerGLES3::restore_render_target(bool p_3d_was_drawn) {
 
-    ERR_FAIL_COND(storage->frame.current_rt == nullptr)
+    ERR_FAIL_COND(storage->frame.current_rt == nullptr);
     RasterizerStorageGLES3::RenderTarget *rt = storage->frame.current_rt;
     if (p_3d_was_drawn && rt->external.fbo != 0) {
         // our external render buffer is now leading, render 2d into that.
@@ -266,7 +266,7 @@ void RasterizerGLES3::restore_render_target(bool p_3d_was_drawn) {
 
 void RasterizerGLES3::clear_render_target(const Color &p_color) {
 
-    ERR_FAIL_COND(!storage->frame.current_rt)
+    ERR_FAIL_COND(!storage->frame.current_rt);
 
     storage->frame.clear_request = true;
     storage->frame.clear_request_color = p_color;
@@ -335,10 +335,10 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
 
 void RasterizerGLES3::blit_render_target_to_screen(RID p_render_target, const Rect2 &p_screen_rect, int p_screen) {
 
-    ERR_FAIL_COND(storage->frame.current_rt)
+    ERR_FAIL_COND(storage->frame.current_rt);
 
     RasterizerStorageGLES3::RenderTarget *rt = storage->render_target_owner.getornull(p_render_target);
-    ERR_FAIL_COND(!rt)
+    ERR_FAIL_COND(!rt);
 
     Size2 win_size = OS::get_singleton()->get_window_size();
     if (rt->external.fbo != 0) {
@@ -356,10 +356,10 @@ void RasterizerGLES3::blit_render_target_to_screen(RID p_render_target, const Re
 }
 
 void RasterizerGLES3::output_lens_distorted_to_screen(RID p_render_target, const Rect2 &p_screen_rect, float p_k1, float p_k2, const Vector2 &p_eye_center, float p_oversample) {
-    ERR_FAIL_COND(storage->frame.current_rt)
+    ERR_FAIL_COND(storage->frame.current_rt);
 
     RasterizerStorageGLES3::RenderTarget *rt = storage->render_target_owner.getornull(p_render_target);
-    ERR_FAIL_COND(!rt)
+    ERR_FAIL_COND(!rt);
 
     glDisable(GL_BLEND);
 
@@ -425,9 +425,9 @@ void RasterizerGLES3::make_current() {
 void RasterizerGLES3::register_config() {
 
     GLOBAL_DEF("rendering/quality/filters/anisotropic_filter_level", 4);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/anisotropic_filter_level", PropertyInfo(VariantType::INT, "rendering/quality/filters/anisotropic_filter_level", PROPERTY_HINT_RANGE, "1,16,1"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/anisotropic_filter_level", PropertyInfo(VariantType::INT, "rendering/quality/filters/anisotropic_filter_level", PropertyHint::Range, "1,16,1"));
     GLOBAL_DEF("rendering/limits/time/time_rollover_secs", 3600);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::REAL, "rendering/limits/time/time_rollover_secs", PROPERTY_HINT_RANGE, "0,10000,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::REAL, "rendering/limits/time/time_rollover_secs", PropertyHint::Range, "0,10000,1,or_greater"));
 }
 
 RasterizerGLES3::RasterizerGLES3() {

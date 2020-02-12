@@ -40,6 +40,7 @@
 #include "editor_node.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/margin_container.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(DependencyEditor)
 IMPL_GDCLASS(DependencyEditorOwners)
@@ -49,7 +50,7 @@ IMPL_GDCLASS(OrphanResourcesDialog)
 
 void DependencyEditor::_searched(se_string_view p_path) {
 
-    Map<se_string, se_string> dep_rename;
+    Map<String, String> dep_rename;
     dep_rename[replacing] = p_path;
 
     ResourceLoader::rename_dependencies(editing, dep_rename);
@@ -66,15 +67,15 @@ void DependencyEditor::_load_pressed(Object *p_item, int p_cell, int p_button) {
     search->set_title(TTR("Search Replacement For:") + " " + PathUtils::get_file(replacing));
 
     search->clear_filters();
-    PODVector<se_string> ext;
-    ResourceLoader::get_recognized_extensions_for_type(ti->get_metadata(0).as<se_string>(), ext);
-    for (const se_string &E : ext) {
+    Vector<String> ext;
+    ResourceLoader::get_recognized_extensions_for_type(ti->get_metadata(0).as<String>(), ext);
+    for (const String &E : ext) {
         search->add_filter("*" + E);
     }
     search->popup_centered_ratio(0.65f); // So it doesn't completely cover the dialog below it.
 }
 
-void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<se_string, se_string> > &candidates) {
+void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<String, String> > &candidates) {
 
     for (int i = 0; i < efsd->get_subdir_count(); i++) {
         _fix_and_find(efsd->get_subdir(i), candidates);
@@ -82,11 +83,11 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_str
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        se_string file = efsd->get_file(i);
+        String file = efsd->get_file(i);
         if (!candidates.contains(file))
             continue;
 
-        se_string path = efsd->get_file_path(i);
+        String path = efsd->get_file_path(i);
 
         for (auto & E : candidates[file]) {
 
@@ -96,13 +97,13 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_str
             }
 
             //must match the best, using subdirs
-            se_string existing = StringUtils::replace_first(E.second,"res://", se_string());
-            se_string current = StringUtils::replace_first(path,"res://", se_string());
-            se_string lost = StringUtils::replace_first(E.first,"res://", se_string());
+            String existing = StringUtils::replace_first(E.second,"res://", String());
+            String current = StringUtils::replace_first(path,"res://", String());
+            String lost = StringUtils::replace_first(E.first,"res://", String());
 
-            PODVector<se_string_view> existingv = StringUtils::split(existing,'/');
-            PODVector<se_string_view> currentv = StringUtils::split(current,'/');
-            PODVector<se_string_view> lostv = StringUtils::split(lost,'/');
+            Vector<se_string_view> existingv = StringUtils::split(existing,'/');
+            Vector<se_string_view> currentv = StringUtils::split(current,'/');
+            Vector<se_string_view> lostv = StringUtils::split(lost,'/');
             eastl::reverse(existingv.begin(),existingv.end());
             eastl::reverse(currentv.begin(),currentv.end());
             eastl::reverse(lostv.begin(),lostv.end());
@@ -135,9 +136,9 @@ void DependencyEditor::_fix_all() {
     if (!EditorFileSystem::get_singleton()->get_filesystem())
         return;
 
-    Map<se_string_view, Map<se_string, se_string> > candidates;
+    Map<se_string_view, Map<String, String> > candidates;
 
-    for (const se_string &E : missing) {
+    for (const String &E : missing) {
 
         se_string_view base = PathUtils::get_file(E);
         candidates[base][E] = "";
@@ -145,11 +146,11 @@ void DependencyEditor::_fix_all() {
 
     _fix_and_find(EditorFileSystem::get_singleton()->get_filesystem(), candidates);
 
-    Map<se_string, se_string> remaps;
+    Map<String, String> remaps;
 
-    for (eastl::pair<const se_string_view, Map<se_string, se_string> > &E : candidates) {
+    for (eastl::pair<const se_string_view, Map<String, String> > &E : candidates) {
 
-        for (eastl::pair<const se_string, se_string> &F : E.second) {
+        for (eastl::pair<const String, String> &F : E.second) {
 
             if (!F.second.empty()) {
                 remaps[F.first] = F.second;
@@ -173,7 +174,7 @@ void DependencyEditor::_update_file() {
 
 void DependencyEditor::_update_list() {
 
-    PODVector<se_string> deps;
+    Vector<String> deps;
     ResourceLoader::get_dependencies(editing, deps, true);
 
     tree->clear();
@@ -185,7 +186,7 @@ void DependencyEditor::_update_list() {
 
     bool broken = false;
 
-    for (const se_string &n : deps) {
+    for (const String &n : deps) {
 
         TreeItem *item = tree->create_item(root);
 
@@ -294,7 +295,7 @@ void DependencyEditorOwners::_list_rmb_select(int p_item, const Vector2 &p_pos) 
 
 void DependencyEditorOwners::_select_file(int p_idx) {
 
-    se_string fpath(owners->get_item_text(p_idx));
+    String fpath(owners->get_item_text(p_idx));
 
     if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
         editor->open_request(fpath);
@@ -333,7 +334,7 @@ void DependencyEditorOwners::_fill_owners(EditorFileSystemDirectory *efsd) {
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        Vector<se_string> deps = efsd->get_file_deps(i);
+        const Vector<String> &deps = efsd->get_file_deps(i);
         bool found = false;
         for (int j = 0; j < deps.size(); j++) {
             if (deps[j] == editing) {
@@ -386,8 +387,8 @@ void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirec
         _find_files_in_removed_folder(efsd->get_subdir(i), p_folder);
     }
     for (int i = 0; i < efsd->get_file_count(); i++) {
-        se_string file = efsd->get_file_path(i);
-        ERR_FAIL_COND(all_remove_files.contains(file)) //We are deleting a directory which is contained in a directory we are deleting...
+        String file = efsd->get_file_path(i);
+        ERR_FAIL_COND(all_remove_files.contains(file)); //We are deleting a directory which is contained in a directory we are deleting...
         all_remove_files[file] = p_folder; //Point the file to the ancestor directory we are deleting so we know what to parent it under in the tree.
     }
 }
@@ -401,13 +402,13 @@ void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDire
     }
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
-        const se_string path = efsd->get_file_path(i);
+        const String path = efsd->get_file_path(i);
 
         //It doesn't matter if a file we are about to delete will have some of its dependencies removed too
         if (all_remove_files.contains(path))
             continue;
 
-        Vector<se_string> all_deps = efsd->get_file_deps(i);
+        const Vector<String> &all_deps = efsd->get_file_deps(i);
         for (int j = 0; j < all_deps.size(); ++j) {
             if (all_remove_files.contains(all_deps[j])) {
                 RemovedDependency dep;
@@ -425,7 +426,7 @@ void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<Removed
     owners->clear();
     owners->create_item(); // root
 
-    Map<se_string, TreeItem *> tree_items;
+    Map<String, TreeItem *> tree_items;
     for (int i = 0; i < p_removed.size(); i++) {
         RemovedDependency rd = p_removed[i];
 
@@ -459,14 +460,14 @@ void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<Removed
     }
 }
 
-void DependencyRemoveDialog::show(const Vector<se_string> &p_folders, const Vector<se_string> &p_files) {
+void DependencyRemoveDialog::show(const Vector<String> &p_folders, const Vector<String> &p_files) {
     all_remove_files.clear();
     dirs_to_delete.clear();
     files_to_delete.clear();
     owners->clear();
 
     for (int i = 0; i < p_folders.size(); ++i) {
-        se_string folder = StringUtils::ends_with(p_folders[i],"/") ? p_folders[i] : p_folders[i] + "/";
+        String folder = StringUtils::ends_with(p_folders[i],"/") ? p_folders[i] : p_folders[i] + "/";
         _find_files_in_removed_folder(EditorFileSystem::get_singleton()->get_filesystem_path(folder), folder);
         dirs_to_delete.push_back(folder);
     }
@@ -477,7 +478,7 @@ void DependencyRemoveDialog::show(const Vector<se_string> &p_folders, const Vect
 
     Vector<RemovedDependency> removed_deps;
     _find_all_removed_dependencies(EditorFileSystem::get_singleton()->get_filesystem(), removed_deps);
-    removed_deps.sort();
+    eastl::sort(removed_deps.begin(),removed_deps.end());
     if (removed_deps.empty()) {
         owners->hide();
         text->set_text(TTR("Remove selected files from the project? (Can't be restored)"));
@@ -497,37 +498,37 @@ void DependencyRemoveDialog::ok_pressed() {
     for (int i = 0; i < files_to_delete.size(); ++i) {
         if (ResourceCache::has(files_to_delete[i])) {
             Resource *res = ResourceCache::get(files_to_delete[i]);
-            res->set_path(se_string());
+            res->set_path(String());
         }
-        const se_string file=files_to_delete[i];
+        const String file=files_to_delete[i];
         // If the file we are deleting for e.g. the main scene, default environment,
         // or audio bus layout, we must clear its definition in Project Settings.
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("application/config/icon")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("application/config/icon")) {
             ProjectSettings::get_singleton()->set("application/config/icon", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("application/run/main_scene")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("application/run/main_scene")) {
             ProjectSettings::get_singleton()->set("application/run/main_scene", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("application/boot_splash/image")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("application/boot_splash/image")) {
             ProjectSettings::get_singleton()->set("application/boot_splash/image", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("rendering/environment/default_environment")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("rendering/environment/default_environment")) {
             ProjectSettings::get_singleton()->set("rendering/environment/default_environment", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("display/mouse_cursor/custom_image")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("display/mouse_cursor/custom_image")) {
             ProjectSettings::get_singleton()->set("display/mouse_cursor/custom_image", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("gui/theme/custom")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("gui/theme/custom")) {
             ProjectSettings::get_singleton()->set("gui/theme/custom", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("gui/theme/custom_font")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("gui/theme/custom_font")) {
             ProjectSettings::get_singleton()->set("gui/theme/custom_font", "");
         }
-        if (file == ProjectSettings::get_singleton()->getT<se_string>("audio/default_bus_layout")) {
+        if (file == ProjectSettings::get_singleton()->getT<String>("audio/default_bus_layout")) {
             ProjectSettings::get_singleton()->set("audio/default_bus_layout", "");
         }
 
-        const se_string path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(file,"res://", "/");
+        const String path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(file,"res://", "/");
         print_verbose("Moving to trash: " + path);
         Error err = OS::get_singleton()->move_to_trash(path);
         if (err != OK) {
@@ -544,7 +545,7 @@ void DependencyRemoveDialog::ok_pressed() {
     } else {
 
         for (int i = 0; i < dirs_to_delete.size(); ++i) {
-            se_string path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(dirs_to_delete[i],"res://", "/");
+            String path = OS::get_singleton()->get_resource_dir() + StringUtils::replace_first(dirs_to_delete[i],"res://", "/");
             print_verbose("Moving to trash: " + path);
             Error err = OS::get_singleton()->move_to_trash(path);
             if (err != OK) {
@@ -558,15 +559,15 @@ void DependencyRemoveDialog::ok_pressed() {
     }
 
     // If some files/dirs would be deleted, favorite dirs need to be updated
-    const Vector<se_string> &previous_favorites(EditorSettings::get_singleton()->get_favorites());
-    Vector<se_string> new_favorites;
+    const Vector<String> &previous_favorites(EditorSettings::get_singleton()->get_favorites());
+    Vector<String> new_favorites;
 
     for (int i = 0; i < previous_favorites.size(); ++i) {
         if (StringUtils::ends_with(previous_favorites[i],"/")) {
-            if (dirs_to_delete.find(previous_favorites[i]) < 0)
+            if (not dirs_to_delete.contains(previous_favorites[i]))
                 new_favorites.push_back(previous_favorites[i]);
         } else {
-            if (files_to_delete.find(previous_favorites[i]) < 0)
+            if (not files_to_delete.contains(previous_favorites[i]))
                 new_favorites.push_back(previous_favorites[i]);
         }
     }
@@ -599,7 +600,7 @@ DependencyRemoveDialog::DependencyRemoveDialog() {
 
 //////////////
 
-void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const PODVector<se_string> &report) {
+void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const Vector<String> &report) {
 
     mode = p_mode;
     for_file = p_for_file;
@@ -609,8 +610,8 @@ void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const P
     TreeItem *root = files->create_item(nullptr);
     for (int i = 0; i < report.size(); i++) {
 
-        se_string dep;
-        se_string type("Object");
+        String dep;
+        String type("Object");
         dep = StringUtils::get_slice(report[i],"::", 0);
         FixedVector<se_string_view,32,true> report_parts;
         if (StringUtils::get_slice_count(report[i],"::") > 0)
@@ -680,7 +681,7 @@ void OrphanResourcesDialog::ok_pressed() {
     delete_confirm->popup_centered_clamped(delete_confirm->get_minimum_size());
 }
 
-bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMap<se_string, int> &refs, TreeItem *p_parent) {
+bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent) {
 
     if (!efsd)
         return false;
@@ -709,7 +710,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
         if (!p_parent) {
-            const Vector<se_string> &deps = efsd->get_file_deps(i);
+            const Vector<String> &deps = efsd->get_file_deps(i);
             for (int j = 0; j < deps.size(); j++) {
 
                 if (!refs.contains(deps[j])) {
@@ -718,7 +719,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
             }
         } else {
 
-            se_string path = efsd->get_file_path(i);
+            String path = efsd->get_file_path(i);
             if (!refs.contains(path)) {
                 TreeItem *ti = files->create_item(p_parent);
                 ti->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
@@ -744,7 +745,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
 }
 
 void OrphanResourcesDialog::refresh() {
-    HashMap<se_string, int> refs;
+    HashMap<String, int> refs;
     _fill_owners(EditorFileSystem::get_singleton()->get_filesystem(), refs, nullptr);
     files->clear();
     TreeItem *root = files->create_item();
@@ -757,12 +758,12 @@ void OrphanResourcesDialog::show() {
     popup_centered_ratio();
 }
 
-void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, List<se_string> &paths) {
+void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, Vector<String> &paths) {
 
     while (p_item) {
 
         if (p_item->get_cell_mode(0) == TreeItem::CELL_MODE_CHECK && p_item->is_checked(0)) {
-            paths.push_back(p_item->get_metadata(0));
+            paths.emplace_back(p_item->get_metadata(0));
         }
 
         if (p_item->get_children()) {
@@ -776,10 +777,10 @@ void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, List<se_string> &p
 void OrphanResourcesDialog::_delete_confirm() {
 
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-    for (List<se_string>::Element *E = paths.front(); E; E = E->next()) {
+    for (const String &E : paths) {
 
-        da->remove(E->deref());
-        EditorFileSystem::get_singleton()->update_file(E->deref());
+        da->remove(E);
+        EditorFileSystem::get_singleton()->update_file(E);
     }
     memdelete(da);
     refresh();
@@ -789,7 +790,7 @@ void OrphanResourcesDialog::_button_pressed(Object *p_item, int p_column, int p_
 
     TreeItem *ti = object_cast<TreeItem>(p_item);
 
-    se_string path = ti->get_metadata(0);
+    String path = ti->get_metadata(0);
     dep_edit->edit(path);
 }
 

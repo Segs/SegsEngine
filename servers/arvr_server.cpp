@@ -151,7 +151,7 @@ Transform ARVRServer::get_hmd_transform() {
 };
 
 void ARVRServer::add_interface(const Ref<ARVRInterface> &p_interface) {
-    ERR_FAIL_COND(not p_interface)
+    ERR_FAIL_COND(not p_interface);
 
     for (int i = 0; i < interfaces.size(); i++) {
 
@@ -166,7 +166,7 @@ void ARVRServer::add_interface(const Ref<ARVRInterface> &p_interface) {
 };
 
 void ARVRServer::remove_interface(const Ref<ARVRInterface> &p_interface) {
-    ERR_FAIL_COND(not p_interface)
+    ERR_FAIL_COND(not p_interface);
 
     int idx = -1;
     for (int i = 0; i < interfaces.size(); i++) {
@@ -178,12 +178,12 @@ void ARVRServer::remove_interface(const Ref<ARVRInterface> &p_interface) {
         };
     }
 
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
 
-    print_verbose(se_string("ARVR: Removed interface") + p_interface->get_name());
+    print_verbose(String("ARVR: Removed interface") + p_interface->get_name());
 
     emit_signal("interface_removed", p_interface->get_name());
-    interfaces.remove(idx);
+    interfaces.erase_at(idx);
 };
 
 int ARVRServer::get_interface_count() const {
@@ -207,7 +207,7 @@ Ref<ARVRInterface> ARVRServer::find_interface(const StringName &p_name) const {
         }
     }
 
-    ERR_FAIL_COND_V(idx == -1, Ref<ARVRInterface>())
+    ERR_FAIL_COND_V(idx == -1, Ref<ARVRInterface>());
 
     return interfaces[idx];
 };
@@ -287,10 +287,10 @@ void ARVRServer::remove_tracker(ARVRPositionalTracker *p_tracker) {
         };
     };
 
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
 
     emit_signal("tracker_removed", p_tracker->get_name(), p_tracker->get_type(), p_tracker->get_tracker_id());
-    trackers.remove(idx);
+    trackers.erase_at(idx);
 };
 
 int ARVRServer::get_tracker_count() const {
@@ -304,7 +304,7 @@ ARVRPositionalTracker *ARVRServer::get_tracker(int p_index) const {
 };
 
 ARVRPositionalTracker *ARVRServer::find_by_type_and_id(TrackerType p_tracker_type, int p_tracker_id) const {
-    ERR_FAIL_COND_V(p_tracker_id == 0, nullptr)
+    ERR_FAIL_COND_V(p_tracker_id == 0, nullptr);
 
     for (int i = 0; i < trackers.size(); i++) {
         if (trackers[i]->get_type() == p_tracker_type && trackers[i]->get_tracker_id() == p_tracker_id) {
@@ -322,7 +322,7 @@ Ref<ARVRInterface> ARVRServer::get_primary_interface() const {
 void ARVRServer::set_primary_interface(const Ref<ARVRInterface> &p_primary_interface) {
     primary_interface = p_primary_interface;
 
-    print_verbose(se_string("ARVR: Primary interface set to: ") + primary_interface->get_name());
+    print_verbose(String("ARVR: Primary interface set to: ") + primary_interface->get_name());
 };
 
 void ARVRServer::clear_primary_interface_if(const Ref<ARVRInterface> &p_primary_interface) {
@@ -355,7 +355,7 @@ void ARVRServer::_process() {
         if (not interfaces[i]) {
             // ignore, not a valid reference
         } else if (interfaces[i]->is_initialized()) {
-            interfaces.write[i]->process();
+            interfaces[i]->process();
         }
     }
 };
@@ -377,13 +377,8 @@ ARVRServer::ARVRServer() {
 ARVRServer::~ARVRServer() {
     primary_interface.unref();
 
-    while (!interfaces.empty()) {
-        interfaces.remove(0);
-    }
-
-    while (!trackers.empty()) {
-        trackers.remove(0);
-    }
+    interfaces.clear();
+    trackers.clear();
 
     singleton = nullptr;
 };

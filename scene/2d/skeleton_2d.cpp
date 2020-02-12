@@ -32,6 +32,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "servers/visual_server.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(Bone2D)
 IMPL_GDCLASS(Skeleton2D)
@@ -74,7 +75,7 @@ void Bone2D::_notification(int p_what) {
         if (skeleton) {
             for (int i = 0; i < skeleton->bones.size(); i++) {
                 if (skeleton->bones[i].bone == this) {
-                    skeleton->bones.remove(i);
+                    skeleton->bones.erase_at(i);
                     break;
                 }
             }
@@ -96,7 +97,7 @@ void Bone2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_default_length"), &Bone2D::get_default_length);
 
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "rest"), "set_rest", "get_rest");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "default_length", PROPERTY_HINT_RANGE, "1,1024,1"), "set_default_length", "get_default_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "default_length", PropertyHint::Range, "1,1024,1"), "set_default_length", "get_default_length");
 }
 
 void Bone2D::set_rest(const Transform2D &p_rest) {
@@ -134,13 +135,13 @@ float Bone2D::get_default_length() const {
 }
 
 int Bone2D::get_index_in_skeleton() const {
-    ERR_FAIL_COND_V(!skeleton, -1)
+    ERR_FAIL_COND_V(!skeleton, -1);
     skeleton->_update_bone_setup();
     return skeleton_index;
 }
 StringName Bone2D::get_configuration_warning() const {
 
-    se_string warning(Node2D::get_configuration_warning());
+    String warning(Node2D::get_configuration_warning());
     if (!skeleton) {
         if (!warning.empty()) {
             warning += "\n\n";
@@ -193,17 +194,16 @@ void Skeleton2D::_update_bone_setup() {
 
     bone_setup_dirty = false;
     VisualServer::get_singleton()->skeleton_allocate(skeleton, bones.size(), true);
-
-    bones.sort(); //sorty so they are always in the same order/index
+    eastl::sort(bones.begin(), bones.end()); //sorty so they are always in the same order/index
 
     for (int i = 0; i < bones.size(); i++) {
-        bones.write[i].rest_inverse = bones[i].bone->get_skeleton_rest().affine_inverse(); //bind pose
-        bones.write[i].bone->skeleton_index = i;
+        bones[i].rest_inverse = bones[i].bone->get_skeleton_rest().affine_inverse(); //bind pose
+        bones[i].bone->skeleton_index = i;
         Bone2D *parent_bone = object_cast<Bone2D>(bones[i].bone->get_parent());
         if (parent_bone) {
-            bones.write[i].parent_index = parent_bone->skeleton_index;
+            bones[i].parent_index = parent_bone->skeleton_index;
         } else {
-            bones.write[i].parent_index = -1;
+            bones[i].parent_index = -1;
         }
     }
 
@@ -237,9 +237,9 @@ void Skeleton2D::_update_transform() {
 
         ERR_CONTINUE(bones[i].parent_index >= i);
         if (bones[i].parent_index >= 0) {
-            bones.write[i].accum_transform = bones[bones[i].parent_index].accum_transform * bones[i].bone->get_transform();
+            bones[i].accum_transform = bones[bones[i].parent_index].accum_transform * bones[i].bone->get_transform();
         } else {
-            bones.write[i].accum_transform = bones[i].bone->get_transform();
+            bones[i].accum_transform = bones[i].bone->get_transform();
         }
     }
 
@@ -252,7 +252,7 @@ void Skeleton2D::_update_transform() {
 
 int Skeleton2D::get_bone_count() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), 0)
+    ERR_FAIL_COND_V(!is_inside_tree(), 0);
 
     if (bone_setup_dirty) {
         const_cast<Skeleton2D *>(this)->_update_bone_setup();
@@ -263,7 +263,7 @@ int Skeleton2D::get_bone_count() const {
 
 Bone2D *Skeleton2D::get_bone(int p_idx) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
     ERR_FAIL_INDEX_V(p_idx, bones.size(), nullptr);
 
     return bones[p_idx].bone;
@@ -312,5 +312,5 @@ Skeleton2D::Skeleton2D() {
 
 Skeleton2D::~Skeleton2D() {
 
-    VisualServer::get_singleton()->free(skeleton);
+    VisualServer::get_singleton()->free_rid(skeleton);
 }

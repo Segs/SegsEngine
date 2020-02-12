@@ -37,6 +37,10 @@
 #include "core/script_language.h"
 #include "gdscript_functions.h"
 #include "gdscript_tokenizer.h"
+#include "modules/gdscript/gdscript.h"
+
+#include "EASTL/deque.h"
+#include "EASTL/vector_multiset.h"
 
 struct GDScriptDataType;
 struct GDScriptWarning;
@@ -66,7 +70,7 @@ public:
         Ref<Script> script_type;
         ClassNode *class_type;
 
-        se_string to_string() const;
+        String to_string() const;
 
         bool operator==(const DataType &other) const {
             if (!has_type || !other.has_type) {
@@ -147,9 +151,9 @@ public:
 
     struct ClassNode : public Node {
 
-        PODVector<StringName> extends_class;
+        Vector<StringName> extends_class;
         DataType base_type;
-        se_string icon_path;
+        String icon_path;
         StringName name;
         StringName extends_file;
         bool tool;
@@ -184,16 +188,16 @@ public:
             int line;
         };
 
-        PODVector<ClassNode *> subclasses;
-        PODVector<Member> variables;
+        Vector<ClassNode *> subclasses;
+        Vector<Member> variables;
         Map<StringName, Constant> constant_expressions;
-        PODVector<FunctionNode *> functions;
-        PODVector<FunctionNode *> static_functions;
-        PODVector<Signal> _signals;
+        Vector<FunctionNode *> functions;
+        Vector<FunctionNode *> static_functions;
+        Vector<Signal> _signals;
         BlockNode *initializer;
         BlockNode *ready;
         ClassNode *owner;
-        //PODVector<Node*> initializers;
+        //Vector<Node*> initializers;
         int end_line;
 
         ClassNode() {
@@ -214,12 +218,12 @@ public:
         bool has_unreachable_code;
         StringName name;
         DataType return_type;
-        PODVector<StringName> arguments;
-        PODVector<DataType> argument_types;
-        PODVector<Node *> default_values;
+        Vector<StringName> arguments;
+        Vector<DataType> argument_types;
+        Vector<Node *> default_values;
         BlockNode *body;
 #ifdef DEBUG_ENABLED
-        PODVector<int> arguments_usage;
+        Vector<int> arguments_usage;
 #endif // DEBUG_ENABLED
 
         DataType get_datatype() const override { return return_type; }
@@ -239,14 +243,14 @@ public:
 
         ClassNode *parent_class;
         BlockNode *parent_block;
-        PODVector<Node *> statements;
+        Vector<Node *> statements;
         Map<StringName, LocalVarNode *> variables;
         bool has_return;
 
         Node *if_condition; //tiny hack to improve code completion on if () blocks
 
         //the following is useful for code completion
-        PODVector<BlockNode *> sub_blocks;
+        Vector<BlockNode *> sub_blocks;
         int end_line;
         BlockNode() {
             if_condition = nullptr;
@@ -310,7 +314,7 @@ public:
 
     struct ArrayNode : public Node {
 
-        PODVector<Node *> elements;
+        Vector<Node *> elements;
         DataType datatype;
         DataType get_datatype() const override { return datatype; }
         void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
@@ -330,7 +334,7 @@ public:
             Node *value;
         };
 
-        PODVector<Pair> elements;
+        Vector<Pair> elements;
         DataType datatype;
         DataType get_datatype() const override { return datatype; }
         void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
@@ -401,7 +405,7 @@ public:
 
         Operator op;
 
-        PODVector<Node *> arguments;
+        Vector<Node *> arguments;
         DataType datatype;
         DataType get_datatype() const override { return datatype; }
         void set_datatype(const DataType &p_datatype) override { datatype = p_datatype; }
@@ -424,24 +428,24 @@ public:
         Node *constant;
         StringName bind;
         Map<ConstantNode *, PatternNode *> dictionary;
-        PODVector<PatternNode *> array;
+        Vector<PatternNode *> array;
     };
 
     struct PatternBranchNode : public Node {
-        PODVector<PatternNode *> patterns;
+        Vector<PatternNode *> patterns;
         BlockNode *body;
     };
 
     struct MatchNode : public Node {
         Node *val_to_match;
-        PODVector<PatternBranchNode *> branches;
+        Vector<PatternBranchNode *> branches;
 
         struct CompiledPatternBranch {
             Node *compiled_pattern;
             BlockNode *body;
         };
 
-        PODVector<CompiledPatternBranch> compiled_pattern_branches;
+        Vector<CompiledPatternBranch> compiled_pattern_branches;
     };
 
     struct ControlFlowNode : public Node {
@@ -456,7 +460,7 @@ public:
         };
 
         CFType cf_type;
-        PODVector<Node *> arguments;
+        Vector<Node *> arguments;
         BlockNode *body;
         BlockNode *body_else;
 
@@ -533,18 +537,19 @@ private:
     bool for_completion;
     int parenthesis;
     bool error_set;
-    se_string error;
+    String error;
     int error_line;
     int error_column;
     bool check_types;
     bool dependencies_only;
-    List<se_string> dependencies;
+    ListOld<String> dependencies;
 #ifdef DEBUG_ENABLED
     Set<int> *safe_lines;
 #endif // DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
-    List<GDScriptWarning> warnings;
+    using WarningStore=eastl::deque<GDScriptWarning,wrap_allocator>;
+    eastl::vector_multiset<GDScriptWarning,eastl::less<GDScriptWarning>,wrap_allocator,WarningStore> warnings;
 #endif // DEBUG_ENABLED
 
     int pending_newline;
@@ -569,10 +574,10 @@ private:
                 tabs(p_tabs) {}
     };
 
-    List<IndentLevel> indent_level;
+    ListOld<IndentLevel> indent_level;
 
-    se_string base_path;
-    se_string self_path;
+    String base_path;
+    String self_path;
 
     ClassNode *current_class = nullptr;
     FunctionNode *current_function=nullptr;
@@ -603,7 +608,7 @@ private:
 #endif // DEBUG_ENABLED
     bool _recover_from_completion();
 
-    bool _parse_arguments(Node *p_parent, PODVector<Node *> &p_args, bool p_static, bool p_can_codecomplete = false, bool p_parsing_constant = false);
+    bool _parse_arguments(Node *p_parent, Vector<Node *> &p_args, bool p_static, bool p_can_codecomplete = false, bool p_parsing_constant = false);
     bool _enter_indent_block(BlockNode *p_block = nullptr);
     bool _parse_newline();
     Node *_parse_expression(Node *p_parent, bool p_static, bool p_allow_assign = false, bool p_parsing_constant = false);
@@ -611,7 +616,7 @@ private:
     Node *_parse_and_reduce_expression(Node *p_parent, bool p_static, bool p_reduce_const = false, bool p_allow_assign = false);
 
     PatternNode *_parse_pattern(bool p_static);
-    void _parse_pattern_block(BlockNode *p_block, PODVector<PatternBranchNode *> &p_branches, bool p_static);
+    void _parse_pattern_block(BlockNode *p_block, Vector<PatternBranchNode *> &p_branches, bool p_static);
     void _transform_match_statment(MatchNode *p_match_statement);
     void _generate_pattern(PatternNode *p_pattern, Node *p_node_to_match, Node *&p_resulting_node, Map<StringName, Node *> &p_bindings);
 
@@ -628,7 +633,7 @@ private:
     DataType _type_from_gdtype(const GDScriptDataType &p_gdtype) const;
     DataType _get_operation_type(const Variant::Operator p_op, const DataType &p_a, const DataType &p_b, bool &r_valid) const;
     Variant::Operator _get_variant_operation(const OperatorNode::Operator &p_op) const;
-    bool _get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, List<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const;
+    bool _get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, Vector<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const;
     bool _get_member_type(const DataType &p_base_type, const StringName &p_member, DataType &r_member_type) const;
     bool _is_type_compatible(const DataType &p_container, const DataType &p_expression, bool p_allow_implicit_conversion = false) const;
     Node *_get_default_value_for_type(const DataType &p_type, int p_line = -1);
@@ -655,14 +660,14 @@ private:
 
 public:
     bool has_error() const;
-    const se_string &get_error() const;
+    const String &get_error() const;
     int get_error_line() const;
     int get_error_column() const;
 #ifdef DEBUG_ENABLED
-    const List<GDScriptWarning> &get_warnings() const { return warnings; }
+    const Dequeue<GDScriptWarning> &get_warnings() const { return warnings; }
 #endif // DEBUG_ENABLED
     Error parse(se_string_view p_code, se_string_view p_base_path = {}, bool p_just_validate = false, se_string_view p_self_path = {}, bool p_for_completion = false, Set<int> *r_safe_lines = nullptr, bool p_dependencies_only = false);
-    Error parse_bytecode(const PODVector<uint8_t> &p_bytecode, se_string_view p_base_path = {}, se_string_view p_self_path = {});
+    Error parse_bytecode(const Vector<uint8_t> &p_bytecode, se_string_view p_base_path = {}, se_string_view p_self_path = {});
 
     bool is_tool_script() const;
     const Node *get_parse_tree() const;
@@ -680,7 +685,7 @@ public:
     int get_completion_argument_index();
     int get_completion_identifier_is_function();
 
-    const List<se_string> &get_dependencies() const { return dependencies; }
+    const ListOld<String> &get_dependencies() const { return dependencies; }
 
     void clear();
     GDScriptParser();

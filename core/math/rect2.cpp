@@ -90,8 +90,8 @@ bool Rect2::intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 
     return true;
 }
 
-Rect2::operator se_string() const {
-    return se_string(position) + ", " + se_string(size);
+Rect2::operator String() const {
+    return String(position) + ", " + String(size);
 }
 
 bool Rect2::intersects_transformed(const Transform2D &p_xform, const Rect2 &p_rect) const {
@@ -245,6 +245,6 @@ next4:
     return true;
 }
 
-Rect2i::operator se_string() const {
-    return (se_string)position + ", " + (se_string)size;
+Rect2i::operator String() const {
+    return (String)position + ", " + (String)size;
 }

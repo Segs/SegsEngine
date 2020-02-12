@@ -99,8 +99,8 @@ void Container::_sort_children() {
 
 void Container::fit_child_in_rect(Control *p_child, const Rect2 &p_rect) {
 
-    ERR_FAIL_COND(!p_child)
-    ERR_FAIL_COND(p_child->get_parent() != this)
+    ERR_FAIL_COND(!p_child);
+    ERR_FAIL_COND(p_child->get_parent() != this);
 
     Size2 minsize = p_child->get_combined_minimum_size();
     Rect2 r = p_rect;
@@ -175,7 +175,7 @@ void Container::_notification(int p_what) {
 
 StringName Container::get_configuration_warning() const {
 
-    se_string warning(Control::get_configuration_warning());
+    String warning(Control::get_configuration_warning());
 
     if (strcmp(get_class(),"Container")==0 && get_script().is_null()) {
         if (!warning.empty()) {
@@ -202,4 +202,6 @@ void Container::_bind_methods() {
 Container::Container() {
 
     pending_sort = false;
+    // All containers should let mouse events pass by default.
+    set_mouse_filter(MOUSE_FILTER_PASS);
 }

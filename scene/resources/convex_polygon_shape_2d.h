@@ -36,7 +36,7 @@
 class ConvexPolygonShape2D : public Shape2D {
     GDCLASS(ConvexPolygonShape2D,Shape2D)
 
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
     void _update_shape();
 
 protected:
@@ -47,7 +47,9 @@ public:
 
     void set_point_cloud(Span<const Vector2> p_points);
     void set_points(Span<const Vector2> p_points);
-    const PODVector<Vector2> &get_points() const;
+    Span<const Vector2> get_points() const;
+
+    real_t get_enclosing_radius() const override;
 
     void draw(const RID &p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;

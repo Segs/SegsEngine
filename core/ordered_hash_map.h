@@ -50,7 +50,7 @@ struct HashMapComparatorDefault;
  */
 template <class K, class V, class Hasher = Hasher<K>, class Comparator = HashMapComparatorDefault<K>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
 class OrderedHashMap {
-    using InternalList = List<Pair<const K *, V> >;
+    using InternalList = ListOld<Pair<const K *, V> >;
     using InternalMap = HashMap<K, typename InternalList::Element *, Hasher, Comparator, MIN_HASH_TABLE_POWER, RELATIONSHIP>;
 
     InternalList list;
@@ -118,27 +118,27 @@ public:
         }
 
         const K &key() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return *(list_element->deref().first);
         }
 
         V &value() {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         const V &value() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         V &get() {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         const V &get() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
     };
@@ -186,17 +186,17 @@ public:
         }
 
         const K &key() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return *(list_element->deref().first);
         }
 
         const V &value() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
 
         const V &get() const {
-            CRASH_COND(!list_element)
+            CRASH_COND(!list_element);
             return list_element->deref().second;
         }
     };
@@ -252,7 +252,7 @@ public:
 
     const V &operator[](const K &p_key) const {
         ConstElement e = find(p_key);
-        CRASH_COND(!e)
+        CRASH_COND(!e);
         return e.value();
     }
 

@@ -31,14 +31,13 @@
 #include "crypto_core.h"
 
 #include "core/se_string.h"
-#include "core/pool_vector.h"
 
 #include <mbedtls/aes.h>
 #include <mbedtls/base64.h>
 #include <mbedtls/md5.h>
 #include <mbedtls/sha1.h>
 #include <mbedtls/sha256.h>
-
+#include "EASTL/unique_ptr.h"
 // MD5
 CryptoCore::MD5Context::MD5Context() {
     ctx = memalloc(sizeof(mbedtls_md5_context));
@@ -149,15 +148,13 @@ Error CryptoCore::AESContext::decrypt_ecb(const uint8_t p_src[16], uint8_t r_dst
 }
 
 // CryptoCore
-se_string CryptoCore::b64_encode_str(const uint8_t *p_src, int p_src_len) {
+String CryptoCore::b64_encode_str(const uint8_t *p_src, int p_src_len) {
     int b64len = p_src_len / 3 * 4 + 4 + 1;
-    PoolVector<uint8_t> b64buff;
-    b64buff.resize(b64len);
-    PoolVector<uint8_t>::Write w64 = b64buff.write();
+    auto b64buff=eastl::make_unique<uint8_t[]>(b64len);
     size_t strlen = 0;
-    int ret = b64_encode(&w64[0], b64len, &strlen, p_src, p_src_len);
-    w64[strlen] = 0;
-    return ret ? se_string() : se_string((const char *)&w64[0]);
+    int ret = b64_encode(b64buff.get(), b64len, &strlen, p_src, p_src_len);
+    b64buff[strlen] = 0;
+    return ret ? String() : String((const char *)b64buff.get());
 }
 
 Error CryptoCore::b64_encode(uint8_t *r_dst, int p_dst_len, size_t *r_len, const uint8_t *p_src, int p_src_len) {

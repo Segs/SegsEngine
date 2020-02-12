@@ -126,11 +126,11 @@ void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
     pts.push_back(tip + Vector2(0, tsize));
     pts.push_back(tip + Vector2(0.707 * tsize, 0));
     pts.push_back(tip + Vector2(-0.707 * tsize, 0));
-    Vector<Color> cols;
+    PoolVector<Color> cols;
     for (int i = 0; i < 3; i++)
         cols.push_back(p_color);
 
-    VisualServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, Vector<Point2>(), RID());
+    VisualServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, PoolVector<Point2>(), RID());
 }
 
 Rect2 RayShape2D::get_rect() const {

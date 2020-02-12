@@ -50,6 +50,20 @@ bool PacketPeer::is_object_decoding_allowed() const {
     return allow_object_decoding;
 }
 
+void PacketPeer::set_encode_buffer_max_size(int p_max_size) {
+
+    ERR_FAIL_COND_MSG(p_max_size < 1024, "Max encode buffer must be at least 1024 bytes");
+    ERR_FAIL_COND_MSG(p_max_size > 256 * 1024 * 1024, "Max encode buffer cannot exceed 256 MiB");
+    encode_buffer_max_size = next_power_of_2(p_max_size);
+    encode_buffer.resize(0);
+    encode_buffer.reserve(encode_buffer_max_size);
+}
+
+int PacketPeer::get_encode_buffer_max_size() const {
+
+    return encode_buffer_max_size;
+}
+
 Error PacketPeer::get_packet_buffer(PoolVector<uint8_t> &r_buffer) {
 
     const uint8_t *buffer;
@@ -100,19 +114,25 @@ Error PacketPeer::put_var(const Variant &p_packet, bool p_full_objects) {
     if (len == 0)
         return OK;
 
-    uint8_t *buf = (uint8_t *)alloca(len);
-    ERR_FAIL_COND_V_MSG(!buf, ERR_OUT_OF_MEMORY, "Out of memory.")
-    err = encode_variant(p_packet, buf, len, p_full_objects || allow_object_decoding);
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_V_MSG(len > encode_buffer_max_size, ERR_OUT_OF_MEMORY,
+            "Failed to encode variant, encode size is bigger then encode_buffer_max_size. Consider raising it via "
+            "'set_encode_buffer_max_size'.");
 
-    return put_packet(buf, len);
+    if (unlikely(encode_buffer.size() < len)) {
+        encode_buffer.resize(next_power_of_2(len));
+    }
+
+    err = encode_variant(p_packet, encode_buffer.data(), len, p_full_objects || allow_object_decoding);
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Error when trying to encode Variant.");
+
+    return put_packet(encode_buffer.data(), len);
 }
 
 Variant PacketPeer::_bnd_get_var(bool p_allow_objects) {
     Variant var;
     Error err = get_var(var, p_allow_objects);
 
-    ERR_FAIL_COND_V(err != OK, Variant())
+    ERR_FAIL_COND_V(err != OK, Variant());
     return var;
 }
 
@@ -142,7 +162,11 @@ void PacketPeer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_allow_object_decoding", {"enable"}), &PacketPeer::set_allow_object_decoding);
     MethodBinder::bind_method(D_METHOD("is_object_decoding_allowed"), &PacketPeer::is_object_decoding_allowed);
+    MethodBinder::bind_method(D_METHOD("get_encode_buffer_max_size"), &PacketPeer::get_encode_buffer_max_size);
+    MethodBinder::bind_method(D_METHOD("set_encode_buffer_max_size", {"max_size"}), &PacketPeer::set_encode_buffer_max_size);
 
+
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "encode_buffer_max_size"), "set_encode_buffer_max_size", "get_encode_buffer_max_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_object_decoding"), "set_allow_object_decoding", "is_object_decoding_allowed");
 };
 
@@ -150,7 +174,7 @@ void PacketPeer::_bind_methods() {
 
 void PacketPeerStream::_set_stream_peer(const REF& p_peer) {
 
-    ERR_FAIL_COND_MSG(not p_peer, "It's not a reference to a valid Resource object.")
+    ERR_FAIL_COND_MSG(not p_peer, "It's not a reference to a valid Resource object."); 
     set_stream_peer(dynamic_ref_cast<StreamPeer>(p_peer));
 }
 
@@ -165,15 +189,15 @@ void PacketPeerStream::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_buffer_max_size"), "set_input_buffer_max_size", "get_input_buffer_max_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_buffer_max_size"), "set_output_buffer_max_size", "get_output_buffer_max_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream_peer", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_stream_peer", "get_stream_peer");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream_peer", PropertyHint::ResourceType, "StreamPeer", 0), "set_stream_peer", "get_stream_peer");
 }
 
 Error PacketPeerStream::_poll_buffer() const {
 
-    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED);
 
     int read = 0;
-    ERR_FAIL_COND_V(input_buffer.size() < ring_buffer.space_left(), ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(input_buffer.size() < ring_buffer.space_left(), ERR_UNAVAILABLE);
     Error err = peer->get_partial_data(input_buffer.data(), ring_buffer.space_left(), read);
     if (err)
         return err;
@@ -181,7 +205,7 @@ Error PacketPeerStream::_poll_buffer() const {
         return OK;
 
     int w = ring_buffer.write(&input_buffer[0], read);
-    ERR_FAIL_COND_V(w != read, ERR_BUG)
+    ERR_FAIL_COND_V(w != read, ERR_BUG);
 
     return OK;
 }
@@ -214,18 +238,18 @@ int PacketPeerStream::get_available_packet_count() const {
 
 Error PacketPeerStream::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
-    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED);
     _poll_buffer();
 
     int remaining = ring_buffer.data_left();
-    ERR_FAIL_COND_V(remaining < 4, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(remaining < 4, ERR_UNAVAILABLE);
     uint8_t lbuf[4];
     ring_buffer.copy(lbuf, 0, 4);
     remaining -= 4;
     uint32_t len = decode_uint32(lbuf);
-    ERR_FAIL_COND_V(remaining < (int)len, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(remaining < (int)len, ERR_UNAVAILABLE);
 
-    ERR_FAIL_COND_V(input_buffer.size() < (int)len, ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(input_buffer.size() < (int)len, ERR_UNAVAILABLE);
     ring_buffer.read(lbuf, 4); //get rid of first 4 bytes
     ring_buffer.read(input_buffer.data(), len); // read packet
 
@@ -236,7 +260,7 @@ Error PacketPeerStream::get_packet(const uint8_t **r_buffer, int &r_buffer_size)
 
 Error PacketPeerStream::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(not peer, ERR_UNCONFIGURED);
     Error err = _poll_buffer(); //won't hurt to poll here too
 
     if (err)
@@ -245,8 +269,8 @@ Error PacketPeerStream::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
     if (p_buffer_size == 0)
         return OK;
 
-    ERR_FAIL_COND_V(p_buffer_size < 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_buffer_size + 4 > output_buffer.size(), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_buffer_size < 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_buffer_size + 4 > output_buffer.size(), ERR_INVALID_PARAMETER);
 
     encode_uint32(p_buffer_size, output_buffer.data());
     uint8_t *dst = &output_buffer[4];
@@ -263,7 +287,7 @@ int PacketPeerStream::get_max_packet_size() const {
 
 void PacketPeerStream::set_stream_peer(const Ref<StreamPeer> &p_peer) {
 
-    //ERR_FAIL_COND(not p_peer)
+    //ERR_FAIL_COND();
 
     if (p_peer.get() != peer.get()) {
         ring_buffer.advance_read(ring_buffer.data_left()); // reset the ring buffer
@@ -278,9 +302,9 @@ Ref<StreamPeer> PacketPeerStream::get_stream_peer() const {
 }
 
 void PacketPeerStream::set_input_buffer_max_size(int p_max_size) {
-    ERR_FAIL_COND_MSG(p_max_size < 0, "Max size of input buffer size cannot be smaller than 0.")
+    ERR_FAIL_COND_MSG(p_max_size < 0, "Max size of input buffer size cannot be smaller than 0."); 
     //warning may lose packets
-    ERR_FAIL_COND_MSG(ring_buffer.data_left(), "Buffer in use, resizing would cause loss of data.")
+    ERR_FAIL_COND_MSG(ring_buffer.data_left(), "Buffer in use, resizing would cause loss of data."); 
     ring_buffer.resize(nearest_shift(next_power_of_2(p_max_size + 4)) - 1);
     input_buffer.resize(next_power_of_2(p_max_size + 4));
 }

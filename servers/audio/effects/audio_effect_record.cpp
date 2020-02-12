@@ -46,7 +46,7 @@ void AudioEffectRecordInstance::process(const AudioFrame *p_src_frames, AudioFra
 
     //Add incoming audio frames to the IO ring buffer
     const AudioFrame *src = p_src_frames;
-    AudioFrame *rb_buf = ring_buffer.ptrw();
+    AudioFrame *rb_buf = ring_buffer.data();
     for (int i = 0; i < p_frame_count; i++) {
         p_dst_frames[i] = p_src_frames[i];
         rb_buf[ring_buffer_pos & ring_buffer_mask] = src[i];
@@ -94,7 +94,7 @@ void AudioEffectRecordInstance::_io_thread_process() {
 void AudioEffectRecordInstance::_io_store_buffer() {
     int to_read = ring_buffer_pos - ring_buffer_read_pos;
 
-    AudioFrame *rb_buf = ring_buffer.ptrw();
+    AudioFrame *rb_buf = ring_buffer.data();
 
     while (to_read) {
         AudioFrame buffered_frame = rb_buf[ring_buffer_read_pos & ring_buffer_mask];
@@ -191,7 +191,7 @@ void AudioEffectRecord::ensure_thread_stopped() {
 void AudioEffectRecord::set_recording_active(bool p_record) {
     if (p_record) {
         if (current_instance == nullptr) {
-            WARN_PRINT("Recording should not be set as active before Godot has initialized.")
+            WARN_PRINT("Recording should not be set as active before Godot has initialized.");
             recording_active = false;
             return;
         }
@@ -220,10 +220,10 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
     AudioStreamSample::Format dst_format = format;
     bool stereo = true; //forcing mono is not implemented
 
-    PODVector<uint8_t> dst_data;
+    Vector<uint8_t> dst_data;
 
-    ERR_FAIL_COND_V(not current_instance, Ref<AudioStreamSample>())
-    ERR_FAIL_COND_V(current_instance->recording_data.empty(), Ref<AudioStreamSample>())
+    ERR_FAIL_COND_V(not current_instance, Ref<AudioStreamSample>());
+    ERR_FAIL_COND_V(current_instance->recording_data.empty(), Ref<AudioStreamSample>());
 
     if (dst_format == AudioStreamSample::FORMAT_8_BITS) {
         int data_size = current_instance->recording_data.size();
@@ -243,8 +243,8 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
         }
     } else if (dst_format == AudioStreamSample::FORMAT_IMA_ADPCM) {
         //byte interleave
-        PODVector<float> left;
-        PODVector<float> right;
+        Vector<float> left;
+        Vector<float> right;
 
         int tframes = current_instance->recording_data.size() / 2;
         left.resize(tframes);
@@ -255,8 +255,8 @@ Ref<AudioStreamSample> AudioEffectRecord::get_recording() const {
             right[i] = current_instance->recording_data[i * 2 + 1];
         }
 
-        PODVector<uint8_t> bleft;
-        PODVector<uint8_t> bright;
+        Vector<uint8_t> bleft;
+        Vector<uint8_t> bright;
 
         ResourceImporterWAV::_compress_ima_adpcm(left, bleft);
         ResourceImporterWAV::_compress_ima_adpcm(right, bright);
@@ -291,7 +291,7 @@ void AudioEffectRecord::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_format"), &AudioEffectRecord::get_format);
     MethodBinder::bind_method(D_METHOD("get_recording"), &AudioEffectRecord::get_recording);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
 }
 
 AudioEffectRecord::AudioEffectRecord() {

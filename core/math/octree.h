@@ -111,8 +111,8 @@ private:
         int children_count; // cache for amount of childrens (fast check for removal)
         int parent_index; // cache for parent index (fast check for removal)
 
-        List<Element *, AL> pairable_elements;
-        List<Element *, AL> elements;
+        eastl::list<Element *, AL> pairable_elements;
+        eastl::list<Element *, AL> elements;
 
         Octant() {
             children_count = 0;
@@ -127,7 +127,6 @@ private:
     };
 
     struct PairData;
-
     struct Element {
 
         Octree *octree;
@@ -145,15 +144,15 @@ private:
         AABB aabb;
         AABB container_aabb;
 
-        List<PairData *, AL> pair_list;
+        eastl::list<PairData *, AL> pair_list;
 
         struct OctantOwner {
 
             Octant *octant;
-            typename List<Element *, AL>::Element *E;
+            typename eastl::list<Element *, AL>::iterator E;
         }; // an element can be in max 8 octants
 
-        List<OctantOwner, AL> octant_owners;
+        eastl::list<OctantOwner, AL> octant_owners;
 
         Element() {
             last_pass = 0;
@@ -168,13 +167,15 @@ private:
         }
     };
 
+    using ElementIterator = typename eastl::list<Element *, AL>::iterator;
+
     struct PairData {
 
         int refcount;
         bool intersect;
         Element *A, *B;
         void *ud;
-        typename List<PairData *, AL>::Element *eA, *eB;
+        typename eastl::list<PairData *, AL>::iterator eA, eB;
     };
 
     using ElementMap = Map<OctreeElementID, Element, Comparator<OctreeElementID>, AL>;
@@ -240,8 +241,8 @@ private:
             pdata.B = p_B;
             pdata.intersect = false;
             E = pair_map.emplace(key, pdata).first;
-            E->second.eA = p_A->pair_list.push_back(&E->second);
-            E->second.eB = p_B->pair_list.push_back(&E->second);
+            E->second.eA = p_A->pair_list.insert(p_A->pair_list.end(),&E->second);
+            E->second.eB = p_B->pair_list.insert(p_B->pair_list.end(),&E->second);
 
             /*
             if (pair_callback)
@@ -289,12 +290,8 @@ private:
     }
 
     _FORCE_INLINE_ void _element_check_pairs(Element *p_element) {
-
-        typename List<PairData *, AL>::Element *E = p_element->pair_list.front();
-        while (E) {
-
-            _pair_check(E->deref());
-            E = E->next();
+        for(auto & E: p_element->pair_list) {
+            _pair_check(E);
         }
     }
 
@@ -313,7 +310,7 @@ private:
                         break;
                     }
                 }
-                ERR_FAIL_COND(!new_root)
+                ERR_FAIL_COND(!new_root);
                 new_root->parent = nullptr;
                 new_root->parent_index = -1;
             }
@@ -390,7 +387,7 @@ public:
 template <class T, bool use_pairs, class AL>
 T *Octree<T, use_pairs, AL>::get(OctreeElementID p_id) const {
     const typename ElementMap::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), nullptr)
+    ERR_FAIL_COND_V(E==element_map.end(), nullptr);
     return E->second.userdata;
 }
 
@@ -398,7 +395,7 @@ template <class T, bool use_pairs, class AL>
 bool Octree<T, use_pairs, AL>::is_pairable(OctreeElementID p_id) const {
 
     const typename ElementMap::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), false)
+    ERR_FAIL_COND_V(E==element_map.end(), false);
     return E->second.pairable;
 }
 
@@ -406,7 +403,7 @@ template <class T, bool use_pairs, class AL>
 int Octree<T, use_pairs, AL>::get_subindex(OctreeElementID p_id) const {
 
     const typename ElementMap::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), -1)
+    ERR_FAIL_COND_V(E==element_map.end(), -1);
     return E->second.subindex;
 }
 
@@ -425,13 +422,9 @@ void Octree<T, use_pairs, AL>::_insert_element(Element *p_element, Octant *p_oct
         owner.octant = p_octant;
 
         if (use_pairs && p_element->pairable) {
-
-            p_octant->pairable_elements.push_back(p_element);
-            owner.E = p_octant->pairable_elements.back();
+            owner.E = p_octant->pairable_elements.insert(p_octant->pairable_elements.end(),p_element);
         } else {
-
-            p_octant->elements.push_back(p_element);
-            owner.E = p_octant->elements.back();
+            owner.E = p_octant->elements.insert(p_octant->elements.end(),p_element);
         }
 
         p_element->octant_owners.push_back(owner);
@@ -507,19 +500,14 @@ void Octree<T, use_pairs, AL>::_insert_element(Element *p_element, Octant *p_oct
 
     if (use_pairs) {
 
-        typename List<Element *, AL>::Element *E = p_octant->pairable_elements.front();
-
-        while (E) {
-            _pair_reference(p_element, E->deref());
-            E = E->next();
+        for(auto &E : p_octant->pairable_elements) {
+            _pair_reference(p_element, E);
         }
 
         if (p_element->pairable) {
             // and always test non-pairable if element is pairable
-            E = p_octant->elements.front();
-            while (E) {
-                _pair_reference(p_element, E->deref());
-                E = E->next();
+            for(auto &E : p_octant->elements) {
+                _pair_reference(p_element, E);
             }
         }
     }
@@ -558,7 +546,7 @@ void Octree<T, use_pairs, AL>::_ensure_valid_root(const AABB &p_aabb) {
 
         while (!base.encloses(p_aabb)) {
 
-            ERR_FAIL_COND_MSG(base.size.x > OCTREE_SIZE_LIMIT, "Octree upper size limit reached, does the AABB supplied contain NAN?")
+            ERR_FAIL_COND_MSG(base.size.x > OCTREE_SIZE_LIMIT, "Octree upper size limit reached, does the AABB supplied contain NAN?");
 
             Octant *gp = memnew_allocator(Octant, AL);
             octant_count++;
@@ -601,17 +589,13 @@ bool Octree<T, use_pairs, AL>::_remove_element_from_octant(Element *p_element, O
         if (use_pairs && p_octant->last_pass != pass) {
             // check whether we should unpair stuff
             // always test pairable
-            typename List<Element *, AL>::Element *E = p_octant->pairable_elements.front();
-            while (E) {
-                _pair_unreference(p_element, E->deref());
-                E = E->next();
+            for(auto &E : p_octant->pairable_elements) {
+                _pair_unreference(p_element, E);
             }
             if (p_element->pairable) {
                 // and always test non-pairable if element is pairable
-                E = p_octant->elements.front();
-                while (E) {
-                    _pair_unreference(p_element, E->deref());
-                    E = E->next();
+                for(auto &E : p_octant->elements) {
+                    _pair_unreference(p_element, E);
                 }
             }
             p_octant->last_pass = pass;
@@ -655,24 +639,20 @@ template <class T, bool use_pairs, class AL>
 void Octree<T, use_pairs, AL>::_unpair_element(Element *p_element, Octant *p_octant) {
 
     // always test pairable
-    typename List<Element *, AL>::Element *E = p_octant->pairable_elements.front();
-    while (E) {
-        if (E->deref()->last_pass != pass) { // only remove ONE reference
-            _pair_unreference(p_element, E->deref());
-            E->deref()->last_pass = pass;
+    for(auto &E : p_octant->pairable_elements) {
+        if (E->last_pass != pass) { // only remove ONE reference
+            _pair_unreference(p_element, E);
+            E->last_pass = pass;
         }
-        E = E->next();
     }
 
     if (p_element->pairable) {
         // and always test non-pairable if element is pairable
-        E = p_octant->elements.front();
-        while (E) {
-            if (E->deref()->last_pass != pass) { // only remove ONE reference
-                _pair_unreference(p_element, E->deref());
-                E->deref()->last_pass = pass;
+        for(auto &E : p_octant->elements) {
+            if (E->last_pass != pass) { // only remove ONE reference
+                _pair_unreference(p_element, E);
+                E->last_pass = pass;
             }
-            E = E->next();
         }
     }
 
@@ -693,26 +673,20 @@ void Octree<T, use_pairs, AL>::_pair_element(Element *p_element, Octant *p_octan
 
     // always test pairable
 
-    typename List<Element *, AL>::Element *E = p_octant->pairable_elements.front();
-
-    while (E) {
-
-        if (E->deref()->last_pass != pass) { // only get ONE reference
-            _pair_reference(p_element, E->deref());
-            E->deref()->last_pass = pass;
+    for(auto &E : p_octant->pairable_elements) {
+        if (E->last_pass != pass) { // only get ONE reference
+            _pair_reference(p_element, E);
+            E->last_pass = pass;
         }
-        E = E->next();
     }
 
     if (p_element->pairable) {
         // and always test non-pairable if element is pairable
-        E = p_octant->elements.front();
-        while (E) {
-            if (E->deref()->last_pass != pass) { // only get ONE reference
-                _pair_reference(p_element, E->deref());
-                E->deref()->last_pass = pass;
+        for(auto &E : p_octant->elements) {
+            if (E->last_pass != pass) { // only get ONE reference
+                _pair_reference(p_element, E);
+                E->last_pass = pass;
             }
-            E = E->next();
         }
     }
     p_octant->last_pass = pass;
@@ -721,7 +695,6 @@ void Octree<T, use_pairs, AL>::_pair_element(Element *p_element, Octant *p_octan
         return; // small optimization for leafs
 
     for (int i = 0; i < 8; i++) {
-
         if (p_octant->children[i])
             _pair_element(p_element, p_octant->children[i]);
     }
@@ -732,28 +705,28 @@ void Octree<T, use_pairs, AL>::_remove_element(Element *p_element) {
 
     pass++; // will do a new pass for this
 
-    typename List<typename Element::OctantOwner, AL>::Element *I = p_element->octant_owners.front();
+    auto I = p_element->octant_owners.begin();
 
     /* FIRST remove going up normally */
-    for (; I; I = I->next()) {
+    for (; I!=p_element->octant_owners.end(); ++I) {
 
-        Octant *o = I->deref().octant;
+        Octant *o = I->octant;
 
         if (!use_pairs) // small speedup
-            o->elements.erase(I->deref().E);
+            o->elements.erase(I->E);
 
         _remove_element_from_octant(p_element, o);
     }
 
     /* THEN remove going down */
 
-    I = p_element->octant_owners.front();
 
     if (use_pairs) {
 
-        for (; I; I = I->next()) {
+        I = p_element->octant_owners.begin();
+        for (; I!=p_element->octant_owners.end(); ++I) {
 
-            Octant *o = I->deref().octant;
+            Octant *o = I->octant;
 
             // erase children pairs, they are erased ONCE even if repeated
             pass++;
@@ -764,9 +737,9 @@ void Octree<T, use_pairs, AL>::_remove_element(Element *p_element) {
             }
 
             if (p_element->pairable)
-                o->pairable_elements.erase(I->deref().E);
+                o->pairable_elements.erase(I->E);
             else
-                o->elements.erase(I->deref().E);
+                o->elements.erase(I->E);
         }
     }
 
@@ -776,7 +749,7 @@ void Octree<T, use_pairs, AL>::_remove_element(Element *p_element) {
 
         int remaining = p_element->pair_list.size();
         //p_element->pair_list.clear();
-        ERR_FAIL_COND(remaining)
+        ERR_FAIL_COND(remaining);
     }
 }
 
@@ -785,15 +758,15 @@ OctreeElementID Octree<T, use_pairs, AL>::create(T *p_userdata, const AABB &p_aa
 
 // check for AABB validity
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V(p_aabb.position.x > 1e15f || p_aabb.position.x < -1e15f, 0)
-    ERR_FAIL_COND_V(p_aabb.position.y > 1e15f || p_aabb.position.y < -1e15f, 0)
-    ERR_FAIL_COND_V(p_aabb.position.z > 1e15f || p_aabb.position.z < -1e15f, 0)
-    ERR_FAIL_COND_V(p_aabb.size.x > 1e15f || p_aabb.size.x < 0.0f, 0)
-    ERR_FAIL_COND_V(p_aabb.size.y > 1e15f || p_aabb.size.y < 0.0f, 0)
-    ERR_FAIL_COND_V(p_aabb.size.z > 1e15f || p_aabb.size.z < 0.0f, 0)
-    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.x), 0)
-    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.y), 0)
-    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.z), 0)
+    ERR_FAIL_COND_V(p_aabb.position.x > 1e15f || p_aabb.position.x < -1e15f, 0);
+    ERR_FAIL_COND_V(p_aabb.position.y > 1e15f || p_aabb.position.y < -1e15f, 0);
+    ERR_FAIL_COND_V(p_aabb.position.z > 1e15f || p_aabb.position.z < -1e15f, 0);
+    ERR_FAIL_COND_V(p_aabb.size.x > 1e15f || p_aabb.size.x < 0.0f, 0);
+    ERR_FAIL_COND_V(p_aabb.size.y > 1e15f || p_aabb.size.y < 0.0f, 0);
+    ERR_FAIL_COND_V(p_aabb.size.z > 1e15f || p_aabb.size.z < 0.0f, 0);
+    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.x), 0);
+    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.y), 0);
+    ERR_FAIL_COND_V(Math::is_nan(p_aabb.size.z), 0);
 
 #endif
     typename ElementMap::iterator E = element_map.emplace(last_element_id++,
@@ -825,18 +798,18 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
 
 #ifdef DEBUG_ENABLED
     // check for AABB validity
-    ERR_FAIL_COND(p_aabb.position.x > 1e15 || p_aabb.position.x < -1e15)
-    ERR_FAIL_COND(p_aabb.position.y > 1e15 || p_aabb.position.y < -1e15)
-    ERR_FAIL_COND(p_aabb.position.z > 1e15 || p_aabb.position.z < -1e15)
-    ERR_FAIL_COND(p_aabb.size.x > 1e15 || p_aabb.size.x < 0.0)
-    ERR_FAIL_COND(p_aabb.size.y > 1e15 || p_aabb.size.y < 0.0)
-    ERR_FAIL_COND(p_aabb.size.z > 1e15 || p_aabb.size.z < 0.0)
-    ERR_FAIL_COND(Math::is_nan(p_aabb.size.x))
-    ERR_FAIL_COND(Math::is_nan(p_aabb.size.y))
-    ERR_FAIL_COND(Math::is_nan(p_aabb.size.z))
+    ERR_FAIL_COND(p_aabb.position.x > 1e15 || p_aabb.position.x < -1e15);
+    ERR_FAIL_COND(p_aabb.position.y > 1e15 || p_aabb.position.y < -1e15);
+    ERR_FAIL_COND(p_aabb.position.z > 1e15 || p_aabb.position.z < -1e15);
+    ERR_FAIL_COND(p_aabb.size.x > 1e15 || p_aabb.size.x < 0.0);
+    ERR_FAIL_COND(p_aabb.size.y > 1e15 || p_aabb.size.y < 0.0);
+    ERR_FAIL_COND(p_aabb.size.z > 1e15 || p_aabb.size.z < 0.0);
+    ERR_FAIL_COND(Math::is_nan(p_aabb.size.x));
+    ERR_FAIL_COND(Math::is_nan(p_aabb.size.y));
+    ERR_FAIL_COND(Math::is_nan(p_aabb.size.z));
 #endif
     typename ElementMap::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     Element &e = E->second;
 
     bool old_has_surf = !e.aabb.has_no_surface();
@@ -878,13 +851,13 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
     combined.merge_with(p_aabb);
     _ensure_valid_root(combined);
 
-    ERR_FAIL_COND(e.octant_owners.front() == nullptr)
+    ERR_FAIL_COND(e.octant_owners.empty());
 
     /* FIND COMMON PARENT */
 
-    List<typename Element::OctantOwner, AL> owners = e.octant_owners; // save the octant owners
+    auto owners = e.octant_owners; // save the octant owners
     Octant *common_parent = e.common_parent;
-    ERR_FAIL_COND(!common_parent)
+    ERR_FAIL_COND(!common_parent);
 
     //src is now the place towards where insertion is going to happen
     pass++;
@@ -892,7 +865,7 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
     while (common_parent && !common_parent->aabb.encloses(p_aabb))
         common_parent = common_parent->parent;
 
-    ERR_FAIL_COND(!common_parent)
+    ERR_FAIL_COND(!common_parent);
 
     //prepare for reinsert
     e.octant_owners.clear();
@@ -903,41 +876,38 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
 
     pass++;
 
-    for (typename List<typename Element::OctantOwner, AL>::Element *F = owners.front(); F;) {
+    for (auto F = owners.begin(); F!=owners.end();) {
 
-        Octant *o = F->deref().octant;
-        typename List<typename Element::OctantOwner, AL>::Element *N = F->next();
-
+        Octant *o = F->octant;
         /*
         if (!use_pairs)
             o->elements.erase( F->get().E );
         */
 
         if (use_pairs && e.pairable)
-            o->pairable_elements.erase(F->deref().E);
+            o->pairable_elements.erase(F->E);
         else
-            o->elements.erase(F->deref().E);
+            o->elements.erase(F->E);
 
         if (_remove_element_from_octant(&e, o, common_parent->parent)) {
-
-            owners.erase(F);
+            F = owners.erase(F);
         }
-
-        F = N;
+        else
+            ++F;
     }
 
     if (use_pairs) {
         //unpair child elements in anything that survived
-        for (typename List<typename Element::OctantOwner, AL>::Element *F = owners.front(); F; F = F->next()) {
+        for (auto F = owners.begin(); F!=owners.end(); ++F) {
 
-            Octant *o = F->deref().octant;
+            Octant *o = F->octant;
 
             // erase children pairs, unref ONCE
             pass++;
-            for (int i = 0; i < 8; i++) {
+            for (Octant * child : o->children) {
 
-                if (o->children[i])
-                    _unpair_element(&e, o->children[i]);
+                if (child)
+                    _unpair_element(&e, child);
             }
         }
 
@@ -951,7 +921,7 @@ template <class T, bool use_pairs, class AL>
 void Octree<T, use_pairs, AL>::set_pairable(OctreeElementID p_id, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
 
     typename ElementMap::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 
@@ -979,7 +949,7 @@ template <class T, bool use_pairs, class AL>
 void Octree<T, use_pairs, AL>::erase(OctreeElementID p_id) {
 
     typename ElementMap::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 
@@ -1000,12 +970,7 @@ void Octree<T, use_pairs, AL>::_cull_convex(Octant *p_octant, _CullConvexData *p
 
     if (!p_octant->elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->elements.front();
-
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_cull->mask)))
                 continue;
@@ -1026,12 +991,7 @@ void Octree<T, use_pairs, AL>::_cull_convex(Octant *p_octant, _CullConvexData *p
 
     if (use_pairs && !p_octant->pairable_elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->pairable_elements.front();
-
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->pairable_elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_cull->mask)))
                 continue;
@@ -1067,11 +1027,7 @@ void Octree<T, use_pairs, AL>::_cull_aabb(Octant *p_octant, const AABB &p_aabb, 
 
     if (!p_octant->elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->elements.front();
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_mask)))
                 continue;
@@ -1096,11 +1052,7 @@ void Octree<T, use_pairs, AL>::_cull_aabb(Octant *p_octant, const AABB &p_aabb, 
 
     if (use_pairs && !p_octant->pairable_elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->pairable_elements.front();
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->pairable_elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_mask)))
                 continue;
@@ -1138,11 +1090,7 @@ void Octree<T, use_pairs, AL>::_cull_segment(Octant *p_octant, const Vector3 &p_
 
     if (!p_octant->elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->elements.front();
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_mask)))
                 continue;
@@ -1167,11 +1115,7 @@ void Octree<T, use_pairs, AL>::_cull_segment(Octant *p_octant, const Vector3 &p_
 
     if (use_pairs && !p_octant->pairable_elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->pairable_elements.front();
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->pairable_elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_mask)))
                 continue;
@@ -1212,11 +1156,7 @@ void Octree<T, use_pairs, AL>::_cull_point(Octant *p_octant, const Vector3 &p_po
 
     if (!p_octant->elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->elements.front();
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_mask)))
                 continue;
@@ -1241,11 +1181,7 @@ void Octree<T, use_pairs, AL>::_cull_point(Octant *p_octant, const Vector3 &p_po
 
     if (use_pairs && !p_octant->pairable_elements.empty()) {
 
-        typename List<Element *, AL>::Element *I;
-        I = p_octant->pairable_elements.front();
-        for (; I; I = I->next()) {
-
-            Element *e = I->deref();
+        for (Element *e : p_octant->pairable_elements) {
 
             if (e->last_pass == pass || (use_pairs && !(e->pairable_type & p_mask)))
                 continue;

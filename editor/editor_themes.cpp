@@ -49,34 +49,34 @@
 static Ref<StyleBoxTexture> make_stylebox(const Ref<Texture>& p_texture, float p_left, float p_top, float p_right, float p_botton, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_botton = -1, bool p_draw_center = true) {
     Ref<StyleBoxTexture> style(make_ref_counted<StyleBoxTexture>());
     style->set_texture(p_texture);
-    style->set_margin_size(MARGIN_LEFT, p_left * EDSCALE);
-    style->set_margin_size(MARGIN_RIGHT, p_right * EDSCALE);
-    style->set_margin_size(MARGIN_BOTTOM, p_botton * EDSCALE);
-    style->set_margin_size(MARGIN_TOP, p_top * EDSCALE);
-    style->set_default_margin(MARGIN_LEFT, p_margin_left * EDSCALE);
-    style->set_default_margin(MARGIN_RIGHT, p_margin_right * EDSCALE);
-    style->set_default_margin(MARGIN_BOTTOM, p_margin_botton * EDSCALE);
-    style->set_default_margin(MARGIN_TOP, p_margin_top * EDSCALE);
+    style->set_margin_size(Margin::Left, p_left * EDSCALE);
+    style->set_margin_size(Margin::Right, p_right * EDSCALE);
+    style->set_margin_size(Margin::Bottom, p_botton * EDSCALE);
+    style->set_margin_size(Margin::Top, p_top * EDSCALE);
+    style->set_default_margin(Margin::Left, p_margin_left * EDSCALE);
+    style->set_default_margin(Margin::Right, p_margin_right * EDSCALE);
+    style->set_default_margin(Margin::Bottom, p_margin_botton * EDSCALE);
+    style->set_default_margin(Margin::Top, p_margin_top * EDSCALE);
     style->set_draw_center(p_draw_center);
     return style;
 }
 
 static Ref<StyleBoxEmpty> make_empty_stylebox(float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
     Ref<StyleBoxEmpty> style(make_ref_counted<StyleBoxEmpty>());
-    style->set_default_margin(MARGIN_LEFT, p_margin_left * EDSCALE);
-    style->set_default_margin(MARGIN_RIGHT, p_margin_right * EDSCALE);
-    style->set_default_margin(MARGIN_BOTTOM, p_margin_bottom * EDSCALE);
-    style->set_default_margin(MARGIN_TOP, p_margin_top * EDSCALE);
+    style->set_default_margin(Margin::Left, p_margin_left * EDSCALE);
+    style->set_default_margin(Margin::Right, p_margin_right * EDSCALE);
+    style->set_default_margin(Margin::Bottom, p_margin_bottom * EDSCALE);
+    style->set_default_margin(Margin::Top, p_margin_top * EDSCALE);
     return style;
 }
 
 static Ref<StyleBoxFlat> make_flat_stylebox(Color p_color, float p_margin_left = -1, float p_margin_top = -1, float p_margin_right = -1, float p_margin_bottom = -1) {
     Ref<StyleBoxFlat> style(make_ref_counted<StyleBoxFlat>());
     style->set_bg_color(p_color);
-    style->set_default_margin(MARGIN_LEFT, p_margin_left * EDSCALE);
-    style->set_default_margin(MARGIN_RIGHT, p_margin_right * EDSCALE);
-    style->set_default_margin(MARGIN_BOTTOM, p_margin_bottom * EDSCALE);
-    style->set_default_margin(MARGIN_TOP, p_margin_top * EDSCALE);
+    style->set_default_margin(Margin::Left, p_margin_left * EDSCALE);
+    style->set_default_margin(Margin::Right, p_margin_right * EDSCALE);
+    style->set_default_margin(Margin::Bottom, p_margin_bottom * EDSCALE);
+    style->set_default_margin(Margin::Top, p_margin_top * EDSCALE);
     return style;
 }
 
@@ -101,9 +101,14 @@ static Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool 
     // dumb gizmo check
     bool is_gizmo = QFileInfo(resource_path).baseName().startsWith("Gizmo");
     QByteArray resource_data = resource_file.readAll();
-    LoadParams svg_load = {p_scale, false, true, p_convert_color };
+    // Upsample icon generation only if the editor scale isn't an integer multiplier.
+    // Generating upsampled icons is slower, and the benefit is hardly visible
+    // with integer editor scales.
+    const bool upsample = !Math::is_equal_approx(Math::round(p_scale), p_scale);
+
+    LoadParams svg_load = {p_scale, false, upsample, p_convert_color };
+
     img->create(ImageLoader::load_image("svg",(const uint8_t *)resource_data.data(),resource_data.size(),svg_load));
-    img->shrink_x2();
 
     if (p_scale - (float)(int)p_scale > 0.0f || is_gizmo || p_force_filter)
         icon->create_from_image(img); // in this case filter really helps
@@ -118,11 +123,19 @@ static Ref<ImageTexture> editor_generate_icon(const QString &resource_path,bool 
 #endif
 
 static void editor_register_and_generate_icons(
-        const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
+
+    const Ref<Theme> &p_theme, bool p_dark_theme = true, int p_thumb_size = 32, bool p_only_thumbs = false) {
     ImageFormatLoader * loader= ImageLoader::recognize("svg");
     if (loader) {
+        // The default icon theme is designed to be used for a dark theme.
+        // This dictionary stores color codes to convert to other colors
+        // for better readability on a light theme.
         //Dictionary dark_icon_color_dictionary;
-        PODVector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
+        Vector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
+        // The names of the icons to never convert, even if one of their colors
+        // are contained in the dictionary above.
+        Set<se_string_view> exceptions;
+
         if (!p_dark_theme) {
             dark_icon_color_dictionary.reserve(100);
             // convert color:                              FROM       TO
@@ -188,9 +201,31 @@ static void editor_register_and_generate_icons(
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#69ec9a", "#2ce573"); // VS rid
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#79f3e8", "#12d5c3"); // VS object
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#77edb1", "#57e99f"); // VS dict
+
+            exceptions.insert("EditorPivot");
+            exceptions.insert("EditorHandle");
+            exceptions.insert("Editor3DHandle");
+            exceptions.insert("Godot");
+            exceptions.insert("PanoramaSky");
+            exceptions.insert("ProceduralSky");
+            exceptions.insert("EditorControlAnchor");
+            exceptions.insert("DefaultProjectIcon");
+            exceptions.insert("GuiCloseCustomizable");
+            exceptions.insert("GuiGraphNodePort");
+            exceptions.insert("GuiResizer");
+            exceptions.insert("ZoomMore");
+            exceptions.insert("ZoomLess");
+            exceptions.insert("ZoomReset");
+            exceptions.insert("LockViewport");
+            exceptions.insert("GroupViewport");
+            exceptions.insert("StatusError");
+            exceptions.insert("StatusSuccess");
+            exceptions.insert("StatusWarning");
+            exceptions.insert("NodeWarning");
+            exceptions.insert("OverbrightIndicator");
         }
 
-        // these ones should be converted even if we are using a dark theme
+        // These ones should be converted even if we are using a dark theme.
         const Color error_color = p_theme->get_color("error_color", "Editor");
         const Color success_color = p_theme->get_color("success_color", "Editor");
         const Color warning_color = p_theme->get_color("warning_color", "Editor");
@@ -200,56 +235,29 @@ static void editor_register_and_generate_icons(
         // Setup svg color conversion
         loader->set_loader_option(0,&dark_icon_color_dictionary);
 
-        PODVector<se_string_view> exceptions;
-        exceptions.push_back("EditorPivot");
-        exceptions.push_back("EditorHandle");
-        exceptions.push_back("Editor3DHandle");
-        exceptions.push_back("Godot");
-        exceptions.push_back("PanoramaSky");
-        exceptions.push_back("ProceduralSky");
-        exceptions.push_back("EditorControlAnchor");
-        exceptions.push_back("DefaultProjectIcon");
-        exceptions.push_back("GuiCloseCustomizable");
-        exceptions.push_back("GuiGraphNodePort");
-        exceptions.push_back("GuiResizer");
-        exceptions.push_back("ZoomMore");
-        exceptions.push_back("ZoomLess");
-        exceptions.push_back("ZoomReset");
-        exceptions.push_back("LockViewport");
-        exceptions.push_back("GroupViewport");
-        exceptions.push_back("StatusError");
-        exceptions.push_back("StatusSuccess");
-        exceptions.push_back("StatusWarning");
-        exceptions.push_back("NodeWarning");
-        exceptions.push_back("OverbrightIndicator");
-
-
         // generate icons
         if (!p_only_thumbs) {
             QDirIterator embedded_icons(":/icons", { "*.svg" });
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                auto is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception!=exceptions.end())
-                    exceptions.erase(is_exception);
+                auto is_exception = exceptions.contains(qPrintable(base_name));
                 Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);
                 p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
         }
 
-        // generate thumb files with the given thumb size
-        bool force_filter = p_thumb_size != 64 && p_thumb_size != 32; // we don't need filter with original resolution
+        // Generate thumbnail icons with the given thumbnail size.
+        // We don't need filtering when generating at one of the default resolutions.
+        const bool force_filter = p_thumb_size != 64 && p_thumb_size != 32;
         if (p_thumb_size >= 64) {
-            float scale = (float)p_thumb_size / 64.0f * EDSCALE;
+            const float scale = (float)p_thumb_size / 64.0f * EDSCALE;
             QDirIterator embedded_icons(":/icons/big_thumbs", { "*.svg" });
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                auto is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception!=exceptions.end())
-                    exceptions.erase(is_exception);
-                Ref<ImageTexture> icon =
+                auto is_exception = exceptions.contains(qPrintable(base_name));
+                const Ref<ImageTexture> icon =
                         editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
                 p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
             }
@@ -259,9 +267,7 @@ static void editor_register_and_generate_icons(
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
                 const QString base_name = embedded_icons.fileInfo().baseName();
-                auto is_exception = exceptions.find(qPrintable(base_name));
-                if (is_exception!=exceptions.end())
-                    exceptions.erase(is_exception);
+                auto is_exception = exceptions.contains(qPrintable(base_name));
                 Ref<ImageTexture> icon =
                         editor_generate_icon(resourcepath, !p_dark_theme && !is_exception, scale, force_filter);
                 p_theme->set_icon(StringName(StringUtils::to_utf8(base_name)), "EditorIcons", icon);
@@ -286,7 +292,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     float contrast = EDITOR_GET("interface/theme/contrast");
     float relationship_line_opacity = EDITOR_GET("interface/theme/relationship_line_opacity");
 
-    se_string preset = EDITOR_GET("interface/theme/preset");
+    String preset = EDITOR_GET("interface/theme/preset");
 
     bool highlight_tabs = EDITOR_GET("interface/theme/highlight_tabs");
     int border_size = EDITOR_GET("interface/theme/border_size");
@@ -441,7 +447,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
         QDirIterator embedded_icons(":/icons",{"*.svg"},QDir::NoFilter,QDirIterator::Subdirectories);
         while(embedded_icons.hasNext()) {
             embedded_icons.next();
-            const se_string basename = StringUtils::to_utf8(embedded_icons.fileInfo().baseName());
+            const String basename = StringUtils::to_utf8(embedded_icons.fileInfo().baseName());
             theme->set_icon(StringName(basename), "EditorIcons", p_theme->get_icon(StringName(basename), "EditorIcons"));
         }
     } else {
@@ -472,10 +478,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const float extra_spacing = EDITOR_GET("interface/theme/additional_spacing");
 
     Ref<StyleBoxFlat> style_widget = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
-    style_widget->set_default_margin(MARGIN_LEFT, (extra_spacing + 6) * EDSCALE);
-    style_widget->set_default_margin(MARGIN_TOP, (extra_spacing + default_margin_size) * EDSCALE);
-    style_widget->set_default_margin(MARGIN_RIGHT, (extra_spacing + 6) * EDSCALE);
-    style_widget->set_default_margin(MARGIN_BOTTOM, (extra_spacing + default_margin_size) * EDSCALE);
+    style_widget->set_default_margin(Margin::Left, (extra_spacing + 6) * EDSCALE);
+    style_widget->set_default_margin(Margin::Top, (extra_spacing + default_margin_size) * EDSCALE);
+    style_widget->set_default_margin(Margin::Right, (extra_spacing + 6) * EDSCALE);
+    style_widget->set_default_margin(Margin::Bottom, (extra_spacing + default_margin_size) * EDSCALE);
     style_widget->set_bg_color(dark_color_1);
     style_widget->set_border_color(dark_color_2);
 
@@ -495,10 +501,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     // style for windows, popups, etc..
     Ref<StyleBoxFlat> style_popup = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     const int popup_margin_size = default_margin_size * EDSCALE * 2;
-    style_popup->set_default_margin(MARGIN_LEFT, popup_margin_size);
-    style_popup->set_default_margin(MARGIN_TOP, popup_margin_size);
-    style_popup->set_default_margin(MARGIN_RIGHT, popup_margin_size);
-    style_popup->set_default_margin(MARGIN_BOTTOM, popup_margin_size);
+    style_popup->set_default_margin(Margin::Left, popup_margin_size);
+    style_popup->set_default_margin(Margin::Top, popup_margin_size);
+    style_popup->set_default_margin(Margin::Right, popup_margin_size);
+    style_popup->set_default_margin(Margin::Bottom, popup_margin_size);
     style_popup->set_border_color(contrast_color_1);
     style_popup->set_border_width_all(MAX(EDSCALE, border_width));
     const Color shadow_color = Color(0, 0, 0, dark_theme ? 0.3f : 0.1f);
@@ -530,13 +536,13 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     Ref<StyleBoxFlat> style_tab_selected = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
 
     style_tab_selected->set_border_width_all(border_width);
-    style_tab_selected->set_border_width(MARGIN_BOTTOM, 0);
+    style_tab_selected->set_border_width(Margin::Bottom, 0);
     style_tab_selected->set_border_color(dark_color_3);
-    style_tab_selected->set_expand_margin_size(MARGIN_BOTTOM, border_width);
-    style_tab_selected->set_default_margin(MARGIN_LEFT, tab_default_margin_side);
-    style_tab_selected->set_default_margin(MARGIN_RIGHT, tab_default_margin_side);
-    style_tab_selected->set_default_margin(MARGIN_BOTTOM, tab_default_margin_vertical);
-    style_tab_selected->set_default_margin(MARGIN_TOP, tab_default_margin_vertical);
+    style_tab_selected->set_expand_margin_size(Margin::Bottom, border_width);
+    style_tab_selected->set_default_margin(Margin::Left, tab_default_margin_side);
+    style_tab_selected->set_default_margin(Margin::Right, tab_default_margin_side);
+    style_tab_selected->set_default_margin(Margin::Bottom, tab_default_margin_vertical);
+    style_tab_selected->set_default_margin(Margin::Top, tab_default_margin_vertical);
     style_tab_selected->set_bg_color(tab_color);
 
     Ref<StyleBoxFlat> style_tab_unselected = dynamic_ref_cast<StyleBoxFlat>(style_tab_selected->duplicate());
@@ -574,7 +580,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     Ref<StyleBoxFlat> style_menu_hover_border = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
     style_menu_hover_border->set_draw_center(false);
     style_menu_hover_border->set_border_width_all(0);
-    style_menu_hover_border->set_border_width(MARGIN_BOTTOM, border_width);
+    style_menu_hover_border->set_border_width(Margin::Bottom, border_width);
     style_menu_hover_border->set_border_color(accent_color);
 
     Ref<StyleBoxFlat> style_menu_hover_bg = dynamic_ref_cast<StyleBoxFlat>(style_widget->duplicate());
@@ -660,10 +666,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 
     // Checkbox
     Ref<StyleBoxFlat> sb_checkbox = dynamic_ref_cast<StyleBoxFlat>(style_menu->duplicate());
-    sb_checkbox->set_default_margin(MARGIN_LEFT, default_margin_size * EDSCALE);
-    sb_checkbox->set_default_margin(MARGIN_RIGHT, default_margin_size * EDSCALE);
-    sb_checkbox->set_default_margin(MARGIN_TOP, default_margin_size * EDSCALE);
-    sb_checkbox->set_default_margin(MARGIN_BOTTOM, default_margin_size * EDSCALE);
+    sb_checkbox->set_default_margin(Margin::Left, default_margin_size * EDSCALE);
+    sb_checkbox->set_default_margin(Margin::Right, default_margin_size * EDSCALE);
+    sb_checkbox->set_default_margin(Margin::Top, default_margin_size * EDSCALE);
+    sb_checkbox->set_default_margin(Margin::Bottom, default_margin_size * EDSCALE);
 
     theme->set_stylebox("normal", "CheckBox", sb_checkbox);
     theme->set_stylebox("pressed", "CheckBox", sb_checkbox);
@@ -711,9 +717,9 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_constant("vseparation", "PopupMenu", (extra_spacing + default_margin_size + 1) * EDSCALE);
 
     Ref<StyleBoxFlat> sub_inspector_bg = make_flat_stylebox(dark_color_1.linear_interpolate(accent_color, 0.08f), 2, 0, 2, 2);
-    sub_inspector_bg->set_border_width(MARGIN_LEFT, 2);
-    sub_inspector_bg->set_border_width(MARGIN_RIGHT, 2);
-    sub_inspector_bg->set_border_width(MARGIN_BOTTOM, 2);
+    sub_inspector_bg->set_border_width(Margin::Left, 2);
+    sub_inspector_bg->set_border_width(Margin::Right, 2);
+    sub_inspector_bg->set_border_width(Margin::Bottom, 2);
     sub_inspector_bg->set_border_color(accent_color * Color(1, 1, 1, 0.3f));
     sub_inspector_bg->set_draw_center(true);
 
@@ -872,17 +878,17 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     style_content_panel->set_border_color(dark_color_3);
     style_content_panel->set_border_width_all(border_width);
     // compensate the border
-    style_content_panel->set_default_margin(MARGIN_TOP, margin_size_extra * EDSCALE);
-    style_content_panel->set_default_margin(MARGIN_RIGHT, margin_size_extra * EDSCALE);
-    style_content_panel->set_default_margin(MARGIN_BOTTOM, margin_size_extra * EDSCALE);
-    style_content_panel->set_default_margin(MARGIN_LEFT, margin_size_extra * EDSCALE);
+    style_content_panel->set_default_margin(Margin::Top, margin_size_extra * EDSCALE);
+    style_content_panel->set_default_margin(Margin::Right, margin_size_extra * EDSCALE);
+    style_content_panel->set_default_margin(Margin::Bottom, margin_size_extra * EDSCALE);
+    style_content_panel->set_default_margin(Margin::Left, margin_size_extra * EDSCALE);
 
     // this is the stylebox used in 3d and 2d viewports (no borders)
     Ref<StyleBoxFlat> style_content_panel_vp = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
-    style_content_panel_vp->set_default_margin(MARGIN_LEFT, border_width * 2);
-    style_content_panel_vp->set_default_margin(MARGIN_TOP, default_margin_size * EDSCALE);
-    style_content_panel_vp->set_default_margin(MARGIN_RIGHT, border_width * 2);
-    style_content_panel_vp->set_default_margin(MARGIN_BOTTOM, border_width * 2);
+    style_content_panel_vp->set_default_margin(Margin::Left, border_width * 2);
+    style_content_panel_vp->set_default_margin(Margin::Top, default_margin_size * EDSCALE);
+    style_content_panel_vp->set_default_margin(Margin::Right, border_width * 2);
+    style_content_panel_vp->set_default_margin(Margin::Bottom, border_width * 2);
     theme->set_stylebox("panel", "TabContainer", style_content_panel);
     theme->set_stylebox("Content", "EditorStyles", style_content_panel_vp);
 
@@ -893,14 +899,14 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     // Debugger
 
     Ref<StyleBoxFlat> style_panel_debugger = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
-    style_panel_debugger->set_border_width(MARGIN_BOTTOM, 0);
+    style_panel_debugger->set_border_width(Margin::Bottom, 0);
     theme->set_stylebox("DebuggerPanel", "EditorStyles", style_panel_debugger);
     theme->set_stylebox("DebuggerTabFG", "EditorStyles", style_tab_selected);
     theme->set_stylebox("DebuggerTabBG", "EditorStyles", style_tab_unselected);
 
     Ref<StyleBoxFlat> style_panel_invisible_top = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
-    int stylebox_offset = theme->get_font("tab_fg", "TabContainer")->get_height() + theme->get_stylebox("tab_fg", "TabContainer")->get_minimum_size().height + theme->get_stylebox("panel", "TabContainer")->get_default_margin(MARGIN_TOP);
-    style_panel_invisible_top->set_expand_margin_size(MARGIN_TOP, -stylebox_offset);
+    int stylebox_offset = theme->get_font("tab_fg", "TabContainer")->get_height() + theme->get_stylebox("tab_fg", "TabContainer")->get_minimum_size().height + theme->get_stylebox("panel", "TabContainer")->get_default_margin(Margin::Top);
+    style_panel_invisible_top->set_expand_margin_size(Margin::Top, -stylebox_offset);
     theme->set_stylebox("BottomPanelDebuggerOverride", "EditorStyles", style_panel_invisible_top);
 
     // LineEdit
@@ -959,8 +965,8 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     // WindowDialog
     Ref<StyleBoxFlat> style_window = dynamic_ref_cast<StyleBoxFlat>(style_popup->duplicate());
     style_window->set_border_color(tab_color);
-    style_window->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-    style_window->set_expand_margin_size(MARGIN_TOP, 24 * EDSCALE);
+    style_window->set_border_width(Margin::Top, 24 * EDSCALE);
+    style_window->set_expand_margin_size(Margin::Top, 24 * EDSCALE);
     theme->set_stylebox("panel", "WindowDialog", style_window);
     theme->set_color("title_color", "WindowDialog", font_color);
     theme->set_icon("close", "WindowDialog", theme->get_icon("GuiClose", "EditorIcons"));
@@ -1046,10 +1052,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     // TooltipPanel
     Ref<StyleBoxFlat> style_tooltip = dynamic_ref_cast<StyleBoxFlat>(style_popup->duplicate());
     float v = MAX(border_size * EDSCALE, 1.0f);
-    style_tooltip->set_default_margin(MARGIN_LEFT, v);
-    style_tooltip->set_default_margin(MARGIN_TOP, v);
-    style_tooltip->set_default_margin(MARGIN_RIGHT, v);
-    style_tooltip->set_default_margin(MARGIN_BOTTOM, v);
+    style_tooltip->set_default_margin(Margin::Left, v);
+    style_tooltip->set_default_margin(Margin::Top, v);
+    style_tooltip->set_default_margin(Margin::Right, v);
+    style_tooltip->set_default_margin(Margin::Bottom, v);
     style_tooltip->set_bg_color(Color(mono_color.r, mono_color.g, mono_color.b, 0.9f));
     style_tooltip->set_border_width_all(border_width);
     style_tooltip->set_border_color(mono_color);
@@ -1125,10 +1131,10 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     smgraphsbselected->set_shadow_color(shadow_color);
 
     if (use_gn_headers) {
-        graphsb->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-        graphsbselected->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-        graphsbcomment->set_border_width(MARGIN_TOP, 24 * EDSCALE);
-        graphsbcommentselected->set_border_width(MARGIN_TOP, 24 * EDSCALE);
+        graphsb->set_border_width(Margin::Top, 24 * EDSCALE);
+        graphsbselected->set_border_width(Margin::Top, 24 * EDSCALE);
+        graphsbcomment->set_border_width(Margin::Top, 24 * EDSCALE);
+        graphsbcommentselected->set_border_width(Margin::Top, 24 * EDSCALE);
     }
 
     theme->set_stylebox("frame", "GraphNode", graphsb);
@@ -1240,7 +1246,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color search_result_border_color = Color(0.41f, 0.61f, 0.91f, 0.38f);
 
     EditorSettings *setting = EditorSettings::get_singleton();
-    String text_editor_color_theme = setting->get("text_editor/theme/color_theme");
+    UIString text_editor_color_theme = setting->get("text_editor/theme/color_theme");
     if (text_editor_color_theme == "Adaptive") {
         setting->set_initial_value("text_editor/highlighting/symbol_color", symbol_color, true);
         setting->set_initial_value("text_editor/highlighting/keyword_color", keyword_color, true);
@@ -1286,7 +1292,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme) {
     Ref<Theme> theme;
 
-    se_string custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
+    String custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
     if (!custom_theme.empty()) {
         theme = dynamic_ref_cast<Theme>(ResourceLoader::load(custom_theme));
     }

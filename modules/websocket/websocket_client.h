@@ -48,7 +48,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols = {}, bool gd_mp_api = false, const PoolVector<se_string> &p_custom_headers = {});
+    Error connect_to_url(se_string_view p_url, const PoolStringArray &p_protocols = {}, bool gd_mp_api = false, const PoolVector<String> &p_custom_headers = {});
 
     void set_verify_ssl_enabled(bool p_verify_ssl);
     bool is_verify_ssl_enabled() const;
@@ -57,8 +57,8 @@ public:
 
     void poll() override = 0;
     virtual Error connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl,
-            const PoolVector<se_string> &p_protocol = PoolVector<se_string>(),
-            const PoolVector<se_string> &p_custom_headers = PoolVector<se_string>()) = 0;
+            const PoolVector<String> &p_protocol = PoolVector<String>(),
+            const PoolVector<String> &p_custom_headers = PoolVector<String>()) = 0;
 
     virtual void disconnect_from_host(int p_code = 1000, se_string_view p_reason = "") = 0;
     virtual IP_Address get_connected_host() const = 0;
@@ -68,7 +68,7 @@ public:
     ConnectionStatus get_connection_status() const override = 0;
 
     void _on_peer_packet();
-    void _on_connect(se_string p_protocol);
+    void _on_connect(String p_protocol);
     void _on_close_request(int p_code, se_string_view p_reason);
     void _on_disconnect(bool p_was_clean);
     void _on_error();

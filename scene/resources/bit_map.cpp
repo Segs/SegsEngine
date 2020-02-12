@@ -38,8 +38,8 @@ IMPL_GDCLASS(BitMap)
 
 void BitMap::create(const Size2 &p_size) {
 
-    ERR_FAIL_COND(p_size.width < 1)
-    ERR_FAIL_COND(p_size.height < 1)
+    ERR_FAIL_COND(p_size.width < 1);
+    ERR_FAIL_COND(p_size.height < 1);
 
     width = p_size.width;
     height = p_size.height;
@@ -49,10 +49,10 @@ void BitMap::create(const Size2 &p_size) {
 
 void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshold) {
 
-    ERR_FAIL_COND(not p_image || p_image->empty())
+    ERR_FAIL_COND(not p_image || p_image->empty());
     Ref<Image> img(dynamic_ref_cast<Image>(p_image->duplicate()));
     img->convert(Image::FORMAT_LA8);
-    ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8)
+    ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8);
 
     create(Size2(img->get_width(), img->get_height()));
 
@@ -125,8 +125,8 @@ void BitMap::set_bit(const Point2 &p_pos, bool p_value) {
     int x = p_pos.x;
     int y = p_pos.y;
 
-    ERR_FAIL_INDEX(x, width)
-    ERR_FAIL_INDEX(y, height)
+    ERR_FAIL_INDEX(x, width);
+    ERR_FAIL_INDEX(y, height);
 
     int ofs = width * y + x;
     int bbyte = ofs / 8;
@@ -146,8 +146,8 @@ bool BitMap::get_bit(const Point2 &p_pos) const {
 
     int x = Math::fast_ftoi(p_pos.x);
     int y = Math::fast_ftoi(p_pos.y);
-    ERR_FAIL_INDEX_V(x, width, false)
-    ERR_FAIL_INDEX_V(y, height, false)
+    ERR_FAIL_INDEX_V(x, width, false);
+    ERR_FAIL_INDEX_V(y, height, false);
 
     int ofs = width * y + x;
     int bbyte = ofs / 8;
@@ -163,8 +163,8 @@ Size2 BitMap::get_size() const {
 
 void BitMap::_set_data(const Dictionary &p_d) {
 
-    ERR_FAIL_COND(!p_d.has("size"))
-    ERR_FAIL_COND(!p_d.has("data"))
+    ERR_FAIL_COND(!p_d.has("size"));
+    ERR_FAIL_COND(!p_d.has("data"));
 
     create(p_d["size"]);
     bitmask = p_d["data"].as<PoolVector<uint8_t>>();
@@ -178,7 +178,7 @@ Dictionary BitMap::_get_data() const {
     return d;
 }
 
-PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &start) const {
+Vector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &start) const {
 
     int stepx = 0;
     int stepy = 0;
@@ -191,7 +191,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
     unsigned int count = 0;
     Set<Point2i> case9s;
     Set<Point2i> case6s;
-    PODVector<Vector2> _points;
+    Vector<Vector2> _points;
     do {
         int sv = 0;
         { //square value
@@ -213,7 +213,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
             sv += (rect.has_point(bl) && get_bit(bl)) ? 4 : 0;
             Point2i br = Point2i(curx, cury);
             sv += (rect.has_point(br) && get_bit(br)) ? 8 : 0;
-            ERR_FAIL_COND_V(sv == 0 || sv == 15, PODVector<Vector2>())
+            ERR_FAIL_COND_V(sv == 0 || sv == 15, Vector<Vector2>());
         }
 
         switch (sv) {
@@ -321,7 +321,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
                 }
                 break;
             default:
-                ERR_PRINT("this shouldn't happen.")
+                ERR_PRINT("this shouldn't happen.");
         }
         //little optimization
         // if previous direction is same as current direction,
@@ -338,7 +338,7 @@ PODVector<Vector2> BitMap::_march_square(const Rect2i &rect, const Point2i &star
         prevx = stepx;
         prevy = stepy;
 
-        ERR_FAIL_COND_V((int)count > width * height, _points)
+        ERR_FAIL_COND_V((int)count > width * height, _points);
     } while (curx != startx || cury != starty);
     return _points;
 }
@@ -360,7 +360,7 @@ static float perpendicular_distance(const Vector2 &i, const Vector2 &start, cons
     return res;
 }
 
-static PODVector<Vector2> rdp(const PODVector<Vector2> &v, float optimization) {
+static Vector<Vector2> rdp(const Vector<Vector2> &v, float optimization) {
     if (v.size() < 3)
         return v;
 
@@ -376,7 +376,7 @@ static PODVector<Vector2> rdp(const PODVector<Vector2> &v, float optimization) {
     }
     if (dist > optimization) {
 
-        PODVector<Vector2> left, right;
+        Vector<Vector2> left, right;
         left.resize(index);
         for (int i = 0; i < index; i++) {
             left[i] = v[i];
@@ -385,8 +385,8 @@ static PODVector<Vector2> rdp(const PODVector<Vector2> &v, float optimization) {
         for (size_t i = 0; i < right.size(); i++) {
             right[i] = v[index + i];
         }
-        PODVector<Vector2> r1 = rdp(left, optimization);
-        PODVector<Vector2> r2 = rdp(right, optimization);
+        Vector<Vector2> r1 = rdp(left, optimization);
+        Vector<Vector2> r2 = rdp(right, optimization);
 
         size_t middle = r1.size();
         r1.resize(r1.size() + r2.size());
@@ -399,10 +399,10 @@ static PODVector<Vector2> rdp(const PODVector<Vector2> &v, float optimization) {
     }
 }
 
-static PODVector<Vector2> reduce(const PODVector<Vector2> &points, const Rect2i &rect, float epsilon) {
+static Vector<Vector2> reduce(const Vector<Vector2> &points, const Rect2i &rect, float epsilon) {
     int size = points.size();
     // if there are less than 3 points, then we have nothing
-    ERR_FAIL_COND_V(size < 3, PODVector<Vector2>())
+    ERR_FAIL_COND_V(size < 3, Vector<Vector2>());
     // if there are less than 9 points (but more than 3), then we don't need to reduce it
     if (size < 9) {
         return points;
@@ -410,7 +410,7 @@ static PODVector<Vector2> reduce(const PODVector<Vector2> &points, const Rect2i 
 
     float maxEp = MIN(rect.size.width, rect.size.height);
     float ep = CLAMP(epsilon, 0.0, maxEp / 2);
-    PODVector<Vector2> result(rdp(points, ep));
+    Vector<Vector2> result(rdp(points, ep));
 
     Vector2 last = result[result.size() - 1];
 
@@ -497,21 +497,21 @@ static void fill_bits(const BitMap *p_src, Ref<BitMap> &p_map, const Point2i &p_
     print_verbose("BitMap: Max stack size: " + itos(stack.size()));
 }
 
-Vector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
+Vector<Vector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
-    Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
-    print_verbose("BitMap: Rect: " + (se_string)r);
+    const Rect2i r = Rect2i(0, 0, width, height).clip(p_rect);
+    print_verbose("BitMap: Rect: " + (String)r);
 
     Ref<BitMap> fill(make_ref_counted<BitMap>());
     fill->create(get_size());
 
-    Vector<PODVector<Vector2> > polygons;
+    Vector<Vector<Vector2> > polygons;
     for (int i = r.position.y; i < r.position.y + r.size.height; i++) {
         for (int j = r.position.x; j < r.position.x + r.size.width; j++) {
             if (!fill->get_bit(Point2(j, i)) && get_bit(Point2(j, i))) {
                 fill_bits(this, fill, Point2i(j, i), r);
 
-                PODVector<Vector2> polygon = _march_square(r, Point2i(j, i));
+                Vector<Vector2> polygon = _march_square(r, Point2i(j, i));
                 print_verbose("BitMap: Pre reduce: " + itos(polygon.size()));
                 polygon = reduce(polygon, r, p_epsilon);
                 print_verbose("BitMap: Post reduce: " + itos(polygon.size()));
@@ -519,7 +519,7 @@ Vector<PODVector<Vector2> > BitMap::clip_opaque_to_polygons(const Rect2 &p_rect,
                     print_verbose("Invalid polygon, skipped");
                     continue;
                 }
-                polygons.push_back(polygon);
+                polygons.emplace_back(eastl::move(polygon));
                 fill_bits(this, fill, Point2i(j, i), r);
             }
         }
@@ -587,9 +587,9 @@ void BitMap::shrink_mask(int p_pixels, const Rect2 &p_rect) {
     grow_mask(-p_pixels, p_rect);
 }
 
-Array BitMap::_opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) const {
+Array BitMap::opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const {
 
-    Vector<PODVector<Vector2> > result = clip_opaque_to_polygons(p_rect, p_epsilon);
+    const Vector<Vector<Vector2> > result(clip_opaque_to_polygons(p_rect, p_epsilon));
 
     // Convert result to bindable types
 
@@ -597,7 +597,7 @@ Array BitMap::_opaque_to_polygons_bind(const Rect2 &p_rect, float p_epsilon) con
     result_array.resize(result.size());
     for (int i = 0; i < result.size(); i++) {
 
-        const PODVector<Vector2> &polygon = result[i];
+        const Vector<Vector2> &polygon = result[i];
 
         PoolVector2Array polygon_array;
         polygon_array.resize(polygon.size());
@@ -686,9 +686,9 @@ void BitMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
 
     MethodBinder::bind_method(D_METHOD("grow_mask", {"pixels", "rect"}), &BitMap::grow_mask);
-    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::_opaque_to_polygons_bind, {DEFVAL(2.0)});
+    MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::opaque_to_polygons, {DEFVAL(2.0)});
 
-    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }
 
 BitMap::BitMap() {

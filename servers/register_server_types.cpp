@@ -66,22 +66,22 @@
 #include "visual/shader_types.h"
 #include "visual_server.h"
 
-static void _debugger_get_resource_usage(ListPOD<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
+static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
-    List<VisualServer::TextureInfo> tinfo;
+    Vector<VisualServer::TextureInfo> tinfo;
     VisualServer::get_singleton()->texture_debug_usage(&tinfo);
 
-    for (List<VisualServer::TextureInfo>::Element *E = tinfo.front(); E; E = E->next()) {
+    for (const VisualServer::TextureInfo &E : tinfo) {
 
         ScriptDebuggerRemote::ResourceUsage usage;
-        usage.path = E->deref().path;
-        usage.vram = E->deref().bytes;
-        usage.id = E->deref().texture;
+        usage.path = E.path;
+        usage.vram = E.bytes;
+        usage.id = E.texture;
         usage.type = "Texture";
-        if (E->deref().depth == 0) {
-            usage.format = itos(E->deref().width) + "x" + itos(E->deref().height) + " " + Image::get_format_name(E->deref().format);
+        if (E.depth == 0) {
+            usage.format = itos(E.width) + "x" + itos(E.height) + " " + Image::get_format_name(E.format);
         } else {
-            usage.format = itos(E->deref().width) + "x" + itos(E->deref().height) + "x" + itos(E->deref().depth) + " " + Image::get_format_name(E->deref().format);
+            usage.format = itos(E.width) + "x" + itos(E.height) + "x" + itos(E.depth) + " " + Image::get_format_name(E.format);
         }
         r_usage->push_back(usage);
     }
@@ -256,7 +256,7 @@ void setup_server_defs()
     // Physics 2D
     GLOBAL_DEF(Physics2DServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(Physics2DServerManager::setting_property_name,
-            PropertyInfo(VariantType::STRING, StringName(Physics2DServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
+            PropertyInfo(VariantType::STRING, StringName(Physics2DServerManager::setting_property_name), PropertyHint::Enum, "DEFAULT"));
 
     Physics2DServerManager::register_server(("GodotPhysics"), &_createGodotPhysics2DCallback);
     Physics2DServerManager::set_default_server(("GodotPhysics"));
@@ -264,7 +264,7 @@ void setup_server_defs()
     // Physics 3D
     GLOBAL_DEF(PhysicsServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(PhysicsServerManager::setting_property_name,
-        PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PROPERTY_HINT_ENUM, "DEFAULT"));
+        PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PropertyHint::Enum, "DEFAULT"));
 
     PhysicsServerManager::register_server("GodotPhysics", &_createGodotPhysicsCallback);
     PhysicsServerManager::set_default_server(("GodotPhysics"));

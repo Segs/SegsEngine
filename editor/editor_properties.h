@@ -106,7 +106,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const PODVector<se_string_view> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     EditorPropertyTextEnum();
 };
@@ -114,7 +114,7 @@ public:
 class EditorPropertyPath : public EditorProperty {
     GDCLASS(EditorPropertyPath,EditorProperty)
 
-    PODVector<se_string> extensions;
+    Vector<String> extensions;
     bool folder;
     bool global;
     bool save_mode;
@@ -131,7 +131,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    void setup(const PODVector<se_string_view> &p_extensions, bool p_folder, bool p_global);
+    void setup(const Vector<se_string_view> &p_extensions, bool p_folder, bool p_global);
     void set_save_mode();
     void update_property() override;
     EditorPropertyPath();
@@ -177,7 +177,7 @@ private:
     Type hint;
     PropertySelector *selector;
     Button *property;
-    se_string hint_text;
+    String hint_text;
 
     void _property_selected(se_string_view p_selected);
     void _property_select();
@@ -217,7 +217,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const PODVector<se_string_view> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyEnum();
@@ -236,7 +236,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const PODVector<se_string_view> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     EditorPropertyFlags();
 };
@@ -278,14 +278,14 @@ class EditorPropertyInteger : public EditorProperty {
 
     EditorSpinSlider *spin;
     bool setting;
-    void _value_changed(double p_val);
+    void _value_changed(int64_t p_val);
 
 protected:
     static void _bind_methods();
 
 public:
     void update_property() override;
-    void setup(int p_min, int p_max, int p_step, bool p_allow_greater, bool p_allow_lesser);
+    void setup(int64_t p_min, int64_t p_max, int64_t p_step, bool p_allow_greater, bool p_allow_lesser);
     EditorPropertyInteger();
 };
 
@@ -542,7 +542,7 @@ class EditorPropertyNodePath : public EditorProperty {
     NodePath base_hint;
     bool use_path_from_scene_root;
 
-    PODVector<StringName> valid_types;
+    Vector<StringName> valid_types;
     void _node_selected(const NodePath &p_path);
     void _node_assign();
     void _node_clear();
@@ -553,7 +553,7 @@ protected:
 
 public:
     void update_property() override;
-    void setup(const NodePath &p_base_hint, PODVector<StringName> &&p_valid_types, bool p_use_path_from_scene_root = true);
+    void setup(const NodePath &p_base_hint, Vector<StringName> &&p_valid_types, bool p_use_path_from_scene_root = true);
     EditorPropertyNodePath();
 };
 

@@ -98,12 +98,12 @@ void VehicleWheel::_notification(int p_what) {
         m_wheelDirectionCS = -get_transform().basis.get_axis(Vector3::AXIS_Y).normalized();
         m_wheelAxleCS = get_transform().basis.get_axis(Vector3::AXIS_X).normalized();
     }
-    if (p_what == NOTIFICATION_EXIT_TREE) {
+    else if (p_what == NOTIFICATION_EXIT_TREE) {
 
         VehicleBody *cb = object_cast<VehicleBody>(get_parent());
         if (!cb)
             return;
-        cb->wheels.erase(this);
+        cb->wheels.erase_first(this);
         body = nullptr;
     }
 }
@@ -119,14 +119,11 @@ StringName VehicleWheel::get_configuration_warning() const {
 void VehicleWheel::_update(PhysicsDirectBodyState *s) {
 
     if (m_raycastInfo.m_isInContact)
-
     {
         real_t project = m_raycastInfo.m_contactNormalWS.dot(m_raycastInfo.m_wheelDirectionWS);
-        Vector3 chassis_velocity_at_contactPoint;
         Vector3 relpos = m_raycastInfo.m_contactPointWS - s->get_transform().origin;
-
-        chassis_velocity_at_contactPoint = s->get_linear_velocity() +
-                                           (s->get_angular_velocity()).cross(relpos); // * mPos);
+        Vector3 chassis_velocity_at_contactPoint = s->get_linear_velocity() +
+                                                   (s->get_angular_velocity()).cross(relpos); // * mPos);
 
         real_t projVel = m_raycastInfo.m_contactNormalWS.dot(chassis_velocity_at_contactPoint);
         if (project >= real_t(-0.1)) {
@@ -139,7 +136,6 @@ void VehicleWheel::_update(PhysicsDirectBodyState *s) {
         }
 
     }
-
     else // Not in contact : position wheel in a nice (rest length) position
     {
         m_raycastInfo.m_suspensionLength = m_suspensionRestLength;
@@ -287,9 +283,9 @@ void VehicleWheel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleWheel::get_steering);
 
     ADD_GROUP("Per-Wheel Motion", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PROPERTY_HINT_RANGE, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_brake", "get_brake");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PROPERTY_HINT_RANGE, "-180,180.0,0.01"), "set_steering", "get_steering");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
     ADD_GROUP("VehicleBody Motion", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_traction"), "set_use_as_traction", "is_used_as_traction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_steering"), "set_use_as_steering", "is_used_as_steering");
@@ -545,7 +541,7 @@ void VehicleBody::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vec
         PhysicsBody *body2, const Vector3 &pos2, const Vector3 &normal, real_t &impulse, const real_t p_rollInfluence) {
 
     real_t normalLenSqr = normal.length_squared();
-    //ERR_FAIL_COND( normalLenSqr < real_t(1.1))
+    //ERR_FAIL_COND();
 
     if (normalLenSqr > real_t(1.1)) {
         impulse = real_t(0.);
@@ -695,8 +691,8 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
 
     //collapse all those loops into one!
     for (int i = 0; i < wheels.size(); i++) {
-        m_sideImpulse.write[i] = real_t(0.);
-        m_forwardImpulse.write[i] = real_t(0.);
+        m_sideImpulse[i] = real_t(0.);
+        m_forwardImpulse[i] = real_t(0.);
     }
 
     {
@@ -711,22 +707,22 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
 
                 Basis wheelBasis0 = wheelInfo.m_worldTransform.basis; //get_global_transform().basis;
 
-                m_axle.write[i] = wheelBasis0.get_axis(Vector3::AXIS_X);
+                m_axle[i] = wheelBasis0.get_axis(Vector3::AXIS_X);
                 //m_axle[i] = wheelInfo.m_raycastInfo.m_wheelAxleWS;
 
                 const Vector3 &surfNormalWS = wheelInfo.m_raycastInfo.m_contactNormalWS;
                 real_t proj = m_axle[i].dot(surfNormalWS);
-                m_axle.write[i] -= surfNormalWS * proj;
-                m_axle.write[i] = m_axle[i].normalized();
+                m_axle[i] -= surfNormalWS * proj;
+                m_axle[i] = m_axle[i].normalized();
 
-                m_forwardWS.write[i] = surfNormalWS.cross(m_axle[i]);
-                m_forwardWS.write[i].normalize();
+                m_forwardWS[i] = surfNormalWS.cross(m_axle[i]);
+                m_forwardWS[i].normalize();
 
                 _resolve_single_bilateral(s, wheelInfo.m_raycastInfo.m_contactPointWS,
                         wheelInfo.m_raycastInfo.m_groundObject, wheelInfo.m_raycastInfo.m_contactPointWS,
-                        m_axle[i], m_sideImpulse.write[i], wheelInfo.m_rollInfluence);
+                        m_axle[i], m_sideImpulse[i], wheelInfo.m_rollInfluence);
 
-                m_sideImpulse.write[i] *= sideFrictionStiffness2;
+                m_sideImpulse[i] *= sideFrictionStiffness2;
             }
         }
     }
@@ -756,7 +752,7 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
 
             //switch between active rolling (throttle), braking and non-active rolling friction (no throttle/break)
 
-            m_forwardImpulse.write[wheel] = real_t(0.);
+            m_forwardImpulse[wheel] = real_t(0.);
             wheelInfo.m_skidInfo = real_t(1.);
 
             if (wheelInfo.m_raycastInfo.m_isInContact) {
@@ -767,7 +763,7 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
 
                 real_t maximpSquared = maximp * maximpSide;
 
-                m_forwardImpulse.write[wheel] = rollingFriction; //wheelInfo.m_engineForce* timeStep;
+                m_forwardImpulse[wheel] = rollingFriction; //wheelInfo.m_engineForce* timeStep;
 
                 real_t x = (m_forwardImpulse[wheel]) * fwdFactor;
                 real_t y = (m_sideImpulse[wheel]) * sideFactor;
@@ -789,8 +785,8 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
         for (int wheel = 0; wheel < wheels.size(); wheel++) {
             if (m_sideImpulse[wheel] != real_t(0.)) {
                 if (wheels[wheel]->m_skidInfo < real_t(1.)) {
-                    m_forwardImpulse.write[wheel] *= wheels[wheel]->m_skidInfo;
-                    m_sideImpulse.write[wheel] *= wheels[wheel]->m_skidInfo;
+                    m_forwardImpulse[wheel] *= wheels[wheel]->m_skidInfo;
+                    m_sideImpulse[wheel] *= wheels[wheel]->m_skidInfo;
                 }
             }
         }
@@ -957,9 +953,9 @@ void VehicleBody::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleBody::get_steering);
 
     ADD_GROUP("Motion", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PROPERTY_HINT_RANGE, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_brake", "get_brake");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PROPERTY_HINT_RANGE, "-180,180.0,0.01"), "set_steering", "get_steering");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
 }
 
 VehicleBody::VehicleBody() {

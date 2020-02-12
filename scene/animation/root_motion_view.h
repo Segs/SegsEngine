@@ -34,43 +34,43 @@
 #include "core/node_path.h"
 
 class RootMotionView : public VisualInstance {
-	GDCLASS(RootMotionView,VisualInstance)
+    GDCLASS(RootMotionView,VisualInstance)
 
 public:
-	RID immediate;
-	NodePath path;
-	float cell_size;
-	float radius;
-	bool use_in_game;
-	Color color;
-	bool first;
-	bool zero_y;
+    RID immediate;
+    NodePath path;
+    float cell_size;
+    float radius;
+    bool use_in_game;
+    Color color;
+    bool first;
+    bool zero_y;
 
-	Transform accumulated;
+    Transform accumulated;
 
 private:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_animation_path(const NodePath &p_path);
-	NodePath get_animation_path() const;
+    void set_animation_path(const NodePath &p_path);
+    NodePath get_animation_path() const;
 
-	void set_color(const Color &p_color);
-	Color get_color() const;
+    void set_color(const Color &p_color);
+    Color get_color() const;
 
-	void set_cell_size(float p_size);
-	float get_cell_size() const;
+    void set_cell_size(float p_size);
+    float get_cell_size() const;
 
-	void set_radius(float p_radius);
-	float get_radius() const;
+    void set_radius(float p_radius);
+    float get_radius() const;
 
-	void set_zero_y(bool p_zero_y);
-	bool get_zero_y() const;
+    void set_zero_y(bool p_zero_y);
+    bool get_zero_y() const;
 
-	AABB get_aabb() const override;
-	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    AABB get_aabb() const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
-	RootMotionView();
-	~RootMotionView() override;
+    RootMotionView();
+    ~RootMotionView() override;
 };

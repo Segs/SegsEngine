@@ -197,7 +197,7 @@ void InputDefault::joy_connection_changed(int p_idx, bool p_connected, StringNam
 
     if (p_connected) {
 
-        se_string uidname(p_guid);
+        String uidname(p_guid);
         if (p_guid.empty()) {
             int uidlen = MIN(se_string_view(p_name).length(), 16);
             for (int i = 0; i < uidlen; i++) {
@@ -654,13 +654,13 @@ void InputDefault::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_sh
 }
 
 void InputDefault::accumulate_input_event(const Ref<InputEvent> &p_event) {
-    ERR_FAIL_COND(not p_event)
+    ERR_FAIL_COND(not p_event);
 
     if (!use_accumulated_input) {
         parse_input_event(p_event);
         return;
     }
-    if (!accumulated_events.empty() && accumulated_events.back()->deref()->accumulate(p_event)) {
+    if (!accumulated_events.empty() && accumulated_events.back()->accumulate(p_event)) {
         return; //event was accumulated, exit
     }
 
@@ -669,7 +669,7 @@ void InputDefault::accumulate_input_event(const Ref<InputEvent> &p_event) {
 void InputDefault::flush_accumulated_events() {
 
     while (accumulated_events.front()) {
-        parse_input_event(accumulated_events.front()->deref());
+        parse_input_event(accumulated_events.front());
         accumulated_events.pop_front();
     }
 }
@@ -730,11 +730,11 @@ InputDefault::InputDefault() {
     }
 
     // If defined, parse SDL_GAMECONTROLLERCONFIG for possible new mappings/overrides.
-    se_string env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
-    se_string env_mapping(env_var);
+    String env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
+    String env_mapping(env_var);
     if (!env_mapping.empty()) {
 
-        PODVector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
+        Vector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
         for (size_t i = 0; i < entries.size(); i++) {
             if (entries[i].empty())
                 continue;
@@ -996,7 +996,7 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
     for (int i = 0; i < HAT_MAX; ++i)
         mapping.hat[i].index = 1024 + i;
 
-    PODVector<se_string_view> entry = StringUtils::split(p_mapping,',');
+    Vector<se_string_view> entry = StringUtils::split(p_mapping,',');
     if (entry.size() < 2) {
         return;
     }
@@ -1007,13 +1007,13 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
     mapping.uid = StringName(entry[0]);
     mapping.name = StringName(entry[1]);
 
-    int idx = 1;
+    size_t idx = 1;
     while (++idx < entry.size()) {
 
         if (entry[idx].empty())
             continue;
 
-        se_string from(StringUtils::replace(StringUtils::get_slice(entry[idx],":", 1)," ", ""));
+        String from(StringUtils::replace(StringUtils::get_slice(entry[idx],":", 1)," ", ""));
         StringName to(StringUtils::replace(StringUtils::get_slice(entry[idx],":", 0)," ", ""));
 
         JoyEvent to_event = _find_to_event(to);
@@ -1071,7 +1071,7 @@ void InputDefault::add_joy_mapping(se_string_view p_mapping, bool p_update_exist
 void InputDefault::remove_joy_mapping(StringName p_guid) {
     for (int i = map_db.size() - 1; i >= 0; i--) {
         if (p_guid == map_db[i].uid) {
-            map_db.remove(i);
+            map_db.erase_at(i);
         }
     }
     for (eastl::pair<const int, Joypad> & e : joy_names) {
@@ -1108,7 +1108,7 @@ bool InputDefault::is_joy_mapped(int p_device) {
 }
 
 StringName InputDefault::get_joy_guid_remapped(int p_device) const {
-    ERR_FAIL_COND_V(!joy_names.contains(p_device), StringName())
+    ERR_FAIL_COND_V(!joy_names.contains(p_device), StringName());
     return joy_names.at(p_device).uid;
 }
 
@@ -1156,7 +1156,8 @@ static const char *_axes[JOY_AXIS_MAX] = {
 };
 
 StringName InputDefault::get_joy_button_string(int p_button) {
-    ERR_FAIL_INDEX_V(p_button, JOY_BUTTON_MAX, StringName())
+    ERR_FAIL_INDEX_V(p_button, JOY_BUTTON_MAX, StringName());
+
     return StringName(_buttons[p_button]);
 }
 
@@ -1166,7 +1167,7 @@ int InputDefault::get_joy_button_index_from_string(se_string_view p_button) {
             return i;
         }
     }
-    ERR_FAIL_V(-1)
+    ERR_FAIL_V(-1);
 }
 
 int InputDefault::get_unused_joy_id() {
@@ -1179,7 +1180,8 @@ int InputDefault::get_unused_joy_id() {
 }
 
 StringName InputDefault::get_joy_axis_string(int p_axis) {
-    ERR_FAIL_INDEX_V(p_axis, JOY_AXIS_MAX, StringName())
+    ERR_FAIL_INDEX_V(p_axis, JOY_AXIS_MAX, StringName());
+
     return StringName(_axes[p_axis]);
 }
 
@@ -1189,5 +1191,5 @@ int InputDefault::get_joy_axis_index_from_string(se_string_view p_axis) {
             return i;
         }
     }
-    ERR_FAIL_V(-1)
+    ERR_FAIL_V(-1);
 }

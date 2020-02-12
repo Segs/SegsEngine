@@ -47,7 +47,7 @@ void ResourcePreloaderEditor::_gui_input(const Ref<InputEvent>& p_event) {
 void ResourcePreloaderEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        load->set_icon(get_icon("Folder", "EditorIcons"));
+        load->set_button_icon(get_icon("Folder", "EditorIcons"));
     }
 
     if (p_what == NOTIFICATION_READY) {
@@ -59,7 +59,7 @@ void ResourcePreloaderEditor::_notification(int p_what) {
     }
 }
 
-void ResourcePreloaderEditor::_files_load_request(const Vector<se_string> &p_paths) {
+void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths) {
 
     for (int i = 0; i < p_paths.size(); i++) {
 
@@ -78,11 +78,11 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<se_string> &p_pat
         }
 
         se_string_view basename = PathUtils::get_basename(PathUtils::get_file(path));
-        se_string name(basename);
+        String name(basename);
         int counter = 1;
         while (preloader->has_resource(StringName(name))) {
             counter++;
-            name = se_string(basename) + " " + itos(counter);
+            name = String(basename) + " " + itos(counter);
         }
 
         undo_redo->create_action_ui(TTR("Add Resource"));
@@ -99,9 +99,9 @@ void ResourcePreloaderEditor::_load_pressed() {
     loading_scene = false;
 
     file->clear_filters();
-    PODVector<se_string> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("", extensions);
-    for (const se_string & ext : extensions)
+    for (const String & ext : extensions)
         file->add_filter("*." + ext);
 
     file->set_mode(EditorFileDialog::MODE_OPEN_FILES);
@@ -162,13 +162,13 @@ void ResourcePreloaderEditor::_paste_pressed() {
         return; ///beh should show an error i guess
     }
 
-    se_string name(r->get_name());
+    String name(r->get_name());
     if (name.empty())
         name = PathUtils::get_file(r->get_path());
     if (name.empty())
         name = r->get_class();
 
-    se_string basename = name;
+    String basename = name;
     int counter = 1;
     while (preloader->has_resource(StringName(name))) {
         counter++;
@@ -189,10 +189,10 @@ void ResourcePreloaderEditor::_update_library() {
     tree->set_hide_root(true);
     TreeItem *root = tree->create_item(nullptr);
 
-    ListPOD<StringName> rnames;
+    List<StringName> rnames;
     preloader->get_resource_list(&rnames);
 
-    PODVector<StringName> names(rnames.begin(),rnames.end());
+    Vector<StringName> names(rnames.begin(),rnames.end());
 
     eastl::sort(names.begin(),names.end());
 
@@ -207,7 +207,7 @@ void ResourcePreloaderEditor::_update_library() {
 
         RES r(preloader->get_resource(E));
 
-        ERR_CONTINUE(not r)
+        ERR_CONTINUE(not r);
 
         StringName type(r->get_class());
         ti->set_icon(0, EditorNode::get_singleton()->get_class_icon(type));
@@ -231,10 +231,10 @@ void ResourcePreloaderEditor::_update_library() {
 void ResourcePreloaderEditor::_cell_button_pressed(Object *p_item, int p_column, int p_id) {
 
     TreeItem *item = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     if (p_id == BUTTON_OPEN_SCENE) {
-        se_string rpath(item->get_text(p_column));
+        String rpath(item->get_text(p_column));
         EditorInterface::get_singleton()->open_scene_from_path(rpath);
 
     } else if (p_id == BUTTON_EDIT_RESOURCE) {
@@ -284,15 +284,15 @@ bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Vari
     if (d.has("from") && (Object *)d["from"] == tree)
         return false;
 
-    if (d["type"].as<se_string>() == "resource" && d.has("resource")) {
+    if (d["type"].as<String>() == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         return r;
     }
 
-    if (d["type"].as<se_string>() == "files") {
+    if (d["type"].as<String>() == "files") {
 
-        PoolVector<se_string> files(d["files"].as<PoolVector<se_string>>());
+        PoolVector<String> files(d["files"].as<PoolVector<String>>());
 
         return !files.empty();
     }
@@ -309,12 +309,12 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
     if (!d.has("type"))
         return;
 
-    if (d["type"].as<se_string>() == "resource" && d.has("resource")) {
+    if (d["type"].as<String>() == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         if (r) {
 
-            se_string basename;
+            String basename;
             if (!r->get_name().empty()) {
                 basename = r->get_name();
             } else if (PathUtils::is_resource_file(r->get_path())) {
@@ -323,7 +323,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
                 basename = "Resource";
             }
 
-            se_string name = basename;
+            String name = basename;
             int counter = 0;
             while (preloader->has_resource(StringName(name))) {
                 counter++;
@@ -339,9 +339,9 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
         }
     }
 
-    if (d["type"].as<se_string>() == "files") {
+    if (d["type"].as<String>() == "files") {
 
-        Vector<se_string> files(d["files"].as<Vector<se_string>>());
+        Vector<String> files(d["files"].as<Vector<String>>());
 
         _files_load_request(files);
     }
@@ -408,7 +408,7 @@ ResourcePreloaderEditor::ResourcePreloaderEditor() {
 
 void ResourcePreloaderEditorPlugin::edit(Object *p_object) {
 
-    preloader_editor->set_undo_redo(&get_undo_redo());
+    preloader_editor->set_undo_redo(get_undo_redo());
     ResourcePreloader *s = object_cast<ResourcePreloader>(p_object);
     if (!s)
         return;
@@ -447,8 +447,8 @@ ResourcePreloaderEditorPlugin::ResourcePreloaderEditorPlugin(EditorNode *p_node)
     button = editor->add_bottom_panel_item(TTR("ResourcePreloader"), preloader_editor);
     button->hide();
 
-    //preloader_editor->set_anchor( MARGIN_TOP, Control::ANCHOR_END);
-    //preloader_editor->set_margin( MARGIN_TOP, 120 );
+    //preloader_editor->set_anchor( Margin::TOP, Control::ANCHOR_END);
+    //preloader_editor->set_margin( Margin::TOP, 120 );
 }
 
 ResourcePreloaderEditorPlugin::~ResourcePreloaderEditorPlugin() = default;

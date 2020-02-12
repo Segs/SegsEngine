@@ -16,7 +16,9 @@ foreach(tgt ${global_targets})
     elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         add_subdirectory(coreaudio)
     endif()
-
+    if(MSVC)
+        target_compile_definitions(${tgt}_drivers PRIVATE NOMINMAX)
+    endif()
     # OS drivers
     include(unix/sources.cmake)
     include(windows/sources.cmake)
@@ -53,6 +55,10 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_drivers PRIVATE gles3_shaders)
 
     target_sources(${tgt}_drivers PRIVATE ${drivers_sources})
+if(USE_UNITY_BUILDS)
+    set_target_properties(${tgt}_drivers PROPERTIES UNITY_BUILD ON)
+    set_target_properties(${tgt}_drivers PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+endif()
 
     set_common_target_properties(${tgt}_drivers)
     INSTALL (

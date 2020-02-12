@@ -111,24 +111,24 @@ bool ItemListPlugin::_get(const StringName &p_name, Variant &r_ret) const {
 
     return true;
 }
-void ItemListPlugin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void ItemListPlugin::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < get_item_count(); i++) {
 
-        se_string base = itos(i) + "/";
+        String base = itos(i) + "/";
 
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(base + "text")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(base + "icon"), PROPERTY_HINT_RESOURCE_TYPE, "Texture"));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(base + "icon"), PropertyHint::ResourceType, "Texture"));
 
         int flags = get_flags();
 
         if (flags & FLAG_CHECKABLE) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "checkable"), PROPERTY_HINT_ENUM, "No,As checkbox,As radio button"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "checkable"), PropertyHint::Enum, "No,As checkbox,As radio button"));
             p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "checked")));
         }
 
         if (flags & FLAG_ID)
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "id"), PROPERTY_HINT_RANGE, "-1,4096"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "id"), PropertyHint::Range, "-1,4096"));
 
         if (flags & FLAG_ENABLE)
             p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "enabled")));
@@ -288,8 +288,8 @@ void ItemListEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE || p_notification == NOTIFICATION_THEME_CHANGED) {
 
-        add_button->set_icon(get_icon("Add", "EditorIcons"));
-        del_button->set_icon(get_icon("Remove", "EditorIcons"));
+        add_button->set_button_icon(get_icon("Add", "EditorIcons"));
+        del_button->set_button_icon(get_icon("Remove", "EditorIcons"));
     } else if (p_notification == NOTIFICATION_READY) {
 
         get_tree()->connect("node_removed", this, "_node_removed");
@@ -325,8 +325,7 @@ void ItemListEditor::_delete_pressed() {
 }
 
 void ItemListEditor::_edit_items() {
-
-    dialog->popup_centered(Vector2(300, 400) * EDSCALE);
+    dialog->popup_centered_clamped(Vector2(425, 1200) * EDSCALE, 0.8);
 }
 
 void ItemListEditor::edit(Node *p_item_list) {
@@ -345,7 +344,7 @@ void ItemListEditor::edit(Node *p_item_list) {
             item_plugins[i]->set_object(p_item_list);
             property_editor->edit(item_plugins[i]);
 
-            toolbar_button->set_icon(EditorNode::get_singleton()->get_object_icon(item_list, StringName()));
+            toolbar_button->set_button_icon(EditorNode::get_singleton()->get_object_icon(item_list, StringName()));
 
             selected_idx = i;
             return;

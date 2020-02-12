@@ -69,7 +69,14 @@ struct GODOT_EXPORT Color {
     }
 
     Color operator+(const Color &p_color) const;
-    void operator+=(const Color &p_color);
+    void operator+=(const Color &p_color) {
+        r += p_color.r;
+        g += p_color.g;
+        b += p_color.b;
+        a += p_color.a;
+    }
+
+
 
     Color operator-() const;
     Color operator-(const Color &p_color) const;
@@ -166,12 +173,12 @@ struct GODOT_EXPORT Color {
     static Color html(se_string_view p_color);
     static bool html_is_valid(se_string_view p_color);
     static Color named(se_string_view p_name);
-    [[nodiscard]] se_string to_html(bool p_alpha = true) const;
+    [[nodiscard]] String to_html(bool p_alpha = true) const;
     [[nodiscard]] static Color from_hsv(float p_h, float p_s, float p_v, float p_a);
     static Color from_rgbe9995(uint32_t p_rgbe);
 
     _FORCE_INLINE_ bool operator<(const Color &p_color) const; //used in set keys
-    operator se_string() const;
+    operator String() const;
 
     /**
      * No construct parameters, r=0, g=0, b=0. a=255

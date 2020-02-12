@@ -50,7 +50,7 @@ CameraServer::CreateFunc CameraServer::create_func = nullptr;
 void CameraServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_feed", {"index"}), &CameraServer::get_feed);
     MethodBinder::bind_method(D_METHOD("get_feed_count"), &CameraServer::get_feed_count);
-    MethodBinder::bind_method(D_METHOD("feeds"), &CameraServer::get_feeds);
+    MethodBinder::bind_method(D_METHOD("get_feeds"), &CameraServer::get_feeds);
 
     MethodBinder::bind_method(D_METHOD("add_feed", {"feed"}), &CameraServer::add_feed);
     MethodBinder::bind_method(D_METHOD("remove_feed", {"feed"}), &CameraServer::remove_feed);
@@ -132,7 +132,7 @@ void CameraServer::remove_feed(const Ref<CameraFeed> &p_feed) {
 #endif
 
             // remove it from our array, if this results in our feed being unreferenced it will be destroyed
-            feeds.remove(i);
+            feeds.erase_at(i);
 
             // let whomever is interested know
             emit_signal("camera_feed_removed", feed_id);
@@ -142,7 +142,7 @@ void CameraServer::remove_feed(const Ref<CameraFeed> &p_feed) {
 };
 
 Ref<CameraFeed> CameraServer::get_feed(int p_index) {
-    ERR_FAIL_INDEX_V(p_index, feeds.size(), Ref<CameraFeed>())
+    ERR_FAIL_INDEX_V(p_index, feeds.size(), Ref<CameraFeed>());
 
     return feeds[p_index];
 };
@@ -165,7 +165,7 @@ Array CameraServer::get_feeds() {
 
 RID CameraServer::feed_texture(int p_id, CameraServer::FeedImage p_texture) {
     int index = get_feed_index(p_id);
-    ERR_FAIL_COND_V(index == -1, RID())
+    ERR_FAIL_COND_V(index == -1, RID());
 
     Ref<CameraFeed> feed = get_feed(index);
 

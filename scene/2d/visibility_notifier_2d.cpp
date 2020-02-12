@@ -48,7 +48,7 @@ VARIANT_ENUM_CAST(VisibilityEnabler2D::Enabler);
 
 void VisibilityNotifier2D::_enter_viewport(Viewport *p_viewport) {
 
-    ERR_FAIL_COND(viewports.contains(p_viewport))
+    ERR_FAIL_COND(viewports.contains(p_viewport));
     viewports.insert(p_viewport);
 
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
@@ -64,7 +64,7 @@ void VisibilityNotifier2D::_enter_viewport(Viewport *p_viewport) {
 
 void VisibilityNotifier2D::_exit_viewport(Viewport *p_viewport) {
 
-    ERR_FAIL_COND(!viewports.contains(p_viewport))
+    ERR_FAIL_COND(!viewports.contains(p_viewport));
     viewports.erase(p_viewport);
 
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
@@ -147,8 +147,8 @@ void VisibilityNotifier2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "rect"), "set_rect", "get_rect");
 
-    ADD_SIGNAL(MethodInfo("viewport_entered", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
-    ADD_SIGNAL(MethodInfo("viewport_exited", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport")));
+    ADD_SIGNAL(MethodInfo("viewport_entered", PropertyInfo(VariantType::OBJECT, "viewport", PropertyHint::ResourceType, "Viewport")));
+    ADD_SIGNAL(MethodInfo("viewport_exited", PropertyInfo(VariantType::OBJECT, "viewport", PropertyHint::ResourceType, "Viewport")));
     ADD_SIGNAL(MethodInfo("screen_entered"));
     ADD_SIGNAL(MethodInfo("screen_exited"));
 }
@@ -284,7 +284,7 @@ void VisibilityEnabler2D::_notification(int p_what) {
 
 void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
 
-    ERR_FAIL_COND(!nodes.contains(p_node))
+    ERR_FAIL_COND(!nodes.contains(p_node));
 
     {
         RigidBody2D *rb = object_cast<RigidBody2D>(p_node);
@@ -365,12 +365,12 @@ void VisibilityEnabler2D::_bind_methods() {
 
 void VisibilityEnabler2D::set_enabler(Enabler p_enabler, bool p_enable) {
 
-    ERR_FAIL_INDEX(p_enabler, ENABLER_MAX)
+    ERR_FAIL_INDEX(p_enabler, ENABLER_MAX);
     enabler[p_enabler] = p_enable;
 }
 bool VisibilityEnabler2D::is_enabler_enabled(Enabler p_enabler) const {
 
-    ERR_FAIL_INDEX_V(p_enabler, ENABLER_MAX, false)
+    ERR_FAIL_INDEX_V(p_enabler, ENABLER_MAX, false);
     return enabler[p_enabler];
 }
 

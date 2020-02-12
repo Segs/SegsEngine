@@ -43,7 +43,7 @@ class CreateDialog : public ConfirmationDialog {
 
     GDCLASS(CreateDialog,ConfirmationDialog)
 
-    PODVector<se_string> favorite_list;
+    Vector<String> favorite_list;
     Tree *favorites;
     Tree *recent;
 
@@ -56,7 +56,7 @@ class CreateDialog : public ConfirmationDialog {
     StringName base_type;
     StringName preferred_search_result_type;
     EditorHelpBit *help_bit;
-    PODVector<StringName> type_list;
+    Vector<StringName> type_list;
     Set<StringName> type_blacklist;
 
     void _item_selected();
@@ -77,7 +77,7 @@ class CreateDialog : public ConfirmationDialog {
     void _confirmed();
     void _text_changed(se_string_view p_newtext);
 
-    Ref<Texture> _get_editor_icon(const String &p_type) const;
+    Ref<Texture> _get_editor_icon(const UIString &p_type) const;
 
     void add_type(const StringName &p_type, HashMap<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select);
 

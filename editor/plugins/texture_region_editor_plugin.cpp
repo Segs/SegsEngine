@@ -125,7 +125,7 @@ void TextureRegionEditor::_region_draw() {
                 }
         }
     } else if (snap_mode == SNAP_AUTOSLICE) {
-        for (List<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
+        for (ListOld<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
             Rect2 r = E->deref();
             Vector2 endpoints[4] = {
                 mtx.basis_xform(r.position),
@@ -205,20 +205,28 @@ void TextureRegionEditor::_region_draw() {
         vscroll->set_page(scroll_margin.y);
         vscroll->set_value(draw_ofs.y);
     }
+
+    Size2 hmin = hscroll->get_combined_minimum_size();
+    Size2 vmin = vscroll->get_combined_minimum_size();
+
+    // Avoid scrollbar overlapping.
+    hscroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, vscroll->is_visible() ? -vmin.width : 0);
+    vscroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, hscroll->is_visible() ? -hmin.height : 0);
+
     updating_scroll = false;
 
     if (node_ninepatch || obj_styleBox) {
         float margins[4] = { 0 };
         if (node_ninepatch) {
-            margins[0] = node_ninepatch->get_patch_margin(MARGIN_TOP);
-            margins[1] = node_ninepatch->get_patch_margin(MARGIN_BOTTOM);
-            margins[2] = node_ninepatch->get_patch_margin(MARGIN_LEFT);
-            margins[3] = node_ninepatch->get_patch_margin(MARGIN_RIGHT);
+            margins[0] = node_ninepatch->get_patch_margin(Margin::Top);
+            margins[1] = node_ninepatch->get_patch_margin(Margin::Bottom);
+            margins[2] = node_ninepatch->get_patch_margin(Margin::Left);
+            margins[3] = node_ninepatch->get_patch_margin(Margin::Right);
         } else if (obj_styleBox) {
-            margins[0] = obj_styleBox->get_margin_size(MARGIN_TOP);
-            margins[1] = obj_styleBox->get_margin_size(MARGIN_BOTTOM);
-            margins[2] = obj_styleBox->get_margin_size(MARGIN_LEFT);
-            margins[3] = obj_styleBox->get_margin_size(MARGIN_RIGHT);
+            margins[0] = obj_styleBox->get_margin_size(Margin::Top);
+            margins[1] = obj_styleBox->get_margin_size(Margin::Bottom);
+            margins[2] = obj_styleBox->get_margin_size(Margin::Left);
+            margins[3] = obj_styleBox->get_margin_size(Margin::Right);
         }
 
         Vector2 pos[4] = {
@@ -265,15 +273,15 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                     edited_margin = -1;
                     float margins[4] = { 0 };
                     if (node_ninepatch) {
-                        margins[0] = node_ninepatch->get_patch_margin(MARGIN_TOP);
-                        margins[1] = node_ninepatch->get_patch_margin(MARGIN_BOTTOM);
-                        margins[2] = node_ninepatch->get_patch_margin(MARGIN_LEFT);
-                        margins[3] = node_ninepatch->get_patch_margin(MARGIN_RIGHT);
+                        margins[0] = node_ninepatch->get_patch_margin(Margin::Top);
+                        margins[1] = node_ninepatch->get_patch_margin(Margin::Bottom);
+                        margins[2] = node_ninepatch->get_patch_margin(Margin::Left);
+                        margins[3] = node_ninepatch->get_patch_margin(Margin::Right);
                     } else if (obj_styleBox) {
-                        margins[0] = obj_styleBox->get_margin_size(MARGIN_TOP);
-                        margins[1] = obj_styleBox->get_margin_size(MARGIN_BOTTOM);
-                        margins[2] = obj_styleBox->get_margin_size(MARGIN_LEFT);
-                        margins[3] = obj_styleBox->get_margin_size(MARGIN_RIGHT);
+                        margins[0] = obj_styleBox->get_margin_size(Margin::Top);
+                        margins[1] = obj_styleBox->get_margin_size(Margin::Bottom);
+                        margins[2] = obj_styleBox->get_margin_size(Margin::Left);
+                        margins[3] = obj_styleBox->get_margin_size(Margin::Right);
                     }
 
                     Vector2 pos[4] = {
@@ -302,7 +310,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                 }
                 if (edited_margin < 0 && snap_mode == SNAP_AUTOSLICE) {
                     Vector2 point = mtx.affine_inverse().xform(Vector2(mb->get_position().x, mb->get_position().y));
-                    for (List<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
+                    for (ListOld<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
                         if (E->deref().has_point(point)) {
                             rect = E->deref();
                             if (Input::get_singleton()->is_key_pressed(KEY_CONTROL) && !Input::get_singleton()->is_key_pressed(KEY_SHIFT | KEY_ALT)) {
@@ -379,7 +387,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
             } else if (drag) {
                 if (edited_margin >= 0) {
                     undo_redo->create_action_ui(TTR("Set Margin"));
-                    static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
+                    static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                     if (node_ninepatch) {
                         undo_redo->add_do_method(node_ninepatch, "set_patch_margin", m[edited_margin], node_ninepatch->get_patch_margin(m[edited_margin]));
                         undo_redo->add_undo_method(node_ninepatch, "set_patch_margin", m[edited_margin], prev_margin);
@@ -423,7 +431,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
             if (drag) {
                 drag = false;
                 if (edited_margin >= 0) {
-                    static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
+                    static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                     if (node_ninepatch)
                         node_ninepatch->set_patch_margin(m[edited_margin], prev_margin);
                     if (obj_styleBox)
@@ -470,7 +478,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
                 if (new_margin < 0)
                     new_margin = 0;
-                static Margin m[4] = { MARGIN_TOP, MARGIN_BOTTOM, MARGIN_LEFT, MARGIN_RIGHT };
+                static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                 if (node_ninepatch)
                     node_ninepatch->set_patch_margin(m[edited_margin], new_margin);
                 if (obj_styleBox)
@@ -543,6 +551,16 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
             }
             edit_draw->update();
         }
+    }
+    Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_input);
+    if (magnify_gesture) {
+        _zoom_on_position(draw_zoom * magnify_gesture->get_factor(), magnify_gesture->get_position());
+    }
+
+    Ref<InputEventPanGesture> pan_gesture = dynamic_ref_cast<InputEventPanGesture>(p_input);
+    if (pan_gesture) {
+        hscroll->set_value(hscroll->get_value() + hscroll->get_page() * pan_gesture->get_delta().x / 8);
+        vscroll->set_value(vscroll->get_value() + vscroll->get_page() * pan_gesture->get_delta().y / 8);
     }
 }
 
@@ -679,7 +697,7 @@ void TextureRegionEditor::_update_autoslice() {
         for (int x = 0; x < texture->get_width(); x++) {
             if (texture->is_pixel_opaque(x, y)) {
                 bool found = false;
-                for (List<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
+                for (ListOld<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
                     Rect2 grown = E->deref().grow(1.5);
                     if (grown.has_point(Point2(x, y))) {
                         E->deref().expand_to(Point2(x, y));
@@ -689,7 +707,7 @@ void TextureRegionEditor::_update_autoslice() {
                         while (merged) {
                             merged = false;
                             bool queue_erase = false;
-                            for (List<Rect2>::Element *F = autoslice_cache.front(); F; F = F->next()) {
+                            for (ListOld<Rect2>::Element *F = autoslice_cache.front(); F; F = F->next()) {
                                 if (queue_erase) {
                                     autoslice_cache.erase(F->prev());
                                     queue_erase = false;
@@ -731,9 +749,12 @@ void TextureRegionEditor::_notification(int p_what) {
             edit_draw->add_style_override("panel", get_stylebox("bg", "Tree"));
         } break;
         case NOTIFICATION_READY: {
-            zoom_out->set_icon(get_icon("ZoomLess", "EditorIcons"));
-            zoom_reset->set_icon(get_icon("ZoomReset", "EditorIcons"));
-            zoom_in->set_icon(get_icon("ZoomMore", "EditorIcons"));
+            zoom_out->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
+            zoom_reset->set_button_icon(get_icon("ZoomReset", "EditorIcons"));
+            zoom_in->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
+
+            vscroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
+            hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (snap_mode == SNAP_AUTOSLICE && is_visible() && autoslice_is_dirty) {
@@ -1009,25 +1030,22 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     zoom_hb->add_child(zoom_out);
 
     zoom_reset = memnew(ToolButton);
-    zoom_out->set_tooltip(TTR("Zoom Reset"));
+    zoom_reset->set_tooltip(TTR("Zoom Reset"));
     zoom_reset->connect("pressed", this, "_zoom_reset");
     zoom_hb->add_child(zoom_reset);
 
     zoom_in = memnew(ToolButton);
-    zoom_out->set_tooltip(TTR("Zoom In"));
+    zoom_in->set_tooltip(TTR("Zoom In"));
     zoom_in->connect("pressed", this, "_zoom_in");
     zoom_hb->add_child(zoom_in);
 
     vscroll = memnew(VScrollBar);
     vscroll->set_step(0.001);
     edit_draw->add_child(vscroll);
-    vscroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
     vscroll->connect("value_changed", this, "_scroll_changed");
     hscroll = memnew(HScrollBar);
     hscroll->set_step(0.001);
     edit_draw->add_child(hscroll);
-    hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
-    hscroll->set_margin(MARGIN_RIGHT, -vscroll->get_size().x * EDSCALE);
     hscroll->connect("value_changed", this, "_scroll_changed");
 
     updating_scroll = false;

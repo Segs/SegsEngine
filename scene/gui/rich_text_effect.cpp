@@ -36,7 +36,7 @@
 IMPL_GDCLASS(RichTextEffect)
 
 void RichTextEffect::_bind_methods() {
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_process_custom_fx", PropertyInfo(VariantType::OBJECT, "char_fx", PROPERTY_HINT_RESOURCE_TYPE, "CharFXTransform")));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_process_custom_fx", PropertyInfo(VariantType::OBJECT, "char_fx", PropertyHint::ResourceType, "CharFXTransform")));
 }
 
 Variant RichTextEffect::get_bbcode() const {
@@ -44,7 +44,7 @@ Variant RichTextEffect::get_bbcode() const {
     Variant r;
     if (get_script_instance()) {
         if (!get_script_instance()->get("bbcode", r)) {
-            se_string path = get_script_instance()->get_script()->get_path();
+            String path = get_script_instance()->get_script()->get_path();
             r = get_basename(get_file(path));
         }
     }

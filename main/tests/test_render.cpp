@@ -61,7 +61,7 @@ class TestMainLoop : public MainLoop {
         Vector3 rot_axis;
     };
 
-    List<InstanceInfo> instances;
+    Vector<InstanceInfo> instances;
 
     float ofs;
     bool quit;
@@ -81,7 +81,7 @@ public:
         test_cube = vs->get_test_cube();
         scenario = vs->scenario_create();
 
-        Vector<Vector3> vts;
+        FixedVector<Vector3,8> vts;
 
         /*
         PoolVector<Plane> sp = Geometry::build_sphere_planes(2,5,5);
@@ -124,10 +124,10 @@ public:
         vts.push_back(Vector3(-1, -1, -1));
 
         Geometry::MeshData md;
-        Error err = QuickHull::build({vts.ptr(),vts.size()}, md);
+        Error err = QuickHull::build(vts, md);
         print_line("ERR: " + itos(err));
         test_cube = vs->mesh_create();
-        vs->mesh_add_surface_from_mesh_data(test_cube, md);
+        vs->mesh_add_surface_from_mesh_data(test_cube, eastl::move(md));
         //vs->scenario_set_debug(scenario,VS::SCENARIO_DEBUG_WIREFRAME);
 
         /*
@@ -139,7 +139,7 @@ public:
         vs->material_set_shader(tcmat,sm);
         */
 
-        const ListPOD<se_string> &cmdline(OS::get_singleton()->get_cmdline_args());
+        const List<String> &cmdline(OS::get_singleton()->get_cmdline_args());
         int object_count = OBJECT_COUNT;
         if (!cmdline.empty() && StringUtils::to_int(cmdline.back())) {
             object_count = StringUtils::to_int(cmdline.back());
@@ -175,16 +175,8 @@ public:
         vs->camera_set_transform(camera, Transform(Basis(), Vector3(0, 3, 30)));
         vs->camera_set_perspective(camera, 60, 0.1f, 1000);
 
-        /*
-        RID lightaux = vs->light_create( VisualServer::LIGHT_OMNI );
-        vs->light_set_var( lightaux, VisualServer::LIGHT_VAR_RADIUS, 80 );
-        vs->light_set_var( lightaux, VisualServer::LIGHT_VAR_ATTENUATION, 1 );
-        vs->light_set_var( lightaux, VisualServer::LIGHT_VAR_ENERGY, 1.5 );
-        light = vs->instance_create( lightaux );
-        */
-        RID lightaux;
+        RID lightaux = vs->directional_light_create();
 
-        lightaux = vs->directional_light_create();
         //vs->light_set_color( lightaux, VisualServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,0.0) );
         vs->light_set_color(lightaux, Color(1.0, 1.0, 1.0));
         //vs->light_set_shadow( lightaux, true );
@@ -218,10 +210,10 @@ public:
 
         //return quit;
 
-        for (List<InstanceInfo>::Element *E = instances.front(); E; E = E->next()) {
+        for (const InstanceInfo & E : instances) {
 
-            Transform pre(Basis(E->deref().rot_axis, ofs), Vector3());
-            vs->instance_set_transform(E->deref().instance, pre * E->deref().base);
+            Transform pre(Basis(E.rot_axis, ofs), Vector3());
+            vs->instance_set_transform(E.instance, pre * E.base);
             /*
             if( !E->next() ) {
 

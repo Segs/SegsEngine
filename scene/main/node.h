@@ -48,11 +48,12 @@ enum MultiplayerAPI_RPCMode : int8_t;
 class GODOT_EXPORT Node : public Object {
 
     GDCLASS(Node,Object)
-
+//    Q_GADGET
+//    Q_CLASSINFO("Category","Nodes")
     OBJ_CATEGORY("Nodes")
 
 public:
-    enum PauseMode {
+    enum PauseMode : int8_t {
 
         PAUSE_MODE_INHERIT,
         PAUSE_MODE_STOP,
@@ -90,7 +91,6 @@ private:
 
         bool persistent = false;
         SceneTreeGroup *group;
-        GroupData() = default;
     };
 
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.
@@ -102,7 +102,7 @@ private:
     struct PrivData;
     PrivData *data;
 
-    enum NameCasing {
+    enum NameCasing : int8_t {
         NAME_CASING_PASCAL_CASE,
         NAME_CASING_CAMEL_CASE,
         NAME_CASING_SNAKE_CASE
@@ -110,7 +110,8 @@ private:
 
     Ref<MultiplayerAPI> multiplayer;
 
-    void _print_tree_pretty(const String &prefix, const bool last);
+public:
+    void _print_tree_pretty(const UIString &prefix, const bool last);
     void _print_tree(const Node *p_node);
 
     Node *_get_child_by_name(const StringName &p_name) const;
@@ -134,15 +135,13 @@ private:
     void _duplicate_signals(const Node *p_original, Node *p_copy) const;
     void _duplicate_and_reown(Node *p_new_parent, const DefMap<Node *, Node *> &p_reown_map) const;
     Node *_duplicate(int p_flags, DefMap<const Node *, Node *> *r_duplimap = nullptr) const;
-
     Array _get_children() const;
     Array _get_groups() const;
-
     Variant _rpc_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _rpc_unreliable_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _rpc_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-
+private:
     friend class SceneTree;
 
     void _set_tree(SceneTree *p_tree);
@@ -151,7 +150,7 @@ private:
     friend class SceneTreeEditor;
 #endif
     static const char *invalid_character;
-    static bool _validate_node_name(se_string &p_name);
+    static bool _validate_node_name(String &p_name);
 
 protected:
     void _block() { blocked++; }
@@ -235,7 +234,7 @@ public:
     Node *find_parent(se_string_view p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
-        ERR_FAIL_COND_V(!tree, nullptr)
+        ERR_FAIL_COND_V(!tree, nullptr);
         return tree;
     }
 
@@ -258,7 +257,7 @@ public:
         bool persistent;
     };
 
-    void get_groups(DefList<GroupInfo> *p_groups) const;
+    void get_groups(Vector<GroupInfo> *p_groups) const;
     int get_persistent_group_count() const;
 
     void move_child(Node *p_child, int p_pos);
@@ -266,7 +265,7 @@ public:
 
     void set_owner(Node *p_owner);
     Node *get_owner() const;
-    void get_owned_by(Node *p_by, DefList<Node *> *p_owned);
+    void get_owned_by(Node *p_by, Vector<Node *> *p_owned);
 
     void remove_and_skip();
     int get_index() const;
@@ -278,7 +277,7 @@ public:
     se_string_view get_filename() const;
 
     void set_editor_description(se_string_view p_editor_description);
-    se_string get_editor_description() const;
+    String get_editor_description() const;
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
@@ -336,7 +335,7 @@ public:
     void set_scene_instance_load_placeholder(bool p_enable);
     bool get_scene_instance_load_placeholder() const;
 
-    static PODVector<Variant> make_binds(VARIANT_ARG_LIST);
+    static Vector<Variant> make_binds(VARIANT_ARG_LIST);
 
     void replace_by(Node *p_node, bool p_keep_data = false);
 
@@ -350,7 +349,7 @@ public:
     static void print_stray_nodes();
 
 #ifdef TOOLS_ENABLED
-    se_string validate_child_name(Node *p_child);
+    String validate_child_name(Node *p_child);
 #endif
 
     void queue_delete();
@@ -366,7 +365,7 @@ public:
 
     bool is_owned_by_parent() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     void clear_internal_tree_resource_paths();
 

@@ -45,7 +45,7 @@ VARIANT_ENUM_CAST(Sky::RadianceSize)
 VARIANT_ENUM_CAST(ProceduralSky::TextureSize)
 
 void Sky::set_radiance_size(RadianceSize p_size) {
-    ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX)
+    ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX);
 
     radiance_size = p_size;
     _radiance_changed();
@@ -61,7 +61,7 @@ void Sky::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_radiance_size", {"size"}), &Sky::set_radiance_size);
     MethodBinder::bind_method(D_METHOD("get_radiance_size"), &Sky::get_radiance_size);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radiance_size", PROPERTY_HINT_ENUM, "32,64,128,256,512,1024,2048"), "set_radiance_size", "get_radiance_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radiance_size", PropertyHint::Enum, "32,64,128,256,512,1024,2048"), "set_radiance_size", "get_radiance_size");
 
     BIND_ENUM_CONSTANT(RADIANCE_SIZE_32)
     BIND_ENUM_CONSTANT(RADIANCE_SIZE_64)
@@ -117,7 +117,7 @@ void PanoramaSky::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_panorama", {"texture"}), &PanoramaSky::set_panorama);
     MethodBinder::bind_method(D_METHOD("get_panorama"), &PanoramaSky::get_panorama);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "panorama", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_panorama", "get_panorama");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "panorama", PropertyHint::ResourceType, "Texture"), "set_panorama", "get_panorama");
 }
 
 PanoramaSky::PanoramaSky() {
@@ -127,7 +127,7 @@ PanoramaSky::PanoramaSky() {
 
 PanoramaSky::~PanoramaSky() {
 
-    VisualServer::get_singleton()->free(sky);
+    VisualServer::get_singleton()->free_rid(sky);
 }
 //////////////////////////////////
 
@@ -518,26 +518,26 @@ void ProceduralSky::_bind_methods() {
     ADD_GROUP("Sky", "sky_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_top_color"), "set_sky_top_color", "get_sky_top_color");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_horizon_color"), "set_sky_horizon_color", "get_sky_horizon_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sky_curve", PROPERTY_HINT_EXP_EASING), "set_sky_curve", "get_sky_curve");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sky_energy", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_sky_energy", "get_sky_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sky_curve", PropertyHint::ExpEasing), "set_sky_curve", "get_sky_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sky_energy", PropertyHint::Range, "0,64,0.01"), "set_sky_energy", "get_sky_energy");
 
     ADD_GROUP("Ground", "ground_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "ground_bottom_color"), "set_ground_bottom_color", "get_ground_bottom_color");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "ground_horizon_color"), "set_ground_horizon_color", "get_ground_horizon_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ground_curve", PROPERTY_HINT_EXP_EASING), "set_ground_curve", "get_ground_curve");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ground_energy", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_ground_energy", "get_ground_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ground_curve", PropertyHint::ExpEasing), "set_ground_curve", "get_ground_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ground_energy", PropertyHint::Range, "0,64,0.01"), "set_ground_energy", "get_ground_energy");
 
     ADD_GROUP("Sun", "sun_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sun_color"), "set_sun_color", "get_sun_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_latitude", PROPERTY_HINT_RANGE, "-180,180,0.01"), "set_sun_latitude", "get_sun_latitude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_longitude", PROPERTY_HINT_RANGE, "-180,180,0.01"), "set_sun_longitude", "get_sun_longitude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_angle_min", PROPERTY_HINT_RANGE, "0,360,0.01"), "set_sun_angle_min", "get_sun_angle_min");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_angle_max", PROPERTY_HINT_RANGE, "0,360,0.01"), "set_sun_angle_max", "get_sun_angle_max");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_curve", PROPERTY_HINT_EXP_EASING), "set_sun_curve", "get_sun_curve");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_energy", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_sun_energy", "get_sun_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_latitude", PropertyHint::Range, "-180,180,0.01"), "set_sun_latitude", "get_sun_latitude");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_longitude", PropertyHint::Range, "-180,180,0.01"), "set_sun_longitude", "get_sun_longitude");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_angle_min", PropertyHint::Range, "0,360,0.01"), "set_sun_angle_min", "get_sun_angle_min");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_angle_max", PropertyHint::Range, "0,360,0.01"), "set_sun_angle_max", "get_sun_angle_max");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_curve", PropertyHint::ExpEasing), "set_sun_curve", "get_sun_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_energy", PropertyHint::Range, "0,64,0.01"), "set_sun_energy", "get_sun_energy");
 
     ADD_GROUP("Texture", "texture_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_size", PROPERTY_HINT_ENUM, "256,512,1024,2048,4096"), "set_texture_size", "get_texture_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_texture_size", "get_texture_size");
 
     BIND_ENUM_CONSTANT(TEXTURE_SIZE_256)
     BIND_ENUM_CONSTANT(TEXTURE_SIZE_512)
@@ -592,6 +592,6 @@ ProceduralSky::~ProceduralSky() {
         memdelete(sky_thread);
         sky_thread = nullptr;
     }
-    VisualServer::get_singleton()->free(sky);
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(sky);
+    VisualServer::get_singleton()->free_rid(texture);
 }

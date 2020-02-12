@@ -52,16 +52,16 @@ public:
     virtual float get_descent() const = 0;
 
     virtual Size2 get_char_size(CharType p_char, CharType p_next = 0) const = 0;
-    Size2 get_string_size(const String &p_string) const;
-    Size2 get_string_size_utf8(se_string_view p_string) const;
-    Size2 get_wordwrap_string_size(const String &p_string, float p_width) const;
-    Size2 get_wordwrap_string_size_utf8(se_string_view p_string, float p_width) const;
+    Size2 get_ui_string_size(const UIString &p_string) const;
+    Size2 get_string_size(se_string_view p_string) const;
+    Size2 get_wordwrap_ui_string_size(const UIString &p_string, float p_width) const;
+    Size2 get_wordwrap_string_size(se_string_view p_string, float p_width) const;
 
     virtual bool is_distance_field_hint() const = 0;
 
-    void draw_utf8(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
-    void draw(RID p_canvas_item, const Point2 &p_pos, const String &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
-    void draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const String &p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1, const Color &p_outline_modulate = Color(1, 1, 1)) const;
+    void draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
     void draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), const Color &p_outline_modulate = Color(1, 1, 1)) const;
 
     virtual bool has_outline() const { return false; }
@@ -85,7 +85,7 @@ class FontDrawer {
         Color modulate;
     };
 
-    PODVector<PendingDraw> pending_draws;
+    Vector<PendingDraw> pending_draws;
 
 public:
     FontDrawer(const Ref<Font> &p_font, const Color &p_outline_color) :
@@ -103,8 +103,7 @@ public:
     }
 
     ~FontDrawer() {
-        for (int i = 0; i < pending_draws.size(); ++i) {
-            const PendingDraw &draw = pending_draws[i];
+        for (const PendingDraw &draw : pending_draws) {
             font->draw_char(draw.canvas_item, draw.pos, draw.chr, draw.next, draw.modulate, false);
         }
     }
@@ -116,7 +115,7 @@ class BitmapFont : public Font {
 
     RES_BASE_EXTENSION("font")
 
-    PODVector<Ref<Texture> > textures;
+    Vector<Ref<Texture> > textures;
 
 public:
     struct Character {
@@ -150,10 +149,11 @@ private:
     DefHashMap<uint16_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
+    Ref<BitmapFont> fallback;
     float height;
     float ascent;
     bool distance_field_hint;
-
+public:
     void _set_chars(const PoolVector<int> &p_chars);
     PoolVector<int> _get_chars() const;
     void _set_kernings(const PoolVector<int> &p_kernings);
@@ -161,7 +161,6 @@ private:
     void _set_textures(const Vector<Variant> &p_textures);
     Vector<Variant> _get_textures() const;
 
-    Ref<BitmapFont> fallback;
 
 protected:
     static void _bind_methods();
@@ -180,7 +179,7 @@ public:
     void add_char(CharType p_char, int p_texture_idx, const Rect2 &p_rect, const Size2 &p_align, float p_advance = -1);
 
     int get_character_count() const;
-    PODVector<CharType> get_char_keys() const;
+    Vector<CharType> get_char_keys() const;
     Character get_character(CharType p_char) const;
 
     int get_texture_count() const;
@@ -188,7 +187,7 @@ public:
 
     void add_kerning_pair(CharType p_A, CharType p_B, int p_kerning);
     int get_kerning_pair(CharType p_A, CharType p_B) const;
-    PODVector<KerningPairKey> get_kerning_pair_keys() const;
+    Vector<KerningPairKey> get_kerning_pair_keys() const;
 
     Size2 get_char_size(CharType p_char, CharType p_next = 0) const override;
 

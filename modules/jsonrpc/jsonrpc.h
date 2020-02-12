@@ -37,7 +37,7 @@
 class JSONRPC : public Object {
     GDCLASS(JSONRPC,Object)
 
-    Map<se_string, Object *> method_scopes;
+    Map<String, Object *> method_scopes;
 
 protected:
     static void _bind_methods();
@@ -60,7 +60,7 @@ public:
     Dictionary make_request(se_string_view p_method, const Variant &p_params, const Variant &p_id);
 
     Variant process_action(const Variant &p_action, bool p_process_arr_elements = false);
-    se_string process_string(const se_string &p_input);
+    String process_string(const String &p_input);
 
-    void set_scope(const se_string &p_scope, Object *p_obj);
+    void set_scope(const String &p_scope, Object *p_obj);
 };

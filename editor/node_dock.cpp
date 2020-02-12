@@ -61,8 +61,8 @@ void NodeDock::_bind_methods() {
 void NodeDock::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
-        connections_button->set_icon(get_icon("Signals", "EditorIcons"));
-        groups_button->set_icon(get_icon("Groups", "EditorIcons"));
+        connections_button->set_button_icon(get_icon("Signals", "EditorIcons"));
+        groups_button->set_button_icon(get_icon("Groups", "EditorIcons"));
     }
 }
 
@@ -108,6 +108,7 @@ NodeDock::NodeDock() {
     connections_button->set_toggle_mode(true);
     connections_button->set_pressed(true);
     connections_button->set_h_size_flags(SIZE_EXPAND_FILL);
+    connections_button->set_clip_text(true);
     mode_hb->add_child(connections_button);
     connections_button->connect("pressed", this, "show_connections");
 
@@ -116,6 +117,7 @@ NodeDock::NodeDock() {
     groups_button->set_toggle_mode(true);
     groups_button->set_pressed(false);
     groups_button->set_h_size_flags(SIZE_EXPAND_FILL);
+    groups_button->set_clip_text(true);
     mode_hb->add_child(groups_button);
     groups_button->connect("pressed", this, "show_groups");
 

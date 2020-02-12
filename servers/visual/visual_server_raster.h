@@ -66,7 +66,7 @@ class  VisualServerRaster : public VisualServer {
         Variant param;
     };
 
-    List<FrameDrawnCallbacks> frame_drawn_callbacks;
+    ListOld<FrameDrawnCallbacks> frame_drawn_callbacks;
 
     void _draw_margins();
     static void _changes_changed() {}
@@ -162,9 +162,9 @@ public:
     BIND3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
     BIND2(texture_set_path, RID, se_string_view)
-    BIND1RC(const se_string &, texture_get_path, RID)
+    BIND1RC(const String &, texture_get_path, RID)
     BIND1(texture_set_shrink_all_x2_on_set_data, bool)
-    BIND1(texture_debug_usage, List<TextureInfo> *)
+    BIND1(texture_debug_usage, Vector<TextureInfo> *)
 
     BIND1(textures_keep_original, bool)
 
@@ -181,10 +181,10 @@ public:
 
     BIND0R(RID, shader_create)
 
-    BIND2(shader_set_code, RID, const se_string &)
-    BIND1RC(se_string, shader_get_code, RID)
+    BIND2(shader_set_code, RID, const String &)
+    BIND1RC(String, shader_get_code, RID)
 
-    BIND2C(shader_get_param_list, RID, PODVector<PropertyInfo> *)
+    BIND2C(shader_get_param_list, RID, Vector<PropertyInfo> *)
 
     BIND3(shader_set_default_texture_param, RID, const StringName &, RID)
     BIND2RC(RID, shader_get_default_texture_param, RID, const StringName &)
@@ -208,15 +208,22 @@ public:
 
     BIND0R(RID, mesh_create)
 
-    BIND10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const Vector<AABB> &)
-
+    //BIND10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
+    void mesh_add_surface(RID arg1, uint32_t arg2, VS::PrimitiveType arg3, const PoolVector<uint8_t> & arg4, int arg5, const PoolVector<uint8_t> & arg6, int arg7, const AABB & arg8, const Vector<PoolVector<uint8_t> > & arg9, const PoolVector<AABB> & arg10) override {
+        DISPLAY_CHANGED
+        BINDBASE->mesh_add_surface(arg1, arg2, arg3, arg4.toSpan(), arg5, arg6.toSpan(), arg7, arg8, arg9, arg10.toSpan());
+    }
     BIND2(mesh_set_blend_shape_count, RID, int)
     BIND1RC(int, mesh_get_blend_shape_count, RID)
 
     BIND2(mesh_set_blend_shape_mode, RID, VS::BlendShapeMode)
     BIND1RC(VS::BlendShapeMode, mesh_get_blend_shape_mode, RID)
 
-    BIND4(mesh_surface_update_region, RID, int, int, const PoolVector<uint8_t> &)
+    void mesh_surface_update_region(RID arg1, int arg2, int arg3, const PoolVector<uint8_t> &arg4) override {
+        DISPLAY_CHANGED
+        BINDBASE->mesh_surface_update_region(arg1, arg2, arg3, arg4.toSpan());
+    }
+
 
     BIND3(mesh_surface_set_material, RID, int, RID)
     BIND2RC(RID, mesh_surface_get_material, RID, int)
@@ -231,8 +238,8 @@ public:
     BIND2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     BIND2RC(AABB, mesh_surface_get_aabb, RID, int)
-    BIND2RC(Vector<PoolVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
-    BIND2RC(Vector<AABB>, mesh_surface_get_skeleton_aabb, RID, int)
+    BIND2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
+    BIND2RC(const Vector<AABB> &, mesh_surface_get_skeleton_aabb, RID, int)
 
     BIND2(mesh_remove_surface, RID, int)
     BIND1RC(int, mesh_get_surface_count, RID)
@@ -530,11 +537,11 @@ public:
     BIND2(scenario_set_fallback_environment, RID, RID)
 
     /* INSTANCING API */
-    // from can be mesh, light,  area and portal so far.
+
     BIND0R(RID, instance_create)
 
-    BIND2(instance_set_base, RID, RID) // from can be mesh, light, poly, area and portal so far.
-    BIND2(instance_set_scenario, RID, RID) // from can be mesh, light, poly, area and portal so far.
+    BIND2(instance_set_base, RID, RID)
+    BIND2(instance_set_scenario, RID, RID)
     BIND2(instance_set_layer_mask, RID, uint32_t)
     BIND2(instance_set_transform, RID, const Transform &)
     BIND2(instance_attach_object_instance_id, RID, ObjectID)
@@ -553,7 +560,7 @@ public:
     // don't use these in a game!
     BIND2RC(Vector<ObjectID>, instances_cull_aabb, const AABB &, RID)
     BIND3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
-    BIND2RC(Vector<ObjectID>, instances_cull_convex, const Vector<Plane> &, RID)
+    BIND2RC(Vector<ObjectID>, instances_cull_convex,  Span<const Plane>, RID)
 
     BIND3(instance_geometry_set_flag, RID, VS::InstanceFlags, bool)
     BIND2(instance_geometry_set_cast_shadows_setting, RID, VS::ShadowCastingSetting)
@@ -599,9 +606,9 @@ public:
     BIND7(canvas_item_add_texture_rect, RID, const Rect2 &, RID, bool, const Color &, bool, RID)
     BIND8(canvas_item_add_texture_rect_region, RID, const Rect2 &, RID, const Rect2 &, const Color &, bool, RID, bool)
     BIND11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
-    BIND7(canvas_item_add_primitive, RID, const Vector<Point2> &, const Vector<Color> &, const Vector<Point2> &, RID, float, RID)
-    BIND7(canvas_item_add_polygon, RID, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, RID, RID, bool)
-    BIND12(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const Vector<Color> &, const Vector<Point2> &, const Vector<int> &, const Vector<float> &, RID, int, RID, bool,bool)
+    BIND7(canvas_item_add_primitive, RID, const Vector<Point2> &, const PoolVector<Color> &, const PoolVector<Point2> &, RID, float, RID)
+    BIND7(canvas_item_add_polygon, RID, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, RID, RID, bool)
+    BIND12(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, const PoolVector<int> &, const PoolVector<float> &, RID, int, RID, bool,bool)
     BIND6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)
     BIND4(canvas_item_add_multimesh, RID, RID, RID, RID)
     BIND4(canvas_item_add_particles, RID, RID, RID, RID)
@@ -664,7 +671,7 @@ public:
 
     /* FREE */
 
-    void free(RID p_rid) override; ///< free RIDs associated with the visual server
+    void free_rid(RID p_rid) override; ///< free RIDs associated with the visual server
 
     /* EVENT QUEUING */
 

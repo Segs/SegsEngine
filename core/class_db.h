@@ -36,6 +36,7 @@
 #include "core/variant.h"
 #include "core/set.h"
 #include "core/list.h"
+#include "core/method_info.h"
 
 #include "EASTL/vector.h"
 
@@ -44,7 +45,7 @@
 class MethodBind;
 class RWLock;
 template<class T>
-using PODVector = eastl::vector<T,wrap_allocator>;
+using Vector = eastl::vector<T,wrap_allocator>;
 
 #define DEFVAL(m_defval) Variant(m_defval)
 
@@ -118,29 +119,31 @@ public:
     };
 
     struct ClassInfo {
-
-        APIType api;
-        ClassInfo *inherits_ptr;
-        const void *class_ptr;
+        APIType api = API_NONE;
+        ClassInfo *inherits_ptr=nullptr;
+        const void *class_ptr=nullptr;
         DefHashMap<StringName, MethodBind *> method_map;
         DefHashMap<StringName, int> constant_map;
-        DefHashMap<StringName, ListPOD<StringName> > enum_map;
-        HashMap<StringName, MethodInfo> signal_map;
-        PODVector<PropertyInfo> property_list;
+        DefHashMap<StringName, List<StringName> > enum_map;
+        DefHashMap<StringName, MethodInfo> signal_map;
+        Vector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
-        PODVector<StringName> constant_order;
-        PODVector<StringName> method_order;
+        Vector<StringName> constant_order;
+        Vector<StringName> method_order;
         Set<StringName> methods_in_properties;
-        PODVector<MethodInfo> virtual_methods;
+        Vector<MethodInfo> virtual_methods;
         StringName category;
+        String usage_header;
 #endif
-        HashMap<StringName, PropertySetGet> property_setget;
+        DefHashMap<StringName, PropertySetGet> property_setget;
 
         StringName inherits;
         StringName name;
-        bool disabled;
-        bool exposed;
-        Object *(*creation_func)();
+        bool disabled=false;
+        bool exposed=false;
+        DefHashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
+        Object *(*creation_func)() = nullptr;
+
         ClassInfo();
         ~ClassInfo();
     };
@@ -157,8 +160,10 @@ public:
 
 #ifdef DEBUG_METHODS_ENABLED
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
+    static void _set_class_header(const StringName &p_class, se_string_view header_file);
 #else
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
+    static void _set_class_header(const StringName &, const char *) {}
 #endif
 
     static APIType current_api;
@@ -186,7 +191,7 @@ public:
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
-        ERR_FAIL_COND(iter==classes.end())
+        ERR_FAIL_COND(iter==classes.end());
         ClassInfo &ci(iter->second);
         ci.creation_func = &creator<T>;
         ci.exposed = true;
@@ -200,7 +205,7 @@ public:
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
-        ERR_FAIL_COND(iter==classes.end())
+        ERR_FAIL_COND(iter==classes.end());
         ClassInfo &ci(iter->second);
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();
@@ -219,7 +224,7 @@ public:
         GLOBAL_LOCK_FUNCTION
         T::initialize_class();
         auto iter = classes.find(T::get_class_static_name());
-        ERR_FAIL_COND(iter==classes.end())
+        ERR_FAIL_COND(iter==classes.end());
         ClassInfo &ci(iter->second);
         ci.exposed = true;
         ci.class_ptr = T::get_class_ptr_static();
@@ -228,11 +233,12 @@ public:
     }
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
 
-    static void get_class_list(PODVector<StringName> *p_classes);
-    static void get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
-    static void get_direct_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes);
+    static void get_class_list(Vector<StringName> *p_classes);
+    static void get_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes);
+    static void get_direct_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes);
     static StringName get_parent_class_nocheck(const StringName &p_class);
     static StringName get_parent_class(const StringName &p_class);
+    static StringName get_compatibility_remapped_class(const StringName &p_class);
     static bool class_exists(const StringName &p_class);
     static bool is_parent_class(const StringName &p_class, const StringName &p_inherits);
     static bool can_instance(const StringName &p_class);
@@ -241,15 +247,15 @@ public:
 
     static uint64_t get_api_hash(APIType p_api);
 
-    static void add_signal(StringName p_class, const MethodInfo &p_signal);
+    static void add_signal(StringName p_class, MethodInfo && p_signal);
     static bool has_signal(StringName p_class, StringName p_signal);
     static bool get_signal(StringName p_class, StringName p_signal, MethodInfo *r_signal);
-    static void get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance = false);
+    static void get_signal_list(StringName p_class, Vector<MethodInfo> *p_signals, bool p_no_inheritance = false);
 
     static void add_property_group(StringName p_class, const char *p_name, const char *p_prefix = nullptr);
     static void add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
     static void set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default);
-    static void get_property_list(StringName p_class, ListPOD<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
+    static void get_property_list(StringName p_class, Vector<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
     static bool set_property(Object *p_object, const StringName &p_property, const Variant &p_value, bool *r_valid = nullptr);
     static bool get_property(Object *p_object, const StringName &p_property, Variant &r_value);
     static bool has_property(const StringName &p_class, const StringName &p_property, bool p_no_inheritance = false);
@@ -261,19 +267,19 @@ public:
     static bool has_method(StringName p_class, StringName p_method, bool p_no_inheritance = false);
     static void set_method_flags(StringName p_class, StringName p_method, int p_flags);
 
-    static void get_method_list(const StringName& p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance = false, bool p_exclude_from_properties = false);
+    static void get_method_list(const StringName& p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance = false, bool p_exclude_from_properties = false);
     static MethodBind *get_method(StringName p_class, StringName p_name);
 
     static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual = true);
-    static void get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance = false);
+    static void get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance = false);
 
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
-    static void get_integer_constant_list(const StringName &p_class, ListPOD<se_string> *p_constants, bool p_no_inheritance = false);
+    static void get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
 
     static StringName get_integer_constant_enum(const StringName &p_class, const StringName &p_name, bool p_no_inheritance = false);
-    static void get_enum_list(const StringName &p_class, ListPOD<StringName> *p_enums, bool p_no_inheritance = false);
-    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, ListPOD<StringName> *p_constants, bool p_no_inheritance = false);
+    static void get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance = false);
+    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance = false);
 
     static Variant class_get_default_property_value(const StringName &p_class, const StringName &p_property, bool *r_valid = nullptr);
 
@@ -285,8 +291,8 @@ public:
     static bool is_class_exposed(StringName p_class);
 
     static void add_resource_base_extension(const StringName &p_extension, const StringName &p_class);
-    static void get_resource_base_extensions(PODVector<se_string> &p_extensions);
-    static void get_extensions_for_type(const StringName &p_class, PODVector<se_string> *p_extensions);
+    static void get_resource_base_extensions(Vector<String> &p_extensions);
+    static void get_extensions_for_type(const StringName &p_class, Vector<String> *p_extensions);
 
     static void add_compatibility_class(const StringName &p_class, const StringName &p_fallback);
     static void init();
@@ -304,6 +310,8 @@ public:
 
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
+#define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_namespace::m_constant, #m_constant), #m_constant, int(m_namespace::m_constant));
 
 #else
 
@@ -312,6 +320,9 @@ public:
 
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
+
+#define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
+    ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, int(m_namespace::m_constant));
 
 #endif
 

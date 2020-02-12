@@ -50,13 +50,13 @@ VARIANT_ENUM_CAST(HTTPClient::Status);
 namespace {
 struct HTTPRequestData
 {
-    PODVector<se_string> headers;
+    Vector<String> headers;
     PoolByteArray body;
-    PoolVector<se_string> response_headers;
-    se_string request_string;
-    se_string url;
-    se_string request_data;
-    se_string download_to_file;
+    PoolVector<String> response_headers;
+    String request_string;
+    String url;
+    String request_data;
+    String download_to_file;
     Ref<HTTPClient> client;
     FileAccess *file;
     Thread *thread;
@@ -119,7 +119,7 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
     impl.downloaded = 0;
     impl.redirections = 0;
 
-    se_string url_lower(StringUtils::to_lower(impl.url));
+    String url_lower(StringUtils::to_lower(impl.url));
     if (StringUtils::begins_with(url_lower,"http://")) {
         impl.url = StringUtils::substr(impl.url,7);
     } else if (StringUtils::begins_with(url_lower,"https://")) {
@@ -127,10 +127,10 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
         impl.use_ssl = true;
         impl.port = 443;
     } else {
-        ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL: " + impl.url + ".")
+        ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Malformed URL: " + impl.url + ".");
     }
 
-    ERR_FAIL_COND_V_MSG(impl.url.length() < 1, ERR_INVALID_PARAMETER, "URL too short: " + impl.url + ".")
+    ERR_FAIL_COND_V_MSG(impl.url.length() < 1, ERR_INVALID_PARAMETER, "URL too short: " + impl.url + ".");
 
     int slash_pos = StringUtils::find(impl.url,"/");
 
@@ -145,7 +145,7 @@ Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
     if (colon_pos != -1) {
         impl.port = StringUtils::to_int(StringUtils::substr(impl.url,colon_pos + 1));
         impl.url = StringUtils::substr(impl.url,0, colon_pos);
-        ERR_FAIL_COND_V(impl.port < 1 || impl.port > 65535, ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(impl.port < 1 || impl.port > 65535, ERR_INVALID_PARAMETER);
     }
 
     return OK;
@@ -155,19 +155,19 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
     using namespace StringUtils;
 
     if (!impl.client->has_response()) {
-        tgt->call_deferred("_request_done", HTTPRequest::RESULT_NO_RESPONSE, 0, PoolSeStringArray(), PoolByteArray());
+        tgt->call_deferred("_request_done", HTTPRequest::RESULT_NO_RESPONSE, 0, PoolStringArray(), PoolByteArray());
         *ret_value = true;
         return true;
     }
 
     impl.got_response = true;
     impl.response_code = impl.client->get_response_code();
-    List<se_string> rheaders;
+    List<String> rheaders;
     impl.client->get_response_headers(&rheaders);
     impl.response_headers.resize(0);
     impl.downloaded = 0;
-    for (List<se_string>::Element *E = rheaders.front(); E; E = E->next()) {
-        impl.response_headers.push_back(E->deref());
+    for (const String &E : rheaders) {
+        impl.response_headers.push_back(E);
     }
 
     if (impl.response_code == 301 || impl.response_code == 302) {
@@ -180,11 +180,11 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
             return true;
         }
 
-        se_string new_request;
-
-        for (List<se_string>::Element *E = rheaders.front(); E; E = E->next()) {
-            if (StringUtils::contains(StringUtils::to_lower(E->deref()),"location: ") ) {
-                new_request = (strip_edges(substr(E->deref(),9))).data();
+        String new_request;
+        //TODO: SEGS: after encountering header with `location:` this does not break, but continues the search, should it?
+        for (const String &E : rheaders) {
+            if (StringUtils::contains(StringUtils::to_lower(E),"location: ") ) {
+                new_request = (strip_edges(substr(E,9))).data();
             }
         }
 
@@ -221,7 +221,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
     switch (impl.client->get_status()) {
         case HTTPClient::STATUS_DISCONNECTED: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return true; // End it, since it's doing something
         }
         case HTTPClient::STATUS_RESOLVING: {
@@ -230,7 +230,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
             return false;
         }
         case HTTPClient::STATUS_CANT_RESOLVE: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_RESOLVE, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_RESOLVE, 0, PoolStringArray(), PoolByteArray());
             return true;
 
         }
@@ -241,7 +241,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
         } // Connecting to IP
         case HTTPClient::STATUS_CANT_CONNECT: {
 
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return true;
 
         }
@@ -275,7 +275,7 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
                 Error err = impl.client->request(impl.method, (impl.request_string), impl.headers, impl.request_data);
                 if (err != OK) {
-                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolSeStringArray(), PoolByteArray());
+                    tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
                     return true;
                 }
 
@@ -359,16 +359,16 @@ bool _update_connection(HTTPRequestData &impl,HTTPRequest *tgt) {
 
         } // Request resulted in body: break which must be read
         case HTTPClient::STATUS_CONNECTION_ERROR: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_CONNECTION_ERROR, 0, PoolStringArray(), PoolByteArray());
             return true;
         }
         case HTTPClient::STATUS_SSL_HANDSHAKE_ERROR: {
-            tgt->call_deferred("_request_done", HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR, 0, PoolSeStringArray(), PoolByteArray());
+            tgt->call_deferred("_request_done", HTTPRequest::RESULT_SSL_HANDSHAKE_ERROR, 0, PoolStringArray(), PoolByteArray());
             return true;
         }
     }
 
-    ERR_FAIL_V(false)
+    ERR_FAIL_V(false);
 }
 
 static void _thread_func(void *p_userdata) {
@@ -379,7 +379,7 @@ static void _thread_func(void *p_userdata) {
     Error err = _request(*hrdat);
 
     if (err != OK) {
-        hr->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+        hr->call_deferred("_request_done", HTTPRequest::RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
     } else {
         while (!hrdat->thread_request_quit) {
 
@@ -397,10 +397,10 @@ void HTTPRequest::_redirect_request(se_string_view /*p_new_url*/) {
 }
 
 #define IMPLD() ((HTTPRequestData*)m_impl)
-Error HTTPRequest::request(se_string_view p_url, const PODVector<se_string> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
+Error HTTPRequest::request(se_string_view p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED)
-    ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.")
+    ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED);
+    ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");
 
     if (IMPLD()->timeout > 0) {
         timer->stop();
@@ -431,7 +431,7 @@ Error HTTPRequest::request(se_string_view p_url, const PODVector<se_string> &p_c
         IMPLD()->client->set_blocking_mode(false);
         err = _request(*IMPLD());
         if (err != OK) {
-            call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolSeStringArray(), PoolByteArray());
+            call_deferred("_request_done", RESULT_CANT_CONNECT, 0, PoolStringArray(), PoolByteArray());
             return ERR_CANT_CONNECT;
         }
 
@@ -471,7 +471,7 @@ void HTTPRequest::cancel_request() {
     IMPLD()->requesting = false;
 }
 
-void HTTPRequest::_request_done(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data) {
+void HTTPRequest::_request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data) {
 
     cancel_request();
     emit_signal("request_completed", p_status, p_code, headers, p_data);
@@ -500,7 +500,7 @@ void HTTPRequest::_notification(int p_what) {
 
 void HTTPRequest::set_use_threads(bool p_use) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
     IMPLD()->use_threads = p_use;
 }
 
@@ -511,7 +511,7 @@ bool HTTPRequest::is_using_threads() const {
 
 void HTTPRequest::set_body_size_limit(int p_bytes) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
 
     IMPLD()->body_size_limit = p_bytes;
 }
@@ -523,12 +523,12 @@ int HTTPRequest::get_body_size_limit() const {
 
 void HTTPRequest::set_download_file(se_string_view p_file) {
 
-    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED)
+    ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
 
     IMPLD()->download_to_file = p_file;
 }
 
-const se_string &HTTPRequest::get_download_file() const {
+const String &HTTPRequest::get_download_file() const {
 
     return IMPLD()->download_to_file;
 }
@@ -568,7 +568,7 @@ int HTTPRequest::get_body_size() const {
 
 void HTTPRequest::set_timeout(int p_timeout) {
 
-    ERR_FAIL_COND(p_timeout < 0)
+    ERR_FAIL_COND(p_timeout < 0);
     IMPLD()->timeout = p_timeout;
 }
 
@@ -580,12 +580,12 @@ int HTTPRequest::get_timeout() {
 void HTTPRequest::_timeout() {
 
     cancel_request();
-    call_deferred("_request_done", RESULT_TIMEOUT, 0, PoolSeStringArray(), PoolByteArray());
+    call_deferred("_request_done", RESULT_TIMEOUT, 0, PoolStringArray(), PoolByteArray());
 }
 
 void HTTPRequest::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolSeStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(se_string_view())});
+    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(se_string_view())});
     MethodBinder::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
 
     MethodBinder::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);
@@ -616,12 +616,12 @@ void HTTPRequest::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_timeout"), &HTTPRequest::_timeout);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PROPERTY_HINT_FILE), "set_download_file", "get_download_file");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PROPERTY_HINT_RANGE, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "download_file", PropertyHint::File), "set_download_file", "get_download_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "download_chunk_size", PropertyHint::Range, "256,16777216"), "set_download_chunk_size", "get_download_chunk_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_threads"), "set_use_threads", "is_using_threads");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "body_size_limit", PROPERTY_HINT_RANGE, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_redirects", PROPERTY_HINT_RANGE, "-1,64"), "set_max_redirects", "get_max_redirects");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "timeout", PROPERTY_HINT_RANGE, "0,86400"), "set_timeout", "get_timeout");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "body_size_limit", PropertyHint::Range, "-1,2000000000"), "set_body_size_limit", "get_body_size_limit");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_redirects", PropertyHint::Range, "-1,64"), "set_max_redirects", "get_max_redirects");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "timeout", PropertyHint::Range, "0,86400"), "set_timeout", "get_timeout");
 
     ADD_SIGNAL(MethodInfo("request_completed", PropertyInfo(VariantType::INT, "result"), PropertyInfo(VariantType::INT, "response_code"), PropertyInfo(VariantType::POOL_STRING_ARRAY, "headers"), PropertyInfo(VariantType::POOL_BYTE_ARRAY, "body")));
 
@@ -642,13 +642,14 @@ void HTTPRequest::_bind_methods() {
 }
 
 HTTPRequest::HTTPRequest() {
+    HTTPRequestData *dat = memnew(HTTPRequestData);
+    m_impl = dat;
+    initialize(*dat);
+
     timer = memnew(Timer);
     timer->set_one_shot(true);
     timer->connect("timeout", this, "_timeout");
     add_child(timer);
-    HTTPRequestData *dat = memnew(HTTPRequestData);
-    m_impl = dat;
-    initialize(*dat);
 }
 
 HTTPRequest::~HTTPRequest() {

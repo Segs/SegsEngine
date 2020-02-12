@@ -42,17 +42,17 @@
 class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     bool translation_remapped;
-    se_string local_path;
-    se_string res_path;
-    se_string error_text;
+    String local_path;
+    String res_path;
+    String error_text;
 
     FileAccess *f;
 
-    VariantParser::Stream *stream=nullptr;
+    VariantParserStream *stream=nullptr;
 
     struct ExtResource {
-        se_string path;
-        se_string type;
+        String path;
+        String type;
     };
 
     bool is_scene;
@@ -66,28 +66,28 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     int resources_total;
     int resource_current;
-    se_string resource_type;
+    String resource_type;
 
     VariantParser::Tag next_tag;
 
     mutable int lines;
 
-    Map<se_string, se_string> remaps;
+    Map<String, String> remaps;
     //void _printerr();
 
     static Error _parse_sub_resources(
-            void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str) {
+            void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
         return reinterpret_cast<ResourceInteractiveLoaderText *>(p_self)->_parse_sub_resource(
                 p_stream, r_res, line, r_err_str);
     }
     static Error _parse_ext_resources(
-            void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str) {
+            void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
         return reinterpret_cast<ResourceInteractiveLoaderText *>(p_self)->_parse_ext_resource(
                 p_stream, r_res, line, r_err_str);
     }
 
-    Error _parse_sub_resource(VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str);
-    Error _parse_ext_resource(VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str);
+    Error _parse_sub_resource(VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
+    Error _parse_ext_resource(VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
 
     // for converter
     class DummyResource : public Resource {
@@ -102,17 +102,17 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
         Map<int, RES> resource_map;
     };
 
-    static Error _parse_sub_resource_dummys(void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str) { return _parse_sub_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
-    static Error _parse_ext_resource_dummys(void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str) { return _parse_ext_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
+    static Error _parse_sub_resource_dummys(void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) { return _parse_sub_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
+    static Error _parse_ext_resource_dummys(void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) { return _parse_ext_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
 
-    static Error _parse_sub_resource_dummy(DummyReadData *p_data, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str);
-    static Error _parse_ext_resource_dummy(DummyReadData *p_data, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, se_string &r_err_str);
+    static Error _parse_sub_resource_dummy(DummyReadData *p_data, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
+    static Error _parse_ext_resource_dummy(DummyReadData *p_data, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
 
     VariantParser::ResourceParser rp;
 
     friend class ResourceFormatLoaderText;
 
-    ListPOD<RES> resource_cache;
+    List<RES> resource_cache;
     Error error;
 
     RES resource;
@@ -128,9 +128,9 @@ public:
     void set_translation_remapped(bool p_remapped) override;
 
     void open(FileAccess *p_f, bool p_skip_first_tag = false);
-    se_string recognize(FileAccess *p_f);
-    void get_dependencies(FileAccess *p_f, PODVector<se_string> &p_dependencies, bool p_add_types);
-    Error rename_dependencies(FileAccess *p_f, se_string_view p_path, const Map<se_string, se_string> &p_map);
+    String recognize(FileAccess *p_f);
+    void get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types);
+    Error rename_dependencies(FileAccess *p_f, se_string_view p_path, const Map<String, String> &p_map);
 
     Error save_as_binary(FileAccess *p_f, se_string_view p_path);
     ResourceInteractiveLoaderText();
@@ -141,12 +141,12 @@ class ResourceFormatLoaderText : public ResourceFormatLoader {
 public:
     static ResourceFormatLoaderText *singleton;
     Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = {}, Error *r_error = nullptr) override;
-    void get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions) const override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
-    se_string get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false) override;
-    Error rename_dependencies(se_string_view p_path, const Map<se_string, se_string> &p_map) override;
+    String get_resource_type(se_string_view p_path) const override;
+    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
+    Error rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) override;
 
     static Error convert_file_to_binary(se_string_view p_src_path, se_string_view p_dst_path);
 
@@ -158,7 +158,7 @@ public:
     static ResourceFormatSaverText *singleton;
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
 
     ResourceFormatSaverText();
 };

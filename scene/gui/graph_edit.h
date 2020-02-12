@@ -108,37 +108,15 @@ private:
     Point2 box_selecting_from;
     Point2 box_selecting_to;
     Rect2 box_selecting_rect;
-    List<GraphNode *> previus_selected;
+    Vector<GraphNode *> previus_selected;
 
     bool setting_scroll_ofs;
     bool right_disconnects;
     bool updating;
     bool awaiting_scroll_offset_update;
-    List<Connection> connections;
-
-    void _bake_segment2d(Vector<Vector2> &points, Vector<Color> &colors, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_min_depth, int p_max_depth, float p_tol, const Color &p_color, const Color &p_to_color, int &lines) const;
-
-    void _draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const Vector2 &p_to, const Color &p_color, const Color &p_to_color);
-
-    void _graph_node_raised(Node *p_gn);
-    void _graph_node_moved(Node *p_gn);
-
-    void _update_scroll();
-    void _scroll_moved(double);
-    void _gui_input(const Ref<InputEvent> &p_ev);
-
+    ListOld<Connection> connections;
     Control *connections_layer;
     GraphEditFilter *top_layer;
-    void _top_layer_input(const Ref<InputEvent> &p_ev);
-
-    bool is_in_hot_zone(const Vector2 &pos, const Vector2 &p_mouse_pos);
-
-    void _top_layer_draw();
-    void _connections_layer_draw();
-    void _update_scroll_offset();
-
-    Array _get_connection_list() const;
-
     bool lines_on_bg;
 
     struct ConnType {
@@ -166,6 +144,28 @@ private:
     Set<int> valid_right_disconnect_types;
 
     HBoxContainer *zoom_hb;
+public:
+    void _bake_segment2d(Vector<Vector2> &points, Vector<Color> &colors, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_min_depth, int p_max_depth, float p_tol, const Color &p_color, const Color &p_to_color, int &lines) const;
+
+    void _draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const Vector2 &p_to, const Color &p_color, const Color &p_to_color);
+
+    void _graph_node_raised(Node *p_gn);
+    void _graph_node_moved(Node *p_gn);
+
+    void _update_scroll();
+    void _scroll_moved(double);
+    void _gui_input(const Ref<InputEvent> &p_ev);
+
+    void _top_layer_input(const Ref<InputEvent> &p_ev);
+
+    bool is_in_hot_zone(const Vector2 &pos, const Vector2 &p_mouse_pos);
+
+    void _top_layer_draw();
+    void _connections_layer_draw();
+    void _update_scroll_offset();
+
+    Array _get_connection_list() const;
+private:
 
     friend class GraphEditFilter;
     bool _filter_input(const Point2 &p_point);
@@ -198,7 +198,7 @@ public:
     float get_zoom() const;
 
     GraphEditFilter *get_top_layer() const { return top_layer; }
-    void get_connection_list(List<Connection> *r_connections) const;
+    void get_connection_list(ListOld<Connection> *r_connections) const;
 
     void set_right_disconnects(bool p_enable);
     bool is_right_disconnects_enabled() const;

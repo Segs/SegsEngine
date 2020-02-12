@@ -35,7 +35,7 @@
 IMPL_GDCLASS(Range)
 
 StringName Range::get_configuration_warning() const {
-    se_string warning(Control::get_configuration_warning());
+    String warning(Control::get_configuration_warning());
 
     if (shared->exp_ratio && shared->min <= 0) {
         if (!warning.empty()) {
@@ -122,7 +122,7 @@ void Range::set_step(real_t p_step) {
     shared->step = p_step;
     shared->emit_changed("step");
 }
-void Range::set_page(double p_page) {
+void Range::set_page(real_t p_page) {
 
     shared->page = p_page;
     set_value(shared->val);
@@ -134,24 +134,24 @@ real_t Range::get_value() const {
 
     return shared->val;
 }
-double Range::get_min() const {
+real_t Range::get_min() const {
 
     return shared->min;
 }
-double Range::get_max() const {
+real_t Range::get_max() const {
 
     return shared->max;
 }
-double Range::get_step() const {
+real_t Range::get_step() const {
 
     return shared->step;
 }
-double Range::get_page() const {
+real_t Range::get_page() const {
 
     return shared->page;
 }
 
-void Range::set_as_ratio(double p_value) {
+void Range::set_as_ratio(real_t p_value) {
 
     double v;
 
@@ -173,7 +173,7 @@ void Range::set_as_ratio(double p_value) {
     v = CLAMP(v, get_min(), get_max());
     set_value(v);
 }
-double Range::get_as_ratio() const {
+real_t Range::get_as_ratio() const {
     ERR_FAIL_COND_V_MSG(Math::is_equal_approx(get_max(), get_min()), 0.0, "Cannot get ratio when minimum and maximum value are equal.");
 
     if (shared->exp_ratio && get_min() >= 0) {
@@ -195,7 +195,7 @@ double Range::get_as_ratio() const {
 void Range::_share(Node *p_range) {
 
     Range *r = object_cast<Range>(p_range);
-    ERR_FAIL_COND(!r)
+    ERR_FAIL_COND(!r);
     share(r);
 }
 
@@ -278,7 +278,7 @@ void Range::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step"), "set_step", "get_step");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "page"), "set_page", "get_page");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "value"), "set_value", "get_value");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PROPERTY_HINT_RANGE, "0,1,0.01", 0), "set_as_ratio", "get_as_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PropertyHint::Range, "0,1,0.01", 0), "set_as_ratio", "get_as_ratio");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "exp_edit"), "set_exp_ratio", "is_ratio_exp");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rounded"), "set_use_rounded_values", "is_using_rounded_values");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_greater"), "set_allow_greater", "is_greater_allowed");

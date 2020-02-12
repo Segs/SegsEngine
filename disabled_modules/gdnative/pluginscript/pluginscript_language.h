@@ -83,8 +83,8 @@ public:
     bool can_inherit_from_file() override { return true; }
     int find_function(const String &p_function, const String &p_code) const override;
     String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const override;
-    Error complete_code(const se_string &p_code, se_string_view p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) override;
-    void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const override;
+    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) override;
+    void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
     void add_global_constant(const StringName &p_variable, const Variant &p_value) override;
 
     /* MULTITHREAD FUNCTIONS */
@@ -95,17 +95,17 @@ public:
 
     /* DEBUGGER FUNCTIONS */
 
-    const se_string &debug_get_error() const override;
+    const String &debug_get_error() const override;
     int debug_get_stack_level_count() const override;
     int debug_get_stack_level_line(int p_level) const override;
-    se_string debug_get_stack_level_function(int p_level) const override;
-    se_string debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_stack_level_members(int p_level, List<se_string_view> *p_members, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    String debug_get_stack_level_function(int p_level) const override;
+    String debug_get_stack_level_source(int p_level) const override;
+    void debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
-    // virtual PODVector<StackInfo> debug_get_current_stack_info() { return PODVector<StackInfo>(); }
+    // virtual Vector<StackInfo> debug_get_current_stack_info() { return Vector<StackInfo>(); }
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;

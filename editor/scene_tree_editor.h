@@ -60,7 +60,7 @@ class SceneTreeEditor : public Control {
     Node *selected;
     ObjectID instance_node;
 
-    String filter;
+    UIString filter;
 
     AcceptDialog *error;
     AcceptDialog *warning;
@@ -78,7 +78,7 @@ class SceneTreeEditor : public Control {
 
     void _renamed();
     UndoRedo *undo_redo;
-
+    //TODO: SEGS: consider using unordered_set here, since this is only used for belongs-to queries.
     Set<Node *> marked;
     bool marked_selectable;
     bool marked_children_selectable;
@@ -87,8 +87,8 @@ class SceneTreeEditor : public Control {
     bool pending_test_update;
     Timer *update_timer;
 
-    ListPOD<StringName> *script_types;
-    PODVector<StringName> valid_types;
+    Vector<StringName> *script_types;
+    Vector<StringName> valid_types;
 
     void _compute_hash(Node *p_node, uint64_t &hash);
 
@@ -133,8 +133,8 @@ class SceneTreeEditor : public Control {
     bool _is_script_type(const StringName &p_type) const;
 
 public:
-    void set_filter(const String &p_filter);
-    String get_filter() const;
+    void set_filter(const UIString &p_filter);
+    UIString get_filter() const;
 
     void set_undo_redo(UndoRedo *p_undo_redo) { undo_redo = p_undo_redo; };
     void set_display_foreign_nodes(bool p_display);
@@ -148,7 +148,7 @@ public:
     void set_editor_selection(EditorSelection *p_selection);
 
     void set_show_enabled_subscene(bool p_show) { show_enabled_subscene = p_show; }
-    void set_valid_types(const PODVector<StringName> &p_valid);
+    void set_valid_types(const Vector<StringName> &p_valid);
 
     void update_tree() { _update_tree(); }
 

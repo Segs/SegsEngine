@@ -17,7 +17,12 @@ ${all_includes}
 ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/SegsEngine_config.h
 ${INC}
 )
-add_library(EASTL OBJECT ${SOURCE})
+if(MSVC)
+set(SOURCE_VIS
+    EASTL/doc/EASTL.natvis
+)
+endif()
+add_library(EASTL OBJECT ${SOURCE} ${SOURCE_VIS})
 add_library(EASTL_Import INTERFACE)
 
 set_property(TARGET EASTL PROPERTY POSITION_INDEPENDENT_CODE ON)

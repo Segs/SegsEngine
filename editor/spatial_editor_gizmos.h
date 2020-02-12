@@ -122,7 +122,7 @@ class Position3DSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(Position3DSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
     Ref<ArrayMesh> pos3d_mesh;
-    PODVector<Vector3> cursor_points;
+    Vector<Vector3> cursor_points;
 
 public:
     bool has_gizmo(Spatial *p_spatial) override;
@@ -394,8 +394,8 @@ public:
     static Basis look_body_toward_z(const Transform &p_joint_transform, const Transform &p_body_transform);
 
     // Draw circle around p_axis
-    static void draw_circle(Vector3::Axis p_axis, real_t p_radius, const Transform &p_offset, const Basis &p_base, real_t p_limit_lower, real_t p_limit_upper, PODVector<Vector3> &r_points, bool p_inverse = false);
-    static void draw_cone(const Transform &p_offset, const Basis &p_base, real_t p_swing, real_t p_twist, PODVector<Vector3> &r_points);
+    static void draw_circle(Vector3::Axis p_axis, real_t p_radius, const Transform &p_offset, const Basis &p_base, real_t p_limit_lower, real_t p_limit_upper, Vector<Vector3> &r_points, bool p_inverse = false);
+    static void draw_cone(const Transform &p_offset, const Basis &p_base, real_t p_swing, real_t p_twist, Vector<Vector3> &r_points);
 };
 
 class JointSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
@@ -408,10 +408,10 @@ public:
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
 
-    static void CreatePinJointGizmo(const Transform &p_offset, PODVector<Vector3> &r_cursor_points);
-    static void CreateHingeJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_limit_lower, real_t p_limit_upper, bool p_use_limit, PODVector<Vector3> &r_common_points, PODVector<Vector3> *r_body_a_points, PODVector<Vector3> *r_body_b_points);
-    static void CreateSliderJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_angular_limit_lower, real_t p_angular_limit_upper, real_t p_linear_limit_lower, real_t p_linear_limit_upper, PODVector<Vector3> &r_points, PODVector<Vector3> *r_body_a_points, PODVector<Vector3> *r_body_b_points);
-    static void CreateConeTwistJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_swing, real_t p_twist, PODVector<Vector3> *r_body_a_points, PODVector<Vector3> *r_body_b_points);
+    static void CreatePinJointGizmo(const Transform &p_offset, Vector<Vector3> &r_cursor_points);
+    static void CreateHingeJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_limit_lower, real_t p_limit_upper, bool p_use_limit, Vector<Vector3> &r_common_points, Vector<Vector3> *r_body_a_points, Vector<Vector3> *r_body_b_points);
+    static void CreateSliderJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_angular_limit_lower, real_t p_angular_limit_upper, real_t p_linear_limit_lower, real_t p_linear_limit_upper, Vector<Vector3> &r_points, Vector<Vector3> *r_body_a_points, Vector<Vector3> *r_body_b_points);
+    static void CreateConeTwistJointGizmo(const Transform &p_offset, const Transform &p_trs_joint, const Transform &p_trs_body_a, const Transform &p_trs_body_b, real_t p_swing, real_t p_twist, Vector<Vector3> *r_body_a_points, Vector<Vector3> *r_body_b_points);
     static void CreateGeneric6DOFJointGizmo(
             const Transform &p_offset,
             const Transform &p_trs_joint,
@@ -435,9 +435,9 @@ public:
             real_t p_linear_limit_upper_z,
             bool p_enable_angular_limit_z,
             bool p_enable_linear_limit_z,
-            PODVector<Vector3> &r_points,
-            PODVector<Vector3> *r_body_a_points,
-            PODVector<Vector3> *r_body_b_points);
+            Vector<Vector3> &r_points,
+            Vector<Vector3> *r_body_a_points,
+            Vector<Vector3> *r_body_b_points);
 
     JointSpatialGizmoPlugin();
 };

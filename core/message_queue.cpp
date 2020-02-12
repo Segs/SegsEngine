@@ -51,12 +51,12 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const V
     int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        se_string type;
+        String type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
-        print_line(se_string("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
+        print_line(String("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
         statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.");
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
@@ -101,12 +101,12 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
     uint8_t room_needed = sizeof(Message) + sizeof(Variant);
 
     if ((buffer_end + room_needed) >= buffer_size) {
-        se_string type;
+        String type;
         if (ObjectDB::get_instance(p_id))
             type = ObjectDB::get_instance(p_id)->get_class();
         print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(p_id));
         statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.")
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
@@ -128,14 +128,14 @@ Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND_V(p_notification < 0, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_notification < 0, ERR_INVALID_PARAMETER);
 
     uint8_t room_needed = sizeof(Message);
 
     if ((buffer_end + room_needed) >= buffer_size) {
         print_line("Failed notification: " + itos(p_notification) + " target ID: " + itos(p_id));
         statistics();
-        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'message_queue_size_kb' in project settings.")
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
@@ -223,11 +223,11 @@ void MessageQueue::statistics() {
     print_line("NULL count: " + itos(null_count));
 
     for (const eastl::pair<const StringName,int> &E : set_count) {
-        print_line("SET " + se_string(E.first) + ": " + ::to_string(E.second));
+        print_line("SET " + String(E.first) + ": " + ::to_string(E.second));
     }
 
     for (const eastl::pair<const StringName,int> &E : call_count) {
-        print_line("CALL " + se_string(E.first) + ": " + ::to_string(E.second));
+        print_line("CALL " + String(E.first) + ": " + ::to_string(E.second));
     }
 
     for (const eastl::pair<const int,int> &E : notify_count) {
@@ -269,7 +269,7 @@ void MessageQueue::flush() {
     //using reverse locking strategy
     _THREAD_SAFE_LOCK_
 
-    ERR_FAIL_COND(flushing )//already flushing, you did something odd
+    ERR_FAIL_COND(flushing ); //already flushing, you did something odd
     flushing = true;
 
     while (read_pos < buffer_end) {
@@ -341,7 +341,7 @@ bool MessageQueue::is_flushing() const {
 
 MessageQueue::MessageQueue() {
     __thread__safe__.reset(new Mutex);
-    ERR_FAIL_COND_MSG(singleton != nullptr, "MessageQueue singleton already exist.")
+    ERR_FAIL_COND_MSG(singleton != nullptr, "MessageQueue singleton already exist.");
     singleton = this;
     flushing = false;
     StringName prop_name("memory/limits/message_queue/max_size_kb");
@@ -349,7 +349,7 @@ MessageQueue::MessageQueue() {
     buffer_max_used = 0;
     buffer_size = GLOBAL_DEF_RST(prop_name, DEFAULT_QUEUE_SIZE_KB);
     ProjectSettings::get_singleton()->set_custom_property_info(
-            prop_name, PropertyInfo(VariantType::INT, "memory/limits/message_queue/max_size_kb", PROPERTY_HINT_RANGE,
+            prop_name, PropertyInfo(VariantType::INT, "memory/limits/message_queue/max_size_kb", PropertyHint::Range,
                                "0,2048,1,or_greater"));
     buffer_size *= 1024;
     buffer = memnew_arr(uint8_t, buffer_size);

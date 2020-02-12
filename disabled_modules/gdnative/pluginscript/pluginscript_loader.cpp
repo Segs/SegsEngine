@@ -61,7 +61,7 @@ RES ResourceFormatLoaderPluginScript::load(const String &p_path, const String &p
     return scriptres;
 }
 
-void ResourceFormatLoaderPluginScript::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderPluginScript::get_recognized_extensions(Vector<String> &p_extensions) const {
     p_extensions->push_back(_language->get_extension());
 }
 

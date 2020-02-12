@@ -318,7 +318,7 @@ enum KeyModifierMask : uint32_t {
 
 };
 
-se_string keycode_get_string(uint32_t p_code);
+String keycode_get_string(uint32_t p_code);
 bool keycode_has_unicode(uint32_t p_keycode);
 int find_keycode(se_string_view p_code);
 const char *find_keycode_name(int p_keycode);

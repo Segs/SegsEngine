@@ -115,8 +115,8 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_search_text() const;
-    String get_replace_text() const;
+    UIString get_search_text() const;
+    UIString get_replace_text() const;
 
     bool is_case_sensitive() const;
     bool is_whole_words() const;
@@ -135,7 +135,7 @@ public:
     FindReplaceBar();
 };
 
-using CodeTextEditorCodeCompleteFunc = void (*)(void *, const se_string &, List<ScriptCodeCompletionOption> *, bool &);
+using CodeTextEditorCodeCompleteFunc = void (*)(void *, const String &, Vector<ScriptCodeCompletionOption> *, bool &);
 
 class CodeTextEditor : public VBoxContainer {
 
@@ -192,7 +192,7 @@ class CodeTextEditor : public VBoxContainer {
 protected:
     virtual void _load_theme_settings() {}
     virtual void _validate_script() {}
-    virtual void _code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options) {}
+    virtual void _code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options) {}
 
     void _text_changed_idle_timeout();
     void _code_complete_timer_timeout();

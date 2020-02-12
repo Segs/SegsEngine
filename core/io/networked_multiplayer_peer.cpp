@@ -30,13 +30,9 @@
 
 #include "networked_multiplayer_peer.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
-#include "core/method_enum_caster.h"
+#include "core/io/networked_multiplayer_peer_enum_casters.h"
 
 IMPL_GDCLASS(NetworkedMultiplayerPeer)
-
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::ConnectionStatus)
 
 void NetworkedMultiplayerPeer::_bind_methods() {
 
@@ -55,7 +51,7 @@ void NetworkedMultiplayerPeer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_refusing_new_connections"), &NetworkedMultiplayerPeer::is_refusing_new_connections);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "refuse_new_connections"), "set_refuse_new_connections", "is_refusing_new_connections");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "transfer_mode", PROPERTY_HINT_ENUM, "Unreliable,Unreliable Ordered,Reliable"), "set_transfer_mode", "get_transfer_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "transfer_mode", PropertyHint::Enum, "Unreliable,Unreliable Ordered,Reliable"), "set_transfer_mode", "get_transfer_mode");
 
     BIND_ENUM_CONSTANT(TRANSFER_MODE_UNRELIABLE)
     BIND_ENUM_CONSTANT(TRANSFER_MODE_UNRELIABLE_ORDERED)

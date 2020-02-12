@@ -42,8 +42,8 @@ struct DictionaryPrivate {
     OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator> variant_map;
 };
 
-PODVector<Variant> Dictionary::get_key_list() const {
-    PODVector<Variant> res;
+Vector<Variant> Dictionary::get_key_list() const {
+    Vector<Variant> res;
     if (_p->variant_map.empty())
         return {};
     res.reserve(_p->variant_map.size());
@@ -186,7 +186,7 @@ void Dictionary::clear() {
 
 void Dictionary::_unref() const {
 
-    ERR_FAIL_COND(!_p)
+    ERR_FAIL_COND(!_p);
     if (_p->refcount.unref()) {
         memdelete(_p);
     }
@@ -284,6 +284,6 @@ Dictionary::Dictionary() {
     _p->refcount.init();
 }
 Dictionary::~Dictionary() {
-
-    _unref();
+    if(_p)
+        _unref();
 }

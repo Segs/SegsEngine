@@ -53,9 +53,9 @@ void SpriteFramesEditor::_gui_input(const Ref<InputEvent>& p_event) {
 void SpriteFramesEditor::_open_sprite_sheet() {
 
     file_split_sheet->clear_filters();
-    PODVector<se_string> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
-    for (const se_string &ext : extensions) {
+    for (const String &ext : extensions) {
         file_split_sheet->add_filter("*." + ext);
     }
 
@@ -214,7 +214,7 @@ void SpriteFramesEditor::_prepare_sprite_sheet(se_string_view p_file) {
     Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(p_file));
     if (not texture) {
         EditorNode::get_singleton()->show_warning("Unable to load images");
-        ERR_FAIL_COND(not texture)
+        ERR_FAIL_COND(not texture);
     }
     if (texture != split_sheet_preview->get_texture()) {
         //different texture, reset to 4x4
@@ -232,17 +232,17 @@ void SpriteFramesEditor::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            load->set_icon(get_icon("Load", "EditorIcons"));
-            load_sheet->set_icon(get_icon("SpriteSheet", "EditorIcons"));
-            copy->set_icon(get_icon("ActionCopy", "EditorIcons"));
-            paste->set_icon(get_icon("ActionPaste", "EditorIcons"));
-            empty->set_icon(get_icon("InsertBefore", "EditorIcons"));
-            empty2->set_icon(get_icon("InsertAfter", "EditorIcons"));
-            move_up->set_icon(get_icon("MoveLeft", "EditorIcons"));
-            move_down->set_icon(get_icon("MoveRight", "EditorIcons"));
-            _delete->set_icon(get_icon("Remove", "EditorIcons"));
-            new_anim->set_icon(get_icon("New", "EditorIcons"));
-            remove_anim->set_icon(get_icon("Remove", "EditorIcons"));
+            load->set_button_icon(get_icon("Load", "EditorIcons"));
+            load_sheet->set_button_icon(get_icon("SpriteSheet", "EditorIcons"));
+            copy->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
+            paste->set_button_icon(get_icon("ActionPaste", "EditorIcons"));
+            empty->set_button_icon(get_icon("InsertBefore", "EditorIcons"));
+            empty2->set_button_icon(get_icon("InsertAfter", "EditorIcons"));
+            move_up->set_button_icon(get_icon("MoveLeft", "EditorIcons"));
+            move_down->set_button_icon(get_icon("MoveRight", "EditorIcons"));
+            _delete->set_button_icon(get_icon("Remove", "EditorIcons"));
+            new_anim->set_button_icon(get_icon("New", "EditorIcons"));
+            remove_anim->set_button_icon(get_icon("Remove", "EditorIcons"));
             FALLTHROUGH;
         }
         case NOTIFICATION_THEME_CHANGED: {
@@ -254,11 +254,12 @@ void SpriteFramesEditor::_notification(int p_what) {
     }
 }
 
-void SpriteFramesEditor::_file_load_request(const PoolVector<se_string> &p_path, int p_at_pos) {
+void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, int p_at_pos) {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
-    List<Ref<Texture> > resources;
+    Vector<Ref<Texture> > resources;
+    resources.reserve(p_path.size());
 
     for (int i = 0; i < p_path.size(); i++) {
 
@@ -274,7 +275,7 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<se_string> &p_path,
             return; ///beh should show an error i guess
         }
 
-        resources.push_back(resource);
+        resources.emplace_back(eastl::move(resource));
     }
 
     if (resources.empty()) {
@@ -286,9 +287,9 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<se_string> &p_path,
 
     int count = 0;
 
-    for (List<Ref<Texture> >::Element *E = resources.front(); E; E = E->next()) {
+    for (const Ref<Texture> &E : resources) {
 
-        undo_redo->add_do_method(frames, "add_frame", edited_anim, E->deref(), p_at_pos == -1 ? -1 : p_at_pos + count);
+        undo_redo->add_do_method(frames, "add_frame", edited_anim, E, p_at_pos == -1 ? -1 : p_at_pos + count);
         undo_redo->add_undo_method(frames, "remove_frame", edited_anim, p_at_pos == -1 ? fc : p_at_pos);
         count++;
     }
@@ -300,13 +301,13 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<se_string> &p_path,
 
 void SpriteFramesEditor::_load_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
     loading_scene = false;
 
     file->clear_filters();
-    PODVector<se_string> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
-    for (const se_string &ext : extensions)
+    for (const String &ext : extensions)
         file->add_filter("*." + ext);
 
     file->set_mode(EditorFileDialog::MODE_OPEN_FILES);
@@ -316,7 +317,7 @@ void SpriteFramesEditor::_load_pressed() {
 
 void SpriteFramesEditor::_paste_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     Ref<Texture> r = dynamic_ref_cast<Texture>(EditorSettings::get_singleton()->get_resource_clipboard());
     if (not r) {
@@ -337,7 +338,7 @@ void SpriteFramesEditor::_paste_pressed() {
 }
 
 void SpriteFramesEditor::_copy_pressed() {
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -351,7 +352,7 @@ void SpriteFramesEditor::_copy_pressed() {
 
 void SpriteFramesEditor::_empty_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     int from = -1;
 
@@ -376,7 +377,7 @@ void SpriteFramesEditor::_empty_pressed() {
 
 void SpriteFramesEditor::_empty2_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     int from = -1;
 
@@ -401,7 +402,7 @@ void SpriteFramesEditor::_empty2_pressed() {
 
 void SpriteFramesEditor::_up_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -425,7 +426,7 @@ void SpriteFramesEditor::_up_pressed() {
 
 void SpriteFramesEditor::_down_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -449,7 +450,7 @@ void SpriteFramesEditor::_down_pressed() {
 
 void SpriteFramesEditor::_delete_pressed() {
 
-    ERR_FAIL_COND(!frames->has_animation(edited_anim))
+    ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
     if (tree->get_current() < 0)
         return;
@@ -479,12 +480,12 @@ void SpriteFramesEditor::_animation_select() {
     }
 
     TreeItem *selected = animations->get_selected();
-    ERR_FAIL_COND(!selected)
+    ERR_FAIL_COND(!selected);
     edited_anim = StringName(selected->get_text(0));
     _update_library(true);
 }
 
-static void _find_anim_sprites(Node *p_node, List<Node *> *r_nodes, const Ref<SpriteFrames>& p_sfames) {
+static void _find_anim_sprites(Node *p_node, Vector<Node *> *r_nodes, const Ref<SpriteFrames>& p_sfames) {
 
     Node *edited = EditorNode::get_singleton()->get_edited_scene();
     if (!edited)
@@ -523,32 +524,32 @@ void SpriteFramesEditor::_animation_name_edited() {
     if (!edited)
         return;
 
-    se_string new_name(edited->get_text(0));
+    String new_name(edited->get_text(0));
 
     if (new_name == edited_anim)
         return;
 
     new_name = StringUtils::replace(StringUtils::replace(new_name,"/", "_"),",", " ");
 
-    se_string name = new_name;
+    String name = new_name;
     int counter = 0;
     while (frames->has_animation(StringName(name))) {
         counter++;
         name = new_name + " " + itos(counter);
     }
 
-    List<Node *> nodes;
+    Vector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
     undo_redo->create_action_ui(TTR("Rename Animation"));
     undo_redo->add_do_method(frames, "rename_animation", edited_anim, name);
     undo_redo->add_undo_method(frames, "rename_animation", name, edited_anim);
 
-    for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
+    for (Node * E : nodes) {
 
-        String current = E->deref()->call("get_animation");
-        undo_redo->add_do_method(E->deref(), "set_animation", name);
-        undo_redo->add_undo_method(E->deref(), "set_animation", edited_anim);
+        UIString current = E->call("get_animation");
+        undo_redo->add_do_method(E, "set_animation", name);
+        undo_redo->add_undo_method(E, "set_animation", edited_anim);
     }
 
     undo_redo->add_do_method(this, "_update_library");
@@ -560,14 +561,14 @@ void SpriteFramesEditor::_animation_name_edited() {
 }
 void SpriteFramesEditor::_animation_add() {
 
-    se_string name("New Anim");
+    String name("New Anim");
     int counter = 0;
     while (frames->has_animation(StringName(name))) {
         counter++;
         name += " " + itos(counter);
     }
 
-    List<Node *> nodes;
+    Vector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
     undo_redo->create_action_ui(TTR("Add Animation"));
@@ -576,11 +577,11 @@ void SpriteFramesEditor::_animation_add() {
     undo_redo->add_do_method(this, "_update_library");
     undo_redo->add_undo_method(this, "_update_library");
 
-    for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
+    for (Node *E : nodes) {
 
-        se_string current = E->deref()->call("get_animation");
-        undo_redo->add_do_method(E->deref(), "set_animation", name);
-        undo_redo->add_undo_method(E->deref(), "set_animation", current);
+        String current = E->call("get_animation");
+        undo_redo->add_do_method(E, "set_animation", name);
+        undo_redo->add_undo_method(E, "set_animation", current);
     }
 
     edited_anim = StringName(name);
@@ -654,7 +655,7 @@ void SpriteFramesEditor::_update_library(bool p_skip_selector) {
 
         TreeItem *anim_root = animations->create_item();
 
-        ListPOD<StringName> anim_names;
+        List<StringName> anim_names;
 
         frames->get_animation_list(&anim_names);
 
@@ -720,7 +721,7 @@ void SpriteFramesEditor::edit(SpriteFrames *p_frames) {
 
         if (!p_frames->has_animation(edited_anim)) {
 
-            ListPOD<StringName> anim_names;
+            List<StringName> anim_names;
             frames->get_animation_list(&anim_names);
             anim_names.sort(WrapAlphaCompare());
             if (!anim_names.empty()) {
@@ -768,7 +769,7 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
     if (d.has("from") && (Object *)d["from"] == tree)
         return true;
 
-    if (String(d["type"]) == "resource" && d.has("resource")) {
+    if (UIString(d["type"]) == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -779,16 +780,16 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
         }
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
-        PoolVector<se_string> files = d["files"].as<PoolVector<se_string>>();
+        PoolVector<String> files = d["files"].as<PoolVector<String>>();
 
         if (files.empty())
             return false;
 
         for (int i = 0; i < files.size(); i++) {
-            se_string file = files[i];
-            se_string ftype = EditorFileSystem::get_singleton()->get_file_type(file);
+            String file = files[i];
+            String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
 
             if (!ClassDB::is_parent_class(StringName(ftype), "Texture")) {
                 return false;
@@ -812,7 +813,7 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
     int at_pos = tree->get_item_at_position(p_point, true);
 
-    if (String(d["type"]) == "resource" && d.has("resource")) {
+    if (UIString(d["type"]) == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -846,9 +847,9 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
-        PoolVector<se_string> files(d["files"].as<PoolVector<se_string>>());
+        PoolVector<String> files(d["files"].as<PoolVector<String>>());
 
         _file_load_request(files, at_pos);
     }
@@ -1083,7 +1084,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
 
 void SpriteFramesEditorPlugin::edit(Object *p_object) {
 
-    frames_editor->set_undo_redo(&get_undo_redo());
+    frames_editor->set_undo_redo(get_undo_redo());
 
     SpriteFrames *s;
     AnimatedSprite *animated_sprite = object_cast<AnimatedSprite>(p_object);

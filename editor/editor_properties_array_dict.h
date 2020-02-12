@@ -95,7 +95,7 @@ class EditorPropertyArray : public EditorProperty {
     VariantType array_type;
     VariantType subtype;
     PropertyHint subtype_hint;
-    se_string subtype_hint_string;
+    String subtype_hint_string;
 
     void _page_changed(double p_page);
     void _length_changed(double p_page);

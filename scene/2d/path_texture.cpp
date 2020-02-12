@@ -67,7 +67,7 @@ Ref<Texture> PathTexture::get_end_texture() const {
 
 void PathTexture::set_subdivisions(int p_amount) {
 
-    ERR_FAIL_INDEX(p_amount, 32)
+    ERR_FAIL_INDEX(p_amount, 32);
 	subdivs = p_amount;
 	update();
 }

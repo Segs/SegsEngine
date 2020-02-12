@@ -42,12 +42,12 @@ EditorRun::Status EditorRun::get_status() const {
 
     return status;
 }
-Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const List<se_string> &p_breakpoints, const bool &p_skip_breakpoints) {
+Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
 
-    PODVector<se_string> args;
+    Vector<String> args;
 
-    se_string resource_path(ProjectSettings::get_singleton()->get_resource_path());
-    se_string remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host").as<se_string>();
+    String resource_path(ProjectSettings::get_singleton()->get_resource_path());
+    String remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host").as<String>();
     int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
 
     if (!resource_path.empty()) {
@@ -156,15 +156,9 @@ Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const
     if (!p_breakpoints.empty()) {
 
         args.push_back("--breakpoints");
-        se_string bpoints;
-        for (const List<se_string>::Element *E = p_breakpoints.front(); E; E = E->next()) {
+        String bpoints = String::joined(p_breakpoints,",").replaced(" ","%20");
 
-            bpoints += StringUtils::replace(E->deref()," ", "%20");
-            if (E->next())
-                bpoints += ",";
-        }
-
-        args.push_back(bpoints);
+        args.emplace_back(eastl::move(bpoints));
     }
 
     if (p_skip_breakpoints) {
@@ -187,13 +181,13 @@ Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const
     args.push_front("--track-origins=yes");
     args.push_front(OS::get_singleton()->get_executable_path());
 #else
-    se_string exec = OS::get_singleton()->get_executable_path();
+    String exec = OS::get_singleton()->get_executable_path();
 #endif
 
     {
         QDebug msg_log(qDebug());
         msg_log<<"Running: "<<exec.c_str();
-        for (const se_string &E : args) {
+        for (const String &E : args) {
 
             msg_log<<" "<<E.data();
         }
@@ -201,7 +195,7 @@ Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const
 
     pid = 0;
     Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
 
     status = STATUS_PLAY;
 

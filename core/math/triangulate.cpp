@@ -115,7 +115,7 @@ bool Triangulate::snip(Span<const Vector2> p_contour, int u, int v, int w, int n
     return true;
 }
 
-bool Triangulate::triangulate(Span<const Vector2> contour, PODVector<int> &result) {
+bool Triangulate::triangulate(Span<const Vector2> contour, Vector<int> &result) {
     /* allocate and initialize list of Vertices in polygon */
 
     int n = contour.size();

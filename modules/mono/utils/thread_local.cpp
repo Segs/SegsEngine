@@ -31,6 +31,7 @@
 #include "thread_local.h"
 
 #ifdef WINDOWS_ENABLED
+#include "core/error_macros.h"
 #include <windows.h>
 #else
 #include <pthread.h>

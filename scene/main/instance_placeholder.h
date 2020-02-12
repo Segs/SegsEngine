@@ -40,24 +40,24 @@ class InstancePlaceholder : public Node {
 
     GDCLASS(InstancePlaceholder,Node)
 
-    se_string path;
+    String path;
     struct PropSet {
         StringName name;
         Variant value;
     };
 
-    List<PropSet> stored_values;
+    Vector<PropSet> stored_values;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
 public:
     void set_instance_path(se_string_view p_name);
-    const se_string &get_instance_path() const;
+    const String &get_instance_path() const;
 
     Dictionary get_stored_values(bool p_with_order = false);
 

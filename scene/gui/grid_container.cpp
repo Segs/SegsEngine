@@ -179,7 +179,7 @@ void GridContainer::_notification(int p_what) {
 
 void GridContainer::set_columns(int p_columns) {
 
-    ERR_FAIL_COND(p_columns < 1)
+    ERR_FAIL_COND(p_columns < 1);
     columns = p_columns;
     queue_sort();
     minimum_size_changed();
@@ -195,7 +195,7 @@ void GridContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_columns", {"columns"}), &GridContainer::set_columns);
     MethodBinder::bind_method(D_METHOD("get_columns"), &GridContainer::get_columns);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "columns", PROPERTY_HINT_RANGE, "1,1024,1"), "set_columns", "get_columns");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "columns", PropertyHint::Range, "1,1024,1"), "set_columns", "get_columns");
 }
 
 Size2 GridContainer::get_minimum_size() const {
@@ -213,7 +213,7 @@ Size2 GridContainer::get_minimum_size() const {
     for (int i = 0; i < get_child_count(); i++) {
 
         Control *c = object_cast<Control>(get_child(i));
-		if (!c || !c->is_visible())
+        if (!c || !c->is_visible())
             continue;
         int row = valid_controls_index / columns;
         int col = valid_controls_index % columns;
@@ -250,7 +250,5 @@ Size2 GridContainer::get_minimum_size() const {
 }
 
 GridContainer::GridContainer() {
-
-    set_mouse_filter(MOUSE_FILTER_PASS);
     columns = 1;
 }

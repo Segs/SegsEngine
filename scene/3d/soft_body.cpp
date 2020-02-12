@@ -52,7 +52,7 @@ SoftBodyVisualServerHandler::SoftBodyVisualServerHandler() {}
 void SoftBodyVisualServerHandler::prepare(RID p_mesh, int p_surface) {
     clear();
 
-    ERR_FAIL_COND(!p_mesh.is_valid())
+    ERR_FAIL_COND(!p_mesh.is_valid());
 
     mesh = p_mesh;
     surface = p_surface;
@@ -174,7 +174,7 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void SoftBody::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void SoftBody::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     const int pinned_points_indices_size = pinned_points.size();
 
@@ -390,26 +390,26 @@ void SoftBody::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_ray_pickable"), &SoftBody::is_ray_pickable);
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers3DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "parent_collision_ignore", PROPERTY_HINT_PROPERTY_OF_VARIANT_TYPE, "Parent collision object"), "set_parent_collision_ignore", "get_parent_collision_ignore");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "simulation_precision", PROPERTY_HINT_RANGE, "1,100,1"), "set_simulation_precision", "get_simulation_precision");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_mass", PROPERTY_HINT_RANGE, "0.01,10000,1"), "set_total_mass", "get_total_mass");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_linear_stiffness", "get_linear_stiffness");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "areaAngular_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_areaAngular_stiffness", "get_areaAngular_stiffness");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_stiffness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_volume_stiffness", "get_volume_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "parent_collision_ignore", PropertyHint::PropertyOfVariantType, "Parent collision object"), "set_parent_collision_ignore", "get_parent_collision_ignore");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "simulation_precision", PropertyHint::Range, "1,100,1"), "set_simulation_precision", "get_simulation_precision");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_mass", PropertyHint::Range, "0.01,10000,1"), "set_total_mass", "get_total_mass");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_stiffness", PropertyHint::Range, "0,1,0.01"), "set_linear_stiffness", "get_linear_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "areaAngular_stiffness", PropertyHint::Range, "0,1,0.01"), "set_areaAngular_stiffness", "get_areaAngular_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_stiffness", PropertyHint::Range, "0,1,0.01"), "set_volume_stiffness", "get_volume_stiffness");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pressure_coefficient"), "set_pressure_coefficient", "get_pressure_coefficient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drag_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pose_matching_coefficient", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping_coefficient", PropertyHint::Range, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drag_coefficient", PropertyHint::Range, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pose_matching_coefficient", PropertyHint::Range, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ray_pickable"), "set_ray_pickable", "is_ray_pickable");
 }
 
 StringName SoftBody::get_configuration_warning() const {
 
-    se_string warning(MeshInstance::get_configuration_warning());
+    String warning(MeshInstance::get_configuration_warning());
 
     if (not get_mesh()) {
         if (!warning.empty())
@@ -481,31 +481,31 @@ void SoftBody::become_mesh_owner() {
     if (not mesh)
         return;
 
-    if (!mesh_owner) {
-        mesh_owner = true;
+    if (mesh_owner) // TODO: SEGS: already has owner, report this ?
+        return;
 
-        Vector<Ref<Material> > copy_materials;
-        copy_materials.append_array(materials);
+    mesh_owner = true;
 
-        ERR_FAIL_COND(!mesh->get_surface_count())
+    Vector<Ref<Material> > copy_materials(materials);
 
-        // Get current mesh array and create new mesh array with necessary flag for softbody
-        Array surface_arrays = mesh->surface_get_arrays(0);
-        Array surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
-        uint32_t surface_format = mesh->surface_get_format(0);
+    ERR_FAIL_COND(!mesh->get_surface_count());
 
-        surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
-        surface_format |= Mesh::ARRAY_FLAG_USE_DYNAMIC_UPDATE;
+    // Get current mesh array and create new mesh array with necessary flag for softbody
+    SurfaceArrays surface_arrays = mesh->surface_get_arrays(0);
+    Vector<SurfaceArrays> surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
+    uint32_t surface_format = mesh->surface_get_format(0);
 
-        Ref<ArrayMesh> soft_mesh(make_ref_counted<ArrayMesh>());
-        soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surface_arrays, surface_blend_arrays, surface_format);
-        soft_mesh->surface_set_material(0, mesh->surface_get_material(0));
+    surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
+    surface_format |= Mesh::ARRAY_FLAG_USE_DYNAMIC_UPDATE;
 
-        set_mesh(soft_mesh);
+    Ref<ArrayMesh> soft_mesh(make_ref_counted<ArrayMesh>());
+    soft_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(surface_arrays), eastl::move(surface_blend_arrays), surface_format);
+    soft_mesh->surface_set_material(0, mesh->surface_get_material(0));
 
-        for (int i = copy_materials.size() - 1; 0 <= i; --i) {
-            set_surface_material(i, copy_materials[i]);
-        }
+    set_mesh(soft_mesh);
+
+    for (int i = copy_materials.size() - 1; 0 <= i; --i) {
+        set_surface_material(i, copy_materials[i]);
     }
 }
 
@@ -573,10 +573,10 @@ PoolVector<SoftBody::PinnedPoint> SoftBody::get_pinned_points_indices() {
 }
 
 Array SoftBody::get_collision_exceptions() {
-    List<RID> exceptions;
+    ListOld<RID> exceptions;
     PhysicsServer::get_singleton()->soft_body_get_collision_exceptions(physics_rid, &exceptions);
     Array ret;
-    for (List<RID>::Element *E = exceptions.front(); E; E = E->next()) {
+    for (ListOld<RID>::Element *E = exceptions.front(); E; E = E->next()) {
         RID body = E->deref();
         ObjectID instance_id = PhysicsServer::get_singleton()->body_get_object_instance_id(body);
         Object *obj = ObjectDB::get_instance(instance_id);
@@ -589,14 +589,14 @@ Array SoftBody::get_collision_exceptions() {
 void SoftBody::add_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
     PhysicsServer::get_singleton()->soft_body_add_collision_exception(physics_rid, collision_object->get_rid());
 }
 
 void SoftBody::remove_collision_exception_with(Node *p_node) {
     ERR_FAIL_NULL(p_node);
     CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.")
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
     PhysicsServer::get_singleton()->soft_body_remove_collision_exception(physics_rid, collision_object->get_rid());
 }
 
@@ -719,7 +719,7 @@ SoftBody::SoftBody() :
 }
 
 SoftBody::~SoftBody() {
-    PhysicsServer::get_singleton()->free(physics_rid);
+    PhysicsServer::get_singleton()->free_rid(physics_rid);
 }
 
 void SoftBody::reset_softbody_pin() {

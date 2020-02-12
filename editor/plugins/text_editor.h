@@ -104,7 +104,7 @@ protected:
     void _make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded, Vector2 p_position);
     void _text_edit_gui_input(const Ref<InputEvent> &ev);
 
-    Map<se_string, SyntaxHighlighter *> highlighters;
+    Map<String, SyntaxHighlighter *> highlighters;
     void _change_syntax_highlighter(int p_idx);
     void _load_theme_settings();
 
@@ -119,7 +119,7 @@ public:
     void add_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
     void set_syntax_highlighter(SyntaxHighlighter *p_highlighter) override;
 
-    se_string get_name() override;
+    String get_name() override;
     Ref<Texture> get_icon() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
@@ -129,8 +129,8 @@ public:
     bool is_unsaved() override;
     Variant get_edit_state() override;
     void set_edit_state(const Variant &p_state) override;
-    Vector<se_string> get_functions() override;
-    void get_breakpoints(List<int> *p_breakpoints) override;
+    Vector<String> get_functions() override;
+    void get_breakpoints(Vector<int> *p_breakpoints) override;
     void goto_line(int p_line, bool p_with_error = false) override;
     void goto_line_selection(int p_line, int p_begin, int p_end);
     void set_executing_line(int p_line) override;
@@ -146,7 +146,7 @@ public:
     bool can_lose_focus_on_node_selection() override { return true; }
     void set_debugger_active(bool p_active) override;
     void set_tooltip_request_func(se_string_view p_method, Object *p_obj) override;
-    void add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) override;
+    void add_callback(const StringName &p_function, const PoolVector<String> &p_args) override;
 
     Control *get_edit_menu() override;
     void clear_edit_menu() override;

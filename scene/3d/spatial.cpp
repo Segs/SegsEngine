@@ -109,11 +109,11 @@ void Spatial::_propagate_transform_changed(Spatial *p_origin) {
 
     data.children_lock++;
 
-    for (List<Spatial *>::Element *E = data.children.front(); E; E = E->next()) {
+    for (Spatial * E : data.children) {
 
-        if (E->deref()->data.toplevel_active)
+        if (E->data.toplevel_active)
             continue; //don't propagate to a toplevel
-        E->deref()->_propagate_transform_changed(p_origin);
+        E->_propagate_transform_changed(p_origin);
     }
 #ifdef TOOLS_ENABLED
     if ((data.gizmo || data.notify_transform) && !data.ignore_notification && !xform_change.in_list()) {
@@ -131,15 +131,14 @@ void Spatial::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
+            ERR_FAIL_COND(!get_tree());
 
             Node *p = get_parent();
             if (p)
                 data.parent = object_cast<Spatial>(p);
 
             if (data.parent)
-                data.C = data.parent->data.children.push_back(this);
-            else
-                data.C = nullptr;
+                data.parent->data.children.push_back(this);
 
             if (data.toplevel && !Engine::get_singleton()->is_editor_hint()) {
 
@@ -161,10 +160,10 @@ void Spatial::_notification(int p_what) {
             notification(NOTIFICATION_EXIT_WORLD, true);
             if (xform_change.in_list())
                 get_tree()->xform_change_list.remove(&xform_change);
-            if (data.C)
-                data.parent->data.children.erase(data.C);
+
+            if (data.parent)
+                data.parent->data.children.erase_first(this);
             data.parent = nullptr;
-            data.C = nullptr;
             data.toplevel_active = false;
         } break;
         case NOTIFICATION_ENTER_WORLD: {
@@ -177,7 +176,7 @@ void Spatial::_notification(int p_what) {
                 parent = parent->get_parent();
             }
 
-            ERR_FAIL_COND(!data.viewport)
+            ERR_FAIL_COND(!data.viewport);
 
             if (get_script_instance()) {
 
@@ -270,7 +269,7 @@ Transform Spatial::get_transform() const {
 }
 Transform Spatial::get_global_transform() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), Transform())
+    ERR_FAIL_COND_V(!is_inside_tree(), Transform());
 
     if (data.dirty & DIRTY_GLOBAL) {
 
@@ -317,7 +316,7 @@ Transform Spatial::get_relative_transform(const Node *p_parent) const {
     if (p_parent == this)
         return Transform();
 
-    ERR_FAIL_COND_V(!data.parent, Transform())
+    ERR_FAIL_COND_V(!data.parent, Transform());
 
     if (p_parent == data.parent)
         return get_transform();
@@ -515,8 +514,8 @@ bool Spatial::is_set_as_toplevel() const {
 
 Ref<World> Spatial::get_world() const {
 
-    ERR_FAIL_COND_V(!is_inside_world(), Ref<World>())
-    ERR_FAIL_COND_V(!data.viewport, Ref<World>())
+    ERR_FAIL_COND_V(!is_inside_world(), Ref<World>());
+    ERR_FAIL_COND_V(!data.viewport, Ref<World>());
 
     return data.viewport->find_world();
 }
@@ -531,9 +530,8 @@ void Spatial::_propagate_visibility_changed() {
         _update_gizmo();
 #endif
 
-    for (List<Spatial *>::Element *E = data.children.front(); E; E = E->next()) {
+    for (Spatial * c : data.children) {
 
-        Spatial *c = E->deref();
         if (!c || !c->data.visible)
             continue;
         c->_propagate_visibility_changed();
@@ -694,8 +692,8 @@ void Spatial::look_at(const Vector3 &p_target, const Vector3 &p_up) {
 
 void Spatial::look_at_from_position(const Vector3 &p_pos, const Vector3 &p_target, const Vector3 &p_up) {
 
-    ERR_FAIL_COND_MSG(p_pos == p_target, "Node origin and target are in the same position, look_at() failed.")
-    ERR_FAIL_COND_MSG(p_up.cross(p_target - p_pos) == Vector3(), "Up vector and direction between node origin and target are aligned, look_at() failed.")
+    ERR_FAIL_COND_MSG(p_pos == p_target, "Node origin and target are in the same position, look_at() failed."); 
+    ERR_FAIL_COND_MSG(p_up.cross(p_target - p_pos) == Vector3(), "Up vector and direction between node origin and target are aligned, look_at() failed."); 
 
     Transform lookat;
     lookat.origin = p_pos;
@@ -733,7 +731,7 @@ bool Spatial::is_local_transform_notification_enabled() const {
 }
 
 void Spatial::force_update_transform() {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     if (!xform_change.in_list()) {
         return; //nothing to update
     }
@@ -809,18 +807,18 @@ void Spatial::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_EXIT_WORLD);
     BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED);
 
-    //ADD_PROPERTY( PropertyInfo(VariantType::TRANSFORM,"transform/global",PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR ), "set_global_transform", "get_global_transform") ;
+    //ADD_PROPERTY( PropertyInfo(VariantType::TRANSFORM,"transform/global",PropertyHint::None, "", PROPERTY_USAGE_EDITOR ), "set_global_transform", "get_global_transform") ;
     ADD_GROUP("Transform", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "global_transform", PROPERTY_HINT_NONE, "", 0), "set_global_transform", "get_global_transform");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "translation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_translation", "get_translation");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation", PROPERTY_HINT_NONE, "", 0), "set_rotation", "get_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "scale", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "set_scale", "get_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "global_transform", PropertyHint::None, "", 0), "set_global_transform", "get_global_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "translation", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_translation", "get_translation");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation_degrees", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation", PropertyHint::None, "", 0), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "scale", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_scale", "get_scale");
     ADD_GROUP("Matrix", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "transform", PROPERTY_HINT_NONE, ""), "set_transform", "get_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "transform", PropertyHint::None, ""), "set_transform", "get_transform");
     ADD_GROUP("Visibility", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gizmo", PROPERTY_HINT_RESOURCE_TYPE, "SpatialGizmo", 0), "set_gizmo", "get_gizmo");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gizmo", PropertyHint::ResourceType, "SpatialGizmo", 0), "set_gizmo", "get_gizmo");
 
     ADD_SIGNAL(MethodInfo("visibility_changed"));
 }
@@ -847,7 +845,6 @@ Spatial::Spatial() :
     data.notify_local_transform = false;
     data.notify_transform = false;
     data.parent = nullptr;
-    data.C = nullptr;
 }
 
 Spatial::~Spatial() {

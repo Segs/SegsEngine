@@ -43,7 +43,7 @@ void LinkButton::set_text(se_string_view p_text)
     minimum_size_changed();
 }
 
-const se_string & LinkButton::get_text() const {
+const String & LinkButton::get_text() const {
     return text;
 }
 
@@ -60,7 +60,7 @@ LinkButton::UnderlineMode LinkButton::get_underline_mode() const {
 
 Size2 LinkButton::get_minimum_size() const {
 
-    return get_font("font")->get_string_size_utf8(text);
+    return get_font("font")->get_string_size(text);
 }
 
 void LinkButton::_notification(int p_what) {
@@ -114,11 +114,11 @@ void LinkButton::_notification(int p_what) {
 
             Ref<Font> font = get_font("font");
 
-            draw_string_utf8(font, Vector2(0, font->get_ascent()), text, color);
+            draw_string(font, Vector2(0, font->get_ascent()), text, color);
 
             if (do_underline) {
                 int underline_spacing = get_constant("underline_spacing");
-                int width = font->get_string_size_utf8(text).width;
+                int width = font->get_string_size(text).width;
                 int y = font->get_ascent() + underline_spacing;
 
                 draw_line(Vector2(0, y), Vector2(width, y), color);
@@ -141,7 +141,7 @@ void LinkButton::_bind_methods() {
     BIND_ENUM_CONSTANT(UNDERLINE_MODE_NEVER)
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text"), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "underline", PROPERTY_HINT_ENUM, "Always,On Hover,Never"), "set_underline_mode", "get_underline_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "underline", PropertyHint::Enum, "Always,On Hover,Never"), "set_underline_mode", "get_underline_mode");
 }
 
 LinkButton::LinkButton() {

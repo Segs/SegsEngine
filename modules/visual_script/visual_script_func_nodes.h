@@ -57,7 +57,7 @@ public:
 private:
     CallMode call_mode;
     StringName base_type;
-    se_string base_script;
+    String base_script;
     VariantType basic_type;
     NodePath base_path;
     StringName function;
@@ -65,7 +65,7 @@ private:
     RPCCallMode rpc_call_mode;
     StringName singleton;
     bool validate;
-
+public:
     Node *_get_base_node() const;
     StringName _get_base_type() const;
 
@@ -93,7 +93,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     void set_basic_type(VariantType p_type);
@@ -103,7 +103,7 @@ public:
     StringName get_base_type() const;
 
     void set_base_script(se_string_view p_path);
-    const se_string &get_base_script() const;
+    const String &get_base_script() const;
 
     void set_singleton(const StringName &p_type);
     StringName get_singleton() const;
@@ -167,7 +167,7 @@ private:
     CallMode call_mode;
     VariantType basic_type;
     StringName base_type;
-    se_string base_script;
+    String base_script;
     NodePath base_path;
     StringName property;
     StringName index;
@@ -179,7 +179,7 @@ private:
     void _update_base_type();
 
     void _update_cache();
-
+public:
     void _set_type_cache(const Dictionary &p_type);
     Dictionary _get_type_cache() const;
 
@@ -203,14 +203,14 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     void set_base_type(const StringName &p_type);
     StringName get_base_type() const;
 
     void set_base_script(se_string_view p_path);
-    const se_string &get_base_script() const;
+    const String &get_base_script() const;
 
     void set_basic_type(VariantType p_type);
     VariantType get_basic_type() const;
@@ -256,7 +256,7 @@ private:
     CallMode call_mode;
     VariantType basic_type;
     StringName base_type;
-    se_string base_script;
+    String base_script;
     NodePath base_path;
     StringName property;
     StringName index;
@@ -267,6 +267,7 @@ private:
 
     void _update_cache();
 
+public:
     void _set_type_cache(VariantType p_type);
     VariantType _get_type_cache() const;
 
@@ -288,14 +289,14 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     void set_base_type(const StringName &p_type);
     StringName get_base_type() const;
 
     void set_base_script(se_string_view p_path);
-    const se_string &get_base_script() const { return base_script; }
+    const String &get_base_script() const { return base_script; }
 
     void set_basic_type(VariantType p_type);
     VariantType get_basic_type() const;

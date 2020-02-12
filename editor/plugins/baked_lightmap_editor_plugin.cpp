@@ -91,19 +91,19 @@ EditorProgress *BakedLightmapEditorPlugin::tmp_progress = nullptr;
 
 void BakedLightmapEditorPlugin::bake_func_begin(int p_steps) {
 
-    ERR_FAIL_COND(tmp_progress != nullptr)
+    ERR_FAIL_COND(tmp_progress != nullptr);
 
     tmp_progress = memnew(EditorProgress(("bake_lightmaps"), TTR("Bake Lightmaps"), p_steps, true));
 }
 
 bool BakedLightmapEditorPlugin::bake_func_step(int p_step, se_string_view p_description) {
 
-    ERR_FAIL_COND_V(tmp_progress == nullptr, false)
+    ERR_FAIL_COND_V(tmp_progress == nullptr, false);
     return tmp_progress->step(StringName(p_description), p_step, false);
 }
 
 void BakedLightmapEditorPlugin::bake_func_end() {
-    ERR_FAIL_COND(tmp_progress == nullptr)
+    ERR_FAIL_COND(tmp_progress == nullptr);
     memdelete(tmp_progress);
     tmp_progress = nullptr;
 }
@@ -117,7 +117,7 @@ BakedLightmapEditorPlugin::BakedLightmapEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
     bake = memnew(ToolButton);
-    bake->set_icon(editor->get_gui_base()->get_icon("Bake", "EditorIcons"));
+    bake->set_button_icon(editor->get_gui_base()->get_icon("Bake", "EditorIcons"));
     bake->set_text(TTR("Bake Lightmaps"));
     bake->hide();
     bake->connect("pressed", this, "_bake");

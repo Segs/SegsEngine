@@ -69,6 +69,7 @@ set(core_sources
     io/net_socket.h
     io/networked_multiplayer_peer.cpp
     io/networked_multiplayer_peer.h
+    io/networked_multiplayer_peer_enum_casters.h
     io/packet_peer.cpp
     io/packet_peer.h
     io/packet_peer_udp.cpp
@@ -358,9 +359,19 @@ if(USE_UNITY_BUILDS)
     set_target_properties(se_core PROPERTIES UNITY_BUILD ON)
     set_target_properties(se_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
 endif()
+if(USE_PRECOMPILED_HEADERS)
 
-target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core)
-target_link_libraries(se_core PRIVATE EASTL zstd_internal minizip thirdparty_misc )
+    target_precompile_headers(se_core
+      PRIVATE
+      "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>" # had to add this, otherwise the generated c-header was buggy
+      $<$<COMPILE_LANGUAGE:CXX>:core/precompiled.h>
+    )
+    #Fixme: under visual studio precompiled header is not used when we're doing unity builds as well!
+    set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/se_core.dir/cmake_pch.cxx PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+endif()
+#zstd_internal is in public part of target_link_libraries to propagate it's flags to all users of se_core
+target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_internal)
+target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
 set_common_target_properties(se_core)
 
@@ -375,6 +386,11 @@ foreach(tgt ${global_targets})
         ${core_sources} ${tool_core_sources}
         service_interfaces/CoreInterface.h
     )
+if(USE_PRECOMPILED_HEADERS)
+    foreach(tgt ${global_targets})
+        target_precompile_headers(${tgt}_core REUSE_FROM se_core)
+    endforeach()
+endif()
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
     target_link_libraries(${tgt}_core PUBLIC se_core)
@@ -395,6 +411,7 @@ foreach(tgt ${global_targets})
     target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})
     target_include_directories(${tgt}_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
     target_include_directories(${tgt}_core PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
+    set_target_properties(${tgt}_core PROPERTIES AUTOMOC TRUE)
 
     target_include_directories(${tgt}_engine INTERFACE
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
@@ -402,7 +419,9 @@ foreach(tgt ${global_targets})
     )
 
     set_common_target_properties(${tgt}_core)
-#    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
-#    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+if(USE_UNITY_BUILDS)
+    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
+    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+endif()
 
 endforeach()

@@ -34,15 +34,17 @@
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "constraint_bullet.h"
+#include "godot_collision_configuration.h"
+#include "godot_collision_dispatcher.h"
+#include "rigid_body_bullet.h"
+#include "soft_body_bullet.h"
+#include "shape_bullet.h"
+#include "area_bullet.h"
 #include "core/class_db.h"
 #include "core/object_db.h"
 #include "core/project_settings.h"
 #include "core/ustring.h"
-#include "godot_collision_configuration.h"
-#include "godot_collision_dispatcher.h"
-#include "rigid_body_bullet.h"
 #include "servers/physics_server.h"
-#include "soft_body_bullet.h"
 
 #include <BulletCollision/BroadphaseCollision/btBroadphaseProxy.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
@@ -114,7 +116,7 @@ bool BulletPhysicsDirectSpaceState::intersect_ray(const Vector3 &p_from, const V
             r_result.collider_id = gObj->get_instance_id();
             r_result.collider = 0 == r_result.collider_id ? nullptr : ObjectDB::get_instance(r_result.collider_id);
         } else {
-            WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.")
+            WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.");
         }
         return true;
     } else {
@@ -131,7 +133,7 @@ int BulletPhysicsDirectSpaceState::intersect_shape(const RID &p_shape, const Tra
     btCollisionShape *btShape = shape->create_bt_shape(p_xform.basis.get_scale_abs(), p_margin);
     if (!btShape->isConvex()) {
         bulletdelete(btShape);
-        ERR_PRINT("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()))
+        ERR_PRINT("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
         return 0;
     }
     btConvexShape *btConvex = static_cast<btConvexShape *>(btShape);
@@ -216,7 +218,7 @@ bool BulletPhysicsDirectSpaceState::collide_shape(RID p_shape, const Transform &
     btCollisionShape *btShape = shape->create_bt_shape(p_shape_xform.basis.get_scale_abs(), p_margin);
     if (!btShape->isConvex()) {
         bulletdelete(btShape)
-        ERR_PRINT("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()))
+        ERR_PRINT("The shape is not a convex shape, then is not supported: shape type: " + itos(shape->get_type()));
         return false;
     }
     btConvexShape *btConvex = static_cast<btConvexShape *>(btShape);
@@ -282,7 +284,7 @@ bool BulletPhysicsDirectSpaceState::rest_info(RID p_shape, const Transform &p_sh
 Vector3 BulletPhysicsDirectSpaceState::get_closest_point_to_object_volume(RID p_object, const Vector3 p_point) const {
 
     RigidCollisionObjectBullet *rigid_object = space->get_physics_server()->get_rigid_collisin_object(p_object);
-    ERR_FAIL_COND_V(!rigid_object, Vector3())
+    ERR_FAIL_COND_V(!rigid_object, Vector3());
 
     btVector3 out_closest_point(0, 0, 0);
     btScalar out_distance = 1e20;
@@ -393,7 +395,7 @@ void SpaceBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant 
         case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             break;
         default:
-            WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.")
+            WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
             break;
     }
 }
@@ -459,7 +461,7 @@ void SpaceBullet::add_area(AreaBullet *p_area) {
 }
 
 void SpaceBullet::remove_area(AreaBullet *p_area) {
-    areas.erase(p_area);
+    areas.erase_first(p_area);
     dynamicsWorld->removeCollisionObject(p_area->get_bt_ghost());
 }
 
@@ -595,7 +597,7 @@ void SpaceBullet::create_empty_world(bool p_create_soft_world) {
         world_mem = malloc(sizeof(btDiscreteDynamicsWorld));
     }
 
-    ERR_FAIL_COND_MSG(!world_mem, "Out of memory.")
+    ERR_FAIL_COND_MSG(!world_mem, "Out of memory."); 
 
     if (p_create_soft_world) {
         collisionConfiguration = bulletnew(GodotSoftCollisionConfiguration(static_cast<btDiscreteDynamicsWorld *>(world_mem)));
@@ -680,7 +682,7 @@ void SpaceBullet::check_ghost_overlaps() {
 
         /// 1. Reset all states
         for (i = area->overlappingObjects.size() - 1; 0 <= i; --i) {
-            AreaBullet::OverlappingObjectData &otherObj = area->overlappingObjects.write[i];
+            AreaBullet::OverlappingObjectData &otherObj = area->overlappingObjects[i];
             // This check prevent the overwrite of ENTER state
             // if this function is called more times before dispatchCallbacks
             if (otherObj.state != AreaBullet::OVERLAP_STATE_ENTER) {
@@ -1125,44 +1127,46 @@ public:
     bool process(const btBroadphaseProxy *proxy) override {
 
         btCollisionObject *co = static_cast<btCollisionObject *>(proxy->m_clientObject);
-        if (co->getInternalType() <= btCollisionObject::CO_RIGID_BODY) {
-            if (self_collision_object != proxy->m_clientObject && GodotFilterCallback::test_collision_filters(collision_layer, collision_mask, proxy->m_collisionFilterGroup, proxy->m_collisionFilterMask)) {
-                if (co->getCollisionShape()->isCompound()) {
-                    const btCompoundShape *cs = static_cast<btCompoundShape *>(co->getCollisionShape());
-
-                    if (cs->getNumChildShapes() > 1) {
-                        const btDbvt *tree = cs->getDynamicAabbTree();
-                        ERR_FAIL_COND_V(tree == nullptr, true)
-
-                        // Transform bounds into compound shape local space
-                        const btTransform other_in_compound_space = co->getWorldTransform().inverse();
-                        const btMatrix3x3 abs_b = other_in_compound_space.getBasis().absolute();
-                        const btVector3 local_center = other_in_compound_space(bounds.Center());
-                        const btVector3 local_extent = bounds.Extents().dot3(abs_b[0], abs_b[1], abs_b[2]);
-                        const btVector3 local_aabb_min = local_center - local_extent;
-                        const btVector3 local_aabb_max = local_center + local_extent;
-                        const btDbvtVolume local_bounds = btDbvtVolume::FromMM(local_aabb_min, local_aabb_max);
-
-                        // Test collision against compound child shapes using its AABB tree
-                        CompoundLeafCallback compound_leaf_callback(this, co);
-                        tree->collideTV(tree->m_root, local_bounds, compound_leaf_callback);
-                    } else {
-                        // If there's only a single child shape then there's no need to search any more, we know which child overlaps
-                        BroadphaseResult result;
-                        result.collision_object = co;
-                        result.compound_child_index = 0;
-                        results.push_back(result);
-                    }
-                } else {
-                    BroadphaseResult result;
-                    result.collision_object = co;
-                    result.compound_child_index = -1;
-                    results.push_back(result);
-                }
-                return true;
-            }
+        if (co->getInternalType() > btCollisionObject::CO_RIGID_BODY) {
+            return false;
         }
-        return false;
+
+        if (self_collision_object == proxy->m_clientObject || !GodotFilterCallback::test_collision_filters(collision_layer, collision_mask, proxy->m_collisionFilterGroup, proxy->m_collisionFilterMask))
+            return false;
+
+        if (co->getCollisionShape()->isCompound()) {
+            const btCompoundShape *cs = static_cast<btCompoundShape *>(co->getCollisionShape());
+
+            if (cs->getNumChildShapes() > 1) {
+                const btDbvt *tree = cs->getDynamicAabbTree();
+                ERR_FAIL_COND_V(tree == nullptr, true);
+
+                // Transform bounds into compound shape local space
+                const btTransform other_in_compound_space = co->getWorldTransform().inverse();
+                const btMatrix3x3 abs_b = other_in_compound_space.getBasis().absolute();
+                const btVector3 local_center = other_in_compound_space(bounds.Center());
+                const btVector3 local_extent = bounds.Extents().dot3(abs_b[0], abs_b[1], abs_b[2]);
+                const btVector3 local_aabb_min = local_center - local_extent;
+                const btVector3 local_aabb_max = local_center + local_extent;
+                const btDbvtVolume local_bounds = btDbvtVolume::FromMM(local_aabb_min, local_aabb_max);
+
+                // Test collision against compound child shapes using its AABB tree
+                CompoundLeafCallback compound_leaf_callback(this, co);
+                tree->collideTV(tree->m_root, local_bounds, compound_leaf_callback);
+            } else {
+                // If there's only a single child shape then there's no need to search any more, we know which child overlaps
+                BroadphaseResult result;
+                result.collision_object = co;
+                result.compound_child_index = 0;
+                results.emplace_back(result);
+            }
+        } else {
+            BroadphaseResult result;
+            result.collision_object = co;
+            result.compound_child_index = -1;
+            results.emplace_back(result);
+        }
+        return true;
     }
 };
 
@@ -1243,7 +1247,7 @@ bool SpaceBullet::recover_from_penetration(RigidBodyBullet *p_body, const btTran
             if (otherObject->getCollisionShape()->isCompound()) {
                 const btCompoundShape *cs = static_cast<const btCompoundShape *>(otherObject->getCollisionShape());
                 int shape_idx = recover_broad_result.results[i].compound_child_index;
-                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false)
+                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false);
 
                 if (cs->getChildShape(shape_idx)->isConvex()) {
                     if (RFP_convex_convex_test(kin_shape.shape, static_cast<const btConvexShape *>(cs->getChildShape(shape_idx)), otherObject, kinIndex, shape_idx, shape_transform, otherObject->getWorldTransform() * cs->getChildTransform(shape_idx), p_recover_movement_scale, r_delta_recover_movement, r_recover_result)) {
@@ -1442,7 +1446,7 @@ int SpaceBullet::recover_from_penetration_ray(RigidBodyBullet *p_body, const btT
             if (otherObject->getCollisionShape()->isCompound()) {
                 const btCompoundShape *cs = static_cast<const btCompoundShape *>(otherObject->getCollisionShape());
                 int shape_idx = recover_broad_result.results[i].compound_child_index;
-                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false)
+                ERR_FAIL_COND_V(shape_idx < 0 || shape_idx >= cs->getNumChildShapes(), false);
 
                 RecoverResult recover_result;
                 if (RFP_convex_world_test(kin_shape.shape, cs->getChildShape(shape_idx), p_body->get_bt_collision_object(), otherObject, kinIndex, shape_idx, shape_transform, otherObject->getWorldTransform() * cs->getChildTransform(shape_idx), p_recover_movement_scale, r_delta_recover_movement, &recover_result)) {

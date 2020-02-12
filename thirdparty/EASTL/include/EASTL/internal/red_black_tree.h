@@ -484,7 +484,7 @@ namespace eastl
         void erase(const key_type* first, const key_type* last);
 
         void clear();
-        void reset_lose_memory(); // This is a unilateral reset to an initially empty state. No destructors are called, no deallocation occurs.
+        void reset_lose_memory() noexcept; // This is a unilateral reset to an initially empty state. No destructors are called, no deallocation occurs.
 
         iterator       find(const key_type& key);
         const_iterator find(const key_type& key) const;
@@ -1665,7 +1665,7 @@ namespace eastl
 
 
     template <typename K, typename V, typename C, typename A, typename E, bool bM, bool bU>
-    inline void rbtree<K, V, C, A, E, bM, bU>::reset_lose_memory()
+    inline void rbtree<K, V, C, A, E, bM, bU>::reset_lose_memory() noexcept
     {
         // The reset_lose_memory function is a special extension function which unilaterally
         // resets the container to an empty state without freeing the memory of

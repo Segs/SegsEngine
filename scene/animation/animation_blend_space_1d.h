@@ -53,23 +53,20 @@ class AnimationNodeBlendSpace1D : public AnimationRootNode {
 
     float snap;
 
-    se_string value_label;
-
-    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
-
-    void _tree_changed();
-
+    String value_label;
     StringName blend_position;
-
+public:
+    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
+    void _tree_changed();
 protected:
     void _validate_property(PropertyInfo &property) const override;
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
 
     void add_blend_point(const Ref<AnimationRootNode> &p_node, float p_position, int p_at_index = -1);
     void set_blend_point_position(int p_point, float p_position);
@@ -90,7 +87,7 @@ public:
     float get_snap() const;
 
     void set_value_label(se_string_view p_label);
-    const se_string &get_value_label() const;
+    const String &get_value_label() const;
 
     float process(float p_time, bool p_seek) override;
     se_string_view get_caption() const override;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="EditorSettings" inherits="Resource" category="Core" version="3.2">
+<class name="EditorSettings" inherits="Resource" version="4.0">
 	<brief_description>
 		Object that holds the project-independent editor settings.
 	</brief_description>
@@ -23,7 +23,7 @@
 			<description>
 				Adds a custom property info to a property. The dictionary must contain:
 				- [code]name[/code]: [String] (the name of the property)
-				- [code]type[/code]: [int] (see [enum Variant.Type])
+				- [code]type[/code]: [int] (see [enum VariantType])
 				- optionally [code]hint[/code]: [int] (see [enum PropertyHint]) and [code]hint_string[/code]: [String]
 				[b]Example:[/b]
 				[codeblock]
@@ -32,7 +32,7 @@
 				var property_info = {
 				    "name": "category/property_name",
 				    "type": TYPE_INT,
-				    "hint": PROPERTY_HINT_ENUM,
+                    "hint": PropertyHint::Enum,
 				    "hint_string": "one,two,three"
 				}
 

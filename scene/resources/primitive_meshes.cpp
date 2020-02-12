@@ -49,55 +49,49 @@ IMPL_GDCLASS(PointMesh)
 */
 void PrimitiveMesh::_update() const {
 
-    Array arr;
-    arr.resize(VS::ARRAY_MAX);
+    SurfaceArrays arr;
     _create_mesh_array(arr);
 
-    PoolVector<Vector3> points = arr[VS::ARRAY_VERTEX];
+    Span<const Vector3> points = arr.positions3();
 
     aabb = AABB();
 
     int pc = points.size();
-    ERR_FAIL_COND(pc == 0)
+    ERR_FAIL_COND(pc == 0);
     {
 
-        PoolVector<Vector3>::Read r = points.read();
         for (int i = 0; i < pc; i++) {
             if (i == 0)
-                aabb.position = r[i];
+                aabb.position = points[i];
             else
-                aabb.expand_to(r[i]);
+                aabb.expand_to(points[i]);
         }
     }
 
     if (flip_faces) {
-        PoolVector<Vector3> normals = arr[VS::ARRAY_NORMAL];
-        PoolVector<int> indices = arr[VS::ARRAY_INDEX];
+        Vector<Vector3> &normals = arr.m_normals;
+        Vector<int> &indices = arr.m_indices;
         if (normals.size() && indices.size()) {
 
             {
                 int nc = normals.size();
-                PoolVector<Vector3>::Write w = normals.write();
                 for (int i = 0; i < nc; i++) {
-                    w[i] = -w[i];
+                    normals[i] = -normals[i];
                 }
             }
 
             {
                 int ic = indices.size();
-                PoolVector<int>::Write w = indices.write();
                 for (int i = 0; i < ic; i += 3) {
-                    SWAP(w[i + 0], w[i + 1]);
+                    SWAP(indices[i + 0], indices[i + 1]);
                 }
             }
-            arr[VS::ARRAY_NORMAL] = normals;
-            arr[VS::ARRAY_INDEX] = indices;
         }
     }
 
     // in with the new
     VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, arr);
+    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, eastl::move(arr));
     VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
 
     pending_request = false;
@@ -139,8 +133,8 @@ int PrimitiveMesh::surface_get_array_index_len(int p_idx) const {
     return VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, 0);
 }
 
-Array PrimitiveMesh::surface_get_arrays(int p_surface) const {
-    ERR_FAIL_INDEX_V(p_surface, 1, Array());
+SurfaceArrays PrimitiveMesh::surface_get_arrays(int p_surface) const {
+    ERR_FAIL_INDEX_V(p_surface, 1, SurfaceArrays());
     if (pending_request) {
         _update();
     }
@@ -148,13 +142,13 @@ Array PrimitiveMesh::surface_get_arrays(int p_surface) const {
     return VisualServer::get_singleton()->mesh_surface_get_arrays(mesh, 0);
 }
 
-Array PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
-    ERR_FAIL_INDEX_V(p_surface, 1, Array());
+Vector<SurfaceArrays> PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
+    ERR_FAIL_INDEX_V(p_surface, 1, Vector<SurfaceArrays>());
     if (pending_request) {
         _update();
     }
 
-    return Array();
+    return Vector<SurfaceArrays>();
 }
 
 uint32_t PrimitiveMesh::surface_get_format(int p_idx) const {
@@ -177,7 +171,7 @@ void PrimitiveMesh::surface_set_material(int p_idx, const Ref<Material> &p_mater
 }
 
 Ref<Material> PrimitiveMesh::surface_get_material(int p_idx) const {
-    ERR_FAIL_INDEX_V(p_idx, 1, Ref<Material>())
+    ERR_FAIL_INDEX_V(p_idx, 1, Ref<Material>());
 
     return material;
 }
@@ -211,7 +205,7 @@ void PrimitiveMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &PrimitiveMesh::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &PrimitiveMesh::get_material);
 
-    MethodBinder::bind_method(D_METHOD("get_mesh_arrays"), &PrimitiveMesh::get_mesh_arrays);
+    MethodBinder::bind_method(D_METHOD("get_mesh_arrays"), &PrimitiveMesh::_get_mesh_arrays);
 
     MethodBinder::bind_method(D_METHOD("set_custom_aabb", {"aabb"}), &PrimitiveMesh::set_custom_aabb);
     MethodBinder::bind_method(D_METHOD("get_custom_aabb"), &PrimitiveMesh::get_custom_aabb);
@@ -219,8 +213,8 @@ void PrimitiveMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_flip_faces", {"flip_faces"}), &PrimitiveMesh::set_flip_faces);
     MethodBinder::bind_method(D_METHOD("get_flip_faces"), &PrimitiveMesh::get_flip_faces);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PROPERTY_HINT_RESOURCE_TYPE, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
-    ADD_PROPERTY(PropertyInfo(VariantType::AABB, "custom_aabb", PROPERTY_HINT_NONE, ""), "set_custom_aabb", "get_custom_aabb");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::AABB, "custom_aabb", PropertyHint::None, ""), "set_custom_aabb", "get_custom_aabb");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_faces"), "set_flip_faces", "get_flip_faces");
 }
 
@@ -237,8 +231,11 @@ void PrimitiveMesh::set_material(const Ref<Material> &p_material) {
 Ref<Material> PrimitiveMesh::get_material() const {
     return material;
 }
+Array PrimitiveMesh::_get_mesh_arrays() const {
+    return (Array)get_mesh_arrays();
+}
 
-Array PrimitiveMesh::get_mesh_arrays() const {
+SurfaceArrays PrimitiveMesh::get_mesh_arrays() const {
     return surface_get_arrays(0);
 }
 
@@ -277,14 +274,14 @@ PrimitiveMesh::PrimitiveMesh() {
 }
 
 PrimitiveMesh::~PrimitiveMesh() {
-    VisualServer::get_singleton()->free(mesh);
+    VisualServer::get_singleton()->free_rid(mesh);
 }
 
 /**
     CapsuleMesh
 */
 
-void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
+void CapsuleMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z, u, v, w;
     float onethird = 1.0f / 3.0f;
@@ -292,11 +289,11 @@ void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
 
     // note, this has been aligned with our collision shape but I've left the descriptions as top/middle/bottom
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -423,11 +420,11 @@ void CapsuleMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);
 }
 
 void CapsuleMesh::_bind_methods() {
@@ -441,10 +438,10 @@ void CapsuleMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_rings", {"rings"}), &CapsuleMesh::set_rings);
     MethodBinder::bind_method(D_METHOD("get_rings"), &CapsuleMesh::get_rings);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mid_height", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_mid_height", "get_mid_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PROPERTY_HINT_RANGE, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PROPERTY_HINT_RANGE, "1,100,1,or_greater"), "set_rings", "get_rings");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mid_height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_mid_height", "get_mid_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1,or_greater"), "set_rings", "get_rings");
 }
 
 void CapsuleMesh::set_radius(const float p_radius) {
@@ -495,7 +492,7 @@ CapsuleMesh::CapsuleMesh() {
   CubeMesh
 */
 
-void CubeMesh::_create_mesh_array(Array &p_arr) const {
+void CubeMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
     const float onethird = 1.0f / 3.0f;
@@ -505,11 +502,11 @@ void CubeMesh::_create_mesh_array(Array &p_arr) const {
 
     // set our bounding box
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -680,11 +677,11 @@ void CubeMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void CubeMesh::_bind_methods() {
@@ -699,9 +696,9 @@ void CubeMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_subdivide_depth"), &CubeMesh::get_subdivide_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "size"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_height", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_height", "get_subdivide_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_depth", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_height", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_height", "get_subdivide_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_depth", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
 }
 
 void CubeMesh::set_size(const Vector3 &p_size) {
@@ -752,15 +749,15 @@ CubeMesh::CubeMesh() {
   CylinderMesh
 */
 
-void CylinderMesh::_create_mesh_array(Array &p_arr) const {
+void CylinderMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z, u, v, radius;
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -847,13 +844,13 @@ void CylinderMesh::_create_mesh_array(Array &p_arr) const {
 
     // add bottom
     if (bottom_radius > 0.0) {
-        y = height * -0.5;
+        y = height * -0.5f;
 
         thisrow = point;
         points.push_back(Vector3(0.0, y, 0.0));
         normals.push_back(Vector3(0.0, -1.0, 0.0));
         ADD_TANGENT(1.0, 0.0, 0.0, 1.0)
-        uvs.push_back(Vector2(0.75, 0.75));
+        uvs.push_back(Vector2(0.75f, 0.75f));
         point++;
 
         for (i = 0; i <= radial_segments; i++) {
@@ -881,11 +878,11 @@ void CylinderMesh::_create_mesh_array(Array &p_arr) const {
         };
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void CylinderMesh::_bind_methods() {
@@ -901,11 +898,11 @@ void CylinderMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_rings", {"rings"}), &CylinderMesh::set_rings);
     MethodBinder::bind_method(D_METHOD("get_rings"), &CylinderMesh::get_rings);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "top_radius", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_top_radius", "get_top_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bottom_radius", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_bottom_radius", "get_bottom_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PROPERTY_HINT_RANGE, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PROPERTY_HINT_RANGE, "1,100,1,or_greater"), "set_rings", "get_rings");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "top_radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_top_radius", "get_top_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bottom_radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_bottom_radius", "get_bottom_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1,or_greater"), "set_rings", "get_rings");
 }
 
 void CylinderMesh::set_top_radius(const float p_radius) {
@@ -966,17 +963,17 @@ CylinderMesh::CylinderMesh() {
   PlaneMesh
 */
 
-void PlaneMesh::_create_mesh_array(Array &p_arr) const {
+void PlaneMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, z;
 
     Size2 start_pos = size * -0.5;
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1020,11 +1017,11 @@ void PlaneMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void PlaneMesh::_bind_methods() {
@@ -1037,8 +1034,8 @@ void PlaneMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_subdivide_depth"), &PlaneMesh::get_subdivide_depth);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_depth", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_depth", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
 }
 
 void PlaneMesh::set_size(const Size2 &p_size) {
@@ -1079,7 +1076,7 @@ PlaneMesh::PlaneMesh() {
   PrismMesh
 */
 
-void PrismMesh::_create_mesh_array(Array &p_arr) const {
+void PrismMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
     const float onethird = 1.0f / 3.0f;
@@ -1089,11 +1086,11 @@ void PrismMesh::_create_mesh_array(Array &p_arr) const {
 
     // set our bounding box
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1280,11 +1277,11 @@ void PrismMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void PrismMesh::_bind_methods() {
@@ -1301,11 +1298,11 @@ void PrismMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_subdivide_depth", {"segments"}), &PrismMesh::set_subdivide_depth);
     MethodBinder::bind_method(D_METHOD("get_subdivide_depth"), &PrismMesh::get_subdivide_depth);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "left_to_right", PROPERTY_HINT_RANGE, "-2.0,2.0,0.1"), "set_left_to_right", "get_left_to_right");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "left_to_right", PropertyHint::Range, "-2.0,2.0,0.1"), "set_left_to_right", "get_left_to_right");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "size"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_height", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_height", "get_subdivide_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_depth", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_height", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_height", "get_subdivide_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_depth", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
 }
 
 void PrismMesh::set_left_to_right(const float p_left_to_right) {
@@ -1366,11 +1363,11 @@ PrismMesh::PrismMesh() {
   QuadMesh
 */
 
-void QuadMesh::_create_mesh_array(Array &p_arr) const {
-    PoolVector<Vector3> faces;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
+void QuadMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
+    Vector<Vector3> faces;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
 
     faces.resize(6);
     normals.resize(6);
@@ -1394,12 +1391,12 @@ void QuadMesh::_create_mesh_array(Array &p_arr) const {
     for (int i = 0; i < 6; i++) {
 
         int j = indices[i];
-        faces.set(i, quad_faces[j]);
-        normals.set(i, Vector3(0, 0, 1));
-        tangents.set(i * 4 + 0, 1.0);
-        tangents.set(i * 4 + 1, 0.0);
-        tangents.set(i * 4 + 2, 0.0);
-        tangents.set(i * 4 + 3, 1.0);
+        faces[i] = quad_faces[j];
+        normals[i] = Vector3(0, 0, 1);
+        tangents[i * 4 + 0] = 1.0;
+        tangents[i * 4 + 1] = 0.0;
+        tangents[i * 4 + 2] = 0.0;
+        tangents[i * 4 + 3] = 1.0;
 
         static const Vector2 quad_uv[4] = {
             Vector2(0, 1),
@@ -1408,13 +1405,13 @@ void QuadMesh::_create_mesh_array(Array &p_arr) const {
             Vector2(1, 1),
         };
 
-        uvs.set(i, quad_uv[j]);
+        uvs[i]=quad_uv[j];
     }
 
-    p_arr[VS::ARRAY_VERTEX] = faces;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
+    p_arr.set_positions(eastl::move(faces));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
 }
 
 void QuadMesh::_bind_methods() {
@@ -1441,17 +1438,17 @@ Size2 QuadMesh::get_size() const {
   SphereMesh
 */
 
-void SphereMesh::_create_mesh_array(Array &p_arr) const {
+void SphereMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z;
 
     // set our bounding box
 
-    PoolVector<Vector3> points;
-    PoolVector<Vector3> normals;
-    PoolVector<float> tangents;
-    PoolVector<Vector2> uvs;
-    PoolVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1504,11 +1501,11 @@ void SphereMesh::_create_mesh_array(Array &p_arr) const {
         thisrow = point;
     };
 
-    p_arr[VS::ARRAY_VERTEX] = points;
-    p_arr[VS::ARRAY_NORMAL] = normals;
-    p_arr[VS::ARRAY_TANGENT] = tangents;
-    p_arr[VS::ARRAY_TEX_UV] = Variant(uvs);
-    p_arr[VS::ARRAY_INDEX] = indices;
+    p_arr.set_positions(eastl::move(points));
+    p_arr.m_normals = eastl::move(normals);
+    p_arr.m_tangents = eastl::move(tangents);
+    p_arr.m_uv_1 = eastl::move(uvs);
+    p_arr.m_indices = eastl::move(indices);;
 }
 
 void SphereMesh::_bind_methods() {
@@ -1525,10 +1522,10 @@ void SphereMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_is_hemisphere", {"is_hemisphere"}), &SphereMesh::set_is_hemisphere);
     MethodBinder::bind_method(D_METHOD("get_is_hemisphere"), &SphereMesh::get_is_hemisphere);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PROPERTY_HINT_RANGE, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PROPERTY_HINT_RANGE, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PROPERTY_HINT_RANGE, "1,100,1,or_greater"), "set_rings", "get_rings");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1,or_greater"), "set_rings", "get_rings");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "is_hemisphere"), "set_is_hemisphere", "get_is_hemisphere");
 }
 
@@ -1590,12 +1587,12 @@ SphereMesh::SphereMesh() {
   PointMesh
 */
 
-void PointMesh::_create_mesh_array(Array &p_arr) const {
-    PoolVector<Vector3> faces;
-    faces.resize(1);
-    faces.set(0, Vector3(0.0, 0.0, 0.0));
+void PointMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
+    Vector<Vector3> faces {
+        Vector3(0.0, 0.0, 0.0)
+    };
 
-    p_arr[VS::ARRAY_VERTEX] = faces;
+    p_arr.set_positions(eastl::move(faces));
 }
 
 PointMesh::PointMesh() {

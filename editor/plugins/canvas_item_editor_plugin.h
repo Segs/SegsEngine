@@ -63,8 +63,8 @@ public:
     Transform2D pre_drag_xform;
     Rect2 pre_drag_rect;
 
-    List<float> pre_drag_bones_length;
-    List<Dictionary> pre_drag_bones_undo_state;
+    Vector<float> pre_drag_bones_length;
+    Vector<Dictionary> pre_drag_bones_undo_state;
 
     Dictionary undo_state;
 
@@ -310,7 +310,7 @@ private:
 
         Point2 position;
         Ref<Texture> icon;
-        se_string name;
+        String name;
     };
     Vector<_HoverResult> hovering_results;
 
@@ -346,7 +346,7 @@ private:
         float rot;
         ObjectID id;
     };
-    List<PoseClipboard> pose_clipboard;
+    Vector<PoseClipboard> pose_clipboard;
 
     ToolButton *select_button;
 
@@ -398,7 +398,7 @@ private:
     Point2 drag_from;
     Point2 drag_to;
     Point2 drag_rotation_center;
-    List<CanvasItem *> drag_selection;
+    Vector<CanvasItem *> drag_selection;
     int dragged_guide_index;
     Point2 dragged_guide_pos;
     bool is_hovering_h_guide;
@@ -424,7 +424,7 @@ private:
     void _get_canvas_items_at_pos(const Point2 &p_pos, Vector<_SelectResult> &r_items);
     void _get_bones_at_pos(const Point2 &p_pos, Vector<_SelectResult> &r_items);
 
-    void _find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, List<CanvasItem *> *r_items, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D());
+    void _find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, Vector<CanvasItem *> *r_items, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D());
     bool _select_click_on_item(CanvasItem *item, Point2 p_click_pos, bool p_append);
 
     ConfirmationDialog *snap_dialog;
@@ -433,11 +433,11 @@ private:
 
     void _add_canvas_item(CanvasItem *p_canvas_item);
 
-    void _save_canvas_item_ik_chain(const CanvasItem *p_canvas_item, List<float> *p_bones_length, List<Dictionary> *p_bones_state);
-    void _save_canvas_item_state(List<CanvasItem *> p_canvas_items, bool save_bones = false);
-    void _restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, const List<Dictionary> *p_bones_state);
-    void _restore_canvas_item_state(const List<CanvasItem *>& p_canvas_items, bool restore_bones = false);
-    void _commit_canvas_item_state(List<CanvasItem *> p_canvas_items, const StringName &action_name, bool commit_bones = false);
+    void _save_canvas_item_ik_chain(const CanvasItem *p_canvas_item, Vector<float> *p_bones_length, Vector<Dictionary> *p_bones_state);
+    void _save_canvas_item_state(Vector<CanvasItem *> p_canvas_items, bool save_bones = false);
+    void _restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, const Vector<Dictionary> *p_bones_state);
+    void _restore_canvas_item_state(const Vector<CanvasItem *> &p_canvas_items, bool restore_bones = false);
+    void _commit_canvas_item_state(const Vector<CanvasItem *> &p_canvas_items, const StringName &action_name, bool commit_bones = false);
 
     Vector2 _anchor_to_position(const Control *p_control, Vector2 anchor);
     Vector2 _position_to_anchor(const Control *p_control, Vector2 position);
@@ -453,10 +453,11 @@ private:
 
     UndoRedo *undo_redo;
     bool _build_bones_list(Node *p_node);
-    bool _get_bone_shape(Vector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone);
+    bool _get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone);
 
-    List<CanvasItem *> _get_edited_canvas_items(bool retreive_locked = false, bool remove_canvas_item_if_parent_in_selection = true);
-    Rect2 _get_encompassing_rect_from_list(List<CanvasItem *> p_list);
+    Vector<CanvasItem *> _get_edited_canvas_items(bool retreive_locked = false,
+            bool remove_canvas_item_if_parent_in_selection = true);
+    Rect2 _get_encompassing_rect_from_list(const Vector<CanvasItem *> &p_list);
     void _expand_encompassing_rect_using_children(Rect2 &r_rect, const Node *p_node, bool &r_first, const Transform2D &p_parent_xform = Transform2D(), const Transform2D &p_canvas_xform = Transform2D(), bool include_locked_nodes = true);
     Rect2 _get_encompassing_rect(const Node *p_node);
 
@@ -468,7 +469,7 @@ private:
 
     void _unhandled_key_input(const Ref<InputEvent> &p_ev);
 
-    void _draw_text_at_position(Point2 p_position, const String& p_string, Margin p_side);
+    void _draw_text_at_position(Point2 p_position, const UIString& p_string, Margin p_side);
     void _draw_margin_at_position(int p_value, Point2 p_position, Margin p_side);
     void _draw_percentage_at_position(float p_value, Point2 p_position, Margin p_side);
     void _draw_straight_line(Point2 p_from, Point2 p_to, Color p_color);
@@ -528,7 +529,7 @@ private:
             const Point2 p_value,
             const Transform2D p_transform_to_snap,
             Point2 &r_current_snap, SnapTarget (&r_current_snap_target)[2],
-            const SnapTarget p_snap_target, List<const CanvasItem *> p_exceptions,
+            const SnapTarget p_snap_target, const Vector<const CanvasItem *> &p_exceptions,
             const Node *p_current);
 
     void _set_anchors_preset(Control::LayoutPreset p_preset);
@@ -617,7 +618,8 @@ public:
         SNAP_DEFAULT = SNAP_GRID | SNAP_GUIDES | SNAP_PIXEL,
     };
 
-    Point2 snap_point(Point2 p_target, unsigned int p_modes = SNAP_DEFAULT, unsigned int p_forced_modes = 0, const CanvasItem *p_self_canvas_item = nullptr, List<CanvasItem *> p_other_nodes_exceptions = List<CanvasItem *>());
+    Point2 snap_point(Point2 p_target, unsigned int p_modes = SNAP_DEFAULT, unsigned int p_forced_modes = 0, const CanvasItem *p_self_canvas_item = nullptr, const
+            Vector<CanvasItem *> &p_other_nodes_exceptions = Vector<CanvasItem*>());
 
     float snap_angle(float p_target, float p_start = 0) const;
 
@@ -683,7 +685,7 @@ class CanvasItemEditorViewport : public Control {
     StringName default_type;
     Vector<StringName> types;
 
-    Vector<se_string> selected_files;
+    Vector<String> selected_files;
     Node *target_node;
     Point2 drop_pos;
 
@@ -704,7 +706,7 @@ class CanvasItemEditorViewport : public Control {
     void _on_change_type_confirmed();
     void _on_change_type_closed();
 
-    void _create_preview(const Vector<se_string> &files) const;
+    void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
 
     bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);

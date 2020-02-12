@@ -150,7 +150,7 @@ static void godot_free(voidpf opaque, voidpf address) {
 
 void ZipArchive::close_handle(unzFile p_file) const {
 
-    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open.")
+    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open."); 
     FileAccess *f = (FileAccess *)unzGetOpaque(p_file);
     unzCloseCurrentFile(p_file);
     unzClose(p_file);
@@ -160,11 +160,11 @@ void ZipArchive::close_handle(unzFile p_file) const {
 unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
 
     auto iter = files.find_as(p_file);
-    ERR_FAIL_COND_V_MSG(!file_exists(p_file), nullptr, "File '" + p_file + " doesn't exist.")
+    ERR_FAIL_COND_V_MSG(!file_exists(p_file), nullptr, "File '" + p_file + " doesn't exist.");
     File file = iter->second;
 
     FileAccess *f = FileAccess::open(packages[file.package].filename, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, nullptr, "Cannot open file '" + packages[file.package].filename + "'.")
+    ERR_FAIL_COND_V_MSG(!f, nullptr, "Cannot open file '" + packages[file.package].filename + "'.");
 
     zlib_filefunc_def io;
     memset(&io, 0, sizeof(io));
@@ -183,12 +183,12 @@ unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
     io.free_mem = godot_free;
 
     unzFile pkg = unzOpen2(packages[file.package].filename.c_str(), &io);
-    ERR_FAIL_COND_V(!pkg, nullptr)
+    ERR_FAIL_COND_V(!pkg, nullptr);
     int unz_err = unzGoToFilePos(pkg, &file.file_pos);
     if (unz_err != UNZ_OK || unzOpenCurrentFile(pkg) != UNZ_OK) {
 
         unzClose(pkg);
-        ERR_FAIL_V(nullptr)
+        ERR_FAIL_V(nullptr);
     }
 
     return pkg;
@@ -196,7 +196,7 @@ unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
 
 bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
 
-    se_string ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
+    String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
     //printf("opening zip pack %ls, %i, %i\n", p_name.c_str(), StringUtils::compare(p_name.extension(),"zip",false), p_name.extension().nocasecmp_to("pcz"));
     if (StringUtils::compare(ext,"zip") != 0 && StringUtils::compare(ext,"pcz") != 0)
         return false;
@@ -216,12 +216,12 @@ bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
     io.zclose_file = godot_close;
     io.zerror_file = godot_testerror;
 
-    unzFile zfile = unzOpen2(se_string(p_path).c_str(), &io);
-    ERR_FAIL_COND_V(!zfile, false)
+    unzFile zfile = unzOpen2(String(p_path).c_str(), &io);
+    ERR_FAIL_COND_V(!zfile, false);
 
     unz_global_info64 gi;
     int err = unzGetGlobalInfo64(zfile, &gi);
-    ERR_FAIL_COND_V(err != UNZ_OK, false)
+    ERR_FAIL_COND_V(err != UNZ_OK, false);
 
     Package pkg;
     pkg.filename = p_path;
@@ -235,13 +235,13 @@ bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
 
         unz_file_info64 file_info;
         err = unzGetCurrentFileInfo64(zfile, &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
-        ERR_CONTINUE(err != UNZ_OK)
+        ERR_CONTINUE(err != UNZ_OK);
 
         File f;
         f.package = pkg_num;
         unzGetFilePos(zfile, &f.file_pos);
 
-        se_string fname = se_string("res://") + filename_inzip;
+        String fname = String("res://") + filename_inzip;
         files[fname] = f;
 
         uint8_t md5[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -283,10 +283,10 @@ ZipArchive::ZipArchive(QObject *ob) : QObject(ob) {
 
 ZipArchive::~ZipArchive() {
 
-    for (int i = 0; i < packages.size(); i++) {
+    for (auto &package : packages) {
 
-        FileAccess *f = (FileAccess *)unzGetOpaque(packages[i].zfile);
-        unzClose(packages[i].zfile);
+        FileAccess *f = (FileAccess *)unzGetOpaque(package.zfile);
+        unzClose(package.zfile);
         memdelete(f);
     }
 
@@ -297,14 +297,14 @@ Error FileAccessZip::_open(se_string_view p_path, int p_mode_flags) {
 
     close();
 
-    ERR_FAIL_COND_V(p_mode_flags & FileAccess::WRITE, FAILED)
+    ERR_FAIL_COND_V(p_mode_flags & FileAccess::WRITE, FAILED);
     ZipArchive *arch = ZipArchive::get_singleton();
-    ERR_FAIL_COND_V(!arch, FAILED)
+    ERR_FAIL_COND_V(!arch, FAILED);
     zfile = arch->get_file_handle(p_path);
-    ERR_FAIL_COND_V(!zfile, FAILED)
+    ERR_FAIL_COND_V(!zfile, FAILED);
 
     int err = unzGetCurrentFileInfo64(zfile, &file_info, nullptr, 0, nullptr, 0, nullptr, 0);
-    ERR_FAIL_COND_V(err != UNZ_OK, FAILED)
+    ERR_FAIL_COND_V(err != UNZ_OK, FAILED);
 
     return OK;
 }
@@ -315,7 +315,7 @@ void FileAccessZip::close() {
         return;
 
     ZipArchive *arch = ZipArchive::get_singleton();
-    ERR_FAIL_COND(!arch)
+    ERR_FAIL_COND(!arch);
     arch->close_handle(zfile);
     zfile = nullptr;
 }
@@ -327,31 +327,31 @@ bool FileAccessZip::is_open() const {
 
 void FileAccessZip::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!zfile)
+    ERR_FAIL_COND(!zfile);
     unzSeekCurrentFile(zfile, p_position);
 }
 
 void FileAccessZip::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!zfile)
+    ERR_FAIL_COND(!zfile);
     unzSeekCurrentFile(zfile, get_len() + p_position);
 }
 
 size_t FileAccessZip::get_position() const {
 
-    ERR_FAIL_COND_V(!zfile, 0)
+    ERR_FAIL_COND_V(!zfile, 0);
     return unztell(zfile);
 }
 
 size_t FileAccessZip::get_len() const {
 
-    ERR_FAIL_COND_V(!zfile, 0)
+    ERR_FAIL_COND_V(!zfile, 0);
     return file_info.uncompressed_size;
 }
 
 bool FileAccessZip::eof_reached() const {
 
-    ERR_FAIL_COND_V(!zfile, true)
+    ERR_FAIL_COND_V(!zfile, true);
 
     return at_eof;
 }
@@ -365,12 +365,12 @@ uint8_t FileAccessZip::get_8() const {
 
 int FileAccessZip::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V(!zfile, -1)
+    ERR_FAIL_COND_V(!zfile, -1);
     at_eof = unzeof(zfile);
     if (at_eof)
         return 0;
     int read = unzReadCurrentFile(zfile, p_dst, p_length);
-    ERR_FAIL_COND_V(read < 0, read)
+    ERR_FAIL_COND_V(read < 0, read);
     if (read < p_length)
         at_eof = true;
     return read;
@@ -391,12 +391,12 @@ Error FileAccessZip::get_error() const {
 
 void FileAccessZip::flush() {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 void FileAccessZip::store_8(uint8_t p_dest) {
 
-    ERR_FAIL()
+    ERR_FAIL();
 }
 
 bool FileAccessZip::file_exists(se_string_view p_name) {

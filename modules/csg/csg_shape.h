@@ -39,6 +39,7 @@
 
 class Mesh;
 
+
 class CSGShape : public GeometryInstance {
     GDCLASS(CSGShape,GeometryInstance)
 
@@ -81,17 +82,12 @@ private:
     };
 
     struct ShapeUpdateSurface {
-        PoolVector<Vector3> vertices;
-        PoolVector<Vector3> normals;
-        PoolVector<Vector2> uvs;
-        PoolVector<float> tans;
+        Vector<Vector3> vertices;
+        Vector<Vector3> normals;
+        Vector<Vector2> uvs;
+        Vector<float> tans;
         Ref<Material> material;
         int last_added;
-
-        PoolVector<Vector3>::Write verticesw;
-        PoolVector<Vector3>::Write normalsw;
-        PoolVector<Vector2>::Write uvsw;
-        PoolVector<float>::Write tansw;
     };
 
     //mikktspace callbacks
@@ -118,15 +114,18 @@ protected:
     void _validate_property(PropertyInfo &property) const override;
 
 public:
+    PositionedMeshInfo get_meshes_root() const {
+        return { root_mesh,Transform() };
+    }
     Array get_meshes() const;
 
     void set_operation(Operation p_operation);
     Operation get_operation() const;
 
-    virtual PoolVector<Vector3> get_brush_faces();
+    virtual Vector<Vector3> get_brush_faces();
 
     AABB get_aabb() const override;
-    PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     void set_use_collision(bool p_enable);
     bool is_using_collision() const;
@@ -360,7 +359,7 @@ public:
 private:
     CSGBrush *_build_brush() override;
 
-    PODVector<Vector2> polygon;
+    Vector<Vector2> polygon;
     Ref<Material> material;
 
     Mode mode;
@@ -393,8 +392,8 @@ protected:
     void _notification(int p_what);
 
 public:
-    void set_polygon(const PODVector<Vector2> &p_polygon);
-    const PODVector<Vector2> &get_polygon() const;
+    void set_polygon(const Vector<Vector2> &p_polygon);
+    const Vector<Vector2> &get_polygon() const;
 
     void set_mode(Mode p_mode);
     Mode get_mode() const;

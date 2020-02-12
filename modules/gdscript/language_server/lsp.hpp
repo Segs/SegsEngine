@@ -40,8 +40,8 @@
 
 namespace lsp {
 
-typedef se_string DocumentUri;
-inline se_string marked_documentation(se_string_view p_bbcode);
+typedef String DocumentUri;
+inline String marked_documentation(se_string_view p_bbcode);
 /**
  * Text documents are identified using a URI. On the protocol level, URIs are passed as strings.
  */
@@ -52,7 +52,7 @@ struct TextDocumentIdentifier {
     DocumentUri uri;
 
     _FORCE_INLINE_ void load(const Dictionary &p_params) {
-        uri = p_params["uri"].as<se_string>();
+        uri = p_params["uri"].as<String>();
     }
 
     _FORCE_INLINE_ Dictionary to_json() const {
@@ -133,7 +133,7 @@ struct Location {
     Range range;
 
     _FORCE_INLINE_ void load(const Dictionary &p_params) {
-        uri = p_params["uri"].as<se_string>();
+        uri = p_params["uri"].as<String>();
         range.load(p_params["range"]);
     }
 
@@ -161,7 +161,7 @@ struct LocationLink {
     /**
      * The target resource identifier of this link.
      */
-    se_string targetUri;
+    String targetUri;
 
     /**
      * The full target range of this link. If the target for example is a symbol then target range is the
@@ -253,7 +253,7 @@ struct TextEdit {
      * The string to be inserted. For delete operations use an
      * empty string.
      */
-    se_string newText;
+    String newText;
 };
 
 /**
@@ -267,11 +267,11 @@ struct Command {
     /**
      * Title of the command, like `save`.
      */
-    se_string title;
+    String title;
     /**
      * The identifier of the actual command handler.
      */
-    se_string command;
+    String command;
     /**
      * Arguments that the command handler should be
      * invoked with.
@@ -322,13 +322,13 @@ struct CompletionOptions {
     /**
      * The characters that trigger completion automatically.
      */
-    PoolVector<se_string> triggerCharacters;
+    PoolVector<String> triggerCharacters;
 
     CompletionOptions() {
-        triggerCharacters.push_back(se_string("."));
-        triggerCharacters.push_back(se_string("$"));
-        triggerCharacters.push_back(se_string("'"));
-        triggerCharacters.push_back(se_string("\""));
+        triggerCharacters.push_back(String("."));
+        triggerCharacters.push_back(String("$"));
+        triggerCharacters.push_back(String("'"));
+        triggerCharacters.push_back(String("\""));
     }
 
     Dictionary to_json() const {
@@ -347,7 +347,7 @@ struct SignatureHelpOptions {
      * The characters that trigger signature help
      * automatically.
      */
-    PoolVector<se_string> triggerCharacters;
+    PoolVector<String> triggerCharacters;
 
     Dictionary to_json() {
         Dictionary dict;
@@ -411,7 +411,7 @@ struct ExecuteCommandOptions {
     /**
      * The commands to be executed on the server
      */
-    PoolVector<se_string> commands;
+    PoolVector<String> commands;
 
     Dictionary to_json() {
         Dictionary dict;
@@ -506,7 +506,7 @@ struct StaticRegistrationOptions {
      * The id used to register the request. The id can be used to deregister
      * the request again. See also Registration#id.
      */
-    se_string id;
+    String id;
 };
 
 /**
@@ -516,12 +516,12 @@ struct DocumentOnTypeFormattingOptions {
     /**
      * A character on which formatting should be triggered, like `}`.
      */
-    se_string firstTriggerCharacter;
+    String firstTriggerCharacter;
 
     /**
      * More trigger characters.
      */
-    PoolVector<se_string> moreTriggerCharacter;
+    PoolVector<String> moreTriggerCharacter;
 
     Dictionary to_json() {
         Dictionary dict;
@@ -540,7 +540,7 @@ struct TextDocumentItem {
     /**
      * The text document's language identifier.
      */
-    se_string languageId;
+    String languageId;
 
     /**
      * The version number of this document (it will increase after each
@@ -551,13 +551,13 @@ struct TextDocumentItem {
     /**
      * The content of the opened text document.
      */
-    se_string text;
+    String text;
 
     void load(const Dictionary &p_dict) {
-        uri = p_dict["uri"].as<se_string>();
-        languageId = p_dict["languageId"].as<se_string>();
+        uri = p_dict["uri"].as<String>();
+        languageId = p_dict["languageId"].as<String>();
         version = p_dict["version"];
-        text = p_dict["text"].as<se_string>();
+        text = p_dict["text"].as<String>();
     }
 
     Dictionary to_json() const {
@@ -588,10 +588,10 @@ struct TextDocumentContentChangeEvent {
     /**
      * The new text of the range/document.
      */
-    se_string text;
+    String text;
 
     void load(const Dictionary &p_params) {
-        text = p_params["text"].as<se_string>();
+        text = p_params["text"].as<String>();
         rangeLength = p_params["rangeLength"];
         range.load(p_params["range"]);
     }
@@ -631,7 +631,7 @@ struct DiagnosticRelatedInformation {
     /**
      * The message of this related diagnostic information.
      */
-    se_string message;
+    String message;
 
     Dictionary to_json() const {
         Dictionary dict;
@@ -666,12 +666,12 @@ struct Diagnostic {
      * A human-readable string describing the source of this
      * diagnostic, e.g. 'typescript' or 'super lint'.
      */
-    se_string source;
+    String source;
 
     /**
      * The diagnostic's message.
      */
-    se_string message;
+    String message;
 
     /**
      * An array of related diagnostic information, e.g. when symbol-names within
@@ -707,8 +707,8 @@ struct Diagnostic {
  * are reserved for internal usage.
  */
 namespace MarkupKind {
-static const se_string PlainText("plaintext");
-static const se_string Markdown("markdown");
+static const String PlainText("plaintext");
+static const String Markdown("markdown");
 }; // namespace MarkupKind
 
 /**
@@ -739,12 +739,12 @@ struct MarkupContent {
     /**
      * The type of the Markup
      */
-    se_string kind;
+    String kind;
 
     /**
      * The content itself
      */
-    se_string value;
+    String value;
 
     MarkupContent() {
         kind = MarkupKind::Markdown;
@@ -825,7 +825,7 @@ struct CompletionItem {
      * also the text that is inserted when selecting
      * this completion.
      */
-    se_string label;
+    String label;
 
     /**
      * The kind of this completion item. Based of the kind
@@ -838,7 +838,7 @@ struct CompletionItem {
      * A human-readable string with additional information
      * about this item, like type or symbol information.
      */
-    se_string detail;
+    String detail;
 
     /**
      * A human-readable string that represents a doc-comment.
@@ -863,13 +863,13 @@ struct CompletionItem {
      * A string that should be used when comparing this item
      * with other items. When `falsy` the label is used.
      */
-    se_string sortText;
+    String sortText;
 
     /**
      * A string that should be used when filtering a set of
      * completion items. When `falsy` the label is used.
      */
-    se_string filterText;
+    String filterText;
 
     /**
      * A string that should be inserted into a document when selecting
@@ -884,7 +884,7 @@ struct CompletionItem {
      *
      * @deprecated Use textEdit instead.
      */
-    se_string insertText;
+    String insertText;
 
     /**
      * The format of the insert text. The format applies to both the `insertText` property
@@ -917,7 +917,7 @@ struct CompletionItem {
      * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
      * characters will be ignored.
      */
-    PoolVector<se_string> commitCharacters;
+    Vector<String> commitCharacters;
 
     /**
      * An optional command that is executed *after* inserting this completion. *Note* that
@@ -945,30 +945,31 @@ struct CompletionItem {
             dict["preselect"] = preselect;
             dict["sortText"] = sortText;
             dict["filterText"] = filterText;
-            if (commitCharacters.size()) dict["commitCharacters"] = Variant(commitCharacters);
+            if (commitCharacters.size())
+                dict["commitCharacters"] = Variant::from(commitCharacters);
             dict["command"] = command.to_json();
         }
         return dict;
     }
 
     void load(const Dictionary &p_dict) {
-        if (p_dict.has("label")) label = p_dict["label"].as<se_string>();
+        if (p_dict.has("label")) label = p_dict["label"].as<String>();
         if (p_dict.has("kind")) kind = p_dict["kind"];
-        if (p_dict.has("detail")) detail = p_dict["detail"].as<se_string>();
+        if (p_dict.has("detail")) detail = p_dict["detail"].as<String>();
         if (p_dict.has("documentation")) {
             Variant doc = p_dict["documentation"];
             if (doc.get_type() == VariantType::STRING) {
-                documentation.value = doc.as<se_string>();
+                documentation.value = doc.as<String>();
             } else if (doc.get_type() == VariantType::DICTIONARY) {
                 Dictionary v = doc;
-                documentation.value = v["value"].as<se_string>();
+                documentation.value = v["value"].as<String>();
             }
         }
         if (p_dict.has("deprecated")) deprecated = p_dict["deprecated"];
         if (p_dict.has("preselect")) preselect = p_dict["preselect"];
-        if (p_dict.has("sortText")) sortText = p_dict["sortText"].as<se_string>();
-        if (p_dict.has("filterText")) filterText = p_dict["filterText"].as<se_string>();
-        if (p_dict.has("insertText")) insertText = p_dict["insertText"].as<se_string>();
+        if (p_dict.has("sortText")) sortText = p_dict["sortText"].as<String>();
+        if (p_dict.has("filterText")) filterText = p_dict["filterText"].as<String>();
+        if (p_dict.has("insertText")) insertText = p_dict["insertText"].as<String>();
         if (p_dict.has("data")) data = p_dict["data"];
     }
 };
@@ -1033,7 +1034,7 @@ struct SymbolInformation {
     /**
      * The name of this symbol.
      */
-    se_string name;
+    String name;
 
     /**
      * The kind of this symbol.
@@ -1064,7 +1065,7 @@ struct SymbolInformation {
      * if necessary). It can't be used to re-infer a hierarchy for the document
      * symbols.
      */
-    se_string containerName;
+    String containerName;
 
     _FORCE_INLINE_ Dictionary to_json() const {
         Dictionary dict;
@@ -1081,12 +1082,12 @@ struct DocumentedSymbolInformation : public SymbolInformation {
     /**
      * A human-readable string with additional information
      */
-    se_string detail;
+    String detail;
 
     /**
      * A human-readable string that represents a doc-comment.
      */
-    se_string documentation;
+    String documentation;
 };
 
 /**
@@ -1100,22 +1101,22 @@ struct DocumentSymbol {
      * The name of this symbol. Will be displayed in the user interface and therefore must not be
      * an empty string or a string only consisting of white spaces.
      */
-    se_string name;
+    String name;
 
     /**
      * More detail for this symbol, e.g the signature of a function.
      */
-    se_string detail;
+    String detail;
 
     /**
      * Documentation for this symbol
      */
-    se_string documentation;
+    String documentation;
 
     /**
      * Class name for the native symbols
      */
-    se_string native_class;
+    String native_class;
 
     /**
      * The kind of this symbol.
@@ -1141,7 +1142,7 @@ struct DocumentSymbol {
     Range selectionRange;
 
     DocumentUri uri;
-    se_string script_path;
+    String script_path;
 
     /**
      * Children of this symbol, e.g. properties of a class.
@@ -1172,7 +1173,7 @@ struct DocumentSymbol {
     void symbol_tree_as_list(se_string_view p_uri, Vector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
         DocumentedSymbolInformation si;
         if (p_join_name && !p_container.empty()) {
-            si.name = se_string(p_container) + ">" + name;
+            si.name = String(p_container) + ">" + name;
         } else {
             si.name = name;
         }
@@ -1183,7 +1184,7 @@ struct DocumentSymbol {
         si.location.range = range;
         si.detail = detail;
         si.documentation = documentation;
-        r_list.push_back(si);
+        r_list.emplace_back(eastl::move(si));
         for (int i = 0; i < children.size(); i++) {
             children[i].symbol_tree_as_list(p_uri, r_list, si.name, p_join_name);
         }
@@ -1249,12 +1250,12 @@ struct DocumentSymbol {
 
 struct NativeSymbolInspectParams {
 
-    se_string native_class;
-    se_string symbol_name;
+    String native_class;
+    String symbol_name;
 
     void load(const Dictionary &p_params) {
-        native_class = p_params["native_class"].as<se_string>();
-        symbol_name = p_params["symbol_name"].as<se_string>();
+        native_class = p_params["native_class"].as<String>();
+        symbol_name = p_params["symbol_name"].as<String>();
     }
 };
 
@@ -1354,11 +1355,11 @@ struct CompletionContext {
      * The trigger character (a single character) that has trigger code complete.
      * Is undefined if `triggerKind !== CompletionTriggerKind.TriggerCharacter`
      */
-    se_string triggerCharacter;
+    String triggerCharacter;
 
     void load(const Dictionary &p_params) {
         triggerKind = int(p_params["triggerKind"]);
-        triggerCharacter = p_params["triggerCharacter"].as<se_string>();
+        triggerCharacter = p_params["triggerCharacter"].as<String>();
     }
 };
 
@@ -1414,7 +1415,7 @@ struct ParameterInformation {
      * *Note*: a label of type string should be a substring of its containing signature label.
      * Its intended use case is to highlight the parameter label part in the `SignatureInformation.label`.
      */
-    se_string label;
+    String label;
 
     /**
      * The human-readable doc-comment of this parameter. Will be shown
@@ -1440,7 +1441,7 @@ struct SignatureInformation {
      * The label of this signature. Will be shown in
      * the UI.
      */
-    se_string label;
+    String label;
 
     /**
      * The human-readable doc-comment of this signature. Will be shown
@@ -1451,7 +1452,7 @@ struct SignatureInformation {
     /**
      * The parameters of this signature.
      */
-    PODVector<ParameterInformation> parameters;
+    Vector<ParameterInformation> parameters;
 
     Dictionary to_json() const {
         Dictionary dict;
@@ -1475,7 +1476,7 @@ struct SignatureHelp {
     /**
      * One or more signatures.
      */
-    PODVector<SignatureInformation> signatures;
+    Vector<SignatureInformation> signatures;
 
     /**
      * The active signature. If omitted or the value lies outside the
@@ -1679,11 +1680,11 @@ struct InitializeResult {
 };
 struct GodotNativeClassInfo {
 
-    se_string name;
+    String name;
     const DocData::ClassDoc *class_doc = NULL;
     const ClassDB::ClassInfo *class_info = NULL;
 
-    Dictionary to_json() {
+    Dictionary to_json() const {
         Dictionary dict;
         dict["name"] = name;
         dict["inherits"] = class_doc->inherits;
@@ -1702,8 +1703,8 @@ struct GodotCapabilities {
     Dictionary to_json() {
         Dictionary dict;
         Array classes;
-        for (List<GodotNativeClassInfo>::Element *E = native_classes.front(); E; E = E->next()) {
-            classes.push_back(E->deref().to_json());
+        for (const GodotNativeClassInfo &E : native_classes) {
+            classes.push_back(E.to_json());
         }
         dict["native_classes"] = classes;
         return dict;
@@ -1711,24 +1712,24 @@ struct GodotCapabilities {
 };
 
 /** Format BBCode documentation from DocData to markdown */
-inline se_string marked_documentation(se_string_view p_bbcode) {
+inline String marked_documentation(se_string_view p_bbcode) {
     using namespace StringUtils;
-    se_string markdown(strip_edges(p_bbcode));
+    String markdown(strip_edges(p_bbcode));
 
-    PODVector<se_string_view> lines = split(markdown,'\n');
+    Vector<se_string_view> lines = split(markdown,'\n');
     bool in_code_block = false;
     int code_block_indent = -1;
 
     markdown = "";
     for (size_t i = 0; i < lines.size(); i++) {
-        se_string line(lines[i]);
+        String line(lines[i]);
         auto block_start = find(line,"[codeblock]");
         if (block_start != se_string_view::npos) {
             code_block_indent = block_start;
             in_code_block = true;
             line = "\n";
         } else if (in_code_block) {
-            line = se_string("\t") + substr(line,code_block_indent, line.length());
+            line = String("\t") + substr(line,code_block_indent, line.length());
         }
 
         if (in_code_block && contains(line,("[/codeblock]"))) {
@@ -1737,7 +1738,7 @@ inline se_string marked_documentation(se_string_view p_bbcode) {
         }
 
         if (!in_code_block) {
-            line = se_string(strip_edges(line));
+            line = String(strip_edges(line));
             line.replace("[code]", "`");
             line.replace("[/code]", "`");
             line.replace("[i]", "*");

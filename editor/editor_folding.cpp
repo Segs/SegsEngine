@@ -38,14 +38,14 @@
 #include "editor_settings.h"
 #include "core/string_utils.h"
 
-PoolVector<se_string> EditorFolding::_get_unfolds(const Object *p_object) {
+PoolVector<String> EditorFolding::_get_unfolds(const Object *p_object) {
 
-    PoolVector<se_string> sections;
+    PoolVector<String> sections;
     sections.resize(p_object->get_tooling_interface()->editor_get_section_folding().size());
     if (sections.size()) {
-        PoolVector<se_string>::Write w = sections.write();
+        PoolVector<String>::Write w = sections.write();
         int idx = 0;
-        for (const se_string &E : p_object->get_tooling_interface()->editor_get_section_folding()) {
+        for (const String &E : p_object->get_tooling_interface()->editor_get_section_folding()) {
             w[idx++] = E;
         }
     }
@@ -55,18 +55,18 @@ PoolVector<se_string> EditorFolding::_get_unfolds(const Object *p_object) {
 
 void EditorFolding::save_resource_folding(const RES &p_resource, se_string_view p_path) {
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
-    PoolVector<se_string> unfolds = _get_unfolds(p_resource.get());
+    PoolVector<String> unfolds = _get_unfolds(p_resource.get());
     config->set_value("folding", "sections_unfolded", unfolds);
 
-    se_string file = se_string(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
+    String file = String(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
     config->save(file);
 }
 
-void EditorFolding::_set_unfolds(Object *p_object, const PoolVector<se_string> &p_unfolds) {
+void EditorFolding::_set_unfolds(Object *p_object, const PoolVector<String> &p_unfolds) {
 
     int uc = p_unfolds.size();
-    PoolVector<se_string>::Read r = p_unfolds.read();
+    PoolVector<String>::Read r = p_unfolds.read();
     p_object->get_tooling_interface()->editor_clear_section_folding();
     for (int i = 0; i < uc; i++) {
         p_object->get_tooling_interface()->editor_set_section_unfold(r[i], true);
@@ -77,17 +77,17 @@ void EditorFolding::load_resource_folding(const RES& p_resource, se_string_view 
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
-    se_string file(se_string(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg");
+    String file(String(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg");
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
 
     if (config->load(file) != OK) {
         return;
     }
 
-    PoolVector<se_string> unfolds;
+    PoolVector<String> unfolds;
 
     if (config->has_section_key("folding", "sections_unfolded")) {
-        unfolds = config->get_value("folding", "sections_unfolded").as<PoolVector<se_string>>();
+        unfolds = config->get_value("folding", "sections_unfolded").as<PoolVector<String>>();
     }
     _set_unfolds(p_resource.get(), unfolds);
 }
@@ -105,14 +105,14 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
     if (p_node->is_displayed_folded()) {
         nodes_folded.push_back(p_root->get_path_to(p_node));
     }
-    PoolVector<se_string> unfolds = _get_unfolds(p_node);
+    PoolVector<String> unfolds = _get_unfolds(p_node);
 
     if (unfolds.size()) {
         p_folds.push_back(p_root->get_path_to(p_node));
         p_folds.push_back(unfolds);
     }
 
-    ListPOD<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     p_node->get_property_list(&plist);
     for (const PropertyInfo &E : plist) {
         if (E.usage & PROPERTY_USAGE_EDITOR) {
@@ -120,7 +120,7 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
                 RES res(p_node->get(E.name));
                 if (res && !resources.contains(res) && !res->get_path().empty() && !PathUtils::is_resource_file(res->get_path())) {
 
-                    PoolVector<se_string> res_unfolds = _get_unfolds(res.get());
+                    PoolVector<String> res_unfolds = _get_unfolds(res.get());
                     resource_folds.push_back(res->get_path());
                     resource_folds.push_back(res_unfolds);
                     resources.insert(res);
@@ -149,7 +149,7 @@ void EditorFolding::save_scene_folding(const Node *p_scene, se_string_view p_pat
     config->set_value("folding", "resource_unfolds", res_unfolds);
     config->set_value("folding", "nodes_folded", nodes_folded);
 
-    se_string file = se_string(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
+    String file = String(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
     config->save(file);
 }
@@ -157,8 +157,8 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
-    se_string path = EditorSettings::get_singleton()->get_project_settings_dir();
-    se_string file = se_string(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
+    String path = EditorSettings::get_singleton()->get_project_settings_dir();
+    String file = String(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
 
     if (config->load(file) != OK) {
@@ -178,12 +178,12 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
         nodes_folded = config->get_value("folding", "nodes_folded");
     }
 
-    ERR_FAIL_COND(unfolds.size() & 1)
-    ERR_FAIL_COND(res_unfolds.size() & 1)
+    ERR_FAIL_COND(unfolds.size() & 1);
+    ERR_FAIL_COND(res_unfolds.size() & 1);
 
     for (int i = 0; i < unfolds.size(); i += 2) {
         NodePath path2 = unfolds[i];
-        PoolVector<se_string> un = unfolds[i + 1].as<PoolVector<se_string>>();
+        PoolVector<String> un = unfolds[i + 1].as<PoolVector<String>>();
         Node *node = p_scene->get_node_or_null(path2);
         if (!node) {
             continue;
@@ -192,7 +192,7 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
     }
 
     for (int i = 0; i < res_unfolds.size(); i += 2) {
-        se_string path2 = res_unfolds[i];
+        String path2 = res_unfolds[i];
         RES res;
         if (ResourceCache::has(path2)) {
             res = RES(ResourceCache::get(path2));
@@ -201,7 +201,7 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
             continue;
         }
 
-        PoolVector<se_string> unfolds2 = res_unfolds[i + 1].as<PoolVector<se_string>>();
+        PoolVector<String> unfolds2 = res_unfolds[i + 1].as<PoolVector<String>>();
         _set_unfolds(res.get(), unfolds2);
     }
 
@@ -216,19 +216,19 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
 
 bool EditorFolding::has_folding_data(se_string_view p_path) {
 
-    se_string file = se_string(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
+    String file = String(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
     return FileAccess::exists(file);
 }
 
 void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
 
-    ListPOD<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     p_object->get_property_list(&plist);
-    se_string group_base;
-    se_string group;
+    String group_base;
+    String group;
 
-    Set<se_string> unfold_group;
+    Set<String> unfold_group;
 
     for (PropertyInfo &E : plist) {
 
@@ -275,7 +275,7 @@ void EditorFolding::_do_object_unfolds(Object *p_object, Set<RES> &resources) {
         }
     }
 
-    for (const se_string &E : unfold_group) {
+    for (const String &E : unfold_group) {
         p_object->get_tooling_interface()->editor_set_section_unfold(E, true);
     }
 }

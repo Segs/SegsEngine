@@ -35,6 +35,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "editor/editor_scale.h"
 #include "core/translation_helpers.h"
 #include "scene/gui/menu_button.h"
 #include "scene/main/viewport.h"
@@ -105,8 +106,8 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     count += inputs ? inputs : 1;
     StringName name(p_node);
 
-    float name_w = font->get_string_size_utf8(p_node).width;
-    float type_w = font->get_string_size_utf8(_node_type_names[type]).width;
+    float name_w = font->get_string_size(p_node).width;
+    float type_w = font->get_string_size(_node_type_names[type]).width;
     float max_w = MAX(name_w, type_w);
 
     switch (type) {
@@ -245,7 +246,7 @@ void AnimationTreePlayerEditor::_master_anim_menu_item(int p_item) {
         _edit_filters();
     else {
 
-        se_string str = master_anim_popup->get_item_text_utf8(p_item);
+        String str = master_anim_popup->get_item_text_utf8(p_item);
         anim_tree->animation_node_set_master_animation(edited_node, str);
     }
     update();
@@ -272,7 +273,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
     Point2 pos = anim_tree->node_get_position(edited_node) - Point2(h_scroll->get_value(), v_scroll->get_value());
     Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
     Size2 size = get_node_size(edited_node);
-    Point2 popup_pos(pos.x + style->get_margin(MARGIN_LEFT), pos.y + size.y - style->get_margin(MARGIN_BOTTOM));
+    Point2 popup_pos(pos.x + style->get_margin(Margin::Left), pos.y + size.y - style->get_margin(Margin::Bottom));
     popup_pos += get_global_position();
 
     if (renaming_edit) {
@@ -281,7 +282,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
         edit_label[0]->set_position(Point2(5, 5));
         edit_label[0]->show();
         edit_line[0]->set_begin(Point2(15, 25));
-        edit_line[0]->set_text_utf8(edited_node);
+        edit_line[0]->set_text(edited_node);
         edit_line[0]->show();
         edit_dialog->set_size(Size2(150, 50));
 
@@ -299,8 +300,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->clear();
                     master_anim_popup->add_item(TTR("Edit Filters"));
                     master_anim_popup->add_separator();
-                    PODVector<StringName> sn;
-                    ap->get_animation_list(&sn);
+                    Vector<StringName> sn(ap->get_animation_list());
                     eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
                     for (const StringName &E : sn) {
                         master_anim_popup->add_item(E);
@@ -309,7 +309,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->set_position(popup_pos);
                     master_anim_popup->popup();
                 } else {
-                    property_editor->edit(this, "", VariantType::OBJECT, anim_tree->animation_node_get_animation(edited_node), PROPERTY_HINT_RESOURCE_TYPE, "Animation");
+                    property_editor->edit(this, "", VariantType::OBJECT, anim_tree->animation_node_get_animation(edited_node), PropertyHint::ResourceType, "Animation");
                     property_editor->set_position(popup_pos);
                     property_editor->popup();
                     updating_edit = false;
@@ -320,7 +320,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text_utf8(rtos(anim_tree->timescale_node_get_scale(edited_node)));
+                edit_line[0]->set_text(rtos(anim_tree->timescale_node_get_scale(edited_node)));
                 edit_line[0]->show();
                 edit_dialog->set_size(Size2(150, 50));
                 break;
@@ -329,13 +329,13 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text_utf8(rtos(anim_tree->oneshot_node_get_fadein_time(edited_node)));
+                edit_line[0]->set_text(rtos(anim_tree->oneshot_node_get_fadein_time(edited_node)));
                 edit_line[0]->show();
                 edit_label[1]->set_text(TTR("Fade Out (s):"));
                 edit_label[1]->set_position(Point2(5, 55));
                 edit_label[1]->show();
                 edit_line[1]->set_begin(Point2(15, 75));
-                edit_line[1]->set_text_utf8(rtos(anim_tree->oneshot_node_get_fadeout_time(edited_node)));
+                edit_line[1]->set_text(rtos(anim_tree->oneshot_node_get_fadeout_time(edited_node)));
                 edit_line[1]->show();
 
                 edit_option->clear();
@@ -355,13 +355,13 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[2]->set_position(Point2(5, 145));
                 edit_label[2]->show();
                 edit_line[2]->set_begin(Point2(15, 165));
-                edit_line[2]->set_text_utf8(rtos(anim_tree->oneshot_node_get_autorestart_delay(edited_node)));
+                edit_line[2]->set_text(rtos(anim_tree->oneshot_node_get_autorestart_delay(edited_node)));
                 edit_line[2]->show();
                 edit_label[3]->set_text(TTR("Random Restart (s):"));
                 edit_label[3]->set_position(Point2(5, 195));
                 edit_label[3]->show();
                 edit_line[3]->set_begin(Point2(15, 215));
-                edit_line[3]->set_text_utf8(rtos(anim_tree->oneshot_node_get_autorestart_random_delay(edited_node)));
+                edit_line[3]->set_text(rtos(anim_tree->oneshot_node_get_autorestart_random_delay(edited_node)));
                 edit_line[3]->show();
 
                 filter_button->set_begin(Point2(10, 245));
@@ -449,7 +449,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                 edit_label[0]->set_position(Point2(5, 5));
                 edit_label[0]->show();
                 edit_line[0]->set_begin(Point2(15, 25));
-                edit_line[0]->set_text_utf8(rtos(anim_tree->transition_node_get_xfade_time(edited_node)));
+                edit_line[0]->set_text(rtos(anim_tree->transition_node_get_xfade_time(edited_node)));
                 edit_line[0]->show();
 
                 edit_label[1]->set_text(TTR("Current:"));
@@ -532,7 +532,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         for (int i = 0; i < inputs; i++) {
 
             slot_icon->draw(ci, ofs + Point2(-slot_icon->get_width(), icon_h_ofs));
-            se_string text;
+            String text;
             switch (type) {
 
                 case AnimationTreePlayer::NODE_TIMESCALE:
@@ -568,7 +568,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
                 default: {
                 }
             }
-            font->draw(ci, ofs + ascofs + Point2(3, 0), StringUtils::from_utf8(text), font_color);
+            font->draw_ui_string(ci, ofs + ascofs + Point2(3, 0), StringUtils::from_utf8(text), font_color);
 
             ofs.y += h;
         }
@@ -585,7 +585,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         case AnimationTreePlayer::NODE_ANIMATION: {
 
             Ref<Animation> anim = anim_tree->animation_node_get_animation(p_node);
-            se_string text;
+            String text;
             if (!anim_tree->animation_node_get_master_animation(p_node).empty())
                 text = anim_tree->animation_node_get_master_animation(p_node);
             else if (not anim)
@@ -891,8 +891,8 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            play_button->set_icon(get_icon("Play", "EditorIcons"));
-            add_menu->set_icon(get_icon("Add", "EditorIcons"));
+            play_button->set_button_icon(get_icon("Play", "EditorIcons"));
+            add_menu->set_button_icon(get_icon("Add", "EditorIcons"));
         } break;
         case NOTIFICATION_DRAW: {
 
@@ -910,10 +910,10 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
                 _draw_cos_line(click_pos, click_motion, Color(0.5f, 1.0f, 0.5f, 0.8f));
             }
 
-            List<AnimationTreePlayer::Connection> connections;
+            ListOld<AnimationTreePlayer::Connection> connections;
             anim_tree->get_connection_list(&connections);
 
-            for (List<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
+            for (ListOld<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
                 const AnimationTreePlayer::Connection &c = E->deref();
                 Point2 source = _get_slot_pos(c.src_node, false, 0);
@@ -932,18 +932,17 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
                 _draw_cos_line(source, dest, col);
             }
+            const Ref<Font> f = get_font("font", "Label");
+            const Point2 status_offset = Point2(5, 25) * EDSCALE + Point2(0, f->get_ascent());
 
             switch (anim_tree->get_last_error()) {
 
                 case AnimationTreePlayer::CONNECT_OK: {
-
-                    Ref<Font> f = get_font("font", "Label");
-                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), StringUtils::from_utf8(TTR("Animation tree is valid.")), Color(0, 1, 0.6f, 0.8f));
+                    f->draw(get_canvas_item(), status_offset, TTR("Animation tree is valid."), Color(0, 1, 0.6, 0.8));
                 } break;
                 default: {
 
-                    Ref<Font> f = get_font("font", "Label");
-                    f->draw(get_canvas_item(), Point2(5, 25 + f->get_ascent()), StringUtils::from_utf8(TTR("Animation tree is invalid.")), Color(1, 0.6f, 0.0f, 0.8f));
+                    f->draw(get_canvas_item(), status_offset, TTR("Animation tree is invalid."), Color(1, 0.6, 0.0, 0.8));
                 } break;
             }
 
@@ -1011,10 +1010,10 @@ void AnimationTreePlayerEditor::_node_menu_item(int p_item) {
 
             if (rclick_type == CLICK_OUTPUT_SLOT) {
 
-                List<AnimationTreePlayer::Connection> connections;
+                ListOld<AnimationTreePlayer::Connection> connections;
                 anim_tree->get_connection_list(&connections);
 
-                for (List<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
+                for (ListOld<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
                     const AnimationTreePlayer::Connection &c = E->deref();
                     if (c.dst_node == rclick_node) {
@@ -1084,7 +1083,7 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
         "transition"
     };
 
-    se_string name;
+    String name;
     int idx = 1;
 
     while (true) {
@@ -1115,7 +1114,7 @@ void AnimationTreePlayerEditor::_file_dialog_selected(se_string_view p_path) {
     switch (file_op) {
 
         case MENU_IMPORT_ANIMATIONS: {
-            Vector<se_string> files = file_dialog->get_selected_files();
+            const Vector<String> files = file_dialog->get_selected_files();
 
             for (int i = 0; i < files.size(); i++) {
 
@@ -1154,9 +1153,9 @@ Size2 AnimationTreePlayerEditor::get_minimum_size() const {
     return Size2(10, 200);
 }
 
-void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<se_string> &paths) {
+void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node, Set<String> &paths) {
 
-    ERR_FAIL_COND(!anim_tree->node_exists(p_node))
+    ERR_FAIL_COND(!anim_tree->node_exists(p_node));
 
     for (int i = 0; i < anim_tree->node_get_input_count(p_node); i++) {
 
@@ -1172,7 +1171,7 @@ void AnimationTreePlayerEditor::_find_paths_for_filter(const StringName &p_node,
         if (anim) {
 
             for (int i = 0; i < anim->get_track_count(); i++) {
-                paths.insert((se_string)anim->track_get_path(i));
+                paths.insert((String)anim->track_get_path(i));
             }
         }
     }
@@ -1198,19 +1197,19 @@ void AnimationTreePlayerEditor::_edit_filters() {
     filter_dialog->popup_centered_ratio();
     filter->clear();
 
-    Set<se_string> npb;
+    Set<String> npb;
     _find_paths_for_filter(edited_node, npb);
 
     TreeItem *root = filter->create_item();
     filter->set_hide_root(true);
-    Map<se_string, TreeItem *> pm;
+    Map<String, TreeItem *> pm;
 
     Node *base = anim_tree->get_node(anim_tree->get_base_path());
 
-    for (const se_string &E : npb) {
+    for (const String &E : npb) {
 
         TreeItem *parent = root;
-        se_string descr = E;
+        String descr = E;
         if (base) {
             NodePath np(E);
 
@@ -1228,7 +1227,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
                         //
                         if (bparent != -1) {
 
-                            se_string bpn = se_string(skelbase) + ":" + s->get_bone_name(bparent);
+                            String bpn = String(skelbase) + ":" + s->get_bone_name(bparent);
                             if (pm.contains(bpn)) {
                                 parent = pm[bpn];
                                 descr = np.get_subname(0);
@@ -1287,7 +1286,6 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     set_focus_mode(FOCUS_ALL);
 
     PopupMenu *p;
-    List<PropertyInfo> defaults;
 
     add_menu = memnew(MenuButton);
     //add_menu->set_
@@ -1313,7 +1311,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     p->connect("id_pressed", this, "_add_menu_item");
 
     play_button = memnew(Button);
-    play_button->set_position(Point2(25, 0));
+    play_button->set_position(Point2(25, 0) * EDSCALE);
     play_button->set_size(Point2(25, 15));
     add_child(play_button);
     play_button->set_toggle_mode(true);
@@ -1354,24 +1352,24 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     add_child(edit_dialog);
 
     edit_option = memnew(OptionButton);
-    edit_option->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    edit_option->set_margin(MARGIN_RIGHT, -10);
+    edit_option->set_anchor(Margin::Right, ANCHOR_END);
+    edit_option->set_margin(Margin::Right, -10);
     edit_dialog->add_child(edit_option);
     edit_option->connect("item_selected", this, "_edit_dialog_changedf");
     edit_option->hide();
 
     for (int i = 0; i < 2; i++) {
         edit_scroll[i] = memnew(HSlider);
-        edit_scroll[i]->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-        edit_scroll[i]->set_margin(MARGIN_RIGHT, -10);
+        edit_scroll[i]->set_anchor(Margin::Right, ANCHOR_END);
+        edit_scroll[i]->set_margin(Margin::Right, -10);
         edit_dialog->add_child(edit_scroll[i]);
         edit_scroll[i]->hide();
         edit_scroll[i]->connect("value_changed", this, "_edit_dialog_changedf");
     }
     for (int i = 0; i < 4; i++) {
         edit_line[i] = memnew(LineEdit);
-        edit_line[i]->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-        edit_line[i]->set_margin(MARGIN_RIGHT, -10);
+        edit_line[i]->set_anchor(Margin::Right, ANCHOR_END);
+        edit_line[i]->set_margin(Margin::Right, -10);
         edit_dialog->add_child(edit_line[i]);
         edit_line[i]->hide();
         edit_line[i]->connect("text_changed", this, "_edit_dialog_changeds");
@@ -1382,15 +1380,15 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     }
 
     edit_button = memnew(Button);
-    edit_button->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    edit_button->set_margin(MARGIN_RIGHT, -10);
+    edit_button->set_anchor(Margin::Right, ANCHOR_END);
+    edit_button->set_margin(Margin::Right, -10);
     edit_dialog->add_child(edit_button);
     edit_button->hide();
     edit_button->connect("pressed", this, "_edit_oneshot_start");
 
     edit_check = memnew(CheckButton);
-    edit_check->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    edit_check->set_margin(MARGIN_RIGHT, -10);
+    edit_check->set_anchor(Margin::Right, ANCHOR_END);
+    edit_check->set_margin(Margin::Right, -10);
     edit_dialog->add_child(edit_check);
     edit_check->hide();
     edit_check->connect("pressed", this, "_edit_dialog_changed");
@@ -1411,8 +1409,8 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     filter->connect("item_edited", this, "_filter_edited");
 
     filter_button = memnew(Button);
-    filter_button->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    filter_button->set_margin(MARGIN_RIGHT, -10);
+    filter_button->set_anchor(Margin::Right, ANCHOR_END);
+    filter_button->set_margin(Margin::Right, -10);
     edit_dialog->add_child(filter_button);
     filter_button->hide();
     filter_button->set_text(TTR("Filters..."));
@@ -1452,7 +1450,7 @@ AnimationTreePlayerEditorPlugin::AnimationTreePlayerEditorPlugin(EditorNode *p_n
 
     editor = p_node;
     anim_tree_editor = memnew(AnimationTreePlayerEditor);
-    anim_tree_editor->set_custom_minimum_size(Size2(0, 300));
+    anim_tree_editor->set_custom_minimum_size(Size2(0, 300) * EDSCALE);
 
     button = editor->add_bottom_panel_item(TTR("AnimationTree"), anim_tree_editor);
     button->hide();

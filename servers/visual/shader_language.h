@@ -279,6 +279,11 @@ public:
         ARGUMENT_QUALIFIER_INOUT,
     };
 
+    enum SubClassTag {
+        TAG_GLOBAL,
+        TAG_ARRAY,
+    };
+
     struct Node {
         enum Type {
             TYPE_SHADER,
@@ -316,7 +321,7 @@ public:
         DataType return_cache = TYPE_VOID;
         DataPrecision return_precision_cache=PRECISION_DEFAULT;
         Operator op=OP_EQUAL;
-        PODVector<Node *> arguments;
+        Vector<Node *> arguments;
 
         DataType get_datatype() const override { return return_cache; }
 
@@ -344,7 +349,7 @@ public:
             Node *initializer;
         };
 
-        PODVector<Declaration> declarations;
+        Vector<Declaration> declarations;
         DataType get_datatype() const override { return datatype; }
 
         VariableDeclarationNode() :
@@ -372,10 +377,10 @@ public:
         struct Declaration {
             StringName name;
             uint32_t size;
-            PODVector<Node *> initializer;
+            Vector<Node *> initializer;
         };
 
-        PODVector<Declaration> declarations;
+        Vector<Declaration> declarations;
         DataType get_datatype() const override { return datatype; }
 
         ArrayDeclarationNode() :
@@ -392,7 +397,7 @@ public:
             uint32_t uint;
         };
 
-        PODVector<Value> values;
+        Vector<Value> values;
         DataType get_datatype() const override { return datatype; }
 
         ConstantNode() : Node(TYPE_CONSTANT) {}
@@ -419,8 +424,9 @@ public:
         FunctionNode *parent_function=nullptr;
         BlockNode *parent_block=nullptr;
         Map<StringName, Variable> variables;
-        List<Node *> statements;
+        Vector<Node *> statements;
         int block_type=BLOCK_TYPE_STANDART;
+        SubClassTag block_tag=SubClassTag::TAG_GLOBAL;
         bool single_statement=false;
 
         BlockNode() :
@@ -429,8 +435,8 @@ public:
 
     struct ControlFlowNode : public Node {
         FlowOperation flow_op=FLOW_OP_IF;
-        PODVector<Node *> expressions;
-        PODVector<BlockNode *> blocks;
+        Vector<Node *> expressions;
+        Vector<BlockNode *> blocks;
 
         ControlFlowNode() :
                 Node(TYPE_CONTROL_FLOW) {}
@@ -458,7 +464,7 @@ public:
         StringName name;
         DataType return_type;
         DataPrecision return_precision;
-        PODVector<Argument> arguments;
+        Vector<Argument> arguments;
         BlockNode *body;
         bool can_discard;
 
@@ -510,7 +516,7 @@ public:
             int texture_order=0;
             DataType type=TYPE_VOID;
             DataPrecision precision=PRECISION_DEFAULT;
-            PODVector<ConstantNode::Value> default_value;
+            Vector<ConstantNode::Value> default_value;
             Hint hint=HINT_NONE;
             float hint_range[3];
 
@@ -524,9 +530,9 @@ public:
         Map<StringName, Constant> constants;
         Map<StringName, Varying> varyings;
         Map<StringName, Uniform> uniforms;
-        PODVector<StringName> render_modes;
+        Vector<StringName> render_modes;
 
-        PODVector<Function> functions;
+        Vector<Function> functions;
 
         ShaderNode() :
                 Node(TYPE_SHADER) {}
@@ -563,7 +569,7 @@ public:
     };
 
     static const char *get_operator_text(Operator p_op);
-    static se_string get_token_text(const Token& p_token);
+    static String get_token_text(const Token& p_token);
 
     static bool is_token_datatype(TokenType p_type);
     static bool is_token_variable_datatype(TokenType p_type);
@@ -582,10 +588,10 @@ public:
     static int get_cardinality(DataType p_type);
     static bool is_scalar_type(DataType p_type);
     static bool is_sampler_type(DataType p_type);
-    static Variant constant_value_to_variant(const PODVector<ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
+    static Variant constant_value_to_variant(const Vector<ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
 
-    static void get_keyword_list(PODVector<se_string_view> *r_keywords);
-    static void get_builtin_funcs(PODVector<se_string> *r_keywords);
+    static void get_keyword_list(Vector<se_string_view> *r_keywords);
+    static void get_builtin_funcs(Vector<String> *r_keywords);
 
     struct BuiltInInfo {
         DataType type;
@@ -615,10 +621,10 @@ private:
     static const KeyWord keyword_list[];
 
     bool error_set;
-    se_string error_str;
+    String error_str;
     int error_line;
 
-    se_string code;
+    String code;
     int char_idx;
     int tk_line;
 
@@ -641,7 +647,7 @@ private:
         tk_line = p_pos.tk_line;
     }
 
-    void _set_error_ui(const String &p_str);
+    void _set_error_ui(const UIString &p_str);
     void _set_error(se_string_view p_str);
 
     static const char *token_names[TK_MAX];
@@ -663,13 +669,8 @@ private:
 
     bool _find_identifier(const BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, const StringName &p_identifier, DataType *r_data_type = nullptr, IdentifierType *r_type = nullptr, bool *r_is_const = nullptr, int *r_array_size = nullptr);
     bool _is_operator_assign(Operator p_op) const;
-    bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, se_string *r_message = nullptr);
+    bool _validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, String *r_message = nullptr);
     bool _validate_operator(OperatorNode *p_op, DataType *r_ret_type = nullptr);
-
-    enum SubClassTag {
-        TAG_GLOBAL,
-        TAG_ARRAY,
-    };
 
     struct BuiltinFuncDef {
         enum { MAX_ARGS = 5 };
@@ -714,19 +715,20 @@ public:
 
     void clear();
 
-    static se_string get_shader_type(const se_string &p_code);
-    Error compile(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
-    Error complete(const se_string &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, List<ScriptCodeCompletionOption> *r_options, se_string &r_call_hint);
+    static String get_shader_type(const String &p_code);
+    Error compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types);
+    Error complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, Vector
+            <ScriptCodeCompletionOption> *r_options, String &r_call_hint);
 
-    const se_string &get_error_text();
+    const String &get_error_text();
     int get_error_line();
 
     ShaderNode *get_shader();
 
-    se_string token_debug(const se_string &p_code);
+    String token_debug(const String &p_code);
 
     ShaderLanguage();
     ~ShaderLanguage();
 protected:
-    se_string _get_shader_type_list(const Set<StringName> &p_shader_types) const;
+    String _get_shader_type_list(const Set<StringName> &p_shader_types) const;
 };

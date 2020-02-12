@@ -86,7 +86,7 @@ bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float 
 }
 #endif
 
-void OccluderPolygon2D::set_polygon(const PODVector<Vector2> &p_polygon) {
+void OccluderPolygon2D::set_polygon(const Vector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     rect_cache_dirty = true;
@@ -139,7 +139,7 @@ void OccluderPolygon2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_polygon"), &OccluderPolygon2D::get_polygon);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "closed"), "set_closed", "is_closed");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mode", PROPERTY_HINT_ENUM, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mode", PropertyHint::Enum, "Disabled,ClockWise,CounterClockWise"), "set_cull_mode", "get_cull_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
 
     BIND_ENUM_CONSTANT(CULL_DISABLED)
@@ -157,7 +157,7 @@ OccluderPolygon2D::OccluderPolygon2D() {
 
 OccluderPolygon2D::~OccluderPolygon2D() {
 
-    VisualServer::get_singleton()->free(occ_polygon);
+    VisualServer::get_singleton()->free_rid(occ_polygon);
 }
 
 void LightOccluder2D::_poly_changed() {
@@ -190,11 +190,11 @@ void LightOccluder2D::_notification(int p_what) {
 
             if (occluder_polygon) {
 
-                const PODVector<Vector2> &poly = occluder_polygon->get_polygon();
+                const Vector<Vector2> &poly = occluder_polygon->get_polygon();
 
                 if (poly.size()) {
                     if (occluder_polygon->is_closed()) {
-                        Vector<Color> color;
+                        PoolVector<Color> color;
                         color.push_back(Color(0, 0, 0, 0.6f));
                         draw_polygon(poly, color);
                     } else {
@@ -284,8 +284,8 @@ void LightOccluder2D::_bind_methods() {
 
     MethodBinder::bind_method("_poly_changed", &LightOccluder2D::_poly_changed);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "occluder", PROPERTY_HINT_RESOURCE_TYPE, "OccluderPolygon2D"), "set_occluder_polygon", "get_occluder_polygon");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "occluder", PropertyHint::ResourceType, "OccluderPolygon2D"), "set_occluder_polygon", "get_occluder_polygon");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mask", PropertyHint::Layers2DRenderer), "set_occluder_light_mask", "get_occluder_light_mask");
 }
 
 LightOccluder2D::LightOccluder2D() {
@@ -297,5 +297,5 @@ LightOccluder2D::LightOccluder2D() {
 
 LightOccluder2D::~LightOccluder2D() {
 
-    VisualServer::get_singleton()->free(occluder);
+    VisualServer::get_singleton()->free_rid(occluder);
 }

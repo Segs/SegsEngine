@@ -48,6 +48,7 @@ class ShapeBullet;
 class btCollisionObject;
 class btCompoundShape;
 class btCollisionShape;
+class btTransform;
 class SpaceBullet;
 
 class CollisionObjectBullet : public RIDBullet {
@@ -95,17 +96,9 @@ public:
         }
         ~ShapeWrapper();
 
-        ShapeWrapper(const ShapeWrapper &otherShape) {
-            operator=(otherShape);
-        }
+        ShapeWrapper(const ShapeWrapper &otherShape) = default;
 
-        void operator=(const ShapeWrapper &otherShape) {
-            shape = otherShape.shape;
-            bt_shape = otherShape.bt_shape;
-            transform = otherShape.transform;
-            scale = otherShape.scale;
-            active = otherShape.active;
-        }
+        ShapeWrapper & operator=(const ShapeWrapper &otherShape) = default;
 
         void set_transform(const Transform &p_transform);
         void set_transform(const btTransform &p_transform);
@@ -146,15 +139,15 @@ protected:
     void setupBulletCollisionObject(btCollisionObject *p_collisionObject);
 
 public:
-    _FORCE_INLINE_ btCollisionObject *get_bt_collision_object() { return bt_collision_object; }
+    btCollisionObject *get_bt_collision_object() { return bt_collision_object; }
 
-    _FORCE_INLINE_ void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
-    _FORCE_INLINE_ ObjectID get_instance_id() const { return instance_id; }
+    void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
+    ObjectID get_instance_id() const { return instance_id; }
 
-    _FORCE_INLINE_ bool is_static() const { return m_isStatic; }
+    bool is_static() const { return m_isStatic; }
 
-    _FORCE_INLINE_ void set_ray_pickable(bool p_enable) { ray_pickable = p_enable; }
-    _FORCE_INLINE_ bool is_ray_pickable() const { return ray_pickable; }
+    void set_ray_pickable(bool p_enable) { ray_pickable = p_enable; }
+    bool is_ray_pickable() const { return ray_pickable; }
 
     void set_body_scale(const Vector3 &p_new_scale);
     const Vector3 &get_body_scale() const { return body_scale; }
@@ -225,9 +218,9 @@ public:
     RigidCollisionObjectBullet(Type p_type);
     ~RigidCollisionObjectBullet() override;
 
-    _FORCE_INLINE_ const Vector<ShapeWrapper> &get_shapes_wrappers() const { return shapes; }
+    const Vector<ShapeWrapper> &get_shapes_wrappers() const { return shapes; }
 
-    _FORCE_INLINE_ btCollisionShape *get_main_shape() const { return mainShape; }
+    btCollisionShape *get_main_shape() const { return mainShape; }
 
     void add_shape(ShapeBullet *p_shape, const Transform &p_transform = Transform(), bool p_disabled = false);
     void set_shape(int p_index, ShapeBullet *p_shape);

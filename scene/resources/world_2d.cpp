@@ -120,7 +120,7 @@ struct SpatialIndexer2D {
                     E->second.notifiers[p_notifier].inc();
                 } else {
 
-                    ERR_CONTINUE(E==cells.end())
+                    ERR_CONTINUE(E==cells.end());
                     if (E->second.notifiers[p_notifier].dec() == 0) {
 
                         E->second.notifiers.erase(p_notifier);
@@ -135,7 +135,7 @@ struct SpatialIndexer2D {
 
     void _notifier_add(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
-        ERR_FAIL_COND(notifiers.contains(p_notifier))
+        ERR_FAIL_COND(notifiers.contains(p_notifier));
         notifiers[p_notifier] = p_rect;
         _notifier_update_cells(p_notifier, p_rect, true);
         changed = true;
@@ -144,7 +144,7 @@ struct SpatialIndexer2D {
     void _notifier_update(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
         Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E==notifiers.end())
+        ERR_FAIL_COND(E==notifiers.end());
         if (E->second == p_rect)
             return;
 
@@ -157,11 +157,11 @@ struct SpatialIndexer2D {
     void _notifier_remove(VisibilityNotifier2D *p_notifier) {
 
         Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E==notifiers.end())
+        ERR_FAIL_COND(E==notifiers.end());
         _notifier_update_cells(p_notifier, E->second, false);
         notifiers.erase(p_notifier);
 
-        List<Viewport *> removed;
+        Vector<Viewport *> removed;
         for (eastl::pair<Viewport *const ,ViewportData> &F : viewports) {
 
             Map<VisibilityNotifier2D *, uint64_t>::const_iterator G = F.second.notifiers.find(p_notifier);
@@ -171,11 +171,9 @@ struct SpatialIndexer2D {
                 removed.push_back(F.first);
             }
         }
+        for(Viewport *vp : removed){
 
-        while (!removed.empty()) {
-
-            p_notifier->_exit_viewport(removed.front()->deref());
-            removed.pop_front();
+            p_notifier->_exit_viewport(vp);
         }
 
         changed = true;
@@ -183,7 +181,7 @@ struct SpatialIndexer2D {
 
     void _add_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
-        ERR_FAIL_COND(viewports.contains(p_viewport))
+        ERR_FAIL_COND(viewports.contains(p_viewport));
         ViewportData vd;
         vd.rect = p_rect;
         viewports[p_viewport] = vd;
@@ -193,7 +191,7 @@ struct SpatialIndexer2D {
     void _update_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
         Map<Viewport *, ViewportData>::iterator E = viewports.find(p_viewport);
-        ERR_FAIL_COND(E==viewports.end())
+        ERR_FAIL_COND(E==viewports.end());
         if (E->second.rect == p_rect)
             return;
         E->second.rect = p_rect;
@@ -201,16 +199,14 @@ struct SpatialIndexer2D {
     }
 
     void _remove_viewport(Viewport *p_viewport) {
-        ERR_FAIL_COND(!viewports.contains(p_viewport))
-        List<VisibilityNotifier2D *> removed;
+        ERR_FAIL_COND(!viewports.contains(p_viewport));
+        Vector<VisibilityNotifier2D *> removed;
         for (auto &E : viewports[p_viewport].notifiers) {
 
             removed.push_back(E.first);
         }
-
-        while (!removed.empty()) {
-            removed.front()->deref()->_exit_viewport(p_viewport);
-            removed.pop_front();
+        for(VisibilityNotifier2D *n : removed) {
+            n->_exit_viewport(p_viewport);
         }
 
         viewports.erase(p_viewport);
@@ -228,8 +224,8 @@ struct SpatialIndexer2D {
             Point2i end = E.second.rect.position + E.second.rect.size;
             end /= cell_size;
             pass++;
-            List<VisibilityNotifier2D *> added;
-            List<VisibilityNotifier2D *> removed;
+            Vector<VisibilityNotifier2D *> added;
+            Vector<VisibilityNotifier2D *> removed;
 
             int visible_cells = (end.x - begin.x) * (end.y - begin.y);
 
@@ -298,15 +294,13 @@ struct SpatialIndexer2D {
                     removed.push_back(F.first);
             }
 
-            while (!added.empty()) {
-                added.front()->deref()->_enter_viewport(E.first);
-                added.pop_front();
+            for(VisibilityNotifier2D *vn : added) {
+                vn->_enter_viewport(E.first);
             }
 
-            while (!removed.empty()) {
-                E.second.notifiers.erase(removed.front()->deref());
-                removed.front()->deref()->_exit_viewport(E.first);
-                removed.pop_front();
+            for(VisibilityNotifier2D *vn : removed) {
+                E.second.notifiers.erase(vn);
+                vn->_exit_viewport(E.first);
             }
         }
 
@@ -363,7 +357,7 @@ RID World2D::get_space() {
     return space;
 }
 
-void World2D::get_viewport_list(List<Viewport *> *r_viewports) {
+void World2D::get_viewport_list(Vector<Viewport *> *r_viewports) {
 
     for (const eastl::pair<Viewport *const ,SpatialIndexer2D::ViewportData> &E : indexer->viewports) {
         r_viewports->push_back(E.first);
@@ -377,9 +371,9 @@ void World2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World2D::get_direct_space_state);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PROPERTY_HINT_NONE, "", 0), "", "get_canvas");
-    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "canvas", PropertyHint::None, "", 0), "", "get_canvas");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "Physics2DDirectSpaceState", 0), "", "get_direct_space_state");
 }
 
 Physics2DDirectSpaceState *World2D::get_direct_space_state() {
@@ -397,15 +391,15 @@ World2D::World2D() {
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_GRAVITY, GLOBAL_DEF("physics/2d/default_gravity", 98));
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_GRAVITY_VECTOR, GLOBAL_DEF("physics/2d/default_gravity_vector", Vector2(0, 1)));
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_LINEAR_DAMP, GLOBAL_DEF("physics/2d/default_linear_damp", 0.1));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_linear_damp", PROPERTY_HINT_RANGE, "-1,100,0.001,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_linear_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     Physics2DServer::get_singleton()->area_set_param(space, Physics2DServer::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/2d/default_angular_damp", 1.0));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_angular_damp", PROPERTY_HINT_RANGE, "-1,100,0.001,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/2d/default_angular_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     indexer = memnew(SpatialIndexer2D);
 }
 
 World2D::~World2D() {
 
-    VisualServer::get_singleton()->free(canvas);
-    Physics2DServer::get_singleton()->free(space);
+    VisualServer::get_singleton()->free_rid(canvas);
+    Physics2DServer::get_singleton()->free_rid(space);
     memdelete(indexer);
 }

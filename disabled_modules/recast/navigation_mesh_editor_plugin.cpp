@@ -54,15 +54,15 @@ void NavigationMeshEditor::_notification(int p_option) {
 
     if (p_option == NOTIFICATION_ENTER_TREE) {
 
-        button_bake->set_icon(get_icon("Bake", "EditorIcons"));
-        button_reset->set_icon(get_icon("Reload", "EditorIcons"));
+        button_bake->set_button_icon(get_icon("Bake", "EditorIcons"));
+        button_reset->set_button_icon(get_icon("Reload", "EditorIcons"));
     }
 }
 
 void NavigationMeshEditor::_bake_pressed() {
     button_bake->set_pressed(false);
 
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     const StringName conf_warning = node->get_configuration_warning();
     if (!conf_warning.empty()) {
         err_dialog->set_text(conf_warning);

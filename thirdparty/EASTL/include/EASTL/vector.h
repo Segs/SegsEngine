@@ -74,7 +74,12 @@ EA_RESTORE_ALL_VC_WARNINGS()
 
 namespace eastl
 {
-
+#if EASTL_LF3D_EXTENSIONS
+        //TODO: allow unsefely move-converting vector types
+        enum Confirmation {
+            I_LIVE_DANGEROUSLY
+        };
+#endif
     /// EASTL_VECTOR_DEFAULT_NAME
     ///
     /// Defines a default container name in the absence of a user-provided name.
@@ -314,6 +319,18 @@ namespace eastl
         bool validate() const EA_NOEXCEPT;
         int  validate_iterator(const_iterator i) const EA_NOEXCEPT;
 #if EASTL_LF3D_EXTENSIONS
+        //TODO: allow unsefely move-converting vector types
+        template <typename OtherType>
+        explicit vector(OtherType &&x,Confirmation) : vector()  {
+            EASTL_ASSERT(internalAllocator() == x.internalAllocator());
+            mpBegin = (pointer)x.mpBegin;
+            mpEnd = (pointer)x.mpEnd;
+            internalCapacityPtr() = (T*)x.internalCapacityPtr();
+
+            x.internalCapacityPtr()=nullptr;
+            x.mpBegin = nullptr;
+            x.mpEnd = nullptr;
+        }
         iterator insert_at(size_type position, const value_type& value)
         {
             position = eastl::min(position, size());
@@ -387,6 +404,12 @@ namespace eastl
         iterator push_back(const this_type& value)
         {
             return insert(end(), value.begin(), value.end());
+        }
+        iterator emplace_back(this_type && value)
+        {
+            auto res = insert(end(), eastl::make_move_iterator(value.begin()), eastl::make_move_iterator(value.end()));
+            value={}; // uninitialize the passed vector
+            return res;
         }
 #endif
 

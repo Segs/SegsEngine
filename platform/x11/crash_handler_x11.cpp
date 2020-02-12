@@ -54,12 +54,12 @@ static void handle_crash(int sig) {
 
     void *bt_buffer[256];
     size_t size = backtrace(bt_buffer, 256);
-    se_string _execpath = OS::get_singleton()->get_executable_path();
+    String _execpath = OS::get_singleton()->get_executable_path();
 
-    se_string msg;
+    String msg;
     const ProjectSettings *proj_settings = ProjectSettings::get_singleton();
     if (proj_settings) {
-        msg = proj_settings->get("debug/settings/crash_handler/message").as<se_string>();
+        msg = proj_settings->get("debug/settings/crash_handler/message").as<String>();
     }
 
     // Dump the backtrace to stderr with a message to the user
@@ -92,7 +92,7 @@ static void handle_crash(int sig) {
                 }
             }
 
-            PODVector<se_string> args;
+            Vector<String> args;
 
             char str[1024];
             snprintf(str, 1024, "%p", bt_buffer[i]);
@@ -100,7 +100,7 @@ static void handle_crash(int sig) {
             args.push_back("-e");
             args.push_back(_execpath);
 
-            se_string output;
+            String output;
 
             // Try to get the file/line number using addr2line
             int ret;

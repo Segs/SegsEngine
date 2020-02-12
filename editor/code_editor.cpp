@@ -51,7 +51,7 @@ void GotoLineDialog::popup_find_line(TextEdit *p_edit) {
 
     text_editor = p_edit;
 
-    line->set_text_utf8(itos(text_editor->cursor_get_line()));
+    line->set_text(itos(text_editor->cursor_get_line()));
     line->select_all();
     popup_centered(Size2(180, 80) * EDSCALE);
     line->grab_focus();
@@ -76,10 +76,10 @@ GotoLineDialog::GotoLineDialog() {
     set_title(TTR("Go to Line"));
 
     VBoxContainer *vbc = memnew(VBoxContainer);
-    vbc->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 8 * EDSCALE);
-    vbc->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 8 * EDSCALE);
-    vbc->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, -8 * EDSCALE);
-    vbc->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, -8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Right, ANCHOR_END, -8 * EDSCALE);
+    vbc->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, -8 * EDSCALE);
     add_child(vbc);
 
     Label *l = memnew(Label);
@@ -98,8 +98,8 @@ void FindReplaceBar::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_READY) {
 
-        find_prev->set_icon(get_icon("MoveUp", "EditorIcons"));
-        find_next->set_icon(get_icon("MoveDown", "EditorIcons"));
+        find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+        find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
         hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
@@ -109,8 +109,8 @@ void FindReplaceBar::_notification(int p_what) {
         set_process_unhandled_input(is_visible_in_tree());
     } else if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        find_prev->set_icon(get_icon("MoveUp", "EditorIcons"));
-        find_next->set_icon(get_icon("MoveDown", "EditorIcons"));
+        find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+        find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
         hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
         hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
@@ -151,7 +151,7 @@ void FindReplaceBar::_unhandled_input(const Ref<InputEvent> &p_event) {
 bool FindReplaceBar::_search(uint32_t p_flags, int p_from_line, int p_from_col) {
 
     int line, col;
-    String text = get_search_text();
+    UIString text = get_search_text();
 
     bool found = text_edit->search(text, p_flags, p_from_line, p_from_col, line, col);
 
@@ -176,7 +176,7 @@ bool FindReplaceBar::_search(uint32_t p_flags, int p_from_line, int p_from_col) 
         results_count = 0;
         result_line = -1;
         result_col = -1;
-        text_edit->set_search_text(String());
+        text_edit->set_search_text(UIString());
         text_edit->set_search_flags(p_flags);
         text_edit->set_current_search_result(line, col);
     }
@@ -224,7 +224,7 @@ void FindReplaceBar::_replace_all() {
     text_edit->cursor_set_line(0);
     text_edit->cursor_set_column(0);
 
-    String replace_text = get_replace_text();
+    UIString replace_text = get_replace_text();
     int search_text_len = get_search_text().length();
 
     int rc = 0;
@@ -284,7 +284,8 @@ void FindReplaceBar::_replace_all() {
     }
 
     text_edit->set_v_scroll(vsval);
-    set_error(FormatSN(TTR("Replaced %d occurrence(s).").asCString(), rc));
+    matches_label->add_color_override("font_color", rc > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+    matches_label->set_text(FormatSN(TTR("%d replaced.").asCString(), rc));
 
     text_edit->call_deferred("connect", "text_changed", Variant(this), "_editor_text_changed");
     results_count = -1;
@@ -306,10 +307,10 @@ void FindReplaceBar::_update_results_count() {
 
     results_count = 0;
 
-    String searched = get_search_text();
+    UIString searched = get_search_text();
     if (searched.isEmpty()) return;
 
-    String full_text = StringUtils::from_utf8(text_edit->get_text());
+    UIString full_text = StringUtils::from_utf8(text_edit->get_text());
 
     int from_pos = 0;
 
@@ -363,7 +364,7 @@ bool FindReplaceBar::search_prev() {
         popup_search(true);
 
     uint32_t flags = 0;
-    String text = get_search_text();
+    UIString text = get_search_text();
 
     if (is_whole_words())
         flags |= TextEdit::SEARCH_WHOLE_WORDS;
@@ -396,7 +397,7 @@ bool FindReplaceBar::search_next() {
         popup_search(true);
 
     uint32_t flags = 0;
-    String text;
+    UIString text;
     if (replace_all_mode)
         text = get_replace_text();
     else
@@ -428,7 +429,7 @@ void FindReplaceBar::_hide_bar() {
     if (replace_text->has_focus() || search_text->has_focus())
         text_edit->grab_focus();
 
-    text_edit->set_search_text(String());
+    text_edit->set_search_text(UIString());
     result_line = -1;
     result_col = -1;
     hide();
@@ -449,7 +450,7 @@ void FindReplaceBar::_show_search(bool p_focus_replace, bool p_show_only) {
     }
 
     if (text_edit->is_selection_active() && !selection_only->is_pressed()) {
-        search_text->set_text_utf8(text_edit->get_selection_text());
+        search_text->set_text(text_edit->get_selection_text());
     }
 
     if (!get_search_text().isEmpty()) {
@@ -527,12 +528,12 @@ void FindReplaceBar::_replace_text_entered(se_string_view p_text) {
     }
 }
 
-String FindReplaceBar::get_search_text() const {
+UIString FindReplaceBar::get_search_text() const {
 
     return search_text->get_text_ui();
 }
 
-String FindReplaceBar::get_replace_text() const {
+UIString FindReplaceBar::get_replace_text() const {
 
     return replace_text->get_text_ui();
 }
@@ -772,7 +773,7 @@ void CodeTextEditor::_reset_zoom() {
 
 void CodeTextEditor::_line_col_changed() {
 
-    String line = StringUtils::from_utf8(text_editor->get_line(text_editor->cursor_get_line()));
+    UIString line = StringUtils::from_utf8(text_editor->get_line(text_editor->cursor_get_line()));
 
     int positional_column = 0;
     for (int i = 0; i < text_editor->cursor_get_column(); i++) {
@@ -802,8 +803,8 @@ void CodeTextEditor::_code_complete_timer_timeout() {
 
 void CodeTextEditor::_complete_request() {
 
-    List<ScriptCodeCompletionOption> entries;
-    se_string ctext = text_editor->get_text_for_completion_utf8();
+    Vector<ScriptCodeCompletionOption> entries;
+    String ctext = text_editor->get_text_for_completion_utf8();
     _code_complete_script(ctext, &entries);
     bool forced = false;
     if (code_complete_func) {
@@ -812,8 +813,8 @@ void CodeTextEditor::_complete_request() {
     if (entries.empty())
         return;
 
-    for (List<ScriptCodeCompletionOption>::Element *E = entries.front(); E; E = E->next()) {
-        E->deref().icon = _get_completion_icon(E->deref());
+    for (ScriptCodeCompletionOption &E : entries) {
+        E.icon = _get_completion_icon(E);
     }
     text_editor->code_complete(entries, forced);
 }
@@ -921,7 +922,7 @@ void CodeTextEditor::update_editor_settings() {
 void CodeTextEditor::trim_trailing_whitespace() {
     bool trimed_whitespace = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = StringUtils::from_utf8(text_editor->get_line(i));
+        UIString line = StringUtils::from_utf8(text_editor->get_line(i));
         if (StringUtils::ends_with(line," ") || StringUtils::ends_with(line,"\t")) {
 
             if (!trimed_whitespace) {
@@ -949,7 +950,7 @@ void CodeTextEditor::trim_trailing_whitespace() {
 void CodeTextEditor::insert_final_newline() {
     int final_line = text_editor->get_line_count() - 1;
 
-    String line = StringUtils::from_utf8(text_editor->get_line(final_line));
+    UIString line = StringUtils::from_utf8(text_editor->get_line(final_line));
 
     //length 0 means it's already an empty line,
     //no need to add a newline
@@ -966,7 +967,7 @@ void CodeTextEditor::insert_final_newline() {
 
 void CodeTextEditor::convert_indent_to_spaces() {
     int indent_size = EditorSettings::get_singleton()->get("text_editor/indent/size");
-    String indent;
+    UIString indent;
 
     for (int i = 0; i < indent_size; i++) {
         indent += ' ';
@@ -977,7 +978,7 @@ void CodeTextEditor::convert_indent_to_spaces() {
 
     bool changed_indentation = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = StringUtils::from_utf8(text_editor->get_line(i));
+        UIString line = StringUtils::from_utf8(text_editor->get_line(i));
 
         if (line.length() <= 0) {
             continue;
@@ -1017,7 +1018,7 @@ void CodeTextEditor::convert_indent_to_tabs() {
 
     bool changed_indentation = false;
     for (int i = 0; i < text_editor->get_line_count(); i++) {
-        String line = StringUtils::from_utf8(text_editor->get_line(i));
+        UIString line = StringUtils::from_utf8(text_editor->get_line(i));
 
         if (line.length() <= 0) {
             continue;
@@ -1075,7 +1076,7 @@ void CodeTextEditor::convert_case(CaseStyle p_case) {
             len = end_col;
         if (i == begin)
             len -= begin_col;
-        String new_line = StringUtils::from_utf8(StringUtils::substr(text_editor->get_line(i),i == begin ? begin_col : 0, len));
+        UIString new_line = StringUtils::from_utf8(StringUtils::substr(text_editor->get_line(i),i == begin ? begin_col : 0, len));
 
         switch (p_case) {
             case UPPER: {
@@ -1183,7 +1184,7 @@ void CodeTextEditor::move_lines_down() {
 }
 void CodeTextEditor::_delete_line(int p_line) {
     // this is currently intended to be called within delete_lines()
-    // so `begin_complex_operation` is ommitted here
+    // so `begin_complex_operation` is omitted here
     text_editor->set_line(p_line, "");
     if (p_line == 0 && text_editor->get_line_count() > 1) {
         text_editor->cursor_set_line(1);
@@ -1220,7 +1221,7 @@ void CodeTextEditor::clone_lines_down() {
     int to_column = 0;
     int cursor_new_line = to_line + 1;
     int cursor_new_column = text_editor->cursor_get_column();
-    String new_text = "\n" + StringUtils::from_utf8(text_editor->get_line(from_line));
+    UIString new_text = "\n" + StringUtils::from_utf8(text_editor->get_line(from_line));
     bool selection_active = false;
 
     text_editor->cursor_set_column(text_editor->get_line(from_line).length());
@@ -1258,7 +1259,7 @@ void CodeTextEditor::clone_lines_down() {
 
 void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
     text_editor->begin_complex_operation();
-    String ui_delimiter(StringUtils::from_utf8(delimiter));
+    UIString ui_delimiter(StringUtils::from_utf8(delimiter));
     if (text_editor->is_selection_active()) {
         int begin = text_editor->get_selection_from_line();
         int end = text_editor->get_selection_to_line();
@@ -1279,7 +1280,7 @@ void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
             }
         }
         for (int i = begin; i <= end; i++) {
-            String line_text = StringUtils::from_utf8(text_editor->get_line(i));
+            UIString line_text = StringUtils::from_utf8(text_editor->get_line(i));
 
             if (StringUtils::strip_edges(line_text).isEmpty()) {
                 line_text = ui_delimiter;
@@ -1311,7 +1312,7 @@ void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
 
     } else {
         int begin = text_editor->cursor_get_line();
-        String line_text = StringUtils::from_utf8(text_editor->get_line(begin));
+        UIString line_text = StringUtils::from_utf8(text_editor->get_line(begin));
         int delimiter_length = delimiter.length();
 
         int col = text_editor->cursor_get_column();
@@ -1508,7 +1509,7 @@ void CodeTextEditor::_set_show_warnings_panel(bool p_show) {
     emit_signal("show_warnings_panel", p_show);
 }
 void CodeTextEditor::_toggle_scripts_pressed() {
-    toggle_scripts_button->set_icon(ScriptEditor::get_singleton()->toggle_scripts_panel() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
+    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->toggle_scripts_panel() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
 }
 void CodeTextEditor::_error_pressed(const Ref<InputEvent> &p_event) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
@@ -1531,7 +1532,7 @@ void CodeTextEditor::_notification(int p_what) {
             _update_font();
         } break;
         case NOTIFICATION_ENTER_TREE: {
-            warning_button->set_icon(get_icon("NodeWarning", "EditorIcons"));
+            warning_button->set_button_icon(get_icon("NodeWarning", "EditorIcons"));
             add_constant_override("separation", 4 * EDSCALE);
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -1561,7 +1562,7 @@ void CodeTextEditor::toggle_bookmark() {
 
 void CodeTextEditor::goto_next_bookmark() {
 
-    List<int> bmarks;
+    Vector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
     if (bmarks.empty()) {
         return;
@@ -1573,8 +1574,7 @@ void CodeTextEditor::goto_next_bookmark() {
         text_editor->cursor_set_line(bmarks[0]);
         text_editor->center_viewport_to_cursor();
     } else {
-        for (List<int>::Element *E = bmarks.front(); E; E = E->next()) {
-            int bline = E->deref();
+        for (int bline : bmarks) {
             if (bline > line) {
                 text_editor->unfold_line(bline);
                 text_editor->cursor_set_line(bline);
@@ -1587,7 +1587,7 @@ void CodeTextEditor::goto_next_bookmark() {
 
 void CodeTextEditor::goto_prev_bookmark() {
 
-    List<int> bmarks;
+    Vector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
     if (bmarks.empty()) {
         return;
@@ -1599,8 +1599,7 @@ void CodeTextEditor::goto_prev_bookmark() {
         text_editor->cursor_set_line(bmarks[bmarks.size() - 1]);
         text_editor->center_viewport_to_cursor();
     } else {
-        for (List<int>::Element *E = bmarks.back(); E; E = E->prev()) {
-            int bline = E->deref();
+        for (int bline : bmarks) {
             if (bline < line) {
                 text_editor->unfold_line(bline);
                 text_editor->cursor_set_line(bline);
@@ -1613,11 +1612,11 @@ void CodeTextEditor::goto_prev_bookmark() {
 
 void CodeTextEditor::remove_all_bookmarks() {
 
-    List<int> bmarks;
+    Vector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
 
-    for (List<int>::Element *E = bmarks.front(); E; E = E->next()) {
-        text_editor->set_line_as_bookmark(E->deref(), false);
+    for (int E : bmarks) {
+        text_editor->set_line_as_bookmark(E, false);
     }
 }
 
@@ -1647,7 +1646,7 @@ void CodeTextEditor::show_toggle_scripts_button() {
 }
 
 void CodeTextEditor::update_toggle_scripts_button() {
-    toggle_scripts_button->set_icon(ScriptEditor::get_singleton()->is_scripts_panel_toggled() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
+    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->is_scripts_panel_toggled() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
     toggle_scripts_button->set_tooltip(TTR("Toggle Scripts Panel") + " (" + ED_GET_SHORTCUT("script_editor/toggle_scripts_panel")->get_as_text() + ")");
 }
 
@@ -1750,12 +1749,14 @@ CodeTextEditor::CodeTextEditor() {
     text_editor->connect("cursor_changed", this, "_line_col_changed");
     text_editor->connect("text_changed", this, "_text_changed");
     text_editor->connect("request_completion", this, "_complete_request");
-    Vector<String> cs;
-    cs.push_back(String("."));
-    cs.push_back(String(","));
-    cs.push_back(String("("));
-    cs.push_back(String("="));
-    cs.push_back(String("$"));
+    const Vector<UIString> cs = {
+        UIString("."),
+        UIString(","),
+        UIString("("),
+        UIString("="),
+        UIString("$")
+    };
+
     text_editor->set_completion(true, cs);
     idle->connect("timeout", this, "_text_changed_idle_timeout");
 

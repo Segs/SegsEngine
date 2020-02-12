@@ -41,7 +41,7 @@ class SpriteFrames : public Resource {
 
         float speed;
         bool loop;
-        Vector<Ref<Texture> > frames;
+        PoolVector<Ref<Texture> > frames;
 
         Anim() {
             loop = true;
@@ -53,14 +53,15 @@ class SpriteFrames : public Resource {
 
     Map<StringName, Anim> animations;
 
+    static void report_missing_animation(const char *name);
+public:
     Array _get_frames() const;
     void _set_frames(const Array &p_frames);
 
     Array _get_animations() const;
     void _set_animations(const Array &p_animations);
 
-    PoolVector<se_string> _get_animation_list() const;
-    static void report_missing_animation(const char *name);
+    PoolVector<String> _get_animation_list() const;
 protected:
     static void _bind_methods();
 
@@ -70,8 +71,8 @@ public:
     void remove_animation(const StringName &p_anim);
     void rename_animation(const StringName &p_prev, const StringName &p_next);
 
-    void get_animation_list(ListPOD<StringName> *r_animations) const;
-    PoolVector<se_string> get_animation_names() const;
+    void get_animation_list(List<StringName> *r_animations) const;
+    PoolVector<String> get_animation_names() const;
 
     const Map<StringName, Anim> & animation_name_map() const { return animations; }
 
@@ -91,7 +92,7 @@ public:
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
             return Ref<Texture>();
         }
-        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
+        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
         if (p_idx >= E->second.frames.size())
             return Ref<Texture>();
 
@@ -106,7 +107,7 @@ public:
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
             return Ref<Texture>();
         }
-        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>())
+        ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
 
         const Map<StringName, Anim>::const_iterator EN = animations.find(E->second.normal_name);
 
@@ -123,10 +124,10 @@ public:
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
             return;
         }
-        ERR_FAIL_COND(p_idx < 0)
+        ERR_FAIL_COND(p_idx < 0);
         if (p_idx >= E->second.frames.size())
             return;
-        E->second.frames.write[p_idx] = p_frame;
+        E->second.frames.set(p_idx,p_frame);
     }
     void remove_frame(const StringName &p_anim, int p_idx);
     void clear(const StringName &p_anim);
@@ -156,7 +157,7 @@ class AnimatedSprite : public Node2D {
     bool vflip;
 
     void _res_changed();
-
+public:
     float _get_frame_duration();
     void _reset_timeout();
     void _set_playing(bool p_playing);

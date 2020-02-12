@@ -68,7 +68,7 @@ PhysicalBoneEditor::PhysicalBoneEditor(EditorNode *p_editor) :
     spatial_editor_hb->add_child(button_transform_joint);
 
     button_transform_joint->set_text(TTR("Move Joint"));
-    button_transform_joint->set_icon(SpatialEditor::get_singleton()->get_icon("PhysicalBone", "EditorIcons"));
+    button_transform_joint->set_button_icon(SpatialEditor::get_singleton()->get_icon("PhysicalBone", "EditorIcons"));
     button_transform_joint->set_toggle_mode(true);
     button_transform_joint->connect("toggled", this, "_on_toggle_button_transform_joint");
 
@@ -113,7 +113,7 @@ void PhysicalBonePlugin::make_visible(bool p_visible) {
 
 void PhysicalBonePlugin::edit(Object *p_node) {
     selected = static_cast<PhysicalBone *>(p_node); // Trust it
-    ERR_FAIL_COND(!selected)
+    ERR_FAIL_COND(!selected);
 
     physical_bone_editor.set_selected(selected);
 }

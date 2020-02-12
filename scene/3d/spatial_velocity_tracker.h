@@ -28,23 +28,23 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SPATIAL_VELOCITY_TRACKER_H
-#define SPATIAL_VELOCITY_TRACKER_H
+#pragma once
 
-#include "scene/3d/spatial.h"
+#include "core/reference.h"
+#include "core/math/vector3.h"
 
 class SpatialVelocityTracker : public RefCounted {
 	GDCLASS(SpatialVelocityTracker,RefCounted)
 
 	struct PositionHistory {
-		uint64_t frame;
-		Vector3 position;
+        Vector3 position;
+        uint64_t frame;
 	};
 
-	bool physics_step;
-	Vector<PositionHistory> position_history;
-	int position_history_len;
-
+    Vector<PositionHistory> position_history;
+    int position_history_len;
+    bool physics_step;
+	
 protected:
 	static void _bind_methods();
 
@@ -57,5 +57,3 @@ public:
 
 	SpatialVelocityTracker();
 };
-
-#endif // SPATIAL_VELOCITY_TRACKER_H

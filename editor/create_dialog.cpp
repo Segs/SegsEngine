@@ -56,7 +56,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     recent->clear();
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             se_string("create_recent.") + base_type),
+                                             String("create_recent.") + base_type),
             FileAccess::READ);
 
     if (f) {
@@ -64,7 +64,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
         TreeItem *root = recent->create_item();
 
         while (!f->eof_reached()) {
-            se_string l(StringUtils::strip_edges(f->get_line()));
+            String l(StringUtils::strip_edges(f->get_line()));
             StringName name(StringUtils::split(l, ' ')[0]);
 
             if ((ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) && !_is_class_disabled_by_feature_profile(name)) {
@@ -80,7 +80,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     favorites->clear();
 
     f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                 se_string("favorites.") + base_type),
+                                 String("favorites.") + base_type),
             FileAccess::READ);
 
     favorite_list.clear();
@@ -88,7 +88,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     if (f) {
 
         while (!f->eof_reached()) {
-            se_string l(StringUtils::strip_edges(f->get_line()));
+            String l(StringUtils::strip_edges(f->get_line()));
 
             if (!l.empty()) {
                 favorite_list.push_back(l);
@@ -198,13 +198,13 @@ void CreateDialog::add_type(
     } else {
         item->set_metadata(0, p_type);
         item->set_text_utf8(
-                0, se_string(p_type) + " (" + PathUtils::get_file(ScriptServer::get_global_class_path(p_type)) + ")");
+                0, String(p_type) + " (" + PathUtils::get_file(ScriptServer::get_global_class_path(p_type)) + ")");
     }
     if (!can_instance) {
         item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
         item->set_selectable(0, false);
     } else if (!(*to_select && (*to_select)->get_text(0) == search_box->get_text())) {
-        se_string search_term = StringUtils::to_utf8(search_box->get_text_ui().toLower());
+        String search_term = StringUtils::to_utf8(search_box->get_text_ui().toLower());
 
         // if the node name matches exactly as the search, the node should be selected.
         // this also fixes when the user clicks on recent nodes.
@@ -224,7 +224,7 @@ void CreateDialog::add_type(
             bool is_selected_equal = false;
 
             if (*to_select) {
-                se_string name = StringUtils::to_lower(StringUtils::split((*to_select)->get_text(0), ' ')[0]);
+                String name = StringUtils::to_lower(StringUtils::split((*to_select)->get_text(0), ' ')[0]);
                 is_substring_of_selected = StringUtils::contains(name, search_term);
                 is_subsequence_of_selected = StringUtils::is_subsequence_of(search_term, name);
                 is_selected_equal = name == search_term;
@@ -259,7 +259,7 @@ void CreateDialog::add_type(
         item->set_collapsed(collapse);
     }
 
-    const se_string &description = EditorHelp::get_doc_data()->class_list[p_type].brief_description;
+    const String &description = EditorHelp::get_doc_data()->class_list[p_type].brief_description;
     item->set_tooltip(0, StringName(description));
 
     item->set_icon(0, EditorNode::get_singleton()->get_class_icon(p_type, base_type));
@@ -385,12 +385,13 @@ void CreateDialog::_update_search() {
             // there are custom types based on this... cool.
 
             const Vector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types().at(type);
-            for (int i = 0; i < ct.size(); i++) {
+            for (size_t idx_c = 0; idx_c < ct.size(); idx_c++) {
 
                 bool show = StringUtils::is_subsequence_of(
-                        search_box->get_text(), ct[i].name, StringUtils::CaseInsensitive);
+                        search_box->get_text(), ct[idx_c].name, StringUtils::CaseInsensitive);
 
-                if (!show) continue;
+                if (!show)
+                    continue;
 
                 if (!search_options_types.contains(type)) add_type(type, search_options_types, root, &to_select);
 
@@ -402,12 +403,12 @@ void CreateDialog::_update_search() {
 
                 TreeItem *item = search_options->create_item(ti);
                 item->set_metadata(0, type);
-                item->set_text(0, ct[i].name);
-                if (ct[i].icon) {
-                    item->set_icon(0, ct[i].icon);
+                item->set_text(0, ct[idx_c].name);
+                if (ct[idx_c].icon) {
+                    item->set_icon(0, ct[idx_c].icon);
                 }
 
-                if (!to_select || ct[i].name == search_box->get_text()) {
+                if (!to_select || ct[idx_c].name == search_box->get_text()) {
                     to_select = item;
                 }
             }
@@ -434,7 +435,7 @@ void CreateDialog::_confirmed() {
     if (!ti) return;
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             se_string("create_recent.") + base_type),
+                                             String("create_recent.") + base_type),
             FileAccess::WRITE);
 
     if (f) {
@@ -470,7 +471,7 @@ void CreateDialog::_notification(int p_what) {
             connect("confirmed", this, "_confirmed");
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
-            favorite->set_icon(get_icon("Favorites", "EditorIcons"));
+            favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
         } break;
         case NOTIFICATION_EXIT_TREE: {
             disconnect("confirmed", this, "_confirmed");
@@ -556,7 +557,7 @@ void CreateDialog::_item_selected() {
     StringName name(item->get_text(0));
 
     favorite->set_disabled(false);
-    favorite->set_pressed(favorite_list.contains(se_string(name)));
+    favorite->set_pressed(favorite_list.contains(String(name)));
 
     if (!EditorHelp::get_doc_data()->class_list.contains(name)) return;
 
@@ -570,7 +571,7 @@ void CreateDialog::_favorite_toggled() {
     TreeItem *item = search_options->get_selected();
     if (!item) return;
 
-    se_string name = item->get_text(0);
+    String name = item->get_text(0);
 
     if (!favorite_list.contains(name)) {
         favorite_list.push_back(name);
@@ -586,13 +587,13 @@ void CreateDialog::_favorite_toggled() {
 void CreateDialog::_save_favorite_list() {
 
     FileAccess *f = FileAccess::open(PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),
-                                             se_string("favorites.") + base_type),
+                                             String("favorites.") + base_type),
             FileAccess::WRITE);
 
     if (f) {
 
         for (int i = 0; i < favorite_list.size(); i++) {
-            const se_string &l = favorite_list[i];
+            const String &l = favorite_list[i];
             StringName name(StringUtils::split(l, ' ')[0]);
             if (!(ClassDB::class_exists(name) || ScriptServer::is_global_class(name))) continue;
             f->store_line(l);
@@ -606,7 +607,7 @@ void CreateDialog::_update_favorite_list() {
     favorites->clear();
     TreeItem *root = favorites->create_item();
     for (int i = 0; i < favorite_list.size(); i++) {
-        const se_string &l = favorite_list[i];
+        const String &l = favorite_list[i];
         StringName name(StringUtils::split(l, ' ')[0]);
         if (!((ClassDB::class_exists(name) || ScriptServer::is_global_class(name)) && !_is_class_disabled_by_feature_profile(name)))
             continue;
@@ -622,7 +623,7 @@ void CreateDialog::_history_selected() {
     TreeItem *item = recent->get_selected();
     if (!item) return;
 
-    search_box->set_text_utf8(StringUtils::get_slice(item->get_text(0), ' ', 0));
+    search_box->set_text(StringUtils::get_slice(item->get_text(0), ' ', 0));
     favorites->deselect_all();
     _update_search();
 }
@@ -632,7 +633,7 @@ void CreateDialog::_favorite_selected() {
     TreeItem *item = favorites->get_selected();
     if (!item) return;
 
-    search_box->set_text_utf8(StringUtils::get_slice(item->get_text(0), ' ', 0));
+    search_box->set_text(StringUtils::get_slice(item->get_text(0), ' ', 0));
     recent->deselect_all();
     _update_search();
 }
@@ -658,7 +659,7 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
         d["class"] = ti->get_text(0);
 
         ToolButton *tb = memnew(ToolButton);
-        tb->set_icon(ti->get_icon(0));
+        tb->set_button_icon(ti->get_icon(0));
         tb->set_text_utf8(ti->get_text(0));
         set_drag_preview(tb);
 
@@ -671,7 +672,7 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 bool CreateDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
     Dictionary d = p_data;
-    if (d.has("type") && String(d["type"]) == "create_favorite_drag") {
+    if (d.has("type") && UIString(d["type"]) == "create_favorite_drag") {
         favorites->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
         return true;
     }
@@ -685,14 +686,14 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     TreeItem *ti = favorites->get_item_at_position(p_point);
     if (!ti) return;
 
-    se_string drop_at = ti->get_text(0);
+    String drop_at = ti->get_text(0);
     int ds = favorites->get_drop_section_at_position(p_point);
 
     auto drop_idx = favorite_list.index_of(drop_at);
     if (drop_idx >= favorite_list.size())
         return;
 
-    se_string type = d["class"];
+    String type = d["class"];
 
     auto from_idx = favorite_list.index_of(type);
     if (from_idx >= favorite_list.size())

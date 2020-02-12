@@ -50,8 +50,8 @@ public:
         Vector3 tangent;
         Vector2 uv;
         Vector2 uv2;
-        PODVector<int> bones;
-        PODVector<float> weights;
+        FixedVector<int,4,false> bones;
+        FixedVector<float,4,false> weights;
 
         bool operator==(const Vertex &p_vertex) const;
 
@@ -73,8 +73,8 @@ private:
     int format;
     Ref<Material> material;
     //arrays
-    PODVector<Vertex> vertex_array;
-    PODVector<int> index_array;
+    Vector<Vertex> vertex_array;
+    Vector<int> index_array;
     Map<int, bool> smooth_groups;
 
     //memory
@@ -82,12 +82,12 @@ private:
     Vector3 last_normal;
     Vector2 last_uv;
     Vector2 last_uv2;
-    PODVector<int> last_bones;
-    PODVector<float> last_weights;
+    FixedVector<int,4,false> last_bones;
+    FixedVector<float,4,false> last_weights;
     Plane last_tangent;
 
-    void _create_list_from_arrays(Array arr, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
-    void _create_list(const Ref<Mesh> &p_existing, int p_surface, PODVector<Vertex> *r_vertex, PODVector<int> *r_index, int &lformat);
+    void _create_list_from_arrays(const SurfaceArrays &arr, Vector<Vertex> *r_vertex, Vector<int> *r_index, int &lformat);
+    void _create_list(const Ref<Mesh> &p_existing, int p_surface, Vector<Vertex> *r_vertex, Vector<int> *r_index, int &lformat);
 
     //mikktspace callbacks
     static int mikktGetNumFaces(const SMikkTSpaceContext *pContext);
@@ -100,6 +100,7 @@ private:
 
 protected:
     static void _bind_methods();
+    Array _commit_to_arrays();
 
 public:
     void begin(Mesh::PrimitiveType p_primitive);
@@ -114,7 +115,7 @@ public:
     void add_weights(Span<const float> p_weights);
     void add_smooth_group(bool p_smooth);
 
-    void add_triangle_fan(const Vector<Vector3> &p_vertices, const Vector<Vector2> &p_uvs = Vector<Vector2>(), const Vector<Color> &p_colors = Vector<Color>(), const Vector<Vector2> &p_uv2s = Vector<Vector2>(), const Vector<Vector3> &p_normals = Vector<Vector3>(), const PODVector<Plane> &p_tangents = PODVector<Plane>());
+    void add_triangle_fan(const PoolVector<Vector3> &p_vertices, const PoolVector<Vector2> &p_uvs = PoolVector<Vector2>(), const PoolVector<Color> &p_colors = PoolVector<Color>(), const PoolVector<Vector2> &p_uv2s = PoolVector<Vector2>(), const PoolVector<Vector3> &p_normals = PoolVector<Vector3>(), const Vector<Plane> &p_tangents = Vector<Plane>());
 
     void add_index(int p_index);
 
@@ -127,11 +128,11 @@ public:
 
     void clear();
 
-    PODVector<Vertex> &get_vertex_array() { return vertex_array; }
+    Vector<Vertex> &get_vertex_array() { return vertex_array; }
 
-    void create_from_triangle_arrays(const Array &p_arrays);
-    static Vector<Vertex> create_vertex_array_from_triangle_arrays(const Array &p_arrays);
-    Array commit_to_arrays();
+    void create_from_triangle_arrays(const SurfaceArrays &p_arrays);
+    static Vector<Vertex> create_vertex_array_from_triangle_arrays(const SurfaceArrays &p_arrays);
+    SurfaceArrays commit_to_arrays();
     void create_from(const Ref<Mesh> &p_existing, int p_surface);
     void create_from_blend_shape(const Ref<Mesh> &p_existing, int p_surface, StringName p_blend_shape_name);
     void append_from(const Ref<Mesh> &p_existing, int p_surface, const Transform &p_xform);

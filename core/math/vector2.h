@@ -145,11 +145,11 @@ struct GODOT_EXPORT Vector2 {
     Vector2 snapped(const Vector2 &p_by) const;
     constexpr real_t aspect() const { return width / height; }
 
-    operator se_string() const;
+    operator String() const;
 
-    _FORCE_INLINE_ constexpr Vector2(real_t p_x, real_t p_y) : x(p_x),y(p_y) {
+    constexpr Vector2(real_t p_x, real_t p_y) noexcept : x(p_x),y(p_y) {
     }
-    _FORCE_INLINE_ constexpr Vector2() : x(0),y(0) {
+    constexpr Vector2() noexcept : x(0),y(0) {
     }
 };
 static_assert (std::is_trivially_copyable<Vector2>() );
@@ -240,7 +240,7 @@ Vector2 Vector2::linear_interpolate(const Vector2 &p_b, real_t p_t) const {
 
 Vector2 Vector2::slerp(const Vector2 &p_b, real_t p_t) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!is_normalized(), Vector2())
+    ERR_FAIL_COND_V_MSG(!is_normalized(), Vector2(), "The start Vector2 must be normalized.");
 #endif
     real_t theta = angle_to(p_b);
     return rotated(theta * p_t);
@@ -329,7 +329,7 @@ struct GODOT_EXPORT Vector2i {
 
     constexpr real_t get_aspect() const { return width / (real_t)height; }
 
-    operator se_string() const;
+    operator String() const;
 
     constexpr operator Vector2() const { return Vector2(float(x), float(y)); }
     constexpr Vector2i(Vector2 p_vec2) : x((int)p_vec2.x),y((int)p_vec2.y) {}

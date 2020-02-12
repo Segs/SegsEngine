@@ -238,7 +238,7 @@ void PathSpatialGizmo::redraw() {
     int v3s = v3a.size();
     if (v3s == 0)
         return;
-    PODVector<Vector3> v3p;
+    Vector<Vector3> v3p;
     PoolVector<Vector3>::Read r = v3a.read();
 
     v3p.reserve((v3s - 1)*2);
@@ -256,37 +256,39 @@ void PathSpatialGizmo::redraw() {
         add_collision_segments(v3p);
     }
 
-    if (PathEditorPlugin::singleton->get_edited_path() == path) {
-        v3p.clear();
-        Vector<Vector3> handles;
-        Vector<Vector3> sec_handles;
+    if (PathEditorPlugin::singleton->get_edited_path() != path) {
+        return;
+    }
 
-        for (int i = 0; i < c->get_point_count(); i++) {
+    v3p.clear();
+    Vector<Vector3> handles;
+    Vector<Vector3> sec_handles;
 
-            Vector3 p = c->get_point_position(i);
-            handles.push_back(p);
-            if (i > 0) {
-                v3p.push_back(p);
-                v3p.push_back(p + c->get_point_in(i));
-                sec_handles.push_back(p + c->get_point_in(i));
-            }
+    for (int i = 0; i < c->get_point_count(); i++) {
 
-            if (i < c->get_point_count() - 1) {
-                v3p.push_back(p);
-                v3p.push_back(p + c->get_point_out(i));
-                sec_handles.push_back(p + c->get_point_out(i));
-            }
+        Vector3 p = c->get_point_position(i);
+        handles.push_back(p);
+        if (i > 0) {
+            v3p.push_back(p);
+            v3p.push_back(p + c->get_point_in(i));
+            sec_handles.push_back(p + c->get_point_in(i));
         }
 
-        if (v3p.size() > 1) {
-            add_lines(v3p, path_thin_material);
+        if (i < c->get_point_count() - 1) {
+            v3p.push_back(p);
+            v3p.push_back(p + c->get_point_out(i));
+            sec_handles.push_back(p + c->get_point_out(i));
         }
-        if (!handles.empty()) {
-            add_handles(handles, handles_material);
-        }
-        if (!sec_handles.empty()) {
-            add_handles(sec_handles, handles_material, false, true);
-        }
+    }
+
+    if (v3p.size() > 1) {
+        add_lines(v3p, path_thin_material);
+    }
+    if (!handles.empty()) {
+        add_handles(eastl::move(handles), handles_material);
+    }
+    if (!sec_handles.empty()) {
+        add_handles(eastl::move(sec_handles), handles_material, false, true);
     }
 }
 
@@ -578,30 +580,30 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     sep->hide();
     SpatialEditor::get_singleton()->add_control_to_menu_panel(sep);
     curve_edit = memnew(ToolButton);
-    curve_edit->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveEdit", "EditorIcons"));
+    curve_edit->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveEdit", "EditorIcons"));
     curve_edit->set_toggle_mode(true);
     curve_edit->hide();
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
     curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" +
-                            se_string(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" +
+                            String(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" +
                             TTR("Right Click: Delete Point"));
     SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_edit);
     curve_create = memnew(ToolButton);
-    curve_create->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
+    curve_create->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
     curve_create->set_toggle_mode(true);
     curve_create->hide();
     curve_create->set_focus_mode(Control::FOCUS_NONE);
     curve_create->set_tooltip(TTR("Add Point (in empty space)") + "\n" + TTR("Split Segment (in curve)"));
     SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_create);
     curve_del = memnew(ToolButton);
-    curve_del->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
+    curve_del->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
     curve_del->set_toggle_mode(true);
     curve_del->hide();
     curve_del->set_focus_mode(Control::FOCUS_NONE);
     curve_del->set_tooltip(TTR("Delete Point"));
     SpatialEditor::get_singleton()->add_control_to_menu_panel(curve_del);
     curve_close = memnew(ToolButton);
-    curve_close->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveClose", "EditorIcons"));
+    curve_close->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveClose", "EditorIcons"));
     curve_close->hide();
     curve_close->set_focus_mode(Control::FOCUS_NONE);
     curve_close->set_tooltip(TTR("Close Curve"));
@@ -625,10 +627,10 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
     /*
     collision_polygon_editor = memnew( PathEditor(p_node) );
     editor->get_viewport()->add_child(collision_polygon_editor);
-    collision_polygon_editor->set_margin(MARGIN_LEFT,200);
-    collision_polygon_editor->set_margin(MARGIN_RIGHT,230);
-    collision_polygon_editor->set_margin(MARGIN_TOP,0);
-    collision_polygon_editor->set_margin(MARGIN_BOTTOM,10);
+    collision_polygon_editor->set_margin(Margin::LEFT,200);
+    collision_polygon_editor->set_margin(Margin::RIGHT,230);
+    collision_polygon_editor->set_margin(Margin::TOP,0);
+    collision_polygon_editor->set_margin(Margin::BOTTOM,10);
     collision_polygon_editor->hide();
     */
 }

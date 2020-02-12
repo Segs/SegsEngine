@@ -71,8 +71,8 @@ void WebRTCMultiplayer::poll() {
     if (peer_map.empty())
         return;
 
-    List<int> remove;
-    List<int> add;
+    Dequeue<int> remove;
+    Dequeue<int> add;
     for (eastl::pair<const int,Ref<ConnectedPeer> > &E : peer_map) {
         Ref<ConnectedPeer> peer = E.second;
         peer->connection->poll();
@@ -92,8 +92,9 @@ void WebRTCMultiplayer::poll() {
         }
         // Check channels state
         int ready = 0;
-        for (List<Ref<WebRTCDataChannel> >::Element *C = peer->channels.front(); C && C->deref(); C = C->next()) {
-            Ref<WebRTCDataChannel> ch = C->deref();
+        for (const Ref<WebRTCDataChannel> &ch : peer->channels) {
+            if(!ch)
+                break;
             switch (ch->get_ready_state()) {
                 case WebRTCDataChannel::STATE_CONNECTING:
                     continue;
@@ -114,20 +115,20 @@ void WebRTCMultiplayer::poll() {
         }
     }
     // Remove disconnected peers
-    for (List<int>::Element *E = remove.front(); E; E = E->next()) {
-        remove_peer(E->deref());
-        if (next_packet_peer == E->deref())
+    for (int E : remove) {
+        remove_peer(E);
+        if (next_packet_peer == E)
             next_packet_peer = 0;
     }
     // Signal newly connected peers
-    for (List<int>::Element *E = add.front(); E; E = E->next()) {
+    for (int E : add) {
         // Already connected to server: simply notify new peer.
         // NOTE: Mesh is always connected.
         if (connection_status == CONNECTION_CONNECTED)
-            emit_signal("peer_connected", E->deref());
+            emit_signal("peer_connected", E);
 
         // Server emulation mode suppresses peer_conencted until server connects.
-        if (server_compat && E->deref() == TARGET_PEER_SERVER) {
+        if (server_compat && E == TARGET_PEER_SERVER) {
             // Server connected.
             connection_status = CONNECTION_CONNECTED;
             emit_signal("peer_connected", TARGET_PEER_SERVER);
@@ -151,8 +152,8 @@ void WebRTCMultiplayer::_find_next_peer() {
         ++E;
     // After last.
     for( ;E!=peer_map.end(); ++E) {
-        for (List<Ref<WebRTCDataChannel> >::Element *F = E->second->channels.front(); F; F = F->next()) {
-            if (F->deref()->get_available_packet_count()) {
+        for (const Ref<WebRTCDataChannel> &F : E->second->channels) {
+            if (F->get_available_packet_count()) {
                 next_packet_peer = E->first;
                 return;
             }
@@ -160,8 +161,8 @@ void WebRTCMultiplayer::_find_next_peer() {
     }
     // Before last
     for(E = peer_map.begin(); E!=peer_map.end(); ++E) {
-        for (List<Ref<WebRTCDataChannel> >::Element *F = E->second->channels.front(); F; F = F->next()) {
-            if (F->deref()->get_available_packet_count()) {
+        for (const Ref<WebRTCDataChannel> &F : E->second->channels) {
+            if (F->get_available_packet_count()) {
                 next_packet_peer = E->first;
                 return;
             }
@@ -186,7 +187,7 @@ NetworkedMultiplayerPeer::ConnectionStatus WebRTCMultiplayer::get_connection_sta
 }
 
 Error WebRTCMultiplayer::initialize(int p_self_id, bool p_server_compat) {
-    ERR_FAIL_COND_V(p_self_id < 0 || p_self_id > ~(1 << 31), ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_self_id < 0 || p_self_id > ~(1 << 31), ERR_INVALID_PARAMETER);
     unique_id = p_self_id;
     server_compat = p_server_compat;
 
@@ -199,14 +200,14 @@ Error WebRTCMultiplayer::initialize(int p_self_id, bool p_server_compat) {
 }
 
 int WebRTCMultiplayer::get_unique_id() const {
-    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, 1)
+    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, 1);
     return unique_id;
 }
 
 void WebRTCMultiplayer::_peer_to_dict(Ref<ConnectedPeer> p_connected_peer, Dictionary &r_dict) {
     Array channels;
-    for (List<Ref<WebRTCDataChannel> >::Element *F = p_connected_peer->channels.front(); F; F = F->next()) {
-        channels.push_back(F->deref());
+    for (const Ref<WebRTCDataChannel> &F : p_connected_peer->channels) {
+        channels.push_back(F);
     }
     r_dict["connection"] = p_connected_peer->connection;
     r_dict["connected"] = p_connected_peer->connected;
@@ -218,7 +219,7 @@ bool WebRTCMultiplayer::has_peer(int p_peer_id) {
 }
 
 Dictionary WebRTCMultiplayer::get_peer(int p_peer_id) {
-    ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), Dictionary())
+    ERR_FAIL_COND_V(!peer_map.contains(p_peer_id), Dictionary());
     Dictionary out;
     _peer_to_dict(peer_map[p_peer_id], out);
     return out;
@@ -235,12 +236,12 @@ Dictionary WebRTCMultiplayer::get_peers() {
 }
 
 Error WebRTCMultiplayer::add_peer(Ref<WebRTCPeerConnection> p_peer, int p_peer_id, int p_unreliable_lifetime) {
-    ERR_FAIL_COND_V(p_peer_id < 0 || p_peer_id > ~(1 << 31), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_unreliable_lifetime < 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(refuse_connections, ERR_UNAUTHORIZED)
+    ERR_FAIL_COND_V(p_peer_id < 0 || p_peer_id > ~(1 << 31), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_unreliable_lifetime < 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(refuse_connections, ERR_UNAUTHORIZED);
     // Peer must be valid, and in new state (to create data channels)
-    ERR_FAIL_COND_V(not p_peer, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_peer->get_connection_state() != WebRTCPeerConnection::STATE_NEW, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_peer, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_peer->get_connection_state() != WebRTCPeerConnection::STATE_NEW, ERR_INVALID_PARAMETER);
 
     Ref<ConnectedPeer> peer(make_ref_counted<ConnectedPeer>());
     peer->connection = p_peer;
@@ -252,17 +253,17 @@ Error WebRTCMultiplayer::add_peer(Ref<WebRTCPeerConnection> p_peer, int p_peer_i
 
     cfg["id"] = 1;
     peer->channels[CH_RELIABLE] = p_peer->create_data_channel("reliable", cfg);
-    ERR_FAIL_COND_V(not peer->channels[CH_RELIABLE], FAILED)
+    ERR_FAIL_COND_V(not peer->channels[CH_RELIABLE], FAILED);
 
     cfg["id"] = 2;
     cfg["maxPacketLifetime"] = p_unreliable_lifetime;
     peer->channels[CH_ORDERED] = p_peer->create_data_channel("ordered", cfg);
-    ERR_FAIL_COND_V(not peer->channels[CH_ORDERED], FAILED)
+    ERR_FAIL_COND_V(not peer->channels[CH_ORDERED], FAILED);
 
     cfg["id"] = 3;
     cfg["ordered"] = false;
     peer->channels[CH_UNRELIABLE] = p_peer->create_data_channel("unreliable", cfg);
-    ERR_FAIL_COND_V(not peer->channels[CH_UNRELIABLE], FAILED)
+    ERR_FAIL_COND_V(not peer->channels[CH_UNRELIABLE], FAILED);
 
     peer_map[p_peer_id] = peer; // add the new peer connection to the peer_map
 
@@ -270,7 +271,7 @@ Error WebRTCMultiplayer::add_peer(Ref<WebRTCPeerConnection> p_peer, int p_peer_i
 }
 
 void WebRTCMultiplayer::remove_peer(int p_peer_id) {
-    ERR_FAIL_COND(!peer_map.contains(p_peer_id))
+    ERR_FAIL_COND(!peer_map.contains(p_peer_id));
     Ref<ConnectedPeer> peer = peer_map[p_peer_id];
     peer_map.erase(p_peer_id);
     if (peer->connected) {
@@ -287,11 +288,11 @@ Error WebRTCMultiplayer::get_packet(const uint8_t **r_buffer, int &r_buffer_size
     // Peer not available
     if (next_packet_peer == 0 || !peer_map.contains(next_packet_peer)) {
         _find_next_peer();
-        ERR_FAIL_V(ERR_UNAVAILABLE)
+        ERR_FAIL_V(ERR_UNAVAILABLE);
     }
-    for (List<Ref<WebRTCDataChannel> >::Element *E = peer_map[next_packet_peer]->channels.front(); E; E = E->next()) {
-        if (E->deref()->get_available_packet_count()) {
-            Error err = E->deref()->get_packet(r_buffer, r_buffer_size);
+    for (const Ref<WebRTCDataChannel> &E : peer_map[next_packet_peer]->channels) {
+        if (E->get_available_packet_count()) {
+            Error err = E->get_packet(r_buffer, r_buffer_size);
             _find_next_peer();
             return err;
         }
@@ -302,7 +303,7 @@ Error WebRTCMultiplayer::get_packet(const uint8_t **r_buffer, int &r_buffer_size
 }
 
 Error WebRTCMultiplayer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
-    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(connection_status == CONNECTION_DISCONNECTED, ERR_UNCONFIGURED);
 
     int ch = CH_RELIABLE;
     switch (transfer_mode) {
@@ -322,10 +323,10 @@ Error WebRTCMultiplayer::put_packet(const uint8_t *p_buffer, int p_buffer_size) 
     if (target_peer > 0) {
 
         E = peer_map.find(target_peer);
-        ERR_FAIL_COND_V_MSG(E==peer_map.end(), ERR_INVALID_PARAMETER, "Invalid target peer: " + itos(target_peer) + ".")
+        ERR_FAIL_COND_V_MSG(E==peer_map.end(), ERR_INVALID_PARAMETER, "Invalid target peer: " + itos(target_peer) + ".");
 
-        ERR_FAIL_COND_V(E->second->channels.size() <= ch, ERR_BUG)
-        ERR_FAIL_COND_V(not E->second->channels[ch], ERR_BUG)
+        ERR_FAIL_COND_V(E->second->channels.size() <= ch, ERR_BUG);
+        ERR_FAIL_COND_V(not E->second->channels[ch], ERR_BUG);
         return E->second->channels[ch]->put_packet(p_buffer, p_buffer_size);
 
     } else {
@@ -337,7 +338,7 @@ Error WebRTCMultiplayer::put_packet(const uint8_t *p_buffer, int p_buffer_size) 
             if (target_peer != 0 && F.first == exclude)
                 continue;
 
-            ERR_CONTINUE(F.second->channels.size() <= ch || not F.second->channels[ch])
+            ERR_CONTINUE(F.second->channels.size() <= ch || not F.second->channels[ch]);
             F.second->channels[ch]->put_packet(p_buffer, p_buffer_size);
         }
     }
@@ -349,8 +350,8 @@ int WebRTCMultiplayer::get_available_packet_count() const {
         return 0; // To be sure next call to get_packet works if size > 0 .
     int size = 0;
     for (const eastl::pair<const int,Ref<ConnectedPeer> > &E : peer_map) {
-        for (const List<Ref<WebRTCDataChannel> >::Element *F = E.second->channels.front(); F; F = F->next()) {
-            size += F->deref()->get_available_packet_count();
+        for (const Ref<WebRTCDataChannel> &F : E.second->channels) {
+            size += F->get_available_packet_count();
         }
     }
     return size;

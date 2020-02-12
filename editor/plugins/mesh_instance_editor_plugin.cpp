@@ -32,7 +32,7 @@
 
 #include "core/method_bind.h"
 #include "scene/3d/collision_shape.h"
-#include "scene/3d/navigation_mesh.h"
+#include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/physics_body.h"
 #include "scene/gui/box_container.h"
 #include "scene/main/scene_tree.h"
@@ -74,7 +74,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-            List<Node *> selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             if (selection.empty()) {
                 Ref<Shape> shape = trimesh_shape ? mesh->create_trimesh_shape() : mesh->create_convex_shape();
@@ -104,9 +104,9 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             ur->create_action_ui(TTR("Create Static Trimesh Body"));
 
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
+            for (Node * E : selection) {
 
-                MeshInstance *instance = object_cast<MeshInstance>(E->deref());
+                MeshInstance *instance = object_cast<MeshInstance>(E);
                 if (!instance)
                     continue;
 
@@ -294,58 +294,66 @@ struct MeshInstanceEditorEdgeSort {
 void MeshInstanceEditor::_create_uv_lines(int p_layer) {
 
     Ref<Mesh> mesh = node->get_mesh();
-    ERR_FAIL_COND(not mesh)
+    ERR_FAIL_COND(not mesh);
 
     Set<MeshInstanceEditorEdgeSort> edges;
     uv_lines.clear();
     for (int i = 0; i < mesh->get_surface_count(); i++) {
         if (mesh->surface_get_primitive_type(i) != Mesh::PRIMITIVE_TRIANGLES)
             continue;
-        Array a = mesh->surface_get_arrays(i);
+        SurfaceArrays a = mesh->surface_get_arrays(i);
 
-        PoolVector<Vector2> uv = a[p_layer == 0 ? Mesh::ARRAY_TEX_UV : Mesh::ARRAY_TEX_UV2];
+        const Vector<Vector2> &uv = p_layer == 0 ? a.m_uv_1 : a.m_uv_2;
         if (uv.size() == 0) {
             err_dialog->set_text(TTR("Model has no UV in this layer"));
             err_dialog->popup_centered_minsize();
             return;
         }
 
-        PoolVector<Vector2>::Read r = uv.read();
-
-        PoolVector<int> indices = a[Mesh::ARRAY_INDEX];
-        PoolVector<int>::Read ri;
+        const Vector<int> &indices = a.m_indices;
 
         int ic;
-        bool use_indices;
+        bool use_indices = !indices.empty();
 
         if (indices.size()) {
             ic = indices.size();
-            ri = indices.read();
-            use_indices = true;
         } else {
             ic = uv.size();
-            use_indices = false;
         }
+        uv_lines.reserve(uv_lines.size()+(ic*3*2)/2);
+        if (use_indices) {
+            for (int j = 0; j < ic; j += 3) {
 
-        for (int j = 0; j < ic; j += 3) {
+                for (int k = 0; k < 3; k++) {
 
-            for (int k = 0; k < 3; k++) {
+                    MeshInstanceEditorEdgeSort edge;
+                    edge.a = uv[indices[j + k]];
+                    edge.b = uv[indices[j + (k + 1) % 3]];
 
-                MeshInstanceEditorEdgeSort edge;
-                if (use_indices) {
-                    edge.a = r[ri[j + k]];
-                    edge.b = r[ri[j + (k + 1) % 3]];
-                } else {
-                    edge.a = r[j + k];
-                    edge.b = r[j + (k + 1) % 3];
+                    if (edges.contains(edge))
+                        continue;
+
+                    uv_lines.push_back(edge.a);
+                    uv_lines.push_back(edge.b);
+                    edges.insert(edge);
                 }
+            }
+        } else {
+            for (int j = 0; j < ic; j += 3) {
 
-                if (edges.contains(edge))
-                    continue;
+                for (int k = 0; k < 3; k++) {
 
-                uv_lines.push_back(edge.a);
-                uv_lines.push_back(edge.b);
-                edges.insert(edge);
+                    MeshInstanceEditorEdgeSort edge;
+                    edge.a = uv[j + k];
+                    edge.b = uv[j + (k + 1) % 3];
+
+                    if (edges.contains(edge))
+                        continue;
+
+                    uv_lines.push_back(edge.a);
+                    uv_lines.push_back(edge.b);
+                    edges.insert(edge);
+                }
             }
         }
     }
@@ -424,7 +432,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Mesh"));
-    options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshInstance", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshInstance", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Create Trimesh Static Body"), MENU_OPTION_CREATE_STATIC_TRIMESH_BODY);
     options->get_popup()->add_separator();

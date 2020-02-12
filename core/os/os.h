@@ -55,13 +55,13 @@ class Ref;
 class GODOT_EXPORT OS {
 
     static OS *singleton;
-    se_string _execpath;
-    ListPOD<se_string> _cmdline;
+    String _execpath;
+    List<String> _cmdline;
     bool _keep_screen_on;
     bool low_processor_usage_mode;
     int low_processor_usage_mode_sleep_usec;
     bool _verbose_stdout;
-    se_string _local_clipboard;
+    String _local_clipboard;
     uint64_t _msec_splash;
     bool _no_window;
     int _exit_code;
@@ -77,13 +77,13 @@ class GODOT_EXPORT OS {
     CompositeLogger *_logger;
 
     bool restart_on_exit;
-    ListPOD<se_string> restart_commandline;
+    List<String> restart_commandline;
 
 protected:
     void _set_logger(CompositeLogger *p_logger);
 
 public:
-    using ImeCallback = void (*)(void *, String, Point2);
+    using ImeCallback = void (*)(void *, UIString, Point2);
     using HasServerFeatureCallback = bool (*)(se_string_view);
 
     enum PowerState {
@@ -144,7 +144,7 @@ protected:
     virtual void finalize() = 0;
     virtual void finalize_core() = 0;
 
-    virtual void set_cmdline(se_string_view p_execpath, const ListPOD<se_string> &p_args);
+    virtual void set_cmdline(se_string_view p_execpath, const List<String> &p_args);
 
     void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(se_string_view p_feature) = 0;
@@ -166,7 +166,7 @@ public:
     void printerr(se_string_view p_msg);
 
     virtual void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) = 0;
-    virtual se_string get_stdin_string(bool p_block = true) = 0;
+    virtual String get_stdin_string(bool p_block = true) = 0;
 
     enum MouseMode {
         MOUSE_MODE_VISIBLE,
@@ -184,14 +184,15 @@ public:
     virtual void set_window_title(se_string_view p_title) = 0;
 
     virtual void set_clipboard(se_string_view p_text);
-    virtual se_string get_clipboard() const;
+    virtual String get_clipboard() const;
 
     virtual void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) = 0;
     virtual VideoMode get_video_mode(int p_screen = 0) const = 0;
-    virtual void get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen = 0) const = 0;
+    virtual void get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen = 0) const = 0;
 
     enum VideoDriver {
         VIDEO_DRIVER_GLES3,
+        VIDEO_DRIVER_VULKAN,
         VIDEO_DRIVER_MAX,
     };
 
@@ -202,7 +203,7 @@ public:
     virtual int get_audio_driver_count() const;
     virtual const char *get_audio_driver_name(int p_driver) const;
 
-    virtual PoolVector<se_string> get_connected_midi_inputs();
+    virtual PoolVector<String> get_connected_midi_inputs();
     virtual void open_midi_inputs();
     virtual void close_midi_inputs();
 
@@ -262,7 +263,7 @@ public:
     virtual void set_ime_active(const bool /*p_active*/) {}
     virtual void set_ime_position(const Point2 & /*p_pos*/) {}
     virtual Point2 get_ime_selection() const { return Point2(); }
-    virtual se_string get_ime_text() const { return se_string(); }
+    virtual String get_ime_text() const { return String(); }
 
     virtual Error open_dynamic_library(se_string_view/*p_path*/, void *&/*p_library_handle*/, bool /*p_also_set_library_path*/ = false) { return ERR_UNAVAILABLE; }
     virtual Error close_dynamic_library(void * /*p_library_handle*/) { return ERR_UNAVAILABLE; }
@@ -275,9 +276,9 @@ public:
     virtual void set_low_processor_usage_mode_sleep_usec(int p_usec);
     virtual int get_low_processor_usage_mode_sleep_usec() const;
 
-    virtual se_string get_executable_path() const;
-    virtual Error execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, se_string *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
-    Error execute_utf8(se_string_view p_path, const PODVector<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, se_string *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
+    virtual String get_executable_path() const;
+    virtual Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
+    Error execute_utf8(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
     virtual Error kill(const ProcessID &p_pid) = 0;
     virtual int get_process_id() const;
     virtual void vibrate_handheld(int p_duration_ms = 500);
@@ -286,12 +287,12 @@ public:
     virtual Error set_cwd(se_string_view p_cwd);
 
     virtual bool has_environment(se_string_view p_var) const = 0;
-    virtual se_string get_environment(se_string_view p_var) const = 0;
+    virtual String get_environment(se_string_view p_var) const = 0;
     virtual bool set_environment(se_string_view p_var, se_string_view p_value) const = 0;
 
-    virtual se_string get_name() const = 0;
-    virtual const ListPOD<se_string> &get_cmdline_args() const { return _cmdline; }
-    virtual se_string get_model_name() const;
+    virtual String get_name() const = 0;
+    virtual const List<String> &get_cmdline_args() const { return _cmdline; }
+    virtual String get_model_name() const;
 
     virtual MainLoop *get_main_loop() const = 0;
 
@@ -342,13 +343,13 @@ public:
 
     struct TimeZoneInfo {
         int bias;
-        se_string name;
+        String name;
     };
 
     virtual Date get_date(bool local = false) const = 0;
     virtual Time get_time(bool local = false) const = 0;
     virtual TimeZoneInfo get_time_zone_info() const = 0;
-    virtual se_string get_iso_date_time(bool local = false) const;
+    virtual String get_iso_date_time(bool local = false) const;
     virtual uint64_t get_unix_time() const;
     virtual uint64_t get_system_time_secs() const;
     virtual uint64_t get_system_time_msecs() const;
@@ -390,7 +391,7 @@ public:
     };
 
     virtual bool has_virtual_keyboard() const;
-    virtual void show_virtual_keyboard(const se_string &p_existing_text, const Rect2 &p_screen_rect = Rect2());
+    virtual void show_virtual_keyboard(const String &p_existing_text, const Rect2 &p_screen_rect = Rect2(), int p_max_input_length = -1);
     virtual void hide_virtual_keyboard();
 
     // returns height of the currently shown virtual keyboard (0 if keyboard is hidden)
@@ -415,15 +416,15 @@ public:
 
     virtual const char *get_locale() const;
 
-    se_string get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator = false) const;
-    virtual se_string get_godot_dir_name() const;
+    String get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator = false) const;
+    virtual String get_godot_dir_name() const;
 
-    se_string get_data_path() const;
-    se_string get_config_path() const;
-    se_string get_cache_path() const;
+    String get_data_path() const;
+    String get_config_path() const;
+    String get_cache_path() const;
 
-    virtual se_string get_user_data_dir() const;
-    virtual se_string get_resource_dir() const;
+    virtual String get_user_data_dir() const;
+    virtual String get_resource_dir() const;
 
     enum SystemDir {
         SYSTEM_DIR_DESKTOP,
@@ -435,7 +436,7 @@ public:
         SYSTEM_DIR_PICTURES
     };
 
-    static se_string get_system_dir(SystemDir p_dir);
+    static String get_system_dir(SystemDir p_dir);
 
     virtual Error move_to_trash(se_string_view /*p_path*/) { return FAILED; }
 
@@ -467,7 +468,7 @@ public:
     virtual void make_rendering_thread();
     virtual void swap_buffers();
 
-    virtual void set_native_icon(const se_string &p_filename);
+    virtual void set_native_icon(const String &p_filename);
     virtual void set_icon(const Ref<Image> &p_icon);
 
     virtual int get_exit_code() const;
@@ -475,7 +476,7 @@ public:
 
     virtual int get_processor_count() const;
 
-    const se_string &get_unique_id() const;
+    const String &get_unique_id() const;
 
     virtual Error native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track);
     virtual bool native_video_is_playing() const;
@@ -485,8 +486,8 @@ public:
 
     virtual bool can_use_threads() const;
 
-    virtual Error dialog_show(String p_title, String p_description, const PODVector<String> p_buttons, Object *p_obj, const StringName &p_callback);
-    virtual Error dialog_input_text(const String &p_title, const String &p_description, const String &p_partial, Object *p_obj, const StringName &p_callback);
+    virtual Error dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName &p_callback);
+    virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
 
     enum LatinKeyboardVariant {
         LATIN_KEYBOARD_QWERTY,
@@ -539,13 +540,13 @@ public:
     bool is_layered_allowed() const { return _allow_layered; }
     bool is_hidpi_allowed() const { return _allow_hidpi; }
 
-    void set_restart_on_exit(bool p_restart, const ListPOD<se_string> &p_restart_arguments);
+    void set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments);
     bool is_restart_on_exit_set() const;
-    ListPOD<se_string> get_restart_on_exit_arguments() const;
+    List<String> get_restart_on_exit_arguments() const;
 
     virtual bool request_permission(se_string_view /*p_name*/) { return true; }
     virtual bool request_permissions() { return true; }
-    virtual PoolVector<se_string> get_granted_permissions() const;
+    virtual PoolVector<String> get_granted_permissions() const;
     virtual void run() = 0;
     virtual void process_and_drop_events() {}
     OS();

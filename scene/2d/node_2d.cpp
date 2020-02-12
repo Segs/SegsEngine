@@ -93,7 +93,7 @@ bool Node2D::_edit_use_rotation() const {
 }
 
 void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
-    ERR_FAIL_COND(!_edit_use_rect())
+    ERR_FAIL_COND(!_edit_use_rect());
 
     Rect2 r = _edit_get_rect();
 
@@ -175,6 +175,7 @@ void Node2D::set_scale(const Size2 &p_scale) {
     if (_xform_dirty)
         ((Node2D *)this)->_update_xform_values();
     _scale = p_scale;
+    // Avoid having 0 scale values, can lead to errors in physics and rendering.
     if (_scale.x == 0)
         _scale.x = CMP_EPSILON;
     if (_scale.y == 0)
@@ -335,8 +336,8 @@ void Node2D::set_global_transform(const Transform2D &p_transform) {
 
 void Node2D::set_z_index(int p_z) {
 
-    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN)
-    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX)
+    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN);
+    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX);
     z_index = p_z;
     VisualServer::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
     Object_change_notify(this,"z_index");
@@ -367,7 +368,7 @@ Transform2D Node2D::get_relative_transform_to_parent(const Node *p_parent) const
 
     Node2D *parent_2d = object_cast<Node2D>(get_parent());
 
-    ERR_FAIL_COND_V(!parent_2d, Transform2D())
+    ERR_FAIL_COND_V(!parent_2d, Transform2D());
     if (p_parent == parent_2d)
         return get_transform();
     else
@@ -441,19 +442,19 @@ void Node2D::_bind_methods() {
 
     ADD_GROUP("Transform", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scale"), "set_scale", "get_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform", PROPERTY_HINT_NONE, "", 0), "set_transform", "get_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform", PropertyHint::None, "", 0), "set_transform", "get_transform");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_position", PROPERTY_HINT_NONE, "", 0), "set_global_position", "get_global_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation", PROPERTY_HINT_NONE, "", 0), "set_global_rotation", "get_global_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation_degrees", PROPERTY_HINT_NONE, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_scale", PROPERTY_HINT_NONE, "", 0), "set_global_scale", "get_global_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_transform", PROPERTY_HINT_NONE, "", 0), "set_global_transform", "get_global_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_position", PropertyHint::None, "", 0), "set_global_position", "get_global_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation", PropertyHint::None, "", 0), "set_global_rotation", "get_global_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation_degrees", PropertyHint::None, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_scale", PropertyHint::None, "", 0), "set_global_scale", "get_global_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_transform", PropertyHint::None, "", 0), "set_global_transform", "get_global_transform");
 
     ADD_GROUP("Z Index", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "z_index", PROPERTY_HINT_RANGE, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "z_index", PropertyHint::Range, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "z_as_relative"), "set_z_as_relative", "is_z_relative");
 }
 

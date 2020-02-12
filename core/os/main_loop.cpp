@@ -45,7 +45,7 @@ void MainLoop::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("idle", {"delta"}), &MainLoop::idle);
     MethodBinder::bind_method(D_METHOD("finish"), &MainLoop::finish);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")))
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
     BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")))
     BIND_VMETHOD(MethodInfo("_initialize"))
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_iteration", PropertyInfo(VariantType::REAL, "delta")))
@@ -122,7 +122,7 @@ bool MainLoop::idle(float p_time) {
     return false;
 }
 
-void MainLoop::drop_files(const PODVector<se_string> &p_files, int p_from_screen) {
+void MainLoop::drop_files(const Vector<String> &p_files, int p_from_screen) {
 
     if (get_script_instance())
         get_script_instance()->call("_drop_files", Variant::from(p_files), p_from_screen);

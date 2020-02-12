@@ -54,7 +54,7 @@
 //    return md;
 //}
 
-//MethodDefinition D_METHOD(StringName p_name, PODVector<StringName> &&names) {
+//MethodDefinition D_METHOD(StringName p_name, Vector<StringName> &&names) {
 
 //    MethodDefinition md;
 //    md.name = eastl::move(p_name);
@@ -63,7 +63,12 @@
 //}
 
 #endif
-
+struct ClassInfoImpl {
+    DefHashMap<StringName, MethodInfo> signal_map;
+};
+static DefHashMap<StringName, MethodInfo> &class_signal_map(ClassDB::ClassInfo &ci) {
+    return ci.class_signal_map();
+}
 ClassDB::APIType ClassDB::current_api = API_CORE;
 
 void ClassDB::set_current_api(APIType p_api) {
@@ -80,14 +85,7 @@ DefHashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
 DefHashMap<StringName, StringName> ClassDB::resource_base_extensions;
 HashMap<StringName, StringName> ClassDB::compat_classes;
 
-ClassDB::ClassInfo::ClassInfo() {
-
-    api = API_NONE;
-    creation_func = nullptr;
-    inherits_ptr = nullptr;
-    disabled = false;
-    exposed = false;
-}
+ClassDB::ClassInfo::ClassInfo() = default;
 
 ClassDB::ClassInfo::~ClassInfo() {
     for(auto & entry : method_map) {
@@ -110,7 +108,7 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 
     return false;
 }
-void ClassDB::get_class_list(PODVector<StringName> *p_classes) {
+void ClassDB::get_class_list(Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -121,7 +119,7 @@ void ClassDB::get_class_list(PODVector<StringName> *p_classes) {
     eastl::sort(p_classes->begin(),p_classes->end());
 }
 
-void ClassDB::get_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes) {
+void ClassDB::get_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -132,7 +130,7 @@ void ClassDB::get_inheriters_from_class(const StringName &p_class, ListPOD<Strin
     }
 }
 
-void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, ListPOD<StringName> *p_classes) {
+void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -142,10 +140,23 @@ void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, ListPO
     }
 }
 
+StringName ClassDB::get_compatibility_remapped_class(const StringName &p_class) {
+
+    if (classes.contains(p_class)) {
+        return p_class;
+    }
+
+    if (compat_classes.contains(p_class)) {
+        return compat_classes[p_class];
+    }
+
+    return p_class;
+}
+
 StringName ClassDB::get_parent_class_nocheck(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
-    auto iter = classes.find(p_class);
+    const auto iter = classes.find(p_class);
     if(iter==classes.end())
         return StringName();
     return iter->second.inherits;
@@ -155,15 +166,15 @@ StringName ClassDB::get_parent_class(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
-    auto iter = classes.find(p_class);
+    const auto iter = classes.find(p_class);
     if(iter==classes.end())
         return StringName();
-    {
-        if (unlikely(iter==classes.end())) {
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' " _STR(!ti) " ' is true. returned: " _STR(StringName()),"Cannot get class '" + se_string(p_class) + "'.");
-            return StringName();
-        }
+
+    if (unlikely(iter==classes.end())) {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition 'iter==classes.end()' is true. returned: StringName(). Cannot get class '" + String(p_class) + "'.");
+        return StringName();
     }
+
     return iter->second.inherits;
 }
 
@@ -172,7 +183,7 @@ ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter = classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), API_NONE, "Cannot get class '" + String(p_class) + "'.");
     return iter->second.api;
 }
 
@@ -183,7 +194,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 #ifdef DEBUG_METHODS_ENABLED
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
     // TODO: bunch of copiers are made here, the containers should just hold pointers/const references to objects ?
-    PODVector<class_iter> entries;
+    Vector<class_iter> entries;
     entries.reserve(classes.size());
 
     for(auto iter=classes.begin(),fin=classes.end(); iter!=fin; ++iter) {
@@ -193,7 +204,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
     eastl::stable_sort(entries.begin(), entries.end(),
             [](class_iter a, class_iter b) -> bool { return StringName::AlphCompare(a->first, b->first); });
     // must be alphabetically sorted for hash to compute
-    PODVector<StringName> snames;
+    Vector<StringName> snames;
     const StringName *k;
 
     for (const auto &iter : entries) {
@@ -234,7 +245,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
                     const PropertyInfo info = mb->get_argument_info(i);
                     hash = hash_djb2_one_64(uint64_t(info.type), hash);
                     hash = hash_djb2_one_64(StringUtils::hash(info.name), hash);
-                    hash = hash_djb2_one_64(info.hint, hash);
+                    hash = hash_djb2_one_64((int)info.hint, hash);
                     hash = hash_djb2_one_64(StringUtils::hash(info.hint_string), hash);
                 }
 
@@ -271,19 +282,15 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
         { // signals
 
-            snames.clear();
+
             k = nullptr;
-
-            while ((k = t.signal_map.next(k))) {
-
-                snames.push_back(*k);
-            }
-
+            snames.clear();
+            t.class_signal_map().keys_into(snames);
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
 
             for (StringName &sn : snames) {
 
-                MethodInfo &mi = t.signal_map[sn];
+                MethodInfo &mi = class_signal_map(t)[sn];
                 hash = hash_djb2_one_64(sn.hash(), hash);
                 for (const PropertyInfo & argument : mi.arguments) {
                     hash = hash_djb2_one_64(uint64_t(argument.type), hash);
@@ -296,22 +303,17 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             snames.clear();
 
             k = nullptr;
-
-            while ((k = t.property_setget.next(k))) {
-
-                snames.push_back(*k);
-            }
+            t.property_setget.keys_into(snames);
 
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
 
             for (StringName &sn : snames) {
 
-                PropertySetGet *psg = t.property_setget.getptr(sn);
-                ERR_FAIL_COND_V(!psg, 0)
+                PropertySetGet &psg(t.property_setget[sn]);
 
                 hash = hash_djb2_one_64(sn.hash(), hash);
-                hash = hash_djb2_one_64(psg->setter.hash(), hash);
-                hash = hash_djb2_one_64(psg->getter.hash(), hash);
+                hash = hash_djb2_one_64(psg.setter.hash(), hash);
+                hash = hash_djb2_one_64(psg.getter.hash(), hash);
             }
         }
 
@@ -319,7 +321,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
         for (const PropertyInfo &pi : t.property_list) {
             hash = hash_djb2_one_64(StringUtils::hash(pi.name), hash);
             hash = hash_djb2_one_64(uint64_t(pi.type), hash);
-            hash = hash_djb2_one_64(pi.hint, hash);
+            hash = hash_djb2_one_64((int)pi.hint, hash);
             hash = hash_djb2_one_64(StringUtils::hash(pi.hint_string), hash);
             hash = hash_djb2_one_64(pi.usage, hash);
         }
@@ -354,25 +356,26 @@ Object *ClassDB::instance(const StringName &p_class) {
                 iter = classes.find(compat_classes[p_class]);
             }
         }
-        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + se_string(p_class) + "'.")
+        ERR_FAIL_COND_V_MSG(iter==classes.end(), nullptr, "Cannot get class '" + String(p_class) + "'.");
         ti = &iter->second;
-        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + se_string(p_class) + "' is disabled.")
-        ERR_FAIL_COND_V(!ti->creation_func, nullptr)
+        ERR_FAIL_COND_V_MSG(ti->disabled, nullptr, "Class '" + String(p_class) + "' is disabled.");
+        ERR_FAIL_COND_V(!ti->creation_func, nullptr);
     }
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
-        ERR_PRINT("Class '" + se_string(p_class) + "' can only be instantiated by editor.")
+        ERR_PRINT("Class '" + String(p_class) + "' can only be instantiated by editor.");
         return nullptr;
     }
 #endif
     return ti->creation_func();
 }
+
 bool ClassDB::can_instance(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.");
     ClassInfo *ti = &iter->second;
 #ifdef TOOLS_ENABLED
     if (ti->api == API_EDITOR && !Engine::get_singleton()->is_editor_hint()) {
@@ -388,7 +391,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 
     const StringName &name = p_class;
 
-    ERR_FAIL_COND_MSG(classes.contains(name), "Class '" + se_string(p_class) + "' already exists.")
+    ERR_FAIL_COND_MSG(classes.contains(name), "Class '" + String(p_class) + "' already exists.");
 
     classes[name] = ClassInfo();
     ClassInfo &ti = classes[name];
@@ -398,7 +401,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 
     if (ti.inherits) {
 
-        ERR_FAIL_COND(!classes.contains(ti.inherits)) // it MUST be registered.
+        ERR_FAIL_COND(!classes.contains(ti.inherits)); // it MUST be registered.
         ti.inherits_ptr = &classes[ti.inherits];
 
     } else {
@@ -407,7 +410,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 }
 
 void ClassDB::get_method_list(
-        const StringName& p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance, bool p_exclude_from_properties) {
+        const StringName& p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance, bool p_exclude_from_properties) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -444,7 +447,7 @@ void ClassDB::get_method_list(
 
                 // VariantType t=method->get_argument_type(i);
 
-                minfo.arguments.push_back(method->get_argument_info(i));
+                minfo.arguments.emplace_back(eastl::move(method->get_argument_info(i)));
             }
 
             minfo.return_val = method->get_return_info();
@@ -503,13 +506,13 @@ void ClassDB::bind_integer_constant(
     auto iter=classes.find(p_class);
 
 
-    ERR_FAIL_COND(iter==classes.end())
+    ERR_FAIL_COND(iter==classes.end());
 
     ClassInfo *type = &iter->second;
 
     if (type->constant_map.contains(p_name)) {
 
-        ERR_FAIL()
+        ERR_FAIL();
     }
 
     type->constant_map[p_name] = p_constant;
@@ -519,9 +522,9 @@ void ClassDB::bind_integer_constant(
         if (StringUtils::contains(p_enum, '.') ) {
             enum_name = StringUtils::get_slice(enum_name, '.', 1);
         }
-        StringName interned_enum_name(enum_name);
+        const StringName interned_enum_name(enum_name);
 
-        ListPOD<StringName> &constants_list = type->enum_map[interned_enum_name];
+        List<StringName> &constants_list = type->enum_map[interned_enum_name];
 
         constants_list.push_back(p_name);
     }
@@ -531,7 +534,7 @@ void ClassDB::bind_integer_constant(
 #endif
 }
 
-void ClassDB::get_integer_constant_list(const StringName &p_class, ListPOD<se_string> *p_constants, bool p_no_inheritance) {
+void ClassDB::get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -593,7 +596,6 @@ StringName ClassDB::get_integer_constant_enum(
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     while (type) {
 
-        const StringName *k = nullptr;
         for(const auto &entry : type->enum_map) {
             if(entry.second.contains(p_name))
                 return entry.first;
@@ -607,7 +609,7 @@ StringName ClassDB::get_integer_constant_enum(
     return StringName();
 }
 
-void ClassDB::get_enum_list(const StringName &p_class, ListPOD<StringName> *p_enums, bool p_no_inheritance) {
+void ClassDB::get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -627,7 +629,7 @@ void ClassDB::get_enum_list(const StringName &p_class, ListPOD<StringName> *p_en
 }
 
 void ClassDB::get_enum_constants(
-        const StringName &p_class, const StringName &p_enum, ListPOD<StringName> *p_constants, bool p_no_inheritance) {
+        const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -651,44 +653,40 @@ void ClassDB::get_enum_constants(
     }
 }
 
-void ClassDB::add_signal(StringName p_class, const MethodInfo &p_signal) {
+void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
 
     OBJTYPE_WLOCK;
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND(iter==classes.end())
+    ERR_FAIL_COND(iter==classes.end());
     ClassInfo *type = &iter->second;
 
-    StringName sname = p_signal.name;
+    const StringName &sname = p_signal.name;
 
 #ifdef DEBUG_METHODS_ENABLED
     ClassInfo *check = type;
     while (check) {
-        ERR_FAIL_COND_MSG(check->signal_map.contains(sname), "Class '" + se_string(p_class) + "' already has signal '" + se_string(sname) + "'.")
+        ERR_FAIL_COND_MSG(class_signal_map(*check).contains(sname), "Class '" + String(p_class) + "' already has signal '" + se_string_view(sname) + "'.");
         check = check->inherits_ptr;
     }
 #endif
 
-    type->signal_map[sname] = p_signal;
+    class_signal_map(*type)[sname] = eastl::move(p_signal);
 }
 
-void ClassDB::get_signal_list(StringName p_class, ListPOD<MethodInfo> *p_signals, bool p_no_inheritance) {
+void ClassDB::get_signal_list(StringName p_class, Vector<MethodInfo> *p_signals, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND(iter==classes.end())
+    ERR_FAIL_COND(iter==classes.end());
     ClassInfo *type = &iter->second;
 
     ClassInfo *check = type;
 
     while (check) {
 
-        const StringName *S = nullptr;
-        while ((S = check->signal_map.next(S))) {
-
-            p_signals->push_back(check->signal_map[*S]);
-        }
+        class_signal_map(*check).keys_into(*p_signals);
 
         if (p_no_inheritance)
             return;
@@ -704,7 +702,7 @@ bool ClassDB::has_signal(StringName p_class, StringName p_signal) {
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        if (check->signal_map.contains(p_signal))
+        if (class_signal_map(*check).contains(p_signal))
             return true;
         check = check->inherits_ptr;
     }
@@ -719,9 +717,9 @@ bool ClassDB::get_signal(StringName p_class, StringName p_signal, MethodInfo *r_
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        if (check->signal_map.contains(p_signal)) {
+        if (class_signal_map(*check).contains(p_signal)) {
             if (r_signal) {
-                *r_signal = check->signal_map[p_signal];
+                *r_signal = class_signal_map(*check)[p_signal];
             }
             return true;
         }
@@ -736,10 +734,10 @@ void ClassDB::add_property_group(StringName p_class, const char *p_name, const c
     OBJTYPE_WLOCK
     auto iter=classes.find(p_class);
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
-    ERR_FAIL_COND(!type)
+    ERR_FAIL_COND(!type);
 
     type->property_list.push_back(
-            PropertyInfo(VariantType::NIL, StringName(p_name), PROPERTY_HINT_NONE, p_prefix, PROPERTY_USAGE_GROUP));
+            PropertyInfo(VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP));
 }
 
 void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter,
@@ -750,17 +748,17 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     lock->read_unlock();
 
-    ERR_FAIL_COND(!type)
+    ERR_FAIL_COND(!type);
 
     MethodBind *mb_set = nullptr;
     if (p_setter) {
         mb_set = get_method(p_class, p_setter);
 #ifdef DEBUG_METHODS_ENABLED
 
-        ERR_FAIL_COND_MSG(!mb_set, se_string("Invalid setter '") + p_class + "::" + p_setter + "' for property '" + p_pinfo.name + "'.")
+        ERR_FAIL_COND_MSG(!mb_set, String("Invalid setter '") + p_class + "::" + p_setter + "' for property '" + p_pinfo.name + "'.");
 
         int exp_args = 1 + (p_index >= 0 ? 1 : 0);
-        ERR_FAIL_COND_MSG(mb_set->get_argument_count() != exp_args, se_string("Invalid function for setter '") + p_class + "::" + p_setter + " for property '" + p_pinfo.name + "'.");
+        ERR_FAIL_COND_MSG(mb_set->get_argument_count() != exp_args, String("Invalid function for setter '") + p_class + "::" + p_setter + " for property '" + p_pinfo.name + "'.");
 #endif
     }
 
@@ -770,15 +768,15 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
         mb_get = get_method(p_class, p_getter);
 #ifdef DEBUG_METHODS_ENABLED
 
-        ERR_FAIL_COND_MSG(!mb_get, se_string("Invalid getter '") + p_class + "::" + p_getter + "' for property '" + p_pinfo.name + "'.")
+        ERR_FAIL_COND_MSG(!mb_get, String("Invalid getter '") + p_class + "::" + p_getter + "' for property '" + p_pinfo.name + "'.");
 
         int exp_args = 0 + (p_index >= 0 ? 1 : 0);
-        ERR_FAIL_COND_MSG(mb_get->get_argument_count() != exp_args, se_string("Invalid function for getter '") + p_class + "::" + p_getter + "' for property: '" + p_pinfo.name + "'.");
+        ERR_FAIL_COND_MSG(mb_get->get_argument_count() != exp_args, String("Invalid function for getter '") + p_class + "::" + p_getter + "' for property: '" + p_pinfo.name + "'.");
 #endif
     }
 
 #ifdef DEBUG_METHODS_ENABLED
-    ERR_FAIL_COND_MSG(type->property_setget.contains(p_pinfo.name), se_string("Object '") + p_class + "' already has property '" + p_pinfo.name + "'.");
+    ERR_FAIL_COND_MSG(type->property_setget.contains(p_pinfo.name), String("Object '") + p_class + "' already has property '" + p_pinfo.name + "'.");
 #endif
 
     OBJTYPE_WLOCK
@@ -811,7 +809,7 @@ void ClassDB::set_property_default_value(StringName p_class, const StringName &p
 }
 
 void ClassDB::get_property_list(
-        StringName p_class, ListPOD<PropertyInfo> *p_list, bool p_no_inheritance, const Object *p_validator) {
+        StringName p_class, Vector<PropertyInfo> *p_list, bool p_no_inheritance, const Object *p_validator) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -841,10 +839,10 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-
-            if (!psg->setter) {
+        auto iter = check->property_setget.find(p_property);
+        if (iter!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter->second);
+            if (!psg.setter) {
                 if (r_valid)
                     *r_valid = false;
                 return true; // return true but do nothing
@@ -852,22 +850,22 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
 
             Variant::CallError ce;
 
-            if (psg->index >= 0) {
-                Variant index = psg->index;
+            if (psg.index >= 0) {
+                Variant index = psg.index;
                 const Variant *arg[2] = { &index, &p_value };
-                // p_object->call(psg->setter,arg,2,ce);
-                if (psg->_setptr) {
-                    psg->_setptr->call(p_object, arg, 2, ce);
+                // p_object->call(psg.setter,arg,2,ce);
+                if (psg._setptr) {
+                    psg._setptr->call(p_object, arg, 2, ce);
                 } else {
-                    p_object->call(psg->setter, arg, 2, ce);
+                    p_object->call(psg.setter, arg, 2, ce);
                 }
 
             } else {
                 const Variant *arg[1] = { &p_value };
-                if (psg->_setptr) {
-                    psg->_setptr->call(p_object, arg, 1, ce);
+                if (psg._setptr) {
+                    psg._setptr->call(p_object, arg, 1, ce);
                 } else {
-                    p_object->call(psg->setter, arg, 1, ce);
+                    p_object->call(psg.setter, arg, 1, ce);
                 }
             }
 
@@ -888,24 +886,25 @@ bool ClassDB::get_property(Object *p_object, const StringName &p_property, Varia
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-            if (!psg->getter) return true; // return true but do nothing
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
+            if (!psg.getter) return true; // return true but do nothing
 
-            if (psg->index >= 0) {
-                Variant index = psg->index;
+            if (psg.index >= 0) {
+                Variant index = psg.index;
                 const Variant *arg[1] = { &index };
                 Variant::CallError ce;
-                r_value = p_object->call(psg->getter, arg, 1, ce);
+                r_value = p_object->call(psg.getter, arg, 1, ce);
 
             } else {
 
                 Variant::CallError ce;
-                if (psg->_getptr) {
+                if (psg._getptr) {
 
-                    r_value = psg->_getptr->call(p_object, nullptr, 0, ce);
+                    r_value = psg._getptr->call(p_object, nullptr, 0, ce);
                 } else {
-                    r_value = p_object->call(psg->getter, nullptr, 0, ce);
+                    r_value = p_object->call(psg.getter, nullptr, 0, ce);
                 }
             }
             return true;
@@ -929,12 +928,12 @@ int ClassDB::get_property_index(const StringName &p_class, const StringName &p_p
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
             if (r_is_valid) *r_is_valid = true;
 
-            return psg->index;
+            return psg.index;
         }
 
         check = check->inherits_ptr;
@@ -950,12 +949,13 @@ VariantType ClassDB::get_property_type(const StringName &p_class, const StringNa
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
 
             if (r_is_valid) *r_is_valid = true;
 
-            return psg->type;
+            return psg.type;
         }
 
         check = check->inherits_ptr;
@@ -971,10 +971,11 @@ StringName ClassDB::get_property_setter(StringName p_class, const StringName &p_
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
 
-            return psg->setter;
+            return psg.setter;
         }
 
         check = check->inherits_ptr;
@@ -989,10 +990,10 @@ StringName ClassDB::get_property_getter(StringName p_class, const StringName &p_
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
     while (check) {
-        const PropertySetGet *psg = check->property_setget.getptr(p_property);
-        if (psg) {
-
-            return psg->getter;
+        auto iter2 = check->property_setget.find(p_property);
+        if (iter2!=check->property_setget.end()) {
+            const PropertySetGet &psg(iter2->second);
+            return psg.getter;
         }
 
         check = check->inherits_ptr;
@@ -1022,8 +1023,8 @@ void ClassDB::set_method_flags(StringName p_class, StringName p_method, int p_fl
     auto iter=classes.find(p_class);
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ClassInfo *check = type;
-    ERR_FAIL_COND(!check)
-    ERR_FAIL_COND(!check->method_map.contains(p_method))
+    ERR_FAIL_COND(!check);
+    ERR_FAIL_COND(!check->method_map.contains(p_method));
     check->method_map[p_method]->set_hint_flags(p_flags);
 }
 
@@ -1051,34 +1052,34 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 #endif
 
     OBJTYPE_WLOCK;
-    ERR_FAIL_COND_V(!p_bind, nullptr)
+    ERR_FAIL_COND_V(!p_bind, nullptr);
     p_bind->set_name(mdname);
 
     const char *instance_type = p_bind->get_instance_class();
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + se_string(instance_type) + " already has a method " + se_string(mdname) + ".")
+    ERR_FAIL_COND_V_MSG(has_method(StringName(instance_type), mdname), nullptr, "Class " + String(instance_type) + " already has a method " + String(mdname) + ".");
 #endif
 
     auto iter=classes.find_as(instance_type);
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     if (!type) {
         memdelete(p_bind);
-        ERR_FAIL_V_MSG(nullptr, se_string("Couldn't bind method '") + mdname + "' for instance '" + instance_type + "'.")
+        ERR_FAIL_V_MSG(nullptr, String("Couldn't bind method '") + mdname + "' for instance '" + instance_type + "'.");
     }
 
     if (type->method_map.contains(mdname)) {
         memdelete(p_bind);
         // overloading not supported
-        ERR_FAIL_V_MSG(nullptr, se_string("Method already bound '") + instance_type + "::" + mdname + "'.")
+        ERR_FAIL_V_MSG(nullptr, String("Method already bound '") + instance_type + "::" + mdname + "'.");
     }
 
 #ifdef DEBUG_METHODS_ENABLED
 
     if (method_name.parameterCount() > p_bind->get_argument_count()) {
         memdelete(p_bind);
-        ERR_FAIL_V_MSG(nullptr, se_string("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.")
+        ERR_FAIL_V_MSG(nullptr, String("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.");
     }
 
     //p_bind->set_argument_names(method_name.args);
@@ -1088,7 +1089,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 
     type->method_map[mdname] = p_bind;
 
-    PODVector<Variant> defvals;
+    Vector<Variant> defvals;
 
     defvals.reserve(def_vals.size());
     for (size_t i = 0; i < def_vals.size(); i++) {
@@ -1101,22 +1102,30 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
     return p_bind;
 }
 
+void ClassDB::_set_class_header(const StringName &p_class, se_string_view header_file) {
+    //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
+    int idx  = header_file.find("SegsEngine");
+    String hdr(header_file.substr(idx+11));
+    classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
+}
+
 void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual) {
-    ERR_FAIL_COND(!classes.contains(p_class))
+    ERR_FAIL_COND(!classes.contains(p_class));
 
     OBJTYPE_WLOCK
 
 #ifdef DEBUG_METHODS_ENABLED
     MethodInfo mi = p_method;
-    if (p_virtual) mi.flags |= METHOD_FLAG_VIRTUAL;
-    classes[p_class].virtual_methods.push_back(mi);
+    if (p_virtual)
+        mi.flags |= METHOD_FLAG_VIRTUAL;
+    classes[p_class].virtual_methods.emplace_back(mi);
 
 #endif
 }
 
-void ClassDB::get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance) {
+void ClassDB::get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance) {
 
-    ERR_FAIL_COND(!classes.contains(p_class))
+    ERR_FAIL_COND(!classes.contains(p_class));
 
 #ifdef DEBUG_METHODS_ENABLED
 
@@ -1140,7 +1149,7 @@ void ClassDB::set_class_enabled(StringName p_class, bool p_enable) {
 
     OBJTYPE_WLOCK;
 
-    ERR_FAIL_COND(!classes.contains(p_class))
+    ERR_FAIL_COND(!classes.contains(p_class));
     classes[p_class].disabled = !p_enable;
 }
 
@@ -1155,7 +1164,7 @@ bool ClassDB::is_class_enabled(StringName p_class) {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.");
     return !iter->second.disabled;
 }
 
@@ -1164,13 +1173,13 @@ bool ClassDB::is_class_exposed(StringName p_class) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter=classes.find(p_class);
-    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + se_string(p_class) + "'.")
+    ERR_FAIL_COND_V_MSG(iter==classes.end(), false, "Cannot get class '" + String(p_class) + "'.");
     return iter->second.exposed;
 }
 
 StringName ClassDB::get_category(const StringName &p_node) {
 
-    ERR_FAIL_COND_V(!classes.contains(p_node), StringName())
+    ERR_FAIL_COND_V(!classes.contains(p_node), StringName());
 #ifdef DEBUG_ENABLED
     return classes[p_node].category;
 #else
@@ -1186,14 +1195,14 @@ void ClassDB::add_resource_base_extension(const StringName &p_extension, const S
     resource_base_extensions[p_extension] = p_class;
 }
 
-void ClassDB::get_resource_base_extensions(PODVector<se_string> &p_extensions) {
+void ClassDB::get_resource_base_extensions(Vector<String> &p_extensions) {
     for(const auto &p : resource_base_extensions)
     {
         p_extensions.push_back(p.first.asCString());
     }
 }
 
-void ClassDB::get_extensions_for_type(const StringName &p_class, PODVector<se_string> *p_extensions) {
+void ClassDB::get_extensions_for_type(const StringName &p_class, Vector<String> *p_extensions) {
 
     for (const auto &p : resource_base_extensions) {
         if (is_parent_class(p_class, p.second) || is_parent_class(p.second, p_class))
@@ -1226,7 +1235,7 @@ Variant ClassDB::class_get_default_property_value(
 
         if (c) {
 
-            ListPOD<PropertyInfo> plist;
+            Vector<PropertyInfo> plist;
             c->get_property_list(&plist);
             for (const PropertyInfo &pi : plist) {
                 if (pi.usage & (PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR)) {
@@ -1290,12 +1299,12 @@ bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const Str
     if (iter==classes.end()) {
         memdelete(bind);
     }
-    ERR_FAIL_COND_V(iter==classes.end(), false)
+    ERR_FAIL_COND_V(iter==classes.end(), false);
     auto type = &iter->second;
     if (type->method_map.contains(p_name)) {
         memdelete(bind);
         // overloading not supported
-        ERR_FAIL_V_MSG(false, se_string("Method already bound: ") + instance_type + "::" + p_name + ".")
+        ERR_FAIL_V_MSG(false, String("Method already bound: ") + instance_type + "::" + p_name + ".");
     }
     type->method_map[p_name] = bind;
 #ifdef DEBUG_METHODS_ENABLED

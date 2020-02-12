@@ -50,8 +50,8 @@ class PackedDataContainer : public Resource {
 
     PoolVector<uint8_t> data;
     int datalen;
-
-    uint32_t _pack(const Variant &p_data, Vector<uint8_t> &tmpdata, DefMap<se_string, uint32_t> &string_cache);
+public:
+    uint32_t _pack(const Variant &p_data, Vector<uint8_t> &tmpdata, DefMap<String, uint32_t> &string_cache);
 
     Variant _iter_init_ofs(const Array &p_iter, uint32_t p_offset);
     Variant _iter_next_ofs(const Array &p_iter, uint32_t p_offset);
@@ -67,9 +67,9 @@ class PackedDataContainer : public Resource {
     uint32_t _type_at_ofs(uint32_t p_ofs) const;
     int _size(uint32_t p_ofs) const;
 
-protected:
     void _set_data(const PoolVector<uint8_t> &p_data);
     PoolVector<uint8_t> _get_data() const;
+protected:
     static void _bind_methods();
 
 public:

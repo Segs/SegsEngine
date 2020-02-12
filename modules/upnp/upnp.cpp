@@ -34,6 +34,7 @@
 #include <miniupnpc/upnpcommands.h>
 #include "core/method_bind.h"
 
+#include <miniupnpc/miniupnpc.h>
 #include <cstdlib>
 
 IMPL_GDCLASS(UPNP)
@@ -48,9 +49,9 @@ bool UPNP::is_common_device(se_string_view dev) const {
 }
 
 int UPNP::discover(int timeout, int ttl, se_string_view device_filter) {
-    ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM)
-    ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM)
-    ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM)
+    ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM);
+    ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM);
+    ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM);
 
     devices.clear();
 
@@ -104,7 +105,7 @@ void UPNP::add_device_to_list(UPNPDev *dev, UPNPDev *devlist) {
     devices.push_back(new_device);
 }
 
-char *UPNP::load_description(const se_string & url, int *size, int *status_code) const {
+char *UPNP::load_description(const String & url, int *size, int *status_code) const {
     return (char *)miniwget(url.c_str(), size, 0, status_code);
 }
 
@@ -238,20 +239,20 @@ int UPNP::get_device_count() const {
 }
 
 Ref<UPNPDevice> UPNP::get_device(int index) const {
-    ERR_FAIL_INDEX_V(index, devices.size(), Ref<UPNPDevice>())
+    ERR_FAIL_INDEX_V(index, devices.size(), Ref<UPNPDevice>());
 
     return devices[index];
 }
 
 void UPNP::add_device(Ref<UPNPDevice> device) {
-    ERR_FAIL_COND(device == Ref<UPNPDevice>())
+    ERR_FAIL_COND(device == Ref<UPNPDevice>());
 
     devices.push_back(device);
 }
 
 void UPNP::set_device(int index, Ref<UPNPDevice> device) {
     ERR_FAIL_INDEX(index, devices.size());
-    ERR_FAIL_COND(device == nullptr)
+    ERR_FAIL_COND(device == nullptr);
 
     devices[index]=device;
 }
@@ -267,7 +268,7 @@ void UPNP::clear_devices() {
 }
 
 Ref<UPNPDevice> UPNP::get_gateway() const {
-    ERR_FAIL_COND_V(devices.empty(), Ref<UPNPDevice>())
+    ERR_FAIL_COND_V(devices.empty(), Ref<UPNPDevice>());
 
     for (size_t i = 0; i < devices.size(); i++) {
         Ref<UPNPDevice> dev = get_device(i);
@@ -284,7 +285,7 @@ void UPNP::set_discover_multicast_if(se_string_view m_if) {
     discover_multicast_if = m_if;
 }
 
-const se_string & UPNP::get_discover_multicast_if() const {
+const String & UPNP::get_discover_multicast_if() const {
     return discover_multicast_if;
 }
 
@@ -304,17 +305,17 @@ bool UPNP::is_discover_ipv6() const {
     return discover_ipv6;
 }
 
-se_string UPNP::query_external_address() const {
+String UPNP::query_external_address() const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {
-        return se_string();
+        return String();
     }
 
     return dev->query_external_address();
 }
 
-int UPNP::add_port_mapping(int port, int port_internal, const se_string & desc, const se_string &proto, int duration) const {
+int UPNP::add_port_mapping(int port, int port_internal, const String & desc, const String &proto, int duration) const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {
@@ -359,7 +360,7 @@ void UPNP::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_discover_local_port", {"port"}), &UPNP::set_discover_local_port);
     MethodBinder::bind_method(D_METHOD("get_discover_local_port"), &UPNP::get_discover_local_port);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "discover_local_port", PROPERTY_HINT_RANGE, "0,65535"), "set_discover_local_port", "get_discover_local_port");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "discover_local_port", PropertyHint::Range, "0,65535"), "set_discover_local_port", "get_discover_local_port");
 
     MethodBinder::bind_method(D_METHOD("set_discover_ipv6", {"ipv6"}), &UPNP::set_discover_ipv6);
     MethodBinder::bind_method(D_METHOD("is_discover_ipv6"), &UPNP::is_discover_ipv6);

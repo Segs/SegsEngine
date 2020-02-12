@@ -36,7 +36,7 @@
 
 IMPL_GDCLASS(CapsuleShape2D)
 
-PODVector<Vector2> CapsuleShape2D::_get_points() const {
+Vector<Vector2> CapsuleShape2D::_get_points() const {
     Vector2 work_area[24 + 2];
     size_t widx=0;
     for (int i = 0; i < 24; i++) {
@@ -81,9 +81,9 @@ real_t CapsuleShape2D::get_height() const {
 
 void CapsuleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
-    PODVector<Vector2> points = _get_points();
-    Vector<Color> col;
-    col.emplace_back(p_color);
+    Vector<Vector2> points = _get_points();
+    PoolVector<Color> col;
+    col.push_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 

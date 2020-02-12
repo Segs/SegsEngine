@@ -43,7 +43,7 @@ struct PackData {
     Rect2 region;
     bool is_mesh;
     Vector<int> chart_pieces; // one for region, many for mesh
-    Vector<PODVector<Vector2>> chart_vertices; // for mesh
+    Vector<Vector<Vector2>> chart_vertices; // for mesh
     Ref<Image> image;
 };
 
@@ -57,7 +57,7 @@ StringName ResourceImporterTextureAtlas::get_visible_name() const {
 
     return "TextureAtlas";
 }
-void ResourceImporterTextureAtlas::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterTextureAtlas::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -84,17 +84,18 @@ StringName ResourceImporterTextureAtlas::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterTextureAtlas::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterTextureAtlas::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "atlas_file", PROPERTY_HINT_SAVE_FILE, "*.png"), ""));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "import_mode", PROPERTY_HINT_ENUM, "Region,Mesh2D"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "atlas_file", PropertyHint::SaveFile, "*.png"), ""));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "import_mode", PropertyHint::Enum, "Region,Mesh2D"), 0));
 }
 
 StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
 
@@ -105,7 +106,7 @@ Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_stri
 
     broken_texture->create_from_image(broken);
 
-    se_string target_file = se_string(p_save_path) + ".tex";
+    String target_file = String(p_save_path) + ".tex";
 
     ResourceSaver::save(target_file, RES(broken_texture));
 
@@ -202,9 +203,9 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
     }
 }
 
-Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<se_string, Map<StringName, Variant> > &p_source_file_options, const Map<se_string, se_string> &p_base_paths) {
+Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
 
-    ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG) //should never happen
+    ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG); //should never happen
 
     Vector<EditorAtlasPacker::Chart> charts;
     Vector<PackData> pack_data_files;
@@ -212,10 +213,10 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
     pack_data_files.resize(p_source_file_options.size());
 
     int idx = -1;
-    for (const eastl::pair<const se_string, Map<StringName, Variant> > &E : p_source_file_options) {
+    for (const eastl::pair<const String, Map<StringName, Variant> > &E : p_source_file_options) {
         ++idx;
-        PackData &pack_data = pack_data_files.write[idx];
-        const se_string &source(E.first);
+        PackData &pack_data = pack_data_files[idx];
+        const String &source(E.first);
         const Map<StringName, Variant> &options(E.second);
 
         Ref<Image> image(make_ref_counted<Image>());
@@ -261,16 +262,16 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
             Ref<BitMap> bit_map(make_ref_counted<BitMap>());
 
             bit_map->create_from_image_alpha(image);
-            Vector<PODVector<Vector2> > polygons = bit_map->clip_opaque_to_polygons(Rect2(0, 0, image->get_width(), image->get_height()));
+            Vector<Vector<Vector2> > polygons(bit_map->clip_opaque_to_polygons(Rect2(0, 0, image->get_width(), image->get_height())));
 
-            for (int j = 0; j < polygons.size(); j++) {
+            for (auto & polygon : polygons) {
 
                 EditorAtlasPacker::Chart chart;
-                chart.vertices = polygons[j];
+                chart.vertices = polygon;
                 chart.can_transpose = true;
 
-                PODVector<int> poly = Geometry::triangulate_polygon(polygons[j]);
-                for (int i = 0; i < poly.size(); i += 3) {
+                Vector<int> poly = Geometry::triangulate_polygon(polygon);
+                for (size_t i = 0; i < poly.size(); i += 3) {
 
                     EditorAtlasPacker::Chart::Face f;
                     f.vertex[0] = poly[i + 0];
@@ -280,9 +281,9 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
                 }
 
                 pack_data.chart_pieces.push_back(charts.size());
-                charts.push_back(chart);
+                charts.emplace_back(eastl::move(chart));
 
-                pack_data.chart_vertices.emplace_back(eastl::move(polygons[j]));
+                pack_data.chart_vertices.emplace_back(eastl::move(polygon));
             }
         }
     }
@@ -298,9 +299,8 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
 
     new_atlas->lock();
 
-    for (int i = 0; i < pack_data_files.size(); i++) {
+    for (PackData &pack_data : pack_data_files) {
 
-        PackData &pack_data = pack_data_files.write[i];
         pack_data.image->lock();
         for (int j = 0; j < pack_data.chart_pieces.size(); j++) {
             const EditorAtlasPacker::Chart &chart = charts[pack_data.chart_pieces[j]];
@@ -337,9 +337,9 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
 
     //save the images
     idx = -1;
-    for (const eastl::pair<const se_string, Map<StringName, Variant> > &E : p_source_file_options) {
+    for (const eastl::pair<const String, Map<StringName, Variant> > &E : p_source_file_options) {
         ++idx;
-        PackData &pack_data = pack_data_files.write[idx];
+        PackData &pack_data = pack_data_files[idx];
 
         Ref<Texture> texture;
 
@@ -357,47 +357,41 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
         } else {
             Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
-            for (int i = 0; i < pack_data.chart_pieces.size(); i++) {
+            for (size_t i = 0; i < pack_data.chart_pieces.size(); i++) {
                 const EditorAtlasPacker::Chart &chart = charts[pack_data.chart_pieces[i]];
-                PoolVector<Vector2> vertices;
-                PoolVector<int> indices;
-                PoolVector<Vector2> uvs;
-                int vc = chart.vertices.size();
-                int fc = chart.faces.size();
+                Vector<Vector2> vertices;
+                Vector<int> indices;
+                Vector<Vector2> uvs;
+                size_t vc = chart.vertices.size();
+                size_t fc = chart.faces.size();
                 vertices.resize(vc);
                 uvs.resize(vc);
                 indices.resize(fc * 3);
 
                 {
-                    PoolVector<Vector2>::Write vw = vertices.write();
-                    PoolVector<int>::Write iw = indices.write();
-                    PoolVector<Vector2>::Write uvw = uvs.write();
-
-                    for (int j = 0; j < vc; j++) {
-                        vw[j] = chart.vertices[j];
+                    for (size_t j = 0; j < vc; j++) {
+                        vertices[j] = chart.vertices[j];
                         Vector2 uv = chart.vertices[j];
                         if (chart.transposed) {
                             SWAP(uv.x, uv.y);
                         }
                         uv += chart.final_offset;
                         uv /= new_atlas->get_size(); //normalize uv to 0-1 range
-                        uvw[j] = uv;
+                        uvs[j] = uv;
                     }
 
-                    for (int j = 0; j < fc; j++) {
-                        iw[j * 3 + 0] = chart.faces[j].vertex[0];
-                        iw[j * 3 + 1] = chart.faces[j].vertex[1];
-                        iw[j * 3 + 2] = chart.faces[j].vertex[2];
+                    for (size_t j = 0; j < fc; j++) {
+                        indices[j * 3 + 0] = chart.faces[j].vertex[0];
+                        indices[j * 3 + 1] = chart.faces[j].vertex[1];
+                        indices[j * 3 + 2] = chart.faces[j].vertex[2];
                     }
                 }
 
-                Array arrays;
-                arrays.resize(Mesh::ARRAY_MAX);
-                arrays[Mesh::ARRAY_VERTEX] = Variant(vertices);
-                arrays[Mesh::ARRAY_TEX_UV] = Variant(uvs);
-                arrays[Mesh::ARRAY_INDEX] = indices;
+                SurfaceArrays arrays(eastl::move(vertices));
+                arrays.m_uv_1 = eastl::move(uvs);
+                arrays.m_indices = eastl::move(indices);
 
-                mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+                mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arrays));
             }
 
             Ref<MeshTexture> mesh_texture(make_ref_counted<MeshTexture>());
@@ -410,7 +404,7 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
             //mesh
         }
 
-        se_string save_path(p_base_paths.at(E.first) + ".res");
+        String save_path(p_base_paths.at(E.first) + ".res");
         ResourceSaver::save(save_path, Ref<Resource>(texture));
     }
 

@@ -116,7 +116,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _reload_hook(const RID &p_hook);
     void _resource_path_changed() override;
@@ -206,7 +206,7 @@ public:
     uint32_t get_flags() const override;
     Image::Format get_format() const;
     Error load(se_string_view p_path);
-    se_string get_load_path() const;
+    String get_load_path() const;
 
     int get_width() const override;
     int get_height() const override;
@@ -334,9 +334,10 @@ protected:
 
     Vector<Piece> pieces;
     Size2i size;
-
+public:
     Array _get_data() const;
     void _set_data(const Array &p_array);
+protected:
     static void _bind_methods();
 
 public:
@@ -420,7 +421,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -471,7 +472,7 @@ private:
     int depth;
     bool is_3d;
 
-
+public:
     void _set_data(const Dictionary &p_data);
     Dictionary _get_data() const;
 

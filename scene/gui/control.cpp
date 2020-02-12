@@ -67,16 +67,16 @@ Dictionary Control::_edit_get_state() const {
     s["scale"] = get_scale();
     s["pivot"] = get_pivot_offset();
     Array anchors;
-    anchors.push_back(get_anchor(MARGIN_LEFT));
-    anchors.push_back(get_anchor(MARGIN_TOP));
-    anchors.push_back(get_anchor(MARGIN_RIGHT));
-    anchors.push_back(get_anchor(MARGIN_BOTTOM));
+    anchors.push_back(get_anchor(Margin::Left));
+    anchors.push_back(get_anchor(Margin::Top));
+    anchors.push_back(get_anchor(Margin::Right));
+    anchors.push_back(get_anchor(Margin::Bottom));
     s["anchors"] = anchors;
     Array margins;
-    margins.push_back(get_margin(MARGIN_LEFT));
-    margins.push_back(get_margin(MARGIN_TOP));
-    margins.push_back(get_margin(MARGIN_RIGHT));
-    margins.push_back(get_margin(MARGIN_BOTTOM));
+    margins.push_back(get_margin(Margin::Left));
+    margins.push_back(get_margin(Margin::Top));
+    margins.push_back(get_margin(Margin::Right));
+    margins.push_back(get_margin(Margin::Bottom));
     s["margins"] = margins;
     return s;
 }
@@ -89,15 +89,15 @@ void Control::_edit_set_state(const Dictionary &p_state) {
     set_scale(state["scale"]);
     set_pivot_offset(state["pivot"]);
     Array anchors = state["anchors"];
-    data.anchor[MARGIN_LEFT] = anchors[0];
-    data.anchor[MARGIN_TOP] = anchors[1];
-    data.anchor[MARGIN_RIGHT] = anchors[2];
-    data.anchor[MARGIN_BOTTOM] = anchors[3];
+    data.anchor[(int8_t)Margin::Left] = anchors[0];
+    data.anchor[(int8_t)Margin::Top] = anchors[1];
+    data.anchor[(int8_t)Margin::Right] = anchors[2];
+    data.anchor[(int8_t)Margin::Bottom] = anchors[3];
     Array margins = state["margins"];
-    data.margin[MARGIN_LEFT] = margins[0];
-    data.margin[MARGIN_TOP] = margins[1];
-    data.margin[MARGIN_RIGHT] = margins[2];
-    data.margin[MARGIN_BOTTOM] = margins[3];
+    data.margin[(int8_t)Margin::Left] = margins[0];
+    data.margin[(int8_t)Margin::Top] = margins[1];
+    data.margin[(int8_t)Margin::Right] = margins[2];
+    data.margin[(int8_t)Margin::Bottom] = margins[3];
     _size_changed();
 }
 
@@ -328,7 +328,7 @@ bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
     return true;
 }
-void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Control::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Ref<Theme> theme = Theme::get_default();
     /* Using the default theme since the properties below are meant for editor only
@@ -341,81 +341,80 @@ void Control::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
     }*/
 
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_icon_list(get_class_name(), &names);
-        se_string basename("custom_icons/");
+        String basename("custom_icons/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.icon_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Texture", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "Texture", hint));
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_shader_list(get_class_name(), &names);
-        se_string basename("custom_shaders/");
+        String basename("custom_shaders/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.shader_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Shader,VisualShader", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "Shader,VisualShader", hint));
         }
     }
     {
-        PODVector<StringName> names;
-        theme->get_stylebox_list(get_class_name(), &names);
-        se_string basename("custom_styles/");
+        Vector<StringName> names(theme->get_stylebox_list(get_class_name()));
+        String basename("custom_styles/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.style_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "StyleBox", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "StyleBox", hint));
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_font_list(get_class_name(), &names);
-        se_string basename("custom_fonts/");
+        String basename("custom_fonts/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.font_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PROPERTY_HINT_RESOURCE_TYPE, "Font", hint));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(basename + E), PropertyHint::ResourceType, "Font", hint));
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_color_list(get_class_name(), &names);
-        se_string basename("custom_colors/");
+        String basename("custom_colors/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.color_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(basename + E), PROPERTY_HINT_NONE, "", hint));
+            p_list->push_back(PropertyInfo(VariantType::COLOR, StringName(basename + E), PropertyHint::None, "", hint));
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_constant_list(get_class_name(), &names);
-        se_string basename("custom_constants/");
+        String basename("custom_constants/");
         for (const StringName &E : names) {
 
             uint32_t hint = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CHECKABLE;
             if (data.constant_override.contains(E))
                 hint |= PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_CHECKED;
 
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName(basename + E), PROPERTY_HINT_RANGE, "-16384,16384", hint));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName(basename + E), PropertyHint::Range, "-16384,16384", hint));
         }
     }
 }
@@ -458,11 +457,6 @@ void Control::_update_canvas_item_transform() {
 
     Transform2D xform = _get_internal_transform();
     xform[2] += get_position();
-
-    // We use a little workaround to avoid flickering when moving the pivot with _edit_set_pivot()
-    if (is_inside_tree() && Math::abs(Math::sin(data.rotation * 4.0f)) < 0.00001f && get_viewport()->is_snap_controls_to_pixels_enabled()) {
-        xform[2] = xform[2].round();
-    }
 
     VisualServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), xform);
 }
@@ -775,16 +769,16 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 
 void Control::force_drag(const Variant &p_data, Control *p_control) {
 
-    ERR_FAIL_COND(!is_inside_tree())
-    ERR_FAIL_COND(p_data.get_type() == VariantType::NIL)
+    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(p_data.get_type() == VariantType::NIL);
 
     get_viewport()->_gui_force_drag(this, p_data, p_control);
 }
 
 void Control::set_drag_preview(Control *p_control) {
 
-    ERR_FAIL_COND(!is_inside_tree())
-    ERR_FAIL_COND(!get_viewport()->gui_is_dragging())
+    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!get_viewport()->gui_is_dragging());
     get_viewport()->_gui_set_drag_preview(this, p_control);
 }
 
@@ -1416,28 +1410,28 @@ void Control::_size_changed() {
 }
 
 void Control::set_anchor(Margin p_margin, float p_anchor, bool p_keep_margin, bool p_push_opposite_anchor) {
-    ERR_FAIL_INDEX((int)p_margin, int(MARGIN_MAX))
+    ERR_FAIL_INDEX((int)p_margin, int(Margin::Max));
 
     Rect2 parent_rect = get_parent_anchorable_rect();
-    float parent_range = (p_margin == MARGIN_LEFT || p_margin == MARGIN_RIGHT) ? parent_rect.size.x : parent_rect.size.y;
-    float previous_margin_pos = data.margin[p_margin] + data.anchor[p_margin] * parent_range;
-    float previous_opposite_margin_pos = data.margin[(p_margin + 2) % 4] + data.anchor[(p_margin + 2) % 4] * parent_range;
+    float parent_range = (p_margin == Margin::Left || p_margin == Margin::Right) ? parent_rect.size.x : parent_rect.size.y;
+    float previous_margin_pos = data.margin[(int)p_margin] + data.anchor[(int)p_margin] * parent_range;
+    float previous_opposite_margin_pos = data.margin[((int)p_margin + 2) % 4] + data.anchor[((int)p_margin + 2) % 4] * parent_range;
 
-    data.anchor[p_margin] = p_anchor;
+    data.anchor[(int)p_margin] = p_anchor;
 
-    if (((p_margin == MARGIN_LEFT || p_margin == MARGIN_TOP) && data.anchor[p_margin] > data.anchor[(p_margin + 2) % 4]) ||
-            ((p_margin == MARGIN_RIGHT || p_margin == MARGIN_BOTTOM) && data.anchor[p_margin] < data.anchor[(p_margin + 2) % 4])) {
+    if (((p_margin == Margin::Left || p_margin == Margin::Top) && data.anchor[(int)p_margin] > data.anchor[((int)p_margin + 2) % 4]) ||
+            ((p_margin == Margin::Right || p_margin == Margin::Bottom) && data.anchor[(int)p_margin] < data.anchor[((int)p_margin + 2) % 4])) {
         if (p_push_opposite_anchor) {
-            data.anchor[(p_margin + 2) % 4] = data.anchor[p_margin];
+            data.anchor[((int)p_margin + 2) % 4] = data.anchor[(int)p_margin];
         } else {
-            data.anchor[p_margin] = data.anchor[(p_margin + 2) % 4];
+            data.anchor[(int)p_margin] = data.anchor[((int)p_margin + 2) % 4];
         }
     }
 
     if (!p_keep_margin) {
-        data.margin[p_margin] = previous_margin_pos - data.anchor[p_margin] * parent_range;
+        data.margin[(int)p_margin] = previous_margin_pos - data.anchor[(int)p_margin] * parent_range;
         if (p_push_opposite_anchor) {
-            data.margin[(p_margin + 2) % 4] = previous_opposite_margin_pos - data.anchor[(p_margin + 2) % 4] * parent_range;
+            data.margin[((int)p_margin + 2) % 4] = previous_opposite_margin_pos - data.anchor[((int)p_margin + 2) % 4] * parent_range;
         }
     }
     if (is_inside_tree()) {
@@ -1472,21 +1466,21 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
         case PRESET_LEFT_WIDE:
         case PRESET_HCENTER_WIDE:
         case PRESET_WIDE:
-            set_anchor(MARGIN_LEFT, ANCHOR_BEGIN, p_keep_margins);
+            set_anchor(Margin::Left, ANCHOR_BEGIN, p_keep_margins);
             break;
 
         case PRESET_CENTER_TOP:
         case PRESET_CENTER_BOTTOM:
         case PRESET_CENTER:
         case PRESET_VCENTER_WIDE:
-            set_anchor(MARGIN_LEFT, 0.5, p_keep_margins);
+            set_anchor(Margin::Left, 0.5, p_keep_margins);
             break;
 
         case PRESET_TOP_RIGHT:
         case PRESET_BOTTOM_RIGHT:
         case PRESET_CENTER_RIGHT:
         case PRESET_RIGHT_WIDE:
-            set_anchor(MARGIN_LEFT, ANCHOR_END, p_keep_margins);
+            set_anchor(Margin::Left, ANCHOR_END, p_keep_margins);
             break;
     }
 
@@ -1500,21 +1494,21 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
         case PRESET_TOP_WIDE:
         case PRESET_VCENTER_WIDE:
         case PRESET_WIDE:
-            set_anchor(MARGIN_TOP, ANCHOR_BEGIN, p_keep_margins);
+            set_anchor(Margin::Top, ANCHOR_BEGIN, p_keep_margins);
             break;
 
         case PRESET_CENTER_LEFT:
         case PRESET_CENTER_RIGHT:
         case PRESET_CENTER:
         case PRESET_HCENTER_WIDE:
-            set_anchor(MARGIN_TOP, 0.5, p_keep_margins);
+            set_anchor(Margin::Top, 0.5, p_keep_margins);
             break;
 
         case PRESET_BOTTOM_LEFT:
         case PRESET_BOTTOM_RIGHT:
         case PRESET_CENTER_BOTTOM:
         case PRESET_BOTTOM_WIDE:
-            set_anchor(MARGIN_TOP, ANCHOR_END, p_keep_margins);
+            set_anchor(Margin::Top, ANCHOR_END, p_keep_margins);
             break;
     }
 
@@ -1524,14 +1518,14 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
         case PRESET_BOTTOM_LEFT:
         case PRESET_CENTER_LEFT:
         case PRESET_LEFT_WIDE:
-            set_anchor(MARGIN_RIGHT, ANCHOR_BEGIN, p_keep_margins);
+            set_anchor(Margin::Right, ANCHOR_BEGIN, p_keep_margins);
             break;
 
         case PRESET_CENTER_TOP:
         case PRESET_CENTER_BOTTOM:
         case PRESET_CENTER:
         case PRESET_VCENTER_WIDE:
-            set_anchor(MARGIN_RIGHT, 0.5, p_keep_margins);
+            set_anchor(Margin::Right, 0.5, p_keep_margins);
             break;
 
         case PRESET_TOP_RIGHT:
@@ -1542,7 +1536,7 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
         case PRESET_BOTTOM_WIDE:
         case PRESET_HCENTER_WIDE:
         case PRESET_WIDE:
-            set_anchor(MARGIN_RIGHT, ANCHOR_END, p_keep_margins);
+            set_anchor(Margin::Right, ANCHOR_END, p_keep_margins);
             break;
     }
 
@@ -1552,14 +1546,14 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
         case PRESET_TOP_RIGHT:
         case PRESET_CENTER_TOP:
         case PRESET_TOP_WIDE:
-            set_anchor(MARGIN_BOTTOM, ANCHOR_BEGIN, p_keep_margins);
+            set_anchor(Margin::Bottom, ANCHOR_BEGIN, p_keep_margins);
             break;
 
         case PRESET_CENTER_LEFT:
         case PRESET_CENTER_RIGHT:
         case PRESET_CENTER:
         case PRESET_HCENTER_WIDE:
-            set_anchor(MARGIN_BOTTOM, 0.5, p_keep_margins);
+            set_anchor(Margin::Bottom, 0.5, p_keep_margins);
             break;
 
         case PRESET_BOTTOM_LEFT:
@@ -1570,7 +1564,7 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
         case PRESET_BOTTOM_WIDE:
         case PRESET_VCENTER_WIDE:
         case PRESET_WIDE:
-            set_anchor(MARGIN_BOTTOM, ANCHOR_END, p_keep_margins);
+            set_anchor(Margin::Bottom, ANCHOR_END, p_keep_margins);
             break;
     }
 }
@@ -1710,7 +1704,7 @@ void Control::set_anchors_and_margins_preset(LayoutPreset p_preset, LayoutPreset
 
 float Control::get_anchor(Margin p_margin) const {
 
-    return data.anchor[p_margin];
+    return data.anchor[(int)p_margin];
 }
 
 void Control::_change_notify_margins() {
@@ -1726,7 +1720,7 @@ void Control::_change_notify_margins() {
 
 void Control::set_margin(Margin p_margin, float p_value) {
 
-    data.margin[p_margin] = p_value;
+    data.margin[(int)p_margin] = p_value;
     _size_changed();
 }
 
@@ -1746,7 +1740,7 @@ void Control::set_end(const Size2 &p_point) {
 
 float Control::get_margin(Margin p_margin) const {
 
-    return data.margin[p_margin];
+    return data.margin[(int)p_margin];
 }
 
 Size2 Control::get_begin() const {
@@ -1782,8 +1776,8 @@ void Control::set_global_position(const Point2 &p_point, bool p_keep_margins) {
 void Control::_compute_anchors(Rect2 p_rect, const float p_margins[4], float (&r_anchors)[4]) {
 
     Size2 parent_rect_size = get_parent_anchorable_rect().size;
-    ERR_FAIL_COND(parent_rect_size.x == 0.0f)
-    ERR_FAIL_COND(parent_rect_size.y == 0.0f)
+    ERR_FAIL_COND(parent_rect_size.x == 0.0f);
+    ERR_FAIL_COND(parent_rect_size.y == 0.0f);
 
     r_anchors[0] = (p_rect.position.x - p_margins[0]) / parent_rect_size.x;
     r_anchors[1] = (p_rect.position.y - p_margins[1]) / parent_rect_size.y;
@@ -1858,7 +1852,7 @@ Rect2 Control::get_global_rect() const {
 }
 
 Rect2 Control::get_window_rect() const {
-    ERR_FAIL_COND_V(!is_inside_tree(), Rect2())
+    ERR_FAIL_COND_V(!is_inside_tree(), Rect2());
     Rect2 gr = get_global_rect();
     gr.position += get_viewport()->get_visible_rect().position;
     return gr;
@@ -1976,7 +1970,7 @@ static Control *_next_control(Control *p_from) {
     }
 
     int next = p_from->get_position_in_parent();
-    ERR_FAIL_INDEX_V(next, parent->get_child_count(), nullptr)
+    ERR_FAIL_INDEX_V(next, parent->get_child_count(), nullptr);
     for (int i = (next + 1); i < parent->get_child_count(); i++) {
 
         Control *c = object_cast<Control>(parent->get_child(i));
@@ -2003,7 +1997,7 @@ Control *Control::find_next_valid_focus() const {
             Control *c;
             if (n) {
                 c = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!c, nullptr, "Next focus node is not a control: " + n->get_name() + ".")
+                ERR_FAIL_COND_V_MSG(!c, nullptr, "Next focus node is not a control: " + n->get_name() + ".");
             } else {
                 return nullptr;
             }
@@ -2094,7 +2088,7 @@ Control *Control::find_prev_valid_focus() const {
             Control *c;
             if (n) {
                 c = object_cast<Control>(n);
-                ERR_FAIL_COND_V_MSG(!c, nullptr, "Previous focus node is not a control: " + n->get_name() + ".")
+                ERR_FAIL_COND_V_MSG(!c, nullptr, "Previous focus node is not a control: " + n->get_name() + ".");
             } else {
                 return nullptr;
             }
@@ -2158,10 +2152,10 @@ bool Control::has_focus() const {
 
 void Control::grab_focus() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     if (data.focus_mode == FOCUS_NONE) {
-        WARN_PRINT("This control can't grab focus. Use set_focus_mode() to allow a control to get focus.")
+        WARN_PRINT("This control can't grab focus. Use set_focus_mode() to allow a control to get focus.");
         return;
     }
 
@@ -2170,7 +2164,7 @@ void Control::grab_focus() {
 
 void Control::release_focus() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     if (!has_focus())
         return;
@@ -2186,13 +2180,13 @@ bool Control::is_toplevel_control() const {
 
 void Control::show_modal(bool p_exclusive) {
 
-    ERR_FAIL_COND(!is_inside_tree())
-    ERR_FAIL_COND(!data.SI)
+    ERR_FAIL_COND(!is_inside_tree());
+    ERR_FAIL_COND(!data.SI);
 
     if (is_visible_in_tree())
         hide();
 
-    ERR_FAIL_COND(data.MI != nullptr)
+    ERR_FAIL_COND(data.MI != nullptr);
     show();
     raise();
     data.modal_exclusive = p_exclusive;
@@ -2206,12 +2200,12 @@ void Control::_modal_set_prev_focus_owner(ObjectID p_prev) {
 
 void Control::_modal_stack_remove() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     if (!data.MI)
         return;
 
-    List<Control *>::Element *element = data.MI;
+    ListOld<Control *>::Element *element = data.MI;
     data.MI = nullptr;
 
     get_viewport()->_gui_remove_from_modal_stack(element, data.modal_prev_focus_owner);
@@ -2334,14 +2328,14 @@ StringName Control::_get_tooltip() const {
 
 void Control::set_focus_neighbour(Margin p_margin, const NodePath &p_neighbour) {
 
-    ERR_FAIL_INDEX((int)p_margin, 4)
-    data.focus_neighbour[p_margin] = p_neighbour;
+    ERR_FAIL_INDEX((int)p_margin, 4);
+    data.focus_neighbour[(int)p_margin] = p_neighbour;
 }
 
 NodePath Control::get_focus_neighbour(Margin p_margin) const {
 
-    ERR_FAIL_INDEX_V((int)p_margin, 4, NodePath())
-    return data.focus_neighbour[p_margin];
+    ERR_FAIL_INDEX_V((int)p_margin, 4, NodePath());
+    return data.focus_neighbour[(int)p_margin];
 }
 
 void Control::set_focus_next(const NodePath &p_next) {
@@ -2370,13 +2364,13 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
 
     if (p_count >= MAX_NEIGHBOUR_SEARCH_COUNT)
         return nullptr;
-    if (!data.focus_neighbour[p_margin].is_empty()) {
+    if (!data.focus_neighbour[(int)p_margin].is_empty()) {
 
         Control *c = nullptr;
-        Node *n = get_node(data.focus_neighbour[p_margin]);
+        Node *n = get_node(data.focus_neighbour[(int)p_margin]);
         if (n) {
             c = object_cast<Control>(n);
-            ERR_FAIL_COND_V_MSG(!c, nullptr, se_string("Neighbor focus node is not a control: ") + n->get_name() + ".")
+            ERR_FAIL_COND_V_MSG(!c, nullptr, String("Neighbor focus node is not a control: ") + n->get_name() + ".");
         } else {
             return nullptr;
         }
@@ -2411,7 +2405,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
         Vector2(0, 1)
     };
 
-    Vector2 vdir = dir[p_margin];
+    Vector2 vdir = dir[(int)p_margin];
 
     float maxd = -1e7;
 
@@ -2458,9 +2452,9 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
         Transform2D xform = c->get_global_transform();
 
         points[0] = xform.xform(Point2());
-        points[1] = xform.xform(Point2(get_size().x, 0));
-        points[2] = xform.xform(get_size());
-        points[3] = xform.xform(Point2(0, get_size().y));
+        points[1] = xform.xform(Point2(c->get_size().x, 0));
+        points[2] = xform.xform(c->get_size());
+        points[3] = xform.xform(Point2(0, c->get_size().y));
 
         float min = 1e7;
 
@@ -2540,7 +2534,7 @@ float Control::get_stretch_ratio() const {
 
 void Control::grab_click_focus() {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     get_viewport()->_gui_grab_click_focus(this);
 }
@@ -2577,7 +2571,7 @@ int Control::get_v_size_flags() const {
 
 void Control::set_mouse_filter(MouseFilter p_filter) {
 
-    ERR_FAIL_INDEX(p_filter, 3)
+    ERR_FAIL_INDEX(p_filter, 3);
     data.mouse_filter = p_filter;
     update_configuration_warning();
 }
@@ -2599,12 +2593,12 @@ bool Control::pass_on_modal_close_click() const {
 
 Control *Control::get_focus_owner() const {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
     return get_viewport()->_gui_get_focus_owner();
 }
 
 void Control::warp_mouse(const Point2 &p_to_pos) {
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
     get_viewport()->warp_mouse(get_global_transform().xform(p_to_pos));
 }
 
@@ -2665,6 +2659,12 @@ Vector2 Control::get_pivot_offset() const {
 void Control::set_scale(const Vector2 &p_scale) {
 
     data.scale = p_scale;
+    // Avoid having 0 scale values, can lead to errors in physics and rendering.
+    if (data.scale.x == 0)
+        data.scale.x = CMP_EPSILON;
+    if (data.scale.y == 0)
+        data.scale.y = CMP_EPSILON;
+
     update();
     _notify_transform();
 }
@@ -2715,7 +2715,7 @@ bool Control::is_visibility_clip_disabled() const {
 }
 
 
-void Control::get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const {
+void Control::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
     using namespace eastl;
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -2726,12 +2726,12 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     Node::get_argument_options(p_function, p_idx, r_options);
 
     if (p_idx == 0) {
-        PODVector<StringName> sn;
+        Vector<StringName> sn;
         se_string_view pf = p_function;
         if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
         } else if (pf == "add_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_style"_sv) {
-            Theme::get_default()->get_stylebox_list(get_class_name(), &sn);
+            sn = Theme::get_default()->get_stylebox_list(get_class_name());
         } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_font"_sv) {
             Theme::get_default()->get_font_list(get_class_name(), &sn);
         } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_constant"_sv) {
@@ -2739,13 +2739,13 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
         }
         eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
         for (const StringName &E : sn) {
-            r_options->push_back(quote_style + se_string(E.asCString()) + quote_style);
+            r_options->push_back(quote_style + String(E.asCString()) + quote_style);
         }
     }
 }
 
 StringName Control::get_configuration_warning() const {
-    se_string warning(CanvasItem::get_configuration_warning());
+    String warning(CanvasItem::get_configuration_warning());
 
     if (data.mouse_filter == MOUSE_FILTER_IGNORE && !data.tooltip.empty()) {
         if (!warning.empty()) {
@@ -2855,7 +2855,7 @@ void Control::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_icon_override", {"name", "texture"}), &Control::add_icon_override);
     MethodBinder::bind_method(D_METHOD("add_shader_override", {"name", "shader"}), &Control::add_shader_override);
-    MethodBinder::bind_method(D_METHOD("add_stylebox_override", {"name", "stylebox"}), &Control::add_style_override);
+    MethodBinder::bind_method(D_METHOD("add_style_override", {"name", "stylebox"}), &Control::add_style_override);
     MethodBinder::bind_method(D_METHOD("add_font_override", {"name", "font"}), &Control::add_font_override);
     MethodBinder::bind_method(D_METHOD("add_color_override", {"name", "color"}), &Control::add_color_override);
     MethodBinder::bind_method(D_METHOD("add_constant_override", {"name", "constant"}), &Control::add_constant_override);
@@ -2925,7 +2925,7 @@ void Control::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_override_changed"), &Control::_override_changed);
 
-    BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_get_minimum_size"));
     MethodInfo get_drag_data = MethodInfo("get_drag_data", PropertyInfo(VariantType::VECTOR2, "position"));
     get_drag_data.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
@@ -2936,54 +2936,54 @@ void Control::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"))
 
     ADD_GROUP("Anchor", "anchor_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_top", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_right", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_bottom", PROPERTY_HINT_RANGE, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_top", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_right", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_bottom", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Bottom);
 
     ADD_GROUP("Margin", "margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_left", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_top", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_right", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_bottom", PROPERTY_HINT_RANGE, "-4096,4096"), "set_margin", "get_margin", MARGIN_BOTTOM);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_left", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_top", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_right", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_bottom", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", (int)Margin::Bottom);
 
     ADD_GROUP("Grow Direction", "grow_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_horizontal", PROPERTY_HINT_ENUM, "Begin,End,Both"), "set_h_grow_direction", "get_h_grow_direction");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_vertical", PROPERTY_HINT_ENUM, "Begin,End,Both"), "set_v_grow_direction", "get_v_grow_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_horizontal", PropertyHint::Enum, "Begin,End,Both"), "set_h_grow_direction", "get_h_grow_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "grow_vertical", PropertyHint::Enum, "Begin,End,Both"), "set_v_grow_direction", "get_v_grow_direction");
 
     ADD_GROUP("Rect", "rect_");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_position", "get_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PROPERTY_HINT_NONE, "", 0), "_set_global_position", "get_global_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_position", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_position", "get_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PropertyHint::None, "", 0), "_set_global_position", "get_global_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rect_clip_content"), "set_clip_contents", "is_clipping_contents");
 
     ADD_GROUP("Hint", "hint_");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "hint_tooltip", PROPERTY_HINT_MULTILINE_TEXT), "set_tooltip", "_get_tooltip");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "hint_tooltip", PropertyHint::MultilineText), "set_tooltip", "_get_tooltip");
 
     ADD_GROUP("Focus", "focus_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_left", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_LEFT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_top", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_TOP);
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_right", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_RIGHT);
-    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_bottom", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_neighbour", "get_focus_neighbour", MARGIN_BOTTOM);
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_next", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_next", "get_focus_next");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_previous", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Control"), "set_focus_previous", "get_focus_previous");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "focus_mode", PROPERTY_HINT_ENUM, "None,Click,All"), "set_focus_mode", "get_focus_mode");
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_left", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_top", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_right", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::NODE_PATH, "focus_neighbour_bottom", PropertyHint::NodePathValidTypes, "Control"), "set_focus_neighbour", "get_focus_neighbour", (int)Margin::Bottom);
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_next", PropertyHint::NodePathValidTypes, "Control"), "set_focus_next", "get_focus_next");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "focus_previous", PropertyHint::NodePathValidTypes, "Control"), "set_focus_previous", "get_focus_previous");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "focus_mode", PropertyHint::Enum, "None,Click,All"), "set_focus_mode", "get_focus_mode");
 
     ADD_GROUP("Mouse", "mouse_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_filter", PROPERTY_HINT_ENUM, "Stop,Pass,Ignore"), "set_mouse_filter", "get_mouse_filter");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_default_cursor_shape", PROPERTY_HINT_ENUM, "Arrow,Ibeam,Pointing hand,Cross,Wait,Busy,Drag,Can drop,Forbidden,Vertical resize,Horizontal resize,Secondary diagonal resize,Main diagonal resize,Move,Vertical split,Horizontal split,Help"), "set_default_cursor_shape", "get_default_cursor_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_filter", PropertyHint::Enum, "Stop,Pass,Ignore"), "set_mouse_filter", "get_mouse_filter");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mouse_default_cursor_shape", PropertyHint::Enum, "Arrow,Ibeam,Pointing hand,Cross,Wait,Busy,Drag,Can drop,Forbidden,Vertical resize,Horizontal resize,Secondary diagonal resize,Main diagonal resize,Move,Vertical split,Horizontal split,Help"), "set_default_cursor_shape", "get_default_cursor_shape");
 
     ADD_GROUP("Size Flags", "size_flags_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PROPERTY_HINT_FLAGS, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PROPERTY_HINT_FLAGS, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size_flags_stretch_ratio", PROPERTY_HINT_RANGE, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
     ADD_GROUP("Theme", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PROPERTY_HINT_RESOURCE_TYPE, "Theme"), "set_theme", "get_theme");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");
 
     BIND_ENUM_CONSTANT(FOCUS_NONE)
@@ -3058,7 +3058,7 @@ void Control::_bind_methods() {
     BIND_ENUM_CONSTANT(ANCHOR_END)
 
     ADD_SIGNAL(MethodInfo("resized"));
-    ADD_SIGNAL(MethodInfo("gui_input", PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent")));
+    ADD_SIGNAL(MethodInfo("gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));
     ADD_SIGNAL(MethodInfo("mouse_exited"));
     ADD_SIGNAL(MethodInfo("focus_entered"));

@@ -37,8 +37,8 @@ class Range : public Control {
     GDCLASS(Range,Control)
 
     struct Shared {
-        double val, min, max;
-        double step, page;
+        real_t val, min, max;
+        real_t step, page;
         bool exp_ratio;
         bool allow_greater;
         bool allow_lesser;
@@ -52,11 +52,11 @@ class Range : public Control {
     void _ref_shared(Shared *p_shared);
     void _unref_shared();
 
-    void _share(Node *p_range);
 
     void _value_changed_notify();
     void _changed_notify(StringName p_what = "");
-
+public:
+    void _share(Node *p_range);
 protected:
     virtual void _value_changed(double) {}
 
@@ -69,15 +69,15 @@ public:
     void set_min(real_t p_min);
     void set_max(real_t p_max);
     void set_step(real_t p_step);
-    void set_page(double p_page);
-    void set_as_ratio(double p_value);
+    void set_page(real_t p_page);
+    void set_as_ratio(real_t p_value);
 
     real_t get_value() const;
-    double get_min() const;
-    double get_max() const;
-    double get_step() const;
-    double get_page() const;
-    double get_as_ratio() const;
+    real_t get_min() const;
+    real_t get_max() const;
+    real_t get_step() const;
+    real_t get_page() const;
+    real_t get_as_ratio() const;
 
     void set_use_rounded_values(bool p_enable);
     bool is_using_rounded_values() const;

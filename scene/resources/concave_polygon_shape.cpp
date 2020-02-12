@@ -58,13 +58,13 @@ struct DrawEdge {
 };
 } // end of anonymous namespace
 
-PODVector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
+Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
 
     Set<DrawEdge> edges;
 
     PoolVector<Vector3> data = get_faces();
     int datalen = data.size();
-    ERR_FAIL_COND_V((datalen % 3) != 0, PODVector<Vector3>())
+    ERR_FAIL_COND_V((datalen % 3) != 0, Vector<Vector3>());
 
     PoolVector<Vector3>::Read r = data.read();
 
@@ -77,7 +77,7 @@ PODVector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
         }
     }
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
     points.resize(edges.size() * 2);
     int idx = 0;
     for (const DrawEdge &E : edges) {
@@ -94,6 +94,17 @@ void ConcavePolygonShape::_update_shape() {
     Shape::_update_shape();
 }
 
+real_t ConcavePolygonShape::get_enclosing_radius() const {
+    PoolVector<Vector3> data = get_faces();
+    PoolVector<Vector3>::Read read = data.read();
+    real_t r = 0;
+    for (int i(0); i < data.size(); i++) {
+        r = MAX(read[i].length_squared(), r);
+    }
+    return Math::sqrt(r);
+}
+
+
 void ConcavePolygonShape::set_faces(const PoolVector<Vector3> &p_faces) {
 
     PhysicsServer::get_singleton()->shape_set_data(get_shape(), p_faces);
@@ -109,7 +120,7 @@ void ConcavePolygonShape::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_faces", {"faces"}), &ConcavePolygonShape::set_faces);
     MethodBinder::bind_method(D_METHOD("get_faces"), &ConcavePolygonShape::get_faces);
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
 }
 
 ConcavePolygonShape::ConcavePolygonShape() :

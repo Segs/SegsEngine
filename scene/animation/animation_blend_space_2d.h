@@ -69,22 +69,19 @@ protected:
     Vector2 max_space;
     Vector2 min_space;
     Vector2 snap;
-    se_string x_label;
-    se_string y_label;
+    String x_label;
+    String y_label;
     BlendMode blend_mode;
-
-    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
-    void _set_triangles(const Vector<int> &p_triangles);
-    Vector<int> _get_triangles() const;
-
-    void _blend_triangle(const Vector2 &p_pos, const Vector2 *p_points, float *r_weights);
-
     bool auto_triangles;
     bool trianges_dirty;
 
+public:
+    void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
+    void _set_triangles(const Vector<int> &p_triangles);
+    Vector<int> _get_triangles() const;
+    void _blend_triangle(const Vector2 &p_pos, const Vector2 *p_points, float *r_weights);
     void _update_triangles();
     void _queue_auto_triangles();
-
     void _tree_changed();
 
 protected:
@@ -92,10 +89,10 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(List<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
 
     void add_blend_point(const Ref<AnimationRootNode> &p_node, const Vector2 &p_position, int p_at_index = -1);
     void set_blend_point_position(int p_point, const Vector2 &p_position);
@@ -121,10 +118,10 @@ public:
     Vector2 get_snap() const;
 
     void set_x_label(se_string_view p_label);
-    const se_string &get_x_label() const;
+    const String &get_x_label() const;
 
     void set_y_label(se_string_view p_label);
-    const se_string &get_y_label() const;
+    const String &get_y_label() const;
 
     float process(float p_time, bool p_seek) override;
     se_string_view get_caption() const override;

@@ -91,7 +91,7 @@ void InspectorDock::_menu_option(int p_option) {
         case OBJECT_UNIQUE_RESOURCES: {
             editor_data->apply_changes_in_editors();
             if (current) {
-                ListPOD<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 current->get_property_list(&props);
                 Map<RES, RES> duplicates;
                 for (const PropertyInfo &E : props) {
@@ -129,11 +129,11 @@ void InspectorDock::_menu_option(int p_option) {
 
         default: {
             if (p_option >= OBJECT_METHOD_BASE) {
-                ERR_FAIL_COND(!current)
+                ERR_FAIL_COND(!current);
 
                 int idx = p_option - OBJECT_METHOD_BASE;
 
-                PODVector<MethodInfo> methods;
+                Vector<MethodInfo> methods;
                 current->get_method_list(&methods);
 
                 ERR_FAIL_INDEX(idx, methods.size());
@@ -152,11 +152,11 @@ void InspectorDock::_new_resource() {
 void InspectorDock::_load_resource(se_string_view p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
-    PODVector<se_string> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type(p_type, extensions);
 
     load_resource_dialog->clear_filters();
-    for (const se_string &ext : extensions) {
+    for (const String &ext : extensions) {
         load_resource_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
 
@@ -179,7 +179,7 @@ void InspectorDock::_save_resource(bool save_as) const {
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
-    ERR_FAIL_COND(not current_res)
+    ERR_FAIL_COND(not current_res);
 
 
     if (save_as)
@@ -193,7 +193,7 @@ void InspectorDock::_unref_resource() const {
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
-    ERR_FAIL_COND(not current_res)
+    ERR_FAIL_COND(not current_res);
 
     current_res->set_path(se_string_view());
     editor->edit_current();
@@ -204,7 +204,7 @@ void InspectorDock::_copy_resource() const {
     Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
-    ERR_FAIL_COND(not current_res)
+    ERR_FAIL_COND(not current_res);
 
 
     EditorSettings::get_singleton()->set_resource_clipboard(current_res);
@@ -244,7 +244,7 @@ void InspectorDock::_prepare_history() {
             icon = base_icon;
         }
 
-        se_string text;
+        String text;
         if (object_cast<Resource>(obj)) {
             Resource *r = object_cast<Resource>(obj);
             if (PathUtils::is_resource_file(r->get_path()))
@@ -257,7 +257,7 @@ void InspectorDock::_prepare_history() {
         } else if (object_cast<Node>(obj)) {
             text = object_cast<Node>(obj)->get_name();
         } else if (obj->is_class("ScriptEditorDebuggerInspectedObject")) {
-            text = obj->call("get_title").as<se_string>();
+            text = obj->call("get_title").as<String>();
         } else {
             text = obj->get_class();
         }
@@ -281,9 +281,9 @@ void InspectorDock::_select_history(int p_idx) const {
 void InspectorDock::_resource_created() const {
     Object *c = new_resource_dialog->instance_selected();
 
-    ERR_FAIL_COND(!c)
+    ERR_FAIL_COND(!c);
     Resource *r = object_cast<Resource>(c);
-    ERR_FAIL_COND(!r)
+    ERR_FAIL_COND(!r);
 
     REF res(r);
     editor->push_item(c);
@@ -337,14 +337,14 @@ void InspectorDock::_notification(int p_what) {
     switch (p_what) {
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
             set_theme(editor->get_gui_base()->get_theme());
-            resource_new_button->set_icon(get_icon("New", "EditorIcons"));
-            resource_load_button->set_icon(get_icon("Load", "EditorIcons"));
-            resource_save_button->set_icon(get_icon("Save", "EditorIcons"));
-            backward_button->set_icon(get_icon("Back", "EditorIcons"));
-            forward_button->set_icon(get_icon("Forward", "EditorIcons"));
-            history_menu->set_icon(get_icon("History", "EditorIcons"));
-            object_menu->set_icon(get_icon("Tools", "EditorIcons"));
-            warning->set_icon(get_icon("NodeWarning", "EditorIcons"));
+            resource_new_button->set_button_icon(get_icon("New", "EditorIcons"));
+            resource_load_button->set_button_icon(get_icon("Load", "EditorIcons"));
+            resource_save_button->set_button_icon(get_icon("Save", "EditorIcons"));
+            backward_button->set_button_icon(get_icon("Back", "EditorIcons"));
+            forward_button->set_button_icon(get_icon("Forward", "EditorIcons"));
+            history_menu->set_button_icon(get_icon("History", "EditorIcons"));
+            object_menu->set_button_icon(get_icon("Tools", "EditorIcons"));
+            warning->set_button_icon(get_icon("NodeWarning", "EditorIcons"));
         } break;
     }
 }
@@ -417,7 +417,7 @@ void InspectorDock::update(Object *p_object) {
         editor_path->set_disabled(true);
         editor_path->set_text("");
         editor_path->set_tooltip("");
-        editor_path->set_icon(Ref<Texture>());
+        editor_path->set_button_icon(Ref<Texture>());
 
         return;
     }
@@ -458,7 +458,7 @@ void InspectorDock::update(Object *p_object) {
         p->add_icon_shortcut(get_icon("HelpSearch", "EditorIcons"), ED_SHORTCUT("property_editor/open_help", TTR("Open in Help")), OBJECT_REQUEST_HELP);
     }
 
-    PODVector<MethodInfo> methods;
+    Vector<MethodInfo> methods;
     p_object->get_method_list(&methods);
 
     if (!methods.empty()) {
@@ -514,21 +514,21 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     resource_new_button = memnew(ToolButton);
     resource_new_button->set_tooltip(TTR("Create a new resource in memory and edit it."));
-    resource_new_button->set_icon(get_icon("New", "EditorIcons"));
+    resource_new_button->set_button_icon(get_icon("New", "EditorIcons"));
     general_options_hb->add_child(resource_new_button);
     resource_new_button->connect("pressed", this, "_new_resource");
     resource_new_button->set_focus_mode(Control::FOCUS_NONE);
 
     resource_load_button = memnew(ToolButton);
     resource_load_button->set_tooltip(TTR("Load an existing resource from disk and edit it."));
-    resource_load_button->set_icon(get_icon("Load", "EditorIcons"));
+    resource_load_button->set_button_icon(get_icon("Load", "EditorIcons"));
     general_options_hb->add_child(resource_load_button);
     resource_load_button->connect("pressed", this, "_open_resource_selector");
     resource_load_button->set_focus_mode(Control::FOCUS_NONE);
 
     resource_save_button = memnew(MenuButton);
     resource_save_button->set_tooltip(TTR("Save the currently edited resource."));
-    resource_save_button->set_icon(get_icon("Save", "EditorIcons"));
+    resource_save_button->set_button_icon(get_icon("Save", "EditorIcons"));
     general_options_hb->add_child(resource_save_button);
     resource_save_button->get_popup()->add_item(TTR("Save"), RESOURCE_SAVE);
     resource_save_button->get_popup()->add_item(TTR("Save As..."), RESOURCE_SAVE_AS);
@@ -540,7 +540,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     backward_button = memnew(ToolButton);
     general_options_hb->add_child(backward_button);
-    backward_button->set_icon(get_icon("Back", "EditorIcons"));
+    backward_button->set_button_icon(get_icon("Back", "EditorIcons"));
     backward_button->set_flat(true);
     backward_button->set_tooltip(TTR("Go to the previous edited object in history."));
     backward_button->set_disabled(true);
@@ -548,7 +548,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     forward_button = memnew(ToolButton);
     general_options_hb->add_child(forward_button);
-    forward_button->set_icon(get_icon("Forward", "EditorIcons"));
+    forward_button->set_button_icon(get_icon("Forward", "EditorIcons"));
     forward_button->set_flat(true);
     forward_button->set_tooltip(TTR("Go to the next edited object in history."));
     forward_button->set_disabled(true);
@@ -556,7 +556,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
 
     history_menu = memnew(MenuButton);
     history_menu->set_tooltip(TTR("History of recently edited objects."));
-    history_menu->set_icon(get_icon("History", "EditorIcons"));
+    history_menu->set_button_icon(get_icon("History", "EditorIcons"));
     general_options_hb->add_child(history_menu);
     history_menu->connect("about_to_show", this, "_prepare_history");
     history_menu->get_popup()->connect("id_pressed", this, "_select_history");
@@ -569,7 +569,7 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
     node_info_hb->add_child(editor_path);
 
     object_menu = memnew(MenuButton);
-    object_menu->set_icon(get_icon("Tools", "EditorIcons"));
+    object_menu->set_button_icon(get_icon("Tools", "EditorIcons"));
     node_info_hb->add_child(object_menu);
     object_menu->set_tooltip(TTR("Object properties."));
     object_menu->get_popup()->connect("id_pressed", this, "_menu_option");
@@ -589,7 +589,8 @@ InspectorDock::InspectorDock(EditorNode *p_editor, EditorData &p_editor_data) {
     warning = memnew(Button);
     add_child(warning);
     warning->set_text(TTR("Changes may be lost!"));
-    warning->set_icon(get_icon("NodeWarning", "EditorIcons"));
+    warning->set_button_icon(get_icon("NodeWarning", "EditorIcons"));
+    warning->set_clip_text(true);
     warning->hide();
     warning->connect("pressed", this, "_warning_pressed");
 

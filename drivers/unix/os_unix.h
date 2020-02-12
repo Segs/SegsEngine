@@ -48,13 +48,13 @@ protected:
 
     void finalize_core() override;
 
-    se_string stdin_buf;
+    String stdin_buf;
 
 public:
     OS_Unix();
 
     void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) override;
-    se_string get_stdin_string(bool p_block) override;
+    String get_stdin_string(bool p_block) override;
 
     //virtual void set_mouse_show(bool p_show);
     //virtual void set_mouse_grab(bool p_grab);
@@ -64,7 +64,7 @@ public:
 
     //virtual void set_video_mode(const VideoMode& p_video_mode);
     //virtual VideoMode get_video_mode() const;
-    //virtual void get_fullscreen_mode_list(List<VideoMode> *p_list) const;
+    //virtual void get_fullscreen_mode_list(Vector<VideoMode> *p_list) const;
 
     Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;
@@ -72,7 +72,7 @@ public:
 
     Error set_cwd(se_string_view p_cwd) override;
 
-    se_string get_name() const override;
+    String get_name() const override;
 
     Date get_date(bool utc) const override;
     Time get_time(bool utc) const override;
@@ -85,12 +85,12 @@ public:
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id = nullptr, se_string *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 
     bool has_environment(se_string_view p_var) const override;
-    se_string get_environment(se_string_view p_var) const override;
+    String get_environment(se_string_view p_var) const override;
     bool set_environment(se_string_view p_var, se_string_view p_value) const override;
     const char * get_locale() const override;
 
@@ -99,8 +99,8 @@ public:
     void debug_break() override;
     void initialize_debugging() override;
 
-    se_string get_executable_path() const override;
-    se_string get_user_data_dir() const override;
+    String get_executable_path() const override;
+    String get_user_data_dir() const override;
 };
 
 class UnixTerminalLogger : public StdLogger {

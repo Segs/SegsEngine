@@ -64,7 +64,7 @@ void ShapeSW::add_owner(ShapeOwnerSW *p_owner) {
 void ShapeSW::remove_owner(ShapeOwnerSW *p_owner) {
 
     OwnerStorage::iterator E = owners.find(p_owner);
-    ERR_FAIL_COND(E==owners.end())
+    ERR_FAIL_COND(E==owners.end());
     E->second--;
     if (E->second == 0) {
         owners.erase(E);
@@ -88,7 +88,7 @@ ShapeSW::ShapeSW() {
 
 ShapeSW::~ShapeSW() {
 
-    ERR_FAIL_COND(owners.size())
+    ERR_FAIL_COND(owners.size());
 }
 
 Plane PlaneShapeSW::get_plane() const {
@@ -687,8 +687,8 @@ void CapsuleShapeSW::_setup(real_t p_height, real_t p_radius) {
 void CapsuleShapeSW::set_data(const Variant &p_data) {
 
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("radius"))
-    ERR_FAIL_COND(!d.has("height"))
+    ERR_FAIL_COND(!d.has("radius"));
+    ERR_FAIL_COND(!d.has("height"));
     _setup(d["height"], d["radius"]);
 }
 
@@ -754,10 +754,10 @@ Vector3 ConvexPolygonShapeSW::get_support(const Vector3 &p_normal) const {
 
 void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vector3 *r_supports, int &r_amount) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
 
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int ec = mesh.edges.size();
 
     const Vector3 *vertices = mesh.vertices.data();
@@ -782,7 +782,7 @@ void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vect
         if (faces[i].plane.normal.dot(p_normal) > _FACE_IS_VALID_SUPPORT_THRESHOLD) {
 
             int ic = faces[i].indices.size();
-            const int *ind = faces[i].indices.ptr();
+            const int *ind = faces[i].indices.data();
 
             bool valid = false;
             for (int j = 0; j < ic; j++) {
@@ -824,7 +824,7 @@ void ConvexPolygonShapeSW::get_supports(const Vector3 &p_normal, int p_max, Vect
 
 bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vector3 &p_end, Vector3 &r_result, Vector3 &r_normal) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
 
     const Vector3 *vertices = mesh.vertices.data();
@@ -839,7 +839,7 @@ bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vecto
             continue; //opposing face
 
         int ic = faces[i].indices.size();
-        const int *ind = faces[i].indices.ptr();
+        const int *ind = faces[i].indices.data();
 
         for (int j = 1; j < ic - 1; j++) {
 
@@ -864,7 +864,7 @@ bool ConvexPolygonShapeSW::intersect_segment(const Vector3 &p_begin, const Vecto
 
 bool ConvexPolygonShapeSW::intersect_point(const Vector3 &p_point) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
 
     for (int i = 0; i < fc; i++) {
@@ -878,7 +878,7 @@ bool ConvexPolygonShapeSW::intersect_point(const Vector3 &p_point) const {
 
 Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const {
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int fc = mesh.faces.size();
     const Vector3 *vertices = mesh.vertices.data();
 
@@ -891,7 +891,7 @@ Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const
         all_inside = false;
         bool is_inside = true;
         int ic = faces[i].indices.size();
-        const int *indices = faces[i].indices.ptr();
+        const int *indices = faces[i].indices.data();
 
         for (int j = 0; j < ic; j++) {
 
@@ -917,7 +917,7 @@ Vector3 ConvexPolygonShapeSW::get_closest_point_to(const Vector3 &p_point) const
     Vector3 min_point;
 
     //check edges
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int ec = mesh.edges.size();
     for (int i = 0; i < ec; i++) {
 
@@ -950,9 +950,10 @@ Vector3 ConvexPolygonShapeSW::get_moment_of_inertia(real_t p_mass) const {
 
 void ConvexPolygonShapeSW::_setup(const Vector<Vector3> &p_vertices) {
 
-    Error err = QuickHull::build({p_vertices.ptr(),p_vertices.size()}, mesh);
-    if (err != OK)
+    Error err = QuickHull::build(p_vertices, mesh);
+    if (err != OK) {
         ERR_PRINT("Failed to build QuickHull");
+    }
 
     AABB _aabb;
 
@@ -1467,7 +1468,7 @@ void ConcavePolygonShapeSW::_setup(const PoolVector<Vector3>& p_faces) {
         configure(AABB());
         return;
     }
-    ERR_FAIL_COND(src_face_count % 3)
+    ERR_FAIL_COND(src_face_count % 3);
     src_face_count /= 3;
 
     PoolVector<Vector3>::Read r = p_faces.read();
@@ -1629,22 +1630,22 @@ void HeightMapShapeSW::_setup(PoolVector<real_t> p_heights, int p_width, int p_d
 
 void HeightMapShapeSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY);
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("width"))
-    ERR_FAIL_COND(!d.has("depth"))
-    ERR_FAIL_COND(!d.has("cell_size"))
-    ERR_FAIL_COND(!d.has("heights"))
+    ERR_FAIL_COND(!d.has("width"));
+    ERR_FAIL_COND(!d.has("depth"));
+    ERR_FAIL_COND(!d.has("cell_size"));
+    ERR_FAIL_COND(!d.has("heights"));
 
     int width = d["width"];
     int depth = d["depth"];
     real_t cell_size = d["cell_size"];
     PoolVector<real_t> heights = d["heights"];
 
-    ERR_FAIL_COND(width <= 0)
-    ERR_FAIL_COND(depth <= 0)
-    ERR_FAIL_COND(cell_size <= CMP_EPSILON)
-    ERR_FAIL_COND(heights.size() != (width * depth))
+    ERR_FAIL_COND(width <= 0);
+    ERR_FAIL_COND(depth <= 0);
+    ERR_FAIL_COND(cell_size <= CMP_EPSILON);
+    ERR_FAIL_COND(heights.size() != (width * depth));
     _setup(heights, width, depth, cell_size);
 }
 

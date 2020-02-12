@@ -48,7 +48,7 @@ bool FileAccess::backup_save = false;
 
 FileAccess *FileAccess::create(AccessType p_access) {
 
-    ERR_FAIL_INDEX_V(p_access, ACCESS_MAX, nullptr)
+    ERR_FAIL_INDEX_V(p_access, ACCESS_MAX, nullptr);
 
     FileAccess *ret = create_func[p_access]();
     ret->_set_access_type(p_access);
@@ -72,9 +72,9 @@ void FileAccess::_set_access_type(AccessType p_access) {
     _access_type = p_access;
 }
 
-const se_string &FileAccess::get_path() const { return null_se_string; }
+const String &FileAccess::get_path() const { return null_se_string; }
 
-const se_string &FileAccess::get_path_absolute() const { return null_se_string; };
+const String &FileAccess::get_path_absolute() const { return null_se_string; };
 
 FileAccess *FileAccess::create_for_path(se_string_view p_path) {
 
@@ -132,10 +132,10 @@ FileAccess::CreateFunc FileAccess::get_create_func(AccessType p_access) {
     return create_func[p_access];
 };
 
-se_string FileAccess::fix_path(se_string_view p_path) const {
+String FileAccess::fix_path(se_string_view p_path) const {
     //helper used by file accesses that use a single filesystem
 
-    se_string r_path(PathUtils::from_native_path(p_path));
+    String r_path(PathUtils::from_native_path(p_path));
 
     switch (_access_type) {
 
@@ -144,7 +144,7 @@ se_string FileAccess::fix_path(se_string_view p_path) const {
             if (ProjectSettings::get_singleton()) {
                 if (StringUtils::begins_with(r_path,"res://")) {
 
-                    se_string resource_path = ProjectSettings::get_singleton()->get_resource_path();
+                    String resource_path = ProjectSettings::get_singleton()->get_resource_path();
                     if (!resource_path.empty()) {
 
                         return StringUtils::replace(r_path,"res:/", resource_path);
@@ -158,7 +158,7 @@ se_string FileAccess::fix_path(se_string_view p_path) const {
 
             if (StringUtils::begins_with(r_path,"user://")) {
 
-                se_string data_dir = OS::get_singleton()->get_user_data_dir();
+                String data_dir = OS::get_singleton()->get_user_data_dir();
                 if (not data_dir.empty()) {
 
                     return StringUtils::replace(r_path,"user:/", data_dir);
@@ -259,9 +259,9 @@ double FileAccess::get_double() const {
     return m.d;
 };
 
-se_string FileAccess::get_token() const {
+String FileAccess::get_token() const {
 
-    se_string token;
+    String token;
 
     uint8_t c = get_8();
 
@@ -279,61 +279,9 @@ se_string FileAccess::get_token() const {
     return token;
 }
 
-class CharBuffer {
-    Vector<char> vector;
-    char stack_buffer[256];
+String FileAccess::get_line() const {
 
-    char *buffer = stack_buffer;
-    int capacity;
-    int written=0;
-
-    bool grow() {
-
-        if (vector.resize(next_power_of_2(1 + written)) != OK) {
-
-            return false;
-        }
-
-        if (buffer == stack_buffer) { // first chunk?
-
-            for (int i = 0; i < written; i++) {
-
-                vector.write[i] = stack_buffer[i];
-            }
-        }
-
-        buffer = vector.ptrw();
-        capacity = vector.size();
-        ERR_FAIL_COND_V(written >= capacity, false)
-
-        return true;
-    }
-
-public:
-    CharBuffer() :
-            buffer(stack_buffer),
-            capacity(sizeof(stack_buffer) / sizeof(char)) {
-    }
-
-    void push_back(char c) {
-
-        if (written >= capacity) {
-
-            ERR_FAIL_COND(!grow())
-        }
-
-        buffer[written++] = c;
-    }
-
-    const char *get_data() const {
-
-        return buffer;
-    }
-};
-
-se_string FileAccess::get_line() const {
-
-    se_string line;
+    String line;
 
     uint8_t c = get_8();
 
@@ -349,10 +297,10 @@ se_string FileAccess::get_line() const {
     return line;
 }
 
-Vector<se_string> FileAccess::get_csv_line(char p_delim) const {
+Vector<String> FileAccess::get_csv_line(char p_delim) const {
 
-    se_string l;
-    int qc = 0;
+    String l;
+    int qc;
     do {
         if (eof_reached())
             break;
@@ -369,16 +317,16 @@ Vector<se_string> FileAccess::get_csv_line(char p_delim) const {
 
     l = StringUtils::substr(l,0, l.length() - 1);
 
-    Vector<se_string> strings;
+    Vector<String> strings;
 
     bool in_quote = false;
-    se_string current;
+    String current;
     for (size_t i = 0; i < l.length(); i++) {
 
         char c = l[i];
         if (!in_quote && c == p_delim) {
-            strings.push_back(current);
-            current.clear();
+            strings.emplace_back(eastl::move(current));
+            current = {};
         } else if (c == '"') {
             if (l[i + 1] == '"') {
                 current += '"';
@@ -392,7 +340,7 @@ Vector<se_string> FileAccess::get_csv_line(char p_delim) const {
         }
     }
 
-    strings.push_back(current);
+    strings.emplace_back(eastl::move(current));
 
     return strings;
 }
@@ -406,13 +354,13 @@ int FileAccess::get_buffer(uint8_t *p_dst, int p_length) const {
     return i;
 }
 
-se_string FileAccess::get_as_utf8_string() const {
-    se_string s;
+String FileAccess::get_as_utf8_string() const {
+    String s;
     int len = get_len();
     s.resize(len + 1);
 
     int r = get_buffer((uint8_t *)s.data(), len);
-    ERR_FAIL_COND_V(r != len, se_string())
+    ERR_FAIL_COND_V(r != len, String());
     s[len] = 0;
     return s;
 }
@@ -491,7 +439,7 @@ uint64_t FileAccess::get_modified_time(se_string_view p_file) {
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + se_string(p_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + String(p_file) + "'.");
 
     uint64_t mt = fa->_get_modified_time(p_file);
     memdelete(fa);
@@ -504,7 +452,7 @@ uint32_t FileAccess::get_unix_permissions(se_string_view p_file) {
         return 0;
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + se_string(p_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!fa, 0, "Cannot create FileAccess for path '" + String(p_file) + "'.");
 
     uint32_t mt = fa->_get_unix_permissions(p_file);
     memdelete(fa);
@@ -514,7 +462,7 @@ uint32_t FileAccess::get_unix_permissions(se_string_view p_file) {
 Error FileAccess::set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
 
     FileAccess *fa = create_for_path(p_file);
-    ERR_FAIL_COND_V_MSG(!fa, ERR_CANT_CREATE, "Cannot create FileAccess for path '" + se_string(p_file) + "'.")
+    ERR_FAIL_COND_V_MSG(!fa, ERR_CANT_CREATE, "Cannot create FileAccess for path '" + String(p_file) + "'.");
 
     Error err = fa->_set_unix_permissions(p_file, p_permissions);
     memdelete(fa);
@@ -535,10 +483,10 @@ void FileAccess::store_pascal_string(se_string_view p_string) {
     store_buffer((const uint8_t *)p_string.data(), p_string.length());
 };
 
-se_string FileAccess::get_pascal_string() {
+String FileAccess::get_pascal_string() {
 
     uint32_t sl = get_32();
-    se_string cs;
+    String cs;
     cs.resize(sl);
     get_buffer((uint8_t *)cs.data(), sl);
     return cs;
@@ -550,12 +498,12 @@ void FileAccess::store_line(se_string_view p_line) {
     store_8('\n');
 }
 
-void FileAccess::store_csv_line(const PODVector<se_string> &p_values, char p_delim) {
+void FileAccess::store_csv_line(const Vector<String> &p_values, char p_delim) {
 
-    se_string line;
+    String line;
     int size = p_values.size();
     for (int i = 0; i < size; ++i) {
-        se_string value = p_values[i];
+        String value = p_values[i];
 
         if (StringUtils::contains(value,'"') || StringUtils::contains(value,p_delim) || StringUtils::contains(value,'\n')) {
             value = "\"" + StringUtils::replace(value,"\"", "\"\"") + "\"";
@@ -576,43 +524,43 @@ void FileAccess::store_buffer(const uint8_t *p_src, int p_length) {
         store_8(p_src[i]);
 }
 
-PODVector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
+Vector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, READ, r_error);
     if (!f) {
         if (r_error) { // if error requested, do not throw error
-            return PODVector<uint8_t>();
+            return Vector<uint8_t>();
         }
-        ERR_FAIL_V_MSG(PODVector<uint8_t>(), "Can't open file from path '" + se_string(p_path) + "'.")
+        ERR_FAIL_V_MSG(Vector<uint8_t>(), "Can't open file from path '" + String(p_path) + "'.");
     }
-    PODVector<uint8_t> data;
+    Vector<uint8_t> data;
     data.resize(f->get_len());
     f->get_buffer(data.data(), data.size());
     memdelete(f);
     return data;
 }
 
-se_string FileAccess::get_file_as_string(se_string_view p_path, Error *r_error) {
+String FileAccess::get_file_as_string(se_string_view p_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, READ, r_error);
     if (!f) {
         if (r_error) { // if error requested, do not throw error
-            return se_string();
+            return String();
         }
-        ERR_FAIL_V_MSG(se_string(), "Can't open file from path '" + se_string(p_path) + "'.")
+        ERR_FAIL_V_MSG(String(), "Can't open file from path '" + String(p_path) + "'.");
     }
-    se_string data;
+    String data;
     data.resize(f->get_len());
     f->get_buffer((uint8_t *)data.data(), data.size());
     memdelete(f);
     return data;
 }
 
-se_string FileAccess::get_md5(se_string_view p_file) {
+String FileAccess::get_md5(se_string_view p_file) {
 
     FileAccess *f = FileAccess::open(p_file, READ);
     if (!f)
-        return se_string();
+        return String();
 
     CryptoCore::MD5Context ctx;
     ctx.start();
@@ -638,7 +586,7 @@ se_string FileAccess::get_md5(se_string_view p_file) {
     return StringUtils::md5(hash);
 }
 
-se_string FileAccess::get_multiple_md5(const PODVector<se_string> &p_file) {
+String FileAccess::get_multiple_md5(const Vector<String> &p_file) {
 
     CryptoCore::MD5Context ctx;
     ctx.start();
@@ -668,11 +616,11 @@ se_string FileAccess::get_multiple_md5(const PODVector<se_string> &p_file) {
     return StringUtils::md5(hash);
 }
 
-se_string FileAccess::get_sha256(se_string_view p_file) {
+String FileAccess::get_sha256(se_string_view p_file) {
 
     FileAccess *f = FileAccess::open(p_file, READ);
     if (!f)
-        return se_string();
+        return String();
 
     CryptoCore::SHA256Context ctx;
     ctx.start();

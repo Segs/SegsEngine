@@ -35,42 +35,44 @@
 #include "core/reference.h"
 
 class FileAccess;
+struct VariantParserStream;
 
 class GODOT_EXPORT ConfigFile : public RefCounted {
 
     GDCLASS(ConfigFile, RefCounted)
 
-    Map<se_string, Map<se_string, Variant> > values;
+    Map<String, Map<String, Variant> > values;
 
-    PoolSeStringArray _get_sections() const;
-    PoolSeStringArray _get_section_keys(se_string_view p_section) const;
+    PoolStringArray _get_section_keys(se_string_view p_section) const;
     Error _internal_load(se_string_view p_path, FileAccess *f);
     Error _internal_save(FileAccess *file);
+    Error _parse(se_string_view p_path, VariantParserStream *p_stream);
 
 protected:
     static void _bind_methods();
 
 public:
-    const Map<se_string, Map<se_string, Variant> > &all_values() const { return values; }
+    const Map<String, Map<String, Variant> > &all_values() const { return values; }
     void set_value(se_string_view p_section, se_string_view p_key, const Variant &p_value);
     Variant get_value(se_string_view p_section, se_string_view p_key, const Variant& p_default = Variant::null_variant) const;
 
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    void get_sections(PODVector<se_string> *r_sections) const;
-    void get_section_keys(se_string_view p_section, PODVector<se_string> *r_keys) const;
+    Vector<String> get_sections() const;
+    Vector<String> get_section_keys(se_string_view p_section) const;
 
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);
 
+    Error parse(const String &p_data);
     Error save(se_string_view p_path);
     Error load(se_string_view p_path);
 
-    Error load_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
+    Error load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
     Error load_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
-    Error save_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
+    Error save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
     Error save_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
     ConfigFile();

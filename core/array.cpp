@@ -34,7 +34,9 @@
 #include "core/object.h"
 #include "core/variant.h"
 #include "core/vector.h"
+#include "core/pool_vector.h"
 
+#include "EASTL/sort.h"
 namespace {
 struct _ArrayVariantSortCustom {
 
@@ -101,13 +103,13 @@ void Array::_ref(const Array &p_from) const {
 
     ArrayPrivate *_fp = p_from._p;
 
-    ERR_FAIL_COND(!_fp) // should NOT happen.
+    ERR_FAIL_COND(!_fp); // should NOT happen.
 
     if (_fp == _p) return; // whatever it is, nothing to do here move along
 
     bool success = _fp->refcount.ref();
 
-    ERR_FAIL_COND(!success) // should really not happen either
+    ERR_FAIL_COND(!success); // should really not happen either
 
     _unref();
 
@@ -127,7 +129,7 @@ void Array::_unref() const {
 
 Variant &Array::operator[](int p_idx) {
 
-    return _p->array.write[p_idx];
+    return _p->array[p_idx];
 }
 
 const Variant &Array::operator[](int p_idx) const {
@@ -173,34 +175,45 @@ void Array::push_back(const Variant &p_value) {
     _p->array.push_back(p_value);
 }
 
+void Array::push_back(const Variant *entries,int count)
+{
+    _p->array.insert(_p->array.end(),entries,entries+count);
+}
+
 Error Array::resize(int p_new_size) {
 
-    return _p->array.resize(p_new_size);
+    _p->array.resize(p_new_size);
+    return OK;
 }
 
 void Array::insert(int p_pos, const Variant &p_value) {
 
-    _p->array.insert(p_pos, p_value);
+    _p->array.insert_at(p_pos, p_value);
 }
 
 void Array::erase(const Variant &p_value) {
 
-    _p->array.erase(p_value);
+    auto iter = _p->array.find(p_value);
+    if (iter!=_p->array.end())
+        _p->array.erase(iter);
 }
 
 Variant Array::front() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
     return operator[](0);
 }
 
 Variant Array::back() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.")
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
     return operator[](_p->array.size() - 1);
 }
 
 int Array::find(const Variant &p_value, int p_from) const {
-
-    return _p->array.find(p_value, p_from);
+    const auto &rd(_p->array);
+    for(int i=p_from,fin=_p->array.size(); i<fin; ++i)
+        if(rd[i]==p_value)
+            return i;
+    return -1;
 }
 
 int Array::rfind(const Variant &p_value, int p_from) const {
@@ -249,12 +262,12 @@ int Array::count(const Variant &p_value) const {
 }
 
 bool Array::contains(const Variant &p_value) const {
-    return _p->array.find(p_value, 0) != -1;
+    return find(p_value)!=-1;
 }
 
 void Array::remove(int p_pos) {
 
-    _p->array.remove(p_pos);
+    _p->array.erase_at(p_pos);
 }
 
 void Array::set(int p_idx, const Variant &p_value) {
@@ -265,6 +278,11 @@ void Array::set(int p_idx, const Variant &p_value) {
 const Variant &Array::get(int p_idx) const {
 
     return operator[](p_idx);
+}
+
+const Vector<Variant> &Array::vals() const
+{
+    return _p->array;
 }
 
 Array Array::duplicate(bool p_deep) const {
@@ -304,7 +322,7 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
     int x = p_begin;
     int new_arr_i = 0;
 
-    ERR_FAIL_COND_V(p_step == 0, new_arr)
+    ERR_FAIL_COND_V(p_step == 0, new_arr);
     if (Array::_clamp_index(p_begin) == Array::_clamp_index(p_end)) { // don't include element twice
         new_arr.resize(1);
         // new_arr[0] = 1;
@@ -338,19 +356,19 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
 }
 
 Array &Array::sort() {
-
-    _p->array.sort_custom<_ArrayVariantSort>();
+    eastl::sort(_p->array.begin(),_p->array.end(),_ArrayVariantSort());
     return *this;
 }
 
 Array &Array::sort_custom(Object *p_obj, const StringName &p_function) {
 
-    ERR_FAIL_NULL_V(p_obj, *this)
+    ERR_FAIL_NULL_V(p_obj, *this);
+    auto &wr(_p->array);
 
     SortArray<Variant, _ArrayVariantSortCustom, true> avs;
     avs.compare.obj = p_obj;
     avs.compare.func = p_function;
-    avs.sort(_p->array.ptrw(), _p->array.size());
+    avs.sort(wr.data(), _p->array.size());
     return *this;
 }
 
@@ -359,7 +377,8 @@ void Array::shuffle() {
     const int n = _p->array.size();
     if (n < 2)
         return;
-    Variant *data = _p->array.ptrw();
+    auto &wr(_p->array);
+    Variant *data = wr.data();
     for (int i = n - 1; i >= 1; i--) {
         const int j = Math::rand() % (i + 1);
         const Variant tmp = data[j];
@@ -369,30 +388,29 @@ void Array::shuffle() {
 }
 
 int Array::bsearch(const Variant &p_value, bool p_before) {
-
-    return bisect(_p->array.ptr(),_p->array.size(), p_value, p_before, _ArrayVariantSort());
+    auto &wr(_p->array);
+    return bisect(wr.data(),_p->array.size(), p_value, p_before, _ArrayVariantSort());
 }
 
 int Array::bsearch_custom(const Variant &p_value, Object *p_obj, const StringName &p_function, bool p_before) {
 
-    ERR_FAIL_NULL_V(p_obj, 0)
+    ERR_FAIL_NULL_V(p_obj, 0);
 
     _ArrayVariantSortCustom less;
     less.obj = p_obj;
     less.func = p_function;
-
-    return bisect(_p->array.ptr(),_p->array.size(), p_value, p_before, less);
+    auto &wr(_p->array);
+    return bisect(wr.data(),_p->array.size(), p_value, p_before, less);
 }
 
 Array &Array::invert() {
-
-    _p->array.invert();
+    eastl::reverse(_p->array.begin(),_p->array.end());
     return *this;
 }
 
 void Array::push_front(const Variant &p_value) {
 
-    _p->array.insert(0, p_value);
+    _p->array.push_front(p_value);
 }
 
 Variant Array::pop_back() {
@@ -410,7 +428,7 @@ Variant Array::pop_front() {
 
     if (!_p->array.empty()) {
         Variant ret = _p->array[0];
-        _p->array.remove(0);
+        _p->array.pop_front();
         return ret;
     }
     return Variant();
@@ -463,9 +481,11 @@ Variant Array::max() const {
 }
 
 const void *Array::id() const {
-    return _p->array.ptr();
+    return _p->array.data();
 }
-
+//Array::operator Vector<Variant>() const {
+//    return _p->array;
+//}
 Array::Array(const Array &p_from) {
 
     _p = nullptr;
@@ -475,6 +495,12 @@ Array::Array(const Array &p_from) {
 Array::Array() {
 
     _p = memnew(ArrayPrivate);
+    _p->refcount.init();
+}
+Array::Array(Vector<Variant> &&from) noexcept {
+    // this function is marked noexcept even though it allocates memory, but if that allocation fails we have larger problems.
+    _p = memnew(ArrayPrivate);
+    _p->array = eastl::move(from);
     _p->refcount.init();
 }
 Array::~Array() {

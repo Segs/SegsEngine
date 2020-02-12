@@ -57,7 +57,7 @@ NoiseTexture::NoiseTexture() {
 }
 
 NoiseTexture::~NoiseTexture() {
-    VisualServer::get_singleton()->free(texture);
+    VisualServer::get_singleton()->free_rid(texture);
     if (noise_thread) {
         Thread::wait_to_finish(noise_thread);
         memdelete(noise_thread);
@@ -87,12 +87,12 @@ void NoiseTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_generate_texture"), &NoiseTexture::_generate_texture);
     MethodBinder::bind_method(D_METHOD("_thread_done", {"image"}), &NoiseTexture::_thread_done);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PROPERTY_HINT_RANGE, "1,2048,1,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PropertyHint::Range, "1,2048,1,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "seamless"), "set_seamless", "get_seamless");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "as_normalmap"), "set_as_normalmap", "is_normalmap");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bump_strength", PROPERTY_HINT_RANGE, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "noise", PROPERTY_HINT_RESOURCE_TYPE, "OpenSimplexNoise"), "set_noise", "get_noise");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bump_strength", PropertyHint::Range, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "noise", PropertyHint::ResourceType, "OpenSimplexNoise"), "set_noise", "get_noise");
 }
 
 void NoiseTexture::_validate_property(PropertyInfo &property) const {

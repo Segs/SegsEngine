@@ -40,7 +40,7 @@ class RingBuffer {
     int write_pos;
     int size_mask;
 
-    inline int inc(int &p_var, int p_size) const {
+    int inc(int &p_var, int p_size) const {
         int ret = p_var;
         p_var += p_size;
         p_var = p_var & size_mask;
@@ -49,8 +49,8 @@ class RingBuffer {
 
 public:
     T read() {
-        ERR_FAIL_COND_V(space_left() < 1, T())
-        return data.ptr()[inc(read_pos, 1)];
+        ERR_FAIL_COND_V(space_left() < 1, T());
+        return data[inc(read_pos, 1)];
     }
 
     int read(T *p_buf, int p_size, bool p_advance = true) {
@@ -63,7 +63,7 @@ public:
             int end = pos + to_read;
             end = MIN(end, size());
             int total = end - pos;
-            const T *read = data.ptr();
+            const T *read = data.data();
             for (int i = 0; i < total; i++) {
                 p_buf[dst++] = read[pos + i];
             }
@@ -128,21 +128,21 @@ public:
         return -1;
     }
 
-    inline int advance_read(int p_n) {
+    int advance_read(int p_n) {
         p_n = MIN(p_n, data_left());
         inc(read_pos, p_n);
         return p_n;
     }
 
-    inline int decrease_write(int p_n) {
+    int decrease_write(int p_n) {
         p_n = MIN(p_n, data_left());
         inc(write_pos, size_mask + 1 - p_n);
         return p_n;
     }
 
     Error write(const T &p_v) {
-        ERR_FAIL_COND_V(space_left() < 1, FAILED)
-        data.write[inc(write_pos, 1)] = p_v;
+        ERR_FAIL_COND_V(space_left() < 1, FAILED);
+        data[inc(write_pos, 1)] = p_v;
         return OK;
     }
 
@@ -161,7 +161,7 @@ public:
             int total = end - pos;
 
             for (int i = 0; i < total; i++) {
-                data.write[pos + i] = p_buf[src++];
+                data[pos + i] = p_buf[src++];
             }
             to_write -= total;
             pos = 0;
@@ -171,7 +171,7 @@ public:
         return p_size;
     }
 
-    inline int space_left() const {
+    int space_left() const {
         int left = read_pos - write_pos;
         if (left < 0) {
             return size() + left - 1;
@@ -181,15 +181,16 @@ public:
         }
         return left - 1;
     }
-    inline int data_left() const {
+
+    int data_left() const {
         return size() - space_left() - 1;
     }
 
-    inline int size() const {
+    int size() const {
         return data.size();
     }
 
-    inline void clear() {
+    void clear() {
         read_pos = 0;
         write_pos = 0;
     }
@@ -201,7 +202,7 @@ public:
         data.resize(1 << p_power);
         if (old_size < new_size && read_pos > write_pos) {
             for (int i = 0; i < write_pos; i++) {
-                data.write[(old_size + i) & mask] = data[i];
+                data[(old_size + i) & mask] = data[i];
             }
             write_pos = (old_size + write_pos) & mask;
         } else {

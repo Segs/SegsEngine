@@ -45,11 +45,11 @@ IMPL_GDCLASS(ProgressDialog)
 void BackgroundProgress::_add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
     _THREAD_SAFE_METHOD_
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists.")
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists."); 
     BackgroundProgress::Task t;
     t.hb = memnew(HBoxContainer);
     Label *l = memnew(Label);
-    l->set_text(StringName(se_string(p_label) + " "));
+    l->set_text(StringName(String(p_label) + " "));
     t.hb->add_child(l);
     t.progress = memnew(ProgressBar);
     t.progress->set_max(p_steps);
@@ -85,7 +85,7 @@ void BackgroundProgress::_task_step(const StringName &p_task, int p_step) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!tasks.contains(p_task))
+    ERR_FAIL_COND(!tasks.contains(p_task));
 
     Task &t = tasks[p_task];
     if (p_step < 0)
@@ -97,7 +97,7 @@ void BackgroundProgress::_end_task(const StringName &p_task) {
 
     _THREAD_SAFE_METHOD_
 
-    ERR_FAIL_COND(!tasks.contains(p_task))
+    ERR_FAIL_COND(!tasks.contains(p_task));
     Task &t = tasks[p_task];
 
     memdelete(t.hb);
@@ -172,10 +172,10 @@ void ProgressDialog::_popup() {
 
     Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
     ms += style->get_minimum_size();
-    main->set_margin(MARGIN_LEFT, style->get_margin(MARGIN_LEFT));
-    main->set_margin(MARGIN_RIGHT, -style->get_margin(MARGIN_RIGHT));
-    main->set_margin(MARGIN_TOP, style->get_margin(MARGIN_TOP));
-    main->set_margin(MARGIN_BOTTOM, -style->get_margin(MARGIN_BOTTOM));
+    main->set_margin(Margin::Left, style->get_margin(Margin::Left));
+    main->set_margin(Margin::Right, -style->get_margin(Margin::Right));
+    main->set_margin(Margin::Top, style->get_margin(Margin::Top));
+    main->set_margin(Margin::Bottom, -style->get_margin(Margin::Bottom));
 
     raise();
     popup_centered(ms);
@@ -184,11 +184,11 @@ void ProgressDialog::_popup() {
 void ProgressDialog::add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel) {
 
     if (MessageQueue::get_singleton()->is_flushing()) {
-        ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!")
+        ERR_PRINT("Do not use progress dialog (task) while flushing the message queue or using call_deferred()!");
         return;
     }
 
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), se_string("Task '") + p_task + "' already exists.")
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), String("Task '") + p_task + "' already exists."); 
     ProgressDialog::Task t;
     t.vb = memnew(VBoxContainer);
     VBoxContainer *vb2 = memnew(VBoxContainer);
@@ -218,7 +218,7 @@ void ProgressDialog::add_task(const StringName &p_task, const StringName &p_labe
 
 bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
+    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
 
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();
@@ -243,7 +243,7 @@ bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_sta
 }
 bool ProgressDialog::task_step(const StringName &p_task, se_string_view p_state, int p_step, bool p_force_redraw) {
 
-    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled)
+    ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
 
     if (!p_force_redraw) {
         uint64_t tus = OS::get_singleton()->get_ticks_usec();
@@ -268,7 +268,7 @@ bool ProgressDialog::task_step(const StringName &p_task, se_string_view p_state,
 }
 void ProgressDialog::end_task(const StringName &p_task) {
 
-    ERR_FAIL_COND(!tasks.contains(p_task))
+    ERR_FAIL_COND(!tasks.contains(p_task));
     Task &t = tasks[p_task];
 
     memdelete(t.vb);

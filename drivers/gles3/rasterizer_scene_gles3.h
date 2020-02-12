@@ -226,25 +226,13 @@ public:
 
         struct Quadrant {
 
-            uint32_t subdivision;
-
             struct Shadow {
                 RID owner;
-                uint64_t version;
-                uint64_t alloc_tick;
-
-                Shadow() {
-                    version = 0;
-                    alloc_tick = 0;
-                }
+                uint64_t version = 0;
+                uint64_t alloc_tick = 0;
             };
-
+            uint32_t subdivision = 0;  //not in use
             Vector<Shadow> shadows;
-
-            Quadrant() {
-                subdivision = 0; //not in use
-            }
-
         } quadrants[4];
 
         int size_order[4];

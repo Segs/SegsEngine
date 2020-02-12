@@ -59,9 +59,8 @@ int TabContainer::_get_top_margin() const {
     int content_height = font->get_height();
 
     Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
+    for (Control *c : tabs) {
 
-        Control *c = tabs[i];
         if (!c->has_meta("_tab_icon"))
             continue;
 
@@ -105,7 +104,6 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
         if (get_tab_count() == 0)
             return;
 
-        Vector<Control *> tabs = _get_tabs();
 
         // Handle navigation buttons.
         if (buttons_visible_cache) {
@@ -117,6 +115,9 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
             Ref<Texture> increment = get_icon("increment");
             Ref<Texture> decrement = get_icon("decrement");
             if (pos.x > size.width - increment->get_width() - popup_ofs) {
+
+                Vector<Control *> tabs = _get_tabs();
+
                 if (last_tab_cache < tabs.size() - 1) {
                     first_tab_cache += 1;
                     update();
@@ -229,7 +230,6 @@ void TabContainer::_notification(int p_what) {
         } break;
         case NOTIFICATION_RESIZED: {
 
-            Vector<Control *> tabs = _get_tabs();
             int side_margin = get_constant("side_margin");
             Ref<Texture> menu = get_icon("menu");
             Ref<Texture> increment = get_icon("increment");
@@ -246,6 +246,7 @@ void TabContainer::_notification(int p_what) {
 
             // Find the width of all tabs after first_tab_cache.
             int all_tabs_width = 0;
+            Vector<Control *> tabs = _get_tabs();
             for (int i = first_tab_cache; i < tabs.size(); i++) {
                 int tab_width = _get_tab_width(i);
                 all_tabs_width += tab_width;
@@ -274,7 +275,6 @@ void TabContainer::_notification(int p_what) {
                 return;
             }
 
-            Vector<Control *> tabs = _get_tabs();
             Ref<StyleBox> tab_bg = get_stylebox("tab_bg");
             Ref<StyleBox> tab_fg = get_stylebox("tab_fg");
             Ref<StyleBox> tab_disabled = get_stylebox("tab_disabled");
@@ -300,6 +300,7 @@ void TabContainer::_notification(int p_what) {
 
             // Check if all tabs would fit into the header area.
             int all_tabs_width = 0;
+            Vector<Control *> tabs = _get_tabs();
             for (int i = 0; i < tabs.size(); i++) {
                 if (get_tab_hidden(i)) {
                     continue;
@@ -327,7 +328,7 @@ void TabContainer::_notification(int p_what) {
 
             // Go through the visible tabs to find the width they occupy.
             all_tabs_width = 0;
-            Vector<int> tab_widths;
+            FixedVector<int,256,true> tab_widths;
             for (int i = first_tab_cache; i < tabs.size(); i++) {
                 if (get_tab_hidden(i)) {
                     continue;
@@ -383,8 +384,8 @@ void TabContainer::_notification(int p_what) {
                 Control *control = object_cast<Control>(tabs[i + first_tab_cache]);
                 StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : tr(control->get_name());
 
-                int x_content = tab_rect.position.x + tab_style->get_margin(MARGIN_LEFT);
-                int top_margin = tab_style->get_margin(MARGIN_TOP);
+                int x_content = tab_rect.position.x + tab_style->get_margin(Margin::Left);
+                int top_margin = tab_style->get_margin(Margin::Top);
                 int y_center = top_margin + (tab_rect.size.y - tab_style->get_minimum_size().y) / 2;
 
                 // Draw the tab icon.
@@ -400,7 +401,7 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab text.
                 Point2i text_pos(x_content, y_center - (font->get_height() / 2) + font->get_ascent());
-                font->draw_utf8(canvas, text_pos, text, font_color);
+                font->draw(canvas, text_pos, text, font_color);
 
                 x += tab_width;
                 last_tab_cache = i + first_tab_cache;
@@ -464,7 +465,7 @@ int TabContainer::_get_tab_width(int p_index) const {
     // Get the width of the text displayed on the tab.
     Ref<Font> font = get_font("font");
     StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : control->get_name();
-    int width = font->get_string_size_utf8(text).width;
+    int width = font->get_string_size(text).width;
 
     // Add space for a tab icon.
     if (control->has_meta("_tab_icon")) {
@@ -494,6 +495,7 @@ int TabContainer::_get_tab_width(int p_index) const {
 Vector<Control *> TabContainer::_get_tabs() const {
 
     Vector<Control *> controls;
+
     for (int i = 0; i < get_child_count(); i++) {
 
         Control *control = object_cast<Control>(get_child(i));
@@ -533,12 +535,12 @@ void TabContainer::add_child_notify(Node *p_child) {
     }
     c->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     if (tabs_visible)
-        c->set_margin(MARGIN_TOP, _get_top_margin());
+        c->set_margin(Margin::Top, _get_top_margin());
     Ref<StyleBox> sb = get_stylebox("panel");
-    c->set_margin(Margin(MARGIN_TOP), c->get_margin(Margin(MARGIN_TOP)) + sb->get_margin(Margin(MARGIN_TOP)));
-    c->set_margin(Margin(MARGIN_LEFT), c->get_margin(Margin(MARGIN_LEFT)) + sb->get_margin(Margin(MARGIN_LEFT)));
-    c->set_margin(Margin(MARGIN_RIGHT), c->get_margin(Margin(MARGIN_RIGHT)) - sb->get_margin(Margin(MARGIN_RIGHT)));
-    c->set_margin(Margin(MARGIN_BOTTOM), c->get_margin(Margin(MARGIN_BOTTOM)) - sb->get_margin(Margin(MARGIN_BOTTOM)));
+    c->set_margin(Margin(Margin::Top), c->get_margin(Margin(Margin::Top)) + sb->get_margin(Margin(Margin::Top)));
+    c->set_margin(Margin(Margin::Left), c->get_margin(Margin(Margin::Left)) + sb->get_margin(Margin(Margin::Left)));
+    c->set_margin(Margin(Margin::Right), c->get_margin(Margin(Margin::Right)) - sb->get_margin(Margin(Margin::Right)));
+    c->set_margin(Margin(Margin::Bottom), c->get_margin(Margin(Margin::Bottom)) - sb->get_margin(Margin(Margin::Bottom)));
 
     update();
     p_child->connect("renamed", this, "_child_renamed_callback");
@@ -567,11 +569,11 @@ void TabContainer::set_current_tab(int p_current) {
             c->show();
             c->set_anchors_and_margins_preset(Control::PRESET_WIDE);
             if (tabs_visible)
-                c->set_margin(MARGIN_TOP, _get_top_margin());
-            c->set_margin(Margin(MARGIN_TOP), c->get_margin(Margin(MARGIN_TOP)) + sb->get_margin(Margin(MARGIN_TOP)));
-            c->set_margin(Margin(MARGIN_LEFT), c->get_margin(Margin(MARGIN_LEFT)) + sb->get_margin(Margin(MARGIN_LEFT)));
-            c->set_margin(Margin(MARGIN_RIGHT), c->get_margin(Margin(MARGIN_RIGHT)) - sb->get_margin(Margin(MARGIN_RIGHT)));
-            c->set_margin(Margin(MARGIN_BOTTOM), c->get_margin(Margin(MARGIN_BOTTOM)) - sb->get_margin(Margin(MARGIN_BOTTOM)));
+                c->set_margin(Margin::Top, _get_top_margin());
+            c->set_margin(Margin(Margin::Top), c->get_margin(Margin(Margin::Top)) + sb->get_margin(Margin(Margin::Top)));
+            c->set_margin(Margin(Margin::Left), c->get_margin(Margin(Margin::Left)) + sb->get_margin(Margin(Margin::Left)));
+            c->set_margin(Margin(Margin::Right), c->get_margin(Margin(Margin::Right)) - sb->get_margin(Margin(Margin::Right)));
+            c->set_margin(Margin(Margin::Bottom), c->get_margin(Margin(Margin::Bottom)) - sb->get_margin(Margin(Margin::Bottom)));
 
         } else
             c->hide();
@@ -610,12 +612,7 @@ Control *TabContainer::get_tab_control(int p_idx) const {
 }
 
 Control *TabContainer::get_current_tab_control() const {
-
-    Vector<Control *> tabs = _get_tabs();
-    if (current >= 0 && current < tabs.size())
-        return tabs[current];
-    else
-        return nullptr;
+    return get_tab_control(current);
 }
 
 void TabContainer::remove_child_notify(Node *p_child) {
@@ -762,7 +759,7 @@ int TabContainer::get_tab_idx_at_point(const Point2 &p_point) const {
     }
 
     // get the tab at the point
-    Vector<Control *> tabs = _get_tabs();
+    //Vector<Control *> tabs = _get_tabs();
     int px = p_point.x;
     px -= tabs_ofs_cache;
     for (int i = first_tab_cache; i <= last_tab_cache; i++) {
@@ -789,23 +786,23 @@ TabContainer::TabAlign TabContainer::get_tab_align() const {
     return align;
 }
 
-void TabContainer::set_tabs_visible(bool p_visibe) {
+void TabContainer::set_tabs_visible(bool p_visible) {
 
-    if (p_visibe == tabs_visible)
+    if (p_visible == tabs_visible)
         return;
 
-    tabs_visible = p_visibe;
+    tabs_visible = p_visible;
 
     Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
+    for (Control *c : tabs) {
 
-        Control *c = tabs[i];
-        if (p_visibe)
-            c->set_margin(MARGIN_TOP, _get_top_margin());
+        if (p_visible)
+            c->set_margin(Margin::Top, _get_top_margin());
         else
-            c->set_margin(MARGIN_TOP, 0);
+            c->set_margin(Margin::Top, 0);
     }
     update();
+    minimum_size_changed();
 }
 
 bool TabContainer::are_tabs_visible() const {
@@ -821,7 +818,7 @@ Control *TabContainer::_get_tab(int p_idx) const {
 void TabContainer::set_tab_title(int p_tab, const StringName &p_title) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child)
+    ERR_FAIL_COND(!child);
     child->set_meta("_tab_name", p_title);
     update();
 }
@@ -829,7 +826,7 @@ void TabContainer::set_tab_title(int p_tab, const StringName &p_title) {
 StringName TabContainer::get_tab_title(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, StringName())
+    ERR_FAIL_COND_V(!child, StringName());
     if (child->has_meta("_tab_name"))
         return child->get_meta("_tab_name");
     else
@@ -839,14 +836,14 @@ StringName TabContainer::get_tab_title(int p_tab) const {
 void TabContainer::set_tab_icon(int p_tab, const Ref<Texture> &p_icon) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child)
+    ERR_FAIL_COND(!child);
     child->set_meta("_tab_icon", p_icon);
     update();
 }
 Ref<Texture> TabContainer::get_tab_icon(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, Ref<Texture>())
+    ERR_FAIL_COND_V(!child, Ref<Texture>());
     if (child->has_meta("_tab_icon"))
         return refFromRefPtr<Texture>(child->get_meta("_tab_icon"));
     else
@@ -856,7 +853,7 @@ Ref<Texture> TabContainer::get_tab_icon(int p_tab) const {
 void TabContainer::set_tab_disabled(int p_tab, bool p_disabled) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child)
+    ERR_FAIL_COND(!child);
     child->set_meta("_tab_disabled", p_disabled);
     update();
 }
@@ -864,7 +861,7 @@ void TabContainer::set_tab_disabled(int p_tab, bool p_disabled) {
 bool TabContainer::get_tab_disabled(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, false)
+    ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_disabled"))
         return child->get_meta("_tab_disabled");
     else
@@ -874,7 +871,7 @@ bool TabContainer::get_tab_disabled(int p_tab) const {
 void TabContainer::set_tab_hidden(int p_tab, bool p_hidden) {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND(!child)
+    ERR_FAIL_COND(!child);
     child->set_meta("_tab_hidden", p_hidden);
     update();
     for (int i = 0; i < get_tab_count(); i++) {
@@ -894,19 +891,17 @@ void TabContainer::set_tab_hidden(int p_tab, bool p_hidden) {
 bool TabContainer::get_tab_hidden(int p_tab) const {
 
     Control *child = _get_tab(p_tab);
-    ERR_FAIL_COND_V(!child, false)
+    ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_hidden"))
         return child->get_meta("_tab_hidden");
     else
         return false;
 }
 
-void TabContainer::get_translatable_strings(ListPOD<StringName> *p_strings) const {
+void TabContainer::get_translatable_strings(List<StringName> *p_strings) const {
 
     Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
-
-        Control *c = tabs[i];
+    for (Control *c : tabs) {
 
         if (!c->has_meta("_tab_name"))
             continue;
@@ -923,9 +918,7 @@ Size2 TabContainer::get_minimum_size() const {
     Size2 ms;
 
     Vector<Control *> tabs = _get_tabs();
-    for (int i = 0; i < tabs.size(); i++) {
-
-        Control *c = tabs[i];
+    for (Control *c : tabs) {
 
         if (!c->is_visible_in_tree() && !use_hidden_tabs_for_min_size)
             continue;
@@ -940,8 +933,10 @@ Size2 TabContainer::get_minimum_size() const {
     Ref<StyleBox> tab_disabled = get_stylebox("tab_disabled");
     Ref<Font> font = get_font("font");
 
-    ms.y += MAX(MAX(tab_bg->get_minimum_size().y, tab_fg->get_minimum_size().y), tab_disabled->get_minimum_size().y);
-    ms.y += font->get_height();
+    if (tabs_visible) {
+        ms.y += MAX(MAX(tab_bg->get_minimum_size().y, tab_fg->get_minimum_size().y), tab_disabled->get_minimum_size().y);
+        ms.y += font->get_height();
+    }
 
     Ref<StyleBox> sb = get_stylebox("panel");
     ms += sb->get_minimum_size();
@@ -1019,8 +1014,8 @@ void TabContainer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("tab_selected", PropertyInfo(VariantType::INT, "tab")));
     ADD_SIGNAL(MethodInfo("pre_popup_pressed"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PropertyHint::Enum, "Left,Center,Right"), "set_tab_align", "get_tab_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PropertyHint::Range, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tabs_visible"), "set_tabs_visible", "are_tabs_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_hidden_tabs_for_min_size"), "set_use_hidden_tabs_for_min_size", "get_use_hidden_tabs_for_min_size");

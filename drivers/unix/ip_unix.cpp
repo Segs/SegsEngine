@@ -112,15 +112,15 @@ IP_Address IP_Unix::_resolve_hostname(se_string_view p_hostname, Type p_type) {
         hints.ai_flags = AI_ADDRCONFIG;
     }
     hints.ai_flags &= ~AI_NUMERICHOST;
-    se_string sd(p_hostname);
+    String sd(p_hostname);
     int s = getaddrinfo(sd.data()   , nullptr, &hints, &result);
     if (s != 0) {
-        ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.")
+        ERR_PRINT("getaddrinfo failed! Cannot resolve hostname.");
         return IP_Address();
     }
 
     if (result == nullptr || result->ai_addr == nullptr) {
-        ERR_PRINT("Invalid response from getaddrinfo")
+        ERR_PRINT("Invalid response from getaddrinfo");
         if (result)
             freeaddrinfo(result);
         return IP_Address();
@@ -172,7 +172,7 @@ void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) co
 
 #else
 
-void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const {
+void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
 
     ULONG buf_size = 1024;
     IP_ADAPTER_ADDRESSES *addrs;
@@ -223,7 +223,7 @@ void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces)
 
 #else // UNIX
 
-void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const {
+void IP_Unix::get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const {
 
     struct ifaddrs *ifAddrStruct = nullptr;
     struct ifaddrs *ifa = nullptr;
@@ -240,7 +240,7 @@ void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces)
         if (family != AF_INET && family != AF_INET6)
             continue;
 
-        Map<se_string, Interface_Info>::iterator E = r_interfaces->find(ifa->ifa_name);
+        Map<String, Interface_Info>::iterator E = r_interfaces->find(ifa->ifa_name);
         if (E==r_interfaces->end()) {
             Interface_Info info;
             info.name = ifa->ifa_name;
@@ -248,7 +248,7 @@ void IP_Unix::get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces)
             info.index = if_nametoindex(ifa->ifa_name);
             auto insert_res = r_interfaces->emplace(ifa->ifa_name, info);
             E = insert_res.first;
-            ERR_CONTINUE(insert_res.second==false)
+            ERR_CONTINUE(insert_res.second==false);
         }
 
         Interface_Info &info = E->second;

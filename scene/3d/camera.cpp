@@ -122,7 +122,7 @@ void Camera::_notification(int p_what) {
             // and Spatial will handle it first, including clearing its reference to the Viewport,
             // therefore making it impossible to subclasses to access it
             viewport = get_viewport();
-            ERR_FAIL_COND(!viewport)
+            ERR_FAIL_COND(!viewport);
 
             bool first_camera = viewport->_camera_add(this);
             if (current || first_camera)
@@ -229,7 +229,7 @@ void Camera::set_projection(Camera::Projection p_mode) {
     }
 }
 
-RID Camera::get_camera() const {
+RID Camera::get_camera_rid() const {
 
     return camera;
 };
@@ -291,7 +291,7 @@ Vector3 Camera::project_ray_normal(const Point2 &p_pos) const {
 
 Vector3 Camera::project_local_ray_normal(const Point2 &p_pos) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
@@ -303,9 +303,11 @@ Vector3 Camera::project_local_ray_normal(const Point2 &p_pos) const {
     } else {
         CameraMatrix cm;
         cm.set_perspective(fov, viewport_size.aspect(), near, far, keep_aspect == KEEP_WIDTH);
-        float screen_w, screen_h;
-        cm.get_viewport_size(screen_w, screen_h);
-        ray = Vector3(((cpos.x / viewport_size.width) * 2.0 - 1.0) * screen_w, ((1.0 - (cpos.y / viewport_size.height)) * 2.0 - 1.0) * screen_h, -near).normalized();
+
+        Vector2 screen_he = cm.get_viewport_half_extents();
+        ray = Vector3(((cpos.x / viewport_size.width) * 2.0f - 1.0f) * screen_he.x,
+                ((1.0f - (cpos.y / viewport_size.height)) * 2.0f - 1.0f) * screen_he.y, -near)
+                      .normalized();
     }
 
     return ray;
@@ -313,11 +315,11 @@ Vector3 Camera::project_local_ray_normal(const Point2 &p_pos) const {
 
 Vector3 Camera::project_ray_origin(const Point2 &p_pos) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
-    ERR_FAIL_COND_V(viewport_size.y == 0, Vector3())
+    ERR_FAIL_COND_V(viewport_size.y == 0, Vector3());
 
     if (mode == PROJECTION_PERSPECTIVE) {
 
@@ -351,7 +353,7 @@ bool Camera::is_position_behind(const Vector3 &p_pos) const {
 }
 
 Vector<Vector3> Camera::get_near_plane_points() const {
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector<Vector3>(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(),{}, "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -365,8 +367,8 @@ Vector<Vector3> Camera::get_near_plane_points() const {
     Vector3 endpoints[8];
     cm.get_endpoints(Transform(), endpoints);
 
-    Vector<Vector3> points;
-    points.push_back(Vector3());
+    Vector<Vector3> points = { Vector3(0,0,0) };
+
     for (int i = 0; i < 4; i++) {
         points.push_back(endpoints[i + 4]);
     }
@@ -375,7 +377,7 @@ Vector<Vector3> Camera::get_near_plane_points() const {
 
 Point2 Camera::unproject_position(const Vector3 &p_pos) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -400,7 +402,7 @@ Point2 Camera::unproject_position(const Vector3 &p_pos) const {
 
 Vector3 Camera::project_position(const Point2 &p_point, float p_z_depth) const {
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     if (p_z_depth == 0.0f && mode != PROJECTION_ORTHOGONAL) {
         return get_global_transform().origin;
@@ -415,13 +417,12 @@ Vector3 Camera::project_position(const Point2 &p_point, float p_z_depth) const {
     else
         cm.set_perspective(fov, viewport_size.aspect(), p_z_depth, far, keep_aspect == KEEP_WIDTH);
 
-    Size2 vp_size;
-    cm.get_viewport_size(vp_size.x, vp_size.y);
+    Vector2 vp_he = cm.get_viewport_half_extents();
 
     Vector2 point;
     point.x = (p_point.x / viewport_size.x) * 2.0f - 1.0f;
     point.y = (1.0 - (p_point.y / viewport_size.y)) * 2.0f - 1.0f;
-    point *= vp_size;
+    point *= vp_he;
 
     Vector3 p(point.x, point.y, -p_z_depth);
 
@@ -532,26 +533,26 @@ void Camera::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_doppler_tracking", {"mode"}), &Camera::set_doppler_tracking);
     MethodBinder::bind_method(D_METHOD("get_doppler_tracking"), &Camera::get_doppler_tracking);
     MethodBinder::bind_method(D_METHOD("get_frustum"), &Camera::get_frustum);
-    MethodBinder::bind_method(D_METHOD("get_camera_rid"), &Camera::get_camera);
+    MethodBinder::bind_method(D_METHOD("get_camera_rid"), &Camera::get_camera_rid);
 
     MethodBinder::bind_method(D_METHOD("set_cull_mask_bit", {"layer", "enable"}), &Camera::set_cull_mask_bit);
     MethodBinder::bind_method(D_METHOD("get_cull_mask_bit", {"layer"}), &Camera::get_cull_mask_bit);
 
     //MethodBinder::bind_method(D_METHOD("_camera_make_current"),&Camera::_camera_make_current );
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "keep_aspect", PROPERTY_HINT_ENUM, "Keep Width,Keep Height"), "set_keep_aspect_mode", "get_keep_aspect_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mask", PROPERTY_HINT_LAYERS_3D_RENDER), "set_cull_mask", "get_cull_mask");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "keep_aspect", PropertyHint::Enum, "Keep Width,Keep Height"), "set_keep_aspect_mode", "get_keep_aspect_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mask", PropertyHint::Layers3DRenderer), "set_cull_mask", "get_cull_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "h_offset"), "set_h_offset", "get_h_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_offset"), "set_v_offset", "get_v_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "doppler_tracking", PROPERTY_HINT_ENUM, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "projection", PROPERTY_HINT_ENUM, "Perspective,Orthogonal,Frustum"), "set_projection", "get_projection");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "doppler_tracking", PropertyHint::Enum, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "projection", PropertyHint::Enum, "Perspective,Orthogonal,Frustum"), "set_projection", "get_projection");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "current"), "set_current", "is_current");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fov", PROPERTY_HINT_RANGE, "1,179,0.1"), "set_fov", "get_fov");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size", PROPERTY_HINT_RANGE, "0.1,16384,0.01"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fov", PropertyHint::Range, "1,179,0.1"), "set_fov", "get_fov");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size", PropertyHint::Range, "0.1,16384,0.01"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frustum_offset"), "set_frustum_offset", "get_frustum_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "near", PROPERTY_HINT_EXP_RANGE, "0.01,8192,0.01,or_greater"), "set_znear", "get_znear");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "far", PROPERTY_HINT_EXP_RANGE, "0.1,8192,0.1,or_greater"), "set_zfar", "get_zfar");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "near", PropertyHint::ExpRange, "0.01,8192,0.01,or_greater"), "set_znear", "get_znear");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "far", PropertyHint::ExpRange, "0.1,8192,0.1,or_greater"), "set_zfar", "get_zfar");
 
     BIND_ENUM_CONSTANT(PROJECTION_PERSPECTIVE)
     BIND_ENUM_CONSTANT(PROJECTION_ORTHOGONAL)
@@ -595,7 +596,7 @@ Camera::Projection Camera::get_projection() const {
 }
 
 void Camera::set_fov(float p_fov) {
-    ERR_FAIL_COND(p_fov < 1 || p_fov > 179)
+    ERR_FAIL_COND(p_fov < 1 || p_fov > 179);
 
     fov = p_fov;
     _update_camera_mode();
@@ -603,7 +604,7 @@ void Camera::set_fov(float p_fov) {
 }
 
 void Camera::set_size(float p_size) {
-    ERR_FAIL_COND(p_size < 0.1f || p_size > 16384)
+    ERR_FAIL_COND(p_size < 0.1f || p_size > 16384);
 
     size = p_size;
     _update_camera_mode();
@@ -652,7 +653,7 @@ bool Camera::get_cull_mask_bit(int p_layer) const {
 
 Frustum Camera::get_frustum() const {
 
-    ERR_FAIL_COND_V(!is_inside_world(), Frustum())
+    ERR_FAIL_COND_V(!is_inside_world(), Frustum());
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm;
@@ -720,7 +721,7 @@ Camera::Camera() {
 
 Camera::~Camera() {
 
-    VisualServer::get_singleton()->free(camera);
+    VisualServer::get_singleton()->free_rid(camera);
 }
 
 ////////////////////////////////////////
@@ -760,7 +761,7 @@ void ClippedCamera::_notification(int p_what) {
         }
 
         PhysicsDirectSpaceState *dspace = get_world()->get_direct_space_state();
-        ERR_FAIL_COND(!dspace) // most likely physics set to threads
+        ERR_FAIL_COND(!dspace); // most likely physics set to threads
 
         Vector3 cam_fw = -get_global_transform().basis.get_axis(Vector3::AXIS_Z).normalized();
         Vector3 cam_pos = get_global_transform().origin;
@@ -925,13 +926,13 @@ void ClippedCamera::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("clear_exceptions"), &ClippedCamera::clear_exceptions);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PROPERTY_HINT_RANGE, "0,32,0.01"), "set_margin", "get_margin");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_process_mode", "get_process_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0,32,0.01"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle"), "set_process_mode", "get_process_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Clip To", "clip_to");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_to_areas", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_clip_to_areas", "is_clip_to_areas_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_to_bodies", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_clip_to_bodies", "is_clip_to_bodies_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_to_areas", PropertyHint::Layers3DPhysics), "set_clip_to_areas", "is_clip_to_areas_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_to_bodies", PropertyHint::Layers3DPhysics), "set_clip_to_bodies", "is_clip_to_bodies_enabled");
 
     BIND_ENUM_CONSTANT(CLIP_PROCESS_PHYSICS)
     BIND_ENUM_CONSTANT(CLIP_PROCESS_IDLE)
@@ -949,5 +950,5 @@ ClippedCamera::ClippedCamera() {
     clip_to_bodies = true;
 }
 ClippedCamera::~ClippedCamera() {
-    PhysicsServer::get_singleton()->free(pyramid_shape);
+    PhysicsServer::get_singleton()->free_rid(pyramid_shape);
 }

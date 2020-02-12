@@ -44,6 +44,8 @@ class Theme;
 class GODOT_EXPORT Control : public CanvasItem {
 
     GDCLASS(Control,CanvasItem)
+//    Q_GADGET
+//    Q_CLASSINFO("Category","GUI Nodes")
 
     OBJ_CATEGORY("GUI Nodes")
 
@@ -66,7 +68,7 @@ public:
         FOCUS_ALL
     };
 
-    enum SizeFlags {
+    enum SizeFlags : uint8_t {
 
         SIZE_FILL = 1,
         SIZE_EXPAND = 2,
@@ -153,9 +155,9 @@ private:
         float margin[4];
         float anchor[4];
         StringName tooltip;
-        List<Control *>::Element *MI; //modal item
-        List<Control *>::Element *SI;
-        List<Control *>::Element *RI;
+        ListOld<Control *>::Element *MI; //modal item
+        ListOld<Control *>::Element *SI;
+        ListOld<Control *>::Element *RI;
         CanvasItem *parent_canvas_item;
 
         Control *parent;
@@ -202,7 +204,7 @@ private:
 
     void _window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, const Point2 *p_points, float p_min, float &r_closest_dist, Control **r_closest);
     Control *_get_focus_neighbour(Margin p_margin, int p_count = 0);
-
+public:
     void _set_anchor(Margin p_margin, float p_anchor);
     void _set_position(const Point2 &p_point);
     void _set_global_position(const Point2 &p_point);
@@ -243,7 +245,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_notification);
 
@@ -475,7 +477,7 @@ public:
     void set_disable_visibility_clip(bool p_ignore);
     bool is_visibility_clip_disabled() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
     StringName get_configuration_warning() const override;
 
     Control();

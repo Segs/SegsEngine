@@ -52,8 +52,8 @@ void AudioStreamEditor::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_THEME_CHANGED || p_what == NOTIFICATION_ENTER_TREE) {
-        _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
-        _stop_button->set_icon(get_icon("Stop", "EditorIcons"));
+        _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
+        _stop_button->set_button_icon(get_icon("Stop", "EditorIcons"));
         _preview->set_frame_color(get_color("dark_color_2", "Editor"));
         set_frame_color(get_color("dark_color_1", "Editor"));
 
@@ -81,7 +81,7 @@ void AudioStreamEditor::_draw_preview() {
     float preview_len = preview->get_length();
 
     Vector<Vector2> lines;
-    lines.resize(size.width * 2);
+    lines.reserve(size.width * 2);
 
     for (int i = 0; i < size.width; i++) {
 
@@ -90,9 +90,8 @@ void AudioStreamEditor::_draw_preview() {
         float max = preview->get_max(ofs, ofs_n) * 0.5 + 0.5;
         float min = preview->get_min(ofs, ofs_n) * 0.5 + 0.5;
 
-        int idx = i;
-        lines.write[idx * 2 + 0] = Vector2(i + 1, rect.position.y + min * rect.size.y);
-        lines.write[idx * 2 + 1] = Vector2(i + 1, rect.position.y + max * rect.size.y);
+        lines.emplace_back(i + 1, rect.position.y + min * rect.size.y);
+        lines.emplace_back(i + 1, rect.position.y + max * rect.size.y);
     }
 
     Vector<Color> color;
@@ -119,11 +118,11 @@ void AudioStreamEditor::_play() {
 
     if (_player->is_playing()) {
         _player->stop();
-        _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
+        _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
         set_process(false);
     } else {
         _player->play(_current);
-        _play_button->set_icon(get_icon("Pause", "EditorIcons"));
+        _play_button->set_button_icon(get_icon("Pause", "EditorIcons"));
         set_process(true);
     }
 }
@@ -131,7 +130,7 @@ void AudioStreamEditor::_play() {
 void AudioStreamEditor::_stop() {
 
     _player->stop();
-    _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
+    _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
     _current = 0;
     _indicator->update();
     set_process(false);
@@ -139,7 +138,7 @@ void AudioStreamEditor::_stop() {
 
 void AudioStreamEditor::_on_finished() {
 
-    _play_button->set_icon(get_icon("MainPlay", "EditorIcons"));
+    _play_button->set_button_icon(get_icon("MainPlay", "EditorIcons"));
     if (_current == _player->get_stream()->get_length()) {
         _current = 0;
         _indicator->update();
@@ -194,7 +193,7 @@ void AudioStreamEditor::edit(const Ref<AudioStream>& p_stream) {
     stream = p_stream;
     _player->set_stream(stream);
     _current = 0;
-    se_string text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
+    String text = StringUtils::pad_decimals(StringUtils::num(stream->get_length(), 2),2) + "s";
     _duration_label->set_text(StringName(text));
 
     if (stream) {

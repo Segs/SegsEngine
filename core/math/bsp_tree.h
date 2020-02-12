@@ -63,8 +63,8 @@ private:
     // with no cost.
     //NOTE: the above comment is no longer true, since I (nem) made the decision that optimizing for the most common case
     // is more important, thus assign/pass by value will cause a deep copy to be made.
-    PODVector<Node> nodes;
-    PODVector<Plane> planes;
+    Vector<Node> nodes;
+    Vector<Plane> planes;
     AABB aabb;
     real_t error_radius;
 
@@ -75,8 +75,8 @@ private:
 
 public:
     bool is_empty() const { return nodes.empty(); }
-    const PODVector<Node> &get_nodes() const { return nodes; }
-    const PODVector<Plane> &get_planes() const { return planes; }
+    const Vector<Node> &get_nodes() const { return nodes; }
+    const Vector<Plane> &get_planes() const { return planes; }
     AABB get_aabb() const;
 
     bool point_is_inside(const Vector3 &p_point) const;
@@ -91,7 +91,7 @@ public:
     BSP_Tree();
     BSP_Tree(const Variant &p_variant);
     BSP_Tree(Span<const Face3> p_faces, real_t p_error_radius = 0);
-    BSP_Tree(const PODVector<Node> &p_nodes, const PODVector<Plane> &p_planes, const AABB &p_aabb, real_t p_error_radius = 0);
+    BSP_Tree(const Vector<Node> &p_nodes, const Vector<Plane> &p_planes, const AABB &p_aabb, real_t p_error_radius = 0);
     ~BSP_Tree();
 };
 

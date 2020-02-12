@@ -38,9 +38,9 @@
 IMPL_GDCLASS(Skin)
 
 void Skin::set_bind_count(int p_size) {
-    ERR_FAIL_COND(p_size < 0)
+    ERR_FAIL_COND(p_size < 0);
     binds.resize(p_size);
-    binds_ptr = binds.ptrw();
+    binds_ptr = binds.data();
     bind_count = p_size;
     emit_changed();
 }
@@ -53,13 +53,13 @@ void Skin::add_bind(int p_bone, const Transform &p_pose) {
 }
 
 void Skin::set_bind_bone(int p_index, int p_bone) {
-    ERR_FAIL_INDEX(p_index, bind_count)
+    ERR_FAIL_INDEX(p_index, bind_count);
     binds_ptr[p_index].bone = p_bone;
     emit_changed();
 }
 
 void Skin::set_bind_pose(int p_index, const Transform &p_pose) {
-    ERR_FAIL_INDEX(p_index, bind_count)
+    ERR_FAIL_INDEX(p_index, bind_count);
     binds_ptr[p_index].pose = p_pose;
     emit_changed();
 }
@@ -109,10 +109,10 @@ bool Skin::_get(const StringName &p_name, Variant &r_ret) const {
     }
     return false;
 }
-void Skin::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
-    p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
+void Skin::_get_property_list(Vector<PropertyInfo> *p_list) const {
+    p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PropertyHint::Range, "0,16384,1,or_greater"));
     for (int i = 0; i < get_bind_count(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PROPERTY_HINT_RANGE, "0,16384,1,or_greater"));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PropertyHint::Range, "0,16384,1,or_greater"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName("bind/" + itos(i) + "/pose")));
     }
 }

@@ -62,7 +62,7 @@ Size2 Tabs::get_minimum_size() const {
                 ms.width += get_constant("hseparation");
         }
 
-        ms.width += Math::ceil(font->get_string_size_utf8(tabs[i].xl_text).width);
+        ms.width += Math::ceil(font->get_string_size(tabs[i].xl_text).width);
 
         if (tabs[i].disabled)
             ms.width += tab_disabled->get_minimum_size().width;
@@ -233,7 +233,7 @@ void Tabs::_notification(int p_what) {
 
         case NOTIFICATION_TRANSLATION_CHANGED: {
             for (int i = 0; i < tabs.size(); ++i) {
-                tabs.write[i].xl_text = tr(tabs[i].text);
+                tabs[i].xl_text = tr(tabs[i].text);
             }
             minimum_size_changed();
             update();
@@ -262,7 +262,7 @@ void Tabs::_notification(int p_what) {
 
             for (int i = 0; i < tabs.size(); i++) {
 
-                tabs.write[i].ofs_cache = mw;
+                tabs[i].ofs_cache = mw;
                 mw += get_tab_width(i);
             }
 
@@ -290,7 +290,7 @@ void Tabs::_notification(int p_what) {
                 if (i < offset)
                     continue;
 
-                tabs.write[i].ofs_cache = w;
+                tabs[i].ofs_cache = w;
 
                 int lsize = tabs[i].size_cache;
 
@@ -319,19 +319,19 @@ void Tabs::_notification(int p_what) {
                 Rect2 sb_rect = Rect2(w, 0, tabs[i].size_cache, h);
                 sb->draw(ci, sb_rect);
 
-                w += sb->get_margin(MARGIN_LEFT);
+                w += sb->get_margin(Margin::Left);
 
                 Size2i sb_ms = sb->get_minimum_size();
                 Ref<Texture> icon = tabs[i].icon;
                 if (icon) {
 
-                    icon->draw(ci, Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
+                    icon->draw(ci, Point2i(w, sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
                     if (!tabs[i].text.empty())
                         w += icon->get_width() + get_constant("hseparation");
                 }
 
-                font->draw_utf8(ci,
-                        Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - font->get_height()) / 2 +
+                font->draw(ci,
+                        Point2i(w, sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - font->get_height()) / 2 +
                                            font->get_ascent()),
                         tabs[i].xl_text, col, tabs[i].size_text);
 
@@ -347,7 +347,7 @@ void Tabs::_notification(int p_what) {
                     Rect2 rb_rect;
                     rb_rect.size = style->get_minimum_size() + rb->get_size();
                     rb_rect.position.x = w;
-                    rb_rect.position.y = sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - (rb_rect.size.y)) / 2;
+                    rb_rect.position.y = sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - (rb_rect.size.y)) / 2;
 
                     if (rb_hover == i) {
                         if (rb_pressing)
@@ -356,9 +356,9 @@ void Tabs::_notification(int p_what) {
                             style->draw(ci, rb_rect);
                     }
 
-                    rb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), rb_rect.position.y + style->get_margin(MARGIN_TOP)));
+                    rb->draw(ci, Point2i(w + style->get_margin(Margin::Left), rb_rect.position.y + style->get_margin(Margin::Top)));
                     w += rb->get_width();
-                    tabs.write[i].rb_rect = rb_rect;
+                    tabs[i].rb_rect = rb_rect;
                 }
 
                 if (cb_displaypolicy == CLOSE_BUTTON_SHOW_ALWAYS || (cb_displaypolicy == CLOSE_BUTTON_SHOW_ACTIVE_ONLY && i == current)) {
@@ -371,7 +371,7 @@ void Tabs::_notification(int p_what) {
                     Rect2 cb_rect;
                     cb_rect.size = style->get_minimum_size() + cb->get_size();
                     cb_rect.position.x = w;
-                    cb_rect.position.y = sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - (cb_rect.size.y)) / 2;
+                    cb_rect.position.y = sb->get_margin(Margin::Top) + ((sb_rect.size.y - sb_ms.y) - (cb_rect.size.y)) / 2;
 
                     if (!tabs[i].disabled && cb_hover == i) {
                         if (cb_pressing)
@@ -380,12 +380,12 @@ void Tabs::_notification(int p_what) {
                             style->draw(ci, cb_rect);
                     }
 
-                    cb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), cb_rect.position.y + style->get_margin(MARGIN_TOP)));
+                    cb->draw(ci, Point2i(w + style->get_margin(Margin::Left), cb_rect.position.y + style->get_margin(Margin::Top)));
                     w += cb->get_width();
-                    tabs.write[i].cb_rect = cb_rect;
+                    tabs[i].cb_rect = cb_rect;
                 }
 
-                w += sb->get_margin(MARGIN_RIGHT);
+                w += sb->get_margin(Margin::Right);
             }
 
             if (offset > 0 || missing_right) {
@@ -448,23 +448,23 @@ bool Tabs::get_offset_buttons_visible() const {
 
 void Tabs::set_tab_title(int p_tab, const StringName &p_title) {
 
-    ERR_FAIL_INDEX(p_tab, tabs.size())
-    tabs.write[p_tab].text = p_title;
-    tabs.write[p_tab].xl_text = tr(p_title);
+    ERR_FAIL_INDEX(p_tab, tabs.size());
+    tabs[p_tab].text = p_title;
+    tabs[p_tab].xl_text = tr(p_title);
     update();
     minimum_size_changed();
 }
 
 StringName Tabs::get_tab_title(int p_tab) const {
 
-    ERR_FAIL_INDEX_V(p_tab, tabs.size(), StringName())
+    ERR_FAIL_INDEX_V(p_tab, tabs.size(), StringName());
     return tabs[p_tab].text;
 }
 
 void Tabs::set_tab_icon(int p_tab, const Ref<Texture> &p_icon) {
 
-    ERR_FAIL_INDEX(p_tab, tabs.size())
-    tabs.write[p_tab].icon = p_icon;
+    ERR_FAIL_INDEX(p_tab, tabs.size());
+    tabs[p_tab].icon = p_icon;
     update();
     minimum_size_changed();
 }
@@ -478,7 +478,7 @@ Ref<Texture> Tabs::get_tab_icon(int p_tab) const {
 void Tabs::set_tab_disabled(int p_tab, bool p_disabled) {
 
     ERR_FAIL_INDEX(p_tab, tabs.size());
-    tabs.write[p_tab].disabled = p_disabled;
+    tabs[p_tab].disabled = p_disabled;
     update();
 }
 bool Tabs::get_tab_disabled(int p_tab) const {
@@ -490,7 +490,7 @@ bool Tabs::get_tab_disabled(int p_tab) const {
 void Tabs::set_tab_right_button(int p_tab, const Ref<Texture> &p_right_button) {
 
     ERR_FAIL_INDEX(p_tab, tabs.size());
-    tabs.write[p_tab].right_button = p_right_button;
+    tabs[p_tab].right_button = p_right_button;
     _update_cache();
     update();
     minimum_size_changed();
@@ -557,9 +557,9 @@ void Tabs::_update_cache() {
     int size_fixed = 0;
     int count_resize = 0;
     for (int i = 0; i < tabs.size(); i++) {
-        tabs.write[i].ofs_cache = mw;
-        tabs.write[i].size_cache = get_tab_width(i);
-        tabs.write[i].size_text = Math::ceil(font->get_string_size_utf8(tabs[i].xl_text).width);
+        tabs[i].ofs_cache = mw;
+        tabs[i].size_cache = get_tab_width(i);
+        tabs[i].size_text = Math::ceil(font->get_string_size(tabs[i].xl_text).width);
         mw += tabs[i].size_cache;
         if (tabs[i].size_cache <= min_width || i == current) {
             size_fixed += tabs[i].size_cache;
@@ -586,7 +586,7 @@ void Tabs::_update_cache() {
         int slen = tabs[i].size_text;
         if (min_width > 0 && mw > limit && i != current) {
             if (lsize > m_width) {
-                slen = m_width - (sb->get_margin(MARGIN_LEFT) + sb->get_margin(MARGIN_RIGHT));
+                slen = m_width - (sb->get_margin(Margin::Left) + sb->get_margin(Margin::Right));
                 if (tabs[i].icon) {
                     slen -= tabs[i].icon->get_width();
                     slen -= get_constant("hseparation");
@@ -600,9 +600,9 @@ void Tabs::_update_cache() {
                 lsize = m_width;
             }
         }
-        tabs.write[i].ofs_cache = w;
-        tabs.write[i].size_cache = lsize;
-        tabs.write[i].size_text = slen;
+        tabs[i].ofs_cache = w;
+        tabs[i].size_cache = lsize;
+        tabs[i].size_text = slen;
         w += lsize;
     }
 }
@@ -643,7 +643,7 @@ void Tabs::clear_tabs() {
 void Tabs::remove_tab(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, tabs.size());
-    tabs.remove(p_idx);
+    tabs.erase_at(p_idx);
     if (current >= p_idx)
         current--;
     _update_cache();
@@ -751,7 +751,7 @@ void Tabs::drop_data(const Point2 &p_point, const Variant &p_data) {
                 Tab moving_tab = from_tabs->tabs[tab_from_id];
                 if (hover_now < 0)
                     hover_now = get_tab_count();
-                tabs.insert(hover_now, moving_tab);
+                tabs.insert_at(hover_now, moving_tab);
                 from_tabs->remove_tab(tab_from_id);
                 set_current_tab(hover_now);
                 emit_signal("tab_changed", hover_now);
@@ -800,8 +800,8 @@ void Tabs::move_tab(int from, int to) {
     ERR_FAIL_INDEX(to, tabs.size());
 
     Tab tab_from = tabs[from];
-    tabs.remove(from);
-    tabs.insert(to, tab_from);
+    tabs.erase_at(from);
+    tabs.insert_at(to, eastl::move(tab_from));
 
     _update_cache();
     update();
@@ -825,7 +825,7 @@ int Tabs::get_tab_width(int p_idx) const {
             x += get_constant("hseparation");
     }
 
-    x += Math::ceil(font->get_string_size_utf8(tabs[p_idx].xl_text).width);
+    x += Math::ceil(font->get_string_size(tabs[p_idx].xl_text).width);
 
     if (tabs[p_idx].disabled)
         x += tab_disabled->get_minimum_size().width;
@@ -1006,9 +1006,9 @@ void Tabs::_bind_methods() {
     ADD_SIGNAL(MethodInfo("reposition_active_tab_request", PropertyInfo(VariantType::INT, "idx_to")));
     ADD_SIGNAL(MethodInfo("tab_clicked", PropertyInfo(VariantType::INT, "tab")));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PROPERTY_HINT_RANGE, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PROPERTY_HINT_ENUM, "Left,Center,Right"), "set_tab_align", "get_tab_align");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_close_display_policy", PROPERTY_HINT_ENUM, "Show Never,Show Active Only,Show Always"), "set_tab_close_display_policy", "get_tab_close_display_policy");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_tab", PropertyHint::Range, "-1,4096,1", PROPERTY_USAGE_EDITOR), "set_current_tab", "get_current_tab");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_align", PropertyHint::Enum, "Left,Center,Right"), "set_tab_align", "get_tab_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_close_display_policy", PropertyHint::Enum, "Show Never,Show Active Only,Show Always"), "set_tab_close_display_policy", "get_tab_close_display_policy");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "scrolling_enabled"), "set_scrolling_enabled", "get_scrolling_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drag_to_rearrange_enabled"), "set_drag_to_rearrange_enabled", "get_drag_to_rearrange_enabled");
 

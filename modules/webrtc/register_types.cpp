@@ -48,7 +48,7 @@
 void register_webrtc_types() {
 #define _SET_HINT(NAME, _VAL_, _MAX_) \
 	GLOBAL_DEF(NAME, _VAL_);          \
-	ProjectSettings::get_singleton()->set_custom_property_info(NAME, PropertyInfo(VariantType::INT, NAME, PROPERTY_HINT_RANGE, "2," #_MAX_ ",1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info(NAME, PropertyInfo(VariantType::INT, NAME, PropertyHint::Range, "2," #_MAX_ ",1,or_greater"));
 
 	_SET_HINT(WRTC_IN_BUF, 64, 4096);
 #ifdef JAVASCRIPT_ENABLED

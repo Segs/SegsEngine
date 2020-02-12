@@ -52,13 +52,12 @@ class OS_Server : public OS_Unix {
 
     VisualServer *visual_server;
     VideoMode current_videomode;
-    ListPOD<se_string> args;
+    List<String> args;
     MainLoop *main_loop;
 
     bool grab;
 
     virtual void delete_main_loop();
-    IP_Unix *ip_unix;
 
     bool force_quit;
 
@@ -105,7 +104,7 @@ public:
 
     virtual void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0);
     virtual VideoMode get_video_mode(int p_screen = 0) const;
-    virtual void get_fullscreen_mode_list(List<VideoMode> *p_list, int p_screen = 0) const;
+    virtual void get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen = 0) const;
 
     virtual Size2 get_window_size() const;
 

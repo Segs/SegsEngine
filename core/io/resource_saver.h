@@ -41,7 +41,7 @@ protected:
 public:
     virtual Error save(se_string_view p_path, const Ref<Resource> &p_resource, uint32_t p_flags = 0);
     virtual bool recognize(const Ref<Resource> &p_resource) const;
-    virtual void get_recognized_extensions(const Ref<Resource> &p_resource, PODVector<se_string> &p_extensions) const;
+    virtual void get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> &p_extensions) const;
 
     ~ResourceFormatSaver() override = default;
 };
@@ -68,7 +68,7 @@ public:
     };
 
     static Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
-    static void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions);
+    static void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions);
     static void add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front = false);
     static void remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver);
 

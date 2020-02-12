@@ -104,9 +104,9 @@ Ref<InputEvent> InputEvent::xformed_by(const Transform2D &p_xform, const Vector2
     return Ref<InputEvent>((InputEvent *)this);
 }
 
-se_string InputEvent::as_text() const {
+String InputEvent::as_text() const {
 
-    return se_string();
+    return String();
 }
 
 bool InputEvent::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const {
@@ -297,9 +297,9 @@ uint32_t InputEventKey::get_scancode_with_modifiers() const {
     return sc;
 }
 
-se_string InputEventKey::as_text() const {
+String InputEventKey::as_text() const {
 
-    se_string kc = keycode_get_string(scancode);
+    String kc = keycode_get_string(scancode);
     if (kc.empty())
         return kc;
 
@@ -506,9 +506,9 @@ bool InputEventMouseButton::action_match(const Ref<InputEvent> &p_event, bool *p
     return match;
 }
 
-se_string InputEventMouseButton::as_text() const {
+String InputEventMouseButton::as_text() const {
 
-    se_string button_index_string;
+    String button_index_string;
     switch (get_button_index()) {
         case BUTTON_LEFT:
             button_index_string = "BUTTON_LEFT";
@@ -542,7 +542,7 @@ se_string InputEventMouseButton::as_text() const {
             break;
     }
     return "InputEventMouseButton : button_index=" + button_index_string + ", pressed=" + (pressed ? "true" : "false") +
-           ", position=(" + se_string(get_position()) + "), button_mask=" + ::to_string(get_button_mask()) +
+           ", position=(" + String(get_position()) + "), button_mask=" + ::to_string(get_button_mask()) +
            ", doubleclick=" + (doubleclick ? "true" : "false");
 }
 
@@ -634,9 +634,9 @@ Ref<InputEvent> InputEventMouseMotion::xformed_by(const Transform2D &p_xform, co
     return mm;
 }
 
-se_string InputEventMouseMotion::as_text() const {
+String InputEventMouseMotion::as_text() const {
 
-    se_string button_mask_string;
+    String button_mask_string;
     switch (get_button_mask()) {
         case BUTTON_MASK_LEFT:
             button_mask_string = "BUTTON_MASK_LEFT";
@@ -657,8 +657,8 @@ se_string InputEventMouseMotion::as_text() const {
             button_mask_string = ::to_string(get_button_mask());
             break;
     }
-    return "InputEventMouseMotion : button_mask=" + button_mask_string + ", position=(" + se_string(get_position()) +
-           "), relative=(" + se_string(get_relative()) + "), speed=(" + se_string(get_speed()) + ")";
+    return "InputEventMouseMotion : button_mask=" + button_mask_string + ", position=(" + String(get_position()) +
+           "), relative=(" + String(get_relative()) + "), speed=(" + String(get_speed()) + ")";
 }
 
 bool InputEventMouseMotion::accumulate(const Ref<InputEvent> &p_event) {
@@ -774,7 +774,7 @@ bool InputEventJoypadMotion::action_match(const Ref<InputEvent> &p_event, bool *
     return match;
 }
 
-se_string InputEventJoypadMotion::as_text() const {
+String InputEventJoypadMotion::as_text() const {
 
     return "InputEventJoypadMotion : axis=" + ::to_string(axis) + ", axis_value=" + StringUtils::num(axis_value);
 }
@@ -852,7 +852,7 @@ bool InputEventJoypadButton::shortcut_match(const Ref<InputEvent> &p_event) cons
     return button_index == button->button_index;
 }
 
-se_string InputEventJoypadButton::as_text() const {
+String InputEventJoypadButton::as_text() const {
 
     return FormatVE("InputEventJoypadButton : button_index=%d , pressed=%s, pressure=%f",button_index,pressed ? "true" : "false",pressure);
 }
@@ -921,9 +921,9 @@ Ref<InputEvent> InputEventScreenTouch::xformed_by(const Transform2D &p_xform, co
     return st;
 }
 
-se_string InputEventScreenTouch::as_text() const {
+String InputEventScreenTouch::as_text() const {
 
-    return "InputEventScreenTouch : index=" + ::to_string(index) + ", pressed=" + (pressed ? "true" : "false") + ", position=(" + se_string(get_position()) + ")";
+    return "InputEventScreenTouch : index=" + ::to_string(index) + ", pressed=" + (pressed ? "true" : "false") + ", position=(" + String(get_position()) + ")";
 }
 
 void InputEventScreenTouch::_bind_methods() {
@@ -1001,10 +1001,10 @@ Ref<InputEvent> InputEventScreenDrag::xformed_by(const Transform2D &p_xform, con
     return sd;
 }
 
-se_string InputEventScreenDrag::as_text() const {
+String InputEventScreenDrag::as_text() const {
 
-    return "InputEventScreenDrag : index=" + ::to_string(index) + ", position=(" + se_string(get_position()) +
-           "), relative=(" + se_string(get_relative()) + "), speed=(" + se_string(get_speed()) + ")";
+    return "InputEventScreenDrag : index=" + ::to_string(index) + ", position=(" + String(get_position()) +
+           "), relative=(" + String(get_relative()) + "), speed=(" + String(get_speed()) + ")";
 }
 
 void InputEventScreenDrag::_bind_methods() {
@@ -1087,9 +1087,9 @@ bool InputEventAction::action_match(const Ref<InputEvent> &p_event, bool *p_pres
     return match;
 }
 
-se_string InputEventAction::as_text() const {
+String InputEventAction::as_text() const {
 
-    return "InputEventAction : action=" + se_string(action) + ", pressed=(" + (pressed ? "true" : "false");
+    return "InputEventAction : action=" + String(action) + ", pressed=(" + (pressed ? "true" : "false");
 }
 
 void InputEventAction::_bind_methods() {
@@ -1107,7 +1107,7 @@ void InputEventAction::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "action"), "set_action", "get_action");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pressed"), "set_pressed", "is_pressed");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "strength", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_strength", "get_strength");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "strength", PropertyHint::Range, "0,1,0.01"), "set_strength", "get_strength");
 }
 
 InputEventAction::InputEventAction() {
@@ -1158,9 +1158,9 @@ Ref<InputEvent> InputEventMagnifyGesture::xformed_by(const Transform2D &p_xform,
     return ev;
 }
 
-se_string InputEventMagnifyGesture::as_text() const {
+String InputEventMagnifyGesture::as_text() const {
 
-    return "InputEventMagnifyGesture : factor=" + StringUtils::num(get_factor()) + ", position=(" + se_string(get_position()) + ")";
+    return "InputEventMagnifyGesture : factor=" + StringUtils::num(get_factor()) + ", position=(" + String(get_position()) + ")";
 }
 
 void InputEventMagnifyGesture::_bind_methods() {
@@ -1199,9 +1199,9 @@ Ref<InputEvent> InputEventPanGesture::xformed_by(const Transform2D &p_xform, con
     return ev;
 }
 
-se_string InputEventPanGesture::as_text() const {
+String InputEventPanGesture::as_text() const {
 
-    return "InputEventPanGesture : delta=(" + se_string(get_delta()) + "), position=(" + se_string(get_position()) + ")";
+    return "InputEventPanGesture : delta=(" + String(get_delta()) + "), position=(" + String(get_position()) + ")";
 }
 
 void InputEventPanGesture::_bind_methods() {
@@ -1290,7 +1290,7 @@ int InputEventMIDI::get_controller_value() const {
     return controller_value;
 }
 
-se_string InputEventMIDI::as_text() const {
+String InputEventMIDI::as_text() const {
 
     return "InputEventMIDI : channel=(" + ::to_string(get_channel()) + "), message=(" + ::to_string(get_message()) + ")";
 }

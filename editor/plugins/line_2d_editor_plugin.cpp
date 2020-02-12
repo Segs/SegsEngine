@@ -54,7 +54,7 @@ Variant Line2DEditor::_get_polygon(int p_idx) const {
     return _get_node()->get("points");
 }
 
-void Line2DEditor::_set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const {
+void Line2DEditor::_set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const {
 
     _get_node()->set("points", Variant::from(p_polygon));
 }

@@ -95,7 +95,7 @@ class EditorAssetLibraryItemDescription : public ConfirmationDialog {
     struct Preview {
         int id;
         bool is_video;
-        se_string video_link;
+        String video_link;
         Button *button;
         Ref<Texture> image;
     };
@@ -106,9 +106,9 @@ class EditorAssetLibraryItemDescription : public ConfirmationDialog {
     void set_image(int p_type, int p_index, const Ref<Texture> &p_image);
 
     int asset_id;
-    se_string download_url;
+    String download_url;
     StringName title;
-    se_string sha256;
+    String sha256;
     Ref<Texture> icon;
 
     void _link_click(se_string_view p_url);
@@ -124,9 +124,9 @@ public:
 
     StringName get_title() { return title; }
     Ref<Texture> get_preview_icon() { return icon; }
-    const se_string & get_download_url() { return download_url; }
+    const String & get_download_url() { return download_url; }
     int get_asset_id() { return asset_id; }
-    const se_string & get_sha256() { return sha256; }
+    const String & get_sha256() { return sha256; }
     EditorAssetLibraryItemDescription();
 };
 
@@ -143,8 +143,8 @@ class EditorAssetLibraryItemDownload : public PanelContainer {
 
     AcceptDialog *download_error;
     HTTPRequest *download;
-    se_string host;
-    se_string sha256;
+    String host;
+    String sha256;
     Label *status;
 
     int prev_status;
@@ -158,7 +158,7 @@ class EditorAssetLibraryItemDownload : public PanelContainer {
     void _close();
     void _install();
     void _make_request();
-    void _http_download_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
+    void _http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
 protected:
     void _notification(int p_what);
@@ -174,7 +174,7 @@ public:
 class EditorAssetLibrary : public PanelContainer {
     GDCLASS(EditorAssetLibrary,PanelContainer)
 
-    se_string host;
+    String host;
 
     EditorFileDialog *asset_open;
     EditorAssetInstaller *asset_installer;
@@ -244,7 +244,7 @@ class EditorAssetLibrary : public PanelContainer {
         int queue_id;
         ImageType image_type;
         int image_index;
-        se_string image_url;
+        String image_url;
         HTTPRequest *request;
         ObjectID target;
     };
@@ -253,8 +253,8 @@ class EditorAssetLibrary : public PanelContainer {
     Map<int, ImageQueue> image_queue;
 
     void _image_update(bool use_cache, bool final, const PoolByteArray &p_data, int p_queue_id);
-    void _image_request_completed(int p_status, int p_code, const PoolVector<se_string> &headers, const PoolByteArray &p_data, int p_queue_id);
-    void _request_image(ObjectID p_for, se_string p_image_url, ImageType p_type, int p_image_index);
+    void _image_request_completed(int p_status, int p_code, const PoolVector<String> &headers, const PoolByteArray &p_data, int p_queue_id);
+    void _request_image(ObjectID p_for, String p_image_url, ImageType p_type, int p_image_index);
     void _update_image_queue();
 
     HBoxContainer *_make_pages(int p_page, int p_page_count, int p_page_len, int p_total_items, int p_current_items);
@@ -288,7 +288,7 @@ class EditorAssetLibrary : public PanelContainer {
     void _rerun_search(int p_ignore);
     void _search_text_entered(se_string_view p_text = se_string_view());
     void _api_request(se_string_view p_request, RequestType p_request_type, se_string_view p_arguments = {});
-    void _http_request_completed(int p_status, int p_code, const PoolSeStringArray &headers, const PoolByteArray &p_data);
+    void _http_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
     void _http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
     void _repository_changed(int p_repository_id);
@@ -322,7 +322,7 @@ public:
     void edit(Object *p_object) override {}
     bool handles(Object *p_object) const override { return false; }
     void make_visible(bool p_visible) override;
-    //virtual bool get_remove_list(List<Node*> *p_list) { return canvas_item_editor->get_remove_list(p_list); }
+    //virtual bool get_remove_list(Vector<Node*> *p_list) { return canvas_item_editor->get_remove_list(p_list); }
     //virtual Dictionary get_state() const;
     //virtual void set_state(const Dictionary& p_state);
 

@@ -92,7 +92,7 @@ normal_relative_velocity(Body2DSW *a, Body2DSW *b, Vector2 rA, Vector2 rB, Vecto
 bool PinJoint2DSW::setup(real_t p_step) {
 
 	Space2DSW *space = A->get_space();
-	ERR_FAIL_COND_V(!space, false)
+	ERR_FAIL_COND_V(!space, false);
 	rA = A->get_transform().basis_xform(anchor_A);
 	rB = B ? B->get_transform().basis_xform(anchor_B) : anchor_B;
 
@@ -246,7 +246,7 @@ k_tensor(Body2DSW *a, Body2DSW *b, Vector2 r1, Vector2 r2, Vector2 *k1, Vector2 
 
 	// invert
 	real_t determinant = k11 * k22 - k12 * k21;
-	ERR_FAIL_COND(determinant == 0.0)
+	ERR_FAIL_COND(determinant == 0.0);
 
 	real_t det_inv = 1.0f / determinant;
 	*k1 = Vector2(k22 * det_inv, -k12 * det_inv);

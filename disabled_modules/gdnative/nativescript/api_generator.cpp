@@ -59,7 +59,7 @@ static const char *indent(int n) {
     prev = n;
     return buf;
 }
-static Error save_file(const String &p_path, se_string &p_content) {
+static Error save_file(const String &p_path, String &p_content) {
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::WRITE);
 
@@ -75,11 +75,11 @@ static Error save_file(const String &p_path, se_string &p_content) {
 // helper stuff end
 
 struct MethodAPI {
-    se_string method_name;
-    se_string return_type;
+    String method_name;
+    String return_type;
 
-    List<se_string> argument_types;
-    List<se_string> argument_names;
+    List<String> argument_types;
+    List<String> argument_names;
 
     Map<int, Variant> default_arguments;
 
@@ -94,33 +94,33 @@ struct MethodAPI {
 };
 
 struct PropertyAPI {
-    se_string name;
-    se_string getter;
-    se_string setter;
-    se_string type;
+    String name;
+    String getter;
+    String setter;
+    String type;
     int index;
 };
 
 struct ConstantAPI {
-    se_string constant_name;
+    String constant_name;
     int constant_value;
 };
 
 struct SignalAPI {
-    se_string name;
-    PODVector<se_string> argument_types;
-    PODVector<se_string> argument_names;
+    String name;
+    Vector<String> argument_types;
+    Vector<String> argument_names;
     Map<int, Variant> default_arguments;
 };
 
 struct EnumAPI {
     se_string_view name;
-    PODVector<Pair<int, se_string_view> > values;
+    Vector<Pair<int, se_string_view> > values;
 };
 
 struct ClassAPI {
-    se_string class_name;
-    se_string super_class_name;
+    String class_name;
+    String super_class_name;
 
     ClassDB::APIType api_type;
 
@@ -128,22 +128,22 @@ struct ClassAPI {
     bool is_instanciable;
     // @Unclear
     bool is_reference;
-    se_string singleton_name;
-    PODVector<MethodAPI> methods;
-    PODVector<PropertyAPI> properties;
-    PODVector<ConstantAPI> constants;
-    PODVector<SignalAPI> signals_;
-    PODVector<EnumAPI> enums;
+    String singleton_name;
+    Vector<MethodAPI> methods;
+    Vector<PropertyAPI> properties;
+    Vector<ConstantAPI> constants;
+    Vector<SignalAPI> signals_;
+    Vector<EnumAPI> enums;
 };
 
-static se_string get_type_name(const PropertyInfo &info) {
+static String get_type_name(const PropertyInfo &info) {
     if (info.type == VariantType::INT && (info.usage & PROPERTY_USAGE_CLASS_IS_ENUM)) {
-        return "enum." + se_string(info.class_name.asCString()).replaced(".", "::");
+        return "enum." + String(info.class_name.asCString()).replaced(".", "::");
     }
     if (info.class_name != StringName()) {
         return info.class_name.asCString();
     }
-    if (info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+    if (info.hint == PropertyType::ResourceType) {
         return StringUtils::to_utf8(info.hint_string).data();
     }
     if (info.type == VariantType::NIL && (info.usage & PROPERTY_USAGE_NIL_IS_VARIANT)) {
@@ -221,7 +221,7 @@ List<ClassAPI> generate_c_api_classes() {
         class_api.class_name = class_name.asCString();
         class_api.super_class_name = ClassDB::get_parent_class(class_name).asCString();
         {
-            se_string name = class_name;
+            String name = class_name;
             if (StringUtils::begins_with(name,"_")) {
                 StringUtils::erase(name,0,1);
             }
@@ -233,8 +233,8 @@ List<ClassAPI> generate_c_api_classes() {
         class_api.is_instanciable = !class_api.is_singleton && ClassDB::can_instance(class_name);
 
         {
-            ListPOD<StringName> inheriters;
-            ClassDB::get_inheriters_from_class("Reference", &inheriters);
+            List<StringName> inheriters;
+            ClassDB::get_inheriters_from_class("RefCounted", &inheriters);
             bool is_reference = inheriters.contains(class_name);
             // @Unclear
             class_api.is_reference = !class_api.is_singleton && is_reference;
@@ -242,10 +242,10 @@ List<ClassAPI> generate_c_api_classes() {
 
         // constants
         {
-            ListPOD<se_string> constant;
+            List<String> constant;
             ClassDB::get_integer_constant_list(class_name, &constant, true);
             constant.sort(NoCaseComparator());
-            for (const se_string &c : constant) {
+            for (const String &c : constant) {
                 ConstantAPI constant_api;
                 constant_api.constant_name = StringUtils::to_utf8(c).data();
                 constant_api.constant_value = ClassDB::get_integer_constant(class_name, StringName(c));
@@ -256,7 +256,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         // signals
         {
-            ListPOD<MethodInfo> signals_;
+            List<MethodInfo> signals_;
             ClassDB::get_signal_list(class_name, &signals_, true);
             signals_.sort(MethodInfoComparator());
 
@@ -266,8 +266,8 @@ List<ClassAPI> generate_c_api_classes() {
                 signal.name = method_info.name.asCString();
 
                 for (const PropertyInfo &argument : method_info.arguments) {
-                    se_string type;
-                    se_string name = argument.name.asCString();
+                    String type;
+                    String name = argument.name.asCString();
 
                     if (StringUtils::contains(argument.name,':')) {
                         type = StringUtils::get_slice(argument.name.asCString(),':', 1);
@@ -280,7 +280,7 @@ List<ClassAPI> generate_c_api_classes() {
                     signal.argument_types.push_back(type);
                 }
 
-                const PODVector<Variant> &default_arguments(method_info.default_arguments);
+                const Vector<Variant> &default_arguments(method_info.default_arguments);
 
                 int default_start = signal.argument_names.size() - default_arguments.size();
 
@@ -294,7 +294,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         //properties
         {
-            ListPOD<PropertyInfo> properties;
+            List<PropertyInfo> properties;
             ClassDB::get_property_list(class_name, &properties, true);
             properties.sort(PropertyInfoComparator());
 
@@ -322,7 +322,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         //methods
         {
-            PODVector<MethodInfo> methods;
+            Vector<MethodInfo> methods;
             ClassDB::get_method_list(class_name, &methods, true);
             eastl::sort(methods.begin(),methods.end(),MethodInfoComparator());
 
@@ -360,8 +360,8 @@ List<ClassAPI> generate_c_api_classes() {
                 // method argument name and type
 
                 for (int i = 0; i < method_api.argument_count; i++) {
-                    se_string arg_name;
-                    se_string arg_type;
+                    String arg_name;
+                    String arg_type;
                     PropertyInfo arg_info = method_info.arguments[i];
 
                     arg_name = arg_info.name.asCString();
@@ -369,7 +369,7 @@ List<ClassAPI> generate_c_api_classes() {
                     if (StringUtils::contains(arg_info.name,':') ) {
                         arg_type = StringUtils::get_slice(arg_info.name.asCString(),':', 1);
                         arg_name = StringUtils::get_slice(arg_info.name.asCString(),':', 0);
-                    } else if (arg_info.hint == PROPERTY_HINT_RESOURCE_TYPE) {
+                    } else if (arg_info.hint == PropertyType::ResourceType) {
                         arg_type = StringUtils::to_utf8(arg_info.hint_string).data();
                     } else if (arg_info.type == VariantType::NIL) {
                         arg_type = "Variant";
@@ -397,16 +397,16 @@ List<ClassAPI> generate_c_api_classes() {
         // enums
         {
             List<EnumAPI> enums;
-            ListPOD<StringName> enum_names;
+            List<StringName> enum_names;
             ClassDB::get_enum_list(class_name, &enum_names, true);
             for(const StringName & E : enum_names) {
-                ListPOD<StringName> value_names;
+                List<StringName> value_names;
                 EnumAPI enum_api;
                 enum_api.name = E.asCString();
                 ClassDB::get_enum_constants(class_name, E, &value_names, true);
                 for(const StringName & val_e : value_names) {
                     int int_val = ClassDB::get_integer_constant(class_name, val_e, nullptr);
-                    enum_api.values.push_back(Pair<int, se_string>(int_val, val_e.asCString()));
+                    enum_api.values.push_back(Pair<int, String>(int_val, val_e.asCString()));
                 }
                 eastl::sort(enum_api.values.begin(),enum_api.values.end(),
                             [](const Pair<int, se_string_view> &A, const Pair<int, se_string_view> &B)->bool { return A.first<B.first;});
@@ -423,7 +423,7 @@ List<ClassAPI> generate_c_api_classes() {
 /*
  * Generates the JSON source from the API in p_api
  */
-static se_string generate_c_api_json(const List<ClassAPI> &p_api) {
+static String generate_c_api_json(const List<ClassAPI> &p_api) {
 
     using namespace StringUtils;
     QJsonDocument doc;
@@ -530,7 +530,7 @@ Error generate_c_api(se_string_view p_path) {
 
     List<ClassAPI> api = generate_c_api_classes();
 
-    se_string json_source = generate_c_api_json(api);
+    String json_source = generate_c_api_json(api);
 
     return save_file(p_path, json_source);
 #endif

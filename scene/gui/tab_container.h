@@ -112,7 +112,7 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
+    void get_translatable_strings(List<StringName> *p_strings) const override;
 
     void set_popup(Node *p_popup);
     Popup *get_popup() const;

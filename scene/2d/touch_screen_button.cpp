@@ -216,7 +216,7 @@ void TouchScreenButton::_input(const Ref<InputEvent> &p_event) {
     if (p_event->get_device() != 0)
         return;
 
-    ERR_FAIL_COND(!is_visible_in_tree())
+    ERR_FAIL_COND(!is_visible_in_tree());
 
     const InputEventScreenTouch *st = object_cast<InputEventScreenTouch>(p_event.get());
 
@@ -401,15 +401,15 @@ void TouchScreenButton::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_input"), &TouchScreenButton::_input);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "pressed", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture_pressed", "get_texture_pressed");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "bitmask", PROPERTY_HINT_RESOURCE_TYPE, "BitMap"), "set_bitmask", "get_bitmask");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PROPERTY_HINT_RESOURCE_TYPE, "Shape2D"), "set_shape", "get_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "pressed", PropertyHint::ResourceType, "Texture"), "set_texture_pressed", "get_texture_pressed");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "bitmask", PropertyHint::ResourceType, "BitMap"), "set_bitmask", "get_bitmask");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape2D"), "set_shape", "get_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shape_centered"), "set_shape_centered", "is_shape_centered");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shape_visible"), "set_shape_visible", "is_shape_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "passby_press"), "set_passby_press", "is_passby_press_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "action"), "set_action", "get_action");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visibility_mode", PROPERTY_HINT_ENUM, "Always,TouchScreen Only"), "set_visibility_mode", "get_visibility_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visibility_mode", PropertyHint::Enum, "Always,TouchScreen Only"), "set_visibility_mode", "get_visibility_mode");
 
     ADD_SIGNAL(MethodInfo("pressed"));
     ADD_SIGNAL(MethodInfo("released"));

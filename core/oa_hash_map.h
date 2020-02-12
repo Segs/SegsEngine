@@ -74,7 +74,7 @@ private:
 
         uint32_t original_pos = p_hash % capacity;
 
-		return (p_pos - original_pos + capacity) % capacity;
+        return (p_pos - original_pos + capacity) % capacity;
     }
 
     _FORCE_INLINE_ void _construct(uint32_t p_pos, uint32_t p_hash, const TKey &p_key, const TValue &p_value) {
@@ -138,10 +138,10 @@ private:
             distance++;
         }
     }
-	void _resize_and_rehash(uint32_t p_new_capacity) {
+    void _resize_and_rehash(uint32_t p_new_capacity) {
 
-		uint32_t old_capacity = capacity;
-		capacity = p_new_capacity;
+        uint32_t old_capacity = capacity;
+        capacity = p_new_capacity;
 
         TKey *old_keys = keys;
         TValue *old_values = values;
@@ -170,9 +170,9 @@ private:
         memdelete_arr(old_hashes);
     }
 
-	void _resize_and_rehash() {
-		_resize_and_rehash(capacity * 2);
-	}
+    void _resize_and_rehash() {
+        _resize_and_rehash(capacity * 2);
+    }
 public:
     _FORCE_INLINE_ uint32_t get_capacity() const { return capacity; }
     _FORCE_INLINE_ uint32_t get_num_elements() const { return num_elements; }
@@ -184,11 +184,11 @@ public:
     void clear() {
 
         for (uint32_t i = 0; i < capacity; i++) {
-			if (hashes[i] == EMPTY_HASH) {
-				continue;
-			}
+            if (hashes[i] == EMPTY_HASH) {
+                continue;
+            }
 
-			hashes[i] = EMPTY_HASH;
+            hashes[i] = EMPTY_HASH;
             values[i].~TValue();
             keys[i].~TKey();
         }
@@ -198,7 +198,7 @@ public:
 
     void insert(const TKey &p_key, const TValue &p_value) {
 
-		if (num_elements + 1 > 0.9 * capacity) {
+        if (num_elements + 1 > 0.9 * capacity) {
             _resize_and_rehash();
         }
 
@@ -251,30 +251,30 @@ public:
             return;
         }
 
-		uint32_t next_pos = (pos + 1) % capacity;
-		while (hashes[next_pos] != EMPTY_HASH &&
-				_get_probe_length(next_pos, hashes[next_pos]) != 0) {
-			SWAP(hashes[next_pos], hashes[pos]);
-			SWAP(keys[next_pos], keys[pos]);
-			SWAP(values[next_pos], values[pos]);
-			pos = next_pos;
-			next_pos = (pos + 1) % capacity;
-		}
+        uint32_t next_pos = (pos + 1) % capacity;
+        while (hashes[next_pos] != EMPTY_HASH &&
+                _get_probe_length(next_pos, hashes[next_pos]) != 0) {
+            SWAP(hashes[next_pos], hashes[pos]);
+            SWAP(keys[next_pos], keys[pos]);
+            SWAP(values[next_pos], values[pos]);
+            pos = next_pos;
+            next_pos = (pos + 1) % capacity;
+        }
 
-		hashes[pos] = EMPTY_HASH;
+        hashes[pos] = EMPTY_HASH;
         values[pos].~TValue();
         keys[pos].~TKey();
         num_elements--;
-	}
+    }
 
-	/**
-	 * reserves space for a number of elements, useful to avoid many resizes and rehashes
-	 *  if adding a known (possibly large) number of elements at once, must be larger than old
-	 *  capacity.
-	 **/
-	void reserve(uint32_t p_new_capacity) {
-		ERR_FAIL_COND(p_new_capacity < capacity)
-		_resize_and_rehash(p_new_capacity);
+    /**
+     * reserves space for a number of elements, useful to avoid many resizes and rehashes
+     *  if adding a known (possibly large) number of elements at once, must be larger than old
+     *  capacity.
+     **/
+    void reserve(uint32_t p_new_capacity) {
+        ERR_FAIL_COND(p_new_capacity < capacity);
+        _resize_and_rehash(p_new_capacity);
     }
 
     struct Iterator {
@@ -338,7 +338,7 @@ public:
         hashes = memnew_arr(uint32_t, p_initial_capacity);
 
         for (uint32_t i = 0; i < p_initial_capacity; i++) {
-			hashes[i] = EMPTY_HASH;
+            hashes[i] = EMPTY_HASH;
         }
     }
 

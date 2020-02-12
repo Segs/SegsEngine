@@ -75,16 +75,16 @@ void WindowDialog::_fix_size() {
     // Check validity, because the theme could contain a different type of StyleBox.
     if (0==strcmp(panel->get_class(),"StyleBoxTexture")) {
         Ref<StyleBoxTexture> panel_texture(dynamic_ref_cast<StyleBoxTexture>(panel));
-        top = panel_texture->get_expand_margin_size(MARGIN_TOP);
-        left = panel_texture->get_expand_margin_size(MARGIN_LEFT);
-        bottom = panel_texture->get_expand_margin_size(MARGIN_BOTTOM);
-        right = panel_texture->get_expand_margin_size(MARGIN_RIGHT);
+        top = panel_texture->get_expand_margin_size(Margin::Top);
+        left = panel_texture->get_expand_margin_size(Margin::Left);
+        bottom = panel_texture->get_expand_margin_size(Margin::Bottom);
+        right = panel_texture->get_expand_margin_size(Margin::Right);
     } else if (0==strcmp(panel->get_class(),"StyleBoxFlat")) {
         Ref<StyleBoxFlat> panel_flat(dynamic_ref_cast<StyleBoxFlat>(panel));
-        top = panel_flat->get_expand_margin_size(MARGIN_TOP);
-        left = panel_flat->get_expand_margin_size(MARGIN_LEFT);
-        bottom = panel_flat->get_expand_margin_size(MARGIN_BOTTOM);
-        right = panel_flat->get_expand_margin_size(MARGIN_RIGHT);
+        top = panel_flat->get_expand_margin_size(Margin::Top);
+        left = panel_flat->get_expand_margin_size(Margin::Left);
+        bottom = panel_flat->get_expand_margin_size(Margin::Bottom);
+        right = panel_flat->get_expand_margin_size(Margin::Right);
     }
 
     pos.x = MAX(left, MIN(pos.x, viewport_size.x - size.x - right));
@@ -218,9 +218,9 @@ void WindowDialog::_notification(int p_what) {
             Color title_color = get_color("title_color", "WindowDialog");
             int title_height = get_constant("title_height", "WindowDialog");
             int font_height = title_font->get_height() - title_font->get_descent() * 2;
-            int x = (size.x - title_font->get_string_size_utf8(xl_title).x) / 2;
+            int x = (size.x - title_font->get_string_size(xl_title).x) / 2;
             int y = (-title_height + font_height) / 2;
-            title_font->draw(canvas, Point2(x, y), StringUtils::from_utf8(xl_title), title_color, size.x - panel->get_minimum_size().x);
+            title_font->draw_ui_string(canvas, Point2(x, y), StringUtils::from_utf8(xl_title), title_color, size.x - panel->get_minimum_size().x);
         } break;
 
         case NOTIFICATION_THEME_CHANGED:
@@ -228,7 +228,7 @@ void WindowDialog::_notification(int p_what) {
             close_button->set_normal_texture(get_icon("close", "WindowDialog"));
             close_button->set_pressed_texture(get_icon("close", "WindowDialog"));
             close_button->set_hover_texture(get_icon("close_highlight", "WindowDialog"));
-            close_button->set_anchor(MARGIN_LEFT, ANCHOR_END);
+            close_button->set_anchor(Margin::Left, ANCHOR_END);
             close_button->set_begin(Point2(-get_constant("close_h_ofs", "WindowDialog"), -get_constant("close_v_ofs", "WindowDialog")));
         } break;
 
@@ -322,7 +322,7 @@ Size2 WindowDialog::get_minimum_size() const {
     Ref<Font> font = get_font("title_font", "WindowDialog");
 
     const int button_width = close_button->get_combined_minimum_size().x;
-    const int title_width = font->get_string_size_utf8(xl_title).x;
+    const int title_width = font->get_string_size(xl_title).x;
     const int padding = button_width / 2;
     const int button_area = button_width + padding;
 
@@ -348,8 +348,8 @@ void WindowDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_closed"), &WindowDialog::_closed);
     MethodBinder::bind_method(D_METHOD("get_close_button"), &WindowDialog::get_close_button);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "window_title", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_title", "get_title");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT_INTL), "set_resizable", "get_resizable");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "window_title", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_title", "get_title");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_resizable", "get_resizable");
 }
 
 WindowDialog::WindowDialog() {
@@ -422,11 +422,11 @@ void AcceptDialog::_close_pressed() {
     cancel_pressed();
 }
 
-String AcceptDialog::get_text_ui() const {
+UIString AcceptDialog::get_text_ui() const {
 
     return StringUtils::from_utf8(label->get_text());
 }
-se_string AcceptDialog::get_text() const {
+String AcceptDialog::get_text() const {
 
     return label->get_text_utf8();
 }
@@ -462,7 +462,7 @@ bool AcceptDialog::has_autowrap() {
 
 void AcceptDialog::register_text_enter(Node *p_line_edit) {
 
-    ERR_FAIL_NULL(p_line_edit)
+    ERR_FAIL_NULL(p_line_edit);
     LineEdit *line_edit = object_cast<LineEdit>(p_line_edit);
     if (line_edit)
         line_edit->connect("text_entered", this, "_builtin_text_entered");
@@ -587,7 +587,7 @@ void AcceptDialog::_bind_methods() {
     ADD_SIGNAL(MethodInfo("custom_action", PropertyInfo(VariantType::STRING, "action")));
 
     ADD_GROUP("Dialog", "dialog");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "dialog_text", PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "dialog_text", PropertyHint::MultilineText, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "dialog_hide_on_ok"), "set_hide_on_ok", "get_hide_on_ok");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "dialog_autowrap"), "set_autowrap", "has_autowrap");
 }
@@ -604,8 +604,8 @@ AcceptDialog::AcceptDialog() {
     int button_margin = get_constant("button_margin", "Dialogs");
 
     label = memnew(Label);
-    label->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    label->set_anchor(MARGIN_BOTTOM, ANCHOR_END);
+    label->set_anchor(Margin::Right, ANCHOR_END);
+    label->set_anchor(Margin::Bottom, ANCHOR_END);
     label->set_begin(Point2(margin, margin));
     label->set_end(Point2(-margin, -button_margin - 10));
     add_child(label);

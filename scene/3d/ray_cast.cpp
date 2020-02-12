@@ -202,10 +202,10 @@ void RayCast::_notification(int p_what) {
 
 void RayCast::_update_raycast_state() {
     Ref<World> w3d = get_world();
-    ERR_FAIL_COND(not w3d)
+    ERR_FAIL_COND(not w3d);
 
     PhysicsDirectSpaceState *dss = PhysicsServer::get_singleton()->space_get_direct_state(w3d->get_space());
-    ERR_FAIL_COND(!dss)
+    ERR_FAIL_COND(!dss);
 
     Transform gt = get_global_transform();
 
@@ -240,7 +240,7 @@ void RayCast::add_exception_rid(const RID &p_rid) {
 
 void RayCast::add_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     const CollisionObject *co = object_cast<CollisionObject>(p_object);
     if (!co)
         return;
@@ -254,7 +254,7 @@ void RayCast::remove_exception_rid(const RID &p_rid) {
 
 void RayCast::remove_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     const CollisionObject *co = object_cast<CollisionObject>(p_object);
     if (!co)
         return;
@@ -328,11 +328,11 @@ void RayCast::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "exclude_parent"), "set_exclude_parent_body", "get_exclude_parent_body");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "cast_to"), "set_cast_to", "get_cast_to");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Collide With", "collide_with");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collide_with_areas", "is_collide_with_areas_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas", PropertyHint::Layers3DPhysics), "set_collide_with_areas", "is_collide_with_areas_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies", PropertyHint::Layers3DPhysics), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
 }
 
 void RayCast::_create_debug_shape() {
@@ -371,13 +371,10 @@ void RayCast::_update_debug_shape() {
     if (mesh->get_surface_count() > 0)
         mesh->surface_remove(0);
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
+    Vector<Vector3> verts = {Vector3(0,0,0),cast_to};
+    SurfaceArrays a(eastl::move(verts));
 
-    PODVector<Vector3> verts = {Vector3(0,0,0),cast_to};
-    a[Mesh::ARRAY_VERTEX] = Variant::from(verts);
-
-    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, a);
+    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(a));
     mesh->surface_set_material(0, debug_material);
 }
 

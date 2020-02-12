@@ -37,6 +37,8 @@
 #include "core/forward_decls.h"
 #include "core/dictionary.h"
 
+//#include <QObject>
+
 class IObjectTooling;
 
 class GODOT_EXPORT TypeInfo
@@ -83,14 +85,14 @@ private:
 #define VARIANT_ARGPTRS_PASS *argptr[0], *argptr[1], *argptr[2], *argptr[3], *argptr[4]
 #define VARIANT_ARGS_FROM_ARRAY(m_arr) m_arr[0], m_arr[1], m_arr[2], m_arr[3], m_arr[4]
 
-#define ADD_SIGNAL(m_signal) ClassDB::add_signal(get_class_static_name(), m_signal)
+#define ADD_SIGNAL(m_signal) ClassDB::add_signal(get_class_static_name(), eastl::move(m_signal))
 #define ADD_PROPERTY(m_property, m_setter, m_getter) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter)
 #define ADD_PROPERTYI(m_property, m_setter, m_getter, m_index) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter, m_index)
 #define ADD_PROPERTY_DEFAULT(m_property, m_default) ClassDB::set_property_default_value(get_class_static_name(), m_property, m_default)
 #define ADD_GROUP(m_name, m_prefix) ClassDB::add_property_group(get_class_static_name(), m_name, m_prefix)
 
-Array convert_property_list(const ListPOD<PropertyInfo> *p_list);
-Array convert_property_vector(const PODVector<PropertyInfo> *p_list);
+Array convert_property_list(const List<PropertyInfo> *p_list);
+Array convert_property_vector(Span<const PropertyInfo> p_list);
 
 /*
    the following is an incomprehensible blob of hacks and workarounds to compensate for many of the fallencies in C++. As a plus, this macro pretty much alone defines the object model.
@@ -170,10 +172,10 @@ protected:                                                                      
         }                                                                                                              \
         return false;                                                                                                  \
     }                                                                                                                  \
-    void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> * p_list) const {              \
-        return (void (Object::*)(ListPOD<PropertyInfo> *) const) & m_class::_get_property_list;                        \
+    void (Object::*_get_get_property_list() const)(Vector<PropertyInfo> * p_list) const {             \
+        return (void (Object::*)(Vector<PropertyInfo> *) const) & m_class::_get_property_list;                        \
     }                                                                                                                  \
-    void _get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const override;                           \
+    void _get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const override;                           \
     void (Object::*_get_notification() const)(int) {                                                    \
         return (void (Object::*)(int)) & m_class::_notification;                                                       \
     }                                                                                                                  \
@@ -187,6 +189,7 @@ private:
         if (initialized) return false;                                                                                 \
         BaseClassName::initialize_class();                                                                               \
         ClassDB::_add_class<m_class, BaseClassName>();                                                                   \
+        ClassDB::_set_class_header(get_class_static_name(), __FILE__);                                                 \
         if (m_class::_get_bind_methods() != BaseClassName::_get_bind_methods()) _bind_methods();                         \
         initialized = true;                                                                                            \
         return true;                                                                                                   \
@@ -198,12 +201,12 @@ private:
         }                                                                                                              \
         if (p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                       \
     }                                                                                                                  \
-    void m_class::_get_property_listv(ListPOD<PropertyInfo> *p_list, bool p_reversed) const {                          \
+    void m_class::_get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const {                        \
         if (!p_reversed) {                                                                                             \
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
         }                                                                                                              \
         p_list->push_back(PropertyInfo(                                                                                \
-                VariantType::NIL, get_class_static_name(), PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_CATEGORY));     \
+                VariantType::NIL, get_class_static_name(), PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));     \
         if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
         if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                              \
             _get_property_list(p_list);                                                                                \
@@ -216,8 +219,7 @@ private:
 
 #define OBJ_CATEGORY(m_category)                                                                                       \
 protected:                                                                                                             \
-    static constexpr const char * _get_category() { return m_category; }                                          \
-    _FORCE_INLINE_ static se_string _get_category_wrap();                                                              \
+    static constexpr const char * _get_category() { return m_category; }                                               \
                                                                                                                        \
 private:
 
@@ -236,18 +238,24 @@ class ScriptInstance;
 using ObjectID = uint64_t;
 
 class GODOT_EXPORT Object {
+    //Q_GADGET
+    // Non-copyable
+
+    //Q_DISABLE_COPY(Object)
+    //Q_PROPERTY(RefPtr script READ get_script WRITE set_script)
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
 
     struct Connection {
 
-        PODVector<Variant> binds;
+        Vector<Variant> binds;
         StringName signal;
         StringName method;
         Object *source = nullptr;
         Object *target = nullptr;
         uint32_t flags = 0;
-        bool operator<(const Connection &p_conn) const;
+
+        bool operator<(const Connection &p_conn) const noexcept;
 
         operator Variant() const;
         Connection() = default;
@@ -281,12 +289,13 @@ private:
     int _predelete_ok;
     bool _block_signals;
     bool _can_translate;
+    bool _emitting;
     bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
 
 
     bool _predelete();
     void _postinitialize();
-
+public:
     void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
     bool _has_user_signal(const StringName &p_name) const;
     Variant _emit_signal(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
@@ -297,44 +306,43 @@ private:
     Variant _get_bind(const StringName &p_name) const;
     void _set_indexed_bind(const NodePath &p_name, const Variant &p_value);
     Variant _get_indexed_bind(const NodePath &p_name) const;
-
     void property_list_changed_notify();
-
+private:
     friend class RefCounted;
 protected:
     virtual bool _initialize_classv() { return initialize_class(); }
     virtual bool _setv(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
     virtual bool _getv(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
-    virtual void _get_property_listv(ListPOD<PropertyInfo> * /*p_list*/, bool /*p_reversed*/) const {}
+    virtual void _get_property_listv(Vector<PropertyInfo> *, bool /*p_reversed*/) const {}
     virtual void _notificationv(int /*p_notification*/, bool /*p_reversed*/){}
 
     static const char *_get_category() { return ""; }
     static void _bind_methods();
     bool _set(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
     bool _get(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
-    void _get_property_list(ListPOD<PropertyInfo> * /*p_list*/) const {}
+    void _get_property_list(Vector<PropertyInfo> * /*p_list*/) const {}
     void _notification(int /*p_notification*/){}
 
-    _FORCE_INLINE_ static void (*_get_bind_methods())() {
+    static void (*_get_bind_methods())() {
         return &Object::_bind_methods;
     }
-    static constexpr _FORCE_INLINE_ bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {
+    static constexpr bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {
         return &Object::_get;
     }
-    _FORCE_INLINE_ bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
+    bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
         return &Object::_set;
     }
-    _FORCE_INLINE_ void (Object::*_get_get_property_list() const)(ListPOD<PropertyInfo> *p_list) const {
+    void (Object::*_get_get_property_list() const)(Vector<PropertyInfo> *p_list) const {
         return &Object::_get_property_list;
     }
-    _FORCE_INLINE_ void (Object::*_get_notification() const)(int) {
+    void (Object::*_get_notification() const)(int) {
         return &Object::_notification;
     }
 
+public:
     void cancel_delete();
 
     virtual void _changed_callback(Object *p_changed, StringName p_prop);
-
     Variant _call_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
@@ -343,8 +351,8 @@ protected:
             _class_name = get_class_static_name();
         return &_class_name;
     }
-
-    PoolSeStringArray _get_meta_list_bind() const;
+public:
+    PoolStringArray _get_meta_list_bind() const;
     Array _get_property_list_bind() const;
     Array _get_method_list_bind() const;
 
@@ -384,7 +392,7 @@ public:
 
     virtual const TypeInfo *get_type_info() const { return get_type_info_static(); }
     virtual const char *get_class() const { return get_type_info()->getTypeName(); }
-    se_string wrap_get_class() const;
+    String wrap_get_class() const;
 
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
@@ -412,10 +420,10 @@ public:
     void set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_indexed(const Vector<StringName> &p_names, bool *r_valid = nullptr) const;
 
-    void get_property_list(ListPOD<PropertyInfo> *p_list, bool p_reversed = false) const;
+    void get_property_list(Vector<PropertyInfo> *p_list, bool p_reversed = false) const;
 
     bool has_method(const StringName &p_method) const;
-    void get_method_list(PODVector<MethodInfo> *p_list) const;
+    void get_method_list(Vector<MethodInfo> *p_list) const;
     Variant callv(const StringName &p_method, const Array &p_args);
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
@@ -424,7 +432,7 @@ public:
     void call_multilevel(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);
-    se_string to_string();
+    String to_string();
 
     //used mainly by script, get and set all INCLUDING string
     virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
@@ -441,7 +449,7 @@ public:
     void set_meta(se_string_view p_name, const Variant &p_value);
     void remove_meta(se_string_view p_name);
     Variant get_meta(se_string_view p_name) const;
-    void get_meta_list(ListPOD<se_string> *p_list) const;
+    void get_meta_list(List<String> *p_list) const;
 
     IObjectTooling *get_tooling_interface() const;
 
@@ -450,16 +458,16 @@ public:
 
     void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance);
 
-    void add_user_signal(const MethodInfo &p_signal);
+    void add_user_signal(MethodInfo &&p_signal);
     Error emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
     Error emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
-    void get_signal_list(ListPOD<MethodInfo> *p_signals) const;
-    void get_signal_connection_list(const StringName &p_signal, ListPOD<Connection> *p_connections) const;
-    void get_all_signal_connections(ListPOD<Connection> *p_connections) const;
+    void get_signal_list(Vector<MethodInfo> *p_signals) const;
+    void get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const;
+    void get_all_signal_connections(List<Connection> *p_connections) const;
     int get_persistent_signal_connection_count() const;
-    void get_signals_connected_to_this(ListPOD<Connection> *p_connections) const;
+    void get_signals_connected_to_this(List<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const PODVector<Variant> &p_binds =
+    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds =
         null_variant_pvec, uint32_t p_flags = 0);
     void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
     bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
@@ -473,8 +481,8 @@ public:
     VariantType get_static_property_type(const StringName &p_property, bool *r_valid = nullptr) const;
     VariantType get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid = nullptr) const;
 
-    virtual void get_translatable_strings(ListPOD<StringName> *p_strings) const;
-    virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const;
+    virtual void get_translatable_strings(List<StringName> *p_strings) const;
+    virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 
@@ -495,9 +503,7 @@ public:
     Object();
     virtual ~Object();
 
-    // Non-copyable
-    void operator=(const Object &/*p_rval*/) = delete;
-    Object(const Object &) = delete;
+    Object(Object &&) noexcept = default;
 };
 
 template <class T>
@@ -529,6 +535,7 @@ const T *object_cast(const Object *p_object) {
 }
 namespace ObjectNS
 {
+    //Q_NAMESPACE
     enum ConnectFlags : uint8_t {
 
         CONNECT_QUEUED = 1,
@@ -536,6 +543,7 @@ namespace ObjectNS
         CONNECT_ONESHOT = 4,
         CONNECT_REFERENCE_COUNTED = 8,
     };
+    //Q_ENUM_NS(ConnectFlags)
     template<class T>
     T* cast_to(::Object *f) {
         return object_cast<T>(f);

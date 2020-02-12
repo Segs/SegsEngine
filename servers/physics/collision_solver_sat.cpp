@@ -54,8 +54,8 @@ using GenerateContactsFunc = void (*)(const Vector3 *, int, const Vector3 *, int
 static void _generate_contacts_point_point(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 1)
-    ERR_FAIL_COND(p_point_count_B != 1)
+    ERR_FAIL_COND(p_point_count_A != 1);
+    ERR_FAIL_COND(p_point_count_B != 1);
 #endif
 
     p_callback->call(*p_points_A, *p_points_B);
@@ -64,8 +64,8 @@ static void _generate_contacts_point_point(const Vector3 *p_points_A, int p_poin
 static void _generate_contacts_point_edge(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 1)
-    ERR_FAIL_COND(p_point_count_B != 2)
+    ERR_FAIL_COND(p_point_count_A != 1);
+    ERR_FAIL_COND(p_point_count_B != 2);
 #endif
 
     Vector3 closest_B = Geometry::get_closest_point_to_segment_uncapped(*p_points_A, p_points_B);
@@ -75,8 +75,8 @@ static void _generate_contacts_point_edge(const Vector3 *p_points_A, int p_point
 static void _generate_contacts_point_face(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 1)
-    ERR_FAIL_COND(p_point_count_B < 3)
+    ERR_FAIL_COND(p_point_count_A != 1);
+    ERR_FAIL_COND(p_point_count_B < 3);
 #endif
 
     Vector3 closest_B = Plane(p_points_B[0], p_points_B[1], p_points_B[2]).project(*p_points_A);
@@ -87,8 +87,8 @@ static void _generate_contacts_point_face(const Vector3 *p_points_A, int p_point
 static void _generate_contacts_edge_edge(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 2)
-    ERR_FAIL_COND(p_point_count_B != 2) // circle is actually a 4x3 matrix
+    ERR_FAIL_COND(p_point_count_A != 2);
+    ERR_FAIL_COND(p_point_count_B != 2); // circle is actually a 4x3 matrix
 #endif
 
     Vector3 rel_A = p_points_A[1] - p_points_A[0];
@@ -134,8 +134,8 @@ static void _generate_contacts_edge_edge(const Vector3 *p_points_A, int p_point_
 static void _generate_contacts_face_face(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A < 2)
-    ERR_FAIL_COND(p_point_count_B < 3)
+    ERR_FAIL_COND(p_point_count_A < 2);
+    ERR_FAIL_COND(p_point_count_B < 3);
 #endif
 
     static const int max_clip = 32;
@@ -181,7 +181,7 @@ static void _generate_contacts_face_face(const Vector3 *p_points_A, int p_point_
 
             if (dist0 <= 0) { // behind plane
 
-                ERR_FAIL_COND(dst_idx >= max_clip)
+                ERR_FAIL_COND(dst_idx >= max_clip);
                 clipbuf_dst[dst_idx++] = clipbuf_src[j];
             }
 
@@ -195,7 +195,7 @@ static void _generate_contacts_face_face(const Vector3 *p_points_A, int p_point_
                 real_t dist = -(clip.normal.dot(edge0_A) - clip.d) / den;
                 Vector3 inters = edge0_A + rel * dist;
 
-                ERR_FAIL_COND(dst_idx >= max_clip)
+                ERR_FAIL_COND(dst_idx >= max_clip);
                 clipbuf_dst[dst_idx] = inters;
                 dst_idx++;
             }
@@ -228,8 +228,8 @@ static void _generate_contacts_face_face(const Vector3 *p_points_A, int p_point_
 static void _generate_contacts_from_supports(const Vector3 *p_points_A, int p_point_count_A, const Vector3 *p_points_B, int p_point_count_B, _CollectorCallback *p_callback) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A < 1)
-    ERR_FAIL_COND(p_point_count_B < 1)
+    ERR_FAIL_COND(p_point_count_A < 1);
+    ERR_FAIL_COND(p_point_count_B < 1);
 #endif
 
     static const GenerateContactsFunc generate_contacts_func_table[3][3] = {
@@ -276,7 +276,7 @@ static void _generate_contacts_from_supports(const Vector3 *p_points_A, int p_po
     int version_B = (pointcount_B > 3 ? 3 : pointcount_B) - 1;
 
     GenerateContactsFunc contacts_func = generate_contacts_func_table[version_A][version_B];
-    ERR_FAIL_COND(!contacts_func)
+    ERR_FAIL_COND(!contacts_func);
     contacts_func(points_A, pointcount_A, points_B, pointcount_B, p_callback);
 }
 
@@ -551,9 +551,9 @@ static void _collision_sphere_convex_polygon(const ShapeSW *p_a, const Transform
 
     const Geometry::MeshData &mesh = convex_polygon_B->get_mesh();
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int face_count = mesh.faces.size();
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int edge_count = mesh.edges.size();
     const Vector3 *vertices = mesh.vertices.data();
     int vertex_count = mesh.vertices.size();
@@ -846,9 +846,9 @@ static void _collision_box_convex_polygon(const ShapeSW *p_a, const Transform &p
 
     const Geometry::MeshData &mesh = convex_polygon_B->get_mesh();
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int face_count = mesh.faces.size();
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int edge_count = mesh.edges.size();
     const Vector3 *vertices = mesh.vertices.data();
     int vertex_count = mesh.vertices.size();
@@ -1126,9 +1126,9 @@ static void _collision_capsule_convex_polygon(const ShapeSW *p_a, const Transfor
 
     const Geometry::MeshData &mesh = convex_polygon_B->get_mesh();
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int face_count = mesh.faces.size();
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int edge_count = mesh.edges.size();
     const Vector3 *vertices = mesh.vertices.data();
 
@@ -1258,18 +1258,18 @@ static void _collision_convex_polygon_convex_polygon(const ShapeSW *p_a, const T
 
     const Geometry::MeshData &mesh_A = convex_polygon_A->get_mesh();
 
-    const Geometry::MeshData::Face *faces_A = mesh_A.faces.ptr();
+    const Geometry::MeshData::Face *faces_A = mesh_A.faces.data();
     int face_count_A = mesh_A.faces.size();
-    const Geometry::MeshData::Edge *edges_A = mesh_A.edges.ptr();
+    const Geometry::MeshData::Edge *edges_A = mesh_A.edges.data();
     int edge_count_A = mesh_A.edges.size();
     const Vector3 *vertices_A = mesh_A.vertices.data();
     int vertex_count_A = mesh_A.vertices.size();
 
     const Geometry::MeshData &mesh_B = convex_polygon_B->get_mesh();
 
-    const Geometry::MeshData::Face *faces_B = mesh_B.faces.ptr();
+    const Geometry::MeshData::Face *faces_B = mesh_B.faces.data();
     int face_count_B = mesh_B.faces.size();
-    const Geometry::MeshData::Edge *edges_B = mesh_B.edges.ptr();
+    const Geometry::MeshData::Edge *edges_B = mesh_B.edges.data();
     int edge_count_B = mesh_B.edges.size();
     const Vector3 *vertices_B = mesh_B.vertices.data();
     int vertex_count_B = mesh_B.vertices.size();
@@ -1369,9 +1369,9 @@ static void _collision_convex_polygon_face(const ShapeSW *p_a, const Transform &
 
     const Geometry::MeshData &mesh = convex_polygon_A->get_mesh();
 
-    const Geometry::MeshData::Face *faces = mesh.faces.ptr();
+    const Geometry::MeshData::Face *faces = mesh.faces.data();
     int face_count = mesh.faces.size();
-    const Geometry::MeshData::Edge *edges = mesh.edges.ptr();
+    const Geometry::MeshData::Edge *edges = mesh.edges.data();
     int edge_count = mesh.edges.size();
     const Vector3 *vertices = mesh.vertices.data();
     int vertex_count = mesh.vertices.size();
@@ -1464,15 +1464,15 @@ bool sat_calculate_penetration(const ShapeSW *p_shape_A, const Transform &p_tran
 
     PhysicsServer::ShapeType type_A = p_shape_A->get_type();
 
-    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_PLANE, false)
-    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_RAY, false)
-    ERR_FAIL_COND_V(p_shape_A->is_concave(), false)
+    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_PLANE, false);
+    ERR_FAIL_COND_V(type_A == PhysicsServer::SHAPE_RAY, false);
+    ERR_FAIL_COND_V(p_shape_A->is_concave(), false);
 
     PhysicsServer::ShapeType type_B = p_shape_B->get_type();
 
-    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_PLANE, false)
-    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_RAY, false)
-    ERR_FAIL_COND_V(p_shape_B->is_concave(), false)
+    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_PLANE, false);
+    ERR_FAIL_COND_V(type_B == PhysicsServer::SHAPE_RAY, false);
+    ERR_FAIL_COND_V(p_shape_B->is_concave(), false);
 
     static const CollisionFunc collision_table[6][6] = {
         { _collision_sphere_sphere<false>,
@@ -1581,7 +1581,7 @@ bool sat_calculate_penetration(const ShapeSW *p_shape_A, const Transform &p_tran
     } else {
         collision_func = collision_table[type_A - 2][type_B - 2];
     }
-    ERR_FAIL_COND_V(!collision_func, false)
+    ERR_FAIL_COND_V(!collision_func, false);
 
     collision_func(A, *transform_A, B, *transform_B, &callback, margin_A, margin_B);
 

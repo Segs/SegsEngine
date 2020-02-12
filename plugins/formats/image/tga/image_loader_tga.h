@@ -79,7 +79,7 @@ class ImageLoaderTGA : public QObject, public ImageFormatLoader {
 
 public:
     Error load_image(ImageData &tgt_image, FileAccess *f, LoadParams params={}) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     ImageLoaderTGA();
 };
 

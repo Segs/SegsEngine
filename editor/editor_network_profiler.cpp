@@ -50,8 +50,8 @@ void EditorNetworkProfiler::_bind_methods() {
 void EditorNetworkProfiler::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
-        activate->set_icon(get_icon("Play", "EditorIcons"));
-        clear_button->set_icon(get_icon("Clear", "EditorIcons"));
+        activate->set_button_icon(get_icon("Play", "EditorIcons"));
+        clear_button->set_button_icon(get_icon("Clear", "EditorIcons"));
         incoming_bandwidth_text->set_right_icon(get_icon("ArrowDown", "EditorIcons"));
         outgoing_bandwidth_text->set_right_icon(get_icon("ArrowUp", "EditorIcons"));
 
@@ -86,10 +86,10 @@ void EditorNetworkProfiler::_update_frame() {
 void EditorNetworkProfiler::_activate_pressed() {
 
     if (activate->is_pressed()) {
-        activate->set_icon(get_icon("Stop", "EditorIcons"));
+        activate->set_button_icon(get_icon("Stop", "EditorIcons"));
         activate->set_text(TTR("Stop"));
     } else {
-        activate->set_icon(get_icon("Play", "EditorIcons"));
+        activate->set_button_icon(get_icon("Play", "EditorIcons"));
         activate->set_text(TTR("Start"));
     }
     emit_signal("enable_profiling", activate->is_pressed());
@@ -122,8 +122,8 @@ void EditorNetworkProfiler::add_node_frame_data(const MultiplayerAPI::ProfilingI
 }
 
 void EditorNetworkProfiler::set_bandwidth(int p_incoming, int p_outgoing) {
-    incoming_bandwidth_text->set_text_utf8(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_incoming).c_str()));
-    outgoing_bandwidth_text->set_text_utf8(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_outgoing).c_str()));
+    incoming_bandwidth_text->set_text(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_incoming).c_str()));
+    outgoing_bandwidth_text->set_text(FormatVE(TTR("%s/s").asCString(), PathUtils::humanize_size(p_outgoing).c_str()));
 }
 
 bool EditorNetworkProfiler::is_profiling() {

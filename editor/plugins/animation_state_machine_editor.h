@@ -140,7 +140,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     StringName over_node;
     int over_node_what;
 
-    se_string prev_name;
+    String prev_name;
     void _name_edited(se_string_view p_text);
     void _name_edited_focus_out();
     void _open_editor(se_string_view p_name);
@@ -157,13 +157,13 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     bool last_active;
     StringName last_blend_from_node;
     StringName last_current_node;
-    PODVector<StringName> last_travel_path;
+    Vector<StringName> last_travel_path;
     float last_play_pos;
     float play_pos;
     float current_length;
 
     float error_time;
-    se_string error_text;
+    String error_text;
 
     EditorFileDialog *open_file;
     Ref<AnimationNode> file_loaded;

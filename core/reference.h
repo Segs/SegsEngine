@@ -76,7 +76,7 @@ class Ref {
     T *reference;
 
 public:
-    constexpr Ref() : reference(nullptr) {}
+    constexpr Ref() noexcept : reference(nullptr) {}
 
     explicit Ref(T *p_reference,RefMode add_ref=AddRef) {
         reference = p_reference;
@@ -191,6 +191,7 @@ public:
         }
     }
 };
+//Q_DECLARE_SMART_POINTER_METATYPE(Ref)
 template <typename T, typename U>
 bool operator==(Ref<T> const& lhs, Ref<U> const& rhs)
 {
@@ -300,9 +301,10 @@ template <class T>
 struct GetTypeInfo<Ref<T>,void> {
     static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
 
-    static RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr,T::get_class_static(),nullptr,int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo{ nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
 
@@ -310,9 +312,10 @@ template <class T>
 struct GetTypeInfo<const Ref<T> &,void> {
     static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
 
-    static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo { nullptr,T::get_class_static(),nullptr,int8_t(VariantType::OBJECT), PROPERTY_HINT_RESOURCE_TYPE };
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo { nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
 

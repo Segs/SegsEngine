@@ -61,13 +61,13 @@ struct UndoRedo::PrivateData
     };
 
     struct Action {
-        se_string name;
+        String name;
         Deque<Operation> do_ops;
         Deque<Operation> undo_ops;
         uint64_t last_tick;
     };
 
-    PODVector<Action> actions;
+    Vector<Action> actions;
     int current_action=-1;
     int action_level=0;
     uint64_t version=1;
@@ -139,7 +139,7 @@ struct UndoRedo::PrivateData
 
                 case Operation::TYPE_METHOD: {
 
-                    PODVector<const Variant *> argptrs;
+                    Vector<const Variant *> argptrs;
                     argptrs.resize(VARIANT_ARG_MAX);
                     int argc = 0;
 
@@ -156,8 +156,8 @@ struct UndoRedo::PrivateData
                     obj->call(op.name, (const Variant **)argptrs.data(), argc, ce);
                     if (ce.error != Variant::CallError::CALL_OK) {
                         ERR_PRINT(
-                                "Error calling method from signal '" + se_string(op.name) + "': " +
-                                Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce))
+                                "Error calling method from signal '" + String(op.name) + "': " +
+                                Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce));
                     }
 
                     Object_set_edited(obj,true);
@@ -359,60 +359,60 @@ void UndoRedo::create_action(se_string_view p_name, MergeMode p_mode) {
 }
 void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_method(p_object,p_method,VARIANT_ARG_PASS);
 }
 //void UndoRedo::add_do_method(Object *p_object, se_string_view p_method, VARIANT_ARG_DECLARE) {
 
-//    ERR_FAIL_COND(p_object == nullptr)
-//    ERR_FAIL_COND(pimpl->action_level <= 0)
-//    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
 //    pimpl->add_do_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
 //}
 
 void UndoRedo::add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_undo_method(p_object,p_method,VARIANT_ARG_PASS);
 }
 //void UndoRedo::add_undo_method(Object *p_object, se_string_view p_method, VARIANT_ARG_DECLARE) {
 
-//    ERR_FAIL_COND(p_object == nullptr)
-//    ERR_FAIL_COND(pimpl->action_level <= 0)
-//    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
+//    ERR_FAIL_COND();
 //    pimpl->add_undo_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
 //}
 void UndoRedo::add_do_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_property(p_object,p_property,p_value);
 }
 void UndoRedo::add_undo_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
 
     pimpl->add_undo_property(p_object,p_property,p_value);
 }
 void UndoRedo::add_do_reference(Object *p_object) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_reference(p_object);
 }
 void UndoRedo::add_undo_reference(Object *p_object) {
 
-    ERR_FAIL_COND(p_object == nullptr)
-    ERR_FAIL_COND(pimpl->action_level <= 0)
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size())
+    ERR_FAIL_COND(p_object == nullptr);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_undo_reference(p_object);
 }
 
@@ -422,7 +422,7 @@ bool UndoRedo::is_committing_action() const {
 
 void UndoRedo::commit_action() {
 
-    ERR_FAIL_COND(pimpl->action_level <= 0)
+    ERR_FAIL_COND(pimpl->action_level <= 0);
     pimpl->commit_action();
 }
 
@@ -430,7 +430,7 @@ void UndoRedo::commit_action() {
 
 bool UndoRedo::redo() {
 
-    ERR_FAIL_COND_V(pimpl->action_level > 0, false)
+    ERR_FAIL_COND_V(pimpl->action_level > 0, false);
     bool res = pimpl->redo();
     if(res)
         emit_signal("version_changed");
@@ -439,7 +439,7 @@ bool UndoRedo::redo() {
 
 bool UndoRedo::undo() {
 
-    ERR_FAIL_COND_V(pimpl->action_level > 0, false)
+    ERR_FAIL_COND_V(pimpl->action_level > 0, false);
     bool res = pimpl->undo();
     if(res)
         emit_signal("version_changed");
@@ -448,7 +448,7 @@ bool UndoRedo::undo() {
 
 void UndoRedo::clear_history(bool p_increase_version) {
 
-    ERR_FAIL_COND(pimpl->action_level > 0)
+    ERR_FAIL_COND(pimpl->action_level > 0);
     pimpl->_discard_redo();
 
     while (!pimpl->actions.empty())
@@ -462,7 +462,7 @@ void UndoRedo::clear_history(bool p_increase_version) {
 
 se_string_view UndoRedo::get_current_action_name() const {
 
-    ERR_FAIL_COND_V(pimpl->action_level > 0, {})
+    ERR_FAIL_COND_V(pimpl->action_level > 0, {});
     if (pimpl->current_action < 0)
         return {};
     return pimpl->actions[pimpl->current_action].name;
@@ -535,7 +535,7 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Variant
     r_error.error = Variant::CallError::CALL_OK;
 
     Object *object = *p_args[0];
-    se_string method = *p_args[1];
+    String method = *p_args[1];
 
     Variant v[VARIANT_ARG_MAX];
 
@@ -573,7 +573,7 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Varia
     r_error.error = Variant::CallError::CALL_OK;
 
     Object *object = *p_args[0];
-    se_string method = *p_args[1];
+    String method = *p_args[1];
 
     Variant v[VARIANT_ARG_MAX];
 
@@ -594,21 +594,12 @@ void UndoRedo::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
 
     {
-        MethodInfo mi;
-        mi.name = "add_do_method";
-        mi.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
-
-        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, mi,null_variant_pvec,false);
+        MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, eastl::move(mi),null_variant_pvec,false);
     }
-
     {
-        MethodInfo mi;
-        mi.name = "add_undo_method";
-        mi.arguments.push_back(PropertyInfo(VariantType::OBJECT, "object"));
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
-
-        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, mi,null_variant_pvec,false);
+        MethodInfo mi("add_undo_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));
+        MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, eastl::move(mi),null_variant_pvec,false);
     }
 
     MethodBinder::bind_method(D_METHOD("add_do_property", {"object", "property", "value"}), &UndoRedo::add_do_property);

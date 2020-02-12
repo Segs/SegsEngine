@@ -100,7 +100,7 @@ bool GraphNode::_get(const StringName &p_name, Variant &r_ret) const {
 
     return true;
 }
-void GraphNode::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void GraphNode::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     int idx = 0;
     for (int i = 0; i < get_child_count(); i++) {
@@ -108,7 +108,7 @@ void GraphNode::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         if (!c || c->is_set_as_toplevel())
             continue;
 
-        se_string base = "slot/" + itos(idx) + "/";
+        String base = "slot/" + itos(idx) + "/";
 
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName(base + "left_enabled")));
         p_list->push_back(PropertyInfo(VariantType::INT, StringName(base + "left_type")));
@@ -160,7 +160,7 @@ void GraphNode::_resort() {
 
         Size2i size = c->get_combined_minimum_size();
 
-        Rect2 r(sb->get_margin(MARGIN_LEFT), sb->get_margin(MARGIN_TOP) + vofs, w, size.y);
+        Rect2 r(sb->get_margin(Margin::Left), sb->get_margin(Margin::Top) + vofs, w, size.y);
 
         fit_child_in_rect(c, r);
         cache_y.push_back(vofs + size.y * 0.5f);
@@ -182,7 +182,7 @@ bool GraphNode::has_point(const Point2 &p_point) const {
             return true;
         }
 
-        if (Rect2(0, 0, get_size().width, comment->get_margin(MARGIN_TOP)).has_point(p_point)) {
+        if (Rect2(0, 0, get_size().width, comment->get_margin(Margin::Top)).has_point(p_point)) {
             return true;
         }
 
@@ -223,7 +223,7 @@ void GraphNode::_notification(int p_what) {
             Color title_color = get_color("title_color");
             Point2i icofs = -port->get_size() * 0.5;
             int edgeofs = get_constant("port_offset");
-            icofs.y += sb->get_margin(MARGIN_TOP);
+            icofs.y += sb->get_margin(Margin::Top);
 
             draw_style_box(sb, Rect2(Point2(), get_size()));
 
@@ -246,12 +246,12 @@ void GraphNode::_notification(int p_what) {
             if (show_close)
                 w -= close->get_width();
 
-            draw_string_utf8(title_font,
-                    Point2(sb->get_margin(MARGIN_LEFT) + title_h_offset,
+            draw_string(title_font,
+                    Point2(sb->get_margin(Margin::Left) + title_h_offset,
                             -title_font->get_height() + title_font->get_ascent() + title_offset),
                     title, title_color, w);
             if (show_close) {
-                Vector2 cpos = Point2(w + sb->get_margin(MARGIN_LEFT) + close_h_offset, -close->get_height() + close_offset);
+                Vector2 cpos = Point2(w + sb->get_margin(Margin::Left) + close_h_offset, -close->get_height() + close_offset);
                 draw_texture(close, cpos, close_color);
                 close_rect.position = cpos;
                 close_rect.size = close->get_size();
@@ -302,7 +302,7 @@ void GraphNode::_notification(int p_what) {
 
 void GraphNode::set_slot(int p_idx, bool p_enable_left, int p_type_left, const Color &p_color_left, bool p_enable_right, int p_type_right, const Color &p_color_right, const Ref<Texture> &p_custom_left, const Ref<Texture> &p_custom_right) {
 
-    ERR_FAIL_COND(p_idx < 0)
+    ERR_FAIL_COND(p_idx < 0);
 
     if (!p_enable_left && p_type_left == 0 && p_color_left == Color(1, 1, 1, 1) && !p_enable_right && p_type_right == 0 && p_color_right == Color(1, 1, 1, 1)) {
         slot_info.erase(p_idx);
@@ -386,7 +386,7 @@ Size2 GraphNode::get_minimum_size() const {
     bool first = true;
 
     Size2 minsize;
-    minsize.x = title_font->get_string_size_utf8(title).x;
+    minsize.x = title_font->get_string_size(title).x;
     if (show_close) {
         Ref<Texture> close = get_icon("close");
         minsize.x += sep + close->get_width();
@@ -423,7 +423,7 @@ void GraphNode::set_title(se_string_view _title) {
     minimum_size_changed();
 }
 
-se_string GraphNode::get_title() const {
+String GraphNode::get_title() const {
 
     return title;
 }
@@ -491,7 +491,7 @@ void GraphNode::_connpos_update() {
 
         Size2i size = c->get_combined_minimum_size();
 
-        int y = sb->get_margin(MARGIN_TOP) + vofs;
+        int y = sb->get_margin(Margin::Top) + vofs;
         int h = size.y;
 
         if (slot_info.contains(idx)) {
@@ -541,7 +541,7 @@ Vector2 GraphNode::get_connection_input_position(int p_idx) {
     if (connpos_dirty)
         _connpos_update();
 
-    ERR_FAIL_INDEX_V(p_idx, conn_input_cache.size(), Vector2())
+    ERR_FAIL_INDEX_V(p_idx, conn_input_cache.size(), Vector2());
     Vector2 pos = conn_input_cache[p_idx].pos;
     pos.x *= get_scale().x;
     pos.y *= get_scale().y;
@@ -601,7 +601,7 @@ void GraphNode::_gui_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
     if (mb) {
 
-        ERR_FAIL_COND_MSG(get_parent_control() == nullptr, "GraphNode must be the child of a GraphEdit node.")
+        ERR_FAIL_COND_MSG(get_parent_control() == nullptr, "GraphNode must be the child of a GraphEdit node."); 
 
         if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
@@ -726,7 +726,7 @@ void GraphNode::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resizable"), "set_resizable", "is_resizable");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "selected"), "set_selected", "is_selected");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "comment"), "set_comment", "is_comment");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "overlay", PROPERTY_HINT_ENUM, "Disabled,Breakpoint,Position"), "set_overlay", "get_overlay");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "overlay", PropertyHint::Enum, "Disabled,Breakpoint,Position"), "set_overlay", "get_overlay");
 
     ADD_SIGNAL(MethodInfo("offset_changed"));
     ADD_SIGNAL(MethodInfo("dragged", PropertyInfo(VariantType::VECTOR2, "from"), PropertyInfo(VariantType::VECTOR2, "to")));

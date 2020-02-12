@@ -151,6 +151,9 @@ private:
 
     int visible_characters;
     float percent_visible;
+    bool use_bbcode;
+    String bbcode;
+    int fixed_width;
 
     int _process_line(RichTextItemFrame *p_frame, const Vector2 &p_ofs, int &y, int p_width, int p_line, ProcessMode p_mode, const Ref<Font> &p_base_font, const Color &p_base_color, const Color &p_font_color_shadow, bool p_shadow_as_outline, const Point2 &shadow_ofs, const Point2i &p_click_pos = Point2i(), RichTextItem **r_click_item = nullptr, int *r_click_char = nullptr, bool *r_outside = nullptr, int p_char_count = 0);
     void _find_click(RichTextItemFrame *p_frame, const Point2i &p_click, RichTextItem **r_click_item = nullptr, int *r_click_char = nullptr, bool *r_outside = nullptr);
@@ -177,22 +180,19 @@ private:
 
     Rect2 _get_text_rect();
     Ref<RichTextEffect> _get_custom_effect_by_code(se_string_view p_bbcode_identifier);
-    virtual Dictionary parse_expressions_for_values(const PoolVector<se_string> &p_expressions);
-
-    bool use_bbcode;
-    se_string bbcode;
 
     void _update_all_lines();
 
-    int fixed_width;
+public:
+    virtual Dictionary parse_expressions_for_values(const PoolVector<String> &p_expressions);
 
 protected:
     void _notification(int p_what);
 
 public:
-    se_string get_text();
-    void add_text_utf8(se_string_view p_text);
-    void add_text(const String &p_text);
+    String get_text();
+    void add_text(se_string_view p_text);
+    void add_text_uistring(const UIString &p_text);
     void add_image(const Ref<Texture> &p_image, const int p_width = 0, const int p_height = 0);
     void add_newline();
     bool remove_line(const int p_line);
@@ -240,7 +240,7 @@ public:
     void set_tab_size(int p_spaces);
     int get_tab_size() const;
 
-    bool search(const String &p_string, bool p_from_selection = false, bool p_search_previous = false);
+    bool search(const UIString &p_string, bool p_from_selection = false, bool p_search_previous = false);
 
     void scroll_to_line(int p_line);
     int get_line_count() const;
@@ -263,10 +263,10 @@ public:
     bool is_using_bbcode() const;
 
     void set_bbcode(se_string_view p_bbcode);
-    const se_string &get_bbcode() const;
+    const String &get_bbcode() const;
 
     void set_text_utf8(se_string_view p_string);
-    void set_text(const String &p_string);
+    void set_text(const UIString &p_string);
 
     void set_visible_characters(int p_visible);
     int get_visible_characters() const;

@@ -140,8 +140,8 @@ public:
     void set_collide_with_areas(bool p_enable);
     bool is_collide_with_areas_enabled() const;
 
-    void set_exclude(const Vector<RID> &p_exclude);
-    Vector<RID> get_exclude() const;
+    void set_exclude(const PoolVector<RID> &p_exclude);
+    PoolVector<RID> get_exclude() const;
 
     Physics2DShapeQueryParameters();
 };
@@ -149,7 +149,7 @@ public:
 class Physics2DDirectSpaceState : public Object {
 
     GDCLASS(Physics2DDirectSpaceState,Object)
-
+public:
     Dictionary _intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_point(const Vector2 &p_point, int p_max_results = 32, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_point_on_canvas(const Vector2 &p_point, ObjectID p_canvas_intance_id, int p_max_results = 32, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
@@ -238,7 +238,7 @@ class Physics2DServer : public Object {
     GDCLASS(Physics2DServer,Object)
 
     static Physics2DServer *singleton;
-
+public:
     virtual bool _body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, float p_margin = 0.08, const Ref<Physics2DTestMotionResult> &p_result = Ref<Physics2DTestMotionResult>());
 
 protected:
@@ -303,7 +303,7 @@ public:
     virtual Physics2DDirectSpaceState *space_get_direct_state(RID p_space) = 0;
 
     virtual void space_set_debug_contacts(RID p_space, int p_max_contacts) = 0;
-    virtual Vector<Vector2> space_get_contacts(RID p_space) const = 0;
+    virtual const Vector<Vector2> &space_get_contacts(RID p_space) const = 0;
     virtual int space_get_contact_count(RID p_space) const = 0;
 
     //missing space parameters
@@ -585,7 +585,7 @@ public:
 
     /* MISC */
 
-    virtual void free(RID p_rid) = 0;
+    virtual void free_rid(RID p_rid) = 0;
 
     virtual void set_active(bool p_active) = 0;
     virtual void init() = 0;

@@ -91,17 +91,17 @@ StringName ARVRInterface::get_name() const {
 
 bool ARVRInterface::is_primary() {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL_V(arvr_server, false)
+    ERR_FAIL_NULL_V(arvr_server, false);
 
     return arvr_server->get_primary_interface() == this;
 };
 
 void ARVRInterface::set_is_primary(bool p_is_primary) {
     ARVRServer *arvr_server = ARVRServer::get_singleton();
-    ERR_FAIL_NULL(arvr_server)
+    ERR_FAIL_NULL(arvr_server);
 
     if (p_is_primary) {
-        ERR_FAIL_COND(!is_initialized())
+        ERR_FAIL_COND(!is_initialized());
 
         arvr_server->set_primary_interface(Ref<ARVRInterface>(this));
     } else {

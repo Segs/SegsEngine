@@ -74,7 +74,7 @@ class AudioStreamOGGVorbis : public AudioStream {
 
     GDCLASS(AudioStreamOGGVorbis,AudioStream)
 
-    OBJ_SAVE_TYPE(AudioStream) //children are all saved as AudioStream, so they can be exchanged
+    OBJ_SAVE_TYPE(AudioStream) // Saves derived classes with common type so they can be interchanged.
     RES_BASE_EXTENSION("oggstr");
 
     friend class AudioStreamPlaybackOGGVorbis;
@@ -101,7 +101,7 @@ public:
     float get_loop_offset() const;
 
     Ref<AudioStreamPlayback> instance_playback() override;
-    se_string get_stream_name() const override;
+    String get_stream_name() const override;
 
     void set_data(const PoolVector<uint8_t> &p_data);
     PoolVector<uint8_t> get_data() const;

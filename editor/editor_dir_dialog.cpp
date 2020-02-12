@@ -43,7 +43,7 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
 
     updating = true;
 
-    se_string path = p_dir->get_path();
+    String path = p_dir->get_path();
 
     p_item->set_metadata(0, p_dir->get_path());
     p_item->set_icon(0, get_icon("Folder", "EditorIcons"));
@@ -130,7 +130,7 @@ void EditorDirDialog::ok_pressed() {
     if (!ti)
         return;
 
-    se_string dir = ti->get_metadata(0);
+    String dir = ti->get_metadata(0);
     emit_signal("dir_selected", dir);
     hide();
 }
@@ -154,10 +154,10 @@ void EditorDirDialog::_make_dir_confirm() {
     if (!ti)
         return;
 
-    se_string dir = ti->get_metadata(0);
+    String dir = ti->get_metadata(0);
 
     DirAccessRef d = DirAccess::open(dir);
-    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'.")
+    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'."); 
     Error err = d->make_dir(makedirname->get_text());
 
     if (err != OK) {
@@ -167,7 +167,7 @@ void EditorDirDialog::_make_dir_confirm() {
         //reload(PathUtils::plus_file(dir,makedirname->get_text()));
         EditorFileSystem::get_singleton()->scan_changes(); //we created a dir, so rescan changes
     }
-    makedirname->set_text_utf8(""); // reset label
+    makedirname->set_text(""); // reset label
 }
 
 void EditorDirDialog::_bind_methods() {

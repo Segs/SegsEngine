@@ -47,11 +47,11 @@ class DependencyEditor : public AcceptDialog {
 
     EditorFileDialog *search;
 
-    se_string replacing;
-    se_string editing;
-    ListPOD<se_string> missing;
+    String replacing;
+    String editing;
+    List<String> missing;
 
-    void _fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<se_string, se_string> > &candidates);
+    void _fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<String, String> > &candidates);
 
     void _searched(se_string_view p_path);
     void _load_pressed(Object *p_item, int p_cell, int p_button);
@@ -74,7 +74,7 @@ class DependencyEditorOwners : public AcceptDialog {
     ItemList *owners;
     PopupMenu *file_options;
     EditorNode *editor;
-    se_string editing;
+    String editing;
 
     void _fill_owners(EditorFileSystemDirectory *efsd);
 
@@ -99,15 +99,15 @@ class DependencyRemoveDialog : public ConfirmationDialog {
     Label *text;
     Tree *owners;
 
-    Map<se_string, se_string> all_remove_files;
-    Vector<se_string> dirs_to_delete;
-    Vector<se_string> files_to_delete;
+    Map<String, String> all_remove_files;
+    Vector<String> dirs_to_delete;
+    Vector<String> files_to_delete;
 
     struct RemovedDependency {
-        se_string file;
-        se_string file_type;
-        se_string dependency;
-        se_string dependency_folder;
+        String file;
+        String file_type;
+        String dependency;
+        String dependency_folder;
 
         bool operator<(const RemovedDependency &p_other) const {
             if (dependency_folder.empty() != p_other.dependency_folder.empty()) {
@@ -127,7 +127,7 @@ class DependencyRemoveDialog : public ConfirmationDialog {
     static void _bind_methods();
 
 public:
-    void show(const Vector<se_string> &p_folders, const Vector<se_string> &p_files);
+    void show(const Vector<String> &p_folders, const Vector<String> &p_files);
     DependencyRemoveDialog();
 };
 
@@ -141,7 +141,7 @@ public:
     };
 
 private:
-    se_string for_file;
+    String for_file;
     Mode mode;
     Button *fdep;
     Label *text;
@@ -150,7 +150,7 @@ private:
     void custom_action(se_string_view) override;
 
 public:
-    void show(Mode p_mode, se_string_view p_for_file, const PODVector<se_string> &report);
+    void show(Mode p_mode, se_string_view p_for_file, const Vector<String> &report);
     DependencyErrorDialog();
 };
 
@@ -162,10 +162,10 @@ class OrphanResourcesDialog : public ConfirmationDialog {
     ConfirmationDialog *delete_confirm;
     void ok_pressed() override;
 
-    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<se_string, int> &refs, TreeItem *p_parent);
+    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent);
 
-    List<se_string> paths;
-    void _find_to_delete(TreeItem *p_item, List<se_string> &paths);
+    Vector<String> paths;
+    void _find_to_delete(TreeItem *p_item, Vector<String> &paths);
     void _delete_confirm();
     void _button_pressed(Object *p_item, int p_column, int p_id);
 

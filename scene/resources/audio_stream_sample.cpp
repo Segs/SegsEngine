@@ -451,7 +451,7 @@ int AudioStreamSample::get_loop_end() const {
 }
 
 void AudioStreamSample::set_mix_rate(int p_hz) {
-    ERR_FAIL_COND(p_hz == 0)
+    ERR_FAIL_COND(p_hz == 0);
     mix_rate = p_hz;
 }
 int AudioStreamSample::get_mix_rate() const {
@@ -523,7 +523,7 @@ PoolVector<uint8_t> AudioStreamSample::get_data() const {
 
 Error AudioStreamSample::save_to_wav(se_string_view p_path) {
     if (format == AudioStreamSample::FORMAT_IMA_ADPCM) {
-        WARN_PRINT("Saving IMA_ADPC samples are not supported yet")
+        WARN_PRINT("Saving IMA_ADPC samples are not supported yet");
         return ERR_UNAVAILABLE;
     }
 
@@ -545,14 +545,14 @@ Error AudioStreamSample::save_to_wav(se_string_view p_path) {
         case AudioStreamSample::FORMAT_IMA_ADPCM: byte_pr_sample = 4; break;
     }
 
-    se_string file_path(p_path);
+    String file_path(p_path);
     if (!StringUtils::ends_with(file_path,".wav")) {
         file_path += (".wav");
     }
 
     FileAccessRef file = FileAccess::open(file_path, FileAccess::WRITE); //Overrides existing file if present
 
-    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE)
+    ERR_FAIL_COND_V(!file, ERR_FILE_CANT_WRITE);
 
     // Create WAV Header
     file->store_string("RIFF"); //ChunkID
@@ -602,9 +602,9 @@ Ref<AudioStreamPlayback> AudioStreamSample::instance_playback() {
     return sample;
 }
 
-se_string AudioStreamSample::get_stream_name() const {
+String AudioStreamSample::get_stream_name() const {
 
-    return se_string();
+    return String();
 }
 
 void AudioStreamSample::_bind_methods() {
@@ -632,9 +632,9 @@ void AudioStreamSample::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("save_to_wav", {"path"}), &AudioStreamSample::save_to_wav);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PROPERTY_HINT_ENUM, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_mode", PROPERTY_HINT_ENUM, "Disabled,Forward,Ping-Pong,Backward"), "set_loop_mode", "get_loop_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "format", PropertyHint::Enum, "8-Bit,16-Bit,IMA-ADPCM"), "set_format", "get_format");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_mode", PropertyHint::Enum, "Disabled,Forward,Ping-Pong,Backward"), "set_loop_mode", "get_loop_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_begin"), "set_loop_begin", "get_loop_begin");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "loop_end"), "set_loop_end", "get_loop_end");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_rate"), "set_mix_rate", "get_mix_rate");

@@ -102,10 +102,11 @@ public:
     _FORCE_INLINE_ void project_range_in_plane(const Plane &p_plane, real_t &r_min, real_t &r_max) const;
     _FORCE_INLINE_ void expand_to(const Vector3 &p_vector); /** expand to contain a point if necessary */
 
-    operator se_string() const;
+    operator String() const;
 
-    constexpr AABB() = default;
-    constexpr inline AABB(Vector3 p_pos, Vector3 p_size) :
+    constexpr AABB() noexcept = default;
+    constexpr AABB(const AABB &) noexcept = default;
+    constexpr inline AABB(Vector3 p_pos, Vector3 p_size) noexcept :
             position(p_pos),
             size(p_size) {
     }
@@ -188,7 +189,7 @@ Vector3 AABB::get_endpoint(int p_point) const {
         case 7: return Vector3(position.x + size.x, position.y + size.y, position.z + size.z);
     }
 
-    ERR_FAIL_V(Vector3())
+    ERR_FAIL_V(Vector3());
 }
 
 bool AABB::intersects_convex_shape(const Plane *p_planes, int p_plane_count) const {

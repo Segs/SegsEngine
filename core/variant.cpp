@@ -59,6 +59,7 @@
 #include "scene/gui/control.h"
 #include "scene/main/node.h"
 
+#include "EASTL/sort.h"
 
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<Variant,wrap_allocator>;
 
@@ -138,7 +139,7 @@ StringName Variant::interned_type_name(VariantType p_type) {
         case VariantType::POOL_COLOR_ARRAY: return "PoolColorArray";
         default: { }
     }
-    return "";
+    return StringName();
 }
 
 bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {
@@ -675,7 +676,7 @@ bool Variant::is_zero() const {
 
         }
         case VariantType::STRING: {
-            return reinterpret_cast<const se_string *>(_data._mem)->empty();
+            return reinterpret_cast<const String *>(_data._mem)->empty();
         }
 
         // math types
@@ -762,7 +763,7 @@ bool Variant::is_zero() const {
         }
         case VariantType::POOL_STRING_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<se_string> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<String> *>(_data._mem)->size() == 0;
 
         }
         case VariantType::POOL_VECTOR2_ARRAY: {
@@ -879,7 +880,7 @@ void Variant::reference(const Variant &p_variant) {
         } break;
         case VariantType::STRING: {
 
-            memnew_placement(_data._mem, se_string(*reinterpret_cast<const se_string *>(p_variant._data._mem)));
+            memnew_placement(_data._mem, String(*reinterpret_cast<const String *>(p_variant._data._mem)));
         } break;
 
         // math types
@@ -971,7 +972,7 @@ void Variant::reference(const Variant &p_variant) {
         } break;
         case VariantType::POOL_STRING_ARRAY: {
 
-            memnew_placement(_data._mem, PoolVector<se_string>(*reinterpret_cast<const PoolVector<se_string> *>(p_variant._data._mem)));
+            memnew_placement(_data._mem, PoolVector<String>(*reinterpret_cast<const PoolVector<String> *>(p_variant._data._mem)));
 
         } break;
         case VariantType::POOL_VECTOR2_ARRAY: {
@@ -1015,7 +1016,7 @@ void Variant::clear() {
     switch (type) {
         case VariantType::STRING: {
 
-            reinterpret_cast<se_string *>(_data._mem)->~se_string();
+            reinterpret_cast<String *>(_data._mem)->~String();
         } break;
         /*
         // no point, they don't allocate memory
@@ -1080,7 +1081,7 @@ void Variant::clear() {
         } break;
         case VariantType::POOL_STRING_ARRAY: {
 
-            reinterpret_cast<PoolVector<se_string> *>(_data._mem)->~PoolVector<se_string>();
+            reinterpret_cast<PoolVector<String> *>(_data._mem)->~PoolVector<String>();
         } break;
         case VariantType::POOL_VECTOR2_ARRAY: {
 
@@ -1109,7 +1110,7 @@ Variant::operator signed int() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1124,7 +1125,7 @@ Variant::operator unsigned int() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1140,7 +1141,7 @@ Variant::operator int64_t() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int64(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int64(as<String>());
         default: {
 
             return 0;
@@ -1176,7 +1177,7 @@ Variant::operator uint64_t() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int64(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int64(as<String>());
         default: {
 
             return 0;
@@ -1192,7 +1193,7 @@ Variant::operator signed short() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1207,7 +1208,7 @@ Variant::operator unsigned short() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1222,7 +1223,7 @@ Variant::operator signed char() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1237,7 +1238,7 @@ Variant::operator unsigned char() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
             return 0;
@@ -1259,7 +1260,7 @@ float Variant::as<float>() const {
         case VariantType::BOOL: return _data._bool ? 1.0 : 0.0;
         case VariantType::INT: return (float)_data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_double(as<se_string>());
+        case VariantType::STRING: return StringUtils::to_double(as<String>());
         default: {
 
             return 0;
@@ -1274,7 +1275,7 @@ template <> double Variant::as<double>() const {
         case VariantType::BOOL: return _data._bool ? 1.0 : 0.0;
         case VariantType::INT: return (double)_data._int;
         case VariantType::REAL: return _data._real;
-        case VariantType::STRING: return StringUtils::to_double( as<se_string>() );
+        case VariantType::STRING: return StringUtils::to_double( as<String>() );
         default: {
 
             return 0;
@@ -1283,14 +1284,14 @@ template <> double Variant::as<double>() const {
 }
 
 template<>
-String Variant::as<String>() const {
-    PODVector<const void *> stack;
+UIString Variant::as<UIString>() const {
+    Vector<const void *> stack;
 
     return StringUtils::from_utf8(stringify(stack));
 }
 template<>
-se_string Variant::as<se_string>() const {
-    PODVector<const void *> stack;
+String Variant::as<String>() const {
+    Vector<const void *> stack;
 
     return stringify(stack);
 }
@@ -1299,14 +1300,14 @@ se_string_view Variant::as<se_string_view>() const {
     if(type==VariantType::NIL)
         return "";
     assert(type==VariantType::STRING);
-    return (*reinterpret_cast<const se_string *>(_data._mem));
+    return (*reinterpret_cast<const String *>(_data._mem));
 }
 template<>
 NodePath Variant::as<NodePath>() const {
     if (type == VariantType::NODE_PATH)
         return *reinterpret_cast<const NodePath *>(_data._mem);
     if (type == VariantType::STRING)
-        return NodePath(as<se_string>());
+        return NodePath(as<String>());
     return NodePath();
 }
 template<>
@@ -1315,7 +1316,7 @@ StringName Variant::as<StringName>() const {
     if (type == VariantType::NODE_PATH) {
         return reinterpret_cast<const NodePath *>(_data._mem)->get_sname();
     }
-    return StringName(as<se_string>());
+    return StringName(as<String>());
 }
 template<>
 IP_Address Variant::as<IP_Address>() const {
@@ -1328,7 +1329,7 @@ IP_Address Variant::as<IP_Address>() const {
         }
     }
 
-    return IP_Address(as<se_string>());
+    return IP_Address(as<String>());
 }
 template<>
 Transform Variant::as<Transform>() const {
@@ -1377,8 +1378,8 @@ Quat Variant::as<Quat>() const {
 
 struct _VariantStrPair {
 
-    se_string key;
-    se_string value;
+    String key;
+    String value;
 
     bool operator<(const _VariantStrPair &p) const {
 
@@ -1387,32 +1388,32 @@ struct _VariantStrPair {
 };
 
 
-se_string Variant::stringify(PODVector<const void *> &stack) const {
+String Variant::stringify(Vector<const void *> &stack) const {
     switch (type) {
 
         case VariantType::NIL: return ("Null");
         case VariantType::BOOL: return (_data._bool ? "True" : "False");
         case VariantType::INT: return itos(_data._int);
         case VariantType::REAL: return rtos(_data._real);
-        case VariantType::STRING: return (*reinterpret_cast<const se_string *>(_data._mem));
-        case VariantType::VECTOR2: return "(" + (se_string)as<Vector2>() + ")";
-        case VariantType::RECT2: return "(" + (se_string)as<Rect2>() + ")";
+        case VariantType::STRING: return (*reinterpret_cast<const String *>(_data._mem));
+        case VariantType::VECTOR2: return "(" + (String)as<Vector2>() + ")";
+        case VariantType::RECT2: return "(" + (String)as<Rect2>() + ")";
         case VariantType::TRANSFORM2D: {
 
             Transform2D mat32 = operator Transform2D();
-            return "(" + Variant(mat32.elements[0]).as<se_string>() + ", " + Variant(mat32.elements[1]).as<se_string>() + ", " + Variant(mat32.elements[2]).as<se_string>() + ")";
+            return "(" + Variant(mat32.elements[0]).as<String>() + ", " + Variant(mat32.elements[1]).as<String>() + ", " + Variant(mat32.elements[2]).as<String>() + ")";
         }
-        case VariantType::VECTOR3: return "(" + (se_string)as<Vector3>() + ")";
+        case VariantType::VECTOR3: return "(" + (String)as<Vector3>() + ")";
         case VariantType::PLANE:
             return operator Plane();
         //case VariantType::QUAT:
         case VariantType::AABB: return as<AABB>();
-        case VariantType::QUAT: return "(" + (se_string)as<Quat>() + ")";
+        case VariantType::QUAT: return "(" + (String)as<Quat>() + ")";
         case VariantType::BASIS: {
 
             Basis mat3 = operator Basis();
 
-            se_string mtx("(");
+            String mtx("(");
             for (int i = 0; i < 3; i++) {
 
                 if (i != 0)
@@ -1425,7 +1426,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
                     if (j != 0)
                         mtx += (", ");
 
-                    mtx += Variant(mat3.elements[i][j]).as<se_string>();
+                    mtx += Variant(mat3.elements[i][j]).as<String>();
                 }
 
                 mtx += (")");
@@ -1434,7 +1435,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
             return mtx + ")";
         }
         case VariantType::TRANSFORM: return as<Transform>();
-        case VariantType::NODE_PATH: return ((se_string)as<NodePath>());
+        case VariantType::NODE_PATH: return ((String)as<NodePath>());
         case VariantType::COLOR:  {
             Color z(as<Color>());
             return FormatVE("%f,%f,%f,%f",z.r,z.g,z.b,z.a);
@@ -1449,8 +1450,8 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
             stack.push_back(d.id());
 
             //const String *K=NULL;
-            se_string str("{");
-            PODVector<Variant> keys(d.get_key_list());
+            String str("{");
+            Vector<Variant> keys(d.get_key_list());
 
             Vector<_VariantStrPair> pairs;
 
@@ -1462,8 +1463,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
 
                 pairs.push_back(sp);
             }
-
-            pairs.sort();
+            eastl::sort(pairs.begin(),pairs.end());
 
             for (int i = 0; i < pairs.size(); i++) {
                 if (i > 0)
@@ -1477,12 +1477,12 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             PoolVector<Vector2> vec = operator PoolVector<Vector2>();
-            se_string str("[");
+            String str("[");
             for (int i = 0; i < vec.size(); i++) {
 
                 if (i > 0)
                     str += (", ");
-                str += Variant(vec[i]).as<se_string>();
+                str += Variant(vec[i]).as<String>();
             }
             str += ("]");
             return str;
@@ -1490,20 +1490,20 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             PoolVector<Vector3> vec = operator PoolVector<Vector3>();
-            se_string str("[");
+            String str("[");
             for (int i = 0; i < vec.size(); i++) {
 
                 if (i > 0)
                     str += ", ";
-                str = str + Variant(vec[i]).as<se_string>();
+                str = str + Variant(vec[i]).as<String>();
             }
             str += ("]");
             return str;
         }
         case VariantType::POOL_STRING_ARRAY: {
 
-            PoolVector<se_string> vec = as<PoolVector<se_string>>();
-            se_string str("[");
+            PoolVector<String> vec = as<PoolVector<String>>();
+            String str("[");
             for (int i = 0; i < vec.size(); i++) {
 
                 if (i > 0)
@@ -1516,7 +1516,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
         case VariantType::POOL_INT_ARRAY: {
 
             PoolVector<int> vec = as<PoolVector<int>>();
-            se_string str("[");
+            String str("[");
             for (int i = 0; i < vec.size(); i++) {
 
                 if (i > 0)
@@ -1529,7 +1529,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
         case VariantType::POOL_REAL_ARRAY: {
 
             PoolVector<real_t> vec = as<PoolVector<real_t>>();
-            se_string str("[");
+            String str("[");
             for (int i = 0; i < vec.size(); i++) {
 
                 if (i > 0)
@@ -1547,7 +1547,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
             }
             stack.push_back(arr.id());
 
-            se_string str("[");
+            String str("[");
             for (int i = 0; i < arr.size(); i++) {
                 if (i)
                     str += (", ");
@@ -1576,7 +1576,7 @@ se_string Variant::stringify(PODVector<const void *> &stack) const {
 
         }
         default: {
-            return "[" + se_string(get_type_name(type)) + "]";
+            return "[" + String(get_type_name(type)) + "]";
         }
     }
 
@@ -1656,7 +1656,7 @@ Variant::operator Color() const {
     if (type == VariantType::COLOR)
         return *reinterpret_cast<const Color *>(_data._mem);
     if (type == VariantType::STRING)
-        return Color::html(as<se_string>());
+        return Color::html(as<String>());
     if (type == VariantType::INT)
         return Color::hex(operator int());
     return Color();
@@ -1683,7 +1683,7 @@ Variant::operator RID() const {
     if (type == VariantType::OBJECT && _get_obj().obj) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).")
+            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
         }
 #endif
         Variant::CallError ce;
@@ -1696,12 +1696,6 @@ Variant::operator RID() const {
     return RID();
 }
 
-Variant::operator Object *() const {
-
-    if (type == VariantType::OBJECT)
-        return _get_obj().obj;
-    return nullptr;
-}
 Variant::operator Node *() const {
 
     if (type == VariantType::OBJECT)
@@ -1754,7 +1748,7 @@ DA _convert_array_from_variant(const Variant &p_variant) {
             return _convert_array<DA, PoolVector<real_t> >(p_variant.operator PoolVector<real_t>());
         }
         case VariantType::POOL_STRING_ARRAY: {
-            return _convert_array<DA, PoolVector<se_string> >(p_variant.operator PoolVector<se_string>());
+            return _convert_array<DA, PoolVector<String> >(p_variant.operator PoolVector<String>());
         }
         case VariantType::POOL_VECTOR2_ARRAY: {
             return _convert_array<DA, PoolVector<Vector2> >(p_variant.operator PoolVector<Vector2>());
@@ -1797,34 +1791,34 @@ Variant::operator PoolVector<real_t>() const {
     return _convert_array_from_variant<PoolVector<real_t> >(*this);
 }
 
-Variant::operator PoolVector<se_string>() const {
+Variant::operator PoolVector<String>() const {
 
     if (type == VariantType::POOL_STRING_ARRAY)
-        return *reinterpret_cast<const PoolVector<se_string> *>(_data._mem);
-    return _convert_array_from_variant<PoolVector<se_string> >(*this);
+        return *reinterpret_cast<const PoolVector<String> *>(_data._mem);
+    return _convert_array_from_variant<PoolVector<String> >(*this);
 }
 
 template<>
-PoolVector<se_string> Variant::as<PoolVector<se_string>>() const {
+PoolVector<String> Variant::as<PoolVector<String>>() const {
 
-    PoolVector<se_string> res;
-    PoolVector<se_string> tmp;
+    PoolVector<String> res;
+    PoolVector<String> tmp;
     if (type == VariantType::POOL_STRING_ARRAY) {
-        return *reinterpret_cast<const PoolVector<se_string> *>(_data._mem);
+        return *reinterpret_cast<const PoolVector<String> *>(_data._mem);
     }
 
-    return _convert_array_from_variant<PoolVector<se_string> >(*this);
+    return _convert_array_from_variant<PoolVector<String> >(*this);
 }
 template<>
-PODVector<se_string> Variant::as<PODVector<se_string>>() const {
+Vector<String> Variant::as<Vector<String>>() const {
 
-    PODVector<se_string> res;
-    PoolVector<se_string> tmp;
+    Vector<String> res;
+    PoolVector<String> tmp;
     if (type == VariantType::POOL_STRING_ARRAY) {
-        tmp = *reinterpret_cast<const PoolVector<se_string> *>(_data._mem);
+        tmp = *reinterpret_cast<const PoolVector<String> *>(_data._mem);
     }
     else
-        tmp = _convert_array_from_variant<PoolVector<se_string> >(*this);
+        tmp = _convert_array_from_variant<PoolVector<String> >(*this);
     res.reserve(tmp.size());
     for(int i=0,fin=tmp.size(); i<fin; ++i)
     {
@@ -1833,7 +1827,7 @@ PODVector<se_string> Variant::as<PODVector<se_string>>() const {
     return res;
 }
 template<>
-PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const {
+Vector<uint8_t> Variant::as<Vector<uint8_t>>() const {
 
     PoolVector<uint8_t> tmp;
     if (type == VariantType::POOL_BYTE_ARRAY) {
@@ -1841,10 +1835,10 @@ PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const {
     }
     else
         tmp = _convert_array_from_variant<PoolVector<uint8_t> >(*this);
-    return PODVector<uint8_t>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
+    return Vector<uint8_t>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
 }
 template<>
-PODVector<int> Variant::asVector<int>() const {
+Vector<int> Variant::asVector<int>() const {
 
     PoolVector<int> tmp;
     if (type == VariantType::POOL_INT_ARRAY) {
@@ -1854,62 +1848,45 @@ PODVector<int> Variant::asVector<int>() const {
         WARN_PRINT("Inefficient code, converting non int-array Variant to array");
         tmp = _convert_array_from_variant<PoolVector<int> >(*this);
     }
-    return PODVector<int>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
+    return Vector<int>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
 }
 
 template<>
 Span<const uint8_t> Variant::as<Span<const uint8_t>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>());
 
     auto tmp = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
     return Span<const uint8_t>(tmp->read().ptr(),tmp->size());
 }
 template<>
 Span<const int> Variant::as<Span<const int>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_INT_ARRAY, Span<const int>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_INT_ARRAY, Span<const int>());
 
     auto tmp = reinterpret_cast<const PoolVector<int> *>(_data._mem);
     return Span<const int>(tmp->read().ptr(),tmp->size());
 }
 template<>
 Span<const float> Variant::as<Span<const float>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>());
 
     auto tmp = reinterpret_cast<const PoolVector<float> *>(_data._mem);
     return Span<const float>(tmp->read().ptr(), tmp->size());
 }
 template<>
 Span<const Vector2> Variant::as<Span<const Vector2>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
     return Span<const Vector2>(tmp->read().ptr(),tmp->size());
 }
 template<>
 Span<const Vector3> Variant::as<Span<const Vector3>>() const {
-    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR3_ARRAY, Span<const Vector3>())
+    ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR3_ARRAY, Span<const Vector3>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
     return Span<const Vector3>(tmp->read().ptr(),tmp->size());
 }
 
-template<>
-Vector<se_string> Variant::as<Vector<se_string>>() const {
-
-    Vector<se_string> res;
-    PoolVector<se_string> tmp;
-    if (type == VariantType::POOL_STRING_ARRAY) {
-        tmp = *reinterpret_cast<const PoolVector<se_string> *>(_data._mem);
-    }
-    else
-        tmp = _convert_array_from_variant<PoolVector<se_string> >(*this);
-
-    for(int i=0,fin=tmp.size(); i<fin; ++i)
-    {
-        res.emplace_back(tmp[i]);
-    }
-    return res;
-}
 Variant::operator PoolVector<Vector3>() const {
 
     if (type == VariantType::POOL_VECTOR3_ARRAY)
@@ -1933,32 +1910,15 @@ Variant::operator PoolVector<Color>() const {
 /* helpers */
 
 template<>
-Vector<RID> Variant::as<Vector<RID>>() const {
+PoolVector<RID> Variant::as<PoolVector<RID>>() const {
 
     Array va = operator Array();
-    Vector<RID> rids;
+    PoolVector<RID> rids;
     rids.resize(va.size());
+    auto wr(rids.write());
     for (int i = 0; i < rids.size(); i++)
-        rids.write[i] = va[i];
+        wr[i] = va[i];
     return rids;
-}
-
-template<>
-Vector<Vector2> Variant::as<Vector<Vector2>>() const {
-
-    PoolVector<Vector2> from = operator PoolVector<Vector2>();
-    Vector<Vector2> to;
-    int len = from.size();
-    if (len == 0)
-        return Vector<Vector2>();
-    to.resize(len);
-    PoolVector<Vector2>::Read r = from.read();
-    Vector2 *w = to.ptrw();
-    for (int i = 0; i < len; i++) {
-
-        w[i] = r[i];
-    }
-    return to;
 }
 
 Variant::operator PoolVector<Plane>() const {
@@ -1997,10 +1957,10 @@ Variant::operator PoolVector<Face3>() const {
 }
 
 template<>
-PODVector<Plane> Variant::asVector<Plane>() const {
+Vector<Plane> Variant::asVector<Plane>() const {
 
     Array va = operator Array();
-    PODVector<Plane> planes;
+    Vector<Plane> planes;
     int va_size = va.size();
     if (va_size == 0)
         return planes;
@@ -2011,86 +1971,6 @@ PODVector<Plane> Variant::asVector<Plane>() const {
         planes[i] = va[i];
 
     return planes;
-}
-template<class T>
-Vector<T> asVector(const Variant &v) {
-
-};
-template<class T>
-Vector<T> asInternalVector(const Variant &v) {
-    PoolVector<T> from = v.as<PoolVector<T>>();
-    Vector<T> to;
-    int len = from.size();
-    if (len == 0)
-    return to;
-
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = from[i];
-    }
-    return to;
-};
-template<>
-Vector<Variant> Variant::as<Vector<Variant>>() const {
-
-    Array from = operator Array();
-    Vector<Variant> to;
-    int len = from.size();
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = from[i];
-    }
-    return to;
-}
-template<>
-Vector<uint8_t> Variant::as<Vector<uint8_t>>() const {
-    return asInternalVector<uint8_t>(*this);
-    }
-template<>
-Vector<int> Variant::as<Vector<int>>() const {
-    return asInternalVector<int>(*this);
-}
-
-template<>
-Vector<real_t> Variant::as<Vector<real_t>>() const {
-    return asInternalVector<real_t>(*this);
-}
-template<>
-Vector<String> Variant::as<Vector<String>>() const {
-
-    PoolVector<se_string> from = operator PoolVector<se_string>();
-    Vector<String> to;
-    int len = from.size();
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = StringUtils::from_utf8(from[i]);
-    }
-    return to;
-}
-template<>
-Vector<StringName> Variant::as<Vector<StringName>>() const {
-
-    PoolVector<se_string> from = as<PoolVector<se_string>>();
-    Vector<StringName> to;
-    int len = from.size();
-    to.resize(len);
-    for (int i = 0; i < len; i++) {
-
-        to.write[i] = StringName(from[i]);
-    }
-    return to;
-}
-
-template<>
-Vector<Vector3> Variant::as<Vector<Vector3>>() const {
-    return asInternalVector<Vector3>(*this);
-    }
-template<>
-Vector<Color> Variant::as<Vector<Color>>() const {
-    return asInternalVector<Color>(*this);
 }
 
 Variant::operator Margin() const {
@@ -2114,33 +1994,33 @@ Variant::Variant(QChar p_char) {
 Variant::Variant(StringName p_string) {
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(p_string));
+    memnew_placement(_data._mem, String(p_string));
 }
 Variant::Variant(se_string_view p_string) {
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(p_string));
+    memnew_placement(_data._mem, String(p_string));
 }
 Variant::Variant(const char *p_string) {
-    static_assert(sizeof(_data._mem)>=sizeof(se_string));
+    static_assert(sizeof(_data._mem)>=sizeof(String));
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(p_string ? p_string : ""));
+    memnew_placement(_data._mem, String(p_string ? p_string : ""));
 }
 //Variant::Variant(const String &p_string) {
 
 //    type = VariantType::STRING;
-//    memnew_placement(_data._mem, se_string(StringUtils::to_utf8(p_string).data()));
+//    memnew_placement(_data._mem, String(StringUtils::to_utf8(p_string).data()));
 //}
-Variant::Variant(const se_string &p_string) {
+Variant::Variant(const String &p_string) {
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(p_string));
+    memnew_placement(_data._mem, String(p_string));
 }
 Variant::Variant(const CharType *p_wstring) {
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(StringUtils::to_utf8(String(p_wstring)).data()));
+    memnew_placement(_data._mem, String(StringUtils::to_utf8(UIString(p_wstring)).data()));
 }
 Variant::Variant(const Vector3 &p_vector3) {
 
@@ -2233,14 +2113,21 @@ Variant::Variant(const Dictionary &p_dictionary) {
     type = VariantType::DICTIONARY;
     memnew_placement(_data._mem, Dictionary(p_dictionary));
 }
+Variant::Variant(Dictionary && p_dictionary) noexcept {
 
+    type = VariantType::DICTIONARY;
+    memnew_placement(_data._mem, Dictionary(eastl::move(p_dictionary)));
+}
 Variant::Variant(const Array &p_array) {
     static_assert(sizeof(_data._mem)>=sizeof(Array));
 
     type = VariantType::ARRAY;
     memnew_placement(_data._mem, Array(p_array));
 }
-
+Variant::Variant(Array && p_array) noexcept {
+    type = VariantType::ARRAY;
+    memnew_placement(_data._mem, Array(eastl::move(p_array)));
+}
 Variant::Variant(const PoolVector<Plane> &p_array) {
 
     type = VariantType::ARRAY;
@@ -2264,7 +2151,7 @@ constexpr VariantType getBulitinArrayType(const PoolVector<int> &) {
 constexpr VariantType getBulitinArrayType(const PoolVector<float> &) {
     return VariantType::POOL_REAL_ARRAY;
 }
-constexpr VariantType getBulitinArrayType(const PoolVector<se_string> &) {
+constexpr VariantType getBulitinArrayType(const PoolVector<String> &) {
     return VariantType::POOL_STRING_ARRAY;
 }
 constexpr VariantType getBulitinArrayType(const PoolVector<Vector2> &) {
@@ -2277,7 +2164,7 @@ constexpr VariantType getBulitinArrayType(const PoolVector<Color> &) {
     return VariantType::POOL_COLOR_ARRAY;
 }
 
-Variant::Variant(const PODVector<float> &from) {
+Variant::Variant(const Vector<float> &from) {
     static_assert(sizeof(_data._mem)>=sizeof(PoolVector<float>));
     PoolVector<float> *plane_array = memnew_placement(_data._mem, PoolVector<float>);
     type = getBulitinArrayType(*plane_array);
@@ -2287,7 +2174,7 @@ Variant::Variant(const PODVector<float> &from) {
     auto w = plane_array->write();
     eastl::copy(from.begin(),from.end(),w.ptr());
 }
-Variant::Variant(const PODVector<Vector3> &from) {
+Variant::Variant(const Vector<Vector3> &from) {
     static_assert(sizeof(_data._mem)>=sizeof(PoolVector<Vector3>));
     auto plane_array = memnew_placement(_data._mem, PoolVector<Vector3>);
     type = getBulitinArrayType(*plane_array);
@@ -2297,7 +2184,21 @@ Variant::Variant(const PODVector<Vector3> &from) {
     auto w = plane_array->write();
     eastl::copy(from.begin(),from.end(),w.ptr());
 }
-Variant::Variant(const PODVector<Vector2> &from) {
+Variant::Variant(const Vector<Face3> &from) {
+    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<Vector3>));
+    auto plane_array = memnew_placement(_data._mem, PoolVector<Vector3>);
+    type = getBulitinArrayType(*plane_array);
+
+    int len = from.size();
+    plane_array->resize(len*3);
+    auto w = plane_array->write();
+    for(int i=0; i<len; ++i) {
+        w[i*3+0] = from[i].vertex[0];
+        w[i*3+1] = from[i].vertex[1];
+        w[i*3+2] = from[i].vertex[2];
+    }
+}
+Variant::Variant(const Vector<Vector2> &from) {
     static_assert(sizeof(_data._mem)>=sizeof(PoolVector<Vector2>));
     auto plane_array = memnew_placement(_data._mem, PoolVector<Vector2>);
     type = getBulitinArrayType(*plane_array);
@@ -2307,7 +2208,7 @@ Variant::Variant(const PODVector<Vector2> &from) {
     auto w = plane_array->write();
     eastl::copy(from.begin(),from.end(),w.ptr());
 }
-Variant::Variant(const PODVector<Color> &from) {
+Variant::Variant(const Vector<Color> &from) {
     static_assert(sizeof(_data._mem)>=sizeof(PoolVector<Color>));
     auto plane_array = memnew_placement(_data._mem, PoolVector<Color>);
     type = getBulitinArrayType(*plane_array);
@@ -2317,7 +2218,7 @@ Variant::Variant(const PODVector<Color> &from) {
     auto w = plane_array->write();
     eastl::copy(from.begin(),from.end(),w.ptr());
 }
-Variant::Variant(const PODVector<Plane> &from) {
+Variant::Variant(const Vector<Plane> &from) {
     type = VariantType::ARRAY;
 
     Array *plane_array = memnew_placement(_data._mem, Array);
@@ -2360,36 +2261,55 @@ Variant Variant::fromVectorBuiltin(Span<const T> p_array) {
         w[i] = r[i];
     return res;
 }
-
 template<>
-Variant Variant::from(const Vector<Plane> &p_array) {
-    return fromVector<Plane>({p_array.ptr(),p_array.size()});
+Variant Variant::fromVector(Span<const Variant> p_array) {
+    Variant res;
+    res.type = VariantType::ARRAY;
+
+    memnew_placement(res._data._mem, Array(eastl::move(Vector<Variant>(p_array.begin(),p_array.end()))));
+    return res;
 }
+
 template<>
 Variant Variant::from(const Frustum &p_array) {
     return fromVector<Plane>(p_array);
 }
 template<>
-Variant Variant::from(const Vector<RID> &p_array) {
-    return fromVector<RID>({p_array.ptr(),p_array.size()});
+Variant Variant::from(const PoolVector<RID> &p_array) {
+    return fromVector<RID>({p_array.read().ptr(),p_array.size()});
+}
+
+template<>
+Variant Variant::from(const Span<const Vector2> &p_array) {
+    return fromVectorBuiltin<Vector2>(p_array);
 }
 template<>
-Variant Variant::from(const Vector<Vector2> &p_array) {
-    return fromVectorBuiltin<Vector2>({p_array.ptr(),p_array.size()});
+Variant Variant::from(const Span<const Vector3> &p_array) {
+    return fromVectorBuiltin<Vector3>(p_array);
 }
 template<>
-Variant Variant::from(const PODVector<se_string> &p_array) {
-    return fromVectorBuiltin<se_string>(p_array);
+Variant Variant::from(const Vector<String> &p_array) {
+    return fromVectorBuiltin<String>(p_array);
 }
 template<>
-Variant Variant::from(const PODVector<se_string_view> &p_array) {
+Variant Variant::move_from(Vector<Variant> &&p_array) {
+    return Array(eastl::move(p_array));
+}
+template<>
+Variant Variant::from(const Vector<Variant> &p_array) {
+    Array res;
+    res.push_back(p_array.data(),p_array.size());
+    return res;
+}
+template<>
+Variant Variant::from(const Vector<se_string_view> &p_array) {
     Variant res;
-    PoolVector<se_string> *plane_array = memnew_placement(res._data._mem, PoolVector<se_string>);
+    PoolVector<String> *plane_array = memnew_placement(res._data._mem, PoolVector<String>);
     res.type = getBulitinArrayType(*plane_array);
 
     int len = p_array.size();
     plane_array->resize(len);
-    typename PoolVector<se_string>::Write w = plane_array->write();
+    typename PoolVector<String>::Write w = plane_array->write();
     const se_string_view *r = p_array.data();
 
     for (int i = 0; i < len; i++)
@@ -2397,14 +2317,14 @@ Variant Variant::from(const PODVector<se_string_view> &p_array) {
     return res;
 }
 template<>
-Variant Variant::from(const PODVector<StringName> &p_array) {
+Variant Variant::from(const Vector<StringName> &p_array) {
     Variant res;
-    PoolVector<se_string> *plane_array = memnew_placement(res._data._mem, PoolVector<se_string>);
+    PoolVector<String> *plane_array = memnew_placement(res._data._mem, PoolVector<String>);
     res.type = getBulitinArrayType(*plane_array);
 
     int len = p_array.size();
     plane_array->resize(len);
-    typename PoolVector<se_string>::Write w = plane_array->write();
+    typename PoolVector<String>::Write w = plane_array->write();
     const StringName *r = p_array.data();
 
     for (int i = 0; i < len; i++)
@@ -2418,7 +2338,7 @@ Variant::Variant(const PoolVector<uint8_t> &p_raw_array) {
     static_assert (sizeof(PoolVector<uint8_t>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<uint8_t>(p_raw_array));
 }
-Variant::Variant(const PODVector<uint8_t> &p_raw_array) {
+Variant::Variant(const Vector<uint8_t> &p_raw_array) {
 
     type = VariantType::POOL_BYTE_ARRAY;
     PoolVector<uint8_t> to_add;
@@ -2434,7 +2354,7 @@ Variant::Variant(const PoolVector<int> &p_int_array) {
     static_assert (sizeof(PoolVector<int>)<=sizeof(_data));
     memnew_placement(_data._mem, PoolVector<int>(p_int_array));
 }
-Variant::Variant(const PODVector<int> &p_raw_array) {
+Variant::Variant(const Vector<int> &p_raw_array) {
 
     type = VariantType::POOL_INT_ARRAY;
     PoolVector<int> to_add;
@@ -2449,21 +2369,21 @@ Variant::Variant(const PoolVector<real_t> &p_real_array) {
     type = VariantType::POOL_REAL_ARRAY;
     memnew_placement(_data._mem, PoolVector<real_t>(p_real_array));
 }
-Variant::Variant(const PoolVector<String> &p_string_array) {
-    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<se_string>));
+Variant::Variant(const PoolVector<UIString> &p_string_array) {
+    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<String>));
 
     type = VariantType::POOL_STRING_ARRAY;
-    memnew_placement(_data._mem, PoolVector<se_string> {});
-    PoolVector<se_string> &tgt(*reinterpret_cast<PoolVector<se_string> *>(_data._mem));
+    memnew_placement(_data._mem, PoolVector<String> {});
+    PoolVector<String> &tgt(*reinterpret_cast<PoolVector<String> *>(_data._mem));
     tgt.resize(p_string_array.size());
     auto wr=tgt.write();
     for(int i=0; i<p_string_array.size(); ++i)
         wr.ptr()[i] = StringUtils::to_utf8(p_string_array[i]);
 }
-Variant::Variant(const PoolVector<se_string> &p_string_array) {
+Variant::Variant(const PoolVector<String> &p_string_array) {
 
     type = VariantType::POOL_STRING_ARRAY;
-    memnew_placement(_data._mem, PoolVector<se_string>(p_string_array));
+    memnew_placement(_data._mem, PoolVector<String>(p_string_array));
 }
 Variant::Variant(const PoolVector<Vector3> &p_vector3_array) {
 
@@ -2504,57 +2424,6 @@ Variant::Variant(const PoolVector<Face3> &p_face_array) {
     *this = vertices;
 }
 
-/* helpers */
-template<>
-Variant Variant::from(const Vector<Variant> &p_array) {
-    return fromVector<Variant>({p_array.ptr(),p_array.size()});
-}
-
-template<>
-Variant Variant::from(const Vector<uint8_t> &p_array) {
-    return fromVectorBuiltin<uint8_t>({p_array.ptr(),p_array.size()});
-}
-
-template<>
-Variant Variant::from(const Vector<int> &p_array) {
-    return fromVectorBuiltin<int>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<float> &p_array) {
-    return fromVectorBuiltin<float>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<se_string> &p_array) {
-    return fromVectorBuiltin<se_string>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<se_string_view> &p_array) {
-    static_assert(sizeof(_data._mem)>=sizeof(PoolVector<se_string>));
-
-    if(p_array.empty())
-        return Variant();
-    Variant res;
-    PoolVector<se_string> *plane_array = memnew_placement(res._data._mem, PoolVector<se_string>);
-    res.type = getBulitinArrayType(*plane_array);
-
-    int len = p_array.size();
-    plane_array->resize(len);
-    typename PoolVector<se_string>::Write w = plane_array->write();
-    const se_string_view *r = p_array.ptr();
-
-    for (int i = 0; i < len; i++)
-        w[i] = r[i];
-    return res;
-}
-template<>
-Variant Variant::from(const Vector<Vector3> &p_array) {
-    return fromVectorBuiltin<Vector3>({p_array.ptr(),p_array.size()});
-}
-template<>
-Variant Variant::from(const Vector<Color> &p_array) {
-    return fromVectorBuiltin<Color>({p_array.ptr(),p_array.size()});
-}
-
 Variant &Variant::operator=(const Variant &p_variant) {
 
     if (unlikely(this == &p_variant))
@@ -2586,7 +2455,7 @@ Variant &Variant::operator=(const Variant &p_variant) {
         } break;
         case VariantType::STRING: {
 
-            *reinterpret_cast<se_string *>(_data._mem) = *reinterpret_cast<const se_string *>(p_variant._data._mem);
+            *reinterpret_cast<String *>(_data._mem) = *reinterpret_cast<const String *>(p_variant._data._mem);
         } break;
 
         // math types
@@ -2669,7 +2538,7 @@ Variant &Variant::operator=(const Variant &p_variant) {
         } break;
         case VariantType::POOL_STRING_ARRAY: {
 
-            *reinterpret_cast<PoolVector<se_string> *>(_data._mem) = *reinterpret_cast<const PoolVector<se_string> *>(p_variant._data._mem);
+            *reinterpret_cast<PoolVector<String> *>(_data._mem) = *reinterpret_cast<const PoolVector<String> *>(p_variant._data._mem);
         } break;
         case VariantType::POOL_VECTOR2_ARRAY: {
 
@@ -2692,7 +2561,7 @@ Variant &Variant::operator=(const Variant &p_variant) {
 Variant::Variant(const IP_Address &p_address) {
 
     type = VariantType::STRING;
-    memnew_placement(_data._mem, se_string(p_address));
+    memnew_placement(_data._mem, String(p_address));
 }
 
 Variant::Variant(const Variant &p_variant) {
@@ -2728,7 +2597,7 @@ uint32_t Variant::hash() const {
         }
         case VariantType::STRING: {
 
-            return StringUtils::hash(*reinterpret_cast<const se_string *>(_data._mem));
+            return StringUtils::hash(*reinterpret_cast<const String *>(_data._mem));
         }
 
         // math types
@@ -2891,11 +2760,11 @@ uint32_t Variant::hash() const {
         case VariantType::POOL_STRING_ARRAY: {
 
             uint32_t hash = 5831;
-            const PoolVector<se_string> &arr = *reinterpret_cast<const PoolVector<se_string> *>(_data._mem);
+            const PoolVector<String> &arr = *reinterpret_cast<const PoolVector<String> *>(_data._mem);
             int len = arr.size();
 
             if (likely(len)) {
-                PoolVector<se_string>::Read r = arr.read();
+                PoolVector<String>::Read r = arr.read();
 
                 for (int i = 0; i < len; i++) {
                     hash = hash_djb2_one_32(StringUtils::hash(r[i]), hash);
@@ -3192,19 +3061,19 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
         case CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
-            se_string err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
-            ERR_PRINT(err)
+            String err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
+            ERR_PRINT(err);
 
         } break;
         case CallError::CALL_ERROR_INVALID_METHOD: {
 
-            se_string err = "Invalid method '" + se_string(p_method) + "' for type '" + Variant::get_type_name(type) + "'.";
-            ERR_PRINT(err)
+            String err = "Invalid method '" + String(p_method) + "' for type '" + Variant::get_type_name(type) + "'.";
+            ERR_PRINT(err);
         } break;
         case CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
-            se_string err = "Too many arguments for method '" + se_string(p_method) + "'";
-            ERR_PRINT(err)
+            String err = "Too many arguments for method '" + String(p_method) + "'";
+            ERR_PRINT(err);
         } break;
         default: {
         }
@@ -3213,22 +3082,22 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
     return ret;
 }
 
-void Variant::construct_from_string(const String &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
+void Variant::construct_from_string(const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
 
     r_value = Variant();
 }
 
-se_string Variant::get_construct_string() const {
+String Variant::get_construct_string() const {
 
-    se_string vars;
+    String vars;
     VariantWriter::write_to_string(*this, vars);
 
     return vars;
 }
 
-se_string Variant::get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce) {
+String Variant::get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce) {
 
-    se_string err_text;
+    String err_text;
 
     if (ce.error == Variant::CallError::CALL_ERROR_INVALID_ARGUMENT) {
         int errorarg = ce.argument;
@@ -3249,16 +3118,16 @@ se_string Variant::get_call_error_text(Object *p_base, const StringName &p_metho
         return "Call OK";
     }
 
-    se_string class_name(p_base->get_class());
+    String class_name(p_base->get_class());
     Ref<Script> script = refFromRefPtr<Script>(p_base->get_script());
     if (script && PathUtils::is_resource_file(script->get_path())) {
 
-        class_name += "(" + se_string(PathUtils::get_file(script->get_path())) + ")";
+        class_name += "(" + String(PathUtils::get_file(script->get_path())) + ")";
     }
-    return "'" + class_name + "::" + se_string(p_method) + "': " + err_text;
+    return "'" + class_name + "::" + String(p_method) + "': " + err_text;
 }
 
-se_string vformat(se_string_view p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
+String vformat(se_string_view p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
 
     Array args;
     if (p1.get_type() != VariantType::NIL) {
@@ -3287,9 +3156,9 @@ se_string vformat(se_string_view p_text, const Variant &p1, const Variant &p2, c
     }
 
     bool error = false;
-    se_string fmt = StringUtils::sprintf(p_text,args, &error);
+    String fmt = StringUtils::sprintf(p_text,args, &error);
 
-    ERR_FAIL_COND_V(error, se_string())
+    ERR_FAIL_COND_V(error, String());
 
     return fmt;
 }
@@ -3305,6 +3174,6 @@ void fill_with_all_variant_types(const char *nillname,char (&s)[7+(longest_varia
 
 }
 
-PODVector<Variant> varray(std::initializer_list<Variant> v) {
+Vector<Variant> varray(std::initializer_list<Variant> v) {
     return v;
 }

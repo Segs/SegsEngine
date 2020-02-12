@@ -43,7 +43,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
 
     PoolVector<uint8_t> src_image;
     int src_image_len = f->get_len();
-    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT)
+    ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
     src_image.resize(src_image_len);
 
     PoolVector<uint8_t>::Write w = src_image.write();
@@ -73,7 +73,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     ret = ParseEXRHeaderFromMemory(&exr_header, &exr_version, w.ptr(), src_image_len, &err);
     if (ret != TINYEXR_SUCCESS) {
         if (err) {
-            ERR_PRINT(se_string(err))
+            ERR_PRINT(String(err));
         }
         return ERR_FILE_CORRUPT;
     }
@@ -89,7 +89,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     ret = LoadEXRImageFromMemory(&exr_image, &exr_header, w.ptr(), src_image_len, &err);
     if (ret != TINYEXR_SUCCESS) {
         if (err) {
-            ERR_PRINT(se_string(err))
+            ERR_PRINT(String(err));
         }
         return ERR_FILE_CORRUPT;
     }
@@ -120,19 +120,19 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     } else {
         // Assume RGB(A)
         if (idxR == -1) {
-            ERR_PRINT("TinyEXR: R channel not found.")
+            ERR_PRINT("TinyEXR: R channel not found.");
             // @todo { free exr_image }
             return ERR_FILE_CORRUPT;
         }
 
         if (idxG == -1) {
-            ERR_PRINT("TinyEXR: G channel not found.")
+            ERR_PRINT("TinyEXR: G channel not found.");
             // @todo { free exr_image }
             return ERR_FILE_CORRUPT;
         }
 
         if (idxB == -1) {
-            ERR_PRINT("TinyEXR: B channel not found.")
+            ERR_PRINT("TinyEXR: B channel not found.");
             // @todo { free exr_image }
             return ERR_FILE_CORRUPT;
         }
@@ -249,7 +249,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     return OK;
 }
 
-void ImageLoaderTinyEXR::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderTinyEXR::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("exr");
 }
@@ -262,7 +262,7 @@ bool ImageLoaderTinyEXR::can_save(se_string_view extension)
     return se_string_view("exr")==extension;
 }
 
-Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
+Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params)
 {
     auto err = save_exr(tgt,p_image,params.p_greyscale);
     return err;
@@ -270,7 +270,7 @@ Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PODVector<uint8_t
 
 Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PODVector<uint8_t> tgt;
+    Vector<uint8_t> tgt;
     auto err = save_exr(tgt,p_image,params.p_greyscale);
 
     if(err!=OK)

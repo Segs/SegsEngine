@@ -160,7 +160,7 @@ public:
 
     void texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, VisualServer::TextureType p_type = VS::TEXTURE_TYPE_2D, uint32_t p_flags = VS::TEXTURE_FLAGS_DEFAULT) {
         DummyTexture *t = texture_owner.getornull(p_texture);
-        ERR_FAIL_COND(!t)
+        ERR_FAIL_COND(!t);
         t->width = p_width;
         t->height = p_height;
         t->flags = p_flags;
@@ -170,7 +170,7 @@ public:
     }
     void texture_set_data(RID p_texture, const Ref<Image> &p_image, int p_level) {
         DummyTexture *t = texture_owner.getornull(p_texture);
-        ERR_FAIL_COND(!t)
+        ERR_FAIL_COND(!t);
         t->width = p_image->get_width();
         t->height = p_image->get_height();
         t->format = p_image->get_format();
@@ -180,12 +180,12 @@ public:
     void texture_set_data_partial(RID p_texture, const Ref<Image> &p_image, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int p_dst_mip, int p_level) {
         DummyTexture *t = texture_owner.get(p_texture);
 
-        ERR_FAIL_COND(!t)
-        ERR_FAIL_COND_MSG(not p_image, "It's not a reference to a valid Image object.")
-        ERR_FAIL_COND(t->format != p_image->get_format())
-        ERR_FAIL_COND(src_w <= 0 || src_h <= 0)
-        ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height())
-        ERR_FAIL_COND(dst_x < 0 || dst_y < 0 || dst_x + src_w > t->width || dst_y + src_h > t->height)
+        ERR_FAIL_COND(!t);
+        ERR_FAIL_COND_MSG(not p_image, "It's not a reference to a valid Image object."); 
+        ERR_FAIL_COND(t->format != p_image->get_format());
+        ERR_FAIL_COND(src_w <= 0 || src_h <= 0);
+        ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height());
+        ERR_FAIL_COND(dst_x < 0 || dst_y < 0 || dst_x + src_w > t->width || dst_y + src_h > t->height);
 
         t->image->blit_rect(p_image, Rect2(src_x, src_y, src_w, src_h), Vector2(dst_x, dst_y));
     }
@@ -197,7 +197,7 @@ public:
     }
     void texture_set_flags(RID p_texture, uint32_t p_flags) {
         DummyTexture *t = texture_owner.getornull(p_texture);
-        ERR_FAIL_COND(!t)
+        ERR_FAIL_COND(!t);
         t->flags = p_flags;
     }
     uint32_t texture_get_flags(RID p_texture) const {
@@ -221,10 +221,10 @@ public:
 
     void texture_set_path(RID p_texture, se_string_view p_path) {
         DummyTexture *t = texture_owner.getornull(p_texture);
-        ERR_FAIL_COND(!t)
+        ERR_FAIL_COND(!t);
         t->path = p_path;
     }
-    const se_string &texture_get_path(RID p_texture) const {
+    const String &texture_get_path(RID p_texture) const {
         DummyTexture *t = texture_owner.getornull(p_texture);
         ERR_FAIL_COND_V(!t, null_se_string)
         return t->path;
@@ -255,9 +255,9 @@ public:
 
     RID shader_create() { return RID(); }
 
-    void shader_set_code(RID p_shader, const se_string &p_code) {}
-    se_string shader_get_code(RID p_shader) const { 	return String(); }
-    void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {}
+    void shader_set_code(RID p_shader, const String &p_code) {}
+    String shader_get_code(RID p_shader) const { 	return String(); }
+    void shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const {}
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) {}
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const { return RID(); }
@@ -294,9 +294,9 @@ public:
         return mesh_owner.make_rid(mesh);
     }
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) {
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const Vector<uint8_t> &p_array, int p_vertex_count, const Vector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<Vector<uint8_t> > &p_blend_shapes = Vector<Vector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) {
         DummyMesh *m = mesh_owner.getornull(p_mesh);
-        ERR_FAIL_COND(!m)
+        ERR_FAIL_COND(!m);
 
         m->surfaces.push_back(DummySurface());
         DummySurface *s = &m->surfaces.write[m->surfaces.size() - 1];
@@ -313,7 +313,7 @@ public:
 
     void mesh_set_blend_shape_count(RID p_mesh, int p_amount) {
         DummyMesh *m = mesh_owner.getornull(p_mesh);
-        ERR_FAIL_COND(!m)
+        ERR_FAIL_COND(!m);
         m->blend_shape_count = p_amount;
     }
     int mesh_get_blend_shape_count(RID p_mesh) const {
@@ -324,7 +324,7 @@ public:
 
     void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) {
         DummyMesh *m = mesh_owner.getornull(p_mesh);
-        ERR_FAIL_COND(!m)
+        ERR_FAIL_COND(!m);
         m->blend_shape_mode = p_mode;
     }
     VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const {
@@ -398,8 +398,8 @@ public:
 
     void mesh_remove_surface(RID p_mesh, int p_index) {
         DummyMesh *m = mesh_owner.getornull(p_mesh);
-        ERR_FAIL_COND(!m)
-        ERR_FAIL_COND(p_index >= m->surfaces.size())
+        ERR_FAIL_COND(!m);
+        ERR_FAIL_COND(p_index >= m->surfaces.size());
 
         m->surfaces.remove(p_index);
     }

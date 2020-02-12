@@ -83,7 +83,7 @@ void ImageLoaderSVG::_convert_colors(NSVGimage *p_svg_image) {
     }
 }
 
-void ImageLoaderSVG::set_convert_colors(PODVector<eastl::pair<Color,Color>> *p_replace_color) {
+void ImageLoaderSVG::set_convert_colors(Vector<eastl::pair<Color,Color>> *p_replace_color) {
 
     if (p_replace_color) {
         for (const eastl::pair<Color,Color> &entry : *p_replace_color) {
@@ -103,7 +103,7 @@ Error ImageLoaderSVG::_create_image(ImageData &p_image, const PoolVector<uint8_t
     PoolVector<uint8_t>::Read src_r = p_data->read();
     svg_image = nsvgParse((char *)src_r.ptr(), "px", 96);
     if (svg_image == nullptr) {
-        ERR_PRINT("SVG Corrupted")
+        ERR_PRINT("SVG Corrupted");
         return ERR_FILE_CORRUPT;
     }
     if (params.p_convert_colors)
@@ -114,12 +114,12 @@ Error ImageLoaderSVG::_create_image(ImageData &p_image, const PoolVector<uint8_t
     int w = (int)(svg_image->width * params.p_scale * upscale);
     ERR_FAIL_COND_V_MSG(w > ImageData::MAX_WIDTH, ERR_PARAMETER_RANGE_ERROR,
             FormatVE("Can't create image from SVG with scale %f, the resulting image size exceeds max width.",
-                    params.p_scale))
+                    params.p_scale));
 
     int h = (int)(svg_image->height * params.p_scale * upscale);
     ERR_FAIL_COND_V_MSG(h > ImageData::MAX_HEIGHT, ERR_PARAMETER_RANGE_ERROR,
             FormatVE("Can't create image from SVG with scale %f, the resulting image size exceeds max height.",
-                    params.p_scale))
+                    params.p_scale));
 
     p_image.data.resize(w * h * 4);
 
@@ -149,7 +149,7 @@ Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
     return _create_image(p_image, &src_image, params);
 }
 
-void ImageLoaderSVG::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderSVG::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("svg"));
     p_extensions.push_back(("svgz"));

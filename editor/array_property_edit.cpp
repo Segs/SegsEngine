@@ -221,15 +221,15 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void ArrayPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Variant arr = get_array();
     int size = arr.call("size");
 
-    p_list->push_back(PropertyInfo(VariantType::INT, "array/size", PROPERTY_HINT_RANGE, "0,100000,1"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "array/size", PropertyHint::Range, "0,100000,1"));
     int pages = size / ITEMS_PER_PAGE;
     if (pages > 0)
-        p_list->push_back(PropertyInfo(VariantType::INT, "array/page", PROPERTY_HINT_RANGE, "0," + itos(pages) + ",1"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "array/page", PropertyHint::Range, "0," + itos(pages) + ",1"));
 
     int offset = page * ITEMS_PER_PAGE;
 
@@ -241,11 +241,11 @@ void ArrayPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
         bool is_typed = arr.get_type() != VariantType::ARRAY || subtype != VariantType::NIL;
 
         if (!is_typed) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset) + "_type"), PROPERTY_HINT_ENUM, vtypes));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset) + "_type"), PropertyHint::Enum, vtypes));
         }
 
         if (v.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(v)) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset)), PROPERTY_HINT_OBJECT_ID, "Object"));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset)), PropertyHint::ObjectID, "Object"));
             continue;
         }
 
@@ -256,7 +256,7 @@ void ArrayPropertyEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const 
                 pi.hint = PropertyHint(subtype_hint);
                 pi.hint_string = subtype_hint_string;
             } else if (v.get_type() == VariantType::OBJECT) {
-                pi.hint = PROPERTY_HINT_RESOURCE_TYPE;
+                pi.hint = PropertyHint::ResourceType;
                 pi.hint_string = "Resource";
             }
 
@@ -274,11 +274,11 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_
 
     if (!p_hint_string.empty()) {
         auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
-        if (hint_subtype_separator != se_string::npos) {
+        if (hint_subtype_separator != String::npos) {
             se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
 
             auto slash_pos = StringUtils::find(subtype_string,"/");
-            if (slash_pos != se_string::npos) {
+            if (slash_pos != String::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
                 subtype_string = StringUtils::substr(subtype_string,0, slash_pos);
             }
@@ -317,6 +317,6 @@ ArrayPropertyEdit::ArrayPropertyEdit() {
     }
     default_type = VariantType::NIL;
     subtype = VariantType::NIL;
-    subtype_hint = PROPERTY_HINT_NONE;
+    subtype_hint = PropertyHint::None;
     subtype_hint_string = "";
 }

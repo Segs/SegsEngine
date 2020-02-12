@@ -182,7 +182,7 @@ void CollisionObjectBullet::notify_new_overlap(AreaBullet *p_area) {
 }
 
 void CollisionObjectBullet::on_exit_area(AreaBullet *p_area) {
-    areasOverlapped.erase(p_area);
+    areasOverlapped.erase_first(p_area);
 }
 
 void CollisionObjectBullet::set_godot_object_flags(int flags) {
@@ -243,7 +243,7 @@ void RigidCollisionObjectBullet::add_shape(ShapeBullet *p_shape, const Transform
 }
 
 void RigidCollisionObjectBullet::set_shape(int p_index, ShapeBullet *p_shape) {
-    ShapeWrapper &shp = shapes.write[p_index];
+    ShapeWrapper &shp = shapes[p_index];
     shp.shape->remove_owner(this);
     p_shape->add_owner(this);
     shp.shape = p_shape;
@@ -277,7 +277,7 @@ void RigidCollisionObjectBullet::remove_shape_full(ShapeBullet *p_shape) {
     for (int i = shapes.size() - 1; 0 <= i; --i) {
         if (p_shape == shapes[i].shape) {
             internal_shape_destroy(i);
-            shapes.remove(i);
+            shapes.erase_at(i);
         }
     }
     reload_shapes();
@@ -286,7 +286,7 @@ void RigidCollisionObjectBullet::remove_shape_full(ShapeBullet *p_shape) {
 void RigidCollisionObjectBullet::remove_shape_full(int p_index) {
     ERR_FAIL_INDEX(p_index, get_shape_count());
     internal_shape_destroy(p_index);
-    shapes.remove(p_index);
+    shapes.erase_at(p_index);
     reload_shapes();
 }
 
@@ -303,7 +303,7 @@ void RigidCollisionObjectBullet::remove_all_shapes(bool p_permanentlyFromThisBod
 void RigidCollisionObjectBullet::set_shape_transform(int p_index, const Transform &p_transform) {
     ERR_FAIL_INDEX(p_index, get_shape_count());
 
-    shapes.write[p_index].set_transform(p_transform);
+    shapes[p_index].set_transform(p_transform);
     shape_changed(p_index);
 }
 
@@ -320,7 +320,7 @@ Transform RigidCollisionObjectBullet::get_shape_transform(int p_index) const {
 void RigidCollisionObjectBullet::set_shape_disabled(int p_index, bool p_disabled) {
     if (shapes[p_index].active != p_disabled)
         return;
-    shapes.write[p_index].active = !p_disabled;
+    shapes[p_index].active = !p_disabled;
     shape_changed(p_index);
 }
 
@@ -329,7 +329,7 @@ bool RigidCollisionObjectBullet::is_shape_disabled(int p_index) {
 }
 
 void RigidCollisionObjectBullet::shape_changed(int p_shape_index) {
-    ShapeWrapper &shp = shapes.write[p_shape_index];
+    ShapeWrapper &shp = shapes[p_shape_index];
     if (shp.bt_shape == mainShape) {
         mainShape = nullptr;
     }
@@ -352,7 +352,7 @@ void RigidCollisionObjectBullet::reload_shapes() {
     // Reset shape if required
     if (force_shape_reset) {
         for (int i(0); i < shape_count; ++i) {
-            shpWrapper = &shapes.write[i];
+            shpWrapper = &shapes[i];
             bulletdelete(shpWrapper->bt_shape);
         }
         force_shape_reset = false;
@@ -362,7 +362,7 @@ void RigidCollisionObjectBullet::reload_shapes() {
 
     // Try to optimize by not using compound
     if (1 == shape_count) {
-        shpWrapper = &shapes.write[0];
+        shpWrapper = &shapes[0];
         btTransform transform = shpWrapper->get_adjusted_transform();
         if (transform.getOrigin().isZero() && transform.getBasis() == transform.getBasis().getIdentity()) {
             shpWrapper->claim_bt_shape(body_scale);
@@ -376,7 +376,7 @@ void RigidCollisionObjectBullet::reload_shapes() {
     btCompoundShape *compoundShape = bulletnew(btCompoundShape(enableDynamicAabbTree, shape_count));
 
     for (int i(0); i < shape_count; ++i) {
-        shpWrapper = &shapes.write[i];
+        shpWrapper = &shapes[i];
         shpWrapper->claim_bt_shape(body_scale);
         btTransform scaled_shape_transform(shpWrapper->get_adjusted_transform());
         scaled_shape_transform.getOrigin() *= body_scale;
@@ -394,7 +394,7 @@ void RigidCollisionObjectBullet::body_scale_changed() {
 }
 
 void RigidCollisionObjectBullet::internal_shape_destroy(int p_index, bool p_permanentlyFromThisBody) {
-    ShapeWrapper &shp = shapes.write[p_index];
+    ShapeWrapper &shp = shapes[p_index];
     shp.shape->remove_owner(this, p_permanentlyFromThisBody);
     if (shp.bt_shape == mainShape) {
         mainShape = nullptr;

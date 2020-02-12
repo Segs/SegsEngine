@@ -70,19 +70,19 @@ EditorProgress *GIProbeEditorPlugin::tmp_progress = nullptr;
 
 void GIProbeEditorPlugin::bake_func_begin(int p_steps) {
 
-    ERR_FAIL_COND(tmp_progress != nullptr)
+    ERR_FAIL_COND(tmp_progress != nullptr);
 
     tmp_progress = memnew(EditorProgress(("bake_gi"), TTR("Bake GI Probe"), p_steps));
 }
 
 void GIProbeEditorPlugin::bake_func_step(int p_step, se_string_view p_description) {
 
-    ERR_FAIL_COND(tmp_progress == nullptr)
+    ERR_FAIL_COND(tmp_progress == nullptr);
     tmp_progress->step(StringName(p_description), p_step, false);
 }
 
 void GIProbeEditorPlugin::bake_func_end() {
-    ERR_FAIL_COND(tmp_progress == nullptr)
+    ERR_FAIL_COND(tmp_progress == nullptr);
     memdelete(tmp_progress);
     tmp_progress = nullptr;
 }
@@ -96,7 +96,7 @@ GIProbeEditorPlugin::GIProbeEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
     bake = memnew(ToolButton);
-    bake->set_icon(editor->get_gui_base()->get_icon("Bake", "EditorIcons"));
+    bake->set_button_icon(editor->get_gui_base()->get_icon("Bake", "EditorIcons"));
     bake->set_text(TTR("Bake GI Probe"));
     bake->hide();
     bake->connect("pressed", this, "_bake");

@@ -40,6 +40,8 @@
 #include "scene/gui/margin_container.h"
 #include "editor_scale.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(EditorPluginSettings)
 
 void EditorPluginSettings::_notification(int p_what) {
@@ -69,14 +71,14 @@ void EditorPluginSettings::update_plugins() {
 
     da->list_dir_begin();
 
-    se_string d = da->get_next();
+    String d = da->get_next();
 
-    Vector<se_string> plugins;
+    Vector<String> plugins;
 
     while (!d.empty()) {
 
         bool dir = da->current_is_dir();
-        se_string path = "res://addons/" + d + "/plugin.cfg";
+        String path = "res://addons/" + d + "/plugin.cfg";
 
         if (dir && FileAccess::exists(path)) {
 
@@ -89,72 +91,73 @@ void EditorPluginSettings::update_plugins() {
     da->list_dir_end();
     memdelete(da);
 
-    plugins.sort();
+    eastl::sort(plugins.begin(), plugins.end());
 
     for (int i = 0; i < plugins.size(); i++) {
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
-        se_string path = "res://addons/" + plugins[i] + "/plugin.cfg";
+        String path = "res://addons/" + plugins[i] + "/plugin.cfg";
 
         Error err2 = cf->load(path);
 
         if (err2 != OK) {
-            WARN_PRINT("Can't load plugin config: " + path)
+            WARN_PRINT("Can't load plugin config: " + path);
+            continue;
+        }
+        bool key_missing = false;
+
+        if (!cf->has_section_key("plugin", "name")) {
+            WARN_PRINT("Plugin config misses \"plugin/name\" key: " + path);
+            key_missing = true;
+        }
+        if (!cf->has_section_key("plugin", "author")) {
+            WARN_PRINT("Plugin config misses \"plugin/author\" key: " + path);
+            key_missing = true;
+        }
+        if (!cf->has_section_key("plugin", "version")) {
+            WARN_PRINT("Plugin config misses \"plugin/version\" key: " + path);
+            key_missing = true;
+        }
+        if (!cf->has_section_key("plugin", "description")) {
+            WARN_PRINT("Plugin config misses \"plugin/description\" key: " + path);
+            key_missing = true;
+        }
+        if (!cf->has_section_key("plugin", "script")) {
+            WARN_PRINT("Plugin config misses \"plugin/script\" key: " + path);
+            key_missing = true;
+        }
+
+        if (key_missing)
+            continue;
+
+        StringName d2(plugins[i]);
+        StringName name = cf->get_value("plugin", "name");
+        StringName author = cf->get_value("plugin", "author");
+        StringName version = cf->get_value("plugin", "version");
+        StringName description = cf->get_value("plugin", "description");
+        StringName script = cf->get_value("plugin", "script");
+
+        TreeItem *item = plugin_list->create_item(root);
+        item->set_text(0, name);
+        item->set_tooltip(0, FormatSN(TTR("Name: %s\nPath: %s\nMain Script: %3\nDescription: %4").asCString(),
+                name.asCString(), path.c_str(), script.asCString(), description.asCString()));
+        item->set_metadata(0, d2);
+        item->set_text(1, version);
+        item->set_metadata(1, script);
+        item->set_text(2, author);
+        item->set_metadata(2, description);
+        item->set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
+        item->set_range_config(3, 0, 1, 1);
+        item->set_text(3, "Inactive,Active");
+        item->set_editable(3, true);
+        item->add_button(4, get_icon("Edit", "EditorIcons"), BUTTON_PLUGIN_EDIT, false, TTR("Edit Plugin"));
+
+        if (EditorNode::get_singleton()->is_addon_plugin_enabled(d2)) {
+            item->set_custom_color(3, get_color("success_color", "Editor"));
+            item->set_range(3, 1);
         } else {
-            bool key_missing = false;
-
-            if (!cf->has_section_key("plugin", "name")) {
-                WARN_PRINT("Plugin config misses \"plugin/name\" key: " + path)
-                key_missing = true;
-            }
-            if (!cf->has_section_key("plugin", "author")) {
-                WARN_PRINT("Plugin config misses \"plugin/author\" key: " + path)
-                key_missing = true;
-            }
-            if (!cf->has_section_key("plugin", "version")) {
-                WARN_PRINT("Plugin config misses \"plugin/version\" key: " + path)
-                key_missing = true;
-            }
-            if (!cf->has_section_key("plugin", "description")) {
-                WARN_PRINT("Plugin config misses \"plugin/description\" key: " + path)
-                key_missing = true;
-            }
-            if (!cf->has_section_key("plugin", "script")) {
-                WARN_PRINT("Plugin config misses \"plugin/script\" key: " + path)
-                key_missing = true;
-            }
-
-            if (!key_missing) {
-            StringName d2(plugins[i]);
-            StringName name = cf->get_value("plugin", "name");
-            StringName author = cf->get_value("plugin", "author");
-            StringName version = cf->get_value("plugin", "version");
-            StringName description = cf->get_value("plugin", "description");
-            StringName script = cf->get_value("plugin", "script");
-
-            TreeItem *item = plugin_list->create_item(root);
-            item->set_text(0, name);
-            item->set_tooltip(0, FormatSN(TTR("Name: %s\nPath: %s\nMain Script: %3\nDescription: %4").asCString(),
-                                         name.asCString(), path.c_str(), script.asCString(), description.asCString()));
-            item->set_metadata(0, d2);
-            item->set_text(1, version);
-            item->set_metadata(1, script);
-            item->set_text(2, author);
-            item->set_metadata(2, description);
-            item->set_cell_mode(3, TreeItem::CELL_MODE_RANGE);
-            item->set_range_config(3, 0, 1, 1);
-            item->set_text(3, "Inactive,Active");
-            item->set_editable(3, true);
-            item->add_button(4, get_icon("Edit", "EditorIcons"), BUTTON_PLUGIN_EDIT, false, TTR("Edit Plugin"));
-
-            if (EditorNode::get_singleton()->is_addon_plugin_enabled(d2)) {
-                item->set_custom_color(3, get_color("success_color", "Editor"));
-                item->set_range(3, 1);
-            } else {
-                item->set_custom_color(3, get_color("disabled_font_color", "Editor"));
-                item->set_range(3, 0);
-            }
-            }
+            item->set_custom_color(3, get_color("disabled_font_color", "Editor"));
+            item->set_range(3, 0);
         }
     }
 
@@ -167,7 +170,7 @@ void EditorPluginSettings::_plugin_activity_changed() {
         return;
 
     TreeItem *ti = plugin_list->get_edited();
-    ERR_FAIL_COND(!ti)
+    ERR_FAIL_COND(!ti);
     bool active = ti->get_range(3);
     StringName name(ti->get_metadata(0));
 
@@ -198,7 +201,7 @@ void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, in
         return;
     if (p_id == BUTTON_PLUGIN_EDIT) {
         if (p_column == 4) {
-            se_string dir = item->get_metadata(0);
+            String dir = item->get_metadata(0);
             plugin_config_dialog->config("res://addons/" + dir + "/plugin.cfg");
             plugin_config_dialog->popup_centered();
         }
@@ -216,7 +219,7 @@ void EditorPluginSettings::_bind_methods() {
 EditorPluginSettings::EditorPluginSettings() {
 
     plugin_config_dialog = memnew(PluginConfigDialog);
-    plugin_config_dialog->config(se_string());
+    plugin_config_dialog->config(String());
     add_child(plugin_config_dialog);
 
     HBoxContainer *title_hb = memnew(HBoxContainer);

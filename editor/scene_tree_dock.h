@@ -155,7 +155,7 @@ class SceneTreeDock : public VBoxContainer {
     EditorNode *editor;
 
     VBoxContainer *create_root_dialog;
-    se_string selected_favorite_root;
+    String selected_favorite_root;
 
     void _add_children_to_popup(Object *p_obj, int p_depth);
 
@@ -205,14 +205,14 @@ class SceneTreeDock : public VBoxContainer {
     bool _validate_no_foreign();
     void _selection_changed();
     void _update_script_button();
-    Node *_get_selection_group_tail(Node *p_node, List<Node *> p_list);
+    Node *_get_selection_group_tail(Node *p_node, const Vector<Node *> &p_list);
 
-    void _fill_path_renames(Vector<StringName> base_path, Vector<StringName> new_base_path, Node *p_node, List<Pair<NodePath, NodePath> > *p_renames);
+    void _fill_path_renames(Vector<StringName> base_path, Vector<StringName> new_base_path, Node *p_node, Vector<Pair<NodePath, NodePath> > &p_renames);
 
     void _normalize_drop(Node *&to_node, int &to_pos, int p_type);
 
     void _nodes_dragged(const Array& p_nodes, const NodePath& p_to, int p_type);
-    void _files_dropped(const Vector<se_string> &p_files, const NodePath& p_to, int p_type);
+    void _files_dropped(const Vector<String> &p_files, const NodePath& p_to, int p_type);
     void _script_dropped(se_string_view p_file, const NodePath& p_to);
     void _quick_open();
 
@@ -220,10 +220,10 @@ class SceneTreeDock : public VBoxContainer {
 
     void _filter_changed(se_string_view p_filter);
 
-    void _perform_instance_scenes(const Vector<se_string> &p_files, Node *parent, int p_pos);
+    void _perform_instance_scenes(Span<const String> p_files, Node *parent, int p_pos);
     void _replace_with_branch_scene(se_string_view p_file, Node *base);
 
-    void _file_selected(String p_file);
+    void _file_selected(UIString p_file);
 
     void _remote_tree_selected();
     void _local_tree_selected();
@@ -241,18 +241,18 @@ protected:
     static void _bind_methods();
 
 public:
-    String get_filter();
-    void set_filter(const String &p_filter);
+    UIString get_filter();
+    void set_filter(const UIString &p_filter);
 
     void _focus_node();
 
     void import_subscene();
     void set_edited_scene(Node *p_scene);
     void instance(se_string_view p_file);
-    void instance_scenes(const Vector<se_string> &p_files, Node *p_parent = nullptr);
+    void instance_scenes(const Vector<String> &p_files, Node *p_parent = nullptr);
     void set_selected(Node *p_node, bool p_emit_selected = false);
-    void fill_path_renames(Node *p_node, Node *p_new_parent, List<Pair<NodePath, NodePath> > *p_renames);
-    void perform_node_renames(Node *p_base, List<Pair<NodePath, NodePath> > *p_renames, Map<Ref<Animation>, Set<int> > *r_rem_anims = nullptr);
+    void fill_path_renames(Node *p_node, Node *p_new_parent, Vector<Pair<NodePath, NodePath> > &p_renames);
+    void perform_node_renames(Node *p_base, Vector<Pair<NodePath, NodePath> > &p_renames, Map<Ref<Animation>, Set<int> > *r_rem_anims = nullptr);
     SceneTreeEditor *get_tree_editor() { return scene_tree; }
     EditorData *get_editor_data() { return editor_data; }
 

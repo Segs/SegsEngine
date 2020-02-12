@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_SCENE_IMPORT_STATE_H
-#define EDITOR_SCENE_IMPORT_STATE_H
+#pragma once
 
 #include "core/io/resource_importer.h"
 #include "core/vector.h"
@@ -41,6 +40,8 @@
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/surface_tool.h"
+
+#include "EASTL/deque.h"
 
 #include <assimp/matrix4x4.h>
 #include <assimp/scene.h>
@@ -55,37 +56,37 @@ namespace AssimpImporter {
      */
 struct ImportState {
 
-    se_string path;
+    String path;
     Spatial *root;
     const aiScene *assimp_scene;
     uint32_t max_bone_weights;
 
-    Map<se_string, Ref<Mesh> > mesh_cache;
+    Map<String, Ref<Mesh> > mesh_cache;
     Map<int, Ref<Material> > material_cache;
-    Map<se_string, int> light_cache;
-    Map<se_string, int> camera_cache;
+    Map<String, int> light_cache;
+    Map<String, int> camera_cache;
     // very useful for when you need to ask assimp for the bone mesh
 
     Map<const aiNode *, Node *> assimp_node_map;
-    Map<se_string, Ref<Image> > path_to_image_cache;
+    Map<String, Ref<Image> > path_to_image_cache;
 
     // Generation 3 - determinisitic iteration
     // to lower potential recursion errors
-    List<const aiNode *> nodes;
+    Vector<const aiNode *> nodes;
     Map<const aiNode *, Spatial *> flat_node_map;
     AnimationPlayer *animation_player;
 
     // Generation 3 - deterministic armatures
     // list of armature nodes - flat and simple to parse
     // assimp node, node in godot
-    List<aiNode *> armature_nodes;
+    Vector<aiNode *> armature_nodes;
     Map<const aiNode *, Skeleton *> armature_skeletons;
     Map<aiBone *, Skeleton *> skeleton_bone_map;
     // Generation 3 - deterministic bone handling
     // bones from the stack are popped when found
     // this means we can detect
     // what bones are for other armatures
-    List<aiBone *> bone_stack;
+    Vector<aiBone *> bone_stack;
 };
 
 struct AssimpImageData {
@@ -103,7 +104,7 @@ struct RecursiveState {
             Transform &_node_transform,
             Skeleton *_skeleton,
             Spatial *_new_node,
-            const se_string &_node_name,
+            const String &_node_name,
             const aiNode *_assimp_node,
             Node *_parent_node,
             aiBone *_bone) :
@@ -118,11 +119,9 @@ struct RecursiveState {
     Transform &node_transform;
     Skeleton *skeleton;
     Spatial *new_node;
-    const se_string &node_name;
+    const String &node_name;
     const aiNode *assimp_node;
     Node *parent_node;
     aiBone *bone;
 };
 } // namespace AssimpImporter
-
-#endif // EDITOR_SCENE_IMPORT_STATE_H

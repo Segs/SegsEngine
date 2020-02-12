@@ -36,8 +36,8 @@
 
 IMPL_GDCLASS(HeightMapShape)
 
-PODVector<Vector3> HeightMapShape::get_debug_mesh_lines() {
-    PODVector<Vector3> points;
+Vector<Vector3> HeightMapShape::get_debug_mesh_lines() {
+    Vector<Vector3> points;
 
     if ((map_width != 0) && (map_depth != 0)) {
 
@@ -178,7 +178,9 @@ void HeightMapShape::set_map_data(const PoolRealArray& p_new) {
 PoolRealArray HeightMapShape::get_map_data() const {
     return map_data;
 }
-
+real_t HeightMapShape::get_enclosing_radius() const {
+    return Vector3(real_t(map_width), max_height - min_height, real_t(map_depth)).length();
+}
 void HeightMapShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_map_width", {"width"}), &HeightMapShape::set_map_width);
     MethodBinder::bind_method(D_METHOD("get_map_width"), &HeightMapShape::get_map_width);
@@ -187,8 +189,8 @@ void HeightMapShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_map_data", {"data"}), &HeightMapShape::set_map_data);
     MethodBinder::bind_method(D_METHOD("get_map_data"), &HeightMapShape::get_map_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_width", PROPERTY_HINT_RANGE, "1,4096,1"), "set_map_width", "get_map_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_depth", PROPERTY_HINT_RANGE, "1,4096,1"), "set_map_depth", "get_map_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_width", PropertyHint::Range, "1,4096,1"), "set_map_width", "get_map_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_depth", PropertyHint::Range, "1,4096,1"), "set_map_depth", "get_map_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_REAL_ARRAY, "map_data"), "set_map_data", "get_map_data");
 }
 

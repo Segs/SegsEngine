@@ -36,11 +36,11 @@
 
 IMPL_GDCLASS(SphereShape)
 
-PODVector<Vector3> SphereShape::get_debug_mesh_lines() {
+Vector<Vector3> SphereShape::get_debug_mesh_lines() {
 
     float r = get_radius();
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
 
     for (int i = 0; i <= 360; i++) {
 
@@ -84,7 +84,7 @@ void SphereShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &SphereShape::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &SphereShape::get_radius);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0,4096,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0,4096,0.01"), "set_radius", "get_radius");
 }
 
 SphereShape::SphereShape() :

@@ -131,7 +131,7 @@ void MultiMeshEditor::_populate() {
 
     Transform geom_xform = node->get_global_transform().affine_inverse() * ss_instance->get_global_transform();
 
-    PoolVector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
+    Vector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
 
     if (geometry.size() == 0) {
 
@@ -143,35 +143,30 @@ void MultiMeshEditor::_populate() {
     //make all faces local
 
     int gc = geometry.size();
-    PoolVector<Face3>::Write w = geometry.write();
 
     for (int i = 0; i < gc; i++) {
         for (int j = 0; j < 3; j++) {
-            w[i].vertex[j] = geom_xform.xform(w[i].vertex[j]);
+            geometry[i].vertex[j] = geom_xform.xform(geometry[i].vertex[j]);
         }
     }
 
-    w.release();
-
-    PoolVector<Face3> faces = geometry;
+    Vector<Face3> &faces = geometry;
     int facecount = faces.size();
-    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.")
-
-    PoolVector<Face3>::Read r = faces.read();
+    ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.");
 
     float area_accum = 0;
     Map<float, int> triangle_area_map;
     for (int i = 0; i < facecount; i++) {
 
-        float area = r[i].get_area();
+        float area = faces[i].get_area();
         if (area < CMP_EPSILON)
             continue;
         triangle_area_map[area_accum] = i;
         area_accum += area;
     }
 
-    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.")
-    ERR_FAIL_COND_MSG(area_accum == 0.0f, "Couldn't map area.")
+    ERR_FAIL_COND_MSG(triangle_area_map.empty(), "Couldn't map area.");
+    ERR_FAIL_COND_MSG(area_accum == 0.0f, "Couldn't map area.");
 
     Ref<MultiMesh> multimesh(make_ref_counted<MultiMesh>());
     multimesh->set_mesh(mesh);
@@ -201,12 +196,12 @@ void MultiMeshEditor::_populate() {
         float areapos = Math::random(0.0f, area_accum);
 
         Map<float, int>::iterator E = triangle_area_map.lower_bound(areapos);
-        ERR_FAIL_COND(E==triangle_area_map.end())
+        ERR_FAIL_COND(E==triangle_area_map.end());
         int index = E->second;
-        ERR_FAIL_INDEX(index, facecount)
+        ERR_FAIL_INDEX(index, facecount);
 
         // ok FINALLY get face
-        Face3 face = r[index];
+        Face3 face = faces[index];
         //now compute some position inside the face...
 
         Vector3 pos = face.get_random_point_inside();
@@ -237,12 +232,12 @@ void MultiMeshEditor::_populate() {
 
 void MultiMeshEditor::_browsed(const NodePath &p_path) {
 
-    se_string path(node->get_path_to(get_node(p_path)));
+    String path(node->get_path_to(get_node(p_path)));
 
     if (browsing_source)
-        mesh_source->set_text_utf8(path);
+        mesh_source->set_text(path);
     else
-        surface_source->set_text_utf8(path);
+        surface_source->set_text(path);
 }
 
 void MultiMeshEditor::_menu_option(int p_option) {
@@ -253,8 +248,8 @@ void MultiMeshEditor::_menu_option(int p_option) {
 
             if (_last_pp_node != node) {
 
-                surface_source->set_text_utf8("..");
-                mesh_source->set_text_utf8("..");
+                surface_source->set_text("..");
+                mesh_source->set_text("..");
                 populate_axis->select(1);
                 populate_rotate_random->set_value(0);
                 populate_tilt_random->set_value(0);
@@ -301,7 +296,7 @@ MultiMeshEditor::MultiMeshEditor() {
     SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text("MultiMesh");
-    options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MultiMeshInstance", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MultiMeshInstance", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Populate Surface"));
     options->get_popup()->connect("id_pressed", this, "_menu_option");
@@ -370,7 +365,7 @@ MultiMeshEditor::MultiMeshEditor() {
     vbc->add_margin_child(TTR("Scale:"), populate_scale);
 
     populate_amount = memnew(SpinBox);
-    populate_amount->set_anchor(MARGIN_RIGHT, ANCHOR_END);
+    populate_amount->set_anchor(Margin::Right, ANCHOR_END);
     populate_amount->set_begin(Point2(20, 232));
     populate_amount->set_end(Point2(-5, 237));
     populate_amount->set_min(1);

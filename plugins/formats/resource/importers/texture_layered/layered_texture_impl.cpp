@@ -48,7 +48,7 @@ StringName LayeredTextureImpl::get_visible_name() const {
 
     return is_3d ? StringName("Texture3D") : StringName("TextureArray");
 }
-void LayeredTextureImpl::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void LayeredTextureImpl::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -80,19 +80,19 @@ StringName LayeredTextureImpl::get_preset_name(int p_idx) const {
     return StaticCString(preset_names[p_idx],true);
 }
 
-void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void LayeredTextureImpl::get_import_options(List<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PROPERTY_HINT_ENUM, "Lossless,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 1 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress/no_bptc_if_rgb"), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/repeat", PROPERTY_HINT_ENUM, "Disabled,Enabled,Mirrored"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/repeat", PropertyHint::Enum, "Disabled,Enabled,Mirrored"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/filter"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "flags/mipmaps"), p_preset == PRESET_COLOR_CORRECT ? 0 : 1));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/srgb", PROPERTY_HINT_ENUM, "Disable,Enable"), p_preset == PRESET_3D ? 1 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/horizontal", PROPERTY_HINT_RANGE, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 16 : 8));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PROPERTY_HINT_RANGE, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "flags/srgb", PropertyHint::Enum, "Disable,Enable"), p_preset == PRESET_3D ? 1 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/horizontal", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 16 : 8));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
 }
 
-void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
+void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -139,7 +139,7 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_strin
                         image->shrink_x2();
                     }
 
-                    PODVector<uint8_t> data = Image::lossless_packer(image);
+                    Vector<uint8_t> data = Image::lossless_packer(image);
                     int data_len = data.size();
                     f->store_32(data_len);
                     f->store_buffer(data.data(), data_len);
@@ -151,7 +151,7 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_strin
                 Ref<Image> image = dynamic_ref_cast<Image>(p_images[i]->duplicate());
                 image->generate_mipmaps(false);
 
-                ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_LAYERED;
+                ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_GENERIC; //ImageCompressSource::COMPRESS_SOURCE_LAYERED;
                 image->compress(p_vram_compression, csource, 0.7f);
 
                 if (i == 0) {
@@ -190,9 +190,10 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image> > &p_images, se_strin
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files, Variant *r_metadata) {
+Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, Vector<String> *
+        r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
-    se_string p_save_path(_save_path);
+    String p_save_path(_save_path);
     int compress_mode = p_options.at("compress/mode");
     int no_bptc_if_rgb = p_options.at("compress/no_bptc_if_rgb");
     int repeat = p_options.at("flags/repeat");
@@ -243,11 +244,11 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
             int x = slice_w * j;
             int y = slice_h * i;
             Ref<Image> slice = image->get_rect(Rect2(x, y, slice_w, slice_h));
-            ERR_CONTINUE(not slice || slice->empty())
+            ERR_CONTINUE(not slice || slice->empty());
             if (slice->get_width() != slice_w || slice->get_height() != slice_h) {
                 slice->resize(slice_w, slice_h);
             }
-            slices.push_back(slice);
+            slices.emplace_back(eastl::move(slice));
         }
     }
 
@@ -266,8 +267,8 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
             encode_bptc = true;
 
             if (no_bptc_if_rgb) {
-                Image::DetectChannels channels = image->get_detected_channels();
-                if (channels != Image::DETECTED_LA && channels != Image::DETECTED_RGBA) {
+                ImageUsedChannels channels = image->detect_used_channels();
+                if (channels != ImageUsedChannels::USED_CHANNELS_LA && channels != ImageUsedChannels::USED_CHANNELS_RGBA) {
                     encode_bptc = false;
                 }
             }
@@ -338,16 +339,16 @@ const char *LayeredTextureImpl::compression_formats[] = {
     "pvrtc",
     nullptr
 };
-se_string LayeredTextureImpl::get_import_settings_string() const {
+String LayeredTextureImpl::get_import_settings_string() const {
 
-    se_string s;
+    String s;
 
     int index = 0;
     while (compression_formats[index]) {
-        StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
+        StringName setting_path("rendering/vram_compression/import_" + String(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
-            s += se_string(compression_formats[index]);
+            s += String(compression_formats[index]);
         }
         index++;
     }
@@ -369,15 +370,15 @@ bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const 
         return true; //do not care about non vram
     }
 
-    PODVector<se_string> formats_imported;
+    Vector<String> formats_imported;
     if (metadata.has("imported_formats")) {
-        formats_imported = metadata["imported_formats"].as<PODVector<se_string>>();
+        formats_imported = metadata["imported_formats"].as<Vector<String>>();
     }
 
     int index = 0;
     bool valid = true;
     while (compression_formats[index]) {
-        StringName setting_path("rendering/vram_compression/import_" + se_string(compression_formats[index]));
+        StringName setting_path("rendering/vram_compression/import_" + String(compression_formats[index]));
         bool test = ProjectSettings::get_singleton()->get(setting_path).as<bool>();
         if (test) {
             auto iter = eastl::find(formats_imported.begin(),formats_imported.end(),compression_formats[index]);

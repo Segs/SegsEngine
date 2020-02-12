@@ -50,8 +50,8 @@ void Polygon3DEditor::_notification(int p_what) {
 
         case NOTIFICATION_READY: {
 
-            button_create->set_icon(get_icon("Edit", "EditorIcons"));
-            button_edit->set_icon(get_icon("MovePoint", "EditorIcons"));
+            button_create->set_button_icon(get_icon("Edit", "EditorIcons"));
+            button_edit->set_button_icon(get_icon("MovePoint", "EditorIcons"));
             button_edit->set_pressed(true);
             get_tree()->connect("node_removed", this, "_node_removed");
 
@@ -235,7 +235,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                             if (closest_idx >= 0) {
 
                                 pre_move_edit = poly;
-                                poly.insert(closest_idx + 1, cpoint);
+                                poly.insert_at(closest_idx + 1, cpoint);
                                 edited_point = closest_idx + 1;
                                 edited_point_pos = cpoint;
                                 node->call("set_polygon", Variant::from(poly));
@@ -282,7 +282,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                             //apply
 
                             ERR_FAIL_INDEX_V(edited_point, poly.size(), false);
-                            poly.write[edited_point] = edited_point_pos;
+                            poly[edited_point] = edited_point_pos;
                             undo_redo->create_action_ui(TTR("Edit Poly"));
                             undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
                             undo_redo->add_undo_method(node, "set_polygon", Variant::from(pre_move_edit));
@@ -316,7 +316,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
                         undo_redo->create_action_ui(TTR("Edit Poly (Remove Point)"));
                         undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
-                        poly.remove(closest_idx);
+                        poly.erase_at(closest_idx);
                         undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
                         undo_redo->add_do_method(this, "_polygon_draw");
                         undo_redo->add_undo_method(this, "_polygon_draw");
@@ -398,7 +398,7 @@ void Polygon3DEditor::_polygon_draw() {
 
         Vector2 p, p2;
         p = i == edited_point ? edited_point_pos : poly[i];
-        if (wip_active && i == poly.size() - 1 || (i + 1) % poly.size() == edited_point)
+        if ((wip_active && i == poly.size() - 1) || (i + 1) % poly.size() == edited_point)
             p2 = edited_point_pos;
         else
             p2 = poly[(i + 1) % poly.size()];
@@ -476,23 +476,20 @@ void Polygon3DEditor::_polygon_draw() {
     if (poly.empty())
         return;
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
-    PoolVector<Vector3> va;
+    Vector<Vector3> va;
     {
 
         va.resize(poly.size());
-        PoolVector<Vector3>::Write w = va.write();
         for (int i = 0; i < poly.size(); i++) {
 
             Vector2 p = i == edited_point ? edited_point_pos : poly[i];
 
             Vector3 point = Vector3(p.x, p.y, depth);
-            w[i] = point;
+            va[i] = point;
         }
     }
-    a[Mesh::ARRAY_VERTEX] = va;
-    m->add_surface_from_arrays(Mesh::PRIMITIVE_POINTS, a);
+    SurfaceArrays a(eastl::move(va));
+    m->add_surface_from_arrays(Mesh::PRIMITIVE_POINTS, eastl::move(a));
     m->surface_set_material(0, handle_material);
 }
 
@@ -502,7 +499,7 @@ void Polygon3DEditor::edit(Node *p_collision_polygon) {
 
         node = object_cast<Spatial>(p_collision_polygon);
         //Enable the pencil tool if the polygon is empty
-        if (node->call("get_polygon").as<Vector<Vector2>>().empty()) {
+        if (node->call("get_polygon").as<PoolVector<Vector2>>().empty()) {
             _menu_option(MODE_CREATE);
         }
         wip.clear();

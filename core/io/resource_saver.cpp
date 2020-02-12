@@ -61,7 +61,7 @@ Error ResourceFormatSaver::save(se_string_view p_path, const Ref<Resource> &p_re
     }
     Ref<ImageTexture> texture = dynamic_ref_cast<ImageTexture>( p_resource );
     if(texture) {
-        ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.")
+        ERR_FAIL_COND_V_MSG(!texture->get_width(), ERR_INVALID_PARAMETER, "Can't save empty texture as PNG.");
         Ref<Image> img = texture->get_data();
         Ref<Image> source_image = prepareForPngStorage(img);
         return ImageSaver::save_image(p_path,source_image);
@@ -78,13 +78,13 @@ bool ResourceFormatSaver::recognize(const Ref<Resource> &p_resource) const {
     return p_resource && p_resource->is_class("ImageTexture");
 }
 
-void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, PODVector<se_string> &p_extensions) const {
+void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> &p_extensions) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
-        PoolVector<se_string> exts = get_script_instance()->call("get_recognized_extensions", p_resource).as<PoolVector<se_string>>();
+        PoolVector<String> exts = get_script_instance()->call("get_recognized_extensions", p_resource).as<PoolVector<String>>();
 
         {
-            PoolVector<se_string>::Read r = exts.read();
+            PoolVector<String>::Read r = exts.read();
             for (int i = 0; i < exts.size(); ++i) {
                 p_extensions.push_back(r[i]);
             }
@@ -101,13 +101,13 @@ void ResourceFormatSaver::_bind_methods() {
 
     {
         PropertyInfo arg0 = PropertyInfo(VariantType::STRING, "path");
-        PropertyInfo arg1 = PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource");
+        PropertyInfo arg1 = PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource");
         PropertyInfo arg2 = PropertyInfo(VariantType::INT, "flags");
-        ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "save", arg0, arg1, arg2));
+        ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "save", eastl::move(arg0), eastl::move(arg1), eastl::move(arg2)));
     }
 
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "recognize", PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions", PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "recognize", PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
 }
 
 Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
@@ -120,7 +120,7 @@ Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t
         if (!s->recognize(p_resource))
             continue;
 
-        PODVector<se_string> extensions;
+        Vector<String> extensions;
         bool recognized = false;
         s->get_recognized_extensions(p_resource, extensions);
 
@@ -133,9 +133,9 @@ Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t
         if (!recognized)
             continue;
 
-        const se_string &old_path(p_resource->get_path());
+        const String &old_path(p_resource->get_path());
 
-        se_string local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+        String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
 
         RES rwcopy(p_resource);
         if (p_flags & FLAG_CHANGE_PATH)
@@ -171,7 +171,7 @@ void ResourceSaver::set_save_callback(ResourceSavedCallback p_callback) {
     save_callback = p_callback;
 }
 
-void ResourceSaver::get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) {
+void ResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) {
 
     for (const Ref<ResourceFormatSaver> & s : saver) {
 
@@ -181,7 +181,7 @@ void ResourceSaver::get_recognized_extensions(const RES &p_resource, PODVector<s
 
 void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
 
-    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
 
     if (p_at_front) {
         saver.push_front(p_format_saver);
@@ -192,19 +192,12 @@ void ResourceSaver::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_
 
 void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver) {
 
-    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.")
-
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
     // Find saver
-    size_t i = 0;
-    for (; i < saver.size(); ++i) {
-        if (saver[i] == p_format_saver)
-        {
-            saver.erase(saver.begin()+i);
-            break;
-        }
-    }
+    auto iter = eastl::find(saver.begin(), saver.end(),p_format_saver);
+    ERR_FAIL_COND(iter == saver.end()); // Not found
 
-    ERR_FAIL_COND(i >= saver.size()) // Not found
+    saver.erase(iter);
 }
 
 Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(se_string_view path) {
@@ -222,17 +215,17 @@ bool ResourceSaver::add_custom_resource_format_saver(se_string_view script_path)
         return false;
 
     Ref<Resource> res = ResourceLoader::load(script_path);
-    ERR_FAIL_COND_V(not res, false)
-    ERR_FAIL_COND_V(!res->is_class("Script"), false)
+    ERR_FAIL_COND_V(not res, false);
+    ERR_FAIL_COND_V(!res->is_class("Script"), false);
 
     Ref<Script> s = dynamic_ref_cast<Script>(res);
     StringName ibt = s->get_instance_base_type();
     bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatSaver");
-    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + se_string(script_path) + ".")
+    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + String(script_path) + ".");
 
     Object *obj = ClassDB::instance(ibt);
 
-    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + se_string(ibt) + ".")
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".");
 
     auto *crl = object_cast<ResourceFormatSaver>(obj);
     crl->set_script(s.get_ref_ptr());
@@ -253,12 +246,11 @@ void ResourceSaver::add_custom_savers() {
 
     StringName custom_saver_base_class(ResourceFormatSaver::get_class_static_name());
 
-    PODVector<StringName> global_classes;
+    Vector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
-    for (size_t i=0, fin = global_classes.size(); i<fin; ++i) {
+    for (const StringName &class_name : global_classes) {
 
-        StringName class_name = global_classes[i];
         StringName base_class = ScriptServer::get_global_class_native_base(class_name);
 
         if (base_class == custom_saver_base_class) {
@@ -270,15 +262,15 @@ void ResourceSaver::add_custom_savers() {
 
 void ResourceSaver::remove_custom_savers() {
 
-    PODVector<Ref<ResourceFormatSaver> > custom_savers;
+    Vector<Ref<ResourceFormatSaver> > custom_savers;
     for (const Ref<ResourceFormatSaver> & s : saver) {
         if (s->get_script_instance()) {
             custom_savers.push_back(s);
         }
     }
 
-    for (int i = 0; i < custom_savers.size(); ++i) {
-        remove_resource_format_saver(custom_savers[i]);
+    for (const Ref<ResourceFormatSaver> & saver : custom_savers) {
+        remove_resource_format_saver(saver);
     }
 }
 

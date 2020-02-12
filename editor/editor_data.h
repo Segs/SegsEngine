@@ -48,25 +48,25 @@ class EditorHistory {
 
         REF ref;
         ObjectID object;
-        se_string property;
+        String property;
         bool inspector_only;
     };
 
     struct History {
 
-        PODVector<Obj> path;
+        Vector<Obj> path;
         int level;
     };
     friend class EditorData;
 
-    PODVector<History> history;
+    Vector<History> history;
     int current;
 
     //Vector<EditorPlugin*> editor_plugins;
 
     struct PropertyData {
 
-        String name;
+        UIString name;
         Variant value;
     };
 
@@ -95,7 +95,7 @@ public:
 
     int get_path_size() const;
     ObjectID get_path_object(int p_index) const;
-    se_string get_path_property(int p_index) const;
+    String get_path_property(int p_index) const;
 
     void clear();
 
@@ -116,10 +116,10 @@ public:
 
     struct EditedScene {
         Node *root;
-        se_string path;
+        String path;
         Dictionary editor_states;
-        List<Node *> selection;
-        PODVector<EditorHistory::History> history_stored;
+        Vector<Node *> selection;
+        Vector<EditorHistory::History> history_stored;
         int history_current;
         Dictionary custom_state;
         uint64_t version;
@@ -136,7 +136,7 @@ private:
     };
     Map<StringName, Vector<CustomType> > custom_types;
 
-    List<PropertyData> clipboard;
+    Vector<PropertyData> clipboard;
     UndoRedo undo_redo;
 
     void _cleanup_history();
@@ -144,15 +144,15 @@ private:
     Vector<EditedScene> edited_scene;
     int current_edited_scene;
 
-    bool _find_updated_instances(Node *p_root, Node *p_node, Set<se_string> &checked_paths);
+    bool _find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths);
 
-    DefHashMap<StringName, se_string> _script_class_icon_paths;
-    DefHashMap<se_string, StringName> _script_class_file_to_path;
+    DefHashMap<StringName, String> _script_class_icon_paths;
+    DefHashMap<String, StringName> _script_class_file_to_path;
 
 public:
     EditorPlugin *get_editor(Object *p_object);
     EditorPlugin *get_subeditor(Object *p_object);
-    PODVector<EditorPlugin *> get_subeditors(Object *p_object);
+    Vector<EditorPlugin *> get_subeditors(Object *p_object);
     EditorPlugin *get_editor(se_string_view p_name);
 
     void copy_object_params(Object *p_object);
@@ -161,7 +161,7 @@ public:
     Dictionary get_editor_states() const;
     Dictionary get_scene_editor_states(int p_idx) const;
     void set_editor_states(const Dictionary &p_states);
-    void get_editor_breakpoints(List<se_string> *p_breakpoints);
+    void get_editor_breakpoints(Vector<String> *p_breakpoints);
     void clear_editor_states();
     void save_editor_external_data();
     void apply_changes_in_editors();
@@ -180,7 +180,7 @@ public:
     void add_custom_type(const StringName &p_type, const StringName &p_inherits, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
     Object *instance_custom_type(const StringName &p_type, const StringName &p_inherits);
     void remove_custom_type(const StringName &p_type);
-    const Map<StringName, Vector<CustomType> > &get_custom_types() const { return custom_types; }
+    const Map<StringName, Vector<CustomType>> &get_custom_types() const { return custom_types; }
 
     int add_edited_scene(int p_at_pos);
     void move_edited_scene_index(int p_idx, int p_to_idx);
@@ -190,10 +190,10 @@ public:
     int get_edited_scene() const;
     Node *get_edited_scene_root(int p_idx = -1);
     int get_edited_scene_count() const;
-    Vector<EditedScene> get_edited_scenes() const;
+    const Vector<EditedScene> &get_edited_scenes() const;
     StringName get_scene_title(int p_idx) const;
-    se_string get_scene_path(int p_idx) const;
-    String get_scene_type(int p_idx) const;
+    String get_scene_path(int p_idx) const;
+    UIString get_scene_type(int p_idx) const;
     void set_scene_path(int p_idx, se_string_view p_path);
     Ref<Script> get_scene_root_script(int p_idx) const;
     void set_edited_scene_version(uint64_t version, int p_scene_idx = -1);
@@ -222,7 +222,7 @@ public:
     StringName script_class_get_name(se_string_view p_path) const;
     void script_class_set_name(se_string_view p_path, const StringName &p_class);
 
-    se_string script_class_get_icon_path(const StringName &p_class) const;
+    String script_class_get_icon_path(const StringName &p_class) const;
     void script_class_set_icon_path(const StringName &p_class, se_string_view p_icon_path);
     void script_class_clear_icon_paths() { _script_class_icon_paths.clear(); }
     void script_class_save_icon_paths();
@@ -245,11 +245,12 @@ private:
     void _node_removed(Node *p_node);
 
     List<Object *> editor_plugins;
-    List<Node *> selected_node_list;
+    Vector<Node *> selected_node_list;
 
     void _update_nl();
-    Array _get_transformable_selected_nodes();
     void _emit_change();
+public: // script bindings.
+    Array _get_transformable_selected_nodes();
 
 protected:
     static void _bind_methods();
@@ -272,8 +273,8 @@ public:
     void update();
     void clear();
 
-    List<Node *> &get_selected_node_list();
-    List<Node *> get_full_selected_node_list();
+    const Vector<Node *> &get_selected_node_list();
+    Vector<Node *> get_full_selected_node_list();
     Map<Node *, Object *> &get_selection() { return selection; }
 
     EditorSelection();

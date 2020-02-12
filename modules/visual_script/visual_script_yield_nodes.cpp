@@ -88,7 +88,7 @@ se_string_view VisualScriptYield::get_caption() const {
     return yield_mode == YIELD_RETURN ? "Yield" : "Wait";
 }
 
-se_string VisualScriptYield::get_text() const {
+String VisualScriptYield::get_text() const {
 
     switch (yield_mode) {
         case YIELD_RETURN: return null_se_string;
@@ -109,7 +109,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return false; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (p_start_mode == START_MODE_RESUME_YIELD) {
             return 0; //resuming yield
@@ -196,7 +196,7 @@ void VisualScriptYield::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_wait_time", {"sec"}), &VisualScriptYield::set_wait_time);
     MethodBinder::bind_method(D_METHOD("get_wait_time"), &VisualScriptYield::get_wait_time);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Frame,Physics Frame,Time", PROPERTY_USAGE_NOEDITOR), "set_yield_mode", "get_yield_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Frame,Physics Frame,Time", PROPERTY_USAGE_NOEDITOR), "set_yield_mode", "get_yield_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wait_time"), "set_wait_time", "get_wait_time");
 
     BIND_ENUM_CONSTANT(YIELD_FRAME)
@@ -316,7 +316,7 @@ PropertyInfo VisualScriptYieldSignal::get_output_value_port_info(int p_idx) cons
 
     if (!ClassDB::get_signal(_get_base_type(), signal, &sr))
         return PropertyInfo(); //no signal
-    ERR_FAIL_INDEX_V(p_idx, sr.arguments.size(), PropertyInfo())
+    ERR_FAIL_INDEX_V(p_idx, sr.arguments.size(), PropertyInfo());
     return sr.arguments[p_idx];
 }
 
@@ -331,12 +331,12 @@ se_string_view VisualScriptYieldSignal::get_caption() const {
     return cname[call_mode];
 }
 
-se_string VisualScriptYieldSignal::get_text() const {
+String VisualScriptYieldSignal::get_text() const {
 
     if (call_mode == CALL_MODE_SELF)
-        return "  " + se_string(signal) + "()";
+        return "  " + String(signal) + "()";
     else
-        return "  " + se_string(_get_base_type()) + "." + signal + "()";
+        return "  " + String(_get_base_type()) + "." + signal + "()";
 }
 
 void VisualScriptYieldSignal::set_base_type(const StringName &p_type) {
@@ -417,19 +417,19 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
 
             Node *bnode = _get_base_node();
             if (bnode) {
-                property.hint_string = (se_string)bnode->get_path(); //convert to loong string
+                property.hint_string = (String)bnode->get_path(); //convert to loong string
             }
         }
     }
 
     if (property.name == "signal") {
-        property.hint = PROPERTY_HINT_ENUM;
+        property.hint = PropertyHint::Enum;
 
-        ListPOD<MethodInfo> methods;
+        Vector<MethodInfo> methods;
 
         ClassDB::get_signal_list(_get_base_type(), &methods);
 
-        PODVector<se_string_view> mstring;
+        Vector<se_string_view> mstring;
         for(const MethodInfo & E : methods) {
             if (StringUtils::begins_with(E.name,"_"))
                 continue;
@@ -437,7 +437,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
         }
         eastl::sort(mstring.begin(),mstring.end());
 
-        property.hint_string = se_string::joined(mstring,",");
+        property.hint_string = String::joined(mstring,",");
     }
 }
 
@@ -463,9 +463,9 @@ void VisualScriptYieldSignal::_bind_methods() {
 //        bt += Variant::get_type_name(VariantType(i));
 //    }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "call_mode", PROPERTY_HINT_ENUM, "Self,Node Path,Instance"), "set_call_mode", "get_call_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PROPERTY_HINT_TYPE_STRING, "Object"), "set_base_type", "get_base_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_path", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE), "set_base_path", "get_base_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "call_mode", PropertyHint::Enum, "Self,Node Path,Instance"), "set_call_mode", "get_call_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PropertyHint::TypeString, "Object"), "set_base_type", "get_base_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_path", PropertyHint::NodePathToEditedNode), "set_base_path", "get_base_path");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "signal"), "set_signal", "get_signal");
 
     BIND_ENUM_CONSTANT(CALL_MODE_SELF)
@@ -487,7 +487,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (p_start_mode == START_MODE_RESUME_YIELD) {
             return 0; //resuming yield
@@ -563,7 +563,7 @@ VisualScriptYieldSignal::VisualScriptYieldSignal() {
 }
 
 template <VisualScriptYieldSignal::CallMode cmode>
-static Ref<VisualScriptNode> create_yield_signal_node(const String &p_name) {
+static Ref<VisualScriptNode> create_yield_signal_node(const UIString &p_name) {
 
     Ref<VisualScriptYieldSignal> node(make_ref_counted<VisualScriptYieldSignal>());
     node->set_call_mode(cmode);

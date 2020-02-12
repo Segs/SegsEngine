@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,19 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NAVIGATION_MESH_H
-#define NAVIGATION_MESH_H
+#pragma once
 
-#include "scene/3d/spatial.h"
 #include "scene/resources/mesh.h"
 
 class Mesh;
 
 class NavigationMesh : public Resource {
 
-    GDCLASS(NavigationMesh,Resource)
+    GDCLASS(NavigationMesh, Resource);
 
-    PoolVector<Vector3> vertices;
+    Vector<Vector3> vertices;
     struct Polygon {
         Vector<int> indices;
     };
@@ -58,25 +56,26 @@ class NavigationMesh : public Resource {
 protected:
     static void _bind_methods();
     void _validate_property(PropertyInfo &property) const override;
-
+public:
     void _set_polygons(const Array &p_array);
     Array _get_polygons() const;
 
 public:
-    enum SamplePartitionType {
+    enum SamplePartitionType : int8_t {
         SAMPLE_PARTITION_WATERSHED = 0,
         SAMPLE_PARTITION_MONOTONE,
         SAMPLE_PARTITION_LAYERS,
         SAMPLE_PARTITION_MAX
     };
 
-    enum ParsedGeometryType {
+    enum ParsedGeometryType : int8_t {
         PARSED_GEOMETRY_MESH_INSTANCES = 0,
         PARSED_GEOMETRY_STATIC_COLLIDERS,
         PARSED_GEOMETRY_BOTH,
         PARSED_GEOMETRY_MAX
     };
-    enum SourceGeometryMode {
+
+    enum SourceGeometryMode : int8_t {
         SOURCE_GEOMETRY_NAVMESH_CHILDREN = 0,
         SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN,
         SOURCE_GEOMETRY_GROUPS_EXPLICIT,
@@ -84,6 +83,8 @@ public:
     };
 
 protected:
+    StringName source_group_name;
+
     float cell_size;
     float cell_height;
     float agent_height;
@@ -98,12 +99,11 @@ protected:
     float detail_sample_distance;
     float detail_sample_max_error;
 
-    SamplePartitionType partition_type;
-    ParsedGeometryType parsed_geometry_type;
     uint32_t collision_mask;
 
+    SamplePartitionType partition_type;
+    ParsedGeometryType parsed_geometry_type;
     SourceGeometryMode source_geometry_mode;
-    StringName source_group_name;
 
     bool filter_low_hanging_obstacles;
     bool filter_ledge_spans;
@@ -179,48 +179,15 @@ public:
 
     void create_from_mesh(const Ref<Mesh> &p_mesh);
 
-    void set_vertices(const PoolVector<Vector3> &p_vertices);
-    PoolVector<Vector3> get_vertices() const;
+    void set_vertices(Vector<Vector3> &&p_vertices);
+    const Vector<Vector3> &get_vertices() const;
 
-    void add_polygon(const Vector<int> &p_polygon);
+    void add_polygon(Vector<int> &&p_polygon);
     int get_polygon_count() const;
-    Vector<int> get_polygon(int p_idx);
+    const Vector<int> &get_polygon(int p_idx);
     void clear_polygons();
 
     Ref<Mesh> get_debug_mesh();
 
     NavigationMesh();
 };
-
-class Navigation;
-
-class NavigationMeshInstance : public Spatial {
-
-    GDCLASS(NavigationMeshInstance,Spatial)
-
-    bool enabled;
-    int nav_id;
-    Navigation *navigation;
-    Ref<NavigationMesh> navmesh;
-
-    Node *debug_view;
-
-protected:
-    void _notification(int p_what);
-    static void _bind_methods();
-    void _changed_callback(Object *p_changed, StringName p_prop) override;
-
-public:
-    void set_enabled(bool p_enabled);
-    bool is_enabled() const;
-
-    void set_navigation_mesh(const Ref<NavigationMesh> &p_navmesh);
-    Ref<NavigationMesh> get_navigation_mesh() const;
-
-    StringName get_configuration_warning() const override;
-
-    NavigationMeshInstance();
-    ~NavigationMeshInstance() override;
-};
-
-#endif // NAVIGATION_MESH_H

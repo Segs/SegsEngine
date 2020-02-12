@@ -36,9 +36,6 @@
 #include "core/error_list.h"
 #include "core/os/memory.h"
 
-template<class T>
-class Vector;
-
 /**
  * Multi-Platform abstraction for accessing to files.
  */
@@ -63,7 +60,7 @@ public:
     virtual Error _set_unix_permissions(se_string_view p_file, uint32_t p_permissions) = 0;
 
 protected:
-    se_string fix_path(se_string_view p_path) const;
+    String fix_path(se_string_view p_path) const;
     virtual Error _open(se_string_view p_path, int p_mode_flags) = 0; ///< open a file
     virtual uint64_t _get_modified_time(se_string_view p_file) = 0;
 
@@ -96,8 +93,8 @@ public:
     virtual void close() = 0; ///< close a file
     virtual bool is_open() const = 0; ///< true when file is open
 
-    virtual const se_string &get_path() const; /// returns the path for the current open file
-    virtual const se_string &get_path_absolute() const; /// returns the absolute path for the current open file
+    virtual const String &get_path() const; /// returns the path for the current open file
+    virtual const String &get_path_absolute() const; /// returns the absolute path for the current open file
 
     virtual void seek(size_t p_position) = 0; ///< seek to a given position
     virtual void seek_end(int64_t p_position = 0) = 0; ///< seek from the end of file
@@ -116,10 +113,10 @@ public:
     virtual real_t get_real() const;
 
     virtual int get_buffer(uint8_t *p_dst, int p_length) const; ///< get an array of bytes
-    virtual se_string get_line() const;
-    virtual se_string get_token() const;
-    virtual Vector<se_string> get_csv_line(char p_delim = ',') const;
-    virtual se_string get_as_utf8_string() const;
+    virtual String get_line() const;
+    virtual String get_token() const;
+    virtual Vector<String> get_csv_line(char p_delim = ',') const;
+    virtual String get_as_utf8_string() const;
 
     /**< use this for files WRITTEN in _big_ endian machines (ie, amiga/mac)
      * It's not about the current CPU type but file formats.
@@ -143,10 +140,10 @@ public:
 
     virtual void store_string(se_string_view p_string);
     virtual void store_line(se_string_view p_line);
-    virtual void store_csv_line(const PODVector<se_string> &p_values, char p_delim = ',');
+    virtual void store_csv_line(const Vector<String> &p_values, char p_delim = ',');
 
     virtual void store_pascal_string(se_string_view p_string);
-    virtual se_string get_pascal_string();
+    virtual String get_pascal_string();
 
     virtual void store_buffer(const uint8_t *p_src, int p_length); ///< store an array of bytes
 
@@ -167,12 +164,12 @@ public:
     static void set_backup_save(bool p_enable) { backup_save = p_enable; }
     static bool is_backup_save_enabled() { return backup_save; }
 
-    static se_string get_md5(se_string_view p_file);
-    static se_string get_sha256(se_string_view p_file);
-    static se_string get_multiple_md5(const PODVector<se_string> &p_file);
+    static String get_md5(se_string_view p_file);
+    static String get_sha256(se_string_view p_file);
+    static String get_multiple_md5(const Vector<String> &p_file);
 
-    static PODVector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
-    static se_string get_file_as_string(se_string_view p_path, Error *r_error = nullptr);
+    static Vector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
+    static String get_file_as_string(se_string_view p_path, Error *r_error = nullptr);
 
     template <class T>
     static void make_default(AccessType p_access) {

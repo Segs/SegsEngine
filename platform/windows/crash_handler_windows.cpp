@@ -168,7 +168,7 @@ DWORD CrashHandlerException(EXCEPTION_POINTERS *ep) {
 	IMAGE_NT_HEADERS *h = ImageNtHeader(base);
 	DWORD image_type = h->FileHeader.Machine;
 
-	se_string msg;
+	String msg;
 	const ProjectSettings *proj_settings = ProjectSettings::get_singleton();
 	if (proj_settings) {
 		msg = proj_settings->get("debug/settings/crash_handler/message");

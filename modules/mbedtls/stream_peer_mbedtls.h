@@ -36,7 +36,7 @@
 class StreamPeerMbedTLS : public StreamPeerSSL {
 private:
     Status status;
-    se_string hostname;
+    String hostname;
 
     Ref<StreamPeer> base;
 

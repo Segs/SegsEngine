@@ -30,11 +30,13 @@
 
 #pragma once
 
+
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
 
 #include "core/safe_refcount.h"
 #include "core/error_macros.h"
+#include "core/vector.h"
 
 #include <type_traits>
 
@@ -314,7 +316,7 @@ public:
     void remove(int p_index) {
 
         int s = size();
-        ERR_FAIL_INDEX(p_index, s)
+        ERR_FAIL_INDEX(p_index, s);
         Write w = write();
         for (int i = p_index; i < s - 1; i++) {
 
@@ -323,9 +325,16 @@ public:
         w = Write();
         resize(s - 1);
     }
-
-    inline int size() const;
-    inline bool empty() const;
+    [[nodiscard]] bool contains(const T &v) const {
+        auto rd=read();
+        for(int i=0,fin=size(); i<fin; ++i)
+            if(rd[i]==v)
+                return true;
+        return false;
+    }
+    int size() const;
+    bool empty() const;
+    void clear() { pv_unreference(); }
     const T & get(int p_index) const;
     void set(int p_index, const T &p_val);
     void push_back(const T &p_val);
@@ -350,8 +359,8 @@ public:
             p_to = size() + p_to;
         }
 
-        ERR_FAIL_INDEX_V(p_from, size(), PoolVector<T>())
-        ERR_FAIL_INDEX_V(p_to, size(), PoolVector<T>())
+        ERR_FAIL_INDEX_V(p_from, size(), PoolVector<T>());
+        ERR_FAIL_INDEX_V(p_to, size(), PoolVector<T>());
 
         PoolVector<T> slice;
         int span = 1 + p_to - p_from;
@@ -368,7 +377,7 @@ public:
     Error insert(int p_pos, const T &p_val) {
 
         int s = size();
-        ERR_FAIL_INDEX_V(p_pos, s + 1, ERR_INVALID_PARAMETER)
+        ERR_FAIL_INDEX_V(p_pos, s + 1, ERR_INVALID_PARAMETER);
         resize(s + 1);
         {
             Write w = write();
@@ -381,7 +390,11 @@ public:
     }
     bool is_locked() const { return alloc && alloc->lock > 0; }
 
-    inline const T & operator[](int p_index) const;
+    const T & operator[](int p_index) const;
+
+    eastl::span<const T> toSpan() const {
+        return { read().ptr(),size()};
+    }
 
     Error resize(int p_size);
 
@@ -395,6 +408,14 @@ public:
         return *this;
     }
     constexpr PoolVector() : alloc(nullptr) {}
+    explicit PoolVector(Vector<T> &from) : PoolVector() {
+        resize(from.size());
+        auto wr(write());
+        int idx=0;
+        for(T &v : from) {
+            wr[idx++] = eastl::move(v);
+        }
+    }
     PoolVector(const PoolVector &p_pool_vector) {
         alloc = nullptr;
         _reference(p_pool_vector);
@@ -423,7 +444,7 @@ const T &PoolVector<T>::get(int p_index) const {
 template <class T>
 void PoolVector<T>::set(int p_index, const T &p_val) {
 
-    ERR_FAIL_INDEX(p_index, size())
+    ERR_FAIL_INDEX(p_index, size());
 
     Write w = write();
     w[p_index] = p_val;
@@ -439,7 +460,7 @@ void PoolVector<T>::push_back(const T &p_val) {
 template <class T>
 const T & PoolVector<T>::operator[](int p_index) const {
 
-    CRASH_BAD_INDEX(p_index, size())
+    CRASH_BAD_INDEX(p_index, size());
 
     Read r = read();
     return r[p_index];
@@ -448,7 +469,14 @@ const T & PoolVector<T>::operator[](int p_index) const {
 template <class T>
 Error PoolVector<T>::resize(int p_size) {
 
-    ERR_FAIL_COND_V_MSG(p_size < 0, ERR_INVALID_PARAMETER, "Size of PoolVector cannot be negative.")
+    {
+        if (unlikely(p_size < 0)) {
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__,
+                    "Condition ' \"" _STR(p_size < 0) "\" ' is true. returned: " _STR(ERR_INVALID_PARAMETER),
+                    DEBUG_STR("Size of PoolVector cannot be negative."));
+            return ERR_INVALID_PARAMETER;
+        }
+    }
 
     if (alloc == nullptr) {
 
@@ -458,7 +486,7 @@ Error PoolVector<T>::resize(int p_size) {
             return ERR_OUT_OF_MEMORY;
     } else {
 
-        ERR_FAIL_COND_V_MSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked.") //can't resize if locked!
+        ERR_FAIL_COND_V_MSG(alloc->lock > 0, ERR_LOCKED, "Can't resize PoolVector if locked."); //can't resize if locked!
     }
 
     size_t new_size = sizeof(T) * p_size;

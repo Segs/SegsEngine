@@ -68,7 +68,7 @@ int RegExMatch::_find(const Variant &p_name) const {
     return -1;
 }
 
-se_string RegExMatch::get_subject() const {
+String RegExMatch::get_subject() const {
 
     return subject;
 }
@@ -102,7 +102,7 @@ Array RegExMatch::get_strings() const {
         int start = data[i].start;
 
         if (start == -1) {
-            result.append(se_string());
+            result.append(String());
             continue;
         }
 
@@ -114,21 +114,21 @@ Array RegExMatch::get_strings() const {
     return result;
 }
 
-se_string RegExMatch::get_string(const Variant &p_name) const {
+String RegExMatch::get_string(const Variant &p_name) const {
 
     int id = _find(p_name);
 
     if (id < 0)
-        return se_string();
+        return String();
 
     int start = data[id].start;
 
     if (start == -1)
-        return se_string();
+        return String();
 
     int length = data[id].end - start;
 
-    return se_string(StringUtils::substr(subject,start, length));
+    return String(StringUtils::substr(subject,start, length));
 }
 
 int RegExMatch::get_start(const Variant &p_name) const {
@@ -178,7 +178,7 @@ void RegEx::clear() {
     }
 }
 
-Error RegEx::compile(const se_string &p_pattern) {
+Error RegEx::compile(const String &p_pattern) {
 
     pattern = p_pattern;
     clear();
@@ -198,16 +198,16 @@ Error RegEx::compile(const se_string &p_pattern) {
     if (!code) {
         PCRE2_UCHAR8 buf[256];
         pcre2_get_error_message_8(err, buf, 256);
-        se_string message = FormatVE("%d: %s",offset,buf);
-        ERR_PRINT(message.c_str())
+        String message = FormatVE("%d: %s",offset,buf);
+        ERR_PRINT(message.c_str());
         return FAILED;
     }
     return OK;
 }
 
-Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_end) const {
+Ref<RegExMatch> RegEx::search(const String &p_subject, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), Ref<RegExMatch>())
+    ERR_FAIL_COND_V(!is_valid(), Ref<RegExMatch>());
 
     Ref<RegExMatch> result(make_ref_counted<RegExMatch>());
 
@@ -232,12 +232,10 @@ Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_en
     uint32_t size = pcre2_get_ovector_count_8(match);
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer_8(match);
 
-    result->data.resize(size);
+    result->data.reserve(size);
 
     for (uint32_t i = 0; i < size; i++) {
-
-        result->data.write[i].start = ovector[i * 2];
-        result->data.write[i].end = ovector[i * 2 + 1];
+        result->data.emplace_back(RegExMatch::Range {int(ovector[i * 2]),int(ovector[i * 2 + 1])});
     }
 
     pcre2_match_data_free_8(match);
@@ -258,7 +256,7 @@ Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_en
         char id = table[i * entry_size];
         if (result->data[id].start == -1)
             continue;
-        se_string name(&table[i * entry_size + 1]);
+        String name(&table[i * entry_size + 1]);
         if (result->names.contains(name))
             continue;
 
@@ -268,7 +266,7 @@ Ref<RegExMatch> RegEx::search(const se_string &p_subject, int p_offset, int p_en
     return result;
 }
 
-Array RegEx::search_all(const se_string &p_subject, int p_offset, int p_end) const {
+Array RegEx::search_all(const String &p_subject, int p_offset, int p_end) const {
 
     int last_end = -1;
     Array result;
@@ -283,9 +281,9 @@ Array RegEx::search_all(const se_string &p_subject, int p_offset, int p_end) con
     return result;
 }
 
-se_string RegEx::sub(const se_string &p_subject, const se_string &p_replacement, bool p_all, int p_offset, int p_end) const {
+String RegEx::sub(const String &p_subject, const String &p_replacement, bool p_all, int p_offset, int p_end) const {
 
-    ERR_FAIL_COND_V(!is_valid(), se_string())
+    ERR_FAIL_COND_V(!is_valid(), String());
 
     // safety_zone is the number of chars we allocate in addition to the number of chars expected in order to
     // guard against the PCRE API writing one additional \0 at the end. PCRE's API docs are unclear on whether
@@ -310,7 +308,7 @@ se_string RegEx::sub(const se_string &p_subject, const se_string &p_replacement,
     pcre2_match_context_8 *mctx = pcre2_match_context_create_8(gctx);
     PCRE2_SPTR8 s = (PCRE2_SPTR8)p_subject.c_str();
     PCRE2_SPTR8 r = (PCRE2_SPTR8)p_replacement.c_str();
-    PCRE2_UCHAR8 *o = (PCRE2_UCHAR8 *)output.ptrw();
+    PCRE2_UCHAR8 *o = (PCRE2_UCHAR8 *)output.data();
 
     pcre2_match_data_8 *match = pcre2_match_data_create_from_pattern_8(c, gctx);
 
@@ -318,7 +316,7 @@ se_string RegEx::sub(const se_string &p_subject, const se_string &p_replacement,
 
     if (res == PCRE2_ERROR_NOMEMORY) {
         output.resize(olength + safety_zone);
-        o = (PCRE2_UCHAR8 *)output.ptrw();
+        o = (PCRE2_UCHAR8 *)output.data();
         res = pcre2_substitute_8(c, s, length, p_offset, flags, match, mctx, r, p_replacement.length(), o, &olength);
     }
 
@@ -326,9 +324,9 @@ se_string RegEx::sub(const se_string &p_subject, const se_string &p_replacement,
     pcre2_match_context_free_8(mctx);
 
     if (res < 0)
-        return se_string();
+        return String();
 
-    return se_string(output.ptr(), olength);
+    return String(output.data(), olength);
 }
 
 bool RegEx::is_valid() const {
@@ -336,14 +334,14 @@ bool RegEx::is_valid() const {
     return (code != nullptr);
 }
 
-se_string RegEx::get_pattern() const {
+String RegEx::get_pattern() const {
 
     return pattern;
 }
 
 int RegEx::get_group_count() const {
 
-    ERR_FAIL_COND_V(!is_valid(), 0)
+    ERR_FAIL_COND_V(!is_valid(), 0);
 
     uint32_t count;
 
@@ -356,7 +354,7 @@ Array RegEx::get_names() const {
 
     Array result;
 
-    ERR_FAIL_COND_V(!is_valid(), result)
+    ERR_FAIL_COND_V(!is_valid(), result);
 
     uint32_t count;
     const char *table;
@@ -382,7 +380,7 @@ RegEx::RegEx() {
     code = nullptr;
 }
 
-RegEx::RegEx(const se_string &p_pattern) {
+RegEx::RegEx(const String &p_pattern) {
     general_ctx = pcre2_general_context_create_8(&_regex_malloc, &_regex_free, nullptr);
     code = nullptr;
     compile(p_pattern);

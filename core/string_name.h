@@ -37,7 +37,7 @@
 
 #include "EASTL/string_view.h"
 
-using String = class QString;
+using UIString = class QString;
 
 struct StaticCString {
 
@@ -69,7 +69,7 @@ class GODOT_EXPORT StringName {
 
     _Data *_data;
 
-    void unref();
+    void unref() noexcept;
     friend void register_core_types();
     friend void unregister_core_types();
 
@@ -107,7 +107,12 @@ public:
     const void *data_unique_pointer() const {
         return (void *)_data;
     }
-    bool operator!=(const StringName &p_name) const;
+    bool operator!=(const StringName &p_name) const noexcept {
+
+        // the real magic of all this mess happens here.
+        // this is why path comparisons are very fast
+        return _data != p_name._data;
+    }
 
     StringName& operator=(StringName &&p_name)
     {
@@ -121,18 +126,18 @@ public:
     }
 
     StringName& operator=(const StringName &p_name);
-    explicit operator String() const;
-    operator se_string_view() const
+    explicit operator UIString() const;
+    operator se_string_view() const noexcept
     {
         return se_string_view(asCString());
     }
 
-    String asString() const;
-    const char *asCString() const noexcept;
+    [[nodiscard]] UIString asString() const;
+    [[nodiscard]] const char *asCString() const noexcept;
 
     static StringName search(const char *p_name);
 
-    static StringName search(const String &p_name);
+    static StringName search(const UIString &p_name);
 
     static bool AlphCompare(const StringName &l, const StringName &r);
 
@@ -142,7 +147,7 @@ public:
     explicit StringName(const char *p_name);
 
 
-    StringName(const StringName &p_name);
+    StringName(const StringName &p_name) noexcept;
     StringName(StringName &&p_name) noexcept
     {
         _data = p_name._data;
@@ -154,10 +159,10 @@ public:
     StringName(const StaticCString &p_static_string) {
         _data = nullptr;
 
-        ERR_FAIL_COND(!configured)
+        ERR_FAIL_COND(!configured);
 
         if (unlikely(!p_static_string.ptr || !p_static_string.ptr[0])) {
-            ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0])
+            ERR_REPORT_COND(!p_static_string.ptr || !p_static_string.ptr[0]);
             return;
         }
         setupFromCString(p_static_string);
@@ -171,16 +176,17 @@ public:
         if constexpr (N<=1) // static zero-terminated string of length 1 is just \000
             return;
         //TODO: consider compile-time hash and index generation
-        ERR_FAIL_COND(!configured)
+        ERR_FAIL_COND(!configured);
         setupFromCString(StaticCString(s));
     }
 
-    ~StringName() {
+    ~StringName() noexcept {
         if(_data)
             unref();
     }
 };
 GODOT_EXPORT StringName operator+(StringName v,se_string_view sv);
+extern const Vector<StringName> g_null_stringname_vec;
 
 struct WrapAlphaCompare
 {
@@ -189,10 +195,10 @@ struct WrapAlphaCompare
     }
 };
 struct SNSVComparer {
-    bool operator()(const StringName &s,se_string_view b) {
+    bool operator()(const StringName &s,se_string_view b) const {
         return se_string_view(s)<b;
     }
-    bool operator()(se_string_view a,const StringName &b) {
+    bool operator()(se_string_view a,const StringName &b) const {
         return a<se_string_view(b);
     }
 };
@@ -200,6 +206,6 @@ namespace eastl {
 template <typename T> struct hash;
 template <>
 struct hash<StringName> {
-    size_t operator()(StringName val) const { return val.hash(); }
+    size_t operator()(const StringName &val) const { return val.hash(); }
 };
 }

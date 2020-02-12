@@ -34,6 +34,7 @@
 #include "core/list.h"
 #include "core/io/networked_multiplayer_peer.h"
 #include "webrtc_peer_connection.h"
+#include "EASTL/deque.h"
 
 class WebRTCMultiplayer : public NetworkedMultiplayerPeer {
 
@@ -55,7 +56,7 @@ private:
 
     public:
         Ref<WebRTCPeerConnection> connection;
-        List<Ref<WebRTCDataChannel> > channels;
+        Dequeue<Ref<WebRTCDataChannel> > channels;
         bool connected;
 
         ConnectedPeer() {

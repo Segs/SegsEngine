@@ -49,7 +49,7 @@ void GradientEditor::_gradient_changed() {
         return;
 
     editing = true;
-    Vector<Gradient::Point> points = gradient->get_points();
+    const Vector<Gradient::Point> &points = gradient->get_points();
     set_points(points);
     editing = false;
 }

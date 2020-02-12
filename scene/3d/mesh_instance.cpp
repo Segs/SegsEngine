@@ -40,6 +40,7 @@
 #include "skeleton.h"
 #include "scene/main/scene_tree.h"
 #include "servers/visual_server.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(MeshInstance)
 
@@ -91,23 +92,24 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void MeshInstance::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void MeshInstance::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    List<StringName> ls;
+    Vector<StringName> ls;
+    ls.reserve(blend_shape_tracks.size());
     for (const eastl::pair<const StringName,BlendShapeTrack> &E : blend_shape_tracks) {
 
-        ls.push_back(E.first);
+        ls.emplace_back(E.first);
     }
 
-    ls.sort();
+    eastl::sort(ls.begin(), ls.end());
 
-    for (List<StringName>::Element *E = ls.front(); E; E = E->next()) {
-        p_list->push_back(PropertyInfo(VariantType::REAL, E->deref(), PROPERTY_HINT_RANGE, "0,1,0.00001"));
+    for (const StringName &E : ls) {
+        p_list->push_back(PropertyInfo(VariantType::REAL, E, PropertyHint::Range, "0,1,0.00001"));
     }
 
     if (mesh) {
         for (int i = 0; i < mesh->get_surface_count(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("material/" + itos(i)), PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,SpatialMaterial"));
+            p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("material/" + itos(i)), PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"));
         }
     }
 }
@@ -132,7 +134,7 @@ void MeshInstance::set_mesh(const Ref<Mesh> &p_mesh) {
             BlendShapeTrack mt;
             mt.idx = i;
             mt.value = 0;
-            blend_shape_tracks[StringName("blend_shapes/" + se_string(mesh->get_blend_shape_name(i)))] = mt;
+            blend_shape_tracks[StringName("blend_shapes/" + String(mesh->get_blend_shape_name(i)))] = mt;
         }
 
         mesh->connect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_mesh_changed);
@@ -210,13 +212,13 @@ AABB MeshInstance::get_aabb() const {
     return AABB();
 }
 
-PoolVector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
 
     if (!(p_usage_flags & (FACES_SOLID | FACES_ENCLOSING)))
-        return PoolVector<Face3>();
+        return Vector<Face3>();
 
     if (not mesh)
-        return PoolVector<Face3>();
+        return Vector<Face3>();
 
     return mesh->get_faces();
 }
@@ -240,8 +242,8 @@ Node *MeshInstance::create_trimesh_collision_node() {
 void MeshInstance::create_trimesh_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_trimesh_collision_node());
-    ERR_FAIL_COND(!static_body)
-    static_body->set_name(se_string(get_name()) + "_col");
+    ERR_FAIL_COND(!static_body);
+    static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {
@@ -270,8 +272,8 @@ Node *MeshInstance::create_convex_collision_node() {
 void MeshInstance::create_convex_collision() {
 
     StaticBody *static_body = object_cast<StaticBody>(create_convex_collision_node());
-    ERR_FAIL_COND(!static_body)
-    static_body->set_name(se_string(get_name()) + "_col");
+    ERR_FAIL_COND(!static_body);
+    static_body->set_name(String(get_name()) + "_col");
 
     add_child(static_body);
     if (get_owner()) {
@@ -297,7 +299,7 @@ void MeshInstance::set_surface_material(int p_surface, const Ref<Material> &p_ma
 
     ERR_FAIL_INDEX(p_surface, materials.size());
 
-    materials.write[p_surface] = p_material;
+    materials[p_surface] = p_material;
 
     if (materials[p_surface])
         VisualServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, materials[p_surface]->get_rid());
@@ -327,35 +329,35 @@ void MeshInstance::create_debug_tangents() {
         return;
 
     for (int i = 0; i < mesh->get_surface_count(); i++) {
-        Array arrays = mesh->surface_get_arrays(i);
-        Vector<Vector3> verts = arrays[Mesh::ARRAY_VERTEX].as<Vector<Vector3>>();
-        Vector<Vector3> norms = arrays[Mesh::ARRAY_NORMAL].as<Vector<Vector3>>();
+        SurfaceArrays arrays(mesh->surface_get_arrays(i));
+        auto verts = arrays.positions3();
+        const auto &norms = arrays.m_normals;
         if (norms.empty())
             continue;
-        Vector<float> tangents = arrays[Mesh::ARRAY_TANGENT].as<Vector<float>>();
+        const auto &tangents = arrays.m_tangents;
         if (tangents.empty())
             continue;
-
+        lines.reserve(6*verts.size());
         for (int j = 0; j < verts.size(); j++) {
             Vector3 v = verts[j];
             Vector3 n = norms[j];
             Vector3 t = Vector3(tangents[j * 4 + 0], tangents[j * 4 + 1], tangents[j * 4 + 2]);
             Vector3 b = (n.cross(t)).normalized() * tangents[j * 4 + 3];
 
-            lines.push_back(v); //normal
-            colors.push_back(Color(0, 0, 1)); //color
-            lines.push_back(v + n * 0.04f); //normal
-            colors.push_back(Color(0, 0, 1)); //color
+            lines.emplace_back(v); //normal
+            colors.emplace_back(0, 0, 1); //color
+            lines.emplace_back(v + n * 0.04f); //normal
+            colors.emplace_back(0, 0, 1); //color
 
-            lines.push_back(v); //tangent
-            colors.push_back(Color(1, 0, 0)); //color
-            lines.push_back(v + t * 0.04f); //tangent
-            colors.push_back(Color(1, 0, 0)); //color
+            lines.emplace_back(v); //tangent
+            colors.emplace_back(1, 0, 0); //color
+            lines.emplace_back(v + t * 0.04f); //tangent
+            colors.emplace_back(1, 0, 0); //color
 
-            lines.push_back(v); //binormal
-            colors.push_back(Color(0, 1, 0)); //color
-            lines.push_back(v + b * 0.04f); //binormal
-            colors.push_back(Color(0, 1, 0)); //color
+            lines.emplace_back(v); //binormal
+            colors.emplace_back(0, 1, 0); //color
+            lines.emplace_back(v + b * 0.04f); //binormal
+            colors.emplace_back(0, 1, 0); //color
         }
     }
 
@@ -368,12 +370,10 @@ void MeshInstance::create_debug_tangents() {
         sm->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
 
         Ref<ArrayMesh> am(make_ref_counted<ArrayMesh>());
-        Array a;
-        a.resize(Mesh::ARRAY_MAX);
-        a[Mesh::ARRAY_VERTEX] = Variant::from(lines);
-        a[Mesh::ARRAY_COLOR] = Variant::from(colors);
+        SurfaceArrays a(eastl::move(lines));
+        a.m_colors = eastl::move(colors);
 
-        am->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, a);
+        am->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(a));
         am->surface_set_material(0, sm);
 
         MeshInstance *mi = memnew(MeshInstance);
@@ -412,9 +412,9 @@ void MeshInstance::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance::create_debug_tangents);
     ClassDB::set_method_flags("MeshInstance", "create_debug_tangents", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "skin", PROPERTY_HINT_RESOURCE_TYPE, "Skin"), "set_skin", "get_skin");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton"), "set_skeleton_path", "get_skeleton_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "skin", PropertyHint::ResourceType, "Skin"), "set_skin", "get_skin");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PropertyHint::NodePathValidTypes, "Skeleton"), "set_skeleton_path", "get_skeleton_path");
 }
 
 MeshInstance::MeshInstance() {

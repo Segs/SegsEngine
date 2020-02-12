@@ -93,7 +93,7 @@ void PropertySelector::_update_search() {
 
     if (properties) {
 
-        ListPOD<PropertyInfo> props;
+        Vector<PropertyInfo> props;
 
         if (instance) {
             instance->get_property_list(&props, true);
@@ -108,13 +108,13 @@ void PropertySelector::_update_search() {
             Object *obj = ObjectDB::get_instance(script);
             if (object_cast<Script>(obj)) {
 
-                props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CATEGORY));
+                props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
                 object_cast<Script>(obj)->get_script_property_list(&props);
             }
 
             StringName base(base_type);
             while (base) {
-                props.push_back(PropertyInfo(VariantType::NIL, base, PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CATEGORY));
+                props.push_back(PropertyInfo(VariantType::NIL, base, PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
                 ClassDB::get_property_list(base, &props, true);
                 base = ClassDB::get_parent_class(base);
             }
@@ -179,7 +179,7 @@ void PropertySelector::_update_search() {
             if (!search_box->get_text_ui().isEmpty() && not StringUtils::contains(E.name,search_box->get_text()))
                 continue;
 
-            if (!type_filter.empty() && type_filter.find(E.type) == -1)
+            if (!type_filter.empty() && !type_filter.contains(E.type))
                 continue;
 
             TreeItem *item = search_options->create_item(category ? category : root);
@@ -200,7 +200,7 @@ void PropertySelector::_update_search() {
         }
     } else {
 
-        PODVector<MethodInfo> methods;
+        Vector<MethodInfo> methods;
 
         if (type != VariantType::NIL) {
             Variant v;
@@ -218,7 +218,7 @@ void PropertySelector::_update_search() {
 
             StringName base(base_type);
             while (base) {
-                methods.push_back(MethodInfo((se_string("*") + base_type).c_str()));
+                methods.push_back(MethodInfo((String("*") + base_type).c_str()));
                 ClassDB::get_method_list(base, &methods, true, true);
                 base = ClassDB::get_parent_class(base);
             }
@@ -240,7 +240,7 @@ void PropertySelector::_update_search() {
 
                 Ref<Texture> icon;
                 script_methods = false;
-                se_string rep = StringUtils::replace(E.name,"*", "");
+                String rep = StringUtils::replace(E.name,"*", "");
                 if (E.name == "*Script Methods") {
                     icon = get_icon("Script", "EditorIcons");
                     script_methods = true;
@@ -269,16 +269,16 @@ void PropertySelector::_update_search() {
 
             MethodInfo mi = E;
 
-            se_string desc;
+            String desc;
             if (StringUtils::contains(mi.name,":")) {
-                desc = se_string(StringUtils::get_slice(mi.name,":", 1)) + " ";
+                desc = String(StringUtils::get_slice(mi.name,":", 1)) + " ";
                 mi.name = StringName(StringUtils::get_slice(mi.name,":", 0));
             } else if (mi.return_val.type != VariantType::NIL)
                 desc = Variant::get_type_name(mi.return_val.type);
             else
                 desc = "void ";
 
-            desc += se_string(" ") + mi.name + " ( ";
+            desc += String(" ") + mi.name + " ( ";
 
             for (size_t i = 0; i < mi.arguments.size(); i++) {
 
@@ -288,10 +288,10 @@ void PropertySelector::_update_search() {
                 if (mi.arguments[i].type == VariantType::NIL)
                     desc += "var ";
                 else if (StringUtils::contains(mi.arguments[i].name,":")) {
-                    desc += se_string(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
+                    desc += String(StringUtils::get_slice(mi.arguments[i].name,":", 1)) + " ";
                     mi.arguments[i].name = StringName(StringUtils::get_slice(mi.arguments[i].name,":", 0));
                 } else
-                    desc += se_string(Variant::get_type_name(mi.arguments[i].type)) + " ";
+                    desc += String(Variant::get_type_name(mi.arguments[i].type)) + " ";
 
                 desc += mi.arguments[i].name;
             }
@@ -349,7 +349,7 @@ void PropertySelector::_item_selected() {
     }
 
     DocData *dd = EditorHelp::get_doc_data();
-    se_string text;
+    String text;
 
     if (properties) {
 
@@ -403,7 +403,7 @@ void PropertySelector::_notification(int p_what) {
     }
 }
 
-void PropertySelector::select_method_from_base_type(const StringName &p_base, const String &p_current, bool p_virtuals_only) {
+void PropertySelector::select_method_from_base_type(const StringName &p_base, const UIString &p_current, bool p_virtuals_only) {
 
     base_type = p_base;
     selected = p_current;
@@ -414,14 +414,14 @@ void PropertySelector::select_method_from_base_type(const StringName &p_base, co
     virtuals_only = p_virtuals_only;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const String &p_current) {
+void PropertySelector::select_method_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
-    ERR_FAIL_COND(not p_script)
+    ERR_FAIL_COND(not p_script);
     base_type = p_script->get_instance_base_type();
     selected = p_current;
     type = VariantType::NIL;
@@ -431,13 +431,13 @@ void PropertySelector::select_method_from_script(const Ref<Script> &p_script, co
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
-void PropertySelector::select_method_from_basic_type(VariantType p_type, const String &p_current) {
+void PropertySelector::select_method_from_basic_type(VariantType p_type, const UIString &p_current) {
 
-    ERR_FAIL_COND(p_type == VariantType::NIL)
+    ERR_FAIL_COND(p_type == VariantType::NIL);
     base_type = "";
     selected = p_current;
     type = p_type;
@@ -447,12 +447,12 @@ void PropertySelector::select_method_from_basic_type(VariantType p_type, const S
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_method_from_instance(Object *p_instance, const String &p_current) {
+void PropertySelector::select_method_from_instance(Object *p_instance, const UIString &p_current) {
 
     base_type = StringName(p_instance->get_class());
     selected = p_current;
@@ -468,12 +468,12 @@ void PropertySelector::select_method_from_instance(Object *p_instance, const Str
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_property_from_base_type(const StringName &p_base, const String &p_current) {
+void PropertySelector::select_property_from_base_type(const StringName &p_base, const UIString &p_current) {
 
     base_type = p_base;
     selected = p_current;
@@ -484,14 +484,14 @@ void PropertySelector::select_property_from_base_type(const StringName &p_base, 
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const String &p_current) {
+void PropertySelector::select_property_from_script(const Ref<Script> &p_script, const UIString &p_current) {
 
-    ERR_FAIL_COND(not p_script)
+    ERR_FAIL_COND(not p_script);
 
     base_type = p_script->get_instance_base_type();
     selected = p_current;
@@ -502,14 +502,14 @@ void PropertySelector::select_property_from_script(const Ref<Script> &p_script, 
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_property_from_basic_type(VariantType p_type, const String &p_current) {
+void PropertySelector::select_property_from_basic_type(VariantType p_type, const UIString &p_current) {
 
-    ERR_FAIL_COND(p_type == VariantType::NIL)
+    ERR_FAIL_COND(p_type == VariantType::NIL);
     base_type = "";
     selected = p_current;
     type = p_type;
@@ -519,12 +519,12 @@ void PropertySelector::select_property_from_basic_type(VariantType p_type, const
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }
 
-void PropertySelector::select_property_from_instance(Object *p_instance, const String &p_current) {
+void PropertySelector::select_property_from_instance(Object *p_instance, const UIString &p_current) {
 
     base_type = "";
     selected = p_current;
@@ -535,7 +535,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const S
     virtuals_only = false;
 
     popup_centered_ratio(0.6f);
-    search_box->set_text_utf8("");
+    search_box->set_text("");
     search_box->grab_focus();
     _update_search();
 }

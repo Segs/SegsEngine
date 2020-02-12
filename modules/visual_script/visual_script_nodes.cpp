@@ -97,8 +97,8 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
         arguments.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            arguments.write[i].name = StringName("arg" + itos(i + 1));
-            arguments.write[i].type = VariantType::NIL;
+            arguments[i].name = StringName("arg" + itos(i + 1));
+            arguments[i].type = VariantType::NIL;
         }
         ports_changed_notify();
         Object_change_notify(this);
@@ -106,12 +106,12 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
     }
     if (StringUtils::begins_with(p_name,"argument_")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, arguments.size(), false)
+        ERR_FAIL_INDEX_V(idx, arguments.size(), false);
         se_string_view what = StringUtils::get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
 
             VariantType new_type = VariantType(int(p_value));
-            arguments.write[idx].type = new_type;
+            arguments[idx].type = new_type;
             ports_changed_notify();
 
             return true;
@@ -119,7 +119,7 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
 
         if (what == se_string_view("name")) {
 
-            arguments.write[idx].name = p_value;
+            arguments[idx].name = p_value;
             ports_changed_notify();
             return true;
         }
@@ -157,7 +157,7 @@ bool VisualScriptFunction::_get(const StringName &p_name, Variant &r_ret) const 
     }
     if (StringUtils::begins_with(p_name,"argument_")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, arguments.size(), false)
+        ERR_FAIL_INDEX_V(idx, arguments.size(), false);
         se_string_view what = StringUtils::get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
             r_ret = arguments[idx].type;
@@ -191,24 +191,24 @@ bool VisualScriptFunction::_get(const StringName &p_name, Variant &r_ret) const 
 
     return false;
 }
-void VisualScriptFunction::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScriptFunction::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PROPERTY_HINT_RANGE, "0,256"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PropertyHint::Range, "0,256"));
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
     for (int i = 0; i < arguments.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument_" + itos(i + 1) + "/type"), PROPERTY_HINT_ENUM, argt));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument_" + itos(i + 1) + "/type"), PropertyHint::Enum, argt));
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName("argument_" + itos(i + 1) + "/name")));
     }
 
     p_list->push_back(PropertyInfo(VariantType::BOOL, "sequenced/sequenced"));
 
     if (!stack_less) {
-        p_list->push_back(PropertyInfo(VariantType::INT, "stack/size", PROPERTY_HINT_RANGE, "1,100000"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "stack/size", PropertyHint::Range, "1,100000"));
     }
     p_list->push_back(PropertyInfo(VariantType::BOOL, "stack/stackless"));
-    p_list->push_back(PropertyInfo(VariantType::INT, "rpc/mode", PROPERTY_HINT_ENUM, "Disabled,Remote,Master,Puppet,Remote Sync,Master Sync,Puppet Sync"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "rpc/mode", PropertyHint::Enum, "Disabled,Remote,Master,Puppet,Remote Sync,Master Sync,Puppet Sync"));
 }
 
 int VisualScriptFunction::get_output_sequence_port_count() const {
@@ -255,7 +255,7 @@ se_string_view VisualScriptFunction::get_caption() const {
     return "Function";
 }
 
-se_string VisualScriptFunction::get_text() const {
+String VisualScriptFunction::get_text() const {
 
     return get_name(); //use name as function name I guess
 }
@@ -268,7 +268,7 @@ void VisualScriptFunction::add_argument(VariantType p_type, const StringName &p_
     arg.hint = p_hint;
     arg.hint_string = p_hint_string;
     if (p_index >= 0)
-        arguments.insert(p_index, arg);
+        arguments.insert_at(p_index, arg);
     else
         arguments.push_back(arg);
 
@@ -278,7 +278,7 @@ void VisualScriptFunction::set_argument_type(int p_argidx, VariantType p_type) {
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
-    arguments.write[p_argidx].type = p_type;
+    arguments[p_argidx].type = p_type;
     ports_changed_notify();
 }
 VariantType VisualScriptFunction::get_argument_type(int p_argidx) const {
@@ -290,7 +290,7 @@ void VisualScriptFunction::set_argument_name(int p_argidx, const StringName &p_n
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
-    arguments.write[p_argidx].name = p_name;
+    arguments[p_argidx].name = p_name;
     ports_changed_notify();
 }
 StringName VisualScriptFunction::get_argument_name(int p_argidx) const {
@@ -302,7 +302,7 @@ void VisualScriptFunction::remove_argument(int p_argidx) {
 
     ERR_FAIL_INDEX(p_argidx, arguments.size());
 
-    arguments.remove(p_argidx);
+    arguments.erase_at(p_argidx);
     ports_changed_notify();
 }
 
@@ -326,7 +326,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         int ac = node->get_argument_count();
 
@@ -387,7 +387,7 @@ bool VisualScriptFunction::is_sequenced() const {
 
 void VisualScriptFunction::set_stack_size(int p_size) {
 
-    ERR_FAIL_COND(p_size < 1 || p_size > 100000)
+    ERR_FAIL_COND(p_size < 1 || p_size > 100000);
     stack_size = p_size;
 }
 
@@ -471,8 +471,8 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         inputports.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            inputports.write[i].name = StringName("arg" + itos(i + 1));
-            inputports.write[i].type = VariantType::NIL;
+            inputports[i].name = StringName("arg" + itos(i + 1));
+            inputports[i].type = VariantType::NIL;
         }
         ports_changed_notify();
         Object_change_notify(this);
@@ -480,12 +480,12 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
     }
     if (StringUtils::begins_with(p_name,"input_") && is_input_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, inputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, inputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
 
             VariantType new_type = VariantType(int(p_value));
-            inputports.write[idx].type = new_type;
+            inputports[idx].type = new_type;
             ports_changed_notify();
 
             return true;
@@ -493,7 +493,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
 
         if (what == se_string_view("name")) {
 
-            inputports.write[idx].name = p_value;
+            inputports[idx].name = p_value;
             ports_changed_notify();
             return true;
         }
@@ -509,8 +509,8 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         outputports.resize(new_argc);
 
         for (int i = argc; i < new_argc; i++) {
-            outputports.write[i].name = StringName("arg" + itos(i + 1));
-            outputports.write[i].type = VariantType::NIL;
+            outputports[i].name = StringName("arg" + itos(i + 1));
+            outputports[i].type = VariantType::NIL;
         }
         ports_changed_notify();
         Object_change_notify(this);
@@ -518,12 +518,12 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
     }
     if (begins_with(p_name,"output_") && is_output_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, outputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, outputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
 
             VariantType new_type = VariantType(int(p_value));
-            outputports.write[idx].type = new_type;
+            outputports[idx].type = new_type;
             ports_changed_notify();
 
             return true;
@@ -531,7 +531,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
 
         if (what == se_string_view("name")) {
 
-            outputports.write[idx].name = p_value;
+            outputports[idx].name = p_value;
             ports_changed_notify();
             return true;
         }
@@ -555,7 +555,7 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
     if (begins_with(p_name,"input_") && is_input_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
 
-        ERR_FAIL_INDEX_V(idx, inputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, inputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
             r_ret = inputports[idx].type;
@@ -573,7 +573,7 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
     }
     if (begins_with(p_name,"output_") && is_output_port_editable()) {
         int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
-        ERR_FAIL_INDEX_V(idx, outputports.size(), false)
+        ERR_FAIL_INDEX_V(idx, outputports.size(), false);
         se_string_view what = get_slice(p_name,'/', 1);
         if (what == se_string_view("type")) {
             r_ret = outputports[idx].type;
@@ -592,30 +592,30 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void VisualScriptLists::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void VisualScriptLists::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     if (is_input_port_editable()) {
-        p_list->push_back(PropertyInfo(VariantType::INT, "input_count", PROPERTY_HINT_RANGE, "0,256"));
-        se_string argt("Any");
+        p_list->push_back(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,256"));
+        String argt("Any");
         for (int i = 1; i < (int8_t)VariantType::VARIANT_MAX; i++) {
-            argt += se_string(",") + Variant::get_type_name(VariantType(i));
+            argt += String(",") + Variant::get_type_name(VariantType(i));
         }
 
         for (int i = 0; i < inputports.size(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + itos(i + 1) + "/type"), PROPERTY_HINT_ENUM, StringName(argt)));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + itos(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
             p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input_" + itos(i + 1) + "/name")));
         }
     }
 
     if (is_output_port_editable()) {
-        p_list->push_back(PropertyInfo(VariantType::INT, "output_count", PROPERTY_HINT_RANGE, "0,256"));
-        se_string argt("Any");
+        p_list->push_back(PropertyInfo(VariantType::INT, "output_count", PropertyHint::Range, "0,256"));
+        String argt("Any");
         for (int i = 1; i < (int8_t)VariantType::VARIANT_MAX; i++) {
-            argt += se_string(",") + Variant::get_type_name(VariantType(i));
+            argt += String(",") + Variant::get_type_name(VariantType(i));
         }
 
         for (int i = 0; i < outputports.size(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("output_" + itos(i + 1) + "/type"), PROPERTY_HINT_ENUM, StringName(argt)));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("output_" + itos(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
             p_list->push_back(PropertyInfo(VariantType::STRING, StringName("output_" + itos(i + 1) + "/name")));
         }
     }
@@ -632,7 +632,7 @@ void VisualScriptLists::add_input_data_port(VariantType p_type, const StringName
     inp.name = p_name;
     inp.type = p_type;
     if (p_index >= 0)
-        inputports.insert(p_index, inp);
+        inputports.insert_at(p_index, inp);
     else
         inputports.push_back(inp);
 
@@ -644,9 +644,9 @@ void VisualScriptLists::set_input_data_port_type(int p_idx, VariantType p_type) 
     if (!is_input_port_type_editable())
         return;
 
-    ERR_FAIL_INDEX(p_idx, inputports.size())
+    ERR_FAIL_INDEX(p_idx, inputports.size());
 
-    inputports.write[p_idx].type = p_type;
+    inputports[p_idx].type = p_type;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -655,9 +655,9 @@ void VisualScriptLists::set_input_data_port_name(int p_idx, const StringName &p_
     if (!is_input_port_name_editable())
         return;
 
-    ERR_FAIL_INDEX(p_idx, inputports.size())
+    ERR_FAIL_INDEX(p_idx, inputports.size());
 
-    inputports.write[p_idx].name = p_name;
+    inputports[p_idx].name = p_name;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -666,9 +666,9 @@ void VisualScriptLists::remove_input_data_port(int p_argidx) {
     if (!is_input_port_editable())
         return;
 
-    ERR_FAIL_INDEX(p_argidx, inputports.size())
+    ERR_FAIL_INDEX(p_argidx, inputports.size());
 
-    inputports.remove(p_argidx);
+    inputports.erase_at(p_argidx);
 
     ports_changed_notify();
     Object_change_notify(this);
@@ -684,7 +684,7 @@ void VisualScriptLists::add_output_data_port(VariantType p_type, const StringNam
     out.name = p_name;
     out.type = p_type;
     if (p_index >= 0)
-        outputports.insert(p_index, out);
+        outputports.insert_at(p_index, out);
     else
         outputports.push_back(out);
 
@@ -698,7 +698,7 @@ void VisualScriptLists::set_output_data_port_type(int p_idx, VariantType p_type)
 
     ERR_FAIL_INDEX(p_idx, outputports.size());
 
-    outputports.write[p_idx].type = p_type;
+    outputports[p_idx].type = p_type;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -709,7 +709,7 @@ void VisualScriptLists::set_output_data_port_name(int p_idx, const StringName &p
 
     ERR_FAIL_INDEX(p_idx, outputports.size());
 
-    outputports.write[p_idx].name = p_name;
+    outputports[p_idx].name = p_name;
     ports_changed_notify();
     Object_change_notify(this);
 }
@@ -720,7 +720,7 @@ void VisualScriptLists::remove_output_data_port(int p_argidx) {
 
     ERR_FAIL_INDEX(p_argidx, outputports.size());
 
-    outputports.remove(p_argidx);
+    outputports.erase_at(p_argidx);
 
     ports_changed_notify();
     Object_change_notify(this);
@@ -797,7 +797,7 @@ PropertyInfo VisualScriptComposeArray::get_output_value_port_info(int p_idx) con
 se_string_view VisualScriptComposeArray::get_caption() const {
     return "Compose Array";
 }
-se_string VisualScriptComposeArray::get_text() const {
+String VisualScriptComposeArray::get_text() const {
     return {};
 }
 
@@ -806,7 +806,7 @@ public:
     int input_count = 0;
     int get_working_memory_size() const override { return 0; }
 
-    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    virtual int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (input_count > 0) {
             Array arr;
@@ -985,17 +985,17 @@ se_string_view VisualScriptOperator::get_caption() const {
     static const se_string_view op_names[] = {
         //comparison
         "A = B", //OP_EQUAL,
-        "A �  B", //OP_NOT_EQUAL,
+        "A â‰  B", //OP_NOT_EQUAL,
         "A < B", //OP_LESS,
-        "A ≤ B", //OP_LESS_EQUAL,
+        "A â‰¤ B", //OP_LESS_EQUAL,
         "A > B", //OP_GREATER,
-        "A ≥ B", //OP_GREATER_EQUAL,
+        "A â‰¥ B", //OP_GREATER_EQUAL,
         //mathematic
         "A + B", //OP_ADD,
         "A - B", //OP_SUBTRACT,
-        "A × B", //OP_MULTIPLY,
-        "A ÷ B", //OP_DIVIDE,
-        "¬ A", //OP_NEGATE,
+        "A Ã— B", //OP_MULTIPLY,
+        "A Ã· B", //OP_DIVIDE,
+        "Â¬ A", //OP_NEGATE,
         "+ A", //OP_POSITIVE,
         "A mod B", //OP_MODULE,
         "A .. B", //OP_STRING_CONCAT,
@@ -1052,7 +1052,7 @@ void VisualScriptOperator::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_typed", {"type"}), &VisualScriptOperator::set_typed);
     MethodBinder::bind_method(D_METHOD("get_typed"), &VisualScriptOperator::get_typed);
 
-    se_string types;
+    String types;
     for (int i = 0; i < Variant::OP_MAX; i++) {
         if (i > 0)
             types += (",");
@@ -1062,8 +1062,8 @@ void VisualScriptOperator::_bind_methods() {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PROPERTY_HINT_ENUM, StringName(types)), "set_operator", "get_operator");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_typed", "get_typed");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "operator", PropertyHint::Enum, StringName(types)), "set_operator", "get_operator");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt), "set_typed", "get_typed");
 }
 
 class VisualScriptNodeInstanceOperator : public VisualScriptNodeInstance {
@@ -1073,7 +1073,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         bool valid;
         if (unary) {
@@ -1087,12 +1087,12 @@ public:
 
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
             if (p_outputs[0]->get_type() == VariantType::STRING) {
-                r_error_str = p_outputs[0]->as<se_string>();
+                r_error_str = p_outputs[0]->as<String>();
             } else {
                 if (unary)
-                    r_error_str = se_string(op_names[op]) + RTR_utf8(": Invalid argument of type: ") + Variant::get_type_name(p_inputs[0]->get_type());
+                    r_error_str = String(op_names[op]) + RTR_utf8(": Invalid argument of type: ") + Variant::get_type_name(p_inputs[0]->get_type());
                 else
-                    r_error_str = se_string(op_names[op]) + RTR_utf8(": Invalid arguments: ") + "A: " + Variant::get_type_name(p_inputs[0]->get_type()) + "  B: " + Variant::get_type_name(p_inputs[1]->get_type());
+                    r_error_str = String(op_names[op]) + RTR_utf8(": Invalid arguments: ") + "A: " + Variant::get_type_name(p_inputs[0]->get_type()) + "  B: " + Variant::get_type_name(p_inputs[1]->get_type());
             }
         }
 
@@ -1170,7 +1170,7 @@ se_string_view VisualScriptSelect::get_caption() const {
     return "Select";
 }
 
-se_string VisualScriptSelect::get_text() const {
+String VisualScriptSelect::get_text() const {
 
     return "a if cond, else b";
 }
@@ -1196,14 +1196,14 @@ void VisualScriptSelect::_bind_methods() {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_typed", "get_typed");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt), "set_typed", "get_typed");
 }
 
 class VisualScriptNodeInstanceSelect : public VisualScriptNodeInstance {
 public:
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         bool cond = *p_inputs[0];
         if (cond)
@@ -1297,10 +1297,10 @@ void VisualScriptVariableGet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "var_name" && get_visual_script()) {
         Ref<VisualScript> vs = get_visual_script();
-        PODVector<StringName> vars;
+        Vector<StringName> vars;
         vs->get_variable_list(&vars);
 
-        se_string vhint;
+        String vhint;
         for (int i=0,fin=vars.size(); i<fin; ++i) {
             if (!vhint.empty())
                 vhint += (",");
@@ -1308,7 +1308,7 @@ void VisualScriptVariableGet::_validate_property(PropertyInfo &property) const {
             vhint += vars[i].asCString();
         }
 
-        property.hint = PROPERTY_HINT_ENUM;
+        property.hint = PropertyHint::Enum;
         property.hint_string = vhint;
     }
 }
@@ -1327,11 +1327,11 @@ public:
     VisualScriptInstance *instance;
     StringName variable;
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!instance->get_variable(variable, p_outputs[0])) {
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
-            r_error_str = RTR_utf8("VariableGet not found in script: ") + "'" + se_string(variable) + "'";
+            r_error_str = RTR_utf8("VariableGet not found in script: ") + "'" + String(variable) + "'";
             return 0;
         }
         return 0;
@@ -1421,10 +1421,10 @@ void VisualScriptVariableSet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "var_name" && get_visual_script()) {
         Ref<VisualScript> vs = get_visual_script();
-        PODVector<StringName> vars;
+        Vector<StringName> vars;
         vs->get_variable_list(&vars);
 
-        se_string vhint;
+        String vhint;
         for (int i=0,fin=vars.size(); i<fin; ++i) {
             if (!vhint.empty())
                 vhint += (",");
@@ -1432,7 +1432,7 @@ void VisualScriptVariableSet::_validate_property(PropertyInfo &property) const {
             vhint += vars[i].asCString();
         }
 
-        property.hint = PROPERTY_HINT_ENUM;
+        property.hint = PropertyHint::Enum;
         property.hint_string = vhint;
     }
 }
@@ -1453,7 +1453,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!instance->set_variable(variable, *p_inputs[0])) {
 
@@ -1572,8 +1572,8 @@ void VisualScriptConstant::_bind_methods() {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Null",argt);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_constant_type", "get_constant_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::NIL, "value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT | PROPERTY_USAGE_DEFAULT), "set_constant_value", "get_constant_value");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt), "set_constant_type", "get_constant_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT | PROPERTY_USAGE_DEFAULT), "set_constant_value", "get_constant_value");
 }
 
 class VisualScriptNodeInstanceConstant : public VisualScriptNodeInstance {
@@ -1581,7 +1581,7 @@ public:
     Variant constant;
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = constant;
         return 0;
@@ -1638,7 +1638,7 @@ PropertyInfo VisualScriptPreload::get_output_value_port_info(int p_idx) const {
     PropertyInfo pinfo;
     pinfo.type = VariantType::OBJECT;
     if (preload) {
-        pinfo.hint = PROPERTY_HINT_RESOURCE_TYPE;
+        pinfo.hint = PropertyHint::ResourceType;
         pinfo.hint_string = preload->get_class();
         if (PathUtils::is_resource_file(preload->get_path())) {
             pinfo.name = StringName(preload->get_path());
@@ -1678,7 +1678,7 @@ void VisualScriptPreload::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_preload", {"resource"}), &VisualScriptPreload::set_preload);
     MethodBinder::bind_method(D_METHOD("get_preload"), &VisualScriptPreload::get_preload);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "resource", PROPERTY_HINT_RESOURCE_TYPE, "Resource"), "set_preload", "get_preload");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource"), "set_preload", "get_preload");
 }
 
 class VisualScriptNodeInstancePreload : public VisualScriptNodeInstance {
@@ -1686,7 +1686,7 @@ public:
     Ref<Resource> preload;
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = preload;
         return 0;
@@ -1754,7 +1754,7 @@ class VisualScriptNodeInstanceIndexGet : public VisualScriptNodeInstance {
 public:
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         bool valid;
         *p_outputs[0] = p_inputs[0]->get(*p_inputs[1], &valid);
@@ -1829,7 +1829,7 @@ class VisualScriptNodeInstanceIndexSet : public VisualScriptNodeInstance {
 public:
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         bool valid;
         *p_outputs[0] = *p_inputs[0];
@@ -1885,7 +1885,7 @@ PropertyInfo VisualScriptGlobalConstant::get_input_value_port_info(int p_idx) co
 }
 
 PropertyInfo VisualScriptGlobalConstant::get_output_value_port_info(int p_idx) const {
-    return PropertyInfo(VariantType::REAL, StringName(GlobalConstants::get_global_constant_name(index)));
+    return PropertyInfo(VariantType::INT, StringName(GlobalConstants::get_global_constant_name(index)));
 }
 
 se_string_view VisualScriptGlobalConstant::get_caption() const {
@@ -1909,7 +1909,7 @@ public:
     int index;
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = GlobalConstants::get_global_constant_value(index);
         return 0;
@@ -1928,15 +1928,15 @@ void VisualScriptGlobalConstant::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_global_constant", {"index"}), &VisualScriptGlobalConstant::set_global_constant);
     MethodBinder::bind_method(D_METHOD("get_global_constant"), &VisualScriptGlobalConstant::get_global_constant);
 
-    se_string cc;
+    String cc;
 
     for (int i = 0; i < GlobalConstants::get_global_constant_count(); i++) {
 
         if (i > 0)
             cc += ",";
-        cc += se_string(GlobalConstants::get_global_constant_name(i));
+        cc += String(GlobalConstants::get_global_constant_name(i));
     }
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PROPERTY_HINT_ENUM, StringName(cc)), "set_global_constant", "get_global_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PropertyHint::Enum, StringName(cc)), "set_global_constant", "get_global_constant");
 }
 
 VisualScriptGlobalConstant::VisualScriptGlobalConstant() {
@@ -1979,7 +1979,7 @@ PropertyInfo VisualScriptClassConstant::get_input_value_port_info(int p_idx) con
 
 PropertyInfo VisualScriptClassConstant::get_output_value_port_info(int p_idx) const {
 
-    return PropertyInfo(VariantType::INT, StringName(se_string(base_type) + "." + name));
+    return PropertyInfo(VariantType::INT, StringName(String(base_type) + "." + name));
 }
 
 se_string_view VisualScriptClassConstant::get_caption() const {
@@ -2015,7 +2015,7 @@ public:
     bool valid;
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!valid) {
             r_error_str = "Invalid constant name, pick a valid class constant.";
@@ -2038,11 +2038,11 @@ void VisualScriptClassConstant::_validate_property(PropertyInfo &property) const
 
     if (property.name == "constant") {
 
-        ListPOD<se_string> constants;
+        List<String> constants;
         ClassDB::get_integer_constant_list(base_type, &constants, true);
 
         property.hint_string = "";
-        for(const se_string & E : constants) {
+        for(const String & E : constants) {
             if (!property.hint_string.empty()) {
                 property.hint_string += ",";
             }
@@ -2059,8 +2059,8 @@ void VisualScriptClassConstant::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_base_type", {"name"}), &VisualScriptClassConstant::set_base_type);
     MethodBinder::bind_method(D_METHOD("get_base_type"), &VisualScriptClassConstant::get_base_type);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PROPERTY_HINT_TYPE_STRING, "Object"), "set_base_type", "get_base_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PROPERTY_HINT_ENUM, ""), "set_class_constant", "get_class_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "base_type", PropertyHint::TypeString, "Object"), "set_base_type", "get_base_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PropertyHint::Enum, ""), "set_class_constant", "get_class_constant");
 }
 
 VisualScriptClassConstant::VisualScriptClassConstant() {
@@ -2103,7 +2103,7 @@ PropertyInfo VisualScriptBasicTypeConstant::get_input_value_port_info(int p_idx)
 
 PropertyInfo VisualScriptBasicTypeConstant::get_output_value_port_info(int p_idx) const {
 
-    return PropertyInfo(VariantType::INT, "value");
+    return PropertyInfo(type, "value");
 }
 
 se_string_view VisualScriptBasicTypeConstant::get_caption() const {
@@ -2111,9 +2111,12 @@ se_string_view VisualScriptBasicTypeConstant::get_caption() const {
     return "Basic Constant";
 }
 
-se_string VisualScriptBasicTypeConstant::get_text() const {
-
-    return se_string(Variant::get_type_name(type)) + "." + name;
+String VisualScriptBasicTypeConstant::get_text() const {
+    if (name.empty()) {
+        return Variant::get_type_name(type);
+    } else {
+        return String(Variant::get_type_name(type)) + "." + name;
+    }
 }
 
 void VisualScriptBasicTypeConstant::set_basic_type_constant(const StringName &p_which) {
@@ -2130,6 +2133,22 @@ StringName VisualScriptBasicTypeConstant::get_basic_type_constant() const {
 void VisualScriptBasicTypeConstant::set_basic_type(VariantType p_which) {
 
     type = p_which;
+    Vector<StringName> constants;
+    Variant::get_constants_for_type(type, &constants);
+    if (constants.size() > 0) {
+        bool found_name = false;
+        for (const StringName &E : constants) {
+            if (name == se_string_view(E)) {
+                found_name = true;
+                break;
+            }
+        }
+        if (!found_name) {
+            name = constants[0];
+        }
+    } else {
+        name = "";
+    }
     Object_change_notify(this);
     ports_changed_notify();
 }
@@ -2144,7 +2163,7 @@ public:
     bool valid;
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!valid) {
             r_error_str = "Invalid constant name, pick a valid basic type constant.";
@@ -2167,7 +2186,7 @@ void VisualScriptBasicTypeConstant::_validate_property(PropertyInfo &property) c
 
     if (property.name == "constant") {
 
-        ListPOD<StringName> constants;
+        Vector<StringName> constants;
         Variant::get_constants_for_type(type, &constants);
 
         if (constants.empty()) {
@@ -2195,8 +2214,8 @@ void VisualScriptBasicTypeConstant::_bind_methods() {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Null",argt);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "basic_type", PROPERTY_HINT_ENUM, argt), "set_basic_type", "get_basic_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PROPERTY_HINT_ENUM, ""), "set_basic_type_constant", "get_basic_type_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "basic_type", PropertyHint::Enum, argt), "set_basic_type", "get_basic_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PropertyHint::Enum, ""), "set_basic_type_constant", "get_basic_type_constant");
 }
 
 VisualScriptBasicTypeConstant::VisualScriptBasicTypeConstant() {
@@ -2285,7 +2304,7 @@ public:
     float value;
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = value;
         return 0;
@@ -2304,7 +2323,7 @@ void VisualScriptMathConstant::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_math_constant", {"which"}), &VisualScriptMathConstant::set_math_constant);
     MethodBinder::bind_method(D_METHOD("get_math_constant"), &VisualScriptMathConstant::get_math_constant);
 
-    se_string cc;
+    String cc;
 
     for (int i = 0; i < MATH_CONSTANT_MAX; i++) {
 
@@ -2312,7 +2331,7 @@ void VisualScriptMathConstant::_bind_methods() {
             cc += (",");
         cc += (const_name[i]);
     }
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PROPERTY_HINT_ENUM, StringName(cc)), "set_math_constant", "get_math_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "constant", PropertyHint::Enum, StringName(cc)), "set_math_constant", "get_math_constant");
 
     BIND_ENUM_CONSTANT(MATH_CONSTANT_ONE)
     BIND_ENUM_CONSTANT(MATH_CONSTANT_PI)
@@ -2391,7 +2410,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = Variant(singleton);
         return 0;
@@ -2417,15 +2436,11 @@ VisualScriptEngineSingleton::TypeGuess VisualScriptEngineSingleton::guess_output
 
     return tg;
 }
+void VisualScriptEngineSingleton::_validate_property(PropertyInfo &property) const {
 
-void VisualScriptEngineSingleton::_bind_methods() {
+    String cc;
 
-    MethodBinder::bind_method(D_METHOD("set_singleton", {"name"}), &VisualScriptEngineSingleton::set_singleton);
-    MethodBinder::bind_method(D_METHOD("get_singleton"), &VisualScriptEngineSingleton::get_singleton);
-
-    se_string cc;
-
-    auto &singletons(Engine::get_singleton()->get_singletons());
+    const Vector<Engine::Singleton> &singletons = Engine::get_singleton()->get_singletons();
 
     for (const Engine::Singleton &E : singletons) {
         if (E.name == "VS" || E.name == "PS" || E.name == "PS2D" || E.name == "AS" || E.name == "TS" || E.name == "SS" || E.name == "SS2D")
@@ -2433,10 +2448,18 @@ void VisualScriptEngineSingleton::_bind_methods() {
 
         if (!cc.empty())
             cc += ",";
-        cc += E.name.asCString();
+        cc += E.name;
     }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant", PROPERTY_HINT_ENUM, StringName(cc)), "set_singleton", "get_singleton");
+    property.hint = PropertyHint::Enum;
+    property.hint_string = cc;
+}
+void VisualScriptEngineSingleton::_bind_methods() {
+
+    MethodBinder::bind_method(D_METHOD("set_singleton", {"name"}), &VisualScriptEngineSingleton::set_singleton);
+    MethodBinder::bind_method(D_METHOD("get_singleton"), &VisualScriptEngineSingleton::get_singleton);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "constant"), "set_singleton", "get_singleton");
 }
 
 VisualScriptEngineSingleton::VisualScriptEngineSingleton() {
@@ -2479,7 +2502,7 @@ PropertyInfo VisualScriptSceneNode::get_input_value_port_info(int p_idx) const {
 
 PropertyInfo VisualScriptSceneNode::get_output_value_port_info(int p_idx) const {
 
-    return PropertyInfo(VariantType::OBJECT, StringName((se_string)path.simplified()));
+    return PropertyInfo(VariantType::OBJECT, StringName((String)path.simplified()));
 }
 
 se_string_view VisualScriptSceneNode::get_caption() const {
@@ -2506,7 +2529,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         Node *node = object_cast<Node>(instance->get_owner_ptr());
         if (!node) {
@@ -2599,7 +2622,7 @@ void VisualScriptSceneNode::_validate_property(PropertyInfo &property) const {
         if (!script_node)
             return;
 
-        property.hint_string = (se_string)script_node->get_path();
+        property.hint_string = (String)script_node->get_path();
     }
 #endif
 }
@@ -2609,7 +2632,7 @@ void VisualScriptSceneNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_node_path", {"path"}), &VisualScriptSceneNode::set_node_path);
     MethodBinder::bind_method(D_METHOD("get_node_path"), &VisualScriptSceneNode::get_node_path);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_path", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE), "set_node_path", "get_node_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_path", PropertyHint::NodePathToEditedNode), "set_node_path", "get_node_path");
 }
 
 VisualScriptSceneNode::VisualScriptSceneNode() {
@@ -2652,7 +2675,7 @@ PropertyInfo VisualScriptSceneTree::get_input_value_port_info(int p_idx) const {
 
 PropertyInfo VisualScriptSceneTree::get_output_value_port_info(int p_idx) const {
 
-    return PropertyInfo(VariantType::OBJECT, "Scene Tree", PROPERTY_HINT_TYPE_STRING, "SceneTree");
+    return PropertyInfo(VariantType::OBJECT, "Scene Tree", PropertyHint::TypeString, "SceneTree");
 }
 
 se_string_view VisualScriptSceneTree::get_caption() const {
@@ -2667,7 +2690,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         Node *node = object_cast<Node>(instance->get_owner_ptr());
         if (!node) {
@@ -2764,17 +2787,17 @@ void VisualScriptResourcePath::set_resource_path(se_string_view p_path) {
     ports_changed_notify();
 }
 
-const se_string & VisualScriptResourcePath::get_resource_path() {
+const String & VisualScriptResourcePath::get_resource_path() {
     return path;
 }
 
 class VisualScriptNodeInstanceResourcePath : public VisualScriptNodeInstance {
 public:
-    se_string path;
+    String path;
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = path;
         return 0;
@@ -2793,7 +2816,7 @@ void VisualScriptResourcePath::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_resource_path", {"path"}), &VisualScriptResourcePath::set_resource_path);
     MethodBinder::bind_method(D_METHOD("get_resource_path"), &VisualScriptResourcePath::get_resource_path);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "path", PROPERTY_HINT_FILE), "set_resource_path", "get_resource_path");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "path", PropertyHint::File), "set_resource_path", "get_resource_path");
 }
 
 VisualScriptResourcePath::VisualScriptResourcePath() {
@@ -2856,7 +2879,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = Variant(instance->get_owner_ptr());
         return 0;
@@ -2930,8 +2953,8 @@ int VisualScriptCustomNode::get_output_value_port_count() const {
 se_string_view VisualScriptCustomNode::get_output_sequence_port_text(int p_port) const {
 
     if (get_script_instance() && get_script_instance()->has_method("_get_output_sequence_port_text")) {
-        static se_string val;
-        val = get_script_instance()->call("_get_output_sequence_port_text", p_port).as<se_string>();
+        static String val;
+        val = get_script_instance()->call("_get_output_sequence_port_text", p_port).as<String>();
         return val;
     }
 
@@ -2966,25 +2989,25 @@ se_string_view VisualScriptCustomNode::get_caption() const {
     thread_local char buf[512];
     if (get_script_instance() && get_script_instance()->has_method("_get_caption")) {
         buf[0]=0;
-        strncat(buf,get_script_instance()->call("_get_caption").as<se_string>().c_str(),511);
+        strncat(buf,get_script_instance()->call("_get_caption").as<String>().c_str(),511);
         return buf;
     }
     return "CustomNode";
 }
 
-se_string VisualScriptCustomNode::get_text() const {
+String VisualScriptCustomNode::get_text() const {
 
     if (get_script_instance() && get_script_instance()->has_method("_get_text")) {
         return get_script_instance()->call("_get_text");
     }
-    return se_string();
+    return String();
 }
 
 const char *VisualScriptCustomNode::get_category() const {
 
     if (get_script_instance() && get_script_instance()->has_method("_get_category")) {
         static char buf[256];
-        strncpy(buf,get_script_instance()->call("_get_category").as<se_string>().c_str(),255);
+        strncpy(buf,get_script_instance()->call("_get_category").as<String>().c_str(),255);
         return buf;
     }
     return "Custom";
@@ -2999,7 +3022,7 @@ public:
     int work_mem_size;
 
     int get_working_memory_size() const override { return work_mem_size; }
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (node->get_script_instance()) {
 #ifdef DEBUG_ENABLED
@@ -3031,7 +3054,7 @@ public:
 
             Variant ret = node->get_script_instance()->call(VisualScriptLanguage::singleton->_step, in_values, out_values, p_start_mode, work_mem);
             if (ret.get_type() == VariantType::STRING) {
-                r_error_str = ret.as<se_string>();
+                r_error_str = ret.as<String>();
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
                 return 0;
             } else if (ret.is_num()) {
@@ -3189,17 +3212,17 @@ se_string_view VisualScriptSubCall::get_caption() const {
     return "SubCall";
 }
 
-se_string VisualScriptSubCall::get_text() const {
+String VisualScriptSubCall::get_text() const {
 
     Ref<Script> script = refFromRefPtr<Script>(get_script());
     if (script) {
         if (!script->get_name().empty())
             return script->get_name();
         if (PathUtils::is_resource_file(script->get_path()))
-            return se_string(PathUtils::get_file(script->get_path()));
-        return se_string(script->get_class());
+            return String(PathUtils::get_file(script->get_path()));
+        return String(script->get_class());
     }
-    return se_string();
+    return String();
 }
 
 const char *VisualScriptSubCall::get_category() const {
@@ -3216,7 +3239,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         if (!valid) {
             r_error_str = "Node requires a script with a _subcall(<args>) method to work.";
@@ -3294,12 +3317,12 @@ se_string_view VisualScriptComment::get_caption() const {
     return title;
 }
 
-se_string VisualScriptComment::get_text() const {
+String VisualScriptComment::get_text() const {
 
     return description;
 }
 
-void VisualScriptComment::set_title(const se_string &p_title) {
+void VisualScriptComment::set_title(const String &p_title) {
 
     if (title == p_title)
         return;
@@ -3307,19 +3330,19 @@ void VisualScriptComment::set_title(const se_string &p_title) {
     ports_changed_notify();
 }
 
-const se_string & VisualScriptComment::get_title() const {
+const String & VisualScriptComment::get_title() const {
 
     return title;
 }
 
-void VisualScriptComment::set_description(const se_string &p_description) {
+void VisualScriptComment::set_description(const String &p_description) {
 
     if (description == p_description)
         return;
     description = p_description;
     ports_changed_notify();
 }
-const se_string& VisualScriptComment::get_description() const {
+const String& VisualScriptComment::get_description() const {
 
     return description;
 }
@@ -3347,7 +3370,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         return 0;
     }
@@ -3372,7 +3395,7 @@ void VisualScriptComment::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_size"), &VisualScriptComment::get_size);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "title"), "set_title", "get_title");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "description", PROPERTY_HINT_MULTILINE_TEXT), "set_description", "get_description");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "description", PropertyHint::MultilineText), "set_description", "get_description");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
 }
 
@@ -3465,7 +3488,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         Variant::CallError ce;
         *p_outputs[0] = Variant::construct(type, p_inputs, argcount, ce);
@@ -3494,8 +3517,8 @@ void VisualScriptConstructor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_constructor", {"constructor"}), &VisualScriptConstructor::set_constructor);
     MethodBinder::bind_method(D_METHOD("get_constructor"), &VisualScriptConstructor::get_constructor);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_constructor_type", "get_constructor_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "constructor", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_constructor", "get_constructor");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_constructor_type", "get_constructor_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "constructor", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_constructor", "get_constructor");
 }
 
 VisualScriptConstructor::VisualScriptConstructor() {
@@ -3503,12 +3526,12 @@ VisualScriptConstructor::VisualScriptConstructor() {
     type = VariantType::NIL;
 }
 
-static Map<se_string, Pair<VariantType, MethodInfo> > constructor_map;
+static Map<String, Pair<VariantType, MethodInfo> > constructor_map;
 
 static Ref<VisualScriptNode> create_constructor_node(se_string_view p_name) {
 
     auto constructor_iter = constructor_map.find_as(p_name);
-    ERR_FAIL_COND_V(constructor_iter==constructor_map.end(), Ref<VisualScriptNode>())
+    ERR_FAIL_COND_V(constructor_iter==constructor_map.end(), Ref<VisualScriptNode>());
 
     Ref<VisualScriptConstructor> vsc(make_ref_counted<VisualScriptConstructor>());
     vsc->set_constructor_type(constructor_iter->second.first);
@@ -3594,7 +3617,7 @@ public:
     StringName name;
 
     int get_working_memory_size() const override { return 1; }
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_outputs[0] = *p_working_mem;
         return 0;
@@ -3622,7 +3645,7 @@ void VisualScriptLocalVar::_bind_methods() {
     fill_with_all_variant_types("Any",argt);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "var_name"), "set_var_name", "get_var_name");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_var_type", "get_var_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt), "set_var_type", "get_var_type");
 }
 
 VisualScriptLocalVar::VisualScriptLocalVar() {
@@ -3672,7 +3695,7 @@ se_string_view VisualScriptLocalVarSet::get_caption() const {
     return "Set Local Var";
 }
 
-se_string VisualScriptLocalVarSet::get_text() const {
+String VisualScriptLocalVarSet::get_text() const {
 
     return name.asCString();
 }
@@ -3713,7 +3736,7 @@ public:
     StringName name;
 
     int get_working_memory_size() const override { return 1; }
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         *p_working_mem = *p_inputs[0];
         *p_outputs[0] = *p_working_mem;
@@ -3742,7 +3765,7 @@ void VisualScriptLocalVarSet::_bind_methods() {
     fill_with_all_variant_types("Any",argt);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "var_name"), "set_var_name", "get_var_name");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_var_type", "get_var_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt), "set_var_type", "get_var_type");
 }
 
 VisualScriptLocalVarSet::VisualScriptLocalVarSet() {
@@ -3850,7 +3873,7 @@ public:
     StringName action;
     VisualScriptInputAction::Mode mode;
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         switch (mode) {
             case VisualScriptInputAction::MODE_PRESSED: {
@@ -3883,29 +3906,28 @@ VisualScriptNodeInstance *VisualScriptInputAction::instance(VisualScriptInstance
 
 void VisualScriptInputAction::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "action") {
+    if (property.name != se_string_view("action"))
+        return;
 
-        property.hint = PROPERTY_HINT_ENUM;
+    property.hint = PropertyHint::Enum;
+
+    Vector<PropertyInfo> pinfo;
+    ProjectSettings::get_singleton()->get_property_list(&pinfo);
+    FixedVector<String,32,true> al;
+
+    for(const PropertyInfo &pi : pinfo) {
+
+        if (!StringUtils::begins_with(pi.name,"input/"))
+            continue;
+
+        String name(StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1));
 
 
-        ListPOD<PropertyInfo> pinfo;
-        ProjectSettings::get_singleton()->get_property_list(&pinfo);
-        FixedVector<se_string,32,true> al;
-
-        for(const PropertyInfo &pi : pinfo) {
-
-            if (!StringUtils::begins_with(pi.name,"input/"))
-                continue;
-
-            se_string name(StringUtils::substr(pi.name,StringUtils::find(pi.name,"/") + 1));
-
-
-            al.push_back(name);
-        }
-        eastl::sort(al.begin(),al.end());
-
-        property.hint_string = se_string::joined(al,",");
+        al.push_back(name);
     }
+    eastl::sort(al.begin(),al.end());
+
+    property.hint_string = String::joined(al,",");
 }
 
 void VisualScriptInputAction::_bind_methods() {
@@ -3917,7 +3939,7 @@ void VisualScriptInputAction::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_action_mode"), &VisualScriptInputAction::get_action_mode);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "action"), "set_action_name", "get_action_name");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Pressed,Released,JustPressed,JustReleased"), "set_action_mode", "get_action_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Pressed,Released,JustPressed,JustReleased"), "set_action_mode", "get_action_mode");
 
     BIND_ENUM_CONSTANT(MODE_PRESSED)
     BIND_ENUM_CONSTANT(MODE_RELEASED)
@@ -3986,7 +4008,7 @@ void VisualScriptDeconstruct::_update_elements() {
     Variant::CallError ce;
     v = Variant::construct(type, nullptr, 0, ce);
 
-    ListPOD<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     v.get_property_list(&pinfo);
 
     for(const PropertyInfo & E : pinfo) {
@@ -4016,11 +4038,11 @@ VariantType VisualScriptDeconstruct::get_deconstruct_type() const {
 
 void VisualScriptDeconstruct::_set_elem_cache(const Array &p_elements) {
 
-    ERR_FAIL_COND(p_elements.size() % 2 == 1)
+    ERR_FAIL_COND(p_elements.size() % 2 == 1);
     elements.resize(p_elements.size() / 2);
     for (int i = 0; i < elements.size(); i++) {
-        elements.write[i].name = p_elements[i * 2 + 0];
-        elements.write[i].type = VariantType(int(p_elements[i * 2 + 1]));
+        elements[i].name = p_elements[i * 2 + 0];
+        elements[i].type = VariantType(int(p_elements[i * 2 + 1]));
     }
 }
 
@@ -4037,11 +4059,11 @@ Array VisualScriptDeconstruct::_get_elem_cache() const {
 class VisualScriptNodeInstanceDeconstruct : public VisualScriptNodeInstance {
 public:
     VisualScriptInstance *instance;
-    PODVector<StringName> outputs;
+    Vector<StringName> outputs;
 
     //virtual int get_working_memory_size() const { return 0; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, se_string &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
 
         Variant in = *p_inputs[0];
 
@@ -4049,7 +4071,7 @@ public:
             bool valid;
             *p_outputs[i] = in.get(outputs[i], &valid);
             if (!valid) {
-                r_error_str = "Can't obtain element '" + se_string(outputs[i]) + "' from " + Variant::get_type_name(in.get_type());
+                r_error_str = "Can't obtain element '" + String(outputs[i]) + "' from " + Variant::get_type_name(in.get_type());
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
                 return 0;
             }
@@ -4085,8 +4107,8 @@ void VisualScriptDeconstruct::_bind_methods() {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PROPERTY_HINT_ENUM, argt), "set_deconstruct_type", "get_deconstruct_type");
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "elem_cache", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_elem_cache", "_get_elem_cache");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "type", PropertyHint::Enum, argt), "set_deconstruct_type", "get_deconstruct_type");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "elem_cache", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_elem_cache", "_get_elem_cache");
 }
 
 VisualScriptDeconstruct::VisualScriptDeconstruct() {
@@ -4156,7 +4178,7 @@ void register_visual_script_nodes() {
     VisualScriptLanguage::singleton->add_register_func("operators/logic/in", create_op_node<Variant::OP_IN>);
     VisualScriptLanguage::singleton->add_register_func("operators/logic/select", create_node_generic<VisualScriptSelect>);
 
-    se_string deconstruct_prefix("functions/deconstruct/");
+    String deconstruct_prefix("functions/deconstruct/");
     VisualScriptLanguage::singleton->add_register_func(deconstruct_prefix + Variant::get_type_name(VariantType::VECTOR2), create_node_deconst_typed<VariantType::VECTOR2>);
     VisualScriptLanguage::singleton->add_register_func(deconstruct_prefix + Variant::get_type_name(VariantType::VECTOR3), create_node_deconst_typed<VariantType::VECTOR3>);
     VisualScriptLanguage::singleton->add_register_func(deconstruct_prefix + Variant::get_type_name(VariantType::COLOR), create_node_deconst_typed<VariantType::COLOR>);
@@ -4172,13 +4194,13 @@ void register_visual_script_nodes() {
 
     for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
 
-        PODVector<MethodInfo> constructors;
+        Vector<MethodInfo> constructors;
         Variant::get_constructor_list(VariantType(i), &constructors);
 
         for (const MethodInfo &E : constructors) {
 
             if (!E.arguments.empty()) {
-                se_string name = FormatVE("functions/constructors/%s(",Variant::get_type_name(VariantType(i)));
+                String name = FormatVE("functions/constructors/%s(",Variant::get_type_name(VariantType(i)));
                 for (size_t j = 0; j < E.arguments.size(); j++) {
                     if (j > 0) {
                         name += ", ";

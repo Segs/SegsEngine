@@ -43,6 +43,8 @@
 #include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
 #include <btBulletCollisionCommon.h>
 
+
+
 /**
     @author AndreaCatania
 */
@@ -105,11 +107,11 @@ btEmptyShape *ShapeBullet::create_shape_empty() {
     return bulletnew(btEmptyShape);
 }
 
-btStaticPlaneShape *ShapeBullet::create_shape_plane(const btVector3 &planeNormal, btScalar planeConstant) {
+btStaticPlaneShape *ShapeBullet::create_shape_plane(const btVector3 &planeNormal, float planeConstant) {
     return bulletnew(btStaticPlaneShape(planeNormal, planeConstant));
 }
 
-btSphereShape *ShapeBullet::create_shape_sphere(btScalar radius) {
+btSphereShape *ShapeBullet::create_shape_sphere(float radius) {
     return bulletnew(btSphereShape(radius));
 }
 
@@ -117,11 +119,11 @@ btBoxShape *ShapeBullet::create_shape_box(const btVector3 &boxHalfExtents) {
     return bulletnew(btBoxShape(boxHalfExtents));
 }
 
-btCapsuleShapeZ *ShapeBullet::create_shape_capsule(btScalar radius, btScalar height) {
+btCapsuleShapeZ *ShapeBullet::create_shape_capsule(float radius, float height) {
     return bulletnew(btCapsuleShapeZ(radius, height));
 }
 
-btCylinderShape *ShapeBullet::create_shape_cylinder(btScalar radius, btScalar height) {
+btCylinderShape *ShapeBullet::create_shape_cylinder(float radius, float height) {
     return bulletnew(btCylinderShape(btVector3(radius, height / 2.0, radius)));
 }
 
@@ -246,8 +248,8 @@ CapsuleShapeBullet::CapsuleShapeBullet() :
 
 void CapsuleShapeBullet::set_data(const Variant &p_data) {
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("radius"))
-    ERR_FAIL_COND(!d.has("height"))
+    ERR_FAIL_COND(!d.has("radius"));
+    ERR_FAIL_COND(!d.has("height"));
     setup(d["height"], d["radius"]);
 }
 
@@ -279,8 +281,8 @@ CylinderShapeBullet::CylinderShapeBullet() :
 
 void CylinderShapeBullet::set_data(const Variant &p_data) {
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("radius"))
-    ERR_FAIL_COND(!d.has("height"))
+    ERR_FAIL_COND(!d.has("radius"));
+    ERR_FAIL_COND(!d.has("height"));
     setup(d["height"], d["radius"]);
 }
 
@@ -318,7 +320,7 @@ void ConvexPolygonShapeBullet::get_vertices(Vector<Vector3> &out_vertices) {
     const int n_of_vertices = vertices.size();
     out_vertices.resize(n_of_vertices);
     for (int i = n_of_vertices - 1; 0 <= i; --i) {
-        B_TO_G(vertices[i], out_vertices.write[i]);
+        B_TO_G(vertices[i], out_vertices[i]);
     }
 }
 
@@ -392,7 +394,7 @@ void ConcavePolygonShapeBullet::setup(const PoolVector<Vector3>& p_faces) {
     if (0 < src_face_count) {
 
         // It counts the faces and assert the array contains the correct number of vertices.
-        ERR_FAIL_COND(src_face_count % 3)
+        ERR_FAIL_COND(src_face_count % 3);
 
         btTriangleMesh *shapeInterface = bulletnew(btTriangleMesh);
         src_face_count /= 3;
@@ -443,11 +445,11 @@ HeightMapShapeBullet::HeightMapShapeBullet() :
         ShapeBullet() {}
 
 void HeightMapShapeBullet::set_data(const Variant &p_data) {
-    ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY);
     Dictionary d = p_data;
-    ERR_FAIL_COND(!d.has("width"))
-    ERR_FAIL_COND(!d.has("depth"))
-    ERR_FAIL_COND(!d.has("heights"))
+    ERR_FAIL_COND(!d.has("width"));
+    ERR_FAIL_COND(!d.has("depth"));
+    ERR_FAIL_COND(!d.has("heights"));
 
     real_t l_min_height = 0.0;
     real_t l_max_height = 0.0;
@@ -458,7 +460,7 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
     if (d.has("max_height"))
         l_max_height = d["max_height"];
 
-    ERR_FAIL_COND(l_min_height > l_max_height)
+    ERR_FAIL_COND(l_min_height > l_max_height);
 
     int l_width = d["width"];
     int l_depth = d["depth"];
@@ -479,12 +481,12 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
         // this would be expensive to do with a script, so it's nice to have it here.
 
         Ref<Image> l_image = refFromRefPtr<Image>(l_heights_v);
-        ERR_FAIL_COND(not l_image)
+        ERR_FAIL_COND(not l_image);
 
         // Float is the only common format between Godot and Bullet that can be used for decent collision.
         // (Int16 would be nice too but we still don't have it)
         // We could convert here automatically but it's better to not be intrusive and let the caller do it if necessary.
-        ERR_FAIL_COND(l_image->get_format() != Image::FORMAT_RF)
+        ERR_FAIL_COND(l_image->get_format() != Image::FORMAT_RF);
 
         PoolByteArray im_data = l_image->get_data();
 
@@ -503,9 +505,9 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
         ERR_FAIL_MSG("Expected PoolRealArray or float Image.");
     }
 
-    ERR_FAIL_COND(l_width <= 0)
-    ERR_FAIL_COND(l_depth <= 0)
-    ERR_FAIL_COND(l_heights.size() != (l_width * l_depth))
+    ERR_FAIL_COND(l_width <= 0);
+    ERR_FAIL_COND(l_depth <= 0);
+    ERR_FAIL_COND(l_heights.size() != (l_width * l_depth));
 
     // Compute min and max heights if not specified.
     if (!d.has("min_height") && !d.has("max_height")) {

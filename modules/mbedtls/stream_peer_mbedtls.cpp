@@ -45,7 +45,7 @@ int StreamPeerMbedTLS::bio_send(void *ctx, const unsigned char *buf, size_t len)
 
     StreamPeerMbedTLS *sp = (StreamPeerMbedTLS *)ctx;
 
-    ERR_FAIL_COND_V(sp == nullptr, 0)
+    ERR_FAIL_COND_V(sp == nullptr, 0);
 
     int sent;
     Error err = sp->base->put_partial_data((const uint8_t *)buf, len, sent);
@@ -64,7 +64,7 @@ int StreamPeerMbedTLS::bio_recv(void *ctx, unsigned char *buf, size_t len) {
 
     StreamPeerMbedTLS *sp = (StreamPeerMbedTLS *)ctx;
 
-    ERR_FAIL_COND_V(sp == nullptr, 0)
+    ERR_FAIL_COND_V(sp == nullptr, 0);
 
     int got;
     Error err = sp->base->get_partial_data((uint8_t *)buf, len, got);
@@ -109,14 +109,14 @@ Error StreamPeerMbedTLS::_do_handshake() {
 
 Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs, se_string_view p_for_hostname, Ref<X509Certificate> p_ca_certs) {
 
-    ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER);
 
     base = p_base;
     int authmode = p_validate_certs ? MBEDTLS_SSL_VERIFY_REQUIRED : MBEDTLS_SSL_VERIFY_NONE;
 
     Error err = ssl_ctx->init_client(MBEDTLS_SSL_TRANSPORT_STREAM, authmode, dynamic_ref_cast<X509CertificateMbedTLS>(p_ca_certs));
-    ERR_FAIL_COND_V(err != OK, err)
-    se_string zterm(p_for_hostname);
+    ERR_FAIL_COND_V(err != OK, err);
+    String zterm(p_for_hostname);
     mbedtls_ssl_set_hostname(ssl_ctx->get_context(), zterm.c_str());
     mbedtls_ssl_set_bio(ssl_ctx->get_context(), this, bio_send, bio_recv, nullptr);
 
@@ -132,11 +132,11 @@ Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_valida
 
 Error StreamPeerMbedTLS::accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_key, Ref<X509Certificate> p_cert, Ref<X509Certificate> p_ca_chain) {
 
-    ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER);
 
     Error err = ssl_ctx->init_server(MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_VERIFY_NONE,
             dynamic_ref_cast<CryptoKeyMbedTLS>(p_key), dynamic_ref_cast<X509CertificateMbedTLS>(p_cert));
-    ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err);
 
     base = p_base;
 
@@ -153,7 +153,7 @@ Error StreamPeerMbedTLS::accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_
 }
 Error StreamPeerMbedTLS::put_data(const uint8_t *p_data, int p_bytes) {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED);
 
     Error err;
     int sent = 0;
@@ -174,7 +174,7 @@ Error StreamPeerMbedTLS::put_data(const uint8_t *p_data, int p_bytes) {
 
 Error StreamPeerMbedTLS::put_partial_data(const uint8_t *p_data, int p_bytes, int &r_sent) {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED);
 
     r_sent = 0;
 
@@ -201,7 +201,7 @@ Error StreamPeerMbedTLS::put_partial_data(const uint8_t *p_data, int p_bytes, in
 
 Error StreamPeerMbedTLS::get_data(uint8_t *p_buffer, int p_bytes) {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED);
 
     Error err;
 
@@ -223,7 +223,7 @@ Error StreamPeerMbedTLS::get_data(uint8_t *p_buffer, int p_bytes) {
 
 Error StreamPeerMbedTLS::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_received) {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_UNCONFIGURED);
 
     r_received = 0;
 
@@ -246,8 +246,8 @@ Error StreamPeerMbedTLS::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r
 
 void StreamPeerMbedTLS::poll() {
 
-    ERR_FAIL_COND(status != STATUS_CONNECTED && status != STATUS_HANDSHAKING)
-    ERR_FAIL_COND(not base)
+    ERR_FAIL_COND(status != STATUS_CONNECTED && status != STATUS_HANDSHAKING);
+    ERR_FAIL_COND(not base);
 
     if (status == STATUS_HANDSHAKING) {
         _do_handshake();
@@ -280,7 +280,7 @@ void StreamPeerMbedTLS::poll() {
 
 int StreamPeerMbedTLS::get_available_bytes() const {
 
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, 0)
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, 0);
 
     return mbedtls_ssl_get_bytes_avail(&(ssl_ctx->ssl));
 }

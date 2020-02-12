@@ -41,7 +41,7 @@
 #include "core/string_utils.h"
 #include "core/os/os.h"
 
-se_string WSLPeer::generate_key() {
+String WSLPeer::generate_key() {
     // Random key
     RandomNumberGenerator rng;
     rng.set_seed(OS::get_singleton()->get_unix_time());
@@ -55,9 +55,9 @@ se_string WSLPeer::generate_key() {
     return CryptoCore::b64_encode_str(&w[0], len);
 }
 
-se_string WSLPeer::compute_key_response(se_string_view p_key) {
-    se_string key = se_string(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
-    PODVector<uint8_t> sha = StringUtils::sha1_buffer(key);
+String WSLPeer::compute_key_response(se_string_view p_key) {
+    String key = String(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
+    Vector<uint8_t> sha = StringUtils::sha1_buffer(key);
     return CryptoCore::b64_encode_str(sha.data(), sha.size());
 }
 
@@ -180,7 +180,7 @@ Error WSLPeer::parse_message(const wslay_event_on_msg_recv_arg *arg) {
         size_t len = arg->msg_length;
         close_reason = "";
         if (len > 2 /* first 2 bytes = close code */) {
-            close_reason = se_string((char *)arg->msg + 2, len - 2);
+            close_reason = String((char *)arg->msg + 2, len - 2);
         }
         if (!wslay_event_get_close_sent(_data->ctx)) {
             if (_data->is_server) {
@@ -201,8 +201,8 @@ Error WSLPeer::parse_message(const wslay_event_on_msg_recv_arg *arg) {
 }
 
 void WSLPeer::make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigned int p_in_pkt_size, unsigned int p_out_buf_size, unsigned int p_out_pkt_size) {
-    ERR_FAIL_COND(_data != nullptr)
-    ERR_FAIL_COND(p_data == nullptr)
+    ERR_FAIL_COND(_data != nullptr);
+    ERR_FAIL_COND(p_data == nullptr);
 
     _in_buffer.resize(p_in_pkt_size, p_in_buf_size);
     _packet_buffer.resize((1 << MAX(p_in_buf_size, p_out_buf_size)));
@@ -237,7 +237,7 @@ void WSLPeer::poll() {
 
 Error WSLPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
 
-    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED)
+    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED);
 
     struct wslay_event_msg msg; // Should I use fragmented?
     msg.opcode = write_mode == WRITE_MODE_TEXT ? WSLAY_TEXT_FRAME : WSLAY_BINARY_FRAME;
@@ -245,6 +245,10 @@ Error WSLPeer::put_packet(const uint8_t *p_buffer, int p_buffer_size) {
     msg.msg_length = p_buffer_size;
 
     wslay_event_queue_msg(_data->ctx, &msg);
+    if (wslay_event_send(_data->ctx) < 0) {
+        close_now();
+        return FAILED;
+    }
     return OK;
 }
 
@@ -252,7 +256,7 @@ Error WSLPeer::get_packet(const uint8_t **r_buffer, int &r_buffer_size) {
 
     r_buffer_size = 0;
 
-    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED)
+    ERR_FAIL_COND_V(!is_connected_to_host(), FAILED);
 
     if (_in_buffer.packets_left() == 0)
         return ERR_UNAVAILABLE;
@@ -303,16 +307,22 @@ void WSLPeer::close(int p_code, se_string_view p_reason) {
 
 IP_Address WSLPeer::get_connected_host() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address())
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, IP_Address());
 
     return _data->tcp->get_connected_host();
 }
 
 uint16_t WSLPeer::get_connected_port() const {
 
-    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0)
+    ERR_FAIL_COND_V(!is_connected_to_host() || not _data->tcp, 0);
 
     return _data->tcp->get_connected_port();
+}
+
+void WSLPeer::set_no_delay(bool p_enabled) {
+
+    ERR_FAIL_COND(!is_connected_to_host() || !_data->tcp);
+    _data->tcp->set_no_delay(p_enabled);
 }
 
 void WSLPeer::invalidate() {

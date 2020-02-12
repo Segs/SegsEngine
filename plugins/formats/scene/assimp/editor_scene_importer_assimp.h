@@ -78,17 +78,17 @@ private:
             const aiNode *assimp_node, Ref<Skin> &skin,
             Skeleton *&skeleton_assigned);
     // simple object creation functions
-    Spatial *create_light(ImportState &state, const se_string &node_name, Transform &look_at_transform);
-    Spatial *create_camera(ImportState &state, const se_string &node_name, Transform &look_at_transform);
+    Spatial *create_light(ImportState &state, const String &node_name, Transform &look_at_transform);
+    Spatial *create_camera(ImportState &state, const String &node_name, Transform &look_at_transform);
     // non recursive - linear so must not use recursive arguments
-    MeshInstance * create_mesh(ImportState &state, const aiNode *assimp_node, const se_string &node_name, Node *active_node, Transform node_transform);
+    MeshInstance * create_mesh(ImportState &state, const aiNode *assimp_node, const String &node_name, Node *active_node, Transform node_transform);
 
     // recursive node generator
     void _generate_node(ImportState &state, const aiNode *assimp_node);
     void _insert_animation_track(ImportState &scene, const aiAnimation *assimp_anim, int track_id,
             int anim_fps, Ref<Animation> animation, float ticks_per_second,
             Skeleton *skeleton, const NodePath &node_path,
-            const se_string &node_name, aiBone *track_bone);
+            const String &node_name, aiBone *track_bone);
 
     void _import_animation(ImportState &state, int p_animation_index, int p_bake_fps);
     Node *get_node_by_name(ImportState &state, se_string_view name);
@@ -97,10 +97,10 @@ private:
 
     template <class T>
     T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
-    void _register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const PODVector<se_string> &exts, PODVector<se_string> &r_extensions, const bool p_enabled) const;
+    void _register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const;
 
     struct ImportFormat {
-        PODVector<se_string> extensions;
+        Vector<String> extensions;
         bool is_default;
     };
 
@@ -111,10 +111,10 @@ public:
     EditorSceneImporterAssimp();
     ~EditorSceneImporterAssimp() override;
 
-    void get_extensions(PODVector<se_string> &r_extensions) const override;
+    void get_extensions(Vector<String> &r_extensions) const override;
     uint32_t get_import_flags() const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr) override;
-    Ref<Image> load_image(ImportState &state, const aiScene *p_scene, String p_path);
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Ref<Image> load_image(ImportState &state, const aiScene *p_scene, UIString p_path);
 
     // EditorSceneImporterInterface interface
 

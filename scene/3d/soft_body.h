@@ -102,7 +102,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     bool _set_property_pinned_points_indices(const Array &p_indices);
     bool _set_property_pinned_points_attachment(int p_item, se_string_view p_what, const Variant &p_value);

@@ -12,7 +12,7 @@ class MethodBind {
     int method_id;
     uint32_t hint_flags;
     StringName name;
-    PODVector<Variant> default_arguments;
+    Vector<Variant> default_arguments;
     int default_argument_count;
     int argument_count;
     template<class T, class RESULT,typename ...Args>
@@ -25,9 +25,7 @@ protected:
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
-#endif
-#ifdef DEBUG_METHODS_ENABLED
-    bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const verifiers[])(const Variant &), int max_args, Variant::CallError& r_error)
+    bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const  verifiers[])(const Variant &), int max_args, Variant::CallError& r_error) const
     {
         int max_arg_to_check= p_arg_count<max_args ? p_arg_count : max_args;
         for(int i=0; i<max_arg_to_check; ++i)
@@ -45,16 +43,20 @@ protected:
         return true;
     }
 #endif
-    void _set_const(bool p_const) noexcept;
-    void _set_returns(bool p_returns) noexcept;
+    void _set_const(bool p_const) noexcept { _const = p_const; }
+    void _set_returns(bool p_returns) noexcept { _returns = p_returns; }
 #ifdef DEBUG_METHODS_ENABLED
     virtual PropertyInfo _gen_argument_type_info(int p_arg) const = 0;
-    virtual GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const = 0;
+    virtual Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const = 0;
+    virtual Span<const TypePassBy> do_get_argument_passby() const {
+        return {};
+    }
+
 #endif
-    void set_argument_count(int p_count) { argument_count = p_count; }
+    void set_argument_count(int p_count) noexcept { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)=0;
 public:
-    const PODVector<Variant> &get_default_arguments() const { return default_arguments; }
+    const Vector<Variant> &get_default_arguments() const { return default_arguments; }
     _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }
 
     _FORCE_INLINE_ bool has_default_argument(int p_arg) const {
@@ -78,17 +80,24 @@ public:
 
     _FORCE_INLINE_ VariantType get_argument_type(int p_argument) const {
 
-        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, VariantType::NIL)
+        ERR_FAIL_COND_V(p_argument < -1 || p_argument > argument_count, VariantType::NIL);
         return argument_types[p_argument + 1];
     }
 
     PropertyInfo get_argument_info(int p_argument) const;
     PropertyInfo get_return_info() const;
 
-//    void set_argument_names(const PODVector<StringName> &p_names); //set by class, db, can't be inferred otherwise
-//    const PODVector<StringName> &get_argument_names() const;
+//    void set_argument_names(const Vector<StringName> &p_names); //set by class, db, can't be inferred otherwise
+//    const Vector<StringName> &get_argument_names() const;
 
-    GodotTypeInfo::Metadata get_argument_meta(int p_arg) const  noexcept;
+    Span<const GodotTypeInfo::Metadata> get_arguments_meta() const  noexcept
+    {
+        return do_get_argument_meta();
+    }
+    Span<const TypePassBy> get_arguments_passing() const  noexcept
+    {
+        return do_get_argument_passby();
+    }
 
 #endif
     void set_hint_flags(uint32_t p_hint) { hint_flags = p_hint; }
@@ -101,12 +110,12 @@ public:
 
     StringName get_name() const;
     void set_name(const StringName &p_name);
-    _FORCE_INLINE_ int get_method_id() const { return method_id; }
-    _FORCE_INLINE_ bool is_const() const { return _const; }
-    _FORCE_INLINE_ bool has_return() const { return _returns; }
-    _FORCE_INLINE_ bool is_vararg() const { return _is_vararg; }
+    int get_method_id() const { return method_id; }
+    bool is_const() const { return _const; }
+    bool has_return() const { return _returns; }
+    bool is_vararg() const { return _is_vararg; }
 
-    void set_default_arguments(const PODVector<Variant> &p_defargs);
+    void set_default_arguments(const Vector<Variant> &p_defargs);
 
     MethodBind();
     virtual ~MethodBind();
@@ -137,12 +146,12 @@ public:
             char buf[32];
             snprintf(buf,31,"arg_%d",p_arg);
             return PropertyInfo(VariantType::NIL, buf,
-                    PROPERTY_HINT_NONE, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
+                    PropertyHint::None, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }
 
-    GodotTypeInfo::Metadata do_get_argument_meta(int) const noexcept override {
-        return GodotTypeInfo::METADATA_NONE;
+    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const noexcept override {
+        return {};
     }
 #endif
     Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error) override {
@@ -151,7 +160,7 @@ public:
         return (instance->*call_method)(p_args, p_arg_count, r_error);
     }
 
-    void set_method_info(const MethodInfo &p_info, bool p_return_nil_is_variant) {
+    void set_method_info(MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
         set_argument_count(static_cast<int>(p_info.arguments.size()));
 #ifdef DEBUG_METHODS_ENABLED
@@ -159,7 +168,7 @@ public:
         at[0] = p_info.return_val.type;
         if (!p_info.arguments.empty()) {
 
-//            PODVector<StringName> names;
+//            Vector<StringName> names;
 //            names.resize(p_info.arguments.size());
             int i=0;
             for (const PropertyInfo & pi : p_info.arguments) {
@@ -171,7 +180,7 @@ public:
             //set_argument_names(names);
         }
         argument_types = at;
-        arguments = p_info;
+        arguments = eastl::move(p_info);
         if (p_return_nil_is_variant) {
             arguments.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         }
@@ -222,14 +231,13 @@ struct MethodBinder {
     }
 
     template <class M>
-    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, const MethodInfo &p_info = MethodInfo(),
-            const PODVector<Variant> &p_default_args = {}, bool p_return_nil_is_variant = true) {
+    static MethodBind *bind_vararg_method(const StringName &p_name, M p_method, MethodInfo &&p_info,
+            const Vector<Variant> &p_default_args = null_variant_pvec, bool p_return_nil_is_variant = true) {
 
         GLOBAL_LOCK_FUNCTION
 
-        MethodBind *bind = create_vararg_method_bind(p_method, p_info, p_return_nil_is_variant);
-        ERR_FAIL_COND_V(!bind, nullptr)
-
+        MethodBind *bind = create_vararg_method_bind(p_method, eastl::move(p_info), p_return_nil_is_variant);
+        ERR_FAIL_COND_V(!bind, nullptr);
         bind->set_name(p_name);
         bind->set_default_arguments(p_default_args);
 

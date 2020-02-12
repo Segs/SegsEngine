@@ -147,9 +147,9 @@ Vector2 Vector2::snapped(const Vector2 &p_by) const {
                 Math::stepify(y, p_by.y));
 }
 
-Vector2::operator se_string() const
+Vector2::operator String() const
 {
-    return FormatVE("%f, %f",x,y);
+    return (rtos(x) + ", " + rtos(y));
 }
 
 Vector2 Vector2::clamped(real_t p_len) const {
@@ -193,7 +193,7 @@ Vector2 Vector2::move_toward(const Vector2 &p_to, const real_t p_delta) const {
 // slide returns the component of the vector along the given plane, specified by its normal vector.
 Vector2 Vector2::slide(const Vector2 &p_normal) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!p_normal.is_normalized(), Vector2())
+    ERR_FAIL_COND_V_MSG(!p_normal.is_normalized(), Vector2(), "The normal Vector2 must be normalized.");
 #endif
     return *this - p_normal * this->dot(p_normal);
 }
@@ -204,7 +204,7 @@ Vector2 Vector2::bounce(const Vector2 &p_normal) const {
 
 Vector2 Vector2::reflect(const Vector2 &p_normal) const {
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND_V(!p_normal.is_normalized(), Vector2())
+    ERR_FAIL_COND_V_MSG(!p_normal.is_normalized(), Vector2(), "The normal Vector2 must be normalized.");
 #endif
     return 2.0 * p_normal * this->dot(p_normal) - *this;
 }
@@ -245,4 +245,4 @@ bool Vector2i::operator!=(const Vector2i &p_vec2) const {
     return x != p_vec2.x || y != p_vec2.y;
 }
 
-Vector2i::operator se_string() const { return FormatVE("%d, %d",x,y); }
+Vector2i::operator String() const { return FormatVE("%d, %d",x,y); }

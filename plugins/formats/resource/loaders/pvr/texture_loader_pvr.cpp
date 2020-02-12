@@ -154,7 +154,7 @@ static void unpack_modulations(const PVRTCBlock *p_block, const int p_2bit, int 
         }
     }
 
-    ERR_FAIL_COND(modulation_bits != 0)
+    ERR_FAIL_COND(modulation_bits != 0);
 }
 
 static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], const int p_colorr[4], const int p_colors[4], bool p_2bit, const int x, const int y, int r_result[4]) {
@@ -211,7 +211,7 @@ static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], con
     }
 
     for (k = 0; k < 4; k++) {
-        ERR_FAIL_COND(r_result[k] >= 256)
+        ERR_FAIL_COND(r_result[k] >= 256);
     }
 
     for (k = 0; k < 3; k++) {
@@ -221,7 +221,7 @@ static void interpolate_colors(const int p_colorp[4], const int p_colorq[4], con
     r_result[3] += r_result[3] >> 4;
 
     for (k = 0; k < 4; k++) {
-        ERR_FAIL_COND(r_result[k] >= 256)
+        ERR_FAIL_COND(r_result[k] >= 256);
     }
 }
 
@@ -283,11 +283,11 @@ static uint32_t twiddle_uv(uint32_t p_height, uint32_t p_width, uint32_t p_y, ui
 
     int shift_count;
 
-    ERR_FAIL_COND_V(p_y >= p_height, 0)
-    ERR_FAIL_COND_V(p_x >= p_width, 0)
+    ERR_FAIL_COND_V(p_y >= p_height, 0);
+    ERR_FAIL_COND_V(p_x >= p_width, 0);
 
-    ERR_FAIL_COND_V(!is_po2(p_height), 0)
-    ERR_FAIL_COND_V(!is_po2(p_width), 0)
+    ERR_FAIL_COND_V(!is_po2(p_height), 0);
+    ERR_FAIL_COND_V(!is_po2(p_width), 0);
 
     if (p_height < p_width) {
         min_dimension = p_height;
@@ -449,7 +449,7 @@ static Error _pvrtc_decompress(Image *p_img) {
 
     ERR_FAIL_COND_V(p_img->get_format() != Image::FORMAT_PVRTC2 && p_img->get_format() != Image::FORMAT_PVRTC2A &&
                         p_img->get_format() != Image::FORMAT_PVRTC4 && p_img->get_format() != Image::FORMAT_PVRTC4A,
-        ERR_FILE_UNRECOGNIZED)
+        ERR_FILE_UNRECOGNIZED);
 
     bool _2bit = (p_img->get_format() == Image::FORMAT_PVRTC2 || p_img->get_format() == Image::FORMAT_PVRTC2A);
 
@@ -541,14 +541,14 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
 
     FileAccessRef faref(f);
 
-    ERR_FAIL_COND_V(err, RES())
+    ERR_FAIL_COND_V(err, RES());
 
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
     uint32_t hsize = f->get_32();
 
-    ERR_FAIL_COND_V(hsize != 52, RES())
+    ERR_FAIL_COND_V(hsize != 52, RES());
     uint32_t height = f->get_32();
     uint32_t width = f->get_32();
     uint32_t mipmaps = f->get_32();
@@ -557,7 +557,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     f->seek(f->get_position() + 20); // bpp, rmask, gmask, bmask, amask
     uint8_t pvrid[5] = { 0, 0, 0, 0, 0 };
     f->get_buffer(pvrid, 4);
-    ERR_FAIL_COND_V(String((char *)pvrid) != "PVR!", RES())
+    ERR_FAIL_COND_V(UIString((char *)pvrid) != "PVR!", RES());
     f->get_32(); // surfcount
 
     /*
@@ -577,12 +577,12 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     PoolVector<uint8_t> data;
     data.resize(surfsize);
 
-    ERR_FAIL_COND_V(data.size() == 0, RES())
+    ERR_FAIL_COND_V(data.size() == 0, RES());
 
     PoolVector<uint8_t>::Write w = data.write();
     f->get_buffer(&w[0], surfsize);
     err = f->get_error();
-    ERR_FAIL_COND_V(err != OK, RES())
+    ERR_FAIL_COND_V(err != OK, RES());
 
     Image::Format format = Image::FORMAT_MAX;
 
@@ -638,7 +638,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
         tex_flags |= Texture::FLAG_MIPMAPS;
 
     Ref<Image> image(make_ref_counted<Image>(width, height, mipmaps, format, data));
-    ERR_FAIL_COND_V(image->empty(), RES())
+    ERR_FAIL_COND_V(image->empty(), RES());
 
     Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(image, tex_flags);
@@ -649,7 +649,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatPVR::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatPVR::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("pvr");
 }
@@ -657,7 +657,7 @@ bool ResourceFormatPVR::handles_type(se_string_view p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
-se_string ResourceFormatPVR::get_resource_type(se_string_view p_path) const {
+String ResourceFormatPVR::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pvr")
         return "Texture";
@@ -686,7 +686,7 @@ Error ResourceFormatPVR::decompress_image(Image *p_image)
 {
     return _pvrtc_decompress(p_image);
 }
-void ResourceFormatPVR::fill_modes(PODVector<int> &tgt) const
+void ResourceFormatPVR::fill_modes(Vector<int> &tgt) const
 {
     tgt.push_back(ImageCompressMode::COMPRESS_PVRTC4);
     tgt.push_back(ImageCompressMode::COMPRESS_PVRTC2);

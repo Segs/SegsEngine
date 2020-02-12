@@ -46,7 +46,7 @@ StringName ResourceImporterBitMap::get_visible_name() const {
 
     return "BitMap";
 }
-void ResourceImporterBitMap::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceImporterBitMap::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -71,14 +71,15 @@ StringName ResourceImporterBitMap::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterBitMap::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterBitMap::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "create_from", PROPERTY_HINT_ENUM, "Black & White,Alpha"), 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "threshold", PROPERTY_HINT_RANGE, "0,1,0.01"), 0.5));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "create_from", PropertyHint::Enum, "Black & White,Alpha"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "threshold", PropertyHint::Range, "0,1,0.01"), 0.5));
 }
 
 Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, List<se_string> *r_platform_variants, List<se_string> *r_gen_files,
+        const Map<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
+        r_gen_files,
         Variant *r_metadata) {
 
     int create_from = p_options.at("create_from");
@@ -111,7 +112,7 @@ Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_vie
         }
     }
 
-    return ResourceSaver::save(se_string(p_save_path) + ".res", bitmap);
+    return ResourceSaver::save(String(p_save_path) + ".res", bitmap);
 }
 
 ResourceImporterBitMap::ResourceImporterBitMap() {

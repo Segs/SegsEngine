@@ -201,7 +201,7 @@ void AudioEffectCompressor::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "sidechain") {
 
-        se_string buses;
+        String buses;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             buses += ',';
             buses += AudioServer::get_singleton()->get_bus_name(i);
@@ -234,13 +234,13 @@ void AudioEffectCompressor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_sidechain", {"sidechain"}), &AudioEffectCompressor::set_sidechain);
     MethodBinder::bind_method(D_METHOD("get_sidechain"), &AudioEffectCompressor::get_sidechain);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "threshold", PROPERTY_HINT_RANGE, "-60,0,0.1"), "set_threshold", "get_threshold");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PROPERTY_HINT_RANGE, "1,48,0.1"), "set_ratio", "get_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gain", PROPERTY_HINT_RANGE, "-20,20,0.1"), "set_gain", "get_gain");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attack_us", PROPERTY_HINT_RANGE, "20,2000,1"), "set_attack_us", "get_attack_us");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "release_ms", PROPERTY_HINT_RANGE, "20,2000,1"), "set_release_ms", "get_release_ms");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mix", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_mix", "get_mix");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "sidechain", PROPERTY_HINT_ENUM), "set_sidechain", "get_sidechain");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "threshold", PropertyHint::Range, "-60,0,0.1"), "set_threshold", "get_threshold");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PropertyHint::Range, "1,48,0.1"), "set_ratio", "get_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gain", PropertyHint::Range, "-20,20,0.1"), "set_gain", "get_gain");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attack_us", PropertyHint::Range, "20,2000,1"), "set_attack_us", "get_attack_us");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "release_ms", PropertyHint::Range, "20,2000,1"), "set_release_ms", "get_release_ms");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mix", PropertyHint::Range, "0,1,0.01"), "set_mix", "get_mix");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "sidechain", PropertyHint::Enum), "set_sidechain", "get_sidechain");
 }
 
 AudioEffectCompressor::AudioEffectCompressor() {

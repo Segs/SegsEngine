@@ -43,7 +43,7 @@ StringName EditorSpinSlider::get_tooltip(const Point2 &p_pos) const {
     return StringName(StringUtils::num(get_value()));
 }
 
-String EditorSpinSlider::get_text_value() const {
+UIString EditorSpinSlider::get_text_value() const {
     return StringUtils::from_utf8(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
 }
 
@@ -201,7 +201,7 @@ void EditorSpinSlider::_notification(int p_what) {
         int sep_base = 4 * EDSCALE;
         int sep = sep_base + sb->get_offset().x; //make it have the same margin on both sides, looks better
 
-        int string_width = font->get_string_size_utf8(label).width;
+        int string_width = font->get_string_size(label).width;
         int number_width = get_size().width - sb->get_minimum_size().width - string_width - sep;
 
         Ref<Texture> updown = get_icon("updown", "SpinBox");
@@ -210,7 +210,7 @@ void EditorSpinSlider::_notification(int p_what) {
             number_width -= updown->get_width();
         }
 
-        String numstr = get_text_value();
+        UIString numstr = get_text_value();
 
         int vofs = (get_size().height - font->get_height()) / 2 + font->get_ascent();
 
@@ -232,14 +232,14 @@ void EditorSpinSlider::_notification(int p_what) {
             draw_style_box(focus, Rect2(Vector2(), get_size()));
         }
 
-        draw_string_utf8(font, Vector2(Math::round(sb->get_offset().x), vofs), label, lc * Color(1, 1, 1, 0.5));
+        draw_string(font, Vector2(Math::round(sb->get_offset().x), vofs), label, lc * Color(1, 1, 1, 0.5));
 
-        draw_string(font, Vector2(Math::round(sb->get_offset().x + string_width + sep), vofs), numstr, fc, number_width);
+        draw_ui_string(font, Vector2(Math::round(sb->get_offset().x + string_width + sep), vofs), numstr, fc, number_width);
 
         if (get_step() == 1) {
             Ref<Texture> updown2 = get_icon("updown", "SpinBox");
             int updown_vofs = (get_size().height - updown2->get_height()) / 2;
-            updown_offset = get_size().width - sb->get_margin(MARGIN_RIGHT) - updown2->get_width();
+            updown_offset = get_size().width - sb->get_margin(Margin::Right) - updown2->get_width();
             Color c(1, 1, 1);
             if (hover_updown) {
                 c *= Color(1.2, 1.2, 1.2);
@@ -340,12 +340,12 @@ void EditorSpinSlider::set_label(se_string_view p_label) {
     label = p_label;
     update();
 }
-const se_string &EditorSpinSlider::get_label() const {
+const String &EditorSpinSlider::get_label() const {
     return label;
 }
 
 void EditorSpinSlider::_evaluate_input_text() {
-    se_string text = value_input->get_text();
+    String text = value_input->get_text();
     Ref<Expression> expr(make_ref_counted<Expression>());
     Error err = expr->parse(text);
     if (err != OK) {
@@ -428,7 +428,7 @@ void EditorSpinSlider::set_custom_label_color(bool p_use_custom_label_color, Col
 
 void EditorSpinSlider::_focus_entered() {
     Rect2 gr = get_global_rect();
-    value_input->set_text(get_text_value());
+    value_input->set_text_uistring(get_text_value());
     value_input->set_position(gr.position);
     value_input->set_size(gr.size);
     value_input->call_deferred("show_modal");

@@ -42,12 +42,14 @@ class RayShape : public Shape {
 protected:
     static void _bind_methods();
     void _update_shape() override;
-    PODVector<Vector3> get_debug_mesh_lines() override;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
     void set_length(float p_length);
     float get_length() const;
-
+    real_t get_enclosing_radius() const override {
+        return length;
+    }
     void set_slips_on_slope(bool p_active);
     bool get_slips_on_slope() const;
 

@@ -37,6 +37,14 @@
 #include "core/list.h"
 
 class World;
+/**
+ * @brief The CSGRootInfo struct is a helper for passing data to navigation
+ * @todo Find a better places for this struct definition ?
+ */
+struct PositionedMeshInfo {
+    Ref<class Mesh> root_mesh;
+    Transform transform;
+};
 
 class GODOT_EXPORT SpatialGizmo : public RefCounted {
 
@@ -74,19 +82,17 @@ class GODOT_EXPORT Spatial : public Node {
         mutable Transform local_transform;
         mutable Vector3 rotation;
         mutable Vector3 scale;
-
         mutable int dirty;
 
         Viewport *viewport;
 
+        int children_lock;
+        Spatial *parent;
+        Vector<Spatial *> children;
+
         bool toplevel_active;
         bool toplevel;
         bool inside_world;
-
-        int children_lock;
-        Spatial *parent;
-        List<Spatial *> children;
-        List<Spatial *>::Element *C;
 
         bool ignore_notification;
         bool notify_local_transform;
@@ -108,9 +114,9 @@ class GODOT_EXPORT Spatial : public Node {
     void _propagate_transform_changed(Spatial *p_origin);
 
     void _propagate_visibility_changed();
-
-protected:
+public:
     _FORCE_INLINE_ void set_ignore_transform_notification(bool p_ignore) { data.ignore_notification = p_ignore; }
+protected:
 
     _FORCE_INLINE_ void _update_local_transform() const;
 

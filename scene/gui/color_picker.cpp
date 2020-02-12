@@ -53,15 +53,15 @@ void ColorPicker::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
-            btn_pick->set_icon(get_icon("screen_picker", "ColorPicker"));
-            bt_add_preset->set_icon(get_icon("add_preset"));
+            btn_pick->set_button_icon(get_icon("screen_picker", "ColorPicker"));
+            bt_add_preset->set_button_icon(get_icon("add_preset"));
 
             _update_controls();
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            btn_pick->set_icon(get_icon("screen_picker", "ColorPicker"));
-            bt_add_preset->set_icon(get_icon("add_preset"));
+            btn_pick->set_button_icon(get_icon("screen_picker", "ColorPicker"));
+            bt_add_preset->set_button_icon(get_icon("add_preset"));
 
             _update_color();
 
@@ -276,12 +276,12 @@ void ColorPicker::_text_type_toggled() {
     text_is_constructor = !text_is_constructor;
     if (text_is_constructor) {
         text_type->set_text("");
-        text_type->set_icon(get_icon("Script", "EditorIcons"));
+        text_type->set_button_icon(get_icon("Script", "EditorIcons"));
 
         c_text->set_editable(false);
     } else {
         text_type->set_text("#");
-        text_type->set_icon(Ref<Texture>());
+        text_type->set_button_icon(Ref<Texture>());
 
         c_text->set_editable(true);
     }
@@ -294,9 +294,11 @@ Color ColorPicker::get_pick_color() const {
 }
 
 void ColorPicker::add_preset(const Color &p_color) {
-
-    if (presets.find(p_color)) {
-        presets.move_to_back(presets.find(p_color));
+    auto iter = presets.find(p_color);
+    if (iter!=presets.end()) {
+        auto tmp = *iter;
+        presets.erase(iter);
+        presets.emplace_back(tmp);
     } else {
         presets.push_back(p_color);
     }
@@ -311,9 +313,9 @@ void ColorPicker::add_preset(const Color &p_color) {
 }
 
 void ColorPicker::erase_preset(const Color &p_color) {
-
-    if (presets.find(p_color)) {
-        presets.erase(presets.find(p_color));
+    auto iter = presets.find(p_color);
+    if (presets.end()!=iter) {
+        presets.erase(iter);
         preset->update();
 
 #ifdef TOOLS_ENABLED
@@ -386,18 +388,18 @@ bool ColorPicker::is_deferred_mode() const {
 void ColorPicker::_update_text_value() {
     bool visible = true;
     if (text_is_constructor) {
-        se_string t = FormatVE("Color(%f, %f, %f",color.r,color.g,color.b);
+        String t = FormatVE("Color(%f, %f, %f",color.r,color.g,color.b);
         if (edit_alpha && color.a < 1)
             t += ", " + StringUtils::num(color.a) + ")";
         else
             t += ')';
-        c_text->set_text_utf8(t);
+        c_text->set_text(t);
     }
 
     if (color.r > 1 || color.g > 1 || color.b > 1 || color.r < 0 || color.g < 0 || color.b < 0) {
         visible = false;
     } else if (!text_is_constructor) {
-        c_text->set_text_utf8(color.to_html(edit_alpha && color.a < 1));
+        c_text->set_text(color.to_html(edit_alpha && color.a < 1));
     }
 
     text_type->set_visible(visible);
@@ -426,17 +428,17 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
             c->get_size(),
             Vector2(0, c->get_size().y)
         };
-        Vector<Color> colors;
+        PoolVector<Color> colors;
         colors.push_back(Color(1, 1, 1, 1));
         colors.push_back(Color(1, 1, 1, 1));
         colors.push_back(Color(0, 0, 0, 1));
         colors.push_back(Color(0, 0, 0, 1));
         c->draw_polygon(points, colors);
-        Vector<Color> colors2;
-        colors2.emplace_back(Color::from_hsv(h, 1, 1,0));
-        colors2.emplace_back(Color::from_hsv(h, 1, 1,1));
-        colors2.emplace_back(Color::from_hsv(h, 1, 0,1));
-        colors2.emplace_back(Color::from_hsv(h, 1, 0,0));
+        PoolVector<Color> colors2;
+        colors2.push_back(Color::from_hsv(h, 1, 1,0));
+        colors2.push_back(Color::from_hsv(h, 1, 1,1));
+        colors2.push_back(Color::from_hsv(h, 1, 0,1));
+        colors2.push_back(Color::from_hsv(h, 1, 0,0));
         c->draw_polygon(points, colors2);
         int x = CLAMP(c->get_size().x * s, 0, c->get_size().x);
         int y = CLAMP(c->get_size().y - c->get_size().y * v, 0, c->get_size().y);

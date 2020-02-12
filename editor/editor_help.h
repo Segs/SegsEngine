@@ -53,7 +53,7 @@ class FindBar : public HBoxContainer {
     ToolButton *find_next;
     Label *matches_label;
     TextureButton *hide_button;
-    String prev_search;
+    UIString prev_search;
 
     RichTextLabel *rich_text_label;
 
@@ -106,18 +106,18 @@ class EditorHelp : public VBoxContainer {
 
     bool select_locked;
 
-    se_string prev_search;
+    String prev_search;
 
     StringName edited_class;
 
-    Vector<Pair<se_string, int> > section_line;
-    Map<se_string, int> method_line;
-    Map<se_string, int> signal_line;
-    Map<se_string, int> property_line;
-    Map<se_string, int> theme_property_line;
-    Map<se_string, int> constant_line;
-    Map<se_string, int> enum_line;
-    Map<se_string, Map<se_string, int> > enum_values_line;
+    Vector<Pair<String, int> > section_line;
+    Map<String, int> method_line;
+    Map<String, int> signal_line;
+    Map<String, int> property_line;
+    Map<String, int> theme_property_line;
+    Map<String, int> constant_line;
+    Map<String, int> enum_line;
+    Map<String, Map<String, int> > enum_values_line;
     int description_line;
 
     RichTextLabel *class_desc;
@@ -128,7 +128,7 @@ class EditorHelp : public VBoxContainer {
     LineEdit *search;
     FindBar *find_bar;
 
-    se_string base_path;
+    String base_path;
 
     Color title_color;
     Color text_color;
@@ -175,7 +175,7 @@ public:
     void go_to_help(se_string_view p_help);
     void go_to_class(se_string_view p_class, int p_scroll = 0);
 
-    Vector<Pair<se_string, int> > get_sections();
+    Vector<Pair<String, int> > get_sections();
     void scroll_to_section(int p_section_index);
 
     void popup_search();

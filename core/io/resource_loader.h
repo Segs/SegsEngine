@@ -48,7 +48,7 @@ class ResourceLoaderInterface;
 
 //used to track paths being loaded in a thread, avoids cyclic recursion
 struct LoadingMapKey {
-    se_string path;
+    String path;
     Thread::ID thread;
     bool operator==(const LoadingMapKey &p_key) const {
         return (thread == p_key.thread && path == p_key.path);
@@ -81,10 +81,10 @@ class GODOT_EXPORT ResourceLoader {
     static void *dep_err_notify_ud;
     static DependencyErrorNotify dep_err_notify;
     static bool abort_on_missing_resource;
-    static DefHashMap<se_string, PODVector<se_string> > translation_remaps;
-    static DefHashMap<se_string, se_string> path_remaps;
+    static DefHashMap<String, Vector<String> > translation_remaps;
+    static DefHashMap<String, String> path_remaps;
 
-    static se_string _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);
+    static String _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);
     friend class Resource;
 
     static SelfList<Resource>::List remapped_list;
@@ -110,16 +110,16 @@ public:
     static RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false, Error *r_error = nullptr);
     static bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
 
-    static void get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions);
+    static void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions);
     static void add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front = false);
     static void add_resource_format_loader(ResourceLoaderInterface *, bool p_at_front = false);
     static void remove_resource_format_loader(const ResourceLoaderInterface *p_format_loader);
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
-    static se_string get_resource_type(se_string_view p_path);
-    static void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false);
-    static Error rename_dependencies(se_string_view p_path, const DefMap<se_string, se_string> &p_map);
+    static String get_resource_type(se_string_view p_path);
+    static void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
+    static Error rename_dependencies(se_string_view p_path, const DefMap<String, String> &p_map);
     static bool is_import_valid(se_string_view p_path);
-    static se_string get_import_group_file(se_string_view p_path);
+    static String get_import_group_file(se_string_view p_path);
     static bool is_imported(se_string_view p_path);
     static int get_import_order(se_string_view p_path);
 
@@ -146,8 +146,8 @@ public:
     static void set_abort_on_missing_resources(bool p_abort) { abort_on_missing_resource = p_abort; }
     static bool get_abort_on_missing_resources() { return abort_on_missing_resource; }
 
-    static se_string path_remap(se_string_view p_path);
-    static se_string import_remap(se_string_view p_path);
+    static String path_remap(se_string_view p_path);
+    static String import_remap(se_string_view p_path);
 
     static void load_path_remaps();
     static void clear_path_remaps();

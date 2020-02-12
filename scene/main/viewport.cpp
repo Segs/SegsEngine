@@ -82,11 +82,11 @@ void ViewportTexture::setup_local_to_scene() {
     }
 
     Node *vpn = local_scene->get_node(path);
-    ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid.")
+    ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid."); 
 
     vp = object_cast<Viewport>(vpn);
 
-    ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport.")
+    ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport."); 
 
     vp->viewport_textures.insert(this);
 
@@ -115,22 +115,22 @@ NodePath ViewportTexture::get_viewport_path_in_scene() const {
 
 int ViewportTexture::get_width() const {
 
-    ERR_FAIL_COND_V(!vp, 0)
+    ERR_FAIL_COND_V(!vp, 0);
     return vp->size.width;
 }
 int ViewportTexture::get_height() const {
 
-    ERR_FAIL_COND_V(!vp, 0)
+    ERR_FAIL_COND_V(!vp, 0);
     return vp->size.height;
 }
 Size2 ViewportTexture::get_size() const {
 
-    ERR_FAIL_COND_V(!vp, Size2())
+    ERR_FAIL_COND_V(!vp, Size2());
     return vp->size;
 }
 RID ViewportTexture::get_rid() const {
 
-    //ERR_FAIL_COND_V(!vp, RID())
+    //ERR_FAIL_COND_V(!vp, RID());
     return proxy;
 }
 
@@ -140,7 +140,7 @@ bool ViewportTexture::has_alpha() const {
 }
 Ref<Image> ViewportTexture::get_data() const {
 
-    ERR_FAIL_COND_V(!vp, Ref<Image>())
+    ERR_FAIL_COND_V(!vp, Ref<Image>());
     return VisualServer::get_singleton()->texture_get_data(vp->texture_rid);
 }
 void ViewportTexture::set_flags(uint32_t p_flags) {
@@ -163,7 +163,7 @@ void ViewportTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_viewport_path_in_scene", {"path"}), &ViewportTexture::set_viewport_path_in_scene);
     MethodBinder::bind_method(D_METHOD("get_viewport_path_in_scene"), &ViewportTexture::get_viewport_path_in_scene);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "viewport_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Viewport", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT), "set_viewport_path_in_scene", "get_viewport_path_in_scene");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "viewport_path", PropertyHint::NodePathValidTypes, "Viewport", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT), "set_viewport_path_in_scene", "get_viewport_path_in_scene");
 }
 
 ViewportTexture::ViewportTexture() {
@@ -180,7 +180,7 @@ ViewportTexture::~ViewportTexture() {
         vp->viewport_textures.erase(this);
     }
 
-    VisualServer::get_singleton()->free(proxy);
+    VisualServer::get_singleton()->free_rid(proxy);
 }
 
 /////////////////////////////////////
@@ -274,8 +274,8 @@ void Viewport::_collision_object_input_event(CollisionObject *p_object, Camera *
     physics_last_id = id;
 }
 void Viewport::_own_world_changed() {
-    ERR_FAIL_COND(not world)
-    ERR_FAIL_COND(not own_world)
+    ERR_FAIL_COND(not world);
+    ERR_FAIL_COND(not own_world);
 
     if (is_inside_tree()) {
         _propagate_exit_world(this);
@@ -380,13 +380,13 @@ void Viewport::_notification(int p_what) {
             //			SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, RID());
             VisualServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
             if (contact_2d_debug.is_valid()) {
-                VisualServer::get_singleton()->free(contact_2d_debug);
+                VisualServer::get_singleton()->free_rid(contact_2d_debug);
                 contact_2d_debug = RID();
             }
 
             if (contact_3d_debug_multimesh.is_valid()) {
-                VisualServer::get_singleton()->free(contact_3d_debug_multimesh);
-                VisualServer::get_singleton()->free(contact_3d_debug_instance);
+                VisualServer::get_singleton()->free_rid(contact_3d_debug_multimesh);
+                VisualServer::get_singleton()->free_rid(contact_3d_debug_instance);
                 contact_3d_debug_instance = RID();
                 contact_3d_debug_multimesh = RID();
             }
@@ -413,7 +413,7 @@ void Viewport::_notification(int p_what) {
                 VisualServer::get_singleton()->canvas_item_clear(contact_2d_debug);
                 VisualServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
-                Vector<Vector2> points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
+                const Vector<Vector2> &points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
                 int point_count = Physics2DServer::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
                 Color ccol = get_tree()->get_debug_collision_contact_color();
 
@@ -425,7 +425,7 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_3d_debug_multimesh.is_valid()) {
 
-                Vector<Vector3> points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
+                const Vector<Vector3> & points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
                 int point_count = PhysicsServer::get_singleton()->space_get_contact_count(find_world()->get_space());
 
                 VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
@@ -445,7 +445,7 @@ void Viewport::_notification(int p_what) {
                     // if no mouse event exists, create a motion one. This is necessary because objects or camera may have moved.
                     // while this extra event is sent, it is checked if both camera and last object and last ID did not move. If nothing changed, the event is discarded to avoid flooding with unnecessary motion events every frame
                     bool has_mouse_event = false;
-                    for (List<Ref<InputEvent> >::Element *E = physics_picking_events.front(); E; E = E->next()) {
+                    for (ListOld<Ref<InputEvent> >::Element *E = physics_picking_events.front(); E; E = E->next()) {
                         Ref<InputEventMouse> m = dynamic_ref_cast<InputEventMouse>(E->deref());
                         if (m) {
                             has_mouse_event = true;
@@ -591,7 +591,7 @@ void Viewport::_notification(int p_what) {
                         }
 
                         if (is_mouse) {
-                            List<Map<ObjectID, uint64_t>::iterator > to_erase;
+                            ListOld<Map<ObjectID, uint64_t>::iterator > to_erase;
 
                             for (Map<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
                                 if (iter->second != frame) {
@@ -967,7 +967,7 @@ void Viewport::_camera_set(Camera *p_camera) {
     camera = p_camera;
     if (!camera_override) {
         if (camera)
-            VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera());
+            VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
         else
             VisualServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }
@@ -1209,14 +1209,14 @@ void Viewport::enable_camera_override(bool p_enable) {
     if (p_enable) {
         camera_override.rid = VisualServer::get_singleton()->camera_create();
     } else {
-        VisualServer::get_singleton()->free(camera_override.rid);
+        VisualServer::get_singleton()->free_rid(camera_override.rid);
         camera_override.rid = RID();
     }
 
     if (p_enable) {
         VisualServer::get_singleton()->viewport_attach_camera(viewport, camera_override.rid);
     } else if (camera) {
-        VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera());
+        VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
     } else {
         VisualServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }
@@ -1503,7 +1503,7 @@ void Viewport::_gui_prepare_subwindows() {
     if (gui.subwindow_visibility_dirty) {
 
         gui.subwindows.clear();
-        for (List<Control *>::Element *E = gui.all_known_subwindows.front(); E; E = E->next()) {
+        for (ListOld<Control *>::Element *E = gui.all_known_subwindows.front(); E; E = E->next()) {
             if (E->deref()->is_visible_in_tree()) {
                 gui.subwindows.push_back(E->deref());
             }
@@ -1615,10 +1615,10 @@ void Viewport::_gui_show_tooltip() {
 
         Ref<StyleBox> ttp = gui.tooltip_label->get_stylebox("panel", "TooltipPanel");
 
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_LEFT, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_LEFT));
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_TOP, Control::ANCHOR_BEGIN, ttp->get_margin(MARGIN_TOP));
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_RIGHT, Control::ANCHOR_END, -ttp->get_margin(MARGIN_RIGHT));
-        gui.tooltip_label->set_anchor_and_margin(MARGIN_BOTTOM, Control::ANCHOR_END, -ttp->get_margin(MARGIN_BOTTOM));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Left, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Left));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Top, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Top));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Right, Control::ANCHOR_END, -ttp->get_margin(Margin::Right));
+        gui.tooltip_label->set_anchor_and_margin(Margin::Bottom, Control::ANCHOR_END, -ttp->get_margin(Margin::Bottom));
         gui.tooltip_label->set_text(tooltip);
     }
 
@@ -1732,7 +1732,7 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
     _gui_prepare_subwindows();
 
-    for (List<Control *>::Element *E = gui.subwindows.back(); E; E = E->prev()) {
+    for (ListOld<Control *>::Element *E = gui.subwindows.back(); E; E = E->prev()) {
 
         Control *sw = E->deref();
         if (!sw->is_visible_in_tree())
@@ -1752,7 +1752,7 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
     _gui_sort_roots();
 
-    for (List<Control *>::Element *E = gui.roots.back(); E; E = E->prev()) {
+    for (ListOld<Control *>::Element *E = gui.roots.back(); E; E = E->prev()) {
 
         Control *sw = E->deref();
         if (!sw->is_visible_in_tree())
@@ -1857,7 +1857,7 @@ bool Viewport::_gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_che
 
 void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
-    ERR_FAIL_COND(not p_event)
+    ERR_FAIL_COND(not p_event);
 
     //?
     /*
@@ -2465,22 +2465,22 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (!mods && p_event->is_action_pressed("ui_up") && input->is_action_just_pressed("ui_up")) {
 
-                next = from->_get_focus_neighbour(MARGIN_TOP);
+                next = from->_get_focus_neighbour(Margin::Top);
             }
 
             if (!mods && p_event->is_action_pressed("ui_left") && input->is_action_just_pressed("ui_left")) {
 
-                next = from->_get_focus_neighbour(MARGIN_LEFT);
+                next = from->_get_focus_neighbour(Margin::Left);
             }
 
             if (!mods && p_event->is_action_pressed("ui_right") && input->is_action_just_pressed("ui_right")) {
 
-                next = from->_get_focus_neighbour(MARGIN_RIGHT);
+                next = from->_get_focus_neighbour(Margin::Right);
             }
 
             if (!mods && p_event->is_action_pressed("ui_down") && input->is_action_just_pressed("ui_down")) {
 
-                next = from->_get_focus_neighbour(MARGIN_BOTTOM);
+                next = from->_get_focus_neighbour(Margin::Bottom);
             }
 
             if (next) {
@@ -2491,13 +2491,13 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
     }
 }
 
-List<Control *>::Element *Viewport::_gui_add_root_control(Control *p_control) {
+ListOld<Control *>::Element *Viewport::_gui_add_root_control(Control *p_control) {
 
     gui.roots_order_dirty = true;
     return gui.roots.push_back(p_control);
 }
 
-List<Control *>::Element *Viewport::_gui_add_subwindow_control(Control *p_control) {
+ListOld<Control *>::Element *Viewport::_gui_add_subwindow_control(Control *p_control) {
 
     p_control->connect("visibility_changed", this, "_subwindow_visibility_changed");
 
@@ -2517,16 +2517,16 @@ void Viewport::_gui_set_root_order_dirty() {
     gui.roots_order_dirty = true;
 }
 
-void Viewport::_gui_remove_modal_control(List<Control *>::Element *MI) {
+void Viewport::_gui_remove_modal_control(ListOld<Control *>::Element *MI) {
 
     gui.modal_stack.erase(MI);
 }
 
-void Viewport::_gui_remove_from_modal_stack(List<Control *>::Element *MI, ObjectID p_prev_focus_owner) {
+void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, ObjectID p_prev_focus_owner) {
 
     //transfer the focus stack to the next
 
-    List<Control *>::Element *next = MI->next();
+    ListOld<Control *>::Element *next = MI->next();
 
     gui.modal_stack.erase(MI);
 
@@ -2554,7 +2554,7 @@ void Viewport::_gui_remove_from_modal_stack(List<Control *>::Element *MI, Object
 
 void Viewport::_gui_force_drag(Control *p_base, const Variant &p_data, Control *p_control) {
 
-    ERR_FAIL_COND_MSG(p_data.get_type() == VariantType::NIL, "Drag data must be a value.")
+    ERR_FAIL_COND_MSG(p_data.get_type() == VariantType::NIL, "Drag data must be a value."); 
 
     gui.dragging = true;
     gui.drag_data = p_data;
@@ -2568,9 +2568,9 @@ void Viewport::_gui_force_drag(Control *p_base, const Variant &p_data, Control *
 void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
 
     ERR_FAIL_NULL(p_control);
-    ERR_FAIL_COND(!object_cast<Control>((Object *)p_control))
-    ERR_FAIL_COND(p_control->is_inside_tree())
-    ERR_FAIL_COND(p_control->get_parent() != nullptr)
+    ERR_FAIL_COND(!object_cast<Control>((Object *)p_control));
+    ERR_FAIL_COND(p_control->is_inside_tree());
+    ERR_FAIL_COND(p_control->get_parent() != nullptr);
 
     if (gui.drag_preview) {
         memdelete(gui.drag_preview);
@@ -2583,20 +2583,20 @@ void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
     gui.drag_preview = p_control;
 }
 
-void Viewport::_gui_remove_root_control(List<Control *>::Element *RI) {
+void Viewport::_gui_remove_root_control(ListOld<Control *>::Element *RI) {
 
     gui.roots.erase(RI);
 }
 
-void Viewport::_gui_remove_subwindow_control(List<Control *>::Element *SI) {
+void Viewport::_gui_remove_subwindow_control(ListOld<Control *>::Element *SI) {
 
-    ERR_FAIL_COND(!SI)
+    ERR_FAIL_COND(!SI);
 
     Control *control = SI->deref();
 
     control->disconnect("visibility_changed", this, "_subwindow_visibility_changed");
 
-    List<Control *>::Element *E = gui.subwindows.find(control);
+    ListOld<Control *>::Element *E = gui.subwindows.find(control);
     if (E)
         gui.subwindows.erase(E);
 
@@ -2737,9 +2737,9 @@ void Viewport::_drop_physics_mouseover() {
 #endif
 }
 
-List<Control *>::Element *Viewport::_gui_show_modal(Control *p_control) {
+ListOld<Control *>::Element *Viewport::_gui_show_modal(Control *p_control) {
 
-    List<Control *>::Element *node = gui.modal_stack.push_back(p_control);
+    ListOld<Control *>::Element *node = gui.modal_stack.push_back(p_control);
     if (gui.key_focus)
         p_control->_modal_set_prev_focus_owner(gui.key_focus->get_instance_id());
     else
@@ -2821,7 +2821,7 @@ void Viewport::_post_gui_grab_click_focus() {
 
 void Viewport::input(const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     local_input_handled = false;
 
@@ -2837,7 +2837,7 @@ void Viewport::input(const Ref<InputEvent> &p_event) {
 
 void Viewport::unhandled_input(const Ref<InputEvent> &p_event) {
 
-    ERR_FAIL_COND(!is_inside_tree())
+    ERR_FAIL_COND(!is_inside_tree());
 
     get_tree()->_call_input_pause(unhandled_input_group, "_unhandled_input", p_event);
     //call_group(GROUP_CALL_REVERSE|GROUP_CALL_REALTIME|GROUP_CALL_MULIILEVEL,"unhandled_input","_unhandled_input",ev);
@@ -3079,7 +3079,7 @@ void Viewport::set_input_as_handled() {
     if (handle_input_locally) {
         local_input_handled = true;
     } else {
-        ERR_FAIL_COND(!is_inside_tree())
+        ERR_FAIL_COND(!is_inside_tree());
         get_tree()->set_input_as_handled();
     }
 }
@@ -3088,7 +3088,7 @@ bool Viewport::is_input_handled() const {
     if (handle_input_locally) {
         return local_input_handled;
     } else {
-        ERR_FAIL_COND_V(!is_inside_tree(), false)
+        ERR_FAIL_COND_V(!is_inside_tree(), false);
         return get_tree()->is_input_handled();
     }
 }
@@ -3237,22 +3237,22 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "size_override_stretch"), "set_size_override_stretch", "is_size_override_stretch_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "own_world"), "set_use_own_world", "is_using_own_world");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PROPERTY_HINT_RESOURCE_TYPE, "World"), "set_world", "get_world");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PROPERTY_HINT_RESOURCE_TYPE, "World2D", 0), "set_world_2d", "get_world_2d");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PropertyHint::ResourceType, "World"), "set_world", "get_world");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PropertyHint::ResourceType, "World2D", 0), "set_world_2d", "get_world_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "transparent_bg"), "set_transparent_background", "has_transparent_background");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "handle_input_locally"), "set_handle_input_locally", "is_handling_input_locally");
     ADD_GROUP("Rendering", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "msaa", PROPERTY_HINT_ENUM, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"), "set_msaa", "get_msaa");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"), "set_msaa", "get_msaa");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hdr"), "set_hdr", "get_hdr");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_3d"), "set_disable_3d", "is_3d_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_3d_linear"), "set_keep_3d_linear", "get_keep_3d_linear");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "usage", PROPERTY_HINT_ENUM, "2D,2D No-Sampling,3D,3D No-Effects"), "set_usage", "get_usage");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "usage", PropertyHint::Enum, "2D,2D No-Sampling,3D,3D No-Effects"), "set_usage", "get_usage");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_direct_to_screen"), "set_use_render_direct_to_screen", "is_using_render_direct_to_screen");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "debug_draw", PROPERTY_HINT_ENUM, "Disabled,Unshaded,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "debug_draw", PropertyHint::Enum, "Disabled,Unshaded,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
     ADD_GROUP("Render Target", "render_target_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_target_v_flip"), "set_vflip", "get_vflip");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PROPERTY_HINT_ENUM, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_update_mode", PROPERTY_HINT_ENUM, "Disabled,Once,When Visible,Always"), "set_update_mode", "get_update_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PropertyHint::Enum, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_update_mode", PropertyHint::Enum, "Disabled,Once,When Visible,Always"), "set_update_mode", "get_update_mode");
     ADD_GROUP("Audio Listener", "audio_listener_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_2d"), "set_as_audio_listener_2d", "is_audio_listener_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_3d"), "set_as_audio_listener", "is_audio_listener");
@@ -3263,15 +3263,15 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "gui_snap_controls_to_pixels"), "set_snap_controls_to_pixels", "is_snap_controls_to_pixels_enabled");
     ADD_GROUP("Shadow Atlas", "shadow_atlas_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_atlas_size"), "set_shadow_atlas_size", "get_shadow_atlas_size");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_0", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_1", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_2", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_3", PROPERTY_HINT_ENUM, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 3);
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "canvas_transform", PROPERTY_HINT_NONE, "", 0), "set_canvas_transform", "get_canvas_transform");
-    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_canvas_transform", PROPERTY_HINT_NONE, "", 0), "set_global_canvas_transform", "get_global_canvas_transform");
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_0", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 0);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_1", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 1);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_2", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 2);
+    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_3", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 3);
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "canvas_transform", PropertyHint::None, "", 0), "set_canvas_transform", "get_canvas_transform");
+    ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_canvas_transform", PropertyHint::None, "", 0), "set_global_canvas_transform", "get_global_canvas_transform");
 
     ADD_SIGNAL(MethodInfo("size_changed"));
-    ADD_SIGNAL(MethodInfo("gui_focus_changed", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Control")));
+    ADD_SIGNAL(MethodInfo("gui_focus_changed", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Control")));
 
     BIND_ENUM_CONSTANT(UPDATE_DISABLED)
     BIND_ENUM_CONSTANT(UPDATE_ONCE)
@@ -3374,7 +3374,7 @@ Viewport::Viewport() {
     set_shadow_atlas_quadrant_subdiv(2, SHADOW_ATLAS_QUADRANT_SUBDIV_16);
     set_shadow_atlas_quadrant_subdiv(3, SHADOW_ATLAS_QUADRANT_SUBDIV_64);
 
-    se_string id = itos(get_instance_id());
+    String id = itos(get_instance_id());
     input_group = StringName("_vp_input" + id);
     gui_input_group = StringName("_vp_gui_input" + id);
     unhandled_input_group = StringName("_vp_unhandled_input" + id);
@@ -3389,7 +3389,7 @@ Viewport::Viewport() {
 
     //gui.tooltip_timer->force_parent_owned();
     gui.tooltip_delay = GLOBAL_DEF("gui/timers/tooltip_delay_sec", 0.5);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::REAL, "gui/timers/tooltip_delay_sec", PROPERTY_HINT_RANGE, "0,5,0.01,or_greater")); // No negative numbers
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::REAL, "gui/timers/tooltip_delay_sec", PropertyHint::Range, "0,5,0.01,or_greater")); // No negative numbers
 
     gui.tooltip = nullptr;
     gui.tooltip_label = nullptr;
@@ -3424,7 +3424,7 @@ Viewport::~Viewport() {
     for (ViewportTexture * E : viewport_textures) {
         E->vp = nullptr;
     }
-    VisualServer::get_singleton()->free(viewport);
+    VisualServer::get_singleton()->free_rid(viewport);
     //SpatialSoundServer::get_singleton()->free(internal_listener);
     //SpatialSound2DServer::get_singleton()->free(internal_listener_2d);
 }

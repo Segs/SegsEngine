@@ -47,9 +47,9 @@ AABB Particles::get_aabb() const {
 
     return AABB();
 }
-PoolVector<Face3> Particles::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> Particles::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return Vector<Face3>();
 }
 
 void Particles::set_emitting(bool p_emitting) {
@@ -196,7 +196,7 @@ Particles::DrawOrder Particles::get_draw_order() const {
 
 void Particles::set_draw_passes(int p_count) {
 
-    ERR_FAIL_COND(p_count < 1)
+    ERR_FAIL_COND(p_count < 1);
     draw_passes.resize(p_count);
     VisualServer::get_singleton()->particles_set_draw_passes(particles, p_count);
     Object_change_notify(this);
@@ -248,7 +248,7 @@ bool Particles::get_fractional_delta() const {
 
 StringName Particles::get_configuration_warning() const {
 
-    se_string warnings;
+    String warnings;
 
     bool meshes_found = false;
     bool anim_material_found = false;
@@ -388,27 +388,27 @@ void Particles::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("capture_aabb"), &Particles::capture_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PROPERTY_HINT_EXP_RANGE, "1,1000000,1"), "set_amount", "get_amount");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime", PROPERTY_HINT_EXP_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime", PropertyHint::ExpRange, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "preprocess", PROPERTY_HINT_EXP_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "randomness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PROPERTY_HINT_RANGE, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "preprocess", PropertyHint::ExpRange, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "");
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "visibility_aabb"), "set_visibility_aabb", "get_visibility_aabb");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PROPERTY_HINT_ENUM, "Index,Lifetime,View Depth"), "set_draw_order", "get_draw_order");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime,View Depth"), "set_draw_order", "get_draw_order");
     ADD_GROUP("Process Material", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PropertyHint::ResourceType, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
     ADD_GROUP("Draw Passes", "draw_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_passes", PROPERTY_HINT_RANGE, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_passes", PropertyHint::Range, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
     for (int i = 0; i < MAX_DRAW_PASSES; i++) {
 
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass_" + itos(i + 1)), PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass_" + itos(i + 1)), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
@@ -441,5 +441,5 @@ Particles::Particles() {
 
 Particles::~Particles() {
 
-    VisualServer::get_singleton()->free(particles);
+    VisualServer::get_singleton()->free_rid(particles);
 }

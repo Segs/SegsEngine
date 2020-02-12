@@ -70,7 +70,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
 }
 
 void ShaderTextEditor::reload_text() {
-    ERR_FAIL_COND(not shader)
+    ERR_FAIL_COND(not shader);
 
     TextEdit *te = get_text_edit();
     int column = te->cursor_get_column();
@@ -151,7 +151,7 @@ void ShaderTextEditor::_load_theme_settings() {
     get_text_edit()->add_color_override("search_result_border_color", search_result_border_color);
     get_text_edit()->add_color_override("symbol_color", symbol_color);
 
-    PODVector<se_string_view> keywords;
+    Vector<se_string_view> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
 
     if (shader) {
@@ -181,7 +181,7 @@ void ShaderTextEditor::_load_theme_settings() {
 
 void ShaderTextEditor::_check_shader_mode() {
 
-    se_string type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
+    String type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
 
     ShaderMode mode;
 
@@ -199,14 +199,17 @@ void ShaderTextEditor::_check_shader_mode() {
     }
 }
 
-void ShaderTextEditor::_code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options) {
+void ShaderTextEditor::_code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options) {
 
     _check_shader_mode();
 
     ShaderLanguage sl;
-    se_string calltip;
+    String calltip;
 
-    sl.complete(p_code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())), ShaderTypes::get_singleton()->get_types(), r_options, calltip);
+    sl.complete(p_code,
+            ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_types(), r_options, calltip);
 
     get_text_edit()->set_code_hint(calltip);
 }
@@ -215,7 +218,7 @@ void ShaderTextEditor::_validate_script() {
 
     _check_shader_mode();
 
-    se_string code = get_text_edit()->get_text_utf8();
+    String code = get_text_edit()->get_text_utf8();
     // List<StringName> params;
     // shader->get_param_list(&params);
 
@@ -226,7 +229,7 @@ void ShaderTextEditor::_validate_script() {
             ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
-        se_string error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
+        String error_text = "error(" + itos(sl.get_error_line()) + "): " + sl.get_error_text();
         set_error(StringName(error_text));
         set_error_pos(sl.get_error_line() - 1, 0);
         for (int i = 0; i < get_text_edit()->get_line_count(); i++)
@@ -378,6 +381,7 @@ void ShaderEditor::_editor_settings_changed() {
     shader_editor->get_text_edit()->set_indent_using_spaces(EditorSettings::get_singleton()->get("text_editor/indent/type"));
     shader_editor->get_text_edit()->set_auto_indent(EditorSettings::get_singleton()->get("text_editor/indent/auto_indent"));
     shader_editor->get_text_edit()->set_draw_tabs(EditorSettings::get_singleton()->get("text_editor/indent/draw_tabs"));
+    shader_editor->get_text_edit()->set_draw_spaces(EditorSettings::get_singleton()->get("text_editor/indent/draw_spaces"));
     shader_editor->get_text_edit()->set_show_line_numbers(EditorSettings::get_singleton()->get("text_editor/appearance/show_line_numbers"));
     shader_editor->get_text_edit()->set_syntax_coloring(EditorSettings::get_singleton()->get("text_editor/highlighting/syntax_highlighting"));
     shader_editor->get_text_edit()->set_highlight_all_occurrences(EditorSettings::get_singleton()->get("text_editor/highlighting/highlight_all_occurrences"));
@@ -388,6 +392,11 @@ void ShaderEditor::_editor_settings_changed() {
     shader_editor->get_text_edit()->cursor_set_block_mode(EditorSettings::get_singleton()->get("text_editor/cursor/block_caret"));
     shader_editor->get_text_edit()->set_smooth_scroll_enabled(EditorSettings::get_singleton()->get("text_editor/navigation/smooth_scrolling"));
     shader_editor->get_text_edit()->set_v_scroll_speed(EditorSettings::get_singleton()->get("text_editor/navigation/v_scroll_speed"));
+    shader_editor->get_text_edit()->set_draw_minimap(EditorSettings::get_singleton()->get("text_editor/navigation/show_minimap"));
+    shader_editor->get_text_edit()->set_minimap_width((int)EditorSettings::get_singleton()->get("text_editor/navigation/minimap_width") * EDSCALE);
+    shader_editor->get_text_edit()->set_show_line_length_guideline(EditorSettings::get_singleton()->get("text_editor/appearance/show_line_length_guideline"));
+    shader_editor->get_text_edit()->set_line_length_guideline_column(EditorSettings::get_singleton()->get("text_editor/appearance/line_length_guideline_column"));
+    shader_editor->get_text_edit()->set_breakpoint_gutter_enabled(false);
 }
 
 void ShaderEditor::_bind_methods() {
@@ -425,7 +434,7 @@ void ShaderEditor::goto_line_selection(int p_line, int p_begin, int p_end) {
 
 void ShaderEditor::_check_for_external_edit() {
 
-    if (not shader || not shader) {
+    if (not shader) {
         return;
     }
 
@@ -447,7 +456,7 @@ void ShaderEditor::_check_for_external_edit() {
 void ShaderEditor::_reload_shader_from_disk() {
 
     Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), shader->get_class(), true));
-    ERR_FAIL_COND(not rel_shader)
+    ERR_FAIL_COND(not rel_shader);
 
     shader->set_code(rel_shader->get_code());
     shader->set_last_modified_time(rel_shader->get_last_modified_time());
@@ -489,8 +498,8 @@ void ShaderEditor::save_external_data(se_string_view p_str) {
 void ShaderEditor::apply_shaders() {
 
     if (shader) {
-        se_string shader_code = shader->get_code();
-        se_string editor_code = shader_editor->get_text_edit()->get_text_utf8();
+        String shader_code = shader->get_code();
+        String editor_code = shader_editor->get_text_edit()->get_text_utf8();
         if (shader_code != editor_code) {
             shader->set_code(editor_code);
             Object_set_edited(shader.get(),true);
@@ -557,7 +566,7 @@ void ShaderEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        se_string line(StringUtils::strip_edges(shader_editor->get_text_edit()->get_line(bookmark_list[i])));
+        String line(StringUtils::strip_edges(shader_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);

@@ -79,14 +79,14 @@ class PopupMenu : public Popup {
     };
 
     class Timer *submenu_timer;
-    List<Rect2> autohide_areas;
+    Vector<Rect2> autohide_areas;
     Vector<Item> items;
     int initial_button_mask;
     bool during_grabbed_click;
     int mouse_over;
     int submenu_over;
     Rect2 parent_rect;
-    se_string _get_accel_text(int p_item) const;
+    String _get_accel_text(int p_item) const;
     int _get_mouse_over(const Point2 &p_over) const;
     Size2 get_minimum_size() const override;
     void _scroll(float p_factor, const Point2 &p_over);
@@ -101,17 +101,17 @@ class PopupMenu : public Popup {
     bool hide_on_window_lose_focus;
     Vector2 moved;
 
-    Array _get_items() const;
-    void _set_items(const Array &p_items);
 
     Map<Ref<ShortCut>, int> shortcut_refcount;
-
+    bool allow_search;
+    uint64_t search_time_msec;
+    String search_string;
+public:
+    Array _get_items() const;
+    void _set_items(const Array &p_items);
     void _ref_shortcut(Ref<ShortCut> p_sc);
     void _unref_shortcut(Ref<ShortCut> p_sc);
 
-    bool allow_search;
-    uint64_t search_time_msec;
-    se_string search_string;
 
 protected:
     bool has_point(const Point2 &p_point) const override;
@@ -162,7 +162,7 @@ public:
 
     void toggle_item_checked(int p_idx);
 
-    se_string get_item_text_utf8(int p_idx) const;
+    String get_item_text_utf8(int p_idx) const;
     StringName get_item_text(int p_idx) const;
     int get_item_idx_from_text(const StringName &text) const;
     int get_item_idx_from_text_utf8(se_string_view text) const;
@@ -197,7 +197,7 @@ public:
 
     StringName get_tooltip(const Point2 &p_pos) const override;
 
-    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
+    void get_translatable_strings(List<StringName> *p_strings) const override;
 
     void add_autohide_area(const Rect2 &p_area);
     void clear_autohide_areas();

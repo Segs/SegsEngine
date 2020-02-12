@@ -140,21 +140,21 @@ void AnimationTrackEditColor::draw_key_link(int p_index, float p_pixels_sec, int
     int y_from = (get_size().height - fh) / 2;
 
     Vector<Vector2> points;
-    Vector<Color> colors;
+    PoolVector<Color> colors;
 
-    points.push_back(Vector2(x_from, y_from));
+    points.emplace_back(x_from, y_from);
     colors.push_back(color);
 
-    points.push_back(Vector2(x_to, y_from));
+    points.emplace_back(x_to, y_from);
     colors.push_back(color_next);
 
-    points.push_back(Vector2(x_to, y_from + fh));
+    points.emplace_back(x_to, y_from + fh);
     colors.push_back(color_next);
 
-    points.push_back(Vector2(x_from, y_from + fh));
+    points.emplace_back(x_from, y_from + fh);
     colors.push_back(color);
 
-    draw_primitive(points, colors, Vector<Vector2>());
+    draw_primitive(points, colors, PoolVector<Vector2>());
 }
 
 void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
@@ -300,19 +300,18 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         draw_rect(rect, Color(0.25, 0.25, 0.25));
 
         Vector<Vector2> lines;
-        lines.resize((to_x - from_x + 1) * 2);
+        lines.reserve((to_x - from_x + 1) * 2);
         preview_len = preview->get_length();
 
         for (int i = from_x; i < to_x; i++) {
 
             float ofs = (i - pixel_begin) * preview_len / pixel_len;
             float ofs_n = (i + 1 - pixel_begin) * preview_len / pixel_len;
-            float max = preview->get_max(ofs, ofs_n) * 0.5 + 0.5;
-            float min = preview->get_min(ofs, ofs_n) * 0.5 + 0.5;
+            float max = preview->get_max(ofs, ofs_n) * 0.5f + 0.5f;
+            float min = preview->get_min(ofs, ofs_n) * 0.5f + 0.5f;
 
-            int idx = i - from_x;
-            lines.write[idx * 2 + 0] = Vector2(i, rect.position.y + min * rect.size.y);
-            lines.write[idx * 2 + 1] = Vector2(i, rect.position.y + max * rect.size.y);
+            lines.emplace_back(i, rect.position.y + min * rect.size.y);
+            lines.emplace_back(i, rect.position.y + max * rect.size.y);
         }
 
         Vector<Color> color;
@@ -402,21 +401,21 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
             return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
         }
 
-        ListPOD<StringName> animations;
+        List<StringName> animations;
         sf->get_animation_list(&animations);
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
-        se_string animation;
+        String animation;
         if (animations.size() == 1) {
             animation = animations.front();
         } else {
             // Go through other track to find if animation is set
-            se_string animation_path(get_animation()->track_get_path(get_track()));
+            String animation_path(get_animation()->track_get_path(get_track()));
             animation_path = StringUtils::replace(animation_path,":frame", ":animation");
             int animation_track = get_animation()->find_track((NodePath)animation_path);
             float track_time = get_animation()->track_get_key_time(get_track(), p_index);
             int animaiton_index = get_animation()->track_find_key(animation_track, track_time);
-            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<se_string>();
+            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<String>();
         }
 
         Ref<Texture> texture = sf->get_frame(StringName(animation), frame);
@@ -497,21 +496,21 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
             return;
         }
 
-        ListPOD<StringName> animations;
+        List<StringName> animations;
         sf->get_animation_list(&animations);
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
-        se_string animation;
+        String animation;
         if (animations.size() == 1) {
             animation = animations.front();
         } else {
             // Go through other track to find if animation is set
-            se_string animation_path(get_animation()->track_get_path(get_track()));
+            String animation_path(get_animation()->track_get_path(get_track()));
             animation_path = StringUtils::replace(animation_path,":frame", ":animation");
             int animation_track = get_animation()->find_track((NodePath)animation_path);
             float track_time = get_animation()->track_get_key_time(get_track(), p_index);
             int animaiton_index = get_animation()->track_find_key(animation_track, track_time);
-            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<se_string>();
+            animation = get_animation()->track_get_key_value(animation_track, animaiton_index).as<String>();
         }
 
         texture = sf->get_frame(StringName(animation), frame);
@@ -692,7 +691,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
 
         int limit = to_x - from_x - 4;
         if (limit > 0) {
-            draw_string_utf8(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
+            draw_string(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
         }
 
         if (p_selected) {
@@ -919,7 +918,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     draw_rect(rect, Color(0.25, 0.25, 0.25));
 
     Vector<Vector2> lines;
-    lines.resize((to_x - from_x + 1) * 2);
+    lines.reserve((to_x - from_x + 1) * 2);
     preview_len = preview->get_length();
 
     for (int i = from_x; i < to_x; i++) {
@@ -933,8 +932,8 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
         float min = preview->get_min(ofs, ofs_n) * 0.5f + 0.5f;
 
         int idx = i - from_x;
-        lines.write[idx * 2 + 0] = Vector2(i, rect.position.y + min * rect.size.y);
-        lines.write[idx * 2 + 1] = Vector2(i, rect.position.y + max * rect.size.y);
+        lines.emplace_back(i, rect.position.y + min * rect.size.y);
+        lines.emplace_back(i, rect.position.y + max * rect.size.y);
     }
 
     Vector<Color> color;
@@ -971,19 +970,19 @@ bool AnimationTrackEditTypeAudio::can_drop_data(const Point2 &p_point, const Var
     if (p_point.x > get_timeline()->get_name_limit() && p_point.x < get_size().width - get_timeline()->get_buttons_width()) {
 
         Dictionary drag_data = p_data;
-        if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+        if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
             Ref<AudioStream> res(drag_data["resource"]);
             if (res) {
                 return true;
             }
         }
 
-        if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+        if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-            PoolVector<se_string> files = drag_data["files"].as<PoolVector<se_string>>();
+            PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
             if (files.size() == 1) {
-                const se_string &file = files[0];
+                const String &file = files[0];
                 Ref<AudioStream> res = dynamic_ref_cast<AudioStream>(ResourceLoader::load(file));
                 if (res) {
                     return true;
@@ -1000,14 +999,14 @@ void AnimationTrackEditTypeAudio::drop_data(const Point2 &p_point, const Variant
 
         Ref<AudioStream> stream;
         Dictionary drag_data = p_data;
-        if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+        if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
             stream = refFromVariant<AudioStream>(drag_data["resource"]);
-        } else if (drag_data.has("type") && String(drag_data["type"]) == "files") {
+        } else if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
 
-            PoolVector<se_string> files = drag_data["files"].as<PoolVector<se_string>>();
+            PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
             if (files.size() == 1) {
-                const se_string &file = files[0];
+                const String &file = files[0];
                 stream = dynamic_ref_cast<AudioStream>(ResourceLoader::load(file));
             }
         }
@@ -1275,7 +1274,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
 
         int limit = to_x - from_x - 4;
         if (limit > 0) {
-            draw_string_utf8(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
+            draw_string(font, Point2(from_x + 2, int(get_size().height - font->get_height()) / 2 + font->get_ascent()), anim, color);
         }
 
         if (p_selected) {

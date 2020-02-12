@@ -134,10 +134,10 @@ void Polygon2D::_notification(int p_what) {
                 current_skeleton_id = new_skeleton_id;
             }
 
-            PODVector<Vector2> points;
-            Vector<Vector2> uvs;
-            Vector<int> bones;
-            Vector<float> weights;
+            Vector<Vector2> points;
+            PoolVector<Vector2> uvs;
+            PoolVector<int> bones;
+            PoolVector<float> weights;
 
             int len = polygon.size();
             if ((invert || polygons.empty()) && internal_vertices > 0) {
@@ -218,18 +218,18 @@ void Polygon2D::_notification(int p_what) {
                 Size2 tex_size = texture->get_size();
 
                 uvs.resize(len);
-
+                auto uv_wr(uvs.write());
                 if (points.size() == uv.size()) {
 
                     PoolVector<Vector2>::Read uvr = uv.read();
 
                     for (int i = 0; i < len; i++) {
-                        uvs.write[i] = texmat.xform(uvr[i]) / tex_size;
+                        uv_wr[i] = texmat.xform(uvr[i]) / tex_size;
                     }
 
                 } else {
                     for (int i = 0; i < len; i++) {
-                        uvs.write[i] = texmat.xform(points[i]) / tex_size;
+                        uv_wr[i] = texmat.xform(points[i]) / tex_size;
                     }
                 }
             }
@@ -240,8 +240,8 @@ void Polygon2D::_notification(int p_what) {
                 bones.resize(vc * 4);
                 weights.resize(vc * 4);
 
-                int *bonesw = bones.ptrw();
-                float *weightsw = weights.ptrw();
+                auto bonesw = bones.write();
+                auto weightsw = weights.write();
 
                 for (int i = 0; i < vc * 4; i++) {
                     bonesw[i] = 0;
@@ -297,13 +297,9 @@ void Polygon2D::_notification(int p_what) {
                 }
             }
 
-            Vector<Color> colors;
+            PoolVector<Color> colors;
             if (vertex_colors.size() == points.size()) {
-                colors.resize(len);
-                PoolVector<Color>::Read color_r = vertex_colors.read();
-                for (int i = 0; i < len; i++) {
-                    colors.write[i] = color_r[i];
-                }
+                colors = vertex_colors;
             } else {
                 colors.push_back(color);
             }
@@ -312,13 +308,13 @@ void Polygon2D::_notification(int p_what) {
             //			VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
 
             if (invert || polygons.empty()) {
-                PODVector<int> indices(Geometry::triangulate_polygon(points));
+                Vector<int> indices(Geometry::triangulate_polygon(points));
                 if (!indices.empty()) {
                     VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
                 }
             } else {
                 //draw individual polygons
-                PODVector<int> total_indices;
+                Vector<int> total_indices;
                 for (int i = 0; i < polygons.size(); i++) {
                     PoolVector<int> src_indices = polygons[i];
                     int ic = src_indices.size();
@@ -326,7 +322,7 @@ void Polygon2D::_notification(int p_what) {
                         continue;
                     PoolVector<int>::Read r = src_indices.read();
 
-                    PODVector<Vector2> tmp_points;
+                    Vector<Vector2> tmp_points;
                     tmp_points.resize(ic);
 
                     for (int j = 0; j < ic; j++) {
@@ -334,7 +330,7 @@ void Polygon2D::_notification(int p_what) {
                         ERR_CONTINUE(idx < 0 || idx >= points.size());
                         tmp_points[j] = points[r[j]];
                     }
-                    PODVector<int> indices = Geometry::triangulate_polygon(tmp_points);
+                    Vector<int> indices = Geometry::triangulate_polygon(tmp_points);
                     int ic2 = indices.size();
                     const int *r2 = indices.data();
 
@@ -350,197 +346,7 @@ void Polygon2D::_notification(int p_what) {
                 if (!total_indices.empty()) {
                     VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), total_indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
                 }
-
-#if 0
-                //use splits
-                Vector<int> loop;
-                int sc = splits.size();
-                PoolVector<int>::Read r = splits.read();
-
-
-                print_line("has splits, amount " + itos(splits.size()));
-                Vector<Vector<int> > loops;
-
-                // find a point that can be used to begin, must not be in a split, and have to the left and right the same one
-                // like this one -> x---o
-                //                   \ / \ .
-                //                    o---o
-                int base_point = -1;
-                {
-                    int current_point = -1;
-                    int base_point_prev_split = -1;
-
-
-                    for (int i = 0; i < points.size(); i++) {
-
-                        //find if this point is in a split
-                        int split_index = -1;
-                        bool has_prev_split = false;
-                        int min_dist_to_end = 0x7FFFFFFF;
-
-                        for (int j = 0; j < sc; j += 2) {
-
-                            int split_pos = -1;
-                            int split_end = -1;
-
-                            if (r[j + 0] == i) { //found split in first point
-                                split_pos = r[j + 0];
-                                split_end = r[j + 1];
-                            } else if (r[j + 1] == i) { //found split in second point
-                                split_pos = r[j + 1];
-                                split_end = r[j + 0];
-                            }
-
-                            if (split_pos == split_end) {
-                                continue; //either nothing found or begin == end, this not a split in either case
-                            }
-
-                            if (j == base_point_prev_split) {
-                                has_prev_split = true;
-                            }
-
-                            //compute distance from split pos to split end in current traversal direction
-                            int dist_to_end = split_end > split_pos ? split_end - split_pos : (last - split_pos + split_end);
-
-                            if (dist_to_end < min_dist_to_end) {
-                                //always keep the valid split with the least distance to the loop
-                                min_dist_to_end = dist_to_end;
-                                split_index = j;
-                            }
-                        }
-
-                        if (split_index == -1) {
-                            current_point = i; //no split here, we are testing this point
-                        } else if (has_prev_split) {
-                            base_point = current_point; // there is a split and it contains the previous visited split, success
-                            break;
-                        } else {
-                            //invalidate current point and keep split
-                            current_point = -1;
-                            base_point_prev_split = split_index;
-                        }
-                    }
-                }
-
-                print_line("found base point: " + itos(base_point));
-
-                if (base_point != -1) {
-
-                    int point = base_point;
-                    int last = base_point;
-                    //go through all the points, find splits
-                    do {
-
-                        int split;
-                        int last_dist_to_end = -1; //maximum valid distance to end
-
-                        do {
-
-                            loop.push_back(point); //push current point
-
-                            split = -1;
-                            int end = -1;
-
-                            int max_dist_to_end = 0;
-
-                            //find if this point is in a split
-                            for (int j = 0; j < sc; j += 2) {
-
-                                int split_pos = -1;
-                                int split_end = -1;
-
-                                if (r[j + 0] == point) { //match first split index
-                                    split_pos = r[j + 0];
-                                    split_end = r[j + 1];
-                                } else if (r[j + 1] == point) { //match second split index
-                                    split_pos = r[j + 1];
-                                    split_end = r[j + 0];
-                                }
-
-                                if (split_pos == split_end) {
-                                    continue; //either nothing found or begin == end, this not a split in either case
-                                }
-
-                                //compute distance from split pos to split end
-                                int dist_to_end = split_end > split_pos ? split_end - split_pos : (points.size() - split_pos + split_end);
-
-                                if (last_dist_to_end != -1 && dist_to_end >= last_dist_to_end) {
-                                    //distance must be shorter than in last iteration, means we've tested this before so ignore
-                                    continue;
-                                } else if (dist_to_end > max_dist_to_end) {
-                                    //always keep the valid point with the most distance (as long as it's valid)
-                                    max_dist_to_end = dist_to_end;
-                                    split = split_pos;
-                                    end = split_end;
-                                }
-                            }
-
-                            if (split != -1) {
-                                //found a split!
-                                int from = end;
-
-                                //add points until last is reached
-                                while (true) {
-                                    //find if point is in a split
-                                    loop.push_back(from);
-
-                                    if (from == last) {
-                                        break;
-                                    }
-
-                                    from++;
-                                    if (from >= points.size()) { //wrap if reached end
-                                        from = 0;
-                                    }
-
-                                    if (from == loop[0]) {
-                                        break; //end because we reached split source
-                                    }
-                                }
-
-                                loops.push_back(loop); //done with this loop
-                                loop.clear();
-
-                                last_dist_to_end = max_dist_to_end;
-                                last = end; //algorithm can safely finish in this split point
-                            }
-
-                        } while (split != -1);
-
-                    } while (point != last);
-                }
-
-                if (loop.size() >=2 ) { //points remained
-                    //points remain
-                    loop.push_back(last); //no splits found, use last
-                    loops.push_back(loop);
-                }
-
-                print_line("total loops: " + itos(loops.size()));
-
-                if (loops.size()) { //loops found
-                    Vector<int> indices;
-
-                    for (int i = 0; i < loops.size(); i++) {
-                        Vector<int> loop = loops[i];
-                        Vector<Vector2> vertices;
-                        vertices.resize(loop.size());
-                        for (int j = 0; j < vertices.size(); j++) {
-                            vertices.write[j] = points[loop[j]];
-                        }
-                        Vector<int> sub_indices = Geometry::triangulate_polygon(vertices);
-                        int from = indices.size();
-                        indices.resize(from + sub_indices.size());
-                        for (int j = 0; j < sub_indices.size(); j++) {
-                            indices.write[from + j] = loop[sub_indices[j]];
-                        }
-                    }
-
-                    VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID());
-                }
-#endif
             }
-
         } break;
     }
 }
@@ -713,7 +519,7 @@ void Polygon2D::add_bone(const NodePath &p_path, const PoolVector<float> &p_weig
     Bone bone;
     bone.path = p_path;
     bone.weights = p_weights;
-    bone_weights.push_back(bone);
+    bone_weights.emplace_back(bone);
 }
 int Polygon2D::get_bone_count() const {
     return bone_weights.size();
@@ -730,7 +536,7 @@ PoolVector<float> Polygon2D::get_bone_weights(int p_index) const {
 void Polygon2D::erase_bone(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, bone_weights.size());
-    bone_weights.remove(p_idx);
+    bone_weights.erase_at(p_idx);
 }
 
 void Polygon2D::clear_bones() {
@@ -739,12 +545,12 @@ void Polygon2D::clear_bones() {
 
 void Polygon2D::set_bone_weights(int p_index, const PoolVector<float> &p_weights) {
     ERR_FAIL_INDEX(p_index, bone_weights.size());
-    bone_weights.write[p_index].weights = p_weights;
+    bone_weights[p_index].weights = p_weights;
     update();
 }
 void Polygon2D::set_bone_path(int p_index, const NodePath &p_path) {
     ERR_FAIL_INDEX(p_index, bone_weights.size());
-    bone_weights.write[p_index].path = p_path;
+    bone_weights[p_index].path = p_path;
     update();
 }
 
@@ -758,7 +564,7 @@ Array Polygon2D::_get_bones() const {
 }
 void Polygon2D::_set_bones(const Array &p_bones) {
 
-    ERR_FAIL_COND(p_bones.size() & 1)
+    ERR_FAIL_COND(p_bones.size() & 1);
     clear_bones();
     for (int i = 0; i < p_bones.size(); i += 2) {
         add_bone(p_bones[i], p_bones[i + 1]);
@@ -844,26 +650,26 @@ void Polygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
     ADD_GROUP("Texture", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Texture", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_offset"), "set_texture_offset", "get_texture_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_scale"), "set_texture_scale", "get_texture_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation", PROPERTY_HINT_NONE, "", 0), "set_texture_rotation", "get_texture_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "texture_rotation", PropertyHint::None, "", 0), "set_texture_rotation", "get_texture_rotation");
     ADD_GROUP("Skeleton", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Skeleton2D"), "set_skeleton", "get_skeleton");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PropertyHint::NodePathValidTypes, "Skeleton2D"), "set_skeleton", "get_skeleton");
 
     ADD_GROUP("Invert", "invert_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "invert_enable"), "set_invert", "get_invert");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "invert_border", PROPERTY_HINT_RANGE, "0.1,16384,0.1"), "set_invert_border", "get_invert_border");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "invert_border", PropertyHint::Range, "0.1,16384,0.1"), "set_invert_border", "get_invert_border");
 
     ADD_GROUP("Data", "");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "uv"), "set_uv", "get_uv");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "vertex_colors"), "set_vertex_colors", "get_vertex_colors");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons"), "set_polygons", "get_polygons");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bones", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "internal_vertex_count", PROPERTY_HINT_RANGE, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bones", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "_set_bones", "_get_bones");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "internal_vertex_count", PropertyHint::Range, "0,1000"), "set_internal_vertex_count", "get_internal_vertex_count");
 }
 
 Polygon2D::Polygon2D() {

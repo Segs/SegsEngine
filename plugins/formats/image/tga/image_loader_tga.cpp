@@ -212,8 +212,8 @@ Error ImageLoaderTGA::load_image(ImageData &tgt_image, FileAccess *f, LoadParams
 
     PoolVector<uint8_t> src_image;
     int src_image_len = f->get_len();
-	ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT)
-	ERR_FAIL_COND_V(src_image_len < (int)sizeof(tga_header_s), ERR_FILE_CORRUPT)
+	ERR_FAIL_COND_V(src_image_len == 0, ERR_FILE_CORRUPT);
+	ERR_FAIL_COND_V(src_image_len < (int)sizeof(tga_header_s), ERR_FILE_CORRUPT);
     src_image.resize(src_image_len);
 
     Error err = OK;
@@ -311,7 +311,7 @@ Error ImageLoaderTGA::load_image(ImageData &tgt_image, FileAccess *f, LoadParams
     return err;
 }
 
-void ImageLoaderTGA::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderTGA::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.emplace_back("tga");
 }

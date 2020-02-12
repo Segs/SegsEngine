@@ -83,7 +83,7 @@ void AreaBullet::dispatch_callbacks() {
 
     // Reverse order because I've to remove EXIT objects
     for (int i = overlappingObjects.size() - 1; 0 <= i; --i) {
-        OverlappingObjectData &otherObj = overlappingObjects.write[i];
+        OverlappingObjectData &otherObj = overlappingObjects[i];
 
         switch (otherObj.state) {
             case OVERLAP_STATE_ENTER:
@@ -94,7 +94,7 @@ void AreaBullet::dispatch_callbacks() {
             case OVERLAP_STATE_EXIT:
                 call_event(otherObj.object, PhysicsServer::AREA_BODY_REMOVED);
                 otherObj.object->on_exit_area(this);
-                overlappingObjects.remove(i); // Remove after callback
+                overlappingObjects.erase_at(i); // Remove after callback
                 break;
             case OVERLAP_STATE_DIRTY:
             case OVERLAP_STATE_INSIDE:
@@ -144,7 +144,7 @@ void AreaBullet::remove_overlap(CollisionObjectBullet *p_object, bool p_notify) 
             if (p_notify)
                 call_event(overlappingObjects[i].object, PhysicsServer::AREA_BODY_REMOVED);
             overlappingObjects[i].object->on_exit_area(this);
-            overlappingObjects.remove(i);
+            overlappingObjects.erase_at(i);
             break;
         }
     }
@@ -169,7 +169,7 @@ bool AreaBullet::is_monitoring() const {
 }
 
 void AreaBullet::main_shape_changed() {
-    CRASH_COND(!get_main_shape())
+    CRASH_COND(!get_main_shape());
     btGhost->setCollisionShape(get_main_shape());
 }
 
@@ -204,19 +204,19 @@ void AreaBullet::on_collision_filters_change() {
 
 void AreaBullet::add_overlap(CollisionObjectBullet *p_otherObject) {
     scratch();
-    overlappingObjects.push_back(OverlappingObjectData(p_otherObject, OVERLAP_STATE_ENTER));
+    overlappingObjects.emplace_back(p_otherObject, OVERLAP_STATE_ENTER);
     p_otherObject->notify_new_overlap(this);
 }
 
 void AreaBullet::put_overlap_as_exit(int p_index) {
     scratch();
-    overlappingObjects.write[p_index].state = OVERLAP_STATE_EXIT;
+    overlappingObjects[p_index].state = OVERLAP_STATE_EXIT;
 }
 
 void AreaBullet::put_overlap_as_inside(int p_index) {
     // This check is required to be sure this body was inside
     if (OVERLAP_STATE_DIRTY == overlappingObjects[p_index].state) {
-        overlappingObjects.write[p_index].state = OVERLAP_STATE_INSIDE;
+        overlappingObjects[p_index].state = OVERLAP_STATE_INSIDE;
     }
 }
 

@@ -79,7 +79,7 @@ Error GraphEdit::connect_node(const StringName &p_from, int p_from_port, const S
 
 bool GraphEdit::is_node_connected(const StringName &p_from, int p_from_port, const StringName &p_to, int p_to_port) {
 
-    for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
         if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port)
             return true;
@@ -90,7 +90,7 @@ bool GraphEdit::is_node_connected(const StringName &p_from, int p_from_port, con
 
 void GraphEdit::disconnect_node(const StringName &p_from, int p_from_port, const StringName &p_to, int p_to_port) {
 
-    for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
         if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port) {
 
@@ -108,7 +108,7 @@ bool GraphEdit::clips_input() const {
     return true;
 }
 
-void GraphEdit::get_connection_list(List<Connection> *r_connections) const {
+void GraphEdit::get_connection_list(ListOld<Connection> *r_connections) const {
 
     *r_connections = connections;
 }
@@ -206,6 +206,13 @@ void GraphEdit::_update_scroll() {
     else
         v_scroll->show();
 
+    Size2 hmin = h_scroll->get_combined_minimum_size();
+    Size2 vmin = v_scroll->get_combined_minimum_size();
+
+    // Avoid scrollbar overlapping.
+    h_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, v_scroll->is_visible() ? -vmin.width : 0);
+    v_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, h_scroll->is_visible() ? -hmin.height : 0);
+
     set_block_minimum_size_adjust(false);
 
     if (!awaiting_scroll_offset_update) {
@@ -219,7 +226,7 @@ void GraphEdit::_update_scroll() {
 void GraphEdit::_graph_node_raised(Node *p_gn) {
 
     GraphNode *gn = object_cast<GraphNode>(p_gn);
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
     if (gn->is_comment()) {
         move_child(gn, 0);
     } else {
@@ -242,7 +249,7 @@ void GraphEdit::_graph_node_raised(Node *p_gn) {
 void GraphEdit::_graph_node_moved(Node *p_gn) {
 
     GraphNode *gn = object_cast<GraphNode>(p_gn);
-    ERR_FAIL_COND(!gn)
+    ERR_FAIL_COND(!gn);
     top_layer->update();
     update();
     connections_layer->update();
@@ -260,7 +267,6 @@ void GraphEdit::add_child_notify(Node *p_child) {
         gn->connect("raise_request", this, "_graph_node_raised", varray(Variant(gn)));
         gn->connect("item_rect_changed", connections_layer, "update");
         _graph_node_moved(gn);
-        gn->set_mouse_filter(MOUSE_FILTER_PASS);
     }
 }
 
@@ -283,24 +289,25 @@ void GraphEdit::_notification(int p_what) {
         port_grab_distance_horizontal = get_constant("port_grab_distance_horizontal");
         port_grab_distance_vertical = get_constant("port_grab_distance_vertical");
 
-        zoom_minus->set_icon(get_icon("minus"));
-        zoom_reset->set_icon(get_icon("reset"));
-        zoom_plus->set_icon(get_icon("more"));
-        snap_button->set_icon(get_icon("snap"));
+        zoom_minus->set_button_icon(get_icon("minus"));
+        zoom_reset->set_button_icon(get_icon("reset"));
+        zoom_plus->set_button_icon(get_icon("more"));
+        snap_button->set_button_icon(get_icon("snap"));
     }
     if (p_what == NOTIFICATION_READY) {
         Size2 hmin = h_scroll->get_combined_minimum_size();
         Size2 vmin = v_scroll->get_combined_minimum_size();
 
-        v_scroll->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_END, -vmin.width);
-        v_scroll->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, 0);
-        v_scroll->set_anchor_and_margin(MARGIN_TOP, ANCHOR_BEGIN, 0);
-        v_scroll->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, 0);
 
-        h_scroll->set_anchor_and_margin(MARGIN_LEFT, ANCHOR_BEGIN, 0);
-        h_scroll->set_anchor_and_margin(MARGIN_RIGHT, ANCHOR_END, 0);
-        h_scroll->set_anchor_and_margin(MARGIN_TOP, ANCHOR_END, -hmin.height);
-        h_scroll->set_anchor_and_margin(MARGIN_BOTTOM, ANCHOR_END, 0);
+        h_scroll->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 0);
+        h_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
+        h_scroll->set_anchor_and_margin(Margin::Top, ANCHOR_END, -hmin.height);
+        h_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
+
+        v_scroll->set_anchor_and_margin(Margin::Left, ANCHOR_END, -vmin.width);
+        v_scroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
+        v_scroll->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 0);
+        v_scroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
     }
     if (p_what == NOTIFICATION_DRAW) {
 
@@ -403,7 +410,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                     if (valid_left_disconnect_types.contains(gn->get_connection_output_type(j))) {
                         //check disconnect
-                        for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+                        for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
                             if (E->deref().from == gn->get_name() && E->deref().from_port == j) {
 
@@ -450,7 +457,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                     if (right_disconnects || valid_right_disconnect_types.contains(gn->get_connection_input_type(j))) {
                         //check disconnect
-                        for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+                        for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
                             if (E->deref().to == gn->get_name() && E->deref().to_port == j) {
 
@@ -679,7 +686,7 @@ void GraphEdit::_draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const
 
     int lines = 0;
 
-    Vector<Point2> points;
+    Vector<Vector2> points;
     Vector<Color> colors;
     points.push_back(p_from);
     colors.push_back(p_color);
@@ -698,8 +705,8 @@ void GraphEdit::_connections_layer_draw() {
 
     Color activity_color = get_color("activity");
     //draw connections
-    List<List<Connection>::Element *> to_erase;
-    for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    ListOld<ListOld<Connection>::Element *> to_erase;
+    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
         NodePath fromnp(E->deref().from);
 
@@ -755,9 +762,9 @@ void GraphEdit::_top_layer_draw() {
     if (connecting) {
 
         Node *fromn = get_node((NodePath)connecting_from);
-        ERR_FAIL_COND(!fromn)
+        ERR_FAIL_COND(!fromn);
         GraphNode *from = object_cast<GraphNode>(fromn);
-        ERR_FAIL_COND(!from)
+        ERR_FAIL_COND(!from);
         Vector2 pos;
         if (connecting_out)
             pos = from->get_connection_output_position(connecting_index);
@@ -851,7 +858,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
             if (in_box)
                 gn->set_selected(box_selection_mode_aditive);
             else
-                gn->set_selected(previus_selected.find(gn) != nullptr);
+                gn->set_selected(previus_selected.contains(gn));
         }
 
         top_layer->update();
@@ -869,7 +876,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     if (!gn)
                         continue;
 
-                    gn->set_selected(previus_selected.find(gn) != nullptr);
+                    gn->set_selected(previus_selected.contains(gn));
                 }
                 top_layer->update();
             } else {
@@ -973,24 +980,26 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 if (b->get_control()) {
                     box_selection_mode_aditive = true;
                     previus_selected.clear();
+                    previus_selected.reserve(get_child_count());
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
                         GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2 || !gn2->is_selected())
                             continue;
 
-                        previus_selected.push_back(gn2);
+                        previus_selected.emplace_back(gn2);
                     }
                 } else if (b->get_shift()) {
                     box_selection_mode_aditive = false;
                     previus_selected.clear();
+                    previus_selected.reserve(get_child_count());
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 
                         GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2 || !gn2->is_selected())
                             continue;
 
-                        previus_selected.push_back(gn2);
+                        previus_selected.emplace_back(gn2);
                     }
                 } else {
                     box_selection_mode_aditive = true;
@@ -1077,7 +1086,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
 void GraphEdit::set_connection_activity(const StringName &p_from, int p_from_port, const StringName &p_to, int p_to_port, float p_activity) {
 
-    for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
         if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port) {
 
@@ -1167,10 +1176,10 @@ void GraphEdit::remove_valid_left_disconnect_type(int p_type) {
 
 Array GraphEdit::_get_connection_list() const {
 
-    List<Connection> conns;
+    ListOld<Connection> conns;
     get_connection_list(&conns);
     Array arr;
-    for (List<Connection>::Element *E = conns.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = conns.front(); E; E = E->next()) {
         Dictionary d;
         d["from"] = E->deref().from;
         d["from_port"] = E->deref().from_port;
@@ -1240,7 +1249,7 @@ int GraphEdit::get_snap() const {
 
 void GraphEdit::set_snap(int p_snap) {
 
-    ERR_FAIL_COND(p_snap < 5)
+    ERR_FAIL_COND(p_snap < 5);
     snap_amount->set_value(p_snap);
     update();
 }
@@ -1320,7 +1329,7 @@ void GraphEdit::_bind_methods() {
     ADD_SIGNAL(MethodInfo("duplicate_nodes_request"));
     ADD_SIGNAL(MethodInfo("copy_nodes_request"));
     ADD_SIGNAL(MethodInfo("paste_nodes_request"));
-    ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("delete_nodes_request"));
@@ -1339,7 +1348,6 @@ GraphEdit::GraphEdit() {
     top_layer->set_mouse_filter(MOUSE_FILTER_PASS);
     top_layer->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     top_layer->connect("draw", this, "_top_layer_draw");
-    top_layer->set_mouse_filter(MOUSE_FILTER_PASS);
     top_layer->connect("gui_input", this, "_top_layer_input");
 
     connections_layer = memnew(Control);

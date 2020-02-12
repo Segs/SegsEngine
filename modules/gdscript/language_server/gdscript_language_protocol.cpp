@@ -43,9 +43,9 @@ void GDScriptLanguageProtocol::on_data_received(int p_id) {
     Ref<WebSocketPeer> peer = server->get_peer(p_id);
     PoolByteArray data;
     if (OK == peer->get_packet_buffer(data)) {
-        se_string message((const char *)data.read().ptr(), data.size());
+        String message((const char *)data.read().ptr(), data.size());
         if (StringUtils::begins_with(message,"Content-Length:")) return;
-        se_string output = process_message(message);
+        String output = process_message(message);
         if (!output.empty()) {
             peer->put_packet((const uint8_t *)output.data(), output.length());
         }
@@ -60,8 +60,8 @@ void GDScriptLanguageProtocol::on_client_disconnected(int p_id, bool p_was_clean
     clients.erase(p_id);
 }
 
-se_string GDScriptLanguageProtocol::process_message(const se_string &p_text) {
-    se_string ret = process_string(p_text);
+String GDScriptLanguageProtocol::process_message(const String &p_text) {
+    String ret = process_string(p_text);
     if (ret.empty()) {
         return ret;
     } else {
@@ -69,9 +69,9 @@ se_string GDScriptLanguageProtocol::process_message(const se_string &p_text) {
     }
 }
 
-se_string GDScriptLanguageProtocol::format_output(se_string_view p_text) {
+String GDScriptLanguageProtocol::format_output(se_string_view p_text) {
 
-    se_string header("Content-Length: ");
+    String header("Content-Length: ");
     size_t len = p_text.length();
     header += itos(len);
     header += "\r\n\r\n";
@@ -97,8 +97,8 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
 
     lsp::InitializeResult ret;
 
-    se_string root_uri = p_params["rootUri"];
-    se_string root = p_params["rootPath"];
+    String root_uri = p_params["rootUri"];
+    String root = p_params["rootPath"];
     bool is_same_workspace;
 #ifndef WINDOWS_ENABLED
     is_same_workspace = StringUtils::to_lower(root) == StringUtils::to_lower(workspace->root);
@@ -116,7 +116,7 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
         params["path"] = workspace->root;
         Dictionary request = make_notification("gdscrip_client/changeWorkspace", params);
         if (Ref<WebSocketPeer> *peer = clients.getptr(lastest_client_id)) {
-            se_string msg = JSON::print(request);
+            String msg = JSON::print(request);
             msg = format_output(msg);
             (*peer)->put_packet((const uint8_t *)msg.data(), msg.length());
         }
@@ -153,15 +153,16 @@ void GDScriptLanguageProtocol::poll() {
     server->poll();
 }
 
-Error GDScriptLanguageProtocol::start(int p_port) {
+Error GDScriptLanguageProtocol::start(int p_port, const IP_Address &p_bind_ip) {
     if (server == nullptr) {
         server = dynamic_cast<WebSocketServer *>(ClassDB::instance("WebSocketServer"));
-        ERR_FAIL_COND_V(!server, FAILED)
+        ERR_FAIL_COND_V(!server, FAILED);
         server->set_buffers(8192, 1024, 8192, 1024); // 8mb should be way more than enough
         server->connect("data_received", this, "on_data_received");
         server->connect("client_connected", this, "on_client_connected");
         server->connect("client_disconnected", this, "on_client_disconnected");
     }
+    server->set_bind_ip(p_bind_ip);
     return server->listen(p_port);
 }
 
@@ -178,7 +179,7 @@ void GDScriptLanguageProtocol::stop() {
 void GDScriptLanguageProtocol::notify_all_clients(se_string_view p_method, const Variant &p_params) {
 
     Dictionary message = make_notification(p_method, p_params);
-    se_string msg = JSON::print(message);
+    String msg = JSON::print(message);
     msg = format_output(msg);
 
     const int *p_id = clients.next(nullptr);
@@ -196,10 +197,10 @@ void GDScriptLanguageProtocol::notify_client(se_string_view p_method, const Vari
     }
 
     Ref<WebSocketPeer> *peer = clients.getptr(p_client);
-    ERR_FAIL_COND(peer == nullptr)
+    ERR_FAIL_COND(peer == nullptr);
 
     Dictionary message = make_notification(p_method, p_params);
-    se_string msg = JSON::print(message);
+    String msg = JSON::print(message);
     msg = format_output(msg);
 
     (*peer)->put_packet((const uint8_t *)msg.data(), msg.length());

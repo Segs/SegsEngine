@@ -18,7 +18,7 @@ class RefPtr;
     bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value);
     // TODO: SEGS: consider using eastl::optional<Variant> as return type ?
     Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid);
-    void Object_add_tool_properties(ListPOD<PropertyInfo> *p_list);
+    void Object_add_tool_properties(Vector<PropertyInfo> *p_list);
     IObjectTooling * create_tooling_for(Object *self);
     void relase_tooling(IObjectTooling *);
     bool Object_script_signal_validate(RefPtr self);
@@ -33,7 +33,7 @@ class RefPtr;
     inline constexpr void Object_set_edited(Object *self,bool p_edited,bool increment_version=true) {}
     inline constexpr bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value) {return false;}
     inline constexpr Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid) { r_valid=false; return {};}
-    inline constexpr void Object_add_tool_properties(ListPOD<PropertyInfo> *) {}
+    inline constexpr void Object_add_tool_properties(List<PropertyInfo> *) {}
     inline constexpr bool Object_script_signal_validate(RefPtr self) { return false; }
     inline constexpr bool Object_allow_disconnect(ObjectNS::ConnectFlags f) { return true; }
     inline constexpr void Object_add_tooling_methods() {}
@@ -48,7 +48,7 @@ public:
 
     virtual void editor_set_section_unfold(se_string_view p_section, bool p_unfolded)=0;
     virtual bool editor_is_section_unfolded(se_string_view p_section) const = 0;
-    virtual const Set<se_string> &editor_get_section_folding() const =0;
+    virtual const Set<String> &editor_get_section_folding() const =0;
     virtual void editor_clear_section_folding()=0;
     virtual ~IObjectTooling() = default;
 private:

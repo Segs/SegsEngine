@@ -46,15 +46,14 @@ class EditorAutoloadSettings : public VBoxContainer {
         BUTTON_DELETE
     };
 
-    se_string autoload_changed;
 
     struct AutoLoadInfo {
         StringName name;
-        se_string path;
+        String path;
+        Node *node;
+        int order;
         bool is_singleton;
         bool in_editor;
-        int order;
-        Node *node;
 
         bool operator==(const AutoLoadInfo &p_info) const {
             return order == p_info.order;
@@ -67,24 +66,28 @@ class EditorAutoloadSettings : public VBoxContainer {
         }
     };
 
-    List<AutoLoadInfo> autoload_cache;
-
-    bool updating_autoload;
-    int number_of_autoloads;
-    se_string selected_autoload;
-
+    Vector<AutoLoadInfo> autoload_cache;
+    String autoload_changed;
     Tree *tree;
     EditorLineEditFileChooser *autoload_add_path;
     LineEdit *autoload_add_name;
+    Button *add_autoload;
 
-    bool _autoload_name_is_valid(const StringName &p_name, se_string *r_error = nullptr);
+    String selected_autoload;
+    int number_of_autoloads;
+    bool updating_autoload;
+
+
+    bool _autoload_name_is_valid(const StringName &p_name, String *r_error = nullptr);
 
     void _autoload_add();
     void _autoload_selected();
     void _autoload_edited();
     void _autoload_button_pressed(Object *p_item, int p_column, int p_button);
     void _autoload_activated();
-    void _autoload_text_entered(se_string_view ) { _autoload_add(); }
+    void _autoload_path_text_changed(se_string_view p_path);
+    void _autoload_text_entered(se_string_view p_name);
+    void _autoload_text_changed(se_string_view p_name);
     void _autoload_open(se_string_view path);
     void _autoload_file_callback(se_string_view p_path);
     Node *_create_autoload(se_string_view p_path);

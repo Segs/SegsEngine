@@ -200,16 +200,16 @@ private:
     Vector<StringName> arg_names;
 #endif
 
-    ListPOD<StackDebug> stack_debug;
+    List<StackDebug> stack_debug;
 
-    Variant *_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, se_string &r_error) const;
-    se_string _get_call_error(const Variant::CallError &p_err, se_string_view p_where, const Variant **argptrs) const;
+    Variant *_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, String &r_error) const;
+    String _get_call_error(const Variant::CallError &p_err, se_string_view p_where, const Variant **argptrs) const;
 
     friend class GDScriptLanguage;
 
     SelfList<GDScriptFunction> function_list;
 #ifdef DEBUG_ENABLED
-    se_string func_cname;
+    String func_cname;
     const char *_func_cname;
 
     struct Profile {
@@ -258,7 +258,7 @@ public:
     GDScript *get_script() const { return _script; }
     StringName get_source() const { return source; }
 
-    void debug_get_stack_member_state(int p_line, List<Pair<StringName, int> > *r_stackvars) const;
+    void debug_get_stack_member_state(int p_line, Vector<Pair<StringName, int> > *r_stackvars) const;
 
     bool is_empty() const { return _code_size == 0; }
 

@@ -66,7 +66,7 @@ protected:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_what);
     static void _bind_methods();
@@ -94,7 +94,7 @@ public:
     void create_debug_tangents();
 
     AABB get_aabb() const override;
-    PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     MeshInstance();
     ~MeshInstance() override;

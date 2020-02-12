@@ -110,14 +110,14 @@ private:
     mutable int pending_update;
     int uid;
 
-    ListPOD<InterpolateData> interpolates;
+    List<InterpolateData> interpolates;
 
     struct PendingCommand {
         StringName key;
         int args;
         Variant arg[10];
     };
-    PODVector<PendingCommand> pending_commands;
+    Vector<PendingCommand> pending_commands;
 
     void _add_pending_command(StringName p_key, const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant(), const Variant &p_arg6 = Variant(), const Variant &p_arg7 = Variant(), const Variant &p_arg8 = Variant(), const Variant &p_arg9 = Variant(), const Variant &p_arg10 = Variant());
     void _process_pending_commands();
@@ -142,7 +142,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _notification(int p_what);
 
     static void _bind_methods();

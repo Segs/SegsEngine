@@ -58,14 +58,14 @@ public:
         struct Category {
 
             StringName signature;
-            se_string name;
+            String name;
             float total_time; //total for category
 
             struct Item {
 
                 StringName signature;
-                se_string name;
-                se_string script;
+                String name;
+                String script;
                 int line;
                 float self;
                 float total;
@@ -136,7 +136,7 @@ private:
     void _activate_pressed();
     void _clear_pressed();
 
-    se_string _get_time_as_text(const Metric &m, float p_time, int p_calls);
+    String _get_time_as_text(const Metric &m, float p_time, int p_calls);
 
     void _make_metric_ptrs(Metric &m);
     void _item_edited();
@@ -169,7 +169,7 @@ public:
 
     void clear();
 
-    PODVector<PODVector<se_string> > get_data_as_csv() const;
+    Vector<Vector<String> > get_data_as_csv() const;
 
     EditorProfiler();
 };

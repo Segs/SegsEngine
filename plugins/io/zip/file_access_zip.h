@@ -45,22 +45,18 @@ class ZipArchive : public QObject, public PackSourceInterface {
 public:
 	struct File {
 
-		int package;
+		int package = -1;
 		unz_file_pos file_pos;
-		File() {
-
-			package = -1;
-		}
 	};
 
 private:
 	struct Package {
-        se_string filename;
+        String filename;
 		unzFile zfile;
 	};
 	Vector<Package> packages;
 
-    Map<se_string, File> files;
+    Map<String, File> files;
 
 	static ZipArchive *instance;
 
@@ -70,7 +66,7 @@ public:
 	void close_handle(unzFile p_file) const;
     unzFile get_file_handle(se_string_view p_file) const;
 
-	Error add_package(String p_name);
+	Error add_package(UIString p_name);
 
     bool file_exists(se_string_view p_name) const;
 

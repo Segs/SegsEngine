@@ -59,8 +59,8 @@ using Generate2DContactsFunc = void (*)(const Vector2 *, int, const Vector2 *, i
 _FORCE_INLINE_ static void _generate_contacts_point_point(const Vector2 *p_points_A, int p_point_count_A, const Vector2 *p_points_B, int p_point_count_B, _CollectorCallback2D *p_collector) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 1)
-    ERR_FAIL_COND(p_point_count_B != 1)
+    ERR_FAIL_COND(p_point_count_A != 1);
+    ERR_FAIL_COND(p_point_count_B != 1);
 #endif
 
     p_collector->call(*p_points_A, *p_points_B);
@@ -69,8 +69,8 @@ _FORCE_INLINE_ static void _generate_contacts_point_point(const Vector2 *p_point
 _FORCE_INLINE_ static void _generate_contacts_point_edge(const Vector2 *p_points_A, int p_point_count_A, const Vector2 *p_points_B, int p_point_count_B, _CollectorCallback2D *p_collector) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 1)
-    ERR_FAIL_COND(p_point_count_B != 2)
+    ERR_FAIL_COND(p_point_count_A != 1);
+    ERR_FAIL_COND(p_point_count_B != 2);
 #endif
 
     Vector2 closest_B = Geometry::get_closest_point_to_segment_uncapped_2d(*p_points_A, p_points_B);
@@ -87,8 +87,8 @@ struct _generate_contacts_Pair {
 _FORCE_INLINE_ static void _generate_contacts_edge_edge(const Vector2 *p_points_A, int p_point_count_A, const Vector2 *p_points_B, int p_point_count_B, _CollectorCallback2D *p_collector) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A != 2)
-    ERR_FAIL_COND(p_point_count_B != 2) // circle is actually a 4x3 matrix
+    ERR_FAIL_COND(p_point_count_A != 2);
+    ERR_FAIL_COND(p_point_count_B != 2); // circle is actually a 4x3 matrix
 #endif
 
     Vector2 n = p_collector->normal;
@@ -135,8 +135,8 @@ _FORCE_INLINE_ static void _generate_contacts_edge_edge(const Vector2 *p_points_
 static void _generate_contacts_from_supports(const Vector2 *p_points_A, int p_point_count_A, const Vector2 *p_points_B, int p_point_count_B, _CollectorCallback2D *p_collector) {
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(p_point_count_A < 1)
-    ERR_FAIL_COND(p_point_count_B < 1)
+    ERR_FAIL_COND(p_point_count_A < 1);
+    ERR_FAIL_COND(p_point_count_B < 1);
 #endif
 
     static const Generate2DContactsFunc generate_contacts_func_table[2][2] = {
@@ -176,7 +176,7 @@ static void _generate_contacts_from_supports(const Vector2 *p_points_A, int p_po
     int version_B = (pointcount_B > 2 ? 2 : pointcount_B) - 1;
 
     Generate2DContactsFunc contacts_func = generate_contacts_func_table[version_A][version_B];
-    ERR_FAIL_COND(!contacts_func)
+    ERR_FAIL_COND(!contacts_func);
     contacts_func(points_A, pointcount_A, points_B, pointcount_B, p_collector);
 }
 
@@ -1044,15 +1044,15 @@ bool sat_2d_calculate_penetration(const Shape2DSW *p_shape_A, const Transform2D 
 
     Physics2DServer::ShapeType type_A = p_shape_A->get_type();
 
-    ERR_FAIL_COND_V(type_A == Physics2DServer::SHAPE_LINE, false)
-    //ERR_FAIL_COND_V(type_A==Physics2DServer::SHAPE_RAY,false)
-    ERR_FAIL_COND_V(p_shape_A->is_concave(), false)
+    ERR_FAIL_COND_V(type_A == Physics2DServer::SHAPE_LINE, false);
+    //ERR_FAIL_COND_V(type_A==Physics2DServer::SHAPE_RAY,false);
+    ERR_FAIL_COND_V(p_shape_A->is_concave(), false);
 
     Physics2DServer::ShapeType type_B = p_shape_B->get_type();
 
-    ERR_FAIL_COND_V(type_B == Physics2DServer::SHAPE_LINE, false)
-    //ERR_FAIL_COND_V(type_B==Physics2DServer::SHAPE_RAY,false)
-    ERR_FAIL_COND_V(p_shape_B->is_concave(), false)
+    ERR_FAIL_COND_V(type_B == Physics2DServer::SHAPE_LINE, false);
+    //ERR_FAIL_COND_V(type_B==Physics2DServer::SHAPE_RAY,false);
+    ERR_FAIL_COND_V(p_shape_B->is_concave(), false);
 
     static const Collision2DFunc collision_table[5][5] = {
         { _collision_segment_segment<false, false, false>,
@@ -1335,7 +1335,7 @@ bool sat_2d_calculate_penetration(const Shape2DSW *p_shape_A, const Transform2D 
         }
     }
 
-    ERR_FAIL_COND_V(!collision_func, false)
+    ERR_FAIL_COND_V(!collision_func, false);
 
     collision_func(A, *transform_A, B, *transform_B, &callback, *motion_A, *motion_B, margin_A, margin_B);
 

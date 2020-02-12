@@ -57,7 +57,7 @@ VARIANT_ENUM_CAST(HTTPClient::Status);
 IMPL_GDCLASS(HTTPClient)
 
 #ifndef JAVASCRIPT_ENABLED
-Error HTTPClient::connect_to_host(const se_string &p_host, int p_port, bool p_ssl, bool p_verify_host) {
+Error HTTPClient::connect_to_host(const String &p_host, int p_port, bool p_ssl, bool p_verify_host) {
 
     close();
 
@@ -67,7 +67,7 @@ Error HTTPClient::connect_to_host(const se_string &p_host, int p_port, bool p_ss
     ssl = p_ssl;
     ssl_verify_host = p_verify_host;
 
-    se_string host_lower = StringUtils::to_lower(conn_host);
+    String host_lower = StringUtils::to_lower(conn_host);
     if (StringUtils::begins_with(host_lower,"http://")) {
 
         conn_host = StringUtils::substr(conn_host,7, conn_host.length() - 7);
@@ -77,7 +77,7 @@ Error HTTPClient::connect_to_host(const se_string &p_host, int p_port, bool p_ss
         conn_host = StringUtils::substr(conn_host,8, conn_host.length() - 8);
     }
 
-    ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(conn_host.length() < HOST_MIN_LEN, ERR_INVALID_PARAMETER);
 
     if (conn_port < 0) {
         if (ssl) {
@@ -120,14 +120,14 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
     return connection;
 }
 
-Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVector<se_string> &p_headers, const PoolVector<uint8_t> &p_body) {
+Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA);
 
-    se_string request = se_string(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
+    String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
         // Don't append the standard ports
         request += "Host: " + (conn_host) + "\r\n";
@@ -137,15 +137,15 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
     bool add_clen = p_body.size() > 0;
     bool add_uagent = true;
     bool add_accept = true;
-    for (int i = 0; i < p_headers.size(); i++) {
-        request += p_headers[i] + "\r\n";
-        if (add_clen && StringUtils::findn(p_headers[i],("Content-Length:")) == 0) {
+    for (const String &hdr : p_headers) {
+        request += hdr + "\r\n";
+        if (add_clen && StringUtils::findn(hdr,"Content-Length:") == 0) {
             add_clen = false;
         }
-        if (add_uagent && StringUtils::findn(p_headers[i],("User-Agent:")) == 0) {
+        if (add_uagent && StringUtils::findn(hdr,"User-Agent:") == 0) {
             add_uagent = false;
         }
-        if (add_accept && StringUtils::findn(p_headers[i],("Accept:")) == 0) {
+        if (add_accept && StringUtils::findn(hdr,"Accept:") == 0) {
             add_accept = false;
         }
     }
@@ -154,20 +154,22 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
         // Should it add utf8 encoding?
     }
     if (add_uagent) {
-        request += "User-Agent: GodotEngine/" + se_string(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
+        request += "User-Agent: GodotEngine/" + String(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
     }
     if (add_accept) {
         request += ("Accept: */*\r\n");
     }
     request += ("\r\n");
-    PoolVector<uint8_t> data;
+
+    //TODO: SEGS: why on earth are there allocations made here, when it could just call connection->put_data a few times?
+    Vector<uint8_t> data;
+    data.reserve(request.length()+p_body.size());
     data.resize(request.length());
-    memcpy(data.write().ptr(),request.data(),request.size());
+    memcpy(data.data(),request.data(),request.size());
 
-    data.append_array(p_body);
+    data.push_back(p_body);
 
-    PoolVector<uint8_t>::Read r = data.read();
-    Error err = connection->put_data(&r[0], data.size());
+    Error err = connection->put_data(&data[0], data.size());
 
     if (err) {
         close();
@@ -181,14 +183,14 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
     return OK;
 }
 
-Error HTTPClient::request(Method p_method, se_string_view p_url, const PODVector<se_string> &p_headers, const se_string &p_body) {
+Error HTTPClient::request(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const String &p_body) {
 
-    ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA)
+    ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(status != STATUS_CONNECTED, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not connection, ERR_INVALID_DATA);
 
-    se_string request = se_string(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
+    String request = String(_methods[p_method]) + " " + p_url + " HTTP/1.1\r\n";
     if ((ssl && conn_port == PORT_HTTPS) || (!ssl && conn_port == PORT_HTTP)) {
         // Don't append the standard ports
         request += "Host: " + conn_host + "\r\n";
@@ -198,15 +200,15 @@ Error HTTPClient::request(Method p_method, se_string_view p_url, const PODVector
     bool add_uagent = true;
     bool add_accept = true;
     bool add_clen = p_body.length() > 0;
-    for (int i = 0; i < p_headers.size(); i++) {
-        request += p_headers[i] + "\r\n";
-        if (add_clen && StringUtils::findn(p_headers[i],("Content-Length:")) == 0) {
+    for (const String &hdr : p_headers) {
+        request += hdr + "\r\n";
+        if (add_clen && StringUtils::findn(hdr,("Content-Length:")) == 0) {
             add_clen = false;
         }
-        if (add_uagent && StringUtils::findn(p_headers[i],("User-Agent:")) == 0) {
+        if (add_uagent && StringUtils::findn(hdr,("User-Agent:")) == 0) {
             add_uagent = false;
         }
-        if (add_accept && StringUtils::findn(p_headers[i],("Accept:")) == 0) {
+        if (add_accept && StringUtils::findn(hdr,("Accept:")) == 0) {
             add_accept = false;
         }
     }
@@ -215,7 +217,7 @@ Error HTTPClient::request(Method p_method, se_string_view p_url, const PODVector
         // Should it add utf8 encoding?
     }
     if (add_uagent) {
-        request += "User-Agent: GodotEngine/" + se_string(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
+        request += "User-Agent: GodotEngine/" + String(VERSION_FULL_BUILD) + " (" + OS::get_singleton()->get_name() + ")\r\n";
     }
     if (add_accept) {
         request += ("Accept: */*\r\n");
@@ -251,14 +253,14 @@ int HTTPClient::get_response_code() const {
     return response_num;
 }
 
-Error HTTPClient::get_response_headers(List<se_string> *r_response) {
+Error HTTPClient::get_response_headers(List<String> *r_response) {
 
     if (response_headers.empty())
         return ERR_INVALID_PARAMETER;
 
-    for (int i = 0; i < response_headers.size(); i++) {
+    for (const String & rhdr : response_headers) {
 
-        r_response->push_back(response_headers[i]);
+        r_response->emplace_back(rhdr);
     }
 
     response_headers.clear();
@@ -296,7 +298,7 @@ Error HTTPClient::poll() {
     switch (status) {
 
         case STATUS_RESOLVING: {
-            ERR_FAIL_COND_V(resolving == IP::RESOLVER_INVALID_ID, ERR_BUG)
+            ERR_FAIL_COND_V(resolving == IP::RESOLVER_INVALID_ID, ERR_BUG);
 
             IP::ResolverStatus rstatus = IP::get_singleton()->get_resolve_item_status(resolving);
             switch (rstatus) {
@@ -428,8 +430,8 @@ Error HTTPClient::poll() {
 
                     // End of response, parse.
                     response_str.push_back(0);
-                    se_string response((const char *)response_str.data(),response_str.size());
-                    PODVector<se_string_view> responses = StringUtils::split(response,'\n');
+                    String response((const char *)response_str.data(),response_str.size());
+                    Vector<se_string_view> responses = StringUtils::split(response,'\n');
                     body_size = -1;
                     chunked = false;
                     body_left = 0;
@@ -448,7 +450,7 @@ Error HTTPClient::poll() {
                     for (int i = 0; i < responses.size(); i++) {
 
                         se_string_view header =StringUtils::strip_edges( responses[i]);
-                        se_string s = StringUtils::to_lower(header);
+                        String s = StringUtils::to_lower(header);
                         if (s.empty())
                             continue;
                         if (StringUtils::begins_with(s,"content-length:")) {
@@ -470,7 +472,7 @@ Error HTTPClient::poll() {
                             response_num = StringUtils::to_int(num);
                         } else {
 
-                            response_headers.push_back(se_string(header));
+                            response_headers.push_back(String(header));
                         }
                     }
                     // This is a HEAD request, we wont receive anything.
@@ -518,7 +520,7 @@ int HTTPClient::get_response_body_length() const {
 
 PoolByteArray HTTPClient::read_response_body_chunk() {
 
-    ERR_FAIL_COND_V(status != STATUS_BODY, PoolByteArray())
+    ERR_FAIL_COND_V(status != STATUS_BODY, PoolByteArray());
 
     PoolByteArray ret;
     Error err = OK;
@@ -719,7 +721,7 @@ Error HTTPClient::_get_http_data(uint8_t *p_buffer, int p_bytes, int &r_received
 }
 
 void HTTPClient::set_read_chunk_size(int p_size) {
-    ERR_FAIL_COND(p_size < 256 || p_size > (1 << 24))
+    ERR_FAIL_COND(p_size < 256 || p_size > (1 << 24));
     read_chunk_size = p_size;
 }
 int HTTPClient::get_read_chunk_size() const {
@@ -750,18 +752,18 @@ HTTPClient::~HTTPClient() = default;
 
 #endif // #ifndef JAVASCRIPT_ENABLED
 
-se_string HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
-    se_string query;
+String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
+    String query;
     Array keys = p_dict.keys();
     for (int i = 0; i < keys.size(); ++i) {
-        se_string encoded_key = StringUtils::http_escape(keys[i].as<se_string>());
+        String encoded_key = StringUtils::http_escape(keys[i].as<String>());
         Variant value = p_dict[keys[i]];
         switch (value.get_type()) {
             case VariantType::ARRAY: {
                 // Repeat the key with every values
                 Array values = value;
                 for (int j = 0; j < values.size(); ++j) {
-                    query += "&" + encoded_key + "=" + StringUtils::http_escape(values[j].as<se_string>());
+                    query += "&" + encoded_key + "=" + StringUtils::http_escape(values[j].as<String>());
                 }
                 break;
             }
@@ -772,7 +774,7 @@ se_string HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
             }
             default: {
                 // Add the key-value pair
-                query += "&" + encoded_key + "=" + StringUtils::http_escape(value.as<se_string>());
+                query += "&" + encoded_key + "=" + StringUtils::http_escape(value.as<String>());
             }
         }
     }
@@ -780,15 +782,14 @@ se_string HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
     return query;
 }
 
-Dictionary HTTPClient::_get_response_headers_as_dictionary() {
+Dictionary HTTPClient::get_response_headers_as_dictionary() {
 
-    List<se_string> rh;
+    List<String> rh;
     get_response_headers(&rh);
     Dictionary ret;
-    for (const List<se_string>::Element *E = rh.front(); E; E = E->next()) {
-        const se_string &s = E->deref();
+    for (const String &s : rh) {
         size_t sp = StringUtils::find(s,":");
-        if (sp == se_string::npos)
+        if (sp == String::npos)
             continue;
         se_string_view key = StringUtils::strip_edges(StringUtils::substr(s,0, sp));
         se_string_view value = StringUtils::strip_edges(StringUtils::substr(s,sp + 1, s.length()));
@@ -798,17 +799,19 @@ Dictionary HTTPClient::_get_response_headers_as_dictionary() {
     return ret;
 }
 
-PoolVector<se_string> HTTPClient::_get_response_headers() {
+Vector<String> HTTPClient::_get_response_headers() {
 
-    List<se_string> rh;
-    get_response_headers(&rh);
-    PoolVector<se_string> ret;
-    ret.resize(rh.size());
-    int idx = 0;
-    for (const List<se_string>::Element *E = rh.front(); E; E = E->next()) {
-        ret.set(idx++, E->deref());
+    List<String> response_headers;
+    get_response_headers(&response_headers);
+
+    Vector<String> ret;
+    ret.resize(response_headers.size());
+    {
+        int idx = 0;
+        for (const String &s : response_headers) {
+            ret[idx++] = s;
+        }
     }
-
     return ret;
 }
 
@@ -818,14 +821,14 @@ void HTTPClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_connection", {"connection"}), &HTTPClient::set_connection);
     MethodBinder::bind_method(D_METHOD("get_connection"), &HTTPClient::get_connection);
     MethodBinder::bind_method(D_METHOD("request_raw", {"method", "url", "headers", "body"}), &HTTPClient::request_raw);
-    MethodBinder::bind_method(D_METHOD("request", {"method", "url", "headers", "body"}), &HTTPClient::request, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("request", {"method", "url", "headers", "body"}), &HTTPClient::request, {DEFVAL(String())});
     MethodBinder::bind_method(D_METHOD("close"), &HTTPClient::close);
 
     MethodBinder::bind_method(D_METHOD("has_response"), &HTTPClient::has_response);
     MethodBinder::bind_method(D_METHOD("is_response_chunked"), &HTTPClient::is_response_chunked);
     MethodBinder::bind_method(D_METHOD("get_response_code"), &HTTPClient::get_response_code);
     MethodBinder::bind_method(D_METHOD("get_response_headers"), &HTTPClient::_get_response_headers);
-    MethodBinder::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::_get_response_headers_as_dictionary);
+    MethodBinder::bind_method(D_METHOD("get_response_headers_as_dictionary"), &HTTPClient::get_response_headers_as_dictionary);
     MethodBinder::bind_method(D_METHOD("get_response_body_length"), &HTTPClient::get_response_body_length);
     MethodBinder::bind_method(D_METHOD("read_response_body_chunk"), &HTTPClient::read_response_body_chunk);
     MethodBinder::bind_method(D_METHOD("set_read_chunk_size", {"bytes"}), &HTTPClient::set_read_chunk_size);
@@ -840,8 +843,8 @@ void HTTPClient::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("query_string_from_dict", {"fields"}), &HTTPClient::query_string_from_dict);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "blocking_mode_enabled"), "set_blocking_mode", "is_blocking_mode_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "connection", PROPERTY_HINT_RESOURCE_TYPE, "StreamPeer", 0), "set_connection", "get_connection");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "read_chunk_size", PROPERTY_HINT_RANGE, "256,16777216"), "set_read_chunk_size", "get_read_chunk_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "connection", PropertyHint::ResourceType, "StreamPeer", 0), "set_connection", "get_connection");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "read_chunk_size", PropertyHint::Range, "256,16777216"), "set_read_chunk_size", "get_read_chunk_size");
 
     BIND_ENUM_CONSTANT(METHOD_GET)
     BIND_ENUM_CONSTANT(METHOD_HEAD)

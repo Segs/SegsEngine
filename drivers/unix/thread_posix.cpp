@@ -109,8 +109,8 @@ Thread::ID ThreadPosix::get_thread_id_func_posix() {
 void ThreadPosix::wait_to_finish_func_posix(Thread *p_thread) {
 
     ThreadPosix *tp = static_cast<ThreadPosix *>(p_thread);
-    ERR_FAIL_COND(!tp)
-    ERR_FAIL_COND(tp->pthread == 0)
+    ERR_FAIL_COND(!tp);
+    ERR_FAIL_COND(tp->pthread == 0);
 
     pthread_join(tp->pthread, nullptr);
     tp->pthread = 0;
@@ -126,16 +126,16 @@ Error ThreadPosix::set_name_func_posix(se_string_view p_name) {
 #ifdef PTHREAD_RENAME_SELF
 
     // check if thread is the same as caller
-    int err = pthread_setname_np(se_string(p_name).c_str());
+    int err = pthread_setname_np(String(p_name).c_str());
 
 #else
 
     pthread_t running_thread = pthread_self();
 #ifdef PTHREAD_BSD_SET_NAME
-    pthread_set_name_np(running_thread, se_string(p_name).c_str());
+    pthread_set_name_np(running_thread, String(p_name).c_str());
     int err = 0; // Open/FreeBSD ignore errors in this function
 #else
-    int err = pthread_setname_np(running_thread, se_string(p_name).c_str());
+    int err = pthread_setname_np(running_thread, String(p_name).c_str());
 #endif // PTHREAD_BSD_SET_NAME
 
 #endif // PTHREAD_RENAME_SELF

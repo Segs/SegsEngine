@@ -34,7 +34,7 @@
 
 BroadPhaseSW::ID BroadPhaseBasic::create(CollisionObjectSW *p_object, int p_subindex) {
 
-    ERR_FAIL_COND_V(p_object == nullptr, 0)
+    ERR_FAIL_COND_V(p_object == nullptr, 0);
 
     current++;
 
@@ -50,20 +50,20 @@ BroadPhaseSW::ID BroadPhaseBasic::create(CollisionObjectSW *p_object, int p_subi
 void BroadPhaseBasic::move(ID p_id, const AABB &p_aabb) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     E->second.aabb = p_aabb;
 }
 void BroadPhaseBasic::set_static(ID p_id, bool p_static) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
     E->second._static = p_static;
 }
 void BroadPhaseBasic::remove(ID p_id) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
-    List<PairKey> to_erase;
+    ERR_FAIL_COND(E==element_map.end());
+    Vector<PairKey> to_erase;
     //unpair must be done immediately on removal to avoid potential invalid pointers
     for (eastl::pair<const PairKey,void *> &F : pair_map) {
 
@@ -77,10 +77,8 @@ void BroadPhaseBasic::remove(ID p_id) {
             to_erase.push_back(F.first);
         }
     }
-    while (!to_erase.empty()) {
-
-        pair_map.erase(to_erase.front()->deref());
-        to_erase.pop_front();
+    for(const auto & te: to_erase) {
+        pair_map.erase(te);
     }
     element_map.erase(E);
 }
@@ -88,18 +86,18 @@ void BroadPhaseBasic::remove(ID p_id) {
 CollisionObjectSW *BroadPhaseBasic::get_object(ID p_id) const {
 
     const Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), nullptr)
+    ERR_FAIL_COND_V(E==element_map.end(), nullptr);
     return E->second.owner;
 }
 bool BroadPhaseBasic::is_static(ID p_id) const {
 
     const Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), false)
+    ERR_FAIL_COND_V(E==element_map.end(), false);
     return E->second._static;
 }
 int BroadPhaseBasic::get_subindex(ID p_id) const {
     const Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), -1)
+    ERR_FAIL_COND_V(E==element_map.end(), -1);
     return E->second.subindex;
 }
 

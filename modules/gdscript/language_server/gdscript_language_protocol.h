@@ -59,8 +59,8 @@ class GDScriptLanguageProtocol : public JSONRPC {
     void on_client_connected(int p_id, se_string_view p_protocal);
     void on_client_disconnected(int p_id, bool p_was_clean_close);
 
-    se_string process_message(const se_string &p_text);
-    se_string format_output(se_string_view p_text);
+    String process_message(const String &p_text);
+    String format_output(se_string_view p_text);
 
     bool _initialized;
 
@@ -77,7 +77,7 @@ public:
     bool is_initialized() const { return _initialized; }
 
     void poll();
-    Error start(int p_port);
+    Error start(int p_port, const IP_Address &p_bind_ip);
     void stop();
 
     void notify_all_clients(se_string_view p_method, const Variant &p_params = Variant());

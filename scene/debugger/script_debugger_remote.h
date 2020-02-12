@@ -45,7 +45,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     struct Message {
 
-        se_string message;
+        String message;
         Array data;
     };
 
@@ -85,20 +85,20 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         int min;
         int sec;
         int msec;
-        se_string source_file;
-        se_string source_func;
+        String source_file;
+        String source_func;
         int source_line;
-        se_string error;
-        se_string error_descr;
+        String error;
+        String error_descr;
         bool warning;
         Array callstack;
     };
 
-    ListPOD<se_string> output_strings;
-    ListPOD<Message> messages;
+    List<String> output_strings;
+    List<Message> messages;
     int max_messages_per_frame;
     int n_messages_dropped;
-    ListPOD<OutputError> errors;
+    List<OutputError> errors;
     int max_errors_per_second;
     int max_warnings_per_second;
     int n_errors_dropped;
@@ -112,7 +112,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     uint64_t msec_count;
 
     bool locking; //hack to avoid a deadloop
-    static void _print_handler(void *p_this, const se_string &p_string, bool p_error);
+    static void _print_handler(void *p_this, const String &p_string, bool p_error);
 
     PrintHandlerList phl;
 
@@ -124,7 +124,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     bool _parse_live_edit(const Array &p_command);
 
-    void _set_object_property(ObjectID p_id, const se_string &p_property, const Variant &p_value);
+    void _set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value);
 
     void _send_object_id(ObjectID p_id);
     void _send_video_memory();
@@ -154,15 +154,15 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 public:
     struct ResourceUsage {
 
-        se_string path;
-        se_string format;
-        se_string type;
+        String path;
+        String format;
+        String type;
         RID id;
         int vram;
         bool operator<(const ResourceUsage &p_img) const { return vram == p_img.vram ? id < p_img.id : vram > p_img.vram; }
     };
 
-    using ResourceUsageFunc = void (*)(ListPOD<ResourceUsage> *);
+    using ResourceUsageFunc = void (*)(List<ResourceUsage> *);
 
     static ResourceUsageFunc resource_usage_func;
 
@@ -174,8 +174,8 @@ public:
     bool is_remote() const override { return true; }
     void request_quit() override;
 
-    void send_message(const se_string &p_message, const Array &p_args) override;
-    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) override;
+    void send_message(const String &p_message, const Array &p_args) override;
+    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
     void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) override;
 

@@ -48,7 +48,7 @@ class GODOT_EXPORT NodePath {
 
 public:
     StringName get_sname() const;
-    se_string asString() const;
+    String asString() const;
 
     bool is_absolute() const;
     int get_name_count() const;
@@ -75,7 +75,7 @@ public:
         return hash_cache;
     }
 
-    explicit operator se_string() const;
+    explicit operator String() const;
 
     bool is_empty() const; //!< this function only checks if `data` is set/allocated
     bool empty() const noexcept;
@@ -89,6 +89,7 @@ public:
 
     NodePath(const Vector<StringName> &p_path, bool p_absolute);
     NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
+    NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute);
     NodePath(const NodePath &p_path);
     NodePath(NodePath &&p_path) noexcept : data(p_path.data),hash_cache_valid(p_path.hash_cache_valid),hash_cache(p_path.hash_cache) {
         p_path.data = nullptr;

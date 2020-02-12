@@ -46,12 +46,12 @@ Size2 SpinBox::get_minimum_size() const {
 
 void SpinBox::_value_changed(double) {
 
-    se_string value(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
+    String value(StringUtils::num(get_value(), Math::range_step_decimals(get_step())));
     if (!prefix.empty())
         value = prefix + " " + value;
     if (!suffix.empty())
         value += " " + suffix;
-    line_edit->set_text_utf8(value);
+    line_edit->set_text(value);
 }
 
 void SpinBox::_text_entered(se_string_view p_string) {
@@ -189,7 +189,7 @@ inline void SpinBox::_adjust_width_for_icon(const Ref<Texture> &icon) {
 
     int w = icon->get_width();
     if (w != last_w) {
-        line_edit->set_margin(MARGIN_RIGHT, -w);
+        line_edit->set_margin(Margin::Right, -w);
         last_w = w;
     }
 }
@@ -231,13 +231,13 @@ LineEdit::Align SpinBox::get_align() const {
     return line_edit->get_align();
 }
 
-void SpinBox::set_suffix(se_string p_suffix) {
+void SpinBox::set_suffix(String p_suffix) {
 
     suffix = p_suffix;
     _value_changed(0);
 }
 
-se_string SpinBox::get_suffix() const {
+String SpinBox::get_suffix() const {
 
     return suffix;
 }
@@ -248,7 +248,7 @@ void SpinBox::set_prefix(se_string_view p_prefix) {
     _value_changed(0);
 }
 
-se_string SpinBox::get_prefix() const {
+String SpinBox::get_prefix() const {
 
     return prefix;
 }
@@ -283,7 +283,7 @@ void SpinBox::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_line_edit_input"), &SpinBox::_line_edit_input);
     MethodBinder::bind_method(D_METHOD("_range_click_timeout"), &SpinBox::_range_click_timeout);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "prefix"), "set_prefix", "get_prefix");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "suffix"), "set_suffix", "get_suffix");

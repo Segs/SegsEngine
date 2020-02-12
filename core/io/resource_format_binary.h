@@ -41,23 +41,23 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
     friend class ResourceFormatLoaderBinary;
 
     struct ExtResource {
-        se_string path;
-        se_string type;
+        String path;
+        String type;
     };
     struct IntResource {
-        se_string path;
+        String path;
         uint64_t offset;
     };
 
-    Map<se_string, se_string> remaps;
-    PODVector<char> str_buf;
-    PODVector<StringName> string_map;
-    PODVector<IntResource> internal_resources;
-    PODVector<ExtResource> external_resources;
-    ListPOD<RES> resource_cache;
-    se_string local_path;
-    se_string res_path;
-    se_string type;
+    Map<String, String> remaps;
+    Vector<char> str_buf;
+    Vector<StringName> string_map;
+    Vector<IntResource> internal_resources;
+    Vector<ExtResource> external_resources;
+    List<RES> resource_cache;
+    String local_path;
+    String res_path;
+    String type;
     Ref<Resource> resource;
     uint32_t ver_format;
     FileAccess *f=nullptr;
@@ -67,7 +67,7 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
     bool translation_remapped = false;
 
     StringName _get_string();
-    se_string get_unicode_string();
+    String get_unicode_string();
     void _advance_padding(uint32_t p_len);
 
     Error parse_variant(Variant &r_v);
@@ -80,10 +80,10 @@ public:
     int get_stage_count() const override;
     void set_translation_remapped(bool p_remapped) override;
 
-    void set_remaps(const Map<se_string, se_string> &p_remaps) { remaps = p_remaps; }
+    void set_remaps(const Map<String, String> &p_remaps) { remaps = p_remaps; }
     void open(FileAccess *p_f);
-    se_string recognize(FileAccess *p_f);
-    void get_dependencies(FileAccess *p_f, PODVector<se_string> &p_dependencies, bool p_add_types);
+    String recognize(FileAccess *p_f);
+    void get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types);
 
     ResourceInteractiveLoaderBinary() = default;
     ~ResourceInteractiveLoaderBinary() override;
@@ -92,18 +92,18 @@ public:
 class ResourceFormatLoaderBinary : public ResourceFormatLoader {
 public:
     Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
-    void get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions) const override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
-    bool handles_type(se_string_view p_type) const override;
-    se_string get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false) override;
-    Error rename_dependencies(se_string_view p_path, const Map<se_string, se_string> &p_map) override;
+    void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
+    bool handles_type(se_string_view /*p_type*/) const override;
+    String get_resource_type(se_string_view p_path) const override;
+    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
+    Error rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) override;
 };
 
 class ResourceFormatSaverBinaryInstance {
 
-    se_string local_path;
-    se_string path;
+    String local_path;
+    String path;
 
     bool relative_paths;
     bool bundle_resources;
@@ -111,7 +111,7 @@ class ResourceFormatSaverBinaryInstance {
     bool big_endian;
     bool takeover_paths;
     FileAccess *f;
-    se_string magic;
+    String magic;
     Set<RES> resource_set;
 
     struct NonPersistentKey { //for resource properties generated on the fly
@@ -122,10 +122,10 @@ class ResourceFormatSaverBinaryInstance {
 
     Map<NonPersistentKey, RES> non_persistent_map;
     Map<StringName, int> string_map;
-    PODVector<StringName> strings;
+    Vector<StringName> strings;
 
     Map<RES, int> external_resources;
-    ListPOD<RES> saved_resources;
+    List<RES> saved_resources;
 
     static void _pad_buffer(FileAccess *f, int p_bytes);
     void _write_variant(const Variant &p_property);
@@ -143,7 +143,7 @@ public:
     static ResourceFormatSaverBinary *singleton;
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
 
     ResourceFormatSaverBinary();
 };

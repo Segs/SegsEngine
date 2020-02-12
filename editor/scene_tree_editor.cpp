@@ -50,7 +50,7 @@ IMPL_GDCLASS(SceneTreeDialog)
 
 Node *SceneTreeEditor::get_scene_node() {
 
-    ERR_FAIL_COND_V(!is_inside_tree(), nullptr)
+    ERR_FAIL_COND_V(!is_inside_tree(), nullptr);
 
     return get_tree()->get_edited_scene_root();
 }
@@ -62,12 +62,12 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     }
 
     TreeItem *item = object_cast<TreeItem>(p_item);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     NodePath np = item->get_metadata(0);
 
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
 
     if (p_id == BUTTON_SUBSCENE) {
         if (n == get_scene_node()) {
@@ -86,11 +86,10 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     } else if (p_id == BUTTON_VISIBILITY) {
         undo_redo->create_action_ui(TTR("Toggle Visible"));
         _toggle_visible(n);
-        List<Node *> selection = editor_selection->get_selected_node_list();
+        const Vector<Node *> &selection = editor_selection->get_selected_node_list();
         if (selection.size() > 1 && selection.find(n) != nullptr) {
-            for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-                Node *nv = E->deref();
-                ERR_FAIL_COND(!nv)
+            for (Node * nv : selection) {
+                ERR_FAIL_COND(!nv);
                 if (nv == n) {
                     continue;
                 }
@@ -133,7 +132,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         undo_redo->commit_action();
     } else if (p_id == BUTTON_WARNING) {
 
-        String config_err(n->get_configuration_warning());
+        UIString config_err(n->get_configuration_warning());
         if (config_err.isEmpty())
             return;
         config_err = StringUtils::word_wrap(config_err,80);
@@ -230,7 +229,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         }
 
         if (marked.contains(p_node)) {
-            se_string node_name(p_node->get_name());
+            String node_name(p_node->get_name());
             if (connecting_signal) {
                 node_name += " " + TTR("(Connecting From)");
             }
@@ -244,7 +243,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         }
     } else if (marked.contains(p_node)) {
 
-        se_string node_name(p_node->get_name());
+        String node_name(p_node->get_name());
         if (connecting_signal) {
             node_name += " " + TTR("(Connecting From)");
         }
@@ -300,7 +299,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
 
     if (p_node == get_scene_node() && p_node->get_scene_inherited_state()) {
         item->add_button(0, get_icon("InstanceOptions", "EditorIcons"), BUTTON_SUBSCENE, false, TTR("Open in Editor"));
-        se_string tooltip(TTR("Inherits:") + " " + p_node->get_scene_inherited_state()->get_path() + "\n" + TTR("Type:") + " " + p_node->get_class());
+        String tooltip(TTR("Inherits:") + " " + p_node->get_scene_inherited_state()->get_path() + "\n" + TTR("Type:") + " " + p_node->get_class());
         if (!p_node->get_editor_description().empty()) {
             tooltip += "\n\n" + p_node->get_editor_description();
         }
@@ -309,7 +308,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
     } else if (p_node != get_scene_node() && !p_node->get_filename().empty() && can_open_instance) {
         item->add_button(0, get_icon("InstanceOptions", "EditorIcons"), BUTTON_SUBSCENE, false, TTR("Open in Editor"));
 
-        se_string tooltip(TTR("Instance:") + " " + p_node->get_filename() + "\n" + TTR("Type:") + " " + p_node->get_class());
+        String tooltip(TTR("Instance:") + " " + p_node->get_filename() + "\n" + TTR("Type:") + " " + p_node->get_class());
         if (!p_node->get_editor_description().empty()) {
             tooltip += "\n\n" + p_node->get_editor_description();
         }
@@ -321,7 +320,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             type = p_node->get_class_name();
         }
 
-        se_string tooltip(TTR("Type:") + " " + type);
+        String tooltip(TTR("Type:") + " " + type);
         if (!p_node->get_editor_description().empty()) {
             tooltip += "\n\n" + p_node->get_editor_description();
         }
@@ -405,7 +404,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         item->set_as_cursor(0);
     }
 
-    bool keep = StringUtils::is_subsequence_of(filter,String(p_node->get_name()),StringUtils::CaseInsensitive);
+    bool keep = StringUtils::is_subsequence_of(filter,UIString(p_node->get_name()),StringUtils::CaseInsensitive);
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
@@ -458,7 +457,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
     }
 
     int idx = item->get_button_by_id(0, BUTTON_VISIBILITY);
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
 
     bool visible = false;
 
@@ -610,7 +609,7 @@ void SceneTreeEditor::_tree_changed() {
 void SceneTreeEditor::_selected_changed() {
 
     TreeItem *s = tree->get_selected();
-    ERR_FAIL_COND(!s)
+    ERR_FAIL_COND(!s);
     NodePath np = s->get_metadata(0);
 
     Node *n = get_node(np);
@@ -637,7 +636,7 @@ void SceneTreeEditor::_deselect_items() {
 void SceneTreeEditor::_cell_multi_selected(Object *p_object, int p_cell, bool p_selected) {
 
     TreeItem *item = object_cast<TreeItem>(p_object);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     NodePath np = item->get_metadata(0);
 
@@ -710,7 +709,7 @@ TreeItem *SceneTreeEditor::_find(TreeItem *p_node, const NodePath &p_path) {
 
 void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 
-    ERR_FAIL_COND(blocked > 0)
+    ERR_FAIL_COND(blocked > 0);
 
     if (pending_test_update)
         _test_update_tree();
@@ -749,11 +748,11 @@ void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 void SceneTreeEditor::_rename_node(ObjectID p_node, se_string_view p_name) {
 
     Object *o = ObjectDB::get_instance(p_node);
-    ERR_FAIL_COND(!o)
+    ERR_FAIL_COND(!o);
     Node *n = object_cast<Node>(o);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
     TreeItem *item = _find(tree->get_root(), n->get_path());
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     n->set_name(p_name);
     item->set_metadata(0, n->get_path());
@@ -764,10 +763,10 @@ void SceneTreeEditor::_renamed() {
 
     TreeItem *which = tree->get_edited();
 
-    ERR_FAIL_COND(!which)
+    ERR_FAIL_COND(!which);
     NodePath np = which->get_metadata(0);
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
 
     // Empty node names are not allowed, so resets it to previous text and show warning
     if (StringUtils::strip_edges(which->get_text(0)).empty()) {
@@ -776,7 +775,7 @@ void SceneTreeEditor::_renamed() {
         return;
     }
 
-    se_string new_name(which->get_text(0));
+    String new_name(which->get_text(0));
     if (!Node::_validate_node_name(new_name)) {
 
         error->set_text(TTR("Invalid node name, the following characters are not allowed:") + "\n" + Node::invalid_character);
@@ -829,13 +828,13 @@ void SceneTreeEditor::set_marked(Node *p_marked, bool p_selectable, bool p_child
     set_marked(s, p_selectable, p_children_selectable);
 }
 
-void SceneTreeEditor::set_filter(const String &p_filter) {
+void SceneTreeEditor::set_filter(const UIString &p_filter) {
 
     filter = p_filter;
     _update_tree();
 }
 
-String SceneTreeEditor::get_filter() const {
+UIString SceneTreeEditor::get_filter() const {
 
     return filter;
 }
@@ -850,7 +849,7 @@ bool SceneTreeEditor::get_display_foreign_nodes() const {
     return display_foreign;
 }
 
-void SceneTreeEditor::set_valid_types(const PODVector<StringName> &p_valid) {
+void SceneTreeEditor::set_valid_types(const Vector<StringName> &p_valid) {
     valid_types = p_valid;
 }
 
@@ -864,7 +863,7 @@ void SceneTreeEditor::set_editor_selection(EditorSelection *p_selection) {
 
 void SceneTreeEditor::_update_selection(TreeItem *item) {
 
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     NodePath np = item->get_metadata(0);
 
@@ -918,7 +917,7 @@ void SceneTreeEditor::_cell_collapsed(Object *p_obj) {
     NodePath np = ti->get_metadata(0);
 
     Node *n = get_node(np);
-    ERR_FAIL_COND(!n)
+    ERR_FAIL_COND(!n);
 
     n->set_display_folded(collapsed);
 }
@@ -939,7 +938,7 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
             // Only allow selection if not part of an instanced scene.
             if (!n->get_owner() || n->get_owner() == get_scene_node() || n->get_owner()->get_filename().empty()) {
                 selected.push_back(n);
-                icons.push_back(next->get_icon(0));
+                icons.emplace_back(eastl::move(next->get_icon(0)));
             }
         }
         next = tree->get_next_selected(next);
@@ -1005,9 +1004,9 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
     if (section < -1 || section == -1 && !item->get_parent())
         return false;
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
-        Vector<se_string> files = d["files"].as<Vector<se_string>>();
+        Vector<String> files(d["files"].as<Vector<String>>());
 
         if (files.empty())
             return false; //weird
@@ -1017,9 +1016,8 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
             return true;
         }
 
-        for (int i = 0; i < files.size(); i++) {
-            se_string file = files[i];
-            se_string ftype = EditorFileSystem::get_singleton()->get_file_type(file);
+        for (const String &file : files) {
+            String ftype = EditorFileSystem::get_singleton()->get_file_type(file);
             if (ftype != "PackedScene")
                 return false;
         }
@@ -1029,10 +1027,10 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         return true;
     }
 
-    if (String(d["type"]) == "script_list_element") {
+    if (UIString(d["type"]) == "script_list_element") {
         ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
         if (se) {
-            se_string sp = se->get_edited_resource()->get_path();
+            String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(StringName(EditorFileSystem::get_singleton()->get_file_type(sp)))) {
                 tree->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM);
                 return true;
@@ -1040,7 +1038,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         }
     }
 
-    return String(d["type"]) == "nodes";
+    return UIString(d["type"]) == "nodes";
 }
 void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
@@ -1061,16 +1059,16 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
 
     Dictionary d = p_data;
 
-    if (String(d["type"]) == "nodes") {
+    if (UIString(d["type"]) == "nodes") {
         Array nodes = d["nodes"];
         emit_signal("nodes_rearranged", nodes, np, section);
     }
 
-    if (String(d["type"]) == "files") {
+    if (UIString(d["type"]) == "files") {
 
-        Vector<se_string> files = d["files"].as<Vector<se_string>>();
+        Vector<String> files(d["files"].as<Vector<String>>());
 
-        se_string ftype = EditorFileSystem::get_singleton()->get_file_type(files[0]);
+        String ftype = EditorFileSystem::get_singleton()->get_file_type(files[0]);
         if (_is_script_type(StringName(ftype))) {
             emit_signal("script_dropped", files[0], np);
         } else {
@@ -1078,10 +1076,10 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
         }
     }
 
-    if (String(d["type"]) == "script_list_element") {
+    if (UIString(d["type"]) == "script_list_element") {
         ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
         if (se) {
-            se_string sp = se->get_edited_resource()->get_path();
+            String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(StringName(EditorFileSystem::get_singleton()->get_file_type(sp)))) {
                 emit_signal("script_dropped", sp, np);
             }
@@ -1175,8 +1173,8 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     }
 
     tree = memnew(Tree);
-    tree->set_anchor(MARGIN_RIGHT, ANCHOR_END);
-    tree->set_anchor(MARGIN_BOTTOM, ANCHOR_END);
+    tree->set_anchor(Margin::Right, ANCHOR_END);
+    tree->set_anchor(Margin::Bottom, ANCHOR_END);
     tree->set_begin(Point2(0, p_label ? 18 : 0));
     tree->set_end(Point2(0, 0));
     tree->add_constant_override("button_margin", 0);
@@ -1217,7 +1215,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     update_timer->set_wait_time(0.5);
     add_child(update_timer);
 
-    script_types = memnew(ListPOD<StringName>);
+    script_types = memnew(Vector<StringName>);
     ClassDB::get_inheriters_from_class("Script", script_types);
 }
 

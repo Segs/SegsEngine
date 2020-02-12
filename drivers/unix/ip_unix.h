@@ -43,7 +43,7 @@ class IP_Unix : public IP {
     static IP *_create_unix();
 
 public:
-    void get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const override;
+    void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const override;
 
     static GODOT_EXPORT void make_default();
     IP_Unix();

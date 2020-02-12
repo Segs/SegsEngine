@@ -154,12 +154,12 @@ void CollisionObject::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("shape_find_owner", {"shape_index"}), &CollisionObject::shape_find_owner);
 
     BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "camera"),
-            PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"),
+            PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"),
             PropertyInfo(VariantType::VECTOR3, "click_position"), PropertyInfo(VariantType::VECTOR3, "click_normal"),
             PropertyInfo(VariantType::INT, "shape_idx")))
 
-    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "camera", PROPERTY_HINT_RESOURCE_TYPE, "Node"),
-            PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"),
+    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Node"),
+            PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"),
             PropertyInfo(VariantType::VECTOR3, "click_position"), PropertyInfo(VariantType::VECTOR3, "click_normal"),
             PropertyInfo(VariantType::INT, "shape_idx")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));
@@ -189,7 +189,7 @@ uint32_t CollisionObject::create_shape_owner(Object *p_owner) {
 
 void CollisionObject::remove_shape_owner(uint32_t owner) {
 
-    ERR_FAIL_COND(!shapes.contains(owner))
+    ERR_FAIL_COND(!shapes.contains(owner));
 
     shape_owner_clear_shapes(owner);
 
@@ -197,7 +197,7 @@ void CollisionObject::remove_shape_owner(uint32_t owner) {
 }
 
 void CollisionObject::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled) {
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.disabled = p_disabled;
@@ -212,12 +212,12 @@ void CollisionObject::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled
 
 bool CollisionObject::is_shape_owner_disabled(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), false)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), false);
 
     return shapes.at(p_owner).disabled;
 }
 
-void CollisionObject::get_shape_owners(List<uint32_t> *r_owners) {
+void CollisionObject::get_shape_owners(Vector<uint32_t> *r_owners) {
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         r_owners->push_back(E.first);
@@ -236,7 +236,7 @@ Array CollisionObject::_get_shape_owners() {
 
 void CollisionObject::shape_owner_set_transform(uint32_t p_owner, const Transform &p_transform) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.xform = p_transform;
@@ -250,22 +250,22 @@ void CollisionObject::shape_owner_set_transform(uint32_t p_owner, const Transfor
 }
 Transform CollisionObject::shape_owner_get_transform(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform())
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform());
 
     return shapes.at(p_owner).xform;
 }
 
 Object *CollisionObject::shape_owner_get_owner(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr);
 
     return shapes.at(p_owner).owner;
 }
 
 void CollisionObject::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape> &p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
-    ERR_FAIL_COND(not p_shape)
+    ERR_FAIL_COND(!shapes.contains(p_owner));
+    ERR_FAIL_COND(not p_shape);
 
     ShapeData &sd = shapes[p_owner];
     ShapeData::ShapeBase s;
@@ -282,20 +282,20 @@ void CollisionObject::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape> &
 }
 int CollisionObject::shape_owner_get_shape_count(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0);
 
     return shapes.at(p_owner).shapes.size();
 }
 Ref<Shape> CollisionObject::shape_owner_get_shape(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape>())
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape>());
     ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape>());
 
     return shapes.at(p_owner).shapes[p_shape].shape;
 }
 int CollisionObject::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1);
     ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), -1);
 
     return shapes.at(p_owner).shapes[p_shape].index;
@@ -303,7 +303,7 @@ int CollisionObject::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) 
 
 void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
     ERR_FAIL_INDEX(p_shape, shapes[p_owner].shapes.size());
 
     int index_to_remove = shapes[p_owner].shapes[p_shape].index;
@@ -313,12 +313,12 @@ void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
         PhysicsServer::get_singleton()->body_remove_shape(rid, index_to_remove);
     }
 
-    shapes[p_owner].shapes.remove(p_shape);
+    shapes[p_owner].shapes.erase_at(p_shape);
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
-        for (int i = 0; i < E.second.shapes.size(); i++) {
-            if (E.second.shapes[i].index > index_to_remove) {
-                E.second.shapes.write[i].index -= 1;
+        for (auto & shape : E.second.shapes) {
+            if (shape.index > index_to_remove) {
+                shape.index -= 1;
             }
         }
     }
@@ -328,7 +328,7 @@ void CollisionObject::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
 void CollisionObject::shape_owner_clear_shapes(uint32_t p_owner) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     while (shape_owner_get_shape_count(p_owner) > 0) {
         shape_owner_remove_shape(p_owner, 0);
@@ -380,7 +380,7 @@ bool CollisionObject::get_capture_input_on_drag() const {
 
 StringName CollisionObject::get_configuration_warning() const {
 
-    se_string warning(Spatial::get_configuration_warning());
+    String warning(Spatial::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {
@@ -404,5 +404,5 @@ CollisionObject::CollisionObject() {
 
 CollisionObject::~CollisionObject() {
 
-    PhysicsServer::get_singleton()->free(rid);
+    PhysicsServer::get_singleton()->free_rid(rid);
 }

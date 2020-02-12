@@ -141,22 +141,24 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
-    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open DDS texture file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open DDS texture file '" + p_path + "'.");
     TexFileHdr hdr;
     f->get_buffer((uint8_t *)&hdr, sizeof(TexFileHdr));
-    if (0 != memcmp(hdr.magic, "TX2", 3))
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
+    if (0 != memcmp(hdr.magic, "TX2", 3)) {
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.");
+    }
 
     int name_bytes = hdr.header_size - sizeof(TexFileHdr);
-    se_string data;
+    String data;
     data.resize(name_bytes);
 
-    if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes))
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.")
+    if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes)) {
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.");
+    }
 
     if(PathUtils::get_extension(data)!=se_string_view("dds"))
     {
-        ERR_FAIL_V_MSG(RES(), "Only embedded dds textures are supported for now.")
+        ERR_FAIL_V_MSG(RES(), "Only embedded dds textures are supported for now.");
     }
 
     uint32_t magic = f->get_32();
@@ -176,7 +178,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
 
     if (magic != DDS_MAGIC || hsize != 124 || !(flags & DDSD_PIXELFORMAT) || !(flags & DDSD_CAPS)) {
 
-        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported DDS texture file '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Invalid or unsupported DDS texture file '" + p_path + "'.");
     }
 
     /* uint32_t format_size = */ f->get_32();
@@ -265,7 +267,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     } else {
 
         printf("unrecognized fourcc %x format_flags: %x - rgbbits %i - red_mask %x green mask %x blue mask %x alpha mask %x\n", format_fourcc, format_flags, format_rgb_bits, format_red_mask, format_green_mask, format_blue_mask, format_alpha_mask);
-        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.")
+        ERR_FAIL_V_MSG(RES(), "Unrecognized or unsupported color layout in DDS '" + p_path + "'.");
     }
 
     if (!(flags & DDSD_MIPMAPCOUNT))
@@ -281,8 +283,8 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
         //compressed bc
 
         uint32_t size = MAX(info.divisor, w) / info.divisor * MAX(info.divisor, h) / info.divisor * info.block_size;
-        ERR_FAIL_COND_V(size != pitch, RES())
-        ERR_FAIL_COND_V(!(flags & DDSD_LINEARSIZE), RES())
+        ERR_FAIL_COND_V(size != pitch, RES());
+        ERR_FAIL_COND_V(!(flags & DDSD_LINEARSIZE), RES());
 
         for (uint32_t i = 1; i < mipmaps; i++) {
 
@@ -300,11 +302,11 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     } else if (info.palette) {
 
         //indexed
-        ERR_FAIL_COND_V(!(flags & DDSD_PITCH), RES())
-        ERR_FAIL_COND_V(format_rgb_bits != 8, RES())
+        ERR_FAIL_COND_V(!(flags & DDSD_PITCH), RES());
+        ERR_FAIL_COND_V(format_rgb_bits != 8, RES());
 
         uint32_t size = pitch * height;
-        ERR_FAIL_COND_V(size != width * height * info.block_size, RES())
+        ERR_FAIL_COND_V(size != width * height * info.block_size, RES());
 
         uint8_t palette[256 * 4];
         f->get_buffer(palette, 256 * 4);
@@ -499,7 +501,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     return texture;
 }
 
-void ResourceLoaderCoHTexture::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceLoaderCoHTexture::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("texture");
 }
@@ -509,7 +511,7 @@ bool ResourceLoaderCoHTexture::handles_type(se_string_view p_type) const {
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-se_string ResourceLoaderCoHTexture::get_resource_type(se_string_view p_path) const {
+String ResourceLoaderCoHTexture::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "texture")
         return "ImageTexture";

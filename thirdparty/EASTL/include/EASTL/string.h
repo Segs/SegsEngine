@@ -388,11 +388,11 @@ namespace eastl
                 RawLayout raw;
             };
 
-            Layout()                                                  { ResetToSSO(); SetSSOSize(0); } // start as SSO by default
+            Layout() EA_NOEXCEPT                                      { ResetToSSO(); SetSSOSize(0); } // start as SSO by default
             Layout(const Layout& other)                               { Copy(*this, other); }
-            Layout(Layout&& other)                                    { Move(*this, other); }
+            Layout(Layout&& other) EA_NOEXCEPT                        { Move(*this, other); }
             Layout& operator=(const Layout& other)                    { Copy(*this, other); return *this; }
-            Layout& operator=(Layout&& other)                         { Move(*this, other); return *this; }
+            Layout& operator=(Layout&& other) EA_NOEXCEPT             { Move(*this, other); return *this; }
 
             // We are using Heap when the bit is set, easier to conceptualize checking IsHeap instead of IsSSO
             inline bool IsHeap() const EA_NOEXCEPT                    { return !!(sso.mRemainingSizeField.mnRemainingSize & kSSOMask); }
@@ -867,8 +867,8 @@ namespace eastl
 
         bool starts_with(value_type c, bool caseSensitive=true) const
         {
-            value_type str[2]{c, 0};
-            return starts_with(view_type(str, 2), caseSensitive);
+
+            return starts_with(view_type(&c, 1), caseSensitive);
         }
 
         bool starts_with(const value_type* substring, bool caseSensitive=true) const
@@ -896,8 +896,7 @@ namespace eastl
 
         bool ends_with(value_type c, bool caseSensitive=true) const
         {
-            value_type str[2]{c, 0};
-            return ends_with(view_type(str, 2), caseSensitive);
+            return ends_with(view_type(&c,1), caseSensitive);
         }
 
         bool ends_with(const value_type* substring, bool caseSensitive=true) const
@@ -937,7 +936,7 @@ namespace eastl
             return result;
         }
 
-        static eastl::vector<this_type,allocator_type> split(const value_type* str, value_type separator, bool keepEmptyStrings = false)
+        static eastl::vector<this_type,allocator_type> split_str(const value_type* str, value_type separator, bool keepEmptyStrings = false)
         {
             eastl::vector<this_type,allocator_type> ret;
             const char* strEnd = str + strlen(str);
@@ -1005,7 +1004,7 @@ namespace eastl
 
         eastl::vector<this_type,allocator_type> split(value_type separator, bool keepEmptyStrings = false) const
         {
-            return split(c_str(), separator, keepEmptyStrings);
+            return split_str(c_str(), separator, keepEmptyStrings);
         }
         /// Return a string by joining substrings with a 'glue' string.
         template<typename CONTAINER>
@@ -1034,7 +1033,7 @@ namespace eastl
         value_type* DoAllocate(size_type n);
         void        DoFree(value_type* p, size_type n);
         size_type   GetNewCapacity(size_type currentCapacity);
-        void        AllocateSelf();
+        void        AllocateSelf() EA_NOEXCEPT;
         void        AllocateSelf(size_type n);
         void        DeallocateSelf();
         iterator    InsertInternal(const_iterator p, value_type c);
@@ -3559,7 +3558,7 @@ namespace eastl
 
 
     template <typename T, typename Allocator>
-    inline void basic_string<T, Allocator>::AllocateSelf()
+    inline void basic_string<T, Allocator>::AllocateSelf() EA_NOEXCEPT
     {
         internalLayout().ResetToSSO();
         internalLayout().SetSSOSize(0);

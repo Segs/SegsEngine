@@ -130,7 +130,7 @@ uint32_t CollisionObject2D::create_shape_owner(Object *p_owner) {
 
 void CollisionObject2D::remove_shape_owner(uint32_t owner) {
 
-    ERR_FAIL_COND(!shapes.contains(owner))
+    ERR_FAIL_COND(!shapes.contains(owner));
 
     shape_owner_clear_shapes(owner);
 
@@ -138,7 +138,7 @@ void CollisionObject2D::remove_shape_owner(uint32_t owner) {
 }
 
 void CollisionObject2D::shape_owner_set_disabled(uint32_t p_owner, bool p_disabled) {
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.disabled = p_disabled;
@@ -153,7 +153,7 @@ void CollisionObject2D::shape_owner_set_disabled(uint32_t p_owner, bool p_disabl
 
 bool CollisionObject2D::is_shape_owner_disabled(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), false)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), false);
 
     return shapes.at(p_owner).disabled;
 }
@@ -163,7 +163,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision(uint32_t p_owner, bool
     if (area)
         return; //not for areas
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.one_way_collision = p_enable;
@@ -174,7 +174,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision(uint32_t p_owner, bool
 
 bool CollisionObject2D::is_shape_owner_one_way_collision_enabled(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), false)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), false);
 
     return shapes.at(p_owner).one_way_collision;
 }
@@ -184,7 +184,7 @@ void CollisionObject2D::shape_owner_set_one_way_collision_margin(uint32_t p_owne
     if (area)
         return; //not for areas
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
     sd.one_way_collision_margin = p_margin;
@@ -195,12 +195,12 @@ void CollisionObject2D::shape_owner_set_one_way_collision_margin(uint32_t p_owne
 
 float CollisionObject2D::get_shape_owner_one_way_collision_margin(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0);
 
     return shapes.at(p_owner).one_way_collision_margin;
 }
 
-void CollisionObject2D::get_shape_owners(List<uint32_t> *r_owners) {
+void CollisionObject2D::get_shape_owners(Vector<uint32_t> *r_owners) {
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         r_owners->push_back(E.first);
@@ -219,7 +219,7 @@ Array CollisionObject2D::_get_shape_owners() {
 
 void CollisionObject2D::shape_owner_set_transform(uint32_t p_owner, const Transform2D &p_transform) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     ShapeData &sd = shapes[p_owner];
 
@@ -234,22 +234,22 @@ void CollisionObject2D::shape_owner_set_transform(uint32_t p_owner, const Transf
 }
 Transform2D CollisionObject2D::shape_owner_get_transform(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform2D())
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Transform2D());
 
     return shapes.at(p_owner).xform;
 }
 
 Object *CollisionObject2D::shape_owner_get_owner(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), nullptr);
 
     return shapes.at(p_owner).owner;
 }
 
 void CollisionObject2D::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2D> &p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
-    ERR_FAIL_COND(not p_shape)
+    ERR_FAIL_COND(!shapes.contains(p_owner));
+    ERR_FAIL_COND(not p_shape);
 
     ShapeData &sd = shapes[p_owner];
     ShapeData::Shape s;
@@ -264,22 +264,23 @@ void CollisionObject2D::shape_owner_add_shape(uint32_t p_owner, const Ref<Shape2
 
     total_subshapes++;
 }
+
 int CollisionObject2D::shape_owner_get_shape_count(uint32_t p_owner) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), 0);
 
     return shapes.at(p_owner).shapes.size();
 }
 Ref<Shape2D> CollisionObject2D::shape_owner_get_shape(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape2D>())
-    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape2D>())
-
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), Ref<Shape2D>());
+    ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), Ref<Shape2D>());
+;
     return shapes.at(p_owner).shapes[p_shape].shape;
 }
 int CollisionObject2D::shape_owner_get_shape_index(uint32_t p_owner, int p_shape) const {
 
-    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1)
+    ERR_FAIL_COND_V(!shapes.contains(p_owner), -1);
     ERR_FAIL_INDEX_V(p_shape, shapes.at(p_owner).shapes.size(), -1);
 
     return shapes.at(p_owner).shapes[p_shape].index;
@@ -287,7 +288,7 @@ int CollisionObject2D::shape_owner_get_shape_index(uint32_t p_owner, int p_shape
 
 void CollisionObject2D::shape_owner_remove_shape(uint32_t p_owner, int p_shape) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
     ERR_FAIL_INDEX(p_shape, shapes[p_owner].shapes.size());
 
     int index_to_remove = shapes[p_owner].shapes[p_shape].index;
@@ -297,12 +298,12 @@ void CollisionObject2D::shape_owner_remove_shape(uint32_t p_owner, int p_shape) 
         Physics2DServer::get_singleton()->body_remove_shape(rid, index_to_remove);
     }
 
-    shapes[p_owner].shapes.remove(p_shape);
+    shapes[p_owner].shapes.erase_at(p_shape);
 
     for (eastl::pair<const uint32_t,ShapeData> &E : shapes) {
         for (int i = 0; i < E.second.shapes.size(); i++) {
             if (E.second.shapes[i].index > index_to_remove) {
-                E.second.shapes.write[i].index -= 1;
+                E.second.shapes[i].index -= 1;
             }
         }
     }
@@ -312,7 +313,7 @@ void CollisionObject2D::shape_owner_remove_shape(uint32_t p_owner, int p_shape) 
 
 void CollisionObject2D::shape_owner_clear_shapes(uint32_t p_owner) {
 
-    ERR_FAIL_COND(!shapes.contains(p_owner))
+    ERR_FAIL_COND(!shapes.contains(p_owner));
 
     while (shape_owner_get_shape_count(p_owner) > 0) {
         shape_owner_remove_shape(p_owner, 0);
@@ -389,7 +390,7 @@ void CollisionObject2D::_update_pickable() {
 
 StringName CollisionObject2D::get_configuration_warning() const {
 
-    se_string warning(Node2D::get_configuration_warning());
+    String warning(Node2D::get_configuration_warning());
 
     if (shapes.empty()) {
         if (!warning.empty()) {
@@ -427,9 +428,9 @@ void CollisionObject2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("shape_owner_clear_shapes", {"owner_id"}), &CollisionObject2D::shape_owner_clear_shapes);
     MethodBinder::bind_method(D_METHOD("shape_find_owner", {"shape_index"}), &CollisionObject2D::shape_find_owner);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "viewport"), PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "viewport"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
 
-    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "viewport", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(VariantType::OBJECT, "event", PROPERTY_HINT_RESOURCE_TYPE, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
+    ADD_SIGNAL(MethodInfo("input_event", PropertyInfo(VariantType::OBJECT, "viewport", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent"), PropertyInfo(VariantType::INT, "shape_idx")));
     ADD_SIGNAL(MethodInfo("mouse_entered"));
     ADD_SIGNAL(MethodInfo("mouse_exited"));
 
@@ -464,5 +465,5 @@ CollisionObject2D::CollisionObject2D() {
 
 CollisionObject2D::~CollisionObject2D() {
 
-    Physics2DServer::get_singleton()->free(rid);
+    Physics2DServer::get_singleton()->free_rid(rid);
 }

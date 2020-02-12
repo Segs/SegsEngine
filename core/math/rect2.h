@@ -59,6 +59,19 @@ struct GODOT_EXPORT Rect2 {
 		return true;
 	}
 
+    bool intersects_touch(const Rect2 &p_rect) const {
+        if (position.x > (p_rect.position.x + p_rect.size.width))
+            return false;
+        if ((position.x + size.width) < p_rect.position.x)
+            return false;
+        if (position.y > (p_rect.position.y + p_rect.size.height))
+            return false;
+        if ((position.y + size.height) < p_rect.position.y)
+            return false;
+
+        return true;
+    }
+
 	real_t distance_to(const Vector2 &p_point) const {
 
 		real_t dist = 0.0;
@@ -174,10 +187,10 @@ struct GODOT_EXPORT Rect2 {
 
 	Rect2 grow_margin(Margin p_margin, real_t p_amount) const {
 		Rect2 g = *this;
-		g = g.grow_individual((MARGIN_LEFT == p_margin) ? p_amount : 0,
-				(MARGIN_TOP == p_margin) ? p_amount : 0,
-				(MARGIN_RIGHT == p_margin) ? p_amount : 0,
-				(MARGIN_BOTTOM == p_margin) ? p_amount : 0);
+		g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
+				(Margin::Top == p_margin) ? p_amount : 0,
+				(Margin::Right == p_margin) ? p_amount : 0,
+				(Margin::Bottom == p_margin) ? p_amount : 0);
 		return g;
 	}
 
@@ -223,7 +236,7 @@ struct GODOT_EXPORT Rect2 {
 		return Rect2(Point2(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0)), size.abs());
 	}
 
-	operator se_string() const;
+	operator String() const;
 
 	Rect2() = default;
 	Rect2(real_t p_x, real_t p_y, real_t p_width, real_t p_height) :
@@ -335,10 +348,10 @@ struct Rect2i {
 
 	Rect2i grow_margin(Margin p_margin, int p_amount) const {
 		Rect2i g = *this;
-		g = g.grow_individual((MARGIN_LEFT == p_margin) ? p_amount : 0,
-				(MARGIN_TOP == p_margin) ? p_amount : 0,
-				(MARGIN_RIGHT == p_margin) ? p_amount : 0,
-				(MARGIN_BOTTOM == p_margin) ? p_amount : 0);
+		g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
+				(Margin::Top == p_margin) ? p_amount : 0,
+				(Margin::Right == p_margin) ? p_amount : 0,
+				(Margin::Bottom == p_margin) ? p_amount : 0);
 		return g;
 	}
 
@@ -379,7 +392,7 @@ struct Rect2i {
 		size = end - begin;
 	}
 
-	operator se_string() const;
+	operator String() const;
 
 	operator Rect2() const { return Rect2(position, size); }
     constexpr Rect2i(const Rect2 &p_r2) :

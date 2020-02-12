@@ -97,7 +97,7 @@ static void renormalize_half(uint16_t *p_rgb) {
 static void renormalize_rgbe9995(uint32_t *p_rgb) {
     // Never used
 }
-static int _get_dst_image_size(int p_width, int p_height, Image::Format p_format, int &r_mipmaps, int p_mipmaps=-1) {
+static int _get_dst_image_size(int p_width, int p_height, Image::Format p_format, int &r_mipmaps, int p_mipmaps=-1, int *r_mm_width=nullptr, int *r_mm_height=nullptr) {
 
     int size = 0;
     int w = p_width;
@@ -124,6 +124,13 @@ static int _get_dst_image_size(int p_width, int p_height, Image::Format p_format
 
         size += s;
 
+        if (r_mm_width) {
+            *r_mm_width = bw;
+        }
+        if (r_mm_height) {
+            *r_mm_height = bh;
+        }
+
         if (p_mipmaps >= 0 && mm == p_mipmaps)
             break;
 
@@ -149,8 +156,8 @@ struct CodecPluginResolver : public ResolverInterface
         bool res=false;
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
-            print_line(se_string("Adding image codec plugin:")+ob->metaObject()->className());
-            PODVector<int> modes;
+            print_line(String("Adding image codec plugin:")+ob->metaObject()->className());
+            Vector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
                 s_codecs.at(m) = interface;
@@ -161,8 +168,8 @@ struct CodecPluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  final  {
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
-            print_line(se_string("Removing image codec plugin:")+ob->metaObject()->className());
-            PODVector<int> modes;
+            print_line(String("Removing image codec plugin:")+ob->metaObject()->className());
+            Vector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
                 s_codecs.at(m) = nullptr;
@@ -213,19 +220,21 @@ namespace {
         "ETC2_RGB8",
         "ETC2_RGBA8",
         "ETC2_RGB8A1",
+        "ETC2_RA_AS_RG",
+        "FORMAT_DXT5_RA_AS_RG",
 
     };
 }
 
 Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 {
-    PODVector<uint8_t> buffer;
+    Vector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
-    ERR_FAIL_COND_V(source_image==nullptr, FAILED)
+    ERR_FAIL_COND_V(source_image==nullptr, FAILED);
     Error err = ImageSaver::save_image("png",source_image,buffer);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
 
     file->store_buffer(buffer.data(), buffer.size());
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -240,12 +249,12 @@ Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 
 Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image, bool greyscale)
 {
-    PODVector<uint8_t> buffer;
-    ERR_FAIL_COND_V(source_image==nullptr, FAILED)
+    Vector<uint8_t> buffer;
+    ERR_FAIL_COND_V(source_image==nullptr, FAILED);
     Error err = ImageSaver::save_image("exr",source_image,buffer);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-    ERR_FAIL_COND_V(err, err)
+    ERR_FAIL_COND_V(err, err);
 
     file->store_buffer(buffer.data(), buffer.size());
     if (file->get_error() != OK && file->get_error() != ERR_FILE_EOF) {
@@ -260,12 +269,12 @@ Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image
 
 Error Image::compress_image(Image *img, CompressParams p)
 {
-    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,ERR_UNAVAILABLE)
+    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,ERR_UNAVAILABLE);
     return s_codecs.at(int(p.mode))->compress_image(img,p);
 }
 Error Image::decompress_image(Image *img, CompressParams p)
 {
-    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,FAILED)
+    ERR_FAIL_COND_V(s_codecs.at(int(p.mode))==nullptr,FAILED);
     return s_codecs.at(int(p.mode))->decompress_image(img);
 }
 
@@ -299,7 +308,7 @@ int Image::get_format_pixel_size(Format p_format) {
         case FORMAT_RGB8: return 3;
         case FORMAT_RGBA8: return 4;
         case FORMAT_RGBA4444: return 2;
-        case FORMAT_RGBA5551: return 2;
+        case FORMAT_RGB565: return 2;
         case FORMAT_RF:
             return 4; //float
         case FORMAT_RGF: return 8;
@@ -343,6 +352,8 @@ int Image::get_format_pixel_size(Format p_format) {
         case FORMAT_ETC2_RGB8: return 1;
         case FORMAT_ETC2_RGBA8: return 1;
         case FORMAT_ETC2_RGB8A1: return 1;
+        case FORMAT_ETC2_RA_AS_RG: return 1;
+        case FORMAT_DXT5_RA_AS_RG: return 1;
         case FORMAT_MAX: {
         }
     }
@@ -391,7 +402,9 @@ void Image::get_format_min_pixel_size(Format p_format, int &r_w, int &r_h) {
         case FORMAT_ETC2_RG11S:
         case FORMAT_ETC2_RGB8:
         case FORMAT_ETC2_RGBA8:
-        case FORMAT_ETC2_RGB8A1: {
+        case FORMAT_ETC2_RGB8A1:
+        case FORMAT_ETC2_RA_AS_RG:
+        case FORMAT_DXT5_RA_AS_RG: {
 
             r_w = 4;
             r_h = 4;
@@ -452,8 +465,9 @@ int Image::get_format_block_size(Format p_format) {
         case FORMAT_ETC2_RG11S:
         case FORMAT_ETC2_RGB8:
         case FORMAT_ETC2_RGBA8:
-        case FORMAT_ETC2_RGB8A1: {
-
+        case FORMAT_ETC2_RGB8A1:
+        case FORMAT_ETC2_RA_AS_RG:   //used to make basis universal happy
+        case FORMAT_DXT5_RA_AS_RG: { //used to make basis universal happy
             return 4;
         }
         default: {
@@ -501,7 +515,16 @@ int Image::get_mipmap_offset(int p_mipmap) const {
     _get_mipmap_offset_and_size(p_mipmap, ofs, w, h);
     return ofs;
 }
+int Image::get_mipmap_byte_size(int p_mipmap) const {
 
+    ERR_FAIL_INDEX_V(p_mipmap, get_mipmap_count() + 1, -1);
+
+    int ofs, w, h;
+    _get_mipmap_offset_and_size(p_mipmap, ofs, w, h);
+    int ofs2;
+    _get_mipmap_offset_and_size(p_mipmap + 1, ofs2, w, h);
+    return ofs2 - ofs;
+}
 void Image::get_mipmap_offset_and_size(int p_mipmap, int &r_ofs, int &r_size) const {
 
     int ofs, w, h;
@@ -600,9 +623,11 @@ void Image::convert(Format p_new_format) {
     if (p_new_format == format)
         return;
 
+    ERR_FAIL_COND_MSG(write_lock.ptr(), "Cannot convert image when it is locked.");
+
     if (format > FORMAT_RGBE9995 || p_new_format > FORMAT_RGBE9995) {
 
-        ERR_FAIL_MSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.")
+        ERR_FAIL_MSG("Cannot convert to <-> from compressed formats. Use compress() and decompress() instead.");
 
     } else if (format > FORMAT_RGBA8 || p_new_format > FORMAT_RGBA8) {
 
@@ -1042,7 +1067,7 @@ bool Image::is_size_po2() const {
 
 void Image::resize_to_po2(bool p_square) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
 
     int w = next_power_of_2(width);
     int h = next_power_of_2(height);
@@ -1058,16 +1083,17 @@ void Image::resize_to_po2(bool p_square) {
 
 void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
-    ERR_FAIL_COND_MSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.")
-
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.");
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
+    ERR_FAIL_COND_MSG(write_lock.ptr(), "Cannot resize image when it is locked.");
 
     bool mipmap_aware = p_interpolation == INTERPOLATE_TRILINEAR /* || p_interpolation == INTERPOLATE_TRICUBIC */;
 
-    ERR_FAIL_COND_MSG(p_width <= 0, "Image width must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_height <= 0, "Image height must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_width > MAX_WIDTH, "Image width cannot be greater than " + itos(MAX_WIDTH) + ".")
-    ERR_FAIL_COND_MSG(p_height > MAX_HEIGHT, "Image height cannot be greater than " + itos(MAX_HEIGHT) + ".")
+    ERR_FAIL_COND_MSG(p_width <= 0, "Image width must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_height <= 0, "Image height must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_width > MAX_WIDTH, "Image width cannot be greater than " + itos(MAX_WIDTH) + ".");
+    ERR_FAIL_COND_MSG(p_height > MAX_HEIGHT, "Image height cannot be greater than " + itos(MAX_HEIGHT) + ".");
+    ERR_FAIL_COND_MSG(p_width * p_height > MAX_PIXELS, "Too many pixels for image, maximum is " + itos(MAX_PIXELS));
 
     if (p_width == width && p_height == height)
         return;
@@ -1273,14 +1299,14 @@ void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
 void Image::crop_from_point(int p_x, int p_y, int p_width, int p_height) {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot crop in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot crop in compressed or custom image formats.");
 
-    ERR_FAIL_COND_MSG(p_x < 0, "Start x position cannot be smaller than 0.")
-    ERR_FAIL_COND_MSG(p_y < 0, "Start y position cannot be smaller than 0.")
-    ERR_FAIL_COND_MSG(p_width <= 0, "Width of image must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_height <= 0, "Height of image must be greater than 0.")
-    ERR_FAIL_COND_MSG(p_x + p_width > MAX_WIDTH, "End x position cannot be greater than " + itos(MAX_WIDTH) + ".")
-    ERR_FAIL_COND_MSG(p_y + p_height > MAX_HEIGHT, "End y position cannot be greater than " + itos(MAX_HEIGHT) + ".")
+    ERR_FAIL_COND_MSG(p_x < 0, "Start x position cannot be smaller than 0.");
+    ERR_FAIL_COND_MSG(p_y < 0, "Start y position cannot be smaller than 0.");
+    ERR_FAIL_COND_MSG(p_width <= 0, "Width of image must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_height <= 0, "Height of image must be greater than 0.");
+    ERR_FAIL_COND_MSG(p_x + p_width > MAX_WIDTH, "End x position cannot be greater than " + itos(MAX_WIDTH) + ".");
+    ERR_FAIL_COND_MSG(p_y + p_height > MAX_HEIGHT, "End y position cannot be greater than " + itos(MAX_HEIGHT) + ".");
 
     /* to save memory, cropping should be done in-place, however, since this function
        will most likely either not be used much, or in critical areas, for now it won't, because
@@ -1328,7 +1354,7 @@ void Image::crop(int p_width, int p_height) {
 
 void Image::flip_y() {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_y in compressed or custom image formats.");
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1361,7 +1387,7 @@ void Image::flip_y() {
 
 void Image::flip_x() {
 
-    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats.")
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot flip_x in compressed or custom image formats.");
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1435,7 +1461,7 @@ static void _generate_po2_mipmap(const Component *p_src, Component *p_dst, uint3
 
 void Image::expand_x2_hq2x() {
 
-    ERR_FAIL_COND(!_can_modify(format))
+    ERR_FAIL_COND(!_can_modify(format));
 
     bool used_mipmaps = has_mipmaps();
     if (used_mipmaps) {
@@ -1475,7 +1501,7 @@ void Image::expand_x2_hq2x() {
 
 void Image::shrink_x2() {
 
-    ERR_FAIL_COND(data.size() == 0)
+    ERR_FAIL_COND(data.size() == 0);
 
     if (mipmaps) {
 
@@ -1486,8 +1512,8 @@ void Image::shrink_x2() {
 
         int new_size = data.size() - ofs;
         new_img.resize(new_size);
-        ERR_FAIL_COND(new_img.size() == 0)
-        ERR_FAIL_COND(data.size() == 0)
+        ERR_FAIL_COND(new_img.empty());
+        ERR_FAIL_COND(data.empty());
         {
             PoolVector<uint8_t>::Write w = new_img.write();
             PoolVector<uint8_t>::Read r = data.read();
@@ -1503,10 +1529,10 @@ void Image::shrink_x2() {
 
         PoolVector<uint8_t> new_img;
 
-        ERR_FAIL_COND(!_can_modify(format))
+        ERR_FAIL_COND(!_can_modify(format));
         int ps = get_format_pixel_size(format);
         new_img.resize((width / 2) * (height / 2) * ps);
-        ERR_FAIL_COND(new_img.size() == 0)
+        ERR_FAIL_COND(new_img.size() == 0);
 
         {
             PoolVector<uint8_t>::Write w = new_img.write();
@@ -1575,9 +1601,9 @@ void Image::normalize() {
 
 Error Image::generate_mipmaps(bool p_renormalize) {
 
-    ERR_FAIL_COND_V_MSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.")
+    ERR_FAIL_COND_V_MSG(!_can_modify(format), ERR_UNAVAILABLE, "Cannot generate mipmaps in compressed or custom image formats.");
 
-    ERR_FAIL_COND_V_MSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.")
+    ERR_FAIL_COND_V_MSG(width == 0 || height == 0, ERR_UNCONFIGURED, "Cannot generate mipmaps with width or height equal to 0.");
 
     int mmcount;
 
@@ -1675,7 +1701,205 @@ Error Image::generate_mipmaps(bool p_renormalize) {
 
     return OK;
 }
+Error Image::generate_mipmap_roughness(RoughnessChannel p_roughness_channel, const Ref<Image> &p_normal_map) {
 
+    Vector<double> normal_sat_vec; //summed area table
+    double *normal_sat = nullptr; //summed area table for normalmap
+    int normal_w = 0, normal_h = 0;
+
+    ERR_FAIL_COND_V_MSG(!p_normal_map || p_normal_map->empty(), ERR_INVALID_PARAMETER, "Must provide a valid normalmap for roughness mipmaps");
+
+    Ref<Image> nm((Image *)p_normal_map->duplicate().get());
+    if (nm->is_compressed()) {
+        nm->decompress();
+    }
+
+    normal_w = nm->get_width();
+    normal_h = nm->get_height();
+
+    normal_sat_vec.resize(normal_w * normal_h * 3);
+
+    normal_sat = normal_sat_vec.data();
+
+    //create summed area table
+    nm->lock();
+
+    for (int y = 0; y < normal_h; y++) {
+        double line_sum[3] = { 0, 0, 0 };
+        for (int x = 0; x < normal_w; x++) {
+            double normal[3];
+            Color color = nm->get_pixel(x, y);
+            normal[0] = color.r * 2.0 - 1.0;
+            normal[1] = color.g * 2.0 - 1.0;
+            normal[2] = Math::sqrt(MAX(0.0, 1.0 - (normal[0] * normal[0] + normal[1] * normal[1]))); //reconstruct if missing
+
+            line_sum[0] += normal[0];
+            line_sum[1] += normal[1];
+            line_sum[2] += normal[2];
+
+            uint32_t ofs = (y * normal_w + x) * 3;
+
+            normal_sat[ofs + 0] = line_sum[0];
+            normal_sat[ofs + 1] = line_sum[1];
+            normal_sat[ofs + 2] = line_sum[2];
+
+            if (y > 0) {
+                uint32_t prev_ofs = ((y - 1) * normal_w + x) * 3;
+                normal_sat[ofs + 0] += normal_sat[prev_ofs + 0];
+                normal_sat[ofs + 1] += normal_sat[prev_ofs + 1];
+                normal_sat[ofs + 2] += normal_sat[prev_ofs + 2];
+            }
+        }
+    }
+
+#if 0
+    {
+        Vector3 beg(normal_sat_vec[0], normal_sat_vec[1], normal_sat_vec[2]);
+        Vector3 end(normal_sat_vec[normal_sat_vec.size() - 3], normal_sat_vec[normal_sat_vec.size() - 2], normal_sat_vec[normal_sat_vec.size() - 1]);
+        Vector3 avg = (end - beg) / (normal_w * normal_h);
+        print_line("average: " + avg);
+    }
+#endif
+
+    int mmcount;
+
+    _get_dst_image_size(width, height, format, mmcount);
+
+    lock();
+
+    uint8_t *base_ptr = write_lock.ptr();
+
+    for (int i = 1; i <= mmcount; i++) {
+
+        int ofs, w, h;
+        _get_mipmap_offset_and_size(i, ofs, w, h);
+        uint8_t *ptr = &base_ptr[ofs];
+
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                int from_x = x * normal_w / w;
+                int from_y = y * normal_h / h;
+                int to_x = (x + 1) * normal_w / w;
+                int to_y = (y + 1) * normal_h / h;
+                to_x = MIN(to_x - 1, normal_w);
+                to_y = MIN(to_y - 1, normal_h);
+
+                int size_x = (to_x - from_x) + 1;
+                int size_y = (to_y - from_y) + 1;
+
+                //summed area table version (much faster)
+
+                double avg[3] = { 0, 0, 0 };
+
+                if (from_x > 0 && from_y > 0) {
+                    uint32_t tofs = ((from_y - 1) * normal_w + (from_x - 1)) * 3;
+                    avg[0] += normal_sat[tofs + 0];
+                    avg[1] += normal_sat[tofs + 1];
+                    avg[2] += normal_sat[tofs + 2];
+                }
+
+                if (from_y > 0) {
+                    uint32_t tofs = ((from_y - 1) * normal_w + to_x) * 3;
+                    avg[0] -= normal_sat[tofs + 0];
+                    avg[1] -= normal_sat[tofs + 1];
+                    avg[2] -= normal_sat[tofs + 2];
+                }
+
+                if (from_x > 0) {
+                    uint32_t tofs = (to_y * normal_w + (from_x - 1)) * 3;
+                    avg[0] -= normal_sat[tofs + 0];
+                    avg[1] -= normal_sat[tofs + 1];
+                    avg[2] -= normal_sat[tofs + 2];
+                }
+
+                uint32_t tofs = (to_y * normal_w + to_x) * 3;
+                avg[0] += normal_sat[tofs + 0];
+                avg[1] += normal_sat[tofs + 1];
+                avg[2] += normal_sat[tofs + 2];
+
+                double div = double(size_x * size_y);
+                Vector3 vec(avg[0] / div, avg[1] / div, avg[2] / div);
+
+                float r = vec.length();
+
+                int pixel_ofs = y * w + x;
+                Color c = _get_color_at_ofs(ptr, pixel_ofs);
+
+                float roughness;
+
+                switch (p_roughness_channel) {
+                    case ROUGHNESS_CHANNEL_R: {
+                        roughness = c.r;
+                    } break;
+                    case ROUGHNESS_CHANNEL_G: {
+                        roughness = c.g;
+                    } break;
+                    case ROUGHNESS_CHANNEL_B: {
+                        roughness = c.b;
+                    } break;
+                    case ROUGHNESS_CHANNEL_L: {
+                        roughness = c.get_v();
+                    } break;
+                    case ROUGHNESS_CHANNEL_A: {
+                        roughness = c.a;
+                    } break;
+                }
+
+                float variance = 0;
+                if (r < 1.0f) {
+                    float r2 = r * r;
+                    float kappa = (3.0f * r - r * r2) / (1.0f - r2);
+                    variance = 0.25f / kappa;
+                }
+
+                float threshold = 0.4;
+                roughness = Math::sqrt(roughness * roughness + MIN(3.0f * variance, threshold * threshold));
+
+                switch (p_roughness_channel) {
+                    case ROUGHNESS_CHANNEL_R: {
+                        c.r = roughness;
+                    } break;
+                    case ROUGHNESS_CHANNEL_G: {
+                        c.g = roughness;
+                    } break;
+                    case ROUGHNESS_CHANNEL_B: {
+                        c.b = roughness;
+                    } break;
+                    case ROUGHNESS_CHANNEL_L: {
+                        c.r = roughness;
+                        c.g = roughness;
+                        c.b = roughness;
+                    } break;
+                    case ROUGHNESS_CHANNEL_A: {
+                        c.a = roughness;
+                    } break;
+                }
+
+                _set_color_at_ofs(ptr, pixel_ofs, c);
+            }
+        }
+#if 0
+        {
+            int size = get_mipmap_byte_size(i);
+            print_line("size for mimpap " + itos(i) + ": " + itos(size));
+            PoolVector<uint8_t> imgdata;
+            imgdata.resize(size);
+            PoolVector<uint8_t>::Write wr = imgdata.write();
+            copymem(wr.ptr(), ptr, size);
+            wr = PoolVector<uint8_t>::Write();
+            Ref<Image> im;
+            im.instance();
+            im->create(w, h, false, format, imgdata);
+            im->save_png("res://mipmap_" + itos(i) + ".png");
+        }
+#endif
+    }
+
+    unlock();
+    nm->unlock();
+
+    return OK;
+}
 void Image::clear_mipmaps() {
 
     if (!mipmaps)
@@ -1698,8 +1922,8 @@ bool Image::empty() const {
 
 void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_format) {
 
-    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH)
-    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT)
+    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH);
+    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT);
 
     int mm = 0;
     int size = _get_dst_image_size(p_width, p_height, p_format, mm, p_use_mipmaps ? -1 : 0);
@@ -1716,8 +1940,8 @@ void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_forma
 }
 void Image::create(ImageData &&src) {
 
-    ERR_FAIL_INDEX(src.width - 1, MAX_WIDTH)
-    ERR_FAIL_INDEX(src.height - 1, MAX_HEIGHT)
+    ERR_FAIL_INDEX(src.width - 1, MAX_WIDTH);
+    ERR_FAIL_INDEX(src.height - 1, MAX_HEIGHT);
 
     int mm = 0;
     int size_without_mips = _get_dst_image_size(src.width, src.height, src.format, mm,  0);
@@ -1741,13 +1965,13 @@ void Image::create(ImageData &&src) {
 }
 void Image::create(int p_width, int p_height, bool p_use_mipmaps, Format p_format, const PoolVector<uint8_t> &p_data) {
 
-    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH)
-    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT)
+    ERR_FAIL_INDEX(p_width - 1, MAX_WIDTH);
+    ERR_FAIL_INDEX(p_height - 1, MAX_HEIGHT);
 
     int mm;
     int size = _get_dst_image_size(p_width, p_height, p_format, mm, p_use_mipmaps ? -1 : 0);
 
-    ERR_FAIL_COND_MSG(p_data.size() != size, "Expected data size of " + itos(size) + " bytes in Image::create(), got instead " + itos(p_data.size()) + " bytes.")
+    ERR_FAIL_COND_MSG(p_data.size() != size, "Expected data size of " + itos(size) + " bytes in Image::create(), got instead " + itos(p_data.size()) + " bytes.");
 
     height = p_height;
     width = p_width;
@@ -1793,10 +2017,10 @@ void Image::create(const char **p_xpm) {
                 size_height = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 1));
                 colormap_size = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 2));
                 pixelchars = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 3));
-                ERR_FAIL_COND(colormap_size > 32766)
-                ERR_FAIL_COND(pixelchars > 5)
-                ERR_FAIL_COND(size_width > 32767)
-                ERR_FAIL_COND(size_height > 32767)
+                ERR_FAIL_COND(colormap_size > 32766);
+                ERR_FAIL_COND(pixelchars > 5);
+                ERR_FAIL_COND(size_width > 32767);
+                ERR_FAIL_COND(size_height > 32767);
                 status = READING_COLORS;
             } break;
             case READING_COLORS: {
@@ -1875,7 +2099,7 @@ void Image::create(const char **p_xpm) {
                     se_string_view pixelstr(line_ptr+x * pixelchars,pixelchars);
 
                     auto colorptr = colormap.find(pixelstr);
-                    ERR_FAIL_COND(colorptr!=colormap.end())
+                    ERR_FAIL_COND(colorptr!=colormap.end());
                     uint8_t pixel[4];
                     for (uint32_t i = 0; i < pixel_size; i++) {
                         pixel[i] = CLAMP<float>(colorptr->second[i] * 255, 0, 255);
@@ -2020,7 +2244,7 @@ Image::AlphaMode Image::detect_alpha() const {
 Error Image::load(se_string_view p_path) {
 #ifdef DEBUG_ENABLED
     if (StringUtils::begins_with(p_path,"res://") && ResourceLoader::exists(p_path)) {
-        WARN_PRINT("Loaded resource as image file, this will not work on export: '" + se_string(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
+        WARN_PRINT("Loaded resource as image file, this will not work on export: '" + String(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
     }
 #endif
     return ImageLoader::load_image(p_path, Ref<Image>(this));
@@ -2078,8 +2302,11 @@ Error Image::decompress() {
         return ERR_UNAVAILABLE;
     return decompress_image(this,CompressParams{1.0,mode});
 }
-
 Error Image::compress(ImageCompressMode p_mode, ImageCompressSource p_source, float p_lossy_quality) {
+
+    return compress_from_channels(p_mode, detect_used_channels(p_source), p_lossy_quality);
+}
+Error Image::compress_from_channels(ImageCompressMode p_mode, ImageUsedChannels p_channels, float p_lossy_quality) {
 
     switch (p_mode) {
 
@@ -2089,9 +2316,9 @@ Error Image::compress(ImageCompressMode p_mode, ImageCompressSource p_source, fl
         case COMPRESS_ETC:
         case COMPRESS_ETC2:
         case COMPRESS_BPTC:
-            return Image::compress_image(this,{p_lossy_quality,p_mode,p_source});
+            return Image::compress_image(this,{p_lossy_quality,p_mode,p_channels});
         default:
-            ERR_PRINT("Unsupported compress mode")
+            ERR_PRINT("Unsupported compress mode");
             return ERR_UNAVAILABLE;
     }
 
@@ -2130,7 +2357,7 @@ Image::Image(int p_width, int p_height, bool p_mipmaps, Format p_format, const P
 
 Rect2 Image::get_used_rect() const {
 
-    if (format != FORMAT_LA8 && format != FORMAT_RGBA8 && format != FORMAT_RGBAF && format != FORMAT_RGBAH && format != FORMAT_RGBA4444 && format != FORMAT_RGBA5551)
+    if (format != FORMAT_LA8 && format != FORMAT_RGBA8 && format != FORMAT_RGBAF && format != FORMAT_RGBAH && format != FORMAT_RGBA4444 && format != FORMAT_RGB565)
         return Rect2(Point2(), Size2(width, height));
 
     int len = data.size();
@@ -2144,8 +2371,7 @@ Rect2 Image::get_used_rect() const {
     for (int j = 0; j < height; j++) {
         for (int i = 0; i < width; i++) {
 
-            bool opaque = get_pixel(i, j).a > 0.99f;
-            if (!opaque)
+            if (!(get_pixel(i, j).a > 0))
                 continue;
             if (i > maxx)
                 maxx = i;
@@ -2175,12 +2401,13 @@ Ref<Image> Image::get_rect(const Rect2 &p_area) const {
 
 void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.")
+    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.");
     int dsize = data.size();
     int srcdsize = p_src->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(format != p_src->format);
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot blit_rect in compressed or custom image formats.");
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2225,17 +2452,17 @@ void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Po
 
 void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.")
-    ERR_FAIL_COND_MSG(not p_mask, "It's not a reference to a valid Image object.")
+    ERR_FAIL_COND_MSG(not p_src, "It's not a reference to a valid Image object.");
+    ERR_FAIL_COND_MSG(not p_mask, "It's not a reference to a valid Image object.");
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(maskdsize == 0)
-    ERR_FAIL_COND_MSG(p_src->width != p_mask->width, "Source image width is different from mask width.")
-    ERR_FAIL_COND_MSG(p_src->height != p_mask->height, "Source image height is different from mask height.")
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(maskdsize == 0);
+    ERR_FAIL_COND_MSG(p_src->width != p_mask->width, "Source image width is different from mask width.");
+    ERR_FAIL_COND_MSG(p_src->height != p_mask->height, "Source image height is different from mask height.");
+    ERR_FAIL_COND(format != p_src->format);
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2288,12 +2515,12 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
 
 void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(not p_src)
+    ERR_FAIL_COND(not p_src);
     int dsize = data.size();
     int srcdsize = p_src->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(format != p_src->format);
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2338,17 +2565,17 @@ void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const P
 
 void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
 
-    ERR_FAIL_COND(not p_src)
-    ERR_FAIL_COND(not p_mask)
+    ERR_FAIL_COND(not p_src);
+    ERR_FAIL_COND(not p_mask);
     int dsize = data.size();
     int srcdsize = p_src->data.size();
     int maskdsize = p_mask->data.size();
-    ERR_FAIL_COND(dsize == 0)
-    ERR_FAIL_COND(srcdsize == 0)
-    ERR_FAIL_COND(maskdsize == 0)
-    ERR_FAIL_COND(p_src->width != p_mask->width)
-    ERR_FAIL_COND(p_src->height != p_mask->height)
-    ERR_FAIL_COND(format != p_src->format)
+    ERR_FAIL_COND(dsize == 0);
+    ERR_FAIL_COND(srcdsize == 0);
+    ERR_FAIL_COND(maskdsize == 0);
+    ERR_FAIL_COND(p_src->width != p_mask->width);
+    ERR_FAIL_COND(p_src->height != p_mask->height);
+    ERR_FAIL_COND(format != p_src->format);
 
     Rect2i clipped_src_rect = Rect2i(0, 0, p_src->width, p_src->height).clip(p_src_rect);
 
@@ -2402,6 +2629,8 @@ void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, c
 
 void Image::fill(const Color &c) {
 
+    ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot fill in compressed or custom image formats.");
+
     lock();
 
     PoolVector<uint8_t>::Write wp = data.write();
@@ -2427,7 +2656,7 @@ void Image::fill(const Color &c) {
     unlock();
 }
 
-PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
+Vector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
 {
     Ref<Image> img = p_image;
     if (p_image->get_format() != Image::FORMAT_RGBA8 && p_image->get_format() != Image::FORMAT_RGB8)
@@ -2438,19 +2667,19 @@ PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
         else
             img->convert(Image::FORMAT_RGB8);
     }
-    PODVector<uint8_t> tmp;
+    Vector<uint8_t> tmp;
 
     if(OK!=ImageSaver::save_image("webp",p_image,tmp,qualt))
         return {};
     return tmp;
 }
-Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
+Ref<Image> Image::lossy_unpacker(const Vector<uint8_t> &p_buffer)
 {
     int size = p_buffer.size() - 4;
-    ERR_FAIL_COND_V(size <= 0, Ref<Image>())
+    ERR_FAIL_COND_V(size <= 0, Ref<Image>());
     const uint8_t *r = p_buffer.data();
 
-    ERR_FAIL_COND_V(r[0] != 'W' || r[1] != 'E' || r[2] != 'B' || r[3] != 'P', Ref<Image>())
+    ERR_FAIL_COND_V(r[0] != 'W' || r[1] != 'E' || r[2] != 'B' || r[3] != 'P', Ref<Image>());
 
     Ref<Image> res(make_ref_counted<Image>());
 
@@ -2459,21 +2688,21 @@ Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
     return res;
 
 }
-PODVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
+Vector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
 {
     Ref<Image> img = prepareForPngStorage(p_image);
-    PODVector<uint8_t> tmp = {'P','N','G',' '}; // Header marker bytes.
+    Vector<uint8_t> tmp = {'P','N','G',' '}; // Header marker bytes.
 
     if(OK!=ImageSaver::save_image("png",p_image,tmp,1.0f))
         return {};
     return tmp;
 }
-Ref<Image> Image::lossless_unpacker(const PODVector<uint8_t> &p_data)
+Ref<Image> Image::lossless_unpacker(const Vector<uint8_t> &p_data)
 {
     const int len = p_data.size();
-    ERR_FAIL_COND_V(len < 4, {})
+    ERR_FAIL_COND_V(len < 4, {});
     const uint8_t *r = p_data.data();
-    ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', {})
+    ERR_FAIL_COND_V(r[0] != 'P' || r[1] != 'N' || r[2] != 'G' || r[3] != ' ', {});
     Ref<Image> res(make_ref_counted<Image>());
 
     if(OK!=res->_load_from_buffer(&r[4], len - 4,"png"))
@@ -2483,15 +2712,15 @@ Ref<Image> Image::lossless_unpacker(const PODVector<uint8_t> &p_data)
 
 void Image::_set_data(const Dictionary &p_data) {
 
-    ERR_FAIL_COND(!p_data.has("width"))
-    ERR_FAIL_COND(!p_data.has("height"))
-    ERR_FAIL_COND(!p_data.has("format"))
-    ERR_FAIL_COND(!p_data.has("mipmaps"))
-    ERR_FAIL_COND(!p_data.has("data"))
+    ERR_FAIL_COND(!p_data.has("width"));
+    ERR_FAIL_COND(!p_data.has("height"));
+    ERR_FAIL_COND(!p_data.has("format"));
+    ERR_FAIL_COND(!p_data.has("mipmaps"));
+    ERR_FAIL_COND(!p_data.has("data"));
 
     int dwidth = p_data["width"];
     int dheight = p_data["height"];
-    se_string dformat = p_data["format"].as<se_string>();
+    String dformat = p_data["format"].as<String>();
     bool dmipmaps = p_data["mipmaps"].as<bool>();
     PoolVector<uint8_t> ddata = p_data["data"];
     Format ddformat = FORMAT_MAX;
@@ -2502,7 +2731,7 @@ void Image::_set_data(const Dictionary &p_data) {
         }
     }
 
-    ERR_FAIL_COND(ddformat == FORMAT_MAX)
+    ERR_FAIL_COND(ddformat == FORMAT_MAX);
 
     create(dwidth, dheight, dmipmaps, ddformat, ddata);
 }
@@ -2520,7 +2749,7 @@ Dictionary Image::_get_data() const {
 
 void Image::lock() {
 
-    ERR_FAIL_COND(data.size() == 0)
+    ERR_FAIL_COND(data.size() == 0);
     write_lock = data.write();
 }
 
@@ -2533,18 +2762,7 @@ Color Image::get_pixelv(const Point2 &p_src) const {
     return get_pixel(p_src.x, p_src.y);
 }
 
-Color Image::get_pixel(int p_x, int p_y) const {
-
-    uint8_t *ptr = write_lock.ptr();
-#ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().")
-
-    ERR_FAIL_INDEX_V(p_x, width, Color())
-    ERR_FAIL_INDEX_V(p_y, height, Color())
-
-#endif
-
-    uint32_t ofs = p_y * width + p_x;
+Color Image::_get_color_at_ofs(uint8_t *ptr, uint32_t ofs) const {
 
     switch (format) {
         case FORMAT_L8: {
@@ -2588,14 +2806,13 @@ Color Image::get_pixel(int p_x, int p_y) const {
             float a = (u & 0xF) / 15.0f;
             return Color(r, g, b, a);
         }
-        case FORMAT_RGBA5551: {
+        case FORMAT_RGB565: {
 
             uint16_t u = ((uint16_t *)ptr)[ofs];
-            float r = ((u >> 11) & 0x1F) / 15.0f;
-            float g = ((u >> 6) & 0x1F) / 15.0f;
-            float b = ((u >> 1) & 0x1F) / 15.0f;
-            float a = (u & 0x1) / 1.0f;
-            return Color(r, g, b, a);
+            float r = (u & 0x1F) / 31.0;
+            float g = ((u >> 5) & 0x3F) / 63.0;
+            float b = ((u >> 11) & 0x1F) / 31.0;
+            return Color(r, g, b, 1.0);
         }
         case FORMAT_RF: {
 
@@ -2658,22 +2875,7 @@ Color Image::get_pixel(int p_x, int p_y) const {
     }
 }
 
-void Image::set_pixelv(const Point2 &p_dst, const Color &p_color) {
-    set_pixel(p_dst.x, p_dst.y, p_color);
-}
-
-void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
-
-    uint8_t *ptr = write_lock.ptr();
-#ifdef DEBUG_ENABLED
-    ERR_FAIL_COND_MSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().")
-
-    ERR_FAIL_INDEX(p_x, width);
-    ERR_FAIL_INDEX(p_y, height);
-
-#endif
-
-    uint32_t ofs = p_y * width + p_x;
+void Image::_set_color_at_ofs(uint8_t *ptr, uint32_t ofs, const Color &p_color) {
 
     switch (format) {
         case FORMAT_L8: {
@@ -2715,14 +2917,13 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
             ((uint16_t *)ptr)[ofs] = rgba;
 
         } break;
-        case FORMAT_RGBA5551: {
+        case FORMAT_RGB565: {
 
             uint16_t rgba = 0;
 
-            rgba = uint16_t(CLAMP(p_color.r * 31.0f, 0, 31)) << 11;
-            rgba |= uint16_t(CLAMP(p_color.g * 31.0f, 0, 31)) << 6;
-            rgba |= uint16_t(CLAMP(p_color.b * 31.0f, 0, 31)) << 1;
-            rgba |= uint16_t(p_color.a > 0.5f ? 1 : 0);
+            rgba = uint16_t(CLAMP(p_color.r * 31.0, 0, 31));
+            rgba |= uint16_t(CLAMP(p_color.g * 63.0, 0, 33)) << 5;
+            rgba |= uint16_t(CLAMP(p_color.b * 31.0, 0, 31)) << 11;
 
             ((uint16_t *)ptr)[ofs] = rgba;
 
@@ -2781,11 +2982,44 @@ void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
         }
     }
 }
+Color Image::get_pixel(int p_x, int p_y) const {
 
-Image::DetectChannels Image::get_detected_channels() {
+    uint8_t *ptr = write_lock.ptr();
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_V_MSG(!ptr, Color(), "Image must be locked with 'lock()' before using get_pixel().");
 
-    ERR_FAIL_COND_V(data.size() == 0, DETECTED_RGBA)
-    ERR_FAIL_COND_V(is_compressed(), DETECTED_RGBA)
+    ERR_FAIL_INDEX_V(p_x, width, Color());
+    ERR_FAIL_INDEX_V(p_y, height, Color());
+
+#endif
+
+    uint32_t ofs = p_y * width + p_x;
+    return _get_color_at_ofs(ptr, ofs);
+}
+
+void Image::set_pixelv(const Point2 &p_dst, const Color &p_color) {
+    set_pixel(p_dst.x, p_dst.y, p_color);
+}
+
+void Image::set_pixel(int p_x, int p_y, const Color &p_color) {
+
+    uint8_t *ptr = write_lock.ptr();
+#ifdef DEBUG_ENABLED
+    ERR_FAIL_COND_MSG(!ptr, "Image must be locked with 'lock()' before using set_pixel().");
+
+    ERR_FAIL_INDEX(p_x, width);
+    ERR_FAIL_INDEX(p_y, height);
+
+#endif
+
+    uint32_t ofs = p_y * width + p_x;
+    _set_color_at_ofs(ptr, ofs, p_color);
+}
+
+ImageUsedChannels Image::detect_used_channels(ImageCompressSource p_source) {
+
+    ERR_FAIL_COND_V(data.size() == 0, ImageUsedChannels::USED_CHANNELS_RGBA);
+    ERR_FAIL_COND_V(is_compressed(), ImageUsedChannels::USED_CHANNELS_RGBA);
     bool r = false, g = false, b = false, a = false, c = false;
     lock();
     for (int i = 0; i < width; i++) {
@@ -2810,31 +3044,43 @@ Image::DetectChannels Image::get_detected_channels() {
 
     unlock();
 
+
+    ImageUsedChannels used_channels;
+
     if (!c && !a)
-        return DETECTED_L;
-    if (!c && a)
-        return DETECTED_LA;
+        used_channels = ImageUsedChannels::USED_CHANNELS_L;
+    else if (!c && a)
+        used_channels = ImageUsedChannels::USED_CHANNELS_LA;
+    else if (r && !g && !b && !a)
+        used_channels = ImageUsedChannels::USED_CHANNELS_R;
+    else if (r && g && !b && !a)
+        used_channels = ImageUsedChannels::USED_CHANNELS_RG;
+    else if (r && g && b && !a)
+        used_channels = ImageUsedChannels::USED_CHANNELS_RGB;
+    else
+        used_channels = ImageUsedChannels::USED_CHANNELS_RGBA;
 
-    if (r && !g && !b && !a)
-        return DETECTED_R;
+    if (p_source == ImageCompressSource::COMPRESS_SOURCE_SRGB && (used_channels == ImageUsedChannels::USED_CHANNELS_R || used_channels == ImageUsedChannels::USED_CHANNELS_RG)) {
+        //R and RG do not support SRGB
+        used_channels = ImageUsedChannels::USED_CHANNELS_RGB;
+    }
 
-    if (r && g && !b && !a)
-        return DETECTED_RG;
+    if (p_source == ImageCompressSource::COMPRESS_SOURCE_NORMAL) {
+        //use RG channels only for normal
+        used_channels = ImageUsedChannels::USED_CHANNELS_RG;
+    }
 
-    if (r && g && b && !a)
-        return DETECTED_RGB;
-
-    return DETECTED_RGBA;
+    return used_channels;
 }
 
 void Image::optimize_channels() {
-    switch (get_detected_channels()) {
-        case DETECTED_L: convert(FORMAT_L8); break;
-        case DETECTED_LA: convert(FORMAT_LA8); break;
-        case DETECTED_R: convert(FORMAT_R8); break;
-        case DETECTED_RG: convert(FORMAT_RG8); break;
-        case DETECTED_RGB: convert(FORMAT_RGB8); break;
-        case DETECTED_RGBA: convert(FORMAT_RGBA8); break;
+    switch (detect_used_channels()) {
+        case ImageUsedChannels::USED_CHANNELS_L: convert(FORMAT_L8); break;
+        case ImageUsedChannels::USED_CHANNELS_LA: convert(FORMAT_LA8); break;
+        case ImageUsedChannels::USED_CHANNELS_R: convert(FORMAT_R8); break;
+        case ImageUsedChannels::USED_CHANNELS_RG: convert(FORMAT_RG8); break;
+        case ImageUsedChannels::USED_CHANNELS_RGB: convert(FORMAT_RGB8); break;
+        case ImageUsedChannels::USED_CHANNELS_RGBA: convert(FORMAT_RGBA8); break;
     }
 }
 
@@ -2876,7 +3122,9 @@ void Image::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("detect_alpha"), &Image::detect_alpha);
     MethodBinder::bind_method(D_METHOD("is_invisible"), &Image::is_invisible);
 
-    MethodBinder::bind_method(D_METHOD("compress", {"mode", "source", "lossy_quality"}), &Image::compress);
+    MethodBinder::bind_method(D_METHOD("detect_used_channels", {"source"}), &Image::detect_used_channels, {DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC))});
+    MethodBinder::bind_method(D_METHOD("compress", {"mode", "source", "lossy_quality"}), &Image::compress, {DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC)), DEFVAL(0.7f)});
+    MethodBinder::bind_method(D_METHOD("compress_from_channels", {"mode", "channels", "lossy_quality"}), &Image::compress, {DEFVAL(0.7)});
     MethodBinder::bind_method(D_METHOD("decompress"), &Image::decompress);
     MethodBinder::bind_method(D_METHOD("is_compressed"), &Image::is_compressed);
 
@@ -2912,7 +3160,7 @@ void Image::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("load_jpg_from_buffer", {"buffer"}), &Image::load_jpg_from_buffer);
     MethodBinder::bind_method(D_METHOD("load_webp_from_buffer", {"buffer"}), &Image::load_webp_from_buffer);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE), "_set_data", "_get_data");
 
     BIND_CONSTANT(MAX_WIDTH)
     BIND_CONSTANT(MAX_HEIGHT)
@@ -2924,7 +3172,7 @@ void Image::_bind_methods() {
     BIND_ENUM_CONSTANT(FORMAT_RGB8)
     BIND_ENUM_CONSTANT(FORMAT_RGBA8)
     BIND_ENUM_CONSTANT(FORMAT_RGBA4444)
-    BIND_ENUM_CONSTANT(FORMAT_RGBA5551)
+    BIND_ENUM_CONSTANT(FORMAT_RGB565)
     BIND_ENUM_CONSTANT(FORMAT_RF) //float
     BIND_ENUM_CONSTANT(FORMAT_RGF)
     BIND_ENUM_CONSTANT(FORMAT_RGBF)
@@ -2954,6 +3202,8 @@ void Image::_bind_methods() {
     BIND_ENUM_CONSTANT(FORMAT_ETC2_RGB8)
     BIND_ENUM_CONSTANT(FORMAT_ETC2_RGBA8)
     BIND_ENUM_CONSTANT(FORMAT_ETC2_RGB8A1)
+    BIND_ENUM_CONSTANT(FORMAT_ETC2_RA_AS_RG)
+    BIND_ENUM_CONSTANT(FORMAT_DXT5_RA_AS_RG)
     BIND_ENUM_CONSTANT(FORMAT_MAX)
 
     BIND_ENUM_CONSTANT(INTERPOLATE_NEAREST)
@@ -2972,18 +3222,16 @@ void Image::_bind_methods() {
     BIND_ENUM_CONSTANT(COMPRESS_ETC)
     BIND_ENUM_CONSTANT(COMPRESS_ETC2)
 
-#ifdef DEBUG_METHODS_ENABLED
-#define ICS_NAME(_name) __constant_get_enum_name(ImageCompressSource::_name, #_name)
-#else
-#define ICS_NAME(_name) StringName()
-#endif
-    ClassDB::bind_integer_constant(get_class_static_name(), ICS_NAME(COMPRESS_SOURCE_GENERIC), "COMPRESS_SOURCE_GENERIC",
-            int(ImageCompressSource::COMPRESS_SOURCE_GENERIC));
-    ClassDB::bind_integer_constant(get_class_static_name(), ICS_NAME(COMPRESS_SOURCE_SRGB), "COMPRESS_SOURCE_SRGB",
-            int(ImageCompressSource::COMPRESS_SOURCE_SRGB));
-    ClassDB::bind_integer_constant(get_class_static_name(), ICS_NAME(COMPRESS_SOURCE_NORMAL), "COMPRESS_SOURCE_NORMAL",
-        int(ImageCompressSource::COMPRESS_SOURCE_NORMAL));
-#undef ICS_NAME
+    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_L)
+    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_LA)
+    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_R)
+    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_RG)
+    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_RGB)
+    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_RGBA)
+
+    BIND_NS_ENUM_CONSTANT(ImageCompressSource,COMPRESS_SOURCE_GENERIC)
+    BIND_NS_ENUM_CONSTANT(ImageCompressSource,COMPRESS_SOURCE_SRGB)
+    BIND_NS_ENUM_CONSTANT(ImageCompressSource,COMPRESS_SOURCE_NORMAL)
 }
 
 void Image::normalmap_to_xy() {
@@ -3011,7 +3259,7 @@ Ref<Image> Image::rgbe_to_srgb() {
     if (data.size() == 0)
         return Ref<Image>();
 
-    ERR_FAIL_COND_V(format != FORMAT_RGBE9995, Ref<Image>())
+    ERR_FAIL_COND_V(format != FORMAT_RGBE9995, Ref<Image>());
 
     Ref<Image> new_image(make_ref_counted<Image>());
 
@@ -3037,8 +3285,30 @@ Ref<Image> Image::rgbe_to_srgb() {
     return new_image;
 }
 
+Ref<Image> Image::get_image_from_mipmap(int p_mipamp) const {
+
+    int ofs, size, w, h;
+    get_mipmap_offset_size_and_dimensions(p_mipamp, ofs, size, w, h);
+
+    PoolVector<uint8_t> new_data;
+    new_data.resize(size);
+    {
+        PoolVector<uint8_t>::Write wr = new_data.write();
+        PoolVector<uint8_t>::Read rd = data.read();
+        memcpy(wr.ptr(), rd.ptr() + ofs, size);
+    }
+
+    Ref<Image> image(make_ref_counted<Image>());
+    image->width = w;
+    image->height = h;
+    image->format = format;
+    image->data = eastl::move(new_data);
+    image->mipmaps = false;
+    return image;
+}
+
 void Image::bumpmap_to_normalmap(float bump_scale) {
-    ERR_FAIL_COND(!_can_modify(format))
+    ERR_FAIL_COND(!_can_modify(format));
     convert(Image::FORMAT_RF);
 
     PoolVector<uint8_t> result_image; //rgba output
@@ -3094,7 +3364,7 @@ void Image::srgb_to_linear() {
         175, 176, 178, 180, 182, 184, 186, 188, 190, 192, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215,
         218, 220, 222, 224, 226, 228, 230, 232, 235, 237, 239, 241, 243, 245, 248, 250, 252, 255 };
 
-    ERR_FAIL_COND(format != FORMAT_RGB8 && format != FORMAT_RGBA8)
+    ERR_FAIL_COND(format != FORMAT_RGB8 && format != FORMAT_RGBA8);
 
     if (format == FORMAT_RGBA8) {
 
@@ -3216,7 +3486,7 @@ void Image::fix_alpha_edges() {
 
 se_string_view Image::get_format_name(Format p_format) {
 
-    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, se_string_view())
+    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, se_string_view());
     return format_names[p_format];
 }
 
@@ -3231,7 +3501,30 @@ Error Image::load_jpg_from_buffer(const PoolVector<uint8_t> &p_array) {
 Error Image::load_webp_from_buffer(const PoolVector<uint8_t> &p_array) {
     return _load_from_buffer(p_array, "webp");
 }
+void Image::convert_rg_to_ra_rgba8() {
+    ERR_FAIL_COND(format != FORMAT_RGBA8);
+    ERR_FAIL_COND(!data.size());
 
+    int s = data.size();
+    PoolVector<uint8_t>::Write w = data.write();
+    for (int i = 0; i < s; i += 4) {
+        w[i + 3] = w[i + 1];
+        w[i + 1] = 0;
+        w[i + 2] = 0;
+    }
+}
+void Image::convert_ra_rgba8_to_rg() {
+    ERR_FAIL_COND(format != FORMAT_RGBA8);
+    ERR_FAIL_COND(!data.size());
+
+    int s = data.size();
+    PoolVector<uint8_t>::Write w = data.write();
+    for (int i = 0; i < s; i += 4) {
+        w[i + 1] = w[i + 3];
+        w[i + 2] = 0;
+        w[i + 3] = 255;
+    }
+}
 Error Image::load_from_buffer(const uint8_t *p_array, int size, const char *ext)
 {
     return _load_from_buffer(p_array,size,ext);
@@ -3243,11 +3536,11 @@ Error Image::_load_from_buffer(const PoolVector<uint8_t> &p_array, const char *e
     return _load_from_buffer(r.ptr(),buffer_size,ext);
 }
 Error Image::_load_from_buffer(const uint8_t *p_array,int buffer_size, const char *ext) {
-    ERR_FAIL_COND_V(buffer_size == 0, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(!ext, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(buffer_size == 0, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!ext, ERR_INVALID_PARAMETER);
 
     ImageData d = ImageLoader::load_image(ext,p_array, buffer_size);
-    ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR)
+    ERR_FAIL_COND_V(d.data.size()==0, ERR_PARSE_ERROR);
 
     create(eastl::move(d));
 
@@ -3300,7 +3593,7 @@ Ref<Image> prepareForPngStorage(const Ref<Image> &img)
         source_image = dynamic_ref_cast<Image>(source_image->duplicate());
         source_image->decompress();
     }
-    ERR_FAIL_COND_V(source_image->is_compressed(), Ref<Image>())
+    ERR_FAIL_COND_V(source_image->is_compressed(), Ref<Image>());
     bool need_convert = source_image->get_format()!=ImageData::FORMAT_L8
             && source_image->get_format()!=ImageData::FORMAT_LA8
             && source_image->get_format()!=ImageData::FORMAT_RGB8

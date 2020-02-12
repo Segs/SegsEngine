@@ -95,7 +95,7 @@ public:
 
         bool use_texture_array_environment;
 
-        Set<String> extensions;
+        Set<UIString> extensions;
 
         bool keep_original_textures;
 
@@ -237,8 +237,8 @@ public:
 
         uint32_t flags=0; // put here to align next field to 8 bytes
         Set<Texture *> proxy_owners;
-        Vector<Ref<Image> > images;
-        se_string path;
+        Vector<Ref<Image> > images; //TODO: SEGS: consider using FixedVector here
+        String path;
 
         RenderTarget *render_target = nullptr;
         Texture *proxy=nullptr;
@@ -322,11 +322,11 @@ public:
     void texture_bind(RID p_texture, uint32_t p_texture_no) override;
 
     void texture_set_path(RID p_texture, se_string_view p_path) override;
-    const se_string &texture_get_path(RID p_texture) const override;
+    const String &texture_get_path(RID p_texture) const override;
 
     void texture_set_shrink_all_x2_on_set_data(bool p_enable) override;
 
-    void texture_debug_usage(DefList<VisualServer::TextureInfo> *r_info) override;
+    void texture_debug_usage(Vector<VisualServer::TextureInfo> *r_info) override;
 
     RID texture_create_radiance_cubemap(RID p_source, int p_resolution = -1) const override;
 
@@ -369,8 +369,8 @@ public:
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
         SelfList<Material>::List materials;
         SelfList<Shader> dirty_list;
-        se_string code;
-        se_string path;
+        String code;
+        String path;
         RID self;
         ShaderGLES3 *shader;
 
@@ -385,7 +385,7 @@ public:
             bool uses_screen_texture;
             bool uses_screen_uv;
             bool uses_time;
-            enum BlendMode {
+            enum BlendMode : int8_t {
                 BLEND_MODE_MIX,
                 BLEND_MODE_ADD,
                 BLEND_MODE_SUB,
@@ -396,7 +396,7 @@ public:
 
             int blend_mode;
 
-            enum LightMode {
+            enum LightMode : int8_t {
                 LIGHT_MODE_NORMAL,
                 LIGHT_MODE_UNSHADED,
                 LIGHT_MODE_LIGHT_ONLY
@@ -476,9 +476,9 @@ public:
 
     RID shader_create() override;
 
-    void shader_set_code(RID p_shader, const se_string &p_code) override;
-    se_string shader_get_code(RID p_shader) const override;
-    void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const override;
+    void shader_set_code(RID p_shader, const String &p_code) override;
+    String shader_get_code(RID p_shader) const override;
+    void shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const override;
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) override;
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const override;
@@ -498,7 +498,7 @@ public:
         Map<RasterizerScene::InstanceBase *, int> instance_owners;
         SelfList<Material> list;
         SelfList<Material> dirty_list;
-        Vector<bool> texture_is_3d;
+        Vector<bool> texture_is_3d; //TODO: SEGS: consider using dynamic_bitvector here.
         Vector<RID> textures;
         RID next_pass;
         float line_width;
@@ -574,8 +574,8 @@ public:
 
         Attrib attribs[VS::ARRAY_MAX];
         Vector<AABB> skeleton_bone_aabb;
-        PODVector<bool> skeleton_bone_used;
-        PODVector<BlendShape> blend_shapes;
+        Vector<bool> skeleton_bone_used;
+        Vector<BlendShape> blend_shapes;
 
         AABB aabb;
         Mesh *mesh;
@@ -638,7 +638,7 @@ public:
     struct Mesh : public GeometryOwner {
 
         bool active;
-        PODVector<Surface *> surfaces;
+        Vector<Surface *> surfaces;
         int blend_shape_count;
         VS::BlendShapeMode blend_shape_mode;
         AABB custom_aabb;
@@ -665,7 +665,8 @@ public:
 
     RID mesh_create() override;
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) override;
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const
+                          Vector<PoolVector<uint8_t>> &p_blend_shapes = Vector<PoolVector<uint8_t>>(), Span<const AABB> p_bone_aabbs = {}) override;
 
     void mesh_set_blend_shape_count(RID p_mesh, int p_amount) override;
     int mesh_get_blend_shape_count(RID p_mesh) const override;
@@ -673,7 +674,7 @@ public:
     void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) override;
     VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const override;
 
-    void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) override;
+    void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, Span<const uint8_t> p_data) override;
 
     void mesh_surface_set_material(RID p_mesh, int p_surface, RID p_material) override;
     RID mesh_surface_get_material(RID p_mesh, int p_surface) const override;
@@ -688,8 +689,8 @@ public:
     VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const override;
 
     AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const override;
-    Vector<PoolVector<uint8_t> > mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
-    Vector<AABB> mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
+    Vector<Vector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
+    const Vector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
 
     void mesh_remove_surface(RID p_mesh, int p_surface) override;
     int mesh_get_surface_count(RID p_mesh) const override;
@@ -710,7 +711,7 @@ public:
         VS::MultimeshTransformFormat transform_format;
         VS::MultimeshColorFormat color_format;
         VS::MultimeshCustomDataFormat custom_data_format;
-        Vector<float> data;
+        PoolVector<float> data;
         AABB aabb;
         SelfList<MultiMesh> update_list;
         SelfList<MultiMesh> mesh_list;
@@ -826,7 +827,7 @@ public:
     struct Skeleton : RID_Data {
         int size=0; // put first to align from parent members
         Set<RasterizerScene::InstanceBase *> instances; //instances using skeleton
-        Vector<float> skel_texture;
+        PoolVector<float> skel_texture;
         SelfList<Skeleton> update_list;
         Transform2D base_transform_2d;
         GLuint texture=0;
@@ -1244,11 +1245,9 @@ public:
         } effects;
 
         struct Exposure {
-            GLuint fbo;
+            GLuint fbo=0;
             GLuint color;
 
-            Exposure() :
-                    fbo(0) {}
         } exposure;
 
         // External FBO to render our final result to (mostly used for ARVR)
@@ -1329,7 +1328,7 @@ public:
         GLuint array_id; // 0 means, unconfigured
         GLuint vertex_id; // 0 means, unconfigured
         GLuint index_id; // 0 means, unconfigured
-        PODVector<Vector2> lines;
+        Vector<Vector2> lines;
         int len;
     };
 

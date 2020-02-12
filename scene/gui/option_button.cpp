@@ -31,6 +31,7 @@
 #include "option_button.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"
+#include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(OptionButton)
 
@@ -38,8 +39,16 @@ Size2 OptionButton::get_minimum_size() const {
 
     Size2 minsize = Button::get_minimum_size();
 
-    if (has_icon("arrow"))
-        minsize.width += Control::get_icon("arrow")->get_width() + get_constant("hseparation");
+    if (has_icon("arrow")) {
+        const Size2 padding = get_stylebox("normal")->get_minimum_size();
+        const Size2 arrow_size = Control::get_icon("arrow")->get_size();
+
+        Size2 content_size = minsize - padding;
+        content_size.width += arrow_size.width + get_constant("hseparation");
+        content_size.height = MAX(content_size.height, arrow_size.height);
+
+        minsize = content_size + padding;
+    }
 
     return minsize;
 }
@@ -79,7 +88,7 @@ void OptionButton::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
             if (has_icon("arrow")) {
-                _set_internal_margin(MARGIN_RIGHT, Control::get_icon("arrow")->get_width());
+                _set_internal_margin(Margin::Right, Control::get_icon("arrow")->get_width());
             }
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -134,7 +143,7 @@ void OptionButton::set_item_icon(int p_idx, const Ref<Texture> &p_icon) {
     popup->set_item_icon(p_idx, p_icon);
 
     if (current == p_idx)
-        set_icon(p_icon);
+        set_button_icon(p_icon);
 }
 void OptionButton::set_item_id(int p_idx, int p_id) {
 
@@ -154,7 +163,7 @@ void OptionButton::set_item_disabled(int p_idx, bool p_disabled) {
 StringName OptionButton::get_item_text(int p_idx) const {
     return popup->get_item_text(p_idx);
 }
-se_string OptionButton::get_item_text_utf8(int p_idx) const {
+String OptionButton::get_item_text_utf8(int p_idx) const {
 
     return popup->get_item_text_utf8(p_idx);
 }
@@ -216,7 +225,7 @@ void OptionButton::_select(int p_which, bool p_emit) {
 
     current = p_which;
     set_text(popup->get_item_text(current));
-    set_icon(popup->get_item_icon(current));
+    set_button_icon(popup->get_item_icon(current));
 
     if (is_inside_tree() && p_emit)
         emit_signal("item_selected", current);
@@ -280,7 +289,7 @@ Array OptionButton::_get_items() const {
 }
 void OptionButton::_set_items(const Array &p_items) {
 
-    ERR_FAIL_COND(p_items.size() % 5)
+    ERR_FAIL_COND(p_items.size() % 5);
     clear();
 
     for (int i = 0; i < p_items.size(); i += 5) {
@@ -299,7 +308,7 @@ void OptionButton::_set_items(const Array &p_items) {
     }
 }
 
-void OptionButton::get_translatable_strings(ListPOD<StringName> *p_strings) const {
+void OptionButton::get_translatable_strings(List<StringName> *p_strings) const {
 
     popup->get_translatable_strings(p_strings);
 }
@@ -337,7 +346,7 @@ void OptionButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_items"), &OptionButton::_set_items);
     MethodBinder::bind_method(D_METHOD("_get_items"), &OptionButton::_get_items);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "items", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_items", "_get_items");
     // "selected" property must come after "items", otherwise GH-10213 occurs.
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "selected"), "_select_int", "get_selected");
     ADD_SIGNAL(MethodInfo("item_selected", PropertyInfo(VariantType::INT, "id")));
@@ -351,7 +360,7 @@ OptionButton::OptionButton() {
     set_text_align(ALIGN_LEFT);
     set_action_mode(ACTION_MODE_BUTTON_PRESS);
     if (has_icon("arrow")) {
-        _set_internal_margin(MARGIN_RIGHT, Control::get_icon("arrow")->get_width());
+        _set_internal_margin(Margin::Right, Control::get_icon("arrow")->get_width());
     }
     popup = memnew(PopupMenu);
     popup->hide();

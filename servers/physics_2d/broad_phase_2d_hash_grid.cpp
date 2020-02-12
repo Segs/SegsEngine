@@ -38,7 +38,7 @@ void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
 
     Map<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
 
-    ERR_FAIL_COND(p_elem->_static && p_with->_static)
+    ERR_FAIL_COND(p_elem->_static && p_with->_static);
 
     if (E==p_elem->paired.end()) {
 
@@ -54,7 +54,7 @@ void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
 
     Map<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
 
-    ERR_FAIL_COND(E==p_elem->paired.end()) //this should really be paired..
+    ERR_FAIL_COND(E==p_elem->paired.end()); //this should really be paired..
 
     E->second->rc--;
 
@@ -337,7 +337,7 @@ BroadPhase2DHashGrid::ID BroadPhase2DHashGrid::create(CollisionObject2DSW *p_obj
 void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 
@@ -363,7 +363,7 @@ void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
 void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 
@@ -383,7 +383,7 @@ void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
 void BroadPhase2DHashGrid::remove(ID p_id) {
 
     Map<ID, Element>::iterator E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end())
+    ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
 
@@ -396,19 +396,19 @@ void BroadPhase2DHashGrid::remove(ID p_id) {
 CollisionObject2DSW *BroadPhase2DHashGrid::get_object(ID p_id) const {
 
     const Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), nullptr)
+    ERR_FAIL_COND_V(E==element_map.end(), nullptr);
     return E->second.owner;
 }
 bool BroadPhase2DHashGrid::is_static(ID p_id) const {
 
     const Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), false)
+    ERR_FAIL_COND_V(E==element_map.end(), false);
     return E->second._static;
 }
 int BroadPhase2DHashGrid::get_subindex(ID p_id) const {
 
     const Map<ID, Element>::const_iterator E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), -1)
+    ERR_FAIL_COND_V(E==element_map.end(), -1);
     return E->second.subindex;
 }
 
@@ -637,15 +637,15 @@ BroadPhase2DSW *BroadPhase2DHashGrid::_create() {
 BroadPhase2DHashGrid::BroadPhase2DHashGrid() {
 
     hash_table_size = GLOBAL_DEF("physics/2d/bp_hash_table_size", 4096);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/bp_hash_table_size", PropertyInfo(VariantType::INT, "physics/2d/bp_hash_table_size", PROPERTY_HINT_RANGE, "0,8192,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/bp_hash_table_size", PropertyInfo(VariantType::INT, "physics/2d/bp_hash_table_size", PropertyHint::Range, "0,8192,1,or_greater"));
     hash_table_size = Math::larger_prime(hash_table_size);
     hash_table = memnew_arr(PosBin *, hash_table_size);
 
     cell_size = GLOBAL_DEF("physics/2d/cell_size", 128);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/cell_size", PropertyInfo(VariantType::INT, "physics/2d/cell_size", PROPERTY_HINT_RANGE, "0,512,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/cell_size", PropertyInfo(VariantType::INT, "physics/2d/cell_size", PropertyHint::Range, "0,512,1,or_greater"));
 
     large_object_min_surface = GLOBAL_DEF("physics/2d/large_object_surface_threshold_in_cells", 512);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/large_object_surface_threshold_in_cells", PropertyInfo(VariantType::INT, "physics/2d/large_object_surface_threshold_in_cells", PROPERTY_HINT_RANGE, "0,1024,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/large_object_surface_threshold_in_cells", PropertyInfo(VariantType::INT, "physics/2d/large_object_surface_threshold_in_cells", PropertyHint::Range, "0,1024,1,or_greater"));
 
     for (uint32_t i = 0; i < hash_table_size; i++)
         hash_table[i] = nullptr;

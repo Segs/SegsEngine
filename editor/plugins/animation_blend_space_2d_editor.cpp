@@ -94,19 +94,19 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
-        ListPOD<StringName> classes;
-        classes.sort(WrapAlphaCompare());
+        Vector<StringName> classes;
+        //BUG: SEGS: the original code was attempting to sort empty vector here, maybe it was meant to sort inheriters instead ?
+        //classes.sort(WrapAlphaCompare());
 
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
-        ERR_FAIL_COND(!gp)
+        ERR_FAIL_COND(!gp);
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
-                PODVector<StringName> names;
-                ap->get_animation_list(&names);
+                Vector<StringName> names(ap->get_animation_list());
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
                     animations_to_add.emplace_back(E);
@@ -116,7 +116,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
         for(const StringName & E : classes) {
 
-            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
+            String name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == "Animation")
                 continue; // nope
             int idx = menu->get_item_count();
@@ -195,31 +195,32 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
         for (int i = 0; i < points.size(); i++) {
 
-            if (making_triangle.find(i) != -1)
+            if (making_triangle.contains(i))
                 continue;
 
-            if (points[i].distance_to(mb->get_position()) < 10 * EDSCALE) {
-                making_triangle.push_back(i);
-                if (making_triangle.size() == 3) {
-                    //add triangle!
-                    if (blend_space->has_triangle(making_triangle[0], making_triangle[1], making_triangle[2])) {
-                        making_triangle.clear();
-                        EditorNode::get_singleton()->show_warning(TTR("Triangle already exists."));
-                        return;
-                    }
+            if (points[i].distance_to(mb->get_position()) >= 10 * EDSCALE)
+                continue;
 
-                    updating = true;
-                    undo_redo->create_action_ui(TTR("Add Triangle"));
-                    undo_redo->add_do_method(blend_space.get(), "add_triangle", making_triangle[0], making_triangle[1], making_triangle[2]);
-                    undo_redo->add_undo_method(blend_space.get(), "remove_triangle", blend_space->get_triangle_count());
-                    undo_redo->add_do_method(this, "_update_space");
-                    undo_redo->add_undo_method(this, "_update_space");
-                    undo_redo->commit_action();
-                    updating = false;
+            making_triangle.push_back(i);
+            if (making_triangle.size() == 3) {
+                //add triangle!
+                if (blend_space->has_triangle(making_triangle[0], making_triangle[1], making_triangle[2])) {
                     making_triangle.clear();
+                    EditorNode::get_singleton()->show_warning(TTR("Triangle already exists."));
+                    return;
                 }
-                return;
+
+                updating = true;
+                undo_redo->create_action_ui(TTR("Add Triangle"));
+                undo_redo->add_do_method(blend_space.get(), "add_triangle", making_triangle[0], making_triangle[1], making_triangle[2]);
+                undo_redo->add_undo_method(blend_space.get(), "remove_triangle", blend_space->get_triangle_count());
+                undo_redo->add_do_method(this, "_update_space");
+                undo_redo->add_undo_method(this, "_update_space");
+                undo_redo->commit_action();
+                updating = false;
+                making_triangle.clear();
             }
+            return;
         }
     }
 
@@ -312,9 +313,9 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<se_string> filters;
+        Vector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
-        for (const se_string &E : filters) {
+        for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -326,12 +327,12 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
 
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
     } else {
-        se_string type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
-        ERR_FAIL_COND(!obj)
+        ERR_FAIL_COND(!obj);
         AnimationNode *an = object_cast<AnimationNode>(obj);
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
     }
@@ -390,12 +391,12 @@ void AnimationNodeBlendSpace2DEditor::_tool_switch(int p_tool) {
     making_triangle.clear();
 
     if (p_tool == 2) {
-        PODVector<Vector2> points;
+        Vector<Vector2> points;
         points.reserve(blend_space->get_blend_point_count());
         for (int i = 0; i < blend_space->get_blend_point_count(); i++) {
             points.emplace_back(blend_space->get_blend_point_position(i));
         }
-        PODVector<Delaunay2D::Triangle> tris = Delaunay2D::triangulate(points);
+        Vector<Delaunay2D::Triangle> tris = Delaunay2D::triangulate(points);
         for (const Delaunay2D::Triangle & tr: tris) {
             blend_space->add_triangle(tr.points[0], tr.points[1], tr.points[2]);
         }
@@ -434,14 +435,14 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
     if (blend_space->get_min_space().y < 0) {
         int y = blend_space->get_max_space().y / (blend_space->get_max_space().y - blend_space->get_min_space().y) * s.height;
         blend_space_draw->draw_line(Point2(0, y), Point2(5 * EDSCALE, y), linecolor);
-        blend_space_draw->draw_string(font, Point2(2 * EDSCALE, y - font->get_height() + font->get_ascent()), String("0"), linecolor);
+        blend_space_draw->draw_ui_string(font, Point2(2 * EDSCALE, y - font->get_height() + font->get_ascent()), UIString("0"), linecolor);
         blend_space_draw->draw_line(Point2(5 * EDSCALE, y), Point2(s.width, y), linecolor_soft);
     }
 
     if (blend_space->get_min_space().x < 0) {
         int x = -blend_space->get_min_space().x / (blend_space->get_max_space().x - blend_space->get_min_space().x) * s.width;
         blend_space_draw->draw_line(Point2(x, s.height - 1), Point2(x, s.height - 5 * EDSCALE), linecolor);
-        blend_space_draw->draw_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), String("0"), linecolor);
+        blend_space_draw->draw_ui_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), UIString("0"), linecolor);
         blend_space_draw->draw_line(Point2(x, s.height - 5 * EDSCALE), Point2(x, 0), linecolor_soft);
     }
 
@@ -486,7 +487,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
     for (int i = 0; i < blend_space->get_triangle_count(); i++) {
 
         Vector<Vector2> points;
-        points.resize(3);
+        points.reserve(3);
 
         for (int j = 0; j < 3; j++) {
             int point_idx = blend_space->get_triangle_point(i, j);
@@ -501,7 +502,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
             point *= s;
             point.y = s.height - point.y;
-            points.write[j] = point;
+            points.emplace_back(point);
         }
 
         for (int j = 0; j < 3; j++) {
@@ -517,11 +518,11 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             color.a *= 0.2f;
         }
 
-        Vector<Color> colors;
+        PoolVector<Color> colors;
         colors.push_back(color);
         colors.push_back(color);
         colors.push_back(color);
-        blend_space_draw->draw_primitive(points, colors, Vector<Vector2>());
+        blend_space_draw->draw_primitive(points, colors, PoolVector<Vector2>());
     }
 
     points.clear();
@@ -632,8 +633,8 @@ void AnimationNodeBlendSpace2DEditor::_update_space() {
     min_x_value->set_value(blend_space->get_min_space().x);
     min_y_value->set_value(blend_space->get_min_space().y);
 
-    label_x->set_text_utf8(blend_space->get_x_label());
-    label_y->set_text_utf8(blend_space->get_y_label());
+    label_x->set_text(blend_space->get_x_label());
+    label_y->set_text(blend_space->get_y_label());
 
     snap_x->set_value(blend_space->get_snap().x);
     snap_y->set_value(blend_space->get_snap().y);
@@ -765,14 +766,14 @@ void AnimationNodeBlendSpace2DEditor::_notification(int p_what) {
         error_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
         error_label->add_color_override("font_color", get_color("error_color", "Editor"));
         panel->add_style_override("panel", get_stylebox("bg", "Tree"));
-        tool_blend->set_icon(get_icon("EditPivot", "EditorIcons"));
-        tool_select->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_create->set_icon(get_icon("EditKey", "EditorIcons"));
-        tool_triangle->set_icon(get_icon("ToolTriangle", "EditorIcons"));
-        tool_erase->set_icon(get_icon("Remove", "EditorIcons"));
-        snap->set_icon(get_icon("SnapGrid", "EditorIcons"));
-        open_editor->set_icon(get_icon("Edit", "EditorIcons"));
-        auto_triangles->set_icon(get_icon("AutoTriangle", "EditorIcons"));
+        tool_blend->set_button_icon(get_icon("EditPivot", "EditorIcons"));
+        tool_select->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_create->set_button_icon(get_icon("EditKey", "EditorIcons"));
+        tool_triangle->set_button_icon(get_icon("ToolTriangle", "EditorIcons"));
+        tool_erase->set_button_icon(get_icon("Remove", "EditorIcons"));
+        snap->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
+        open_editor->set_button_icon(get_icon("Edit", "EditorIcons"));
+        auto_triangles->set_button_icon(get_icon("AutoTriangle", "EditorIcons"));
         interpolation->clear();
         interpolation->add_icon_item(get_icon("TrackContinuous", "EditorIcons"), StringName(), 0);
         interpolation->add_icon_item(get_icon("TrackDiscrete", "EditorIcons"), StringName(), 1);
@@ -781,7 +782,7 @@ void AnimationNodeBlendSpace2DEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_PROCESS) {
 
-        se_string error;
+        String error;
 
         if (!AnimationTreeEditor::get_singleton()->get_tree()) {
             error = TTR("BlendSpace2D does not belong to an AnimationTree node.");
@@ -812,7 +813,7 @@ void AnimationNodeBlendSpace2DEditor::_open_editor() {
 
     if (selected_point >= 0 && selected_point < blend_space->get_blend_point_count()) {
         Ref<AnimationNode> an = blend_space->get_blend_point_node(selected_point);
-        ERR_FAIL_COND(not an)
+        ERR_FAIL_COND(not an);
         AnimationTreeEditor::get_singleton()->enter_editor(itos(selected_point));
     }
 }

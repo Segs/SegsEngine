@@ -73,10 +73,9 @@ void EditorPropertyRootMotion::_node_assign() {
         return;
     }
 
-    Set<se_string> paths;
+    Set<String> paths;
     {
-        PODVector<StringName> animations;
-        player->get_animation_list(&animations);
+        Vector<StringName> animations(player->get_animation_list());
 
         for (const StringName & E : animations) {
 
@@ -90,13 +89,13 @@ void EditorPropertyRootMotion::_node_assign() {
     filters->clear();
     TreeItem *root = filters->create_item();
 
-    Map<se_string, TreeItem *> parenthood;
+    Map<String, TreeItem *> parenthood;
 
-    for (const se_string &E : paths) {
+    for (const String &E : paths) {
 
         NodePath path(E);
         TreeItem *ti = nullptr;
-        se_string accum;
+        String accum;
         for (int i = 0; i < path.get_name_count(); i++) {
             StringName name = path.get_name(i);
             if (!accum.empty()) {
@@ -134,30 +133,30 @@ void EditorPropertyRootMotion::_node_assign() {
 
         if (path.get_subname_count()) {
 
-            se_string concat(path.get_concatenated_subnames());
+            String concat(path.get_concatenated_subnames());
 
             Skeleton *skeleton = object_cast<Skeleton>(node);
             if (skeleton && skeleton->find_bone(concat) != -1) {
                 //path in skeleton
-                const se_string &bone = concat;
+                const String &bone = concat;
                 int idx = skeleton->find_bone(bone);
-                List<se_string> bone_path;
+                Vector<String> bone_path;
                 while (idx != -1) {
                     bone_path.push_front(skeleton->get_bone_name(idx));
                     idx = skeleton->get_bone_parent(idx);
                 }
 
                 accum += ':';
-                for (auto *F = bone_path.front(); F; F = F->next()) {
-                    if (F != bone_path.front()) {
+                for (const String & F : bone_path) {
+                    if ((void *)F.data() != (void *)bone_path.front().data()) { // compare pointers to check if first
                         accum += '/';
                     }
 
-                    accum += F->deref();
+                    accum += F;
                     if (!parenthood.contains(accum)) {
                         ti = filters->create_item(ti);
                         parenthood[accum] = ti;
-                        ti->set_text_utf8(0, F->deref());
+                        ti->set_text_utf8(0, F);
                         ti->set_selectable(0, true);
                         ti->set_editable(0, false);
                         ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
@@ -211,9 +210,9 @@ void EditorPropertyRootMotion::update_property() {
 
     NodePath p = get_edited_object()->get(get_edited_property());
 
-    assign->set_tooltip_utf8((se_string)p);
+    assign->set_tooltip_utf8((String)p);
     if (p == NodePath()) {
-        assign->set_icon(Ref<Texture>());
+        assign->set_button_icon(Ref<Texture>());
         assign->set_text(TTR("Assign..."));
         assign->set_flat(false);
         return;
@@ -230,16 +229,16 @@ void EditorPropertyRootMotion::update_property() {
     }
 
     if (!base_node || !base_node->has_node(p)) {
-        assign->set_icon(Ref<Texture>());
-        assign->set_text_utf8((se_string)p);
+        assign->set_button_icon(Ref<Texture>());
+        assign->set_text_utf8((String)p);
         return;
     }
 
     Node *target_node = base_node->get_node(p);
-    ERR_FAIL_COND(!target_node)
+    ERR_FAIL_COND(!target_node);
 
     assign->set_text(target_node->get_name());
-    assign->set_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
+    assign->set_button_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
 }
 
 void EditorPropertyRootMotion::setup(const NodePath &p_base_hint) {
@@ -251,7 +250,7 @@ void EditorPropertyRootMotion::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
         Ref<Texture> t = get_icon("Clear", "EditorIcons");
-        clear->set_icon(t);
+        clear->set_button_icon(t);
     }
 }
 
@@ -305,7 +304,7 @@ bool EditorInspectorRootMotionPlugin::parse_property(Object *p_object, VariantTy
     if (p_path == se_string_view("root_motion_track") && p_object->is_class("AnimationTree") &&
             p_type == VariantType::NODE_PATH) {
         EditorPropertyRootMotion *editor = memnew(EditorPropertyRootMotion);
-        if (p_hint == PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE && !p_hint_text.empty()) {
+        if (p_hint == PropertyHint::NodePathToEditedNode && !p_hint_text.empty()) {
             editor->setup(NodePath(p_hint_text));
         }
         add_property_editor(p_path, editor);

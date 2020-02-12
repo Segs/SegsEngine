@@ -187,7 +187,7 @@ protected:
     StringName _get_device_string(int i_device);
 
 public:
-    void add_translation(const String &p_translation);
+    void add_translation(const UIString &p_translation);
     static ProjectSettingsEditor *get_singleton() { return singleton; }
     void popup_project_settings();
     void set_plugins_page();

@@ -67,19 +67,19 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
 
     if (!exists) {
         //search for dir
-        se_string p = StringUtils::replace_first(path,"res://", "");
+        String p = StringUtils::replace_first(path,"res://", "");
         PackedDir *cd = root;
 
         if (StringUtils::contains(p,'/')) { //in a subdir
 
-            PODVector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
+            Vector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
 
-            for (int j = 0; j < ds.size(); j++) {
-                auto iter =  cd->subdirs.find_as<se_string_view>(ds[j]);
+            for (se_string_view sv : ds) {
+                auto iter =  cd->subdirs.find_as<se_string_view>(sv);
                 if (iter==cd->subdirs.end()) {
 
                     PackedDir *pd = memnew(PackedDir);
-                    pd->name = ds[j];
+                    pd->name = sv;
                     pd->parent = cd;
                     cd->subdirs[pd->name] = pd;
                     cd = pd;
@@ -126,7 +126,7 @@ PackedData::PackedData() {
 
 void PackedData::_free_packed_dirs(PackedDir *p_dir) {
 
-    for (eastl::pair<const se_string, PackedDir *> &E : p_dir->subdirs)
+    for (eastl::pair<const String, PackedDir *> &E : p_dir->subdirs)
         _free_packed_dirs(E.second);
     memdelete(p_dir);
 }
@@ -147,36 +147,36 @@ Error DirAccessPack::list_dir_begin() {
 
     list_dirs.clear();
     list_files.clear();
+    list_dirs.reserve(current->subdirs.size());
+    list_files.reserve(current->files.size());
+    m_dir_offset = 0;
+    m_file_offset = 0;
+    for (eastl::pair<const String, PackedData::PackedDir *> &E : current->subdirs) {
 
-    for (eastl::pair<const se_string, PackedData::PackedDir *> &E : current->subdirs) {
-
-        list_dirs.push_back(E.first);
+        list_dirs.emplace_back(E.first);
     }
 
-    for (const se_string &E : current->files) {
+    for (const String &E : current->files) {
 
-        list_files.push_back(E);
+        list_files.emplace_back(E);
     }
 
     return OK;
 }
 
-se_string DirAccessPack::get_next() {
+String DirAccessPack::get_next() {
 
-    if (!list_dirs.empty()) {
+    if (m_dir_offset<list_dirs.size()) {
         cdir = true;
-        se_string d = list_dirs.front()->deref();
-        list_dirs.pop_front();
-        return d;
-    } else if (!list_files.empty()) {
-        cdir = false;
-        se_string f = list_files.front()->deref();
-        list_files.pop_front();
-        return f;
-    } else {
-        return se_string();
+        return list_dirs[m_dir_offset++];
     }
 
+    if (m_file_offset<list_files.size()) {
+        cdir = false;
+        return list_files[m_file_offset++];
+    }
+
+    return String();
 }
 bool DirAccessPack::current_is_dir() const {
 
@@ -187,23 +187,25 @@ bool DirAccessPack::current_is_hidden() const {
     return false;
 }
 void DirAccessPack::list_dir_end() {
+    m_dir_offset = 0;
+    m_file_offset = 0;
 
-    list_dirs.clear();
-    list_files.clear();
+    list_dirs.set_capacity(0); // clear & free memory
+    list_files.set_capacity(0); // clear & free memory
 }
 
 int DirAccessPack::get_drive_count() {
 
     return 0;
 }
-se_string DirAccessPack::get_drive(int p_drive) {
+String DirAccessPack::get_drive(int p_drive) {
 
-    return se_string();
+    return String();
 }
 
 Error DirAccessPack::change_dir(se_string_view p_dir) {
 
-    se_string nd = PathUtils::from_native_path(p_dir);
+    String nd = PathUtils::from_native_path(p_dir);
     bool absolute = false;
     if (StringUtils::begins_with(nd,"res://")) {
         nd = StringUtils::replace_first(nd,"res://", "");
@@ -220,7 +222,7 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
         absolute = true;
     }
 
-    PODVector<se_string_view> paths = StringUtils::split(nd,'/');
+    Vector<se_string_view> paths = StringUtils::split(nd,'/');
 
     PackedData::PackedDir *pd;
 
@@ -231,7 +233,7 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
 
     for (int i = 0; i < paths.size(); i++) {
 
-        se_string p(paths[i]);
+        String p(paths[i]);
         if (p == ".")
             continue;
         if (p == "..") {
@@ -253,10 +255,10 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
     return OK;
 }
 
-se_string DirAccessPack::get_current_dir() {
+String DirAccessPack::get_current_dir() {
 
     PackedData::PackedDir *pd = current;
-    se_string p = current->name;
+    String p = current->name;
 
     while (pd->parent) {
         pd = pd->parent;
@@ -297,7 +299,7 @@ size_t DirAccessPack::get_space_left() {
     return 0;
 }
 
-se_string DirAccessPack::get_filesystem_type() const {
+String DirAccessPack::get_filesystem_type() const {
     return "PCK";
 }
 

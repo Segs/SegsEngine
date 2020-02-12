@@ -55,7 +55,7 @@ _FORCE_INLINE_ static bool _can_collide_with(CollisionObjectSW *p_object, uint32
 
 int PhysicsDirectSpaceStateSW::intersect_point(const Vector3 &p_point, ShapeResult *r_results, int p_result_max, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
-    ERR_FAIL_COND_V(space->locked, false)
+    ERR_FAIL_COND_V(space->locked, false);
     int amount = space->broadphase->cull_point(p_point, space->intersection_query_results, SpaceSW::INTERSECTION_QUERY_MAX, space->intersection_query_subindex_results);
     int cc = 0;
 
@@ -99,7 +99,7 @@ int PhysicsDirectSpaceStateSW::intersect_point(const Vector3 &p_point, ShapeResu
 
 bool PhysicsDirectSpaceStateSW::intersect_ray(const Vector3 &p_from, const Vector3 &p_to, RayResult &r_result, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_pick_ray) {
 
-    ERR_FAIL_COND_V(space->locked, false)
+    ERR_FAIL_COND_V(space->locked, false);
 
     Vector3 begin, end;
     Vector3 normal;
@@ -181,7 +181,7 @@ int PhysicsDirectSpaceStateSW::intersect_shape(const RID &p_shape, const Transfo
         return 0;
 
     ShapeSW *shape = static_cast<PhysicsServerSW *>(PhysicsServer::get_singleton())->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, 0)
+    ERR_FAIL_COND_V(!shape, 0);
 
     AABB aabb = p_xform.xform(shape->get_aabb());
 
@@ -229,7 +229,7 @@ int PhysicsDirectSpaceStateSW::intersect_shape(const RID &p_shape, const Transfo
 bool PhysicsDirectSpaceStateSW::cast_motion(const RID &p_shape, const Transform &p_xform, const Vector3 &p_motion, real_t p_margin, real_t &p_closest_safe, real_t &p_closest_unsafe, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, ShapeRestInfo *r_info) {
 
     ShapeSW *shape = static_cast<PhysicsServerSW *>(PhysicsServer::get_singleton())->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, false)
+    ERR_FAIL_COND_V(!shape, false);
 
     AABB aabb = p_xform.xform(shape->get_aabb());
     aabb = aabb.merge(AABB(aabb.position + p_motion, aabb.size)); //motion
@@ -338,7 +338,7 @@ bool PhysicsDirectSpaceStateSW::collide_shape(RID p_shape, const Transform &p_sh
         return false;
 
     ShapeSW *shape = static_cast<PhysicsServerSW *>(PhysicsServer::get_singleton())->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, 0)
+    ERR_FAIL_COND_V(!shape, 0);
 
     AABB aabb = p_shape_xform.xform(shape->get_aabb());
     aabb = aabb.grow(p_margin);
@@ -410,7 +410,7 @@ static void _rest_cbk_result(const Vector3 &p_point_A, const Vector3 &p_point_B,
 bool PhysicsDirectSpaceStateSW::rest_info(RID p_shape, const Transform &p_shape_xform, real_t p_margin, ShapeRestInfo *r_info, const Set<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     ShapeSW *shape = static_cast<PhysicsServerSW *>(PhysicsServer::get_singleton())->shape_owner.get(p_shape);
-    ERR_FAIL_COND_V(!shape, 0)
+    ERR_FAIL_COND_V(!shape, 0);
 
     AABB aabb = p_shape_xform.xform(shape->get_aabb());
     aabb = aabb.grow(p_margin);
@@ -468,9 +468,9 @@ Vector3 PhysicsDirectSpaceStateSW::get_closest_point_to_object_volume(RID p_obje
     if (!obj) {
         obj = PhysicsServerSW::singleton->body_owner.getornull(p_object);
     }
-    ERR_FAIL_COND_V(!obj, Vector3())
+    ERR_FAIL_COND_V(!obj, Vector3());
 
-    ERR_FAIL_COND_V(obj->get_space() != space, Vector3())
+    ERR_FAIL_COND_V(obj->get_space() != space, Vector3());
 
     float min_distance = 1e20;
     Vector3 min_point;
@@ -1075,13 +1075,13 @@ BroadPhaseSW *SpaceSW::get_broadphase() {
 
 void SpaceSW::add_object(CollisionObjectSW *p_object) {
 
-    ERR_FAIL_COND(objects.contains(p_object))
+    ERR_FAIL_COND(objects.contains(p_object));
     objects.insert(p_object);
 }
 
 void SpaceSW::remove_object(CollisionObjectSW *p_object) {
 
-    ERR_FAIL_COND(!objects.contains(p_object))
+    ERR_FAIL_COND(!objects.contains(p_object));
     objects.erase(p_object);
 }
 
@@ -1224,7 +1224,7 @@ SpaceSW::SpaceSW() {
     body_linear_velocity_sleep_threshold = GLOBAL_DEF("physics/3d/sleep_threshold_linear", 0.1);
     body_angular_velocity_sleep_threshold = GLOBAL_DEF("physics/3d/sleep_threshold_angular", (8.0 / 180.0 * Math_PI));
     body_time_to_sleep = GLOBAL_DEF("physics/3d/time_before_sleep", 0.5);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/time_before_sleep", PropertyInfo(VariantType::REAL, "physics/3d/time_before_sleep", PROPERTY_HINT_RANGE, "0,5,0.01,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/time_before_sleep", PropertyInfo(VariantType::REAL, "physics/3d/time_before_sleep", PropertyHint::Range, "0,5,0.01,or_greater"));
     body_angular_velocity_damp_ratio = 10;
 
     broadphase = BroadPhaseSW::create_func();

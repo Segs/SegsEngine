@@ -17,6 +17,7 @@
 #ifdef _MSC_VER
 #include <iso646.h>
 #endif
+#include <QDateTime>
 #include <cstdio>
 
 struct TpEntry
@@ -463,6 +464,8 @@ bool make_authors_header(const QStringList &source)
     QString line;
     QTextStream authors_stream(&f);
     authors_stream.setCodec("UTF-8");
+    authors_stream.setGenerateByteOrderMark(true);
+
     while(authors_stream.readLineInto(&line))
     {
         if (reading)
@@ -663,7 +666,7 @@ bool collect_and_pack_docs(QStringList args)
     g.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
     g.write("#ifndef _DOC_DATA_RAW_H\n");
     g.write("#define _DOC_DATA_RAW_H\n");
-    g.write(qPrintable("static const int _doc_data_compressed_size = " + QString::number(buf.size()) + ";\n"));
+    g.write(qPrintable("static const int _doc_data_compressed_size = " + QString::number(compressed.size()) + ";\n"));
     g.write(qPrintable("static const int _doc_data_uncompressed_size = " + QString::number(decomp_size) + ";\n"));
     g.write("static const unsigned char _doc_data_compressed[] = {\n");
     byteArrayToHexInFile(compressed,g);
@@ -1093,6 +1096,59 @@ bool build_gdnative_api_struct(QStringList args)
     src_file.write(_build_gdnative_api_struct_source(api).toUtf8());
     return true;
 }
+bool generate_mono_glue(QStringList args) {
+    QString src = args.takeFirst();
+    QString dst = args.takeFirst();
+    QString version_dst = args.takeFirst();
+
+    QFile header(dst);
+    QDir d(".");
+    qDebug()<<QFileInfo(dst).path();
+    d.mkpath(QFileInfo(dst).path());
+
+    if(!header.open(QFile::WriteOnly)) {
+        qCritical("Failed to open destination file");
+        return false;
+    }
+    QStringList lines = {
+        "/* THIS FILE IS GENERATED DO NOT EDIT */",
+        "#ifndef CS_COMPRESSED_H",
+        "#define CS_COMPRESSED_H\n",
+        "#ifdef TOOLS_ENABLED\n",
+        "#include \"core/map.h\"",
+        "#include \"core/se_string.h\"",
+    };
+    QStringList inserted_files;
+
+    QDateTime latest_mtime;
+    int cs_file_count = 0;
+    QDirIterator visitor(src,QDirIterator::Subdirectories);
+    while(visitor.hasNext()) {
+        QString fname = visitor.next();
+        if(fname.contains("Generated"))
+            continue;
+        if(!fname.endsWith(".cs"))
+            continue;
+        QFileInfo fi(fname);
+        if(latest_mtime<fi.lastModified())
+            latest_mtime=fi.lastModified();
+        cs_file_count += 1;
+    }
+
+    auto glue_version = latest_mtime.toSecsSinceEpoch(); // The latest modified time will do for now
+    d.mkpath(QFileInfo(version_dst).path());
+    QFile version_header(version_dst);
+    if(!version_header.open(QFile::WriteOnly))  {
+        qCritical("Failed to open destination file");
+        return false;
+    }
+
+    version_header.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
+    version_header.write("#pragma once\n");
+    version_header.write(("#define CS_GLUE_VERSION UINT32_C(" + QString::number(glue_version) + ")\n").toLatin1());
+    return true;
+
+}
 void report_arg_error(const char *mode,int required_args)
 {
     qWarning("Not enough arguments for editor_to_header %s mode",mode);
@@ -1124,7 +1180,7 @@ int main(int argc, char **argv)
         }
         return make_authors_header(app.arguments().mid(2)) ? 0 : -1;
     }
-    if(mode=="donors")
+    else if(mode=="donors")
     {
         if(argc<4)
         {
@@ -1133,7 +1189,7 @@ int main(int argc, char **argv)
         }
         return make_donors_header(app.arguments().mid(2)) ? 0 : -1;
     }
-    if(mode=="docs")
+    else if(mode=="docs")
     {
         if(argc!=4)
         {
@@ -1142,7 +1198,7 @@ int main(int argc, char **argv)
         }
         return collect_and_pack_docs(app.arguments().mid(2)) ? 0 : -1;
     }
-    if(mode=="translations")
+    else if(mode=="translations")
     {
         if(argc!=4)
         {
@@ -1151,7 +1207,7 @@ int main(int argc, char **argv)
         }
         return make_translations_header(app.arguments().mid(2)) ? 0 : -1;
     }
-    if(mode=="controllers")
+    else if(mode=="controllers")
     {
         if(argc<4)
         {
@@ -1160,7 +1216,7 @@ int main(int argc, char **argv)
         }
         return make_default_controller_mappings(app.arguments().mid(2)) ? 0 : -1;
     }
-    if(mode=="encryption")
+    else if(mode=="encryption")
     {
         if(argc<3)
         {
@@ -1169,7 +1225,7 @@ int main(int argc, char **argv)
         }
         return gen_script_encryption(app.arguments().mid(2)) ? 0 : -1;
     }
-    if(mode=="gdnative") // exe gdnative json_file target_path
+    else if(mode=="gdnative") // exe gdnative json_file target_path
     {
         if(argc!=4)
         {
@@ -1177,6 +1233,14 @@ int main(int argc, char **argv)
             return -1;
         }
         return build_gdnative_api_struct(app.arguments().mid(2)) ? 0 : -1;
+    }
+    else if(mode=="mono") {
+        if(argc!=5)
+        {
+            report_arg_error("mono",argc);
+            return -1;
+        }
+        return generate_mono_glue(app.arguments().mid(2)) ? 0 : -1;
     }
 
 }

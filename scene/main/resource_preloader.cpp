@@ -39,17 +39,17 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
     resources.clear();
 
-    ERR_FAIL_COND(p_data.size() != 2)
-    PoolVector<se_string> names = p_data[0].as<PoolVector<se_string>>();
+    ERR_FAIL_COND(p_data.size() != 2);
+    PoolVector<String> names = p_data[0].as<PoolVector<String>>();
     Array resdata = p_data[1];
 
-    ERR_FAIL_COND(names.size() != resdata.size())
+    ERR_FAIL_COND(names.size() != resdata.size());
 
     for (int i = 0; i < resdata.size(); i++) {
 
         StringName name(names[i]);
         RES resource(refFromRefPtr<Resource>(resdata[i]));
-        ERR_CONTINUE(not resource)
+        ERR_CONTINUE(not resource);
         resources[name] = resource;
 
         //add_resource(name,resource);
@@ -58,7 +58,7 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
 Array ResourcePreloader::_get_resources() const {
 
-    PoolVector<se_string> names;
+    PoolVector<String> names;
     Array arr;
     arr.resize(resources.size());
     names.resize(resources.size());
@@ -85,7 +85,7 @@ Array ResourcePreloader::_get_resources() const {
 
 void ResourcePreloader::add_resource(const StringName &p_name, const RES &p_resource) {
 
-    ERR_FAIL_COND(not p_resource)
+    ERR_FAIL_COND(not p_resource);
     if (resources.contains(p_name)) {
 
         StringName new_name;
@@ -111,12 +111,12 @@ void ResourcePreloader::add_resource(const StringName &p_name, const RES &p_reso
 
 void ResourcePreloader::remove_resource(const StringName &p_name) {
 
-    ERR_FAIL_COND(!resources.contains(p_name))
+    ERR_FAIL_COND(!resources.contains(p_name));
     resources.erase(p_name);
 }
 void ResourcePreloader::rename_resource(const StringName &p_from_name, const StringName &p_to_name) {
 
-    ERR_FAIL_COND(!resources.contains(p_from_name))
+    ERR_FAIL_COND(!resources.contains(p_from_name));
 
     RES res(resources[p_from_name]);
 
@@ -130,13 +130,13 @@ bool ResourcePreloader::has_resource(const StringName &p_name) const {
 }
 RES ResourcePreloader::get_resource(const StringName &p_name) const {
 
-    ERR_FAIL_COND_V(!resources.contains(p_name), RES())
+    ERR_FAIL_COND_V(!resources.contains(p_name), RES());
     return resources.at(p_name);
 }
 
-PoolVector<se_string> ResourcePreloader::_get_resource_list() const {
+PoolVector<String> ResourcePreloader::_get_resource_list() const {
 
-    PoolVector<se_string> res;
+    PoolVector<String> res;
     res.resize(resources.size());
     int i = 0;
     for (const eastl::pair<const StringName,RES> &E : resources) {
@@ -146,7 +146,7 @@ PoolVector<se_string> ResourcePreloader::_get_resource_list() const {
     return res;
 }
 
-void ResourcePreloader::get_resource_list(ListPOD<StringName> *p_list) {
+void ResourcePreloader::get_resource_list(List<StringName> *p_list) {
 
     for (eastl::pair<const StringName,RES> &E : resources) {
 
@@ -166,7 +166,7 @@ void ResourcePreloader::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_resource", {"name"}), &ResourcePreloader::get_resource);
     MethodBinder::bind_method(D_METHOD("get_resource_list"), &ResourcePreloader::_get_resource_list);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "resources", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_resources", "_get_resources");
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "resources", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_resources", "_get_resources");
 }
 
 ResourcePreloader::ResourcePreloader() {

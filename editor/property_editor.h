@@ -96,12 +96,12 @@ class CustomPropertyEditor : public Popup {
     SceneTreeDialog *scene_tree;
     EditorFileDialog *file;
     ConfirmationDialog *error;
-    String name;
+    UIString name;
     VariantType type;
     Variant v;
-    PODVector<se_string_view> field_names;
-    int hint;
-    se_string hint_text;
+    Vector<se_string_view> field_names;
+    PropertyHint hint;
+    String hint_text;
     LineEdit *value_editor[MAX_VALUE_EDITORS];
     int focused_value_editor;
     Label *value_label[MAX_VALUE_EDITORS];
@@ -151,9 +151,9 @@ class CustomPropertyEditor : public Popup {
 
     void _node_path_selected(NodePath p_path);
     void show_value_editors(int p_amount);
-    void config_value_editors(int p_amount, int p_columns, int p_label_w, const List<StringName> &p_strings);
-    void config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const PODVector<se_string_view> &p_strings);
-    void config_action_buttons(const List<StringName> &p_strings);
+    void config_value_editors(int p_amount, int p_columns, int p_label_w, const Vector<StringName> &p_strings);
+    void config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<se_string_view> &p_strings);
+    void config_action_buttons(Span<const StringName> p_strings);
 
     void _emit_changed_whole_or_field();
 
@@ -165,11 +165,11 @@ public:
     void hide_menu();
 
     Variant get_variant() const;
-    String get_name() const;
+    UIString get_name() const;
 
     void set_read_only(bool p_read_only) { read_only = p_read_only; }
 
-    bool edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, int p_hint, se_string_view p_hint_text);
+    bool edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, se_string_view p_hint_text);
 
     CustomPropertyEditor();
 };

@@ -67,8 +67,9 @@ private:
         int middle = 0;
 
 #ifdef DEBUG_ENABLED
-        if (low > high)
-            ERR_PRINT("low > high, this may be a bug")
+        if (low > high) {
+            ERR_PRINT("low > high, this may be a bug");
+        }
 #endif
         while (low <= high) {
             middle = (low + high) / 2;
@@ -188,7 +189,7 @@ public:
 
         int pos = _find_exact(p_key);
 
-        CRASH_COND(pos < 0)
+        CRASH_COND(pos < 0);
 
         return _cowdata.get(pos).value;
     }

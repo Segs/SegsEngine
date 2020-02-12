@@ -428,7 +428,7 @@ public:
             SWAP(r_max, r_min);
         }
 
-        //ERR_FAIL_COND( r_max < r_min )
+        //ERR_FAIL_COND();
     }
 
     DEFAULT_PROJECT_RANGE_CAST

@@ -60,17 +60,17 @@ class ISceneTreeDebugAccessor {
     virtual  void _live_edit_res_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
     virtual  void _live_edit_res_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
     virtual  void _live_edit_root_func( const NodePath &p_scene_path, se_string_view p_scene_from)=0;
-    virtual  void _live_edit_create_node_func( const NodePath &p_parent, const se_string &p_type, const se_string &p_name)=0;
-    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const se_string &p_name)=0;
+    virtual  void _live_edit_create_node_func( const NodePath &p_parent, const String &p_type, const String &p_name)=0;
+    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const String &p_name)=0;
     virtual  void _live_edit_remove_node_func( const NodePath &p_at)=0;
     virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, ObjectID p_keep_id)=0;
     virtual  void _live_edit_restore_node_func( ObjectID p_id, const NodePath &p_at, int p_at_pos)=0;
-    virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const se_string &p_new_name)=0;
+    virtual  void _live_edit_duplicate_node_func( const NodePath &p_at, const String &p_new_name)=0;
     virtual  void _live_edit_reparent_node_func(
-             const NodePath &p_at, const NodePath &p_new_place, const se_string &p_new_name, int p_at_pos)=0;
+             const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos)=0;
 public:
     virtual ~ISceneTreeDebugAccessor() {}
-    virtual Map<se_string, Set<Node *>> &get_live_scene_edit_cache() = 0;
+    virtual Map<String, Set<Node *>> &get_live_scene_edit_cache() = 0;
     virtual Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
 };
 
@@ -182,8 +182,8 @@ private:
     void _update_font_oversampling(float p_ratio);
     void _update_root_rect();
 
-    List<ObjectID> delete_queue;
-
+    Vector<ObjectID> delete_queue;
+    //TODO: SEGS: consider replacing Vector below with FixedVector<Variant,VARIANT_ARG_MAX>
     Map<UGCall, Vector<Variant> > unique_group_calls;
     bool ugc_locked;
     void _flush_ugc();
@@ -191,7 +191,6 @@ private:
     _FORCE_INLINE_ void _update_group_order(SceneTreeGroup &g, bool p_use_priority = false);
     void _update_listener();
 
-    Array _get_nodes_in_group(const StringName &p_group);
 
     Node *current_scene;
 
@@ -224,6 +223,14 @@ private:
 
     static SceneTree *singleton;
     friend class Node;
+    //optimization
+    friend class CanvasItem;
+    friend class Spatial;
+    friend class Viewport;
+
+    SelfList<Node>::List xform_change_list;
+
+    friend class ScriptDebuggerRemote;
 
     void tree_changed();
     void node_added(Node *p_node);
@@ -236,18 +243,8 @@ private:
 
     void _notify_group_pause(const StringName &p_group, int p_notification);
     void _call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input);
-    Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
     void _flush_delete_queue();
-    //optimization
-    friend class CanvasItem;
-    friend class Spatial;
-    friend class Viewport;
-
-    SelfList<Node>::List xform_change_list;
-
-    friend class ScriptDebuggerRemote;
 #ifdef DEBUG_ENABLED
     ISceneTreeDebugAccessor *m_debug_data=nullptr;
     ISceneTreeDebugAccessor *debug() { return m_debug_data;}
@@ -265,6 +262,11 @@ private:
 protected:
     void _notification(int p_notification);
     static void _bind_methods();
+
+public:
+    Array _get_nodes_in_group(const StringName &p_group);
+    Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
 
 public:
     enum GroupCallFlags {
@@ -325,7 +327,7 @@ public:
     void set_debug_navigation_hint(bool p_enabled);
     bool is_debugging_navigation_hint() const;
 
-    Map<se_string, Set<Node *> > &get_live_scene_edit_cache();
+    Map<String, Set<Node *> > &get_live_scene_edit_cache();
     Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
@@ -388,9 +390,9 @@ public:
 
     static SceneTree *get_singleton() { return singleton; }
 
-    void drop_files(const PODVector<se_string> &p_files, int p_from_screen = 0) override;
+    void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
     void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     //network API
 
@@ -403,7 +405,7 @@ public:
     bool is_network_server() const;
     bool has_network_peer() const;
     int get_network_unique_id() const;
-    PODVector<int> get_network_connected_peers() const;
+    Vector<int> get_network_connected_peers() const;
     int get_rpc_sender_id() const;
 
     void set_refuse_new_network_connections(bool p_refuse);

@@ -165,7 +165,7 @@ void PluginScript::update_exports() {
 
         //update placeholders if any
         Map<StringName, Variant> propdefvalues;
-        ListPOD<PropertyInfo> propinfos;
+        List<PropertyInfo> propinfos;
 
         get_script_property_list(&propinfos);
         for (PlaceHolderScriptInstance *E : placeholders) {
@@ -347,14 +347,14 @@ Error PluginScript::reload(bool p_keep_state) {
 #undef FREE_SCRIPT_MANIFEST
 }
 
-void PluginScript::get_script_method_list(PODVector<MethodInfo> *r_methods) const {
+void PluginScript::get_script_method_list(Vector<MethodInfo> *r_methods) const {
     ASSERT_SCRIPT_VALID()
     for (auto &e : _methods_info) {
         r_methods->push_back(e.second);
     }
 }
 
-void PluginScript::get_script_property_list(ListPOD<PropertyInfo> *r_properties) const {
+void PluginScript::get_script_property_list(List<PropertyInfo> *r_properties) const {
     ASSERT_SCRIPT_VALID()
     for (auto &e : _properties_info) {
         r_properties->push_back(e.second);
@@ -422,7 +422,7 @@ Error PluginScript::load_source_code(const String &p_path) {
 
     String s=StringUtils::from_utf8((const char *)w.ptr());
     if (s.empty()) {
-        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.")
+        ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Script '" + p_path + "' contains invalid unicode (UTF-8), so it was not loaded. Please ensure that scripts are saved in valid UTF-8 unicode.");
     }
 
     _source = s;
@@ -438,7 +438,7 @@ bool PluginScript::has_script_signal(const StringName &p_signal) const {
     return _signals_info.contains(p_signal);
 }
 
-void PluginScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+void PluginScript::get_script_signal_list(List<MethodInfo> *r_signals) const {
     ASSERT_SCRIPT_VALID()
     for (auto &e : _signals_info) {
         r_signals->push_back(e.second);

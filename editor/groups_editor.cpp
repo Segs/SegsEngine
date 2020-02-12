@@ -39,6 +39,8 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(GroupDialog)
 IMPL_GDCLASS(GroupsEditor)
 
@@ -64,7 +66,7 @@ void GroupDialog::_group_selected() {
 void GroupDialog::_load_nodes(Node *p_current) {
     StringName item_name = p_current->get_name();
     if (p_current != scene_tree->get_edited_scene_root()) {
-        item_name = StringName(se_string(p_current->get_parent()->get_name()) + "/" + item_name);
+        item_name = StringName(String(p_current->get_parent()->get_name()) + "/" + item_name);
     }
 
     bool keep = true;
@@ -93,7 +95,7 @@ void GroupDialog::_load_nodes(Node *p_current) {
     if (keep) {
         node->set_text(0, item_name);
         node->set_metadata(0, path);
-        node->set_tooltip(0, StringName((se_string)path));
+        node->set_tooltip(0, StringName((String)path));
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(p_current, "Node");
         node->set_icon(0, icon);
@@ -222,7 +224,7 @@ void GroupDialog::_group_renamed() {
         return;
     }
 
-    const se_string name(StringUtils::strip_edges(renamed_group->get_text(0)));
+    const String name(StringUtils::strip_edges(renamed_group->get_text(0)));
     for (TreeItem *E = groups_root->get_children(); E; E = E->get_next()) {
         if (E != renamed_group && E->get_text(0) == name) {
             renamed_group->set_text(0, selected_group);
@@ -288,14 +290,14 @@ void GroupDialog::_rename_group_item(se_string_view p_old_name, se_string_view p
 }
 
 void GroupDialog::_load_groups(Node *p_current) {
-    List<Node::GroupInfo> gi;
+    Vector<Node::GroupInfo> gi;
     p_current->get_groups(&gi);
 
-    for (List<Node::GroupInfo>::Element *E = gi.front(); E; E = E->next()) {
-        if (!E->deref().persistent) {
+    for (const Node::GroupInfo &E : gi) {
+        if (!E.persistent) {
             continue;
         }
-        _add_group(E->deref().name);
+        _add_group(E.name);
     }
 
     for (int i = 0; i < p_current->get_child_count(); i++) {
@@ -364,8 +366,8 @@ void GroupDialog::_delete_group_item(se_string_view p_name) {
 void GroupDialog::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            add_button->set_icon(get_icon("Forward", "EditorIcons"));
-            remove_button->set_icon(get_icon("Back", "EditorIcons"));
+            add_button->set_button_icon(get_icon("Forward", "EditorIcons"));
+            remove_button->set_button_icon(get_icon("Back", "EditorIcons"));
 
             add_filter->set_right_icon(get_icon("Search", "EditorIcons"));
             add_filter->set_clear_button_enabled(true);
@@ -607,7 +609,7 @@ void GroupsEditor::_remove_group(Object *p_item, int p_column, int p_id) {
 struct _GroupInfoComparator {
 
     bool operator()(const Node::GroupInfo &p_a, const Node::GroupInfo &p_b) const {
-        return p_a.name.operator String() < p_b.name.operator String();
+        return se_string_view(p_a.name) < se_string_view(p_b.name);
     }
 };
 
@@ -618,15 +620,14 @@ void GroupsEditor::update_tree() {
     if (!node)
         return;
 
-    List<Node::GroupInfo> groups;
+    Vector<Node::GroupInfo> groups;
     node->get_groups(&groups);
-    groups.sort_custom<_GroupInfoComparator>();
+    eastl::sort(groups.begin(),groups.end(),_GroupInfoComparator());
 
     TreeItem *root = tree->create_item();
 
-    for (List<GroupInfo>::Element *E = groups.front(); E; E = E->next()) {
+    for (const GroupInfo &gi : groups) {
 
-        Node::GroupInfo gi = E->deref();
         if (!gi.persistent)
             continue;
 

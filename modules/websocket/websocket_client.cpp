@@ -43,12 +43,12 @@ WebSocketClient::WebSocketClient() {
 WebSocketClient::~WebSocketClient() {
 }
 
-Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolSeStringArray &p_protocols, bool gd_mp_api, const PoolVector<se_string> &p_custom_headers) {
+Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolStringArray &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
     _is_multiplayer = gd_mp_api;
 
-    se_string host(p_url);
-    se_string path("/");
-    auto p_len = se_string::npos;
+    String host(p_url);
+    String path("/");
+    auto p_len = String::npos;
     int port = 80;
     bool ssl = false;
     if (StringUtils::begins_with(host,"wss://")) {
@@ -63,14 +63,14 @@ Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolSeStringAr
 
     // Path
     p_len = StringUtils::find(host,"/");
-    if (p_len != se_string::npos) {
+    if (p_len != String::npos) {
         path = StringUtils::substr(host,p_len, host.length() - p_len);
         host = StringUtils::substr(host,0, p_len);
     }
 
     // Port
     p_len = StringUtils::find_last(host,":");
-    if (p_len != se_string::npos && p_len == StringUtils::find(host,":")) {
+    if (p_len != String::npos && p_len == StringUtils::find(host,":")) {
         port = StringUtils::to_int(StringUtils::substr(host,p_len, host.length() - p_len));
         host = StringUtils::substr(host,0, p_len);
     }
@@ -113,7 +113,7 @@ void WebSocketClient::_on_peer_packet() {
     }
 }
 
-void WebSocketClient::_on_connect(se_string p_protocol) {
+void WebSocketClient::_on_connect(String p_protocol) {
 
     if (_is_multiplayer) {
         // need to wait for ID confirmation...
@@ -146,14 +146,14 @@ void WebSocketClient::_on_error() {
 }
 
 void WebSocketClient::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api", "custom_headers"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolSeStringArray()), DEFVAL(false), DEFVAL(PoolSeStringArray())});
+    MethodBinder::bind_method(D_METHOD("connect_to_url", {"url", "protocols", "gd_mp_api", "custom_headers"}), &WebSocketClient::connect_to_url, {DEFVAL(PoolStringArray()), DEFVAL(false), DEFVAL(PoolStringArray())});
     MethodBinder::bind_method(D_METHOD("disconnect_from_host", {"code", "reason"}), &WebSocketClient::disconnect_from_host, {DEFVAL(1000), DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_connected_host"), &WebSocketClient::get_connected_host);
     MethodBinder::bind_method(D_METHOD("get_connected_port"), &WebSocketClient::get_connected_port);
     MethodBinder::bind_method(D_METHOD("set_verify_ssl_enabled", {"enabled"}), &WebSocketClient::set_verify_ssl_enabled);
     MethodBinder::bind_method(D_METHOD("is_verify_ssl_enabled"), &WebSocketClient::is_verify_ssl_enabled);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "verify_ssl", PROPERTY_HINT_NONE, "", 0), "set_verify_ssl_enabled", "is_verify_ssl_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "verify_ssl", PropertyHint::None, "", 0), "set_verify_ssl_enabled", "is_verify_ssl_enabled");
 
     ADD_SIGNAL(MethodInfo("data_received"));
     ADD_SIGNAL(MethodInfo("connection_established", PropertyInfo(VariantType::STRING, "protocol")));

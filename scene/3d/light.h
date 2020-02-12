@@ -123,7 +123,7 @@ public:
     BakeMode get_bake_mode() const;
 
     AABB get_aabb() const override;
-    PoolVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     Light();
     ~Light() override;

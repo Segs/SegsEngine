@@ -38,8 +38,6 @@
 #include "core/list.h"
 #include "core/math/transform_2d.h"
 
-
-
 class CanvasLayer;
 class Viewport;
 class Font;
@@ -164,6 +162,7 @@ public:
 class GODOT_EXPORT CanvasItem : public Node {
 
     GDCLASS(CanvasItem,Node)
+//    Q_GADGET
 
 public:
     enum BlendMode {
@@ -188,7 +187,7 @@ private:
     Color self_modulate;
 
     List<CanvasItem *> children_items;
-    List<CanvasItem *>::Element *C;
+    List<CanvasItem *>::iterator C;
 
     int light_mask;
 
@@ -207,25 +206,23 @@ private:
 
     mutable Transform2D global_transform;
     mutable bool global_invalid;
+    static CanvasItem *current_item_drawn;
 
-    void _toplevel_raise_self();
-
-    void _propagate_visibility_changed(bool p_visible);
-
-    void _update_callback();
+    /*Q_INVOKABLE*/ void _toplevel_raise_self();
+    /*Q_INVOKABLE*/ void _propagate_visibility_changed(bool p_visible);
+    /*Q_INVOKABLE*/ void _update_callback();
 
     void _enter_canvas();
     void _exit_canvas();
 
     void _notify_transform(CanvasItem *p_node);
-
+public:
     void _set_on_top(bool p_on_top) { set_draw_behind_parent(!p_on_top); }
     bool _is_on_top() const { return !is_draw_behind_parent_enabled(); }
 
-    static CanvasItem *current_item_drawn;
 
 protected:
-    _FORCE_INLINE_ void _notify_transform() {
+    void _notify_transform() {
         if (!is_inside_tree()) return;
         _notify_transform(this);
         if (!block_transform_notify && notify_local_transform) notification(NOTIFICATION_LOCAL_TRANSFORM_CHANGED);
@@ -254,7 +251,7 @@ public:
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 
     // Save and restore a CanvasItem state
-    virtual void _edit_set_state(const Dictionary &/*p_state*/){}
+    /*Q_INVOKABLE*/ virtual void _edit_set_state(const Dictionary &/*p_state*/){}
     virtual Dictionary _edit_get_state() const { return Dictionary(); }
 
     // Used to move the node
@@ -305,26 +302,26 @@ public:
     /* DRAWING API */
 
     void draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_polyline(const Vector<Point2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_polyline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_polyline(const Vector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_polyline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void draw_arc(const Vector2 &p_center, float p_radius, float p_start_angle, float p_end_angle, int p_point_count, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_multiline(const Vector<Point2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_multiline_colors(const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_multiline(const Vector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_multiline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_filled = true, float p_width = 1.0, bool p_antialiased = false);
     void draw_circle(const Point2 &p_pos, float p_radius, const Color &p_color);
     void draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1, 1), const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = false);
     void draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect);
-    void draw_primitive(const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
-    void draw_polygon(Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
-    void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const Vector<Point2> &p_uvs = Vector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
+    void draw_primitive(const Vector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
+    void draw_polygon(Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
+    void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
 
     void draw_mesh(const Ref<Mesh> &p_mesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map, const Transform2D &p_transform = Transform2D(), const Color &p_modulate = Color(1, 1, 1));
     void draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map);
 
-    void draw_string(const Ref<Font> &p_font, const Point2 &p_pos, const String &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
-    void draw_string_utf8(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
+    void draw_ui_string(const Ref<Font> &p_font, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
+    void draw_string(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
     float draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate = Color(1, 1, 1));
 
     void draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale);

@@ -129,7 +129,9 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
         to_x = MIN(to_x, right_limit);
 
         Vector<Vector2> lines;
-
+        int diff = to_x-from_x;
+        if(diff>0)
+            lines.reserve(diff-1);
         Vector2 prev_pos;
 
         for (int j = from_x; j <= to_x; j++) {
@@ -176,8 +178,8 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
             Vector2 pos(j, h);
 
             if (j > from_x) {
-                lines.push_back(prev_pos);
-                lines.push_back(pos);
+                lines.emplace_back(prev_pos);
+                lines.emplace_back(j,h);
             }
             prev_pos = pos;
         }
@@ -270,9 +272,9 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         close_icon_rect.size = close_icon->get_size();
         draw_texture(close_icon, close_icon_rect.position);
 
-        se_string base_path(animation->track_get_path(track));
+        String base_path(animation->track_get_path(track));
         auto end = StringUtils::find(base_path,":");
-        if (end != se_string::npos) {
+        if (end != String::npos) {
             base_path = StringUtils::substr(base_path,0, end + 1);
         }
 
@@ -289,7 +291,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 node = root->get_node(path);
             }
 
-            se_string text;
+            String text;
 
             int h = font->get_height();
 
@@ -310,7 +312,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
 
                 Vector2 string_pos = Point2(ofs, vofs + (h - font->get_height()) / 2 + font->get_ascent());
                 string_pos = string_pos.floor();
-                draw_string_utf8(font, string_pos, text, color, limit - ofs - hsep);
+                draw_string(font, string_pos, text, color, limit - ofs - hsep);
 
                 vofs += h + vsep;
             }
@@ -324,10 +326,10 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
         for (int i = 0; i < animation->get_track_count(); i++) {
             if (animation->track_get_type(i) != Animation::TYPE_BEZIER)
                 continue;
-            se_string path(animation->track_get_path(i));
+            String path(animation->track_get_path(i));
             if (!StringUtils::begins_with(path,base_path))
                 continue; //another node
-            path = StringUtils::replace_first(path,base_path, se_string());
+            path = StringUtils::replace_first(path,base_path, String());
 
             Color cc = color;
             Rect2 rect = Rect2(margin, vofs, limit - margin - hsep, font->get_height() + vsep);
@@ -350,7 +352,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                 ac.a = 0.5;
                 draw_rect(rect, ac);
             }
-            draw_string_utf8(font, Point2(margin, vofs + font->get_ascent()), path, cc, limit - margin - hsep);
+            draw_string(font, Point2(margin, vofs + font->get_ascent()), path, cc, limit - margin - hsep);
 
             vofs += font->get_height() + vsep;
         }
@@ -386,7 +388,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                     draw_line(Point2(limit, i), Point2(right_limit, i), lc);
                     Color c = color;
                     c.a *= 0.5f;
-                    draw_string_utf8(font, Point2(limit + 8, i - 2), rtos(Math::stepify((iv + 1) * scale, step)), c);
+                    draw_string(font, Point2(limit + 8, i - 2), rtos(Math::stepify((iv + 1) * scale, step)), c);
                 }
 
                 first = false;
@@ -461,8 +463,8 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
                     ep.point_rect.size = bezier_icon->get_size();
                     if (selection.contains(i)) {
                         draw_texture(selected_icon, ep.point_rect.position);
-                        draw_string_utf8(font, ep.point_rect.position + Vector2(8, -font->get_height() - 4), TTR("Time:") + " " + rtos(Math::stepify(offset, 0.001f)), accent);
-                        draw_string_utf8(font, ep.point_rect.position + Vector2(8, -8), TTR("Value:") + " " + rtos(Math::stepify(value, 0.001f)), accent);
+                        draw_string(font, ep.point_rect.position + Vector2(8, -font->get_height() - 4), TTR("Time:") + " " + rtos(Math::stepify(offset, 0.001f)), accent);
+                        draw_string(font, ep.point_rect.position + Vector2(8, -8), TTR("Value:") + " " + rtos(Math::stepify(value, 0.001f)), accent);
                     } else {
                         draw_texture(bezier_icon, ep.point_rect.position);
                     }
@@ -497,26 +499,6 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
             }
             draw_rect(Rect2(bs_from, bs_to - bs_from), bs);
         }
-
-#if 0
-        // KEYFAMES //
-
-        {
-
-            float scale = timeline->get_zoom_scale();
-            int limit_end = get_size().width - timeline->get_buttons_width();
-
-            for (int i = 0; i < animation->track_get_key_count(track); i++) {
-
-                float offset = animation->track_get_key_time(track, i) - timeline->get_value();
-                if (editor->is_key_selected(track, i) && editor->is_moving_selection()) {
-                    offset += editor->get_moving_selection_offset();
-                }
-                offset = offset * scale + limit;
-                draw_key(i, scale, int(offset), editor->is_key_selected(track, i), limit, limit_end);
-            }
-        }
-#endif
     }
 }
 
@@ -613,7 +595,7 @@ void AnimationBezierTrackEdit::_select_at_anim(const Ref<Animation> &p_anim, int
         return;
 
     int idx = animation->track_find_key(p_track, p_pos, true);
-    ERR_FAIL_COND(idx < 0)
+    ERR_FAIL_COND(idx < 0);
 
     selection.insert(idx);
     emit_signal("select_key", idx, true);
@@ -791,7 +773,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             //then attempt to move
             int index = animation->track_find_key(track, time, true);
-            ERR_FAIL_COND(index == -1)
+            ERR_FAIL_COND(index == -1);
             _clear_selection();
             selection.insert(index);
 
@@ -867,7 +849,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             undo_redo->create_action_ui(TTR("Move Bezier Points"));
 
-            List<AnimMoveRestore> to_restore;
+            Vector<AnimMoveRestore> to_restore;
             // 1-remove the keys
             for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 
@@ -892,7 +874,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 amr.track = track;
                 amr.time = newtime;
 
-                to_restore.push_back(amr);
+                to_restore.emplace_back(amr);
             }
 
             // 3-move the keys (re insert them)
@@ -929,9 +911,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             }
 
             // 6-(undo) reinsert overlapped keys
-            for (List<AnimMoveRestore>::Element *E = to_restore.front(); E; E = E->next()) {
-
-                AnimMoveRestore &amr = E->deref();
+            for (AnimMoveRestore & amr : to_restore) {
                 undo_redo->add_undo_method(animation.get(), "track_insert_key", amr.track, amr.time, amr.key, 1);
             }
 
@@ -1103,7 +1083,8 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 
     undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
 
-    List<Pair<int, float> > new_selection_values;
+    Vector<Pair<int, float> > new_selection_values;
+    new_selection_values.reserve(selection.size());
 
     for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 
@@ -1114,10 +1095,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
         undo_redo->add_do_method(animation.get(), "track_insert_key", track, dst_time, animation->track_get_key_value(track, *E), animation->track_get_key_transition(track, *E));
         undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, dst_time);
 
-        Pair<int, float> p;
-        p.first = track;
-        p.second = dst_time;
-        new_selection_values.push_back(p);
+        new_selection_values.emplace_back(track,dst_time);
 
         if (existing_idx != -1) {
 
@@ -1130,10 +1108,10 @@ void AnimationBezierTrackEdit::duplicate_selection() {
     //reselect duplicated
 
     selection.clear();
-    for (List<Pair<int, float> >::Element *E = new_selection_values.front(); E; E = E->next()) {
+    for (const Pair<int, float> &E : new_selection_values) {
 
-        int track = E->deref().first;
-        float time = E->deref().second;
+        int track = E.first;
+        float time = E.second;
 
         int existing_idx = animation->track_find_key(track, time, true);
 

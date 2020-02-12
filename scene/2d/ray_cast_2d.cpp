@@ -187,11 +187,11 @@ void RayCast2D::_notification(int p_what) {
             pts.push_back(xf.xform(Vector2(tsize, 0)));
             pts.push_back(xf.xform(Vector2(0, 0.707 * tsize)));
             pts.push_back(xf.xform(Vector2(0, -0.707 * tsize)));
-            Vector<Color> cols;
+            PoolVector<Color> cols;
             for (int i = 0; i < 3; i++)
                 cols.push_back(draw_col);
 
-            draw_primitive(pts, cols, Vector<Vector2>());
+            draw_primitive(pts, cols, PoolVector<Vector2>());
 
         } break;
 
@@ -208,10 +208,10 @@ void RayCast2D::_notification(int p_what) {
 
 void RayCast2D::_update_raycast_state() {
     Ref<World2D> w2d = get_world_2d();
-    ERR_FAIL_COND(not w2d)
+    ERR_FAIL_COND(not w2d);
 
     Physics2DDirectSpaceState *dss = Physics2DServer::get_singleton()->space_get_direct_state(w2d->get_space());
-    ERR_FAIL_COND(!dss)
+    ERR_FAIL_COND(!dss);
 
     Transform2D gt = get_global_transform();
 
@@ -246,7 +246,7 @@ void RayCast2D::add_exception_rid(const RID &p_rid) {
 
 void RayCast2D::add_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     const CollisionObject2D *co = object_cast<CollisionObject2D>(p_object);
     if (!co)
         return;
@@ -260,7 +260,7 @@ void RayCast2D::remove_exception_rid(const RID &p_rid) {
 
 void RayCast2D::remove_exception(const Object *p_object) {
 
-    ERR_FAIL_NULL(p_object)
+    ERR_FAIL_NULL(p_object);
     const CollisionObject2D *co = object_cast<CollisionObject2D>(p_object);
     if (!co)
         return;
@@ -334,11 +334,11 @@ void RayCast2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "exclude_parent"), "set_exclude_parent_body", "get_exclude_parent_body");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cast_to"), "set_cast_to", "get_cast_to");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Collide With", "collide_with");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collide_with_areas", "is_collide_with_areas_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies", PROPERTY_HINT_LAYERS_3D_PHYSICS), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas", PropertyHint::Layers3DPhysics), "set_collide_with_areas", "is_collide_with_areas_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_bodies", PropertyHint::Layers3DPhysics), "set_collide_with_bodies", "is_collide_with_bodies_enabled");
 }
 
 RayCast2D::RayCast2D() {

@@ -173,7 +173,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
     };
 
     int channel_count = get_channel_count(format);
-    ERR_FAIL_COND_V(p_grayscale && channel_count != 1, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_grayscale && channel_count != 1, ERR_INVALID_PARAMETER);
 
     int target_pixel_type = get_target_pixel_type(format);
     int target_pixel_type_size = get_pixel_type_size(target_pixel_type);
@@ -230,7 +230,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
                 }
 
             } else {
-                CRASH_NOW()
+                CRASH_NOW();
             }
 
             int remapped_index = channel_mapping[channel_index];
@@ -273,7 +273,7 @@ Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale) 
         return res;
 
     const char *err;
-    se_string utf8_filename(p_path);
+    String utf8_filename(p_path);
     int ret = SaveEXRImageToFile(&image, &header, utf8_filename.data(), &err);
     if (ret != TINYEXR_SUCCESS) {
         //TODO: use OsInterface if the reporting is needed.
@@ -284,7 +284,7 @@ Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale) 
 
     return OK;
 }
-Error save_exr(PODVector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale) {
+Error save_exr(Vector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale) {
     EXRImage image;
     EXRHeader header;
     auto res = prepare_exr_save(image,header,p_img,p_grayscale);

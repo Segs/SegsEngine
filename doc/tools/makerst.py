@@ -14,7 +14,7 @@ GODOT_DOCS_PATTERN = re.compile(r'^http(?:s)?://docs\.godotengine\.org/(?:[a-zA-
 
 
 def print_error(error, state):  # type: (str, State) -> None
-    print(error)
+    print("ERROR: {}".format(error))
     state.errored = True
 
 
@@ -98,7 +98,6 @@ class ClassDef:
         self.methods = OrderedDict()  # type: OrderedDict[str, List[MethodDef]]
         self.signals = OrderedDict()  # type: OrderedDict[str, SignalDef]
         self.inherits = None  # type: Optional[str]
-        self.category = None  # type: Optional[str]
         self.brief_description = None  # type: Optional[str]
         self.description = None  # type: Optional[str]
         self.theme_items = None  # type: Optional[OrderedDict[str, List[ThemeItemDef]]]
@@ -122,10 +121,6 @@ class State:
         if inherits is not None:
             class_def.inherits = inherits
 
-        category = class_root.get("category")
-        if category is not None:
-            class_def.category = category
-
         brief_desc = class_root.find("brief_description")
         if brief_desc is not None and brief_desc.text:
             class_def.brief_description = brief_desc.text
@@ -148,6 +143,8 @@ class State:
                 setter = property.get("setter") or None  # Use or None so '' gets turned into None.
                 getter = property.get("getter") or None
                 default_value = property.get("default") or None
+                if default_value is not None:
+                    default_value = '``{}``'.format(default_value)
                 overridden = property.get("override") or False
 
                 property_def = PropertyDef(property_name, type_name, setter, getter, property.text, default_value, overridden)
@@ -391,14 +388,21 @@ def make_rst_class(class_def, state, dry_run, output_dir):  # type: (ClassDef, S
             f.write(make_type(child, state))
         f.write("\n\n")
 
-    # Category
-    if class_def.category is not None:
-        f.write('**Category:** ' + class_def.category.strip() + "\n\n")
-
     # Brief description
-    f.write(make_heading('Brief Description', '-'))
     if class_def.brief_description is not None:
         f.write(rstize_text(class_def.brief_description.strip(), state) + "\n\n")
+
+    # Class description
+    if class_def.description is not None and class_def.description.strip() != '':
+        f.write(make_heading('Description', '-'))
+        f.write(rstize_text(class_def.description.strip(), state) + "\n\n")
+
+    # Online tutorials
+    if len(class_def.tutorials) > 0:
+        f.write(make_heading('Tutorials', '-'))
+        for t in class_def.tutorials:
+            link = t.strip()
+            f.write("- " + make_url(link) + "\n\n")
 
     # Properties overview
     if len(class_def.properties) > 0:
@@ -491,18 +495,6 @@ def make_rst_class(class_def, state, dry_run, output_dir):  # type: (ClassDef, S
                 f.write(' --- ' + rstize_text(constant.text.strip(), state))
 
             f.write('\n\n')
-
-    # Class description
-    if class_def.description is not None and class_def.description.strip() != '':
-        f.write(make_heading('Description', '-'))
-        f.write(rstize_text(class_def.description.strip(), state) + "\n\n")
-
-    # Online tutorials
-    if len(class_def.tutorials) > 0:
-        f.write(make_heading('Tutorials', '-'))
-        for t in class_def.tutorials:
-            link = t.strip()
-            f.write("- " + make_url(link) + "\n\n")
 
     # Property descriptions
     if any(not p.overridden for p in class_def.properties.values()) > 0:
@@ -622,6 +614,40 @@ def make_class_list(class_list, columns):  # type: (List[str], int) -> None
     f.close()
 
 
+def escape_rst(text, until_pos=-1):  # type: (str) -> str
+    # Escape \ character, otherwise it ends up as an escape character in rst
+    pos = 0
+    while True:
+        pos = text.find('\\', pos, until_pos)
+        if pos == -1:
+            break
+        text = text[:pos] + "\\\\" + text[pos + 1:]
+        pos += 2
+
+    # Escape * character to avoid interpreting it as emphasis
+    pos = 0
+    while True:
+        pos = text.find('*', pos, until_pos)
+        if pos == -1:
+            break
+        text = text[:pos] + "\*" + text[pos + 1:]
+        pos += 2
+
+    # Escape _ character at the end of a word to avoid interpreting it as an inline hyperlink
+    pos = 0
+    while True:
+        pos = text.find('_', pos, until_pos)
+        if pos == -1:
+            break
+        if not text[pos + 1].isalnum():  # don't escape within a snake_case word
+            text = text[:pos] + "\_" + text[pos + 1:]
+            pos += 2
+        else:
+            pos += 1
+
+    return text
+
+
 def rstize_text(text, state):  # type: (str, State) -> str
     # Linebreak + tabs in the XML should become two line breaks unless in a "codeblock"
     pos = 0
@@ -677,36 +703,7 @@ def rstize_text(text, state):  # type: (str, State) -> str
             pos += 2
 
     next_brac_pos = text.find('[')
-
-    # Escape \ character, otherwise it ends up as an escape character in rst
-    pos = 0
-    while True:
-        pos = text.find('\\', pos, next_brac_pos)
-        if pos == -1:
-            break
-        text = text[:pos] + "\\\\" + text[pos + 1:]
-        pos += 2
-
-    # Escape * character to avoid interpreting it as emphasis
-    pos = 0
-    while True:
-        pos = text.find('*', pos, next_brac_pos)
-        if pos == -1:
-            break
-        text = text[:pos] + "\*" + text[pos + 1:]
-        pos += 2
-
-    # Escape _ character at the end of a word to avoid interpreting it as an inline hyperlink
-    pos = 0
-    while True:
-        pos = text.find('_', pos, next_brac_pos)
-        if pos == -1:
-            break
-        if not text[pos + 1].isalnum():  # don't escape within a snake_case word
-            text = text[:pos] + "\_" + text[pos + 1:]
-            pos += 2
-        else:
-            pos += 1
+    text = escape_rst(text, next_brac_pos)
 
     # Handle [tags]
     inside_code = False
@@ -879,6 +876,7 @@ def rstize_text(text, state):  # type: (str, State) -> str
                 inside_code = True
             elif cmd.startswith('enum '):
                 tag_text = make_enum(cmd[5:], state)
+                escape_post = True
             else:
                 tag_text = make_type(tag_text, state)
                 escape_post = True
@@ -975,7 +973,11 @@ def make_enum(t, state):  # type: (str, State) -> str
 
     if c in state.classes and e in state.classes[c].enums:
         return ":ref:`{0}<enum_{1}_{0}>`".format(e, c)
-    print_error("Unresolved enum '{}', file: {}".format(t, state.current_class), state)
+
+    # Don't fail for `Vector3.Axis`, as this enum is a special case which is expected not to be resolved.
+    if "{}.{}".format(c, e) != "Vector3.Axis":
+        print_error("Unresolved enum '{}', file: {}".format(t, state.current_class), state)
+
     return t
 
 

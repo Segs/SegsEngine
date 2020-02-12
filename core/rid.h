@@ -31,21 +31,9 @@
 #pragma once
 
 #include "core/typedefs.h"
-#include "core/os/memory.h"
 #include "core/safe_refcount.h"
 #include "core/set.h"
 #include "core/error_macros.h"
-
-template <class T, class A>
-class List;
-template <class T>
-using DefList = class List<T, DefaultAllocator>;
-namespace eastl {
-template<class V,class Allocator>
-class list;
-}
-template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
 
 class RID_OwnerBase;
 
@@ -128,7 +116,7 @@ protected:
 #endif
 
 public:
-    virtual void get_owned_list(ListPOD<RID> *p_owned);
+    virtual void get_owned_list(List<RID> *p_owned);
     static void init_rid();
     virtual ~RID_OwnerBase() = default;
 
@@ -172,8 +160,8 @@ public:
 
 #ifdef DEBUG_ENABLED
 
-        ERR_FAIL_COND_V(!p_rid.is_valid(), nullptr)
-        ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr)
+        ERR_FAIL_COND_V(!p_rid.is_valid(), nullptr);
+        ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr);
 #endif
         return static_cast<T *>(p_rid.get_data());
     }
@@ -183,7 +171,7 @@ public:
 #ifdef DEBUG_ENABLED
 
         if (p_rid.get_data()) {
-            ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr)
+            ERR_FAIL_COND_V(!id_map.contains(p_rid.get_data()), nullptr);
         }
 #endif
         return static_cast<T *>(p_rid.get_data());

@@ -69,7 +69,7 @@ void EditorScript::_run() {
 
     Ref<Script> s(refFromRefPtr<Script>(get_script()));
 
-    ERR_FAIL_COND(not s)
+    ERR_FAIL_COND(not s);
     if (!get_script_instance()) {
         EditorNode::add_io_error(FormatSN(
                 TTR("Couldn't instance script:\n %s\nDid you forget the 'tool' keyword?").asCString(), s->get_path().c_str()));

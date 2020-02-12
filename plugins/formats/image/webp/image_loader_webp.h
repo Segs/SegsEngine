@@ -38,11 +38,11 @@ class ImageLoaderWEBP : public QObject, public ImageFormatLoader,public ImageFor
     Q_OBJECT
 public:
     Error load_image(ImageData &p_image, FileAccess *f, LoadParams params) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
 
-    Error save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params={}) override;
+    Error save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params={}) override;
     Error save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params={}) override;
-    void get_saved_extensions(PODVector<se_string> &p_extensions) const override {
+    void get_saved_extensions(Vector<String> &p_extensions) const override {
         this->get_recognized_extensions(p_extensions);
     }
     bool can_save(se_string_view extension) override;

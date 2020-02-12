@@ -70,7 +70,7 @@ bool Listener::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Listener::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Listener::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::BOOL, "current"));
 }

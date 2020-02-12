@@ -41,8 +41,6 @@
 
 #include <cstdio>
 
-GODOT_TEMPLATE_EXT_DEFINE(Vector<Logger *>)
-
 #if defined(MINGW_ENABLED) || defined(_MSC_VER)
 //#define sprintf sprintf_s
 #endif
@@ -56,12 +54,12 @@ void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_l
         return;
     }
 
-    const char *err_type = "**ERROR**";
+    const char *err_type = "ERROR";
     switch (p_type) {
-        case ERR_ERROR: err_type = "**ERROR**"; break;
-        case ERR_WARNING: err_type = "**WARNING**"; break;
-        case ERR_SCRIPT: err_type = "**SCRIPT ERROR**"; break;
-        case ERR_SHADER: err_type = "**SHADER ERROR**"; break;
+        case ERR_ERROR: err_type = "ERROR"; break;
+        case ERR_WARNING: err_type = "WARNING"; break;
+        case ERR_SCRIPT: err_type = "SCRIPT ERROR"; break;
+        case ERR_SHADER: err_type = "SHADER ERROR"; break;
         default: ERR_PRINT("Unknown error type"); break;
     }
 
@@ -72,7 +70,11 @@ void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_l
         err_details = p_code;
 
     logf_error(FormatVE("%s: %.*s\n",err_type,err_details.size(),err_details.data()));
-    logf_error(FormatVE("   At: %.*s:%i:%.*s() - %.*s\n",p_file.size(),p_file.data(),p_line,p_function.size(),p_function.data(),p_code.size(),p_code.data()));
+    logf_error(FormatVE("   at: %.*s (%.*s:%i) - %.*s\n",
+                        p_function.size(),p_function.data(),
+                        p_file.size(),p_file.data(),p_line,
+                        p_code.size(),p_code.data())
+               );
 }
 
 void Logger::logf(se_string_view p_msg) {
@@ -111,8 +113,8 @@ void RotatedFileLogger::clear_old_backups() const {
     }
 
     da->list_dir_begin();
-    se_string f = da->get_next();
-    Set<se_string> backups;
+    String f = da->get_next();
+    Set<String> backups;
     while (!f.empty()) {
         if (!da->current_is_dir() && StringUtils::begins_with(f, basename) && PathUtils::get_extension(f) == extension &&
                 se_string_view(f) != PathUtils::get_file(base_path)) {
@@ -126,7 +128,7 @@ void RotatedFileLogger::clear_old_backups() const {
         // since backups are appended with timestamp and Set iterates them in sorted order,
         // first backups are the oldest
         int to_delete = backups.size() - max_backups;
-        for (const se_string &E : backups) {
+        for (const String &E : backups) {
             if(to_delete--<=0)
                 break;
             da->remove(E);
@@ -146,7 +148,7 @@ void RotatedFileLogger::rotate_file() {
             OS::Time time = OS::get_singleton()->get_time();
             sprintf(timestamp, "-%04d-%02d-%02d-%02d-%02d-%02d", date.year, date.month, date.day, time.hour, time.min, time.sec);
 
-            se_string backup_name = se_string(PathUtils::get_basename(base_path)) + timestamp;
+            String backup_name = String(PathUtils::get_basename(base_path)) + timestamp;
             if (!PathUtils::get_extension(base_path).empty()) {
                 backup_name.push_back('.');
                 backup_name.append(PathUtils::get_extension(base_path));
@@ -170,7 +172,7 @@ void RotatedFileLogger::rotate_file() {
     file = FileAccess::open(base_path, FileAccess::WRITE);
 }
 
-RotatedFileLogger::RotatedFileLogger(const se_string &p_base_path, int p_max_files) :
+RotatedFileLogger::RotatedFileLogger(const String &p_base_path, int p_max_files) :
         base_path(PathUtils::simplify_path(p_base_path)),
         max_files(p_max_files > 0 ? p_max_files : 1),
         file(nullptr) {
@@ -206,9 +208,9 @@ void StdLogger::logv(se_string_view p_format, bool p_err) {
     }
 
     if (p_err) {
-        fprintf(stderr, "%.*s",p_format.length(),p_format.data());
+        fprintf(stderr, "%.*s",uint32_t(p_format.length()),p_format.data());
     } else {
-        printf("%.*s",p_format.length(),p_format.data());
+        printf("%.*s", uint32_t(p_format.length()),p_format.data());
 #ifdef DEBUG_ENABLED
         fflush(stdout);
 #endif
@@ -217,7 +219,7 @@ void StdLogger::logv(se_string_view p_format, bool p_err) {
 
 StdLogger::~StdLogger() = default;
 
-CompositeLogger::CompositeLogger(PODVector<Logger *> && p_loggers) :
+CompositeLogger::CompositeLogger(Vector<Logger *> && p_loggers) :
         loggers(p_loggers) {
 }
 
@@ -226,8 +228,8 @@ void CompositeLogger::logv(se_string_view p_msg, bool p_err) {
         return;
     }
 
-    for (int i = 0; i < loggers.size(); ++i) {
-        loggers[i]->logv(p_msg, p_err);
+    for (Logger * l : loggers) {
+        l->logv(p_msg, p_err);
     }
 }
 void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
@@ -235,8 +237,8 @@ void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file
         return;
     }
 
-    for (int i = 0; i < loggers.size(); ++i) {
-        loggers[i]->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
+    for (Logger * l : loggers) {
+        l->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
     }
 }
 
@@ -245,7 +247,7 @@ void CompositeLogger::add_logger(Logger *p_logger) {
 }
 
 CompositeLogger::~CompositeLogger() {
-    for (int i = 0; i < loggers.size(); ++i) {
-        memdelete(loggers[i]);
+    for (Logger * l : loggers) {
+        memdelete(l);
     }
 }

@@ -41,9 +41,9 @@ IMPL_GDCLASS(EditorProfiler)
 void EditorProfiler::_make_metric_ptrs(Metric &m) {
 
     for (int i = 0; i < m.categories.size(); i++) {
-        m.category_ptrs[m.categories[i].signature] = &m.categories.write[i];
+        m.category_ptrs[m.categories[i].signature] = &m.categories[i];
         for (int j = 0; j < m.categories[i].items.size(); j++) {
-            m.item_ptrs[m.categories[i].items[j].signature] = &m.categories.write[i].items.write[j];
+            m.item_ptrs[m.categories[i].items[j].signature] = &m.categories[i].items[j];
         }
     }
 }
@@ -54,8 +54,8 @@ void EditorProfiler::add_frame_metric(const Metric &p_metric, bool p_final) {
     if (last_metric >= frame_metrics.size())
         last_metric = 0;
 
-    frame_metrics.write[last_metric] = p_metric;
-    _make_metric_ptrs(frame_metrics.write[last_metric]);
+    frame_metrics[last_metric] = p_metric;
+    _make_metric_ptrs(frame_metrics[last_metric]);
 
     updating_frame = true;
     cursor_metric_edit->set_max(frame_metrics[last_metric].frame_number);
@@ -105,23 +105,24 @@ void EditorProfiler::clear() {
     seeking = false;
 }
 
-static se_string _get_percent_txt(float p_value, float p_total) {
-    if (p_total == 0.0f)
+static String _get_percent_txt(float p_value, float p_total) {
+    if (p_total == 0.0f) {
         p_total = 0.00001f;
-    return se_string(StringUtils::num(p_value / p_total * 100, 1) + "%");
+    }
+    return String(StringUtils::num(p_value / p_total * 100, 1) + "%");
 }
 
-se_string EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
+String EditorProfiler::_get_time_as_text(const Metric &m, float p_time, int p_calls) {
 
-    int dmode = display_mode->get_selected();
+    const int dmode = display_mode->get_selected();
 
     if (dmode == DISPLAY_FRAME_TIME) {
-        return rtos(p_time);
+        return StringUtils::pad_decimals(rtos(p_time*1000),2) + " ms";
     } else if (dmode == DISPLAY_AVERAGE_TIME) {
         if (p_calls == 0)
-            return "0";
+            return "0.00 ms";
         else
-            return rtos(p_time / p_calls);
+            return StringUtils::pad_decimals(rtos(1000*(p_time / p_calls)),2)+" ms";
     } else if (dmode == DISPLAY_FRAME_PERCENT) {
         return _get_percent_txt(p_time, m.frame_time);
     } else if (dmode == DISPLAY_PHYSICS_FRAME_PERCENT) {
@@ -167,12 +168,12 @@ void EditorProfiler::_item_edited() {
 
 void EditorProfiler::_update_plot() {
 
-    int w = graph->get_size().width;
-    int h = graph->get_size().height;
+    const int w = graph->get_size().width;
+    const int h = graph->get_size().height;
+    const int desired_len = w * h * 4;
 
     bool reset_texture = false;
 
-    int desired_len = w * h * 4;
 
     if (graph_image.size() != desired_len) {
         reset_texture = true;
@@ -180,13 +181,19 @@ void EditorProfiler::_update_plot() {
     }
 
     PoolVector<uint8_t>::Write wr = graph_image.write();
-
-    //clear
+    const Color background_color = get_color("dark_color_2", "Editor");
+    const uint8_t clr_val[4] = {
+        (uint8_t)Math::fast_ftoi(background_color.r * 255),
+        (uint8_t)Math::fast_ftoi(background_color.g * 255),
+        (uint8_t)Math::fast_ftoi(background_color.b * 255),
+        255
+    };
+    // Clear the previous frame and set the background color.
     for (int i = 0; i < desired_len; i += 4) {
-        wr[i + 0] = 0;
-        wr[i + 1] = 0;
-        wr[i + 2] = 0;
-        wr[i + 3] = 255;
+        wr[i + 0] = clr_val[0];
+        wr[i + 1] = clr_val[1];
+        wr[i + 2] = clr_val[2];
+        wr[i + 3] = clr_val[3];
     }
 
     //find highest value
@@ -225,7 +232,7 @@ void EditorProfiler::_update_plot() {
         Vector<int> columnv;
         columnv.resize(h * 4);
 
-        int *column = columnv.ptrw();
+        int *column = columnv.data();
 
         Map<StringName, int> plot_prev;
         //Map<StringName,int> plot_max;
@@ -330,14 +337,16 @@ void EditorProfiler::_update_plot() {
                     column[j + 2] /= a;
                 }
 
-                uint8_t r = uint8_t(column[j + 0]);
-                uint8_t g = uint8_t(column[j + 1]);
-                uint8_t b = uint8_t(column[j + 2]);
+                const uint8_t red = uint8_t(column[j + 0]);
+                const uint8_t green = uint8_t(column[j + 1]);
+                const uint8_t blue = uint8_t(column[j + 2]);
+                const bool is_filled = red >= 1 || green >= 1 || blue >= 1;
+                const int widx = ((j >> 2) * w + i) * 4;
 
-                int widx = ((j >> 2) * w + i) * 4;
-                wr[widx + 0] = r;
-                wr[widx + 1] = g;
-                wr[widx + 2] = b;
+                // If the pixel isn't filled by any profiler line, apply the background color instead.
+                wr[widx + 0] = is_filled ? red : clr_val[0];
+                wr[widx + 1] = is_filled ? green : clr_val[1];
+                wr[widx + 2] = is_filled ? blue : clr_val[2];
                 wr[widx + 3] = 255;
             }
         }
@@ -421,10 +430,10 @@ void EditorProfiler::_update_frame() {
 void EditorProfiler::_activate_pressed() {
 
     if (activate->is_pressed()) {
-        activate->set_icon(get_icon("Stop", "EditorIcons"));
+        activate->set_button_icon(get_icon("Stop", "EditorIcons"));
         activate->set_text(TTR("Stop"));
     } else {
-        activate->set_icon(get_icon("Play", "EditorIcons"));
+        activate->set_button_icon(get_icon("Play", "EditorIcons"));
         activate->set_text(TTR("Start"));
     }
     emit_signal("enable_profiling", activate->is_pressed());
@@ -439,8 +448,8 @@ void EditorProfiler::_clear_pressed() {
 void EditorProfiler::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        activate->set_icon(get_icon("Play", "EditorIcons"));
-        clear_button->set_icon(get_icon("Clear", "EditorIcons"));
+        activate->set_button_icon(get_icon("Play", "EditorIcons"));
+        clear_button->set_button_icon(get_icon("Clear", "EditorIcons"));
     }
 }
 
@@ -623,15 +632,15 @@ bool EditorProfiler::is_profiling() {
     return activate->is_pressed();
 }
 
-PODVector<PODVector<se_string> > EditorProfiler::get_data_as_csv() const {
-    PODVector<PODVector<se_string> > res;
+Vector<Vector<String> > EditorProfiler::get_data_as_csv() const {
+    Vector<Vector<String> > res;
 
     if (frame_metrics.empty()) {
         return res;
     }
 
     // signatures
-    PODVector<se_string> signatures;
+    Vector<String> signatures;
     const Vector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
 
     for (int j = 0; j < categories.size(); j++) {
@@ -646,7 +655,7 @@ PODVector<PODVector<se_string> > EditorProfiler::get_data_as_csv() const {
     res.push_back(signatures);
 
     // values
-    PODVector<se_string> values;
+    Vector<String> values;
     values.resize(signatures.size());
 
     int index = last_metric;
@@ -731,7 +740,7 @@ EditorProfiler::EditorProfiler() {
     h_split->set_v_size_flags(SIZE_EXPAND_FILL);
 
     variables = memnew(Tree);
-    variables->set_custom_minimum_size(Size2(300, 0) * EDSCALE);
+    variables->set_custom_minimum_size(Size2(320, 0) * EDSCALE);
     variables->set_hide_folding(true);
     h_split->add_child(variables);
     variables->set_hide_root(true);
@@ -739,10 +748,10 @@ EditorProfiler::EditorProfiler() {
     variables->set_column_titles_visible(true);
     variables->set_column_title(0, TTR("Name"));
     variables->set_column_expand(0, true);
-    variables->set_column_min_width(0, 60);
+    variables->set_column_min_width(0, 60 * EDSCALE);
     variables->set_column_title(1, TTR("Time"));
     variables->set_column_expand(1, false);
-    variables->set_column_min_width(1, 60 * EDSCALE);
+    variables->set_column_min_width(1, 100 * EDSCALE);
     variables->set_column_title(2, TTR("Calls"));
     variables->set_column_expand(2, false);
     variables->set_column_min_width(2, 60 * EDSCALE);
@@ -751,7 +760,6 @@ EditorProfiler::EditorProfiler() {
     graph = memnew(TextureRect);
     graph->set_expand(true);
     graph->set_mouse_filter(MOUSE_FILTER_STOP);
-    //graph->set_ignore_mouse(false);
     graph->connect("draw", this, "_graph_tex_draw");
     graph->connect("gui_input", this, "_graph_tex_input");
     graph->connect("mouse_exited", this, "_graph_tex_mouse_exit");
@@ -762,12 +770,9 @@ EditorProfiler::EditorProfiler() {
     int metric_size = CLAMP(int(EDITOR_DEF("debugger/profiler_frame_history_size", 600)), 60, 1024);
     frame_metrics.resize(metric_size);
     last_metric = -1;
-    //cursor_metric=-1;
     hover_metric = -1;
 
     EDITOR_DEF("debugger/profiler_frame_max_functions", 64);
-
-    //display_mode=DISPLAY_FRAME_TIME;
 
     frame_delay = memnew(Timer);
     frame_delay->set_wait_time(0.1);
@@ -786,6 +791,4 @@ EditorProfiler::EditorProfiler() {
 
     seeking = false;
     graph_height = 1;
-
-    //activate->set_disabled(true);
 }

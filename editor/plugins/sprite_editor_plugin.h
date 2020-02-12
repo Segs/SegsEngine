@@ -61,7 +61,7 @@ class SpriteEditor : public Control {
     Control *debug_uv;
     Vector<Vector2> uv_lines;
     Vector<Vector<Vector2> > outline_lines;
-    Vector<PODVector<Vector2> > computed_outline_lines;
+    Vector<Vector<Vector2> > computed_outline_lines;
     Vector<Vector2> computed_vertices;
     Vector<Vector2> computed_uv;
     Vector<int> computed_indices;

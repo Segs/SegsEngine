@@ -46,33 +46,33 @@ WSLServer::PendingPeer::PendingPeer() {
     memset(req_buf, 0, sizeof(req_buf));
 }
 
-bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_protocols) {
-    PODVector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
+bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocols) {
+    Vector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
     int len = psa.size();
-    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.")
+    ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
-    PODVector<se_string_view> req = StringUtils::split(psa[0]," ", false);
-    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.")
+    Vector<se_string_view> req = StringUtils::split(psa[0]," ", false);
+    ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
-    ERR_FAIL_COND_V_MSG(req[0] != "GET"_sv || req[2] != "HTTP/1.1"_sv, false, "Invalid method or HTTP version.")
+    ERR_FAIL_COND_V_MSG(req[0] != "GET"_sv || req[2] != "HTTP/1.1"_sv, false, "Invalid method or HTTP version.");
 
-    Map<se_string, se_string> headers;
+    Map<String, String> headers;
     for (int i = 1; i < len; i++) {
-        PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
-        ERR_FAIL_COND_V_MSG(header.size() != 2, false, se_string("Invalid header -> ") + psa[i])
-        se_string name = StringUtils::to_lower(header[0]);
+        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i]);
+        String name = StringUtils::to_lower(header[0]);
         se_string_view value =StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
-            headers[name] += se_string(",") + value;
+            headers[name] += String(",") + value;
         else
             headers[name] = value;
     }
 #define _WSL_CHECK(NAME, VALUE)                                                         \
     ERR_FAIL_COND_V_MSG(!headers.contains(NAME) || StringUtils::to_lower(headers[NAME]) != VALUE, false, \
-            "Missing or invalid header '" + se_string(NAME) + "'. Expected value '" + VALUE + "'.");
+            "Missing or invalid header '" + String(NAME) + "'. Expected value '" + VALUE + "'.");
 #define _WSL_CHECK_EX(NAME) \
-    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + se_string(NAME) + "'.")
+    ERR_FAIL_COND_V_MSG(!headers.contains(NAME), false, "Missing header '" + String(NAME) + "'.");
     _WSL_CHECK("upgrade", "websocket")
     _WSL_CHECK("sec-websocket-version", "13")
     _WSL_CHECK_EX("sec-websocket-key")
@@ -81,7 +81,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_proto
 #undef _WSL_CHECK
     key = headers["sec-websocket-key"];
     if (headers.contains("sec-websocket-protocol")) {
-        PODVector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
+        Vector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
             auto proto = StringUtils::strip_edges(protos[i]);
             // Check if we have the given protocol
@@ -102,7 +102,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<se_string> &p_proto
     return true;
 }
 
-Error WSLServer::PendingPeer::do_handshake(const PoolVector<se_string> & p_protocols) {
+Error WSLServer::PendingPeer::do_handshake(const PoolVector<String> & p_protocols) {
     if (OS::get_singleton()->get_ticks_msec() - time > WSL_SERVER_TIMEOUT)
         return ERR_TIMEOUT;
     if (use_ssl) {
@@ -118,7 +118,7 @@ Error WSLServer::PendingPeer::do_handshake(const PoolVector<se_string> & p_proto
     if (!has_request) {
         int read = 0;
         while (true) {
-            ERR_FAIL_COND_V_MSG(req_pos >= WSL_MAX_HEADER_SIZE, ERR_OUT_OF_MEMORY, "Response headers too big.")
+            ERR_FAIL_COND_V_MSG(req_pos >= WSL_MAX_HEADER_SIZE, ERR_OUT_OF_MEMORY, "Response headers too big.");
             Error err = connection->get_partial_data(&req_buf[req_pos], 1, read);
             if (err != OK) // Got an error
                 return FAILED;
@@ -131,7 +131,7 @@ Error WSLServer::PendingPeer::do_handshake(const PoolVector<se_string> & p_proto
                 if (!_parse_request(p_protocols)) {
                     return FAILED;
                 }
-                se_string s = "HTTP/1.1 101 Switching Protocols\r\n";
+                String s = "HTTP/1.1 101 Switching Protocols\r\n";
                 s += "Upgrade: websocket\r\n";
                 s += "Connection: Upgrade\r\n";
                 s += "Sec-WebSocket-Accept: " + WSLPeer::compute_key_response(key) + "\r\n";
@@ -158,8 +158,8 @@ Error WSLServer::PendingPeer::do_handshake(const PoolVector<se_string> & p_proto
     return OK;
 }
 
-Error WSLServer::listen(int p_port, const PoolVector<se_string> &p_protocols, bool gd_mp_api) {
-    ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE)
+Error WSLServer::listen(int p_port, const PoolVector<String> &p_protocols, bool gd_mp_api) {
+    ERR_FAIL_COND_V(is_listening(), ERR_ALREADY_IN_USE);
 
     _is_multiplayer = gd_mp_api;
     _is_multiplayer = gd_mp_api;
@@ -171,14 +171,13 @@ Error WSLServer::listen(int p_port, const PoolVector<se_string> &p_protocols, bo
     }
 
     _protocols.append_array(p_protocols);
-    _server->listen(p_port);
 
-    return OK;
+    return _server->listen(p_port, bind_ip);
 }
 
 void WSLServer::poll() {
 
-    List<int> remove_ids;
+    ListOld<int> remove_ids;
     for (eastl::pair<const int,Ref<WebSocketPeer> > &E : _peer_map) {
         Ref<WSLPeer> peer((WSLPeer *)E.second.get());
         peer->poll();
@@ -187,13 +186,13 @@ void WSLServer::poll() {
             remove_ids.push_back(E.first);
         }
     }
-    for (List<int>::Element *E = remove_ids.front(); E; E = E->next()) {
+    for (ListOld<int>::Element *E = remove_ids.front(); E; E = E->next()) {
         _peer_map.erase(E->deref());
     }
     remove_ids.clear();
 
-    List<Ref<PendingPeer> > remove_peers;
-    for (List<Ref<PendingPeer> >::Element *E = _pending.front(); E; E = E->next()) {
+    ListOld<Ref<PendingPeer> > remove_peers;
+    for (ListOld<Ref<PendingPeer> >::Element *E = _pending.front(); E; E = E->next()) {
         Ref<PendingPeer> ppeer = E->deref();
         Error err = ppeer->do_handshake(_protocols);
         if (err == ERR_BUSY) {
@@ -214,12 +213,13 @@ void WSLServer::poll() {
 
         Ref<WSLPeer> ws_peer(make_ref_counted<WSLPeer>());
         ws_peer->make_context(data, _in_buf_size, _in_pkt_size, _out_buf_size, _out_pkt_size);
+        ws_peer->set_no_delay(true);
 
         _peer_map[id] = ws_peer;
         remove_peers.push_back(ppeer);
         _on_connect(id, ppeer->protocol);
     }
-    for (List<Ref<PendingPeer> >::Element *E = remove_peers.front(); E; E = E->next()) {
+    for (ListOld<Ref<PendingPeer> >::Element *E = remove_peers.front(); E; E = E->next()) {
         _pending.erase(E->deref());
     }
     remove_peers.clear();
@@ -272,30 +272,30 @@ bool WSLServer::has_peer(int p_id) const {
 }
 
 Ref<WebSocketPeer> WSLServer::get_peer(int p_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_id), Ref<WebSocketPeer>())
+    ERR_FAIL_COND_V(!has_peer(p_id), Ref<WebSocketPeer>());
     return _peer_map.at(p_id);
 }
 
 IP_Address WSLServer::get_peer_address(int p_peer_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_peer_id), IP_Address())
+    ERR_FAIL_COND_V(!has_peer(p_peer_id), IP_Address());
 
     return _peer_map.at(p_peer_id)->get_connected_host();
 }
 
 int WSLServer::get_peer_port(int p_peer_id) const {
-    ERR_FAIL_COND_V(!has_peer(p_peer_id), 0)
+    ERR_FAIL_COND_V(!has_peer(p_peer_id), 0);
 
     return _peer_map.at(p_peer_id)->get_connected_port();
 }
 
 void WSLServer::disconnect_peer(int p_peer_id, int p_code, se_string_view p_reason) {
-    ERR_FAIL_COND(!has_peer(p_peer_id))
+    ERR_FAIL_COND(!has_peer(p_peer_id));
 
     get_peer(p_peer_id)->close(p_code, p_reason);
 }
 
 Error WSLServer::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) {
-    ERR_FAIL_COND_V_MSG(_server->is_listening(), FAILED, "Buffers sizes can only be set before listening or connecting.")
+    ERR_FAIL_COND_V_MSG(_server->is_listening(), FAILED, "Buffers sizes can only be set before listening or connecting.");
 
     _in_buf_size = nearest_shift(p_in_buffer - 1) + 10;
     _in_pkt_size = nearest_shift(p_in_packets - 1);

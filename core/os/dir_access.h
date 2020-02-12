@@ -53,10 +53,10 @@ private:
     Error _copy_dir(DirAccess *p_target_da, se_string_view p_to, int p_chmod_flags);
 
 protected:
-    se_string _get_root_path() const;
-    se_string _get_root_string() const;
+    String _get_root_path() const;
+    String _get_root_string() const;
 
-    se_string fix_path(se_string_view p_path) const;
+    String fix_path(se_string_view p_path) const;
     bool next_is_dir;
 
     template <class T>
@@ -67,19 +67,19 @@ protected:
 
 public:
     virtual Error list_dir_begin() = 0; ///< This starts dir listing
-    virtual se_string get_next() = 0;
+    virtual String get_next() = 0;
     virtual bool current_is_dir() const = 0;
     virtual bool current_is_hidden() const = 0;
 
     virtual void list_dir_end() = 0; ///<
 
     virtual int get_drive_count() = 0;
-    virtual se_string get_drive(int p_drive) = 0;
+    virtual String get_drive(int p_drive) = 0;
     virtual int get_current_drive();
 
     virtual Error change_dir_utf8(se_string_view p_dir);
     virtual Error change_dir(se_string_view p_dir) = 0; ///< can be relative or absolute, return false on success
-    virtual se_string get_current_dir() = 0; ///< return current dir location
+    virtual String get_current_dir() = 0; ///< return current dir location
     virtual Error make_dir(se_string_view p_dir) = 0;
     virtual Error make_dir_utf8(se_string_view p_dir);
     virtual Error make_dir_recursive(se_string_view p_dir);
@@ -99,8 +99,8 @@ public:
     // handling (e.g. removing a cache file).
     static void remove_file_or_error(se_string_view  p_path);
 
-    [[nodiscard]] virtual se_string get_filesystem_type() const = 0;
-    static se_string get_full_path(se_string_view p_path, AccessType p_access);
+    [[nodiscard]] virtual String get_filesystem_type() const = 0;
+    static String get_full_path(se_string_view p_path, AccessType p_access);
     static DirAccess *create_for_path(se_string_view p_path);
 
     static DirAccess *create(AccessType p_access);

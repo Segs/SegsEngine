@@ -66,7 +66,7 @@ void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
 }
 
 void TextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<se_string, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
     for (;el != highlighters.end(); ++el) {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(el->first), false);
     }
@@ -150,8 +150,8 @@ void TextEditor::_load_theme_settings() {
     colors_cache.string_color = string_color;
 }
 
-se_string TextEditor::get_name() {
-    se_string name;
+String TextEditor::get_name() {
+    String name;
 
     if (not PathUtils::is_internal_path(text_file->get_path()) ) {
         name = PathUtils::get_file(text_file->get_path());
@@ -177,7 +177,7 @@ RES TextEditor::get_edited_resource() const {
 }
 
 void TextEditor::set_edited_resource(const RES &p_res) {
-    ERR_FAIL_COND(text_file)
+    ERR_FAIL_COND(text_file);
 
     text_file = dynamic_ref_cast<TextFile>(p_res);
 
@@ -189,18 +189,18 @@ void TextEditor::set_edited_resource(const RES &p_res) {
     code_editor->update_line_and_column();
 }
 
-void TextEditor::add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) {
+void TextEditor::add_callback(const StringName &p_function, const PoolVector<String> &p_args) {
 }
 
 void TextEditor::set_debugger_active(bool p_active) {
 }
 
-void TextEditor::get_breakpoints(List<int> *p_breakpoints) {
+void TextEditor::get_breakpoints(Vector<int> *p_breakpoints) {
 }
 
 void TextEditor::reload_text() {
 
-    ERR_FAIL_COND(not text_file)
+    ERR_FAIL_COND(not text_file);
 
     TextEdit *te = code_editor->get_text_edit();
     int column = te->cursor_get_column();
@@ -241,7 +241,7 @@ void TextEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        se_string line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
+        String line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
@@ -336,7 +336,7 @@ void TextEditor::ensure_focus() {
     code_editor->get_text_edit()->grab_focus();
 }
 
-Vector<se_string> TextEditor::get_functions() {
+Vector<String> TextEditor::get_functions() {
 
     return {};
 }
@@ -488,7 +488,7 @@ void TextEditor::_edit_option(int p_op) {
         } break;
         case SEARCH_IN_FILES: {
 
-            se_string selected_text = code_editor->get_text_edit()->get_selection_text();
+            String selected_text = code_editor->get_text_edit()->get_selection_text();
 
             // Yep, because it doesn't make sense to instance this dialog for every single script open...
             // So this will be delegated to the ScriptEditor.
@@ -729,7 +729,7 @@ TextEditor::TextEditor() {
 }
 
 TextEditor::~TextEditor() {
-    for (const eastl::pair<const se_string,SyntaxHighlighter *> &E : highlighters) {
+    for (const eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
         if (E.second != nullptr) {
             memdelete(E.second);
         }

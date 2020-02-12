@@ -128,7 +128,7 @@ protected:
 	bool flags[FLAG_MAX];
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
-
+public:
 	void _set_upper_limit(float p_limit);
 	float _get_upper_limit() const;
 
@@ -179,13 +179,13 @@ public:
 
 	};
 
-protected:
+public:
 	void _set_upper_limit_angular(float p_limit_angular);
 	float _get_upper_limit_angular() const;
 
 	void _set_lower_limit_angular(float p_limit_angular);
 	float _get_lower_limit_angular() const;
-
+protected:
 	float params[PARAM_MAX];
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();
@@ -212,13 +212,13 @@ public:
 		PARAM_RELAXATION,
 		PARAM_MAX
 	};
+public:
+    void _set_swing_span(float p_limit_angular);
+    float _get_swing_span() const;
 
+    void _set_twist_span(float p_limit_angular);
+    float _get_twist_span() const;
 protected:
-	void _set_swing_span(float p_limit_angular);
-	float _get_swing_span() const;
-
-	void _set_twist_span(float p_limit_angular);
-	float _get_twist_span() const;
 
 	float params[PARAM_MAX];
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
@@ -274,6 +274,15 @@ public:
 	};
 
 protected:
+    float params_x[PARAM_MAX];
+    bool flags_x[FLAG_MAX];
+    float params_y[PARAM_MAX];
+    bool flags_y[FLAG_MAX];
+    float params_z[PARAM_MAX];
+    bool flags_z[FLAG_MAX];
+
+    int precision;
+public: //made public to allow script access
 	void _set_angular_hi_limit_x(float p_limit_angular);
 	float _get_angular_hi_limit_x() const;
 
@@ -292,14 +301,7 @@ protected:
 	void _set_angular_lo_limit_z(float p_limit_angular);
 	float _get_angular_lo_limit_z() const;
 
-	float params_x[PARAM_MAX];
-	bool flags_x[FLAG_MAX];
-	float params_y[PARAM_MAX];
-	bool flags_y[FLAG_MAX];
-	float params_z[PARAM_MAX];
-	bool flags_z[FLAG_MAX];
-
-	int precision;
+protected:
 
 	RID _configure_joint(PhysicsBody *body_a, PhysicsBody *body_b) override;
 	static void _bind_methods();

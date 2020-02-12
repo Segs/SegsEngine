@@ -41,26 +41,26 @@ class ResourceImporterOBJ : public QObject, public EditorSceneImporterInterface,
     //EditorSceneImporterInterface
 public:
     uint32_t get_import_flags() const override;
-    void get_extensions(PODVector<se_string> &r_extensions) const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<se_string> *r_missing_deps, Error *r_err = nullptr) override;
+    void get_extensions(Vector<String> &r_extensions) const override;
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
 
     // ResourceImporterInterface
 public:
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
 
     Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
-            DefList<se_string> *r_platform_variants, DefList<se_string> *r_gen_files = nullptr,
+            Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
     // ResourceImporterInterface defaults
@@ -68,11 +68,11 @@ public:
     float get_priority() const override {return 6.0f;}
     int get_import_order() const override {return 0;}
     StringName get_option_group_file() const override { return StringName(); }
-    Error import_group_file(se_string_view /*p_group_file*/, const Map<se_string, Map<StringName, Variant> > & /*p_source_file_options*/, const Map<se_string, se_string> & /*p_base_paths*/) override {
+    Error import_group_file(se_string_view /*p_group_file*/, const Map<String, Map<StringName, Variant> > & /*p_source_file_options*/, const Map<String, String> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }
     bool are_import_settings_valid(se_string_view  /*p_path*/) const override { return true; }
-    se_string get_import_settings_string() const override { return se_string(); }
+    String get_import_settings_string() const override { return String(); }
 
 public:
     ResourceImporterOBJ();

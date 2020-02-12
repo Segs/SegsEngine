@@ -52,7 +52,7 @@ public:
     };
 
     struct Input {
-        se_string name;
+        String name;
     };
 
     Vector<Input> inputs;
@@ -75,11 +75,11 @@ public:
 
         int track_count;
         HashMap<NodePath, int> track_map;
-        List<AnimationState> animation_states;
+        ListOld<AnimationState> animation_states;
         bool valid;
         AnimationPlayer *player;
         AnimationTree *tree;
-        se_string invalid_reasons;
+        String invalid_reasons;
         uint64_t last_pass;
     };
 
@@ -101,13 +101,13 @@ public:
     void _set_filters(const Array &p_filters);
     friend class AnimationNodeBlendTree;
     float _blend_node(const StringName &p_subpath, const Vector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true, float *r_max = nullptr);
-
-protected:
+public:
     void blend_animation(const StringName &p_animation, float p_time, float p_delta, bool p_seeked, float p_blend);
     float blend_node(const StringName &p_sub_path, const Ref<AnimationNode>& p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
     float blend_input(int p_input, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
-    void make_invalid(const se_string &p_reason);
+    void make_invalid(const String &p_reason);
 
+protected:
     static void _bind_methods();
 
     void _validate_property(PropertyInfo &property) const override;
@@ -115,7 +115,7 @@ protected:
     void _set_parent(Object *p_parent);
 
 public:
-    virtual void get_parameter_list(List<PropertyInfo> *r_list) const;
+    virtual void get_parameter_list(Vector<PropertyInfo> *r_list) const;
     virtual Variant get_parameter_default_value(const StringName &p_parameter) const;
 
     void set_parameter(const StringName &p_name, const Variant &p_value);
@@ -126,15 +126,15 @@ public:
         Ref<AnimationNode> node;
     };
 
-    virtual void get_child_nodes(List<ChildNode> *r_child_nodes);
+    virtual void get_child_nodes(ListOld<ChildNode> *r_child_nodes);
 
     virtual float process(float p_time, bool p_seek);
     virtual se_string_view get_caption() const;
 
     int get_input_count() const;
-    se_string get_input_name(int p_input);
+    String get_input_name(int p_input);
 
-    void add_input(const se_string &p_name);
+    void add_input(const String &p_name);
     void set_input_name(int p_input, se_string_view p_name);
     void remove_input(int p_index);
 
@@ -283,17 +283,17 @@ private:
     bool properties_dirty;
     void _tree_changed();
     void _update_properties();
-    List<PropertyInfo> properties;
-    HashMap<StringName, HashMap<StringName, StringName> > property_parent_map;
-    HashMap<StringName, Variant> property_map;
+    Vector<PropertyInfo> properties;
+    DefHashMap<StringName, DefHashMap<StringName, StringName> > property_parent_map;
+    DefHashMap<StringName, Variant> property_map;
 
     struct Activity {
         uint64_t last_pass;
         float activity;
     };
 
-    HashMap<StringName, Vector<Activity> > input_activity_map;
-    HashMap<StringName, Vector<Activity> *> input_activity_map_get;
+    DefHashMap<StringName, Vector<Activity> > input_activity_map;
+    DefHashMap<StringName, Vector<Activity> *> input_activity_map_get;
 
     void _update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node);
 
@@ -302,7 +302,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_what);
     static void _bind_methods();
@@ -323,7 +323,7 @@ public:
     StringName get_configuration_warning() const override;
 
     bool is_state_invalid() const;
-    se_string get_invalid_state_reason() const;
+    String get_invalid_state_reason() const;
 
     void set_root_motion_track(const NodePath &p_track);
     NodePath get_root_motion_track() const;

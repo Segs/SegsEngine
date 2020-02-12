@@ -66,7 +66,7 @@ class Polygon2D : public Node2D {
 
     NodePath skeleton;
     ObjectID current_skeleton_id;
-
+public:
     Array _get_bones() const;
     void _set_bones(const Array &p_bones);
 

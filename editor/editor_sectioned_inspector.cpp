@@ -41,7 +41,7 @@ class SectionedInspectorFilter : public Object {
     GDCLASS(SectionedInspectorFilter,Object)
 
     Object *edited;
-    se_string section;
+    String section;
     bool allow_sub;
 
     bool _set(const StringName &p_name, const Variant &p_value) {
@@ -74,12 +74,12 @@ class SectionedInspectorFilter : public Object {
         r_ret = edited->get(name, &valid);
         return valid;
     }
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         if (!edited)
             return;
 
-        ListPOD<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
         edited->get_property_list(&pinfo);
         for (const PropertyInfo &E : pinfo) {
 
@@ -89,12 +89,12 @@ class SectionedInspectorFilter : public Object {
             if (pi.name == "resource_path" || pi.name == "resource_name" || pi.name == "resource_local_to_scene" || StringUtils::begins_with(pi.name,"script/") || StringUtils::begins_with(pi.name,"_global_script")) //skip resource stuff
                 continue;
 
-            if (sp == se_string::npos) {
-                pi.name = StringName(se_string("global/") + pi.name);
+            if (sp == String::npos) {
+                pi.name = StringName(String("global/") + pi.name);
             }
 
             if (StringUtils::begins_with(pi.name,section + "/")) {
-                pi.name = StringName(StringUtils::replace_first(pi.name,section + "/", se_string()));
+                pi.name = StringName(StringUtils::replace_first(pi.name,section + "/", String()));
                 if (!allow_sub && StringUtils::contains(pi.name,"/"))
                     continue;
                 p_list->push_back(pi);
@@ -102,12 +102,12 @@ class SectionedInspectorFilter : public Object {
         }
     }
 
-    bool property_can_revert(const se_string &p_name) {
+    bool property_can_revert(const String &p_name) {
 
         return edited->call("property_can_revert", section + "/" + p_name);
     }
 
-    Variant property_get_revert(const se_string &p_name) {
+    Variant property_get_revert(const String &p_name) {
 
         return edited->call("property_get_revert", section + "/" + p_name);
     }
@@ -120,7 +120,7 @@ protected:
     }
 
 public:
-    void set_section(const se_string &p_section, bool p_allow_sub) {
+    void set_section(const String &p_section, bool p_allow_sub) {
 
         section = p_section;
         allow_sub = p_allow_sub;
@@ -151,29 +151,29 @@ void SectionedInspector::_section_selected() {
     if (!sections->get_selected())
         return;
 
-    selected_category = sections->get_selected()->get_metadata(0).as<se_string>();
+    selected_category = sections->get_selected()->get_metadata(0).as<String>();
     filter->set_section(selected_category, sections->get_selected()->get_children() == nullptr);
     inspector->set_property_prefix(selected_category + "/");
 }
 
-void SectionedInspector::set_current_section(const se_string &p_section) {
+void SectionedInspector::set_current_section(const String &p_section) {
 
     if (section_map.contains(p_section)) {
         section_map[p_section]->select(0);
     }
 }
 
-se_string SectionedInspector::get_current_section() const {
+String SectionedInspector::get_current_section() const {
 
     if (sections->get_selected())
         return sections->get_selected()->get_metadata(0);
     else
-        return se_string();
+        return String();
 }
 
-se_string SectionedInspector::get_full_item_path(const se_string &p_item) {
+String SectionedInspector::get_full_item_path(const String &p_item) {
 
-    se_string base = get_current_section();
+    String base = get_current_section();
 
     if (!base.empty())
         return base + "/" + p_item;
@@ -211,7 +211,7 @@ void SectionedInspector::edit(Object *p_object) {
                 first_item = first_item->get_children();
 
             first_item->select(0);
-            selected_category = first_item->get_metadata(0).as<se_string>();
+            selected_category = first_item->get_metadata(0).as<String>();
         }
     } else {
 
@@ -220,7 +220,7 @@ void SectionedInspector::edit(Object *p_object) {
 }
 
 void SectionedInspector::update_category_list() {
-
+    using namespace StringUtils;
     sections->clear();
 
     Object *o = ObjectDB::get_instance(obj);
@@ -228,15 +228,15 @@ void SectionedInspector::update_category_list() {
     if (!o)
         return;
 
-    ListPOD<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     o->get_property_list(&pinfo);
 
     section_map.clear();
 
     TreeItem *root = sections->create_item();
-    section_map[se_string()] = root;
+    section_map[String()] = root;
 
-    se_string filter;
+    String filter;
     if (search_box)
         filter = search_box->get_text();
 
@@ -252,16 +252,17 @@ void SectionedInspector::update_category_list() {
                 StringUtils::begins_with(pi.name, "_global_script"))
             continue;
 
+        if (!filter.empty() && !is_subsequence_of(filter, capitalize(pi.name), CaseInsensitive) && !is_subsequence_of(filter,capitalize(String(pi.name).replaced("/", " "))))
+            continue;
+
         auto sp = StringUtils::find(pi.name,"/");
-        se_string p_name(pi.name);
-        if (sp == se_string::npos)
+        String p_name(pi.name);
+        if (sp == String::npos)
             p_name = "global/" + p_name;
 
-        PODVector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
-        se_string metasection;
+        Vector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
+        String metasection;
 
-        if (!filter.empty() && !StringUtils::is_subsequence_of(filter,StringUtils::capitalize(sectionarr[sectionarr.size() - 1]),StringUtils::CaseInsensitive))
-            continue;
 
         int sc = MIN(2, sectionarr.size() - 1);
 
@@ -271,7 +272,7 @@ void SectionedInspector::update_category_list() {
             parent->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
 
             if (i > 0) {
-                metasection += se_string("/") + sectionarr[i];
+                metasection += String("/") + sectionarr[i];
             } else {
                 metasection = sectionarr[i];
             }
@@ -305,7 +306,7 @@ void SectionedInspector::register_search_box(LineEdit *p_box) {
     search_box->connect("text_changed", this, "_search_changed");
 }
 
-void SectionedInspector::_search_changed(const se_string &p_what) {
+void SectionedInspector::_search_changed(const String &p_what) {
 
     update_category_list();
 }

@@ -108,7 +108,7 @@ void JoypadLinux::joy_thread_func(void *p_user) {
 void JoypadLinux::run_joypad_thread() {
 #ifdef UDEV_ENABLED
     udev *_udev = udev_new();
-    ERR_FAIL_COND(!_udev)
+    ERR_FAIL_COND(!_udev);
     enumerate_joypads(_udev);
     monitor_joypads(_udev);
     udev_unref(_udev);
@@ -210,7 +210,7 @@ void JoypadLinux::monitor_joypads() {
         for (int i = 0; i < 32; i++) {
             char fname[64];
             sprintf(fname, "/dev/input/event%d", i);
-            if (attached_devices.find(fname) == -1) {
+            if (!attached_devices.contains(fname)) {
                 open_joypad(fname);
             }
         }
@@ -246,7 +246,7 @@ void JoypadLinux::close_joypad(int p_id) {
 
         close(joy.fd);
         joy.fd = -1;
-        attached_devices.remove(attached_devices.find(joy.devpath));
+        attached_devices.erase(attached_devices.find(joy.devpath));
         input->joy_connection_changed(p_id, false, StringName());
     }
 }
@@ -378,7 +378,7 @@ void JoypadLinux::open_joypad(const char *p_path) {
             sprintf(uid + se_string_view(uid).length(), "%04x%04x%04x%04x%04x%04x", vendor, 0, product, 0, version, 0);
             input->joy_connection_changed(joy_num, true, name, StringName(uid));
         } else {
-            se_string uidname(uid);
+            String uidname(uid);
             int uidlen = MIN(se_string_view(name).length(), 11);
             for (int i = 0; i < uidlen; i++) {
 

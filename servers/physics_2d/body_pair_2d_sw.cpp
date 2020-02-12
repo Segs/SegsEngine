@@ -51,7 +51,7 @@ void BodyPair2DSW::_contact_added_callback(const Vector2 &p_point_A, const Vecto
 
     int new_index = contact_count;
 
-    ERR_FAIL_COND(new_index >= (MAX_CONTACTS + 1))
+    ERR_FAIL_COND(new_index >= (MAX_CONTACTS + 1));
 
     Contact contact;
 
@@ -108,7 +108,7 @@ void BodyPair2DSW::_contact_added_callback(const Vector2 &p_point_A, const Vecto
             }
         }
 
-        ERR_FAIL_COND(least_deep == -1)
+        ERR_FAIL_COND(least_deep == -1);
 
         if (least_deep < contact_count) { //replace the last deep contact by the new one
 

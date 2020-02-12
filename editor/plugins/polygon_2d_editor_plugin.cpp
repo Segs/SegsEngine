@@ -90,23 +90,26 @@ void Polygon2DEditor::_notification(int p_what) {
         } break;
         case NOTIFICATION_READY: {
 
-            button_uv->set_icon(get_icon("Uv", "EditorIcons"));
+            button_uv->set_button_icon(get_icon("Uv", "EditorIcons"));
 
-            uv_button[UV_MODE_CREATE]->set_icon(get_icon("Edit", "EditorIcons"));
-            uv_button[UV_MODE_CREATE_INTERNAL]->set_icon(get_icon("EditInternal", "EditorIcons"));
-            uv_button[UV_MODE_REMOVE_INTERNAL]->set_icon(get_icon("RemoveInternal", "EditorIcons"));
-            uv_button[UV_MODE_EDIT_POINT]->set_icon(get_icon("ToolSelect", "EditorIcons"));
-            uv_button[UV_MODE_MOVE]->set_icon(get_icon("ToolMove", "EditorIcons"));
-            uv_button[UV_MODE_ROTATE]->set_icon(get_icon("ToolRotate", "EditorIcons"));
-            uv_button[UV_MODE_SCALE]->set_icon(get_icon("ToolScale", "EditorIcons"));
-            uv_button[UV_MODE_ADD_POLYGON]->set_icon(get_icon("Edit", "EditorIcons"));
-            uv_button[UV_MODE_REMOVE_POLYGON]->set_icon(get_icon("Close", "EditorIcons"));
-            uv_button[UV_MODE_PAINT_WEIGHT]->set_icon(get_icon("PaintVertex", "EditorIcons"));
-            uv_button[UV_MODE_CLEAR_WEIGHT]->set_icon(get_icon("UnpaintVertex", "EditorIcons"));
+            uv_button[UV_MODE_CREATE]->set_button_icon(get_icon("Edit", "EditorIcons"));
+            uv_button[UV_MODE_CREATE_INTERNAL]->set_button_icon(get_icon("EditInternal", "EditorIcons"));
+            uv_button[UV_MODE_REMOVE_INTERNAL]->set_button_icon(get_icon("RemoveInternal", "EditorIcons"));
+            uv_button[UV_MODE_EDIT_POINT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+            uv_button[UV_MODE_MOVE]->set_button_icon(get_icon("ToolMove", "EditorIcons"));
+            uv_button[UV_MODE_ROTATE]->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
+            uv_button[UV_MODE_SCALE]->set_button_icon(get_icon("ToolScale", "EditorIcons"));
+            uv_button[UV_MODE_ADD_POLYGON]->set_button_icon(get_icon("Edit", "EditorIcons"));
+            uv_button[UV_MODE_REMOVE_POLYGON]->set_button_icon(get_icon("Close", "EditorIcons"));
+            uv_button[UV_MODE_PAINT_WEIGHT]->set_button_icon(get_icon("PaintVertex", "EditorIcons"));
+            uv_button[UV_MODE_CLEAR_WEIGHT]->set_button_icon(get_icon("UnpaintVertex", "EditorIcons"));
 
-            b_snap_grid->set_icon(get_icon("Grid", "EditorIcons"));
-            b_snap_enable->set_icon(get_icon("SnapGrid", "EditorIcons"));
+            b_snap_grid->set_button_icon(get_icon("Grid", "EditorIcons"));
+            b_snap_enable->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
             uv_icon_zoom->set_texture(get_icon("Zoom", "EditorIcons"));
+
+            uv_vscroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
+            uv_hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
@@ -187,7 +190,7 @@ void Polygon2DEditor::_update_bone_list() {
     for (int i = 0; i < node->get_bone_count(); i++) {
         CheckBox *cb = memnew(CheckBox);
         NodePath np = node->get_bone_path(i);
-        se_string name;
+        String name;
         if (np.get_name_count()) {
             name = np.get_name(np.get_name_count() - 1);
         }
@@ -528,7 +531,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                             undo_redo->add_undo_method(node, "set_polygon", Variant(uv_create_poly_prev));
                             undo_redo->add_do_method(node, "set_internal_vertex_count", 0);
                             undo_redo->add_undo_method(node, "set_internal_vertex_count", uv_create_prev_internal_vertices);
-                            undo_redo->add_do_method(node, "set_vertex_colors", PODVector<Color>());
+                            undo_redo->add_do_method(node, "set_vertex_colors", Vector<Color>());
                             undo_redo->add_undo_method(node, "set_vertex_colors", uv_create_colors_prev);
                             undo_redo->add_do_method(node, "clear_bones");
                             undo_redo->add_undo_method(node, "_set_bones", uv_create_bones_prev);
@@ -710,7 +713,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                             }
 
                             polygon_create.clear();
-                        } else if (polygon_create.find(closest) == -1) {
+                        } else if (!polygon_create.contains(closest)) {
                             //add temporarily if not exists
                             polygon_create.push_back(closest);
                         }
@@ -1066,7 +1069,7 @@ void Polygon2DEditor::_uv_draw() {
         poly_line_color.a *= 0.25f;
     }
     Color polygon_line_color = Color(0.5, 0.5, 0.9f);
-    Vector<Color> polygon_fill_color;
+    PoolVector<Color> polygon_fill_color;
     {
         Color pf = polygon_line_color;
         pf.a *= 0.5f;
@@ -1229,6 +1232,13 @@ void Polygon2DEditor::_uv_draw() {
         uv_vscroll->set_page(uv_edit_draw->get_size().y);
         uv_vscroll->set_value(uv_draw_ofs.y);
     }
+    Size2 hmin = uv_hscroll->get_combined_minimum_size();
+    Size2 vmin = uv_vscroll->get_combined_minimum_size();
+
+    // Avoid scrollbar overlapping.
+    uv_hscroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, uv_vscroll->is_visible() ? -vmin.width : 0);
+    uv_vscroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, uv_hscroll->is_visible() ? -hmin.height : 0);
+
     updating_uv_scroll = false;
 }
 
@@ -1474,13 +1484,10 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     uv_vscroll = memnew(VScrollBar);
     uv_vscroll->set_step(0.001f);
     uv_edit_draw->add_child(uv_vscroll);
-    uv_vscroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
     uv_vscroll->connect("value_changed", this, "_uv_scroll_changed");
     uv_hscroll = memnew(HScrollBar);
     uv_hscroll->set_step(0.001f);
     uv_edit_draw->add_child(uv_hscroll);
-    uv_hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
-    uv_hscroll->set_margin(MARGIN_RIGHT, -uv_vscroll->get_size().x * EDSCALE);
     uv_hscroll->connect("value_changed", this, "_uv_scroll_changed");
 
     bone_scroll_main_vb = memnew(VBoxContainer);

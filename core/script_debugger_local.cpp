@@ -40,7 +40,7 @@
 void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) {
 
     if (!target_function.empty()) {
-        se_string current_function = p_script->debug_get_stack_level_function(0);
+        String current_function = p_script->debug_get_stack_level_function(0);
         if (current_function != target_function) {
             set_depth(0);
             set_lines_left(1);
@@ -57,10 +57,10 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
     while (true) {
 
         OS::get_singleton()->print("debug> ");
-        se_string line(StringUtils::strip_edges(OS::get_singleton()->get_stdin_string()));
+        String line(StringUtils::strip_edges(OS::get_singleton()->get_stdin_string()));
 
         // Cache options
-        se_string variable_prefix = options["variable_prefix"];
+        String variable_prefix = options["variable_prefix"];
 
         if (line.empty()) {
             print_line("\nDebugger Break, Reason: '" + p_script->debug_get_error() + "'");
@@ -72,7 +72,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
             for (int i = 0; i < total_frames; i++) {
 
-                se_string cfi((current_frame == i) ? "*" : " "); //current frame indicator
+                String cfi((current_frame == i) ? "*" : " "); //current frame indicator
                 print_line(cfi + "Frame " + ::to_string(i) + " - " + p_script->debug_get_stack_level_source(i) + ":" + ::to_string(p_script->debug_get_stack_level_line(i)) + " in function '" + p_script->debug_get_stack_level_function(i) + "'");
             }
 
@@ -94,7 +94,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
             if (StringUtils::get_slice_count(line,' ') == 1) {
 
-                for (const eastl::pair<const se_string,se_string> &E : options) {
+                for (const eastl::pair<const String,String> &E : options) {
                     print_line("\t" + E.first + "=" + E.second);
                 }
 
@@ -109,35 +109,35 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
                     se_string_view key = StringUtils::left(key_value,value_pos);
 
                     if (!options.contains_as(key)) {
-                        print_line("Error: Unknown option " + se_string(key));
+                        print_line("Error: Unknown option " + String(key));
                     } else {
 
                         // Allow explicit tab character
-                        se_string value =  StringUtils::replace(StringUtils::right(key_value,value_pos + 1),"\\t", "\t");
+                        String value =  StringUtils::replace(StringUtils::right(key_value,value_pos + 1),"\\t", "\t");
 
-                        options[se_string(key)] = value;
+                        options[String(key)] = value;
                     }
                 }
             }
 
         } else if (line == "lv" || line == "locals") {
 
-            ListPOD<se_string> locals;
-            List<Variant> values;
+            Vector<String> locals;
+            Vector<Variant> values;
             p_script->debug_get_stack_level_locals(current_frame, &locals, &values);
             print_variables(locals, values, variable_prefix);
 
         } else if (line == "gv" || line == "globals") {
 
-            ListPOD<se_string> globals;
-            List<Variant> values;
+            Vector<String> globals;
+            Vector<Variant> values;
             p_script->debug_get_globals(&globals, &values);
             print_variables(globals, values, variable_prefix);
 
         } else if (line == "mv" || line == "members") {
 
-            ListPOD<se_string> members;
-            List<Variant> values;
+            Vector<String> members;
+            Vector<Variant> values;
             p_script->debug_get_stack_level_members(current_frame, &members, &values);
             print_variables(members, values, variable_prefix);
 
@@ -148,7 +148,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
             } else {
 
                 se_string_view expr = StringUtils::get_slice(line,' ', 2);
-                se_string res = p_script->debug_parse_stack_level_expression(current_frame, expr);
+                String res = p_script->debug_parse_stack_level_expression(current_frame, expr);
                 print_line(res);
             }
 
@@ -164,7 +164,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
             break;
         } else if (line == "fin" || line == "finish") {
 
-            se_string current_function = p_script->debug_get_stack_level_function(0);
+            String current_function = p_script->debug_get_stack_level_function(0);
 
             for (int i = 0; i < total_frames; i++) {
                 target_function = p_script->debug_get_stack_level_function(i);
@@ -190,14 +190,14 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
                 print_line("Breakpoint(s): " + itos(breakpoints.size()));
                 for (const eastl::pair<const int,Set<StringName> > &E : breakpoints) {
-                    print_line("\t" + se_string(*E.second.begin()) + ":" + itos(E.first));
+                    print_line("\t" + String(*E.second.begin()) + ":" + itos(E.first));
                 }
 
             } else {
 
-                Pair<se_string, int> breakpoint = to_breakpoint(line);
+                Pair<String, int> breakpoint = to_breakpoint(line);
 
-                se_string source = breakpoint.first;
+                String source = breakpoint.first;
                 int linenr = breakpoint.second;
 
                 if (source.empty())
@@ -223,9 +223,9 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
                 clear_breakpoints();
             } else {
 
-                Pair<se_string, int> breakpoint = to_breakpoint(line);
+                Pair<String, int> breakpoint = to_breakpoint(line);
 
-                se_string source = breakpoint.first;
+                String source = breakpoint.first;
                 int linenr = breakpoint.second;
 
                 if (source.empty())
@@ -259,36 +259,35 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
     }
 }
 
-void ScriptDebuggerLocal::print_variables(const ListPOD<se_string> &names, const List<Variant> &values, se_string_view variable_prefix) {
+void ScriptDebuggerLocal::print_variables(const Vector<String> &names, const Vector<Variant> &values, se_string_view variable_prefix) {
 
-    PODVector<se_string_view> value_lines;
-    const List<Variant>::Element *V = values.front();
-    for (const se_string &E : names) {
+    //ERR_FAIL_COND(names.size()!=values.size());
 
-        se_string value = V->deref();
+    Vector<se_string_view> value_lines;
 
+    for(size_t idx=0,fin=values.size(); idx<fin; ++idx) {
+        const String &E(names[idx]);
+        const String value(values[idx].as<String>());
         if (variable_prefix.empty()) {
-            print_line(E + ": " + V->deref().as<se_string>());
+            print_line(E + ": " + value);
         } else {
-
             print_line(E + ":");
             value_lines = StringUtils::split(value,'\n');
             for (size_t i = 0; i < value_lines.size(); ++i) {
-                print_line(se_string(variable_prefix) + value_lines[i]);
+                print_line(String(variable_prefix) + value_lines[i]);
             }
         }
 
-        V = V->next();
     }
 }
 
-Pair<se_string, int> ScriptDebuggerLocal::to_breakpoint(const se_string &p_line) {
+Pair<String, int> ScriptDebuggerLocal::to_breakpoint(const String &p_line) {
 
     se_string_view breakpoint_part = StringUtils::get_slice(p_line,' ', 1);
-    Pair<se_string, int> breakpoint;
+    Pair<String, int> breakpoint;
 
     auto last_colon = StringUtils::rfind(breakpoint_part,":");
-    if (last_colon == se_string::npos) {
+    if (last_colon == String::npos) {
         print_line("Error: Invalid breakpoint format. Expected [source:line]");
         return breakpoint;
     }
@@ -407,15 +406,15 @@ void ScriptDebuggerLocal::profiling_end() {
     profiling = false;
 }
 
-void ScriptDebuggerLocal::send_message(const se_string &p_message, const Array &p_args) {
+void ScriptDebuggerLocal::send_message(const String &p_message, const Array &p_args) {
 
     // This needs to be cleaned up entirely.
-    // print_line("MESSAGE: '" + p_message + "' - " + se_string(Variant(p_args)));
+    // print_line("MESSAGE: '" + p_message + "' - " + String(Variant(p_args)));
 }
 
-void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
 
-    print_line(se_string("ERROR: '") + (p_descr.empty() ? p_err : p_descr) + "'");
+    print_line(String("ERROR: '") + (p_descr.empty() ? p_err : p_descr) + "'");
 }
 
 ScriptDebuggerLocal::ScriptDebuggerLocal() {

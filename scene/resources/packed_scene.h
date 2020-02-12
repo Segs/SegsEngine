@@ -42,7 +42,7 @@ class SceneState : public RefCounted {
 
     GDCLASS(SceneState,RefCounted)
 
-    PODVector<StringName> names;
+    Vector<StringName> names;
     Vector<Variant> variants;
     Vector<NodePath> node_paths;
     Vector<NodePath> editable_instances;
@@ -82,7 +82,7 @@ class SceneState : public RefCounted {
         PackState() { node = -1; }
     };
 
-    PODVector<NodeData> nodes;
+    Vector<NodeData> nodes;
 
     struct ConnectionData {
 
@@ -99,15 +99,15 @@ class SceneState : public RefCounted {
     Error _parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
     Error _parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
 
-    se_string path;
+    String path;
 
     uint64_t last_modified_time;
 
     _FORCE_INLINE_ Ref<SceneState> _get_base_scene_state() const;
 
     static bool disable_placeholders;
-
-    PoolVector<se_string> _get_node_groups(int p_idx) const;
+public:
+    PoolVector<String> _get_node_groups(int p_idx) const;
 
     int _find_base_scene_node_remap_key(int p_idx) const;
 
@@ -141,7 +141,7 @@ public:
     Error pack(Node *p_scene);
 
     void set_path(se_string_view p_path);
-    const se_string &get_path() const;
+    const String &get_path() const;
 
     void clear();
 
@@ -156,7 +156,7 @@ public:
     NodePath get_node_path(int p_idx, bool p_for_parent = false) const;
     NodePath get_node_owner_path(int p_idx) const;
     Ref<PackedScene> get_node_instance(int p_idx) const;
-    se_string get_node_instance_placeholder(int p_idx) const;
+    String get_node_instance_placeholder(int p_idx) const;
     bool is_node_instance_placeholder(int p_idx) const;
     Vector<StringName> get_node_groups(int p_idx) const;
     int get_node_index(int p_idx) const;
@@ -175,7 +175,7 @@ public:
 
     bool has_connection(const NodePath &p_node_from, const StringName &p_signal, const NodePath &p_node_to, const StringName &p_method);
 
-    Vector<NodePath> get_editable_instances() const;
+    const Vector<NodePath> &get_editable_instances() const;
 
     //build API
 
@@ -187,7 +187,7 @@ public:
     void add_node_property(int p_node, int p_name, int p_value);
     void add_node_group(int p_node, int p_group);
     void set_base_scene(int p_idx);
-    void add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, const Vector<int> &p_binds);
+    void add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, Vector<int> &&p_binds);
     void add_editable_instance(const NodePath &p_path);
 
     virtual void set_last_modified_time(uint64_t p_time) { last_modified_time = p_time; }
@@ -204,7 +204,7 @@ class PackedScene : public Resource {
     RES_BASE_EXTENSION("scn")
 
     Ref<SceneState> state;
-
+public:
     void _set_bundled_scene(const Dictionary &p_scene);
     Dictionary _get_bundled_scene() const;
 

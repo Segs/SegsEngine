@@ -210,7 +210,7 @@ namespace GodotTools
                     string scriptPath = ProjectSettings.GlobalizePath(script.ResourcePath);
                     RiderPathManager.OpenFile(GodotSharpDirs.ProjectSlnPath, scriptPath, line);
                     return Error.Ok;
-                }        
+                }
                 case ExternalEditorId.MonoDevelop:
                 {
                     string scriptPath = ProjectSettings.GlobalizePath(script.ResourcePath);
@@ -338,6 +338,8 @@ namespace GodotTools
             var editorBaseControl = editorInterface.GetBaseControl();
 
             editorSettings = editorInterface.GetEditorSettings();
+            if (editorSettings == null)
+                throw new ArgumentNullException("Editor settings are null");
 
             errorDialog = new AcceptDialog();
             editorBaseControl.AddChild(errorDialog);
@@ -416,7 +418,7 @@ namespace GodotTools
             {
                 Text = "Build",
                 HintTooltip = "Build solution",
-                FocusMode = Control.FocusModeEnum.None
+                FocusMode = (int)Control.FocusModeEnum.None
             };
             buildButton.Connect("pressed", this, nameof(_BuildSolutionPressed));
             AddControlToContainer(CustomControlContainer.Toolbar, buildButton);
@@ -448,7 +450,7 @@ namespace GodotTools
 
             editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
             {
-                ["type"] = Variant.Type.Int,
+                ["type"] = VariantType.Int,
                 ["name"] = "mono/editor/external_editor",
                 ["hint"] = PropertyHint.Enum,
                 ["hint_string"] = settingsHintStr

@@ -43,69 +43,69 @@
 class AudioEffectRecord;
 
 class AudioEffectRecordInstance : public AudioEffectInstance {
-	GDCLASS(AudioEffectRecordInstance,AudioEffectInstance)
+    GDCLASS(AudioEffectRecordInstance,AudioEffectInstance)
 
-	friend class AudioEffectRecord;
-	Ref<AudioEffectRecord> base;
+    friend class AudioEffectRecord;
+    Ref<AudioEffectRecord> base;
 
-	bool is_recording;
-	Thread *io_thread;
-	bool thread_active;
+    bool is_recording;
+    Thread *io_thread;
+    bool thread_active;
 
-	Vector<AudioFrame> ring_buffer;
-	Vector<float> recording_data;
+    Vector<AudioFrame> ring_buffer;
+    Vector<float> recording_data;
 
-	unsigned int ring_buffer_pos;
-	unsigned int ring_buffer_mask;
-	unsigned int ring_buffer_read_pos;
+    unsigned int ring_buffer_pos;
+    unsigned int ring_buffer_mask;
+    unsigned int ring_buffer_read_pos;
 
-	void _io_thread_process();
-	void _io_store_buffer();
-	static void _thread_callback(void *_instance);
-	void _init_recording();
-	void _update_buffer();
-	static void _update(void *userdata);
+    void _io_thread_process();
+    void _io_store_buffer();
+    static void _thread_callback(void *_instance);
+    void _init_recording();
+    void _update_buffer();
+    static void _update(void *userdata);
 
 public:
-	void init();
-	void finish();
-	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
-	bool process_silence() const override;
+    void init();
+    void finish();
+    void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
+    bool process_silence() const override;
 
-	AudioEffectRecordInstance() :
-			thread_active(false) {}
-	~AudioEffectRecordInstance() override;
+    AudioEffectRecordInstance() :
+            thread_active(false) {}
+    ~AudioEffectRecordInstance() override;
 };
 
 class AudioEffectRecord : public AudioEffect {
-	GDCLASS(AudioEffectRecord,AudioEffect)
+    GDCLASS(AudioEffectRecord,AudioEffect)
 
-	friend class AudioEffectRecordInstance;
+    friend class AudioEffectRecordInstance;
 
-	enum {
-		IO_BUFFER_SIZE_MS = 1500
-	};
+    enum {
+        IO_BUFFER_SIZE_MS = 1500
+    };
 
-	bool recording_active;
-	Ref<AudioEffectRecordInstance> current_instance;
+    bool recording_active;
+    Ref<AudioEffectRecordInstance> current_instance;
 
-	AudioStreamSample::Format format;
+    AudioStreamSample::Format format;
 
-	void ensure_thread_stopped();
+    void ensure_thread_stopped();
 
 protected:
-	static void _bind_methods();
-	static void debug(uint64_t time_diff, int p_frame_count);
+    static void _bind_methods();
+    static void debug(uint64_t time_diff, int p_frame_count);
 
 public:
-	Ref<AudioEffectInstance> instance() override;
-	void set_recording_active(bool p_record);
-	bool is_recording_active() const;
-	void set_format(AudioStreamSample::Format p_format);
-	AudioStreamSample::Format get_format() const;
-	Ref<AudioStreamSample> get_recording() const;
+    Ref<AudioEffectInstance> instance() override;
+    void set_recording_active(bool p_record);
+    bool is_recording_active() const;
+    void set_format(AudioStreamSample::Format p_format);
+    AudioStreamSample::Format get_format() const;
+    Ref<AudioStreamSample> get_recording() const;
 
-	AudioEffectRecord();
+    AudioEffectRecord();
 };
 
 #endif // AUDIOEFFECTRECORD_H

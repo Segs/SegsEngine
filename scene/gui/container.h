@@ -39,9 +39,9 @@ class Container : public Control {
     bool pending_sort;
     void _sort_children();
     void _child_minsize_changed();
-
-protected:
+public:
     void queue_sort();
+protected:
     void add_child_notify(Node *p_child) override;
     void move_child_notify(Node *p_child) override;
     void remove_child_notify(Node *p_child) override;

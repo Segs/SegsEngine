@@ -2,6 +2,7 @@ using GodotTools.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Microsoft.Build.Construction;
 
 namespace GodotTools.ProjectEditor
@@ -99,7 +100,8 @@ namespace GodotTools.ProjectEditor
             mainGroup.AddProperty("OutputPath", Path.Combine("bin", "$(Configuration)"));
             mainGroup.AddProperty("RootNamespace", IdentifierUtils.SanitizeQualifiedIdentifier(name, allowEmptyIdentifiers: true));
             mainGroup.AddProperty("AssemblyName", name);
-            mainGroup.AddProperty("TargetFrameworkVersion", "v4.5");
+            mainGroup.AddProperty("TargetFrameworkVersion", "v4.7");
+            mainGroup.AddProperty("GodotProjectGeneratorVersion", Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
             var debugGroup = root.AddPropertyGroup();
             debugGroup.Condition = " '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ";

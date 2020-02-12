@@ -39,7 +39,7 @@ void AnimationCache::_node_exit_tree(Node *p_node) {
 
     //it is one shot, so it disconnects upon arrival
 
-    ERR_FAIL_COND(!connected_nodes.contains(p_node))
+    ERR_FAIL_COND(!connected_nodes.contains(p_node));
 
     connected_nodes.erase(p_node);
 
@@ -48,7 +48,7 @@ void AnimationCache::_node_exit_tree(Node *p_node) {
         if (path_cache[i].node != p_node)
             continue;
 
-        path_cache.write[i].valid = false; //invalidate path cache
+        path_cache[i].valid = false; //invalidate path cache
     }
 }
 
@@ -73,9 +73,9 @@ void AnimationCache::_update_cache() {
 
     cache_valid = false;
 
-    ERR_FAIL_COND(!root)
-    ERR_FAIL_COND(!root->is_inside_tree())
-    ERR_FAIL_COND(not animation)
+    ERR_FAIL_COND(!root);
+    ERR_FAIL_COND(!root->is_inside_tree());
+    ERR_FAIL_COND(not animation);
 
     for (int i = 0; i < animation->get_track_count(); i++) {
 
@@ -85,7 +85,7 @@ void AnimationCache::_update_cache() {
         if (!node) {
 
             path_cache.push_back(Path());
-            ERR_CONTINUE_MSG(!node, "Invalid track path in animation: " + (se_string)np + ".");
+            ERR_CONTINUE_MSG(!node, "Invalid track path in animation: " + (String)np + ".");
         }
 
         Path path;
@@ -96,7 +96,7 @@ void AnimationCache::_update_cache() {
 
             if (np.get_subname_count() > 1) {
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(animation->track_get_type(i) == Animation::TYPE_TRANSFORM, "Transform tracks can't have a subpath: " + (se_string)np + ".");
+                ERR_CONTINUE_MSG(animation->track_get_type(i) == Animation::TYPE_TRANSFORM, "Transform tracks can't have a subpath: " + (String)np + ".");
             }
 
             Spatial *sp = object_cast<Spatial>(node);
@@ -104,7 +104,7 @@ void AnimationCache::_update_cache() {
             if (!sp) {
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(!sp, "Transform track not of type Spatial: " + (se_string)np + ".");
+                ERR_CONTINUE_MSG(!sp, "Transform track not of type Spatial: " + (String)np + ".");
             }
 
             if (np.get_subname_count() == 1) {
@@ -115,13 +115,13 @@ void AnimationCache::_update_cache() {
                 if (!sk) {
 
                     path_cache.push_back(Path());
-                    ERR_CONTINUE_MSG(!sk, "Property defined in Transform track, but not a Skeleton!: " + (se_string)np + ".");
+                    ERR_CONTINUE_MSG(!sk, "Property defined in Transform track, but not a Skeleton!: " + (String)np + ".");
                 }
 
                 int idx = sk->find_bone(property);
                 if (idx == -1) {
                     path_cache.push_back(Path());
-                    ERR_CONTINUE_MSG(idx == -1, "Property defined in Transform track, but not a Skeleton Bone!: " + (se_string)np + ".");
+                    ERR_CONTINUE_MSG(idx == -1, "Property defined in Transform track, but not a Skeleton Bone!: " + (String)np + ".");
                 }
 
                 path.bone_idx = idx;
@@ -161,7 +161,7 @@ void AnimationCache::_update_cache() {
             if (np.get_subname_count() == 0) {
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(np.get_subname_count() == 0, "Value Track lacks property: " + (se_string)np + ".");
+                ERR_CONTINUE_MSG(np.get_subname_count() == 0, "Value Track lacks property: " + (String)np + ".");
             }
 
         } else if (animation->track_get_type(i) == Animation::TYPE_METHOD) {
@@ -169,7 +169,7 @@ void AnimationCache::_update_cache() {
             if (!path.subpath.empty()) { // Trying to call a method of a non-resource
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(!path.subpath.empty(), "Method Track has property: " + (se_string)np + ".");
+                ERR_CONTINUE_MSG(!path.subpath.empty(), "Method Track has property: " + (String)np + ".");
             }
         }
 
@@ -192,14 +192,14 @@ void AnimationCache::set_track_transform(int p_idx, const Transform &p_transform
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
-    ERR_FAIL_INDEX(p_idx, path_cache.size())
-    Path &p = path_cache.write[p_idx];
+    ERR_FAIL_COND(!cache_valid);
+    ERR_FAIL_INDEX(p_idx, path_cache.size());
+    Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
 
-    ERR_FAIL_COND(!p.node)
-    ERR_FAIL_COND(!p.spatial)
+    ERR_FAIL_COND(!p.node);
+    ERR_FAIL_COND(!p.spatial);
 
     if (p.skeleton) {
         p.skeleton->set_bone_pose(p.bone_idx, p_transform);
@@ -213,13 +213,13 @@ void AnimationCache::set_track_value(int p_idx, const Variant &p_value) {
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
-    ERR_FAIL_INDEX(p_idx, path_cache.size())
-    Path &p = path_cache.write[p_idx];
+    ERR_FAIL_COND(!cache_valid);
+    ERR_FAIL_INDEX(p_idx, path_cache.size());
+    Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
 
-    ERR_FAIL_COND(!p.object)
+    ERR_FAIL_COND(!p.object);
     p.object->set_indexed(p.subpath, p_value);
 }
 
@@ -228,13 +228,13 @@ void AnimationCache::call_track(int p_idx, const StringName &p_method, const Var
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
-    ERR_FAIL_INDEX(p_idx, path_cache.size())
-    Path &p = path_cache.write[p_idx];
+    ERR_FAIL_COND(!cache_valid);
+    ERR_FAIL_INDEX(p_idx, path_cache.size());
+    Path &p = path_cache[p_idx];
     if (!p.valid)
         return;
 
-    ERR_FAIL_COND(!p.object)
+    ERR_FAIL_COND(!p.object);
     p.object->call(p_method, p_args, p_argcount, r_error);
 }
 
@@ -243,7 +243,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
     if (cache_dirty)
         _update_cache();
 
-    ERR_FAIL_COND(!cache_valid)
+    ERR_FAIL_COND(!cache_valid);
 
     int tc = animation->get_track_count();
     for (int i = 0; i < tc; i++) {
@@ -268,10 +268,10 @@ void AnimationCache::set_all(float p_time, float p_delta) {
                     set_track_value(i, v);
                 } else {
 
-                    List<int> indices;
+                    ListOld<int> indices;
                     animation->value_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                    for (List<int>::Element *E = indices.front(); E; E = E->next()) {
+                    for (ListOld<int>::Element *E = indices.front(); E; E = E->next()) {
 
                         Variant v = animation->track_get_key_value(i, E->deref());
                         set_track_value(i, v);
@@ -281,12 +281,12 @@ void AnimationCache::set_all(float p_time, float p_delta) {
             } break;
             case Animation::TYPE_METHOD: {
 
-                List<int> indices;
+                ListOld<int> indices;
                 animation->method_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                for (List<int>::Element *E = indices.front(); E; E = E->next()) {
+                for (ListOld<int>::Element *E = indices.front(); E; E = E->next()) {
 
-                    Vector<Variant> args = animation->method_track_get_params(i, E->deref());
+                    const Vector<Variant> &args = animation->method_track_get_params(i, E->deref());
                     StringName name = animation->method_track_get_name(i, E->deref());
                     Variant::CallError err;
 
@@ -299,7 +299,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
                         argptrs.resize(args.size());
                         for (int j = 0; j < args.size(); j++) {
 
-                            argptrs.write[j] = &args.write[j];
+                            argptrs[j] = &args[j];
                         }
 
                         call_track(i, name, (const Variant **)&argptrs[0], args.size(), err);

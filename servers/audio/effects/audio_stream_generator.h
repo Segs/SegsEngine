@@ -51,7 +51,7 @@ public:
     float get_buffer_length() const;
 
     Ref<AudioStreamPlayback> instance_playback() override;
-    se_string get_stream_name() const override;
+    String get_stream_name() const override;
 
     float get_length() const override;
     AudioStreamGenerator();

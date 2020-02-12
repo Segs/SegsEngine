@@ -40,7 +40,7 @@ class OptionButton : public Button {
 
     PopupMenu *popup;
     int current;
-
+public:
     void _focused(int p_which);
     void _selected(int p_which);
     void _select(int p_which, bool p_emit = false);
@@ -67,7 +67,7 @@ public:
     void set_item_disabled(int p_idx, bool p_disabled);
 
     StringName get_item_text(int p_idx) const;
-    se_string get_item_text_utf8(int p_idx) const;
+    String get_item_text_utf8(int p_idx) const;
     Ref<Texture> get_item_icon(int p_idx) const;
     int get_item_id(int p_idx) const;
     int get_item_index(int p_id) const;
@@ -89,7 +89,7 @@ public:
 
     PopupMenu *get_popup() const;
 
-    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
+    void get_translatable_strings(List<StringName> *p_strings) const override;
 
     OptionButton();
     ~OptionButton() override;

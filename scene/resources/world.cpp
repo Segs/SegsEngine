@@ -63,7 +63,7 @@ struct SpatialIndexer {
         VISIBILITY_CULL_MAX = 32768
     };
 
-    PODVector<VisibilityNotifier *> cull;
+    Vector<VisibilityNotifier *> cull;
 
     uint64_t pass;
     uint64_t last_frame;
@@ -71,7 +71,7 @@ struct SpatialIndexer {
 
     void _notifier_add(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        ERR_FAIL_COND(notifiers.contains(p_notifier))
+        ERR_FAIL_COND(notifiers.contains(p_notifier));
         notifiers[p_notifier].aabb = p_rect;
         notifiers[p_notifier].id = octree.create(p_notifier, p_rect);
         changed = true;
@@ -80,7 +80,7 @@ struct SpatialIndexer {
     void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
         Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E==notifiers.end())
+        ERR_FAIL_COND(E==notifiers.end());
         if (E->second.aabb == p_rect)
             return;
 
@@ -92,12 +92,12 @@ struct SpatialIndexer {
     void _notifier_remove(VisibilityNotifier *p_notifier) {
 
         Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
-        ERR_FAIL_COND(E!=notifiers.end())
+        ERR_FAIL_COND(E!=notifiers.end());
 
         octree.erase(E->second.id);
         notifiers.erase(p_notifier);
 
-        List<Camera *> removed;
+        Vector<Camera *> removed;
         for (eastl::pair< Camera *const,CameraData> &F : cameras) {
 
             Map<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
@@ -108,10 +108,8 @@ struct SpatialIndexer {
             }
         }
 
-        while (!removed.empty()) {
-
-            p_notifier->_exit_camera(removed.front()->deref());
-            removed.pop_front();
+        for(Camera *c : removed) {
+            p_notifier->_exit_camera(c);
         }
 
         changed = true;
@@ -119,7 +117,7 @@ struct SpatialIndexer {
 
     void _add_camera(Camera *p_camera) {
 
-        ERR_FAIL_COND(cameras.contains(p_camera))
+        ERR_FAIL_COND(cameras.contains(p_camera));
         CameraData vd;
         cameras[p_camera] = vd;
         changed = true;
@@ -128,21 +126,20 @@ struct SpatialIndexer {
     void _update_camera(Camera *p_camera) {
 
         Map<Camera *, CameraData>::iterator E = cameras.find(p_camera);
-        ERR_FAIL_COND(E==cameras.end())
+        ERR_FAIL_COND(E==cameras.end());
         changed = true;
     }
 
     void _remove_camera(Camera *p_camera) {
-        ERR_FAIL_COND(!cameras.contains(p_camera))
-        List<VisibilityNotifier *> removed;
+        ERR_FAIL_COND(!cameras.contains(p_camera));
+        Vector<VisibilityNotifier *> removed;
         for (auto &E : cameras[p_camera].notifiers) {
 
             removed.push_back(E.first);
         }
 
-        while (!removed.empty()) {
-            removed.front()->deref()->_exit_camera(p_camera);
-            removed.pop_front();
+        for(auto v : removed) {
+            v->_exit_camera(p_camera);
         }
 
         cameras.erase(p_camera);
@@ -169,8 +166,8 @@ struct SpatialIndexer {
 
             VisibilityNotifier **ptr = cull.data();
 
-            List<VisibilityNotifier *> added;
-            List<VisibilityNotifier *> removed;
+            Vector<VisibilityNotifier *> added;
+            Vector<VisibilityNotifier *> removed;
 
             for (int i = 0; i < culled; i++) {
 
@@ -192,15 +189,13 @@ struct SpatialIndexer {
                     removed.push_back(F.first);
             }
 
-            while (!added.empty()) {
-                added.front()->deref()->_enter_camera(E.first);
-                added.pop_front();
+            for(VisibilityNotifier * vn : added) {
+                vn->_enter_camera(E.first);
             }
 
-            while (!removed.empty()) {
-                E.second.notifiers.erase(removed.front()->deref());
-                removed.front()->deref()->_exit_camera(E.first);
-                removed.pop_front();
+            for(VisibilityNotifier * r : removed) {
+                E.second.notifiers.erase(r);
+                r->_exit_camera(E.first);
             }
         }
         changed = false;
@@ -308,7 +303,7 @@ PhysicsDirectSpaceState *World::get_direct_space_state() {
     return PhysicsServer::get_singleton()->space_get_direct_state(space);
 }
 
-void World::get_camera_list(List<Camera *> *r_cameras) {
+void World::get_camera_list(Vector<Camera *> *r_cameras) {
 
     for (const eastl::pair<Camera *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
         r_cameras->push_back(E.first);
@@ -324,11 +319,11 @@ void World::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_fallback_environment", {"env"}), &World::set_fallback_environment);
     MethodBinder::bind_method(D_METHOD("get_fallback_environment"), &World::get_fallback_environment);
     MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World::get_direct_space_state);
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_environment", "get_environment");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback_environment", PROPERTY_HINT_RESOURCE_TYPE, "Environment"), "set_fallback_environment", "get_fallback_environment");
-    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PROPERTY_HINT_NONE, "", 0), "", "get_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "scenario", PROPERTY_HINT_NONE, "", 0), "", "get_scenario");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PROPERTY_HINT_RESOURCE_TYPE, "PhysicsDirectSpaceState", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback_environment", PropertyHint::ResourceType, "Environment"), "set_fallback_environment", "get_fallback_environment");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::_RID, "scenario", PropertyHint::None, "", 0), "", "get_scenario");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "PhysicsDirectSpaceState", 0), "", "get_direct_space_state");
 }
 
 World::World() {
@@ -340,9 +335,9 @@ World::World() {
     PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_GRAVITY, GLOBAL_DEF("physics/3d/default_gravity", 9.8));
     PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_GRAVITY_VECTOR, GLOBAL_DEF("physics/3d/default_gravity_vector", Vector3(0, -1, 0)));
     PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_LINEAR_DAMP, GLOBAL_DEF("physics/3d/default_linear_damp", 0.1));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/3d/default_linear_damp", PROPERTY_HINT_RANGE, "-1,100,0.001,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/3d/default_linear_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
     PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/3d/default_angular_damp", 0.1));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/3d/default_angular_damp", PROPERTY_HINT_RANGE, "-1,100,0.001,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/3d/default_angular_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
 
 #ifdef _3D_DISABLED
     indexer = NULL;
@@ -353,8 +348,8 @@ World::World() {
 
 World::~World() {
 
-    PhysicsServer::get_singleton()->free(space);
-    VisualServer::get_singleton()->free(scenario);
+    PhysicsServer::get_singleton()->free_rid(space);
+    VisualServer::get_singleton()->free_rid(scenario);
 
 #ifndef _3D_DISABLED
     memdelete(indexer);

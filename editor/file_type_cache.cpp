@@ -45,23 +45,23 @@ bool FileTypeCache::has_file(se_string_view p_path) const {
     return file_type_map.contains_as(p_path);
 }
 
-se_string FileTypeCache::get_file_type(se_string_view p_path) const {
+String FileTypeCache::get_file_type(se_string_view p_path) const {
 
     GLOBAL_LOCK_FUNCTION
     auto iter = file_type_map.find_as(p_path);
-    ERR_FAIL_COND_V(iter==file_type_map.end(), se_string())
+    ERR_FAIL_COND_V(iter==file_type_map.end(), String());
     return iter->second;
 }
 void FileTypeCache::set_file_type(se_string_view p_path, se_string_view p_type) {
 
     GLOBAL_LOCK_FUNCTION
-    file_type_map[se_string(p_path)] = p_type;
+    file_type_map[String(p_path)] = p_type;
 }
 
 void FileTypeCache::load() {
 
     GLOBAL_LOCK_FUNCTION
-    se_string project = ProjectSettings::get_singleton()->get_resource_path();
+    String project = ProjectSettings::get_singleton()->get_resource_path();
     FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::READ);
 
     if (!f) {
@@ -73,10 +73,10 @@ void FileTypeCache::load() {
     file_type_map.clear();
     while (!f->eof_reached()) {
 
-        se_string path = f->get_line();
+        String path = f->get_line();
         if (f->eof_reached())
             break;
-        se_string type = f->get_line();
+        String type = f->get_line();
         set_file_type(path, type);
     }
 
@@ -86,10 +86,10 @@ void FileTypeCache::load() {
 void FileTypeCache::save() {
 
     GLOBAL_LOCK_FUNCTION
-    se_string project = ProjectSettings::get_singleton()->get_resource_path();
+    String project = ProjectSettings::get_singleton()->get_resource_path();
     FileAccess *f = FileAccess::open(project + "/file_type_cache.cch", FileAccess::WRITE);
 
-    ERR_FAIL_COND_MSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!")
+    ERR_FAIL_COND_MSG(!f, "Can't open file_type_cache.cch for writing, not saving file type cache!"); 
 
     for(const auto &v : file_type_map) {
         f->store_line(v.first);
@@ -102,6 +102,6 @@ void FileTypeCache::save() {
 
 FileTypeCache::FileTypeCache() {
 
-    ERR_FAIL_COND_MSG(singleton, "FileTypeCache singleton already exist.")
+    ERR_FAIL_COND_MSG(singleton, "FileTypeCache singleton already exist."); 
     singleton = this;
 }

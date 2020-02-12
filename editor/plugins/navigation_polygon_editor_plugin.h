@@ -48,7 +48,7 @@ protected:
 
     int _get_polygon_count() const override;
     Variant _get_polygon(int p_idx) const override;
-    void _set_polygon(int p_idx, const Vector<Vector2> &p_polygon) const override;
+    void _set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const override;
 
     void _action_add_polygon(const Variant &p_polygon) override;
     void _action_remove_polygon(int p_idx) override;

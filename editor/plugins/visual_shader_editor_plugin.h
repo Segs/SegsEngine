@@ -180,10 +180,10 @@ class VisualShaderEditor : public VBoxContainer {
 //        }
     };
 
-    PODVector<AddOption> add_options;
+    Vector<AddOption> add_options;
     int texture_node_option_idx;
     int custom_node_option_idx;
-    PODVector<se_string_view> keyword_list;
+    Vector<se_string_view> keyword_list;
 
     void _draw_color_over_button(Object *obj, Color p_color);
 
@@ -230,15 +230,15 @@ class VisualShaderEditor : public VBoxContainer {
 
     void _port_name_focus_out(Object *line_edit, int p_node_id, int p_port_id, bool p_output);
 
-    void _dup_copy_nodes(int p_type, PODVector<int> &r_nodes, Set<int> &r_excluded);
+    void _dup_copy_nodes(int p_type, Vector<int> &r_nodes, Set<int> &r_excluded);
     void _dup_update_excluded(int p_type, Set<int> &r_excluded);
-    void _dup_paste_nodes(int p_type, int p_pasted_type, PODVector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select);
+    void _dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select);
 
     void _duplicate_nodes();
 
     Vector2 selection_center;
     int copy_type; // shader type
-    PODVector<int> copy_nodes_buffer;
+    Vector<int> copy_nodes_buffer;
     Set<int> copy_nodes_excluded_buffer;
 
     void _clear_buffer();
@@ -340,7 +340,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const PODVector<se_string_view> &p_options);
+    void setup(const Vector<se_string_view> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyShaderMode();

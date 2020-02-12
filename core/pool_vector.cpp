@@ -68,7 +68,7 @@ void MemoryPool::cleanup() {
     memdelete_arr(allocs);
     memdelete(alloc_mutex);
 
-    ERR_FAIL_COND_MSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!")
+    ERR_FAIL_COND_MSG(allocs_used > 0, "There are still MemoryPool allocs in use at exit!"); 
 }
 
 bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)
@@ -76,7 +76,7 @@ bool MemoryPool::do_alloc_block(MemoryPool::Alloc *&alloc)
     MemoryPool::alloc_mutex->lock();
     if (MemoryPool::allocs_used == MemoryPool::alloc_count) {
         MemoryPool::alloc_mutex->unlock();
-        ERR_FAIL_V_MSG(false,"All memory pool allocations are in use, can't COW.")
+        ERR_FAIL_V_MSG(false,"All memory pool allocations are in use, can't COW.");
     }
 
     MemoryPool::Alloc *old_alloc = alloc;

@@ -47,6 +47,8 @@ Area2DSW::BodyKey::BodyKey(Area2DSW *p_body, uint32_t p_body_shape, uint32_t p_a
 }
 
 void Area2DSW::_shapes_changed() {
+    if (!moved_list.in_list() && get_space())
+        get_space()->area_add_to_moved_list(&moved_list);
 }
 
 void Area2DSW::set_transform(const Transform2D &p_transform) {
@@ -156,7 +158,7 @@ Variant Area2DSW::get_param(Physics2DServer::AreaParameter p_param) const {
 
 void Area2DSW::_queue_monitor_update() {
 
-    ERR_FAIL_COND(!get_space())
+    ERR_FAIL_COND(!get_space());
 
     if (!monitor_query_list.in_list())
         get_space()->area_add_to_monitor_query_list(&monitor_query_list);

@@ -137,7 +137,7 @@ class ButtonGroup : public Resource {
 
     GDCLASS(ButtonGroup,Resource)
 
-                               friend class BaseButton;
+    friend class BaseButton;
     Set<BaseButton *> buttons;
 
 protected:
@@ -145,7 +145,6 @@ protected:
 
 public:
     BaseButton *get_pressed_button();
-    void get_buttons(List<BaseButton *> *r_buttons);
-    Array _get_buttons();
+    Vector<BaseButton *> get_buttons();
     ButtonGroup();
 };

@@ -97,16 +97,16 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 
 	PopupMenu *menu;
 	PopupMenu *animations_menu;
-    Vector<se_string> animations_to_add;
+    Vector<String> animations_to_add;
 	Vector2 add_point_pos;
-	Vector<Vector2> points;
+    Vector<Vector2> points;
 
 	bool dragging_selected_attempt;
 	bool dragging_selected;
 	Vector2 drag_from;
 	Vector2 drag_ofs;
 
-	Vector<int> making_triangle;
+    FixedVector<int,3,true> making_triangle; //TODO: SEGS: consider making the FixedVector non-growing
 
 	void _add_menu_type(int p_index);
 	void _add_animation_type(int p_index);

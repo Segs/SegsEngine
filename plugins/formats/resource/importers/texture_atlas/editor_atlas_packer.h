@@ -38,27 +38,27 @@
 class EditorAtlasPacker {
 public:
     struct Chart {
-        PODVector<Vector2> vertices;
+        Vector<Vector2> vertices;
         struct Face {
             int vertex[3];
         };
         Vector<Face> faces;
-        bool can_transpose;
-
         Vector2 final_offset;
+
+        bool can_transpose;
         bool transposed;
     };
 
 private:
     struct PlottedBitmap {
-        int chart_index;
-        Vector2i offset;
-        int area;
         Vector<int> top_heights;
         Vector<int> bottom_heights;
+        Vector2i offset;
+        Vector2 final_pos;
+        int chart_index;
+        int area;
         bool transposed;
 
-        Vector2 final_pos;
 
         bool operator<(const PlottedBitmap &p_bm) const {
             return area > p_bm.area;

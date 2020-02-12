@@ -72,12 +72,12 @@ void thread_process_array(uint32_t p_elements, C *p_instance, M p_method, U p_us
 	data.elements = p_elements;
 	data.process(data.index); //process first, let threads increment for next
 
-	Vector<Thread *> threads;
+	FixedVector<Thread *,16,true> threads; // allow for more than 16 processors, but will heap alloc in that case
 
-	threads.resize(OS::get_singleton()->get_processor_count());
+	threads.reserve(OS::get_singleton()->get_processor_count());
 
 	for (int i = 0; i < threads.size(); i++) {
-		threads.write[i] = Thread::create(process_array_thread<ThreadArrayProcessData<C, U> >, &data);
+		threads.emplace_back(Thread::create(process_array_thread<ThreadArrayProcessData<C, U> >, &data));
 	}
 
 	for (int i = 0; i < threads.size(); i++) {

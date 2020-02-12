@@ -254,14 +254,14 @@ void TextureButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_stretch_mode"), &TextureButton::get_stretch_mode);
 
     ADD_GROUP("Textures", "texture_");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_normal", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_texture", "get_normal_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_pressed", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_pressed_texture", "get_pressed_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_hover", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_hover_texture", "get_hover_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_disabled", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_disabled_texture", "get_disabled_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_focused", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_focused_texture", "get_focused_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_click_mask", PROPERTY_HINT_RESOURCE_TYPE, "BitMap"), "set_click_mask", "get_click_mask");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand", PROPERTY_HINT_RESOURCE_TYPE, "bool"), "set_expand", "get_expand");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_mode", PROPERTY_HINT_ENUM, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_normal", PropertyHint::ResourceType, "Texture"), "set_normal_texture", "get_normal_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_pressed", PropertyHint::ResourceType, "Texture"), "set_pressed_texture", "get_pressed_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_hover", PropertyHint::ResourceType, "Texture"), "set_hover_texture", "get_hover_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_disabled", PropertyHint::ResourceType, "Texture"), "set_disabled_texture", "get_disabled_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_focused", PropertyHint::ResourceType, "Texture"), "set_focused_texture", "get_focused_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_click_mask", PropertyHint::ResourceType, "BitMap"), "set_click_mask", "get_click_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "expand", PropertyHint::ResourceType, "bool"), "set_expand", "get_expand");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stretch_mode", PropertyHint::Enum, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
 
     BIND_ENUM_CONSTANT(STRETCH_SCALE)
     BIND_ENUM_CONSTANT(STRETCH_TILE)

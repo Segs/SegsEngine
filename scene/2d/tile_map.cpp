@@ -40,6 +40,7 @@
 #include "scene/2d/area_2d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/world_2d.h"
+#include "servers/navigation_2d_server.h"
 #include "servers/physics_2d_server.h"
 
 IMPL_GDCLASS(TileMap)
@@ -96,7 +97,7 @@ void TileMap::_notification(int p_what) {
                 if (navigation) {
                     for (eastl::pair<const PosKey,Quadrant::NavPoly> &F : q.navpoly_ids) {
 
-                        navigation->navpoly_remove(F.second.id);
+                       Navigation2DServer::get_singleton()->region_set_map(F.second.region, RID());
                     }
                     q.navpoly_ids.clear();
                 }
@@ -107,7 +108,7 @@ void TileMap::_notification(int p_what) {
                 }
 
                 for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
-                    VisualServer::get_singleton()->free(F.second.id);
+                    VisualServer::get_singleton()->free_rid(F.second.id);
                 }
                 q.occluder_instances.clear();
             }
@@ -173,7 +174,7 @@ void TileMap::_update_quadrant_transform() {
         if (navigation) {
             for (eastl::pair<const PosKey,Quadrant::NavPoly> &F : q.navpoly_ids) {
 
-                navigation->navpoly_set_transform(F.second.id, nav_rel * F.second.xform);
+                Navigation2DServer::get_singleton()->region_set_transform(F.second.region, nav_rel * F.second.xform);
             }
         }
 
@@ -211,7 +212,7 @@ Ref<TileSet> TileMap::get_tileset() const {
 
 void TileMap::set_cell_size(Size2 p_size) {
 
-    ERR_FAIL_COND(p_size.x < 1 || p_size.y < 1)
+    ERR_FAIL_COND(p_size.x < 1 || p_size.y < 1);
 
     _clear_quadrants();
     cell_size = p_size;
@@ -368,9 +369,9 @@ void TileMap::update_dirty_quadrants() {
 
         Quadrant &q = *dirty_quadrant_list.first()->self();
 
-        for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+        for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-            vs->free(E->deref());
+            vs->free_rid(E->deref());
         }
 
         q.canvas_items.clear();
@@ -385,13 +386,13 @@ void TileMap::update_dirty_quadrants() {
         if (navigation) {
             for (eastl::pair<const PosKey,Quadrant::NavPoly> &E : q.navpoly_ids) {
 
-                navigation->navpoly_remove(E.second.id);
+                Navigation2DServer::get_singleton()->region_set_map(E.second.region, RID());
             }
             q.navpoly_ids.clear();
         }
 
         for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-            VisualServer::get_singleton()->free(E.second.id);
+            VisualServer::get_singleton()->free_rid(E.second.id);
         }
         q.occluder_instances.clear();
         Ref<ShaderMaterial> prev_material;
@@ -560,7 +561,7 @@ void TileMap::update_dirty_quadrants() {
                 tex->draw_rect_region(canvas_item, rect, r, modulate, c.transpose, normal_map, clip_uv);
             }
 
-            Vector<TileSet::ShapeData> shapes = tile_set->tile_get_shapes(c.id);
+            const Vector<TileSet::ShapeData> &shapes = tile_set->tile_get_shapes(c.id);
 
             for (int j = 0; j < shapes.size(); j++) {
                 Ref<Shape2D> shape = shapes[j].shape;
@@ -588,7 +589,7 @@ void TileMap::update_dirty_quadrants() {
                                     _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->first.x, E->first.y));
 #ifdef DEBUG_ENABLED
                                 } else {
-                                    print_error(se_string("The TileSet assigned to the TileMap ") + get_name() + " has an invalid convex shape.");
+                                    print_error(String("The TileSet assigned to the TileMap ") + get_name() + " has an invalid convex shape.");
 #endif
                                 }
                             }
@@ -619,10 +620,13 @@ void TileMap::update_dirty_quadrants() {
                     xform.set_origin(offset.floor() + q.pos);
                     _fix_cell_transform(xform, c, npoly_ofs, s);
 
-                    int pid = navigation->navpoly_add(navpoly, nav_rel * xform);
+                    RID region = Navigation2DServer::get_singleton()->region_create();
+                    Navigation2DServer::get_singleton()->region_set_map(region, navigation->get_rid());
+                    Navigation2DServer::get_singleton()->region_set_transform(region, nav_rel * xform);
+                    Navigation2DServer::get_singleton()->region_set_navpoly(region, navpoly);
 
                     Quadrant::NavPoly np;
-                    np.id = pid;
+                    np.region = region;
                     np.xform = xform;
                     q.navpoly_ids[E->first] = np;
 
@@ -633,27 +637,19 @@ void TileMap::update_dirty_quadrants() {
                         vs->canvas_item_set_z_index(debug_navigation_item, VS::CANVAS_ITEM_Z_MAX - 2); // Display one below collision debug
 
                         if (debug_navigation_item.is_valid()) {
-                            PoolVector<Vector2> navigation_polygon_vertices = navpoly->get_vertices();
+                            const auto & navigation_polygon_vertices = navpoly->get_vertices();
                             int vsize = navigation_polygon_vertices.size();
 
                             if (vsize > 2) {
                                 Vector<Color> colors;
-                                PODVector<Vector2> vertices;
-                                vertices.reserve(vsize);
-                                colors.resize(vsize);
-                                {
-                                    PoolVector<Vector2>::Read vr = navigation_polygon_vertices.read();
-                                    vertices.assign(vr.ptr(),vr.ptr()+vsize);
-                                    for (int j = 0; j < vsize; j++) {
-                                        colors.write[j] = debug_navigation_color;
-                                    }
-                                }
+                                Vector<Vector2> vertices(navigation_polygon_vertices);
+                                colors.resize(vsize,debug_navigation_color);
 
-                                PODVector<int> indices;
+                                Vector<int> indices;
 
                                 for (int j = 0; j < navpoly->get_polygon_count(); j++) {
-                                    Vector<int> polygon = navpoly->get_polygon(j);
-
+                                    const auto &polygon = navpoly->get_polygon(j);
+                                    indices.reserve((polygon.size()-2)*3);
                                     for (int k = 2; k < polygon.size(); k++) {
 
                                         int kofs[3] = { 0, k - 1, k };
@@ -670,7 +666,7 @@ void TileMap::update_dirty_quadrants() {
                                 _fix_cell_transform(navxform, c, npoly_ofs, s);
 
                                 vs->canvas_item_set_transform(debug_navigation_item, navxform);
-                                vs->canvas_item_add_triangle_array(debug_navigation_item, indices, vertices, colors);
+                                vs->canvas_item_add_triangle_array(debug_navigation_item, indices, vertices, PoolVector<Color>(colors));
                             }
                         }
                     }
@@ -713,7 +709,7 @@ void TileMap::update_dirty_quadrants() {
         for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
             Quadrant &q = E.second;
-            for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+            for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
                 VisualServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
             }
@@ -801,14 +797,14 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
 
     Quadrant &q = Q->second;
     if (!use_parent) {
-        Physics2DServer::get_singleton()->free(q.body);
+        Physics2DServer::get_singleton()->free_rid(q.body);
     } else if (collision_parent) {
         collision_parent->remove_shape_owner(q.shape_owner_id);
     }
 
-    for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+    for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free(E->deref());
+        VisualServer::get_singleton()->free_rid(E->deref());
     }
     q.canvas_items.clear();
     if (q.dirty_list.in_list())
@@ -817,13 +813,13 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
     if (navigation) {
         for (eastl::pair<const PosKey,Quadrant::NavPoly> &E : q.navpoly_ids) {
 
-            navigation->navpoly_remove(E.second.id);
+            Navigation2DServer::get_singleton()->region_set_map(E.second.region, RID());
         }
         q.navpoly_ids.clear();
     }
 
     for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-        VisualServer::get_singleton()->free(E.second.id);
+        VisualServer::get_singleton()->free_rid(E.second.id);
     }
     q.occluder_instances.clear();
 
@@ -874,7 +870,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         //erase existing
         tile_map.erase(pk);
         Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
-        ERR_FAIL_COND(Q==quadrant_map.end())
+        ERR_FAIL_COND(Q==quadrant_map.end());
         Quadrant &q = Q->second;
         q.cells.erase(pk);
         if (q.cells.empty())
@@ -896,7 +892,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         Quadrant &q = Q->second;
         q.cells.insert(pk);
     } else {
-        ERR_FAIL_COND(Q==quadrant_map.end()) // quadrant should exist...
+        ERR_FAIL_COND(Q==quadrant_map.end()); // quadrant should exist...
 
         if (E->second.id == p_tile && E->second.flip_h == p_flip_x && E->second.flip_v == p_flip_y &&
                 E->second.transpose == p_transpose && E->second.autotile_coord_x == (uint16_t)p_autotile_coord.x &&
@@ -965,7 +961,7 @@ void TileMap::update_bitmask_region(const Vector2 &p_start, const Vector2 &p_end
 
 void TileMap::update_cell_bitmask(int p_x, int p_y) {
 
-    ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.")
+    ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.");
 
     PosKey p(p_x, p_y);
     Map<PosKey, Cell>::iterator E = tile_map.find(p);
@@ -1195,7 +1191,7 @@ void TileMap::_update_all_items_material_state() {
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         Quadrant &q = E.second;
-        for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+        for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
             _update_item_material_state(F->deref());
         }
@@ -1216,7 +1212,7 @@ void TileMap::clear() {
 
 void TileMap::_set_tile_data(const PoolVector<int> &p_data) {
 
-    ERR_FAIL_COND(format > FORMAT_2)
+    ERR_FAIL_COND(format > FORMAT_2);
 
     int c = p_data.size();
     PoolVector<int>::Read r = p_data.read();
@@ -1601,12 +1597,12 @@ bool TileMap::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void TileMap::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void TileMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    PropertyInfo p(VariantType::INT, "format", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
+    PropertyInfo p(VariantType::INT, "format", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
 
-    p = PropertyInfo(VariantType::OBJECT, "tile_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
+    p = PropertyInfo(VariantType::OBJECT, "tile_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
 }
 
@@ -1770,7 +1766,7 @@ void TileMap::set_light_mask(int p_light_mask) {
     CanvasItem::set_light_mask(p_light_mask);
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        for (List<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
+        for (ListOld<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
             VisualServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
         }
     }
@@ -1793,7 +1789,7 @@ bool TileMap::get_clip_uv() const {
 
 StringName TileMap::get_configuration_warning() const {
 
-    se_string warning(Node2D::get_configuration_warning());
+    String warning(Node2D::get_configuration_warning());
 
     if (use_parent && !collision_parent) {
         if (!warning.empty()) {
@@ -1901,30 +1897,30 @@ void TileMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_tile_data"), &TileMap::_set_tile_data);
     MethodBinder::bind_method(D_METHOD("_get_tile_data"), &TileMap::_get_tile_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PROPERTY_HINT_ENUM, "Square,Isometric,Custom"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tile_set", PROPERTY_HINT_RESOURCE_TYPE, "TileSet"), "set_tileset", "get_tileset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Square,Isometric,Custom"), "set_mode", "get_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "tile_set", PropertyHint::ResourceType, "TileSet"), "set_tileset", "get_tileset");
 
     ADD_GROUP("Cell", "cell_");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cell_size", PROPERTY_HINT_RANGE, "1,8192,1"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_quadrant_size", PROPERTY_HINT_RANGE, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "cell_size", PropertyHint::Range, "1,8192,1"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_quadrant_size", PropertyHint::Range, "1,128,1"), "set_quadrant_size", "get_quadrant_size");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "cell_custom_transform"), "set_custom_transform", "get_custom_transform");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_half_offset", PROPERTY_HINT_ENUM, "Offset X,Offset Y,Disabled,Offset Negative X,Offset Negative Y"), "set_half_offset", "get_half_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_tile_origin", PROPERTY_HINT_ENUM, "Top Left,Center,Bottom Left"), "set_tile_origin", "get_tile_origin");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_half_offset", PropertyHint::Enum, "Offset X,Offset Y,Disabled,Offset Negative X,Offset Negative Y"), "set_half_offset", "get_half_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_tile_origin", PropertyHint::Enum, "Top Left,Center,Bottom Left"), "set_tile_origin", "get_tile_origin");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cell_y_sort"), "set_y_sort_mode", "is_y_sort_mode_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compatibility_mode"), "set_compatibility_mode", "is_compatibility_mode_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered_textures"), "set_centered_textures", "is_centered_textures_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cell_clip_uv"), "set_clip_uv", "get_clip_uv");
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_parent", PROPERTY_HINT_NONE, ""), "set_collision_use_parent", "get_collision_use_parent");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_kinematic", PROPERTY_HINT_NONE, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_friction", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_bounce", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_parent", PropertyHint::None, ""), "set_collision_use_parent", "get_collision_use_parent");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_kinematic", PropertyHint::None, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_friction", PropertyHint::Range, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_bounce", PropertyHint::Range, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Occluder", "occluder_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "occluder_light_mask", PROPERTY_HINT_LAYERS_2D_RENDER), "set_occluder_light_mask", "get_occluder_light_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "occluder_light_mask", PropertyHint::Layers2DRenderer), "set_occluder_light_mask", "get_occluder_light_mask");
 
     ADD_PROPERTY_DEFAULT("format", FORMAT_1);
 

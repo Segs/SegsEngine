@@ -53,29 +53,23 @@ public:
 
     struct Point {
         Vector2 pos;
-        real_t left_tangent;
-        real_t right_tangent;
-        TangentMode left_mode;
-        TangentMode right_mode;
+        real_t left_tangent=0;
+        real_t right_tangent=0;
+        TangentMode left_mode= TANGENT_FREE;
+        TangentMode right_mode= TANGENT_FREE;
 
-        Point() {
-            left_tangent = 0;
-            right_tangent = 0;
-            left_mode = TANGENT_FREE;
-            right_mode = TANGENT_FREE;
-        }
+        constexpr Point() noexcept = default;
 
         Point(Vector2 p_pos,
                 real_t p_left = 0,
                 real_t p_right = 0,
                 TangentMode p_left_mode = TANGENT_FREE,
-                TangentMode p_right_mode = TANGENT_FREE) {
+                TangentMode p_right_mode = TANGENT_FREE) noexcept : pos(p_pos),
+        left_tangent(p_left),
+        right_tangent(p_right),
+        left_mode(p_left_mode),
+        right_mode(p_right_mode) {
 
-            pos = p_pos;
-            left_tangent = p_left;
-            right_tangent = p_right;
-            left_mode = p_left_mode;
-            right_mode = p_right_mode;
         }
     };
 
@@ -140,12 +134,12 @@ private:
     void mark_dirty();
 
     Vector<Point> _points;
-    bool _baked_cache_dirty;
     Vector<real_t> _baked_cache;
-    int _bake_resolution;
     float _min_value;
     float _max_value;
+    int _bake_resolution;
     int _minmax_set_once; // Encodes whether min and max have been set a first time, first bit for min and second for max.
+    bool _baked_cache_dirty;
 };
 
 
@@ -164,8 +158,8 @@ class GODOT_EXPORT Curve2D : public Resource {
 
     struct BakedPoint {
 
-        float ofs;
         Vector2 point;
+        float ofs;
     };
 
     mutable bool baked_cache_dirty;
@@ -177,6 +171,7 @@ class GODOT_EXPORT Curve2D : public Resource {
     float bake_interval;
 
     void _bake_segment2d(DefMap<float, Vector2> &r_bake, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_max_depth, float p_tol) const;
+public:
     Dictionary _get_data() const;
     void _set_data(const Dictionary &p_data);
 
@@ -217,13 +212,10 @@ class GODOT_EXPORT Curve3D : public Resource {
     GDCLASS(Curve3D,Resource)
 
     struct Point {
-
         Vector3 in;
         Vector3 out;
         Vector3 pos;
-        float tilt;
-
-        Point() { tilt = 0; }
+        float tilt=0.0f;
     };
 
     Vector<Point> points;
@@ -246,6 +238,7 @@ class GODOT_EXPORT Curve3D : public Resource {
     bool up_vector_enabled;
 
     void _bake_segment3d(DefMap<float, Vector3> &r_bake, float p_begin, float p_end, const Vector3 &p_a, const Vector3 &p_out, const Vector3 &p_b, const Vector3 &p_in, int p_depth, int p_max_depth, float p_tol) const;
+public:
     Dictionary _get_data() const;
     void _set_data(const Dictionary &p_data);
 

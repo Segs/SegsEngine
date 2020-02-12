@@ -53,14 +53,14 @@ protected:
     ExtendGDScriptParser *get_parse_successed_script(se_string_view p_path);
     ExtendGDScriptParser *get_parse_result(se_string_view p_path);
 
-    void list_script_files(se_string_view p_root_dir, ListPOD<se_string> &r_files);
+    void list_script_files(se_string_view p_root_dir, List<String> &r_files);
 
 public:
-    se_string root;
-    se_string root_uri;
+    String root;
+    String root_uri;
 
-    Map<se_string, ExtendGDScriptParser *> scripts;
-    Map<se_string, ExtendGDScriptParser *> parse_results;
+    Map<String, ExtendGDScriptParser *> scripts;
+    Map<String, ExtendGDScriptParser *> parse_results;
     DefHashMap<StringName, ClassMembers> native_members;
 
 public:
@@ -72,17 +72,17 @@ public:
     Error parse_script(se_string_view p_path, se_string_view p_content);
     Error parse_local_script(se_string_view p_path);
 
-    se_string get_file_path(se_string_view p_uri) const;
-    se_string get_file_uri(se_string_view p_path) const;
+    String get_file_path(se_string_view p_uri) const;
+    String get_file_uri(se_string_view p_path) const;
 
     void publish_diagnostics(se_string_view p_path);
-    void completion(const lsp::CompletionParams &p_params, List<ScriptCodeCompletionOption> *r_options);
+    void completion(const lsp::CompletionParams &p_params, Vector<ScriptCodeCompletionOption> *r_options);
 
     const lsp::DocumentSymbol *resolve_symbol(const lsp::TextDocumentPositionParams &p_doc_pos, se_string_view p_symbol_name = {}, bool p_func_requred = false);
-    void resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, ListPOD<const lsp::DocumentSymbol *> &r_list);
+    void resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, List<const lsp::DocumentSymbol *> &r_list);
 
     const lsp::DocumentSymbol *resolve_native_symbol(const lsp::NativeSymbolInspectParams &p_params);
-    void resolve_document_links(se_string_view p_uri, List<lsp::DocumentLink> &r_list);
+    void resolve_document_links(se_string_view p_uri, Vector<lsp::DocumentLink> &r_list);
     Dictionary generate_script_api(se_string_view p_path);
     Error resolve_signature(const lsp::TextDocumentPositionParams &p_doc_pos, lsp::SignatureHelp &r_signature);
 

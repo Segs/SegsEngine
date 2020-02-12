@@ -151,7 +151,7 @@ void CanvasLayer::_notification(int p_what) {
             } else {
                 vp = Node::get_viewport();
             }
-            ERR_FAIL_COND(!vp)
+            ERR_FAIL_COND(!vp);
 
             vp->_canvas_layer_add(this);
             viewport = vp->get_viewport_rid();
@@ -310,18 +310,18 @@ void CanvasLayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_canvas"), &CanvasLayer::get_canvas);
 
     ADD_GROUP("Layer", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "layer", PROPERTY_HINT_RANGE, "-128,128,1"), "set_layer", "get_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "layer", PropertyHint::Range, "-128,128,1"), "set_layer", "get_layer");
     ADD_GROUP("Transform", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PROPERTY_HINT_RANGE, "-1080,1080,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PropertyHint::Range, "-1080,1080,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform"), "set_transform", "get_transform");
     ADD_GROUP("", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_viewport", PROPERTY_HINT_RESOURCE_TYPE, "Viewport", 0), "set_custom_viewport", "get_custom_viewport");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "custom_viewport", PropertyHint::ResourceType, "Viewport", 0), "set_custom_viewport", "get_custom_viewport");
     ADD_GROUP("Follow Viewport", "follow_viewport");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "follow_viewport_enable"), "set_follow_viewport", "is_following_viewport");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "follow_viewport_scale", PROPERTY_HINT_RANGE, "0.001,1000,0.001,or_greater,or_lesser"), "set_follow_viewport_scale", "get_follow_viewport_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "follow_viewport_scale", PropertyHint::Range, "0.001,1000,0.001,or_greater,or_lesser"), "set_follow_viewport_scale", "get_follow_viewport_scale");
 }
 
 CanvasLayer::CanvasLayer() {
@@ -341,5 +341,5 @@ CanvasLayer::CanvasLayer() {
 
 CanvasLayer::~CanvasLayer() {
 
-    VisualServer::get_singleton()->free(canvas);
+    VisualServer::get_singleton()->free_rid(canvas);
 }

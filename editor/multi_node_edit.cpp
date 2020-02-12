@@ -56,12 +56,12 @@ bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, 
     UndoRedo *ur = EditorNode::get_undo_redo();
 
     ur->create_action_ui(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
-    for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
+    for (const NodePath &E : nodes) {
 
-        if (!es->has_node(E->deref()))
+        if (!es->has_node(E))
             continue;
 
-        Node *n = es->get_node(E->deref());
+        Node *n = es->get_node(E);
         if (!n)
             continue;
 
@@ -101,12 +101,12 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
         name = "script";
     }
 
-    for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
+    for (const NodePath &E : nodes) {
 
-        if (!es->has_node(E->deref()))
+        if (!es->has_node(E))
             continue;
 
-        const Node *n = es->get_node(E->deref());
+        const Node *n = es->get_node(E);
         if (!n)
             continue;
 
@@ -119,7 +119,7 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void MultiNodeEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     HashMap<StringName, PLData> usage;
 
@@ -129,18 +129,18 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
 
     int nc = 0;
 
-    PODVector<PLData *> data_list;
+    Vector<PLData *> data_list;
 
-    for (const List<NodePath>::Element *E = nodes.front(); E; E = E->next()) {
+    for (const NodePath &E : nodes) {
 
-        if (!es->has_node(E->deref()))
+        if (!es->has_node(E))
             continue;
 
-        Node *n = es->get_node(E->deref());
+        Node *n = es->get_node(E);
         if (!n)
             continue;
 
-        ListPOD<PropertyInfo> plist;
+        Vector<PropertyInfo> plist;
         n->get_property_list(&plist, true);
 
         for (const PropertyInfo &F : plist) {
@@ -170,7 +170,7 @@ void MultiNodeEdit::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
         }
     }
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "scripts", PROPERTY_HINT_RESOURCE_TYPE, "Script"));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "scripts", PropertyHint::ResourceType, "Script"));
 }
 
 void MultiNodeEdit::clear_nodes() {

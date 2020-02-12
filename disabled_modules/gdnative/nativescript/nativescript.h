@@ -166,13 +166,13 @@ public:
     ScriptLanguage *get_language() const override;
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(List<MethodInfo> *r_signals) const override;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
     void update_exports() override; //editor tool
-    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
-    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
+    void get_script_method_list(Vector<MethodInfo> *p_list) const override;
+    void get_script_property_list(List<PropertyInfo> *p_list) const override;
 
     String get_class_documentation() const;
     String get_method_documentation(const StringName &p_method) const;
@@ -202,9 +202,9 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    void get_property_list(List<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
-    void get_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void notification(int p_notification) override;
@@ -324,16 +324,16 @@ public:
     bool supports_builtin_mode() const override;
     int find_function(const String &p_function, const String &p_code) const override;
     String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const override;
-    void auto_indent_code(se_string &p_code, int p_from_line, int p_to_line) const override;
+    void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
     void add_global_constant(const StringName &p_variable, const Variant &p_value) override;
-    const se_string &debug_get_error() const override;
+    const String &debug_get_error() const override;
     int debug_get_stack_level_count() const override;
     int debug_get_stack_level_line(int p_level) const override;
-    se_string debug_get_stack_level_function(int p_level) const override;
-    se_string debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_stack_level_members(int p_level, List<se_string_view> *p_members, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_globals(List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    String debug_get_stack_level_function(int p_level) const override;
+    String debug_get_stack_level_source(int p_level) const override;
+    void debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) override;
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
@@ -386,7 +386,7 @@ public:
 class ResourceFormatLoaderNativeScript : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, const String &p_original_path = String(), Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
 };

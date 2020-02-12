@@ -40,9 +40,9 @@ class ResourceFormatPVR : public QObject, public ResourceLoaderInterface , publi
     Q_OBJECT
 public:
     RES load(se_string_view p_path, se_string_view p_original_path, Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
-    se_string get_resource_type(se_string_view p_path) const override;
+    String get_resource_type(se_string_view p_path) const override;
 
     ResourceFormatPVR();
     ~ResourceFormatPVR() override {}
@@ -51,5 +51,5 @@ public:
 public:
     Error compress_image(Image *p_image, CompressParams params) override;
     Error decompress_image(Image *p_image) override;
-    void fill_modes(PODVector<int> &) const override;
+    void fill_modes(Vector<int> &) const override;
 };

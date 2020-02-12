@@ -67,7 +67,7 @@ class TestPhysicsMainLoop : public MainLoop {
 
     Point2 joy_direction;
 
-    List<RID> bodies;
+    Vector<RID> bodies;
     Map<PhysicsServer::ShapeType, RID> type_shape_map;
     Map<PhysicsServer::ShapeType, RID> type_mesh_map;
 
@@ -150,7 +150,7 @@ protected:
         PoolVector<Plane> box_planes = Geometry::build_box_planes(Vector3(0.5, 0.5, 0.5));
         RID box_mesh = vs->mesh_create();
         Geometry::MeshData box_data = Geometry::build_convex_mesh(box_planes);
-        vs->mesh_add_surface_from_mesh_data(box_mesh, box_data);
+        vs->mesh_add_surface_from_mesh_data(box_mesh, eastl::move(box_data));
         type_mesh_map[PhysicsServer::SHAPE_BOX] = box_mesh;
 
         RID box_shape = ps->shape_create(PhysicsServer::SHAPE_BOX);
@@ -163,7 +163,7 @@ protected:
 
         RID capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
-        vs->mesh_add_surface_from_mesh_data(capsule_mesh, capsule_data);
+        vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
 
         type_mesh_map[PhysicsServer::SHAPE_CAPSULE] = capsule_mesh;
 
@@ -181,7 +181,7 @@ protected:
         RID convex_mesh = vs->mesh_create();
         Geometry::MeshData convex_data = Geometry::build_convex_mesh(convex_planes);
         QuickHull::build(convex_data.vertices, convex_data);
-        vs->mesh_add_surface_from_mesh_data(convex_mesh, convex_data);
+        vs->mesh_add_surface_from_mesh_data(convex_mesh, eastl::move(convex_data));
 
         type_mesh_map[PhysicsServer::SHAPE_CONVEX_POLYGON] = convex_mesh;
 
@@ -207,10 +207,9 @@ protected:
         }
 
         RID trimesh_mesh = vs->mesh_create();
-        Array d;
-        d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = Variant::from(p_faces);
-        d[VS::ARRAY_NORMAL] = Variant::from(normals);
+        SurfaceArrays d;
+        d.set_positions(eastl::move(p_faces));
+        d.m_normals = eastl::move(normals);
         vs->mesh_add_surface_from_arrays(trimesh_mesh, VS::PRIMITIVE_TRIANGLES, d);
 
         RID triins = vs->instance_create2(trimesh_mesh, scenario);
@@ -232,11 +231,11 @@ protected:
 
         for (int i = 0; i < p_width; i++) {
 
-            grid.write[i].resize(p_height);
+            grid[i].resize(p_height);
 
             for (int j = 0; j < p_height; j++) {
 
-                grid.write[i].write[j] = 1.0f + Math::random(-p_cellheight, p_cellheight);
+                grid[i][j] = 1.0f + Math::random(-p_cellheight, p_cellheight);
             }
         }
 
@@ -342,7 +341,7 @@ public:
             Transform t = ps->body_get_state(mover, PhysicsServer::BODY_STATE_TRANSFORM);
             t.origin += Vector3(joy_speed * joy_direction.x * p_time, -joy_speed * joy_direction.y * p_time, 0);
             ps->body_set_state(mover, PhysicsServer::BODY_STATE_TRANSFORM, t);
-        };
+        }
 
         Transform cameratr;
         cameratr.rotate(Vector3(0, 1, 0), ofs_x);
@@ -371,7 +370,7 @@ public:
 
         RID capsule_mesh = vs->mesh_create();
         Geometry::MeshData capsule_data = Geometry::build_convex_mesh(capsule_planes);
-        vs->mesh_add_surface_from_mesh_data(capsule_mesh, capsule_data);
+        vs->mesh_add_surface_from_mesh_data(capsule_mesh, eastl::move(capsule_data));
         type_mesh_map[PhysicsServer::SHAPE_CAPSULE] = capsule_mesh;
 
         RID capsule_shape = ps->shape_create(PhysicsServer::SHAPE_CAPSULE);

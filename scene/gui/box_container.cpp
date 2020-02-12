@@ -118,7 +118,7 @@ void BoxContainer::_resort() {
             if (c->is_set_as_toplevel())
                 continue;
 
-            ERR_FAIL_COND(!min_size_cache.contains(c))
+            ERR_FAIL_COND(!min_size_cache.contains(c));
             _MinSizeCache &msc = min_size_cache[c];
 
             if (msc.will_stretch) { //wants to stretch
@@ -295,8 +295,6 @@ BoxContainer::BoxContainer(bool p_vertical) {
 
     vertical = p_vertical;
     align = ALIGN_BEGIN;
-    //set_ignore_mouse(true);
-    set_mouse_filter(MOUSE_FILTER_PASS);
 }
 
 void BoxContainer::_bind_methods() {
@@ -309,7 +307,7 @@ void BoxContainer::_bind_methods() {
     BIND_ENUM_CONSTANT(ALIGN_CENTER)
     BIND_ENUM_CONSTANT(ALIGN_END)
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PROPERTY_HINT_ENUM, "Begin,Center,End"), "set_alignment", "get_alignment");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PropertyHint::Enum, "Begin,Center,End"), "set_alignment", "get_alignment");
 }
 
 MarginContainer *VBoxContainer::add_margin_child(const StringName &p_label, Control *p_control, bool p_expand) {

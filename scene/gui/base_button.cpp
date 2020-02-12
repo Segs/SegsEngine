@@ -376,9 +376,9 @@ void BaseButton::_unhandled_input(Ref<InputEvent> p_event) {
 
 StringName BaseButton::get_tooltip(const Point2 &p_pos) const {
 
-    se_string tooltip(Control::get_tooltip(p_pos));
+    String tooltip(Control::get_tooltip(p_pos));
     if (shortcut_in_tooltip && shortcut && shortcut->is_valid()) {
-        se_string text = shortcut->get_name() + " (" + shortcut->get_as_text() + ")";
+        String text = shortcut->get_name() + " (" + shortcut->get_as_text() + ")";
         if (StringUtils::compare(shortcut->get_name(),tooltip,StringUtils::CaseInsensitive) != 0) {
             text += "\n" + tooltip;
         }
@@ -447,12 +447,12 @@ void BaseButton::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toggle_mode"), "set_toggle_mode", "is_toggle_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shortcut_in_tooltip"), "set_shortcut_in_tooltip", "is_shortcut_in_tooltip_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pressed"), "set_pressed", "is_pressed");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "action_mode", PROPERTY_HINT_ENUM, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "button_mask", PROPERTY_HINT_FLAGS, "Mouse Left, Mouse Right, Mouse Middle"), "set_button_mask", "get_button_mask");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "enabled_focus_mode", PROPERTY_HINT_ENUM, "None,Click,All"), "set_enabled_focus_mode", "get_enabled_focus_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "action_mode", PropertyHint::Enum, "Button Press,Button Release"), "set_action_mode", "get_action_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "button_mask", PropertyHint::Flags, "Mouse Left, Mouse Right, Mouse Middle"), "set_button_mask", "get_button_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "enabled_focus_mode", PropertyHint::Enum, "None,Click,All"), "set_enabled_focus_mode", "get_enabled_focus_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_pressed_outside"), "set_keep_pressed_outside", "is_keep_pressed_outside");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PROPERTY_HINT_RESOURCE_TYPE, "ShortCut"), "set_shortcut", "get_shortcut");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "group", PROPERTY_HINT_RESOURCE_TYPE, "ButtonGroup"), "set_button_group", "get_button_group");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shortcut", PropertyHint::ResourceType, "ShortCut"), "set_shortcut", "get_shortcut");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "group", PropertyHint::ResourceType, "ButtonGroup"), "set_button_group", "get_button_group");
 
     BIND_ENUM_CONSTANT(DRAW_NORMAL)
     BIND_ENUM_CONSTANT(DRAW_PRESSED)
@@ -487,21 +487,13 @@ BaseButton::~BaseButton() {
     }
 }
 
-void ButtonGroup::get_buttons(List<BaseButton *> *r_buttons) {
-
+Vector<BaseButton *> ButtonGroup::get_buttons() {
+    Vector<BaseButton *> res;
+    res.reserve(buttons.size());
     for (BaseButton * E : buttons) {
-        r_buttons->push_back(E);
+        res.push_back(E);
     }
-}
-
-Array ButtonGroup::_get_buttons() {
-
-    Array btns;
-    for (BaseButton * E : buttons) {
-        btns.push_back(Variant(E));
-    }
-
-    return btns;
+    return res;
 }
 
 BaseButton *ButtonGroup::get_pressed_button() {
@@ -517,7 +509,7 @@ BaseButton *ButtonGroup::get_pressed_button() {
 void ButtonGroup::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_pressed_button"), &ButtonGroup::get_pressed_button);
-    MethodBinder::bind_method(D_METHOD("get_buttons"), &ButtonGroup::_get_buttons);
+    MethodBinder::bind_method(D_METHOD("get_buttons"), &ButtonGroup::get_buttons);
 }
 
 ButtonGroup::ButtonGroup() {

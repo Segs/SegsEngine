@@ -37,8 +37,7 @@
 #include "core/vector.h"
 #include "core/string_utils.inl"
 
-template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<StringName,wrap_allocator>;
-template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::list<StringName,wrap_allocator>;
+const Vector<StringName> g_null_stringname_vec; //!< Can be used wherever user needs to return/pass a const Vector<StringName> reference.
 
 namespace
 {
@@ -112,7 +111,7 @@ void StringName::setup() {
 
     lock = memnew(Mutex);
 
-    ERR_FAIL_COND(configured)
+    ERR_FAIL_COND(configured);
     for (int i = 0; i < STRING_TABLE_LEN; i++) {
 
         _table[i] = nullptr;
@@ -133,7 +132,7 @@ void StringName::cleanup() {
                 _Data *d = _table[i];
                 lost_strings++;
                 if (OS::get_singleton()->is_stdout_verbose()) {
-                    print_line(se_string("Orphan StringName: ") + d->get_name());
+                    print_line(String("Orphan StringName: ") + d->get_name());
                 }
 
                 _table[i] = _table[i]->next;
@@ -150,9 +149,9 @@ void StringName::cleanup() {
     configured = false;
 }
 
-void StringName::unref() {
+void StringName::unref() noexcept {
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
     assert(_data);
     if (_data->refcount.unref()) {
         MutexLock mlocker(*lock);
@@ -161,7 +160,7 @@ void StringName::unref() {
             _data->prev->next = _data->next;
         } else {
             if (_table[_data->idx] != _data) {
-                ERR_PRINT("BUG!")
+                ERR_PRINT("BUG!");
             }
             _table[_data->idx] = _data->next;
         }
@@ -184,22 +183,15 @@ uint32_t StringName::hash() const {
     return _data ? _data->hash : 0;
 }
 
-bool StringName::operator!=(const StringName &p_name) const {
-
-    // the real magic of all this mess happens here.
-    // this is why path comparisons are very fast
-    return _data != p_name._data;
-}
-
-StringName::operator String() const {
+StringName::operator UIString() const {
 
     if (!_data||!_data->cname)
-        return String();
+        return UIString();
 
-    return String::fromUtf8(_data->get_name());
+    return UIString::fromUtf8(_data->get_name());
 }
 
-String StringName::asString() const { return (String)*this; }
+UIString StringName::asString() const { return (UIString)*this; }
 
 const char *StringName::asCString() const noexcept
 {
@@ -224,11 +216,11 @@ StringName &StringName::operator=(const StringName &p_name) {
     return *this;
 }
 
-StringName::StringName(const StringName &p_name) {
+StringName::StringName(const StringName &p_name) noexcept {
 
     _data = nullptr;
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
 
     if (p_name._data && p_name._data->refcount.ref()) {
         _data = p_name._data;
@@ -241,7 +233,7 @@ StringName::StringName(const char *p_name) {
 
     _data = nullptr;
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
 
     if (!p_name || p_name[0] == 0)
         return; //empty, ignore
@@ -332,7 +324,7 @@ StringName::StringName(se_string_view p_name) {
 
     _data = nullptr;
 
-    ERR_FAIL_COND(!configured)
+    ERR_FAIL_COND(!configured);
 
     if (p_name.empty())
         return;
@@ -379,9 +371,9 @@ StringName::StringName(se_string_view p_name) {
 
 StringName StringName::search(const char *p_name) {
 
-    ERR_FAIL_COND_V(!configured, StringName())
+    ERR_FAIL_COND_V(!configured, StringName());
 
-    ERR_FAIL_COND_V(!p_name, StringName())
+    ERR_FAIL_COND_V(!p_name, StringName());
     if (!p_name[0])
         return StringName();
 
@@ -410,7 +402,7 @@ StringName StringName::search(const char *p_name) {
 
 //StringName StringName::search(const String &p_name) {
 
-//    ERR_FAIL_COND_V(p_name.isEmpty(), StringName())
+//    ERR_FAIL_COND_V(p_name.isEmpty(), StringName());
 
 //    MutexLock mlocker(*lock);
 
@@ -446,5 +438,5 @@ bool StringName::AlphCompare(const StringName &l, const StringName &r) {
 }
 
 StringName operator+(StringName v, se_string_view sv) {
-    return StringName(se_string(v)+sv);
+    return StringName(String(v)+sv);
 }

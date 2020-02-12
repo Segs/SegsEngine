@@ -61,17 +61,17 @@ void SpriteEditor::edit(Sprite *p_sprite) {
 
 #define PRECISION 10.0
 
-PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, float epsilon = 2.0) {
+Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float epsilon = 2.0) {
     int size = points.size();
-    ERR_FAIL_COND_V(size < 2, PODVector<Vector2>())
+    ERR_FAIL_COND_V(size < 2, Vector<Vector2>());
 
     ClipperLib::Path subj;
     ClipperLib::PolyTree solution;
     ClipperLib::PolyTree out;
 
-    for (int i = 0; i < points.size(); i++) {
+    for (auto point : points) {
 
-        subj << ClipperLib::IntPoint(points[i].x * PRECISION, points[i].y * PRECISION);
+        subj << ClipperLib::IntPoint(point.x * PRECISION, point.y * PRECISION);
     }
     ClipperLib::ClipperOffset co;
     co.AddPath(subj, ClipperLib::jtMiter, ClipperLib::etClosedPolygon);
@@ -79,7 +79,7 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
 
     ClipperLib::PolyNode *p = solution.GetFirst();
 
-    ERR_FAIL_COND_V(!p, points)
+    ERR_FAIL_COND_V(!p, points);
 
     while (p->IsHole()) {
         p = p->GetNext();
@@ -100,9 +100,9 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
     cl.AddPath(clamp, ClipperLib::ptClip, true);
     cl.Execute(ClipperLib::ctIntersection, out);
 
-    PODVector<Vector2> outPoints;
+    Vector<Vector2> outPoints;
     ClipperLib::PolyNode *p2 = out.GetFirst();
-    ERR_FAIL_COND_V(!p2, points)
+    ERR_FAIL_COND_V(!p2, points);
 
     while (p2->IsHole()) {
         p2 = p2->GetNext();
@@ -110,9 +110,9 @@ PODVector<Vector2> expand(const PODVector<Vector2> &points, const Rect2i &rect, 
 
     int lasti = p2->Contour.size() - 1;
     Vector2 prev = Vector2(p2->Contour[lasti].X / PRECISION, p2->Contour[lasti].Y / PRECISION);
-    for (size_t i = 0; i < p2->Contour.size(); i++) {
+    for (ClipperLib::IntPoint c_p : p2->Contour) {
 
-        Vector2 cur = Vector2(p2->Contour[i].X / PRECISION, p2->Contour[i].Y / PRECISION);
+        Vector2 cur = Vector2(c_p.X / PRECISION, c_p.Y / PRECISION);
         if (cur.distance_to(prev) > 0.5f) {
             outPoints.push_back(cur);
             prev = cur;
@@ -187,7 +187,7 @@ void SpriteEditor::_update_mesh_data() {
         return;
     }
     Ref<Image> image = texture->get_data();
-    ERR_FAIL_COND(not image)
+    ERR_FAIL_COND(not image);
     Rect2 rect;
     if (node->is_region())
         rect = node->get_region_rect();
@@ -209,7 +209,7 @@ void SpriteEditor::_update_mesh_data() {
 
     float epsilon = simplification->get_value();
 
-    Vector<PODVector<Vector2> > lines = bm->clip_opaque_to_polygons(rect, epsilon);
+    Vector<Vector<Vector2> > lines = bm->clip_opaque_to_polygons(rect, epsilon);
 
     uv_lines.clear();
 
@@ -219,7 +219,7 @@ void SpriteEditor::_update_mesh_data() {
 
     Size2 img_size = Vector2(image->get_width(), image->get_height());
     for (int i = 0; i < lines.size(); i++) {
-        lines.write[i] = expand(lines[i], rect, epsilon);
+        lines[i] = expand(lines[i], rect, epsilon);
     }
 
     if (selected_menu_item == MENU_OPTION_CONVERT_TO_MESH_2D) {
@@ -245,7 +245,7 @@ void SpriteEditor::_update_mesh_data() {
                 computed_vertices.push_back(vtx);
             }
 
-            PODVector<int> poly = Geometry::triangulate_polygon(lines[j]);
+            Vector<int> poly = Geometry::triangulate_polygon(lines[j]);
 
             for (int i = 0; i < poly.size(); i += 3) {
                 for (int k = 0; k < 3; k++) {
@@ -264,20 +264,20 @@ void SpriteEditor::_update_mesh_data() {
     computed_outline_lines.clear();
 
     if (selected_menu_item == MENU_OPTION_CONVERT_TO_POLYGON_2D || selected_menu_item == MENU_OPTION_CREATE_COLLISION_POLY_2D || selected_menu_item == MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D) {
-        outline_lines.resize(lines.size());
-        computed_outline_lines.resize(lines.size());
+        outline_lines.reserve(lines.size());
+        computed_outline_lines.reserve(lines.size());
         for (int pi = 0; pi < lines.size(); pi++) {
 
             Vector<Vector2> ol;
-            PODVector<Vector2> col;
+            Vector<Vector2> col;
 
-            ol.resize(lines[pi].size());
+            ol.reserve(lines[pi].size());
             col.reserve(lines[pi].size());
 
             for (size_t i = 0; i < lines[pi].size(); i++) {
                 Vector2 vtx = lines[pi][i];
 
-                ol.write[i] = vtx;
+                ol.emplace_back(vtx);
 
                 vtx -= rect.position; //offset by rect position
 
@@ -293,8 +293,8 @@ void SpriteEditor::_update_mesh_data() {
                 col.emplace_back(vtx);
             }
 
-            outline_lines.write[pi] = ol;
-            computed_outline_lines.write[pi] = col;
+            outline_lines.emplace_back(eastl::move(ol));
+            computed_outline_lines.emplace_back(eastl::move(col));
         }
     }
 
@@ -328,13 +328,11 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
-    Array a;
-    a.resize(Mesh::ARRAY_MAX);
-    a[Mesh::ARRAY_VERTEX] = Variant::from(computed_vertices);
-    a[Mesh::ARRAY_TEX_UV] = Variant::from(computed_uv);
-    a[Mesh::ARRAY_INDEX] = Variant::from(computed_indices);
+    SurfaceArrays a(eastl::move(Vector<Vector2>(computed_vertices)));
+    a.m_uv_1 = computed_uv;
+    a.m_indices = computed_indices;
 
-    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, a, Array(), Mesh::ARRAY_FLAG_USE_2D_VERTICES);
+    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(a), {}, Mesh::ARRAY_FLAG_USE_2D_VERTICES);
 
     MeshInstance2D *mesh_instance = memnew(MeshInstance2D);
     mesh_instance->set_mesh(mesh);
@@ -377,8 +375,8 @@ void SpriteEditor::_convert_to_polygon_2d_node() {
 
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
-        const PODVector<Vector2> &outline = computed_outline_lines[i];
-        Vector<Vector2> uv_outline = outline_lines[i];
+        const Vector<Vector2> &outline = computed_outline_lines[i];
+        const Vector<Vector2> &uv_outline = outline_lines[i];
 
         PoolIntArray pia;
         pia.resize(outline.size());
@@ -417,7 +415,7 @@ void SpriteEditor::_create_collision_polygon_2d_node() {
 
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
-        PODVector<Vector2> outline = computed_outline_lines[i];
+        Vector<Vector2> outline = computed_outline_lines[i];
 
         CollisionPolygon2D *collision_polygon_2d_instance = memnew(CollisionPolygon2D);
         collision_polygon_2d_instance->set_polygon(eastl::move(outline));
@@ -441,7 +439,7 @@ void SpriteEditor::_create_light_occluder_2d_node() {
 
     for (int i = 0; i < computed_outline_lines.size(); i++) {
 
-        PODVector<Vector2> outline = computed_outline_lines[i];
+        Vector<Vector2> outline = computed_outline_lines[i];
 
         Ref<OccluderPolygon2D> polygon(make_ref_counted<OccluderPolygon2D>());
 
@@ -471,73 +469,10 @@ void SpriteEditor::_add_as_sibling_or_child(Node *p_own_node, Node *p_new_node) 
     p_new_node->set_owner(this->get_tree()->get_edited_scene_root());
 }
 
-#if 0
-void SpriteEditor::_create_uv_lines() {
-
-    Ref<Mesh> sprite = node->get_sprite();
-    ERR_FAIL_COND(not sprite)
-
-    Set<SpriteEditorEdgeSort> edges;
-    uv_lines.clear();
-    for (int i = 0; i < sprite->get_surface_count(); i++) {
-        if (sprite->surface_get_primitive_type(i) != Mesh::PRIMITIVE_TRIANGLES)
-            continue;
-        Array a = sprite->surface_get_arrays(i);
-
-        PoolVector<Vector2> uv = a[p_layer == 0 ? Mesh::ARRAY_TEX_UV : Mesh::ARRAY_TEX_UV2];
-        if (uv.size() == 0) {
-            err_dialog->set_text(TTR("Model has no UV in this layer"));
-            err_dialog->popup_centered_minsize();
-            return;
-        }
-
-        PoolVector<Vector2>::Read r = uv.read();
-
-        PoolVector<int> indices = a[Mesh::ARRAY_INDEX];
-        PoolVector<int>::Read ri;
-
-        int ic;
-        bool use_indices;
-
-        if (indices.size()) {
-            ic = indices.size();
-            ri = indices.read();
-            use_indices = true;
-        } else {
-            ic = uv.size();
-            use_indices = false;
-        }
-
-        for (int j = 0; j < ic; j += 3) {
-
-            for (int k = 0; k < 3; k++) {
-
-                SpriteEditorEdgeSort edge;
-                if (use_indices) {
-                    edge.a = r[ri[j + k]];
-                    edge.b = r[ri[j + ((k + 1) % 3)]];
-                } else {
-                    edge.a = r[j + k];
-                    edge.b = r[j + ((k + 1) % 3)];
-                }
-
-                if (edges.has(edge))
-                    continue;
-
-                uv_lines.push_back(edge.a);
-                uv_lines.push_back(edge.b);
-                edges.insert(edge);
-            }
-        }
-    }
-
-    debug_uv_dialog->popup_centered_minsize();
-}
-#endif
 void SpriteEditor::_debug_uv_draw() {
 
     Ref<Texture> tex = node->get_texture();
-    ERR_FAIL_COND(not tex)
+    ERR_FAIL_COND(not tex);
 
     Point2 draw_pos_offset = Point2(1.0f, 1.0f);
     Size2 draw_size_offset = Size2(2.0f, 2.0f);
@@ -557,7 +492,7 @@ void SpriteEditor::_debug_uv_draw() {
             Vector<Vector2> outline = outline_lines[i];
 
             debug_uv->draw_polyline(outline, color);
-            debug_uv->draw_line(outline[0], outline[outline.size() - 1], color);
+            debug_uv->draw_line(outline.front(), outline.back(), color);
         }
     }
 }
@@ -578,7 +513,7 @@ SpriteEditor::SpriteEditor() {
     CanvasItemEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Sprite"));
-    options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Convert to Mesh2D"), MENU_OPTION_CONVERT_TO_MESH_2D);
     options->get_popup()->add_item(TTR("Convert to Polygon2D"), MENU_OPTION_CONVERT_TO_POLYGON_2D);
@@ -671,5 +606,4 @@ SpriteEditorPlugin::SpriteEditorPlugin(EditorNode *p_node) {
     //sprite_editor->options->hide();
 }
 
-SpriteEditorPlugin::~SpriteEditorPlugin() {
-}
+SpriteEditorPlugin::~SpriteEditorPlugin() = default;

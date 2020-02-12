@@ -127,7 +127,7 @@ class AnimationBezierTrackEdit : public Control {
 		Rect2 out_rect;
 	};
 
-	Vector<EditPoint> edit_points;
+    Vector<EditPoint> edit_points;
 
 	Set<int> selection;
 

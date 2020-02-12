@@ -46,11 +46,11 @@ void EditorLog::_error_handler(void *p_self, se_string_view p_func, se_string_vi
     if (self->current != Thread::get_caller_id())
         return;
 
-    se_string err_str;
+    String err_str;
     if (not p_errorexp.empty()) {
         err_str = p_errorexp;
     } else {
-        err_str = se_string(p_file) + ":" + itos(p_line) + " - " + p_error;
+        err_str = String(p_file) + ":" + itos(p_line) + " - " + p_error;
     }
     auto level = MSG_TYPE_WARNING;
     if (p_type != ERR_HANDLER_WARNING)
@@ -77,7 +77,7 @@ void EditorLog::_notification(int p_what) {
 void EditorLog::_clear_request() {
 
     log->clear();
-    tool_button->set_icon(Ref<Texture>());
+    tool_button->set_button_icon(Ref<Texture>());
 }
 
 void EditorLog::_copy_request() {
@@ -103,15 +103,15 @@ void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
             log->push_color(get_color("error_color", "Editor"));
             Ref<Texture> icon = get_icon("Error", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
-            tool_button->set_icon(icon);
+            log->add_text(" ");
+            tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
             log->push_color(get_color("warning_color", "Editor"));
             Ref<Texture> icon = get_icon("Warning", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
-            tool_button->set_icon(icon);
+            log->add_text(" ");
+            tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_EDITOR: {
             // Distinguish editor messages from messages printed by the project
@@ -119,12 +119,12 @@ void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
         } break;
     }
 
-    log->add_text_utf8(p_msg);
+    log->add_text(p_msg);
 
     if (restore)
         log->pop();
 }
-void EditorLog::add_message(const String &p_msg, MessageType p_type) {
+void EditorLog::add_message(const UIString &p_msg, MessageType p_type) {
 
     log->add_newline();
 
@@ -136,15 +136,15 @@ void EditorLog::add_message(const String &p_msg, MessageType p_type) {
             log->push_color(get_color("error_color", "Editor"));
             Ref<Texture> icon = get_icon("Error", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
-            tool_button->set_icon(icon);
+            log->add_text(" ");
+            tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_WARNING: {
             log->push_color(get_color("warning_color", "Editor"));
             Ref<Texture> icon = get_icon("Warning", "EditorIcons");
             log->add_image(icon);
-            log->add_text_utf8(" ");
-            tool_button->set_icon(icon);
+            log->add_text(" ");
+            tool_button->set_button_icon(icon);
         } break;
         case MSG_TYPE_EDITOR: {
             // Distinguish editor messages from messages printed by the project
@@ -152,7 +152,7 @@ void EditorLog::add_message(const String &p_msg, MessageType p_type) {
         } break;
     }
 
-    log->add_text(p_msg);
+    log->add_text_uistring(p_msg);
 
     if (restore)
         log->pop();
@@ -207,7 +207,7 @@ EditorLog::EditorLog() {
     log->set_v_size_flags(SIZE_EXPAND_FILL);
     log->set_h_size_flags(SIZE_EXPAND_FILL);
     vb->add_child(log);
-    add_message(String(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors."));
+    add_message(UIString(VERSION_FULL_NAME " (c) 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors."));
 
     eh.errfunc = _error_handler;
     eh.userdata = this;

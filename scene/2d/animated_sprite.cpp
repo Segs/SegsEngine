@@ -112,7 +112,7 @@ Rect2 AnimatedSprite::_get_rect() const {
 void SpriteFrames::add_frame(const StringName &p_anim, const Ref<Texture> &p_frame, int p_at_pos) {
 
     Map<StringName, Anim>::iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
 
     if (p_at_pos >= 0 && p_at_pos < E->second.frames.size())
         E->second.frames.insert(p_at_pos, p_frame);
@@ -124,7 +124,7 @@ void SpriteFrames::add_frame(const StringName &p_anim, const Ref<Texture> &p_fra
 
 int SpriteFrames::get_frame_count(const StringName &p_anim) const {
     const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_V_MSG(E==animations.end(), 0, "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_V_MSG(E==animations.end(), 0, "Animation '" + String(p_anim) + "' doesn't exist.");
 
     return E->second.frames.size();
 }
@@ -132,7 +132,7 @@ int SpriteFrames::get_frame_count(const StringName &p_anim) const {
 void SpriteFrames::remove_frame(const StringName &p_anim, int p_idx) {
 
     Map<StringName, Anim>::iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + se_string(p_anim) + "' doesn't exist.");
+    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist.");
 
     E->second.frames.remove(p_idx);
     emit_changed();
@@ -140,7 +140,7 @@ void SpriteFrames::remove_frame(const StringName &p_anim, int p_idx) {
 void SpriteFrames::clear(const StringName &p_anim) {
 
     Map<StringName, Anim>::iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
 
     E->second.frames.clear();
     emit_changed();
@@ -154,10 +154,10 @@ void SpriteFrames::clear_all() {
 
 void SpriteFrames::add_animation(const StringName &p_anim) {
 
-    ERR_FAIL_COND_MSG(animations.contains(p_anim), "SpriteFrames already has animation '" + se_string(p_anim) + "'.")
+    ERR_FAIL_COND_MSG(animations.contains(p_anim), "SpriteFrames already has animation '" + String(p_anim) + "'."); 
 
     animations[p_anim] = Anim();
-    animations[p_anim].normal_name = StringName(se_string(p_anim) + NORMAL_SUFFIX);
+    animations[p_anim].normal_name = StringName(String(p_anim) + NORMAL_SUFFIX);
 }
 
 bool SpriteFrames::has_animation(const StringName &p_anim) const {
@@ -171,23 +171,23 @@ void SpriteFrames::remove_animation(const StringName &p_anim) {
 
 void SpriteFrames::rename_animation(const StringName &p_prev, const StringName &p_next) {
 
-    ERR_FAIL_COND_MSG(!animations.contains(p_prev), "SpriteFrames doesn't have animation '" + se_string(p_prev) + "'.")
-    ERR_FAIL_COND_MSG(animations.contains(p_next), "Animation '" + se_string(p_next) + "' already exists.")
+    ERR_FAIL_COND_MSG(!animations.contains(p_prev), "SpriteFrames doesn't have animation '" + String(p_prev) + "'."); 
+    ERR_FAIL_COND_MSG(animations.contains(p_next), "Animation '" + String(p_next) + "' already exists."); 
 
     Anim anim = animations[p_prev];
     animations.erase(p_prev);
     animations[p_next] = anim;
-    animations[p_next].normal_name = StringName(se_string(p_next) + NORMAL_SUFFIX);
+    animations[p_next].normal_name = StringName(String(p_next) + NORMAL_SUFFIX);
 }
 
-PoolVector<se_string> SpriteFrames::_get_animation_list() const {
+PoolVector<String> SpriteFrames::_get_animation_list() const {
 
-    PoolVector<se_string> ret;
-    ListPOD<StringName> al;
+    PoolVector<String> ret;
+    List<StringName> al;
     get_animation_list(&al);
     for (const StringName &E : al) {
 
-        ret.push_back(se_string(E));
+        ret.push_back(String(E));
     }
 
     return ret;
@@ -195,51 +195,51 @@ PoolVector<se_string> SpriteFrames::_get_animation_list() const {
 
 void SpriteFrames::report_missing_animation(const char *name)
 {
-    se_string msg="Animation '" + se_string(name) + "' doesn't exist.";
-    ERR_PRINT(msg)
+    String msg="Animation '" + String(name) + "' doesn't exist.";
+    ERR_PRINT(msg);
 }
 
-void SpriteFrames::get_animation_list(ListPOD<StringName> *r_animations) const {
+void SpriteFrames::get_animation_list(List<StringName> *r_animations) const {
 
     for (const eastl::pair<const StringName,Anim> &E : animations) {
         r_animations->push_back(E.first);
     }
 }
 
-PoolVector<se_string> SpriteFrames::get_animation_names() const {
+PoolVector<String> SpriteFrames::get_animation_names() const {
 
-    PoolVector<se_string> names;
-    PODVector<StringName> name_keys  = animations.keys();
+    PoolVector<String> names;
+    Vector<StringName> name_keys  = animations.keys();
     //TODO: SEGS: returned keys should be sorted already ??
     eastl::sort(name_keys.begin(),name_keys.end());
     for (const StringName &k : name_keys) {
-        names.push_back(se_string(k));
+        names.push_back(String(k));
     }
     return names;
 }
 
 void SpriteFrames::set_animation_speed(const StringName &p_anim, float p_fps) {
 
-    ERR_FAIL_COND_MSG(p_fps < 0, "Animation speed cannot be negative (" + itos(p_fps) + ").")
+    ERR_FAIL_COND_MSG(p_fps < 0, "Animation speed cannot be negative (" + itos(p_fps) + ")."); 
     Map<StringName, Anim>::iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
     E->second.speed = p_fps;
 }
 float SpriteFrames::get_animation_speed(const StringName &p_anim) const {
 
     Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_V_MSG(E==animations.end(),0, "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_V_MSG(E==animations.end(),0, "Animation '" + String(p_anim) + "' doesn't exist.");
     return E->second.speed;
 }
 
 void SpriteFrames::set_animation_loop(const StringName &p_anim, bool p_loop) {
     Map<StringName, Anim>::iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
     E->second.loop = p_loop;
 }
 bool SpriteFrames::get_animation_loop(const StringName &p_anim) const {
     Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
-    ERR_FAIL_COND_V_MSG(E==animations.end(),false, "Animation '" + se_string(p_anim) + "' doesn't exist.")
+    ERR_FAIL_COND_V_MSG(E==animations.end(),false, "Animation '" + String(p_anim) + "' doesn't exist.");
     return E->second.loop;
 }
 
@@ -247,11 +247,12 @@ void SpriteFrames::_set_frames(const Array &p_frames) {
 
     clear_all();
     Map<StringName, Anim>::iterator E = animations.find(SceneStringNames::get_singleton()->_default);
-    ERR_FAIL_COND(E==animations.end())
+    ERR_FAIL_COND(E==animations.end());
 
     E->second.frames.resize(p_frames.size());
+    auto wr(E->second.frames.write());
     for (int i = 0; i < E->second.frames.size(); i++)
-        E->second.frames.write[i] = refFromVariant<Texture>(p_frames[i]);
+        wr[i] = refFromVariant<Texture>(p_frames[i]);
 }
 Array SpriteFrames::_get_frames() const {
 
@@ -283,10 +284,10 @@ void SpriteFrames::_set_animations(const Array &p_animations) {
 
         Dictionary d = p_animations[i];
 
-        ERR_CONTINUE(!d.has("name"))
-        ERR_CONTINUE(!d.has("speed"))
-        ERR_CONTINUE(!d.has("loop"))
-        ERR_CONTINUE(!d.has("frames"))
+        ERR_CONTINUE(!d.has("name"));
+        ERR_CONTINUE(!d.has("speed"));
+        ERR_CONTINUE(!d.has("loop"));
+        ERR_CONTINUE(!d.has("frames"));
 
         Anim anim;
         anim.speed = d["speed"];
@@ -328,12 +329,12 @@ void SpriteFrames::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_frames"), &SpriteFrames::_set_frames);
     MethodBinder::bind_method(D_METHOD("_get_frames"), &SpriteFrames::_get_frames);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "frames", PROPERTY_HINT_NONE, "", 0), "_set_frames", "_get_frames"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "frames", PropertyHint::None, "", 0), "_set_frames", "_get_frames"); //compatibility
 
     MethodBinder::bind_method(D_METHOD("_set_animations"), &SpriteFrames::_set_animations);
     MethodBinder::bind_method(D_METHOD("_get_animations"), &SpriteFrames::_get_animations);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "animations", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_animations", "_get_animations"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "animations", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_animations", "_get_animations"); //compatibility
 }
 
 SpriteFrames::SpriteFrames() {
@@ -347,14 +348,14 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
         return;
     if (property.name == "animation") {
 
-        property.hint = PROPERTY_HINT_ENUM;
-        ListPOD<StringName> names;
+        property.hint = PropertyHint::Enum;
+        List<StringName> names;
         frames->get_animation_list(&names);
         names.sort(WrapAlphaCompare());
 
         bool current_found = false;
 
-        for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
+        for (List<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
             if (E!=names.begin()) {
                 property.hint_string += ',';
             }
@@ -369,13 +370,13 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
             if (property.hint_string.empty()) {
                 property.hint_string = animation;
             } else {
-                property.hint_string = se_string(animation) + "," + property.hint_string;
+                property.hint_string = String(animation) + "," + property.hint_string;
             }
         }
     }
 
     if (property.name == "frame") {
-        property.hint = PROPERTY_HINT_RANGE;
+        property.hint = PropertyHint::Range;
         if (frames->has_animation(animation) && frames->get_frame_count(animation) > 1) {
             property.hint_string = "0," + itos(frames->get_frame_count(animation) - 1) + ",1";
         }
@@ -664,8 +665,8 @@ void AnimatedSprite::_reset_timeout() {
 
 void AnimatedSprite::set_animation(const StringName &p_animation) {
 
-    ERR_FAIL_COND_MSG(frames == nullptr, vformat(("There is no animation with name '%s'."), p_animation))
-    ERR_FAIL_COND_MSG(not frames->animation_name_map().contains(p_animation), FormatVE("There is no animation with name '%s'.",p_animation.asCString()))
+    ERR_FAIL_COND_MSG(frames == nullptr, vformat(("There is no animation with name '%s'."), p_animation)); 
+    ERR_FAIL_COND_MSG(not frames->animation_name_map().contains(p_animation), FormatVE("There is no animation with name '%s'.",p_animation.asCString())); 
 
     if (animation == p_animation)
         return;
@@ -728,7 +729,7 @@ void AnimatedSprite::_bind_methods() {
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("animation_finished"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PROPERTY_HINT_RESOURCE_TYPE, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PropertyHint::ResourceType, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "animation"), "set_animation", "get_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale"), "set_speed_scale", "get_speed_scale");

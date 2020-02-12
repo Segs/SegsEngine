@@ -63,7 +63,7 @@ void CircleShape2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CircleShape2D::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &CircleShape2D::get_radius);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PROPERTY_HINT_RANGE, "0.01,16384,0.5"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.01,16384,0.5"), "set_radius", "get_radius");
 }
 
 Rect2 CircleShape2D::get_rect() const {
@@ -80,8 +80,8 @@ void CircleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
         points[i]= Vector2(Math::cos(i * Math_PI * 2 / 24.0f), Math::sin(i * Math_PI * 2 / 24.0f)) * get_radius();
     }
 
-    Vector<Color> col;
-    col.emplace_back(p_color);
+    PoolVector<Color> col;
+    col.push_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 

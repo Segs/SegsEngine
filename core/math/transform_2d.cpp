@@ -51,7 +51,7 @@ void Transform2D::affine_invert() {
 
     real_t det = basis_determinant();
 #ifdef MATH_CHECKS
-    ERR_FAIL_COND(det == 0.0f)
+    ERR_FAIL_COND(det == 0.0f);
 #endif
     real_t idet = 1.0f / det;
 
@@ -282,7 +282,7 @@ Transform2D Transform2D::interpolate_with(const Transform2D &p_transform, real_t
     return res;
 }
 
-Transform2D::operator se_string() const {
+Transform2D::operator String() const {
 
-    return FormatVE("%s, %s, %s",((se_string)elements[0]).c_str(),((se_string)elements[1]).c_str(),((se_string)elements[2]).c_str());
+    return FormatVE("%s, %s, %s",((String)elements[0]).c_str(),((String)elements[1]).c_str(),((String)elements[2]).c_str());
 }

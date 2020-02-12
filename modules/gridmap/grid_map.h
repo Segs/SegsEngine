@@ -91,7 +91,7 @@ class GridMap : public Spatial {
     struct Octant {
 
         struct NavMesh {
-            int id;
+            RID region;
             Transform xform;
         };
 
@@ -145,13 +145,12 @@ class GridMap : public Spatial {
     bool _in_tree;
     Vector3 cell_size;
     int octant_size;
-    bool center_x, center_y, center_z;
     float cell_scale;
-    Navigation *navigation;
-
+    bool center_x, center_y, center_z;
     bool clip;
     bool clip_above;
     int clip_floor;
+    Navigation *navigation;
 
     bool recreating_octants;
 
@@ -171,6 +170,12 @@ class GridMap : public Spatial {
         Vector3 dir;
         float param[VS::LIGHT_PARAM_MAX];
     };
+    struct BakedMesh {
+        Ref<Mesh> mesh;
+        RID instance;
+    };
+
+    Vector<BakedMesh> baked_meshes;
 
     _FORCE_INLINE_ Vector3 _octant_get_offset(const OctantKey &p_key) const {
 
@@ -187,24 +192,17 @@ class GridMap : public Spatial {
 
     void _queue_octants_dirty();
     void _update_octants_callback();
-
+public:
     void resource_changed(const RES &p_res);
-
+protected:
     void _clear_internal();
 
     Vector3 _get_offset() const;
 
-    struct BakedMesh {
-        Ref<Mesh> mesh;
-        RID instance;
-    };
-
-    Vector<BakedMesh> baked_meshes;
-
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_what);
     void _update_visibility();
@@ -256,7 +254,7 @@ public:
     float get_cell_scale() const;
 
     Array get_used_cells() const;
-
+    Vector<PositionedMeshInfo> get_positioned_meshes() const;
     Array get_meshes();
 
     void clear_baked_meshes();

@@ -411,16 +411,17 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
         }
 
         //put this temporarily here, corrected in a later step
-        bake_cells.write[p_idx].albedo[0] += albedo_accum.r;
-        bake_cells.write[p_idx].albedo[1] += albedo_accum.g;
-        bake_cells.write[p_idx].albedo[2] += albedo_accum.b;
-        bake_cells.write[p_idx].emission[0] += emission_accum.r;
-        bake_cells.write[p_idx].emission[1] += emission_accum.g;
-        bake_cells.write[p_idx].emission[2] += emission_accum.b;
-        bake_cells.write[p_idx].normal[0] += normal_accum.x;
-        bake_cells.write[p_idx].normal[1] += normal_accum.y;
-        bake_cells.write[p_idx].normal[2] += normal_accum.z;
-        bake_cells.write[p_idx].alpha += alpha;
+        auto &tgt_cell(bake_cells[p_idx]);
+        tgt_cell.albedo[0] += albedo_accum.r;
+        tgt_cell.albedo[1] += albedo_accum.g;
+        tgt_cell.albedo[2] += albedo_accum.b;
+        tgt_cell.emission[0] += emission_accum.r;
+        tgt_cell.emission[1] += emission_accum.g;
+        tgt_cell.emission[2] += emission_accum.b;
+        tgt_cell.normal[0] += normal_accum.x;
+        tgt_cell.normal[1] += normal_accum.y;
+        tgt_cell.normal[2] += normal_accum.z;
+        tgt_cell.alpha += alpha;
 
     } else {
         //go down
@@ -467,9 +468,9 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
                 //sub cell must be created
 
                 uint32_t child_idx = bake_cells.size();
-                bake_cells.write[p_idx].children[i] = child_idx;
-                bake_cells.resize(bake_cells.size() + 1);
-                bake_cells.write[child_idx].level = p_level + 1;
+                bake_cells[p_idx].children[i] = child_idx;
+                bake_cells.emplace_back();
+                bake_cells.back().level = p_level + 1;
             }
 
             _plot_face(bake_cells[p_idx].children[i], p_level + 1, nx, ny, nz, p_vtx, p_normal, p_uv, p_material, aabb);
@@ -477,7 +478,8 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
     }
 }
 
-Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color &p_color_mul, const Color &p_color_add) {
+Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color &p_color_mul,
+        const Color &p_color_add) {
 
     Vector<Color> ret;
 
@@ -485,7 +487,7 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
 
         ret.resize(bake_texture_size * bake_texture_size);
         for (int i = 0; i < bake_texture_size * bake_texture_size; i++) {
-            ret.write[i] = p_color_add;
+            ret[i] = p_color_add;
         }
 
         return ret;
@@ -499,23 +501,23 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
     p_image->resize(bake_texture_size, bake_texture_size, Image::INTERPOLATE_CUBIC);
 
     PoolVector<uint8_t>::Read r = p_image->get_data().read();
-    ret.resize(bake_texture_size * bake_texture_size);
+    ret.reserve(bake_texture_size * bake_texture_size);
 
     for (int i = 0; i < bake_texture_size * bake_texture_size; i++) {
         Color c;
-        c.r = (r[i * 4 + 0] / 255.0) * p_color_mul.r + p_color_add.r;
-        c.g = (r[i * 4 + 1] / 255.0) * p_color_mul.g + p_color_add.g;
-        c.b = (r[i * 4 + 2] / 255.0) * p_color_mul.b + p_color_add.b;
+        c.r = (r[i * 4 + 0] / 255.0f) * p_color_mul.r + p_color_add.r;
+        c.g = (r[i * 4 + 1] / 255.0f) * p_color_mul.g + p_color_add.g;
+        c.b = (r[i * 4 + 2] / 255.0f) * p_color_mul.b + p_color_add.b;
 
-        c.a = r[i * 4 + 3] / 255.0;
+        c.a = r[i * 4 + 3] / 255.0f;
 
-        ret.write[i] = c;
+        ret.emplace_back(c);
     }
 
     return ret;
 }
 
-VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(const Ref<Material>& p_material) {
+const VoxelLightBaker::MaterialCache &VoxelLightBaker::_get_material_cache(const Ref<Material> &p_material) {
 
     //this way of obtaining materials is inaccurate and also does not support some compressed formats very well
     Ref<SpatialMaterial> mat = dynamic_ref_cast<SpatialMaterial>(p_material);
@@ -567,10 +569,10 @@ VoxelLightBaker::MaterialCache VoxelLightBaker::_get_material_cache(const Ref<Ma
     }
 
     material_cache[p_material] = mc;
-    return mc;
+    return material_cache[p_material];
 }
 
-void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const Vector<Ref<Material> > &p_materials, const Ref<Material> &p_override_material) {
+void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const Vector<Ref<Material>> &p_materials, const Ref<Material> &p_override_material) {
 
     for (int i = 0; i < p_mesh->get_surface_count(); i++) {
 
@@ -588,35 +590,19 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
         }
         MaterialCache material = _get_material_cache(src_material);
 
-        Array a = p_mesh->surface_get_arrays(i);
+        SurfaceArrays a(p_mesh->surface_get_arrays(i));
 
-        PoolVector<Vector3> vertices = a[Mesh::ARRAY_VERTEX];
-        PoolVector<Vector3>::Read vr = vertices.read();
-        PoolVector<Vector2> uv = a[Mesh::ARRAY_TEX_UV];
-        PoolVector<Vector2>::Read uvr;
-        PoolVector<Vector3> normals = a[Mesh::ARRAY_NORMAL];
-        PoolVector<Vector3>::Read nr;
-        PoolVector<int> index = a[Mesh::ARRAY_INDEX];
+        auto vertices = a.positions3();
+        const auto &uv = a.m_uv_1;
+        const auto &normals = a.m_normals;
+        const auto &index = a.m_indices;
 
-        bool read_uv = false;
-        bool read_normals = false;
-
-        if (uv.size()) {
-
-            uvr = uv.read();
-            read_uv = true;
-        }
-
-        if (normals.size()) {
-            read_normals = true;
-            nr = normals.read();
-        }
+        bool read_uv = !uv.empty();
+        bool read_normals = !normals.empty();
 
         if (index.size()) {
 
             int facecount = index.size() / 3;
-            PoolVector<int>::Read ir = index.read();
-
             for (int j = 0; j < facecount; j++) {
 
                 Vector3 vtxs[3];
@@ -624,18 +610,18 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
                 Vector3 normal[3];
 
                 for (int k = 0; k < 3; k++) {
-                    vtxs[k] = p_xform.xform(vr[ir[j * 3 + k]]);
+                    vtxs[k] = p_xform.xform(vertices[index[j * 3 + k]]);
                 }
 
                 if (read_uv) {
                     for (int k = 0; k < 3; k++) {
-                        uvs[k] = uvr[ir[j * 3 + k]];
+                        uvs[k] = uv[index[j * 3 + k]];
                     }
                 }
 
                 if (read_normals) {
                     for (int k = 0; k < 3; k++) {
-                        normal[k] = nr[ir[j * 3 + k]];
+                        normal[k] = normals[index[j * 3 + k]];
                     }
                 }
 
@@ -657,18 +643,18 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
                 Vector3 normal[3];
 
                 for (int k = 0; k < 3; k++) {
-                    vtxs[k] = p_xform.xform(vr[j * 3 + k]);
+                    vtxs[k] = p_xform.xform(vertices[j * 3 + k]);
                 }
 
                 if (read_uv) {
                     for (int k = 0; k < 3; k++) {
-                        uvs[k] = uvr[j * 3 + k];
+                        uvs[k] = uv[j * 3 + k];
                     }
                 }
 
                 if (read_normals) {
                     for (int k = 0; k < 3; k++) {
-                        normal[k] = nr[j * 3 + k];
+                        normal[k] = normals[j * 3 + k];
                     }
                 }
 
@@ -686,13 +672,13 @@ void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, con
 
 void VoxelLightBaker::_init_light_plot(int p_idx, int p_level, int p_x, int p_y, int p_z, uint32_t p_parent) {
 
-    bake_light.write[p_idx].x = p_x;
-    bake_light.write[p_idx].y = p_y;
-    bake_light.write[p_idx].z = p_z;
+    bake_light[p_idx].x = p_x;
+    bake_light[p_idx].y = p_y;
+    bake_light[p_idx].z = p_z;
 
     if (p_level == cell_subdiv - 1) {
 
-        bake_light.write[p_idx].next_leaf = first_leaf;
+        bake_light[p_idx].next_leaf = first_leaf;
         first_leaf = p_idx;
     } else {
 
@@ -832,8 +818,8 @@ void VoxelLightBaker::plot_light_directional(const Vector3 &p_direction, const C
     Plane clip[3];
     int clip_planes = 0;
 
-    Light *light_data = bake_light.ptrw();
-    const Cell *cells = bake_cells.ptr();
+    Light *light_data = bake_light.data();
+    const Cell *cells = bake_cells.data();
 
     for (int i = 0; i < 3; i++) {
 
@@ -942,8 +928,8 @@ void VoxelLightBaker::plot_light_omni(const Vector3 &p_pos, const Color &p_color
 
     float local_radius = to_cell_space.basis.xform(Vector3(0, 0, 1)).length() * p_radius;
 
-    Light *light_data = bake_light.ptrw();
-    const Cell *cells = bake_cells.ptr();
+    Light *light_data = bake_light.data();
+    const Cell *cells = bake_cells.data();
     Vector3 light_energy = Vector3(p_color.r, p_color.g, p_color.b) * p_energy * p_indirect_energy;
 
     int idx = first_leaf;
@@ -1071,8 +1057,8 @@ void VoxelLightBaker::plot_light_spot(const Vector3 &p_pos, const Vector3 &p_axi
 
     float local_radius = to_cell_space.basis.xform(Vector3(0, 0, 1)).length() * p_radius;
 
-    Light *light_data = bake_light.ptrw();
-    const Cell *cells = bake_cells.ptr();
+    Light *light_data = bake_light.data();
+    const Cell *cells = bake_cells.data();
     Vector3 light_energy = Vector3(p_color.r, p_color.g, p_color.b) * p_energy * p_indirect_energy;
 
     int idx = first_leaf;
@@ -1189,39 +1175,40 @@ void VoxelLightBaker::plot_light_spot(const Vector3 &p_pos, const Vector3 &p_axi
 }
 
 void VoxelLightBaker::_fixup_plot(int p_idx, int p_level) {
+    auto &tgt_cell(bake_cells[p_idx]);
 
     if (p_level == cell_subdiv - 1) {
 
         leaf_voxel_count++;
-        float alpha = bake_cells[p_idx].alpha;
+        float alpha = tgt_cell.alpha;
 
-        bake_cells.write[p_idx].albedo[0] /= alpha;
-        bake_cells.write[p_idx].albedo[1] /= alpha;
-        bake_cells.write[p_idx].albedo[2] /= alpha;
+        tgt_cell.albedo[0] /= alpha;
+        tgt_cell.albedo[1] /= alpha;
+        tgt_cell.albedo[2] /= alpha;
 
         //transfer emission to light
-        bake_cells.write[p_idx].emission[0] /= alpha;
-        bake_cells.write[p_idx].emission[1] /= alpha;
-        bake_cells.write[p_idx].emission[2] /= alpha;
+        tgt_cell.emission[0] /= alpha;
+        tgt_cell.emission[1] /= alpha;
+        tgt_cell.emission[2] /= alpha;
 
-        bake_cells.write[p_idx].normal[0] /= alpha;
-        bake_cells.write[p_idx].normal[1] /= alpha;
-        bake_cells.write[p_idx].normal[2] /= alpha;
+        tgt_cell.normal[0] /= alpha;
+        tgt_cell.normal[1] /= alpha;
+        tgt_cell.normal[2] /= alpha;
 
-        Vector3 n(bake_cells[p_idx].normal[0], bake_cells[p_idx].normal[1], bake_cells[p_idx].normal[2]);
+        Vector3 n(tgt_cell.normal[0], tgt_cell.normal[1], tgt_cell.normal[2]);
         if (n.length() < 0.01) {
             //too much fight over normal, zero it
-            bake_cells.write[p_idx].normal[0] = 0;
-            bake_cells.write[p_idx].normal[1] = 0;
-            bake_cells.write[p_idx].normal[2] = 0;
+            tgt_cell.normal[0] = 0;
+            tgt_cell.normal[1] = 0;
+            tgt_cell.normal[2] = 0;
         } else {
             n.normalize();
-            bake_cells.write[p_idx].normal[0] = n.x;
-            bake_cells.write[p_idx].normal[1] = n.y;
-            bake_cells.write[p_idx].normal[2] = n.z;
+            tgt_cell.normal[0] = n.x;
+            tgt_cell.normal[1] = n.y;
+            tgt_cell.normal[2] = n.z;
         }
 
-        bake_cells.write[p_idx].alpha = 1.0;
+        tgt_cell.alpha = 1.0;
 
         /*if (bake_light.size()) {
             for(int i=0;i<6;i++) {
@@ -1233,20 +1220,20 @@ void VoxelLightBaker::_fixup_plot(int p_idx, int p_level) {
 
         //go down
 
-        bake_cells.write[p_idx].emission[0] = 0;
-        bake_cells.write[p_idx].emission[1] = 0;
-        bake_cells.write[p_idx].emission[2] = 0;
-        bake_cells.write[p_idx].normal[0] = 0;
-        bake_cells.write[p_idx].normal[1] = 0;
-        bake_cells.write[p_idx].normal[2] = 0;
-        bake_cells.write[p_idx].albedo[0] = 0;
-        bake_cells.write[p_idx].albedo[1] = 0;
-        bake_cells.write[p_idx].albedo[2] = 0;
+        tgt_cell.albedo[0] = 0;
+        tgt_cell.albedo[1] = 0;
+        tgt_cell.albedo[2] = 0;
+        tgt_cell.emission[0] = 0;
+        tgt_cell.emission[1] = 0;
+        tgt_cell.emission[2] = 0;
+        tgt_cell.normal[0] = 0;
+        tgt_cell.normal[1] = 0;
+        tgt_cell.normal[2] = 0;
         if (!bake_light.empty()) {
             for (int j = 0; j < 6; j++) {
-                bake_light.write[p_idx].accum[j][0] = 0;
-                bake_light.write[p_idx].accum[j][1] = 0;
-                bake_light.write[p_idx].accum[j][2] = 0;
+                bake_light[p_idx].accum[j][0] = 0;
+                bake_light[p_idx].accum[j][1] = 0;
+                bake_light[p_idx].accum[j][2] = 0;
             }
         }
 
@@ -1265,29 +1252,29 @@ void VoxelLightBaker::_fixup_plot(int p_idx, int p_level) {
 
             if (!bake_light.empty()) {
                 for (int j = 0; j < 6; j++) {
-                    bake_light.write[p_idx].accum[j][0] += bake_light[child].accum[j][0];
-                    bake_light.write[p_idx].accum[j][1] += bake_light[child].accum[j][1];
-                    bake_light.write[p_idx].accum[j][2] += bake_light[child].accum[j][2];
+                    bake_light[p_idx].accum[j][0] += bake_light[child].accum[j][0];
+                    bake_light[p_idx].accum[j][1] += bake_light[child].accum[j][1];
+                    bake_light[p_idx].accum[j][2] += bake_light[child].accum[j][2];
                 }
-                bake_cells.write[p_idx].emission[0] += bake_cells[child].emission[0];
-                bake_cells.write[p_idx].emission[1] += bake_cells[child].emission[1];
-                bake_cells.write[p_idx].emission[2] += bake_cells[child].emission[2];
+                tgt_cell.emission[0] += bake_cells[child].emission[0];
+                tgt_cell.emission[1] += bake_cells[child].emission[1];
+                tgt_cell.emission[2] += bake_cells[child].emission[2];
             }
 
             children_found++;
         }
 
-        bake_cells.write[p_idx].alpha = alpha_average / 8.0;
+        tgt_cell.alpha = alpha_average / 8.0f;
         if (!bake_light.empty() && children_found) {
             float divisor = Math::lerp(8, children_found, propagation);
             for (int j = 0; j < 6; j++) {
-                bake_light.write[p_idx].accum[j][0] /= divisor;
-                bake_light.write[p_idx].accum[j][1] /= divisor;
-                bake_light.write[p_idx].accum[j][2] /= divisor;
+                bake_light[p_idx].accum[j][0] /= divisor;
+                bake_light[p_idx].accum[j][1] /= divisor;
+                bake_light[p_idx].accum[j][2] /= divisor;
             }
-            bake_cells.write[p_idx].emission[0] /= divisor;
-            bake_cells.write[p_idx].emission[1] /= divisor;
-            bake_cells.write[p_idx].emission[2] /= divisor;
+            tgt_cell.emission[0] /= divisor;
+            tgt_cell.emission[1] /= divisor;
+            tgt_cell.emission[2] /= divisor;
         }
     }
 }
@@ -1426,8 +1413,8 @@ void VoxelLightBaker::_sample_baked_octree_filtered_and_anisotropic(const Vector
         level_filter = target_level - level;
     }
 
-    const Cell *cells = bake_cells.ptr();
-    const Light *light = bake_light.ptr();
+    const Cell *cells = bake_cells.data();
+    const Light *light = bake_light.data();
 
     Vector3 color[2][8];
     float alpha[2][8];
@@ -1690,8 +1677,8 @@ Vector3 VoxelLightBaker::_compute_ray_trace_at_pos(const Vector3 &p_pos, const V
     Vector3 accum;
     float spread = Math::deg2rad(80.0f);
 
-    const Light *light = bake_light.ptr();
-    const Cell *cells = bake_cells.ptr();
+    const Light *light = bake_light.data();
+    const Cell *cells = bake_cells.data();
 
     uint32_t local_rng_state = rand(); //needs to be fixed again
 
@@ -1810,24 +1797,16 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
         double area = 0;
         double uv_area = 0;
         for (int i = 0; i < mesh->get_surface_count(); i++) {
-            Array arrays = mesh->surface_get_arrays(i);
-            PoolVector<Vector3> vertices = arrays[Mesh::ARRAY_VERTEX];
-            PoolVector<Vector2> uv2 = arrays[Mesh::ARRAY_TEX_UV2];
-            PoolVector<int> indices = arrays[Mesh::ARRAY_INDEX];
+            SurfaceArrays arrays = mesh->surface_get_arrays(i);
+            Span<const Vector3> vertices = arrays.positions3();
+            const auto &uv2 = arrays.m_uv_2;
+            const auto &indices = arrays.m_indices;
 
-            ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER)
-            ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER)
+            ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
+            ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER);
 
             int vc = vertices.size();
-            PoolVector<Vector3>::Read vr = vertices.read();
-            PoolVector<Vector2>::Read u2r = uv2.read();
-            PoolVector<int>::Read ir;
-            int ic = 0;
-
-            if (indices.size()) {
-                ic = indices.size();
-                ir = indices.read();
-            }
+            int ic = indices.size();
 
             int faces = ic ? ic / 3 : vc / 3;
             for (int j = 0; j < faces; j++) {
@@ -1835,9 +1814,9 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
                 Vector2 uv[3];
 
                 for (int k = 0; k < 3; k++) {
-                    int idx = ic ? ir[j * 3 + k] : j * 3 + k;
-                    vertex[k] = xform.xform(vr[idx]);
-                    uv[k] = u2r[idx];
+                    int idx = ic ? indices[j * 3 + k] : j * 3 + k;
+                    vertex[k] = xform.xform(vertices[idx]);
+                    uv[k] = uv2[idx];
                 }
 
                 Vector3 p1 = vertex[0];
@@ -1875,27 +1854,18 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
 
     //step 2 plot faces to lightmap
     for (int i = 0; i < mesh->get_surface_count(); i++) {
-        Array arrays = mesh->surface_get_arrays(i);
-        PoolVector<Vector3> vertices = arrays[Mesh::ARRAY_VERTEX];
-        PoolVector<Vector3> normals = arrays[Mesh::ARRAY_NORMAL];
-        PoolVector<Vector2> uv2 = arrays[Mesh::ARRAY_TEX_UV2];
-        PoolVector<int> indices = arrays[Mesh::ARRAY_INDEX];
+        SurfaceArrays arrays = mesh->surface_get_arrays(i);
+        Span<const Vector3> vertices = arrays.positions3();
+        const Vector<Vector3> &normals = arrays.m_normals;
+        const Vector<Vector2> &uv2 = arrays.m_uv_2;
+        const Vector<int> &indices = arrays.m_indices;
 
-        ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER)
-        ERR_FAIL_COND_V(normals.size() == 0, ERR_INVALID_PARAMETER)
-        ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER)
+        ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(normals.size() == 0, ERR_INVALID_PARAMETER);
+        ERR_FAIL_COND_V(uv2.size() == 0, ERR_INVALID_PARAMETER);
 
         int vc = vertices.size();
-        PoolVector<Vector3>::Read vr = vertices.read();
-        PoolVector<Vector3>::Read nr = normals.read();
-        PoolVector<Vector2>::Read u2r = uv2.read();
-        PoolVector<int>::Read ir;
-        int ic = 0;
-
-        if (indices.size()) {
-            ic = indices.size();
-            ir = indices.read();
-        }
+        int ic = indices.size();
 
         int faces = ic ? ic / 3 : vc / 3;
         for (int j = 0; j < faces; j++) {
@@ -1904,19 +1874,19 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
             Vector2 uv[3];
 
             for (int k = 0; k < 3; k++) {
-                int idx = ic ? ir[j * 3 + k] : j * 3 + k;
-                vertex[k] = xform.xform(vr[idx]);
-                normal[k] = xform.basis.xform(nr[idx]).normalized();
-                uv[k] = u2r[idx];
+                int idx = ic ? indices[j * 3 + k] : j * 3 + k;
+                vertex[k] = xform.xform(vertices[idx]);
+                normal[k] = xform.basis.xform(normals[idx]).normalized();
+                uv[k] = uv2[idx];
             }
 
-            _plot_triangle(uv, vertex, normal, lightmap.ptrw(), width, height);
+            _plot_triangle(uv, vertex, normal, lightmap.data(), width, height);
         }
     }
 
     //step 3 perform voxel cone trace on lightmap pixels
     {
-        LightMap *lightmap_ptr = lightmap.ptrw();
+        LightMap *lightmap_ptr = lightmap.data();
         uint64_t begin_time = OS::get_singleton()->get_ticks_usec();
         volatile int lines = 0;
 
@@ -1996,8 +1966,8 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
 
         //add directional light (do this after blur)
         {
-            const Cell *cells = bake_cells.ptr();
-            const Light *light = bake_light.ptr();
+            const Cell *cells = bake_cells.data();
+            const Light *light = bake_light.data();
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
@@ -2122,8 +2092,8 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
             }
         }
 
-// Enable for debugging
-#if 0
+
+#if 0 // Enable for debugging
         {
             PoolVector<uint8_t> img;
             int ls = lightmap.size();
@@ -2338,7 +2308,7 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
 
     Ref<MultiMesh> mm;
 
-    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm)
+    ERR_FAIL_COND_V(p_mode == DEBUG_LIGHT && bake_light.empty(), mm);
     mm = make_ref_counted<MultiMesh>();
 
     mm->set_transform_format(MultiMesh::TRANSFORM_3D);
@@ -2348,11 +2318,10 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
     {
-        Array arr;
-        arr.resize(Mesh::ARRAY_MAX);
+        SurfaceArrays arr;
 
-        PoolVector<Vector3> vertices;
-        PoolVector<Color> colors;
+        Vector<Vector3> vertices;
+        Vector<Color> colors;
 #define ADD_VTX(m_idx)                      \
     ;                                       \
     vertices.push_back(face_points[m_idx]); \
@@ -2388,9 +2357,9 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
             ADD_VTX(0);
         }
 
-        arr[Mesh::ARRAY_VERTEX] = vertices;
-        arr[Mesh::ARRAY_COLOR] = colors;
-        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+        arr.set_positions(eastl::move(vertices));
+        arr.m_colors = eastl::move(colors);
+        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(arr));
     }
 
     {
@@ -2428,37 +2397,37 @@ PoolVector<uint8_t> VoxelLightBaker::create_capture_octree(int p_subdiv) {
 
     Vector<uint32_t> remap;
     int bc = bake_cells.size();
-    remap.resize(bc);
+    remap.resize(bc,CHILD_EMPTY);
     Vector<uint32_t> demap;
 
     int new_size = 0;
     for (int i = 0; i < bc; i++) {
-        uint32_t c = CHILD_EMPTY;
         if (bake_cells[i].level < p_subdiv) {
-            c = new_size;
-            new_size++;
             demap.push_back(i);
+            // all remap entries already initialized to CHILD_EMPTY, only set new_size in 'interesting' places
+            remap[i] = new_size++;
         }
-        remap.write[i] = c;
     }
 
     Vector<VoxelLightBakerOctree> octree;
     octree.resize(new_size);
 
     for (int i = 0; i < new_size; i++) {
-        octree.write[i].alpha = bake_cells[demap[i]].alpha;
+        VoxelLightBakerOctree lev;
+        lev.alpha = bake_cells[demap[i]].alpha;
         for (int j = 0; j < 6; j++) {
             for (int k = 0; k < 3; k++) {
                 float l = bake_light[demap[i]].accum[j][k]; //add anisotropic light
                 l += bake_cells[demap[i]].emission[k]; //add emission
-                octree.write[i].light[j][k] = CLAMP(l * 1024, 0, 65535); //give two more bits to octree
+                lev.light[j][k] = CLAMP(l * 1024, 0, 65535); //give two more bits to octree
             }
         }
 
         for (int j = 0; j < 8; j++) {
             uint32_t child = bake_cells[demap[i]].children[j];
-            octree.write[i].children[j] = child == CHILD_EMPTY ? CHILD_EMPTY : remap[child];
+            lev.children[j] = child == CHILD_EMPTY ? CHILD_EMPTY : remap[child];
         }
+        octree.emplace_back(eastl::move(lev));
     }
 
     PoolVector<uint8_t> ret;
@@ -2466,7 +2435,7 @@ PoolVector<uint8_t> VoxelLightBaker::create_capture_octree(int p_subdiv) {
     ret.resize(ret_bytes);
     {
         PoolVector<uint8_t>::Write w = ret.write();
-        memcpy(w.ptr(), octree.ptr(), ret_bytes);
+        memcpy(w.ptr(), octree.data(), ret_bytes);
     }
 
     return ret;
@@ -2482,6 +2451,6 @@ Transform VoxelLightBaker::get_to_cell_space_xform() const {
 VoxelLightBaker::VoxelLightBaker() {
     color_scan_cell_width = 4;
     bake_texture_size = 128;
-    propagation = 0.85;
+    propagation = 0.85f;
     energy = 1.0;
 }

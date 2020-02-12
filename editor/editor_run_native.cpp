@@ -59,7 +59,7 @@ void EditorRunNative::_notification(int p_what) {
                     MenuButton *mb = memnew(MenuButton);
                     mb->get_popup()->connect("id_pressed", this, "_run_native", varray(i));
                     mb->connect("pressed", this, "_run_native", varray(-1, i));
-                    mb->set_icon(small_icon);
+                    mb->set_button_icon(small_icon);
                     add_child(mb);
                     menus[i] = mb;
                 }
@@ -110,7 +110,7 @@ void EditorRunNative::_run_native(int p_idx, int p_platform) {
     }
 
     Ref<EditorExportPlatform> eep = EditorExport::get_singleton()->get_export_platform(p_platform);
-    ERR_FAIL_COND(not eep)
+    ERR_FAIL_COND(not eep);
 
     if (p_idx == -1) {
         if (eep->get_options_count() == 1) {

@@ -42,7 +42,7 @@ class VisualScriptFunction : public VisualScriptNode {
         StringName name;
         VariantType type;
         PropertyHint hint;
-        se_string hint_string;
+        String hint_string;
     };
 
     Vector<Argument> arguments;
@@ -55,7 +55,7 @@ class VisualScriptFunction : public VisualScriptNode {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     int get_output_sequence_port_count() const override;
@@ -70,10 +70,10 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "flow_control"; }
 
-    void add_argument(VariantType p_type, const StringName &p_name, int p_index = -1, const PropertyHint p_hint = PROPERTY_HINT_NONE, se_string_view p_hint_string = {});
+    void add_argument(VariantType p_type, const StringName &p_name, int p_index = -1, const PropertyHint p_hint = PropertyHint::None, se_string_view p_hint_string = {});
     void set_argument_type(int p_argidx, VariantType p_type);
     VariantType get_argument_type(int p_argidx) const;
     void set_argument_name(int p_argidx, const StringName &p_name);
@@ -132,7 +132,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -157,7 +157,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override = 0;
-    se_string get_text() const override = 0;
+    String get_text() const override = 0;
     const char *get_category() const override = 0;
 
     void add_input_data_port(VariantType p_type, const StringName &p_name, int p_index = -1);
@@ -193,7 +193,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -260,7 +260,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "operators"; }
 
     void set_typed(VariantType p_op);
@@ -555,7 +555,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override { return "constants"; }
 
     void set_basic_type_constant(const StringName &p_which);
@@ -627,7 +627,7 @@ class VisualScriptEngineSingleton : public VisualScriptNode {
     StringName singleton;
 
     static void _bind_methods();
-
+    void _validate_property(PropertyInfo &property) const override;
 public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
@@ -725,7 +725,7 @@ class VisualScriptResourcePath : public VisualScriptNode {
     GDCLASS(VisualScriptResourcePath,VisualScriptNode)
 
 
-    se_string path;
+    String path;
 
 protected:
     static void _bind_methods();
@@ -746,7 +746,7 @@ public:
     const char *get_category() const override { return "data"; }
 
     void set_resource_path(se_string_view p_path);
-    const se_string &get_resource_path();
+    const String &get_resource_path();
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
 
@@ -820,7 +820,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -852,7 +852,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
     VisualScriptNodeInstance *instance(VisualScriptInstance *p_instance) override;
@@ -865,8 +865,8 @@ class VisualScriptComment : public VisualScriptNode {
     GDCLASS(VisualScriptComment,VisualScriptNode)
 
 
-    se_string title;
-    se_string description;
+    String title;
+    String description;
     Size2 size;
 
 protected:
@@ -885,14 +885,14 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
-    void set_title(const se_string &p_title);
-    const se_string &get_title() const;
+    void set_title(const String &p_title);
+    const String &get_title() const;
 
-    void set_description(const se_string &p_description);
-    const se_string &get_description() const;
+    void set_description(const String &p_description);
+    const String &get_description() const;
 
     void set_size(const Size2 &p_size);
     Size2 get_size() const;
@@ -1000,7 +1000,7 @@ public:
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
     se_string_view get_caption() const override;
-    se_string get_text() const override;
+    String get_text() const override;
     const char *get_category() const override;
 
     void set_var_name(const StringName &p_name);
@@ -1077,11 +1077,11 @@ class VisualScriptDeconstruct : public VisualScriptNode {
     void _update_elements();
     VariantType type;
 
-    void _set_elem_cache(const Array &p_elements);
-    Array _get_elem_cache() const;
 
     void _validate_property(PropertyInfo &property) const override;
-
+public:
+    void _set_elem_cache(const Array &p_elements);
+    Array _get_elem_cache() const;
 protected:
     static void _bind_methods();
 

@@ -84,7 +84,7 @@ void ProximityGroup::update_groups() {
 
 void ProximityGroup::add_groups(int *p_cell, StringName p_base, int p_depth) {
 
-    p_base = StringName(p_base + se_string("|"));
+    p_base = StringName(p_base + String("|"));
     if (grid_radius[p_depth] == 0) {
 
         if (p_depth == 2) {
@@ -196,7 +196,7 @@ void ProximityGroup::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_proximity_group_broadcast", {"name", "params"}), &ProximityGroup::_proximity_group_broadcast);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "group_name"), "set_group_name", "get_group_name");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "dispatch_mode", PROPERTY_HINT_ENUM, "Proxy,Signal"), "set_dispatch_mode", "get_dispatch_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "dispatch_mode", PropertyHint::Enum, "Proxy,Signal"), "set_dispatch_mode", "get_dispatch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "grid_radius"), "set_grid_radius", "get_grid_radius");
 
     ADD_SIGNAL(MethodInfo("broadcast", PropertyInfo(VariantType::STRING, "group_name"), PropertyInfo(VariantType::ARRAY, "parameters")));

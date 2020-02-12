@@ -73,7 +73,7 @@ void ProgressBar::_notification(int p_what) {
         }
 
         if (percent_visible) {
-            se_string txt = StringUtils::num(int(get_as_ratio() * 100)) + "%";
+            String txt = StringUtils::num(int(get_as_ratio() * 100)) + "%";
             font->draw_halign_utf8(get_canvas_item(), Point2(0, font->get_ascent() + (get_size().height - font->get_height()) / 2), HALIGN_CENTER, get_size().width, txt, font_color);
         }
     }

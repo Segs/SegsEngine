@@ -22,7 +22,7 @@ class GODOT_EXPORT ResourceInteractiveLoader : public RefCounted {
 
     GDCLASS(ResourceInteractiveLoader, RefCounted)
     friend class ResourceLoader;
-    se_string path_loading;
+    String path_loading;
     Thread::ID path_loading_thread;
 
 protected:
@@ -52,17 +52,17 @@ public:
     virtual Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr);
     virtual Ref<Resource> load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr);
     virtual bool exists(se_string_view p_path) const;
-    virtual void get_recognized_extensions(PODVector<se_string> &p_extensions) const;
-    virtual void get_recognized_extensions_for_type(se_string_view p_type, PODVector<se_string> &p_extensions) const;
+    virtual void get_recognized_extensions(Vector<String> &p_extensions) const;
+    virtual void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const;
     virtual bool recognize_path(se_string_view p_path, se_string_view p_for_type = se_string_view()) const;
     virtual bool handles_type(se_string_view p_type) const;
-    virtual se_string get_resource_type(se_string_view p_path) const;
-    virtual void get_dependencies(se_string_view p_path, PODVector<se_string> &p_dependencies, bool p_add_types = false);
-    virtual Error rename_dependencies(se_string_view p_path, const DefMap<se_string, se_string> &p_map);
+    virtual String get_resource_type(se_string_view p_path) const;
+    virtual void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
+    virtual Error rename_dependencies(se_string_view p_path, const DefMap<String, String> &p_map);
     virtual bool is_import_valid(se_string_view /*p_path*/) const { return true; }
     virtual bool is_imported(se_string_view /*p_path*/) const { return false; }
     virtual int get_import_order(se_string_view /*p_path*/) const { return 0; }
-    virtual se_string get_import_group_file(se_string_view /*p_path*/) const { return se_string(); } //no group
+    virtual String get_import_group_file(se_string_view /*p_path*/) const { return String(); } //no group
 
     ~ResourceFormatLoader() override = default;
 };

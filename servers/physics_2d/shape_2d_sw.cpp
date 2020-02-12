@@ -59,7 +59,7 @@ void Shape2DSW::add_owner(ShapeOwner2DSW *p_owner) {
 void Shape2DSW::remove_owner(ShapeOwner2DSW *p_owner) {
 
     OwnerStorage::iterator E = owners.find(p_owner);
-    ERR_FAIL_COND(E==owners.end())
+    ERR_FAIL_COND(E==owners.end());
     E->second--;
     if (E->second == 0) {
         owners.erase(E);
@@ -83,7 +83,7 @@ Shape2DSW::Shape2DSW() {
 
 Shape2DSW::~Shape2DSW() {
 
-    ERR_FAIL_COND(owners.size())
+    ERR_FAIL_COND(owners.size());
 }
 
 /*********************************************************/
@@ -132,9 +132,9 @@ real_t LineShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scale)
 
 void LineShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::ARRAY)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::ARRAY);
     Array arr = p_data;
-    ERR_FAIL_COND(arr.size() != 2)
+    ERR_FAIL_COND(arr.size() != 2);
     normal = arr[0];
     d = arr[1];
     configure(Rect2(Vector2(-1e4, -1e4), Vector2(1e4 * 2, 1e4 * 2)));
@@ -241,7 +241,7 @@ real_t SegmentShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_sca
 
 void SegmentShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::RECT2)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::RECT2);
 
     Rect2 r = p_data;
     a = r.position;
@@ -316,7 +316,7 @@ real_t CircleShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scal
 
 void CircleShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(!p_data.is_num())
+    ERR_FAIL_COND(!p_data.is_num());
     radius = p_data;
     configure(Rect2(-radius, -radius, radius * 2, radius * 2));
 }
@@ -382,7 +382,7 @@ real_t RectangleShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_s
 
 void RectangleShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::VECTOR2)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::VECTOR2);
 
     half_extents = p_data;
     configure(Rect2(-half_extents, half_extents * 2.0));
@@ -508,11 +508,11 @@ real_t CapsuleShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_sca
 
 void CapsuleShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::ARRAY && p_data.get_type() != VariantType::VECTOR2)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::ARRAY && p_data.get_type() != VariantType::VECTOR2);
 
     if (p_data.get_type() == VariantType::ARRAY) {
         Array arr = p_data;
-        ERR_FAIL_COND(arr.size() != 2)
+        ERR_FAIL_COND(arr.size() != 2);
         height = arr[0];
         radius = arr[1];
     } else {
@@ -559,7 +559,7 @@ void ConvexPolygonShape2DSW::get_supports(const Vector2 &p_normal, Vector2 *r_su
         }
     }
 
-    ERR_FAIL_COND(support_idx == -1)
+    ERR_FAIL_COND(support_idx == -1);
 
     r_amount = 1;
     r_supports[0] = points[support_idx].pos;
@@ -635,7 +635,7 @@ real_t ConvexPolygonShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 
 
 void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_REAL_ARRAY)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_REAL_ARRAY);
 
     if (points)
         memdelete_arr(points);
@@ -644,7 +644,7 @@ void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
 
     if (p_data.get_type() == VariantType::POOL_VECTOR2_ARRAY) {
         PoolVector<Vector2> arr = p_data;
-        ERR_FAIL_COND(arr.size() == 0)
+        ERR_FAIL_COND(arr.size() == 0);
         point_count = arr.size();
         points = memnew_arr(Point, point_count);
         PoolVector<Vector2>::Read r = arr.read();
@@ -663,7 +663,7 @@ void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
 
         PoolVector<real_t> dvr = p_data;
         point_count = dvr.size() / 4;
-        ERR_FAIL_COND(point_count == 0)
+        ERR_FAIL_COND(point_count == 0);
 
         points = memnew_arr(Point, point_count);
         PoolVector<real_t>::Read r = dvr.read();
@@ -678,7 +678,7 @@ void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
         }
     }
 
-    ERR_FAIL_COND(point_count == 0)
+    ERR_FAIL_COND(point_count == 0);
     Rect2 aabb;
     aabb.position = points[0].pos;
     for (int i = 1; i < point_count; i++)
@@ -728,7 +728,7 @@ void ConcavePolygonShape2DSW::get_supports(const Vector2 &p_normal, Vector2 *r_s
     }
 
     r_amount = 1;
-    ERR_FAIL_COND(idx == -1)
+    ERR_FAIL_COND(idx == -1);
     *r_supports = points[idx];
 }
 
@@ -887,15 +887,15 @@ int ConcavePolygonShape2DSW::_generate_bvh(BVH *p_bvh, int p_len, int p_depth) {
 
     int l = _generate_bvh(p_bvh, median, p_depth + 1);
     int r = _generate_bvh(&p_bvh[median], p_len - median, p_depth + 1);
-    bvh.write[node_idx].left = l;
-    bvh.write[node_idx].right = r;
+    bvh[node_idx].left = l;
+    bvh[node_idx].right = r;
 
     return node_idx;
 }
 
 void ConcavePolygonShape2DSW::set_data(const Variant &p_data) {
 
-    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_REAL_ARRAY)
+    ERR_FAIL_COND(p_data.get_type() != VariantType::POOL_VECTOR2_ARRAY && p_data.get_type() != VariantType::POOL_REAL_ARRAY);
 
     Rect2 aabb;
 
@@ -903,7 +903,7 @@ void ConcavePolygonShape2DSW::set_data(const Variant &p_data) {
 
         PoolVector<Vector2> p2arr = p_data;
         int len = p2arr.size();
-        ERR_FAIL_COND(len % 2)
+        ERR_FAIL_COND(len % 2);
 
         segments.clear();
         points.clear();
@@ -949,20 +949,20 @@ void ConcavePolygonShape2DSW::set_data(const Variant &p_data) {
         for (eastl::pair<const Point2,int> &E : pointmap) {
 
             aabb.expand_to(E.first);
-            points.write[E.second] = E.first;
+            points[E.second] = E.first;
         }
 
         Vector<BVH> main_vbh;
         main_vbh.resize(segments.size());
         for (int i = 0; i < main_vbh.size(); i++) {
 
-            main_vbh.write[i].aabb.position = points[segments[i].points[0]];
-            main_vbh.write[i].aabb.expand_to(points[segments[i].points[1]]);
-            main_vbh.write[i].left = -1;
-            main_vbh.write[i].right = i;
+            main_vbh[i].aabb.position = points[segments[i].points[0]];
+            main_vbh[i].aabb.expand_to(points[segments[i].points[1]]);
+            main_vbh[i].left = -1;
+            main_vbh[i].right = i;
         }
 
-        _generate_bvh(main_vbh.ptrw(), main_vbh.size(), 1);
+        _generate_bvh(main_vbh.data(), main_vbh.size(), 1);
 
     } else {
         //dictionary with arrays

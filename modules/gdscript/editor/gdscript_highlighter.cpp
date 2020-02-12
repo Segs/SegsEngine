@@ -67,7 +67,7 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
     Type current_type = NONE;
     Type previous_type = NONE;
 
-    String previous_text;
+    UIString previous_text;
     int previous_column = 0;
 
     bool prev_is_char = false;
@@ -89,7 +89,7 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
     int deregion = 0;
 
     const Map<int, TextColorRegionInfo> cri_map = text_editor->_get_line_color_region_info(p_line);
-    const String str = StringUtils::from_utf8(text_editor->get_line(p_line));
+    const UIString str = StringUtils::from_utf8(text_editor->get_line(p_line));
     Color prev_color;
     for (int j = 0; j < str.length(); j++) {
         TextEdit::HighlighterInfo highlighter_info;
@@ -186,10 +186,10 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
             while (to < str_len && _is_text_char(str[to]))
                 to++;
 
-            String word = StringUtils::substr(str,j, to - j);
+            UIString word = StringUtils::substr(str,j, to - j);
             Color col = Color();
-            if (text_editor->has_keyword_color(word)) {
-                col = text_editor->get_keyword_color(word);
+            if (text_editor->has_keyword_color_uistr(word)) {
+                col = text_editor->get_keyword_color_uistr(word);
             } else if (text_editor->has_member_color(word)) {
                 col = text_editor->get_member_color(word);
                 for (int k = j - 1; k >= 0; k--) {
@@ -325,7 +325,7 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
                     previous_text = "";
                     previous_column = j;
                 } else {
-                    String text = StringUtils::strip_edges(StringUtils::substr(str,previous_column, j - previous_column));
+                    UIString text = StringUtils::strip_edges(StringUtils::substr(str,previous_column, j - previous_column));
                     previous_column = j;
 
                     // ignore if just whitespace
@@ -348,13 +348,12 @@ Map<int, TextEdit::HighlighterInfo> GDScriptSyntaxHighlighter::_get_line_syntax_
     return color_map;
 }
 
-se_string GDScriptSyntaxHighlighter::get_name() const {
+String GDScriptSyntaxHighlighter::get_name() const {
     return "GDScript";
 }
 
-List<se_string> GDScriptSyntaxHighlighter::get_supported_languages() {
-    List<se_string> languages;
-    languages.push_back("GDScript");
+Vector<String> GDScriptSyntaxHighlighter::get_supported_languages() {
+    Vector<String> languages {"GDScript"};
     return languages;
 }
 
@@ -365,7 +364,7 @@ void GDScriptSyntaxHighlighter::_update_cache() {
     number_color = text_editor->get_color("number_color");
     member_color = text_editor->get_color("member_variable_color");
 
-    const String text_editor_color_theme = EditorSettings::get_singleton()->get("text_editor/theme/color_theme");
+    const UIString text_editor_color_theme = EditorSettings::get_singleton()->get("text_editor/theme/color_theme");
     const bool default_theme = text_editor_color_theme == "Default";
 
     if (default_theme || EditorSettings::get_singleton()->is_dark_theme()) {

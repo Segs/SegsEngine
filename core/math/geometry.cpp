@@ -43,7 +43,7 @@
 /*
 bool Geometry::is_point_in_polygon(const Vector2 &p_point, const Vector<Vector2> &p_polygon) {
 
-    PODVector<int> indices = Geometry::triangulate_polygon(p_polygon);
+    Vector<int> indices = Geometry::triangulate_polygon(p_polygon);
     for (int j = 0; j + 3 <= indices.size(); j += 3) {
         int i1 = indices[j], i2 = indices[j + 1], i3 = indices[j + 2];
         if (Geometry::is_point_in_triangle(p_point, p_polygon[i1], p_polygon[i2], p_polygon[i3]))
@@ -58,16 +58,17 @@ void Geometry::MeshData::optimize_vertices() {
     Map<int, int> vtx_remap;
 
     for (int i = 0; i < faces.size(); i++) {
+        auto &idx_wr(faces[i].indices);
 
-        for (int j = 0; j < faces[i].indices.size(); j++) {
+        for (int j = 0; j < idx_wr.size(); j++) {
 
-            int idx = faces[i].indices[j];
+            int idx = idx_wr[j];
             if (!vtx_remap.contains(idx)) {
                 int ni = vtx_remap.size();
                 vtx_remap[idx] = ni;
             }
 
-            faces.write[i].indices.write[j] = vtx_remap[idx];
+            idx_wr[j] = vtx_remap[idx];
         }
     }
 
@@ -85,11 +86,11 @@ void Geometry::MeshData::optimize_vertices() {
             vtx_remap[b] = ni;
         }
 
-        edges.write[i].a = vtx_remap[a];
-        edges.write[i].b = vtx_remap[b];
+        edges[i].a = vtx_remap[a];
+        edges[i].b = vtx_remap[b];
     }
 
-    PODVector<Vector3> new_vertices;
+    Vector<Vector3> new_vertices;
     new_vertices.resize(vtx_remap.size());
 
     for (int i = 0; i < vertices.size(); i++) {
@@ -161,13 +162,13 @@ static bool _connect_faces(_FaceClassify *p_faces, int len, int p_group) {
                     if (vi1.distance_to(vj1) < 0.00001f && vi2.distance_to(vj2) < 0.00001f) {
                         if (p_faces[i].links[k].face != -1) {
 
-                            ERR_PRINT("already linked\n")
+                            ERR_PRINT("already linked\n");
                             error = true;
                             goto ERR_OUT;
                         }
                         if (p_faces[j].links[l].face != -1) {
 
-                            ERR_PRINT("already linked\n")
+                            ERR_PRINT("already linked\n");
                             error = true;
                             goto ERR_OUT;
                         }
@@ -204,7 +205,7 @@ static bool _group_face(_FaceClassify *p_faces, int len, int p_index, int p_grou
 
     for (int i = 0; i < 3; i++) {
 
-        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true)
+        ERR_FAIL_INDEX_V(p_faces[p_index].links[i].face, len, true);
         _group_face(p_faces, len, p_faces[p_index].links[i].face, p_group);
     }
 
@@ -236,7 +237,7 @@ PoolVector<PoolVector<Face3> > Geometry::separate_objects(const PoolVector<Face3
 
     bool error = _connect_faces(_fcptr, len, -1);
 
-    ERR_FAIL_COND_V_MSG(error, PoolVector<PoolVector<Face3> >(), "Invalid geometry.")
+    ERR_FAIL_COND_V_MSG(error, PoolVector<PoolVector<Face3> >(), "Invalid geometry.");
 
     // Group connected faces in separate objects.
 
@@ -391,30 +392,30 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                 }
                 case _CELL_PREV_Y_POS: {
                     y++;
-                    ERR_FAIL_COND(y >= len_y)
+                    ERR_FAIL_COND(y >= len_y);
                 } break;
                 case _CELL_PREV_Y_NEG: {
                     y--;
-                    ERR_FAIL_COND(y < 0)
+                    ERR_FAIL_COND(y < 0);
                 } break;
                 case _CELL_PREV_X_POS: {
                     x++;
-                    ERR_FAIL_COND(x >= len_x)
+                    ERR_FAIL_COND(x >= len_x);
                 } break;
                 case _CELL_PREV_X_NEG: {
                     x--;
-                    ERR_FAIL_COND(x < 0)
+                    ERR_FAIL_COND(x < 0);
                 } break;
                 case _CELL_PREV_Z_POS: {
                     z++;
-                    ERR_FAIL_COND(z >= len_z)
+                    ERR_FAIL_COND(z >= len_z);
                 } break;
                 case _CELL_PREV_Z_NEG: {
                     z--;
-                    ERR_FAIL_COND(z < 0)
+                    ERR_FAIL_COND(z < 0);
                 } break;
                 default: {
-                    ERR_FAIL()
+                    ERR_FAIL();
                 }
             }
             continue;
@@ -450,7 +451,7 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
                 next_z--;
                 prev = _CELL_PREV_Z_POS;
             } break;
-            default: ERR_FAIL()
+            default: ERR_FAIL();
         }
 
         if (next_x < 0 || next_x >= len_x)
@@ -472,9 +473,9 @@ static inline void _mark_outside(uint8_t ***p_cell_status, int x, int y, int z, 
 
 static inline void _build_faces(uint8_t ***p_cell_status, int x, int y, int z, int len_x, int len_y, int len_z, PoolVector<Face3> &p_faces) {
 
-    ERR_FAIL_INDEX(x, len_x)
-    ERR_FAIL_INDEX(y, len_y)
-    ERR_FAIL_INDEX(z, len_z)
+    ERR_FAIL_INDEX(x, len_x);
+    ERR_FAIL_INDEX(y, len_y);
+    ERR_FAIL_INDEX(z, len_z);
 
     if (p_cell_status[x][y][z] & _CELL_EXTERIOR)
         return;
@@ -688,11 +689,11 @@ constexpr int _MAX_LENGTH = 20;
 
 /// \returns points on the convex hull in counter-clockwise order.
 /// \note the last point in the returned list is the same as the first one.
-PODVector<Point2> Geometry::convex_hull_2d(Span<const Point2> _P) {
+Vector<Point2> Geometry::convex_hull_2d(Span<const Point2> _P) {
     // since passed points are going to be sorted here, make a copy :(
-    PODVector<Point2> P(_P.begin(),_P.end());
+    Vector<Point2> P(_P.begin(),_P.end());
     size_t n = P.size(), k = 0;
-    PODVector<Point2> H;
+    Vector<Point2> H;
     H.resize(2 * n);
 
     // Sort points lexicographically.
@@ -716,8 +717,8 @@ PODVector<Point2> Geometry::convex_hull_2d(Span<const Point2> _P) {
     return H;
 }
 
-PODVector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Point2> polygon) {
-    PODVector<PODVector<Vector2> > decomp;
+Vector<Vector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const Point2> polygon) {
+    Vector<Vector<Vector2> > decomp;
     eastl::list<TriangulatorPoly> in_poly, out_poly;
 
     TriangulatorPoly inp;
@@ -729,7 +730,7 @@ PODVector<PODVector<Vector2> > Geometry::decompose_polygon_in_convex(Span<const 
     in_poly.push_back(inp);
     TriangulatorPartition tpart;
     if (tpart.ConvexPartition_HM(&in_poly, &out_poly) == 0) { // Failed.
-        ERR_PRINT("Convex decomposing failed!")
+        ERR_PRINT("Convex decomposing failed!");
                 return decomp;
     }
 
@@ -765,7 +766,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         Vector3 right = p.normal.cross(ref).normalized();
         Vector3 up = p.normal.cross(right).normalized();
 
-        PODVector<Vector3> vertices;
+        Vector<Vector3> vertices;
 
         Vector3 center = p.get_any_point();
         // make a quad clockwise
@@ -779,7 +780,7 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             if (j == i)
                 continue;
 
-            PODVector<Vector3> new_vertices;
+            Vector<Vector3> new_vertices;
             Plane clip = p_planes[j];
 
             if (clip.normal.dot(p.normal) > 0.95f)
@@ -788,9 +789,9 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
             if (vertices.size() < 3)
                 break;
 
-            for (int k = 0; k < vertices.size(); k++) {
+            for (size_t k = 0; k < vertices.size(); k++) {
 
-                int k_n = (k + 1) % vertices.size();
+                size_t k_n = (k + 1) % vertices.size();
 
                 Vector3 edge0_A = vertices[k];
                 Vector3 edge1_A = vertices[k_n];
@@ -830,10 +831,10 @@ Geometry::MeshData Geometry::build_convex_mesh(const PoolVector<Plane> &p_planes
         MeshData::Face face;
 
         // Add face indices.
-        for (int j = 0; j < vertices.size(); j++) {
+        for (size_t j = 0; j < vertices.size(); j++) {
 
             int idx = -1;
-            for (int k = 0; k < mesh.vertices.size(); k++) {
+            for (size_t k = 0; k < mesh.vertices.size(); k++) {
 
                 if (mesh.vertices[k].distance_to(vertices[j]) < 0.001f) {
 
@@ -996,12 +997,12 @@ struct _AtlasWorkRect {
 
 struct _AtlasWorkRectResult {
 
-    PODVector<_AtlasWorkRect> result;
+    Vector<_AtlasWorkRect> result;
     int max_w;
     int max_h;
 };
 
-void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &r_result, Size2i &r_size) {
+void Geometry::make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size) {
 
     // Super simple, almost brute force scanline stacking fitter.
     // It's pretty basic for now, but it tries to make sure that the aspect ratio of the
@@ -1011,18 +1012,18 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
     // For example, it will prioritize a 1024x1024 atlas (works everywhere) instead of a
     // 256x8192 atlas (won't work anywhere).
 
-    ERR_FAIL_COND(p_rects.empty())
+    ERR_FAIL_COND(p_rects.empty());
 
-    PODVector<_AtlasWorkRect> wrects;
+    Vector<_AtlasWorkRect> wrects;
     wrects.resize(p_rects.size());
-    for (int i = 0; i < p_rects.size(); i++) {
+    for (size_t i = 0; i < p_rects.size(); i++) {
         wrects[i].s = p_rects[i];
         wrects[i].idx = i;
     }
     eastl::sort(wrects.begin(),wrects.end());
     int widest = wrects[0].s.width;
 
-    PODVector<_AtlasWorkRectResult> results;
+    Vector<_AtlasWorkRectResult> results;
 
     for (int i = 0; i <= 12; i++) {
 
@@ -1032,13 +1033,13 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
         if (w < widest)
             continue;
 
-        PODVector<int> hmax;
+        Vector<int> hmax;
         hmax.resize(w,0);
 
         //place them
         int ofs = 0;
         int limit_h = 0;
-        for (int j = 0; j < wrects.size(); j++) {
+        for (size_t j = 0; j < wrects.size(); j++) {
 
             if (ofs + wrects[j].s.width > w) {
 
@@ -1086,7 +1087,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
     int best = -1;
     real_t best_aspect = 1e20f;
 
-    for (int i = 0; i < results.size(); i++) {
+    for (size_t i = 0; i < results.size(); i++) {
 
         real_t h = next_power_of_2(results[i].max_h);
         real_t w = next_power_of_2(results[i].max_w);
@@ -1099,7 +1100,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
 
     r_result.resize(p_rects.size());
 
-    for (int i = 0; i < p_rects.size(); i++) {
+    for (size_t i = 0; i < p_rects.size(); i++) {
 
         r_result[results[best].result[i].idx] = results[best].result[i].p;
     }
@@ -1107,7 +1108,7 @@ void Geometry::make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &
     r_size = Size2(results[best].max_w, results[best].max_h);
 }
 
-PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
+Vector<Vector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open) {
 
     using namespace ClipperLib;
 
@@ -1142,10 +1143,10 @@ PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOpera
         clp.Execute(op, paths); // works on closed polygons only
     }
     // Have to scale points down now
-    PODVector<PODVector<Vector2> > polypaths;
+    Vector<Vector<Vector2> > polypaths;
 
     for (Paths::size_type i = 0; i < paths.size(); ++i) {
-        PODVector<Vector2> polypath;
+        Vector<Vector2> polypath;
 
         const Path &scaled_path = paths[i];
 
@@ -1159,7 +1160,7 @@ PODVector<PODVector<Point2> > Geometry::_polypaths_do_operation(PolyBooleanOpera
     return polypaths;
 }
 
-PODVector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
     using namespace ClipperLib;
 
@@ -1193,10 +1194,10 @@ PODVector<PODVector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p
     co.Execute(paths, p_delta * SCALE_FACTOR); // inflate/deflate
 
     // Have to scale points down now
-    PODVector<PODVector<Point2> > polypaths;
+    Vector<Vector<Point2> > polypaths;
 
     for (Paths::size_type i = 0; i < paths.size(); ++i) {
-        PODVector<Vector2> polypath;
+        Vector<Vector2> polypath;
 
         const Path &scaled_path = paths[i];
 

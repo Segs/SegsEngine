@@ -49,7 +49,7 @@ void CollisionPolygon::_build_polygon() {
     if (polygon.empty())
         return;
 
-    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex({polygon.ptr(),polygon.size()});
+    Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
     if (decomp.empty())
         return;
 
@@ -58,21 +58,19 @@ void CollisionPolygon::_build_polygon() {
 
     for (size_t i = 0; i < decomp.size(); i++) {
         Ref<ConvexPolygonShape> convex(make_ref_counted<ConvexPolygonShape>());
-        PoolVector<Vector3> cp;
+        Vector<Vector3> cp;
         size_t cs = decomp[i].size();
-        cp.resize(cs * 2);
+        cp.reserve(cs * 2);
         {
-            PoolVector<Vector3>::Write w = cp.write();
-            int idx = 0;
             for (size_t j = 0; j < cs; j++) {
 
                 Vector2 d = decomp[i][j];
-                w[idx++] = Vector3(d.x, d.y, depth * 0.5f);
-                w[idx++] = Vector3(d.x, d.y, -depth * 0.5f);
+                cp.emplace_back(d.x, d.y, depth * 0.5f);
+                cp.emplace_back(d.x, d.y, -depth * 0.5f);
             }
         }
 
-        convex->set_points(cp);
+        convex->set_points(eastl::move(cp));
         parent->shape_owner_add_shape(owner_id, convex);
         parent->shape_owner_set_disabled(owner_id, disabled);
     }
@@ -122,7 +120,7 @@ void CollisionPolygon::_notification(int p_what) {
     }
 }
 
-void CollisionPolygon::set_polygon(const Vector<Point2> &p_polygon) {
+void CollisionPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     if (parent) {
@@ -132,7 +130,7 @@ void CollisionPolygon::set_polygon(const Vector<Point2> &p_polygon) {
     update_gizmo();
 }
 
-Vector<Point2> CollisionPolygon::get_polygon() const {
+const Vector<Vector2> &CollisionPolygon::get_polygon() const {
 
     return polygon;
 }

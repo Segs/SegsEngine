@@ -100,7 +100,7 @@ template <class T> void CowData<T>::_copy_on_write() {
 
 template <class T> Error CowData<T>::resize(int p_size) {
 
-    ERR_FAIL_COND_V(p_size < 0, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(p_size < 0, ERR_INVALID_PARAMETER);
 
     if (p_size == size()) return OK;
 
@@ -115,14 +115,14 @@ template <class T> Error CowData<T>::resize(int p_size) {
     _copy_on_write();
 
     size_t alloc_size;
-    ERR_FAIL_COND_V(!_get_alloc_size_checked(p_size, &alloc_size), ERR_OUT_OF_MEMORY)
+    ERR_FAIL_COND_V(!_get_alloc_size_checked(p_size, &alloc_size), ERR_OUT_OF_MEMORY);
 
     if (p_size > size()) {
 
         if (size() == 0) {
             // alloc from scratch
             uint32_t *ptr = (uint32_t *)Memory::alloc_static(alloc_size, true);
-            ERR_FAIL_COND_V(!ptr, ERR_OUT_OF_MEMORY)
+            ERR_FAIL_COND_V(!ptr, ERR_OUT_OF_MEMORY);
             *(ptr - 1) = 0; // size, currently none
             *(ptr - 2) = 1; // refcount
 
@@ -130,7 +130,7 @@ template <class T> Error CowData<T>::resize(int p_size) {
 
         } else {
             void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
-            ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY)
+            ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
             _ptr = (T *)(_ptrnew);
         }
 
@@ -161,7 +161,7 @@ template <class T> Error CowData<T>::resize(int p_size) {
             }
 
         void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
-        ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY)
+        ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
 
         _ptr = (T *)(_ptrnew);
 
@@ -206,11 +206,6 @@ template <class T> void CowData<T>::_ref(const CowData &p_from) {
     }
 }
 
-template <class T> CowData<T>::CowData() {
-
-    _ptr = nullptr;
-}
-
 template <class T> CowData<T>::~CowData() {
 
     _unref(_ptr);
@@ -219,7 +214,7 @@ template <class T> CowData<T>::~CowData() {
 template <class T>
 Error CowData<T>::insert(int p_pos, const T &p_val) {
 
-    ERR_FAIL_INDEX_V(p_pos, size() + 1, ERR_INVALID_PARAMETER)
+    ERR_FAIL_INDEX_V(p_pos, size() + 1, ERR_INVALID_PARAMETER);
     resize(size() + 1);
     for (int i = (size() - 1); i > p_pos; i--)
         set(i, get(i - 1));
@@ -231,7 +226,7 @@ Error CowData<T>::insert(int p_pos, const T &p_val) {
 template <class T>
 void CowData<T>::remove(int p_index) {
 
-    ERR_FAIL_INDEX(p_index, size())
+    ERR_FAIL_INDEX(p_index, size());
     T *p = ptrw();
     int len = size();
     for (int i = p_index; i < len - 1; i++) {
@@ -245,7 +240,7 @@ void CowData<T>::remove(int p_index) {
 template <class T>
 const T &CowData<T>::get(int p_index) const {
 
-    CRASH_BAD_INDEX(p_index, size())
+    CRASH_BAD_INDEX(p_index, size());
 
     return _get_data()[p_index];
 }
@@ -253,7 +248,7 @@ const T &CowData<T>::get(int p_index) const {
 template <class T>
 T &CowData<T>::get_m(int p_index) {
 
-    CRASH_BAD_INDEX(p_index, size())
+    CRASH_BAD_INDEX(p_index, size());
     _copy_on_write();
     return _get_data()[p_index];
 }

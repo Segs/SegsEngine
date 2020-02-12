@@ -34,23 +34,24 @@
 
 #include "upnp_device.h"
 
-#include <miniupnpc/miniupnpc.h>
-
+extern "C" {
+struct UPNPDev;
+}
 class UPNP : public RefCounted {
 
     GDCLASS(UPNP,RefCounted)
 
 private:
-    se_string discover_multicast_if;
+    String discover_multicast_if;
     int discover_local_port;
     bool discover_ipv6;
 
-    PODVector<Ref<UPNPDevice> > devices;
+    Vector<Ref<UPNPDevice> > devices;
 
     bool is_common_device(se_string_view dev) const;
     void add_device_to_list(UPNPDev *dev, UPNPDev *devlist);
     void parse_igd(Ref<UPNPDevice> dev, UPNPDev *devlist);
-    char *load_description(const se_string &url, int *size, int *status_code) const;
+    char *load_description(const String &url, int *size, int *status_code) const;
 
 protected:
     static void _bind_methods();
@@ -102,13 +103,13 @@ public:
 
     int discover(int timeout = 2000, int ttl = 2, se_string_view device_filter = "InternetGatewayDevice");
 
-    se_string query_external_address() const;
+    String query_external_address() const;
 
-    int add_port_mapping(int port, int port_internal = 0, const se_string &desc = {}, const se_string &proto = "UDP", int duration = 0) const;
+    int add_port_mapping(int port, int port_internal = 0, const String &desc = {}, const String &proto = "UDP", int duration = 0) const;
     int delete_port_mapping(int port, se_string_view proto = "UDP") const;
 
     void set_discover_multicast_if(se_string_view m_if);
-    const se_string &get_discover_multicast_if() const;
+    const String &get_discover_multicast_if() const;
 
     void set_discover_local_port(int port);
     int get_discover_local_port() const;

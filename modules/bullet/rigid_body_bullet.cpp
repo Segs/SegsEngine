@@ -36,6 +36,8 @@
 #include "bullet_utilities.h"
 #include "godot_motion_state.h"
 #include "joint_bullet.h"
+#include "shape_bullet.h"
+#include "area_bullet.h"
 #include "core/class_db.h"
 #include "core/string_utils.h"
 #include "core/property_info.h"
@@ -190,7 +192,7 @@ int BulletPhysicsDirectBodyState::get_contact_collider_shape(int p_contact_idx) 
 }
 
 Vector3 BulletPhysicsDirectBodyState::get_contact_collider_velocity_at_position(int p_contact_idx) const {
-    RigidBodyBullet::CollisionData &colDat = body->collisions.write[p_contact_idx];
+    RigidBodyBullet::CollisionData &colDat = body->collisions[p_contact_idx];
 
     btVector3 hitLocation;
     G_TO_B(colDat.hitLocalLocation, hitLocation);
@@ -235,8 +237,8 @@ void RigidBodyBullet::KinematicUtilities::copyAllOwnerShapes() {
             continue;
         }
 
-        shapes.write[i].transform = shape_wrapper->transform;
-        shapes.write[i].transform.getOrigin() *= owner_scale;
+        shapes[i].transform = shape_wrapper->transform;
+        shapes[i].transform.getOrigin() *= owner_scale;
         switch (shape_wrapper->shape->get_type()) {
             case PhysicsServer::SHAPE_SPHERE:
             case PhysicsServer::SHAPE_BOX:
@@ -244,11 +246,11 @@ void RigidBodyBullet::KinematicUtilities::copyAllOwnerShapes() {
             case PhysicsServer::SHAPE_CYLINDER:
             case PhysicsServer::SHAPE_CONVEX_POLYGON:
             case PhysicsServer::SHAPE_RAY: {
-                shapes.write[i].shape = static_cast<btConvexShape *>(shape_wrapper->shape->create_bt_shape(owner_scale * shape_wrapper->scale, safe_margin));
+                shapes[i].shape = static_cast<btConvexShape *>(shape_wrapper->shape->create_bt_shape(owner_scale * shape_wrapper->scale, safe_margin));
             } break;
             default:
                 WARN_PRINT("This shape is not supported to be kinematic!");
-                shapes.write[i].shape = nullptr;
+                shapes[i].shape = nullptr;
         }
     }
 }
@@ -256,7 +258,7 @@ void RigidBodyBullet::KinematicUtilities::copyAllOwnerShapes() {
 void RigidBodyBullet::KinematicUtilities::just_delete_shapes(int new_size) {
     for (int i = shapes.size() - 1; 0 <= i; --i) {
         if (shapes[i].shape) {
-            bulletdelete(shapes.write[i].shape);
+            bulletdelete(shapes[i].shape);
         }
     }
     shapes.resize(new_size);
@@ -298,7 +300,7 @@ RigidBodyBullet::RigidBodyBullet() :
 
     areasWhereIam.resize(maxAreasWhereIam);
     for (int i = areasWhereIam.size() - 1; 0 <= i; --i) {
-        areasWhereIam.write[i] = nullptr;
+        areasWhereIam[i] = nullptr;
     }
     btBody->setSleepingThresholds(0.2f, 0.2f);
 
@@ -327,7 +329,7 @@ void RigidBodyBullet::destroy_kinematic_utilities() {
 }
 
 void RigidBodyBullet::main_shape_changed() {
-    CRASH_COND(!get_main_shape())
+    CRASH_COND(!get_main_shape());
     btBody->setCollisionShape(get_main_shape());
     set_continuous_collision_detection(is_continuous_collision_detection_enabled()); // Reset
 }
@@ -444,7 +446,7 @@ bool RigidBodyBullet::add_collision_object(RigidBodyBullet *p_otherObject, const
         return false;
     }
 
-    CollisionData &cd = collisions.write[collisionsCount];
+    CollisionData &cd = collisions[collisionsCount];
     cd.hitLocalLocation = p_hitLocalLocation;
     cd.otherObject = p_otherObject;
     cd.hitWorldLocation = p_hitWorldLocation;
@@ -453,7 +455,7 @@ bool RigidBodyBullet::add_collision_object(RigidBodyBullet *p_otherObject, const
     cd.other_object_shape = p_other_shape_index;
     cd.local_shape = p_local_shape_index;
 
-    curr_collision_traces->write[collisionsCount] = p_otherObject;
+    (*curr_collision_traces)[collisionsCount] = p_otherObject;
 
     ++collisionsCount;
     return true;
@@ -503,7 +505,7 @@ void RigidBodyBullet::set_param(PhysicsServer::BodyParameter p_param, real_t p_v
             btBody->setFriction(p_value);
             break;
         case PhysicsServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value < 0)
+            ERR_FAIL_COND(p_value < 0);
             mass = p_value;
             _internal_set_mass(p_value);
             break;
@@ -522,7 +524,7 @@ void RigidBodyBullet::set_param(PhysicsServer::BodyParameter p_param, real_t p_v
             scratch_space_override_modificator();
             break;
         default:
-            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet. Value: " + itos(p_value))
+            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet. Value: " + itos(p_value));
     }
 }
 
@@ -543,7 +545,7 @@ real_t RigidBodyBullet::get_param(PhysicsServer::BodyParameter p_param) const {
         case PhysicsServer::BODY_PARAM_GRAVITY_SCALE:
             return gravity_scale;
         default:
-            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet")
+            WARN_PRINT("Parameter " + itos(p_param) + " not supported by bullet");
             return 0;
     }
 }
@@ -802,12 +804,12 @@ Vector3 RigidBodyBullet::get_angular_velocity() const {
 
 void RigidBodyBullet::set_transform__bullet(const btTransform &p_global_transform) {
     if (mode == PhysicsServer::BODY_MODE_KINEMATIC) {
-        if (space)
+        if (space && space->get_delta_time() != 0)
             btBody->setLinearVelocity((p_global_transform.getOrigin() - btBody->getWorldTransform().getOrigin()) / space->get_delta_time());
         // The kinematic use MotionState class
         godotMotionState->moveBody(p_global_transform);
     } else {
-        // Is necesasry to avoid wrong location on the rendering side on the next frame
+        // Is necessary to avoid wrong location on the rendering side on the next frame
         godotMotionState->setWorldTransform(p_global_transform);
     }
     CollisionObjectBullet::set_transform__bullet(p_global_transform);
@@ -856,15 +858,15 @@ void RigidBodyBullet::on_enter_area(AreaBullet *p_area) {
 
         if (nullptr == areasWhereIam[i]) {
             // This area has the highest priority
-            areasWhereIam.write[i] = p_area;
+            areasWhereIam[i] = p_area;
             break;
         } else {
             if (areasWhereIam[i]->get_spOv_priority() > p_area->get_spOv_priority()) {
                 // The position was found, just shift all elements
                 for (int j = i; j < areaWhereIamCount; ++j) {
-                    areasWhereIam.write[j + 1] = areasWhereIam[j];
+                    areasWhereIam[j + 1] = areasWhereIam[j];
                 }
-                areasWhereIam.write[i] = p_area;
+                areasWhereIam[i] = p_area;
                 break;
             }
         }
@@ -875,7 +877,7 @@ void RigidBodyBullet::on_enter_area(AreaBullet *p_area) {
 
     if (p_area->is_spOv_gravityPoint()) {
         ++countGravityPointSpaces;
-        ERR_FAIL_COND(countGravityPointSpaces <= 0)
+        ERR_FAIL_COND(countGravityPointSpaces <= 0);
     }
 }
 
@@ -888,7 +890,7 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
         if (p_area == areasWhereIam[i]) {
             // The area was found, just shift down all elements
             for (int j = i; j < areaWhereIamCount; ++j) {
-                areasWhereIam.write[j] = areasWhereIam[j + 1];
+                areasWhereIam[j] = areasWhereIam[j + 1];
             }
             wasTheAreaFound = true;
             break;
@@ -897,11 +899,11 @@ void RigidBodyBullet::on_exit_area(AreaBullet *p_area) {
     if (wasTheAreaFound) {
         if (p_area->is_spOv_gravityPoint()) {
             --countGravityPointSpaces;
-            ERR_FAIL_COND(countGravityPointSpaces < 0)
+            ERR_FAIL_COND(countGravityPointSpaces < 0);
         }
 
         --areaWhereIamCount;
-        areasWhereIam.write[areaWhereIamCount] = nullptr; // Even if this is not required, I clear the last element to be safe
+        areasWhereIam[areaWhereIamCount] = nullptr; // Even if this is not required, I clear the last element to be safe
         if (PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED != p_area->get_spOv_mode()) {
             scratch_space_override_modificator();
         }

@@ -42,13 +42,13 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
     if (p_depth > 8)
         return;
 
-    ListPOD<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     p_obj->get_property_list(&pinfo);
     for (PropertyInfo &E : pinfo) {
 
         if (!(E.usage & PROPERTY_USAGE_EDITOR))
             continue;
-        if (E.hint != PROPERTY_HINT_RESOURCE_TYPE)
+        if (E.hint != PropertyHint::ResourceType)
             continue;
 
         Variant value = p_obj->get(E.name);
@@ -95,38 +95,39 @@ void EditorPath::update_path() {
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(obj);
         if (icon)
-            set_icon(icon);
+            set_button_icon(icon);
 
-        if (i == history->get_path_size() - 1) {
-            se_string name;
-            if (object_cast<Resource>(obj)) {
+        if (i != history->get_path_size() - 1)
+            continue;
 
-                Resource *r = object_cast<Resource>(obj);
-                if (PathUtils::is_resource_file(r->get_path()))
-                    name = PathUtils::get_file(r->get_path());
-                else
-                    name = r->get_name();
+        String name;
+        if (object_cast<Resource>(obj)) {
 
-                if (name.empty())
-                    name = r->get_class();
-            } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
-                name = obj->call("get_title").as<se_string>();
-            else if (object_cast<Node>(obj))
-                name = object_cast<Node>(obj)->get_name();
-            else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())
-                name = object_cast<Resource>(obj)->get_name();
+            Resource *r = object_cast<Resource>(obj);
+            if (PathUtils::is_resource_file(r->get_path()))
+                name = PathUtils::get_file(r->get_path());
             else
-                name = obj->get_class();
+                name = r->get_name();
 
-            set_text_utf8(" " + name); // An extra space so the text is not too close of the icon.
-            set_tooltip_utf8(obj->get_class());
-        }
+            if (name.empty())
+                name = r->get_class();
+        } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
+            name = obj->call("get_title").as<String>();
+        else if (object_cast<Node>(obj))
+            name = object_cast<Node>(obj)->get_name();
+        else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())
+            name = object_cast<Resource>(obj)->get_name();
+        else
+            name = obj->get_class();
+
+        set_text_utf8(" " + name); // An extra space so the text is not too close of the icon.
+        set_tooltip_utf8(obj->get_class());
     }
 }
 
 void EditorPath::_id_pressed(int p_idx) {
 
-    ERR_FAIL_INDEX(p_idx, objects.size())
+    ERR_FAIL_INDEX(p_idx, objects.size());
 
     Object *obj = ObjectDB::get_instance(objects[p_idx]);
     if (!obj)
@@ -151,6 +152,7 @@ void EditorPath::_bind_methods() {
 EditorPath::EditorPath(EditorHistory *p_history) {
 
     history = p_history;
+    set_clip_text(true);
     set_text_align(ALIGN_LEFT);
     get_popup()->connect("about_to_show", this, "_about_to_show");
     get_popup()->connect("id_pressed", this, "_id_pressed");

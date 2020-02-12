@@ -102,7 +102,7 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
     Variant ret;
     if (p_action.get_type() == VariantType::DICTIONARY) {
         Dictionary dict = p_action;
-        se_string method = dict.get("method", "");
+        String method = dict.get("method", "");
         Array args;
         if (dict.has("params")) {
             Variant params = dict.get("params", Variant());
@@ -151,13 +151,13 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
     return ret;
 }
 
-se_string JSONRPC::process_string(const se_string &p_input) {
+String JSONRPC::process_string(const String &p_input) {
 
     if (p_input.empty()) return null_se_string;
 
     Variant ret;
     Variant input;
-    se_string err_message;
+    String err_message;
     int err_line;
     if (OK != JSON::parse(p_input, input, err_message, err_line)) {
         ret = make_response_error(JSONRPC::PARSE_ERROR, "Parse error");
@@ -171,6 +171,6 @@ se_string JSONRPC::process_string(const se_string &p_input) {
     return JSON::print(ret);
 }
 
-void JSONRPC::set_scope(const se_string &p_scope, Object *p_obj) {
+void JSONRPC::set_scope(const String &p_scope, Object *p_obj) {
     method_scopes[p_scope] = p_obj;
 }

@@ -38,6 +38,7 @@ IMPL_GDCLASS(WebSocketServer)
 
 WebSocketServer::WebSocketServer() {
     _peer_id = 1;
+    bind_ip = IP_Address("*");
 }
 
 WebSocketServer::~WebSocketServer() {
@@ -46,30 +47,45 @@ WebSocketServer::~WebSocketServer() {
 void WebSocketServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("is_listening"), &WebSocketServer::is_listening);
-    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<se_string>()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "protocols", "gd_mp_api"}), &WebSocketServer::listen, {DEFVAL(PoolVector<String>()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("stop"), &WebSocketServer::stop);
     MethodBinder::bind_method(D_METHOD("has_peer", {"id"}), &WebSocketServer::has_peer);
     MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &WebSocketServer::get_peer_address);
     MethodBinder::bind_method(D_METHOD("get_peer_port", {"id"}), &WebSocketServer::get_peer_port);
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "code", "reason"}), &WebSocketServer::disconnect_peer, {DEFVAL(1000), DEFVAL("")});
 
+    MethodBinder::bind_method(D_METHOD("get_bind_ip"), &WebSocketServer::get_bind_ip);
+    MethodBinder::bind_method(D_METHOD("set_bind_ip"), &WebSocketServer::set_bind_ip);
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bind_ip"), "set_bind_ip", "get_bind_ip");
+
     MethodBinder::bind_method(D_METHOD("get_private_key"), &WebSocketServer::get_private_key);
     MethodBinder::bind_method(D_METHOD("set_private_key"), &WebSocketServer::set_private_key);
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "private_key", PROPERTY_HINT_RESOURCE_TYPE, "CryptoKey", 0), "set_private_key", "get_private_key");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "private_key", PropertyHint::ResourceType, "CryptoKey", 0), "set_private_key", "get_private_key");
 
     MethodBinder::bind_method(D_METHOD("get_ssl_certificate"), &WebSocketServer::get_ssl_certificate);
     MethodBinder::bind_method(D_METHOD("set_ssl_certificate"), &WebSocketServer::set_ssl_certificate);
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "ssl_certificate", PROPERTY_HINT_RESOURCE_TYPE, "X509Certificate", 0), "set_ssl_certificate", "get_ssl_certificate");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "ssl_certificate", PropertyHint::ResourceType, "X509Certificate", 0), "set_ssl_certificate", "get_ssl_certificate");
 
     MethodBinder::bind_method(D_METHOD("get_ca_chain"), &WebSocketServer::get_ca_chain);
     MethodBinder::bind_method(D_METHOD("set_ca_chain"), &WebSocketServer::set_ca_chain);
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "ca_chain", PROPERTY_HINT_RESOURCE_TYPE, "X509Certificate", 0), "set_ca_chain", "get_ca_chain");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "ca_chain", PropertyHint::ResourceType, "X509Certificate", 0), "set_ca_chain", "get_ca_chain");
 
     ADD_SIGNAL(MethodInfo("client_close_request", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::INT, "code"), PropertyInfo(VariantType::STRING, "reason")));
     ADD_SIGNAL(MethodInfo("client_disconnected", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::BOOL, "was_clean_close")));
     ADD_SIGNAL(MethodInfo("client_connected", PropertyInfo(VariantType::INT, "id"), PropertyInfo(VariantType::STRING, "protocol")));
     ADD_SIGNAL(MethodInfo("data_received", PropertyInfo(VariantType::INT, "id")));
 }
+
+IP_Address WebSocketServer::get_bind_ip() const {
+    return bind_ip;
+}
+
+void WebSocketServer::set_bind_ip(const IP_Address &p_bind_ip) {
+    ERR_FAIL_COND(is_listening());
+    ERR_FAIL_COND(!p_bind_ip.is_valid() && !p_bind_ip.is_wildcard());
+    bind_ip = p_bind_ip;
+}
+
 Ref<CryptoKey> WebSocketServer::get_private_key() const {
     return private_key;
 }
@@ -101,7 +117,7 @@ NetworkedMultiplayerPeer::ConnectionStatus WebSocketServer::get_connection_statu
         return CONNECTION_CONNECTED;
 
     return CONNECTION_DISCONNECTED;
-};
+}
 
 bool WebSocketServer::is_server() const {
 

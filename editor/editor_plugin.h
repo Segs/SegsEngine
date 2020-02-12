@@ -60,7 +60,7 @@ class EditorInterface : public Node {
 protected:
     static void _bind_methods();
     static EditorInterface *singleton;
-
+public:
     Array _make_mesh_previews(const Array &p_meshes, int p_preview_size);
 
 public:
@@ -76,8 +76,8 @@ public:
     ScriptEditor *get_script_editor();
 
     void select_file(se_string_view p_file);
-    se_string get_selected_path() const;
-    const se_string &get_current_path() const;
+    String get_selected_path() const;
+    const String &get_current_path() const;
 
     void inspect_object(Object *p_obj, se_string_view p_for_property = se_string_view());
 
@@ -97,7 +97,8 @@ public:
     Error save_scene();
     void save_scene_as(se_string_view p_scene, bool p_with_preview = true);
 
-    Vector<Ref<Texture> > make_mesh_previews(const Vector<Ref<Mesh> > &p_meshes, Vector<Transform> *p_transforms, int p_preview_size);
+    Vector<Ref<Texture>> make_mesh_previews(const Vector<Ref<Mesh>> &p_meshes, Vector<Transform> *p_transforms,
+            int p_preview_size);
 
     void set_main_screen_editor(const StringName &p_name);
     void set_distraction_free_mode(bool p_enter);
@@ -112,21 +113,21 @@ class EditorPlugin : public Node {
     friend class EditorData;
     UndoRedo *undo_redo;
 
-    UndoRedo *_get_undo_redo() { return undo_redo; }
 
     bool input_event_forwarding_always_enabled;
     bool force_draw_over_forwarding_enabled;
 
-    se_string last_main_screen_name;
+    String last_main_screen_name;
 
 protected:
     static void _bind_methods();
-    UndoRedo &get_undo_redo() { return *undo_redo; }
-
+public:
     void add_custom_type(const StringName &p_type, const StringName &p_base, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
     void remove_custom_type(const StringName &p_type);
 
 public:
+    UndoRedo *get_undo_redo() { return undo_redo; }
+
     enum CustomControlContainer {
         CONTAINER_TOOLBAR,
         CONTAINER_SPATIAL_EDITOR_MENU,
@@ -168,10 +169,10 @@ public:
     void remove_tool_menu_item(const StringName &p_name);
 
     void set_input_event_forwarding_always_enabled();
-    bool is_input_event_forwarding_always_enabled() { return input_event_forwarding_always_enabled; }
+    bool is_input_event_forwarding_always_enabled() const { return input_event_forwarding_always_enabled; }
 
     void set_force_draw_over_forwarding_enabled();
-    bool is_force_draw_over_forwarding_enabled() { return force_draw_over_forwarding_enabled; }
+    bool is_force_draw_over_forwarding_enabled() const { return force_draw_over_forwarding_enabled; }
 
     void notify_main_screen_changed(se_string_view screen_name);
     void notify_scene_changed(const Node *scn_root);
@@ -198,8 +199,8 @@ public:
     virtual void clear(); // clear any temporary data in the editor, reset it (likely new scene or load another scene)
     virtual void save_external_data(); // if editor references external resources/scenes, save them
     virtual void apply_changes(); // if changes are pending in editor, apply them
-    virtual void get_breakpoints(List<se_string> *p_breakpoints);
-    virtual bool get_remove_list(List<Node *> *p_list);
+    virtual void get_breakpoints(Vector<String> *p_breakpoints);
+    virtual bool get_remove_list(Vector<Node *> *p_list);
     virtual void set_window_layout(Ref<ConfigFile> p_layout);
     virtual void get_window_layout(Ref<ConfigFile> p_layout);
     virtual void edited_scene_changed() {} // if changes are pending in editor, apply them
@@ -263,7 +264,7 @@ class EditorPlugins {
 public:
     static int get_plugin_count() { return creation_func_count; }
     static EditorPlugin *create(int p_idx, EditorNode *p_editor) {
-        ERR_FAIL_INDEX_V(p_idx, creation_func_count, nullptr)
+        ERR_FAIL_INDEX_V(p_idx, creation_func_count, nullptr);
         return creation_funcs[p_idx](p_editor);
     }
 
@@ -275,7 +276,7 @@ public:
 
     static void add_create_func(EditorPluginCreateFunc p_func) {
 
-        ERR_FAIL_COND(creation_func_count >= MAX_CREATE_FUNCS)
+        ERR_FAIL_COND(creation_func_count >= MAX_CREATE_FUNCS);
         creation_funcs[creation_func_count++] = p_func;
     }
 };

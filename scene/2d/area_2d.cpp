@@ -123,11 +123,11 @@ void Area2D::_body_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
-    ERR_FAIL_COND(E==body_map.end())
-    ERR_FAIL_COND(E->second.in_tree)
+    ERR_FAIL_COND(E==body_map.end());
+    ERR_FAIL_COND(E->second.in_tree);
 
     E->second.in_tree = true;
     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
@@ -141,10 +141,10 @@ void Area2D::_body_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
-    ERR_FAIL_COND(E==body_map.end())
-    ERR_FAIL_COND(!E->second.in_tree)
+    ERR_FAIL_COND(E==body_map.end());
+    ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
@@ -226,11 +226,11 @@ void Area2D::_area_enter_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
 
     Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
-    ERR_FAIL_COND(E==area_map.end())
-    ERR_FAIL_COND(E->second.in_tree)
+    ERR_FAIL_COND(E==area_map.end());
+    ERR_FAIL_COND(E->second.in_tree);
 
     E->second.in_tree = true;
     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
@@ -244,10 +244,10 @@ void Area2D::_area_exit_tree(ObjectID p_id) {
 
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
-    ERR_FAIL_COND(!node)
+    ERR_FAIL_COND(!node);
     Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
-    ERR_FAIL_COND(E==area_map.end())
-    ERR_FAIL_COND(!E->second.in_tree)
+    ERR_FAIL_COND(E==area_map.end());
+    ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
@@ -326,7 +326,7 @@ void Area2D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
 
 void Area2D::_clear_monitoring() {
 
-    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal.")
+    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal."); 
 
     {
         Map<ObjectID, BodyState> bmcopy = body_map;
@@ -403,7 +403,7 @@ void Area2D::set_monitoring(bool p_enable) {
 
     if (p_enable == monitoring)
         return;
-    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false).")
+    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false)."); 
 
     monitoring = p_enable;
 
@@ -426,7 +426,7 @@ bool Area2D::is_monitoring() const {
 
 void Area2D::set_monitorable(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && Physics2DServer::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false).")
+    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && Physics2DServer::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false)."); 
 
     if (p_enable == monitorable)
         return;
@@ -443,7 +443,7 @@ bool Area2D::is_monitorable() const {
 
 Array Area2D::get_overlapping_bodies() const {
 
-    ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.")
+    ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.");
     Array ret;
     ret.resize(body_map.size());
     int idx = 0;
@@ -461,7 +461,7 @@ Array Area2D::get_overlapping_bodies() const {
 
 Array Area2D::get_overlapping_areas() const {
 
-    ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.")
+    ERR_FAIL_COND_V_MSG(!monitoring, Array(), "Can't find overlapping bodies when monitoring is off.");
     Array ret;
     ret.resize(area_map.size());
     int idx = 0;
@@ -576,12 +576,12 @@ void Area2D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "audio_bus_name") {
 
-        se_string options;
+        String options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
                 options += ',';
             StringName name(AudioServer::get_singleton()->get_bus_name(i));
-            options += se_string(name);
+            options += String(name);
         }
 
         property.hint_string = options;
@@ -653,33 +653,33 @@ void Area2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_body_inout"), &Area2D::_body_inout);
     MethodBinder::bind_method(D_METHOD("_area_inout"), &Area2D::_area_inout);
 
-    ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
-    ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
-    ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
-    ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PROPERTY_HINT_RESOURCE_TYPE, "Node")));
+    ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
+    ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
+    ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
+    ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
 
-    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area2D")));
-    ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PROPERTY_HINT_RESOURCE_TYPE, "Area2D")));
+    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D")));
+    ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area2D")));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "space_override", PROPERTY_HINT_ENUM, "Disabled,Combine,Combine-Replace,Replace,Replace-Combine"), "set_space_override_mode", "get_space_override_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "space_override", PropertyHint::Enum, "Disabled,Combine,Combine-Replace,Replace,Replace-Combine"), "set_space_override_mode", "get_space_override_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "gravity_point"), "set_gravity_is_point", "is_gravity_a_point");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity_distance_scale", PROPERTY_HINT_EXP_RANGE, "0,1024,0.001,or_greater"), "set_gravity_distance_scale", "get_gravity_distance_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity_distance_scale", PropertyHint::ExpRange, "0,1024,0.001,or_greater"), "set_gravity_distance_scale", "get_gravity_distance_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "gravity_vec"), "set_gravity_vector", "get_gravity_vector");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity", PROPERTY_HINT_RANGE, "-1024,1024,0.001"), "set_gravity", "get_gravity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_damp", PROPERTY_HINT_RANGE, "0,100,0.001,or_greater"), "set_linear_damp", "get_linear_damp");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "angular_damp", PROPERTY_HINT_RANGE, "0,100,0.001,or_greater"), "set_angular_damp", "get_angular_damp");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PROPERTY_HINT_RANGE, "0,128,1"), "set_priority", "get_priority");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gravity", PropertyHint::Range, "-1024,1024,0.001"), "set_gravity", "get_gravity");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_damp", PropertyHint::Range, "0,100,0.001,or_greater"), "set_linear_damp", "get_linear_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "angular_damp", PropertyHint::Range, "0,100,0.001,or_greater"), "set_angular_damp", "get_angular_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PropertyHint::Range, "0,128,1"), "set_priority", "get_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "monitoring"), "set_monitoring", "is_monitoring");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "monitorable"), "set_monitorable", "is_monitorable");
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_layer", "get_collision_layer");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PROPERTY_HINT_LAYERS_2D_PHYSICS), "set_collision_mask", "get_collision_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
 
     ADD_GROUP("Audio Bus", "audio_bus_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_bus_override"), "set_audio_bus_override", "is_overriding_audio_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "audio_bus_name", PROPERTY_HINT_ENUM, ""), "set_audio_bus_name", "get_audio_bus_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus_name", "get_audio_bus_name");
 
     BIND_ENUM_CONSTANT(SPACE_OVERRIDE_DISABLED)
     BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE)

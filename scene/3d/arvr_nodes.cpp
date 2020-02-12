@@ -86,16 +86,16 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
         return Camera::project_local_ray_normal(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
     Vector3 ray;
 
     CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
-    float screen_w, screen_h;
-    cm.get_viewport_size(screen_w, screen_h);
-    ray = Vector3(((cpos.x / viewport_size.width) * 2.0 - 1.0) * screen_w, ((1.0 - (cpos.y / viewport_size.height)) * 2.0 - 1.0) * screen_h, -get_znear()).normalized();
+
+    Vector2 screen_he = cm.get_viewport_half_extents();
+    ray = Vector3(((cpos.x / viewport_size.width) * 2.0 - 1.0) * screen_he.x, ((1.0 - (cpos.y / viewport_size.height)) * 2.0 - 1.0) * screen_he.y, -get_znear()).normalized();
 
     return ray;
 };
@@ -111,7 +111,7 @@ Point2 ARVRCamera::unproject_position(const Vector3 &p_pos) const {
         return Camera::unproject_position(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -140,19 +140,18 @@ Vector3 ARVRCamera::project_position(const Point2 &p_point, float p_z_depth) con
         return Camera::project_position(p_point, p_z_depth);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.")
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
     CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
 
-    Size2 vp_size;
-    cm.get_viewport_size(vp_size.x, vp_size.y);
+    Vector2 vp_he = cm.get_viewport_half_extents();
 
     Vector2 point;
     point.x = (p_point.x / viewport_size.x) * 2.0 - 1.0;
     point.y = (1.0 - (p_point.y / viewport_size.y)) * 2.0 - 1.0;
-    point *= vp_size;
+    point *= vp_he;
 
     Vector3 p(point.x, point.y, -p_z_depth);
 
@@ -170,7 +169,7 @@ Frustum ARVRCamera::get_frustum() const {
         return Camera::get_frustum();
     }
 
-    ERR_FAIL_COND_V(!is_inside_world(), Frustum())
+    ERR_FAIL_COND_V(!is_inside_world(), Frustum());
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
     CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
@@ -249,7 +248,7 @@ void ARVRController::_notification(int p_what) {
 void ARVRController::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_controller_id", {"controller_id"}), &ARVRController::set_controller_id);
     MethodBinder::bind_method(D_METHOD("get_controller_id"), &ARVRController::get_controller_id);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_controller_id", "get_controller_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "controller_id", PropertyHint::Range, "0,32,1"), "set_controller_id", "get_controller_id");
     MethodBinder::bind_method(D_METHOD("get_controller_name"), &ARVRController::get_controller_name);
 
     // passthroughs to information about our related joystick
@@ -262,14 +261,14 @@ void ARVRController::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRController::get_rumble);
     MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRController::set_rumble);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRController::get_mesh);
 
     ADD_SIGNAL(MethodInfo("button_pressed", PropertyInfo(VariantType::INT, "button")));
     ADD_SIGNAL(MethodInfo("button_release", PropertyInfo(VariantType::INT, "button")));
-    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
+    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh")));
 };
 
 void ARVRController::set_controller_id(int p_controller_id) {
@@ -303,7 +302,8 @@ int ARVRController::get_joystick_id() const {
 
     ARVRPositionalTracker *tracker = arvr_server->find_by_type_and_id(ARVRServer::TRACKER_CONTROLLER, controller_id);
     if (tracker == nullptr) {
-        return 0;
+        // No tracker? no joystick id... (0 is our first joystick)
+        return -1;
     };
 
     return tracker->get_joy_id();
@@ -455,7 +455,7 @@ void ARVRAnchor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_anchor_id", {"anchor_id"}), &ARVRAnchor::set_anchor_id);
     MethodBinder::bind_method(D_METHOD("get_anchor_id"), &ARVRAnchor::get_anchor_id);
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PROPERTY_HINT_RANGE, "0,32,1"), "set_anchor_id", "get_anchor_id");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "anchor_id", PropertyHint::Range, "0,32,1"), "set_anchor_id", "get_anchor_id");
     MethodBinder::bind_method(D_METHOD("get_anchor_name"), &ARVRAnchor::get_anchor_name);
 
     MethodBinder::bind_method(D_METHOD("get_is_active"), &ARVRAnchor::get_is_active);
@@ -464,7 +464,7 @@ void ARVRAnchor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_plane"), &ARVRAnchor::get_plane);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRAnchor::get_mesh);
-    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PROPERTY_HINT_RESOURCE_TYPE, "Mesh")));
+    ADD_SIGNAL(MethodInfo("mesh_updated", PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh")));
 };
 
 void ARVRAnchor::set_anchor_id(int p_anchor_id) {

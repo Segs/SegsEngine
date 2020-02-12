@@ -40,18 +40,18 @@ extern "C" {
 struct _PHashTranslationCmp {
 
     int orig_len;
-    se_string compressed;
+    String compressed;
     int offset;
 };
 
 void PHashTranslation::generate(const Ref<Translation> &p_from) {
 #ifdef TOOLS_ENABLED
-    ListPOD<StringName> keys;
+    List<StringName> keys;
     p_from->get_message_list(&keys);
 
     int size = Math::larger_prime(keys.size());
 
-    Vector<Vector<Pair<int, se_string> > > buckets;
+    Vector<Vector<Pair<int, String> > > buckets;
     Vector<Map<uint32_t, int> > table;
     Vector<uint32_t> hfunc_table;
     Vector<_PHashTranslationCmp> compressed;
@@ -69,11 +69,11 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
         //hash string
         se_string_view cs(E);
-        uint32_t h = hash(0, cs.data());
-        Pair<int, se_string> p;
+        uint32_t h = hash(0, E.asCString());
+        Pair<int, String> p;
         p.first = idx;
         p.second = cs;
-        buckets.write[h % size].push_back(p);
+        buckets[h % size].push_back(p);
 
         //compress string
         se_string_view src_s(p_from->get_message(E));
@@ -82,7 +82,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         ps.offset = total_compression_size;
 
         if (ps.orig_len != 0) {
-            se_string dst_s;
+            String dst_s;
             dst_s.resize(src_s.size());
             int ret = smaz_compress(src_s.data(), src_s.size(), dst_s.data(), src_s.size());
             if (ret >= src_s.size()) {
@@ -100,7 +100,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
             ps.compressed[0] = 0;
         }
 
-        compressed.write[idx] = ps;
+        compressed[idx] = ps;
         total_compression_size += ps.compressed.size();
         total_string_size += src_s.size();
         idx++;
@@ -110,8 +110,8 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
     for (int i = 0; i < size; i++) {
 
-        const Vector<Pair<int, se_string> > &b = buckets[i];
-        Map<uint32_t, int> &t = table.write[i];
+        const Vector<Pair<int, String> > &b = buckets[i];
+        Map<uint32_t, int> &t = table[i];
 
         if (b.empty())
             continue;
@@ -133,7 +133,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
             }
         }
 
-        hfunc_table.write[i] = d;
+        hfunc_table[i] = d;
         bucket_table_size += 2 + b.size() * 4;
     }
 
@@ -175,13 +175,13 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     }
 
     strings.resize(total_compression_size);
-    PODVector<uint8_t> &cw = strings;
+    Vector<uint8_t> &cw = strings;
 
     for (int i = 0; i < compressed.size(); i++) {
         memcpy(&cw[compressed[i].offset], compressed[i].compressed.data(), compressed[i].compressed.size());
     }
 
-    ERR_FAIL_COND(btindex != bucket_table_size)
+    ERR_FAIL_COND(btindex != bucket_table_size);
     set_locale(p_from->get_locale());
 
 #endif
@@ -190,11 +190,11 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 bool PHashTranslation::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "hash_table") {
-        hash_table = p_value.as<PODVector<int>>();
+        hash_table = p_value.as<Vector<int>>();
     } else if (p_name == "bucket_table") {
-        bucket_table = p_value.as<PODVector<int>>();
+        bucket_table = p_value.as<Vector<int>>();
     } else if (p_name == "strings") {
-        strings = p_value.as<PODVector<uint8_t>>();
+        strings = p_value.as<Vector<uint8_t>>();
     } else if (p_name == "load_from") {
         generate(refFromVariant<Translation>(p_value));
     } else
@@ -224,8 +224,7 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
     if (htsize == 0)
         return StringName();
 
-    se_string_view str(p_src_text);
-    uint32_t h = hash(0, str.data());
+    uint32_t h = hash(0, p_src_text.asCString());
 
     const uint32_t *htptr = (const uint32_t *)hash_table.data();
     const uint32_t *btptr = (const uint32_t *)bucket_table.data();
@@ -239,7 +238,7 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
 
     const Bucket &bucket = *(const Bucket *)&btptr[p];
 
-    h = hash(bucket.func, str.data());
+    h = hash(bucket.func, p_src_text.asCString());
 
     int idx = -1;
 
@@ -256,10 +255,10 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
         return StringName();
     }
 
-    se_string rstr;
+    String rstr;
     if (bucket.elem[idx].comp_size == bucket.elem[idx].uncomp_size) {
 
-        rstr = se_string(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].uncomp_size);
+        rstr = String(&sptr[bucket.elem[idx].str_offset], bucket.elem[idx].uncomp_size);
 
     } else {
 
@@ -269,12 +268,12 @@ StringName PHashTranslation::get_message(const StringName &p_src_text) const {
     return StringName(rstr);
 }
 
-void PHashTranslation::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void PHashTranslation::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "hash_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_INT_ARRAY, "bucket_table"));
     p_list->push_back(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "strings"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "load_from", PROPERTY_HINT_RESOURCE_TYPE, "Translation", PROPERTY_USAGE_EDITOR));
+    p_list->push_back(PropertyInfo(VariantType::OBJECT, "load_from", PropertyHint::ResourceType, "Translation", PROPERTY_USAGE_EDITOR));
 }
 
 IMPL_GDCLASS(PHashTranslation)

@@ -48,6 +48,8 @@
 #include "core/math/geometry.h"
 #include "core/os/keyboard.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(GridMapEditor)
 IMPL_GDCLASS(GridMapEditorPlugin)
 
@@ -541,9 +543,9 @@ void GridMapEditor::_fill_selection() {
 
 void GridMapEditor::_clear_clipboard_data() {
 
-    for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
+    for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free(E->deref().instance);
+        VisualServer::get_singleton()->free_rid(E->deref().instance);
     }
 
     clipboard_items.clear();
@@ -601,7 +603,7 @@ void GridMapEditor::_update_paste_indicator() {
 
     VisualServer::get_singleton()->instance_set_transform(paste_instance, node->get_global_transform() * xf);
 
-    for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
+    for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
         ClipboardItem &item = E->deref();
 
@@ -629,7 +631,7 @@ void GridMapEditor::_do_paste() {
     Vector3 ofs = paste_indicator.current - paste_indicator.click;
     undo_redo->create_action_ui(TTR("GridMap Paste Selection"));
 
-    for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
+    for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
         ClipboardItem &item = E->deref();
 
@@ -717,12 +719,12 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
                 if (!set_items.empty()) {
                     undo_redo->create_action_ui(TTR("GridMap Paint"));
-                    for (List<SetItem>::Element *E = set_items.front(); E; E = E->next()) {
+                    for (ListOld<SetItem>::Element *E = set_items.front(); E; E = E->next()) {
 
                         const SetItem &si = E->deref();
                         undo_redo->add_do_method(node, "set_cell_item", si.pos.x, si.pos.y, si.pos.z, si.new_value, si.new_orientation);
                     }
-                    for (List<SetItem>::Element *E = set_items.back(); E; E = E->prev()) {
+                    for (ListOld<SetItem>::Element *E = set_items.back(); E; E = E->prev()) {
 
                         const SetItem &si = E->deref();
                         undo_redo->add_undo_method(node, "set_cell_item", si.pos.x, si.pos.y, si.pos.z, si.old_value, si.old_orientation);
@@ -826,7 +828,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
 struct _CGMEItemSort {
 
-    se_string name;
+    String name;
     int id;
     _FORCE_INLINE_ bool operator<(const _CGMEItemSort &r_it) const { return name < r_it.name; }
 };
@@ -893,7 +895,7 @@ void GridMapEditor::update_palette() {
 
     if (not mesh_library) {
         last_mesh_library = nullptr;
-        search_box->set_text(String());
+        search_box->set_text_uistring(UIString());
         search_box->set_editable(false);
         info_message->show();
         return;
@@ -902,26 +904,25 @@ void GridMapEditor::update_palette() {
     search_box->set_editable(true);
     info_message->hide();
 
-    Vector<int> ids;
-    ids = mesh_library->get_item_list();
+    Vector<int> ids = mesh_library->get_item_list();
 
-    List<_CGMEItemSort> il;
-    for (int i = 0; i < ids.size(); i++) {
+    Vector<_CGMEItemSort> il;
+    for (int id : ids) {
 
         _CGMEItemSort is;
-        is.id = ids[i];
-        is.name = mesh_library->get_item_name(ids[i]);
+        is.id = id;
+        is.name = mesh_library->get_item_name(id);
         il.push_back(is);
     }
-    il.sort();
+    eastl::sort(il.begin(),il.end());
 
-    se_string filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
+    String filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
 
     int item = 0;
 
-    for (List<_CGMEItemSort>::Element *E = il.front(); E; E = E->next()) {
-        int id = E->deref().id;
-        se_string name = mesh_library->get_item_name(id);
+    for (const _CGMEItemSort &E : il) {
+        int id = E.id;
+        String name = mesh_library->get_item_name(id);
         Ref<Texture> preview = mesh_library->get_item_preview(id);
 
         if (name.empty()) {
@@ -1024,8 +1025,8 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         edit_floor[i] = edited_floor[i];
     }
 
-    PODVector<Vector3> grid_points[3];
-    PODVector<Color> grid_colors[3];
+    Vector<Vector3> grid_points[3];
+    Vector<Color> grid_colors[3];
 
     for (int i = 0; i < 3; i++) {
 
@@ -1035,7 +1036,8 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         axis_n1[(i + 1) % 3] = cell_size[(i + 1) % 3];
         Vector3 axis_n2;
         axis_n2[(i + 2) % 3] = cell_size[(i + 2) % 3];
-
+        grid_points[i].reserve(GRID_CURSOR_SIZE*GRID_CURSOR_SIZE);
+        grid_colors[i].reserve(GRID_CURSOR_SIZE*GRID_CURSOR_SIZE);
         for (int j = -GRID_CURSOR_SIZE; j <= GRID_CURSOR_SIZE; j++) {
 
             for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
@@ -1061,10 +1063,9 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
             }
         }
 
-        Array d;
-        d.resize(VS::ARRAY_MAX);
-        d[VS::ARRAY_VERTEX] = grid_points[i];
-        d[VS::ARRAY_COLOR] = grid_colors[i];
+        SurfaceArrays d;
+        d.set_positions(eastl::move(grid_points[i]));
+        d.m_colors = eastl::move(grid_colors[i]);
         VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VisualServerEnums::PRIMITIVE_LINES, d);
         VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
     }
@@ -1097,15 +1098,15 @@ void GridMapEditor::_notification(int p_what) {
 
             for (int i = 0; i < 3; i++) {
 
-                VisualServer::get_singleton()->free(grid_instance[i]);
-                VisualServer::get_singleton()->free(grid[i]);
+                VisualServer::get_singleton()->free_rid(grid_instance[i]);
+                VisualServer::get_singleton()->free_rid(grid[i]);
                 grid_instance[i] = RID();
                 grid[i] = RID();
-                VisualServer::get_singleton()->free(selection_level_instance[i]);
+                VisualServer::get_singleton()->free_rid(selection_level_instance[i]);
             }
 
-            VisualServer::get_singleton()->free(selection_instance);
-            VisualServer::get_singleton()->free(paste_instance);
+            VisualServer::get_singleton()->free_rid(selection_instance);
+            VisualServer::get_singleton()->free_rid(paste_instance);
             selection_instance = RID();
             paste_instance = RID();
         } break;
@@ -1144,7 +1145,7 @@ void GridMapEditor::_notification(int p_what) {
         } break;
 
         case NOTIFICATION_THEME_CHANGED: {
-            options->set_icon(get_icon("GridMap", "EditorIcons"));
+            options->set_button_icon(get_icon("GridMap", "EditorIcons"));
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
         } break;
     }
@@ -1156,7 +1157,7 @@ void GridMapEditor::_update_cursor_instance() {
     }
 
     if (cursor_instance.is_valid())
-        VisualServer::get_singleton()->free(cursor_instance);
+        VisualServer::get_singleton()->free_rid(cursor_instance);
     cursor_instance = RID();
 
     if (selected_palette >= 0) {
@@ -1313,14 +1314,14 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     mode_thumbnail = memnew(ToolButton);
     mode_thumbnail->set_toggle_mode(true);
     mode_thumbnail->set_pressed(true);
-    mode_thumbnail->set_icon(p_editor->get_gui_base()->get_icon("FileThumbnail", "EditorIcons"));
+    mode_thumbnail->set_button_icon(p_editor->get_gui_base()->get_icon("FileThumbnail", "EditorIcons"));
     hb->add_child(mode_thumbnail);
     mode_thumbnail->connect("pressed", this, "_set_display_mode", varray(DISPLAY_THUMBNAIL));
 
     mode_list = memnew(ToolButton);
     mode_list->set_toggle_mode(true);
     mode_list->set_pressed(false);
-    mode_list->set_icon(p_editor->get_gui_base()->get_icon("FileList", "EditorIcons"));
+    mode_list->set_button_icon(p_editor->get_gui_base()->get_icon("FileList", "EditorIcons"));
     hb->add_child(mode_list);
     mode_list->connect("pressed", this, "_set_display_mode", varray(DISPLAY_LIST));
 
@@ -1365,9 +1366,11 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     {
         // Selection mesh create.
 
-        PoolVector<Vector3> lines;
-        PoolVector<Vector3> triangles;
-        PoolVector<Vector3> square[3];
+        Vector<Vector3> lines;
+        Vector<Vector3> triangles;
+        Vector<Vector3> square[3];
+
+        triangles.reserve(6*6);
 
         for (int i = 0; i < 6; i++) {
 
@@ -1398,6 +1401,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
             triangles.push_back(face_points[0] * 0.5 + Vector3(0.5, 0.5, 0.5));
         }
 
+        lines.reserve(12*2);
         for (int i = 0; i < 12; i++) {
 
             AABB base(Vector3(0, 0, 0), Vector3(1, 1, 1));
@@ -1436,16 +1440,15 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
             }
         }
 
-        Array d;
-        d.resize(VS::ARRAY_MAX);
+        SurfaceArrays triangles_arr(eastl::move(triangles));
+        SurfaceArrays lines_arr(eastl::move(lines));
 
         inner_mat = make_ref_counted<SpatialMaterial>();
         inner_mat->set_albedo(Color(0.7f, 0.7f, 1.0f, 0.2f));
         inner_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         inner_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
 
-        d[VS::ARRAY_VERTEX] = triangles;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_TRIANGLES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_TRIANGLES, triangles_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 0, inner_mat->get_rid());
 
         outer_mat = make_ref_counted<SpatialMaterial>();
@@ -1461,22 +1464,19 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         selection_floor_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         selection_floor_mat->set_line_width(3.0);
 
-        d[VS::ARRAY_VERTEX] = lines;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_LINES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_LINES, lines_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 1, outer_mat->get_rid());
 
-        d[VS::ARRAY_VERTEX] = triangles;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_TRIANGLES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_TRIANGLES, triangles_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(paste_mesh, 0, inner_mat->get_rid());
 
-        d[VS::ARRAY_VERTEX] = lines;
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_LINES, d);
+        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_LINES, lines_arr);
         VisualServer::get_singleton()->mesh_surface_set_material(paste_mesh, 1, outer_mat->get_rid());
 
         for (int i = 0; i < 3; i++) {
-            d[VS::ARRAY_VERTEX] = square[i];
+            SurfaceArrays sq_arr(eastl::move(square[i]));
             selection_level_mesh[i] = VisualServer::get_singleton()->mesh_create();
-            VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], VS::PRIMITIVE_LINES, d);
+            VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], VS::PRIMITIVE_LINES, sq_arr);
             VisualServer::get_singleton()->mesh_surface_set_material(selection_level_mesh[i], 0, selection_floor_mat->get_rid());
         }
     }
@@ -1500,24 +1500,24 @@ GridMapEditor::~GridMapEditor() {
     for (int i = 0; i < 3; i++) {
 
         if (grid[i].is_valid())
-            VisualServer::get_singleton()->free(grid[i]);
+            VisualServer::get_singleton()->free_rid(grid[i]);
         if (grid_instance[i].is_valid())
-            VisualServer::get_singleton()->free(grid_instance[i]);
+            VisualServer::get_singleton()->free_rid(grid_instance[i]);
         if (cursor_instance.is_valid())
-            VisualServer::get_singleton()->free(cursor_instance);
+            VisualServer::get_singleton()->free_rid(cursor_instance);
         if (selection_level_instance[i].is_valid())
-            VisualServer::get_singleton()->free(selection_level_instance[i]);
+            VisualServer::get_singleton()->free_rid(selection_level_instance[i]);
         if (selection_level_mesh[i].is_valid())
-            VisualServer::get_singleton()->free(selection_level_mesh[i]);
+            VisualServer::get_singleton()->free_rid(selection_level_mesh[i]);
     }
 
-    VisualServer::get_singleton()->free(selection_mesh);
+    VisualServer::get_singleton()->free_rid(selection_mesh);
     if (selection_instance.is_valid())
-        VisualServer::get_singleton()->free(selection_instance);
+        VisualServer::get_singleton()->free_rid(selection_instance);
 
-    VisualServer::get_singleton()->free(paste_mesh);
+    VisualServer::get_singleton()->free_rid(paste_mesh);
     if (paste_instance.is_valid())
-        VisualServer::get_singleton()->free(paste_instance);
+        VisualServer::get_singleton()->free_rid(paste_instance);
 }
 
 void GridMapEditorPlugin::_notification(int p_what) {
@@ -1565,7 +1565,7 @@ GridMapEditorPlugin::GridMapEditorPlugin(EditorNode *p_node) {
     editor = p_node;
 
     EDITOR_DEF(("editors/grid_map/editor_side"), 1);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/grid_map/editor_side", PROPERTY_HINT_ENUM, "Left,Right"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/grid_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     grid_map_editor = memnew(GridMapEditor(editor));
     switch ((int)EditorSettings::get_singleton()->get("editors/grid_map/editor_side")) {

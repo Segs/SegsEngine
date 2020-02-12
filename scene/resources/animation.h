@@ -189,8 +189,6 @@ private:
     template <class T, class V>
     int _insert(float p_time, T &p_keys, const V &p_value);
 
-    template <class K>
-    inline int _find(const Vector<K> &p_keys, float p_time) const;
 
     _FORCE_INLINE_ Animation::TransformKey _interpolate(const Animation::TransformKey &p_a, const Animation::TransformKey &p_b, float p_c) const;
 
@@ -219,8 +217,8 @@ private:
     bool loop;
 
     // bind helpers
-private:
-    Array _transform_track_interpolate(int p_track, float p_time) const {
+public:
+    Array transform_track_interpolate(int p_track, float p_time) const {
         Vector3 loc;
         Quat rot;
         Vector3 scale;
@@ -231,9 +229,9 @@ private:
         ret.push_back(scale);
         return ret;
     }
+    PoolVector<int> value_track_get_key_indices(int p_track, float p_time, float p_delta) const;
+    PoolVector<int> method_track_get_key_indices(int p_track, float p_time, float p_delta) const;
 
-    PoolVector<int> _value_track_get_key_indices(int p_track, float p_time, float p_delta) const;
-    PoolVector<int> _method_track_get_key_indices(int p_track, float p_time, float p_delta) const;
 
     bool _transform_track_optimize_key(const TKey<TransformKey> &t0, const TKey<TransformKey> &t1, const TKey<TransformKey> &t2, float p_alowed_linear_err, float p_alowed_angular_err, float p_max_optimizable_angle, const Vector3 &p_norm);
     void _transform_track_optimize(int p_idx, float p_allowed_linear_err = 0.05f, float p_allowed_angular_err = 0.01f, float p_max_optimizable_angle = Math_PI * 0.125f);
@@ -241,7 +239,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -318,7 +316,7 @@ public:
     UpdateMode value_track_get_update_mode(int p_track) const;
 
     void method_track_get_key_indices(int p_track, float p_time, float p_delta, DefList<int> *p_indices) const;
-    Vector<Variant> method_track_get_params(int p_track, int p_key_idx) const;
+    const Vector<Variant> &method_track_get_params(int p_track, int p_key_idx) const;
     StringName method_track_get_name(int p_track, int p_key_idx) const;
 
     void copy_track(int p_track, Ref<Animation> p_to_animation);

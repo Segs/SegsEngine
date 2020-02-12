@@ -243,7 +243,7 @@ Error ImageLoaderBMP::load_image(ImageData &p_image, FileAccess *f, LoadParams p
                 case BI_CMYKRLE8:
                 case BI_CMYKRLE4: {
                     // Stop parsing
-                    se_string bmp_path = f->get_path();
+                    String bmp_path = f->get_path();
                     f->close();
                     PLUG_FAIL_V_MSG(ERR_UNAVAILABLE, "Compressed BMP files are not supported: " + bmp_path + ".")
                 } break;
@@ -292,7 +292,7 @@ Error ImageLoaderBMP::load_image(ImageData &p_image, FileAccess *f, LoadParams p
     return err;
 }
 
-void ImageLoaderBMP::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ImageLoaderBMP::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("bmp");
 }

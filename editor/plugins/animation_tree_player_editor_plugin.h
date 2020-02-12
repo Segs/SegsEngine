@@ -94,7 +94,7 @@ class AnimationTreePlayerEditor : public Control {
     CustomPropertyEditor *property_editor;
 
     AnimationTreePlayer *anim_tree;
-    ListPOD<StringName> order;
+    List<StringName> order;
     Set<StringName> active_nodes;
 
     int last_x, last_y;
@@ -134,7 +134,7 @@ class AnimationTreePlayerEditor : public Control {
     void _add_menu_item(int p_item);
 
     void _filter_edited();
-    void _find_paths_for_filter(const StringName &p_node, Set<se_string> &paths);
+    void _find_paths_for_filter(const StringName &p_node, Set<String> &paths);
     void _edit_filters();
 
     void _edit_oneshot_start();

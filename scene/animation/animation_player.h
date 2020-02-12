@@ -30,10 +30,11 @@
 
 #pragma once
 
-#include "scene/2d/node_2d.h"
+//#include "scene/2d/node_2d.h"
 #include "scene/3d/skeleton.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"
+#include "core/map.h"
 
 #ifdef TOOLS_ENABLED
 // To save/restore animated values
@@ -52,6 +53,8 @@ public:
     void update_skeletons();
 };
 #endif
+
+class Node2D;
 
 class GODOT_EXPORT AnimationPlayer : public Node {
     GDCLASS(AnimationPlayer,Node)
@@ -188,7 +191,7 @@ private:
     float default_blend_time;
 
     struct AnimationData {
-        se_string name;
+        String name;
         StringName next;
         Vector<TrackNodeCache *> node_cache;
         Ref<Animation> animation;
@@ -237,14 +240,14 @@ private:
 
     struct Playback {
 
-        List<Blend> blend;
+        ListOld<Blend> blend;
         PlaybackData current;
         StringName assigned;
         bool seeked;
         bool started;
     } playback;
 
-    ListPOD<StringName> queued;
+    List<StringName> queued;
 
     bool end_reached;
     bool end_notify;
@@ -269,19 +272,6 @@ private:
     void _stop_playing_caches();
 
     // bind helpers
-    PoolVector<se_string> _get_animation_list() const {
-
-        PODVector<StringName> animations;
-        get_animation_list(&animations);
-        PoolVector<se_string> ret;
-        while (!animations.empty()) {
-
-            ret.push_back(animations.front().asCString());
-            animations.pop_front();
-        }
-        return ret;
-    }
-
     void _animation_changed();
     void _ref_anim(const Ref<Animation> &p_anim);
     void _unref_anim(const Ref<Animation> &p_anim);
@@ -294,7 +284,7 @@ protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _validate_property(PropertyInfo &property) const override;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _notification(int p_what);
 
     static void _bind_methods();
@@ -307,7 +297,7 @@ public:
     void rename_animation(const StringName &p_name, const StringName &p_new_name);
     bool has_animation(const StringName &p_name) const;
     Ref<Animation> get_animation(const StringName &p_name) const;
-    void get_animation_list(PODVector<StringName> *p_animations) const;
+    Vector<StringName> get_animation_list() const;
 
     void set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time);
     float get_blend_time(const StringName &p_animation1, const StringName &p_animation2) const;
@@ -321,7 +311,7 @@ public:
     void play(const StringName &p_name = StringName(), float p_custom_blend = -1, float p_custom_scale = 1.0, bool p_from_end = false);
     void play_backwards(const StringName &p_name = StringName(), float p_custom_blend = -1);
     void queue(const StringName &p_name);
-    PoolVector<se_string> get_queue();
+    PoolVector<String> get_queue();
     void clear_queue();
     void stop(bool p_reset = true);
     bool is_playing() const;
@@ -359,7 +349,7 @@ public:
 
     void clear_caches(); ///< must be called by hand if an animation was modified after added
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<se_string> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
 #ifdef TOOLS_ENABLED
     // These may be interesting for games, but are too dangerous for general use

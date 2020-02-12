@@ -95,15 +95,15 @@ void Crypto::_bind_methods() {
 }
 
 PoolByteArray Crypto::generate_random_bytes(int p_bytes) {
-    ERR_FAIL_V_MSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(PoolByteArray(), "generate_random_bytes is not available when mbedtls module is disabled.");
 }
 
 Ref<CryptoKey> Crypto::generate_rsa(int p_bytes) {
-    ERR_FAIL_V_MSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.");
 }
 
 Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) {
-    ERR_FAIL_V_MSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.")
+    ERR_FAIL_V_MSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.");
 }
 
 Crypto::Crypto() = default;
@@ -112,7 +112,7 @@ Crypto::Crypto() = default;
 
 RES ResourceFormatLoaderCrypto::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
 
-    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "crt") {
         X509Certificate *cert = X509Certificate::create();
         if (cert)
@@ -127,7 +127,7 @@ RES ResourceFormatLoaderCrypto::load(se_string_view p_path, se_string_view p_ori
     return RES();
 }
 
-void ResourceFormatLoaderCrypto::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderCrypto::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("crt");
     p_extensions.push_back("key");
@@ -138,14 +138,14 @@ bool ResourceFormatLoaderCrypto::handles_type(se_string_view p_type) const {
     return p_type == "X509Certificate"_sv || p_type == "CryptoKey"_sv;
 }
 
-se_string ResourceFormatLoaderCrypto::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderCrypto::get_resource_type(se_string_view p_path) const {
 
-    se_string el = StringUtils::to_lower(PathUtils::get_extension(p_path));
+    String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "crt")
         return "X509Certificate";
     else if (el == "key")
         return "CryptoKey";
-    return se_string();
+    return String();
 }
 
 Error ResourceFormatSaverCrypto::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
@@ -158,13 +158,13 @@ Error ResourceFormatSaverCrypto::save(se_string_view p_path, const RES &p_resour
     } else if (key) {
         err = key->save(p_path);
     } else {
-        ERR_FAIL_V(ERR_INVALID_PARAMETER)
+        ERR_FAIL_V(ERR_INVALID_PARAMETER);
     }
-    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + se_string(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Crypto resource to file '" + String(p_path) + "'.");
     return OK;
 }
 
-void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource, PODVector<se_string> &p_extensions) const {
+void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
     const X509Certificate *cert = object_cast<X509Certificate>(p_resource.get());
     const CryptoKey *key = object_cast<CryptoKey>(p_resource.get());

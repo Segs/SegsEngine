@@ -2,7 +2,7 @@
 
 # This is a heavily modified stand-alone fork of the Godot engine
 
-Synced with upstream up to godotengine/godot@269eb5f06c8874e1257137eabe121d4501758ded
+Synced with upstream up to godotengine/godot@42f04cbc1a59772a5f7eca9c6847fa349b23a70e
 
 ### Note: Our changes likely introduced new errors, please if at all possible, check similar operations on upstream editor.
 
@@ -20,10 +20,21 @@ Synced with upstream up to godotengine/godot@269eb5f06c8874e1257137eabe121d45017
 
 ## Largest differences
 
-* String type has been split into utf8 based se_string and se_string_view and UI only String based on QString.
+* String type has been split into utf8 based String and se_string_view and UI only String based on QString.
 * Many places in the codebase no longer use COW types (Vector), but use EASTL ones instead.
 * Some modules are hard-disabled ( gdnative,camera ), some will make a comback ( mono )
 * (TODO: fill this as we progress)
+
+
+REQUIREMENTS AND NOTES
+------
+
+Below are the utilities and libraries you'll need to compile SegsEngine in any environment. While it may be possible to use another toolset, the C++ Toolchain below is the only one officially supported by the SEGS team. These packages are available for both Linux or Windows:
+
+   - **QT 5.12+** - A cross platform application framework utilized heavily by SEGS. http://download.qt.io/archive/qt/
+   - **CMake 3.16+** - CMake is the cross-platform make utility. It generates makefiles for multiple platforms. https://cmake.org/download/
+   - **Git** - A version control system for tracking changes in computer files and coordinating work on those files among multiple people. https://git-scm.com/download
+   
 
 Original README.md contents follow:
 ==

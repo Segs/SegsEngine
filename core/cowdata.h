@@ -38,16 +38,11 @@
 #include <cstring>
 #include <type_traits>
 
-template <class T>
-class Vector;
 template <class T, class V>
 class VMap;
 
 template <class T>
 class CowData {
-    template <class TV>
-    friend class Vector;
-
     template <class TV, class VV>
     friend class VMap;
 
@@ -89,7 +84,7 @@ public:
 
     void set(int p_index, const T &p_elem) {
 
-        CRASH_BAD_INDEX(p_index, size())
+        CRASH_BAD_INDEX(p_index, size());
         _copy_on_write();
         _get_data()[p_index] = p_elem;
     }
@@ -106,7 +101,7 @@ public:
 
     int find(const T &p_val, int p_from = 0) const;
 
-    _FORCE_INLINE_ CowData();
+    constexpr CowData() noexcept : _ptr(nullptr) {}
     _FORCE_INLINE_ ~CowData();
     _FORCE_INLINE_ CowData(const CowData<T> &p_from) { _ref(p_from); }
 };

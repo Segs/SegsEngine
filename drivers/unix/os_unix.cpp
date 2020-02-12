@@ -75,7 +75,7 @@ static double _clock_scale = 0;
 static void _setup_clock() {
     mach_timebase_info_data_t info;
     kern_return_t ret = mach_timebase_info(&info);
-    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!")
+    ERR_FAIL_COND_MSG(ret != 0, "OS CLOCK IS NOT WORKING!");
     _clock_scale = ((double)info.numer / (double)info.denom) / 1000.0;
     _clock_start = mach_absolute_time() * _clock_scale;
 }
@@ -87,7 +87,7 @@ static void _setup_clock() {
 #endif
 static void _setup_clock() {
     struct timespec tv_now = { 0, 0 };
-    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!")
+    ERR_FAIL_COND_MSG(clock_gettime(GODOT_CLOCK, &tv_now) != 0, "OS CLOCK IS NOT WORKING!");
     _clock_start = ((uint64_t)tv_now.tv_nsec / 1000L) + (uint64_t)tv_now.tv_sec * 1000000L;
 }
 #endif
@@ -154,14 +154,14 @@ void OS_Unix::finalize_core() {
 
 void OS_Unix::alert(se_string_view p_alert, se_string_view p_title) {
 
-    fprintf(stderr, "ERROR: [%.*s] %.*s\n", p_title.length(),p_title.data(),p_alert.length(),p_alert.data());
+    fprintf(stderr, "ERROR: [%.*s] %.*s\n", int(p_title.length()),p_title.data(),int(p_alert.length()),p_alert.data());
 }
 
-se_string OS_Unix::get_stdin_string(bool p_block) {
+String OS_Unix::get_stdin_string(bool p_block) {
 
     if (p_block) {
         char buff[1024];
-        se_string ret = stdin_buf + fgets(buff, 1024, stdin);
+        String ret = stdin_buf + fgets(buff, 1024, stdin);
         stdin_buf = "";
         return ret;
     }
@@ -169,7 +169,7 @@ se_string OS_Unix::get_stdin_string(bool p_block) {
     return null_se_string;
 }
 
-se_string OS_Unix::get_name() const {
+String OS_Unix::get_name() const {
 
     return "Unix";
 }
@@ -275,7 +275,7 @@ uint64_t OS_Unix::get_ticks_usec() const {
     return longtime;
 }
 
-Error OS_Unix::execute(se_string_view p_path, const ListPOD<se_string> &p_arguments, bool p_blocking, ProcessID *r_child_id, se_string *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Unix::execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
 #ifdef __EMSCRIPTEN__
     // Don't compile this code at all to avoid undefined references.
@@ -284,10 +284,10 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<se_string> &p_argume
 #else
     if (p_blocking && r_pipe) {
 
-        se_string argss;
-        argss = "\"" + se_string(p_path) + "\"";
+        String argss;
+        argss = "\"" + String(p_path) + "\"";
 
-        for (const se_string &arg : p_arguments) {
+        for (const String &arg : p_arguments) {
             argss += " \"" + arg + "\"";
         }
 
@@ -298,7 +298,7 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<se_string> &p_argume
         }
         FILE *f = popen(argss.c_str(), "r");
 
-        ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot pipe stream from process running with following arguments '" + argss + "'.")
+        ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, "Cannot pipe stream from process running with following arguments '" + argss + "'.");
 
         char buf[65535];
 
@@ -307,7 +307,7 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<se_string> &p_argume
             if (p_pipe_mutex) {
                 p_pipe_mutex->lock();
             }
-            (*r_pipe) += se_string(buf);
+            (*r_pipe) += String(buf);
             if (p_pipe_mutex) {
                 p_pipe_mutex->unlock();
             }
@@ -320,7 +320,7 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<se_string> &p_argume
     }
 
     pid_t pid = fork();
-    ERR_FAIL_COND_V(pid < 0, ERR_CANT_FORK)
+    ERR_FAIL_COND_V(pid < 0, ERR_CANT_FORK);
 
     if (pid == 0) {
         // is child
@@ -331,19 +331,19 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<se_string> &p_argume
             setsid();
         }
 
-        Vector<se_string> cs;
-        cs.push_back(se_string(p_path));
-        for (const se_string &arg : p_arguments)
-            cs.push_back(arg);
+        Vector<String> cs;
+        cs.emplace_back(p_path);
+        for (const String &arg : p_arguments)
+            cs.emplace_back(arg);
 
         Vector<char *> args;
         for (int i = 0; i < cs.size(); i++)
             args.push_back((char *)cs[i].data());
         args.push_back(nullptr);
 
-        execvp(se_string(p_path).c_str(), &args[0]);
+        execvp(cs.front().c_str(), &args[0]);
         // still alive? something failed..
-        fprintf(stderr, "**ERROR** OS_Unix::execute - Could not create child process while executing: %s\n", se_string(p_path).c_str());
+        fprintf(stderr, "**ERROR** OS_Unix::execute - Could not create child process while executing: %s\n", String(p_path).c_str());
         abort();
     }
 
@@ -384,7 +384,7 @@ bool OS_Unix::has_environment(se_string_view p_var) const {
     if(p_var[p_var.size()]==0)
         return getenv(p_var.data()) != nullptr;
     else {
-        se_string zterm(p_var);
+        String zterm(p_var);
         return getenv(zterm.data()) != nullptr;
     }
 }
@@ -394,7 +394,7 @@ const char *OS_Unix::get_locale() const {
     if (!has_environment("LANG"))
         return "en";
 
-    static se_string locale;
+    static String locale;
     locale = get_environment("LANG");
     int tp = StringUtils::find(locale,".");
     if (tp != -1)
@@ -404,7 +404,7 @@ const char *OS_Unix::get_locale() const {
 
 Error OS_Unix::open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
-    se_string path(p_path);
+    String path(p_path);
 
     if (FileAccess::exists(path) && PathUtils::is_rel_path(path)) {
         // dlopen expects a slash, in this case a leading ./ for it to be interpreted as a relative path,
@@ -422,8 +422,8 @@ Error OS_Unix::open_dynamic_library(se_string_view p_path, void *&p_library_hand
         path = PathUtils::plus_file(PathUtils::plus_file(PathUtils::get_base_dir(get_executable_path()),"../lib"),PathUtils::get_file(p_path));
     }
 
-    p_library_handle = dlopen(se_string(path).c_str(), RTLD_NOW);
-    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + se_string(p_path) + ". Error: " + dlerror())
+    p_library_handle = dlopen(String(path).c_str(), RTLD_NOW);
+    ERR_FAIL_COND_V_MSG(!p_library_handle, ERR_CANT_OPEN, "Can't open dynamic library: " + String(p_path) + ". Error: " + dlerror());
     return OK;
 }
 
@@ -438,11 +438,11 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, se_stri
     const char *error;
     dlerror(); // Clear existing errors
 
-    p_symbol_handle = dlsym(p_library_handle, se_string(p_name).c_str());
+    p_symbol_handle = dlsym(p_library_handle, String(p_name).c_str());
 
     error = dlerror();
     if (error != nullptr) {
-        ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, se_string("Can't resolve symbol ") + p_name + ". Error: " + error + ".")
+        ERR_FAIL_COND_V_MSG(!p_optional, ERR_CANT_RESOLVE, String("Can't resolve symbol ") + p_name + ". Error: " + error + ".");
 
         return ERR_CANT_RESOLVE;
     }
@@ -451,23 +451,23 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, se_stri
 
 Error OS_Unix::set_cwd(se_string_view p_cwd) {
 
-    if (chdir(se_string(p_cwd).c_str()) != 0)
+    if (chdir(String(p_cwd).c_str()) != 0)
         return ERR_CANT_OPEN;
 
     return OK;
 }
 
-se_string OS_Unix::get_environment(se_string_view p_var) const {
-    se_string zterm(p_var);
+String OS_Unix::get_environment(se_string_view p_var) const {
+    String zterm(p_var);
     const char *res=getenv(zterm.data());
     if (res)
         return res;
-    return se_string();
+    return String();
 }
 
 bool OS_Unix::set_environment(se_string_view p_var, se_string_view p_value) const {
-    se_string zterm(p_var);
-    se_string zval(p_value);
+    String zterm(p_var);
+    String zval(p_value);
     return setenv(zterm.data(), zval.data(), /* overwrite: */ true) == 0;
 }
 
@@ -476,13 +476,13 @@ int OS_Unix::get_processor_count() const {
     return sysconf(_SC_NPROCESSORS_CONF);
 }
 
-se_string OS_Unix::get_user_data_dir() const {
+String OS_Unix::get_user_data_dir() const {
 
-    se_string appname(get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<se_string>()));
+    String appname(get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<String>()));
     if (!appname.empty()) {
         bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
         if (use_custom_dir) {
-            se_string custom_dir = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<se_string>(), true);
+            String custom_dir = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<String>(), true);
             if (custom_dir.empty()) {
                 custom_dir = appname;
             }
@@ -495,7 +495,7 @@ se_string OS_Unix::get_user_data_dir() const {
     return ProjectSettings::get_singleton()->get_resource_path();
 }
 
-se_string OS_Unix::get_executable_path() const {
+String OS_Unix::get_executable_path() const {
     return qPrintable(QCoreApplication::applicationFilePath());
 }
 
@@ -515,13 +515,9 @@ void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_f
     // stdout and stderr to a file.
     const bool tty = isatty(fileno(stdout));
     const char *red = tty ? "\E[0;31m" : "";
-    const char *red_bold = tty ? "\E[1;31m" : "";
     const char *yellow = tty ? "\E[0;33m" : "";
-    const char *yellow_bold = tty ? "\E[1;33m" : "";
     const char *magenta = tty ? "\E[0;35m" : "";
-    const char *magenta_bold = tty ? "\E[1;35m" : "";
     const char *cyan = tty ? "\E[0;36m" : "";
-    const char *cyan_bold = tty ? "\E[1;36m" : "";
     const char *reset = tty ? "\E[0m" : "";
     const char *bold = tty ? "\E[1m" : "";
 
@@ -549,7 +545,7 @@ void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_f
 UnixTerminalLogger::~UnixTerminalLogger() {}
 
 OS_Unix::OS_Unix() {
-    PODVector<Logger *> loggers;
+    Vector<Logger *> loggers;
     loggers.push_back(memnew(UnixTerminalLogger));
     _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }

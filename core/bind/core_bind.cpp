@@ -104,16 +104,16 @@ RES _ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, boo
     Error err = OK;
     RES ret(ResourceLoader::load(p_path, p_type_hint, p_no_cache, &err));
 
-    ERR_FAIL_COND_V_MSG(err != OK, ret, "Error loading resource: '" + se_string(p_path) + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, ret, "Error loading resource: '" + String(p_path) + "'.");
     return ret;
 }
 
-PoolSeStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
+PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
 
-    PODVector<se_string> exts;
+    Vector<String> exts;
     ResourceLoader::get_recognized_extensions_for_type(p_type, exts);
-    PoolSeStringArray ret;
-    for (const se_string & E : exts) {
+    PoolStringArray ret;
+    for (const String & E : exts) {
         ret.push_back(E);
     }
 
@@ -125,16 +125,16 @@ void _ResourceLoader::set_abort_on_missing_resources(bool p_abort) {
     ResourceLoader::set_abort_on_missing_resources(p_abort);
 }
 
-PODVector<se_string> _ResourceLoader::get_dependencies(se_string_view p_path) {
+Vector<String> _ResourceLoader::get_dependencies(se_string_view p_path) {
 
-    PODVector<se_string> deps;
+    Vector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
     return deps;
 };
 
 bool _ResourceLoader::has_cached(se_string_view p_path) {
 
-    se_string local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
     return ResourceCache::has(local_path);
 }
 
@@ -144,13 +144,13 @@ bool _ResourceLoader::exists(se_string_view p_path, se_string_view p_type_hint) 
 
 void _ResourceLoader::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL(se_string())});
-    MethodBinder::bind_method(D_METHOD("load", {"path", "type_hint", "no_cache"}), &_ResourceLoader::load, {DEFVAL(se_string()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("load", {"path", "type_hint", "no_cache"}), &_ResourceLoader::load, {DEFVAL(String()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_recognized_extensions_for_type", {"type"}), &_ResourceLoader::get_recognized_extensions_for_type);
     MethodBinder::bind_method(D_METHOD("set_abort_on_missing_resources", {"abort"}), &_ResourceLoader::set_abort_on_missing_resources);
     MethodBinder::bind_method(D_METHOD("get_dependencies", {"path"}), &_ResourceLoader::get_dependencies);
     MethodBinder::bind_method(D_METHOD("has_cached", {"path"}), &_ResourceLoader::has_cached);
-    MethodBinder::bind_method(D_METHOD("exists", {"path", "type_hint"}), &_ResourceLoader::exists, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("exists", {"path", "type_hint"}), &_ResourceLoader::exists, {DEFVAL(String())});
 }
 
 _ResourceLoader::_ResourceLoader() {
@@ -159,16 +159,16 @@ _ResourceLoader::_ResourceLoader() {
 }
 
 Error _ResourceSaver::save(se_string_view p_path, const RES &p_resource, SaverFlags p_flags) {
-    ERR_FAIL_COND_V_MSG(not p_resource, ERR_INVALID_PARAMETER, "Can't save empty resource to path: " + se_string(p_path) + ".")
+    ERR_FAIL_COND_V_MSG(not p_resource, ERR_INVALID_PARAMETER, "Can't save empty resource to path: " + String(p_path) + ".");
     return ResourceSaver::save(p_path, p_resource, p_flags);
 }
 
-PoolVector<se_string> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
+PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
 
-    ERR_FAIL_COND_V_MSG(not p_resource, PoolVector<se_string>(), "It's not a reference to a valid Resource object.")
-    PODVector<se_string> exts;
+    ERR_FAIL_COND_V_MSG(not p_resource, PoolVector<String>(), "It's not a reference to a valid Resource object.");
+    Vector<String> exts;
     ResourceSaver::get_recognized_extensions(p_resource, exts);
-    PoolVector<se_string> ret;
+    PoolVector<String> ret;
     for (int i = 0, fin = exts.size(); i < fin; ++i) {
 
         ret.push_back(exts[i]);
@@ -225,7 +225,7 @@ Point2 _OS::get_mouse_position() const {
     return OS::get_singleton()->get_mouse_position();
 }
 
-void _OS::set_window_title(const se_string &p_title) {
+void _OS::set_window_title(const String &p_title) {
 
     OS::get_singleton()->set_window_title(p_title);
 }
@@ -235,7 +235,7 @@ int _OS::get_mouse_button_state() const {
     return OS::get_singleton()->get_mouse_button_state();
 }
 
-const se_string & _OS::get_unique_id() const {
+const String & _OS::get_unique_id() const {
     return OS::get_singleton()->get_unique_id();
 }
 bool _OS::has_touchscreen_ui_hint() const {
@@ -247,7 +247,7 @@ void _OS::set_clipboard(se_string_view p_text) {
 
     OS::get_singleton()->set_clipboard(p_text);
 }
-se_string _OS::get_clipboard() const {
+String _OS::get_clipboard() const {
 
     return OS::get_singleton()->get_clipboard();
 }
@@ -256,8 +256,8 @@ int _OS::get_video_driver_count() const {
     return OS::get_singleton()->get_video_driver_count();
 }
 
-se_string _OS::get_video_driver_name(VideoDriver p_driver) const {
-    return se_string(OS::get_singleton()->get_video_driver_name((int)p_driver));
+String _OS::get_video_driver_name(VideoDriver p_driver) const {
+    return String(OS::get_singleton()->get_video_driver_name((int)p_driver));
 }
 
 _OS::VideoDriver _OS::get_current_video_driver() const {
@@ -268,11 +268,11 @@ int _OS::get_audio_driver_count() const {
     return OS::get_singleton()->get_audio_driver_count();
 }
 
-se_string _OS::get_audio_driver_name(int p_driver) const {
-    return se_string(OS::get_singleton()->get_audio_driver_name(p_driver));
+String _OS::get_audio_driver_name(int p_driver) const {
+    return String(OS::get_singleton()->get_audio_driver_name(p_driver));
 }
 
-PoolSeStringArray _OS::get_connected_midi_inputs() {
+PoolStringArray _OS::get_connected_midi_inputs() {
     return OS::get_singleton()->get_connected_midi_inputs();
 }
 
@@ -443,7 +443,7 @@ Point2 _OS::get_ime_selection() const {
     return OS::get_singleton()->get_ime_selection();
 }
 
-se_string _OS::get_ime_text() const {
+String _OS::get_ime_text() const {
     return OS::get_singleton()->get_ime_text();
 }
 
@@ -461,12 +461,12 @@ bool _OS::is_video_mode_resizable(int p_screen) const {
 
 Array _OS::get_fullscreen_mode_list(int p_screen) const {
 
-    List<OS::VideoMode> vmlist;
+    Vector<OS::VideoMode> vmlist;
     OS::get_singleton()->get_fullscreen_mode_list(&vmlist, p_screen);
     Array vmarr;
-    for (List<OS::VideoMode>::Element *E = vmlist.front(); E; E = E->next()) {
+    for (const OS::VideoMode &E : vmlist) {
 
-        vmarr.push_back(Size2(E->deref().width, E->deref().height));
+        vmarr.push_back(Size2(E.width, E.height));
     }
 
     return vmarr;
@@ -491,24 +491,24 @@ int _OS::get_low_processor_usage_mode_sleep_usec() const {
     return OS::get_singleton()->get_low_processor_usage_mode_sleep_usec();
 }
 
-se_string _OS::get_executable_path() const {
+String _OS::get_executable_path() const {
 
     return OS::get_singleton()->get_executable_path();
 }
 
-Error _OS::shell_open(se_string p_uri) {
+Error _OS::shell_open(String p_uri) {
 
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
-int _OS::execute(se_string_view p_path, const Vector<se_string> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
+int _OS::execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
 
     OS::ProcessID pid = -2;
     int exitcode = 0;
-    ListPOD<se_string> args;
+    List<String> args;
     for (int i = 0; i < p_arguments.size(); i++)
         args.push_back(p_arguments[i]);
-    se_string pipe;
+    String pipe;
     Error err = OS::get_singleton()->execute(p_path, args, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
     p_output.clear();
     p_output.push_back(Variant(pipe));
@@ -530,24 +530,24 @@ int _OS::get_process_id() const {
     return OS::get_singleton()->get_process_id();
 };
 
-bool _OS::has_environment(const se_string &p_var) const {
+bool _OS::has_environment(const String &p_var) const {
 
     return OS::get_singleton()->has_environment(p_var);
 }
-se_string _OS::get_environment(const se_string &p_var) const {
+String _OS::get_environment(const String &p_var) const {
 
     return OS::get_singleton()->get_environment(p_var);
 }
 
-se_string _OS::get_name() const {
+String _OS::get_name() const {
 
     return OS::get_singleton()->get_name();
 }
-PoolVector<se_string> _OS::get_cmdline_args() {
+PoolVector<String> _OS::get_cmdline_args() {
 
-    ListPOD<se_string> cmdline = OS::get_singleton()->get_cmdline_args();
-    PoolVector<se_string> cmdlinev;
-    for (const se_string & E : cmdline) {
+    List<String> cmdline = OS::get_singleton()->get_cmdline_args();
+    PoolVector<String> cmdlinev;
+    for (const String & E : cmdline) {
 
         cmdlinev.push_back(E);
     }
@@ -555,12 +555,12 @@ PoolVector<se_string> _OS::get_cmdline_args() {
     return cmdlinev;
 }
 
-se_string _OS::get_locale() const {
+String _OS::get_locale() const {
 
     return OS::get_singleton()->get_locale();
 }
 
-se_string _OS::get_latin_keyboard_variant() const {
+String _OS::get_latin_keyboard_variant() const {
     switch (OS::get_singleton()->get_latin_keyboard_variant()) {
         case OS::LATIN_KEYBOARD_QWERTY: return ("QWERTY");
         case OS::LATIN_KEYBOARD_QWERTZ: return ("QWERTZ");
@@ -573,7 +573,7 @@ se_string _OS::get_latin_keyboard_variant() const {
     }
 }
 
-se_string _OS::get_model_name() const {
+String _OS::get_model_name() const {
 
     return OS::get_singleton()->get_model_name();
 }
@@ -682,7 +682,7 @@ uint64_t _OS::get_dynamic_memory_usage() const {
     return OS::get_singleton()->get_dynamic_memory_usage();
 }
 
-void _OS::set_native_icon(const se_string &p_filename) {
+void _OS::set_native_icon(const String &p_filename) {
 
     OS::get_singleton()->set_native_icon(p_filename);
 }
@@ -700,7 +700,7 @@ int _OS::get_exit_code() const {
 void _OS::set_exit_code(int p_code) {
 
     if (p_code < 0 || p_code > 125) {
-        WARN_PRINT("For portability reasons, the exit code should be set between 0 and 125 (inclusive).")
+        WARN_PRINT("For portability reasons, the exit code should be set between 0 and 125 (inclusive).");
     }
     OS::get_singleton()->set_exit_code(p_code);
 }
@@ -785,16 +785,16 @@ int64_t _OS::get_unix_time_from_datetime(Dictionary datetime) const {
         { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
     };
 
-    ERR_FAIL_COND_V_MSG(second > 59, 0, "Invalid second value of: " + itos(second) + ".")
+    ERR_FAIL_COND_V_MSG(second > 59, 0, "Invalid second value of: " + itos(second) + ".");
 
-    ERR_FAIL_COND_V_MSG(minute > 59, 0, "Invalid minute value of: " + itos(minute) + ".")
+    ERR_FAIL_COND_V_MSG(minute > 59, 0, "Invalid minute value of: " + itos(minute) + ".");
 
-    ERR_FAIL_COND_V_MSG(hour > 23, 0, "Invalid hour value of: " + itos(hour) + ".")
+    ERR_FAIL_COND_V_MSG(hour > 23, 0, "Invalid hour value of: " + itos(hour) + ".");
 
-    ERR_FAIL_COND_V_MSG(month > 12 || month == 0, 0, "Invalid month value of: " + itos(month) + ".")
+    ERR_FAIL_COND_V_MSG(month > 12 || month == 0, 0, "Invalid month value of: " + itos(month) + ".");
 
     // Do this check after month is tested as valid
-    ERR_FAIL_COND_V_MSG(day > MONTH_DAYS_TABLE[LEAPYEAR(year)][month - 1] || day == 0, 0, "Invalid day value of '" + itos(day) + "' which is larger than '" + itos(MONTH_DAYS_TABLE[LEAPYEAR(year)][month - 1]) + "' or 0.")
+    ERR_FAIL_COND_V_MSG(day > MONTH_DAYS_TABLE[LEAPYEAR(year)][month - 1] || day == 0, 0, "Invalid day value of '" + itos(day) + "' which is larger than '" + itos(MONTH_DAYS_TABLE[LEAPYEAR(year)][month - 1]) + "' or 0.");
     // Calculate all the seconds from months past in this year
     uint64_t SECONDS_FROM_MONTHS_PAST_THIS_YEAR = DAYS_PAST_THIS_YEAR_TABLE[LEAPYEAR(year)][month - 1] * SECONDS_PER_DAY;
 
@@ -959,14 +959,14 @@ bool _OS::is_stdout_verbose() const {
     return OS::get_singleton()->is_stdout_verbose();
 }
 
-void _OS::dump_memory_to_file(const se_string &p_file) {
+void _OS::dump_memory_to_file(const String &p_file) {
 
     OS::get_singleton()->dump_memory_to_file(p_file.c_str());
 }
 
 struct _OSCoreBindImg {
 
-    se_string path;
+    String path;
     Size2 size;
     int fmt;
     ObjectID id;
@@ -976,10 +976,10 @@ struct _OSCoreBindImg {
 
 void _OS::print_all_textures_by_size() {
 
-    PODVector<_OSCoreBindImg> imgs;
+    Vector<_OSCoreBindImg> imgs;
     int total = 0;
     {
-        ListPOD<Ref<Resource> > rsrc;
+        List<Ref<Resource> > rsrc;
         ResourceCache::get_cached_resources(&rsrc);
         imgs.reserve(rsrc.size());
 
@@ -1009,23 +1009,18 @@ void _OS::print_all_textures_by_size() {
     }
 }
 
-void _OS::print_resources_by_type(const Vector<se_string> &p_types) {
+void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
-    DefHashMap<se_string, int> type_count;
+    DefHashMap<String, int> type_count;
 
-    ListPOD<Ref<Resource> > rsrc;
+    List<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
 
-    PODVector<se_string> converted_typenames;
-    converted_typenames.reserve(p_types.size());
-    for (int i = 0; i < p_types.size(); i++) {
-        converted_typenames.push_back(p_types[i]);
-    }
     for (const Ref<Resource> &r : rsrc) {
 
         bool found = false;
 
-        for (const se_string &name : converted_typenames) {
+        for (const String &name : p_types) {
             if (r->is_class(name.data()))
                 found = true;
         }
@@ -1044,7 +1039,7 @@ bool _OS::has_virtual_keyboard() const {
     return OS::get_singleton()->has_virtual_keyboard();
 }
 
-void _OS::show_virtual_keyboard(const se_string &p_existing_text) {
+void _OS::show_virtual_keyboard(const String &p_existing_text) {
     OS::get_singleton()->show_virtual_keyboard(p_existing_text, Rect2());
 }
 
@@ -1071,7 +1066,7 @@ void _OS::dump_resources_to_file(se_string_view p_file) {
     OS::get_singleton()->dump_resources_to_file(p_file);
 }
 
-se_string _OS::get_user_data_dir() const {
+String _OS::get_user_data_dir() const {
 
     return OS::get_singleton()->get_user_data_dir();
 };
@@ -1144,12 +1139,12 @@ bool _OS::is_keep_screen_on() const {
     return OS::get_singleton()->is_keep_screen_on();
 }
 
-se_string _OS::get_system_dir(SystemDir p_dir) const {
+String _OS::get_system_dir(SystemDir p_dir) const {
 
     return OS::get_system_dir(OS::SystemDir(p_dir));
 }
 
-se_string _OS::get_scancode_string(uint32_t p_code) const {
+String _OS::get_scancode_string(uint32_t p_code) const {
 
     return keycode_get_string(p_code);
 }
@@ -1176,7 +1171,7 @@ bool _OS::request_permissions() {
     return OS::get_singleton()->request_permissions();
 }
 
-PoolVector<se_string> _OS::get_granted_permissions() const {
+PoolVector<String> _OS::get_granted_permissions() const {
 
     return OS::get_singleton()->get_granted_permissions();
 }
@@ -1276,7 +1271,7 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_processor_count"), &_OS::get_processor_count);
 
     MethodBinder::bind_method(D_METHOD("get_executable_path"), &_OS::get_executable_path);
-    MethodBinder::bind_method(D_METHOD("execute", {"path", "arguments", "blocking", "output", "read_stderr"}), &_OS::execute, {DEFVAL(Array()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("execute", {"path", "arguments", "blocking", "output", "read_stderr"}), &_OS::execute, {DEFVAL(true), DEFVAL(Array()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("kill", {"pid"}), &_OS::kill);
     MethodBinder::bind_method(D_METHOD("shell_open", {"uri"}), &_OS::shell_open);
     MethodBinder::bind_method(D_METHOD("get_process_id"), &_OS::get_process_id);
@@ -1325,11 +1320,11 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("dump_memory_to_file", {"file"}), &_OS::dump_memory_to_file);
     MethodBinder::bind_method(D_METHOD("dump_resources_to_file", {"file"}), &_OS::dump_resources_to_file);
     MethodBinder::bind_method(D_METHOD("has_virtual_keyboard"), &_OS::has_virtual_keyboard);
-    MethodBinder::bind_method(D_METHOD("show_virtual_keyboard", {"existing_text"}), &_OS::show_virtual_keyboard, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("show_virtual_keyboard", {"existing_text"}), &_OS::show_virtual_keyboard, {DEFVAL(String())});
     MethodBinder::bind_method(D_METHOD("hide_virtual_keyboard"), &_OS::hide_virtual_keyboard);
     MethodBinder::bind_method(D_METHOD("get_virtual_keyboard_height"), &_OS::get_virtual_keyboard_height);
     MethodBinder::bind_method(D_METHOD("print_resources_in_use", {"short"}), &_OS::print_resources_in_use, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("print_all_resources", {"tofile"}), &_OS::print_all_resources, {DEFVAL(se_string())});
+    MethodBinder::bind_method(D_METHOD("print_all_resources", {"tofile"}), &_OS::print_all_resources, {DEFVAL(String())});
 
     MethodBinder::bind_method(D_METHOD("get_static_memory_usage"), &_OS::get_static_memory_usage);
     MethodBinder::bind_method(D_METHOD("get_static_memory_peak_usage"), &_OS::get_static_memory_peak_usage);
@@ -1386,7 +1381,7 @@ void _OS::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_screen_on"), "set_keep_screen_on", "is_keep_screen_on");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "min_window_size"), "set_min_window_size", "get_min_window_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "max_window_size"), "set_max_window_size", "get_max_window_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "screen_orientation", PROPERTY_HINT_ENUM, "Landscape,Portrait,Reverse Landscape,Reverse Portrait,Sensor Landscape,Sensor Portrait,Sensor"), "set_screen_orientation", "get_screen_orientation");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "screen_orientation", PropertyHint::Enum, "Landscape,Portrait,Reverse Landscape,Reverse Portrait,Sensor Landscape,Sensor Portrait,Sensor"), "set_screen_orientation", "get_screen_orientation");
     ADD_GROUP("Window", "window_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "window_borderless"), "set_borderless_window", "get_borderless_window");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "window_per_pixel_transparency_enabled"), "set_window_per_pixel_transparency_enabled", "get_window_per_pixel_transparency_enabled");
@@ -1403,7 +1398,7 @@ void _OS::_bind_methods() {
     ADD_PROPERTY_DEFAULT("current_screen", 0);
     ADD_PROPERTY_DEFAULT("exit_code", 0);
     ADD_PROPERTY_DEFAULT("vsync_enabled", true);
-    ADD_PROPERTY_DEFAULT("vsync_via_compositor", true);
+    ADD_PROPERTY_DEFAULT("vsync_via_compositor", false);
     ADD_PROPERTY_DEFAULT("low_processor_usage_mode", false);
     ADD_PROPERTY_DEFAULT("low_processor_usage_mode_sleep_usec", 6900);
     ADD_PROPERTY_DEFAULT("keep_screen_on", true);
@@ -1419,8 +1414,8 @@ void _OS::_bind_methods() {
     ADD_PROPERTY_DEFAULT("window_position", Vector2());
     ADD_PROPERTY_DEFAULT("window_size", Vector2());
 
-    BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES2)
     BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES3)
+    BIND_ENUM_CONSTANT(VIDEO_DRIVER_VULKAN)
 
     BIND_ENUM_CONSTANT(DAY_SUNDAY)
     BIND_ENUM_CONSTANT(DAY_MONDAY)
@@ -1628,37 +1623,37 @@ PoolVector<Vector3> _Geometry::segment_intersects_convex(const Vector3 &p_from, 
 
 bool _Geometry::is_polygon_clockwise(const Vector<Vector2> &p_polygon) {
 
-    return Geometry::is_polygon_clockwise({p_polygon.ptr(),p_polygon.size()});
+    return Geometry::is_polygon_clockwise(p_polygon);
 }
 
 bool _Geometry::is_point_in_polygon(const Point2 &p_point, const Vector<Vector2> &p_polygon) {
 
-    return Geometry::is_point_in_polygon(p_point, {p_polygon.ptr(),p_polygon.size()});
+    return Geometry::is_point_in_polygon(p_point, p_polygon);
 }
 
-PODVector<int> _Geometry::triangulate_polygon(Span<const Vector2> p_polygon) {
+Vector<int> _Geometry::triangulate_polygon(Span<const Vector2> p_polygon) {
 
     return Geometry::triangulate_polygon(p_polygon);
 }
 
-PODVector<int> _Geometry::triangulate_delaunay_2d(Span<const Vector2> p_points) {
+Vector<int> _Geometry::triangulate_delaunay_2d(Span<const Vector2> p_points) {
 
     return Geometry::triangulate_delaunay_2d(p_points);
 }
 
-PODVector<Point2> _Geometry::convex_hull_2d(Span<const Point2> p_points) {
+Vector<Point2> _Geometry::convex_hull_2d(Span<const Point2> p_points) {
 
     return Geometry::convex_hull_2d(p_points);
 }
 
-PODVector<Vector3> _Geometry::clip_polygon(Span<const Vector3> p_points, const Plane &p_plane) {
+Vector<Vector3> _Geometry::clip_polygon(Span<const Vector3> p_points, const Plane &p_plane) {
 
     return Geometry::clip_polygon(p_points, p_plane);
 }
 
 Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1670,31 +1665,31 @@ Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vec
 
 Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    for (const Vector<Point2> & poly : polys) {
+        ret.push_back(poly);
     }
     return ret;
 }
 
 Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    for (const Vector<Point2> & poly : polys) {
+        ret.push_back(poly);
     }
     return ret;
 }
 
 Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1706,7 +1701,7 @@ Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const V
 
 Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
+    Vector<Vector<Point2> > polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
 
@@ -1718,7 +1713,7 @@ Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline
 
 Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
+    Vector<Vector<Point2> > polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
 
@@ -1730,7 +1725,7 @@ Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_pol
 
 Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
+    Vector<Vector<Point2> > polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
 
     Array ret;
 
@@ -1742,7 +1737,7 @@ Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_de
 
 Array _Geometry::offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
+    Vector<Vector<Point2> > polys(Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
 
     Array ret;
 
@@ -1756,20 +1751,20 @@ Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
 
     Dictionary ret;
 
-    PODVector<Size2i> rects;
+    Vector<Size2i> rects;
     for (int i = 0; i < p_rects.size(); i++) {
 
         rects.push_back(p_rects[i]);
     }
 
-    PODVector<Point2i> result;
+    Vector<Point2i> result;
     Size2i size;
 
     Geometry::make_atlas(rects, result, size);
 
     Size2 r_size = size;
 
-    PODVector<Point2> r_result;
+    Vector<Point2> r_result;
     r_result.reserve(result.size());
 
     for (Point2i v : result) {
@@ -1866,7 +1861,7 @@ Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const
         return err;
 
     FileAccessEncrypted *fae = memnew(FileAccessEncrypted);
-    err = fae->open_and_parse(f, {p_key.ptr(),p_key.size()}, (p_mode_flags == WRITE) ? FileAccessEncrypted::MODE_WRITE_AES256 : FileAccessEncrypted::MODE_READ);
+    err = fae->open_and_parse(f, p_key, (p_mode_flags == WRITE) ? FileAccessEncrypted::MODE_WRITE_AES256 : FileAccessEncrypted::MODE_READ);
     if (err) {
         memdelete(fae);
         close();
@@ -1933,89 +1928,89 @@ bool _File::is_open() const {
     return f != nullptr;
 }
 
-const se_string & _File::get_path() const {
+const String & _File::get_path() const {
 
-    ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.");
     return f->get_path();
 }
 
-const se_string & _File::get_path_absolute() const {
+const String & _File::get_path_absolute() const {
 
-    ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.");
     return f->get_path_absolute();
 }
 
 void _File::seek(int64_t p_position) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->seek(p_position);
 }
 void _File::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->seek_end(p_position);
 }
 int64_t _File::get_position() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_position();
 }
 
 int64_t _File::get_len() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_len();
 }
 
 bool _File::eof_reached() const {
 
-    ERR_FAIL_COND_V_MSG(!f, false, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, false, "File must be opened before use.");
     return f->eof_reached();
 }
 
 uint8_t _File::get_8() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_8();
 }
 uint16_t _File::get_16() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_16();
 }
 uint32_t _File::get_32() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_32();
 }
 uint64_t _File::get_64() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_64();
 }
 
 float _File::get_float() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_float();
 }
 double _File::get_double() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_double();
 }
 real_t _File::get_real() const {
 
-    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
     return f->get_real();
 }
 
 PoolVector<uint8_t> _File::get_buffer(int p_length) const {
 
     PoolVector<uint8_t> data;
-    ERR_FAIL_COND_V_MSG(!f, data, "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, data, "File must be opened before use.");
 
-    ERR_FAIL_COND_V_MSG(p_length < 0, data, "Length of buffer cannot be smaller than 0.")
+    ERR_FAIL_COND_V_MSG(p_length < 0, data, "Length of buffer cannot be smaller than 0.");
     if (p_length == 0)
         return data;
 
@@ -2024,7 +2019,7 @@ PoolVector<uint8_t> _File::get_buffer(int p_length) const {
 
     PoolVector<uint8_t>::Write w = data.write();
     int len = f->get_buffer(&w[0], p_length);
-    ERR_FAIL_COND_V(len < 0, PoolVector<uint8_t>())
+    ERR_FAIL_COND_V(len < 0, PoolVector<uint8_t>());
 
     w.release();
 
@@ -2034,15 +2029,15 @@ PoolVector<uint8_t> _File::get_buffer(int p_length) const {
     return data;
 }
 
-se_string _File::get_as_text() const {
+String _File::get_as_text() const {
 
-    ERR_FAIL_COND_V_MSG(!f, se_string(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.");
 
-    se_string text;
+    String text;
     size_t original_pos = f->get_position();
     f->seek(0);
 
-    se_string l(get_line());
+    String l(get_line());
     while (!eof_reached()) {
         text += l + "\n";
         l = get_line();
@@ -2054,24 +2049,24 @@ se_string _File::get_as_text() const {
     return text;
 }
 
-se_string _File::get_md5(se_string_view p_path) const {
+String _File::get_md5(se_string_view p_path) const {
 
     return FileAccess::get_md5(p_path);
 }
 
-se_string _File::get_sha256(se_string_view p_path) const {
+String _File::get_sha256(se_string_view p_path) const {
 
     return FileAccess::get_sha256(p_path);
 }
 
-se_string _File::get_line() const {
+String _File::get_line() const {
 
-    ERR_FAIL_COND_V_MSG(!f, se_string(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.");
     return f->get_line();
 }
 
-Vector<se_string> _File::get_csv_line(char p_delim) const {
-    ERR_FAIL_COND_V_MSG(!f, Vector<se_string>(), "File must be opened before use.")
+Vector<String> _File::get_csv_line(int8_t p_delim) const {
+    ERR_FAIL_COND_V_MSG(!f, {}, "File must be opened before use.");
     return f->get_csv_line(p_delim);
 }
 
@@ -2100,85 +2095,85 @@ Error _File::get_error() const {
 
 void _File::store_8(uint8_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_8(p_dest);
 }
 void _File::store_16(uint16_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_16(p_dest);
 }
 void _File::store_32(uint32_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_32(p_dest);
 }
 void _File::store_64(uint64_t p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_64(p_dest);
 }
 
 void _File::store_float(float p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_float(p_dest);
 }
 void _File::store_double(double p_dest) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_double(p_dest);
 }
 void _File::store_real(real_t p_real) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_real(p_real);
 }
 
 void _File::store_string(se_string_view p_string) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_string(p_string);
 }
 
 void _File::store_pascal_string(se_string_view p_string) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_pascal_string(p_string);
 };
 
-se_string _File::get_pascal_string() {
+String _File::get_pascal_string() {
 
-    ERR_FAIL_COND_V_MSG(!f, se_string(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.");
 
     return f->get_pascal_string();
 };
 
 void _File::store_line(se_string_view p_string) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->store_line(p_string);
 }
 
-void _File::store_csv_line(const PoolVector<se_string> &p_values, char p_delim) {
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+void _File::store_csv_line(const PoolVector<String> &p_values, int8_t p_delim) {
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     auto rd = p_values.read();
-    PODVector<se_string> vals(rd.ptr(),rd.ptr()+p_values.size());
+    Vector<String> vals(rd.ptr(),rd.ptr()+p_values.size());
     f->store_csv_line(vals, p_delim);
 }
 
 void _File::store_buffer(const PoolVector<uint8_t> &p_buffer) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     int len = p_buffer.size();
     if (len == 0)
@@ -2196,17 +2191,17 @@ bool _File::file_exists(se_string_view p_name) const {
 
 void _File::store_var(const Variant &p_var, bool p_full_objects) {
 
-    ERR_FAIL_COND_MSG(!f, "File must be opened before use.")
+    ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     int len;
     Error err = encode_variant(p_var, nullptr, len, p_full_objects);
-    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.");
 
     PoolVector<uint8_t> buff;
     buff.resize(len);
 
     PoolVector<uint8_t>::Write w = buff.write();
     err = encode_variant(p_var, &w[0], len, p_full_objects);
-    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_MSG(err != OK, "Error when trying to encode Variant.");
     w.release();
 
     store_32(len);
@@ -2215,16 +2210,16 @@ void _File::store_var(const Variant &p_var, bool p_full_objects) {
 
 Variant _File::get_var(bool p_allow_objects) const {
 
-    ERR_FAIL_COND_V_MSG(!f, Variant(), "File must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!f, Variant(), "File must be opened before use.");
     uint32_t len = get_32();
     PoolVector<uint8_t> buff = get_buffer(len);
-    ERR_FAIL_COND_V((uint32_t)buff.size() != len, Variant())
+    ERR_FAIL_COND_V((uint32_t)buff.size() != len, Variant());
 
     PoolVector<uint8_t>::Read r = buff.read();
 
     Variant v;
     Error err = decode_variant(v, &r[0], len, nullptr, p_allow_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to encode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to encode Variant.");
 
     return v;
 }
@@ -2261,7 +2256,7 @@ void _File::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_real"), &_File::get_real);
     MethodBinder::bind_method(D_METHOD("get_buffer", {"len"}), &_File::get_buffer);
     MethodBinder::bind_method(D_METHOD("get_line"), &_File::get_line);
-    //MethodBinder::bind_method(D_METHOD("get_csv_line", {"delim"}), &_File::get_csv_line, {DEFVAL(',')});
+    MethodBinder::bind_method(D_METHOD("get_csv_line", {"delim"}), &_File::get_csv_line, {DEFVAL(',')});
     MethodBinder::bind_method(D_METHOD("get_as_text"), &_File::get_as_text);
     MethodBinder::bind_method(D_METHOD("get_md5", {"path"}), &_File::get_md5);
     MethodBinder::bind_method(D_METHOD("get_sha256", {"path"}), &_File::get_sha256);
@@ -2279,7 +2274,7 @@ void _File::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("store_real", {"value"}), &_File::store_real);
     MethodBinder::bind_method(D_METHOD("store_buffer", {"buffer"}), &_File::store_buffer);
     MethodBinder::bind_method(D_METHOD("store_line", {"line"}), &_File::store_line);
-    //MethodBinder::bind_method(D_METHOD("store_csv_line", {"values", "delim"}), &_File::store_csv_line, {DEFVAL(',')});
+    MethodBinder::bind_method(D_METHOD("store_csv_line", {"values", "delim"}), &_File::store_csv_line, {DEFVAL(',')});
     MethodBinder::bind_method(D_METHOD("store_string", {"string"}), &_File::store_string);
     MethodBinder::bind_method(D_METHOD("store_var", {"value", "full_objects"}), &_File::store_var, {DEFVAL(false)});
 
@@ -2331,7 +2326,7 @@ Error _Directory::open(se_string_view p_path) {
 
 Error _Directory::list_dir_begin(bool p_skip_navigational, bool p_skip_hidden) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
 
     _list_skip_navigational = p_skip_navigational;
     _list_skip_hidden = p_skip_hidden;
@@ -2339,11 +2334,11 @@ Error _Directory::list_dir_begin(bool p_skip_navigational, bool p_skip_hidden) {
     return d->list_dir_begin();
 }
 
-se_string _Directory::get_next() {
+String _Directory::get_next() {
 
-    ERR_FAIL_COND_V_MSG(!d, se_string(), "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.");
 
-    se_string next = d->get_next();
+    String next = d->get_next();
     while (!next.empty() && ((_list_skip_navigational && (next == "." || next == "..")) || (_list_skip_hidden && d->current_is_hidden()))) {
 
         next = d->get_next();
@@ -2352,44 +2347,44 @@ se_string _Directory::get_next() {
 }
 bool _Directory::current_is_dir() const {
 
-    ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.");
     return d->current_is_dir();
 }
 
 void _Directory::list_dir_end() {
 
-    ERR_FAIL_COND_MSG(!d, "Directory must be opened before use.")
+    ERR_FAIL_COND_MSG(!d, "Directory must be opened before use.");
     d->list_dir_end();
 }
 
 int _Directory::get_drive_count() {
 
-    ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.");
     return d->get_drive_count();
 }
-se_string _Directory::get_drive(int p_drive) {
+String _Directory::get_drive(int p_drive) {
 
-    ERR_FAIL_COND_V_MSG(!d, se_string(), "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.");
     return d->get_drive(p_drive);
 }
 int _Directory::get_current_drive() {
-    ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.");
     return d->get_current_drive();
 }
 
 Error _Directory::change_dir(se_string_view p_dir) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     return d->change_dir(p_dir);
 }
-se_string _Directory::get_current_dir() {
+String _Directory::get_current_dir() {
 
-    ERR_FAIL_COND_V_MSG(!d, se_string(), "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.");
     return d->get_current_dir();
 }
 Error _Directory::make_dir(se_string_view p_dir) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_dir)) {
         DirAccess *d = DirAccess::create_for_path(p_dir);
         Error err = d->make_dir(p_dir);
@@ -2400,7 +2395,7 @@ Error _Directory::make_dir(se_string_view p_dir) {
 }
 Error _Directory::make_dir_recursive(se_string_view p_dir) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_dir)) {
         DirAccess *d = DirAccess::create_for_path(p_dir);
         Error err = d->make_dir_recursive(p_dir);
@@ -2412,7 +2407,7 @@ Error _Directory::make_dir_recursive(se_string_view p_dir) {
 
 bool _Directory::file_exists(se_string_view p_file) {
 
-    ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.");
 
     if (!PathUtils::is_rel_path(p_file)) {
         return FileAccess::exists(p_file);
@@ -2422,7 +2417,7 @@ bool _Directory::file_exists(se_string_view p_file) {
 }
 
 bool _Directory::dir_exists(se_string_view p_dir) {
-    ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_dir)) {
 
         DirAccess *d = DirAccess::create_for_path(p_dir);
@@ -2437,18 +2432,18 @@ bool _Directory::dir_exists(se_string_view p_dir) {
 
 int _Directory::get_space_left() {
 
-    ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, 0, "Directory must be opened before use.");
     return d->get_space_left() / 1024 * 1024; //return value in megabytes, given binding is int
 }
 
 Error _Directory::copy(se_string_view p_from, se_string_view p_to) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     return d->copy(p_from, p_to);
 }
 Error _Directory::rename(se_string_view p_from, se_string_view p_to) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_from)) {
         DirAccess *d = DirAccess::create_for_path(p_from);
         Error err = d->rename(p_from, p_to);
@@ -2460,7 +2455,7 @@ Error _Directory::rename(se_string_view p_from, se_string_view p_to) {
 }
 Error _Directory::remove(se_string_view p_name) {
 
-    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.")
+    ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_name)) {
         DirAccess *d = DirAccess::create_for_path(p_name);
         Error err = d->remove(p_name);
@@ -2513,21 +2508,21 @@ _Marshalls *_Marshalls::get_singleton() {
     return singleton;
 }
 
-se_string _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) {
+String _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) {
 
     int len;
     Error err = encode_variant(p_var, nullptr, len, p_full_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, {}, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, {}, "Error when trying to encode Variant.");
 
     PoolVector<uint8_t> buff;
     buff.resize(len);
     PoolVector<uint8_t>::Write w = buff.write();
 
     err = encode_variant(p_var, &w[0], len, p_full_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, {}, "Error when trying to encode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, {}, "Error when trying to encode Variant.");
 
-    se_string ret = CryptoCore::b64_encode_str(&w[0], len);
-    ERR_FAIL_COND_V(ret.empty(), ret)
+    String ret = CryptoCore::b64_encode_str(&w[0], len);
+    ERR_FAIL_COND_V(ret.empty(), ret);
 
     return ret;
 };
@@ -2535,33 +2530,33 @@ se_string _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_object
 Variant _Marshalls::base64_to_variant(se_string_view p_str, bool p_allow_objects) {
 
     int strlen = p_str.size();
-    se_string cstr(p_str);
+    String cstr(p_str);
 
     PoolVector<uint8_t> buf;
     buf.resize(strlen / 4 * 3 + 1);
     PoolVector<uint8_t>::Write w = buf.write();
 
     size_t len = 0;
-    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (unsigned char *)cstr.data(), strlen) != OK, Variant())
+    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (unsigned char *)cstr.data(), strlen) != OK, Variant());
 
     Variant v;
     Error err = decode_variant(v, &w[0], len, nullptr, p_allow_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.");
 
     return v;
 };
 
-se_string _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
+String _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
 
-    se_string ret = CryptoCore::b64_encode_str(p_arr.read().ptr(), p_arr.size());
-    ERR_FAIL_COND_V(ret.empty(), ret)
+    String ret = CryptoCore::b64_encode_str(p_arr.read().ptr(), p_arr.size());
+    ERR_FAIL_COND_V(ret.empty(), ret);
     return ret;
 };
 
 PoolVector<uint8_t> _Marshalls::base64_to_raw(se_string_view p_str) {
 
     int strlen = p_str.size();
-    se_string cstr(p_str);
+    String cstr(p_str);
 
     size_t arr_len = 0;
     PoolVector<uint8_t> buf;
@@ -2569,21 +2564,21 @@ PoolVector<uint8_t> _Marshalls::base64_to_raw(se_string_view p_str) {
         buf.resize(strlen / 4 * 3 + 1);
         PoolVector<uint8_t>::Write w = buf.write();
 
-        ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &arr_len, (unsigned char *)cstr.data(), strlen) != OK, PoolVector<uint8_t>())
+        ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &arr_len, (unsigned char *)cstr.data(), strlen) != OK, PoolVector<uint8_t>());
     }
     buf.resize(arr_len);
 
     return buf;
 };
 
-se_string _Marshalls::utf8_to_base64(se_string_view p_str) {
+String _Marshalls::utf8_to_base64(se_string_view p_str) {
 
-    se_string ret = CryptoCore::b64_encode_str((const unsigned char *)p_str.data(), p_str.length());
-    ERR_FAIL_COND_V(ret.empty(), ret)
+    String ret = CryptoCore::b64_encode_str((const unsigned char *)p_str.data(), p_str.length());
+    ERR_FAIL_COND_V(ret.empty(), ret);
     return ret;
 };
 
-se_string _Marshalls::base64_to_utf8(se_string_view p_str) {
+String _Marshalls::base64_to_utf8(se_string_view p_str) {
 
     int strlen = p_str.length();
 
@@ -2592,9 +2587,9 @@ se_string _Marshalls::base64_to_utf8(se_string_view p_str) {
     PoolVector<uint8_t>::Write w = buf.write();
 
     size_t len = 0;
-    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (const unsigned char *)p_str.data(), strlen) != OK, se_string())
+    ERR_FAIL_COND_V(CryptoCore::b64_decode(&w[0], buf.size(), &len, (const unsigned char *)p_str.data(), strlen) != OK, String());
 
-    return se_string((const char *)&w[0],len);
+    return String((const char *)&w[0],len);
 };
 
 IMPL_GDCLASS(_Marshalls)
@@ -2633,7 +2628,7 @@ void _Semaphore::_bind_methods() {
 
 _Semaphore::_Semaphore() {
 
-    semaphore = Semaphore::create();
+    semaphore = SemaphoreOld::create();
 }
 
 _Semaphore::~_Semaphore() {
@@ -2692,7 +2687,7 @@ void _Thread::_start_func(void *ud) {
     t->ret = t->target_instance->call(t->target_method, arg, 1, ce);
     if (ce.error != Variant::CallError::CALL_OK) {
 
-        se_string reason;
+        String reason;
         switch (ce.error) {
             case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
@@ -2714,16 +2709,16 @@ void _Thread::_start_func(void *ud) {
             }
         }
 
-        ERR_FAIL_MSG("Could not call function '" + se_string(t->target_method.asCString()) + "' to start thread " + t->get_id() + ": " + reason + ".")
+        ERR_FAIL_MSG("Could not call function '" + String(t->target_method.asCString()) + "' to start thread " + t->get_id() + ": " + reason + ".");
     }
 }
 
 Error _Thread::start(Object *p_instance, const StringName &p_method, const Variant &p_userdata, Priority p_priority) {
 
-    ERR_FAIL_COND_V_MSG(active, ERR_ALREADY_IN_USE, "Thread already started.")
-    ERR_FAIL_COND_V(!p_instance, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(p_method == StringName(), ERR_INVALID_PARAMETER)
-    ERR_FAIL_INDEX_V(p_priority, PRIORITY_MAX, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V_MSG(active, ERR_ALREADY_IN_USE, "Thread already started.");
+    ERR_FAIL_COND_V(!p_instance, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(p_method == StringName(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_priority, PRIORITY_MAX, ERR_INVALID_PARAMETER);
 
     ret = Variant();
     target_method = p_method;
@@ -2747,10 +2742,10 @@ Error _Thread::start(Object *p_instance, const StringName &p_method, const Varia
     return OK;
 }
 
-se_string _Thread::get_id() const {
+String _Thread::get_id() const {
 
     if (!thread)
-        return se_string();
+        return String();
 
     return itos(thread->get_id());
 }
@@ -2761,8 +2756,8 @@ bool _Thread::is_active() const {
 }
 Variant _Thread::wait_to_finish() {
 
-    ERR_FAIL_COND_V_MSG(!thread, Variant(), "Thread must exist to wait for its completion.")
-    ERR_FAIL_COND_V_MSG(!active, Variant(), "Thread must be active to wait for its completion.")
+    ERR_FAIL_COND_V_MSG(!thread, Variant(), "Thread must exist to wait for its completion.");
+    ERR_FAIL_COND_V_MSG(!active, Variant(), "Thread must be active to wait for its completion.");
     Thread::wait_to_finish(thread);
     Variant r = ret;
     active = false;
@@ -2798,34 +2793,34 @@ _Thread::_Thread() {
 
 _Thread::~_Thread() {
 
-    ERR_FAIL_COND_MSG(active, "Reference to a Thread object object was lost while the thread is still running...")
+    ERR_FAIL_COND_MSG(active, "Reference to a Thread object was lost while the thread is still running...");
 }
 /////////////////////////////////////
 
-PoolSeStringArray _ClassDB::get_class_list() const {
+PoolStringArray _ClassDB::get_class_list() const {
 
-    PODVector<StringName> classes;
+    Vector<StringName> classes;
     ClassDB::get_class_list(&classes);
 
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     ret.resize(classes.size());
     int idx = 0;
     for (size_t i=0,fin=classes.size(); i<fin; ++i) {
-        ret.set(idx++, se_string(classes[i]));
+        ret.set(idx++, String(classes[i]));
     }
 
     return ret;
 }
-PoolSeStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class) const {
+PoolStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class) const {
 
-    ListPOD<StringName> classes;
+    Vector<StringName> classes;
     ClassDB::get_inheriters_from_class(p_class, &classes);
 
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     ret.resize(classes.size());
     int idx = 0;
     for (const StringName &E : classes) {
-        ret.set(idx++, se_string(E));
+        ret.set(idx++, String(E));
     }
 
     return ret;
@@ -2875,7 +2870,7 @@ Dictionary _ClassDB::get_signal(StringName p_class, StringName p_signal) const {
 }
 Array _ClassDB::get_signal_list(StringName p_class, bool p_no_inheritance) const {
 
-    ListPOD<MethodInfo> defined_signals;
+    Vector<MethodInfo> defined_signals;
     ClassDB::get_signal_list(p_class, &defined_signals, p_no_inheritance);
     Array ret;
 
@@ -2888,7 +2883,7 @@ Array _ClassDB::get_signal_list(StringName p_class, bool p_no_inheritance) const
 
 Array _ClassDB::get_property_list(StringName p_class, bool p_no_inheritance) const {
 
-    ListPOD<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     ClassDB::get_property_list(p_class, &plist, p_no_inheritance);
     Array ret;
     for (const PropertyInfo &E : plist) {
@@ -2922,7 +2917,7 @@ bool _ClassDB::has_method(StringName p_class, StringName p_method, bool p_no_inh
 
 Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const {
 
-    PODVector<MethodInfo> methods;
+    Vector<MethodInfo> methods;
     ClassDB::get_method_list(p_class, &methods, p_no_inheritance);
     Array ret;
 
@@ -2939,15 +2934,15 @@ Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const
     return ret;
 }
 
-PoolSeStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
+PoolStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
 
-    ListPOD<se_string> constants;
+    List<String> constants;
     ClassDB::get_integer_constant_list(p_class, &constants, p_no_inheritance);
 
-    PoolSeStringArray ret;
+    PoolStringArray ret;
     ret.resize(constants.size());
     int idx = 0;
-    for (const se_string &E : constants) {
+    for (const String &E : constants) {
         ret.set(idx++, Variant(E));
     }
 
@@ -2965,7 +2960,7 @@ int _ClassDB::get_integer_constant(const StringName &p_class, const StringName &
 
     bool found;
     int c = ClassDB::get_integer_constant(p_class, p_name, &found);
-    ERR_FAIL_COND_V(!found, 0)
+    ERR_FAIL_COND_V(!found, 0);
     return c;
 }
 StringName _ClassDB::get_category(const StringName &p_node) const {
@@ -3049,6 +3044,16 @@ float _Engine::get_frames_per_second() const {
     return Engine::get_singleton()->get_frames_per_second();
 }
 
+uint64_t _Engine::get_physics_frames() const {
+
+    return Engine::get_singleton()->get_physics_frames();
+}
+
+uint64_t _Engine::get_idle_frames() const {
+
+    return Engine::get_singleton()->get_idle_frames();
+}
+
 void _Engine::set_time_scale(float p_scale) {
     Engine::get_singleton()->set_time_scale(p_scale);
 }
@@ -3090,7 +3095,7 @@ Dictionary _Engine::get_license_info() const {
     return Engine::get_singleton()->get_license_info();
 }
 
-se_string _Engine::get_license_text() const {
+String _Engine::get_license_text() const {
     return Engine::get_singleton()->get_license_text();
 }
 
@@ -3135,6 +3140,9 @@ void _Engine::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_frames_drawn"), &_Engine::get_frames_drawn);
     MethodBinder::bind_method(D_METHOD("get_frames_per_second"), &_Engine::get_frames_per_second);
+    MethodBinder::bind_method(D_METHOD("get_physics_frames"), &_Engine::get_physics_frames);
+    MethodBinder::bind_method(D_METHOD("get_idle_frames"), &_Engine::get_idle_frames);
+
 
     MethodBinder::bind_method(D_METHOD("get_main_loop"), &_Engine::get_main_loop);
 
@@ -3179,10 +3187,10 @@ void JSONParseResult::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_error_line", {"error_line"}), &JSONParseResult::set_error_line);
     MethodBinder::bind_method(D_METHOD("set_result", {"result"}), &JSONParseResult::set_result);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "error", PROPERTY_HINT_NONE, "Error", PROPERTY_USAGE_CLASS_IS_ENUM), "set_error", "get_error");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "error", PropertyHint::None, "Error", PROPERTY_USAGE_CLASS_IS_ENUM), "set_error", "get_error");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "error_string"), "set_error_string", "get_error_string");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "error_line"), "set_error_line", "get_error_line");
-    ADD_PROPERTY(PropertyInfo(VariantType::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT), "set_result", "get_result");
+    ADD_PROPERTY(PropertyInfo(VariantType::NIL, "result", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT), "set_result", "get_result");
 }
 
 void JSONParseResult::set_error(Error p_error) {
@@ -3197,7 +3205,7 @@ void JSONParseResult::set_error_string(se_string_view p_error_string) {
     error_string = p_error_string;
 }
 
-const se_string & JSONParseResult::get_error_string() const {
+const String & JSONParseResult::get_error_string() const {
     return error_string;
 }
 
@@ -3220,15 +3228,15 @@ Variant JSONParseResult::get_result() const {
 IMPL_GDCLASS(_JSON)
 
 void _JSON::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("print", {"value", "indent", "sort_keys"}), &_JSON::print, {DEFVAL(se_string()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("print", {"value", "indent", "sort_keys"}), &_JSON::print, {DEFVAL(String()), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("parse", {"json"}), &_JSON::parse);
 }
 
-se_string _JSON::print(const Variant &p_value, se_string_view p_indent, bool p_sort_keys) {
+String _JSON::print(const Variant &p_value, se_string_view p_indent, bool p_sort_keys) {
     return JSON::print(p_value, p_indent, p_sort_keys);
 }
 
-Ref<JSONParseResult> _JSON::parse(const se_string &p_json) {
+Ref<JSONParseResult> _JSON::parse(const String &p_json) {
     Ref<JSONParseResult> result(make_ref_counted<JSONParseResult>());
 
     result->error = JSON::parse(p_json, result->result, result->error_string, result->error_line);

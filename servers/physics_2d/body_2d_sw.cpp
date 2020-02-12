@@ -151,7 +151,7 @@ void Body2DSW::set_param(Physics2DServer::BodyParameter p_param, real_t p_value)
             friction = p_value;
         } break;
         case Physics2DServer::BODY_PARAM_MASS: {
-            ERR_FAIL_COND(p_value <= 0)
+            ERR_FAIL_COND(p_value <= 0);
             mass = p_value;
             _update_inertia();
 
@@ -429,7 +429,7 @@ void Body2DSW::integrate_forces(real_t p_step) {
 
     Area2DSW *def_area = get_space()->get_default_area();
     // Area2DSW *damp_area = def_area;
-    ERR_FAIL_COND(!def_area)
+    ERR_FAIL_COND(!def_area);
 
     int ac = areas.size();
     bool stopped = false;
@@ -437,7 +437,6 @@ void Body2DSW::integrate_forces(real_t p_step) {
     area_angular_damp = 0;
     area_linear_damp = 0;
     if (ac) {
-        areas.sort();
         const AreaCMP *aa = &areas[0];
         // damp_area = aa[ac-1].area;
         for (int i = ac - 1; i >= 0 && !stopped; i--) {

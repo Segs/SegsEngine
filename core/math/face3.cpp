@@ -36,7 +36,7 @@
 
 int Face3::split_by_plane(const Plane &p_plane, Face3 p_res[3], bool p_is_point_over[3]) const {
 
-    ERR_FAIL_COND_V(is_degenerate(), 0)
+    ERR_FAIL_COND_V(is_degenerate(), 0);
 
     Vector3 above[4];
     int above_count = 0;
@@ -48,21 +48,21 @@ int Face3::split_by_plane(const Plane &p_plane, Face3 p_res[3], bool p_is_point_
 
         if (p_plane.has_point(vertex[i], CMP_EPSILON)) { // point is in plane
 
-            ERR_FAIL_COND_V(above_count >= 4, 0)
+            ERR_FAIL_COND_V(above_count >= 4, 0);
             above[above_count++] = vertex[i];
-            ERR_FAIL_COND_V(below_count >= 4, 0)
+            ERR_FAIL_COND_V(below_count >= 4, 0);
             below[below_count++] = vertex[i];
 
         } else {
 
             if (p_plane.is_point_over(vertex[i])) {
                 //Point is over
-                ERR_FAIL_COND_V(above_count >= 4, 0)
+                ERR_FAIL_COND_V(above_count >= 4, 0);
                 above[above_count++] = vertex[i];
 
             } else {
                 //Point is under
-                ERR_FAIL_COND_V(below_count >= 4, 0)
+                ERR_FAIL_COND_V(below_count >= 4, 0);
                 below[below_count++] = vertex[i];
             }
 
@@ -73,16 +73,16 @@ int Face3::split_by_plane(const Plane &p_plane, Face3 p_res[3], bool p_is_point_
                 continue;
 
             /* Intersection goes to both */
-            ERR_FAIL_COND_V(above_count >= 4, 0)
+            ERR_FAIL_COND_V(above_count >= 4, 0);
             above[above_count++] = inters;
-            ERR_FAIL_COND_V(below_count >= 4, 0)
+            ERR_FAIL_COND_V(below_count >= 4, 0);
             below[below_count++] = inters;
         }
     }
 
     int polygons_created = 0;
 
-    ERR_FAIL_COND_V(above_count >= 4 && below_count >= 4, 0) //bug in the algo
+    ERR_FAIL_COND_V(above_count >= 4 && below_count >= 4, 0); //bug in the algo
 
     if (above_count >= 3) {
 
@@ -254,9 +254,9 @@ bool Face3::intersects_aabb(const AABB &p_aabb) const {
     return true;
 }
 
-Face3::operator se_string() const {
+Face3::operator String() const {
 
-    return se_string(vertex[0]) + ", " + (se_string)vertex[1] + ", " + (se_string)vertex[2];
+    return String(vertex[0]) + ", " + (String)vertex[1] + ", " + (String)vertex[2];
 }
 
 void Face3::project_range(const Vector3 &p_normal, const Transform &p_transform, real_t &r_min, real_t &r_max) const {

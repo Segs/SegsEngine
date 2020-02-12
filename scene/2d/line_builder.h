@@ -56,10 +56,10 @@ public:
 
 	// TODO Move in a struct and reference it
 	// Output
-    PODVector<Vector2> vertices;
-	Vector<Color> colors;
-	Vector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector2> vertices;
+    PoolVector<Color> colors;
+    PoolVector<Vector2> uvs;
+    Vector<int> indices;
 
 	LineBuilder();
 

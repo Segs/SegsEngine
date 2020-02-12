@@ -108,7 +108,7 @@ private:
 
     void make_hash_table() {
 
-        ERR_FAIL_COND(hash_table)
+        ERR_FAIL_COND(hash_table);
 
         hash_table = memnew_arr(Element *, (1 << MIN_HASH_TABLE_POWER));
 
@@ -120,7 +120,7 @@ private:
 
     void erase_hash_table() {
 
-        ERR_FAIL_COND_MSG(elements, "Cannot erase hash table if there are still elements inside.")
+        ERR_FAIL_COND_MSG(elements, "Cannot erase hash table if there are still elements inside."); 
 
         memdelete_arr(hash_table);
         hash_table = nullptr;
@@ -159,7 +159,7 @@ private:
             return;
 
         Element **new_hash_table = memnew_arr(Element *, ((uint64_t)1 << new_hash_table_power));
-        ERR_FAIL_COND_MSG(!new_hash_table, "Out of memory.")
+        ERR_FAIL_COND_MSG(!new_hash_table, "Out of memory."); 
 
         for (int i = 0; i < (1 << new_hash_table_power); i++) {
 
@@ -212,7 +212,7 @@ private:
 
         /* if element doesn't exist, create it */
         Element *e = memnew(Element);
-        ERR_FAIL_COND_V_MSG(!e, nullptr, "Out of memory.")
+        ERR_FAIL_COND_V_MSG(!e, nullptr, "Out of memory.");
         uint32_t hash = Hasher()(p_key);
         uint32_t index = hash & ((1 << hash_table_power) - 1);
         e->next = hash_table[index];
@@ -302,14 +302,14 @@ public:
     const TData &get(const TKey &p_key) const {
 
         const TData *res = getptr(p_key);
-        ERR_FAIL_COND_V(!res, *res)
+        ERR_FAIL_COND_V(!res, *res);
         return *res;
     }
 
     TData &get(const TKey &p_key) {
 
         TData *res = getptr(p_key);
-        ERR_FAIL_COND_V(!res, *res)
+        ERR_FAIL_COND_V(!res, *res);
         return *res;
     }
 
@@ -500,7 +500,7 @@ public:
         } else { /* get the next key */
 
             const Element *e = get_element(*p_key);
-            ERR_FAIL_COND_V_MSG(!e, nullptr, "Invalid key supplied.")
+            ERR_FAIL_COND_V_MSG(!e, nullptr, "Invalid key supplied.");
             if (e->next) {
                 /* if there is a "next" in the list, return that */
                 return &e->next->pair.key;

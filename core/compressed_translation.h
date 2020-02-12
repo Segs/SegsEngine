@@ -43,9 +43,9 @@ class GODOT_EXPORT PHashTranslation : public Translation {
     //of catching untranslated strings
 
     //load/store friendly types
-    PODVector<int> hash_table;
-    PODVector<int> bucket_table;
-    PODVector<uint8_t> strings;
+    Vector<int> hash_table;
+    Vector<int> bucket_table;
+    Vector<uint8_t> strings;
 
     struct Bucket {
 
@@ -79,7 +79,7 @@ class GODOT_EXPORT PHashTranslation : public Translation {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     static void _bind_methods();
 
 public:

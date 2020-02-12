@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  navigation_obstacle.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,36 +28,42 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
+#pragma once
 
-#include "navigation_mesh_editor_plugin.h"
-#include "core/class_db.h"
+#include "scene/main/node.h"
+#include "core/rid.h"
 
-#ifdef TOOLS_ENABLED
-EditorNavigationMeshGenerator *_nav_mesh_generator = nullptr;
-#endif
+class Navigation;
 
-void register_recast_types() {
-#ifdef TOOLS_ENABLED
-    NavigationMeshEditor::initialize_class();
-    EditorPlugins::add_by_type<NavigationMeshEditorPlugin>();
+class NavigationObstacle : public Node {
+    GDCLASS(NavigationObstacle, Node);
 
-    ClassDB::APIType prev_api = ClassDB::get_current_api();
-    ClassDB::set_current_api(ClassDB::API_EDITOR);
+    Navigation *navigation;
 
-    ClassDB::register_class<EditorNavigationMeshGenerator>();
+    RID agent;
 
-    ClassDB::set_current_api(prev_api);
+protected:
+    static void _bind_methods();
+    void _notification(int p_what);
 
-    _nav_mesh_generator = memnew(EditorNavigationMeshGenerator);
-    Engine::get_singleton()->add_singleton(Engine::Singleton("NavigationMeshGenerator", EditorNavigationMeshGenerator::get_singleton()));
-#endif
-}
+public:
+    NavigationObstacle();
+    virtual ~NavigationObstacle();
 
-void unregister_recast_types() {
-#ifdef TOOLS_ENABLED
-    if (_nav_mesh_generator) {
-        memdelete(_nav_mesh_generator);
+    void set_navigation(Navigation *p_nav);
+    const Navigation *get_navigation() const {
+        return navigation;
     }
-#endif
-}
+
+    void set_navigation_node(Node *p_nav);
+    Node *get_navigation_node() const;
+
+    RID get_rid() const {
+        return agent;
+    }
+
+    StringName get_configuration_warning() const override;
+
+private:
+    void update_agent_shape();
+};

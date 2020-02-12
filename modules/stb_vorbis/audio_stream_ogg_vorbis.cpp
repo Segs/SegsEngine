@@ -39,7 +39,7 @@ RES_BASE_EXTENSION_IMPL(AudioStreamOGGVorbis,"oggstr")
 
 void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_frames) {
 
-    ERR_FAIL_COND(!active)
+    ERR_FAIL_COND(!active);
 
     int todo = p_frames;
 
@@ -62,7 +62,7 @@ void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_fra
 
         if (todo) {
             //end of file!
-            if (vorbis_stream->loop) {
+            if (vorbis_stream->loop && mixed > 0) {
                 //loop
                 seek(vorbis_stream->loop_offset);
                 loops++;
@@ -134,7 +134,7 @@ Ref<AudioStreamPlayback> AudioStreamOGGVorbis::instance_playback() {
 
     Ref<AudioStreamPlaybackOGGVorbis> ovs;
 
-    ERR_FAIL_COND_V(data == nullptr, ovs)
+    ERR_FAIL_COND_V(data == nullptr, ovs);
 
     ovs = make_ref_counted<AudioStreamPlaybackOGGVorbis>();
     ovs->vorbis_stream = Ref<AudioStreamOGGVorbis>(this);
@@ -149,15 +149,15 @@ Ref<AudioStreamPlayback> AudioStreamOGGVorbis::instance_playback() {
 
         AudioServer::get_singleton()->audio_data_free(ovs->ogg_alloc.alloc_buffer);
         ovs->ogg_alloc.alloc_buffer = nullptr;
-        ERR_FAIL_COND_V(!ovs->ogg_stream, Ref<AudioStreamPlaybackOGGVorbis>())
+        ERR_FAIL_COND_V(!ovs->ogg_stream, Ref<AudioStreamPlaybackOGGVorbis>());
     }
 
     return ovs;
 }
 
-se_string AudioStreamOGGVorbis::get_stream_name() const {
+String AudioStreamOGGVorbis::get_stream_name() const {
 
-    return se_string(); //return stream_name;
+    return String(); //return stream_name;
 }
 
 void AudioStreamOGGVorbis::clear_data() {
@@ -197,8 +197,8 @@ void AudioStreamOGGVorbis::set_data(const PoolVector<uint8_t> &p_data) {
             alloc_try *= 2;
         } else {
 
-            ERR_FAIL_COND(alloc_try == MAX_TEST_MEM)
-            ERR_FAIL_COND(ogg_stream == nullptr)
+            ERR_FAIL_COND(alloc_try == MAX_TEST_MEM);
+            ERR_FAIL_COND(ogg_stream == nullptr);
 
             stb_vorbis_info info = stb_vorbis_get_info(ogg_stream);
 
@@ -270,7 +270,7 @@ void AudioStreamOGGVorbis::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_loop_offset", {"seconds"}), &AudioStreamOGGVorbis::set_loop_offset);
     MethodBinder::bind_method(D_METHOD("get_loop_offset"), &AudioStreamOGGVorbis::get_loop_offset);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
+    ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "loop_offset"), "set_loop_offset", "get_loop_offset");
 }

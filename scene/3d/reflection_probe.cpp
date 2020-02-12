@@ -191,9 +191,9 @@ AABB ReflectionProbe::get_aabb() const {
     aabb.size = origin_offset + extents;
     return aabb;
 }
-PoolVector<Face3> ReflectionProbe::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> ReflectionProbe::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return Vector<Face3>();
 }
 
 void ReflectionProbe::_validate_property(PropertyInfo &property) const {
@@ -243,20 +243,20 @@ void ReflectionProbe::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_update_mode", {"mode"}), &ReflectionProbe::set_update_mode);
     MethodBinder::bind_method(D_METHOD("get_update_mode"), &ReflectionProbe::get_update_mode);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "update_mode", PROPERTY_HINT_ENUM, "Once,Always"), "set_update_mode", "get_update_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "intensity", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_intensity", "get_intensity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PROPERTY_HINT_EXP_RANGE, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "update_mode", PropertyHint::Enum, "Once,Always"), "set_update_mode", "get_update_mode");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "intensity", PropertyHint::Range, "0,1,0.01"), "set_intensity", "get_intensity");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PropertyHint::ExpRange, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "origin_offset"), "set_origin_offset", "get_origin_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "box_projection"), "set_enable_box_projection", "is_box_projection_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enable_shadows"), "set_enable_shadows", "are_shadows_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mask", PROPERTY_HINT_LAYERS_3D_RENDER), "set_cull_mask", "get_cull_mask");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mask", PropertyHint::Layers3DRenderer), "set_cull_mask", "get_cull_mask");
 
     ADD_GROUP("Interior", "interior_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior_enable"), "set_as_interior", "is_set_as_interior");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "interior_ambient_color", PROPERTY_HINT_COLOR_NO_ALPHA), "set_interior_ambient", "get_interior_ambient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_energy", PROPERTY_HINT_RANGE, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_contrib", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "interior_ambient_color", PropertyHint::ColorNoAlpha), "set_interior_ambient", "get_interior_ambient");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_energy", PropertyHint::Range, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_contrib", PropertyHint::Range, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
 
     BIND_ENUM_CONSTANT(UPDATE_ONCE)
     BIND_ENUM_CONSTANT(UPDATE_ALWAYS)
@@ -284,5 +284,5 @@ ReflectionProbe::ReflectionProbe() {
 
 ReflectionProbe::~ReflectionProbe() {
 
-    VisualServer::get_singleton()->free(probe);
+    VisualServer::get_singleton()->free_rid(probe);
 }

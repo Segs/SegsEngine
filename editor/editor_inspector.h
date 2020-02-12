@@ -52,7 +52,7 @@ class EditorProperty : public Container {
     GDCLASS(EditorProperty,Container)
 
 private:
-    se_string label;
+    String label;
     int text_size;
     friend class EditorInspector;
     Object *object;
@@ -95,7 +95,7 @@ private:
     Control *label_reference;
     Control *bottom_editor;
 
-    mutable se_string tooltip_text;
+    mutable String tooltip_text;
 
 protected:
     void _notification(int p_what);
@@ -109,7 +109,7 @@ public:
     Size2 get_minimum_size() const override;
 
     void set_label(se_string_view p_label);
-    const se_string &get_label() const;
+    const String &get_label() const;
 
     void set_read_only(bool p_read_only);
     bool is_read_only() const;
@@ -159,7 +159,7 @@ public:
     void set_object_and_property(Object *p_object, const StringName &p_property);
     Control *make_custom_tooltip(se_string_view p_text) const override;
 
-    const se_string &get_tooltip_text() const;
+    const String &get_tooltip_text() const;
 
     void set_draw_top_bg(bool p_draw) { draw_top_bg = p_draw; }
 
@@ -174,11 +174,11 @@ class EditorInspectorPlugin : public RefCounted {
     friend class EditorInspector;
     struct AddedEditor {
         Control *property_editor;
-        Vector<se_string> properties;
-        se_string label;
+        Vector<String> properties;
+        String label;
     };
 
-    List<AddedEditor> added_editors;
+    Vector<AddedEditor> added_editors;
 
 protected:
     static void _bind_methods();
@@ -186,7 +186,7 @@ protected:
 public:
     void add_custom_control(Control *control);
     void add_property_editor(se_string_view p_for_property, Control *p_prop);
-    void add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<se_string> &p_properties, Control *p_prop);
+    void add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<String> &p_properties, Control *p_prop);
 
     virtual bool can_handle(Object *p_object);
     virtual void parse_begin(Object *p_object);
@@ -200,9 +200,9 @@ class EditorInspectorCategory : public Control {
 
     friend class EditorInspector;
     Ref<Texture> icon;
-    se_string label;
+    String label;
     Color bg_color;
-    mutable se_string tooltip_text;
+    mutable String tooltip_text;
 
 protected:
     void _notification(int p_what);
@@ -212,7 +212,7 @@ public:
     Size2 get_minimum_size() const override;
     Control *make_custom_tooltip(se_string_view p_text) const override;
 
-    const se_string &get_tooltip_text() const;
+    const String &get_tooltip_text() const;
 
     EditorInspectorCategory();
 };
@@ -220,8 +220,8 @@ public:
 class EditorInspectorSection : public Container {
     GDCLASS(EditorInspectorSection,Container)
 
-    se_string label;
-    se_string section;
+    String label;
+    String section;
     Object *object;
     VBoxContainer *vbox;
     bool vbox_added; //optimization
@@ -262,8 +262,8 @@ class EditorInspector : public ScrollContainer {
     VBoxContainer *main_vbox;
 
     //map use to cache the instanced editors
-    Map<StringName, List<EditorProperty *> > editor_property_map;
-    List<EditorInspectorSection *> sections;
+    Map<StringName, Vector<EditorProperty *> > editor_property_map;
+    Vector<EditorInspectorSection *> sections;
     Set<StringName> pending;
 
     void _clear();
@@ -292,20 +292,20 @@ class EditorInspector : public ScrollContainer {
     int property_focusable;
     int update_scroll_request;
 
-    Map<StringName, Map<StringName, se_string> > descr_cache;
-    Map<StringName, se_string> class_descr_cache;
+    Map<StringName, Map<StringName, String> > descr_cache;
+    Map<StringName, String> class_descr_cache;
     Set<StringName> restart_request_props;
 
     Map<ObjectID, int> scroll_cache;
 
-    se_string property_prefix; //used for sectioned inspector
+    String property_prefix; //used for sectioned inspector
     StringName object_class;
 
     void _edit_set(se_string_view p_name, const Variant &p_value, bool p_refresh_all, se_string_view p_changed_field);
 
     void _property_changed(se_string_view p_path, const Variant &p_value, se_string_view p_name = se_string_view(), bool changing = false);
     void _property_changed_update_all(se_string_view p_path, const Variant &p_value, se_string_view p_name = {}, bool p_changing = false);
-    void _multiple_properties_changed(const Vector<se_string> &p_paths, Array p_values);
+    void _multiple_properties_changed(const Vector<String> &p_paths, Array p_values);
     void _property_keyed(const StringName &p_path, bool p_advance);
     void _property_keyed_with_value(se_string_view p_path, const Variant &p_value, bool p_advance);
 
@@ -375,8 +375,8 @@ public:
     void set_scroll_offset(int p_offset);
     int get_scroll_offset() const;
 
-    void set_property_prefix(const se_string &p_prefix);
-    const se_string &get_property_prefix() const;
+    void set_property_prefix(const String &p_prefix);
+    const String &get_property_prefix() const;
 
     void set_object_class(const StringName &p_class);
     const StringName &get_object_class() const;

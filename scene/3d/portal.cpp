@@ -42,7 +42,7 @@ bool Portal::_set(const StringName &p_name, const Variant &p_value) {
         PoolVector<float> src_coords = p_value;
         Vector<Point2> points;
         int src_coords_size = src_coords.size();
-        ERR_FAIL_COND_V(src_coords_size % 2, false)
+        ERR_FAIL_COND_V(src_coords_size % 2, false);
         points.resize(src_coords_size / 2);
         for (int i = 0; i < points.size(); i++) {
 
@@ -91,13 +91,13 @@ bool Portal::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Portal::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void Portal::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::POOL_REAL_ARRAY, "shape"));
     p_list->push_back(PropertyInfo(VariantType::BOOL, "enabled"));
-    p_list->push_back(PropertyInfo(VariantType::REAL, "disable_distance", PROPERTY_HINT_RANGE, "0,4096,0.01"));
+    p_list->push_back(PropertyInfo(VariantType::REAL, "disable_distance", PropertyHint::Range, "0,4096,0.01"));
     p_list->push_back(PropertyInfo(VariantType::COLOR, "disabled_color"));
-    p_list->push_back(PropertyInfo(VariantType::REAL, "connect_range", PROPERTY_HINT_RANGE, "0.1,4096,0.01"));
+    p_list->push_back(PropertyInfo(VariantType::REAL, "connect_range", PropertyHint::Range, "0.1,4096,0.01"));
 }
 
 AABB Portal::get_aabb() const {

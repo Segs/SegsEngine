@@ -74,18 +74,18 @@ void SkeletonEditor::create_physical_skeleton() {
 
         if (parent < 0) {
 
-            bones_infos.write[bone_id].relative_rest = skeleton->get_bone_rest(bone_id);
+            bones_infos[bone_id].relative_rest = skeleton->get_bone_rest(bone_id);
 
         } else {
 
             const int parent_parent = skeleton->get_bone_parent(parent);
 
-            bones_infos.write[bone_id].relative_rest = bones_infos[parent].relative_rest * skeleton->get_bone_rest(bone_id);
+            bones_infos[bone_id].relative_rest = bones_infos[parent].relative_rest * skeleton->get_bone_rest(bone_id);
 
             /// create physical bone on parent
             if (!bones_infos[parent].physical_bone) {
 
-                bones_infos.write[parent].physical_bone = create_physical_bone(parent, bone_id, bones_infos);
+                bones_infos[parent].physical_bone = create_physical_bone(parent, bone_id, bones_infos);
 
                 ur->create_action_ui(TTR("Create physical bones"));
                 ur->add_do_method(skeleton, "add_child", Variant(bones_infos[parent].physical_bone));
@@ -107,7 +107,7 @@ void SkeletonEditor::create_physical_skeleton() {
     }
 }
 
-PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos) {
+PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_id, const Vector<SkeletonEditor::BoneInfo> &bones_infos) {
 
     real_t half_height(skeleton->get_bone_rest(bone_child_id).origin.length() * 0.5);
     real_t radius(half_height * 0.2);
@@ -163,7 +163,7 @@ SkeletonEditor::SkeletonEditor() {
     SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Skeleton"));
-    options->set_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Skeleton", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Skeleton", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Create physical skeleton"), MENU_OPTION_CREATE_PHYSICAL_SKELETON);
 

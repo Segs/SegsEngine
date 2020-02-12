@@ -56,7 +56,7 @@ public:
 
         file = FileAccess::open(p_file, FileAccess::READ);
 
-        ERR_FAIL_COND_MSG(!file, "Failed loading resource: '" + p_file + "'.")
+        ERR_FAIL_COND_MSG(!file, "Failed loading resource: '" + p_file + "'."); 
     }
     ~MkvReader() {
 
@@ -285,7 +285,7 @@ void VideoStreamPlaybackWebm::update(float p_delta) {
         if (video_frames_pos >= video_frames_capacity) {
 
             WebMFrame **video_frames_new = (WebMFrame **)memrealloc(video_frames, ++video_frames_capacity * sizeof(void *));
-            ERR_FAIL_COND(!video_frames_new) //Out of memory
+            ERR_FAIL_COND(!video_frames_new); //Out of memory
             (video_frames = video_frames_new)[video_frames_capacity - 1] = memnew(WebMFrame);
         }
         video_frame = video_frames[video_frames_pos];
@@ -395,17 +395,22 @@ int VideoStreamPlaybackWebm::get_mix_rate() const {
 
 inline bool VideoStreamPlaybackWebm::has_enough_video_frames() const {
     if (video_frames_pos > 0) {
-
-        const double audio_delay = AudioServer::get_singleton()->get_output_latency();
+        // FIXME: AudioServer output latency was fixed in af9bb0e, previously it used to
+        // systematically return 0. Now that it gives a proper latency, it broke this
+        // code where the delay compensation likely never really worked.
+        //const double audio_delay = AudioServer::get_singleton()->get_output_latency();
         const double video_time = video_frames[video_frames_pos - 1]->time;
-        return video_time >= time + audio_delay + delay_compensation;
+        return video_time >= time + /* audio_delay + */ delay_compensation;
     }
     return false;
 }
 
 bool VideoStreamPlaybackWebm::should_process(WebMFrame &video_frame) {
-    const double audio_delay = AudioServer::get_singleton()->get_output_latency();
-    return video_frame.time >= time + audio_delay + delay_compensation;
+    // FIXME: AudioServer output latency was fixed in af9bb0e, previously it used to
+    // systematically return 0. Now that it gives a proper latency, it broke this
+    // code where the delay compensation likely never really worked.
+    //const double audio_delay = AudioServer::get_singleton()->get_output_latency();
+    return video_frame.time >= time + /* audio_delay + */ delay_compensation;
 }
 
 void VideoStreamPlaybackWebm::delete_pointers() {
@@ -458,7 +463,7 @@ void VideoStreamWebm::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamWebm::set_file);
     ClassDB::bind_method(D_METHOD("get_file"), &VideoStreamWebm::get_file);
 
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "file", PropertyType::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
 }
 
 void VideoStreamWebm::set_audio_track(int p_track) {

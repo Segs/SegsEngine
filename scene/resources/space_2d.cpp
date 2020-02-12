@@ -65,5 +65,5 @@ Space2D::Space2D() {
 
 Space2D::~Space2D() {
 
-    Physics2DServer::get_singleton()->free(space);
+    Physics2DServer::get_singleton()->free_rid(space);
 }

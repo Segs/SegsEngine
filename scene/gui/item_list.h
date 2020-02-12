@@ -94,7 +94,7 @@ private:
     VScrollBar *scroll_bar;
 
     uint64_t search_time_msec;
-    String search_string;
+    UIString search_string;
 
     int current_columns;
     int fixed_column_width;
@@ -114,7 +114,7 @@ private:
     real_t icon_scale;
 
     bool do_autoscroll_to_bottom;
-
+public:
     Array _get_items() const;
     void _set_items(const Array &p_items);
 

@@ -37,63 +37,63 @@
 
 Error SemaphoreWindows::wait() {
 
-	WaitForSingleObjectEx(semaphore, INFINITE, false);
-	return OK;
+    WaitForSingleObjectEx(semaphore, INFINITE, false);
+    return OK;
 }
 Error SemaphoreWindows::post() {
 
-	ReleaseSemaphore(semaphore, 1, nullptr);
-	return OK;
+    ReleaseSemaphore(semaphore, 1, nullptr);
+    return OK;
 }
 int SemaphoreWindows::get() const {
-	long previous;
-	switch (WaitForSingleObjectEx(semaphore, 0, false)) {
-		case WAIT_OBJECT_0: {
-			ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1)
-			return previous + 1;
-		}
+    long previous;
+    switch (WaitForSingleObjectEx(semaphore, 0, false)) {
+        case WAIT_OBJECT_0: {
+            ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1);
+            return previous + 1;
+        }
         case WAIT_TIMEOUT: {
-			return 0;
-		}
+            return 0;
+        }
         default: {
-		}
-	}
+        }
+    }
 
-	ERR_FAIL_V(-1);
+    ERR_FAIL_V(-1);
 }
 
-Semaphore *SemaphoreWindows::create_semaphore_windows() {
+SemaphoreOld *SemaphoreWindows::create_semaphore_windows() {
 
-	return memnew(SemaphoreWindows);
+    return memnew(SemaphoreWindows);
 }
 
 void SemaphoreWindows::make_default() {
 
-	create_func = create_semaphore_windows;
+    create_func = create_semaphore_windows;
 }
 
 SemaphoreWindows::SemaphoreWindows() {
 
 #ifdef UWP_ENABLED
-	semaphore = CreateSemaphoreEx(
+    semaphore = CreateSemaphoreEx(
             nullptr,
-			0,
-			0xFFFFFFF, //wathever
+            0,
+            0xFFFFFFF, //wathever
             nullptr,
-			0,
-			SEMAPHORE_ALL_ACCESS);
+            0,
+            SEMAPHORE_ALL_ACCESS);
 #else
-	semaphore = CreateSemaphore(
-			nullptr,
-			0,
-			0xFFFFFFF, //wathever
-			nullptr);
+    semaphore = CreateSemaphore(
+            nullptr,
+            0,
+            0xFFFFFFF, //wathever
+            nullptr);
 #endif
 }
 
 SemaphoreWindows::~SemaphoreWindows() {
 
-	CloseHandle(semaphore);
+    CloseHandle(semaphore);
 }
 
 #endif

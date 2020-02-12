@@ -39,7 +39,7 @@ void MultiMeshInstance::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_multimesh", {"multimesh"}), &MultiMeshInstance::set_multimesh);
     MethodBinder::bind_method(D_METHOD("get_multimesh"), &MultiMeshInstance::get_multimesh);
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multimesh", PROPERTY_HINT_RESOURCE_TYPE, "MultiMesh"), "set_multimesh", "get_multimesh");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multimesh", PropertyHint::ResourceType, "MultiMesh"), "set_multimesh", "get_multimesh");
 }
 
 void MultiMeshInstance::set_multimesh(const Ref<MultiMesh> &p_multimesh) {
@@ -56,9 +56,9 @@ Ref<MultiMesh> MultiMeshInstance::get_multimesh() const {
     return multimesh;
 }
 
-PoolVector<Face3> MultiMeshInstance::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> MultiMeshInstance::get_faces(uint32_t p_usage_flags) const {
 
-    return PoolVector<Face3>();
+    return Vector<Face3>();
 }
 
 AABB MultiMeshInstance::get_aabb() const {

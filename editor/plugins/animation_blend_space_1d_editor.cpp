@@ -38,6 +38,7 @@
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace1DEditor)
 
@@ -58,26 +59,25 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
-    if (mb && mb->is_pressed() && (tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT || mb->get_button_index() == BUTTON_LEFT && tool_create->is_pressed())) {
+    if (mb && mb->is_pressed() && ((tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT) || (mb->get_button_index() == BUTTON_LEFT && tool_create->is_pressed()))) {
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
 
-        ListPOD<StringName> classes;
+        Vector<StringName> classes;
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
-        classes.sort(WrapAlphaCompare());
+        eastl::sort(classes.begin(), classes.end(),WrapAlphaCompare());
 
         menu->add_submenu_item(TTR("Add Animation"), StringName("animations"));
 
         AnimationTree *gp = AnimationTreeEditor::get_singleton()->get_tree();
-        ERR_FAIL_COND(!gp)
+        ERR_FAIL_COND(!gp);
 
         if (gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
 
             if (ap) {
-                PODVector<StringName> names;
-                ap->get_animation_list(&names);
+                Vector<StringName> names(ap->get_animation_list());
 
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
@@ -87,7 +87,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
         }
 
         for (const StringName &E : classes) {
-            se_string name = StringUtils::replace_first(E,"AnimationNode", "");
+            String name = StringUtils::replace_first(E,"AnimationNode", "");
             if (name == "Animation")
                 continue;
 
@@ -229,7 +229,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_draw() {
         float x = point;
 
         blend_space_draw->draw_line(Point2(x, s.height - 1), Point2(x, s.height - 5 * EDSCALE), linecolor);
-        blend_space_draw->draw_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), String("0"), linecolor);
+        blend_space_draw->draw_ui_string(font, Point2(x + 2 * EDSCALE, s.height - 2 * EDSCALE - font->get_height() + font->get_ascent()), UIString("0"), linecolor);
         blend_space_draw->draw_line(Point2(x, s.height - 5 * EDSCALE), Point2(x, 0), linecolor_soft);
     }
 
@@ -319,7 +319,7 @@ void AnimationNodeBlendSpace1DEditor::_update_space() {
     max_value->set_value(blend_space->get_max_space());
     min_value->set_value(blend_space->get_min_space());
 
-    label_value->set_text_utf8(blend_space->get_value_label());
+    label_value->set_text(blend_space->get_value_label());
 
     snap_value->set_value(blend_space->get_snap());
 
@@ -379,9 +379,9 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<se_string> filters;
+        Vector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
-        for (const se_string &E : filters) {
+        for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }
         open_file->popup_centered_ratio();
@@ -393,12 +393,12 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
 
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
     } else {
-        se_string type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index);
 
         Object *obj = ClassDB::instance(StringName(type));
-        ERR_FAIL_COND(!obj)
+        ERR_FAIL_COND(!obj);
         AnimationNode *an = object_cast<AnimationNode>(obj);
-        ERR_FAIL_COND(!an)
+        ERR_FAIL_COND(!an);
 
         node = dynamic_ref_cast<AnimationRootNode>(Ref<AnimationNode>(an));
     }
@@ -531,7 +531,7 @@ void AnimationNodeBlendSpace1DEditor::_open_editor() {
 
     if (selected_point >= 0 && selected_point < blend_space->get_blend_point_count()) {
         Ref<AnimationNode> an = blend_space->get_blend_point_node(selected_point);
-        ERR_FAIL_COND(not an)
+        ERR_FAIL_COND(not an);
         AnimationTreeEditor::get_singleton()->enter_editor(itos(selected_point));
     }
 }
@@ -541,16 +541,16 @@ void AnimationNodeBlendSpace1DEditor::_notification(int p_what) {
         error_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
         error_label->add_color_override("font_color", get_color("error_color", "Editor"));
         panel->add_style_override("panel", get_stylebox("bg", "Tree"));
-        tool_blend->set_icon(get_icon("EditPivot", "EditorIcons"));
-        tool_select->set_icon(get_icon("ToolSelect", "EditorIcons"));
-        tool_create->set_icon(get_icon("EditKey", "EditorIcons"));
-        tool_erase->set_icon(get_icon("Remove", "EditorIcons"));
-        snap->set_icon(get_icon("SnapGrid", "EditorIcons"));
-        open_editor->set_icon(get_icon("Edit", "EditorIcons"));
+        tool_blend->set_button_icon(get_icon("EditPivot", "EditorIcons"));
+        tool_select->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
+        tool_create->set_button_icon(get_icon("EditKey", "EditorIcons"));
+        tool_erase->set_button_icon(get_icon("Remove", "EditorIcons"));
+        snap->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
+        open_editor->set_button_icon(get_icon("Edit", "EditorIcons"));
     }
 
     if (p_what == NOTIFICATION_PROCESS) {
-        se_string error;
+        String error;
 
         if (!AnimationTreeEditor::get_singleton()->get_tree()->is_active()) {
             error = TTR("AnimationTree is inactive.\nActivate to enable playback, check node warnings if activation fails.");

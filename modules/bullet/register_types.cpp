@@ -33,6 +33,7 @@
 #include "bullet_physics_server.h"
 #include "core/class_db.h"
 #include "core/project_settings.h"
+#include "space_bullet.h"
 
 /**
     @author AndreaCatania

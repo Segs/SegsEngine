@@ -36,14 +36,12 @@
 #include "core/map.h"
 #include "core/list.h"
 
-#include <enet/enet.h>
-
 class NetworkedMultiplayerENet : public NetworkedMultiplayerPeer {
 
     GDCLASS(NetworkedMultiplayerENet,NetworkedMultiplayerPeer)
 
 public:
-    enum CompressionMode {
+    enum CompressionMode : int8_t {
         COMPRESS_NONE,
         COMPRESS_RANGE_CODER,
         COMPRESS_FASTLZ,
@@ -63,55 +61,26 @@ private:
         SYSCH_UNRELIABLE,
         SYSCH_MAX
     };
+    void *private_data;
 
-    bool active;
-    bool server;
-
+    IP_Address bind_ip;
     uint32_t unique_id;
-
     int target_peer;
-    TransferMode transfer_mode;
     int transfer_channel;
     int channel_count;
+    TransferMode transfer_mode;
+
+    ConnectionStatus connection_status;
+    bool active;
+    bool server;
     bool always_ordered;
-
-    ENetEvent event;
-    ENetPeer *peer;
-    ENetHost *host;
-
     bool refuse_connections;
     bool server_relay;
 
-    ConnectionStatus connection_status;
-
-    Map<int, ENetPeer *> peer_map;
-
-    struct Packet {
-
-        ENetPacket *packet;
-        int from;
-        int channel;
-    };
-
-    CompressionMode compression_mode;
-
-    List<Packet> incoming_packets;
-
-    Packet current_packet;
 
     uint32_t _gen_unique_id() const;
     void _pop_current_packet();
 
-    Vector<uint8_t> src_compressor_mem;
-    Vector<uint8_t> dst_compressor_mem;
-
-    ENetCompressor enet_compressor;
-    static size_t enet_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit, enet_uint8 *outData, size_t outLimit);
-    static size_t enet_decompress(void *context, const enet_uint8 *inData, size_t inLimit, enet_uint8 *outData, size_t outLimit);
-    static void enet_compressor_destroy(void *context);
-    void _setup_compressor();
-
-    IP_Address bind_ip;
 
 protected:
     static void _bind_methods();

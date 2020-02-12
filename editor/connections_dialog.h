@@ -75,9 +75,11 @@ class ConnectDialog : public ConfirmationDialog {
     void ok_pressed() override;
     void _cancel_pressed();
     void _tree_node_selected();
+    void _tree_item_activated();
     void _add_bind();
     void _remove_bind();
     void _advanced_pressed();
+    void _update_ok_enabled();
 
 protected:
     void _notification(int p_what);
@@ -90,7 +92,7 @@ public:
     void set_dst_node(Node *p_node);
     StringName get_dst_method_name() const;
     void set_dst_method(const StringName &p_method);
-    const PODVector<Variant> &get_binds() const;
+    const Vector<Variant> &get_binds() const;
 
     bool get_deferred() const;
     bool get_oneshot() const;
@@ -98,7 +100,7 @@ public:
 
     void init(const Connection& c, bool bEdit = false);
 
-    void popup_dialog(const String &p_for_signal);
+    void popup_dialog(const UIString &p_for_signal);
     ConnectDialog();
     ~ConnectDialog() override;
 };
@@ -139,7 +141,7 @@ class ConnectionsDock : public VBoxContainer {
     PopupMenu *slot_menu;
     UndoRedo *undo_redo;
 
-    Map<StringName, Map<StringName, se_string> > descr_cache;
+    Map<StringName, Map<StringName, String> > descr_cache;
 
     void _make_or_edit_connection();
     void _connect(const Connection& cToMake);

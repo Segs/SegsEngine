@@ -165,15 +165,15 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
 
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(source_emission_file, img);
-    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'.")
+    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'."); 
 
     if (img->is_compressed()) {
         img->decompress();
     }
     img->convert(Image::FORMAT_RGBA8);
-    ERR_FAIL_COND(img->get_format() != Image::FORMAT_RGBA8)
+    ERR_FAIL_COND(img->get_format() != Image::FORMAT_RGBA8);
     Size2i s = Size2(img->get_width(), img->get_height());
-    ERR_FAIL_COND(s.width == 0 || s.height == 0)
+    ERR_FAIL_COND(s.width == 0 || s.height == 0);
 
     Vector<Point2> valid_positions;
     Vector<Point2> valid_normals;
@@ -209,12 +209,12 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
                     if (emode == EMISSION_MODE_SOLID) {
 
                         if (capture_colors) {
-                            valid_colors.write[vpc * 4 + 0] = r[(j * s.width + i) * 4 + 0];
-                            valid_colors.write[vpc * 4 + 1] = r[(j * s.width + i) * 4 + 1];
-                            valid_colors.write[vpc * 4 + 2] = r[(j * s.width + i) * 4 + 2];
-                            valid_colors.write[vpc * 4 + 3] = r[(j * s.width + i) * 4 + 3];
+                            valid_colors[vpc * 4 + 0] = r[(j * s.width + i) * 4 + 0];
+                            valid_colors[vpc * 4 + 1] = r[(j * s.width + i) * 4 + 1];
+                            valid_colors[vpc * 4 + 2] = r[(j * s.width + i) * 4 + 2];
+                            valid_colors[vpc * 4 + 3] = r[(j * s.width + i) * 4 + 3];
                         }
-                        valid_positions.write[vpc++] = Point2(i, j);
+                        valid_positions[vpc++] = Point2(i, j);
 
                     } else {
 
@@ -233,7 +233,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
                         }
 
                         if (on_border) {
-                            valid_positions.write[vpc] = Point2(i, j);
+                            valid_positions[vpc] = Point2(i, j);
 
                             if (emode == EMISSION_MODE_BORDER_DIRECTED) {
                                 Vector2 normal;
@@ -250,14 +250,14 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
                                 }
 
                                 normal.normalize();
-                                valid_normals.write[vpc] = normal;
+                                valid_normals[vpc] = normal;
                             }
 
                             if (capture_colors) {
-                                valid_colors.write[vpc * 4 + 0] = r[(j * s.width + i) * 4 + 0];
-                                valid_colors.write[vpc * 4 + 1] = r[(j * s.width + i) * 4 + 1];
-                                valid_colors.write[vpc * 4 + 2] = r[(j * s.width + i) * 4 + 2];
-                                valid_colors.write[vpc * 4 + 3] = r[(j * s.width + i) * 4 + 3];
+                                valid_colors[vpc * 4 + 0] = r[(j * s.width + i) * 4 + 0];
+                                valid_colors[vpc * 4 + 1] = r[(j * s.width + i) * 4 + 1];
+                                valid_colors[vpc * 4 + 2] = r[(j * s.width + i) * 4 + 2];
+                                valid_colors[vpc * 4 + 3] = r[(j * s.width + i) * 4 + 3];
                             }
 
                             vpc++;
@@ -273,7 +273,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...")
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image..."); 
 
     PoolVector<uint8_t> texdata;
 
@@ -354,7 +354,7 @@ void Particles2DEditorPlugin::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         menu->get_popup()->connect("id_pressed", this, "_menu_callback");
-        menu->set_icon(menu->get_popup()->get_icon("Particles2D", "EditorIcons"));
+        menu->set_button_icon(menu->get_popup()->get_icon("Particles2D", "EditorIcons"));
         file->connect("file_selected", this, "_file_selected");
     }
 }
@@ -393,9 +393,9 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    PODVector<se_string> ext;
+    Vector<String> ext;
     ImageLoader::get_recognized_extensions(ext);
-    for (int i=0,fin=ext.size(); i>fin; ++i) {
+    for (int i=0,fin=ext.size(); i<fin; ++i) {
         file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));
     }
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);

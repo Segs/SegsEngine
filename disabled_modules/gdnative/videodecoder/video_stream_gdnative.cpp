@@ -150,7 +150,7 @@ void VideoStreamPlaybackGDNative::update(float p_delta) {
         return;
     }
     time += p_delta;
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
     interface->update(data_struct, p_delta);
 
     // Don't mix if there's no audio (num_channels == 0).
@@ -236,7 +236,7 @@ void VideoStreamPlaybackGDNative::cleanup() {
 }
 
 void VideoStreamPlaybackGDNative::set_interface(const godot_videodecoder_interface_gdnative *p_interface) {
-    ERR_FAIL_COND(p_interface == nullptr)
+    ERR_FAIL_COND(p_interface == nullptr);
     if (interface != nullptr) {
         cleanup();
     }
@@ -272,7 +272,7 @@ void VideoStreamPlaybackGDNative::stop() {
 }
 
 void VideoStreamPlaybackGDNative::seek(float p_time) {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
     interface->seek(data_struct, p_time);
     if (p_time < time)
         seek_backward = true;
@@ -312,7 +312,7 @@ void VideoStreamPlaybackGDNative::set_loop(bool p_enable) {
 }
 
 void VideoStreamPlaybackGDNative::set_audio_track(int p_idx) {
-    ERR_FAIL_COND(interface == nullptr)
+    ERR_FAIL_COND(interface == nullptr);
     interface->set_audio_track(data_struct, p_idx);
 }
 
@@ -364,7 +364,7 @@ void VideoStreamGDNative::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_file", {"file"}), &VideoStreamGDNative::set_file);
     MethodBinder::bind_method(D_METHOD("get_file"), &VideoStreamGDNative::get_file);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "file", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "file",  PropertyType::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_file", "get_file");
 }
 
 void VideoStreamGDNative::set_audio_track(int p_track) {
@@ -392,7 +392,7 @@ RES ResourceFormatLoaderVideoStreamGDNative::load(const String &p_path, const St
     return ogv_stream;
 }
 
-void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(Vector<String> &p_extensions) const {
     const Map<String, int> &exts(VideoDecoderServer::get_instance()->get_extensions());
     for (const auto &val : exts) {
         p_extensions->push_back(val.first);

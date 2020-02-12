@@ -37,108 +37,108 @@
 
 class GODOT_EXPORT VisualInstance : public Spatial {
 
-	GDCLASS(VisualInstance,Spatial)
+    GDCLASS(VisualInstance,Spatial)
 
     OBJ_CATEGORY("3D Visual Nodes")
 
-	RID base;
-	RID instance;
-	uint32_t layers;
+    RID base;
+    RID instance;
+    uint32_t layers;
 
-	RID _get_visual_instance_rid() const;
+    RID _get_visual_instance_rid() const;
 
 protected:
-	void _update_visibility();
+    void _update_visibility();
 
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	enum GetFacesFlags {
-		FACES_SOLID = 1, // solid geometry
-		FACES_ENCLOSING = 2,
-		FACES_DYNAMIC = 4 // dynamic object geometry
+    enum GetFacesFlags {
+        FACES_SOLID = 1, // solid geometry
+        FACES_ENCLOSING = 2,
+        FACES_DYNAMIC = 4 // dynamic object geometry
 
-	};
+    };
 
-	RID get_instance() const;
-	virtual AABB get_aabb() const = 0;
-	virtual PoolVector<Face3> get_faces(uint32_t p_usage_flags) const = 0;
+    RID get_instance() const;
+    virtual AABB get_aabb() const = 0;
+    virtual Vector<Face3> get_faces(uint32_t p_usage_flags) const = 0;
 
-	virtual AABB get_transformed_aabb() const; // helper
+    virtual AABB get_transformed_aabb() const; // helper
 
-	void set_base(const RID &p_base);
-	RID get_base() const;
+    void set_base(const RID &p_base);
+    RID get_base() const;
 
-	void set_layer_mask(uint32_t p_mask);
-	uint32_t get_layer_mask() const;
+    void set_layer_mask(uint32_t p_mask);
+    uint32_t get_layer_mask() const;
 
-	void set_layer_mask_bit(int p_layer, bool p_enable);
-	bool get_layer_mask_bit(int p_layer) const;
+    void set_layer_mask_bit(int p_layer, bool p_enable);
+    bool get_layer_mask_bit(int p_layer) const;
 
-	VisualInstance();
-	~VisualInstance() override;
+    VisualInstance();
+    ~VisualInstance() override;
 };
 
 class GODOT_EXPORT GeometryInstance : public VisualInstance {
 
-	GDCLASS(GeometryInstance,VisualInstance)
+    GDCLASS(GeometryInstance,VisualInstance)
 
 public:
-	enum Flags {
-		FLAG_USE_BAKED_LIGHT = VS::INSTANCE_FLAG_USE_BAKED_LIGHT,
-		FLAG_DRAW_NEXT_FRAME_IF_VISIBLE = VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE,
-		FLAG_MAX = VS::INSTANCE_FLAG_MAX,
-	};
+    enum Flags {
+        FLAG_USE_BAKED_LIGHT = VS::INSTANCE_FLAG_USE_BAKED_LIGHT,
+        FLAG_DRAW_NEXT_FRAME_IF_VISIBLE = VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE,
+        FLAG_MAX = VS::INSTANCE_FLAG_MAX,
+    };
 
-	enum ShadowCastingSetting {
-		SHADOW_CASTING_SETTING_OFF = VS::SHADOW_CASTING_SETTING_OFF,
-		SHADOW_CASTING_SETTING_ON = VS::SHADOW_CASTING_SETTING_ON,
-		SHADOW_CASTING_SETTING_DOUBLE_SIDED = VS::SHADOW_CASTING_SETTING_DOUBLE_SIDED,
-		SHADOW_CASTING_SETTING_SHADOWS_ONLY = VS::SHADOW_CASTING_SETTING_SHADOWS_ONLY
-	};
+    enum ShadowCastingSetting {
+        SHADOW_CASTING_SETTING_OFF = VS::SHADOW_CASTING_SETTING_OFF,
+        SHADOW_CASTING_SETTING_ON = VS::SHADOW_CASTING_SETTING_ON,
+        SHADOW_CASTING_SETTING_DOUBLE_SIDED = VS::SHADOW_CASTING_SETTING_DOUBLE_SIDED,
+        SHADOW_CASTING_SETTING_SHADOWS_ONLY = VS::SHADOW_CASTING_SETTING_SHADOWS_ONLY
+    };
 
 private:
-	bool flags[FLAG_MAX];
-	ShadowCastingSetting shadow_casting_setting;
-	Ref<Material> material_override;
-	float lod_min_distance;
-	float lod_max_distance;
-	float lod_min_hysteresis;
-	float lod_max_hysteresis;
+    bool flags[FLAG_MAX];
+    ShadowCastingSetting shadow_casting_setting;
+    Ref<Material> material_override;
+    float lod_min_distance;
+    float lod_max_distance;
+    float lod_min_hysteresis;
+    float lod_max_hysteresis;
 
-	float extra_cull_margin;
+    float extra_cull_margin;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_flag(Flags p_flag, bool p_value);
-	bool get_flag(Flags p_flag) const;
+    void set_flag(Flags p_flag, bool p_value);
+    bool get_flag(Flags p_flag) const;
 
-	void set_cast_shadows_setting(ShadowCastingSetting p_shadow_casting_setting);
-	ShadowCastingSetting get_cast_shadows_setting() const;
+    void set_cast_shadows_setting(ShadowCastingSetting p_shadow_casting_setting);
+    ShadowCastingSetting get_cast_shadows_setting() const;
 
-	void set_lod_min_distance(float p_dist);
-	float get_lod_min_distance() const;
+    void set_lod_min_distance(float p_dist);
+    float get_lod_min_distance() const;
 
-	void set_lod_max_distance(float p_dist);
-	float get_lod_max_distance() const;
+    void set_lod_max_distance(float p_dist);
+    float get_lod_max_distance() const;
 
-	void set_lod_min_hysteresis(float p_dist);
-	float get_lod_min_hysteresis() const;
+    void set_lod_min_hysteresis(float p_dist);
+    float get_lod_min_hysteresis() const;
 
-	void set_lod_max_hysteresis(float p_dist);
-	float get_lod_max_hysteresis() const;
+    void set_lod_max_hysteresis(float p_dist);
+    float get_lod_max_hysteresis() const;
 
-	void set_material_override(const Ref<Material> &p_material);
-	Ref<Material> get_material_override() const;
+    void set_material_override(const Ref<Material> &p_material);
+    Ref<Material> get_material_override() const;
 
-	void set_extra_cull_margin(float p_margin);
-	float get_extra_cull_margin() const;
+    void set_extra_cull_margin(float p_margin);
+    float get_extra_cull_margin() const;
 
-	void set_custom_aabb(AABB aabb);
+    void set_custom_aabb(AABB aabb);
 
-	GeometryInstance();
+    GeometryInstance();
 };

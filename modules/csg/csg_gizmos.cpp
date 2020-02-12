@@ -344,19 +344,17 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     Ref<Material> handles_material = get_material("handles");
 
-    PoolVector<Vector3> faces = cs->get_brush_faces();
+    Vector<Vector3> faces = cs->get_brush_faces();
 
-    PODVector<Vector3> lines;
+    Vector<Vector3> lines;
     lines.resize(faces.size() * 2);
     {
-        PoolVector<Vector3>::Read r = faces.read();
-
         for (size_t i = 0; i < lines.size(); i += 6) {
             int f = i / 6;
             for (int j = 0; j < 3; j++) {
                 int j_n = (j + 1) % 3;
-                lines[i + j * 2 + 0] = r[f * 3 + j];
-                lines[i + j * 2 + 1] = r[f * 3 + j_n];
+                lines[i + j * 2 + 0] = faces[f * 3 + j];
+                lines[i + j * 2 + 1] = faces[f * 3 + j_n];
             }
         }
     }
@@ -367,10 +365,9 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     if (p_gizmo->is_selected()) {
         // Draw a translucent representation of the CSG node
         Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
-        Array array;
-        array.resize(Mesh::ARRAY_MAX);
-        array[Mesh::ARRAY_VERTEX] = faces;
-        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, array);
+        SurfaceArrays array(eastl::move(faces));
+
+        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, eastl::move(array));
 
         Ref<Material> solid_material;
         switch (cs->get_operation()) {
@@ -392,37 +389,38 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         CSGSphere *s = object_cast<CSGSphere>(cs);
 
         float r = s->get_radius();
-        Vector<Vector3> handles;
-        handles.push_back(Vector3(r, 0, 0));
-        p_gizmo->add_handles(handles, handles_material);
+        Vector<Vector3> handles {1,Vector3(r, 0, 0)};
+        p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
     if (object_cast<CSGBox>(cs)) {
         CSGBox *s = object_cast<CSGBox>(cs);
 
-        Vector<Vector3> handles;
-        handles.push_back(Vector3(s->get_width() * 0.5f, 0, 0));
-        handles.push_back(Vector3(0, s->get_height() * 0.5f, 0));
-        handles.push_back(Vector3(0, 0, s->get_depth() * 0.5f));
-        p_gizmo->add_handles(handles, handles_material);
+        Vector<Vector3> handles {
+            Vector3(s->get_width() * 0.5f, 0, 0),
+            Vector3(0, s->get_height() * 0.5f, 0),
+            Vector3(0, 0, s->get_depth() * 0.5f)
+        };
+        p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
     if (object_cast<CSGCylinder>(cs)) {
         CSGCylinder *s = object_cast<CSGCylinder>(cs);
-
-        Vector<Vector3> handles;
-        handles.push_back(Vector3(s->get_radius(), 0, 0));
-        handles.push_back(Vector3(0, s->get_height() * 0.5f, 0));
-        p_gizmo->add_handles(handles, handles_material);
+        Vector<Vector3> handles {
+            Vector3(s->get_radius(), 0, 0),
+            Vector3(0, s->get_height() * 0.5f, 0)
+        };
+        p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
     if (object_cast<CSGTorus>(cs)) {
         CSGTorus *s = object_cast<CSGTorus>(cs);
+        Vector<Vector3> handles {
+            Vector3(s->get_inner_radius(), 0, 0),
+            Vector3(s->get_outer_radius(), 0, 0)
+        };
 
-        Vector<Vector3> handles;
-        handles.push_back(Vector3(s->get_inner_radius(), 0, 0));
-        handles.push_back(Vector3(s->get_outer_radius(), 0, 0));
-        p_gizmo->add_handles(handles, handles_material);
+        p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 }
 

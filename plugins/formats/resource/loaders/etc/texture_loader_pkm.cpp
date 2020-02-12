@@ -60,14 +60,14 @@ RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_pat
     if (r_error)
         *r_error = ERR_FILE_CORRUPT;
 
-    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open PKM texture file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open PKM texture file '" + p_path + "'.");
 
     // big endian
     f->set_endian_swap(true);
 
     ETC1Header h;
     f->get_buffer((uint8_t *)&h.tag, sizeof(h.tag));
-    ERR_FAIL_COND_V_MSG(strncmp(h.tag, "PKM 10", sizeof(h.tag)), RES(), "Invalid or unsupported PKM texture file '" + p_path + "'.")
+    ERR_FAIL_COND_V_MSG(strncmp(h.tag, "PKM 10", sizeof(h.tag)), RES(), "Invalid or unsupported PKM texture file '" + p_path + "'.");
 
     h.format = f->get_16();
     h.texWidth = f->get_16();
@@ -101,7 +101,7 @@ RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatPKM::get_recognized_extensions(PODVector<se_string> &p_extensions) const {
+void ResourceFormatPKM::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("pkm");
 }
@@ -111,14 +111,14 @@ bool ResourceFormatPKM::handles_type(se_string_view p_type) const {
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-se_string ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
+String ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pkm")
         return "ImageTexture";
     return "";
 }
 
-void ResourceFormatPKM::fill_modes(PODVector<int> &modes) const
+void ResourceFormatPKM::fill_modes(Vector<int> &modes) const
 {
     modes.push_back(ImageCompressMode::COMPRESS_ETC);
     modes.push_back(ImageCompressMode::COMPRESS_ETC2);

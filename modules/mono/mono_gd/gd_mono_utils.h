@@ -42,10 +42,10 @@
 #include "core/reference.h"
 
 #define UNHANDLED_EXCEPTION(m_exc)                     \
-	if (unlikely(m_exc != NULL)) {                     \
-		GDMonoUtils::debug_unhandled_exception(m_exc); \
-		GD_UNREACHABLE();                              \
-	}
+    if (unlikely(m_exc != NULL)) {                     \
+        GDMonoUtils::debug_unhandled_exception(m_exc); \
+        GD_UNREACHABLE();                              \
+    }
 
 namespace GDMonoUtils {
 
@@ -72,7 +72,7 @@ Dictionary generic_idictionary_to_dictionary(MonoObject *p_generic_idictionary);
 } // namespace Marshal
 
 _FORCE_INLINE_ void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) {
-	p_hash ^= p_with_hash + 0x9e3779b9 + (p_hash << 6) + (p_hash >> 2);
+    p_hash ^= p_with_hash + 0x9e3779b9 + (p_hash << 6) + (p_hash >> 2);
 }
 
 /**
@@ -83,12 +83,14 @@ _FORCE_INLINE_ void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) 
 MonoObject *unmanaged_get_managed(Object *unmanaged);
 
 void set_main_thread(MonoThread *p_thread);
-void attach_current_thread();
+MonoThread *attach_current_thread();
 void detach_current_thread();
+void detach_current_thread(MonoThread *p_mono_thread);
 MonoThread *get_current_thread();
+bool is_thread_attached();
 
 _FORCE_INLINE_ bool is_main_thread() {
-	return mono_domain_get() != NULL && mono_thread_get_main() == mono_thread_current();
+    return mono_domain_get() != NULL && mono_thread_get_main() == mono_thread_current();
 }
 
 void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc = NULL);
@@ -107,7 +109,7 @@ MonoObject *create_managed_from(const Dictionary &p_from, GDMonoClass *p_class);
 MonoDomain *create_domain(const String &p_friendly_name);
 
 String get_exception_name_and_message(MonoException *p_exc);
-void set_exception_message(MonoException *p_exc, String message);
+void set_exception_message(MonoException *p_exc, const String &message);
 
 void debug_print_unhandled_exception(MonoException *p_exc);
 void debug_send_unhandled_exception_error(MonoException *p_exc);
@@ -124,10 +126,10 @@ void set_pending_exception(MonoException *p_exc);
 extern _THREAD_LOCAL_(int) current_invoke_count;
 
 _FORCE_INLINE_ int get_runtime_invoke_count() {
-	return current_invoke_count;
+    return current_invoke_count;
 }
 _FORCE_INLINE_ int &get_runtime_invoke_count_ref() {
-	return current_invoke_count;
+    return current_invoke_count;
 }
 
 MonoObject *runtime_invoke(MonoMethod *p_method, void *p_obj, void **p_params, MonoException **r_exc);
@@ -142,15 +144,33 @@ uint64_t unbox_enum_value(MonoObject *p_boxed, MonoType *p_enum_basetype, bool &
 
 void dispose(MonoObject *p_mono_object, MonoException **r_exc);
 
+struct ScopeThreadAttach {
+    ScopeThreadAttach();
+    ~ScopeThreadAttach();
+
+private:
+    MonoThread *mono_thread;
+};
 } // namespace GDMonoUtils
 
 #define NATIVE_GDMONOCLASS_NAME(m_class) (GDMonoMarshal::mono_string_to_godot((MonoString *)m_class->get_field(BINDINGS_NATIVE_NAME_FIELD)->get_value(NULL)))
 
 #define GD_MONO_BEGIN_RUNTIME_INVOKE                                              \
-	int &_runtime_invoke_count_ref = GDMonoUtils::get_runtime_invoke_count_ref(); \
-	_runtime_invoke_count_ref += 1;
+    int &_runtime_invoke_count_ref = GDMonoUtils::get_runtime_invoke_count_ref(); \
+    _runtime_invoke_count_ref += 1;
 
 #define GD_MONO_END_RUNTIME_INVOKE \
-	_runtime_invoke_count_ref -= 1;
+    _runtime_invoke_count_ref -= 1;
+
+#define GD_MONO_SCOPE_THREAD_ATTACH                                   \
+    GDMonoUtils::ScopeThreadAttach __gdmono__scope__thread__attach__; \
+    (void)__gdmono__scope__thread__attach__;
+
+#ifdef DEBUG_ENABLED
+#define GD_MONO_ASSERT_THREAD_ATTACHED \
+    { CRASH_COND(!GDMonoUtils::is_thread_attached()); }
+#else
+#define GD_MONO_ASSERT_THREAD_ATTACHED
+#endif
 
 #endif // GD_MONOUTILS_H

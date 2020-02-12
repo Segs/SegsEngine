@@ -55,13 +55,13 @@ protected:
         bool open;
         int size;
         int offset;
-        se_string name;
+        String name;
         int access_flags;
     } file;
 
     mutable struct Cache {
 
-        PODVector<uint8_t> buffer;
+        Vector<uint8_t> buffer;
         int offset;
     } cache;
 

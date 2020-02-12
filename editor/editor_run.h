@@ -34,33 +34,33 @@
 
 class EditorRun {
 public:
-	enum Status {
+    enum Status {
 
-		STATUS_PLAY,
-		STATUS_PAUSED,
-		STATUS_STOP
-	};
+        STATUS_PLAY,
+        STATUS_PAUSED,
+        STATUS_STOP
+    };
 
-	OS::ProcessID pid;
+    OS::ProcessID pid;
 
 private:
-	bool debug_collisions;
-	bool debug_navigation;
-	Status status;
+    bool debug_collisions;
+    bool debug_navigation;
+    Status status;
 
 public:
-	Status get_status() const;
-	Error run(se_string_view p_scene, se_string_view p_custom_args, const List<se_string> &p_breakpoints, const bool &p_skip_breakpoints = false);
-	void run_native_notify() { status = STATUS_PLAY; }
-	void stop();
+    Status get_status() const;
+    Error run(se_string_view p_scene, se_string_view p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints = false);
+    void run_native_notify() { status = STATUS_PLAY; }
+    void stop();
 
-	OS::ProcessID get_pid() const { return pid; }
+    OS::ProcessID get_pid() const { return pid; }
 
-	void set_debug_collisions(bool p_debug);
-	bool get_debug_collisions() const;
+    void set_debug_collisions(bool p_debug);
+    bool get_debug_collisions() const;
 
-	void set_debug_navigation(bool p_debug);
-	bool get_debug_navigation() const;
+    void set_debug_navigation(bool p_debug);
+    bool get_debug_navigation() const;
 
-	EditorRun();
+    EditorRun();
 };

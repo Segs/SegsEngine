@@ -46,7 +46,7 @@ public:
 	};
 
 private:
-    se_string text;
+    String text;
 	UnderlineMode underline_mode;
 
 protected:
@@ -56,7 +56,7 @@ protected:
 
 public:
     void set_text(se_string_view p_text);
-    const se_string &get_text() const;
+    const String &get_text() const;
 
 	void set_underline_mode(UnderlineMode p_underline_mode);
 	UnderlineMode get_underline_mode() const;

@@ -255,8 +255,8 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 }
 
 void CurveEditor::on_preset_item_selected(int preset_id) {
-    ERR_FAIL_COND(preset_id < 0 || preset_id >= PRESET_COUNT)
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(preset_id < 0 || preset_id >= PRESET_COUNT);
+    ERR_FAIL_COND(not _curve_ref);
 
     Curve &curve = *_curve_ref;
     Array previous_data = curve.get_data();
@@ -432,7 +432,7 @@ CurveEditor::TangentIndex CurveEditor::get_tangent_at(Vector2 pos) const {
 }
 
 void CurveEditor::add_point(Vector2 pos) {
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action_ui(TTR("Remove Curve Point"));
@@ -454,7 +454,7 @@ void CurveEditor::add_point(Vector2 pos) {
 }
 
 void CurveEditor::remove_point(int index) {
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action_ui(TTR("Remove Curve Point"));
@@ -474,7 +474,7 @@ void CurveEditor::remove_point(int index) {
 }
 
 void CurveEditor::toggle_linear(TangentIndex tangent) {
-    ERR_FAIL_COND(not _curve_ref)
+    ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
     ur.create_action_ui(TTR("Toggle Curve Linear Tangent"));
@@ -670,11 +670,11 @@ void CurveEditor::_draw() {
         // X axis
         float y = curve.get_min_value();
         Vector2 off(0, font_height - 1);
-        draw_string_utf8(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
+        draw_string(font, get_view_pos(Vector2(0, y)) + off, "0.0", text_color);
+        draw_string(font, get_view_pos(Vector2(0.25f, y)) + off, "0.25", text_color);
+        draw_string(font, get_view_pos(Vector2(0.5f, y)) + off, "0.5", text_color);
+        draw_string(font, get_view_pos(Vector2(0.75f, y)) + off, "0.75", text_color);
+        draw_string(font, get_view_pos(Vector2(1, y)) + off, "1.0", text_color);
     }
 
     {
@@ -683,9 +683,9 @@ void CurveEditor::_draw() {
         float m1 = 0.5f * (curve.get_min_value() + curve.get_max_value());
         float m2 = curve.get_max_value();
         Vector2 off(1, -1);
-        draw_string_utf8(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0, m1)) + off, StringUtils::num(m1, 2), text_color);
-        draw_string_utf8(font, get_view_pos(Vector2(0, m2)) + off, StringUtils::num(m2, 3), text_color);
+        draw_string(font, get_view_pos(Vector2(0, m0)) + off, StringUtils::num(m0, 2), text_color);
+        draw_string(font, get_view_pos(Vector2(0, m1)) + off, StringUtils::num(m1, 2), text_color);
+        draw_string(font, get_view_pos(Vector2(0, m2)) + off, StringUtils::num(m2, 3), text_color);
     }
 
     // Draw tangents for current point
@@ -746,10 +746,10 @@ void CurveEditor::_draw() {
 
     if (_selected_point > 0 && _selected_point + 1 < curve.get_point_count()) {
         text_color.a *= 0.4f;
-        draw_string_utf8(font, Vector2(50, font_height), TTR("Hold Shift to edit tangents individually"), text_color);
+        draw_string(font, Vector2(50, font_height), TTR("Hold Shift to edit tangents individually"), text_color);
     } else if (curve.get_point_count() == 0) {
         text_color.a *= 0.4f;
-        draw_string_utf8(font, Vector2(50, font_height), TTR("Right click to add point"), text_color);
+        draw_string(font, Vector2(50, font_height), TTR("Right click to add point"), text_color);
     }
 }
 
@@ -770,7 +770,7 @@ bool EditorInspectorPluginCurve::can_handle(Object *p_object) {
 void EditorInspectorPluginCurve::parse_begin(Object *p_object) {
 
     Curve *curve = object_cast<Curve>(p_object);
-    ERR_FAIL_COND(!curve)
+    ERR_FAIL_COND(!curve);
     Ref<Curve> c(curve);
 
     CurveEditor *editor = memnew(CurveEditor);
@@ -796,7 +796,7 @@ bool CurvePreviewGenerator::handles(se_string_view p_type) const {
 Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const Size2 &p_size) const {
 
     Ref<Curve> curve_ref = dynamic_ref_cast<Curve>(p_from);
-    ERR_FAIL_COND_V_MSG(not curve_ref, Ref<Texture>(), "It's not a reference to a valid Resource object.")
+    ERR_FAIL_COND_V_MSG(not curve_ref, Ref<Texture>(), "It's not a reference to a valid Resource object.");
     Curve &curve = *curve_ref;
 
     // FIXME: Should be ported to use p_size as done in b2633a97

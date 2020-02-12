@@ -74,29 +74,31 @@ protected:
     static void _bind_methods();
 
     virtual IP_Address _resolve_hostname(se_string_view p_hostname, Type p_type = TYPE_ANY) = 0;
-    Array _get_local_addresses() const;
-    Array _get_local_interfaces() const;
 
     static IP *(*_create)();
 
 public:
+    Array _get_local_addresses() const;
+    Array _get_local_interfaces() const;
+
+public:
     struct Interface_Info {
-        se_string name;
-        se_string name_friendly;
+        String name;
+        String name_friendly;
         uint64_t index;
-        List<IP_Address> ip_addresses;
+        Vector<IP_Address> ip_addresses;
     };
 
     IP_Address resolve_hostname(se_string_view p_hostname, Type p_type = TYPE_ANY);
     // async resolver hostname
-    ResolverID resolve_hostname_queue_item(const se_string &p_hostname, Type p_type = TYPE_ANY);
+    ResolverID resolve_hostname_queue_item(const String &p_hostname, Type p_type = TYPE_ANY);
     ResolverStatus get_resolve_item_status(ResolverID p_id) const;
     IP_Address get_resolve_item_address(ResolverID p_id) const;
-    virtual void get_local_addresses(List<IP_Address> *r_addresses) const;
-    virtual void get_local_interfaces(Map<se_string, Interface_Info> *r_interfaces) const = 0;
+    virtual void get_local_addresses(Vector<IP_Address> *r_addresses) const;
+    virtual void get_local_interfaces(Map<String, Interface_Info> *r_interfaces) const = 0;
     void erase_resolve_item(ResolverID p_id);
 
-    void clear_cache(const se_string &p_hostname = se_string());
+    void clear_cache(const String &p_hostname = String());
 
     static IP *get_singleton();
 

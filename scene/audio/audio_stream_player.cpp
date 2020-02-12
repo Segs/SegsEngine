@@ -73,7 +73,7 @@ void AudioStreamPlayer::_mix_to_bus(const AudioFrame *p_frames, int p_amount) {
 void AudioStreamPlayer::_mix_internal(bool p_fadeout) {
 
     //get data
-    AudioFrame *buffer = mix_buffer.ptrw();
+    AudioFrame *buffer = mix_buffer.data();
     int buffer_size = mix_buffer.size();
 
     if (p_fadeout) {
@@ -102,7 +102,7 @@ void AudioStreamPlayer::_mix_internal(bool p_fadeout) {
 void AudioStreamPlayer::_mix_audio() {
 
     if (use_fadeout) {
-        _mix_to_bus(fadeout_buffer.ptr(), fadeout_buffer.size());
+        _mix_to_bus(fadeout_buffer.data(), fadeout_buffer.size());
         use_fadeout = false;
     }
 
@@ -186,7 +186,7 @@ void AudioStreamPlayer::set_stream(Ref<AudioStream> p_stream) {
         //changing streams out of the blue is not a great idea, but at least
         //lets try to somehow avoid a click
 
-        AudioFrame *buffer = fadeout_buffer.ptrw();
+        AudioFrame *buffer = fadeout_buffer.data();
         int buffer_size = fadeout_buffer.size();
 
         stream_playback->mix(buffer, pitch_scale, buffer_size);
@@ -241,7 +241,7 @@ float AudioStreamPlayer::get_volume_db() const {
 }
 
 void AudioStreamPlayer::set_pitch_scale(float p_pitch_scale) {
-    ERR_FAIL_COND(p_pitch_scale <= 0.0)
+    ERR_FAIL_COND(p_pitch_scale <= 0.0);
     pitch_scale = p_pitch_scale;
 }
 float AudioStreamPlayer::get_pitch_scale() const {
@@ -357,11 +357,11 @@ void AudioStreamPlayer::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "bus") {
 
-        se_string options;
+        String options;
         for (int i = 0; i < AudioServer::get_singleton()->get_bus_count(); i++) {
             if (i > 0)
                 options += ',';
-            se_string name(AudioServer::get_singleton()->get_bus_name(i));
+            String name(AudioServer::get_singleton()->get_bus_name(i));
             options += name;
         }
 
@@ -415,14 +415,14 @@ void AudioStreamPlayer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_stream_playback"), &AudioStreamPlayer::get_stream_playback);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PROPERTY_HINT_RESOURCE_TYPE, "AudioStream"), "set_stream", "get_stream");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PROPERTY_HINT_RANGE, "-80,24"), "set_volume_db", "get_volume_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PROPERTY_HINT_RANGE, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"), "set_stream", "get_stream");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PropertyHint::Range, "-80,24"), "set_volume_db", "get_volume_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PropertyHint::Range, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PROPERTY_HINT_NONE, ""), "set_stream_paused", "get_stream_paused");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_target", PROPERTY_HINT_ENUM, "Stereo,Surround,Center"), "set_mix_target", "get_mix_target");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PROPERTY_HINT_ENUM, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PropertyHint::None, ""), "set_stream_paused", "get_stream_paused");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_target", PropertyHint::Enum, "Stereo,Surround,Center"), "set_mix_target", "get_mix_target");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
 
     ADD_SIGNAL(MethodInfo("finished"));
 

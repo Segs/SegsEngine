@@ -215,7 +215,7 @@ class BoxShapeSW : public ShapeSW {
     void _setup(const Vector3 &p_half_extents);
 
 public:
-    _FORCE_INLINE_ Vector3 get_half_extents() const { return half_extents; }
+    Vector3 get_half_extents() const { return half_extents; }
     real_t get_area() const override { return 8 * half_extents.x * half_extents.y * half_extents.z; }
 
     PhysicsServer::ShapeType get_type() const override { return PhysicsServer::SHAPE_BOX; }

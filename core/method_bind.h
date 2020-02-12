@@ -53,7 +53,7 @@ T* cast_to(::Object *f);
 
 
 // Object enum casts must go here
-VARIANT_ENUM_CAST(ObjectNS::ConnectFlags);
+VARIANT_NS_ENUM_CAST(ObjectNS,ConnectFlags);
 
 template <typename T>
 struct VariantObjectClassChecker {
@@ -65,8 +65,8 @@ struct VariantObjectClassChecker {
 template <>
 struct VariantObjectClassChecker<Node *> {
     static bool check(const Variant &p_variant) {
-        Object *obj = (Object *)p_variant;
-        Node *node = (Node *)p_variant;
+        Object *obj = p_variant.as<Object *>();
+        Node *node = p_variant.as<Node *>();
         return node || !obj;
     }
 };
@@ -106,11 +106,11 @@ struct VariantCaster<char16_t> {
 
 
 template <class T>
-MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), const MethodInfo &p_info, bool p_return_nil_is_variant) {
+MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
     MethodBindVarArg<T> *a = memnew((MethodBindVarArg<T>));
     a->set_method(p_method);
-    a->set_method_info(p_info,p_return_nil_is_variant);
+    a->set_method_info(eastl::move(p_info),p_return_nil_is_variant);
     return a;
 }
 
@@ -151,7 +151,7 @@ struct ArgumentWrapper {
     using Result = const Variant *;
     const Variant **provided_args=nullptr;
     const int p_arg_count=0;
-    const PODVector<Variant> &default_args={};
+    const Vector<Variant> &default_args={};
 
     template<class TS,int IDX>
     Result doit() const {
@@ -169,10 +169,10 @@ struct ArgumentWrapper {
 #ifdef DEBUG_METHODS_ENABLED
 
 struct GetPropertyType {
-    using Result = PropertyInfo;
+    using Result = RawPropertyInfo;
     template<class TS,int IDX>
-    Result static doit() noexcept {
-        return GetTypeInfo<typename std::remove_cv<typename std::remove_reference<TS>::type>::type>::get_class_info();
+    static constexpr Result doit() noexcept {
+        return GetTypeInfo<TS>::get_class_info();
     }
 };
 #endif
@@ -196,10 +196,10 @@ protected:
             // TODO: SEGS: add assertion p_arg_count==0
             (void)p_arg_count;
             (void)p_args;
-            return std::invoke((TFunction)method, instance);
+            return std::invoke(method, instance);
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
-            return std::invoke((TFunction)method, instance,
+            return std::invoke(method, instance,
                     VariantCaster<typename std::tuple_element<Is, Params>::type>::cast(
                             *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
         }
@@ -207,17 +207,24 @@ protected:
     using Params = std::tuple<Args...>;
     // MethodBind interface
 public:
-    MethodNonconst method;
+    TFunction method;
     constexpr static bool (*verifiers[sizeof...(Args)+1])(const Variant &) = { // +1 is here because vs2017 requires constexpr array of non-zero size
         VariantObjectClassChecker<Args>::check ...
     };
 #ifdef DEBUG_METHODS_ENABLED
-    constexpr static GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
-        GetTypeInfo<typename std::conditional<std::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
-        GetTypeInfo<typename std::decay<Args>::type>::METADATA ...
+    constexpr static const GodotTypeInfo::Metadata s_metadata[sizeof...(Args)+1] = {
+        GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::METADATA,
+        GetTypeInfo<typename eastl::decay<Args>::type>::METADATA ...
     };
-    GodotTypeInfo::Metadata do_get_argument_meta(int p_arg) const override {
-        return s_metadata[p_arg+1];
+    constexpr static const TypePassBy s_pass_type[sizeof...(Args) + 1] = {
+        GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
+        GetTypeInfo<Args>::PASS_BY ...
+    };
+    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
+        return s_metadata;
+    }
+    Span<const TypePassBy> do_get_argument_passby() const override {
+        return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
         if(p_arg==-1) {
@@ -240,7 +247,7 @@ public:
         r_error.error=Variant::CallError::CALL_OK;
 #ifdef DEBUG_METHODS_ENABLED
 
-        ERR_FAIL_COND_V(!instance,Variant())
+        ERR_FAIL_COND_V(!instance,Variant());
         if(!checkArgs(p_args,p_arg_count,verifiers,sizeof...(Args),r_error))
             return Variant::null_variant;
 
@@ -257,7 +264,7 @@ public:
     }
 
     MethodBindVA (TFunction f) {
-        method = (MethodNonconst)f; // casting away const-ness of a method
+        method = f; // casting method to a basic Object::method()
         instance_class_name = T::get_class_static();
         set_argument_count(sizeof...(Args));
 #ifdef DEBUG_METHODS_ENABLED

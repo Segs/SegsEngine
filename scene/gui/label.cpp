@@ -86,7 +86,7 @@ void Label::_notification(int p_what) {
         regenerate_word_cache();
         update();
     }
-    se_string xltext(xl_text);
+    String xltext(xl_text);
 
     if (p_what == NOTIFICATION_DRAW) {
 
@@ -220,7 +220,7 @@ void Label::_notification(int p_what) {
                 } break;
                 case ALIGN_RIGHT: {
 
-                    x_ofs = int(size.width - style->get_margin(MARGIN_RIGHT) - (taken + spaces * space_w));
+                    x_ofs = int(size.width - style->get_margin(Margin::Right) - (taken + spaces * space_w));
                 } break;
             }
 
@@ -234,11 +234,10 @@ void Label::_notification(int p_what) {
                 int pos = from->char_pos;
                 if (from->char_pos < 0) {
 
-                    ERR_PRINT("BUG")
+                    ERR_PRINT("BUG");
                     return;
                 }
                 if (from->space_count) {
-                    chars_total += from->space_count;
                     /* spacing */
                     x_ofs += space_w * from->space_count;
                     if (can_fill && align == ALIGN_FILL && spaces) {
@@ -328,7 +327,7 @@ int Label::get_longest_line_width() const {
     Ref<Font> font = get_font("font");
     real_t max_line_width = 0;
     real_t line_width = 0;
-    String xltext(StringUtils::from_utf8(xl_text));
+    UIString xltext(StringUtils::from_utf8(xl_text));
     for (int i = 0; i < xltext.size(); i++) {
 
         CharType current = xltext[i];
@@ -413,7 +412,7 @@ void Label::regenerate_word_cache() {
     total_char_cache = 0;
 
     WordCache *last = nullptr;
-    String xltext(StringUtils::from_utf8(xl_text));
+    UIString xltext(StringUtils::from_utf8(xl_text));
 
     for (int i = 0; i <= xltext.length(); i++) {
 
@@ -586,9 +585,9 @@ StringName Label::get_text() const {
     return text;
 }
 
-se_string Label::get_text_utf8() const
+String Label::get_text_utf8() const
 {
-    return se_string(text);
+    return String(text);
 }
 
 void Label::set_visible_characters(int p_amount) {
@@ -694,16 +693,16 @@ void Label::_bind_methods() {
     BIND_ENUM_CONSTANT(VALIGN_BOTTOM)
     BIND_ENUM_CONSTANT(VALIGN_FILL)
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PROPERTY_HINT_MULTILINE_TEXT, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PROPERTY_HINT_ENUM, "Left,Center,Right,Fill"), "set_align", "get_align");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "valign", PROPERTY_HINT_ENUM, "Top,Center,Bottom,Fill"), "set_valign", "get_valign");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::MultilineText, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "valign", PropertyHint::Enum, "Top,Center,Bottom,Fill"), "set_valign", "get_valign");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autowrap"), "set_autowrap", "has_autowrap");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "is_clipping_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "uppercase"), "set_uppercase", "is_uppercase");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PROPERTY_HINT_RANGE, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PROPERTY_HINT_RANGE, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PROPERTY_HINT_RANGE, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PROPERTY_HINT_RANGE, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PropertyHint::Range, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PropertyHint::Range, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
 }
 Label::Label(const StringName &p_text) {
 

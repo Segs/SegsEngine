@@ -54,14 +54,14 @@ class AudioDriver {
 #endif
 
 protected:
-    PoolVector<int32_t> capture_buffer;
-    unsigned int capture_position;
-    unsigned int capture_size;
+    PoolVector<int32_t> input_buffer;
+    unsigned int input_position;
+    unsigned int input_size;
 
     void audio_server_process(int p_frames, int32_t *p_buffer, bool p_update_mix_time = true);
     void update_mix_time(int p_frames);
-    void capture_buffer_init(int driver_buffer_frames);
-    void capture_buffer_write(int32_t sample);
+    void input_buffer_init(int driver_buffer_frames);
+    void input_buffer_write(int32_t sample);
 
 #ifdef DEBUG_ENABLED
     _FORCE_INLINE_ void start_counting_ticks() { prof_ticks = OS::get_singleton()->get_ticks_usec(); }
@@ -104,7 +104,7 @@ public:
     virtual Error capture_start() { return FAILED; }
     virtual Error capture_stop() { return FAILED; }
     virtual void capture_set_device(se_string_view /*p_name*/) {}
-    virtual se_string capture_get_device() { return "Default"; }
+    virtual String capture_get_device() { return "Default"; }
     virtual Array capture_get_device_list(); // TODO: convert this and get_device_list to PoolStringArray
 
     virtual float get_latency() { return 0; }
@@ -112,10 +112,10 @@ public:
     SpeakerMode get_speaker_mode_by_total_channels(int p_channels) const;
     int get_total_channels_by_speaker_mode(SpeakerMode) const;
 
-    PoolVector<int32_t> get_capture_buffer() { return capture_buffer; }
-    unsigned int get_capture_position() { return capture_position; }
-    unsigned int get_capture_size() { return capture_size; }
-    void clear_capture_buffer() { capture_buffer.resize(0); }
+    PoolVector<int32_t> get_input_buffer() { return input_buffer; }
+    unsigned int get_input_position() { return input_position; }
+    unsigned int get_input_size() { return input_size; }
+
 #ifdef DEBUG_ENABLED
     uint64_t get_profiling_time() const { return prof_time; }
     void reset_profiling_time() { prof_time = 0; }
@@ -145,7 +145,7 @@ public:
 };
 
 class AudioBusLayout;
-
+struct AudioServerBus;
 class AudioServer : public Object {
 
     GDCLASS(AudioServer,Object)
@@ -184,50 +184,9 @@ private:
 
     float global_rate_scale;
 
-    struct Bus {
-
-        StringName name;
-        bool solo;
-        bool mute;
-        bool bypass;
-
-        bool soloed;
-
-        //Each channel is a stereo pair.
-        struct Channel {
-            bool used;
-            bool active;
-            AudioFrame peak_volume;
-            Vector<AudioFrame> buffer;
-            Vector<Ref<AudioEffectInstance> > effect_instances;
-            uint64_t last_mix_with_audio;
-            Channel() {
-                last_mix_with_audio = 0;
-                used = false;
-                active = false;
-                peak_volume = AudioFrame(0, 0);
-            }
-        };
-
-        Vector<Channel> channels;
-
-        struct Effect {
-            Ref<AudioEffect> effect;
-            bool enabled;
-#ifdef DEBUG_ENABLED
-            uint64_t prof_time;
-#endif
-        };
-
-        Vector<Effect> effects;
-        float volume_db;
-        StringName send;
-        int index_cache;
-    };
-
     Vector<Vector<AudioFrame> > temp_buffer; //temp_buffer for each level
-    Vector<Bus *> buses;
-    Map<StringName, Bus *> bus_map;
+    Vector<AudioServerBus *> buses;
+    Map<StringName, AudioServerBus *> bus_map;
 
     void _update_bus_effects(int p_bus);
 
@@ -240,9 +199,6 @@ private:
     size_t audio_data_max_mem;
 
     Mutex *audio_data_lock;
-
-    float output_latency;
-    uint64_t output_latency_ticks;
 
     void init_channels_and_buffers();
 
@@ -275,7 +231,7 @@ public:
             case SPEAKER_SURROUND_51: return 3;
             case SPEAKER_SURROUND_71: return 4;
         }
-        ERR_FAIL_V(1)
+        ERR_FAIL_V(1);
     }
 
     //do not use from outside audio thread
@@ -373,16 +329,9 @@ public:
     se_string_view get_device();
     void set_device(se_string_view device);
 
-    Error capture_start();
-    Error capture_stop();
-
     Array capture_get_device_list();
-    se_string capture_get_device();
+    String capture_get_device();
     void capture_set_device(se_string_view p_name);
-
-    PoolVector<int32_t> get_capture_buffer();
-    unsigned int get_capture_position();
-    unsigned int get_capture_size();
 
     AudioServer();
     ~AudioServer() override;
@@ -395,40 +344,20 @@ class AudioBusLayout : public Resource {
 
     friend class AudioServer;
 
-    struct Bus {
-
-        StringName name;
-        bool solo;
-        bool mute;
-        bool bypass;
-
-        struct Effect {
-            Ref<AudioEffect> effect;
-            bool enabled;
-        };
-
-        Vector<Effect> effects;
-
-        float volume_db;
-        StringName send;
-
-        Bus() {
-            solo = false;
-            mute = false;
-            bypass = false;
-            volume_db = 0;
-        }
-    };
-
-    Vector<Bus> buses;
-
+    void *m_priv; // PIMPL data
+    // Used by audio server to retrieve/set the layout
+    void generate_bus_layout(const Vector<AudioServerBus *> &buses);
+    size_t bus_count() const;
+    void fill_bus_info(int idx, AudioServerBus *tgt);
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
+
     AudioBusLayout();
+    ~AudioBusLayout() override;
 };
 
 using AS = AudioServer;

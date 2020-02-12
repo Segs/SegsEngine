@@ -227,7 +227,7 @@ void StreamPeer::put_utf8_string(se_string_view p_string) {
 void StreamPeer::put_var(const Variant &p_variant, bool p_full_objects) {
 
     int len = 0;
-    PODVector<uint8_t> buf;
+    Vector<uint8_t> buf;
     encode_variant(p_variant, nullptr, len, p_full_objects);
     buf.resize(len);
     put_32(len);
@@ -332,31 +332,31 @@ double StreamPeer::get_double() {
 
     return decode_double(buf);
 }
-se_string StreamPeer::get_string(int p_bytes) {
+String StreamPeer::get_string(int p_bytes) {
 
     if (p_bytes < 0)
         p_bytes = get_u32();
-    ERR_FAIL_COND_V(p_bytes < 0, se_string())
+    ERR_FAIL_COND_V(p_bytes < 0, String());
 
-    se_string buf;
+    String buf;
     buf.resize(p_bytes + 1);
     Error err = get_data((uint8_t *)&buf[0], p_bytes);
-    ERR_FAIL_COND_V(err != OK, se_string())
+    ERR_FAIL_COND_V(err != OK, String());
     buf[p_bytes] = 0;
     return buf;
 }
 Variant StreamPeer::get_var(bool p_allow_objects) {
 
     int len = get_32();
-    ERR_FAIL_COND_V(len >= 512*1024*1024, Variant())
-    PODVector<uint8_t> var;
+    ERR_FAIL_COND_V(len >= 512*1024*1024, Variant());
+    Vector<uint8_t> var;
     var.resize(len);
     Error err = get_data(var.data(), len);
-    ERR_FAIL_COND_V(err != OK, Variant())
+    ERR_FAIL_COND_V(err != OK, Variant());
 
     Variant ret;
     err = decode_variant(ret, var.data(), len, nullptr, p_allow_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.")
+    ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.");
 
     return ret;
 }
@@ -480,8 +480,8 @@ int StreamPeerBuffer::get_available_bytes() const {
 
 void StreamPeerBuffer::seek(int p_pos) {
 
-    ERR_FAIL_COND(p_pos < 0)
-    ERR_FAIL_COND(p_pos > data.size())
+    ERR_FAIL_COND(p_pos < 0);
+    ERR_FAIL_COND(p_pos > data.size());
     pointer = p_pos;
 }
 int StreamPeerBuffer::get_size() const {

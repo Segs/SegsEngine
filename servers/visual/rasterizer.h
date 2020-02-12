@@ -97,10 +97,10 @@ public:
 
         //RID sampled_light;
 
-        Vector<RID> materials;
-        Vector<RID> light_instances;
-        Vector<RID> reflection_probe_instances;
-        Vector<RID> gi_probe_instances;
+        PoolVector<RID> materials;
+        PoolVector<RID> light_instances;
+        PoolVector<RID> reflection_probe_instances;
+        PoolVector<RID> gi_probe_instances;
 
         Vector<float> blend_values;
 
@@ -119,6 +119,7 @@ public:
 
         InstanceBase *lightmap_capture;
         RID lightmap;
+        // eastl::unique_ptr<eastl::array<Color,12>>
         Vector<Color> lightmap_capture_data; //in a array (12 values) to avoid wasting space if unused. Alpha is unused, but needed to send to shader
 
         virtual void base_removed() = 0;
@@ -208,11 +209,11 @@ public:
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
     virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
-    virtual const se_string &texture_get_path(RID p_texture) const = 0;
+    virtual const String &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;
 
-    virtual void texture_debug_usage(DefList<VisualServer::TextureInfo> *r_info) = 0;
+    virtual void texture_debug_usage(Vector<VisualServer::TextureInfo> *r_info) = 0;
 
     virtual RID texture_create_radiance_cubemap(RID p_source, int p_resolution = -1) const = 0;
 
@@ -235,9 +236,9 @@ public:
 
     virtual RID shader_create() = 0;
 
-    virtual void shader_set_code(RID p_shader, const se_string &p_code) = 0;
-    virtual se_string shader_get_code(RID p_shader) const = 0;
-    virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
+    virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
+    virtual String shader_get_code(RID p_shader) const = 0;
+    virtual void shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const = 0;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;
     virtual RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const = 0;
@@ -268,7 +269,8 @@ public:
 
     virtual RID mesh_create() = 0;
 
-    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) = 0;
+    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const
+                                  Vector<PoolVector<uint8_t>> &p_blend_shapes = Vector<PoolVector<uint8_t>>(), Span<const AABB> p_bone_aabbs = {}) = 0;
 
     virtual void mesh_set_blend_shape_count(RID p_mesh, int p_amount) = 0;
     virtual int mesh_get_blend_shape_count(RID p_mesh) const = 0;
@@ -276,7 +278,7 @@ public:
     virtual void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) = 0;
     virtual VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const = 0;
 
-    virtual void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) = 0;
+    virtual void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, Span<const uint8_t> p_data) = 0;
 
     virtual void mesh_surface_set_material(RID p_mesh, int p_surface, RID p_material) = 0;
     virtual RID mesh_surface_get_material(RID p_mesh, int p_surface) const = 0;
@@ -291,8 +293,8 @@ public:
     virtual VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
 
     virtual AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const = 0;
-    virtual Vector<PoolVector<uint8_t> > mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
-    virtual Vector<AABB> mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
+    virtual Vector<Vector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
+    virtual const Vector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
 
     virtual void mesh_remove_surface(RID p_mesh, int p_index) = 0;
     virtual int mesh_get_surface_count(RID p_mesh) const = 0;
@@ -761,8 +763,8 @@ public:
         struct CommandPrimitive : public Command {
 
             Vector<Point2> points;
-            Vector<Point2> uvs;
-            Vector<Color> colors;
+            PoolVector<Point2> uvs;
+            PoolVector<Color> colors;
             RID texture;
             RID normal_map;
             float width;
@@ -775,12 +777,12 @@ public:
 
         struct CommandPolygon : public Command {
 
-            PODVector<int> indices;
-            PODVector<Point2> points;
-            Vector<Point2> uvs;
-            Vector<Color> colors;
-            Vector<int> bones;
-            Vector<float> weights;
+            Vector<int> indices;
+            Vector<Point2> points;
+            PoolVector<Point2> uvs;
+            PoolVector<Color> colors;
+            PoolVector<int> bones;
+            PoolVector<float> weights;
             RID texture;
             RID normal_map;
             int count;
@@ -1028,8 +1030,8 @@ public:
         }
 
         void clear() {
-            for (int i = 0; i < commands.size(); i++)
-                memdelete(commands[i]);
+            for (auto *ptr : commands)
+                memdelete(ptr);
             commands.clear();
             clip = false;
             rect_dirty = true;

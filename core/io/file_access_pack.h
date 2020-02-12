@@ -52,7 +52,7 @@ class PackSourceInterface;
 
 struct PackedDataFile {
 
-    se_string pack;
+    String pack;
     uint64_t offset; //if offset is ZERO, the file was ERASED
     uint64_t size;
     uint8_t md5[16];
@@ -69,9 +69,9 @@ public:
 private:
     struct PackedDir {
         PackedDir *parent;
-        se_string name;
-        Map<se_string, PackedDir *> subdirs;
-        Set<se_string> files;
+        String name;
+        Map<String, PackedDir *> subdirs;
+        Set<String> files;
     };
 
     struct PathMD5 {
@@ -93,7 +93,7 @@ private:
             a = b = 0;
         }
 
-        PathMD5(const PODVector<uint8_t> &p_buf) {
+        PathMD5(const Vector<uint8_t> &p_buf) {
             assert(p_buf.size()>=16);
             a = *((uint64_t *)&p_buf[0]);
             b = *((uint64_t *)&p_buf[8]);
@@ -103,7 +103,7 @@ private:
 
     Map<PathMD5, PackedDataFile> files;
 
-    PODVector<PackSourceInterface *> sources;
+    Vector<PackSourceInterface *> sources;
 
     PackedDir *root;
     //Map<String,PackedDir*> dirs;
@@ -153,22 +153,24 @@ class DirAccessPack : public DirAccess {
 
     PackedData::PackedDir *current;
 
-    List<se_string> list_dirs;
-    List<se_string> list_files;
+    Vector<String> list_dirs;
+    Vector<String> list_files;
+    int m_dir_offset=0;
+    int m_file_offset=0;
     bool cdir;
 
 public:
     Error list_dir_begin() override;
-    se_string get_next() override;
+    String get_next() override;
     [[nodiscard]] bool current_is_dir() const override;
     [[nodiscard]] bool current_is_hidden() const override;
     void list_dir_end() override;
 
     int get_drive_count() override;
-    se_string get_drive(int p_drive) override;
+    String get_drive(int p_drive) override;
 
     Error change_dir(se_string_view p_dir) override;
-    se_string get_current_dir() override;
+    String get_current_dir() override;
 
     bool file_exists(se_string_view p_file) override;
     bool dir_exists(se_string_view p_dir) override;
@@ -180,7 +182,7 @@ public:
 
     size_t get_space_left() override;
 
-    se_string get_filesystem_type() const override;
+    String get_filesystem_type() const override;
 
     DirAccessPack();
     ~DirAccessPack() override;

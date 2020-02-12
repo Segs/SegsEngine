@@ -32,6 +32,7 @@
 
 #include "core/error_list.h"
 #include "core/typedefs.h"
+#include "core/forward_decls.h"
 
 class Variant;
 class ArrayPrivate;
@@ -56,6 +57,8 @@ public:
     void set(int p_idx, const Variant &p_value);
     const Variant &get(int p_idx) const;
 
+    const Vector<Variant> &vals() const;
+
     int size() const;
     bool empty() const;
     void clear();
@@ -66,6 +69,7 @@ public:
     Array &operator=(const Array &p_array);
 
     void push_back(const Variant &p_value);
+    void push_back(const Variant *entries,int count);
     _FORCE_INLINE_ void append(const Variant &p_value) { push_back(p_value); } // for python compatibility
     Error resize(int p_new_size);
 
@@ -100,10 +104,14 @@ public:
 
     Variant min() const;
     Variant max() const;
-
     const void *id() const;
 
     Array(const Array &p_from);
+    Array(Vector<Variant> &&v) noexcept;
+    Array(Array &&from) noexcept {
+        _p = from._p;
+        from._p = nullptr;
+    }
     Array();
     ~Array();
 };

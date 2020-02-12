@@ -128,7 +128,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
         int to_write = uint64_t(to_read) * uint64_t(preview->preview->preview.size() / 2) / uint64_t(frames_total);
         to_write = MIN(to_write, (preview->preview->preview.size() / 2) - ofs_write);
 
-        preview->playback->mix(mix_chunk.ptrw(), 1.0, to_read);
+        preview->playback->mix(mix_chunk.data(), 1.0, to_read);
 
         for (int i = 0; i < to_write; i++) {
             float max = -1000;
@@ -167,7 +167,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 }
 
 Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<AudioStream> &p_stream) {
-    ERR_FAIL_COND_V(not p_stream, Ref<AudioStreamPreview>())
+    ERR_FAIL_COND_V(not p_stream, Ref<AudioStreamPreview>());
 
     if (previews.contains(p_stream->get_instance_id())) {
         return previews[p_stream->get_instance_id()].preview;
@@ -190,7 +190,7 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 
     int frames = AudioServer::get_singleton()->get_mix_rate() * len_s;
 
-    PODVector<uint8_t> maxmin;
+    Vector<uint8_t> maxmin;
     int pw = frames / 20;
     maxmin.resize(pw * 2,127);
 
@@ -214,24 +214,23 @@ void AudioStreamPreviewGenerator::_bind_methods() {
 AudioStreamPreviewGenerator *AudioStreamPreviewGenerator::singleton = nullptr;
 
 void AudioStreamPreviewGenerator::_notification(int p_what) {
-    if (p_what == NOTIFICATION_PROCESS) {
-        List<ObjectID> to_erase;
-        for (eastl::pair<const ObjectID,Preview> &E : previews) {
-            if (!E.second.generating) {
-                if (E.second.thread) {
-                    Thread::wait_to_finish(E.second.thread);
-                    E.second.thread = nullptr;
-                }
-                if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
-                    to_erase.push_back(E.first);
-                }
+    if (p_what != NOTIFICATION_PROCESS)
+        return;
+
+    Vector<ObjectID> to_erase;
+    for (eastl::pair<const ObjectID,Preview> &E : previews) {
+        if (!E.second.generating) {
+            if (E.second.thread) {
+                Thread::wait_to_finish(E.second.thread);
+                E.second.thread = nullptr;
+            }
+            if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
+                to_erase.push_back(E.first);
             }
         }
-
-        while (to_erase.front()) {
-            previews.erase(to_erase.front()->deref());
-            to_erase.pop_front();
-        }
+    }
+    for(const ObjectID & oid : to_erase) {
+        previews.erase(oid);
     }
 }
 

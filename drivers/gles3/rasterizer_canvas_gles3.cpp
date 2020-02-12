@@ -54,7 +54,7 @@ static void store_transform2d(const Transform2D &p_mtx, float *p_array) {
     p_array[15] = 1;
 }
 
-static void store_transform(const Transform &p_mtx, float *p_array) {
+void store_transform(const Transform &p_mtx, float *p_array) {
     p_array[0] = p_mtx.basis.elements[0][0];
     p_array[1] = p_mtx.basis.elements[1][0];
     p_array[2] = p_mtx.basis.elements[2][0];
@@ -73,16 +73,6 @@ static void store_transform(const Transform &p_mtx, float *p_array) {
     p_array[15] = 1;
 }
 
-static void store_camera(const CameraMatrix &p_mtx, float *p_array) {
-
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-
-            p_array[i * 4 + j] = p_mtx.matrix[i][j];
-        }
-    }
-}
-
 RID RasterizerCanvasGLES3::light_internal_create() {
 
     LightInternal *li = memnew(LightInternal);
@@ -98,7 +88,7 @@ RID RasterizerCanvasGLES3::light_internal_create() {
 void RasterizerCanvasGLES3::light_internal_update(RID p_rid, Light *p_light) {
 
     LightInternal *li = light_internal_owner.getornull(p_rid);
-    ERR_FAIL_COND(!li)
+    ERR_FAIL_COND(!li);
 
     store_transform2d(p_light->light_shader_xform, li->ubo_data.light_matrix);
     store_transform2d(p_light->xform_cache.affine_inverse(), li->ubo_data.local_matrix);
@@ -130,7 +120,7 @@ void RasterizerCanvasGLES3::light_internal_update(RID p_rid, Light *p_light) {
 void RasterizerCanvasGLES3::light_internal_free(RID p_rid) {
 
     LightInternal *li = light_internal_owner.getornull(p_rid);
-    ERR_FAIL_COND(!li)
+    ERR_FAIL_COND(!li);
 
     glDeleteBuffers(1, &li->ubo);
     light_internal_owner.free(p_rid);
@@ -330,7 +320,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     buffer_ofs += sizeof(Vector2) * p_vertex_count;
     //color
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     if (p_singlecolor) {
@@ -349,7 +339,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     }
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     if (p_uvs) {
@@ -364,7 +354,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     }
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     if (p_bones && p_weights) {
@@ -386,7 +376,7 @@ void RasterizerCanvasGLES3::_draw_polygon(const int *p_indices, int p_index_coun
     }
 
 #ifdef DEBUG_ENABLED
-    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size)
+    ERR_FAIL_COND(buffer_ofs > data.polygon_buffer_size);
 #endif
 
     //bind the indices buffer.
@@ -592,16 +582,6 @@ void RasterizerCanvasGLES3::_draw_gui_primitive(int p_points, const Vector2 *p_v
     storage->frame.canvas_draw_commands++;
 }
 
-static constexpr const GLenum gl_primitive[] = {
-    GL_POINTS,
-    GL_LINES,
-    GL_LINE_STRIP,
-    GL_LINE_LOOP,
-    GL_TRIANGLES,
-    GL_TRIANGLE_STRIP,
-    GL_TRIANGLE_FAN
-};
-
 void _render_line(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::CommandLine *line)
 {
     self->_set_texture_rect_mode(false);
@@ -658,12 +638,12 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
 
     if (!pline->triangles.empty()) {
 
-        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.ptr(), nullptr, pline->triangle_colors.ptr(), pline->triangle_colors.size() == 1);
+        self->_draw_generic(GL_TRIANGLE_STRIP, pline->triangles.size(), pline->triangles.data(), nullptr, pline->triangle_colors.data(), pline->triangle_colors.size() == 1);
         glEnable(GL_LINE_SMOOTH);
         if (pline->multiline) {
             //needs to be different
         } else {
-            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+            self->_draw_generic(GL_LINE_LOOP, pline->lines.size(), pline->lines.data(), nullptr, pline->line_colors.data(), pline->line_colors.size() == 1);
         }
         glDisable(GL_LINE_SMOOTH);
     } else {
@@ -672,20 +652,20 @@ void _render_poly_line(RasterizerCanvasGLES3 *self, RasterizerCanvas::Item::Comm
             glEnable(GL_LINE_SMOOTH);
 
         if (pline->multiline) {
-            int todo = pline->lines.size() / 2;
-            int max_per_call = self->data.polygon_buffer_size / (sizeof(real_t) * 4);
+            size_t todo = pline->lines.size() / 2;
+            uint32_t max_per_call = self->data.polygon_buffer_size / (sizeof(real_t) * 4);
             int offset = 0;
 
             while (todo) {
                 int to_draw = MIN(max_per_call, todo);
-                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.ptr()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.ptr() : &pline->line_colors.ptr()[offset], pline->line_colors.size() == 1);
+                self->_draw_generic(GL_LINES, to_draw * 2, &pline->lines.data()[offset], nullptr, pline->line_colors.size() == 1 ? pline->line_colors.data() : &pline->line_colors.data()[offset], pline->line_colors.size() == 1);
                 todo -= to_draw;
                 offset += to_draw * 2;
             }
 
         } else {
 
-            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.ptr(), nullptr, pline->line_colors.ptr(), pline->line_colors.size() == 1);
+            self->_draw_generic(GL_LINE_STRIP, pline->lines.size(), pline->lines.data(), nullptr, pline->line_colors.data(), pline->line_colors.size() == 1);
         }
 
         if (pline->antialiased)
@@ -803,7 +783,7 @@ void RasterizerCanvasGLES3::_render_ninepatch(RasterizerCanvas::Item::CommandNin
     state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_REPEAT_H, int(np->axis_x));
     state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_REPEAT_V, int(np->axis_y));
     state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_DRAW_CENTER, np->draw_center);
-    state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_MARGINS, Color(np->margin[MARGIN_LEFT], np->margin[MARGIN_TOP], np->margin[MARGIN_RIGHT], np->margin[MARGIN_BOTTOM]));
+    state.canvas_shader.set_uniform(CanvasShaderGLES3::NP_MARGINS, Color(np->margin[(int8_t)Margin::Left], np->margin[(int8_t)Margin::Top], np->margin[(int8_t)Margin::Right], np->margin[(int8_t)Margin::Bottom]));
     state.canvas_shader.set_uniform(CanvasShaderGLES3::DST_RECT, Color(np->rect.position.x, np->rect.position.y, np->rect.size.x, np->rect.size.y));
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -842,8 +822,7 @@ void _render_multimesh(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
         amount = multi_mesh->size;
     }
 
-    for (int j = 0; j < mesh_data->surfaces.size(); j++) {
-        RasterizerStorageGLES3::Surface *s = mesh_data->surfaces[j];
+    for (RasterizerStorageGLES3::Surface* s : mesh_data->surfaces) {
         // materials are ignored in 2D meshes, could be added but many things (ie, lighting mode, reading from screen, etc) would break as they are not meant be set up at this point of drawing
         glBindVertexArray(s->instancing_array_id);
 
@@ -873,7 +852,7 @@ void _render_multimesh(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
         int custom_data_ofs = color_ofs;
 
         switch (multi_mesh->color_format) {
-
+            case VS::MULTIMESH_COLOR_MAX:
             case VS::MULTIMESH_COLOR_NONE: {
                 glDisableVertexAttribArray(11);
                 glVertexAttrib4f(11, 1, 1, 1, 1);
@@ -894,7 +873,7 @@ void _render_multimesh(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
         }
 
         switch (multi_mesh->custom_data_format) {
-
+            case VS::MULTIMESH_CUSTOM_DATA_MAX:
             case VS::MULTIMESH_CUSTOM_DATA_NONE: {
                 glDisableVertexAttribArray(12);
                 glVertexAttrib4f(12, 1, 1, 1, 1);
@@ -1048,13 +1027,12 @@ void _render_particles(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
     self->state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_INSTANCING, false);
     self->state.using_texture_rect = true;
     self->_set_texture_rect_mode(false);
-    return;
 }
 
 void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip) {
 
     int cc = p_item->commands.size();
-    Item::Command **commands = p_item->commands.ptrw();
+    Item::Command **commands = p_item->commands.data();
 
     for (int i = 0; i < cc; i++) {
 
@@ -1087,7 +1065,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                 Item::CommandPrimitive *primitive = static_cast<Item::CommandPrimitive *>(c);
                 _set_texture_rect_mode(false);
 
-                ERR_CONTINUE(primitive->points.empty())
+                ERR_CONTINUE(primitive->points.empty());
 
                 RasterizerStorageGLES3::Texture *texture = _bind_canvas_texture(primitive->texture, primitive->normal_map);
 
@@ -1104,7 +1082,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                     glVertexAttrib4f(VS::ARRAY_COLOR, 1, 1, 1, 1);
                 }
 
-                _draw_gui_primitive(primitive->points.size(), primitive->points.ptr(), primitive->colors.ptr(), primitive->uvs.ptr());
+                _draw_gui_primitive(primitive->points.size(), primitive->points.data(), primitive->colors.read().ptr(), primitive->uvs.read().ptr());
 
             } break;
             case Item::Command::TYPE_POLYGON: {
@@ -1119,7 +1097,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                     state.canvas_shader.set_uniform(CanvasShaderGLES3::COLOR_TEXPIXEL_SIZE, texpixel_size);
                 }
 
-                _draw_polygon(polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1, polygon->bones.ptr(), polygon->weights.ptr());
+                _draw_polygon(polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.read().ptr(), polygon->colors.read().ptr(), polygon->colors.size() == 1, polygon->bones.read().ptr(), polygon->weights.read().ptr());
 #ifdef GLES_OVER_GL
                 if (polygon->antialiased) {
                     glEnable(GL_LINE_SMOOTH);
@@ -1241,7 +1219,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 
 void RasterizerCanvasGLES3::_copy_texscreen(const Rect2 &p_rect) {
 
-    ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers.")
+    ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers."); 
 
     glDisable(GL_BLEND);
 
@@ -1456,8 +1434,8 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
                 }
 
                 int tc = material_ptr->textures.size();
-                RID *textures = material_ptr->textures.ptrw();
-                ShaderLanguage::ShaderNode::Uniform::Hint *texture_hints = shader_ptr->texture_hints.ptrw();
+                RID *textures = material_ptr->textures.data();
+                ShaderLanguage::ShaderNode::Uniform::Hint *texture_hints = shader_ptr->texture_hints.data();
 
                 for (int i = 0; i < tc; i++) {
 
@@ -1810,7 +1788,7 @@ void RasterizerCanvasGLES3::canvas_debug_viewport_shadows(Light *p_lights_with_s
 void RasterizerCanvasGLES3::canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache) {
 
     RasterizerStorageGLES3::CanvasLightShadow *cls = storage->canvas_light_shadow_owner.get(p_buffer);
-    ERR_FAIL_COND(!cls)
+    ERR_FAIL_COND(!cls);
 
     glDisable(GL_BLEND);
     glDisable(GL_SCISSOR_TEST);
@@ -2044,54 +2022,54 @@ void RasterizerCanvasGLES3::draw_window_margins(int *black_margin, RID *black_im
     glViewport(0, 0, window_size.width, window_size.height);
     canvas_begin();
 
-    if (black_image[MARGIN_LEFT].is_valid()) {
-        _bind_canvas_texture(black_image[MARGIN_LEFT], RID());
-        Size2 sz(storage->texture_get_width(black_image[MARGIN_LEFT]), storage->texture_get_height(black_image[MARGIN_LEFT]));
-        draw_generic_textured_rect(Rect2(0, 0, black_margin[MARGIN_LEFT], window_h), Rect2(0, 0, sz.x, sz.y));
-    } else if (black_margin[MARGIN_LEFT]) {
+    if (black_image[(int8_t)Margin::Left].is_valid()) {
+        _bind_canvas_texture(black_image[(int8_t)Margin::Left], RID());
+        Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Left]), storage->texture_get_height(black_image[(int8_t)Margin::Left]));
+        draw_generic_textured_rect(Rect2(0, 0, black_margin[(int8_t)Margin::Left], window_h), Rect2(0, 0, sz.x, sz.y));
+    } else if (black_margin[(int8_t)Margin::Left]) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
 
-        draw_generic_textured_rect(Rect2(0, 0, black_margin[MARGIN_LEFT], window_h), Rect2(0, 0, 1, 1));
+        draw_generic_textured_rect(Rect2(0, 0, black_margin[(int8_t)Margin::Left], window_h), Rect2(0, 0, 1, 1));
     }
 
-    if (black_image[MARGIN_RIGHT].is_valid()) {
-        _bind_canvas_texture(black_image[MARGIN_RIGHT], RID());
-        Size2 sz(storage->texture_get_width(black_image[MARGIN_RIGHT]), storage->texture_get_height(black_image[MARGIN_RIGHT]));
-        draw_generic_textured_rect(Rect2(window_w - black_margin[MARGIN_RIGHT], 0, black_margin[MARGIN_RIGHT], window_h), Rect2(0, 0, sz.x, sz.y));
-    } else if (black_margin[MARGIN_RIGHT]) {
+    if (black_image[(int8_t)Margin::Right].is_valid()) {
+        _bind_canvas_texture(black_image[(int8_t)Margin::Right], RID());
+        Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Right]), storage->texture_get_height(black_image[(int8_t)Margin::Right]));
+        draw_generic_textured_rect(Rect2(window_w - black_margin[(int8_t)Margin::Right], 0, black_margin[(int8_t)Margin::Right], window_h), Rect2(0, 0, sz.x, sz.y));
+    } else if (black_margin[(int8_t)Margin::Right]) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
 
-        draw_generic_textured_rect(Rect2(window_w - black_margin[MARGIN_RIGHT], 0, black_margin[MARGIN_RIGHT], window_h), Rect2(0, 0, 1, 1));
+        draw_generic_textured_rect(Rect2(window_w - black_margin[(int8_t)Margin::Right], 0, black_margin[(int8_t)Margin::Right], window_h), Rect2(0, 0, 1, 1));
     }
 
-    if (black_image[MARGIN_TOP].is_valid()) {
-        _bind_canvas_texture(black_image[MARGIN_TOP], RID());
+    if (black_image[(int8_t)Margin::Top].is_valid()) {
+        _bind_canvas_texture(black_image[(int8_t)Margin::Top], RID());
 
-        Size2 sz(storage->texture_get_width(black_image[MARGIN_TOP]), storage->texture_get_height(black_image[MARGIN_TOP]));
-        draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[MARGIN_TOP]), Rect2(0, 0, sz.x, sz.y));
+        Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Top]), storage->texture_get_height(black_image[(int8_t)Margin::Top]));
+        draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[(int8_t)Margin::Top]), Rect2(0, 0, sz.x, sz.y));
 
-    } else if (black_margin[MARGIN_TOP]) {
+    } else if (black_margin[(int8_t)Margin::Top]) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
 
-        draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[MARGIN_TOP]), Rect2(0, 0, 1, 1));
+        draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[(int8_t)Margin::Top]), Rect2(0, 0, 1, 1));
     }
 
-    if (black_image[MARGIN_BOTTOM].is_valid()) {
+    if (black_image[(int8_t)Margin::Bottom].is_valid()) {
 
-        _bind_canvas_texture(black_image[MARGIN_BOTTOM], RID());
+        _bind_canvas_texture(black_image[(int8_t)Margin::Bottom], RID());
 
-        Size2 sz(storage->texture_get_width(black_image[MARGIN_BOTTOM]), storage->texture_get_height(black_image[MARGIN_BOTTOM]));
-        draw_generic_textured_rect(Rect2(0, window_h - black_margin[MARGIN_BOTTOM], window_w, black_margin[MARGIN_BOTTOM]), Rect2(0, 0, sz.x, sz.y));
+        Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Bottom]), storage->texture_get_height(black_image[(int8_t)Margin::Bottom]));
+        draw_generic_textured_rect(Rect2(0, window_h - black_margin[(int8_t)Margin::Bottom], window_w, black_margin[(int8_t)Margin::Bottom]), Rect2(0, 0, sz.x, sz.y));
 
-    } else if (black_margin[MARGIN_BOTTOM]) {
+    } else if (black_margin[(int8_t)Margin::Bottom]) {
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
 
-        draw_generic_textured_rect(Rect2(0, window_h - black_margin[MARGIN_BOTTOM], window_w, black_margin[MARGIN_BOTTOM]), Rect2(0, 0, 1, 1));
+        draw_generic_textured_rect(Rect2(0, window_h - black_margin[(int8_t)Margin::Bottom], window_w, black_margin[(int8_t)Margin::Bottom]), Rect2(0, 0, 1, 1));
     }
 }
 
@@ -2159,7 +2137,7 @@ void RasterizerCanvasGLES3::initialize() {
     {
 
         uint32_t poly_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_buffer_size_kb", 128);
-        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PROPERTY_HINT_RANGE, "0,256,1,or_greater"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
         poly_size *= 1024; //kb
         poly_size = MAX(poly_size, (2 + 2 + 4) * 4 * sizeof(float));
         glGenBuffers(1, &data.polygon_buffer);
@@ -2207,7 +2185,7 @@ void RasterizerCanvasGLES3::initialize() {
         glGenVertexArrays(1, &data.polygon_buffer_pointer_array);
 
         uint32_t index_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", 128);
-        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PROPERTY_HINT_RANGE, "0,256,1,or_greater"));
+        ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
         index_size *= 1024; //kb
         glGenBuffers(1, &data.polygon_index_buffer);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer);

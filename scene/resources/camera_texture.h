@@ -4,8 +4,6 @@
 
 class CameraTexture : public Texture {
     GDCLASS(CameraTexture,Texture)
-
-
 private:
     int camera_feed_id;
     CameraServer::FeedImage which_feed;

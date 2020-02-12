@@ -39,18 +39,18 @@ void BoneAttachment::_validate_property(PropertyInfo &property) const {
 
         if (parent) {
 
-            se_string names;
+            String names;
             for (int i = 0; i < parent->get_bone_count(); i++) {
                 if (i > 0)
                     names += ',';
                 names += parent->get_bone_name(i);
             }
 
-            property.hint = PROPERTY_HINT_ENUM;
+            property.hint = PropertyHint::Enum;
             property.hint_string = names;
         } else {
 
-            property.hint = PROPERTY_HINT_NONE;
+            property.hint = PropertyHint::None;
             property.hint_string = "";
         }
     }
@@ -86,7 +86,7 @@ void BoneAttachment::_check_unbind() {
     }
 }
 
-void BoneAttachment::set_bone_name(const se_string &p_name) {
+void BoneAttachment::set_bone_name(const String &p_name) {
 
     if (is_inside_tree())
         _check_unbind();

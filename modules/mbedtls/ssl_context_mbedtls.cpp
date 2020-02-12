@@ -46,7 +46,7 @@ static void my_debug(void *ctx, int level,
 }
 
 Error SSLContextMbedTLS::_setup(int p_endpoint, int p_transport, int p_authmode) {
-    ERR_FAIL_COND_V_MSG(inited, ERR_ALREADY_IN_USE, "This SSL context is already active")
+    ERR_FAIL_COND_V_MSG(inited, ERR_ALREADY_IN_USE, "This SSL context is already active");
 
     mbedtls_ssl_init(&ssl);
     mbedtls_ssl_config_init(&conf);
@@ -72,11 +72,11 @@ Error SSLContextMbedTLS::_setup(int p_endpoint, int p_transport, int p_authmode)
 }
 
 Error SSLContextMbedTLS::init_server(int p_transport, int p_authmode, Ref<CryptoKeyMbedTLS> p_pkey, Ref<X509CertificateMbedTLS> p_cert) {
-    ERR_FAIL_COND_V(not p_pkey, ERR_INVALID_PARAMETER)
-    ERR_FAIL_COND_V(not p_cert, ERR_INVALID_PARAMETER)
+    ERR_FAIL_COND_V(not p_pkey, ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(not p_cert, ERR_INVALID_PARAMETER);
 
     Error err = _setup(MBEDTLS_SSL_IS_SERVER, p_transport, p_authmode);
-    ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err);
 
     // Locking key and certificate(s)
     pkey = p_pkey;
@@ -102,7 +102,7 @@ Error SSLContextMbedTLS::init_server(int p_transport, int p_authmode, Ref<Crypto
 
 Error SSLContextMbedTLS::init_client(int p_transport, int p_authmode, Ref<X509CertificateMbedTLS> p_valid_cas) {
     Error err = _setup(MBEDTLS_SSL_IS_CLIENT, p_transport, p_authmode);
-    ERR_FAIL_COND_V(err != OK, err)
+    ERR_FAIL_COND_V(err != OK, err);
     X509CertificateMbedTLS *cas = nullptr;
 
     if (p_valid_cas) {
@@ -115,7 +115,7 @@ Error SSLContextMbedTLS::init_client(int p_transport, int p_authmode, Ref<X509Ce
         cas = CryptoMbedTLS::get_default_certificates();
         if (cas == nullptr) {
         clear();
-        ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "SSL module failed to initialize!")
+        ERR_FAIL_V_MSG(ERR_UNCONFIGURED, "SSL module failed to initialize!");
         }
 
     }
@@ -145,7 +145,7 @@ void SSLContextMbedTLS::clear() {
 }
 
 mbedtls_ssl_context *SSLContextMbedTLS::get_context() {
-    ERR_FAIL_COND_V(!inited, nullptr)
+    ERR_FAIL_COND_V(!inited, nullptr);
     return &ssl;
 }
 

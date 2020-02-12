@@ -52,6 +52,7 @@ class OptionButton;
 class ConfirmationDialog;
 class VSplitContainer;
 class HSplitContainer;
+class TextureRect;
 
 class EditorSpatialGizmo : public SpatialGizmo {
 
@@ -103,18 +104,16 @@ public:
     bool valid;
     bool hidden;
 
-    void _set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Spatial>(p_node)); }
-
 protected:
     static void _bind_methods();
 
 public:
-    void add_lines(const PODVector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard = false, const Color &p_modulate = Color(1, 1, 1));
+    void add_lines(const Vector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard = false, const Color &p_modulate = Color(1, 1, 1));
     void add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard = false, const Ref<SkinReference> &p_skin_reference = Ref<SkinReference>(), const Ref<Material> &p_material = Ref<Material>());
-    void add_collision_segments(const PODVector<Vector3> &p_lines);
+    void add_collision_segments(const Vector<Vector3> &p_lines);
     void add_collision_triangles(const Ref<TriangleMesh> &p_tmesh);
     void add_unscaled_billboard(const Ref<Material> &p_material, float p_scale = 1, const Color &p_modulate = Color(1, 1, 1));
-    void add_handles(const Vector<Vector3> &p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
+    void add_handles(Vector<Vector3> &&p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
     void add_solid_box(Ref<Material> &p_material, Vector3 p_size, Vector3 p_position = Vector3());
 
     virtual bool is_handle_highlighted(int p_idx) const;
@@ -123,11 +122,12 @@ public:
     virtual void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point);
     virtual void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false);
 
+    void set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Spatial>(p_node)); }
     void set_spatial_node(Spatial *p_node);
     Spatial *get_spatial_node() const { return spatial_node; }
     Ref<EditorSpatialGizmoPlugin> get_plugin() const { return Ref<EditorSpatialGizmoPlugin>(gizmo_plugin); }
     Vector3 get_handle_pos(int p_idx) const;
-    bool intersect_frustum(const Camera *p_camera, const Vector<Plane> &p_frustum);
+    bool intersect_frustum(const Camera *p_camera, Span<const Plane> p_frustum);
     bool intersect_ray(Camera *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle = nullptr, bool p_sec_first = false);
 
     void clear() override;
@@ -198,7 +198,7 @@ private:
     void _menu_option(int p_option);
     Spatial *preview_node;
     AABB *preview_bounds;
-    Vector<se_string> selected_files;
+    Vector<String> selected_files;
     AcceptDialog *accept;
 
     Node *target_node;
@@ -225,6 +225,7 @@ private:
     bool freelook_active;
     real_t freelook_speed;
 
+    TextureRect *crosshair;
     Label *info_label;
     Label *fps_label;
     Label *cinema_label;
@@ -385,7 +386,7 @@ private:
 
     Vector3 _get_instance_position(const Point2 &p_pos) const;
     static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
-    void _create_preview(const Vector<se_string> &files) const;
+    void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
     bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
     bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
@@ -728,7 +729,7 @@ public:
     void set_can_preview(Camera *p_preview);
 
     SpatialEditorViewport *get_editor_viewport(int p_idx) {
-        ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr)
+        ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr);
         return viewports[p_idx];
     }
 
@@ -783,8 +784,8 @@ public:
 
 private:
     int current_state;
-    List<EditorSpatialGizmo *> current_gizmos;
-    DefHashMap<se_string, Vector<Ref<SpatialMaterial> > > materials;
+    Vector<EditorSpatialGizmo *> current_gizmos;
+    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();
@@ -793,11 +794,11 @@ protected:
 
 public:
     void create_material(se_string_view p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
-    void create_icon_material(const se_string &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
-    void create_handle_material(const se_string &p_name, bool p_billboard = false);
-    void add_material(const se_string &p_name, const Ref<SpatialMaterial>& p_material);
+    void create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
+    void create_handle_material(const String &p_name, bool p_billboard = false);
+    void add_material(const String &p_name, const Ref<SpatialMaterial>& p_material);
 
-    Ref<SpatialMaterial> get_material(const se_string &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
+    Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
 
     virtual se_string_view get_name() const;
     virtual int get_priority() const;

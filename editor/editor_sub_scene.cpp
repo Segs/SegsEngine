@@ -39,7 +39,7 @@ IMPL_GDCLASS(EditorSubScene)
 
 void EditorSubScene::_path_selected(se_string_view p_path) {
 
-    path->set_text_utf8(p_path);
+    path->set_text(p_path);
     _path_changed(p_path);
 }
 
@@ -104,7 +104,7 @@ void EditorSubScene::_selected_changed() {
     ERR_FAIL_COND(!item);
     Node *n = item->get_metadata(0);
 
-    if (!n || !selection.find(n)) {
+    if (!n || !selection.contains(n)) {
         selection.clear();
         is_root = false;
     }
@@ -115,7 +115,7 @@ void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_s
         return;
 
     TreeItem *item = object_cast<TreeItem>(p_object);
-    ERR_FAIL_COND(!item)
+    ERR_FAIL_COND(!item);
 
     Node *n = item->get_metadata(0);
 
@@ -129,25 +129,25 @@ void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_s
         }
         selection.push_back(n);
     } else {
-        List<Node *>::Element *E = selection.find(n);
+        auto E = selection.find(n);
 
-        if (E)
+        if (E!=selection.end())
             selection.erase(E);
     }
 }
 
 void EditorSubScene::_remove_selection_child(Node *p_node) {
-    if (p_node->get_child_count() > 0) {
-        for (int i = 0; i < p_node->get_child_count(); i++) {
-            Node *c = p_node->get_child(i);
-            List<Node *>::Element *E = selection.find(c);
-            if (E) {
-                selection.move_to_back(E);
-                selection.pop_back();
-            }
-            if (c->get_child_count() > 0) {
-                _remove_selection_child(c);
-            }
+    if (p_node->get_child_count() <= 0)
+        return;
+
+    for (int i = 0; i < p_node->get_child_count(); i++) {
+        Node *c = p_node->get_child(i);
+        auto iter = selection.find(c);
+        if (iter!=selection.end()) {
+            selection.erase_unsorted(iter);
+        }
+        if (c->get_child_count() > 0) {
+            _remove_selection_child(c);
         }
     }
 }
@@ -156,8 +156,7 @@ void EditorSubScene::ok_pressed() {
     if (selection.empty()) {
         return;
     }
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Node *c = E->deref();
+    for (Node * c : selection) {
         _remove_selection_child(c);
     }
     emit_signal("subscene_selected");
@@ -165,11 +164,11 @@ void EditorSubScene::ok_pressed() {
     clear();
 }
 
-void EditorSubScene::_reown(Node *p_node, List<Node *> *p_to_reown) {
+void EditorSubScene::_reown(Node *p_node, Vector<Node *> *p_to_reown) {
 
     if (p_node == scene) {
 
-        scene->set_filename(se_string());
+        scene->set_filename(String());
         p_to_reown->push_back(p_node);
     } else if (p_node->get_owner() == scene) {
 
@@ -191,20 +190,19 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
         return;
     }
 
-    for (List<Node *>::Element *E = selection.front(); E; E = E->next()) {
-        Node *selnode = E->deref();
+    for (Node *selnode : selection) {
         if (!selnode) {
             return;
         }
-        List<Node *> to_reown;
+        Vector<Node *> to_reown;
         _reown(selnode, &to_reown);
         if (selnode != scene) {
             selnode->get_parent()->remove_child(selnode);
         }
 
         p_new_parent->add_child(selnode);
-        for (List<Node *>::Element *F = to_reown.front(); F; F = F->next()) {
-            F->deref()->set_owner(p_new_owner);
+        for (Node *F : to_reown) {
+            F->set_owner(p_new_owner);
         }
     }
     if (!is_root) {
@@ -216,8 +214,8 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
 
 void EditorSubScene::clear() {
 
-    path->set_text_utf8("");
-    _path_changed(se_string());
+    path->set_text("");
+    _path_changed(String());
 }
 
 void EditorSubScene::_bind_methods() {
@@ -264,10 +262,10 @@ EditorSubScene::EditorSubScene() {
     tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
-    PODVector<se_string> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
 
-    for (const se_string &E : extensions) {
+    for (const String &E : extensions) {
 
         file_dialog->add_filter("*." + E);
     }

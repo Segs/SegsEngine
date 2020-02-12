@@ -45,13 +45,17 @@ protected:
 
     void _update_shape() override;
 
-    PODVector<Vector3> get_debug_mesh_lines() override;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
     void set_radius(float p_radius);
     float get_radius() const;
     void set_height(float p_height);
     float get_height() const;
+
+    real_t get_enclosing_radius() const override {
+        return radius + height * 0.5;
+    }
 
     CapsuleShape();
 };

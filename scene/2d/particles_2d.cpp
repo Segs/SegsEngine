@@ -235,7 +235,7 @@ bool Particles2D::get_fractional_delta() const {
 
 StringName Particles2D::get_configuration_warning() const {
 
-    se_string warnings;
+    String warnings;
 
     if (not process_material) {
         if (!warnings.empty())
@@ -385,25 +385,25 @@ void Particles2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("restart"), &Particles2D::restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PROPERTY_HINT_EXP_RANGE, "1,1000000,1"), "set_amount", "get_amount");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime", PROPERTY_HINT_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "preprocess", PROPERTY_HINT_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "randomness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PROPERTY_HINT_RANGE, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "preprocess", PropertyHint::Range, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "visibility_rect"), "set_visibility_rect", "get_visibility_rect");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PROPERTY_HINT_ENUM, "Index,Lifetime"), "set_draw_order", "get_draw_order");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order", "get_draw_order");
     ADD_GROUP("Process Material", "process_");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PROPERTY_HINT_RESOURCE_TYPE, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PropertyHint::ResourceType, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
     ADD_GROUP("Textures", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PROPERTY_HINT_RESOURCE_TYPE, "Texture"), "set_normal_map", "get_normal_map");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PropertyHint::ResourceType, "Texture"), "set_normal_map", "get_normal_map");
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
     BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
@@ -431,5 +431,5 @@ Particles2D::Particles2D() {
 
 Particles2D::~Particles2D() {
 
-    VisualServer::get_singleton()->free(particles);
+    VisualServer::get_singleton()->free_rid(particles);
 }

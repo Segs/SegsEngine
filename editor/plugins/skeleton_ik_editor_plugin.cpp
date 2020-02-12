@@ -48,7 +48,7 @@ void SkeletonIKEditorPlugin::_play() {
 
         initial_bone_poses.resize(skeleton_ik->get_parent_skeleton()->get_bone_count());
         for (int i = 0; i < skeleton_ik->get_parent_skeleton()->get_bone_count(); ++i) {
-            initial_bone_poses.write[i] = skeleton_ik->get_parent_skeleton()->get_bone_pose(i);
+            initial_bone_poses[i] = skeleton_ik->get_parent_skeleton()->get_bone_pose(i);
         }
 
         skeleton_ik->start();
@@ -102,7 +102,7 @@ SkeletonIKEditorPlugin::SkeletonIKEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
     play_btn = memnew(Button);
-    play_btn->set_icon(editor->get_gui_base()->get_icon("Play", "EditorIcons"));
+    play_btn->set_button_icon(editor->get_gui_base()->get_icon("Play", "EditorIcons"));
     play_btn->set_text(TTR("Play IK"));
     play_btn->set_toggle_mode(true);
     play_btn->hide();

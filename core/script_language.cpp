@@ -64,7 +64,7 @@ Variant Script::_get_property_default_value(const StringName &p_property) {
 
 Array Script::_get_script_property_list() {
     Array ret;
-    ListPOD<PropertyInfo> list;
+    Vector<PropertyInfo> list;
     get_script_property_list(&list);
     for(PropertyInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -74,7 +74,7 @@ Array Script::_get_script_property_list() {
 
 Array Script::_get_script_method_list() {
     Array ret;
-    PODVector<MethodInfo> list;
+    Vector<MethodInfo> list;
     get_script_method_list(&list);
     for(MethodInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -84,7 +84,7 @@ Array Script::_get_script_method_list() {
 
 Array Script::_get_script_signal_list() {
     Array ret;
-    ListPOD<MethodInfo> list;
+    Vector<MethodInfo> list;
     get_script_signal_list(&list);
     for(MethodInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -123,7 +123,7 @@ void Script::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("is_tool"), &Script::is_tool);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "source_code", PROPERTY_HINT_NONE, "", 0), "set_source_code", "get_source_code");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "source_code", PropertyHint::None, "", 0), "set_source_code", "get_source_code");
 }
 
 void ScriptServer::set_scripting_enabled(bool p_enabled) {
@@ -138,14 +138,14 @@ bool ScriptServer::is_scripting_enabled() {
 
 ScriptLanguage *ScriptServer::get_language(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, _language_count, nullptr)
+    ERR_FAIL_INDEX_V(p_idx, _language_count, nullptr);
 
     return _languages[p_idx];
 }
 
 void ScriptServer::register_language(ScriptLanguage *p_language) {
 
-    ERR_FAIL_COND(_language_count >= MAX_LANGUAGES)
+    ERR_FAIL_COND(_language_count >= MAX_LANGUAGES);
     _languages[_language_count++] = p_language;
 }
 
@@ -173,7 +173,7 @@ void ScriptServer::init_languages() {
                 Dictionary c = script_classes[i];
                 if (!c.has("class") || !c.has("language") || !c.has("path") || !c.has("base"))
                     continue;
-                add_global_class(c["class"], c["base"], c["language"], c["path"].as<se_string>());
+                add_global_class(c["class"], c["base"], c["language"], c["path"].as<String>());
             }
         }
     }
@@ -237,29 +237,29 @@ bool ScriptServer::is_global_class(const StringName &p_class) {
     return global_classes.contains(p_class);
 }
 StringName ScriptServer::get_global_class_language(const StringName &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName())
+    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName());
     return global_classes[p_class].language;
 }
 se_string_view ScriptServer::get_global_class_path(const StringName & p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), se_string_view())
+    ERR_FAIL_COND_V(!global_classes.contains(p_class), se_string_view());
     return global_classes[p_class].path;
 }
 
 StringName ScriptServer::get_global_class_base(se_string_view p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName())
+    ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName());
     return global_classes[StringName(p_class)].base;
 }
 StringName ScriptServer::get_global_class_native_base(const StringName &p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains((p_class)), StringName())
+    ERR_FAIL_COND_V(!global_classes.contains((p_class)), StringName());
     StringName base = global_classes[(p_class)].base;
     while (global_classes.contains(base)) {
         base = global_classes[base].base;
     }
     return base;
 }
-void ScriptServer::get_global_class_list(PODVector<StringName> *r_global_classes) {
+void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
     const StringName *K = nullptr;
-    PODVector<StringName> classes;
+    Vector<StringName> classes;
     classes.reserve(classes.size());
     while ((K = global_classes.next(K))) {
         classes.push_back(*K);
@@ -270,7 +270,7 @@ void ScriptServer::get_global_class_list(PODVector<StringName> *r_global_classes
     }
 }
 void ScriptServer::save_global_classes() {
-    PODVector<StringName> gc;
+    Vector<StringName> gc;
     get_global_class_list(&gc);
     Array gcarr;
     for (size_t i=0,fin=gc.size(); i<fin; ++i) {
@@ -287,9 +287,9 @@ void ScriptServer::save_global_classes() {
 }
 
 ////////////////////
-void ScriptInstance::get_property_state(ListPOD<Pair<StringName, Variant> > &state) {
+void ScriptInstance::get_property_state(Vector<Pair<StringName, Variant>> &state) {
 
-    ListPOD<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     get_property_list(&pinfo);
 
     for(PropertyInfo &E : pinfo ) {
@@ -407,9 +407,9 @@ bool ScriptDebugger::is_breakpoint_line(int p_line) const {
     return breakpoints.contains(p_line);
 }
 
-se_string ScriptDebugger::breakpoint_find_source(se_string_view p_source) const {
+String ScriptDebugger::breakpoint_find_source(se_string_view p_source) const {
 
-    return se_string(p_source);
+    return String(p_source);
 }
 
 void ScriptDebugger::clear_breakpoints() {
@@ -490,7 +490,7 @@ bool PlaceHolderScriptInstance::get(const StringName &p_name, Variant &r_ret) co
     return false;
 }
 
-void PlaceHolderScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void PlaceHolderScriptInstance::get_property_list(Vector<PropertyInfo> *p_properties) const {
 
     if (script->is_placeholder_fallback_enabled()) {
         for (const PropertyInfo &E : properties) {
@@ -527,7 +527,7 @@ VariantType PlaceHolderScriptInstance::get_property_type(const StringName &p_nam
     return VariantType::NIL;
 }
 
-void PlaceHolderScriptInstance::get_method_list(PODVector<MethodInfo> *p_list) const {
+void PlaceHolderScriptInstance::get_method_list(Vector<MethodInfo> *p_list) const {
 
     if (script->is_placeholder_fallback_enabled())
         return;
@@ -547,7 +547,7 @@ bool PlaceHolderScriptInstance::has_method(const StringName &p_method) const {
     return false;
 }
 
-void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
+void PlaceHolderScriptInstance::update(const Vector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
 
     Set<StringName> new_values;
     for(const PropertyInfo &E : p_properties ) {
@@ -563,7 +563,7 @@ void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properti
     }
 
     properties = p_properties;
-    ListPOD<StringName> to_remove;
+    List<StringName> to_remove;
 
     for (eastl::pair<const StringName,Variant> &E : values) {
 
@@ -608,7 +608,7 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
             }
         }
         if (!found) {
-            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PROPERTY_HINT_NONE,
+            properties.push_back(PropertyInfo(p_value.get_type(), p_name, PropertyHint::None,
                     nullptr, PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_SCRIPT_VARIABLE));
         }
     }

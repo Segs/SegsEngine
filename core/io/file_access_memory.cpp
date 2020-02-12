@@ -34,15 +34,15 @@
 
 #include "core/project_settings.h"
 
-static Map<se_string, PODVector<uint8_t> > *files = nullptr;
+static Map<String, Vector<uint8_t> > *files = nullptr;
 
-void FileAccessMemory::register_file(se_string_view p_name, const PODVector<uint8_t>& p_data) {
+void FileAccessMemory::register_file(se_string_view p_name, const Vector<uint8_t>& p_data) {
 
     if (!files) {
-        files = memnew((Map<se_string, PODVector<uint8_t> >));
+        files = memnew((Map<String, Vector<uint8_t> >));
     }
 
-    se_string name;
+    String name;
     if (ProjectSettings::get_singleton())
         name = ProjectSettings::get_singleton()->globalize_path(p_name);
     else
@@ -67,7 +67,7 @@ FileAccess *FileAccessMemory::create() {
 
 bool FileAccessMemory::file_exists(se_string_view p_name) {
 
-    se_string name = fix_path(p_name);
+    String name = fix_path(p_name);
     //name = DirAccess::normalize_path(name);
 
     return files && files->contains(name);
@@ -83,13 +83,13 @@ Error FileAccessMemory::open_custom(const uint8_t *p_data, int p_len) {
 
 Error FileAccessMemory::_open(se_string_view p_path, int p_mode_flags) {
 
-    ERR_FAIL_COND_V(!files, ERR_FILE_NOT_FOUND)
+    ERR_FAIL_COND_V(!files, ERR_FILE_NOT_FOUND);
 
-    se_string name = fix_path(p_path);
+    String name = fix_path(p_path);
     //name = DirAccess::normalize_path(name);
 
-    Map<se_string, PODVector<uint8_t> >::iterator E = files->find(name);
-    ERR_FAIL_COND_V_MSG(E==files->end(), ERR_FILE_NOT_FOUND, "Can't find file '" + se_string(p_path) + "'.")
+    Map<String, Vector<uint8_t> >::iterator E = files->find(name);
+    ERR_FAIL_COND_V_MSG(E==files->end(), ERR_FILE_NOT_FOUND, "Can't find file '" + String(p_path) + "'.");
 
     data = E->second.data();
     length = E->second.size();
@@ -110,25 +110,25 @@ bool FileAccessMemory::is_open() const {
 
 void FileAccessMemory::seek(size_t p_position) {
 
-    ERR_FAIL_COND(!data)
+    ERR_FAIL_COND(!data);
     pos = p_position;
 }
 
 void FileAccessMemory::seek_end(int64_t p_position) {
 
-    ERR_FAIL_COND(!data)
+    ERR_FAIL_COND(!data);
     pos = length + p_position;
 }
 
 size_t FileAccessMemory::get_position() const {
 
-    ERR_FAIL_COND_V(!data, 0)
+    ERR_FAIL_COND_V(!data, 0);
     return pos;
 }
 
 size_t FileAccessMemory::get_len() const {
 
-    ERR_FAIL_COND_V(!data, 0)
+    ERR_FAIL_COND_V(!data, 0);
     return length;
 }
 
@@ -150,13 +150,13 @@ uint8_t FileAccessMemory::get_8() const {
 
 int FileAccessMemory::get_buffer(uint8_t *p_dst, int p_length) const {
 
-    ERR_FAIL_COND_V(!data, -1)
+    ERR_FAIL_COND_V(!data, -1);
 
     int left = length - pos;
     int read = MIN(p_length, left);
 
     if (read < p_length) {
-        WARN_PRINT("Reading less data than requested")
+        WARN_PRINT("Reading less data than requested");
     }
 
     memcpy(p_dst, &data[pos], read);
@@ -171,13 +171,13 @@ Error FileAccessMemory::get_error() const {
 }
 
 void FileAccessMemory::flush() {
-    ERR_FAIL_COND(!data)
+    ERR_FAIL_COND(!data);
 }
 
 void FileAccessMemory::store_8(uint8_t p_byte) {
 
-    ERR_FAIL_COND(!data)
-    ERR_FAIL_COND(pos >= length)
+    ERR_FAIL_COND(!data);
+    ERR_FAIL_COND(pos >= length);
     data[pos++] = p_byte;
 }
 
@@ -186,7 +186,7 @@ void FileAccessMemory::store_buffer(const uint8_t *p_src, int p_length) {
     int left = length - pos;
     int write = MIN(p_length, left);
     if (write < p_length) {
-        WARN_PRINT("Writing less data than requested")
+        WARN_PRINT("Writing less data than requested");
     }
 
     memcpy(&data[pos], p_src, write);

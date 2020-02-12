@@ -47,19 +47,19 @@ class GDNative;
 class GDNativeLibrary : public Resource {
     GDCLASS(GDNativeLibrary,Resource)
 
-    static Map<se_string, Vector<Ref<GDNative> > > loaded_libraries;
+    static Map<String, Vector<Ref<GDNative> > > loaded_libraries;
 
     friend class GDNativeLibraryResourceLoader;
     friend class GDNative;
 
     Ref<ConfigFile> config_file;
 
-    se_string current_library_path;
-    Vector<se_string> current_dependencies;
+    String current_library_path;
+    Vector<String> current_dependencies;
 
     bool singleton;
     bool load_once;
-    se_string symbol_prefix;
+    String symbol_prefix;
     bool reloadable;
 
 public:
@@ -68,7 +68,7 @@ public:
 
     virtual bool _set(const StringName &p_name, const Variant &p_property);
     virtual bool _get(const StringName &p_name, Variant &r_property) const;
-    virtual void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    virtual void _get_property_list(List<PropertyInfo> *p_list) const;
 
     _FORCE_INLINE_ Ref<ConfigFile> get_config_file() { return config_file; }
 
@@ -76,10 +76,10 @@ public:
 
     // things that change per-platform
     // so there are no setters for this
-    _FORCE_INLINE_ const se_string & get_current_library_path() const {
+    _FORCE_INLINE_ const String & get_current_library_path() const {
         return current_library_path;
     }
-    _FORCE_INLINE_ const Vector<se_string> &get_current_dependencies() const {
+    _FORCE_INLINE_ const Vector<String> &get_current_dependencies() const {
         return current_dependencies;
     }
 
@@ -90,7 +90,7 @@ public:
     _FORCE_INLINE_ bool is_singleton() const {
         return singleton;
     }
-    _FORCE_INLINE_ const se_string &get_symbol_prefix() const {
+    _FORCE_INLINE_ const String &get_symbol_prefix() const {
         return symbol_prefix;
     }
 
@@ -167,14 +167,14 @@ public:
 class GDNativeLibraryResourceLoader : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, se_string_view p_original_path, Error *r_error) override;
-    void get_recognized_extensions(PODVector<se_string> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
-    se_string get_resource_type(se_string_view p_path) const override;
+    String get_resource_type(se_string_view p_path) const override;
 };
 
 class GDNativeLibraryResourceSaver : public ResourceFormatSaver {
 public:
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) override;
     bool recognize(const RES &p_resource) const override;
-    void get_recognized_extensions(const RES &p_resource, Vector<se_string> *p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
 };

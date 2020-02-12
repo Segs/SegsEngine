@@ -46,7 +46,7 @@ class ConnectionInfoDialog : public AcceptDialog {
     void ok_pressed() override;
 
 public:
-    void popup_connections(se_string_view p_method, const Vector<Node *>& p_nodes);
+    void popup_connections(se_string_view p_method, const Vector<Node *> &p_nodes);
 
     ConnectionInfoDialog();
 };
@@ -61,11 +61,11 @@ class ScriptTextEditor : public ScriptEditorBase {
     Ref<Script> script;
     bool script_is_valid;
 
-    Vector<se_string> functions;
+    Vector<String> functions;
 
     List<Connection> missing_connections;
 
-    Vector<se_string> member_keywords;
+    Vector<String> member_keywords;
 
     HBoxContainer *edit_hb;
 
@@ -83,7 +83,7 @@ class ScriptTextEditor : public ScriptEditorBase {
     PopupPanel *color_panel;
     ColorPicker *color_picker;
     Vector2 color_position;
-    se_string color_args;
+    String color_args;
 
     void _update_member_keywords();
 
@@ -154,8 +154,8 @@ protected:
     void _update_bookmark_list();
     void _bookmark_item_pressed(int p_idx);
 
-    static void _code_complete_scripts(void *p_ud, const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force);
-    void _code_complete_script(const se_string &p_code, List<ScriptCodeCompletionOption> *r_options, bool &r_force);
+    static void _code_complete_scripts(void *p_ud, const String &p_code, Vector<ScriptCodeCompletionOption> *r_options, bool &r_force);
+    void _code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options, bool &r_force);
 
     void _load_theme_settings();
     void _set_theme_for_script();
@@ -166,7 +166,7 @@ protected:
     void _notification(int p_what);
     static void _bind_methods();
 
-    Map<se_string, SyntaxHighlighter *> highlighters;
+    Map<String, SyntaxHighlighter *> highlighters;
     void _change_syntax_highlighter(int p_idx);
 
     void _edit_option(int p_op);
@@ -196,10 +196,11 @@ public:
     void apply_code() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
-    Vector<se_string> get_functions() override;
+    Vector<String> get_functions() override;
     void reload_text() override;
-    se_string get_name() override;
+    String get_name() override;
     Ref<Texture> get_icon() override;
+    void _validate_missing_connections(int &warning_nb);
     bool is_unsaved() override;
     Variant get_edit_state() override;
     void set_edit_state(const Variant &p_state) override;
@@ -217,9 +218,9 @@ public:
     void clear_executing_line() override;
 
     void reload(bool p_soft) override;
-    void get_breakpoints(List<int> *p_breakpoints) override;
+    void get_breakpoints(Vector<int> *p_breakpoints) override;
 
-    void add_callback(const StringName &p_function, const PoolVector<se_string> &p_args) override;
+    void add_callback(const StringName &p_function, const PoolVector<String> &p_args) override;
     void update_settings() override;
 
     bool show_members_overview() override;

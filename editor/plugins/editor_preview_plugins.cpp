@@ -282,13 +282,13 @@ Ref<Texture> EditorPackedScenePreviewPlugin::generate(const RES &p_from, const S
 
 Ref<Texture> EditorPackedScenePreviewPlugin::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
 
-    se_string temp_path = EditorSettings::get_singleton()->get_cache_dir();
-    se_string cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_path));
+    String temp_path = EditorSettings::get_singleton()->get_cache_dir();
+    String cache_base = StringUtils::md5_text(ProjectSettings::get_singleton()->globalize_path(p_path));
     cache_base = PathUtils::plus_file(temp_path,"resthumb-" + cache_base);
 
     //does not have it, try to load a cached thumbnail
 
-    se_string path = cache_base + ".png";
+    String path = cache_base + ".png";
 
     if (!FileAccess::exists(path))
         return Ref<Texture>();
@@ -335,7 +335,7 @@ bool EditorMaterialPreviewPlugin::generate_small_preview_automatically() const {
 Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<Material> material = dynamic_ref_cast<Material>(p_from);
-    ERR_FAIL_COND_V(not material, Ref<Texture>())
+    ERR_FAIL_COND_V(not material, Ref<Texture>());
 
     if (material->get_shader_mode() == ShaderMode::SPATIAL) {
 
@@ -353,7 +353,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
         VisualServer::get_singleton()->mesh_surface_set_material(sphere, 0, RID());
 
-        ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
+        ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
         img->convert(Image::FORMAT_RGBA8);
         int thumbnail_size = MAX(p_size.x, p_size.y);
@@ -404,10 +404,10 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
     int lons = 32;
     float radius = 1.0;
 
-    PoolVector<Vector3> vertices;
-    PoolVector<Vector3> normals;
-    PoolVector<Vector2> uvs;
-    PoolVector<float> tangents;
+    Vector<Vector3> vertices;
+    Vector<Vector3> normals;
+    Vector<Vector2> uvs;
+    Vector<float> tangents;
     Basis tt = Basis(Vector3(0, 1, 0), Math_PI * 0.5);
 
     for (int i = 1; i <= lats; i++) {
@@ -464,26 +464,24 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
         }
     }
 
-    Array arr;
-    arr.resize(VS::ARRAY_MAX);
-    arr[VS::ARRAY_VERTEX] = vertices;
-    arr[VS::ARRAY_NORMAL] = normals;
-    arr[VS::ARRAY_TANGENT] = tangents;
-    arr[VS::ARRAY_TEX_UV] = Variant(uvs);
+    SurfaceArrays arr(eastl::move(vertices));
+    arr.m_normals = eastl::move(normals);
+    arr.m_tangents = eastl::move(tangents);
+    arr.m_uv_1 = eastl::move(uvs);
     VisualServer::get_singleton()->mesh_add_surface_from_arrays(sphere, VS::PRIMITIVE_TRIANGLES, arr);
 }
 
 EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
-    VisualServer::get_singleton()->free(sphere);
-    VisualServer::get_singleton()->free(sphere_instance);
-    VisualServer::get_singleton()->free(viewport);
-    VisualServer::get_singleton()->free(light);
-    VisualServer::get_singleton()->free(light_instance);
-    VisualServer::get_singleton()->free(light2);
-    VisualServer::get_singleton()->free(light_instance2);
-    VisualServer::get_singleton()->free(camera);
-    VisualServer::get_singleton()->free(scenario);
+    VisualServer::get_singleton()->free_rid(sphere);
+    VisualServer::get_singleton()->free_rid(sphere_instance);
+    VisualServer::get_singleton()->free_rid(viewport);
+    VisualServer::get_singleton()->free_rid(light);
+    VisualServer::get_singleton()->free_rid(light_instance);
+    VisualServer::get_singleton()->free_rid(light2);
+    VisualServer::get_singleton()->free_rid(light_instance2);
+    VisualServer::get_singleton()->free_rid(camera);
+    VisualServer::get_singleton()->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -508,11 +506,11 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (code.empty())
         return Ref<Texture>();
 
-    ListPOD<se_string> kwors;
+    Vector<String> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
-    Set<se_string> keywords;
-    for (const se_string &E : kwors) {
+    Set<String> keywords;
+    for (const String &E : kwors) {
 
         keywords.insert(E);
     }
@@ -621,7 +619,7 @@ bool EditorAudioStreamPreviewPlugin::handles(se_string_view p_type) const {
 Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(p_from);
-    ERR_FAIL_COND_V(not stream, Ref<Texture>())
+    ERR_FAIL_COND_V(not stream, Ref<Texture>());
 
     PoolVector<uint8_t> img;
 
@@ -633,7 +631,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     uint8_t *imgw = imgdata.ptr();
 
     Ref<AudioStreamPlayback> playback = stream->instance_playback();
-    ERR_FAIL_COND_V(not playback, Ref<Texture>())
+    ERR_FAIL_COND_V(not playback, Ref<Texture>());
 
     float len_s = stream->get_length();
     if (len_s == 0) {
@@ -645,7 +643,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     frames.resize(frame_length);
 
     playback->start();
-    playback->mix(frames.ptrw(), 1, frames.size());
+    playback->mix(frames.data(), 1, frames.size());
     playback->stop();
 
     for (int i = 0; i < w; i++) {
@@ -718,7 +716,7 @@ bool EditorMeshPreviewPlugin::handles(se_string_view p_type) const {
 Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
     Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(p_from);
-    ERR_FAIL_COND_V(not mesh, Ref<Texture>())
+    ERR_FAIL_COND_V(not mesh, Ref<Texture>());
 
     VisualServer::get_singleton()->instance_set_base(mesh_instance, mesh->get_rid());
 
@@ -749,7 +747,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     }
 
     Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-    ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
+    ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
     VisualServer::get_singleton()->instance_set_base(mesh_instance, RID());
 
@@ -809,14 +807,14 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
 EditorMeshPreviewPlugin::~EditorMeshPreviewPlugin() {
 
     //VisualServer::get_singleton()->free(sphere);
-    VisualServer::get_singleton()->free(mesh_instance);
-    VisualServer::get_singleton()->free(viewport);
-    VisualServer::get_singleton()->free(light);
-    VisualServer::get_singleton()->free(light_instance);
-    VisualServer::get_singleton()->free(light2);
-    VisualServer::get_singleton()->free(light_instance2);
-    VisualServer::get_singleton()->free(camera);
-    VisualServer::get_singleton()->free(scenario);
+    VisualServer::get_singleton()->free_rid(mesh_instance);
+    VisualServer::get_singleton()->free_rid(viewport);
+    VisualServer::get_singleton()->free_rid(light);
+    VisualServer::get_singleton()->free_rid(light_instance);
+    VisualServer::get_singleton()->free_rid(light2);
+    VisualServer::get_singleton()->free_rid(light_instance2);
+    VisualServer::get_singleton()->free_rid(camera);
+    VisualServer::get_singleton()->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -852,9 +850,9 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
     }
     sampled_font->set_size(50);
 
-    String sampled_text = "Abg";
+    UIString sampled_text = "Abg";
 
-    Vector2 size = sampled_font->get_string_size(sampled_text);
+    Vector2 size = sampled_font->get_ui_string_size(sampled_text);
 
     Vector2 pos;
 
@@ -863,7 +861,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
 
     Ref<Font> font = sampled_font;
 
-    font->draw(canvas_item, pos, sampled_text);
+    font->draw_ui_string(canvas_item, pos, sampled_text);
 
     preview_done = false;
     VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_ONCE); //once used for capture
@@ -876,7 +874,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
     VisualServer::get_singleton()->canvas_item_clear(canvas_item);
 
     Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-    ERR_FAIL_COND_V(not img, Ref<ImageTexture>())
+    ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
     img->convert(Image::FORMAT_RGBA8);
 
@@ -899,7 +897,7 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(se_string_view p_path, 
 
 Ref<Texture> EditorFontPreviewPlugin::generate(const RES &p_from, const Size2 &p_size) const {
 
-    se_string path = p_from->get_path();
+    String path = p_from->get_path();
     if (!FileAccess::exists(path)) {
         return Ref<Texture>();
     }
@@ -924,7 +922,7 @@ EditorFontPreviewPlugin::EditorFontPreviewPlugin() {
 
 EditorFontPreviewPlugin::~EditorFontPreviewPlugin() {
 
-    VisualServer::get_singleton()->free(canvas_item);
-    VisualServer::get_singleton()->free(canvas);
-    VisualServer::get_singleton()->free(viewport);
+    VisualServer::get_singleton()->free_rid(canvas_item);
+    VisualServer::get_singleton()->free_rid(canvas);
+    VisualServer::get_singleton()->free_rid(viewport);
 }

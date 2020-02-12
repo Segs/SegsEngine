@@ -62,7 +62,7 @@ static SegmentIntersectionResult segment_intersection(
     return SEGMENT_PARALLEL;
 }
 
-static float calculate_total_distance(const Vector<Vector2> &points) {
+static float calculate_total_distance(Span<const Vector2> points) {
     float d = 0.f;
     for (int i = 1; i < points.size(); ++i) {
         d += points[i].distance_to(points[i - 1]);
@@ -117,7 +117,7 @@ void LineBuilder::build() {
         return;
     }
 
-    ERR_FAIL_COND(tile_aspect <= 0.f)
+    ERR_FAIL_COND(tile_aspect <= 0.f);
 
     const float hw = width / 2.f;
     const float hw_sq = hw * hw;
@@ -386,7 +386,7 @@ void LineBuilder::build() {
         }
     }
     // Last (or only) segment
-    pos1 = points[points.size() - 1];
+    pos1 = points.back();
 
     if (distance_required) {
         current_distance1 += pos0.distance_to(pos1);

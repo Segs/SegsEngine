@@ -33,13 +33,17 @@
 
 #include "rasterizer.h"
 #include "visual_server_viewport.h"
+#include "a_star.h"
+#include "a_star.h"
+#include "a_star.h"
+#include "a_star.h"
 
 class VisualServerCanvas {
 public:
     struct Item : public RasterizerCanvas::Item {
 
         RID parent; // canvas it belongs to
-        List<Item *>::Element *E;
+        ListOld<Item *>::Element *E;
         int z_index;
         bool z_relative;
         bool sort_y;
@@ -110,7 +114,6 @@ public:
 
     struct Canvas : public VisualServerViewport::CanvasBase {
 
-        Set<RID> viewports;
         struct ChildItem {
 
             Point2 mirror;
@@ -120,18 +123,17 @@ public:
             }
         };
 
+        Set<RID> viewports;
         Set<RasterizerCanvas::Light *> lights;
-
         Set<RasterizerCanvas::LightOccluderInstance *> occluders;
-
-        bool children_order_dirty;
         Vector<ChildItem> child_items;
         Color modulate;
         RID parent;
         float parent_scale;
+        bool children_order_dirty;
 
         int find_item(Item *p_item) {
-            for (int i = 0; i < child_items.size(); i++) {
+            for (size_t i = 0; i < child_items.size(); i++) {
                 if (child_items[i].item == p_item)
                     return i;
             }
@@ -140,13 +142,13 @@ public:
         void erase_item(Item *p_item) {
             int idx = find_item(p_item);
             if (idx >= 0)
-                child_items.remove(idx);
+                child_items.erase_at(idx);
         }
 
         Canvas() {
             modulate = Color(1, 1, 1, 1);
             children_order_dirty = true;
-            parent_scale = 1.0;
+            parent_scale = 1.0f;
         }
     };
 
@@ -192,15 +194,16 @@ public:
 
     void canvas_item_add_line(RID p_item, const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
     void canvas_item_add_polyline(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
-    void canvas_item_add_multiline(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void canvas_item_add_multiline(RID p_item, const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void canvas_item_add_rect(RID p_item, const Rect2 &p_rect, const Color &p_color);
     void canvas_item_add_circle(RID p_item, const Point2 &p_pos, float p_radius, const Color &p_color);
     void canvas_item_add_texture_rect(RID p_item, const Rect2 &p_rect, RID p_texture, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID());
     void canvas_item_add_texture_rect_region(RID p_item, const Rect2 &p_rect, RID p_texture, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID(), bool p_clip_uv = false);
     void canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, VS::NinePatchAxisMode p_x_axis_mode = VS::NINE_PATCH_STRETCH, VS::NinePatchAxisMode p_y_axis_mode = VS::NINE_PATCH_STRETCH, bool p_draw_center = true, const Color &p_modulate = Color(1, 1, 1), RID p_normal_map = RID());
-    void canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs, RID p_texture, float p_width = 1.0, RID p_normal_map = RID());
-    void canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), RID p_texture = RID(), RID p_normal_map = RID(), bool p_antialiased = false);
-    void canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const Vector<Color> &p_colors, const Vector<Point2> &p_uvs = Vector<Point2>(), const Vector<int> &p_bones = Vector<int>(), const Vector<float> &p_weights = Vector<float>(), RID p_texture = RID(), int p_count = -1, RID p_normal_map = RID(), bool p_antialiased = false, bool p_antialiasing_use_indices = false);
+    void canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width = 1.0, RID p_normal_map = RID());
+    void canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), RID p_texture = RID(), RID p_normal_map = RID(), bool p_antialiased = false);
+    void canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector
+            <Point2> &p_uvs = PoolVector<Point2>(), const PoolVector<int> &p_bones = PoolVector<int>(), const PoolVector<float> &p_weights = PoolVector<float>(), RID p_texture = RID(), int p_count = -1, RID p_normal_map = RID(), bool p_antialiased = false, bool p_antialiasing_use_indices = false);
     void canvas_item_add_mesh(RID p_item, const RID &p_mesh, const Transform2D &p_transform = Transform2D(), const Color &p_modulate = Color(1, 1, 1), RID p_texture = RID(), RID p_normal_map = RID());
     void canvas_item_add_multimesh(RID p_item, RID p_mesh, RID p_texture = RID(), RID p_normal_map = RID());
     void canvas_item_add_particles(RID p_item, RID p_particles, RID p_texture, RID p_normal);

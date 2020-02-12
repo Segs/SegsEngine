@@ -74,7 +74,7 @@ private:
     RichTextLabel *set_up_vcs_status;
     Button *set_up_ok_button;
 
-    HashMap<ChangeType, se_string,HashType<ChangeType> > change_type_to_strings;
+    HashMap<ChangeType, String,HashType<ChangeType> > change_type_to_strings;
     HashMap<ChangeType, Color,HashType<ChangeType> > change_type_to_color;
 
     VBoxContainer *version_commit_dock;
@@ -133,9 +133,9 @@ public:
     VBoxContainer *get_version_commit_dock() const { return version_commit_dock; }
     PanelContainer *get_version_control_dock() const { return version_control_dock; }
 
-    Vector<StringName> get_available_vcs_names() const { return available_addons; }
+    const Vector<StringName> &get_available_vcs_names() const { return available_addons; }
     bool is_vcs_initialized() const;
-    const se_string get_vcs_name() const;
+    const String get_vcs_name() const;
 
     void register_editor();
     void fetch_available_vcs_addon_names();

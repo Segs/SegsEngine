@@ -113,7 +113,7 @@ public:
 private:
     struct TileData {
 
-        se_string name;
+        String name;
         Ref<Texture> texture;
         Ref<Texture> normal_map;
         Vector2 offset;
@@ -141,7 +141,9 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(ListPOD<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
+public:
+
     void _tile_set_shapes(int p_id, const Array &p_shapes);
     Array _tile_get_shapes(int p_id) const;
     Array _get_tiles_ids() const;
@@ -156,7 +158,7 @@ public:
     BitmaskMode autotile_get_bitmask_mode(int p_id) const;
 
     void tile_set_name(int p_id, se_string_view p_name);
-    const se_string &tile_get_name(int p_id) const;
+    const String &tile_get_name(int p_id) const;
 
     void tile_set_texture(int p_id, const Ref<Texture> &p_texture);
     Ref<Texture> tile_get_texture(int p_id) const;
@@ -217,7 +219,7 @@ public:
     int tile_get_shape_count(int p_id) const;
 
     void tile_set_shapes(int p_id, const Vector<ShapeData> &p_shapes);
-    Vector<ShapeData> tile_get_shapes(int p_id) const;
+    const Vector<TileSet::ShapeData> &tile_get_shapes(int p_id) const;
 
     void tile_set_material(int p_id, const Ref<ShaderMaterial> &p_material);
     Ref<ShaderMaterial> tile_get_material(int p_id) const;
@@ -255,7 +257,7 @@ public:
     bool is_tile_bound(int p_drawn_id, int p_neighbor_id);
 
     int find_tile_by_name(se_string_view p_name) const;
-    void get_tile_list(List<int> *p_tiles) const;
+    void get_tile_list(Vector<int> *p_tiles) const;
 
     void clear();
 

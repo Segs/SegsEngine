@@ -16,7 +16,7 @@ namespace GodotTools
         }
 
         [Serializable]
-        private class BuildIssue : Reference // TODO Remove Reference once we have proper serialization
+        private class BuildIssue : RefCounted // TODO Remove Reference once we have proper serialization
         {
             public bool Warning { get; set; }
             public string File { get; set; }
@@ -134,7 +134,7 @@ namespace GodotTools
 
             if (file.StartsWith("res://"))
             {
-                var script = (Script)ResourceLoader.Load(file, typeHint: Internal.CSharpLanguageType);
+                var script = (Script)ResourceLoader.Load(file, Internal.CSharpLanguageType);
 
                 if (script != null && Internal.ScriptEditorEdit(script, issue.Line, issue.Column))
                     Internal.EditorNodeShowScriptScreen();

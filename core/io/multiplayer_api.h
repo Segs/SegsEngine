@@ -63,7 +63,7 @@ class GODOT_EXPORT MultiplayerAPI : public RefCounted {
 public:
     struct ProfilingInfo {
         ObjectID node;
-        se_string node_path;
+        String node_path;
         int incoming_rpc;
         int incoming_rset;
         int outgoing_rpc;
@@ -93,7 +93,7 @@ private:
     HashMap<NodePath, PathSentCache> path_send_cache;
     Map<int, PathGetCache> path_get_cache;
     int last_send_cache_id;
-    PODVector<uint8_t> packet_cache;
+    Vector<uint8_t> packet_cache;
     Node *root_node;
     bool allow_object_decoding = false;
 
@@ -134,7 +134,7 @@ public:
     void _server_disconnected();
 
     bool has_network_peer() const { return network_peer; }
-    PODVector<int> get_network_connected_peers() const;
+    Vector<int> get_network_connected_peers() const;
     int get_rpc_sender_id() const { return rpc_sender_id; }
     int get_network_unique_id() const;
     bool is_network_server() const;

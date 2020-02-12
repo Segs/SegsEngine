@@ -35,16 +35,16 @@
 
 IMPL_GDCLASS(ConvexPolygonShape)
 
-PODVector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
+Vector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
 
-    PODVector<Vector3> points = get_points();
+    Vector<Vector3> points = get_points();
 
     if (points.size() > 3) {
 
         Geometry::MeshData md;
         Error err = QuickHull::build(points, md);
         if (err == OK) {
-            PODVector<Vector3> lines;
+            Vector<Vector3> lines;
             lines.resize(md.edges.size() * 2);
             for (int i = 0; i < md.edges.size(); i++) {
                 lines[i * 2 + 0] = md.vertices[md.edges[i].a];
@@ -54,7 +54,7 @@ PODVector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
         }
     }
 
-    return PODVector<Vector3>();
+    return Vector<Vector3>();
 }
 
 void ConvexPolygonShape::_update_shape() {
@@ -63,11 +63,19 @@ void ConvexPolygonShape::_update_shape() {
     Shape::_update_shape();
 }
 
-void ConvexPolygonShape::set_points(const PoolVector<Vector3> &p_points) {
-    auto rd(p_points.read());
-    points.assign(rd.ptr(),rd.ptr()+p_points.size());
+void ConvexPolygonShape::set_points(Vector<Vector3> &&p_points) {
+    points = eastl::move(p_points);
     _update_shape();
     notify_change_to_owners();
+}
+
+real_t ConvexPolygonShape::get_enclosing_radius() const {
+    const auto &data = get_points();
+    real_t r = 0;
+    for (int i(0); i < data.size(); i++) {
+        r = MAX(data[i].length_squared(), r);
+    }
+    return Math::sqrt(r);
 }
 
 

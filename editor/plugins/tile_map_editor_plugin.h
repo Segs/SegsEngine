@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TILE_MAP_EDITOR_PLUGIN_H
-#define TILE_MAP_EDITOR_PLUGIN_H
+#pragma once
+
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
@@ -40,6 +40,7 @@
 #include "scene/gui/line_edit.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/tool_button.h"
+#include "EASTL/bitvector.h"
 
 class TileMapEditor : public VBoxContainer {
 
@@ -119,12 +120,11 @@ class TileMapEditor : public VBoxContainer {
 	Rect2i rectangle;
 
 	Point2i over_tile;
-
-	bool *bucket_cache_visited;
+    BitVector bucket_cache_visited;
 	Rect2i bucket_cache_rect;
 	int bucket_cache_tile;
 	PoolVector<Vector2> bucket_cache;
-	List<Point2i> bucket_queue;
+	ListOld<Point2i> bucket_queue;
 
 	struct CellOp {
 		int idx;
@@ -157,7 +157,7 @@ class TileMapEditor : public VBoxContainer {
 				transpose(false) {}
 	};
 
-	List<TileData> copydata;
+	ListOld<TileData> copydata;
 
 	Map<Point2i, CellOp> undo_data;
     static constexpr int invalid_cell[1] = {TileMap::INVALID_CELL};
@@ -250,5 +250,3 @@ public:
 	TileMapEditorPlugin(EditorNode *p_node);
 	~TileMapEditorPlugin() override;
 };
-
-#endif // TILE_MAP_EDITOR_PLUGIN_H

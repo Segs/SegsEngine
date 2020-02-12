@@ -132,8 +132,8 @@ public:
     void set_collision_mask(int p_collision_mask);
     int get_collision_mask() const;
 
-    void set_exclude(const Vector<RID> &p_exclude);
-    Vector<RID> get_exclude() const;
+    void set_exclude(const PoolVector<RID> &p_exclude);
+    PoolVector<RID> get_exclude() const;
 
     void set_collide_with_bodies(bool p_enable);
     bool is_collide_with_bodies_enabled() const;
@@ -148,7 +148,7 @@ class PhysicsDirectSpaceState : public Object {
 
     GDCLASS(PhysicsDirectSpaceState,Object)
 
-private:
+public:
     Dictionary _intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_collision_mask = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results = 32);
     Array _cast_motion(const Ref<PhysicsShapeQueryParameters> &p_shape_query, const Vector3 &p_motion);
@@ -288,7 +288,7 @@ public:
     virtual PhysicsDirectSpaceState *space_get_direct_state(RID p_space) = 0;
 
     virtual void space_set_debug_contacts(RID p_space, int p_max_contacts) = 0;
-    virtual Vector<Vector3> space_get_contacts(RID p_space) const = 0;
+    virtual const Vector<Vector3> &space_get_contacts(RID p_space) const = 0;
     virtual int space_get_contact_count(RID p_space) const = 0;
 
     //missing space parameters
@@ -756,7 +756,7 @@ public:
 
     /* MISC */
 
-    virtual void free(RID p_rid) = 0;
+    virtual void free_rid(RID p_rid) = 0;
 
     virtual void set_active(bool p_active) = 0;
     virtual void init() = 0;

@@ -39,343 +39,343 @@
 
 class PhysicsServerSW : public PhysicsServer {
 
-	GDCLASS(PhysicsServerSW,PhysicsServer)
+    GDCLASS(PhysicsServerSW,PhysicsServer)
 
-	friend class PhysicsDirectSpaceStateSW;
-	bool active;
-	int iterations;
-	bool doing_sync;
-	real_t last_step;
+    friend class PhysicsDirectSpaceStateSW;
+    bool active;
+    int iterations;
+    bool doing_sync;
+    real_t last_step;
 
-	int island_count;
-	int active_objects;
-	int collision_pairs;
+    int island_count;
+    int active_objects;
+    int collision_pairs;
 
-	bool flushing_queries;
+    bool flushing_queries;
 
-	StepSW *stepper;
-	Set<const SpaceSW *> active_spaces;
+    StepSW *stepper;
+    Set<const SpaceSW *> active_spaces;
 
-	PhysicsDirectBodyStateSW *direct_state;
+    PhysicsDirectBodyStateSW *direct_state;
 
-	mutable RID_Owner<ShapeSW> shape_owner;
-	mutable RID_Owner<SpaceSW> space_owner;
-	mutable RID_Owner<AreaSW> area_owner;
-	mutable RID_Owner<BodySW> body_owner;
-	mutable RID_Owner<JointSW> joint_owner;
+    mutable RID_Owner<ShapeSW> shape_owner;
+    mutable RID_Owner<SpaceSW> space_owner;
+    mutable RID_Owner<AreaSW> area_owner;
+    mutable RID_Owner<BodySW> body_owner;
+    mutable RID_Owner<JointSW> joint_owner;
 
-	//void _clear_query(QuerySW *p_query);
-	friend class CollisionObjectSW;
-	SelfList<CollisionObjectSW>::List pending_shape_update_list;
-	void _update_shapes();
+    //void _clear_query(QuerySW *p_query);
+    friend class CollisionObjectSW;
+    SelfList<CollisionObjectSW>::List pending_shape_update_list;
+    void _update_shapes();
 
 public:
-	static PhysicsServerSW *singleton;
+    static PhysicsServerSW *singleton;
 
-	struct CollCbkData {
+    struct CollCbkData {
 
-		int max;
-		int amount;
-		Vector3 *ptr;
-	};
+        int max;
+        int amount;
+        Vector3 *ptr;
+    };
 
-	static void _shape_col_cbk(const Vector3 &p_point_A, const Vector3 &p_point_B, void *p_userdata);
+    static void _shape_col_cbk(const Vector3 &p_point_A, const Vector3 &p_point_B, void *p_userdata);
 
-	RID shape_create(ShapeType p_shape) override;
-	void shape_set_data(RID p_shape, const Variant &p_data) override;
-	void shape_set_custom_solver_bias(RID p_shape, real_t p_bias) override;
+    RID shape_create(ShapeType p_shape) override;
+    void shape_set_data(RID p_shape, const Variant &p_data) override;
+    void shape_set_custom_solver_bias(RID p_shape, real_t p_bias) override;
 
-	ShapeType shape_get_type(RID p_shape) const override;
-	Variant shape_get_data(RID p_shape) const override;
+    ShapeType shape_get_type(RID p_shape) const override;
+    Variant shape_get_data(RID p_shape) const override;
 
-	void shape_set_margin(RID p_shape, real_t p_margin) override;
-	real_t shape_get_margin(RID p_shape) const override;
+    void shape_set_margin(RID p_shape, real_t p_margin) override;
+    real_t shape_get_margin(RID p_shape) const override;
 
-	real_t shape_get_custom_solver_bias(RID p_shape) const override;
+    real_t shape_get_custom_solver_bias(RID p_shape) const override;
 
-	/* SPACE API */
+    /* SPACE API */
 
-	RID space_create() override;
-	void space_set_active(RID p_space, bool p_active) override;
-	bool space_is_active(RID p_space) const override;
+    RID space_create() override;
+    void space_set_active(RID p_space, bool p_active) override;
+    bool space_is_active(RID p_space) const override;
 
-	void space_set_param(RID p_space, SpaceParameter p_param, real_t p_value) override;
-	real_t space_get_param(RID p_space, SpaceParameter p_param) const override;
+    void space_set_param(RID p_space, SpaceParameter p_param, real_t p_value) override;
+    real_t space_get_param(RID p_space, SpaceParameter p_param) const override;
 
-	// this function only works on physics process, errors and returns null otherwise
-	PhysicsDirectSpaceState *space_get_direct_state(RID p_space) override;
+    // this function only works on physics process, errors and returns null otherwise
+    PhysicsDirectSpaceState *space_get_direct_state(RID p_space) override;
 
-	void space_set_debug_contacts(RID p_space, int p_max_contacts) override;
-	Vector<Vector3> space_get_contacts(RID p_space) const override;
-	int space_get_contact_count(RID p_space) const override;
+    void space_set_debug_contacts(RID p_space, int p_max_contacts) override;
+    const Vector<Vector3> &space_get_contacts(RID p_space) const override;
+    int space_get_contact_count(RID p_space) const override;
 
-	/* AREA API */
+    /* AREA API */
 
-	RID area_create() override;
+    RID area_create() override;
 
-	void area_set_space_override_mode(RID p_area, AreaSpaceOverrideMode p_mode) override;
-	AreaSpaceOverrideMode area_get_space_override_mode(RID p_area) const override;
+    void area_set_space_override_mode(RID p_area, AreaSpaceOverrideMode p_mode) override;
+    AreaSpaceOverrideMode area_get_space_override_mode(RID p_area) const override;
 
-	void area_set_space(RID p_area, RID p_space) override;
-	RID area_get_space(RID p_area) const override;
+    void area_set_space(RID p_area, RID p_space) override;
+    RID area_get_space(RID p_area) const override;
 
-	void area_add_shape(RID p_area, RID p_shape, const Transform &p_transform = Transform(), bool p_disabled = false) override;
-	void area_set_shape(RID p_area, int p_shape_idx, RID p_shape) override;
-	void area_set_shape_transform(RID p_area, int p_shape_idx, const Transform &p_transform) override;
+    void area_add_shape(RID p_area, RID p_shape, const Transform &p_transform = Transform(), bool p_disabled = false) override;
+    void area_set_shape(RID p_area, int p_shape_idx, RID p_shape) override;
+    void area_set_shape_transform(RID p_area, int p_shape_idx, const Transform &p_transform) override;
 
-	int area_get_shape_count(RID p_area) const override;
-	RID area_get_shape(RID p_area, int p_shape_idx) const override;
-	Transform area_get_shape_transform(RID p_area, int p_shape_idx) const override;
+    int area_get_shape_count(RID p_area) const override;
+    RID area_get_shape(RID p_area, int p_shape_idx) const override;
+    Transform area_get_shape_transform(RID p_area, int p_shape_idx) const override;
 
-	void area_remove_shape(RID p_area, int p_shape_idx) override;
-	void area_clear_shapes(RID p_area) override;
+    void area_remove_shape(RID p_area, int p_shape_idx) override;
+    void area_clear_shapes(RID p_area) override;
 
-	void area_set_shape_disabled(RID p_area, int p_shape_idx, bool p_disabled) override;
+    void area_set_shape_disabled(RID p_area, int p_shape_idx, bool p_disabled) override;
 
-	void area_attach_object_instance_id(RID p_area, ObjectID p_id) override;
-	ObjectID area_get_object_instance_id(RID p_area) const override;
+    void area_attach_object_instance_id(RID p_area, ObjectID p_id) override;
+    ObjectID area_get_object_instance_id(RID p_area) const override;
 
-	void area_set_param(RID p_area, AreaParameter p_param, const Variant &p_value) override;
-	void area_set_transform(RID p_area, const Transform &p_transform) override;
+    void area_set_param(RID p_area, AreaParameter p_param, const Variant &p_value) override;
+    void area_set_transform(RID p_area, const Transform &p_transform) override;
 
-	Variant area_get_param(RID p_area, AreaParameter p_param) const override;
-	Transform area_get_transform(RID p_area) const override;
+    Variant area_get_param(RID p_area, AreaParameter p_param) const override;
+    Transform area_get_transform(RID p_area) const override;
 
-	void area_set_ray_pickable(RID p_area, bool p_enable) override;
-	bool area_is_ray_pickable(RID p_area) const override;
+    void area_set_ray_pickable(RID p_area, bool p_enable) override;
+    bool area_is_ray_pickable(RID p_area) const override;
 
-	void area_set_collision_mask(RID p_area, uint32_t p_mask) override;
-	void area_set_collision_layer(RID p_area, uint32_t p_layer) override;
+    void area_set_collision_mask(RID p_area, uint32_t p_mask) override;
+    void area_set_collision_layer(RID p_area, uint32_t p_layer) override;
 
-	void area_set_monitorable(RID p_area, bool p_monitorable) override;
+    void area_set_monitorable(RID p_area, bool p_monitorable) override;
 
-	void area_set_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
-	void area_set_area_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
+    void area_set_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
+    void area_set_area_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) override;
 
-	/* BODY API */
+    /* BODY API */
 
-	// create a body of a given type
-	RID body_create(BodyMode p_mode = BODY_MODE_RIGID, bool p_init_sleeping = false) override;
+    // create a body of a given type
+    RID body_create(BodyMode p_mode = BODY_MODE_RIGID, bool p_init_sleeping = false) override;
 
-	void body_set_space(RID p_body, RID p_space) override;
-	RID body_get_space(RID p_body) const override;
+    void body_set_space(RID p_body, RID p_space) override;
+    RID body_get_space(RID p_body) const override;
 
-	void body_set_mode(RID p_body, BodyMode p_mode) override;
-	BodyMode body_get_mode(RID p_body) const override;
+    void body_set_mode(RID p_body, BodyMode p_mode) override;
+    BodyMode body_get_mode(RID p_body) const override;
 
-	void body_add_shape(RID p_body, RID p_shape, const Transform &p_transform = Transform(), bool p_disabled = false) override;
-	void body_set_shape(RID p_body, int p_shape_idx, RID p_shape) override;
-	void body_set_shape_transform(RID p_body, int p_shape_idx, const Transform &p_transform) override;
+    void body_add_shape(RID p_body, RID p_shape, const Transform &p_transform = Transform(), bool p_disabled = false) override;
+    void body_set_shape(RID p_body, int p_shape_idx, RID p_shape) override;
+    void body_set_shape_transform(RID p_body, int p_shape_idx, const Transform &p_transform) override;
 
-	int body_get_shape_count(RID p_body) const override;
-	RID body_get_shape(RID p_body, int p_shape_idx) const override;
-	Transform body_get_shape_transform(RID p_body, int p_shape_idx) const override;
+    int body_get_shape_count(RID p_body) const override;
+    RID body_get_shape(RID p_body, int p_shape_idx) const override;
+    Transform body_get_shape_transform(RID p_body, int p_shape_idx) const override;
 
-	void body_set_shape_disabled(RID p_body, int p_shape_idx, bool p_disabled) override;
+    void body_set_shape_disabled(RID p_body, int p_shape_idx, bool p_disabled) override;
 
-	void body_remove_shape(RID p_body, int p_shape_idx) override;
-	void body_clear_shapes(RID p_body) override;
+    void body_remove_shape(RID p_body, int p_shape_idx) override;
+    void body_clear_shapes(RID p_body) override;
 
-	void body_attach_object_instance_id(RID p_body, uint32_t p_id) override;
-	uint32_t body_get_object_instance_id(RID p_body) const override;
+    void body_attach_object_instance_id(RID p_body, uint32_t p_id) override;
+    uint32_t body_get_object_instance_id(RID p_body) const override;
 
-	void body_set_enable_continuous_collision_detection(RID p_body, bool p_enable) override;
-	bool body_is_continuous_collision_detection_enabled(RID p_body) const override;
+    void body_set_enable_continuous_collision_detection(RID p_body, bool p_enable) override;
+    bool body_is_continuous_collision_detection_enabled(RID p_body) const override;
 
-	void body_set_collision_layer(RID p_body, uint32_t p_layer) override;
-	uint32_t body_get_collision_layer(RID p_body) const override;
+    void body_set_collision_layer(RID p_body, uint32_t p_layer) override;
+    uint32_t body_get_collision_layer(RID p_body) const override;
 
-	void body_set_collision_mask(RID p_body, uint32_t p_mask) override;
-	uint32_t body_get_collision_mask(RID p_body) const override;
+    void body_set_collision_mask(RID p_body, uint32_t p_mask) override;
+    uint32_t body_get_collision_mask(RID p_body) const override;
 
-	void body_set_user_flags(RID p_body, uint32_t p_flags) override;
-	uint32_t body_get_user_flags(RID p_body) const override;
+    void body_set_user_flags(RID p_body, uint32_t p_flags) override;
+    uint32_t body_get_user_flags(RID p_body) const override;
 
-	void body_set_param(RID p_body, BodyParameter p_param, real_t p_value) override;
-	real_t body_get_param(RID p_body, BodyParameter p_param) const override;
+    void body_set_param(RID p_body, BodyParameter p_param, real_t p_value) override;
+    real_t body_get_param(RID p_body, BodyParameter p_param) const override;
 
-	void body_set_kinematic_safe_margin(RID p_body, real_t p_margin) override;
-	real_t body_get_kinematic_safe_margin(RID p_body) const override;
+    void body_set_kinematic_safe_margin(RID p_body, real_t p_margin) override;
+    real_t body_get_kinematic_safe_margin(RID p_body) const override;
 
-	void body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) override;
-	Variant body_get_state(RID p_body, BodyState p_state) const override;
+    void body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) override;
+    Variant body_get_state(RID p_body, BodyState p_state) const override;
 
-	void body_set_applied_force(RID p_body, const Vector3 &p_force) override;
-	Vector3 body_get_applied_force(RID p_body) const override;
+    void body_set_applied_force(RID p_body, const Vector3 &p_force) override;
+    Vector3 body_get_applied_force(RID p_body) const override;
 
-	void body_set_applied_torque(RID p_body, const Vector3 &p_torque) override;
-	Vector3 body_get_applied_torque(RID p_body) const override;
+    void body_set_applied_torque(RID p_body, const Vector3 &p_torque) override;
+    Vector3 body_get_applied_torque(RID p_body) const override;
 
-	void body_add_central_force(RID p_body, const Vector3 &p_force) override;
-	void body_add_force(RID p_body, const Vector3 &p_force, const Vector3 &p_pos) override;
-	void body_add_torque(RID p_body, const Vector3 &p_torque) override;
+    void body_add_central_force(RID p_body, const Vector3 &p_force) override;
+    void body_add_force(RID p_body, const Vector3 &p_force, const Vector3 &p_pos) override;
+    void body_add_torque(RID p_body, const Vector3 &p_torque) override;
 
-	void body_apply_central_impulse(RID p_body, const Vector3 &p_impulse) override;
-	void body_apply_impulse(RID p_body, const Vector3 &p_pos, const Vector3 &p_impulse) override;
-	void body_apply_torque_impulse(RID p_body, const Vector3 &p_impulse) override;
-	void body_set_axis_velocity(RID p_body, const Vector3 &p_axis_velocity) override;
+    void body_apply_central_impulse(RID p_body, const Vector3 &p_impulse) override;
+    void body_apply_impulse(RID p_body, const Vector3 &p_pos, const Vector3 &p_impulse) override;
+    void body_apply_torque_impulse(RID p_body, const Vector3 &p_impulse) override;
+    void body_set_axis_velocity(RID p_body, const Vector3 &p_axis_velocity) override;
 
-	void body_set_axis_lock(RID p_body, BodyAxis p_axis, bool p_lock) override;
-	bool body_is_axis_locked(RID p_body, BodyAxis p_axis) const override;
+    void body_set_axis_lock(RID p_body, BodyAxis p_axis, bool p_lock) override;
+    bool body_is_axis_locked(RID p_body, BodyAxis p_axis) const override;
 
-	void body_add_collision_exception(RID p_body, RID p_body_b) override;
-	void body_remove_collision_exception(RID p_body, RID p_body_b) override;
-	void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override;
+    void body_add_collision_exception(RID p_body, RID p_body_b) override;
+    void body_remove_collision_exception(RID p_body, RID p_body_b) override;
+    void body_get_collision_exceptions(RID p_body, ListOld<RID> *p_exceptions) override;
 
-	void body_set_contacts_reported_depth_threshold(RID p_body, real_t p_threshold) override;
-	real_t body_get_contacts_reported_depth_threshold(RID p_body) const override;
+    void body_set_contacts_reported_depth_threshold(RID p_body, real_t p_threshold) override;
+    real_t body_get_contacts_reported_depth_threshold(RID p_body) const override;
 
-	void body_set_omit_force_integration(RID p_body, bool p_omit) override;
-	bool body_is_omitting_force_integration(RID p_body) const override;
+    void body_set_omit_force_integration(RID p_body, bool p_omit) override;
+    bool body_is_omitting_force_integration(RID p_body) const override;
 
-	void body_set_max_contacts_reported(RID p_body, int p_contacts) override;
-	int body_get_max_contacts_reported(RID p_body) const override;
+    void body_set_max_contacts_reported(RID p_body, int p_contacts) override;
+    int body_get_max_contacts_reported(RID p_body) const override;
 
-	void body_set_force_integration_callback(RID p_body, Object *p_receiver, const StringName &p_method, const Variant &p_udata = Variant()) override;
+    void body_set_force_integration_callback(RID p_body, Object *p_receiver, const StringName &p_method, const Variant &p_udata = Variant()) override;
 
-	void body_set_ray_pickable(RID p_body, bool p_enable) override;
-	bool body_is_ray_pickable(RID p_body) const override;
+    void body_set_ray_pickable(RID p_body, bool p_enable) override;
+    bool body_is_ray_pickable(RID p_body) const override;
 
-	bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override;
-	int body_test_ray_separation(RID p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override;
+    bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override;
+    int body_test_ray_separation(RID p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override;
 
-	// this function only works on physics process, errors and returns null otherwise
-	PhysicsDirectBodyState *body_get_direct_state(RID p_body) override;
+    // this function only works on physics process, errors and returns null otherwise
+    PhysicsDirectBodyState *body_get_direct_state(RID p_body) override;
 
-	/* SOFT BODY */
+    /* SOFT BODY */
 
-	RID soft_body_create(bool p_init_sleeping = false) override { return RID(); }
+    RID soft_body_create(bool p_init_sleeping = false) override { return RID(); }
 
-	void soft_body_update_visual_server(RID p_body, class SoftBodyVisualServerHandler *p_visual_server_handler) override {}
+    void soft_body_update_visual_server(RID p_body, class SoftBodyVisualServerHandler *p_visual_server_handler) override {}
 
-	void soft_body_set_space(RID p_body, RID p_space) override {}
-	RID soft_body_get_space(RID p_body) const override { return RID(); }
+    void soft_body_set_space(RID p_body, RID p_space) override {}
+    RID soft_body_get_space(RID p_body) const override { return RID(); }
 
-	void soft_body_set_collision_layer(RID p_body, uint32_t p_layer) override {}
-	uint32_t soft_body_get_collision_layer(RID p_body) const override { return 0; }
+    void soft_body_set_collision_layer(RID p_body, uint32_t p_layer) override {}
+    uint32_t soft_body_get_collision_layer(RID p_body) const override { return 0; }
 
-	void soft_body_set_collision_mask(RID p_body, uint32_t p_mask) override {}
-	uint32_t soft_body_get_collision_mask(RID p_body) const override { return 0; }
+    void soft_body_set_collision_mask(RID p_body, uint32_t p_mask) override {}
+    uint32_t soft_body_get_collision_mask(RID p_body) const override { return 0; }
 
-	void soft_body_add_collision_exception(RID p_body, RID p_body_b) override {}
-	void soft_body_remove_collision_exception(RID p_body, RID p_body_b) override {}
-	void soft_body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override {}
+    void soft_body_add_collision_exception(RID p_body, RID p_body_b) override {}
+    void soft_body_remove_collision_exception(RID p_body, RID p_body_b) override {}
+    void soft_body_get_collision_exceptions(RID p_body, ListOld<RID> *p_exceptions) override {}
 
-	void soft_body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) override {}
-	Variant soft_body_get_state(RID p_body, BodyState p_state) const override { return Variant(); }
+    void soft_body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) override {}
+    Variant soft_body_get_state(RID p_body, BodyState p_state) const override { return Variant(); }
 
-	void soft_body_set_transform(RID p_body, const Transform &p_transform) override {}
-	Vector3 soft_body_get_vertex_position(RID p_body, int vertex_index) const override { return Vector3(); }
+    void soft_body_set_transform(RID p_body, const Transform &p_transform) override {}
+    Vector3 soft_body_get_vertex_position(RID p_body, int vertex_index) const override { return Vector3(); }
 
-	void soft_body_set_ray_pickable(RID p_body, bool p_enable) override {}
-	bool soft_body_is_ray_pickable(RID p_body) const override { return false; }
+    void soft_body_set_ray_pickable(RID p_body, bool p_enable) override {}
+    bool soft_body_is_ray_pickable(RID p_body) const override { return false; }
 
-	void soft_body_set_simulation_precision(RID p_body, int p_simulation_precision) override {}
-	int soft_body_get_simulation_precision(RID p_body) override { return 0; }
+    void soft_body_set_simulation_precision(RID p_body, int p_simulation_precision) override {}
+    int soft_body_get_simulation_precision(RID p_body) override { return 0; }
 
-	void soft_body_set_total_mass(RID p_body, real_t p_total_mass) override {}
-	real_t soft_body_get_total_mass(RID p_body) override { return 0.; }
+    void soft_body_set_total_mass(RID p_body, real_t p_total_mass) override {}
+    real_t soft_body_get_total_mass(RID p_body) override { return 0.; }
 
-	void soft_body_set_linear_stiffness(RID p_body, real_t p_stiffness) override {}
-	real_t soft_body_get_linear_stiffness(RID p_body) override { return 0.; }
+    void soft_body_set_linear_stiffness(RID p_body, real_t p_stiffness) override {}
+    real_t soft_body_get_linear_stiffness(RID p_body) override { return 0.; }
 
-	void soft_body_set_areaAngular_stiffness(RID p_body, real_t p_stiffness) override {}
-	real_t soft_body_get_areaAngular_stiffness(RID p_body) override { return 0.; }
+    void soft_body_set_areaAngular_stiffness(RID p_body, real_t p_stiffness) override {}
+    real_t soft_body_get_areaAngular_stiffness(RID p_body) override { return 0.; }
 
-	void soft_body_set_volume_stiffness(RID p_body, real_t p_stiffness) override {}
-	real_t soft_body_get_volume_stiffness(RID p_body) override { return 0.; }
+    void soft_body_set_volume_stiffness(RID p_body, real_t p_stiffness) override {}
+    real_t soft_body_get_volume_stiffness(RID p_body) override { return 0.; }
 
-	void soft_body_set_pressure_coefficient(RID p_body, real_t p_pressure_coefficient) override {}
-	real_t soft_body_get_pressure_coefficient(RID p_body) override { return 0.; }
+    void soft_body_set_pressure_coefficient(RID p_body, real_t p_pressure_coefficient) override {}
+    real_t soft_body_get_pressure_coefficient(RID p_body) override { return 0.; }
 
-	void soft_body_set_pose_matching_coefficient(RID p_body, real_t p_pose_matching_coefficient) override {}
-	real_t soft_body_get_pose_matching_coefficient(RID p_body) override { return 0.; }
+    void soft_body_set_pose_matching_coefficient(RID p_body, real_t p_pose_matching_coefficient) override {}
+    real_t soft_body_get_pose_matching_coefficient(RID p_body) override { return 0.; }
 
-	void soft_body_set_damping_coefficient(RID p_body, real_t p_damping_coefficient) override {}
-	real_t soft_body_get_damping_coefficient(RID p_body) override { return 0.; }
+    void soft_body_set_damping_coefficient(RID p_body, real_t p_damping_coefficient) override {}
+    real_t soft_body_get_damping_coefficient(RID p_body) override { return 0.; }
 
-	void soft_body_set_drag_coefficient(RID p_body, real_t p_drag_coefficient) override {}
-	real_t soft_body_get_drag_coefficient(RID p_body) override { return 0.; }
+    void soft_body_set_drag_coefficient(RID p_body, real_t p_drag_coefficient) override {}
+    real_t soft_body_get_drag_coefficient(RID p_body) override { return 0.; }
 
-	void soft_body_set_mesh(RID p_body, const REF &p_mesh) override {}
+    void soft_body_set_mesh(RID p_body, const REF &p_mesh) override {}
 
-	void soft_body_move_point(RID p_body, int p_point_index, const Vector3 &p_global_position) override {}
-	Vector3 soft_body_get_point_global_position(RID p_body, int p_point_index) override { return Vector3(); }
+    void soft_body_move_point(RID p_body, int p_point_index, const Vector3 &p_global_position) override {}
+    Vector3 soft_body_get_point_global_position(RID p_body, int p_point_index) override { return Vector3(); }
 
-	Vector3 soft_body_get_point_offset(RID p_body, int p_point_index) const override { return Vector3(); }
+    Vector3 soft_body_get_point_offset(RID p_body, int p_point_index) const override { return Vector3(); }
 
-	void soft_body_remove_all_pinned_points(RID p_body) override {}
-	void soft_body_pin_point(RID p_body, int p_point_index, bool p_pin) override {}
-	bool soft_body_is_point_pinned(RID p_body, int p_point_index) override { return false; }
+    void soft_body_remove_all_pinned_points(RID p_body) override {}
+    void soft_body_pin_point(RID p_body, int p_point_index, bool p_pin) override {}
+    bool soft_body_is_point_pinned(RID p_body, int p_point_index) override { return false; }
 
-	/* JOINT API */
+    /* JOINT API */
 
-	RID joint_create_pin(RID p_body_A, const Vector3 &p_local_A, RID p_body_B, const Vector3 &p_local_B) override;
+    RID joint_create_pin(RID p_body_A, const Vector3 &p_local_A, RID p_body_B, const Vector3 &p_local_B) override;
 
-	void pin_joint_set_param(RID p_joint, PinJointParam p_param, real_t p_value) override;
-	real_t pin_joint_get_param(RID p_joint, PinJointParam p_param) const override;
+    void pin_joint_set_param(RID p_joint, PinJointParam p_param, real_t p_value) override;
+    real_t pin_joint_get_param(RID p_joint, PinJointParam p_param) const override;
 
-	void pin_joint_set_local_a(RID p_joint, const Vector3 &p_A) override;
-	Vector3 pin_joint_get_local_a(RID p_joint) const override;
+    void pin_joint_set_local_a(RID p_joint, const Vector3 &p_A) override;
+    Vector3 pin_joint_get_local_a(RID p_joint) const override;
 
-	void pin_joint_set_local_b(RID p_joint, const Vector3 &p_B) override;
-	Vector3 pin_joint_get_local_b(RID p_joint) const override;
+    void pin_joint_set_local_b(RID p_joint, const Vector3 &p_B) override;
+    Vector3 pin_joint_get_local_b(RID p_joint) const override;
 
-	RID joint_create_hinge(RID p_body_A, const Transform &p_frame_A, RID p_body_B, const Transform &p_frame_B) override;
-	RID joint_create_hinge_simple(RID p_body_A, const Vector3 &p_pivot_A, const Vector3 &p_axis_A, RID p_body_B, const Vector3 &p_pivot_B, const Vector3 &p_axis_B) override;
+    RID joint_create_hinge(RID p_body_A, const Transform &p_frame_A, RID p_body_B, const Transform &p_frame_B) override;
+    RID joint_create_hinge_simple(RID p_body_A, const Vector3 &p_pivot_A, const Vector3 &p_axis_A, RID p_body_B, const Vector3 &p_pivot_B, const Vector3 &p_axis_B) override;
 
-	void hinge_joint_set_param(RID p_joint, HingeJointParam p_param, real_t p_value) override;
-	real_t hinge_joint_get_param(RID p_joint, HingeJointParam p_param) const override;
+    void hinge_joint_set_param(RID p_joint, HingeJointParam p_param, real_t p_value) override;
+    real_t hinge_joint_get_param(RID p_joint, HingeJointParam p_param) const override;
 
-	void hinge_joint_set_flag(RID p_joint, HingeJointFlag p_flag, bool p_value) override;
-	bool hinge_joint_get_flag(RID p_joint, HingeJointFlag p_flag) const override;
+    void hinge_joint_set_flag(RID p_joint, HingeJointFlag p_flag, bool p_value) override;
+    bool hinge_joint_get_flag(RID p_joint, HingeJointFlag p_flag) const override;
 
-	RID joint_create_slider(RID p_body_A, const Transform &p_local_frame_A, RID p_body_B, const Transform &p_local_frame_B) override; //reference frame is A
+    RID joint_create_slider(RID p_body_A, const Transform &p_local_frame_A, RID p_body_B, const Transform &p_local_frame_B) override; //reference frame is A
 
-	void slider_joint_set_param(RID p_joint, SliderJointParam p_param, real_t p_value) override;
-	real_t slider_joint_get_param(RID p_joint, SliderJointParam p_param) const override;
+    void slider_joint_set_param(RID p_joint, SliderJointParam p_param, real_t p_value) override;
+    real_t slider_joint_get_param(RID p_joint, SliderJointParam p_param) const override;
 
-	RID joint_create_cone_twist(RID p_body_A, const Transform &p_local_frame_A, RID p_body_B, const Transform &p_local_frame_B) override; //reference frame is A
+    RID joint_create_cone_twist(RID p_body_A, const Transform &p_local_frame_A, RID p_body_B, const Transform &p_local_frame_B) override; //reference frame is A
 
-	void cone_twist_joint_set_param(RID p_joint, ConeTwistJointParam p_param, real_t p_value) override;
-	real_t cone_twist_joint_get_param(RID p_joint, ConeTwistJointParam p_param) const override;
+    void cone_twist_joint_set_param(RID p_joint, ConeTwistJointParam p_param, real_t p_value) override;
+    real_t cone_twist_joint_get_param(RID p_joint, ConeTwistJointParam p_param) const override;
 
-	RID joint_create_generic_6dof(RID p_body_A, const Transform &p_local_frame_A, RID p_body_B, const Transform &p_local_frame_B) override; //reference frame is A
+    RID joint_create_generic_6dof(RID p_body_A, const Transform &p_local_frame_A, RID p_body_B, const Transform &p_local_frame_B) override; //reference frame is A
 
-	void generic_6dof_joint_set_param(RID p_joint, Vector3::Axis, G6DOFJointAxisParam p_param, real_t p_value) override;
-	real_t generic_6dof_joint_get_param(RID p_joint, Vector3::Axis, G6DOFJointAxisParam p_param) override;
+    void generic_6dof_joint_set_param(RID p_joint, Vector3::Axis, G6DOFJointAxisParam p_param, real_t p_value) override;
+    real_t generic_6dof_joint_get_param(RID p_joint, Vector3::Axis, G6DOFJointAxisParam p_param) override;
 
-	void generic_6dof_joint_set_flag(RID p_joint, Vector3::Axis, G6DOFJointAxisFlag p_flag, bool p_enable) override;
-	bool generic_6dof_joint_get_flag(RID p_joint, Vector3::Axis, G6DOFJointAxisFlag p_flag) override;
+    void generic_6dof_joint_set_flag(RID p_joint, Vector3::Axis, G6DOFJointAxisFlag p_flag, bool p_enable) override;
+    bool generic_6dof_joint_get_flag(RID p_joint, Vector3::Axis, G6DOFJointAxisFlag p_flag) override;
 
-	void generic_6dof_joint_set_precision(RID p_joint, int precision) override {}
-	int generic_6dof_joint_get_precision(RID p_joint) override { return 0; }
+    void generic_6dof_joint_set_precision(RID p_joint, int precision) override {}
+    int generic_6dof_joint_get_precision(RID p_joint) override { return 0; }
 
-	JointType joint_get_type(RID p_joint) const override;
+    JointType joint_get_type(RID p_joint) const override;
 
-	void joint_set_solver_priority(RID p_joint, int p_priority) override;
-	int joint_get_solver_priority(RID p_joint) const override;
+    void joint_set_solver_priority(RID p_joint, int p_priority) override;
+    int joint_get_solver_priority(RID p_joint) const override;
 
-	void joint_disable_collisions_between_bodies(RID p_joint, const bool p_disable) override;
-	bool joint_is_disabled_collisions_between_bodies(RID p_joint) const override;
+    void joint_disable_collisions_between_bodies(RID p_joint, const bool p_disable) override;
+    bool joint_is_disabled_collisions_between_bodies(RID p_joint) const override;
 
-	/* MISC */
+    /* MISC */
 
-	void free(RID p_rid) override;
+    void free_rid(RID p_rid) override;
 
-	void set_active(bool p_active) override;
-	void init() override;
-	void step(real_t p_step) override;
-	void sync() override;
-	void flush_queries() override;
-	void finish() override;
+    void set_active(bool p_active) override;
+    void init() override;
+    void step(real_t p_step) override;
+    void sync() override;
+    void flush_queries() override;
+    void finish() override;
 
-	bool is_flushing_queries() const override { return flushing_queries; }
+    bool is_flushing_queries() const override { return flushing_queries; }
 
-	int get_process_info(ProcessInfo p_info) override;
+    int get_process_info(ProcessInfo p_info) override;
 
-	PhysicsServerSW();
-	~PhysicsServerSW() override;
+    PhysicsServerSW();
+    ~PhysicsServerSW() override;
 };
 
 #endif
