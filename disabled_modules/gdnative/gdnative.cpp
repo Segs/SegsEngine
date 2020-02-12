@@ -116,7 +116,7 @@ bool GDNativeLibrary::_get(const StringName &p_name, Variant &r_property) const 
     return false;
 }
 
-void GDNativeLibrary::_get_property_list(ListPOD<PropertyInfo> *p_list) const {
+void GDNativeLibrary::_get_property_list(List<PropertyInfo> *p_list) const {
     // set entries
     List<String> entry_key_list;
 

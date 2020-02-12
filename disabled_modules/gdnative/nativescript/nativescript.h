@@ -166,13 +166,13 @@ public:
     ScriptLanguage *get_language() const override;
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(ListPOD<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(List<MethodInfo> *r_signals) const override;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
     void update_exports() override; //editor tool
     void get_script_method_list(Vector<MethodInfo> *p_list) const override;
-    void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
+    void get_script_property_list(List<PropertyInfo> *p_list) const override;
 
     String get_class_documentation() const;
     String get_method_documentation(const StringName &p_method) const;
@@ -202,7 +202,7 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+    void get_property_list(List<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
     void get_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;

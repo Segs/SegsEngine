@@ -165,7 +165,7 @@ void PluginScript::update_exports() {
 
         //update placeholders if any
         Map<StringName, Variant> propdefvalues;
-        ListPOD<PropertyInfo> propinfos;
+        List<PropertyInfo> propinfos;
 
         get_script_property_list(&propinfos);
         for (PlaceHolderScriptInstance *E : placeholders) {
@@ -354,7 +354,7 @@ void PluginScript::get_script_method_list(Vector<MethodInfo> *r_methods) const {
     }
 }
 
-void PluginScript::get_script_property_list(ListPOD<PropertyInfo> *r_properties) const {
+void PluginScript::get_script_property_list(List<PropertyInfo> *r_properties) const {
     ASSERT_SCRIPT_VALID()
     for (auto &e : _properties_info) {
         r_properties->push_back(e.second);
@@ -438,7 +438,7 @@ bool PluginScript::has_script_signal(const StringName &p_signal) const {
     return _signals_info.contains(p_signal);
 }
 
-void PluginScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+void PluginScript::get_script_signal_list(List<MethodInfo> *r_signals) const {
     ASSERT_SCRIPT_VALID()
     for (auto &e : _signals_info) {
         r_signals->push_back(e.second);

@@ -233,7 +233,7 @@ List<ClassAPI> generate_c_api_classes() {
         class_api.is_instanciable = !class_api.is_singleton && ClassDB::can_instance(class_name);
 
         {
-            ListPOD<StringName> inheriters;
+            List<StringName> inheriters;
             ClassDB::get_inheriters_from_class("RefCounted", &inheriters);
             bool is_reference = inheriters.contains(class_name);
             // @Unclear
@@ -242,7 +242,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         // constants
         {
-            ListPOD<String> constant;
+            List<String> constant;
             ClassDB::get_integer_constant_list(class_name, &constant, true);
             constant.sort(NoCaseComparator());
             for (const String &c : constant) {
@@ -256,7 +256,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         // signals
         {
-            ListPOD<MethodInfo> signals_;
+            List<MethodInfo> signals_;
             ClassDB::get_signal_list(class_name, &signals_, true);
             signals_.sort(MethodInfoComparator());
 
@@ -294,7 +294,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         //properties
         {
-            ListPOD<PropertyInfo> properties;
+            List<PropertyInfo> properties;
             ClassDB::get_property_list(class_name, &properties, true);
             properties.sort(PropertyInfoComparator());
 
@@ -397,10 +397,10 @@ List<ClassAPI> generate_c_api_classes() {
         // enums
         {
             List<EnumAPI> enums;
-            ListPOD<StringName> enum_names;
+            List<StringName> enum_names;
             ClassDB::get_enum_list(class_name, &enum_names, true);
             for(const StringName & E : enum_names) {
-                ListPOD<StringName> value_names;
+                List<StringName> value_names;
                 EnumAPI enum_api;
                 enum_api.name = E.asCString();
                 ClassDB::get_enum_constants(class_name, E, &value_names, true);

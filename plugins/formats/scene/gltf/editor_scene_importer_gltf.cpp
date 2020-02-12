@@ -349,13 +349,13 @@ namespace {
 
         T bezier(T start, T control_1, T control_2, T end, float t) {
             /* Formula from Wikipedia article on Bezier curves. */
-            const real_t omt = (1.0 - t);
+            const real_t omt = (1.0f - t);
             const real_t omt2 = omt * omt;
             const real_t omt3 = omt2 * omt;
             const real_t t2 = t * t;
             const real_t t3 = t2 * t;
 
-            return start * omt3 + control_1 * omt2 * t * 3.0 + control_2 * omt * t2 * 3.0 + end * t3;
+            return start * omt3 + control_1 * omt2 * t * 3.0f + control_2 * omt * t2 * 3.0f + end * t3;
         }
     };
 
@@ -1373,9 +1373,9 @@ namespace {
                 if (a.has("WEIGHTS_0")) {
                     Vector<float> weights(_decode_accessor_as_floats(state, a["WEIGHTS_0"], true));
                     { //gltf does not seem to normalize the weights for some reason..
-                        int wc = weights.size();
+                        size_t wc = weights.size();
 
-                        for (int k = 0; k < wc; k += 4) {
+                        for (size_t k = 0; k < wc; k += 4) {
                             float total = 0.0;
                             total += weights[k + 0];
                             total += weights[k + 1];
@@ -1399,9 +1399,9 @@ namespace {
 
                     if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
                         //swap around indices, convert ccw to cw for front face
-                        const int is = indices.size();
+                        const size_t is = indices.size();
                         ERR_FAIL_COND_V(is % 3 != 0, {});
-                        for (int k = 0; k < is; k += 3) {
+                        for (size_t k = 0; k < is; k += 3) {
                             SWAP(indices[k + 1], indices[k + 2]);
                         }
                     }
@@ -1412,14 +1412,13 @@ namespace {
                     auto vertices = array.positions3();
                     ERR_FAIL_COND_V(vertices.empty(), ERR_PARSE_ERROR);
                     Vector<int> indices;
-                    const int vs = vertices.size();
+                    const size_t vs = vertices.size();
                     indices.resize(vs);
-                    {
-                        for (int k = 0; k < vs; k += 3) {
-                            indices[k] = k;
-                            indices[k + 1] = k + 2;
-                            indices[k + 2] = k + 1;
-                        }
+
+                    for (size_t k = 0; k < vs; k += 3) {
+                        indices[k] = k;
+                        indices[k + 1] = k + 2;
+                        indices[k + 2] = k + 1;
                     }
                     array.m_indices = eastl::move(indices);
                 }
@@ -2187,7 +2186,7 @@ namespace {
                 const GLTFNodeIndex node_i = highest_group_members[i];
 
                 // Attach any siblings together (this needs to be done n^2/2 times)
-                for (int j = i + 1; j < highest_group_members.size(); ++j) {
+                for (size_t j = i + 1; j < highest_group_members.size(); ++j) {
                     const GLTFNodeIndex node_j = highest_group_members[j];
 
                     // Even if they are siblings under the root! :)
@@ -2199,7 +2198,7 @@ namespace {
                 // Attach any parenting going on together (we need to do this n^2 times)
                 const GLTFNodeIndex node_i_parent = state.nodes[node_i]->parent;
                 if (node_i_parent >= 0) {
-                    for (int j = 0; j < groups.size() && i != j; ++j) {
+                    for (size_t j = 0; j < groups.size() && i != j; ++j) {
                         const Vector<GLTFNodeIndex>& group = groups[j];
 
                         if (group.contains(node_i_parent)) {
@@ -2412,7 +2411,7 @@ namespace {
 
         Vector<GLTFNodeIndex> roots;
         roots.reserve(owners.size());
-        for (int i = 0; i < owners.size(); ++i) {
+        for (size_t i = 0; i < owners.size(); ++i) {
             Vector<GLTFNodeIndex> set;
             disjoint_set.get_members(set, owners[i]);
             const GLTFNodeIndex root = _find_highest_node(state, set);
@@ -2432,7 +2431,7 @@ namespace {
 
         // Check that the subtrees have the same parent root
         const GLTFNodeIndex parent = state.nodes[roots[0]]->parent;
-        for (int i = 1; i < roots.size(); ++i) {
+        for (size_t i = 1; i < roots.size(); ++i) {
             if (state.nodes[roots[i]]->parent != parent) {
                 return FAILED;
             }
@@ -2593,8 +2592,8 @@ namespace {
     }
 
     void _remove_duplicate_skins(GLTFState& state) {
-        for (int i = 0; i < state.skins.size(); ++i) {
-            for (int j = i + 1; j < state.skins.size(); ++j) {
+        for (size_t i = 0; i < state.skins.size(); ++i) {
+            for (size_t j = i + 1; j < state.skins.size(); ++j) {
                 const Ref<Skin>& skin_i = state.skins[i].godot_skin;
                 const Ref<Skin>& skin_j = state.skins[j].godot_skin;
 
@@ -3031,18 +3030,18 @@ namespace {
                 node_path = ap->get_parent()->get_path_to(state.scene_nodes.find(node_index)->second);
             }
 
-            for (int i = 0; i < track.rotation_track.times.size(); i++) {
+            for (size_t i = 0; i < track.rotation_track.times.size(); i++) {
                 length = MAX(length, track.rotation_track.times[i]);
             }
-            for (int i = 0; i < track.translation_track.times.size(); i++) {
+            for (size_t i = 0; i < track.translation_track.times.size(); i++) {
                 length = MAX(length, track.translation_track.times[i]);
             }
-            for (int i = 0; i < track.scale_track.times.size(); i++) {
+            for (size_t i = 0; i < track.scale_track.times.size(); i++) {
                 length = MAX(length, track.scale_track.times[i]);
             }
 
-            for (int i = 0; i < track.weight_tracks.size(); i++) {
-                for (int j = 0; j < track.weight_tracks[i].times.size(); j++) {
+            for (size_t i = 0; i < track.weight_tracks.size(); i++) {
+                for (size_t j = 0; j < track.weight_tracks[i].times.size(); j++) {
                     length = MAX(length, track.weight_tracks[i].times[j]);
                 }
             }
