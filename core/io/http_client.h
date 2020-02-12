@@ -170,10 +170,10 @@ private:
     bool handshaking;
     bool head_request;
 
-    PODVector<uint8_t> response_str;
+    Vector<uint8_t> response_str;
 
     bool chunked;
-    PODVector<uint8_t> chunk;
+    Vector<uint8_t> chunk;
     int chunk_left;
     bool chunk_trailer_part;
     int body_size;
@@ -184,7 +184,7 @@ private:
     Ref<StreamPeer> connection;
 
     int response_num;
-    PODVector<String> response_headers;
+    Vector<String> response_headers;
     int read_chunk_size;
 
     Error _get_http_data(uint8_t *p_buffer, int p_bytes, int &r_received);
@@ -193,7 +193,7 @@ private:
 #include "platform/javascript/http_client.h.inc"
 #endif
 public:
-    PODVector<String> _get_response_headers();
+    Vector<String> _get_response_headers();
     Dictionary get_response_headers_as_dictionary();
 private:
     static void _bind_methods();
@@ -204,8 +204,8 @@ public:
     void set_connection(const Ref<StreamPeer> &p_connection);
     Ref<StreamPeer> get_connection() const;
 
-    Error request_raw(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const PODVector<uint8_t> &p_body);
-    Error request(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const String &p_body = {});
+    Error request_raw(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body);
+    Error request(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const String &p_body = {});
 
     void close();
 
@@ -214,7 +214,7 @@ public:
     bool has_response() const;
     bool is_response_chunked() const;
     int get_response_code() const;
-    Error get_response_headers(ListPOD<String> *r_response);
+    Error get_response_headers(List<String> *r_response);
     int get_response_body_length() const;
 
     PoolByteArray read_response_body_chunk(); // Can't get body as partial text because of most encodings UTF8, gzip, etc.

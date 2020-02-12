@@ -49,7 +49,7 @@ class ImportDock : public VBoxContainer {
     MenuButton *preset;
     EditorInspector *import_opts;
 
-    PODVector<PropertyInfo> properties;
+    Vector<PropertyInfo> properties;
     Map<StringName, Variant> property_values;
 
     ConfirmationDialog *reimport_confirm;
@@ -79,7 +79,7 @@ protected:
 
 public:
     void set_edit_path(se_string_view p_path);
-    void set_edit_multiple_paths(const PODVector<String> &p_paths);
+    void set_edit_multiple_paths(const Vector<String> &p_paths);
     void initialize_import_options() const;
     void clear();
 

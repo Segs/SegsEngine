@@ -273,13 +273,13 @@ Array AStar::get_points() {
     return point_list;
 }
 
-PODVector<int> AStar::get_point_connections(int p_id) {
+Vector<int> AStar::get_point_connections(int p_id) {
 
     AStarPoint *p;
     bool p_exists = points.lookup(p_id, p);
-    ERR_FAIL_COND_V(!p_exists, PODVector<int>());
+    ERR_FAIL_COND_V(!p_exists, Vector<int>());
 
-    PODVector<int> point_list;
+    Vector<int> point_list;
     point_list.reserve(p->neighbours.get_num_elements());
     for (OAHashMap<int, AStarPoint *>::Iterator it = p->neighbours.iter(); it.valid; it = p->neighbours.next_iter(it)) {
         point_list.push_back((*it.key));
@@ -383,7 +383,7 @@ bool AStar::_solve(AStarPoint *begin_point, AStarPoint *end_point) {
 
     bool found_route = false;
 
-    PODVector<AStarPoint *> open_list;
+    Vector<AStarPoint *> open_list;
     SortArray<AStarPoint *, SortPoints> sorter;
 
     begin_point->g_score = 0;
@@ -664,7 +664,7 @@ bool AStar2D::has_point(int p_id) const {
     return astar.has_point(p_id);
 }
 
-PODVector<int> AStar2D::get_point_connections(int p_id) {
+Vector<int> AStar2D::get_point_connections(int p_id) {
     return astar.get_point_connections(p_id);
 }
 

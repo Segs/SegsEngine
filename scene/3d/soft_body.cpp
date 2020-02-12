@@ -174,7 +174,7 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void SoftBody::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void SoftBody::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     const int pinned_points_indices_size = pinned_points.size();
 
@@ -486,13 +486,13 @@ void SoftBody::become_mesh_owner() {
 
     mesh_owner = true;
 
-    PODVector<Ref<Material> > copy_materials(materials);
+    Vector<Ref<Material> > copy_materials(materials);
 
     ERR_FAIL_COND(!mesh->get_surface_count());
 
     // Get current mesh array and create new mesh array with necessary flag for softbody
     SurfaceArrays surface_arrays = mesh->surface_get_arrays(0);
-    PODVector<SurfaceArrays> surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
+    Vector<SurfaceArrays> surface_blend_arrays = mesh->surface_get_blend_shape_arrays(0);
     uint32_t surface_format = mesh->surface_get_format(0);
 
     surface_format &= ~(Mesh::ARRAY_COMPRESS_VERTEX | Mesh::ARRAY_COMPRESS_NORMAL);
@@ -573,10 +573,10 @@ PoolVector<SoftBody::PinnedPoint> SoftBody::get_pinned_points_indices() {
 }
 
 Array SoftBody::get_collision_exceptions() {
-    List<RID> exceptions;
+    ListOld<RID> exceptions;
     PhysicsServer::get_singleton()->soft_body_get_collision_exceptions(physics_rid, &exceptions);
     Array ret;
-    for (List<RID>::Element *E = exceptions.front(); E; E = E->next()) {
+    for (ListOld<RID>::Element *E = exceptions.front(); E; E = E->next()) {
         RID body = E->deref();
         ObjectID instance_id = PhysicsServer::get_singleton()->body_get_object_instance_id(body);
         Object *obj = ObjectDB::get_instance(instance_id);

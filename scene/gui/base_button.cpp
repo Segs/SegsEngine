@@ -487,8 +487,8 @@ BaseButton::~BaseButton() {
     }
 }
 
-PODVector<BaseButton *> ButtonGroup::get_buttons() {
-    PODVector<BaseButton *> res;
+Vector<BaseButton *> ButtonGroup::get_buttons() {
+    Vector<BaseButton *> res;
     res.reserve(buttons.size());
     for (BaseButton * E : buttons) {
         res.push_back(E);

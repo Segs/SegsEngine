@@ -96,7 +96,7 @@ public:
 };
 struct SceneTreeGroup
 {
-    PODVector<Node *> nodes;
+    Vector<Node *> nodes;
     //uint64_t last_tree_version;
     bool changed=false;
 };
@@ -182,9 +182,9 @@ private:
     void _update_font_oversampling(float p_ratio);
     void _update_root_rect();
 
-    PODVector<ObjectID> delete_queue;
-    //TODO: SEGS: consider replacing PODVector below with FixedVector<Variant,VARIANT_ARG_MAX>
-    Map<UGCall, PODVector<Variant> > unique_group_calls;
+    Vector<ObjectID> delete_queue;
+    //TODO: SEGS: consider replacing Vector below with FixedVector<Variant,VARIANT_ARG_MAX>
+    Map<UGCall, Vector<Variant> > unique_group_calls;
     bool ugc_locked;
     void _flush_ugc();
 
@@ -207,7 +207,7 @@ private:
     void _change_scene(Node *p_to);
     //void _call_group(uint32_t p_call_flags,const StringName& p_group,const StringName& p_function,const Variant& p_arg1,const Variant& p_arg2);
 
-    ListPOD<Ref<SceneTreeTimer> > timers;
+    List<Ref<SceneTreeTimer> > timers;
 
     ///network///
 
@@ -390,9 +390,9 @@ public:
 
     static SceneTree *get_singleton() { return singleton; }
 
-    void drop_files(const PODVector<String> &p_files, int p_from_screen = 0) override;
+    void drop_files(const Vector<String> &p_files, int p_from_screen = 0) override;
     void global_menu_action(const Variant &p_id, const Variant &p_meta) override;
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     //network API
 
@@ -405,7 +405,7 @@ public:
     bool is_network_server() const;
     bool has_network_peer() const;
     int get_network_unique_id() const;
-    PODVector<int> get_network_connected_peers() const;
+    Vector<int> get_network_connected_peers() const;
     int get_rpc_sender_id() const;
 
     void set_refuse_new_network_connections(bool p_refuse);

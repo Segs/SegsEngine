@@ -106,7 +106,7 @@ public:
 	void set_point_weight_scale(int p_id, real_t p_weight_scale);
 	void remove_point(int p_id);
 	bool has_point(int p_id) const;
-	PODVector<int> get_point_connections(int p_id);
+	Vector<int> get_point_connections(int p_id);
 	Array get_points();
 
 	void set_point_disabled(int p_id, bool p_disabled = true);
@@ -148,7 +148,7 @@ public:
 	void set_point_weight_scale(int p_id, real_t p_weight_scale);
 	void remove_point(int p_id);
 	bool has_point(int p_id) const;
-	PODVector<int> get_point_connections(int p_id);
+	Vector<int> get_point_connections(int p_id);
 	Array get_points();
 
 	void set_point_disabled(int p_id, bool p_disabled = true);

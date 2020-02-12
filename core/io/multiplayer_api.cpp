@@ -58,9 +58,9 @@ public:
     };
 
     int bandwidth_incoming_pointer;
-    PODVector<BandwidthFrame> bandwidth_incoming_data;
+    Vector<BandwidthFrame> bandwidth_incoming_data;
     int bandwidth_outgoing_pointer;
-    PODVector<BandwidthFrame> bandwidth_outgoing_data;
+    Vector<BandwidthFrame> bandwidth_outgoing_data;
     Map<ObjectID, ProfilingInfo> profiler_frame_data;
     bool profiling=false;
 #endif
@@ -71,7 +71,7 @@ public:
     int _get_bandwidth_usage(Mode m) {
         int total_bandwidth = 0;
 #ifdef DEBUG_ENABLED
-        const PODVector<BandwidthFrame> &p_buffer = (m==Incoming) ? bandwidth_incoming_data : bandwidth_outgoing_data;
+        const Vector<BandwidthFrame> &p_buffer = (m==Incoming) ? bandwidth_incoming_data : bandwidth_outgoing_data;
         int p_pointer = (m==Incoming) ? bandwidth_incoming_pointer : bandwidth_outgoing_pointer;
         uint32_t timestamp = OS::get_singleton()->get_ticks_msec();
         uint32_t final_timestamp = timestamp - 1000;
@@ -541,7 +541,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
     String pname(path);
     int len = encode_cstring(pname.data(), nullptr);
 
-    PODVector<uint8_t> packet;
+    Vector<uint8_t> packet;
 
     packet.resize(1 + len);
     packet[0] = NETWORK_COMMAND_CONFIRM_PATH;
@@ -570,7 +570,7 @@ void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, 
 
 bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *psc, int p_target) {
     bool has_all_peers = true;
-    PODVector<int> peers_to_add; // If one is missing, take note to add it.
+    Vector<int> peers_to_add; // If one is missing, take note to add it.
 
     for (int E : connected_peers) {
 
@@ -601,7 +601,7 @@ bool MultiplayerAPI::_send_confirm_path(const NodePath& p_path, PathSentCache *p
         String pname(p_path);
         int len = encode_cstring(pname.data(), nullptr);
 
-        PODVector<uint8_t> packet;
+        Vector<uint8_t> packet;
 
         packet.resize(1 + 4 + len);
         packet[0] = NETWORK_COMMAND_SIMPLIFY_PATH;
@@ -753,7 +753,7 @@ void MultiplayerAPI::_del_peer(int p_id) {
     path_get_cache.erase(p_id);
     // Cleanup sent cache.
     // Some refactoring is needed to make this faster and do paths GC.
-    PODVector<NodePath> keys;
+    Vector<NodePath> keys;
     path_send_cache.get_key_list(keys);
     for (const NodePath &E : keys) {
         PathSentCache *psc = path_send_cache.getptr(E);
@@ -962,11 +962,11 @@ bool MultiplayerAPI::is_refusing_new_network_connections() const {
     return network_peer->is_refusing_new_connections();
 }
 
-PODVector<int> MultiplayerAPI::get_network_connected_peers() const {
+Vector<int> MultiplayerAPI::get_network_connected_peers() const {
 
-    ERR_FAIL_COND_V_MSG(not network_peer, PODVector<int>(), "No network peer is assigned. Assume no peers are connected.");
+    ERR_FAIL_COND_V_MSG(not network_peer, Vector<int>(), "No network peer is assigned. Assume no peers are connected.");
 
-    PODVector<int> ret;
+    Vector<int> ret;
     ret.reserve(connected_peers.size());
     for (int E : connected_peers) {
         ret.push_back(E);

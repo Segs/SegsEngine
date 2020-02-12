@@ -89,7 +89,7 @@ public:
 
     RasterizerStorageGLES3 *storage;
 
-    PODVector<RasterizerStorageGLES3::RenderTarget::Exposure> exposure_shrink;
+    Vector<RasterizerStorageGLES3::RenderTarget::Exposure> exposure_shrink;
     int exposure_shrink_size;
 
     struct State {
@@ -232,7 +232,7 @@ public:
                 uint64_t alloc_tick = 0;
             };
             uint32_t subdivision = 0;  //not in use
-            PODVector<Shadow> shadows;
+            Vector<Shadow> shadows;
         } quadrants[4];
 
         int size_order[4];
@@ -253,7 +253,7 @@ public:
         uint32_t size;
     };
 
-    PODVector<ShadowCubeMap> shadow_cubemaps;
+    Vector<ShadowCubeMap> shadow_cubemaps;
 
     RID_Owner<ShadowAtlas> shadow_atlas_owner;
 
@@ -289,7 +289,7 @@ public:
         GLuint fbo[6];
         GLuint color;
 
-        PODVector<Reflection> reflections;
+        Vector<Reflection> reflections;
     };
 
     mutable RID_Owner<ReflectionAtlas> reflection_atlas_owner;
@@ -308,7 +308,7 @@ public:
         int size;
     };
 
-    PODVector<ReflectionCubeMap> reflection_cubemaps;
+    Vector<ReflectionCubeMap> reflection_cubemaps;
 
     /* REFLECTION PROBE INSTANCE */
 

@@ -64,7 +64,7 @@ protected:
         uint32_t size;
     };
 
-    List<Packet> _incoming_packets;
+    ListOld<Packet> _incoming_packets;
     Map<int, Ref<WebSocketPeer> > _peer_map;
     Packet _current_packet;
 

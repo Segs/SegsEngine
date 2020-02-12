@@ -71,11 +71,11 @@ String Shader::get_code() const {
     return VisualServer::get_singleton()->shader_get_code(shader);
 }
 
-void Shader::get_param_list(PODVector<PropertyInfo> *p_params) const {
+void Shader::get_param_list(Vector<PropertyInfo> *p_params) const {
 
     _update_shader();
 
-    PODVector<PropertyInfo> local;
+    Vector<PropertyInfo> local;
     VisualServer::get_singleton()->shader_get_param_list(shader, &local);
     params_cache.clear();
     params_cache_dirty = false;
@@ -123,7 +123,7 @@ Ref<Resource> Shader::get_default_texture_param(const StringName &p_param) const
     return default_textures.at(p_param,Ref<Resource>());
 }
 
-void Shader::get_default_texture_param_list(ListPOD<StringName> *r_textures) const {
+void Shader::get_default_texture_param_list(List<StringName> *r_textures) const {
 
     for (const eastl::pair<const StringName,Ref<Resource> > &E : default_textures) {
 
@@ -195,7 +195,7 @@ RES ResourceFormatLoaderShader::load(se_string_view p_path, se_string_view p_ori
     return shader;
 }
 
-void ResourceFormatLoaderShader::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderShader::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("shader");
 }
@@ -239,7 +239,7 @@ Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resour
     return OK;
 }
 
-void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
+void ResourceFormatSaverShader::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
     if (const Shader *shader = object_cast<Shader>(p_resource.get())) {
         if (shader->is_text_shader()) {

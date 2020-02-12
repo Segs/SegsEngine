@@ -137,7 +137,7 @@ void Input::_bind_methods() {
     ADD_SIGNAL(MethodInfo("joy_connection_changed", PropertyInfo(VariantType::INT, "device"), PropertyInfo(VariantType::BOOL, "connected")));
 }
 
-void Input::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void Input::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 #ifdef TOOLS_ENABLED
 
     const String quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -145,7 +145,7 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, ListPO
     se_string_view pf(p_function);
     if (p_idx == 0 && (pf == "is_action_pressed"_sv || pf == "action_press"_sv || pf == "action_release"_sv || pf == "is_action_just_pressed"_sv || pf == "is_action_just_released"_sv || pf == "get_action_strength"_sv)) {
 
-        PODVector<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
         ProjectSettings::get_singleton()->get_property_list(&pinfo);
 
         for(const PropertyInfo &pi : pinfo ) {

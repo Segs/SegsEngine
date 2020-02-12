@@ -48,14 +48,14 @@ class EditorNavigationMeshGenerator : public Object {
 protected:
 	static void _bind_methods();
 
-	static void _add_mesh(const Ref<Mesh> &p_mesh, const Transform &p_xform, PODVector<float> &p_verticies, PODVector<int> &p_indices);
-	static void _add_faces(const PoolVector3Array &p_faces, const Transform &p_xform, PODVector<float> &p_verticies, PODVector<int> &p_indices);
-	static void _parse_geometry(Transform p_accumulated_transform, Node *p_node, PODVector<float> &p_verticies, PODVector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask, bool p_recurse_children);
+	static void _add_mesh(const Ref<Mesh> &p_mesh, const Transform &p_xform, Vector<float> &p_verticies, Vector<int> &p_indices);
+	static void _add_faces(const PoolVector3Array &p_faces, const Transform &p_xform, Vector<float> &p_verticies, Vector<int> &p_indices);
+	static void _parse_geometry(Transform p_accumulated_transform, Node *p_node, Vector<float> &p_verticies, Vector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask, bool p_recurse_children);
 
 	static void _convert_detail_mesh_to_native_navigation_mesh(const rcPolyMeshDetail *p_detail_mesh, Ref<NavigationMesh> p_nav_mesh);
 	static void _build_recast_navigation_mesh(Ref<NavigationMesh> p_nav_mesh, EditorProgress *ep,
             rcHeightfield *hf, rcCompactHeightfield *chf, rcContourSet *cset, rcPolyMesh *poly_mesh,
-            rcPolyMeshDetail *detail_mesh, PODVector<float> &vertices, PODVector<int> &indices);
+            rcPolyMeshDetail *detail_mesh, Vector<float> &vertices, Vector<int> &indices);
 
 public:
 	static EditorNavigationMeshGenerator *get_singleton();

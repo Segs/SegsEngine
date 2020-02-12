@@ -202,7 +202,7 @@ public:
         return (T)*this;
     }
     template <typename T>
-    [[nodiscard]] PODVector<T> asVector() const;
+    [[nodiscard]] Vector<T> asVector() const;
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
     operator UIString() const;
     operator String() const;
@@ -311,14 +311,14 @@ public:
     Variant(const PoolVector<Face3> &p_face_array);
     explicit Variant(const PoolVector<Vector2> &p_vector2_array); // helper
 
-    Variant(const PODVector<uint8_t> &p_raw_array);
-    Variant(const PODVector<int> &p_int_array);
-    Variant(const PODVector<float> &);
-    Variant(const PODVector<Vector2> &);
-    Variant(const PODVector<Vector3> &);
-    Variant(const PODVector<Face3> &);
-    Variant(const PODVector<Color> &);
-    Variant(const PODVector<Plane> &);
+    Variant(const Vector<uint8_t> &p_raw_array);
+    Variant(const Vector<int> &p_int_array);
+    Variant(const Vector<float> &);
+    Variant(const Vector<Vector2> &);
+    Variant(const Vector<Vector3> &);
+    Variant(const Vector<Face3> &);
+    Variant(const Vector<Color> &);
+    Variant(const Vector<Plane> &);
 
     template<class T>
     static Variant from(const T &v) {
@@ -329,7 +329,7 @@ public:
         return Variant(eastl::move(v));
     }
     template<class T>
-    static Variant from(const PODVector<T *> &ar) {
+    static Variant from(const Vector<T *> &ar) {
         Array res;
         int idx=0;
         res.resize(ar.size());
@@ -418,7 +418,7 @@ public:
 
     static Variant construct(const VariantType, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict = true);
 
-    void get_method_list(PODVector<MethodInfo> *p_list) const;
+    void get_method_list(Vector<MethodInfo> *p_list) const;
     bool has_method(const StringName &p_method) const;
     static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
     static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
@@ -437,7 +437,7 @@ public:
     bool iter_next(Variant &r_iter, bool &r_valid) const;
     Variant iter_get(const Variant &r_iter, bool &r_valid) const;
 
-    void get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void get_property_list(Vector<PropertyInfo> *p_list) const;
 
     //argsVariant call()
 
@@ -448,11 +448,11 @@ public:
 
     [[nodiscard]] bool hash_compare(const Variant &p_variant) const;
     bool booleanize() const;
-    String stringify(PODVector<const void *> &stack) const;
+    String stringify(Vector<const void *> &stack) const;
 
     void static_assign(const Variant &p_variant);
-    static void get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list);
-    static void get_constants_for_type(VariantType p_type, PODVector<StringName> *p_constants);
+    static void get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list);
+    static void get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants);
     static bool has_constant(VariantType p_type, const StringName &p_value);
     static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
 
@@ -477,12 +477,12 @@ static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
 void fill_with_all_variant_types(const char *nillname, char (&s)[7+(longest_variant_type_name+1)*int8_t(VariantType::VARIANT_MAX)]);
 
-PODVector<Variant> varray(std::initializer_list<Variant> v = {});
-inline PODVector<Variant> varray(const Variant &p_arg1) { return varray({p_arg1}); }
-inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2) { return varray({ p_arg1,p_arg2 }); }
-inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3) { return varray({ p_arg1,p_arg2,p_arg3 }); }
-inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4 }); }
-inline PODVector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4,p_arg5 }); }
+Vector<Variant> varray(std::initializer_list<Variant> v = {});
+inline Vector<Variant> varray(const Variant &p_arg1) { return varray({p_arg1}); }
+inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2) { return varray({ p_arg1,p_arg2 }); }
+inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3) { return varray({ p_arg1,p_arg2,p_arg3 }); }
+inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4 }); }
+inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4,p_arg5 }); }
 
 template<>
 struct Hasher<Variant> {
@@ -524,10 +524,10 @@ template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
 template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
 template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
 
-template <> GODOT_EXPORT PODVector<String> Variant::as<PODVector<String>>() const;
-template <> GODOT_EXPORT PODVector<uint8_t> Variant::as<PODVector<uint8_t>>() const;
-template <> GODOT_EXPORT PODVector<int> Variant::asVector<int>() const;
-template <> GODOT_EXPORT PODVector<Plane> Variant::asVector<Plane>() const;
+template <> GODOT_EXPORT Vector<String> Variant::as<Vector<String>>() const;
+template <> GODOT_EXPORT Vector<uint8_t> Variant::as<Vector<uint8_t>>() const;
+template <> GODOT_EXPORT Vector<int> Variant::asVector<int>() const;
+template <> GODOT_EXPORT Vector<Plane> Variant::asVector<Plane>() const;
 
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
@@ -538,19 +538,19 @@ template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() 
 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 
-template <> GODOT_EXPORT Variant Variant::from(const PODVector<String> &);
-template <> GODOT_EXPORT Variant Variant::from(const PODVector<se_string_view> &);
-template <> GODOT_EXPORT Variant Variant::from(const PODVector<StringName> &);
-template <> GODOT_EXPORT Variant Variant::from(const PODVector<Variant> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string_view> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<StringName> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector3> &);
 
-template <> GODOT_EXPORT Variant Variant::move_from(PODVector<Variant> &&);
+template <> GODOT_EXPORT Variant Variant::move_from(Vector<Variant> &&);
 
 template<class T>
-PODVector<T> asVec(const Array &a) {
-    PODVector<T> res;
+Vector<T> asVec(const Array &a) {
+    Vector<T> res;
     res.reserve(a.size());
     for(int i=0,fin=a.size(); i<fin; ++i)
         res.emplace_back(a.get(i).as<T>());

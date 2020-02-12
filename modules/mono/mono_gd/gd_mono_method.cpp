@@ -235,7 +235,7 @@ String GDMonoMethod::get_signature_desc(bool p_namespaces) const {
 	return res;
 }
 
-void GDMonoMethod::get_parameter_names(PODVector<StringName> &names) const {
+void GDMonoMethod::get_parameter_names(Vector<StringName> &names) const {
 	if (params_count > 0) {
 		const char **_names = memnew_arr(const char *, params_count);
 		mono_method_get_param_names(mono_method, _names);
@@ -246,7 +246,7 @@ void GDMonoMethod::get_parameter_names(PODVector<StringName> &names) const {
 	}
 }
 
-void GDMonoMethod::get_parameter_types(PODVector<ManagedType> &types) const {
+void GDMonoMethod::get_parameter_types(Vector<ManagedType> &types) const {
 	for (int i = 0; i < param_types.size(); ++i) {
 		types.push_back(param_types[i]);
 	}
@@ -258,7 +258,7 @@ const MethodInfo &GDMonoMethod::get_method_info() {
 		method_info.name = name;
 		method_info.return_val = PropertyInfo(GDMonoMarshal::managed_to_variant_type(return_type), "");
 
-        PODVector<StringName> names;
+        Vector<StringName> names;
 		get_parameter_names(names);
 
 		for (int i = 0; i < params_count; ++i) {

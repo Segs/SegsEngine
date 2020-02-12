@@ -18,7 +18,7 @@ class RefPtr;
     bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value);
     // TODO: SEGS: consider using eastl::optional<Variant> as return type ?
     Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid);
-    void Object_add_tool_properties(PODVector<PropertyInfo> *p_list);
+    void Object_add_tool_properties(Vector<PropertyInfo> *p_list);
     IObjectTooling * create_tooling_for(Object *self);
     void relase_tooling(IObjectTooling *);
     bool Object_script_signal_validate(RefPtr self);

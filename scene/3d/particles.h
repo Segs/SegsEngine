@@ -70,7 +70,7 @@ private:
 
     DrawOrder draw_order;
 
-    PODVector<Ref<Mesh> > draw_passes;
+    Vector<Ref<Mesh> > draw_passes;
 
 protected:
     static void _bind_methods();
@@ -79,7 +79,7 @@ protected:
 
 public:
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     void set_emitting(bool p_emitting);
     void set_amount(int p_amount);

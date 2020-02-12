@@ -182,7 +182,7 @@ static String f2sp0(float p_float) {
     return num;
 }
 
-static String get_constant_text(SL::DataType p_type, const PODVector<SL::ConstantNode::Value> &p_values) {
+static String get_constant_text(SL::DataType p_type, const Vector<SL::ConstantNode::Value> &p_values) {
 
     switch (p_type) {
         case SL::TYPE_BOOL: return p_values[0].boolean ? "true" : "false";
@@ -825,7 +825,7 @@ Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const String &p_code, 
             ShaderTypes::get_singleton()->get_modes(p_mode), ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
-        PODVector<se_string_view> shader;
+        Vector<se_string_view> shader;
         String::split_ref(shader,p_code,'\n');
 
         for (size_t i = 0; i < shader.size(); i++) {
@@ -1056,7 +1056,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
     light_name = "light";
     time_name = "TIME";
 
-    PODVector<String> func_list;
+    Vector<String> func_list;
 
     ShaderLanguage::get_builtin_funcs(&func_list);
 

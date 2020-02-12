@@ -48,7 +48,7 @@ public:
     struct Action {
         int id;
         float deadzone;
-        PODVector<Ref<InputEvent> > inputs;
+        Vector<Ref<InputEvent> > inputs;
     };
 
 private:
@@ -66,7 +66,7 @@ public:
     static _FORCE_INLINE_ InputMap *get_singleton() { return singleton; }
 
     bool has_action(const StringName &p_action) const;
-    PODVector<StringName> get_actions() const;
+    Vector<StringName> get_actions() const;
     void add_action(const StringName &p_action, float p_deadzone = 0.5f);
     void erase_action(const StringName &p_action);
 
@@ -76,7 +76,7 @@ public:
     void action_erase_event(const StringName &p_action, const Ref<InputEvent> &p_event);
     void action_erase_events(const StringName &p_action);
 
-    const PODVector<Ref<InputEvent> > *get_action_list(const StringName &p_action);
+    const Vector<Ref<InputEvent> > *get_action_list(const StringName &p_action);
     bool event_is_action(const Ref<InputEvent> &p_event, const StringName &p_action) const;
     bool event_get_action_status(const Ref<InputEvent> &p_event, const StringName &p_action, bool *p_pressed = nullptr, float *p_strength = nullptr) const;
 

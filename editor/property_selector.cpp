@@ -93,7 +93,7 @@ void PropertySelector::_update_search() {
 
     if (properties) {
 
-        PODVector<PropertyInfo> props;
+        Vector<PropertyInfo> props;
 
         if (instance) {
             instance->get_property_list(&props, true);
@@ -200,7 +200,7 @@ void PropertySelector::_update_search() {
         }
     } else {
 
-        PODVector<MethodInfo> methods;
+        Vector<MethodInfo> methods;
 
         if (type != VariantType::NIL) {
             Variant v;
@@ -540,7 +540,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const U
     _update_search();
 }
 
-void PropertySelector::set_type_filter(const PODVector<VariantType> &p_type_filter) {
+void PropertySelector::set_type_filter(const Vector<VariantType> &p_type_filter) {
     type_filter = p_type_filter;
 }
 

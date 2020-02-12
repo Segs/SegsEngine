@@ -65,5 +65,5 @@ public:
 	Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) override;
 
     String get_name() const override;
-    PODVector<String> get_supported_languages() override;
+    Vector<String> get_supported_languages() override;
 };

@@ -180,7 +180,7 @@ Error ResourceFormatS3TC::decompress_image(Image *image)
     return image_decompress_squish(image);
 }
 
-void ResourceFormatS3TC::fill_modes(PODVector<int> &tgt) const
+void ResourceFormatS3TC::fill_modes(Vector<int> &tgt) const
 {
     tgt.push_back(ImageCompressMode::COMPRESS_S3TC);
 }

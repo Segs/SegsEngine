@@ -162,7 +162,7 @@ bool Tween::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Tween::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void Tween::_get_property_list(Vector<PropertyInfo> *p_list) const {
     // Add the property info for the Tween object
     p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/active", PropertyHint::None, ""));
     p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/repeat", PropertyHint::None, ""));
@@ -696,7 +696,7 @@ void Tween::_tween_process(float p_delta) {
         else if (prev_delaying) {
             // We can apply the tween's value to the data and emit that the tween has started
             _apply_tween_value(data, data.initial_val);
-            emit_signal("tween_started", Variant(object), NodePath(PODVector<StringName>(), data.key, false));
+            emit_signal("tween_started", Variant(object), NodePath(Vector<StringName>(), data.key, false));
         }
 
         // Are we at the end of the tween?
@@ -752,7 +752,7 @@ void Tween::_tween_process(float p_delta) {
             _apply_tween_value(data, result);
 
             // Emit that the tween has taken a step
-            emit_signal("tween_step", Variant(object), NodePath(PODVector<StringName>(), data.key, false), data.elapsed, result);
+            emit_signal("tween_step", Variant(object), NodePath(Vector<StringName>(), data.key, false), data.elapsed, result);
         }
 
         // Is the tween now finished?
@@ -763,7 +763,7 @@ void Tween::_tween_process(float p_delta) {
 
             // Mark the tween as completed and emit the signal
             data.elapsed = 0;
-            emit_signal("tween_completed", Variant(object), NodePath(PODVector<StringName>(), data.key, false));
+            emit_signal("tween_completed", Variant(object), NodePath(Vector<StringName>(), data.key, false));
 
             // If we are not repeating the tween, remove it
             if (!repeat)
@@ -954,8 +954,8 @@ bool Tween::remove(Object *p_object, const StringName& p_key) {
     }
 
     // For each interpolation...
-    PODVector<ListPOD<InterpolateData>::iterator> for_removal;
-    for (ListPOD<InterpolateData>::iterator E = interpolates.begin(); E!=interpolates.end(); ++E) {
+    Vector<List<InterpolateData>::iterator> for_removal;
+    for (List<InterpolateData>::iterator E = interpolates.begin(); E!=interpolates.end(); ++E) {
         // Get the target object
         InterpolateData &data = *E;
         Object *object = ObjectDB::get_instance(data.id);
@@ -969,7 +969,7 @@ bool Tween::remove(Object *p_object, const StringName& p_key) {
     }
 
     // For each interpolation we wish to remove...
-    for (ListPOD<InterpolateData>::iterator E : for_removal) {
+    for (List<InterpolateData>::iterator E : for_removal) {
         // Erase it
         interpolates.erase(E);
     }

@@ -161,7 +161,7 @@ struct SpatialIndexer2D {
         _notifier_update_cells(p_notifier, E->second, false);
         notifiers.erase(p_notifier);
 
-        PODVector<Viewport *> removed;
+        Vector<Viewport *> removed;
         for (eastl::pair<Viewport *const ,ViewportData> &F : viewports) {
 
             Map<VisibilityNotifier2D *, uint64_t>::const_iterator G = F.second.notifiers.find(p_notifier);
@@ -200,7 +200,7 @@ struct SpatialIndexer2D {
 
     void _remove_viewport(Viewport *p_viewport) {
         ERR_FAIL_COND(!viewports.contains(p_viewport));
-        PODVector<VisibilityNotifier2D *> removed;
+        Vector<VisibilityNotifier2D *> removed;
         for (auto &E : viewports[p_viewport].notifiers) {
 
             removed.push_back(E.first);
@@ -224,8 +224,8 @@ struct SpatialIndexer2D {
             Point2i end = E.second.rect.position + E.second.rect.size;
             end /= cell_size;
             pass++;
-            PODVector<VisibilityNotifier2D *> added;
-            PODVector<VisibilityNotifier2D *> removed;
+            Vector<VisibilityNotifier2D *> added;
+            Vector<VisibilityNotifier2D *> removed;
 
             int visible_cells = (end.x - begin.x) * (end.y - begin.y);
 
@@ -357,7 +357,7 @@ RID World2D::get_space() {
     return space;
 }
 
-void World2D::get_viewport_list(PODVector<Viewport *> *r_viewports) {
+void World2D::get_viewport_list(Vector<Viewport *> *r_viewports) {
 
     for (const eastl::pair<Viewport *const ,SpatialIndexer2D::ViewportData> &E : indexer->viewports) {
         r_viewports->push_back(E.first);

@@ -131,7 +131,7 @@ Array GDScriptTextDocument::documentSymbol(const Dictionary &p_params) {
         return arr;
     }
 
-    PODVector<lsp::DocumentedSymbolInformation> list;
+    Vector<lsp::DocumentedSymbolInformation> list;
     parser->second->get_symbols().symbol_tree_as_list(uri, list);
     for (int i = 0; i < list.size(); i++) {
         arr.push_back(list[i].to_json());
@@ -147,7 +147,7 @@ Array GDScriptTextDocument::completion(const Dictionary &p_params) {
     params.load(p_params);
     Dictionary request_data = params.to_json();
 
-    PODVector<ScriptCodeCompletionOption> options;
+    Vector<ScriptCodeCompletionOption> options;
     GDScriptLanguageProtocol::get_singleton()->get_workspace()->completion(params, &options);
 
     if (!options.empty()) {
@@ -235,7 +235,7 @@ Dictionary GDScriptTextDocument::resolve(const Dictionary &p_params) {
 
         String query = data;
 
-        PODVector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
+        Vector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
 
         if (param_symbols.size() >= 2) {
 
@@ -299,7 +299,7 @@ Array GDScriptTextDocument::documentLink(const Dictionary &p_params) {
     lsp::DocumentLinkParams params;
     params.load(p_params);
 
-    PODVector<lsp::DocumentLink> links;
+    Vector<lsp::DocumentLink> links;
     GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_document_links(params.textDocument.uri, links);
     for (const lsp::DocumentLink &E : links) {
         ret.push_back(E.to_json());
@@ -328,7 +328,7 @@ Variant GDScriptTextDocument::hover(const Dictionary &p_params) {
 
         Dictionary ret;
         Array contents;
-        ListPOD<const lsp::DocumentSymbol *> list;
+        List<const lsp::DocumentSymbol *> list;
         GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_related_symbols(params, list);
         for (const lsp::DocumentSymbol *s : list) {
             if ( s ) {
@@ -344,14 +344,14 @@ Variant GDScriptTextDocument::hover(const Dictionary &p_params) {
 Array GDScriptTextDocument::definition(const Dictionary &p_params) {
     lsp::TextDocumentPositionParams params;
     params.load(p_params);
-    ListPOD<const lsp::DocumentSymbol *> symbols;
+    List<const lsp::DocumentSymbol *> symbols;
     Array arr = this->find_symbols(params, symbols);
     return arr;
 }
 Variant GDScriptTextDocument::declaration(const Dictionary &p_params) {
     lsp::TextDocumentPositionParams params;
     params.load(p_params);
-    ListPOD<const lsp::DocumentSymbol *> symbols;
+    List<const lsp::DocumentSymbol *> symbols;
     Array arr = this->find_symbols(params, symbols);
     if (arr.empty() && !symbols.empty() && !symbols.front()->native_class.empty()) { // Find a native symbol
         const lsp::DocumentSymbol *symbol = symbols.front();
@@ -417,7 +417,7 @@ void GDScriptTextDocument::show_native_symbol_in_editor(se_string_view p_symbol_
     ScriptEditor::get_singleton()->call_deferred("_help_class_goto", p_symbol_id);
     OS::get_singleton()->move_window_to_foreground();
 }
-Array GDScriptTextDocument::find_symbols(const lsp::TextDocumentPositionParams &p_location, ListPOD<const lsp::DocumentSymbol *> &r_list) {
+Array GDScriptTextDocument::find_symbols(const lsp::TextDocumentPositionParams &p_location, List<const lsp::DocumentSymbol *> &r_list) {
     Array arr;
     const lsp::DocumentSymbol *symbol = GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_symbol(p_location);
     if (symbol) {
@@ -430,7 +430,7 @@ Array GDScriptTextDocument::find_symbols(const lsp::TextDocumentPositionParams &
         }
         r_list.push_back(symbol);
     } else if (GDScriptLanguageProtocol::get_singleton()->is_smart_resolve_enabled()) {
-        ListPOD<const lsp::DocumentSymbol *> list;
+        List<const lsp::DocumentSymbol *> list;
         GDScriptLanguageProtocol::get_singleton()->get_workspace()->resolve_related_symbols(p_location, list);
         for (const lsp::DocumentSymbol *s : list) {
             if (s) {

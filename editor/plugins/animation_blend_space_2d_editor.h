@@ -97,9 +97,9 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 
 	PopupMenu *menu;
 	PopupMenu *animations_menu;
-    PODVector<String> animations_to_add;
+    Vector<String> animations_to_add;
 	Vector2 add_point_pos;
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
 
 	bool dragging_selected_attempt;
 	bool dragging_selected;

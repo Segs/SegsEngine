@@ -180,7 +180,7 @@ struct _EVCSort {
     bool operator<(const _EVCSort &p_vcs) const { return order < p_vcs.order; }
 };
 
-void EditorSettings::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void EditorSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     _THREAD_SAFE_METHOD_
 
@@ -653,7 +653,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
     if (p_extra_config->has_section("presets")) {
 
-        PODVector<String> keys = p_extra_config->get_section_keys("presets");
+        Vector<String> keys = p_extra_config->get_section_keys("presets");
 
         for (const String &key : keys) {
 
@@ -707,7 +707,7 @@ bool EditorSettings::_save_text_editor_theme(se_string_view p_file) {
     se_string_view theme_section("color_theme");
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>()); // hex is better?
 
-    ListPOD<StringName> keys;
+    List<StringName> keys;
     props.get_key_list(keys);
     keys.sort();
 
@@ -749,7 +749,7 @@ static Dictionary _get_builtin_script_templates() {
 static void _create_script_templates(se_string_view p_path) {
 
     Dictionary templates = _get_builtin_script_templates();
-    PODVector<Variant> keys(templates.get_key_list());
+    Vector<Variant> keys(templates.get_key_list());
     FileAccess *file = FileAccess::create(FileAccess::ACCESS_FILESYSTEM);
 
     DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
@@ -993,7 +993,7 @@ void EditorSettings::setup_language() {
 
         if (etl->lang == lang) {
 
-            PODVector<uint8_t> data;
+            Vector<uint8_t> data;
             data.resize(etl->uncomp_size);
             Compression::decompress(data.data(), etl->uncomp_size, etl->data, etl->comp_size, Compression::MODE_DEFLATE);
 
@@ -1015,7 +1015,7 @@ void EditorSettings::setup_language() {
 
 void EditorSettings::setup_network() {
 
-    PODVector<IP_Address> local_ip;
+    Vector<IP_Address> local_ip;
     IP::get_singleton()->get_local_addresses(&local_ip);
     String hint;
     const StringName remotehost("network/debug/remote_host");
@@ -1258,7 +1258,7 @@ Variant EditorSettings::get_project_metadata(se_string_view p_section, se_string
     return cf->get_value(p_section, p_key, p_default);
 }
 
-void EditorSettings::set_favorites(const PODVector<String> &p_favorites) {
+void EditorSettings::set_favorites(const Vector<String> &p_favorites) {
 
     favorites = p_favorites;
     FileAccess *f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"favorites"), FileAccess::WRITE);
@@ -1269,12 +1269,12 @@ void EditorSettings::set_favorites(const PODVector<String> &p_favorites) {
     }
 }
 
-const PODVector<String> &EditorSettings::get_favorites() const {
+const Vector<String> &EditorSettings::get_favorites() const {
 
     return favorites;
 }
 
-void EditorSettings::set_recent_dirs(const PODVector<String> &p_recent_dirs) {
+void EditorSettings::set_recent_dirs(const Vector<String> &p_recent_dirs) {
 
     recent_dirs = p_recent_dirs;
     FileAccess *f = FileAccess::open(PathUtils::plus_file(get_project_settings_dir(),"recent_dirs"), FileAccess::WRITE);
@@ -1285,7 +1285,7 @@ void EditorSettings::set_recent_dirs(const PODVector<String> &p_recent_dirs) {
     }
 }
 
-const PODVector<String> &EditorSettings::get_recent_dirs() const {
+const Vector<String> &EditorSettings::get_recent_dirs() const {
 
     return recent_dirs;
 }
@@ -1326,7 +1326,7 @@ void EditorSettings::list_text_editor_themes() {
     String themes("Adaptive,Default,Custom");
     DirAccess *d = DirAccess::open(get_text_editor_themes_dir());
     if (d) {
-        ListPOD<String> custom_themes;
+        List<String> custom_themes;
         d->list_dir_begin();
         String file = d->get_next();
         while (!file.empty()) {
@@ -1365,7 +1365,7 @@ void EditorSettings::load_text_editor_theme() {
         return;
     }
 
-    PODVector<String> keys = cf->get_section_keys("color_theme");
+    Vector<String> keys = cf->get_section_keys("color_theme");
 
     for (const String & key : keys) {
         String val = cf->get_value("color_theme", key);
@@ -1441,9 +1441,9 @@ bool EditorSettings::is_default_text_editor_theme() {
     String p_file = get("text_editor/theme/color_theme");
     return _is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_file(p_file)));
 }
-PODVector<String> EditorSettings::get_script_templates(se_string_view p_extension, se_string_view p_custom_path) {
+Vector<String> EditorSettings::get_script_templates(se_string_view p_extension, se_string_view p_custom_path) {
 
-    PODVector<String> templates;
+    Vector<String> templates;
     String template_dir = get_script_templates_dir();
     if (!p_custom_path.empty()) {
         template_dir = p_custom_path;
@@ -1493,7 +1493,7 @@ Ref<ShortCut> EditorSettings::get_shortcut(se_string_view p_name) const {
     return E->second;
 }
 
-void EditorSettings::get_shortcut_list(PODVector<String> *r_shortcuts) {
+void EditorSettings::get_shortcut_list(Vector<String> *r_shortcuts) {
 
     for (const eastl::pair<const String,Ref<ShortCut> > &E : shortcuts) {
 

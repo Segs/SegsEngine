@@ -76,7 +76,7 @@ private:
     int _out_buf_size;
     int _out_pkt_size;
 
-    List<Ref<PendingPeer> > _pending;
+    ListOld<Ref<PendingPeer> > _pending;
     Ref<TCP_Server> _server;
     PoolVector<String> _protocols;
 

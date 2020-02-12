@@ -41,8 +41,8 @@ class AudioEffectEQInstance : public AudioEffectInstance {
     friend class AudioEffectEQ;
     Ref<AudioEffectEQ> base;
 
-    PODVector<EQ::BandProcess> bands[2];
-    PODVector<float> gains;
+    Vector<EQ::BandProcess> bands[2];
+    Vector<float> gains;
 
 public:
     void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
@@ -54,14 +54,14 @@ class AudioEffectEQ : public AudioEffect {
     friend class AudioEffectEQInstance;
 
     EQ eq;
-    PODVector<float> gain;
+    Vector<float> gain;
     Map<StringName, int> prop_band_map;
-    PODVector<StringName> band_names;
+    Vector<StringName> band_names;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 

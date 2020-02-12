@@ -96,8 +96,8 @@ static Vector3 v2_to_v3(const Vector2 d) {
 static Vector2 v3_to_v2(const Vector3 &d) {
     return Vector2(d.x, d.z);
 }
-static PODVector<Vector2> vector_v3_to_v2(const PODVector<Vector3> &d) {
-    PODVector<Vector2> nd;
+static Vector<Vector2> vector_v3_to_v2(const Vector<Vector3> &d) {
+    Vector<Vector2> nd;
     nd.reserve(d.size());
     for (Vector3 v : d) {
         nd.emplace_back(v3_to_v2(v));
@@ -178,7 +178,7 @@ real_t FORWARD_1_C(map_get_cell_size, RID, p_map, rid_to_rid);
 void FORWARD_2_C(map_set_edge_connection_margin, RID, p_map, real_t, p_connection_margin, rid_to_rid, real_to_real);
 real_t FORWARD_1_C(map_get_edge_connection_margin, RID, p_map, rid_to_rid);
 
-PODVector<Vector2> FORWARD_4_R_C(vector_v3_to_v2, map_get_path, RID, p_map, Vector2, p_origin, Vector2, p_destination, bool, p_optimize, rid_to_rid, v2_to_v3, v2_to_v3, bool_to_bool);
+Vector<Vector2> FORWARD_4_R_C(vector_v3_to_v2, map_get_path, RID, p_map, Vector2, p_origin, Vector2, p_destination, bool, p_optimize, rid_to_rid, v2_to_v3, v2_to_v3, bool_to_bool);
 
 RID FORWARD_0_C(region_create);
 void FORWARD_2_C(region_set_map, RID, p_region, RID, p_map, rid_to_rid, rid_to_rid);

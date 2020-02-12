@@ -60,7 +60,7 @@ class PropertySelector : public ConfirmationDialog {
 
     void _item_selected();
 
-    PODVector<VariantType> type_filter;
+    Vector<VariantType> type_filter;
 
 protected:
     void _notification(int p_what);
@@ -77,7 +77,7 @@ public:
     void select_property_from_basic_type(VariantType p_type, const UIString &p_current = UIString());
     void select_property_from_instance(Object *p_instance, const UIString &p_current = UIString());
 
-    void set_type_filter(const PODVector<VariantType> &p_type_filter);
+    void set_type_filter(const Vector<VariantType> &p_type_filter);
 
     PropertySelector();
 };

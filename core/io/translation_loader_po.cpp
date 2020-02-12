@@ -159,7 +159,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
 
     ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + String(p_path) + ".");
 
-    PODVector<se_string_view> configs = StringUtils::split(config,'\n');
+    Vector<se_string_view> configs = StringUtils::split(config,'\n');
     for (size_t i = 0; i < configs.size(); i++) {
 
         se_string_view c =StringUtils::strip_edges( configs[i]);
@@ -191,7 +191,7 @@ RES TranslationLoaderPO::load(se_string_view p_path, se_string_view p_original_p
     return load_translation(f, r_error);
 }
 
-void TranslationLoaderPO::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void TranslationLoaderPO::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("po");
     //p_extensions->push_back("mo"); //mo in the future...

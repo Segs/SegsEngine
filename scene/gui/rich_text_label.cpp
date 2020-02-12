@@ -56,8 +56,8 @@ struct RichTextItem {
     int index;
     RichTextItem *parent;
     RichTextLabel::ItemType type;
-    ListPOD<RichTextItem *> subitems;
-    ListPOD<RichTextItem *>::iterator E;
+    List<RichTextItem *> subitems;
+    List<RichTextItem *>::iterator E;
     int line;
 
     void _clear_children() {
@@ -83,11 +83,11 @@ static std::regex s_regex_numerical(("^\\d+$"));
 struct Line {
 
     RichTextItem *from;
-    PODVector<int> offset_caches;
-    PODVector<int> height_caches;
-    PODVector<int> ascent_caches;
-    PODVector<int> descent_caches;
-    PODVector<int> space_caches;
+    Vector<int> offset_caches;
+    Vector<int> height_caches;
+    Vector<int> ascent_caches;
+    Vector<int> descent_caches;
+    Vector<int> space_caches;
     int height_cache;
     int height_accum_cache;
     int char_count;
@@ -106,7 +106,7 @@ struct RichTextItemFrame : public RichTextItem {
 
     int parent_line;
     bool cell;
-    PODVector<Line> lines;
+    Vector<Line> lines;
     int first_invalid_line;
     RichTextItemFrame *parent_frame;
 
@@ -169,7 +169,7 @@ struct ItemTable : public RichTextItem {
         int width;
     };
 
-    PODVector<Column> columns;
+    Vector<Column> columns;
     int total_width;
     ItemTable() { type = RichTextLabel::ITEM_TABLE; }
 };
@@ -612,7 +612,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                 ItemFade *fade = nullptr;
                 int it_char_start = p_char_count;
 
-                PODVector<RichTextItemFX *> fx_stack;
+                Vector<RichTextItemFX *> fx_stack;
                 _fetch_item_fx_stack(text, fx_stack);
                 bool custom_fx_ok = true;
 
@@ -1700,7 +1700,7 @@ bool RichTextLabel::_find_by_type(RichTextItem *p_item, ItemType p_type) {
     return false;
 }
 
-void RichTextLabel::_fetch_item_fx_stack(RichTextItem *p_item, PODVector<RichTextItemFX *> &r_stack) {
+void RichTextLabel::_fetch_item_fx_stack(RichTextItem *p_item, Vector<RichTextItemFX *> &r_stack) {
     RichTextItem *item = p_item;
     while (item) {
         if (item->type == ITEM_CUSTOMFX || item->type == ITEM_SHAKE || item->type == ITEM_WAVE || item->type == ITEM_TORNADO || item->type == ITEM_RAINBOW) {
@@ -1896,7 +1896,7 @@ void RichTextLabel::_remove_item(RichTextItem *p_item, const int p_line, const i
         parent_subs.erase(eastl::find(parent_subs.begin(),parent_subs.end(),p_item));
         if (p_item->type == ITEM_NEWLINE) {
             current_frame->lines.erase_at(p_line);
-            ListPOD<RichTextItem *>::iterator iter=current->subitems.begin();
+            List<RichTextItem *>::iterator iter=current->subitems.begin();
             eastl::advance(iter,p_subitem_line);
             for (int i = p_subitem_line; i < current->subitems.size(); i++) {
                 if ((*iter)->line > 0)
@@ -2288,7 +2288,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
     int pos = 0;
 
-    ListPOD<se_string_view> tag_stack;
+    List<se_string_view> tag_stack;
     Ref<Font> normal_font = get_font("normal_font");
     Ref<Font> bold_font = get_font("bold_font");
     Ref<Font> italics_font = get_font("italics_font");
@@ -2561,7 +2561,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             tag_stack.push_front(("font"));
 
         } else if (begins_with(tag,"fade")) {
-            PODVector<se_string_view> tags = split(tag,' ', false);
+            Vector<se_string_view> tags = split(tag,' ', false);
             int startIndex = 0;
             int length = 10;
 
@@ -2583,7 +2583,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             pos = brk_end + 1;
             tag_stack.push_front("fade");
         } else if (begins_with(tag,"shake")) {
-            PODVector<se_string_view> tags = split(tag,' ', false);
+            Vector<se_string_view> tags = split(tag,' ', false);
             int strength = 5;
             float rate = 20.0f;
 
@@ -2606,7 +2606,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
             tag_stack.push_front("shake");
             set_process_internal(true);
         } else if (begins_with(tag, "wave")) {
-            PODVector<se_string_view> tags = split(tag, ' ', false);
+            Vector<se_string_view> tags = split(tag, ' ', false);
             float amplitude = 20.0f;
             float period = 5.0f;
 
@@ -2914,7 +2914,7 @@ float RichTextLabel::get_percent_visible() const {
     return percent_visible;
 }
 
-void RichTextLabel::set_effects(const PODVector<Variant> &effects) {
+void RichTextLabel::set_effects(const Vector<Variant> &effects) {
     custom_effects.clear();
     for (int i = 0; i < effects.size(); i++) {
         Ref<RichTextEffect> effect = Ref<RichTextEffect>(effects[i]);
@@ -2924,8 +2924,8 @@ void RichTextLabel::set_effects(const PODVector<Variant> &effects) {
     parse_bbcode(bbcode);
 }
 
-PODVector<Variant> RichTextLabel::get_effects() {
-    PODVector<Variant> r;
+Vector<Variant> RichTextLabel::get_effects() {
+    Vector<Variant> r;
     for (int i = 0; i < custom_effects.size(); i++) {
         r.push_back(Variant(custom_effects[i].get_ref_ptr()));
     }
@@ -3137,13 +3137,13 @@ Dictionary RichTextLabel::parse_expressions_for_values(const PoolVector<String> 
         se_string_view expression = p_expressions[i];
 
         Array a = Array();
-        PODVector<se_string_view> parts = split(expression, '=', true);
+        Vector<se_string_view> parts = split(expression, '=', true);
         se_string_view key = parts[0];
         if (parts.size() != 2) {
             return d;
         }
 
-        PODVector<se_string_view> values = split(parts[1],',', false);
+        Vector<se_string_view> values = split(parts[1],',', false);
 
         for (int j = 0; j < values.size(); j++) {
 

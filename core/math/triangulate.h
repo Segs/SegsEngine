@@ -41,7 +41,7 @@ class GODOT_EXPORT Triangulate {
 public:
     // triangulate a contour/polygon, places results in STL vector
     // as series of triangles.
-    static bool triangulate(Span<const Vector2> contour, PODVector<int> &result);
+    static bool triangulate(Span<const Vector2> contour, Vector<int> &result);
 
     // compute area of a contour/polygon
     static real_t get_area(Span<const Vector2> contour);

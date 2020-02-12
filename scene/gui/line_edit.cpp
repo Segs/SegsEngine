@@ -66,8 +66,8 @@ struct LineEdit::PrivateData {
         int cached_width;
         UIString text;
     };
-    List<TextOperation> undo_stack;
-    List<TextOperation>::Element *undo_stack_pos;
+    ListOld<TextOperation> undo_stack;
+    ListOld<TextOperation>::Element *undo_stack_pos;
     void _create_undo_state(int cursor_pos) {
         TextOperation op;
         op.text = text;
@@ -84,7 +84,7 @@ struct LineEdit::PrivateData {
 
         undo_stack_pos = undo_stack_pos->next();
         while (undo_stack_pos) {
-            List<TextOperation>::Element *elem = undo_stack_pos;
+            ListOld<TextOperation>::Element *elem = undo_stack_pos;
             undo_stack_pos = undo_stack_pos->next();
             undo_stack.erase(elem);
         }

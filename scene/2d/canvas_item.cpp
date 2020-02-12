@@ -626,7 +626,7 @@ void CanvasItem::_notification(int p_what) {
             if (xform_change.in_list())
                 get_tree()->xform_change_list.remove(&xform_change);
             _exit_canvas();
-            if (C!=ListPOD<CanvasItem *>::iterator()) {
+            if (C!=List<CanvasItem *>::iterator()) {
                 object_cast<CanvasItem>(get_parent())->children_items.erase(C);
                 C = {};
             }
@@ -749,16 +749,16 @@ void CanvasItem::draw_line(const Point2 &p_from, const Point2 &p_to, const Color
     VisualServer::get_singleton()->canvas_item_add_line(canvas_item, p_from, p_to, p_color, p_width, p_antialiased);
 }
 
-void CanvasItem::draw_polyline(const PODVector<Vector2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
+void CanvasItem::draw_polyline(const Vector<Vector2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
-    PODVector<Color> colors;
+    Vector<Color> colors;
     colors.push_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_polyline(canvas_item, p_points, colors, p_width, p_antialiased);
 }
 
-void CanvasItem::draw_polyline_colors(const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width, bool p_antialiased) {
+void CanvasItem::draw_polyline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
@@ -767,7 +767,7 @@ void CanvasItem::draw_polyline_colors(const PODVector<Vector2> &p_points, const 
 
 void CanvasItem::draw_arc(const Vector2 &p_center, float p_radius, float p_start_angle, float p_end_angle, int p_point_count, const Color &p_color, float p_width, bool p_antialiased) {
 
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
     points.reserve(p_point_count);
     const float delta_angle = p_end_angle - p_start_angle;
     for (int i = 0; i < p_point_count; i++) {
@@ -778,16 +778,16 @@ void CanvasItem::draw_arc(const Vector2 &p_center, float p_radius, float p_start
     draw_polyline(points, p_color, p_width, p_antialiased);
 }
 
-void CanvasItem::draw_multiline(const PODVector<Vector2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
+void CanvasItem::draw_multiline(const Vector<Vector2> &p_points, const Color &p_color, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
-    PODVector<Color> colors;
+    Vector<Color> colors;
     colors.push_back(p_color);
     VisualServer::get_singleton()->canvas_item_add_multiline(canvas_item, p_points, colors, p_width, p_antialiased);
 }
 
-void CanvasItem::draw_multiline_colors(const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width, bool p_antialiased) {
+void CanvasItem::draw_multiline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 
@@ -886,7 +886,7 @@ void CanvasItem::draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p
 
     p_style_box->draw(canvas_item, p_rect);
 }
-void CanvasItem::draw_primitive(const PODVector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture, float p_width, const Ref<Texture> &p_normal_map) {
+void CanvasItem::draw_primitive(const Vector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture, float p_width, const Ref<Texture> &p_normal_map) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 

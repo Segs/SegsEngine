@@ -235,7 +235,7 @@ static Vector2 interpolate_triangle_uv(const Vector2 &p_pos, const Vector2 *p_vt
 void CSGBrushOperation::BuildPoly::_clip_segment(const CSGBrush *p_brush, int p_face, const Vector2 *segment, MeshMerge &mesh_merge, bool p_for_B) {
 
     //keep track of what was inserted
-    PODVector<int> inserted_points;
+    Vector<int> inserted_points;
 
     //keep track of point indices for what was inserted, allowing reuse of points.
     int segment_idx[2] = { -1, -1 };
@@ -603,7 +603,7 @@ void CSGBrushOperation::_collision_callback(const CSGBrush *A, int p_face_a, Map
     poly_b->clip(A, p_face_a, mesh_merge, true);
 }
 
-void CSGBrushOperation::_add_poly_points(const BuildPoly &p_poly, int p_edge, int p_from_point, int p_to_point, const PODVector<PODVector<int> > &vertex_process, PODVector<bool> &edge_process, PODVector<PolyPoints> &r_poly) {
+void CSGBrushOperation::_add_poly_points(const BuildPoly &p_poly, int p_edge, int p_from_point, int p_to_point, const Vector<Vector<int> > &vertex_process, Vector<bool> &edge_process, Vector<PolyPoints> &r_poly) {
 
     //this function follows the polygon points counter clockwise and adds them. It creates lists of unique polygons
     //every time an unused edge is found, it's pushed to a stack and continues from there.
@@ -631,7 +631,7 @@ void CSGBrushOperation::_add_poly_points(const BuildPoly &p_poly, int p_edge, in
             continue;
         }
 
-        PODVector<int> points;
+        Vector<int> points;
         points.push_back(e.prev_point);
 
         int prev_point = e.prev_point;
@@ -658,7 +658,7 @@ void CSGBrushOperation::_add_poly_points(const BuildPoly &p_poly, int p_edge, in
             t2d.affine_invert();
 
             //push all edges found here, they will be sorted by minimum angle later.
-            PODVector<EdgeSort> next_edges;
+            Vector<EdgeSort> next_edges;
 
             for (int i = 0; i < vertex_process[to_point].size(); i++) {
 
@@ -724,7 +724,7 @@ void CSGBrushOperation::_add_poly_points(const BuildPoly &p_poly, int p_edge, in
     }
 }
 
-void CSGBrushOperation::_add_poly_outline(const BuildPoly &p_poly, int p_from_point, int p_to_point, const PODVector<PODVector<int> > &vertex_process, PODVector<int> &r_outline) {
+void CSGBrushOperation::_add_poly_outline(const BuildPoly &p_poly, int p_from_point, int p_to_point, const Vector<Vector<int> > &vertex_process, Vector<int> &r_outline) {
 
     //this is the opposite of the function above. It adds polygon outlines instead.
     //this is used for triangulating holes.
@@ -785,8 +785,8 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
 
     //finally, merge the 2D polygon back to 3D
 
-    PODVector<PODVector<int> > vertex_process;
-    PODVector<bool> edge_process;
+    Vector<Vector<int> > vertex_process;
+    Vector<bool> edge_process;
 
     vertex_process.resize(p_poly.points.size());
     //none processed by default
@@ -798,7 +798,7 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
         vertex_process[p_poly.edges[i].points[1]].push_back(i);
     }
 
-    PODVector<PolyPoints> polys;
+    Vector<PolyPoints> polys;
 
     //process points that were not processed
     for (int i = 0; i < edge_process.size(); i++) {
@@ -847,7 +847,7 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
 
         if (intersect_poly != -1) {
             //must add this as a hole
-            PODVector<int> outline;
+            Vector<int> outline;
             _add_poly_outline(p_poly, p_poly.edges[i].points[0], p_poly.edges[i].points[1], vertex_process, outline);
 
             if (outline.size() > 1) {
@@ -982,7 +982,7 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
             vertices[j] = p_poly.points[polys[i].points[j]].point;
         }
 
-        PODVector<int> indices(Geometry::triangulate_polygon(vertices));
+        Vector<int> indices(Geometry::triangulate_polygon(vertices));
 
         for (size_t j = 0; j < indices.size(); j += 3) {
 
@@ -1197,7 +1197,7 @@ void CSGBrushOperation::MeshMerge::mark_inside_faces() {
 
     float max_distance = aabb.size.length() * 1.2;
 
-    PODVector<BVH> bvhvec;
+    Vector<BVH> bvhvec;
     bvhvec.resize(faces.size() * 3); //will never be larger than this (todo make better)
     BVH *bvh = bvhvec.data();
 
@@ -1239,7 +1239,7 @@ void CSGBrushOperation::MeshMerge::mark_inside_faces() {
     if (intersection_aabb.size == Vector3()) //AABB do not intersect, so neither do shapes.
         return;
 
-    PODVector<BVH *> bvhtrvec;
+    Vector<BVH *> bvhtrvec;
     bvhtrvec.resize(faces.size());
     BVH **bvhptr = bvhtrvec.data();
     for (int i = 0; i < faces.size(); i++) {

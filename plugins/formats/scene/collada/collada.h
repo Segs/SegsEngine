@@ -155,7 +155,7 @@ public:
         String name;
         struct Source {
 
-            PODVector<float> array;
+            Vector<float> array;
             int stride;
         };
 
@@ -178,13 +178,13 @@ public:
 
             String material;
             Map<String, SourceRef> sources;
-            PODVector<float> polygons;
-            PODVector<float> indices;
+            Vector<float> polygons;
+            Vector<float> indices;
             int count;
             int vertex_size;
         };
 
-        PODVector<Primitives> primitives;
+        Vector<Primitives> primitives;
 
         bool found_double_sided;
         bool double_sided;
@@ -202,8 +202,8 @@ public:
 
         struct Source {
 
-            PODVector<String> sarray;
-            PODVector<float> array;
+            Vector<String> sarray;
+            Vector<float> array;
             int stride;
         };
 
@@ -225,8 +225,8 @@ public:
 
         struct Source {
 
-            PODVector<String> sarray; //maybe for names
-            PODVector<float> array;
+            Vector<String> sarray; //maybe for names
+            Vector<float> array;
             int stride = 1;
         };
 
@@ -247,8 +247,8 @@ public:
 
             String material;
             Map<String, SourceRef> sources;
-            PODVector<float> sets;
-            PODVector<float> indices;
+            Vector<float> sets;
+            Vector<float> indices;
             int count;
         } weights;
 
@@ -265,8 +265,8 @@ public:
         struct Source {
 
             int stride;
-            PODVector<String> sarray; //maybe for names
-            PODVector<float> array;
+            Vector<String> sarray; //maybe for names
+            Vector<float> array;
             Source() { stride = 1; }
         };
 
@@ -292,7 +292,7 @@ public:
             bool operator<(const Weight w) const { return weight > w.weight; } //heaviest first
         };
 
-        PODVector<Weight> weights;
+        Vector<Weight> weights;
 
         void fix_weights();
 
@@ -364,7 +364,7 @@ public:
 
             String id;
             Op op;
-            PODVector<float> data;
+            Vector<float> data;
         };
 
         Type type;
@@ -373,10 +373,10 @@ public:
         String id;
         String empty_draw_type;
         bool noname;
-        PODVector<XForm> xform_list;
+        Vector<XForm> xform_list;
         Transform default_transform;
         Transform post_transform;
-        PODVector<Node *> children;
+        Vector<Node *> children;
 
         Node *parent;
 
@@ -423,7 +423,7 @@ public:
         };
 
         Map<String, Material> material_map;
-        PODVector<String> skeletons;
+        Vector<String> skeletons;
 
         NodeGeometry() { type = TYPE_GEOMETRY; }
     };
@@ -445,7 +445,7 @@ public:
     struct VisualScene {
 
         String name;
-        PODVector<Node *> root_nodes;
+        Vector<Node *> root_nodes;
 
         ~VisualScene() {
             for (size_t i = 0; i < root_nodes.size(); i++)
@@ -458,7 +458,7 @@ public:
         String name;
         float begin;
         float end;
-        PODVector<String> tracks;
+        Vector<String> tracks;
 
         AnimationClip() {
             begin = 0;
@@ -487,15 +487,15 @@ public:
             };
 
             float time;
-            PODVector<float> data;
+            Vector<float> data;
             Point2 in_tangent;
             Point2 out_tangent;
             InterpolationType interp_type= INTERP_LINEAR;
         };
 
-        PODVector<float> get_value_at_time(float p_time) const;
+        Vector<float> get_value_at_time(float p_time) const;
 
-        PODVector<Key> keys;
+        Vector<Key> keys;
 
         AnimationTrack() { property = false; }
     };
@@ -551,10 +551,10 @@ public:
         String root_visual_scene;
         String root_physics_scene;
 
-        PODVector<AnimationClip> animation_clips;
-        PODVector<AnimationTrack> animation_tracks;
-        Map<String, PODVector<int> > referenced_tracks;
-        Map<String, PODVector<int> > by_id_tracks;
+        Vector<AnimationClip> animation_clips;
+        Vector<AnimationTrack> animation_tracks;
+        Map<String, Vector<int> > referenced_tracks;
+        Map<String, Vector<int> > by_id_tracks;
 
         float animation_length;
 
@@ -608,8 +608,8 @@ private: // private stuff
     void _parse_library(XMLParser &parser);
 
     Variant _parse_param(XMLParser &parser);
-    PODVector<float> _read_float_array(XMLParser &parser);
-    PODVector<String> _read_string_array(XMLParser &parser);
+    Vector<float> _read_float_array(XMLParser &parser);
+    Vector<String> _read_string_array(XMLParser &parser);
     Transform _read_transform(XMLParser &parser);
     String _read_empty_draw_type(XMLParser &parser);
 
@@ -622,7 +622,7 @@ private: // private stuff
     void _merge_skeletons(VisualScene *p_vscene, Node *p_node);
     bool _optimize_skeletons(VisualScene *p_vscene, Node *p_node);
 
-    bool _move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, ListPOD<Node *> *p_mgeom);
+    bool _move_geometry_to_skeletons(VisualScene *p_vscene, Node *p_node, List<Node *> *p_mgeom);
 
     void _optimize();
 };

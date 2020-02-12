@@ -295,8 +295,8 @@ class _GodotSharp : public Object {
 
     bool _is_domain_finalizing_for_unload(int32_t p_domain_id);
 
-    PODVector<NodePath *> np_delete_queue;
-    PODVector<RID *> rid_delete_queue;
+    Vector<NodePath *> np_delete_queue;
+    Vector<RID *> rid_delete_queue;
 
     void _reload_assemblies(bool p_soft_reload);
 

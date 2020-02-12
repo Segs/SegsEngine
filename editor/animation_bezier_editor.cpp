@@ -128,7 +128,7 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
         from_x = MAX(from_x, limit);
         to_x = MIN(to_x, right_limit);
 
-        PODVector<Vector2> lines;
+        Vector<Vector2> lines;
         int diff = to_x-from_x;
         if(diff>0)
             lines.reserve(diff-1);
@@ -849,7 +849,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
             undo_redo->create_action_ui(TTR("Move Bezier Points"));
 
-            PODVector<AnimMoveRestore> to_restore;
+            Vector<AnimMoveRestore> to_restore;
             // 1-remove the keys
             for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 
@@ -1083,7 +1083,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 
     undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
 
-    PODVector<Pair<int, float> > new_selection_values;
+    Vector<Pair<int, float> > new_selection_values;
     new_selection_values.reserve(selection.size());
 
     for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {

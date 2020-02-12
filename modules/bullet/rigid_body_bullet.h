@@ -173,7 +173,7 @@ public:
     struct KinematicUtilities {
         RigidBodyBullet *owner;
         btScalar safe_margin;
-        PODVector<KinematicShape> shapes;
+        Vector<KinematicShape> shapes;
 
         KinematicUtilities(RigidBodyBullet *p_owner);
         ~KinematicUtilities();
@@ -204,18 +204,18 @@ private:
     bool omit_forces_integration;
     bool can_integrate_forces;
 
-    PODVector<CollisionData> collisions;
-    PODVector<RigidBodyBullet *> collision_traces_1;
-    PODVector<RigidBodyBullet *> collision_traces_2;
-    PODVector<RigidBodyBullet *> *prev_collision_traces;
-    PODVector<RigidBodyBullet *> *curr_collision_traces;
+    Vector<CollisionData> collisions;
+    Vector<RigidBodyBullet *> collision_traces_1;
+    Vector<RigidBodyBullet *> collision_traces_2;
+    Vector<RigidBodyBullet *> *prev_collision_traces;
+    Vector<RigidBodyBullet *> *curr_collision_traces;
 
     // these parameters are used to avoid vector resize
     int maxCollisionsDetection;
     int collisionsCount;
     int prev_collision_count;
 
-    PODVector<AreaBullet *> areasWhereIam;
+    Vector<AreaBullet *> areasWhereIam;
     // these parameters are used to avoid vector resize
     int maxAreasWhereIam;
     int areaWhereIamCount;

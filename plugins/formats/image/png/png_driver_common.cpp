@@ -123,7 +123,7 @@ Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image) {
     return OK;
 }
 
-Error image_to_png(const ImageData &source_image, PODVector<uint8_t> &p_buffer) {
+Error image_to_png(const ImageData &source_image, Vector<uint8_t> &p_buffer) {
 
     png_image png_img;
     memset(&png_img, 0, sizeof(png_img));

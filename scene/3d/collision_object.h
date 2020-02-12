@@ -47,7 +47,7 @@ class CollisionObject : public Spatial {
             int index;
         };
 
-        PODVector<ShapeBase> shapes;
+        Vector<ShapeBase> shapes;
         bool disabled;
 
         ShapeData() {
@@ -79,7 +79,7 @@ protected:
 public:
     uint32_t create_shape_owner(Object *p_owner);
     void remove_shape_owner(uint32_t owner);
-    void get_shape_owners(PODVector<uint32_t> *r_owners);
+    void get_shape_owners(Vector<uint32_t> *r_owners);
     Array _get_shape_owners();
 
     void shape_owner_set_transform(uint32_t p_owner, const Transform &p_transform);

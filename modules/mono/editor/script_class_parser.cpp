@@ -360,7 +360,7 @@ Error ScriptClassParser::_parse_type_full_name(String &r_full_name) {
     return _parse_type_full_name(r_full_name);
 }
 
-Error ScriptClassParser::_parse_class_base(PODVector<String> &r_base) {
+Error ScriptClassParser::_parse_class_base(Vector<String> &r_base) {
 
     String name;
 
@@ -644,12 +644,12 @@ static se_string_view get_preprocessor_directive(se_string_view p_line, size_t p
 
 static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) {
     using namespace eastl;
-    PODVector<se_string_view> lines = StringUtils::split(r_source,'\n', /* p_allow_empty: */ true);
+    Vector<se_string_view> lines = StringUtils::split(r_source,'\n', /* p_allow_empty: */ true);
 
     bool *include_lines = memnew_arr(bool, lines.size());
 
     int if_level = -1;
-    PODVector<bool> is_branch_being_compiled;
+    Vector<bool> is_branch_being_compiled;
 
     for (size_t i = 0; i < lines.size(); i++) {
         const se_string_view line = lines[i];

@@ -100,7 +100,7 @@ String JSON::_print_var(const Variant &p_var, se_string_view p_indent, int p_cur
             String s("{");
             s += end_statement;
             Dictionary d = p_var;
-            PODVector<Variant> keys(d.get_key_list());
+            Vector<Variant> keys(d.get_key_list());
 
             if (p_sort_keys)
                 eastl::sort(keys.begin(),keys.end());

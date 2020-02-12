@@ -94,7 +94,7 @@ class AnimationTreePlayerEditor : public Control {
     CustomPropertyEditor *property_editor;
 
     AnimationTreePlayer *anim_tree;
-    ListPOD<StringName> order;
+    List<StringName> order;
     Set<StringName> active_nodes;
 
     int last_x, last_y;

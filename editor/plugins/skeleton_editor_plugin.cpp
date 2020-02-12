@@ -65,7 +65,7 @@ void SkeletonEditor::create_physical_skeleton() {
         return;
     }
 
-    PODVector<BoneInfo> bones_infos;
+    Vector<BoneInfo> bones_infos;
     bones_infos.resize(bc);
 
     for (int bone_id = 0; bc > bone_id; ++bone_id) {
@@ -107,7 +107,7 @@ void SkeletonEditor::create_physical_skeleton() {
     }
 }
 
-PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_id, const PODVector<SkeletonEditor::BoneInfo> &bones_infos) {
+PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_id, const Vector<SkeletonEditor::BoneInfo> &bones_infos) {
 
     real_t half_height(skeleton->get_bone_rest(bone_child_id).origin.length() * 0.5);
     real_t radius(half_height * 0.2);

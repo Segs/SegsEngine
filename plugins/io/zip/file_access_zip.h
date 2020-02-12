@@ -54,7 +54,7 @@ private:
         String filename;
 		unzFile zfile;
 	};
-	PODVector<Package> packages;
+	Vector<Package> packages;
 
     Map<String, File> files;
 

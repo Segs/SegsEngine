@@ -126,7 +126,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
         pinfo.geometry = A;
         pinfo.L = geom->lighting.push_back(B);
 
-        List<InstanceLightData::PairInfo>::Element *E = light->geometries.push_back(pinfo);
+        ListOld<InstanceLightData::PairInfo>::Element *E = light->geometries.push_back(pinfo);
 
         if (geom->can_cast_shadows) {
 
@@ -144,7 +144,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
         pinfo.geometry = A;
         pinfo.L = geom->reflection_probes.push_back(B);
 
-        List<InstanceReflectionProbeData::PairInfo>::Element *E = reflection_probe->geometries.push_back(pinfo);
+        ListOld<InstanceReflectionProbeData::PairInfo>::Element *E = reflection_probe->geometries.push_back(pinfo);
 
         geom->reflection_dirty = true;
 
@@ -158,7 +158,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
         pinfo.geometry = A;
         pinfo.L = geom->lightmap_captures.push_back(B);
 
-        List<InstanceLightmapCaptureData::PairInfo>::Element *E = lightmap_capture->geometries.push_back(pinfo);
+        ListOld<InstanceLightmapCaptureData::PairInfo>::Element *E = lightmap_capture->geometries.push_back(pinfo);
         ((VisualServerScene *)p_self)->_instance_queue_update(A, false, false); //need to update capture
 
         return E; //this element should make freeing faster
@@ -171,7 +171,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
         pinfo.geometry = A;
         pinfo.L = geom->gi_probes.push_back(B);
 
-        List<InstanceGIProbeData::PairInfo>::Element *E = gi_probe->geometries.push_back(pinfo);
+        ListOld<InstanceGIProbeData::PairInfo>::Element *E = gi_probe->geometries.push_back(pinfo);
 
         geom->gi_probes_dirty = true;
 
@@ -202,7 +202,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceLightData *light = static_cast<InstanceLightData *>(B->base_data);
         InstanceGeometryData *geom = static_cast<InstanceGeometryData *>(A->base_data);
 
-        List<InstanceLightData::PairInfo>::Element *E = reinterpret_cast<List<InstanceLightData::PairInfo>::Element *>(udata);
+        ListOld<InstanceLightData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceLightData::PairInfo>::Element *>(udata);
 
         geom->lighting.erase(E->deref().L);
         light->geometries.erase(E);
@@ -217,7 +217,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(B->base_data);
         InstanceGeometryData *geom = static_cast<InstanceGeometryData *>(A->base_data);
 
-        List<InstanceReflectionProbeData::PairInfo>::Element *E = reinterpret_cast<List<InstanceReflectionProbeData::PairInfo>::Element *>(udata);
+        ListOld<InstanceReflectionProbeData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceReflectionProbeData::PairInfo>::Element *>(udata);
 
         geom->reflection_probes.erase(E->deref().L);
         reflection_probe->geometries.erase(E);
@@ -228,7 +228,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(B->base_data);
         InstanceGeometryData *geom = static_cast<InstanceGeometryData *>(A->base_data);
 
-        List<InstanceLightmapCaptureData::PairInfo>::Element *E = reinterpret_cast<List<InstanceLightmapCaptureData::PairInfo>::Element *>(udata);
+        ListOld<InstanceLightmapCaptureData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceLightmapCaptureData::PairInfo>::Element *>(udata);
 
         geom->lightmap_captures.erase(E->deref().L);
         lightmap_capture->geometries.erase(E);
@@ -239,7 +239,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
         InstanceGeometryData *geom = static_cast<InstanceGeometryData *>(A->base_data);
 
-        List<InstanceGIProbeData::PairInfo>::Element *E = reinterpret_cast<List<InstanceGIProbeData::PairInfo>::Element *>(udata);
+        ListOld<InstanceGIProbeData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceGIProbeData::PairInfo>::Element *>(udata);
 
         geom->gi_probes.erase(E->deref().L);
         gi_probe->geometries.erase(E);
@@ -780,9 +780,9 @@ void VisualServerScene::instance_set_extra_visibility_margin(RID p_instance, rea
     _instance_queue_update(instance, true, false);
 }
 
-PODVector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID p_scenario) const {
+Vector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, RID p_scenario) const {
 
-    PODVector<ObjectID> instances;
+    Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
     ERR_FAIL_COND_V(!scenario, instances);
 
@@ -805,9 +805,9 @@ PODVector<ObjectID> VisualServerScene::instances_cull_aabb(const AABB &p_aabb, R
 
     return instances;
 }
-PODVector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario) const {
+Vector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario) const {
 
-    PODVector<ObjectID> instances;
+    Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
     ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
@@ -827,9 +827,9 @@ PODVector<ObjectID> VisualServerScene::instances_cull_ray(const Vector3 &p_from,
 
     return instances;
 }
-PODVector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RID p_scenario) const {
+Vector<ObjectID> VisualServerScene::instances_cull_convex(Span<const Plane> p_convex, RID p_scenario) const {
 
-    PODVector<ObjectID> instances;
+    Vector<ObjectID> instances;
     Scenario *scenario = scenario_owner.get(p_scenario);
     ERR_FAIL_COND_V(!scenario, instances);
     const_cast<VisualServerScene *>(this)->update_dirty_instances(); // check dirty instances before culling
@@ -937,7 +937,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
         //make sure lights are updated if it casts shadow
 
         if (geom->can_cast_shadows) {
-            for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
+            for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
                 InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
                 light->shadow_dirty = true;
             }
@@ -1284,7 +1284,7 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
         new (&p_instance->lightmap_capture_data.data()[i]) Color;
 
     //this could use some sort of blending..
-    for (List<Instance *>::Element *E = geom->lightmap_captures.front(); E; E = E->next()) {
+    for (ListOld<Instance *>::Element *E = geom->lightmap_captures.front(); E; E = E->next()) {
         const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(E->deref()->base);
         //print_line("octree size: " + itos(octree->size()));
         if (octree->size() == 0)
@@ -1977,7 +1977,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 //only called when lights AABB enter/exit this geometry
                 ins->light_instances.resize(geom->lighting.size());
                 auto l_wr(ins->light_instances.write());
-                for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
+                for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
 
                     InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
 
@@ -1992,7 +1992,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->reflection_probe_instances.resize(geom->reflection_probes.size());
                 auto wr(ins->reflection_probe_instances.write());
-                for (List<Instance *>::Element *E = geom->reflection_probes.front(); E; E = E->next()) {
+                for (ListOld<Instance *>::Element *E = geom->reflection_probes.front(); E; E = E->next()) {
 
                     InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->deref()->base_data);
 
@@ -2008,7 +2008,7 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 ins->gi_probe_instances.resize(geom->gi_probes.size());
                 auto wr(ins->gi_probe_instances.write());
 
-                for (List<Instance *>::Element *E = geom->gi_probes.front(); E; E = E->next()) {
+                for (ListOld<Instance *>::Element *E = geom->gi_probes.front(); E; E = E->next()) {
 
                     InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->deref()->base_data);
 
@@ -2282,7 +2282,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
     return false;
 }
 
-void VisualServerScene::_gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, PODVector<uint32_t> *prev_cell) {
+void VisualServerScene::_gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell) {
 
     if ((uint32_t)p_level == p_header->cell_subdiv - 1) {
 
@@ -3441,7 +3441,7 @@ void VisualServerScene::_update_dirty_instance(Instance *p_instance) {
 
             if (can_cast_shadows != geom->can_cast_shadows) {
                 //ability to cast shadows change, let lights now
-                for (List<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
+                for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
                     InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
                     light->shadow_dirty = true;
                 }

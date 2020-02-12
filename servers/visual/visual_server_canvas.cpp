@@ -490,7 +490,7 @@ void VisualServerCanvas::canvas_item_add_line(RID p_item, const Point2 &p_from, 
     canvas_item->commands.push_back(line);
 }
 
-void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PODVector<Point2> &p_points, const PODVector<Color> &p_colors, float p_width, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const Vector<Point2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND(p_points.size() < 2);
     Item *canvas_item = canvas_item_owner.getornull(p_item);
@@ -575,7 +575,7 @@ void VisualServerCanvas::canvas_item_add_polyline(RID p_item, const PODVector<Po
     canvas_item->commands.push_back(pline);
 }
 
-void VisualServerCanvas::canvas_item_add_multiline(RID p_item, const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width, bool p_antialiased) {
+void VisualServerCanvas::canvas_item_add_multiline(RID p_item, const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width, bool p_antialiased) {
 
     ERR_FAIL_COND(p_points.size() < 2);
     Item *canvas_item = canvas_item_owner.getornull(p_item);
@@ -734,7 +734,7 @@ void VisualServerCanvas::canvas_item_add_nine_patch(RID p_item, const Rect2 &p_r
 
     canvas_item->commands.push_back(style);
 }
-void VisualServerCanvas::canvas_item_add_primitive(RID p_item, const PODVector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width, RID p_normal_map) {
+void VisualServerCanvas::canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width, RID p_normal_map) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item);
@@ -764,7 +764,7 @@ void VisualServerCanvas::canvas_item_add_polygon(RID p_item, Span<const Point2> 
     ERR_FAIL_COND(color_size != 0 && color_size != 1 && color_size != pointcount);
     ERR_FAIL_COND(uv_size != 0 && (uv_size != pointcount));
 #endif
-    PODVector<int> indices = Geometry::triangulate_polygon(p_points);
+    Vector<int> indices = Geometry::triangulate_polygon(p_points);
     ERR_FAIL_COND_MSG(indices.empty(), "Invalid polygon data, triangulation failed."); 
 
     Item::CommandPolygon *polygon = memnew(Item::CommandPolygon);
@@ -1273,7 +1273,7 @@ void VisualServerCanvas::canvas_occluder_polygon_set_shape(RID p_occluder_polygo
         return;
     }
 
-    PODVector<Vector2> lines;
+    Vector<Vector2> lines;
     const int lc = p_shape.size() * 2;
     const int max = (lc / 2) - (p_closed ? 0 : 1);
 

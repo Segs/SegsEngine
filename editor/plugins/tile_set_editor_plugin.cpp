@@ -113,7 +113,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
             phys_offset += -s / 2;
         }
 
-        PODVector<TileSet::ShapeData> collisions;
+        Vector<TileSet::ShapeData> collisions;
         Ref<NavigationPolygon> nav_poly;
         Ref<OccluderPolygon2D> occluder;
         bool found_collisions = false;
@@ -135,7 +135,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
 
             StaticBody2D *sb = object_cast<StaticBody2D>(child2);
 
-            PODVector<uint32_t> shapes;
+            Vector<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
 
             for (uint32_t E : shapes) {
@@ -218,7 +218,7 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
 
     if (UIString(d["type"]) == "files") {
 
-        PODVector<String> files(d["files"].as<PODVector<String>>());
+        Vector<String> files(d["files"].as<Vector<String>>());
 
         if (files.empty())
             return false;
@@ -635,7 +635,7 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     texture_dialog->set_access(EditorFileDialog::ACCESS_RESOURCES);
     texture_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILES);
     texture_dialog->clear_filters();
-    PODVector<String> extensions;
+    Vector<String> extensions;
 
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
     for (const String &ext : extensions) {
@@ -692,7 +692,7 @@ void TileSetEditor::_on_tileset_toolbar_confirm() {
     switch (option) {
         case TOOL_TILESET_REMOVE_TEXTURE: {
             RID current_rid = get_current_texture()->get_rid();
-            PODVector<int> ids;
+            Vector<int> ids;
             tileset->get_tile_list(&ids);
 
             undo_redo->create_action_ui(TTR("Remove Texture"));
@@ -715,7 +715,7 @@ void TileSetEditor::_on_tileset_toolbar_confirm() {
             if (!scene)
                 break;
 
-            PODVector<int> ids;
+            Vector<int> ids;
             tileset->get_tile_list(&ids);
 
             undo_redo->create_action_ui(TTR(option == TOOL_TILESET_MERGE_SCENE ? "Merge Tileset from Scene" : "Create Tileset from Scene"));
@@ -1038,7 +1038,7 @@ void TileSetEditor::_on_workspace_draw() {
             case EDITMODE_PRIORITY: {
                 spin_priority->set_value(tileset->autotile_get_subtile_priority(get_current_tile(), edited_shape_coord));
                 uint32_t mask = tileset->autotile_get_bitmask(get_current_tile(), edited_shape_coord);
-                PODVector<Vector2> queue_others;
+                Vector<Vector2> queue_others;
                 int total = 0;
                 for (eastl::pair<Vector2, uint32_t> E : tileset->autotile_get_bitmask_map(get_current_tile())) {
                     if (E.second == mask) {
@@ -1061,7 +1061,7 @@ void TileSetEditor::_on_workspace_draw() {
     }
 
     RID current_texture_rid = get_current_texture()->get_rid();
-    PODVector<int> tiles;
+    Vector<int> tiles;
     tileset->get_tile_list(&tiles);
     for (int t_id : tiles) {
         if (tileset->tile_get_texture(t_id)->get_rid() == current_texture_rid && (t_id != get_current_tile() || edit_mode != EDITMODE_REGION || workspace_mode != WORKSPACE_EDIT)) {
@@ -1147,7 +1147,7 @@ void TileSetEditor::_on_workspace_overlay_draw() {
 
     if (tile_names_visible) {
         RID current_texture_rid = get_current_texture()->get_rid();
-        PODVector<int> tiles;
+        Vector<int> tiles;
         tileset->get_tile_list(&tiles);
         for (int t_id : tiles) {
             if (tileset->tile_get_texture(t_id)->get_rid() != current_texture_rid)
@@ -1230,7 +1230,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
     if (mb) {
         if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && !creating_shape) {
             if (!current_tile_region.has_point(mb->get_position())) {
-                PODVector<int> tiles;
+                Vector<int> tiles;
                 tileset->get_tile_list(&tiles);
                 for (int t_id : tiles) {
                     if (get_current_texture()->get_rid() == tileset->tile_get_texture(t_id)->get_rid()) {
@@ -1586,7 +1586,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                                     if (dragging_point >= 0) {
                                         dragging_point = -1;
 
-                                        PODVector<Vector2> points;
+                                        Vector<Vector2> points;
                                         points.reserve(current_shape.size());
                                         for (int i = 0; i < current_shape.size(); i++) {
                                             Vector2 p = current_shape[i];
@@ -1628,7 +1628,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                                         dragging_point = -1;
 
                                         PoolVector<Vector2> polygon;
-                                        PODVector<int> indices;
+                                        Vector<int> indices;
                                         polygon.resize(current_shape.size());
                                         PoolVector<Vector2>::Write w = polygon.write();
 
@@ -1937,29 +1937,29 @@ void TileSetEditor::_on_grid_snap_toggled(bool p_val) {
     workspace->update();
 }
 
-PODVector<Vector2> TileSetEditor::_get_collision_shape_points(const Ref<Shape2D> &p_shape) {
+Vector<Vector2> TileSetEditor::_get_collision_shape_points(const Ref<Shape2D> &p_shape) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(p_shape);
     Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(p_shape);
     if (convex) {
         auto span=convex->get_points();
-        return PODVector<Vector2>(span.begin(),span.end());
+        return Vector<Vector2>(span.begin(),span.end());
     } else if (concave) {
-        PODVector<Vector2> points;
+        Vector<Vector2> points;
         points.reserve(concave->get_segments().size()/2);
         for (int i = 0; i < concave->get_segments().size(); i += 2) {
             points.push_back(concave->get_segments()[i]);
         }
         return points;
     } else {
-        return PODVector<Vector2>();
+        return Vector<Vector2>();
     }
 }
 
-PODVector<Vector2> TileSetEditor::_get_edited_shape_points() {
+Vector<Vector2> TileSetEditor::_get_edited_shape_points() {
     return _get_collision_shape_points(edited_collision_shape);
 }
 
-void TileSetEditor::_set_edited_shape_points(const PODVector<Vector2> &points) {
+void TileSetEditor::_set_edited_shape_points(const Vector<Vector2> &points) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(edited_collision_shape);
     Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(edited_collision_shape);
     if (convex) {
@@ -1986,7 +1986,7 @@ void TileSetEditor::_update_tile_data() {
     if (get_current_tile() < 0)
         return;
 
-    const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(get_current_tile());
+    const Vector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(get_current_tile());
     if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::SINGLE_TILE) {
         SubtileData data;
         for (int i = 0; i < sd.size(); i++) {
@@ -2113,7 +2113,7 @@ void TileSetEditor::_select_previous_tile() {
 
 Array TileSetEditor::_get_tiles_in_current_texture(bool sorted) {
     Array a;
-    PODVector<int> all_tiles;
+    Vector<int> all_tiles;
     if (not get_current_texture()) {
         return a;
     }
@@ -2433,7 +2433,7 @@ void TileSetEditor::draw_highlight_current_tile() {
     }
 }
 
-void TileSetEditor::draw_highlight_subtile(Vector2 coord, const PODVector<Vector2> &other_highlighted) {
+void TileSetEditor::draw_highlight_subtile(Vector2 coord, const Vector<Vector2> &other_highlighted) {
 
     Color shadow_color = Color(0.3f, 0.3f, 0.3f, 0.3f);
     Vector2 size = tileset->autotile_get_size(get_current_tile());
@@ -2591,7 +2591,7 @@ void TileSetEditor::draw_polygon_shapes() {
 
     switch (edit_mode) {
         case EDITMODE_COLLISION: {
-            const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(t_id);
+            const Vector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(t_id);
             for (int i = 0; i < sd.size(); i++) {
                 Vector2 coord = Vector2(0, 0);
                 Vector2 anchor = Vector2(0, 0);
@@ -2629,7 +2629,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_border = Color(0.9f, 0.45f, 0.075f);
                         }
                     }
-                    PODVector<Vector2> polygon;
+                    Vector<Vector2> polygon;
                     PoolVector<Color> colors;
                     if (!creating_shape && shape == edited_collision_shape && current_shape.size() > 2) {
                         for (int j = 0; j < current_shape.size(); j++) {
@@ -2669,7 +2669,7 @@ void TileSetEditor::draw_polygon_shapes() {
                     Color c_bg = Color(0, 1, 1, 0.5);
                     Color c_border = Color(0, 1, 1);
 
-                    PODVector<Vector2> polygon;
+                    Vector<Vector2> polygon;
                     PoolVector<Color> colors;
                     Vector2 anchor = WORKSPACE_MARGIN;
                     anchor += tileset->tile_get_region(get_current_tile()).position;
@@ -2720,7 +2720,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_bg = Color(0.9f, 0.7f, 0.07f, 0.5);
                             c_border = Color(0.9f, 0.7f, 0.07f, 1);
                         }
-                        PODVector<Vector2> polygon;
+                        Vector<Vector2> polygon;
                         PoolVector<Color> colors;
                         if (!creating_shape && shape == edited_occlusion_shape && current_shape.size() > 2) {
                             for (int j = 0; j < current_shape.size(); j++) {
@@ -2758,7 +2758,7 @@ void TileSetEditor::draw_polygon_shapes() {
                     Color c_bg = Color(0, 1, 1, 0.5);
                     Color c_border = Color(0, 1, 1);
 
-                    PODVector<Vector2> polygon;
+                    Vector<Vector2> polygon;
                     PoolVector<Color> colors;
                     Vector2 anchor = WORKSPACE_MARGIN;
                     anchor += tileset->tile_get_region(get_current_tile()).position;
@@ -2808,7 +2808,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             c_bg = Color(0.9f, 0.7f, 0.07f, 0.5);
                             c_border = Color(0.9f, 0.7f, 0.07f, 1);
                         }
-                        PODVector<Vector2> polygon;
+                        Vector<Vector2> polygon;
                         PoolVector<Color> colors;
                         if (!creating_shape && shape == edited_navigation_shape && current_shape.size() > 2) {
                             for (int j = 0; j < current_shape.size(); j++) {
@@ -2860,7 +2860,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
         if (current_shape.size() >= 3) {
             Ref<ConvexPolygonShape2D> shape(make_ref_counted<ConvexPolygonShape2D>());
 
-            PODVector<Vector2> points;
+            Vector<Vector2> points;
             float p_total = 0;
 
             for (int i = 0; i < current_shape.size(); i++) {
@@ -2903,7 +2903,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
     } else if (edit_mode == EDITMODE_OCCLUSION) {
         Ref<OccluderPolygon2D> shape(make_ref_counted<OccluderPolygon2D>());
 
-        PODVector<Vector2> polygon;
+        Vector<Vector2> polygon;
         polygon.resize(current_shape.size());
 
         for (int i = 0; i < current_shape.size(); i++) {
@@ -2926,8 +2926,8 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
     } else if (edit_mode == EDITMODE_NAVIGATION) {
         Ref<NavigationPolygon> shape(make_ref_counted<NavigationPolygon>());
 
-        PODVector<Vector2> polygon;
-        PODVector<int> indices;
+        Vector<Vector2> polygon;
+        Vector<int> indices;
         polygon.reserve(current_shape.size());
         indices.reserve(current_shape.size());
 
@@ -2988,7 +2988,7 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
             current_shape.resize(0);
             if (edited_navigation_shape) {
                 if (edited_navigation_shape->get_polygon_count() > 0) {
-                    const PODVector<Vector2> &vertices = edited_navigation_shape->get_vertices();
+                    const Vector<Vector2> &vertices = edited_navigation_shape->get_vertices();
                     for (int i = 0; i < edited_navigation_shape->get_polygon(0).size(); i++) {
                         current_shape.push_back(vertices[edited_navigation_shape->get_polygon(0)[i]] + current_tile_region.position);
                     }
@@ -2996,7 +2996,7 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
             }
         }
     } else {
-        const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(get_current_tile());
+        const Vector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(get_current_tile());
         bool found_collision_shape = false;
         for (int i = 0; i < sd.size(); i++) {
             if (sd[i].autotile_coord == coord) {
@@ -3106,9 +3106,9 @@ void TileSetEditor::update_texture_list() {
 
     helper->set_tileset(tileset);
 
-    PODVector<int> ids;
+    Vector<int> ids;
     tileset->get_tile_list(&ids);
-    PODVector<int> ids_to_remove;
+    Vector<int> ids_to_remove;
     for (int E : ids) {
         // Clear tiles referencing gone textures (user has been already given the chance to fix broken deps)
         if (not tileset->tile_get_texture(E)) {
@@ -3249,7 +3249,7 @@ void TileSetEditor::update_workspace_tile_mode() {
 void TileSetEditor::update_workspace_minsize() {
     Size2 workspace_min_size = get_current_texture()->get_size();
     RID current_texture_rid = get_current_texture()->get_rid();
-    PODVector<int> tiles;
+    Vector<int> tiles;
     tileset->get_tile_list(&tiles);
     for (int E : tiles) {
         if (tileset->tile_get_texture(E)->get_rid() != current_texture_rid) {
@@ -3369,7 +3369,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         tileset->set_script(p_value);
         return true;
     } else if (name == "selected_collision_one_way"_sv) {
-        const PODVector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const Vector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 tileset->tile_set_shape_one_way(tileset_editor->get_current_tile(), index, p_value);
@@ -3378,7 +3378,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         }
         return false;
     } else if (name == "selected_collision_one_way_margin"_sv) {
-        const PODVector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const Vector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 tileset->tile_set_shape_one_way_margin(tileset_editor->get_current_tile(), index, p_value);
@@ -3429,7 +3429,7 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
         r_ret = tileset_editor->edited_collision_shape;
         v = true;
     } else if (name == "selected_collision_one_way"_sv) {
-        const PODVector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const Vector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 r_ret = sd[index].one_way_collision;
@@ -3438,7 +3438,7 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
             }
         }
     } else if (name == "selected_collision_one_way_margin"_sv) {
-        const PODVector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
+        const Vector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
                 r_ret = sd[index].one_way_collision_margin;
@@ -3459,7 +3459,7 @@ bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const 
     return v;
 }
 
-void TilesetEditorContext::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void TilesetEditorContext::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     if (snap_options_visible) {
         p_list->push_back(PropertyInfo(VariantType::NIL, "Snap Options", PropertyHint::None, "options_", PROPERTY_USAGE_GROUP));

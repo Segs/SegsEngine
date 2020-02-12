@@ -128,7 +128,7 @@ class OS_X11 : public OS_Unix {
 
     struct {
         int opcode;
-        PODVector<int> touch_devices;
+        Vector<int> touch_devices;
         Map<int, Vector2> absolute_devices;
         Map<int, Vector3> pen_devices;
         XIEventMask all_event_mask;
@@ -168,7 +168,7 @@ class OS_X11 : public OS_Unix {
     Cursor cursors[CURSOR_MAX];
     Cursor null_cursor;
     CursorShape current_cursor;
-    Map<CursorShape, PODVector<Variant> > cursors_cache;
+    Map<CursorShape, Vector<Variant> > cursors_cache;
 
     InputDefault *input;
 
@@ -252,7 +252,7 @@ public:
 
     void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
     VideoMode get_video_mode(int p_screen = 0) const override;
-    void get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen = 0) const override;
+    void get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen = 0) const override;
 
     int get_screen_count() const override;
     int get_current_screen() const override;

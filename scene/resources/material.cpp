@@ -184,7 +184,7 @@ bool ShaderMaterial::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void ShaderMaterial::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void ShaderMaterial::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     if (shader) {
         shader->get_param_list(p_list);
@@ -272,7 +272,7 @@ void ShaderMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shader", PropertyHint::ResourceType, "Shader"), "set_shader", "get_shader");
 }
 
-void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -284,7 +284,7 @@ void ShaderMaterial::get_argument_options(const StringName &p_function, int p_id
     if ((f == se_string_view("get_shader_param") || f == se_string_view("set_shader_param")) && p_idx == 0) {
 
         if (shader) {
-            PODVector<PropertyInfo> pl;
+            Vector<PropertyInfo> pl;
             shader->get_param_list(&pl);
             for (const PropertyInfo &E : pl) {
                 r_options->push_back(quote_style + StringUtils::replace_first(E.name,"shader_param/", "") + quote_style);

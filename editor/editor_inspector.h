@@ -91,7 +91,7 @@ private:
 
     float split_ratio;
 
-    PODVector<Control *> focusables;
+    Vector<Control *> focusables;
     Control *label_reference;
     Control *bottom_editor;
 
@@ -174,11 +174,11 @@ class EditorInspectorPlugin : public RefCounted {
     friend class EditorInspector;
     struct AddedEditor {
         Control *property_editor;
-        PODVector<String> properties;
+        Vector<String> properties;
         String label;
     };
 
-    PODVector<AddedEditor> added_editors;
+    Vector<AddedEditor> added_editors;
 
 protected:
     static void _bind_methods();
@@ -186,7 +186,7 @@ protected:
 public:
     void add_custom_control(Control *control);
     void add_property_editor(se_string_view p_for_property, Control *p_prop);
-    void add_property_editor_for_multiple_properties(se_string_view p_label, const PODVector<String> &p_properties, Control *p_prop);
+    void add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<String> &p_properties, Control *p_prop);
 
     virtual bool can_handle(Object *p_object);
     virtual void parse_begin(Object *p_object);
@@ -262,8 +262,8 @@ class EditorInspector : public ScrollContainer {
     VBoxContainer *main_vbox;
 
     //map use to cache the instanced editors
-    Map<StringName, PODVector<EditorProperty *> > editor_property_map;
-    PODVector<EditorInspectorSection *> sections;
+    Map<StringName, Vector<EditorProperty *> > editor_property_map;
+    Vector<EditorInspectorSection *> sections;
     Set<StringName> pending;
 
     void _clear();
@@ -305,7 +305,7 @@ class EditorInspector : public ScrollContainer {
 
     void _property_changed(se_string_view p_path, const Variant &p_value, se_string_view p_name = se_string_view(), bool changing = false);
     void _property_changed_update_all(se_string_view p_path, const Variant &p_value, se_string_view p_name = {}, bool p_changing = false);
-    void _multiple_properties_changed(const PODVector<String> &p_paths, Array p_values);
+    void _multiple_properties_changed(const Vector<String> &p_paths, Array p_values);
     void _property_keyed(const StringName &p_path, bool p_advance);
     void _property_keyed_with_value(se_string_view p_path, const Variant &p_value, bool p_advance);
 

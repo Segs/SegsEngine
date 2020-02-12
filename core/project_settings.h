@@ -80,14 +80,14 @@ protected:
     Map<StringName, PropertyInfo> custom_prop_info;
     bool disable_feature_overrides;
     bool using_datapack;
-    ListPOD<String> input_presets;
+    List<String> input_presets;
 
     Set<String> custom_features;
     Map<StringName, StringName> feature_overrides;
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static ProjectSettings *singleton;
 public:
@@ -95,8 +95,8 @@ public:
     Error _load_settings_binary(se_string_view p_path);
     Error _load_settings_text_or_binary(se_string_view p_text_path, se_string_view p_bin_path);
 
-    Error _save_settings_text(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
-    Error _save_settings_binary(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_text(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_binary(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
 
     Error _save_custom_bnd(se_string_view p_file);
 
@@ -137,14 +137,14 @@ public:
 
     Error setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards = false);
 
-    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const PODVector<String> &p_custom_features = {}, bool p_merge_with_current = true);
+    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const Vector<String> &p_custom_features = {}, bool p_merge_with_current = true);
     Error save();
     void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
     const Map<StringName, PropertyInfo> &get_custom_property_info() const;
 
-    PODVector<String> get_optimizer_presets() const;
+    Vector<String> get_optimizer_presets() const;
 
-    const ListPOD<String> &get_input_presets() const { return input_presets; }
+    const List<String> &get_input_presets() const { return input_presets; }
 
     void set_disable_feature_overrides(bool p_disable);
 

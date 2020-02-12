@@ -78,7 +78,7 @@ bool ResourceFormatSaver::recognize(const Ref<Resource> &p_resource) const {
     return p_resource && p_resource->is_class("ImageTexture");
 }
 
-void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, PODVector<String> &p_extensions) const {
+void ResourceFormatSaver::get_recognized_extensions(const Ref<Resource> &p_resource, Vector<String> &p_extensions) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
         PoolVector<String> exts = get_script_instance()->call("get_recognized_extensions", p_resource).as<PoolVector<String>>();
@@ -120,7 +120,7 @@ Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t
         if (!s->recognize(p_resource))
             continue;
 
-        PODVector<String> extensions;
+        Vector<String> extensions;
         bool recognized = false;
         s->get_recognized_extensions(p_resource, extensions);
 
@@ -171,7 +171,7 @@ void ResourceSaver::set_save_callback(ResourceSavedCallback p_callback) {
     save_callback = p_callback;
 }
 
-void ResourceSaver::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) {
+void ResourceSaver::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) {
 
     for (const Ref<ResourceFormatSaver> & s : saver) {
 
@@ -246,7 +246,7 @@ void ResourceSaver::add_custom_savers() {
 
     StringName custom_saver_base_class(ResourceFormatSaver::get_class_static_name());
 
-    PODVector<StringName> global_classes;
+    Vector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
     for (const StringName &class_name : global_classes) {
@@ -262,7 +262,7 @@ void ResourceSaver::add_custom_savers() {
 
 void ResourceSaver::remove_custom_savers() {
 
-    PODVector<Ref<ResourceFormatSaver> > custom_savers;
+    Vector<Ref<ResourceFormatSaver> > custom_savers;
     for (const Ref<ResourceFormatSaver> & s : saver) {
         if (s->get_script_instance()) {
             custom_savers.push_back(s);

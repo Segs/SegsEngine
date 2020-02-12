@@ -85,7 +85,7 @@ private:
         }
     };
 
-    PODVector<Cell> bake_cells;
+    Vector<Cell> bake_cells;
     int cell_subdiv;
 
     struct Light {
@@ -107,12 +107,12 @@ private:
 
     int first_leaf;
 
-    PODVector<Light> bake_light;
+    Vector<Light> bake_light;
 
     struct MaterialCache {
         //128x128 textures
-        PODVector<Color> albedo;
-        PODVector<Color> emission;
+        Vector<Color> albedo;
+        Vector<Color> emission;
     };
 
     Map<Ref<Material>, MaterialCache> material_cache;
@@ -138,7 +138,7 @@ private:
 
     void _init_light_plot(int p_idx, int p_level, int p_x, int p_y, int p_z, uint32_t p_parent);
 
-    PODVector<Color> _get_bake_texture(Ref<Image> p_image, const Color &p_color_mul, const Color &p_color_add);
+    Vector<Color> _get_bake_texture(Ref<Image> p_image, const Color &p_color_mul, const Color &p_color_add);
     const VoxelLightBaker::MaterialCache &_get_material_cache(const Ref<Material> &p_material);
 
     void _plot_face(int p_idx, int p_level, int p_x, int p_y, int p_z, const Vector3 *p_vtx, const Vector3 *p_normal, const Vector2 *p_uv, const MaterialCache &p_material, const AABB &p_aabb);
@@ -165,7 +165,7 @@ private:
 
 public:
     void begin_bake(int p_subdiv, const AABB &p_bounds);
-    void plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const PODVector<Ref<Material>> &p_materials, const Ref<Material> &p_override_material);
+    void plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const Vector<Ref<Material>> &p_materials, const Ref<Material> &p_override_material);
     void begin_bake_light(BakeQuality p_quality = BAKE_QUALITY_MEDIUM, BakeMode p_bake_mode = BAKE_MODE_CONE_TRACE, float p_propagation = 0.85, float p_energy = 1);
     void plot_light_directional(const Vector3 &p_direction, const Color &p_color, float p_energy, float p_indirect_energy, bool p_direct);
     void plot_light_omni(const Vector3 &p_pos, const Color &p_color, float p_energy, float p_indirect_energy, float p_radius, float p_attenutation, bool p_direct);

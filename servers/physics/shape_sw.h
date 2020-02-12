@@ -269,7 +269,7 @@ struct ConvexPolygonShapeSW : public ShapeSW {
 
     Geometry::MeshData mesh;
 
-    void _setup(const PODVector<Vector3> &p_vertices);
+    void _setup(const Vector<Vector3> &p_vertices);
 
 public:
     const Geometry::MeshData &get_mesh() const { return mesh; }

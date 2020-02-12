@@ -288,8 +288,8 @@ EditorPlugin *EditorData::get_subeditor(Object *p_object) {
     return nullptr;
 }
 
-PODVector<EditorPlugin *> EditorData::get_subeditors(Object *p_object) {
-    PODVector<EditorPlugin *> sub_plugins;
+Vector<EditorPlugin *> EditorData::get_subeditors(Object *p_object) {
+    Vector<EditorPlugin *> sub_plugins;
     for (int i = 0; i < editor_plugins.size(); i++) {
         if (!editor_plugins[i]->has_main_screen() && editor_plugins[i]->handles(p_object)) {
             sub_plugins.push_back(editor_plugins[i]);
@@ -313,7 +313,7 @@ void EditorData::copy_object_params(Object *p_object) {
 
     clipboard.clear();
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     p_object->get_property_list(&pinfo);
 
     for (const PropertyInfo &E : pinfo) {
@@ -328,7 +328,7 @@ void EditorData::copy_object_params(Object *p_object) {
     }
 }
 
-void EditorData::get_editor_breakpoints(PODVector<String> *p_breakpoints) {
+void EditorData::get_editor_breakpoints(Vector<String> *p_breakpoints) {
 
     for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -358,7 +358,7 @@ Dictionary EditorData::get_scene_editor_states(int p_idx) const {
 
 void EditorData::set_editor_states(const Dictionary &p_states) {
 
-    PODVector<Variant> keys(p_states.get_key_list());
+    Vector<Variant> keys(p_states.get_key_list());
 
     for (const Variant & k : keys) {
 
@@ -501,7 +501,7 @@ Object *EditorData::instance_custom_type(const StringName &p_type, const StringN
         return nullptr;
     }
 
-    const PODVector<CustomType> &ct(get_custom_types().at(p_inherits));
+    const Vector<CustomType> &ct(get_custom_types().at(p_inherits));
     for (int i = 0; i < get_custom_types().at(p_inherits).size(); i++) {
         if (ct[i].name == p_type) {
             Ref<Script> script = ct[i].script;
@@ -521,7 +521,7 @@ Object *EditorData::instance_custom_type(const StringName &p_type, const StringN
 
 void EditorData::remove_custom_type(const StringName &p_type) {
 
-    for (eastl::pair<const StringName,PODVector<CustomType> > &E : custom_types) {
+    for (eastl::pair<const StringName,Vector<CustomType> > &E : custom_types) {
 
         for (int i = 0; i < E.second.size(); i++) {
             if (E.second[i].name == p_type) {
@@ -644,7 +644,7 @@ bool EditorData::check_and_update_scene(int p_idx) {
         ERR_FAIL_COND_V(!new_scene, false);
 
         //transfer selection
-        PODVector<Node *> new_selection;
+        Vector<Node *> new_selection;
         for (Node * E : edited_scene[p_idx].selection) {
             NodePath p = edited_scene[p_idx].root->get_path_to(E);
             Node *new_node = new_scene->get_node(p);
@@ -702,7 +702,7 @@ int EditorData::get_edited_scene_count() const {
     return edited_scene.size();
 }
 
-const PODVector<EditorData::EditedScene> &EditorData::get_edited_scenes() const {
+const Vector<EditorData::EditedScene> &EditorData::get_edited_scenes() const {
     return edited_scene;
 }
 
@@ -965,7 +965,7 @@ void EditorData::script_class_load_icon_paths() {
 
     if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
         Dictionary d = ProjectSettings::get_singleton()->get("_global_script_class_icons");
-        PODVector<Variant> keys(d.get_key_list());
+        Vector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
             StringName name(E.as<String>());
@@ -1129,7 +1129,7 @@ void EditorSelection::_emit_change() {
     emitted = false;
 }
 //! \note This method only returns nodes with common parent.
-const PODVector<Node *> &EditorSelection::get_selected_node_list() {
+const Vector<Node *> &EditorSelection::get_selected_node_list() {
 
     if (changed)
         update();
@@ -1137,9 +1137,9 @@ const PODVector<Node *> &EditorSelection::get_selected_node_list() {
         _update_nl();
     return selected_node_list;
 }
-PODVector<Node *> EditorSelection::get_full_selected_node_list() {
+Vector<Node *> EditorSelection::get_full_selected_node_list() {
 
-    PODVector<Node *> node_list;
+    Vector<Node *> node_list;
     node_list.reserve(selection.size());
 
     for (const auto &E : selection) {

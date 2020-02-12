@@ -51,7 +51,7 @@ public:
 private:
     friend class Main;
 
-    PODVector<Singleton> singletons;
+    Vector<Singleton> singletons;
     Map<StringName, Object *> singleton_ptrs;
     uint64_t frames_drawn=0;
     uint64_t _frame_ticks=0;
@@ -104,7 +104,7 @@ public:
     uint32_t get_frame_delay() const;
 
     void add_singleton(const Singleton &p_singleton);
-    const PODVector<Singleton> &get_singletons() { return singletons; }
+    const Vector<Singleton> &get_singletons() { return singletons; }
     bool has_singleton(const StringName &p_name) const;
     Object *get_singleton_object(const StringName &p_name) const;
 

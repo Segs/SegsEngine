@@ -43,19 +43,19 @@ public:
 
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName & p_option, const Map<StringName, Variant> &p_options) const override;
     StringName get_option_group_file() const override;
 
     Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
-            PODVector<String> *r_platform_variants, PODVector<String> *r_gen_files = nullptr,
+            Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
     Error import_group_file(se_string_view p_group_file,
             const Map<String, Map<StringName, Variant>> &p_source_file_options,

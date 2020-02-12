@@ -361,7 +361,7 @@ void AnimationPlayerEditor::_animation_load() {
     ERR_FAIL_COND(!player);
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     file->clear_filters();
-    PODVector<String> extensions;
+    Vector<String> extensions;
 
     ResourceLoader::get_recognized_extensions_for_type("Animation", extensions);
     for (const String &E : extensions) {
@@ -405,7 +405,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
 
     file->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceSaver::get_recognized_extensions(p_resource, extensions);
     file->clear_filters();
     for (size_t i = 0; i < extensions.size(); i++) {
@@ -596,7 +596,7 @@ void AnimationPlayerEditor::_animation_blend() {
     blend_editor.tree->set_column_min_width(0, 10);
     blend_editor.tree->set_column_min_width(1, 3);
 
-    PODVector<StringName> anims(player->get_animation_list());
+    Vector<StringName> anims(player->get_animation_list());
     TreeItem *root = blend_editor.tree->create_item();
     updating_blends = true;
 
@@ -828,7 +828,7 @@ void AnimationPlayerEditor::_update_animation() {
 void AnimationPlayerEditor::_update_player() {
 
     updating = true;
-    PODVector<StringName> animlist;
+    Vector<StringName> animlist;
     if (player)
         animlist = player->get_animation_list();
 
@@ -988,7 +988,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
         return;
 
     Ref<Animation> new_anim(make_ref_counted<Animation>());
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     anim->get_property_list(&plist);
     for(const PropertyInfo & E : plist) {
 

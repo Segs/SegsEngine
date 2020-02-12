@@ -105,7 +105,7 @@ private:
     static const char *tk_name[TK_MAX];
 
     template <class T>
-    static Error _parse_construct(VariantParserStream *p_stream, PODVector<T> &r_construct, int &line, String &r_err_str);
+    static Error _parse_construct(VariantParserStream *p_stream, Vector<T> &r_construct, int &line, String &r_err_str);
 
     static Error _parse_dictionary(Dictionary &object, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
     static Error _parse_array(Array &array, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);

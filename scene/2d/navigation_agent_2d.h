@@ -57,7 +57,7 @@ class NavigationAgent2D : public Node {
     real_t path_max_distance;
 
     Vector2 target_location;
-    PODVector<Vector2> navigation_path;
+    Vector<Vector2> navigation_path;
     int nav_path_index;
     bool velocity_submitted;
     Vector2 prev_safe_velocity;
@@ -126,7 +126,7 @@ public:
 
     Vector2 get_next_location();
 
-    const PODVector<Vector2> &get_nav_path() const {
+    const Vector<Vector2> &get_nav_path() const {
         return navigation_path;
     }
 

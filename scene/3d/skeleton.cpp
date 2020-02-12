@@ -154,7 +154,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 
     return true;
 }
-void Skeleton::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void Skeleton::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < bones.size(); i++) {
 
@@ -505,7 +505,7 @@ void Skeleton::unbind_child_node_from_bone(int p_bone, Node *p_node) {
     uint32_t id = p_node->get_instance_id();
     bones[p_bone].nodes_bound.erase_first(id);
 }
-void Skeleton::get_bound_child_nodes_to_bone(int p_bone, PODVector<Node *> *p_bound) const {
+void Skeleton::get_bound_child_nodes_to_bone(int p_bone, Vector<Node *> *p_bound) const {
 
     ERR_FAIL_INDEX(p_bone, bones.size());
 
@@ -665,7 +665,7 @@ void Skeleton::physical_bones_stop_simulation() {
     _pb_stop_simulation(this);
 }
 
-void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const PODVector<int> &p_sim_bones) {
+void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const Vector<int> &p_sim_bones) {
 
     for (int i = p_node->get_child_count() - 1; 0 <= i; --i) {
         _pb_start_simulation(p_skeleton, p_node->get_child(i), p_sim_bones);
@@ -692,7 +692,7 @@ void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const PODVec
 
 void Skeleton::physical_bones_start_simulation_on(const Array &p_bones) {
 
-    PODVector<int> sim_bones;
+    Vector<int> sim_bones;
     if (p_bones.empty()) {
         sim_bones.push_back(0); // if no bones is specified, activate ragdoll on full body
     } else {

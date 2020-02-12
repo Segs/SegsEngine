@@ -249,7 +249,7 @@ Error ImageLoaderTinyEXR::load_image(ImageData &p_image, FileAccess *f, LoadPara
     return OK;
 }
 
-void ImageLoaderTinyEXR::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ImageLoaderTinyEXR::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("exr");
 }
@@ -262,7 +262,7 @@ bool ImageLoaderTinyEXR::can_save(se_string_view extension)
     return se_string_view("exr")==extension;
 }
 
-Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
+Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params)
 {
     auto err = save_exr(tgt,p_image,params.p_greyscale);
     return err;
@@ -270,7 +270,7 @@ Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, PODVector<uint8_t
 
 Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PODVector<uint8_t> tgt;
+    Vector<uint8_t> tgt;
     auto err = save_exr(tgt,p_image,params.p_greyscale);
 
     if(err!=OK)

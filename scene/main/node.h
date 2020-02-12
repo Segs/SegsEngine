@@ -228,7 +228,7 @@ public:
     Node *get_node_or_null(const NodePath &p_path) const;
     Node *find_node(se_string_view p_mask, bool p_recursive = true, bool p_owned = true) const;
     bool has_node_and_resource(const NodePath &p_path) const;
-    Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, PODVector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
+    Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
 
     Node *get_parent() const;
     Node *find_parent(se_string_view p_mask) const;
@@ -257,7 +257,7 @@ public:
         bool persistent;
     };
 
-    void get_groups(PODVector<GroupInfo> *p_groups) const;
+    void get_groups(Vector<GroupInfo> *p_groups) const;
     int get_persistent_group_count() const;
 
     void move_child(Node *p_child, int p_pos);
@@ -265,7 +265,7 @@ public:
 
     void set_owner(Node *p_owner);
     Node *get_owner() const;
-    void get_owned_by(Node *p_by, PODVector<Node *> *p_owned);
+    void get_owned_by(Node *p_by, Vector<Node *> *p_owned);
 
     void remove_and_skip();
     int get_index() const;
@@ -335,7 +335,7 @@ public:
     void set_scene_instance_load_placeholder(bool p_enable);
     bool get_scene_instance_load_placeholder() const;
 
-    static PODVector<Variant> make_binds(VARIANT_ARG_LIST);
+    static Vector<Variant> make_binds(VARIANT_ARG_LIST);
 
     void replace_by(Node *p_node, bool p_keep_data = false);
 
@@ -365,7 +365,7 @@ public:
 
     bool is_owned_by_parent() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     void clear_internal_tree_resource_paths();
 

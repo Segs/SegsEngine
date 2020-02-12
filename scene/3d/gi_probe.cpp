@@ -342,7 +342,7 @@ bool GIProbe::is_compressed() const {
     return compress;
 }
 
-void GIProbe::_find_meshes(Node *p_at_node, PODVector<GIProbe::PlotMesh> &plot_meshes) const {
+void GIProbe::_find_meshes(Node *p_at_node, Vector<GIProbe::PlotMesh> &plot_meshes) const {
 
     MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
@@ -412,7 +412,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
 
     baker.begin_bake(subdiv_value[subdiv], AABB(-extents, extents * 2.0));
 
-    PODVector<PlotMesh> mesh_list;
+    Vector<PlotMesh> mesh_list;
 
     _find_meshes(p_from_node ? p_from_node : get_parent(), mesh_list);
 
@@ -493,9 +493,9 @@ AABB GIProbe::get_aabb() const {
     return AABB(-extents, extents * 2);
 }
 
-PODVector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
 
-    return PODVector<Face3>();
+    return Vector<Face3>();
 }
 
 StringName GIProbe::get_configuration_warning() const {

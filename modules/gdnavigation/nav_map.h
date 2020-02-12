@@ -103,7 +103,7 @@ public:
 
     gd::PointKey get_point_key(const Vector3 &p_pos) const;
 
-    PODVector<Vector3> get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize) const;
+    Vector<Vector3> get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize) const;
 
     void add_region(NavRegion *p_region);
     void remove_region(NavRegion *p_region);
@@ -131,7 +131,7 @@ public:
 
 private:
     void compute_single_step(uint32_t index, RvoAgent **agent);
-    void clip_path(const PODVector<gd::NavigationPoly> &p_navigation_polys, PODVector<Vector3> &path, const gd::NavigationPoly *from_poly, const Vector3 &p_to_point, const gd::NavigationPoly *p_to_poly) const;
+    void clip_path(const Vector<gd::NavigationPoly> &p_navigation_polys, Vector<Vector3> &path, const gd::NavigationPoly *from_poly, const Vector3 &p_to_point, const gd::NavigationPoly *p_to_poly) const;
 };
 
 #endif // RVO_SPACE_H

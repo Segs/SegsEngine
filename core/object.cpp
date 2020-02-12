@@ -65,7 +65,7 @@ struct Object::Signal  {
 
     struct Slot {
         Connection conn;
-        ListPOD<Connection>::iterator cE=nullptr;
+        List<Connection>::iterator cE=nullptr;
         int reference_count=0;
     };
 
@@ -76,7 +76,7 @@ struct Object::Signal  {
 struct Object::ObjectPrivate {
     IObjectTooling *m_tooling;
     HashMap<StringName, Signal> signal_map;
-    ListPOD<Connection> connections;
+    List<Connection> connections;
 
 #ifdef DEBUG_ENABLED
     SafeRefCount _lock_index;
@@ -181,7 +181,7 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
     return pi;
 }
 
-Array convert_property_list(const PODVector<PropertyInfo> *p_list) {
+Array convert_property_list(const Vector<PropertyInfo> *p_list) {
 
     Array va;
     for (const PropertyInfo & pi : *p_list) {
@@ -298,7 +298,7 @@ Object::Connection::Connection(const Variant &p_variant) {
     if (d.has("flags"))
         flags = d["flags"];
     if (d.has("binds"))
-        binds = d["binds"].as<PODVector<Variant>>();
+        binds = d["binds"].as<Vector<Variant>>();
 }
 
 bool Object::_predelete() {
@@ -445,7 +445,7 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
     return ret;
 }
 
-void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
+void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
     if (p_names.empty()) {
         if (r_valid)
             *r_valid = false;
@@ -459,7 +459,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
     bool valid = false;
     if (!r_valid) r_valid = &valid;
 
-    PODVector<Variant> value_stack;
+    Vector<Variant> value_stack;
 
     value_stack.push_back(get(p_names[0], r_valid));
 
@@ -496,7 +496,7 @@ void Object::set_indexed(const PODVector<StringName> &p_names, const Variant &p_
     ERR_FAIL_COND(!value_stack.empty());
 }
 
-Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid) const {
+Variant Object::get_indexed(const Vector<StringName> &p_names, bool *r_valid) const {
     if (p_names.empty()) {
         if (r_valid)
             *r_valid = false;
@@ -517,7 +517,7 @@ Variant Object::get_indexed(const PODVector<StringName> &p_names, bool *r_valid)
     return current_value;
 }
 
-void Object::get_property_list(PODVector<PropertyInfo> *p_list, bool p_reversed) const {
+void Object::get_property_list(Vector<PropertyInfo> *p_list, bool p_reversed) const {
 
     if (script_instance && p_reversed) {
         p_list->push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));
@@ -542,7 +542,7 @@ void Object::get_property_list(PODVector<PropertyInfo> *p_list, bool p_reversed)
 void Object::_validate_property(PropertyInfo & /*property*/) const {
 }
 
-void Object::get_method_list(PODVector<MethodInfo> *p_list) const {
+void Object::get_method_list(Vector<MethodInfo> *p_list) const {
 
     ClassDB::get_method_list(get_class_name(), p_list);
     if (script_instance) {
@@ -940,14 +940,14 @@ void Object::remove_meta(se_string_view p_name) {
 
 Array Object::_get_property_list_bind() const {
 
-    PODVector<PropertyInfo> lpi;
+    Vector<PropertyInfo> lpi;
     get_property_list(&lpi);
     return convert_property_list(&lpi);
 }
 
 Array Object::_get_method_list_bind() const {
 
-    PODVector<MethodInfo> ml;
+    Vector<MethodInfo> ml;
     get_method_list(&ml);
     Array ret;
 
@@ -965,7 +965,7 @@ PoolStringArray Object::_get_meta_list_bind() const {
 
     PoolStringArray _metaret;
 
-    PODVector<Variant> keys(metadata.get_key_list());
+    Vector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
         _metaret.push_back(E.as<String>());
@@ -973,9 +973,9 @@ PoolStringArray Object::_get_meta_list_bind() const {
 
     return _metaret;
 }
-void Object::get_meta_list(ListPOD<String> *p_list) const {
+void Object::get_meta_list(List<String> *p_list) const {
 
-    PODVector<Variant> keys(metadata.get_key_list());
+    Vector<Variant> keys(metadata.get_key_list());
     for(const Variant &E : keys ) {
 
         p_list->push_back(E.as<String>());
@@ -1056,7 +1056,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         return ERR_UNAVAILABLE;
     }
 
-    List<_ObjectSignalDisconnectData> disconnect_data;
+    ListOld<_ObjectSignalDisconnectData> disconnect_data;
 
     //copy on write will ensure that disconnecting the signal or even deleting the object will not affect the signal calling.
     //this happens automatically and will not change the performance of calling.
@@ -1186,7 +1186,7 @@ void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
 }
 
 Array Object::_get_signal_list() const {
-    PODVector<MethodInfo> signal_list;
+    Vector<MethodInfo> signal_list;
     get_signal_list(&signal_list);
 
     Array ret;
@@ -1200,7 +1200,7 @@ Array Object::_get_signal_list() const {
 
 Array Object::_get_signal_connection_list(StringName p_signal) const {
 
-    ListPOD<Connection> conns;
+    List<Connection> conns;
     get_all_signal_connections(&conns);
 
     Array ret;
@@ -1238,7 +1238,7 @@ Array Object::_get_incoming_connections() const {
     return ret;
 }
 
-void Object::get_signal_list(PODVector<MethodInfo> *p_signals) const {
+void Object::get_signal_list(Vector<MethodInfo> *p_signals) const {
 
     if (!script.is_null()) {
         Ref<Script> scr = refFromRefPtr<Script>(script);
@@ -1260,7 +1260,7 @@ void Object::get_signal_list(PODVector<MethodInfo> *p_signals) const {
     }
 }
 
-void Object::get_all_signal_connections(ListPOD<Connection> *p_connections) const {
+void Object::get_all_signal_connections(List<Connection> *p_connections) const {
 
     const StringName *S = nullptr;
 
@@ -1275,7 +1275,7 @@ void Object::get_all_signal_connections(ListPOD<Connection> *p_connections) cons
     }
 }
 
-void Object::get_signal_connection_list(const StringName &p_signal, ListPOD<Connection> *p_connections) const {
+void Object::get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const {
 
     const Signal *s = private_data->signal_map.getptr(p_signal);
     if (!s)
@@ -1305,14 +1305,14 @@ int Object::get_persistent_signal_connection_count() const {
     return count;
 }
 
-void Object::get_signals_connected_to_this(ListPOD<Connection> *p_connections) const {
+void Object::get_signals_connected_to_this(List<Connection> *p_connections) const {
 
     for (const Connection &E : private_data->connections) {
         p_connections->emplace_back(E);
     }
 }
 
-Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const PODVector<Variant> &p_binds, uint32_t p_flags) {
+Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds, uint32_t p_flags) {
 
     ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER);
 
@@ -1500,7 +1500,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_var;
-            PODVector<Variant> keys(d.get_key_list());
+            Vector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {
 
@@ -1515,7 +1515,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
 
 void Object::clear_internal_resource_paths() {
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
 
     get_property_list(&pinfo);
 
@@ -1645,9 +1645,9 @@ bool Object::is_blocking_signals() const {
     return _block_signals;
 }
 
-void Object::get_translatable_strings(ListPOD<StringName> *p_strings) const {
+void Object::get_translatable_strings(List<StringName> *p_strings) const {
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     get_property_list(&plist);
 
     for(PropertyInfo &E : plist ) {
@@ -1683,7 +1683,7 @@ VariantType Object::get_static_property_type(const StringName &p_property, bool 
     return VariantType::NIL;
 }
 
-VariantType Object::get_static_property_type_indexed(const PODVector<StringName> &p_path, bool *r_valid) const {
+VariantType Object::get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid) const {
 
     if (p_path.size() == 0) {
         if (r_valid)
@@ -1867,7 +1867,7 @@ void ObjectDB::debug_objects(DebugFunc p_func) {
     rw_lock->read_unlock();
 }
 
-void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, ListPOD<String> * /*r_options*/) const {
+void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, List<String> * /*r_options*/) const {
 }
 
 int ObjectDB::get_object_count() {

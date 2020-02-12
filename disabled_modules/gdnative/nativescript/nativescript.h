@@ -171,7 +171,7 @@ public:
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
     void update_exports() override; //editor tool
-    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_script_method_list(Vector<MethodInfo> *p_list) const override;
     void get_script_property_list(ListPOD<PropertyInfo> *p_list) const override;
 
     String get_class_documentation() const;
@@ -204,7 +204,7 @@ public:
     bool get(const StringName &p_name, Variant &r_ret) const override;
     void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
-    void get_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void notification(int p_notification) override;
@@ -252,8 +252,8 @@ private:
 
     void call_libraries_cb(const StringName &name);
 
-    PODVector<Pair<bool, godot_instance_binding_functions> > binding_functions;
-    Set<PODVector<void *> *> binding_instances;
+    Vector<Pair<bool, godot_instance_binding_functions> > binding_functions;
+    Set<Vector<void *> *> binding_instances;
 
     Map<int, HashMap<StringName, const void *> > global_type_tags;
 
@@ -331,9 +331,9 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_stack_level_members(int p_level, PODVector<se_string_view> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_globals(PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) override;
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
@@ -386,7 +386,7 @@ public:
 class ResourceFormatLoaderNativeScript : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, const String &p_original_path = String(), Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(const String &p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
 };
@@ -394,5 +394,5 @@ public:
 class ResourceFormatSaverNativeScript : public ResourceFormatSaver {
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<String> *p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
 };

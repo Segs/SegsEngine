@@ -649,7 +649,7 @@ RES ResourceFormatPVR::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatPVR::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatPVR::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("pvr");
 }
@@ -686,7 +686,7 @@ Error ResourceFormatPVR::decompress_image(Image *p_image)
 {
     return _pvrtc_decompress(p_image);
 }
-void ResourceFormatPVR::fill_modes(PODVector<int> &tgt) const
+void ResourceFormatPVR::fill_modes(Vector<int> &tgt) const
 {
     tgt.push_back(ImageCompressMode::COMPRESS_PVRTC4);
     tgt.push_back(ImageCompressMode::COMPRESS_PVRTC2);

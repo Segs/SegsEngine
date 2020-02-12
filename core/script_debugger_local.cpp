@@ -122,22 +122,22 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
         } else if (line == "lv" || line == "locals") {
 
-            PODVector<String> locals;
-            PODVector<Variant> values;
+            Vector<String> locals;
+            Vector<Variant> values;
             p_script->debug_get_stack_level_locals(current_frame, &locals, &values);
             print_variables(locals, values, variable_prefix);
 
         } else if (line == "gv" || line == "globals") {
 
-            PODVector<String> globals;
-            PODVector<Variant> values;
+            Vector<String> globals;
+            Vector<Variant> values;
             p_script->debug_get_globals(&globals, &values);
             print_variables(globals, values, variable_prefix);
 
         } else if (line == "mv" || line == "members") {
 
-            PODVector<String> members;
-            PODVector<Variant> values;
+            Vector<String> members;
+            Vector<Variant> values;
             p_script->debug_get_stack_level_members(current_frame, &members, &values);
             print_variables(members, values, variable_prefix);
 
@@ -259,11 +259,11 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
     }
 }
 
-void ScriptDebuggerLocal::print_variables(const PODVector<String> &names, const PODVector<Variant> &values, se_string_view variable_prefix) {
+void ScriptDebuggerLocal::print_variables(const Vector<String> &names, const Vector<Variant> &values, se_string_view variable_prefix) {
 
     //ERR_FAIL_COND(names.size()!=values.size());
 
-    PODVector<se_string_view> value_lines;
+    Vector<se_string_view> value_lines;
 
     for(size_t idx=0,fin=values.size(); idx<fin; ++idx) {
         const String &E(names[idx]);
@@ -412,7 +412,7 @@ void ScriptDebuggerLocal::send_message(const String &p_message, const Array &p_a
     // print_line("MESSAGE: '" + p_message + "' - " + String(Variant(p_args)));
 }
 
-void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
 
     print_line(String("ERROR: '") + (p_descr.empty() ? p_err : p_descr) + "'");
 }

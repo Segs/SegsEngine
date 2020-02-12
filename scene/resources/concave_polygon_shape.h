@@ -43,7 +43,7 @@ protected:
     void _update_shape() override;
 
 public:
-    PODVector<Vector3> get_debug_mesh_lines() override;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
     void set_faces(const PoolVector<Vector3> &p_faces);
     PoolVector<Vector3> get_faces() const;

@@ -123,7 +123,7 @@ Error ImageLoaderJPG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
     return err;
 }
 
-void ImageLoaderJPG::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ImageLoaderJPG::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("jpg");
     p_extensions.push_back("jpeg");

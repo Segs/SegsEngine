@@ -35,7 +35,7 @@
 #include "EASTL/list.h"
 
 template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
+using List = eastl::list<T,wrap_allocator>;
 
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<class StringName,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<se_string_view,wrap_allocator>;
@@ -48,15 +48,16 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<se_strin
  * from the iterator.
  */
 
-template <class T, class A = DefaultAllocator>
-class List {
+template <class T>
+class ListOld {
+
     struct _Data;
 
 public:
     class Element {
 
     private:
-        friend class List<T, A>;
+        friend class ListOld<T>;
 
         T value;
         Element *next_ptr;
@@ -164,7 +165,7 @@ private:
             if (p_I->next_ptr)
                 p_I->next_ptr->prev_ptr = p_I->prev_ptr;
 
-            memdelete_allocator<Element, A>(const_cast<Element *>(p_I));
+            memdelete(const_cast<Element *>(p_I));
             size_cache--;
 
             return true;
@@ -214,13 +215,13 @@ public:
 
         if (!_data) {
 
-            _data = memnew_allocator(_Data, A);
+            _data = memnew(_Data);
             _data->first = nullptr;
             _data->last = nullptr;
             _data->size_cache = 0;
         }
 
-        Element *n = memnew_allocator(Element, A);
+        Element *n = memnew(Element);
         n->value = (T &)value;
 
         n->prev_ptr = _data->last;
@@ -278,7 +279,7 @@ public:
             bool ret = _data->erase(p_I);
 
             if (_data->size_cache == 0) {
-                memdelete_allocator<_Data, A>(_data);
+                memdelete(_data);
                 _data = nullptr;
             }
 
@@ -323,7 +324,7 @@ public:
     /**
      * copy the list
      */
-    List &operator=(const List &p_list) {
+    ListOld &operator=(const ListOld &p_list) {
 
         clear();
         const Element *it = p_list.front();
@@ -335,7 +336,7 @@ public:
         return *this;
     }
 
-    List &operator=(List &&p_list) {
+    ListOld &operator=(ListOld &&p_list) {
         if(this==&p_list)
             return *this;
         clear();
@@ -437,7 +438,7 @@ public:
     /**
      * copy constructor for the list
      */
-    List(const List &p_list) {
+    ListOld(const ListOld &p_list) {
 
         _data = nullptr;
         const Element *it = p_list.front();
@@ -447,19 +448,19 @@ public:
             it = it->next();
         }
     }
-    List(List &&p_list) noexcept {
+    ListOld(ListOld &&p_list) noexcept {
         _data = p_list._data;
         p_list._data = nullptr;
     }
-    List() {
+    ListOld() {
         _data = nullptr;
     }
-    ~List() {
+    ~ListOld() {
         clear();
         if (_data) {
 
             ERR_FAIL_COND(_data->size_cache);
-            memdelete_allocator<_Data, A>(_data);
+            memdelete(_data);
         }
     }
 };

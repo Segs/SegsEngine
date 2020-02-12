@@ -59,9 +59,9 @@ StringName AnimationNodeAnimation::get_animation() const {
     return animation;
 }
 
-PODVector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
+Vector<String> (*AnimationNodeAnimation::get_editable_animation_list)() = nullptr;
 
-void AnimationNodeAnimation::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeAnimation::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, time, PropertyHint::None, "", 0);
 }
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
@@ -69,7 +69,7 @@ void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
     if (se_string_view(property.name) != se_string_view("animation") || !get_editable_animation_list)
         return;
 
-    PODVector<String> names = get_editable_animation_list();
+    Vector<String> names = get_editable_animation_list();
     String anims;
     for (int i = 0; i < names.size(); i++) {
 
@@ -156,7 +156,7 @@ AnimationNodeAnimation::AnimationNodeAnimation() {
 
 ////////////////////////////////////////////////////////
 
-void AnimationNodeOneShot::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeOneShot::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::BOOL, active);
     r_list->emplace_back(VariantType::BOOL, prev_active, PropertyHint::None, "", 0);
     r_list->emplace_back(VariantType::REAL, time, PropertyHint::None, "", 0);
@@ -397,7 +397,7 @@ AnimationNodeOneShot::AnimationNodeOneShot() {
 
 ////////////////////////////////////////////////
 
-void AnimationNodeAdd2::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeAdd2::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, add_amount, PropertyHint::Range, "0,1,0.01");
 }
 Variant AnimationNodeAdd2::get_parameter_default_value(const StringName &p_parameter) const {
@@ -449,7 +449,7 @@ AnimationNodeAdd2::AnimationNodeAdd2() {
 
 ////////////////////////////////////////////////
 
-void AnimationNodeAdd3::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeAdd3::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, add_amount, PropertyHint::Range, "-1,1,0.01");
 }
 Variant AnimationNodeAdd3::get_parameter_default_value(const StringName &p_parameter) const {
@@ -502,7 +502,7 @@ AnimationNodeAdd3::AnimationNodeAdd3() {
 }
 /////////////////////////////////////////////
 
-void AnimationNodeBlend2::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeBlend2::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, blend_amount, PropertyHint::Range, "0,1,0.01");
 }
 Variant AnimationNodeBlend2::get_parameter_default_value(const StringName &p_parameter) const {
@@ -553,7 +553,7 @@ AnimationNodeBlend2::AnimationNodeBlend2() {
 
 //////////////////////////////////////
 
-void AnimationNodeBlend3::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeBlend3::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, blend_amount, PropertyHint::Range, "-1,1,0.01");
 }
 Variant AnimationNodeBlend3::get_parameter_default_value(const StringName &p_parameter) const {
@@ -601,7 +601,7 @@ AnimationNodeBlend3::AnimationNodeBlend3() {
 
 /////////////////////////////////
 
-void AnimationNodeTimeScale::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeTimeScale::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, scale, PropertyHint::Range, "0,32,0.01,or_greater");
 }
 Variant AnimationNodeTimeScale::get_parameter_default_value(const StringName &p_parameter) const {
@@ -631,7 +631,7 @@ AnimationNodeTimeScale::AnimationNodeTimeScale() {
 
 ////////////////////////////////////
 
-void AnimationNodeTimeSeek::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeTimeSeek::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, seek_pos, PropertyHint::Range, "-1,3600,0.01,or_greater");
 }
 Variant AnimationNodeTimeSeek::get_parameter_default_value(const StringName &p_parameter) const {
@@ -667,7 +667,7 @@ AnimationNodeTimeSeek::AnimationNodeTimeSeek() {
 
 /////////////////////////////////////////////////
 
-void AnimationNodeTransition::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeTransition::get_parameter_list(Vector<PropertyInfo> *r_list) const {
 
     String anims;
     for (int i = 0; i < enabled_inputs; i++) {
@@ -939,8 +939,8 @@ Vector2 AnimationNodeBlendTree::get_node_position(const StringName &p_node) cons
     return nodes.at(p_node).position;
 }
 
-void AnimationNodeBlendTree::get_child_nodes(List<ChildNode> *r_child_nodes) {
-    PODVector<StringName> ns;
+void AnimationNodeBlendTree::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+    Vector<StringName> ns;
 
     for (eastl::pair<const StringName,Node> &E : nodes) {
         ns.push_back(E.first);
@@ -959,7 +959,7 @@ bool AnimationNodeBlendTree::has_node(const StringName &p_name) const {
     return nodes.contains(p_name);
 }
 
-const PODVector<StringName> &AnimationNodeBlendTree::get_node_connection_array(const StringName &p_name) const {
+const Vector<StringName> &AnimationNodeBlendTree::get_node_connection_array(const StringName &p_name) const {
 
     ERR_FAIL_COND_V(!nodes.contains(p_name), g_null_stringname_vec);
     return nodes.at(p_name).connections;
@@ -1084,7 +1084,7 @@ AnimationNodeBlendTree::ConnectionError AnimationNodeBlendTree::can_connect_node
     return CONNECTION_OK;
 }
 
-void AnimationNodeBlendTree::get_node_connections(List<NodeConnection> *r_connections) const {
+void AnimationNodeBlendTree::get_node_connections(ListOld<NodeConnection> *r_connections) const {
 
     for (const eastl::pair<const StringName,Node> &E : nodes) {
         for (int i = 0; i < E.second.connections.size(); i++) {
@@ -1110,7 +1110,7 @@ float AnimationNodeBlendTree::process(float p_time, bool p_seek) {
     return _blend_node("output", nodes[SceneStringNames::get_singleton()->output].connections, this, output, p_time, p_seek, 1.0);
 }
 
-void AnimationNodeBlendTree::get_node_list(ListPOD<StringName> *r_list) {
+void AnimationNodeBlendTree::get_node_list(List<StringName> *r_list) {
 
     for (eastl::pair<const StringName,Node> &E : nodes) {
         r_list->push_back(E.first);
@@ -1189,13 +1189,13 @@ bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) cons
             }
         }
     } else if (p_name == "node_connections") {
-        List<NodeConnection> nc;
+        ListOld<NodeConnection> nc;
         get_node_connections(&nc);
         Array conns;
         conns.resize(nc.size() * 3);
 
         int idx = 0;
-        for (List<NodeConnection>::Element *E = nc.front(); E; E = E->next()) {
+        for (ListOld<NodeConnection>::Element *E = nc.front(); E; E = E->next()) {
             conns[idx * 3 + 0] = E->deref().input_node;
             conns[idx * 3 + 1] = E->deref().input_index;
             conns[idx * 3 + 2] = E->deref().output_node;
@@ -1208,9 +1208,9 @@ bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) cons
 
     return false;
 }
-void AnimationNodeBlendTree::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AnimationNodeBlendTree::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    PODVector<StringName> names;
+    Vector<StringName> names;
     names.reserve(nodes.size());
     for (const eastl::pair<const StringName,Node> &E : nodes) {
         names.push_back(E.first);

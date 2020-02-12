@@ -49,14 +49,14 @@ public:
 protected:
     Rect2 aabb;
     BuildMode build_mode;
-    PODVector<Point2> polygon;
+    Vector<Point2> polygon;
     uint32_t owner_id;
     CollisionObject2D *parent;
     bool disabled;
     bool one_way_collision;
     float one_way_collision_margin;
 
-    PODVector<PODVector<Vector2> > _decompose_in_convex();
+    Vector<Vector<Vector2> > _decompose_in_convex();
 
     void _build_polygon();
 
@@ -76,8 +76,8 @@ public:
     void set_build_mode(BuildMode p_mode);
     BuildMode get_build_mode() const;
 
-    void set_polygon(const PODVector<Point2> &p_polygon);
-    const PODVector<Point2> &get_polygon() const { return polygon; }
+    void set_polygon(const Vector<Point2> &p_polygon);
+    const Vector<Point2> &get_polygon() const { return polygon; }
     StringName get_configuration_warning() const override;
 
     void set_disabled(bool p_disabled);

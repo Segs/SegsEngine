@@ -34,6 +34,7 @@
 
 #include <oleauto.h>
 #include <wbemidl.h>
+#include "EASTL/sort.h"
 
 #ifndef __GNUC__
 #define __builtin_bswap32 _byteswap_ulong
@@ -143,7 +144,6 @@ bool JoypadWindows::is_xinput_device(const GUID *p_guid) {
 
 bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
 
-    HRESULT hr;
     int num = input->get_unused_joy_id();
 
     if (have_device(instance->guidInstance) || num == -1)
@@ -158,7 +158,7 @@ bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
         return false;
     }
 
-    hr = dinput->CreateDevice(instance->guidInstance, &joy->di_joy, nullptr);
+    HRESULT hr = dinput->CreateDevice(instance->guidInstance, &joy->di_joy, nullptr);
 
     if (FAILED(hr)) {
         return false;
@@ -176,7 +176,7 @@ bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
     joy->di_joy->SetDataFormat(&c_dfDIJoystick2);
     joy->di_joy->SetCooperativeLevel(*hWnd, DISCL_FOREGROUND);
     joy->di_joy->EnumObjects(objectsCallback, this, 0);
-    joy->joy_axis.sort();
+    eastl::sort(joy->joy_axis.begin(), joy->joy_axis.end());
 
     joy->guid = instance->guidInstance;
     input->joy_connection_changed(num, true, instance->tszProductName, uid);
@@ -190,53 +190,52 @@ bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
 
 void JoypadWindows::setup_joypad_object(const DIDEVICEOBJECTINSTANCE *ob, int p_joy_id) {
 
-    if (ob->dwType & DIDFT_AXIS) {
+    if (!(ob->dwType & DIDFT_AXIS))
+        return;
 
-        HRESULT res;
-        DIPROPRANGE prop_range;
-        DIPROPDWORD dilong;
-        DWORD ofs;
-        if (ob->guidType == GUID_XAxis)
-            ofs = DIJOFS_X;
-        else if (ob->guidType == GUID_YAxis)
-            ofs = DIJOFS_Y;
-        else if (ob->guidType == GUID_ZAxis)
-            ofs = DIJOFS_Z;
-        else if (ob->guidType == GUID_RxAxis)
-            ofs = DIJOFS_RX;
-        else if (ob->guidType == GUID_RyAxis)
-            ofs = DIJOFS_RY;
-        else if (ob->guidType == GUID_RzAxis)
-            ofs = DIJOFS_RZ;
-        else if (ob->guidType == GUID_Slider)
-            ofs = DIJOFS_SLIDER(0);
-        else
-            return;
-        prop_range.diph.dwSize = sizeof(DIPROPRANGE);
-        prop_range.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-        prop_range.diph.dwObj = ob->dwType;
-        prop_range.diph.dwHow = DIPH_BYID;
-        prop_range.lMin = -MAX_JOY_AXIS;
-        prop_range.lMax = +MAX_JOY_AXIS;
+    DIPROPRANGE prop_range;
+    DIPROPDWORD dilong;
+    DWORD ofs;
+    if (ob->guidType == GUID_XAxis)
+        ofs = DIJOFS_X;
+    else if (ob->guidType == GUID_YAxis)
+        ofs = DIJOFS_Y;
+    else if (ob->guidType == GUID_ZAxis)
+        ofs = DIJOFS_Z;
+    else if (ob->guidType == GUID_RxAxis)
+        ofs = DIJOFS_RX;
+    else if (ob->guidType == GUID_RyAxis)
+        ofs = DIJOFS_RY;
+    else if (ob->guidType == GUID_RzAxis)
+        ofs = DIJOFS_RZ;
+    else if (ob->guidType == GUID_Slider)
+        ofs = DIJOFS_SLIDER(0);
+    else
+        return;
+    prop_range.diph.dwSize = sizeof(DIPROPRANGE);
+    prop_range.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+    prop_range.diph.dwObj = ob->dwType;
+    prop_range.diph.dwHow = DIPH_BYID;
+    prop_range.lMin = -MAX_JOY_AXIS;
+    prop_range.lMax = +MAX_JOY_AXIS;
 
-        dinput_gamepad &joy = d_joypads[p_joy_id];
+    dinput_gamepad &joy = d_joypads[p_joy_id];
 
-        res = IDirectInputDevice8_SetProperty(joy.di_joy, DIPROP_RANGE, &prop_range.diph);
-        if (FAILED(res))
-            return;
+    HRESULT res = IDirectInputDevice8_SetProperty(joy.di_joy, DIPROP_RANGE, &prop_range.diph);
+    if (FAILED(res))
+        return;
 
-        dilong.diph.dwSize = sizeof(dilong);
-        dilong.diph.dwHeaderSize = sizeof(dilong.diph);
-        dilong.diph.dwObj = ob->dwType;
-        dilong.diph.dwHow = DIPH_BYID;
-        dilong.dwData = 0;
+    dilong.diph.dwSize = sizeof(dilong);
+    dilong.diph.dwHeaderSize = sizeof(dilong.diph);
+    dilong.diph.dwObj = ob->dwType;
+    dilong.diph.dwHow = DIPH_BYID;
+    dilong.dwData = 0;
 
-        res = IDirectInputDevice8_SetProperty(joy.di_joy, DIPROP_DEADZONE, &dilong.diph);
-        if (FAILED(res))
-            return;
+    res = IDirectInputDevice8_SetProperty(joy.di_joy, DIPROP_DEADZONE, &dilong.diph);
+    if (FAILED(res))
+        return;
 
-        joy.joy_axis.push_back(ofs);
-    }
+    joy.joy_axis.push_back(ofs);
 }
 
 BOOL CALLBACK JoypadWindows::enumCallback(const DIDEVICEINSTANCE *p_instance, void *p_context) {

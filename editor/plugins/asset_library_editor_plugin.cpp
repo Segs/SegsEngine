@@ -847,13 +847,13 @@ void EditorAssetLibrary::_update_image_queue() {
     const int max_images = 6;
     int current_images = 0;
 
-    PODVector<int> to_delete;
+    Vector<int> to_delete;
     for (eastl::pair<const int, ImageQueue> &E : image_queue) {
         if (!E.second.active && current_images < max_images) {
 
             String cache_filename_base = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),
                     "assetimage_" + StringUtils::md5_text(E.second.image_url));
-            PODVector<String> headers;
+            Vector<String> headers;
 
             if (FileAccess::exists(cache_filename_base + ".etag") && FileAccess::exists(cache_filename_base + ".data")) {
                 FileAccess *file = FileAccess::open(cache_filename_base + ".etag", FileAccess::READ);

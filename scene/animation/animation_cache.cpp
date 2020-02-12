@@ -134,7 +134,7 @@ void AnimationCache::_update_cache() {
             if (np.get_subname_count() > 0) {
 
                 RES res2;
-                PODVector<StringName> leftover_subpath;
+                Vector<StringName> leftover_subpath;
 
                 // We don't want to cache the last resource unless it is a method call
                 bool is_method = animation->track_get_type(i) == Animation::TYPE_METHOD;
@@ -268,10 +268,10 @@ void AnimationCache::set_all(float p_time, float p_delta) {
                     set_track_value(i, v);
                 } else {
 
-                    List<int> indices;
+                    ListOld<int> indices;
                     animation->value_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                    for (List<int>::Element *E = indices.front(); E; E = E->next()) {
+                    for (ListOld<int>::Element *E = indices.front(); E; E = E->next()) {
 
                         Variant v = animation->track_get_key_value(i, E->deref());
                         set_track_value(i, v);
@@ -281,12 +281,12 @@ void AnimationCache::set_all(float p_time, float p_delta) {
             } break;
             case Animation::TYPE_METHOD: {
 
-                List<int> indices;
+                ListOld<int> indices;
                 animation->method_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                for (List<int>::Element *E = indices.front(); E; E = E->next()) {
+                for (ListOld<int>::Element *E = indices.front(); E; E = E->next()) {
 
-                    const PODVector<Variant> &args = animation->method_track_get_params(i, E->deref());
+                    const Vector<Variant> &args = animation->method_track_get_params(i, E->deref());
                     StringName name = animation->method_track_get_name(i, E->deref());
                     Variant::CallError err;
 
@@ -295,7 +295,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
                         call_track(i, name, nullptr, 0, err);
                     } else {
 
-                        PODVector<const Variant *> argptrs;
+                        Vector<const Variant *> argptrs;
                         argptrs.resize(args.size());
                         for (int j = 0; j < args.size(); j++) {
 

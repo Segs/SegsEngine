@@ -92,9 +92,9 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void MeshInstance::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void MeshInstance::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    PODVector<StringName> ls;
+    Vector<StringName> ls;
     ls.reserve(blend_shape_tracks.size());
     for (const eastl::pair<const StringName,BlendShapeTrack> &E : blend_shape_tracks) {
 
@@ -212,13 +212,13 @@ AABB MeshInstance::get_aabb() const {
     return AABB();
 }
 
-PODVector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
 
     if (!(p_usage_flags & (FACES_SOLID | FACES_ENCLOSING)))
-        return PODVector<Face3>();
+        return Vector<Face3>();
 
     if (not mesh)
-        return PODVector<Face3>();
+        return Vector<Face3>();
 
     return mesh->get_faces();
 }
@@ -321,8 +321,8 @@ void MeshInstance::_mesh_changed() {
 
 void MeshInstance::create_debug_tangents() {
 
-    PODVector<Vector3> lines;
-    PODVector<Color> colors;
+    Vector<Vector3> lines;
+    Vector<Color> colors;
 
     Ref<Mesh> mesh = get_mesh();
     if (not mesh)

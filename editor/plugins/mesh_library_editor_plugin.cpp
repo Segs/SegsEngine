@@ -128,7 +128,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
                 continue;
 
             StaticBody *sb = object_cast<StaticBody>(child2);
-            PODVector<uint32_t> shapes;
+            Vector<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
 
             for (uint32_t E : shapes) {
@@ -176,9 +176,9 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
 
     if (true) {
 
-        PODVector<Ref<Mesh> > meshes;
-        PODVector<Transform> transforms;
-        PODVector<int> ids = p_library->get_item_list();
+        Vector<Ref<Mesh> > meshes;
+        Vector<Transform> transforms;
+        Vector<int> ids = p_library->get_item_list();
         for (int i = 0; i < ids.size(); i++) {
 
             if (mesh_instances.contains(ids[i])) {
@@ -188,7 +188,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
             }
         }
 
-        PODVector<Ref<Texture> > textures = EditorInterface::get_singleton()->make_mesh_previews(meshes, &transforms, EditorSettings::get_singleton()->get("editors/grid_map/preview_size"));
+        Vector<Ref<Texture> > textures = EditorInterface::get_singleton()->make_mesh_previews(meshes, &transforms, EditorSettings::get_singleton()->get("editors/grid_map/preview_size"));
         int j = 0;
         for (int i = 0; i < ids.size(); i++) {
 
@@ -265,7 +265,7 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
     file = memnew(EditorFileDialog);
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     //not for now?
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
     file->clear_filters();
     file->set_title(TTR("Import Scene"));

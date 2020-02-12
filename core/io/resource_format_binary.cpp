@@ -58,7 +58,7 @@ struct Property {
 struct ResourceData {
 
     String type;
-    ListPOD<Property> properties;
+    List<Property> properties;
 };
 enum {
 
@@ -286,8 +286,8 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 
         case VARIANT_NODE_PATH: {
 
-            PODVector<StringName> names;
-            PODVector<StringName> subnames;
+            Vector<StringName> names;
+            Vector<StringName> subnames;
             bool absolute;
 
             int name_count = f->get_16();
@@ -760,7 +760,7 @@ String ResourceInteractiveLoaderBinary::get_unicode_string() {
     return (&str_buf[0]);
 }
 
-void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, PODVector<String> &p_dependencies, bool p_add_types) {
+void ResourceInteractiveLoaderBinary::get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types) {
 
     open(p_f);
     if (error)
@@ -939,14 +939,14 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(se_s
     return ria;
 }
 
-void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const {
 
     if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
         return;
     }
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ClassDB::get_extensions_for_type(StringName(p_type), &extensions);
 
     eastl::sort(extensions.begin(),extensions.end());
@@ -956,9 +956,9 @@ void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(se_string_vi
         p_extensions.push_back(ext);
     }
 }
-void ResourceFormatLoaderBinary::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderBinary::get_recognized_extensions(Vector<String> &p_extensions) const {
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ClassDB::get_resource_base_extensions(extensions);
 
     eastl::sort(extensions.begin(),extensions.end());
@@ -974,7 +974,7 @@ bool ResourceFormatLoaderBinary::handles_type(se_string_view /*p_type*/) const {
     return true; //handles all
 }
 
-void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_MSG(!f, "Cannot open file '" + String(p_path) + "'.");
@@ -1447,7 +1447,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
             Dictionary d = p_property;
             f->store_32(uint32_t(d.size()));
 
-            PODVector<Variant> keys(d.get_key_list());
+            Vector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {
 
@@ -1591,7 +1591,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
             if (resource_set.contains(res))
                 return;
 
-            PODVector<PropertyInfo> property_list;
+            Vector<PropertyInfo> property_list;
 
             res->get_property_list(&property_list);
 
@@ -1636,7 +1636,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_variant;
-            PODVector<Variant> keys(d.get_key_list());
+            Vector<Variant> keys(d.get_key_list());
             for(Variant &E : keys ) {
 
                 _find_resources(E);
@@ -1740,7 +1740,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
     for (int i = 0; i < 14; i++)
         f->store_32(0); // reserved
 
-    PODVector<ResourceData> resources;
+    Vector<ResourceData> resources;
 
     {
 
@@ -1749,7 +1749,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
             ResourceData &rd = resources.emplace_back();
             rd.type = E->get_class();
 
-            PODVector<PropertyInfo> property_list;
+            Vector<PropertyInfo> property_list;
             E->get_property_list(&property_list);
 
             for(PropertyInfo &F : property_list ) {
@@ -1792,7 +1792,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
 
     // save external resource table
     f->store_32(external_resources.size()); //amount of external resources
-    PODVector<RES> save_order;
+    Vector<RES> save_order;
     save_order.resize(external_resources.size());
 
     for (const eastl::pair<const RES,int> &E : external_resources) {
@@ -1808,7 +1808,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
     }
     // save internal resource table
     f->store_32(saved_resources.size()); //amount of internal resources
-    PODVector<uint64_t> ofs_pos;
+    Vector<uint64_t> ofs_pos;
     ofs_pos.reserve(saved_resources.size());
 
     Set<int> used_indices;
@@ -1852,7 +1852,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
         f->store_64(0); //offset in 64 bits
     }
 
-    PODVector<uint64_t> ofs_table;
+    Vector<uint64_t> ofs_table;
     ofs_table.reserve(resources.size());
 
     //now actually save the resources
@@ -1902,7 +1902,7 @@ bool ResourceFormatSaverBinary::recognize(const RES &p_resource) const {
     return true; //all recognized
 }
 
-void ResourceFormatSaverBinary::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
+void ResourceFormatSaverBinary::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
     String base = StringUtils::to_lower(p_resource->get_base_extension());
     p_extensions.push_back(base);

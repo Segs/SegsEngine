@@ -96,7 +96,7 @@ class RenameDialog : public ConfirmationDialog {
     Label *lbl_preview_title;
     Label *lbl_preview;
 
-    PODVector<Pair<NodePath, StringName> > to_rename;
+    Vector<Pair<NodePath, StringName> > to_rename;
     Node *preview_node;
     bool lock_preview_update;
     ErrorHandlerList eh;

@@ -71,7 +71,7 @@ void SpriteBase3D::_propagate_color_changed() {
     color_dirty = true;
     _queue_update();
 
-    for (List<SpriteBase3D *>::Element *E = children.front(); E; E = E->next()) {
+    for (ListOld<SpriteBase3D *>::Element *E = children.front(); E; E = E->next()) {
 
         E->deref()->_propagate_color_changed();
     }
@@ -210,16 +210,16 @@ AABB SpriteBase3D::get_aabb() const {
 
     return aabb;
 }
-PODVector<Face3> SpriteBase3D::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> SpriteBase3D::get_faces(uint32_t p_usage_flags) const {
 
-    return PODVector<Face3>();
+    return Vector<Face3>();
 }
 
 Ref<TriangleMesh> SpriteBase3D::generate_triangle_mesh() const {
     if (triangle_mesh)
         return triangle_mesh;
 
-    PODVector<Vector3> faces;
+    Vector<Vector3> faces;
     faces.resize(6);
 
     Rect2 final_rect = get_item_rect();
@@ -866,13 +866,13 @@ void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {
     if (property.name == "animation") {
 
         property.hint = PropertyHint::Enum;
-        ListPOD<StringName> names;
+        List<StringName> names;
         frames->get_animation_list(&names);
         names.sort(WrapAlphaCompare());
 
         bool current_found = false;
 
-        for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
+        for (List<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
             if (E!=names.begin()) {
                 property.hint_string += ',';
             }

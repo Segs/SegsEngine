@@ -133,7 +133,7 @@ void TriangleMesh::get_indices(PoolVector<int> *r_triangles_indices) const {
     }
 }
 
-void TriangleMesh::create(const PODVector<Vector3> &p_faces) {
+void TriangleMesh::create(const Vector<Vector3> &p_faces) {
 
     valid = false;
 
@@ -743,12 +743,12 @@ bool TriangleMesh::is_valid() const {
     return valid;
 }
 
-PODVector<Face3> TriangleMesh::get_faces() const {
+Vector<Face3> TriangleMesh::get_faces() const {
 
     if (!valid)
-        return PODVector<Face3>();
+        return Vector<Face3>();
 
-    PODVector<Face3> faces;
+    Vector<Face3> faces;
     int ts = triangles.size();
     faces.resize(triangles.size());
 

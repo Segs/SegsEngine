@@ -133,8 +133,8 @@ protected:
 private:
     void mark_dirty();
 
-    PODVector<Point> _points;
-    PODVector<real_t> _baked_cache;
+    Vector<Point> _points;
+    Vector<real_t> _baked_cache;
     float _min_value;
     float _max_value;
     int _bake_resolution;
@@ -154,7 +154,7 @@ class GODOT_EXPORT Curve2D : public Resource {
         Vector2 pos;
     };
 
-    PODVector<Point> points;
+    Vector<Point> points;
 
     struct BakedPoint {
 
@@ -218,7 +218,7 @@ class GODOT_EXPORT Curve3D : public Resource {
         float tilt=0.0f;
     };
 
-    PODVector<Point> points;
+    Vector<Point> points;
 
     struct BakedPoint {
 

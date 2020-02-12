@@ -371,7 +371,7 @@ void RayCast::_update_debug_shape() {
     if (mesh->get_surface_count() > 0)
         mesh->surface_remove(0);
 
-    PODVector<Vector3> verts = {Vector3(0,0,0),cast_to};
+    Vector<Vector3> verts = {Vector3(0,0,0),cast_to};
     SurfaceArrays a(eastl::move(verts));
 
     mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(a));

@@ -119,7 +119,7 @@ private:
 
     RID static_global_body;
 
-    PODVector<Vector3> contact_debug;
+    Vector<Vector3> contact_debug;
     int contact_debug_count;
 
     friend class PhysicsDirectSpaceStateSW;
@@ -189,7 +189,7 @@ public:
     void add_debug_contact(const Vector3 &p_contact) {
         if (contact_debug_count < contact_debug.size()) contact_debug[contact_debug_count++] = p_contact;
     }
-    const PODVector<Vector3> &get_debug_contacts() { return contact_debug; }
+    const Vector<Vector3> &get_debug_contacts() { return contact_debug; }
     int get_debug_contact_count() { return contact_debug_count; }
 
     void set_static_global_body(RID p_body) { static_global_body = p_body; }

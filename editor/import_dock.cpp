@@ -44,9 +44,9 @@ class ImportDockParameters : public Object {
 
 public:
     Map<StringName, Variant> values;
-    PODVector<PropertyInfo> properties;
+    Vector<PropertyInfo> properties;
     ResourceImporterInterface *importer;
-    PODVector<String> paths;
+    Vector<String> paths;
     Set<StringName> checked;
     bool checking;
 
@@ -73,7 +73,7 @@ public:
 
         return false;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         for (const PropertyInfo &E : properties) {
             if (!importer->get_option_visibility(E.name, values))
@@ -121,9 +121,9 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
     _update_options(config);
 
-    PODVector<ResourceImporterInterface *> importers;
+    Vector<ResourceImporterInterface *> importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_path), &importers);
-    ListPOD<Pair<StringName, StringName> > importer_names;
+    List<Pair<StringName, StringName> > importer_names;
 
     for (size_t i=0,fin=importers.size(); i<fin; ++i) {
         importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
@@ -152,7 +152,7 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
 void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
 
-    ListPOD<ResourceImporter::ImportOption> options;
+    List<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -191,7 +191,7 @@ void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
     }
 }
 
-void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
+void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
     clear();
 
@@ -212,7 +212,7 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
             }
         }
 
-        PODVector<String> keys = config->get_section_keys("params");
+        Vector<String> keys = config->get_section_keys("params");
 
         for (const String &E : keys) {
 
@@ -232,7 +232,7 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
 
     ERR_FAIL_COND(params->importer==nullptr);
 
-    ListPOD<ResourceImporter::ImportOption> options;
+    List<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -248,7 +248,7 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
 
             Dictionary d = value_frequency[E.option.name.asCString()];
             int freq = 0;
-            PODVector<Variant> v(d.get_key_list());
+            Vector<Variant> v(d.get_key_list());
             Variant value;
             for (const Variant &F : v) {
                 int f = d[F];
@@ -265,9 +265,9 @@ void ImportDock::set_edit_multiple_paths(const PODVector<String> &p_paths) {
 
     params->update();
 
-    PODVector<ResourceImporterInterface * > importers;
+    Vector<ResourceImporterInterface * > importers;
     ResourceFormatImporter::get_singleton()->get_importers_for_extension(PathUtils::get_extension(p_paths[0]), &importers);
-    ListPOD<Pair<StringName, StringName> > importer_names;
+    List<Pair<StringName, StringName> > importer_names;
 
     for (int i=0,fin=importers.size(); i<fin; ++i) {
         importer_names.push_back(Pair<StringName, StringName>(importers[i]->get_visible_name(), importers[i]->get_importer_name()));
@@ -342,7 +342,7 @@ void ImportDock::_preset_selected(int p_idx) {
             ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults));
 
             Dictionary d = ProjectSettings::get_singleton()->get(importer_defaults);
-            PODVector<Variant> v(d.get_key_list());
+            Vector<Variant> v(d.get_key_list());
 
             for (const Variant &E : v) {
                 params->values[E] = d[E];
@@ -358,7 +358,7 @@ void ImportDock::_preset_selected(int p_idx) {
         } break;
         default: {
 
-            ListPOD<ResourceImporter::ImportOption> options;
+            List<ResourceImporter::ImportOption> options;
 
             params->importer->get_import_options(&options, p_idx);
 
@@ -399,7 +399,7 @@ static bool _find_owners(EditorFileSystemDirectory *efsd, se_string_view p_path)
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        const PODVector<String> &deps = efsd->get_file_deps(i);
+        const Vector<String> &deps = efsd->get_file_deps(i);
         if (deps.contains(String(p_path)))
             return true;
     }

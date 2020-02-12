@@ -56,8 +56,8 @@ struct NetworkedMultiplayerENet_Priv {
         int channel;
     };
     Dequeue<Packet> incoming_packets;
-    PODVector<uint8_t> src_compressor_mem;
-    PODVector<uint8_t> dst_compressor_mem;
+    Vector<uint8_t> src_compressor_mem;
+    Vector<uint8_t> dst_compressor_mem;
 
     Packet current_packet;
     ENetCompressor enet_compressor;

@@ -151,8 +151,8 @@ float VisualShaderNodeScalarConstant::get_constant() const {
     return constant;
 }
 
-PODVector<StringName> VisualShaderNodeScalarConstant::get_editable_properties() const {
-    PODVector<StringName> props {
+Vector<StringName> VisualShaderNodeScalarConstant::get_editable_properties() const {
+    Vector<StringName> props {
         StringName("constant")
     };
     return props;
@@ -213,8 +213,8 @@ bool VisualShaderNodeBooleanConstant::get_constant() const {
     return constant;
 }
 
-PODVector<StringName> VisualShaderNodeBooleanConstant::get_editable_properties() const {
-    PODVector<StringName> props {
+Vector<StringName> VisualShaderNodeBooleanConstant::get_editable_properties() const {
+    Vector<StringName> props {
         StringName("constant")
     };
     return props;
@@ -278,8 +278,8 @@ Color VisualShaderNodeColorConstant::get_constant() const {
     return constant;
 }
 
-PODVector<StringName> VisualShaderNodeColorConstant::get_editable_properties() const {
-    PODVector<StringName> props {
+Vector<StringName> VisualShaderNodeColorConstant::get_editable_properties() const {
+    Vector<StringName> props {
         StringName("constant")
     };
     return props;
@@ -338,8 +338,8 @@ Vector3 VisualShaderNodeVec3Constant::get_constant() const {
     return constant;
 }
 
-PODVector<StringName> VisualShaderNodeVec3Constant::get_editable_properties() const {
-    PODVector<StringName> props {
+Vector<StringName> VisualShaderNodeVec3Constant::get_editable_properties() const {
+    Vector<StringName> props {
         StringName("constant")
     };
     return props;
@@ -405,8 +405,8 @@ Transform VisualShaderNodeTransformConstant::get_constant() const {
     return constant;
 }
 
-PODVector<StringName> VisualShaderNodeTransformConstant::get_editable_properties() const {
-    PODVector<StringName> props {
+Vector<StringName> VisualShaderNodeTransformConstant::get_editable_properties() const {
+    Vector<StringName> props {
         StringName("constant")
     };
     return props;
@@ -484,12 +484,12 @@ static String make_unique_id(VisualShader::Type p_type, int p_id, const String &
     return p_name + "_" + (typepf[p_type]) + "_" + itos(p_id);
 }
 
-PODVector<VisualShader::DefaultTextureParam> VisualShaderNodeTexture::get_default_texture_parameters(
+Vector<VisualShader::DefaultTextureParam> VisualShaderNodeTexture::get_default_texture_parameters(
         VisualShader::Type p_type, int p_id) const {
     VisualShader::DefaultTextureParam dtp;
     dtp.name = StringName(make_unique_id(p_type, p_id, "tex"));
     dtp.param = texture;
-    PODVector<VisualShader::DefaultTextureParam> ret;
+    Vector<VisualShader::DefaultTextureParam> ret;
     ret.push_back(dtp);
     return ret;
 }
@@ -730,8 +730,8 @@ VisualShaderNodeTexture::TextureType VisualShaderNodeTexture::get_texture_type()
     return texture_type;
 }
 
-PODVector<StringName> VisualShaderNodeTexture::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeTexture::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("source")
     };
 
@@ -845,12 +845,12 @@ StringName VisualShaderNodeCubeMap::get_output_port_name(int p_port) const {
     return StringName(p_port == 0 ? "rgb" : "alpha");
 }
 
-PODVector<VisualShader::DefaultTextureParam> VisualShaderNodeCubeMap::get_default_texture_parameters(
+Vector<VisualShader::DefaultTextureParam> VisualShaderNodeCubeMap::get_default_texture_parameters(
         VisualShader::Type p_type, int p_id) const {
     VisualShader::DefaultTextureParam dtp;
     dtp.name = StringName(make_unique_id(p_type, p_id, ("cube")));
     dtp.param = cube_map;
-    PODVector<VisualShader::DefaultTextureParam> ret;
+    Vector<VisualShader::DefaultTextureParam> ret;
     ret.emplace_back(eastl::move(dtp));
     return ret;
 }
@@ -946,8 +946,8 @@ VisualShaderNodeCubeMap::TextureType VisualShaderNodeCubeMap::get_texture_type()
     return texture_type;
 }
 
-PODVector<StringName> VisualShaderNodeCubeMap::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeCubeMap::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("source")
     };
     if (source == SOURCE_TEXTURE) {
@@ -1040,8 +1040,8 @@ VisualShaderNodeScalarOp::Operator VisualShaderNodeScalarOp::get_operator() cons
     return op;
 }
 
-PODVector<StringName> VisualShaderNodeScalarOp::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeScalarOp::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("operator")
     };
     return props;
@@ -1131,8 +1131,8 @@ VisualShaderNodeVectorOp::Operator VisualShaderNodeVectorOp::get_operator() cons
     return op;
 }
 
-PODVector<StringName> VisualShaderNodeVectorOp::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeVectorOp::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("operator")
     };
     return props;
@@ -1312,8 +1312,8 @@ VisualShaderNodeColorOp::Operator VisualShaderNodeColorOp::get_operator() const 
     return op;
 }
 
-PODVector<StringName> VisualShaderNodeColorOp::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeColorOp::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("operator")
     };
     return props;
@@ -1393,8 +1393,8 @@ VisualShaderNodeTransformMult::Operator VisualShaderNodeTransformMult::get_opera
     return op;
 }
 
-PODVector<StringName> VisualShaderNodeTransformMult::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeTransformMult::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("operator")
     };
     return props;
@@ -1468,8 +1468,8 @@ VisualShaderNodeTransformVecMult::Operator VisualShaderNodeTransformVecMult::get
     return op;
 }
 
-PODVector<StringName> VisualShaderNodeTransformVecMult::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeTransformVecMult::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("operator")
     };
     return props;
@@ -1571,8 +1571,8 @@ VisualShaderNodeScalarFunc::Function VisualShaderNodeScalarFunc::get_function() 
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeScalarFunc::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeScalarFunc::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("function")
     };
     return props;
@@ -1735,8 +1735,8 @@ VisualShaderNodeVectorFunc::Function VisualShaderNodeVectorFunc::get_function() 
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeVectorFunc::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeVectorFunc::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("function")
     };
     return props;
@@ -1860,8 +1860,8 @@ VisualShaderNodeColorFunc::Function VisualShaderNodeColorFunc::get_function() co
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeColorFunc::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeColorFunc::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("function")
     };
     return props;
@@ -1937,8 +1937,8 @@ VisualShaderNodeTransformFunc::Function VisualShaderNodeTransformFunc::get_funct
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeTransformFunc::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeTransformFunc::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("function")
     };
     return props;
@@ -2121,8 +2121,8 @@ VisualShaderNodeScalarDerivativeFunc::Function VisualShaderNodeScalarDerivativeF
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeScalarDerivativeFunc::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeScalarDerivativeFunc::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("function")
     };
     return props;
@@ -2199,8 +2199,8 @@ VisualShaderNodeVectorDerivativeFunc::Function VisualShaderNodeVectorDerivativeF
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeVectorDerivativeFunc::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeVectorDerivativeFunc::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("function")
     };
     return props;
@@ -3111,8 +3111,8 @@ void VisualShaderNodeScalarUniform::_bind_methods() {
     BIND_ENUM_CONSTANT(HINT_RANGE_STEP);
 }
 
-PODVector<StringName> VisualShaderNodeScalarUniform::get_editable_properties() const {
-    PODVector<StringName> props;
+Vector<StringName> VisualShaderNodeScalarUniform::get_editable_properties() const {
+    Vector<StringName> props;
     props.emplace_back("hint");
     if (hint == HINT_RANGE || hint == HINT_RANGE_STEP) {
         props.emplace_back("min");
@@ -3388,8 +3388,8 @@ VisualShaderNodeTextureUniform::ColorDefault VisualShaderNodeTextureUniform::get
     return color_default;
 }
 
-PODVector<StringName> VisualShaderNodeTextureUniform::get_editable_properties() const {
-    PODVector<StringName> props{
+Vector<StringName> VisualShaderNodeTextureUniform::get_editable_properties() const {
+    Vector<StringName> props{
         StringName("texture_type"),
         StringName("color_default"),
     };
@@ -3893,9 +3893,9 @@ VisualShaderNodeIs::Function VisualShaderNodeIs::get_function() const {
     return func;
 }
 
-PODVector<StringName> VisualShaderNodeIs::get_editable_properties() const {
+Vector<StringName> VisualShaderNodeIs::get_editable_properties() const {
 
-    PODVector<StringName> props {
+    Vector<StringName> props {
         StringName("function")
     };
     
@@ -4104,8 +4104,8 @@ VisualShaderNodeCompare::Condition VisualShaderNodeCompare::get_condition() cons
     return condition;
 }
 
-PODVector<StringName> VisualShaderNodeCompare::get_editable_properties() const {
-    PODVector<StringName> props {
+Vector<StringName> VisualShaderNodeCompare::get_editable_properties() const {
+    Vector<StringName> props {
         StringName("type"),
         StringName("function")
     };

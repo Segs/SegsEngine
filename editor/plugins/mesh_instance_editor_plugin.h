@@ -64,7 +64,7 @@ class MeshInstanceEditor : public Control {
 
     AcceptDialog *debug_uv_dialog;
     Control *debug_uv;
-    PODVector<Vector2> uv_lines;
+    Vector<Vector2> uv_lines;
 
     void _menu_option(int p_option);
     void _create_outline_mesh();

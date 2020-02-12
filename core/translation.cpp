@@ -882,7 +882,7 @@ void Translation::erase_message(const StringName &p_src_text) {
     translation_map.erase(p_src_text);
 }
 
-void Translation::get_message_list(ListPOD<StringName> *r_messages) const {
+void Translation::get_message_list(List<StringName> *r_messages) const {
 
     for (const eastl::pair<const StringName,StringName> &E : translation_map) {
         r_messages->emplace_back(E.first);
@@ -1016,9 +1016,9 @@ Array TranslationServer::get_loaded_locales() const {
     return locales;
 }
 
-PODVector<String> TranslationServer::get_all_locales() {
+Vector<String> TranslationServer::get_all_locales() {
 
-    PODVector<String> locales;
+    Vector<String> locales;
 
     const char **ptr = locale_list;
 
@@ -1030,9 +1030,9 @@ PODVector<String> TranslationServer::get_all_locales() {
     return locales;
 }
 
-PODVector<String> TranslationServer::get_all_locale_names() {
+Vector<String> TranslationServer::get_all_locale_names() {
 
-    PODVector<String> locales;
+    Vector<String> locales;
 
     const char **ptr = locale_names;
 

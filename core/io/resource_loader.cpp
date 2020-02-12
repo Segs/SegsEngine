@@ -60,7 +60,7 @@ public:
     RES load(se_string_view p_path, se_string_view p_original_path = se_string_view (), Error *r_error = nullptr) override {
         return m_wrapped->load(p_path,p_original_path,r_error);
     }
-    void get_recognized_extensions(PODVector<String> &p_extensions) const final {
+    void get_recognized_extensions(Vector<String> &p_extensions) const final {
         m_wrapped->get_recognized_extensions(p_extensions);
     }
     bool handles_type(se_string_view p_type) const final{
@@ -109,7 +109,7 @@ bool ResourceFormatLoader::recognize_path(se_string_view p_path, se_string_view 
 
     se_string_view extension = PathUtils::get_extension(p_path);
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     if (p_for_type.empty()) {
         get_recognized_extensions(extensions);
     } else {
@@ -144,13 +144,13 @@ String ResourceFormatLoader::get_resource_type(se_string_view p_path) const {
     return String();
 }
 
-void ResourceFormatLoader::get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const {
+void ResourceFormatLoader::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const {
 
     if (p_type.empty() || handles_type(p_type))
         get_recognized_extensions(p_extensions);
 }
 
-void ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) {
+void ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) {
 
     for (int i = 0; i < loader_count; i++) {
         loader[i]->get_recognized_extensions_for_type(p_type, p_extensions);
@@ -202,10 +202,10 @@ bool ResourceFormatLoader::exists(se_string_view p_path) const {
     return FileAccess::exists(p_path); //by default just check file
 }
 
-void ResourceFormatLoader::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoader::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
-        p_extensions = get_script_instance()->call("get_recognized_extensions").as<PODVector<String>>();
+        p_extensions = get_script_instance()->call("get_recognized_extensions").as<Vector<String>>();
     }
 }
 
@@ -250,10 +250,10 @@ RES ResourceFormatLoader::load(se_string_view p_path, se_string_view p_original_
     }
 }
 
-void ResourceFormatLoader::get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types) {
+void ResourceFormatLoader::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_dependencies")) {
-        p_dependencies = get_script_instance()->call("get_dependencies", p_path, p_add_types).as<PODVector<String>>();
+        p_dependencies = get_script_instance()->call("get_dependencies", p_path, p_add_types).as<Vector<String>>();
     }
 }
 
@@ -742,7 +742,7 @@ bool ResourceLoader::is_imported(se_string_view p_path) {
     return false; //not found
 }
 
-void ResourceLoader::get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types) {
+void ResourceLoader::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     String path = _path_remap(p_path);
 
@@ -825,7 +825,7 @@ String ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation_re
         ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.");
         String lang(TranslationServer::get_language_code(locale));
 
-        PODVector<String> &res_remaps = translation_remaps[new_path];
+        Vector<String> &res_remaps = translation_remaps[new_path];
         bool near_match = false;
 
         for (size_t i = 0; i < res_remaps.size(); i++) {
@@ -926,7 +926,7 @@ void ResourceLoader::reload_translation_remaps() {
         ResourceCache::lock->read_lock();
     }
 
-    PODVector<Resource *> to_reload;
+    Vector<Resource *> to_reload;
     SelfList<Resource> *E = remapped_list.first();
 
     while (E) {
@@ -950,11 +950,11 @@ void ResourceLoader::load_translation_remaps() {
         return;
 
     Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
-    PODVector<Variant> keys(remaps.get_key_list());
+    Vector<Variant> keys(remaps.get_key_list());
     for(const Variant &E : keys ) {
 
         Array langs = remaps[E];
-        PODVector<String> lang_remaps;
+        Vector<String> lang_remaps;
         lang_remaps.reserve(langs.size());
         for (int i = 0; i < langs.size(); i++) {
             lang_remaps.emplace_back(langs[i].as<String>());
@@ -1041,7 +1041,7 @@ void ResourceLoader::add_custom_loaders() {
 
     StringName custom_loader_base_class = ResourceFormatLoader::get_class_static_name();
 
-    PODVector<StringName> global_classes;
+    Vector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
     for (size_t i=0, fin = global_classes.size(); i<fin; ++i) {
@@ -1058,7 +1058,7 @@ void ResourceLoader::add_custom_loaders() {
 
 void ResourceLoader::remove_custom_loaders() {
 
-    PODVector<Ref<ResourceFormatLoader> > custom_loaders;
+    Vector<Ref<ResourceFormatLoader> > custom_loaders;
     for (int i = 0; i < loader_count; ++i) {
         if (loader[i]->get_script_instance()) {
             custom_loaders.push_back(loader[i]);
@@ -1104,7 +1104,7 @@ bool ResourceLoader::abort_on_missing_resource = true;
 bool ResourceLoader::timestamp_on_load = false;
 
 SelfList<Resource>::List ResourceLoader::remapped_list;
-DefHashMap<String, PODVector<String> > ResourceLoader::translation_remaps;
+DefHashMap<String, Vector<String> > ResourceLoader::translation_remaps;
 DefHashMap<String, String> ResourceLoader::path_remaps;
 
 ResourceLoaderImport ResourceLoader::import = nullptr;

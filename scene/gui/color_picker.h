@@ -57,7 +57,7 @@ private:
     HBoxContainer *preset_container2;
     HSeparator *preset_separator;
     Button *bt_add_preset;
-    PODVector<Color> presets;
+    Vector<Color> presets;
     ToolButton *btn_pick;
     CheckButton *btn_hsv;
     CheckButton *btn_raw;

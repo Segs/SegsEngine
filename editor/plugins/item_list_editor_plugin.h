@@ -46,7 +46,7 @@ class ItemListPlugin : public Object {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     enum Flags {
@@ -213,7 +213,7 @@ class ItemListEditor : public HBoxContainer {
 
     int selected_idx;
 
-    PODVector<ItemListPlugin *> item_plugins;
+    Vector<ItemListPlugin *> item_plugins;
 
     void _edit_items();
 

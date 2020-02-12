@@ -294,7 +294,7 @@ void EditorNode::_unhandled_input(const Ref<InputEvent> &p_event) {
 static void update_reconfigured_resources() {
     if (!EditorFileSystem::get_singleton()->is_scanning() && !EditorFileSystem::get_singleton()->is_importing()) {
         ResourceImporterInterface *tex = ResourceFormatImporter::get_singleton()->get_importer_by_name("texture");
-        PODVector<String> to_reimport;
+        Vector<String> to_reimport;
         tex->build_reconfigured_list(to_reimport);
         if (!to_reimport.empty()) {
             EditorFileSystem::get_singleton()->reimport_files(to_reimport);
@@ -371,9 +371,9 @@ void EditorNode::_notification(int p_what) {
         case NOTIFICATION_READY: {
         {
             _initializing_addons = true;
-            PODVector<String> addons;
+            Vector<String> addons;
             if (ProjectSettings::get_singleton()->has_setting("editor_plugins/enabled")) {
-                addons = ProjectSettings::get_singleton()->get("editor_plugins/enabled").as<PODVector<String>>();
+                addons = ProjectSettings::get_singleton()->get("editor_plugins/enabled").as<Vector<String>>();
             }
 
             for (size_t i = 0; i < addons.size(); i++) {
@@ -534,7 +534,7 @@ void EditorNode::_on_plugin_ready(Object *p_script, const StringName &p_activate
 
 void EditorNode::_resources_changed(const PoolVector<String> &p_resources) {
 
-    PODVector<Ref<Resource>> changed;
+    Vector<Ref<Resource>> changed;
 
     int rc = p_resources.size();
     for (int i = 0; i < rc; i++) {
@@ -638,9 +638,9 @@ void EditorNode::_fs_changed() {
     }
 }
 
-void EditorNode::_resources_reimported(const PODVector<String> &p_resources) {
+void EditorNode::_resources_reimported(const Vector<String> &p_resources) {
 
-    PODVector<String> scenes; // will load later
+    Vector<String> scenes; // will load later
     int current_tab = scene_tabs->get_current_tab();
 
     for (int i = 0; i < p_resources.size(); i++) {
@@ -739,7 +739,7 @@ Error EditorNode::load_resource(se_string_view p_resource, bool p_ignore_broken_
     if (dependency_errors.end() != iter) {
 
         // current_option = -1;
-        PODVector<String> errors;
+        Vector<String> errors;
         for (const String &E : iter->second) {
 
             errors.push_back(E);
@@ -815,12 +815,12 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, se_string_vie
     saving_resource = p_resource;
 
     current_option = RESOURCE_SAVE_AS;
-    PODVector<String> extensions;
+    Vector<String> extensions;
     Ref<PackedScene> sd(make_ref_counted<PackedScene>());
     ResourceSaver::get_recognized_extensions(p_resource, extensions);
     file->clear_filters();
 
-    PODVector<String> preferred;
+    Vector<String> preferred;
     for (size_t i = 0; i < extensions.size(); i++) {
 
         if (p_resource->is_class("Script") &&
@@ -945,7 +945,7 @@ void EditorNode::_get_scene_metadata(se_string_view p_file) {
     Error err = cf->load(path);
     if (err != OK || !cf->has_section("editor_states")) return; // must not exist
 
-    PODVector<String> esl = cf->get_section_keys("editor_states");
+    Vector<String> esl = cf->get_section_keys("editor_states");
 
     Dictionary md;
     for (const String &E : esl) {
@@ -981,7 +981,7 @@ void EditorNode::_set_scene_metadata(se_string_view p_file, int p_idx) {
         md = editor_data.get_scene_editor_states(p_idx);
     }
 
-    PODVector<Variant> keys(md.get_key_list());
+    Vector<Variant> keys(md.get_key_list());
 
     for (const Variant &E : keys) {
 
@@ -1023,7 +1023,7 @@ bool EditorNode::_find_and_save_resource(const RES &p_res, Map<RES, bool> &proce
 bool EditorNode::_find_and_save_edited_subresources(Object *obj, Map<RES, bool> &processed, int32_t flags) {
 
     bool ret_changed = false;
-    PODVector<PropertyInfo> pi;
+    Vector<PropertyInfo> pi;
     obj->get_property_list(&pi);
     for (PropertyInfo &E : pi) {
 
@@ -1052,7 +1052,7 @@ bool EditorNode::_find_and_save_edited_subresources(Object *obj, Map<RES, bool> 
             case VariantType::DICTIONARY: {
 
                 Dictionary d = obj->get(E.name);
-                PODVector<Variant> keys(d.get_key_list());
+                Vector<Variant> keys(d.get_key_list());
                 for (const Variant &F : keys) {
 
                     Variant v = d[F];
@@ -1201,7 +1201,7 @@ static bool _find_edited_resources(const Ref<Resource> &p_resource, Set<Ref<Reso
         return true;
     }
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
 
     p_resource->get_property_list(&plist);
 
@@ -1234,7 +1234,7 @@ int EditorNode::_save_external_resources() {
 
     Set<Ref<Resource>> edited_subresources;
     int saved = 0;
-    ListPOD<Ref<Resource>> cached;
+    List<Ref<Resource>> cached;
     ResourceCache::get_cached_resources(&cached);
     for (Ref<Resource> res : cached) {
 
@@ -1346,7 +1346,7 @@ void EditorNode::save_all_scenes() {
     _save_all_scenes();
 }
 
-void EditorNode::save_scene_list(const PODVector<String> &p_scene_filenames) {
+void EditorNode::save_scene_list(const Vector<String> &p_scene_filenames) {
     //TODO: SEGS: this function does repeated vector::contains calls, consider creating a temporary Set to speed up lookups?
     for (int i = 0; i < editor_data.get_edited_scene_count(); i++) {
         Node *scene = editor_data.get_edited_scene_root(i);
@@ -1368,7 +1368,7 @@ void EditorNode::restart_editor() {
 
     _exit_editor();
 
-    ListPOD<String> args;
+    List<String> args;
     args.push_back("--path");
     args.push_back(ProjectSettings::get_singleton()->get_resource_path());
     args.push_back("-e");
@@ -1583,7 +1583,7 @@ void EditorNode::_dialog_action(se_string_view p_file) {
             }
 
             // erase
-            PODVector<String> keys = config->get_section_keys(file_str);
+            Vector<String> keys = config->get_section_keys(file_str);
             for (String &E : keys) {
                 config->set_value(file_str, E, Variant());
             }
@@ -1646,7 +1646,7 @@ bool EditorNode::_is_class_editor_disabled_by_feature_profile(const StringName &
 
 void EditorNode::edit_item(Object *p_object) {
 
-    PODVector<EditorPlugin *> sub_plugins;
+    Vector<EditorPlugin *> sub_plugins;
 
     if (p_object) {
         if (_is_class_editor_disabled_by_feature_profile(p_object->get_class_name())) {
@@ -1723,7 +1723,7 @@ void EditorNode::_display_top_editors(bool p_display) {
     editor_plugins_over->make_visible(p_display);
 }
 
-void EditorNode::_set_top_editors(PODVector<EditorPlugin *> &&p_editor_plugins_over) {
+void EditorNode::_set_top_editors(Vector<EditorPlugin *> &&p_editor_plugins_over) {
     editor_plugins_over->set_plugins_list(eastl::move(p_editor_plugins_over));
 }
 
@@ -1837,7 +1837,7 @@ void EditorNode::_edit_current() {
                 MultiNodeEdit *multi_node_edit = object_cast<MultiNodeEdit>(current_obj);
                 int node_count = multi_node_edit->get_node_count();
                 if (node_count > 0) {
-                    PODVector<Node *> multi_nodes;
+                    Vector<Node *> multi_nodes;
                     for (int node_index = 0; node_index < node_count; ++node_index) {
                         Node *node = scene->get_node(multi_node_edit->get_node(node_index));
                         if (node) {
@@ -1928,7 +1928,7 @@ void EditorNode::_edit_current() {
             }
         }
 
-        PODVector<EditorPlugin *> sub_plugins;
+        Vector<EditorPlugin *> sub_plugins;
 
         if (!_is_class_editor_disabled_by_feature_profile(current_obj->get_class_name())) {
             sub_plugins = editor_data.get_subeditors(current_obj);
@@ -2030,7 +2030,7 @@ void EditorNode::_run(bool p_current, se_string_view p_custom) {
         make_bottom_panel_item_visible(log);
     }
 
-    PODVector<String> breakpoints;
+    Vector<String> breakpoints;
     editor_data.get_editor_breakpoints(&breakpoints);
 
     args = ProjectSettings::get_singleton()->get("editor/main_run_args").as<String>();
@@ -2076,7 +2076,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case FILE_OPEN_SCENE: {
 
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-            PODVector<String> extensions;
+            Vector<String> extensions;
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
             file->clear_filters();
             for (const String &ext : extensions) {
@@ -2203,7 +2203,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             file->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
             ResourceSaver::get_recognized_extensions(sd, extensions);
             file->clear_filters();
@@ -2265,7 +2265,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
                 break;
             }
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             Ref<MeshLibrary> ml(make_ref_counted<MeshLibrary>());
             ResourceSaver::get_recognized_extensions(ml, extensions);
             file_export_lib->clear_filters();
@@ -2285,7 +2285,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
                 break;
             }
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             Ref<TileSet> ml(make_ref_counted<TileSet>());
             ResourceSaver::get_recognized_extensions(ml, extensions);
             file_export_lib->clear_filters();
@@ -2675,7 +2675,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case SETTINGS_PICK_MAIN_SCENE: {
 
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-            PODVector<String> extensions;
+            Vector<String> extensions;
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
             file->clear_filters();
             for (const String &ext : extensions) {
@@ -2857,7 +2857,7 @@ void EditorNode::_discard_changes(se_string_view p_str) {
             _exit_editor();
             String exec = OS::get_singleton()->get_executable_path();
 
-            ListPOD<String> args;
+            List<String> args;
             args.push_back("--path");
             args.push_back(PathUtils::get_base_dir(exec));
             args.push_back("--project-manager");
@@ -3033,7 +3033,7 @@ void EditorNode::_update_addon_config() {
 
     if (_initializing_addons) return;
 
-    PODVector<se_string_view> enabled_addons;
+    Vector<se_string_view> enabled_addons;
 
     for (eastl::pair<const StringName, EditorPlugin *> &E : plugin_addons) {
         enabled_addons.emplace_back(E.first);
@@ -3413,7 +3413,7 @@ Error EditorNode::load_scene(se_string_view p_scene, bool p_ignore_broken_deps, 
     if (!p_ignore_broken_deps && dependency_errors.contains(lpath)) {
 
         current_option = -1;
-        PODVector<String> errors;
+        Vector<String> errors;
         for (const String &E : dependency_errors[lpath]) {
 
             errors.emplace_back(E);
@@ -3522,7 +3522,7 @@ void EditorNode::request_instance_scene(se_string_view p_path) {
     scene_tree_dock->instance(p_path);
 }
 
-void EditorNode::request_instance_scenes(const PODVector<String> &p_files) {
+void EditorNode::request_instance_scenes(const Vector<String> &p_files) {
 
     scene_tree_dock->instance_scenes(p_files);
 }
@@ -3550,7 +3550,7 @@ void EditorNode::_inherit_request(se_string_view p_file) {
     _dialog_action(p_file);
 }
 
-void EditorNode::_instance_request(const PODVector<String> &p_files) {
+void EditorNode::_instance_request(const Vector<String> &p_files) {
 
     request_instance_scenes(p_files);
 }
@@ -3616,7 +3616,7 @@ void EditorNode::_update_recent_scenes() {
 
 void EditorNode::_quick_opened() {
 
-    PODVector<String> files(quick_open->get_selected_files());
+    Vector<String> files(quick_open->get_selected_files());
 
     for (int i = 0; i < files.size(); i++) {
         String res_path = files[i];
@@ -3989,7 +3989,7 @@ Ref<Script> EditorNode::get_object_custom_type_base(const Object *p_object) cons
     // should probably be deprecated in 4.x
     StringName base = script->get_instance_base_type();
     if (not base.empty() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
-        const PODVector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
+        const Vector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
 
         Ref<Script> base_script = script;
         while (base_script) {
@@ -4025,7 +4025,7 @@ StringName EditorNode::get_object_custom_type_name(const Object *p_object) const
         // should probably be deprecated in 4.x
         StringName base = base_script->get_instance_base_type();
         if (base != StringName() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
-            const PODVector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
+            const Vector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
             for (int i = 0; i < types.size(); ++i) {
                 if (types[i].script == base_script) {
                     return types[i].name;
@@ -4072,7 +4072,7 @@ Ref<Texture> EditorNode::get_object_icon(const Object *p_object, const StringNam
             // should probably be deprecated in 4.x
             StringName base = base_script->get_instance_base_type();
             if (base != StringName() && EditorNode::get_editor_data().get_custom_types().contains(base)) {
-                const PODVector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
+                const Vector<EditorData::CustomType> &types = EditorNode::get_editor_data().get_custom_types().at(base);
                 for (int i = 0; i < types.size(); ++i) {
                     if (types[i].script == base_script && types[i].icon) {
                         return types[i].icon;
@@ -4128,9 +4128,9 @@ Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringN
         return dynamic_ref_cast<Texture>(icon);
     }
 
-    const Map<StringName, PODVector<EditorData::CustomType>> &p_map = EditorNode::get_editor_data().get_custom_types();
-    for (const eastl::pair<const StringName, PODVector<EditorData::CustomType>> &E : p_map) {
-        const PODVector<EditorData::CustomType> &ct = E.second;
+    const Map<StringName, Vector<EditorData::CustomType>> &p_map = EditorNode::get_editor_data().get_custom_types();
+    for (const eastl::pair<const StringName, Vector<EditorData::CustomType>> &E : p_map) {
+        const Vector<EditorData::CustomType> &ct = E.second;
         for (int i = 0; i < ct.size(); ++i) {
             if (ct[i].name == p_class) {
                 if (ct[i].icon) {
@@ -4221,7 +4221,7 @@ Ref<Texture> EditorNode::_file_dialog_get_icon(se_string_view p_path) {
 
 void EditorNode::_build_icon_type_cache() {
 
-    PODVector<StringName> tl;
+    Vector<StringName> tl;
     StringName ei = "EditorIcons";
     theme_base->get_theme()->get_icon_list(ei, &tl);
     for (const StringName &E : tl) {
@@ -4251,7 +4251,7 @@ void EditorNode::_editor_file_dialog_unregister(EditorFileDialog *p_dialog) {
     singleton->editor_file_dialogs.erase(p_dialog);
 }
 
-PODVector<EditorNodeInitCallback> EditorNode::_init_callbacks;
+Vector<EditorNodeInitCallback> EditorNode::_init_callbacks;
 
 Error EditorNode::export_preset(se_string_view p_preset, se_string_view p_path, bool p_debug, bool p_pack_only) {
 
@@ -4666,7 +4666,7 @@ void EditorNode::_load_docks_from_config(Ref<ConfigFile> p_layout, se_string_vie
 
         if (!p_layout->has_section_key(p_section, "dock_" + ::to_string(i + 1))) continue;
         String dock_names = p_layout->get_value(p_section, "dock_" + ::to_string(i + 1)).as<String>();
-        PODVector<se_string_view> names = StringUtils::split(dock_names, ',');
+        Vector<se_string_view> names = StringUtils::split(dock_names, ',');
 
         for (se_string_view name : names) {
 
@@ -4859,7 +4859,7 @@ void EditorNode::_update_layouts_menu() {
         return; // no config
     }
 
-    PODVector<String> layouts = config.get()->get_sections();
+    Vector<String> layouts = config.get()->get_sections();
 
     String default_name(TTR("Default"));
     for (const String &layout : layouts) {
@@ -5302,7 +5302,7 @@ Variant EditorNode::drag_resource(const Ref<Resource> &p_res, Control *p_from) {
     return drag_data;
 }
 
-Variant EditorNode::drag_files_and_dirs(const PODVector<String> &p_paths, Control *p_from) {
+Variant EditorNode::drag_files_and_dirs(const Vector<String> &p_paths, Control *p_from) {
 
     bool has_folder = false;
     bool has_file = false;
@@ -5400,7 +5400,7 @@ void EditorNode::_global_menu_action(const Variant &p_id, const Variant &p_meta)
     int id = (int)p_id;
     if (id == GLOBAL_NEW_WINDOW) {
         if (OS::get_singleton()->get_main_loop()) {
-            ListPOD<String> args;
+            List<String> args;
             args.push_back("-e");
             String exec = OS::get_singleton()->get_executable_path();
 
@@ -5413,7 +5413,7 @@ void EditorNode::_global_menu_action(const Variant &p_id, const Variant &p_meta)
     }
 }
 
-void EditorNode::_dropped_files(const PODVector<String> &p_files, int p_screen) {
+void EditorNode::_dropped_files(const Vector<String> &p_files, int p_screen) {
 
     String to_path = ProjectSettings::get_singleton()->globalize_path(get_filesystem_dock()->get_selected_path());
 
@@ -5422,7 +5422,7 @@ void EditorNode::_dropped_files(const PODVector<String> &p_files, int p_screen) 
     EditorFileSystem::get_singleton()->scan_changes();
 }
 
-void EditorNode::_add_dropped_files_recursive(const PODVector<String> &p_files, se_string_view to_path) {
+void EditorNode::_add_dropped_files_recursive(const Vector<String> &p_files, se_string_view to_path) {
 
     DirAccessRef dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     se_string_view just_copy[2] = { "ttf", "otf" };
@@ -5433,7 +5433,7 @@ void EditorNode::_add_dropped_files_recursive(const PODVector<String> &p_files, 
 
         if (dir->dir_exists(from)) {
 
-            PODVector<String> sub_files;
+            Vector<String> sub_files;
 
             DirAccessRef sub_dir = DirAccess::open(from);
             sub_dir->list_dir_begin();
@@ -5475,9 +5475,9 @@ void EditorNode::reload_scene(se_string_view p_path) {
 
     // first of all, reload internal textures, materials, meshes, etc. as they might have changed on disk
 
-    ListPOD<Ref<Resource>> cached;
+    List<Ref<Resource>> cached;
     ResourceCache::get_cached_resources(&cached);
-    ListPOD<Ref<Resource>> to_clear; // clear internal resources from previous scene from being used
+    List<Ref<Resource>> to_clear; // clear internal resources from previous scene from being used
     for (const Ref<Resource> &E : cached) {
 
         if (StringUtils::begins_with(
@@ -5619,10 +5619,10 @@ void EditorNode::remove_resource_conversion_plugin(const Ref<EditorResourceConve
     resource_conversion_plugins.erase_first(p_plugin);
 }
 
-PODVector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion_plugin(
+Vector<Ref<EditorResourceConversionPlugin>> EditorNode::find_resource_conversion_plugin(
         const Ref<Resource> &p_for_resource) {
 
-    PODVector<Ref<EditorResourceConversionPlugin>> ret;
+    Vector<Ref<EditorResourceConversionPlugin>> ret;
 
     for (int i = 0; i < resource_conversion_plugins.size(); i++) {
         if (resource_conversion_plugins[i] && resource_conversion_plugins[i]->handles(p_for_resource)) {
@@ -5846,7 +5846,7 @@ static void _execute_thread(void *p_ud) {
 }
 
 int EditorNode::execute_and_show_output(const StringName &p_title, se_string_view p_path,
-        const ListPOD<String> &p_arguments, bool p_close_on_ok, bool p_close_on_errors) {
+        const List<String> &p_arguments, bool p_close_on_ok, bool p_close_on_errors) {
 
     execute_output_dialog->set_title(p_title);
     execute_output_dialog->get_ok()->set_disabled(true);
@@ -6980,7 +6980,7 @@ EditorNode::EditorNode() {
     file_script->set_title(TTR("Open & Run a Script"));
     file_script->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
     file_script->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-    PODVector<String> sexts;
+    Vector<String> sexts;
     ResourceLoader::get_recognized_extensions_for_type("Script", sexts);
     for (const String &E : sexts) {
         file_script->add_filter("*." + E);

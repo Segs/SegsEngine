@@ -233,7 +233,7 @@ void EditorPropertyTextEnum::update_property() {
     }
 }
 
-void EditorPropertyTextEnum::setup(const PODVector<se_string_view> &p_options) {
+void EditorPropertyTextEnum::setup(const Vector<se_string_view> &p_options) {
     for (int i = 0; i < p_options.size(); i++) {
         options->add_item(StringName(p_options[i]), i);
     }
@@ -303,7 +303,7 @@ void EditorPropertyPath::update_property() {
     path->set_tooltip(full_path);
 }
 
-void EditorPropertyPath::setup(const PODVector<se_string_view> &p_extensions, bool p_folder, bool p_global) {
+void EditorPropertyPath::setup(const Vector<se_string_view> &p_extensions, bool p_folder, bool p_global) {
     extensions.reserve(p_extensions.size());
 
     for(se_string_view sv : p_extensions)
@@ -552,11 +552,11 @@ void EditorPropertyEnum::update_property() {
     }
 }
 
-void EditorPropertyEnum::setup(const PODVector<se_string_view> &p_options) {
+void EditorPropertyEnum::setup(const Vector<se_string_view> &p_options) {
 
     int64_t current_val = 0;
     for (int i = 0; i < p_options.size(); i++) {
-        PODVector<se_string_view> text_split = StringUtils::split(p_options[i],':');
+        Vector<se_string_view> text_split = StringUtils::split(p_options[i],':');
         if (text_split.size() != 1)
             current_val = StringUtils::to_int64(text_split[1]);
         options->add_item(StringName(text_split[0]));
@@ -615,7 +615,7 @@ void EditorPropertyFlags::update_property() {
     }
 }
 
-void EditorPropertyFlags::setup(const PODVector<se_string_view> &p_options) {
+void EditorPropertyFlags::setup(const Vector<se_string_view> &p_options) {
     ERR_FAIL_COND(flags.size());
 
     bool first = true;
@@ -656,9 +656,9 @@ class EditorPropertyLayersGrid : public Control {
 
 public:
     uint32_t value;
-    PODVector<Rect2> flag_rects;
-    PODVector<StringName> names;
-    PODVector<StringName> tooltips;
+    Vector<Rect2> flag_rects;
+    Vector<StringName> names;
+    Vector<StringName> tooltips;
 
     Size2 get_minimum_size() const override {
         Ref<Font> font = get_font("font", "Label");
@@ -777,8 +777,8 @@ void EditorPropertyLayers::setup(LayerType p_layer_type) {
             break;
     }
 
-    PODVector<StringName> names;
-    PODVector<StringName> tooltips;
+    Vector<StringName> names;
+    Vector<StringName> tooltips;
     for (int i = 0; i < 20; i++) {
         StringName name;
         StringName lname(basename + "/layer_" + itos(i + 1));
@@ -1053,7 +1053,7 @@ void EditorPropertyEasing::_draw_easing() {
         line_color = get_color("font_color", "Label") * Color(1, 1, 1, 0.9f);
     }
 
-    PODVector<Point2> lines;
+    Vector<Point2> lines;
     lines.reserve(points*2);
     for (int i = 1; i <= points; i++) {
 
@@ -2073,7 +2073,7 @@ void EditorPropertyNodePath::update_property() {
     assign->set_button_icon(EditorNode::get_singleton()->get_object_icon(target_node, "Node"));
 }
 
-void EditorPropertyNodePath::setup(const NodePath &p_base_hint, PODVector<StringName> &&p_valid_types, bool p_use_path_from_scene_root) {
+void EditorPropertyNodePath::setup(const NodePath &p_base_hint, Vector<StringName> &&p_valid_types, bool p_use_path_from_scene_root) {
 
     base_hint = p_base_hint;
     valid_types = p_valid_types;
@@ -2140,7 +2140,7 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
 
     ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'."); 
 
-    PODVector<PropertyInfo> prop_list;
+    Vector<PropertyInfo> prop_list;
     get_edited_object()->get_property_list(&prop_list);
     String property_types;
 
@@ -2181,7 +2181,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
             StringName type = base_type;
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             for (int i = 0; i <StringUtils::get_slice_count( type,','); i++) {
 
                 ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
@@ -2223,9 +2223,9 @@ void EditorPropertyResource::_menu_option(int p_which) {
             if (not res_orig)
                 return;
 
-            PODVector<PropertyInfo> property_list;
+            Vector<PropertyInfo> property_list;
             res_orig->get_property_list(&property_list);
-            PODVector<Pair<StringName, Variant> > propvalues;
+            Vector<Pair<StringName, Variant> > propvalues;
 
             for (const PropertyInfo &pi : property_list) {
 
@@ -2307,7 +2307,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
                 int to_type = p_which - CONVERT_BASE_ID;
 
-                PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
+                Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(res);
 
                 ERR_FAIL_INDEX(to_type, conversions.size());
 
@@ -2336,7 +2336,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
                 if (!scene_tree) {
                     scene_tree = memnew(SceneTreeDialog);
-                    PODVector<StringName> valid_types;
+                    Vector<StringName> valid_types;
                     valid_types.push_back("Viewport");
                     scene_tree->get_scene_tree()->set_valid_types(valid_types);
                     scene_tree->get_scene_tree()->set_show_enabled_subscene(true);
@@ -2425,7 +2425,7 @@ void EditorPropertyResource::_update_menu_items() {
     } else if (!base_type.empty()) {
         int idx = 0;
 
-        PODVector<EditorData::CustomType> custom_resources;
+        Vector<EditorData::CustomType> custom_resources;
 
         if (EditorNode::get_editor_data().get_custom_types().contains("Resource")) {
             custom_resources = EditorNode::get_editor_data().get_custom_types().at("Resource");
@@ -2437,7 +2437,7 @@ void EditorPropertyResource::_update_menu_items() {
 
             Set<StringName> valid_inheritors;
             valid_inheritors.insert(base);
-            PODVector<StringName> inheritors;
+            Vector<StringName> inheritors;
             ClassDB::get_inheriters_from_class(StringName(StringUtils::strip_edges(base)), &inheritors);
 
             for (int j = 0; j < custom_resources.size(); j++) {
@@ -2447,7 +2447,7 @@ void EditorPropertyResource::_update_menu_items() {
             for(const StringName &E : inheritors)
                 valid_inheritors.insert(E);
 
-            PODVector<StringName> global_classes;
+            Vector<StringName> global_classes;
             ScriptServer::get_global_class_list(&global_classes);
             for(size_t i=0,fin=global_classes.size(); i<fin; ++i) {
                 if (EditorNode::get_editor_data().script_class_is_parent(global_classes[i], base_type)) {
@@ -2535,7 +2535,7 @@ void EditorPropertyResource::_update_menu_items() {
 
     if (res) {
 
-        PODVector<Ref<EditorResourceConversionPlugin> > conversions(EditorNode::get_singleton()->find_resource_conversion_plugin(res));
+        Vector<Ref<EditorResourceConversionPlugin> > conversions(EditorNode::get_singleton()->find_resource_conversion_plugin(res));
         if (!conversions.empty()) {
             menu->add_separator();
         }
@@ -3001,13 +3001,13 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             if (p_hint == PropertyHint::Enum) {
                 EditorPropertyEnum *editor = memnew(EditorPropertyEnum);
-                PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
+                Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
 
             } else if (p_hint == PropertyHint::Flags) {
                 EditorPropertyFlags *editor = memnew(EditorPropertyFlags);
-                PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
+                Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
 
@@ -3076,7 +3076,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 EditorPropertyEasing *editor = memnew(EditorPropertyEasing);
                 bool full = true;
                 bool flip = false;
-                PODVector<se_string_view> hints = StringUtils::split(p_hint_text,',');
+                Vector<se_string_view> hints = StringUtils::split(p_hint_text,',');
                 for (int i = 0; i < hints.size(); i++) {
                     se_string_view h =StringUtils::strip_edges( hints[i]);
                     if (h == se_string_view("attenuation")) {
@@ -3127,7 +3127,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             if (p_hint == PropertyHint::Enum) {
                 EditorPropertyTextEnum *editor = memnew(EditorPropertyTextEnum);
-                PODVector<se_string_view> options = StringUtils::split(p_hint_text,',');
+                Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
                 editor->setup(options);
                 add_property_editor(p_path, editor);
             } else if (p_hint == PropertyHint::MultilineText) {
@@ -3139,7 +3139,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 add_property_editor(p_path, editor);
             } else if (p_hint == PropertyHint::Dir || p_hint == PropertyHint::File || p_hint == PropertyHint::SaveFile || p_hint == PropertyHint::GlobalDir || p_hint == PropertyHint::GlobalFile) {
 
-                PODVector<se_string_view> extensions = StringUtils::split(p_hint_text,',');
+                Vector<se_string_view> extensions = StringUtils::split(p_hint_text,',');
                 bool global = p_hint == PropertyHint::GlobalDir || p_hint == PropertyHint::GlobalFile;
                 bool folder = p_hint == PropertyHint::Dir || p_hint == PropertyHint::GlobalDir;
                 bool save = p_hint == PropertyHint::SaveFile;
@@ -3360,7 +3360,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             if (p_hint == PropertyHint::NodePathValidTypes && !p_hint_text.empty()) {
                 FixedVector<se_string_view,8,true> parts;
                 String::split_ref(parts,p_hint_text,',');
-                PODVector<StringName> sn;
+                Vector<StringName> sn;
                 sn.reserve(parts.size());
 
                 for(se_string_view s : parts)

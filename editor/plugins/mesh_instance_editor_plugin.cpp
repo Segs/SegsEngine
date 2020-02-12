@@ -74,7 +74,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             EditorSelection *editor_selection = EditorNode::get_singleton()->get_editor_selection();
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             if (selection.empty()) {
                 Ref<Shape> shape = trimesh_shape ? mesh->create_trimesh_shape() : mesh->create_convex_shape();
@@ -172,7 +172,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 return;
             }
 
-            PODVector<Ref<Shape> > shapes = mesh->convex_decompose();
+            Vector<Ref<Shape> > shapes = mesh->convex_decompose();
 
             if (shapes.empty()) {
                 err_dialog->set_text(TTR("Failed creating shapes!"));
@@ -303,14 +303,14 @@ void MeshInstanceEditor::_create_uv_lines(int p_layer) {
             continue;
         SurfaceArrays a = mesh->surface_get_arrays(i);
 
-        const PODVector<Vector2> &uv = p_layer == 0 ? a.m_uv_1 : a.m_uv_2;
+        const Vector<Vector2> &uv = p_layer == 0 ? a.m_uv_1 : a.m_uv_2;
         if (uv.size() == 0) {
             err_dialog->set_text(TTR("Model has no UV in this layer"));
             err_dialog->popup_centered_minsize();
             return;
         }
 
-        const PODVector<int> &indices = a.m_indices;
+        const Vector<int> &indices = a.m_indices;
 
         int ic;
         bool use_indices = !indices.empty();

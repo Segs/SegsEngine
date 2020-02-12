@@ -110,7 +110,7 @@ RES _ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, boo
 
 PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
 
-    PODVector<String> exts;
+    Vector<String> exts;
     ResourceLoader::get_recognized_extensions_for_type(p_type, exts);
     PoolStringArray ret;
     for (const String & E : exts) {
@@ -125,9 +125,9 @@ void _ResourceLoader::set_abort_on_missing_resources(bool p_abort) {
     ResourceLoader::set_abort_on_missing_resources(p_abort);
 }
 
-PODVector<String> _ResourceLoader::get_dependencies(se_string_view p_path) {
+Vector<String> _ResourceLoader::get_dependencies(se_string_view p_path) {
 
-    PODVector<String> deps;
+    Vector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
     return deps;
 };
@@ -166,7 +166,7 @@ Error _ResourceSaver::save(se_string_view p_path, const RES &p_resource, SaverFl
 PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
 
     ERR_FAIL_COND_V_MSG(not p_resource, PoolVector<String>(), "It's not a reference to a valid Resource object.");
-    PODVector<String> exts;
+    Vector<String> exts;
     ResourceSaver::get_recognized_extensions(p_resource, exts);
     PoolVector<String> ret;
     for (int i = 0, fin = exts.size(); i < fin; ++i) {
@@ -461,7 +461,7 @@ bool _OS::is_video_mode_resizable(int p_screen) const {
 
 Array _OS::get_fullscreen_mode_list(int p_screen) const {
 
-    PODVector<OS::VideoMode> vmlist;
+    Vector<OS::VideoMode> vmlist;
     OS::get_singleton()->get_fullscreen_mode_list(&vmlist, p_screen);
     Array vmarr;
     for (const OS::VideoMode &E : vmlist) {
@@ -501,11 +501,11 @@ Error _OS::shell_open(String p_uri) {
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
-int _OS::execute(se_string_view p_path, const PODVector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
+int _OS::execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
 
     OS::ProcessID pid = -2;
     int exitcode = 0;
-    ListPOD<String> args;
+    List<String> args;
     for (int i = 0; i < p_arguments.size(); i++)
         args.push_back(p_arguments[i]);
     String pipe;
@@ -545,7 +545,7 @@ String _OS::get_name() const {
 }
 PoolVector<String> _OS::get_cmdline_args() {
 
-    ListPOD<String> cmdline = OS::get_singleton()->get_cmdline_args();
+    List<String> cmdline = OS::get_singleton()->get_cmdline_args();
     PoolVector<String> cmdlinev;
     for (const String & E : cmdline) {
 
@@ -976,10 +976,10 @@ struct _OSCoreBindImg {
 
 void _OS::print_all_textures_by_size() {
 
-    PODVector<_OSCoreBindImg> imgs;
+    Vector<_OSCoreBindImg> imgs;
     int total = 0;
     {
-        ListPOD<Ref<Resource> > rsrc;
+        List<Ref<Resource> > rsrc;
         ResourceCache::get_cached_resources(&rsrc);
         imgs.reserve(rsrc.size());
 
@@ -1009,11 +1009,11 @@ void _OS::print_all_textures_by_size() {
     }
 }
 
-void _OS::print_resources_by_type(const PODVector<String> &p_types) {
+void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
     DefHashMap<String, int> type_count;
 
-    ListPOD<Ref<Resource> > rsrc;
+    List<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
 
     for (const Ref<Resource> &r : rsrc) {
@@ -1621,39 +1621,39 @@ PoolVector<Vector3> _Geometry::segment_intersects_convex(const Vector3 &p_from, 
     return r;
 }
 
-bool _Geometry::is_polygon_clockwise(const PODVector<Vector2> &p_polygon) {
+bool _Geometry::is_polygon_clockwise(const Vector<Vector2> &p_polygon) {
 
     return Geometry::is_polygon_clockwise(p_polygon);
 }
 
-bool _Geometry::is_point_in_polygon(const Point2 &p_point, const PODVector<Vector2> &p_polygon) {
+bool _Geometry::is_point_in_polygon(const Point2 &p_point, const Vector<Vector2> &p_polygon) {
 
     return Geometry::is_point_in_polygon(p_point, p_polygon);
 }
 
-PODVector<int> _Geometry::triangulate_polygon(Span<const Vector2> p_polygon) {
+Vector<int> _Geometry::triangulate_polygon(Span<const Vector2> p_polygon) {
 
     return Geometry::triangulate_polygon(p_polygon);
 }
 
-PODVector<int> _Geometry::triangulate_delaunay_2d(Span<const Vector2> p_points) {
+Vector<int> _Geometry::triangulate_delaunay_2d(Span<const Vector2> p_points) {
 
     return Geometry::triangulate_delaunay_2d(p_points);
 }
 
-PODVector<Point2> _Geometry::convex_hull_2d(Span<const Point2> p_points) {
+Vector<Point2> _Geometry::convex_hull_2d(Span<const Point2> p_points) {
 
     return Geometry::convex_hull_2d(p_points);
 }
 
-PODVector<Vector3> _Geometry::clip_polygon(Span<const Vector3> p_points, const Plane &p_plane) {
+Vector<Vector3> _Geometry::clip_polygon(Span<const Vector3> p_points, const Plane &p_plane) {
 
     return Geometry::clip_polygon(p_points, p_plane);
 }
 
-Array _Geometry::merge_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
+Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1663,45 +1663,33 @@ Array _Geometry::merge_polygons_2d(const PODVector<Vector2> &p_polygon_a, const 
     return ret;
 }
 
-Array _Geometry::clip_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
+Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
-    for (const PODVector<Point2> & poly : polys) {
+    for (const Vector<Point2> & poly : polys) {
         ret.push_back(poly);
     }
     return ret;
 }
 
-Array _Geometry::intersect_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
+Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
+    Vector<Vector<Point2> > polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
-    for (const PODVector<Point2> & poly : polys) {
+    for (const Vector<Point2> & poly : polys) {
         ret.push_back(poly);
     }
     return ret;
 }
 
-Array _Geometry::exclude_polygons_2d(const PODVector<Vector2> &p_polygon_a, const PODVector<Vector2> &p_polygon_b) {
+Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vector<Vector2> &p_polygon_b) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
-
-    Array ret;
-
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
-    }
-    return ret;
-}
-
-Array _Geometry::clip_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
-
-    PODVector<PODVector<Point2> > polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
+    Vector<Vector<Point2> > polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
 
@@ -1711,9 +1699,21 @@ Array _Geometry::clip_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyl
     return ret;
 }
 
-Array _Geometry::intersect_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
+Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
+    Vector<Vector<Point2> > polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
+
+    Array ret;
+
+    for (int i = 0; i < polys.size(); ++i) {
+        ret.push_back(polys[i]);
+    }
+    return ret;
+}
+
+Array _Geometry::intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
+
+    Vector<Vector<Point2> > polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
 
@@ -1723,21 +1723,9 @@ Array _Geometry::intersect_polyline_with_polygon_2d(const PODVector<Vector2> &p_
     return ret;
 }
 
-Array _Geometry::offset_polygon_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
+Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
 
-    PODVector<PODVector<Point2> > polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
-
-    Array ret;
-
-    for (size_t i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
-    }
-    return ret;
-}
-
-Array _Geometry::offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
-
-    PODVector<PODVector<Point2> > polys(Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
+    Vector<Vector<Point2> > polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
 
     Array ret;
 
@@ -1747,24 +1735,36 @@ Array _Geometry::offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t 
     return ret;
 }
 
-Dictionary _Geometry::make_atlas(const PODVector<Size2> &p_rects) {
+Array _Geometry::offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+
+    Vector<Vector<Point2> > polys(Geometry::offset_polyline_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
+
+    Array ret;
+
+    for (size_t i = 0; i < polys.size(); ++i) {
+        ret.push_back(polys[i]);
+    }
+    return ret;
+}
+
+Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
 
     Dictionary ret;
 
-    PODVector<Size2i> rects;
+    Vector<Size2i> rects;
     for (int i = 0; i < p_rects.size(); i++) {
 
         rects.push_back(p_rects[i]);
     }
 
-    PODVector<Point2i> result;
+    Vector<Point2i> result;
     Size2i size;
 
     Geometry::make_atlas(rects, result, size);
 
     Size2 r_size = size;
 
-    PODVector<Point2> r_result;
+    Vector<Point2> r_result;
     r_result.reserve(result.size());
 
     for (Point2i v : result) {
@@ -1854,7 +1854,7 @@ _Geometry::_Geometry() {
 
 ///////////////////////// FILE
 
-Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const PODVector<uint8_t> &p_key) {
+Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key) {
 
     Error err = open(p_path, p_mode_flags);
     if (err)
@@ -2065,7 +2065,7 @@ String _File::get_line() const {
     return f->get_line();
 }
 
-PODVector<String> _File::get_csv_line(int8_t p_delim) const {
+Vector<String> _File::get_csv_line(int8_t p_delim) const {
     ERR_FAIL_COND_V_MSG(!f, {}, "File must be opened before use.");
     return f->get_csv_line(p_delim);
 }
@@ -2167,7 +2167,7 @@ void _File::store_line(se_string_view p_string) {
 void _File::store_csv_line(const PoolVector<String> &p_values, int8_t p_delim) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     auto rd = p_values.read();
-    PODVector<String> vals(rd.ptr(),rd.ptr()+p_values.size());
+    Vector<String> vals(rd.ptr(),rd.ptr()+p_values.size());
     f->store_csv_line(vals, p_delim);
 }
 
@@ -2799,7 +2799,7 @@ _Thread::~_Thread() {
 
 PoolStringArray _ClassDB::get_class_list() const {
 
-    PODVector<StringName> classes;
+    Vector<StringName> classes;
     ClassDB::get_class_list(&classes);
 
     PoolStringArray ret;
@@ -2813,7 +2813,7 @@ PoolStringArray _ClassDB::get_class_list() const {
 }
 PoolStringArray _ClassDB::get_inheriters_from_class(const StringName &p_class) const {
 
-    PODVector<StringName> classes;
+    Vector<StringName> classes;
     ClassDB::get_inheriters_from_class(p_class, &classes);
 
     PoolStringArray ret;
@@ -2870,7 +2870,7 @@ Dictionary _ClassDB::get_signal(StringName p_class, StringName p_signal) const {
 }
 Array _ClassDB::get_signal_list(StringName p_class, bool p_no_inheritance) const {
 
-    PODVector<MethodInfo> defined_signals;
+    Vector<MethodInfo> defined_signals;
     ClassDB::get_signal_list(p_class, &defined_signals, p_no_inheritance);
     Array ret;
 
@@ -2883,7 +2883,7 @@ Array _ClassDB::get_signal_list(StringName p_class, bool p_no_inheritance) const
 
 Array _ClassDB::get_property_list(StringName p_class, bool p_no_inheritance) const {
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     ClassDB::get_property_list(p_class, &plist, p_no_inheritance);
     Array ret;
     for (const PropertyInfo &E : plist) {
@@ -2917,7 +2917,7 @@ bool _ClassDB::has_method(StringName p_class, StringName p_method, bool p_no_inh
 
 Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const {
 
-    PODVector<MethodInfo> methods;
+    Vector<MethodInfo> methods;
     ClassDB::get_method_list(p_class, &methods, p_no_inheritance);
     Array ret;
 
@@ -2936,7 +2936,7 @@ Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const
 
 PoolStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
 
-    ListPOD<String> constants;
+    List<String> constants;
     ClassDB::get_integer_constant_list(p_class, &constants, p_no_inheritance);
 
     PoolStringArray ret;

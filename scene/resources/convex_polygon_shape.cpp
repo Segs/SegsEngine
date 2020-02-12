@@ -35,16 +35,16 @@
 
 IMPL_GDCLASS(ConvexPolygonShape)
 
-PODVector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
+Vector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
 
-    PODVector<Vector3> points = get_points();
+    Vector<Vector3> points = get_points();
 
     if (points.size() > 3) {
 
         Geometry::MeshData md;
         Error err = QuickHull::build(points, md);
         if (err == OK) {
-            PODVector<Vector3> lines;
+            Vector<Vector3> lines;
             lines.resize(md.edges.size() * 2);
             for (int i = 0; i < md.edges.size(); i++) {
                 lines[i * 2 + 0] = md.vertices[md.edges[i].a];
@@ -54,7 +54,7 @@ PODVector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
         }
     }
 
-    return PODVector<Vector3>();
+    return Vector<Vector3>();
 }
 
 void ConvexPolygonShape::_update_shape() {
@@ -63,7 +63,7 @@ void ConvexPolygonShape::_update_shape() {
     Shape::_update_shape();
 }
 
-void ConvexPolygonShape::set_points(PODVector<Vector3> &&p_points) {
+void ConvexPolygonShape::set_points(Vector<Vector3> &&p_points) {
     points = eastl::move(p_points);
     _update_shape();
     notify_change_to_owners();

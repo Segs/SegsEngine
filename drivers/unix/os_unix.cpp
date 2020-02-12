@@ -331,12 +331,12 @@ Error OS_Unix::execute(se_string_view p_path, const ListPOD<String> &p_arguments
             setsid();
         }
 
-        PODVector<String> cs;
+        Vector<String> cs;
         cs.emplace_back(p_path);
         for (const String &arg : p_arguments)
             cs.emplace_back(arg);
 
-        PODVector<char *> args;
+        Vector<char *> args;
         for (int i = 0; i < cs.size(); i++)
             args.push_back((char *)cs[i].data());
         args.push_back(nullptr);
@@ -545,7 +545,7 @@ void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_f
 UnixTerminalLogger::~UnixTerminalLogger() {}
 
 OS_Unix::OS_Unix() {
-    PODVector<Logger *> loggers;
+    Vector<Logger *> loggers;
     loggers.push_back(memnew(UnixTerminalLogger));
     _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }

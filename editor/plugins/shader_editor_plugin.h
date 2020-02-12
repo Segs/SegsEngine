@@ -52,7 +52,7 @@ protected:
     static void _bind_methods();
     void _load_theme_settings() override;
 
-    void _code_complete_script(const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options) override;
+    void _code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options) override;
 
 public:
     void _validate_script() override;

@@ -116,7 +116,7 @@ void OS::_set_logger(CompositeLogger *p_logger) {
 
 void OS::add_logger(Logger *p_logger) {
     if (!_logger) {
-        PODVector<Logger *> loggers {p_logger};
+        Vector<Logger *> loggers {p_logger};
         _logger = memnew(CompositeLogger(eastl::move(loggers)));
     } else {
         _logger->add_logger(p_logger);
@@ -183,10 +183,10 @@ String OS::get_executable_path() const {
     return _execpath;
 }
 
-Error OS::execute_utf8(se_string_view p_path, const PODVector<String> &p_arguments, bool p_blocking,
+Error OS::execute_utf8(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking,
         OS::ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
     //TODO: SEGS: use QProcess ?
-    ListPOD<String> converted_args;
+    List<String> converted_args;
     for(String a : p_arguments)
         converted_args.emplace_back(std::move(a));
     return execute(p_path,converted_args,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
@@ -385,7 +385,7 @@ Error OS::shell_open(se_string_view p_uri) {
 };
 
 // implement these with the canvas?
-Error OS::dialog_show(UIString p_title, UIString p_description, const PODVector<UIString> p_buttons, Object *p_obj, const StringName & p_callback) {
+Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName & p_callback) {
     using namespace StringUtils;
     while (true) {
 
@@ -495,7 +495,7 @@ String OS::get_model_name() const {
     return String("GenericDevice");
 }
 
-void OS::set_cmdline(se_string_view p_execpath, const ListPOD<String> &p_args) {
+void OS::set_cmdline(se_string_view p_execpath, const List<String> &p_args) {
 
     _execpath = p_execpath;
     _cmdline = p_args;
@@ -706,7 +706,7 @@ const char *OS::get_audio_driver_name(int p_driver) const {
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 
-void OS::set_restart_on_exit(bool p_restart, const ListPOD<String> &p_restart_arguments) {
+void OS::set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments) {
     restart_on_exit = p_restart;
     restart_commandline = p_restart_arguments;
 }
@@ -715,7 +715,7 @@ bool OS::is_restart_on_exit_set() const {
     return restart_on_exit;
 }
 
-ListPOD<String> OS::get_restart_on_exit_arguments() const {
+List<String> OS::get_restart_on_exit_arguments() const {
     return restart_commandline;
 }
 
@@ -765,7 +765,7 @@ OS::OS() {
 
     has_server_feature_callback = nullptr;
 
-    PODVector<Logger *> loggers { memnew(StdLogger) };
+    Vector<Logger *> loggers { memnew(StdLogger) };
     _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }
 

@@ -82,7 +82,7 @@ private:
     Variant *call_event_res_ptr[5];
 
     btGhostObject *btGhost;
-    PODVector<OverlappingObjectData> overlappingObjects;
+    Vector<OverlappingObjectData> overlappingObjects;
     bool monitorable;
 
     PhysicsServer::AreaSpaceOverrideMode spOv_mode;

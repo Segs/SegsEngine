@@ -53,7 +53,7 @@ void SpriteFramesEditor::_gui_input(const Ref<InputEvent>& p_event) {
 void SpriteFramesEditor::_open_sprite_sheet() {
 
     file_split_sheet->clear_filters();
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
     for (const String &ext : extensions) {
         file_split_sheet->add_filter("*." + ext);
@@ -258,7 +258,7 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
 
     ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
-    PODVector<Ref<Texture> > resources;
+    Vector<Ref<Texture> > resources;
     resources.reserve(p_path.size());
 
     for (int i = 0; i < p_path.size(); i++) {
@@ -305,7 +305,7 @@ void SpriteFramesEditor::_load_pressed() {
     loading_scene = false;
 
     file->clear_filters();
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
     for (const String &ext : extensions)
         file->add_filter("*." + ext);
@@ -485,7 +485,7 @@ void SpriteFramesEditor::_animation_select() {
     _update_library(true);
 }
 
-static void _find_anim_sprites(Node *p_node, PODVector<Node *> *r_nodes, const Ref<SpriteFrames>& p_sfames) {
+static void _find_anim_sprites(Node *p_node, Vector<Node *> *r_nodes, const Ref<SpriteFrames>& p_sfames) {
 
     Node *edited = EditorNode::get_singleton()->get_edited_scene();
     if (!edited)
@@ -538,7 +538,7 @@ void SpriteFramesEditor::_animation_name_edited() {
         name = new_name + " " + itos(counter);
     }
 
-    PODVector<Node *> nodes;
+    Vector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
     undo_redo->create_action_ui(TTR("Rename Animation"));
@@ -568,7 +568,7 @@ void SpriteFramesEditor::_animation_add() {
         name += " " + itos(counter);
     }
 
-    PODVector<Node *> nodes;
+    Vector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
     undo_redo->create_action_ui(TTR("Add Animation"));
@@ -655,7 +655,7 @@ void SpriteFramesEditor::_update_library(bool p_skip_selector) {
 
         TreeItem *anim_root = animations->create_item();
 
-        ListPOD<StringName> anim_names;
+        List<StringName> anim_names;
 
         frames->get_animation_list(&anim_names);
 
@@ -721,7 +721,7 @@ void SpriteFramesEditor::edit(SpriteFrames *p_frames) {
 
         if (!p_frames->has_animation(edited_anim)) {
 
-            ListPOD<StringName> anim_names;
+            List<StringName> anim_names;
             frames->get_animation_list(&anim_names);
             anim_names.sort(WrapAlphaCompare());
             if (!anim_names.empty()) {

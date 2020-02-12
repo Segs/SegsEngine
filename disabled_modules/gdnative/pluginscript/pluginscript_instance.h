@@ -56,7 +56,7 @@ public:
 	void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
 	VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
-	void get_method_list(PODVector<MethodInfo> *p_list) const override;
+	void get_method_list(Vector<MethodInfo> *p_list) const override;
 	bool has_method(const StringName &p_method) const override;
 
 	Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;

@@ -45,9 +45,9 @@
 bool GDMonoAssembly::no_search = false;
 bool GDMonoAssembly::in_preload = false;
 
-PODVector<String> GDMonoAssembly::search_dirs;
+Vector<String> GDMonoAssembly::search_dirs;
 
-void GDMonoAssembly::fill_search_dirs(PODVector<String> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
+void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
 
     String framework_dir;
 
@@ -194,7 +194,7 @@ MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, vo
     return res ? res->get_assembly() : nullptr;
 }
 
-GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const PODVector<String> &p_search_dirs, bool p_refonly) {
+GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const Vector<String> &p_search_dirs, bool p_refonly) {
 
     GDMonoAssembly *res = nullptr;
     String path;
@@ -311,7 +311,7 @@ Error GDMonoAssembly::load(bool p_refonly) {
 
     uint64_t last_modified_time = FileAccess::get_modified_time(path);
 
-    PODVector<uint8_t> data = FileAccess::get_file_as_array(path);
+    Vector<uint8_t> data = FileAccess::get_file_as_array(path);
     ERR_FAIL_COND_V(data.empty(), ERR_FILE_CANT_READ);
 
     String image_filename;
@@ -338,7 +338,7 @@ Error GDMonoAssembly::load(bool p_refonly) {
     ERR_FAIL_NULL_V(image, ERR_FILE_CANT_OPEN);
 
 #ifdef DEBUG_ENABLED
-    PODVector<uint8_t> pdb_data;
+    Vector<uint8_t> pdb_data;
     String pdb_path(path + ".pdb");
 
     if (!FileAccess::exists(pdb_path)) {
@@ -462,7 +462,7 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
         if (result!=gdobject_class_cache.end())
             match = result->second;
     } else {
-        ListPOD<GDMonoClass *> nested_classes;
+        List<GDMonoClass *> nested_classes;
 
         int rows = mono_image_get_table_rows(image, MONO_TABLE_TYPEDEF);
 

@@ -70,7 +70,7 @@ private:
         }
     };
 
-    PODVector<Shape> shapes;
+    Vector<Shape> shapes;
     Space2DSW *space;
     Transform2D transform;
     Transform2D inv_transform;

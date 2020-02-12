@@ -203,7 +203,7 @@ void EditorSettingsDialog::_update_shortcuts() {
 
     shortcuts->clear();
 
-    PODVector<String> slist;
+    Vector<String> slist;
     EditorSettings::get_singleton()->get_shortcut_list(&slist);
     TreeItem *root = shortcuts->create_item();
 

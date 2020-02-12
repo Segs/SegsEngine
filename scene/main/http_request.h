@@ -67,7 +67,7 @@ protected:
 
 public:
     //! connects to a full url and perform request
-    Error request(se_string_view p_url, const PODVector<String> &p_custom_headers = {}, bool p_ssl_validate_domain = true, HTTPClient::Method p_method = HTTPClient::METHOD_GET, se_string_view p_request_data = {});
+    Error request(se_string_view p_url, const Vector<String> &p_custom_headers = {}, bool p_ssl_validate_domain = true, HTTPClient::Method p_method = HTTPClient::METHOD_GET, se_string_view p_request_data = {});
     void cancel_request();
     HTTPClient::Status get_http_client_status() const;
 

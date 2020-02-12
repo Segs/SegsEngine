@@ -67,7 +67,7 @@ class TestPhysicsMainLoop : public MainLoop {
 
     Point2 joy_direction;
 
-    PODVector<RID> bodies;
+    Vector<RID> bodies;
     Map<PhysicsServer::ShapeType, RID> type_shape_map;
     Map<PhysicsServer::ShapeType, RID> type_mesh_map;
 
@@ -190,14 +190,14 @@ protected:
         type_shape_map[PhysicsServer::SHAPE_CONVEX_POLYGON] = convex_shape;
     }
 
-    void make_trimesh(PODVector<Vector3> p_faces, const Transform &p_xform = Transform()) {
+    void make_trimesh(Vector<Vector3> p_faces, const Transform &p_xform = Transform()) {
 
         VisualServer *vs = VisualServer::get_singleton();
         PhysicsServer *ps = PhysicsServer::get_singleton();
         RID trimesh_shape = ps->shape_create(PhysicsServer::SHAPE_CONCAVE_POLYGON);
         ps->shape_set_data(trimesh_shape, Variant::from(p_faces));
-        p_faces = ps->shape_get_data(trimesh_shape).as<PODVector<Vector3>>(); // optimized one
-        PODVector<Vector3> normals; // for drawing
+        p_faces = ps->shape_get_data(trimesh_shape).as<Vector<Vector3>>(); // optimized one
+        Vector<Vector3> normals; // for drawing
         for (int i = 0; i < p_faces.size() / 3; i++) {
 
             Plane p(p_faces[i * 3 + 0], p_faces[i * 3 + 1], p_faces[i * 3 + 2]);
@@ -225,7 +225,7 @@ protected:
 
     void make_grid(int p_width, int p_height, float p_cellsize, float p_cellheight, const Transform &p_xform = Transform()) {
 
-        PODVector<PODVector<float> > grid;
+        Vector<Vector<float> > grid;
 
         grid.resize(p_width);
 
@@ -239,7 +239,7 @@ protected:
             }
         }
 
-        PODVector<Vector3> faces;
+        Vector<Vector3> faces;
 
         for (int i = 1; i < p_width; i++) {
 

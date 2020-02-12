@@ -72,7 +72,7 @@ public:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_tgt) const;
+    void _get_property_list(Vector<PropertyInfo> *p_tgt) const;
 
 
     static void _bind_methods();
@@ -111,33 +111,33 @@ public:
     Ref<Texture> get_icon(const StringName &p_name, const StringName &p_type) const;
     bool has_icon(const StringName &p_name, const StringName &p_type) const;
     void clear_icon(const StringName &p_name, const StringName &p_type);
-    void get_icon_list(const StringName& p_type, PODVector<StringName> *p_list) const;
+    void get_icon_list(const StringName& p_type, Vector<StringName> *p_list) const;
 
     void set_shader(const StringName &p_name, const StringName &p_type, const Ref<Shader> &p_shader);
     Ref<Shader> get_shader(const StringName &p_name, const StringName &p_type) const;
     bool has_shader(const StringName &p_name, const StringName &p_type) const;
     void clear_shader(const StringName &p_name, const StringName &p_type);
-    void get_shader_list(const StringName &p_type, PODVector<StringName> *p_list) const;
+    void get_shader_list(const StringName &p_type, Vector<StringName> *p_list) const;
 
     void set_stylebox(const StringName &p_name, const StringName &p_type, const Ref<StyleBox> &p_style);
     Ref<StyleBox> get_stylebox(const StringName &p_name, const StringName &p_type) const;
     bool has_stylebox(const StringName &p_name, const StringName &p_type) const;
     void clear_stylebox(const StringName &p_name, const StringName &p_type);
-    PODVector<StringName> get_stylebox_list(const StringName& p_type) const;
-    PODVector<StringName> get_stylebox_types() const;
+    Vector<StringName> get_stylebox_list(const StringName& p_type) const;
+    Vector<StringName> get_stylebox_types() const;
 
     void set_font(const StringName &p_name, const StringName &p_type, const Ref<Font> &p_font);
     Ref<Font> get_font(const StringName &p_name, const StringName &p_type) const;
     bool has_font(const StringName &p_name, const StringName &p_type) const;
     void clear_font(const StringName &p_name, const StringName &p_type);
-    void get_font_list(const StringName& p_type, PODVector<StringName> *p_list) const;
+    void get_font_list(const StringName& p_type, Vector<StringName> *p_list) const;
 
     void set_colors(Span<const ThemeColor> colors);
     void set_color(const StringName &p_name, const StringName &p_type, const Color &p_color);
     Color get_color(const StringName &p_name, const StringName &p_type) const;
     bool has_color(const StringName &p_name, const StringName &p_type) const;
     void clear_color(const StringName &p_name, const StringName &p_type);
-    void get_color_list(const StringName& p_type, PODVector<StringName> *p_list) const;
+    void get_color_list(const StringName& p_type, Vector<StringName> *p_list) const;
 
 
     void set_constants(Span<const ThemeConstant> vals);
@@ -145,9 +145,9 @@ public:
     int get_constant(const StringName &p_name, const StringName &p_type) const;
     bool has_constant(const StringName &p_name, const StringName &p_type) const;
     void clear_constant(const StringName &p_name, const StringName &p_type);
-    void get_constant_list(const StringName& p_type, PODVector<StringName> *p_list) const;
+    void get_constant_list(const StringName& p_type, Vector<StringName> *p_list) const;
 
-    void get_type_list(PODVector<StringName> *p_list) const;
+    void get_type_list(Vector<StringName> *p_list) const;
 
     void copy_default_theme();
     void copy_theme(const Ref<Theme> &p_other);

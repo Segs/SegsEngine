@@ -47,7 +47,7 @@ class AnimationCache : public Object {
         Spatial *spatial;
 
         int bone_idx;
-        PODVector<StringName> subpath;
+        Vector<StringName> subpath;
         bool valid;
         Path() {
             object = nullptr;
@@ -60,7 +60,7 @@ class AnimationCache : public Object {
     };
 
     Set<Node *> connected_nodes;
-    PODVector<Path> path_cache;
+    Vector<Path> path_cache;
 
     Node *root;
     Ref<Animation> animation;

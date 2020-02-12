@@ -257,7 +257,7 @@ public:
 
     void shader_set_code(RID p_shader, const String &p_code) {}
     String shader_get_code(RID p_shader) const { 	return String(); }
-    void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {}
+    void shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const {}
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) {}
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const { return RID(); }
@@ -294,7 +294,7 @@ public:
         return mesh_owner.make_rid(mesh);
     }
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PODVector<uint8_t> &p_array, int p_vertex_count, const PODVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PODVector<uint8_t> > &p_blend_shapes = PODVector<PODVector<uint8_t> >(), const PODVector<AABB> &p_bone_aabbs = PODVector<AABB>()) {
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const Vector<uint8_t> &p_array, int p_vertex_count, const Vector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<Vector<uint8_t> > &p_blend_shapes = Vector<Vector<uint8_t> >(), const Vector<AABB> &p_bone_aabbs = Vector<AABB>()) {
         DummyMesh *m = mesh_owner.getornull(p_mesh);
         ERR_FAIL_COND(!m);
 

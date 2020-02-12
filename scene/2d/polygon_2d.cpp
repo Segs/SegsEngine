@@ -134,7 +134,7 @@ void Polygon2D::_notification(int p_what) {
                 current_skeleton_id = new_skeleton_id;
             }
 
-            PODVector<Vector2> points;
+            Vector<Vector2> points;
             PoolVector<Vector2> uvs;
             PoolVector<int> bones;
             PoolVector<float> weights;
@@ -308,13 +308,13 @@ void Polygon2D::_notification(int p_what) {
             //			VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, texture ? texture->get_rid() : RID());
 
             if (invert || polygons.empty()) {
-                PODVector<int> indices(Geometry::triangulate_polygon(points));
+                Vector<int> indices(Geometry::triangulate_polygon(points));
                 if (!indices.empty()) {
                     VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, points, colors, uvs, bones, weights, texture ? texture->get_rid() : RID(), -1, RID(), antialiased);
                 }
             } else {
                 //draw individual polygons
-                PODVector<int> total_indices;
+                Vector<int> total_indices;
                 for (int i = 0; i < polygons.size(); i++) {
                     PoolVector<int> src_indices = polygons[i];
                     int ic = src_indices.size();
@@ -322,7 +322,7 @@ void Polygon2D::_notification(int p_what) {
                         continue;
                     PoolVector<int>::Read r = src_indices.read();
 
-                    PODVector<Vector2> tmp_points;
+                    Vector<Vector2> tmp_points;
                     tmp_points.resize(ic);
 
                     for (int j = 0; j < ic; j++) {
@@ -330,7 +330,7 @@ void Polygon2D::_notification(int p_what) {
                         ERR_CONTINUE(idx < 0 || idx >= points.size());
                         tmp_points[j] = points[r[j]];
                     }
-                    PODVector<int> indices = Geometry::triangulate_polygon(tmp_points);
+                    Vector<int> indices = Geometry::triangulate_polygon(tmp_points);
                     int ic2 = indices.size();
                     const int *r2 = indices.data();
 

@@ -771,7 +771,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
         TreeItem *file_item = E.second;
         String fpath = file_item->get_metadata(0);
 
-        PODVector<Result> locations;
+        Vector<Result> locations;
         for (TreeItem *item = file_item->get_children(); item; item = item->get_next()) {
 
             if (!item->is_checked(0))
@@ -830,7 +830,7 @@ private:
     String _line_buffer;
 };
 
-void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const PODVector<FindInFilesPanel::Result> &locations, se_string_view new_text) {
+void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector<FindInFilesPanel::Result> &locations, se_string_view new_text) {
 
     // If the file is already open, I assume the editor will reload it.
     // If there are unsaved changes, the user will be asked on focus,

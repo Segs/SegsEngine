@@ -103,7 +103,7 @@ private:
 
     struct TransformTrack : public Track {
 
-        PODVector<TKey<TransformKey> > transforms;
+        Vector<TKey<TransformKey> > transforms;
 
         TransformTrack() : Track(TYPE_TRANSFORM) {}
     };
@@ -114,7 +114,7 @@ private:
 
         UpdateMode update_mode = UPDATE_CONTINUOUS;
         bool update_on_seek;
-        PODVector<TKey<Variant> > values;
+        Vector<TKey<Variant> > values;
 
         ValueTrack() : Track(TYPE_VALUE) {
         }
@@ -125,12 +125,12 @@ private:
     struct MethodKey : public Key {
 
         StringName method;
-        PODVector<Variant> params;
+        Vector<Variant> params;
     };
 
     struct MethodTrack : public Track {
 
-        PODVector<MethodKey> methods;
+        Vector<MethodKey> methods;
         MethodTrack() : Track(TYPE_METHOD) {}
     };
 
@@ -144,7 +144,7 @@ private:
 
     struct BezierTrack : public Track {
 
-        PODVector<TKey<BezierKey> > values;
+        Vector<TKey<BezierKey> > values;
 
         BezierTrack() : Track(TYPE_BEZIER) {}
     };
@@ -163,7 +163,7 @@ private:
 
     struct AudioTrack : public Track {
 
-        PODVector<TKey<AudioKey> > values;
+        Vector<TKey<AudioKey> > values;
 
         AudioTrack() : Track(TYPE_AUDIO) {}
     };
@@ -172,12 +172,12 @@ private:
 
     struct AnimationTrack : public Track {
 
-        PODVector<TKey<StringName> > values;
+        Vector<TKey<StringName> > values;
 
         AnimationTrack() : Track(TYPE_ANIMATION) {}
     };
 
-    PODVector<Track *> tracks;
+    Vector<Track *> tracks;
 
     /*
     template<class T>
@@ -204,10 +204,10 @@ private:
     _FORCE_INLINE_ float _cubic_interpolate(const float &p_pre_a, const float &p_a, const float &p_b, const float &p_post_b, float p_c) const;
 
     template <class T>
-    _FORCE_INLINE_ T _interpolate(const PODVector<TKey<T> > &p_keys, float p_time, InterpolationType p_interp, bool p_loop_wrap, bool *p_ok) const;
+    _FORCE_INLINE_ T _interpolate(const Vector<TKey<T> > &p_keys, float p_time, InterpolationType p_interp, bool p_loop_wrap, bool *p_ok) const;
 
     template <class T>
-    _FORCE_INLINE_ void _track_get_key_indices_in_range(const PODVector<T> &p_array, float from_time, float to_time, DefList<int> *p_indices) const;
+    _FORCE_INLINE_ void _track_get_key_indices_in_range(const Vector<T> &p_array, float from_time, float to_time, DefList<int> *p_indices) const;
 
     _FORCE_INLINE_ void _value_track_get_key_indices_in_range(const ValueTrack *vt, float from_time, float to_time, DefList<int> *p_indices) const;
     _FORCE_INLINE_ void _method_track_get_key_indices_in_range(const MethodTrack *mt, float from_time, float to_time, DefList<int> *p_indices) const;
@@ -239,7 +239,7 @@ public:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -316,7 +316,7 @@ public:
     UpdateMode value_track_get_update_mode(int p_track) const;
 
     void method_track_get_key_indices(int p_track, float p_time, float p_delta, DefList<int> *p_indices) const;
-    const PODVector<Variant> &method_track_get_params(int p_track, int p_key_idx) const;
+    const Vector<Variant> &method_track_get_params(int p_track, int p_key_idx) const;
     StringName method_track_get_name(int p_track, int p_key_idx) const;
 
     void copy_track(int p_track, Ref<Animation> p_to_animation);

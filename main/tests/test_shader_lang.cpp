@@ -79,7 +79,7 @@ static const char *btos(bool v)
 {
     return v ? "true" : "false";
 }
-static String get_constant_text(SL::DataType p_type, const PODVector<SL::ConstantNode::Value> &p_values) {
+static String get_constant_text(SL::DataType p_type, const Vector<SL::ConstantNode::Value> &p_values) {
 
     switch (p_type) {
         case SL::TYPE_BOOL: return p_values[0].boolean ? "true" : "false";
@@ -304,7 +304,7 @@ static Error recreate_code(void *p_str, SL::ShaderNode *p_program) {
 
 MainLoop *test() {
 
-    const ListPOD<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const List<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!
@@ -336,7 +336,7 @@ MainLoop *test() {
     dt["fragment"].built_ins["ALBEDO"] = SL::TYPE_VEC3;
     dt["fragment"].can_discard = true;
 
-    PODVector<StringName> rm {StringName("popo")};
+    Vector<StringName> rm {StringName("popo")};
 
     Set<StringName> types;
     types.insert("spatial");

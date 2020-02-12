@@ -58,7 +58,7 @@ class BindingsGenerator {
 
     struct EnumInterface {
         StringName cname;
-        ListPOD<ConstantInterface> constants;
+        List<ConstantInterface> constants;
 
         _FORCE_INLINE_ bool operator==(const EnumInterface &p_ienum) const {
             return p_ienum.cname == cname;
@@ -145,7 +145,7 @@ class BindingsGenerator {
          */
         bool is_internal=false;
 
-        ListPOD<ArgumentInterface> arguments;
+        List<ArgumentInterface> arguments;
 
         const DocData::MethodDoc *method_doc = nullptr;
 
@@ -314,10 +314,10 @@ class BindingsGenerator {
 
         const DocData::ClassDoc *class_doc;
 
-        ListPOD<ConstantInterface> constants;
-        ListPOD<EnumInterface> enums;
-        ListPOD<PropertyInterface> properties;
-        ListPOD<MethodInterface> methods;
+        List<ConstantInterface> constants;
+        List<EnumInterface> enums;
+        List<PropertyInterface> properties;
+        List<MethodInterface> methods;
 
         const MethodInterface *find_method_by_name(const StringName &p_cname) const {
             for (const MethodInterface &E : methods) {
@@ -480,18 +480,18 @@ class BindingsGenerator {
     Map<StringName, TypeInterface> builtin_types;
     Map<StringName, TypeInterface> enum_types;
 
-    PODVector<EnumInterface> global_enums;
-    ListPOD<ConstantInterface> global_constants;
+    Vector<EnumInterface> global_enums;
+    List<ConstantInterface> global_constants;
 
-    ListPOD<InternalCall> method_icalls;
+    List<InternalCall> method_icalls;
     Map<const MethodInterface *, const InternalCall *> method_icalls_map;
 
-    ListPOD<const InternalCall *> generated_icall_funcs;
+    List<const InternalCall *> generated_icall_funcs;
 
-    ListPOD<InternalCall> core_custom_icalls;
-    ListPOD<InternalCall> editor_custom_icalls;
+    List<InternalCall> core_custom_icalls;
+    List<InternalCall> editor_custom_icalls;
 
-    Map<StringName, ListPOD<StringName> > blacklisted_methods;
+    Map<StringName, List<StringName> > blacklisted_methods;
 
     void _initialize_blacklisted_methods();
 
@@ -551,7 +551,7 @@ class BindingsGenerator {
 
     NameCache name_cache;
 
-    bool has_named_icall(const String &p_name, const ListPOD<InternalCall> &p_list) {
+    bool has_named_icall(const String &p_name, const List<InternalCall> &p_list) {
         for (const InternalCall &E : p_list) {
             if (E.name == p_name)
                 return true;
@@ -559,7 +559,7 @@ class BindingsGenerator {
         return false;
     }
 
-    const ConstantInterface *find_constant_by_name(se_string_view p_name, const ListPOD<ConstantInterface> &p_constants) const {
+    const ConstantInterface *find_constant_by_name(se_string_view p_name, const List<ConstantInterface> &p_constants) const {
         for (const ConstantInterface &E : p_constants) {
             if (E.name == p_name)
                 return &E;
@@ -624,7 +624,7 @@ public:
 
     static uint32_t get_version();
 
-    static void handle_cmdline_args(const ListPOD<String> &p_cmdline_args);
+    static void handle_cmdline_args(const List<String> &p_cmdline_args);
 
     BindingsGenerator() :
             log_print_enabled(true),

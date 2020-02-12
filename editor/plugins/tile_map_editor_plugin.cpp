@@ -212,9 +212,9 @@ void TileMapEditor::_canvas_mouse_exit() {
     CanvasItemEditor::get_singleton()->update_viewport();
 }
 
-PODVector<int> TileMapEditor::get_selected_tiles() const {
+Vector<int> TileMapEditor::get_selected_tiles() const {
 
-    PODVector<int> items = palette->get_selected_items();
+    Vector<int> items = palette->get_selected_items();
 
     if (items.empty()) {
         items.push_back(TileMap::INVALID_CELL);
@@ -227,7 +227,7 @@ PODVector<int> TileMapEditor::get_selected_tiles() const {
     return items;
 }
 
-void TileMapEditor::set_selected_tiles(const PODVector<int>& p_tiles) {
+void TileMapEditor::set_selected_tiles(const Vector<int>& p_tiles) {
 
     palette->unselect_all();
 
@@ -399,7 +399,7 @@ void TileMapEditor::_update_palette() {
     clear_transform_button->set_disabled(!flip_h && !flip_v && !transpose);
 
     // Update the palette.
-    PODVector<int> selected = get_selected_tiles();
+    Vector<int> selected = get_selected_tiles();
     int selected_single = palette->get_current();
     int selected_manual = manual_palette->get_current();
     palette->clear();
@@ -417,7 +417,7 @@ void TileMapEditor::_update_palette() {
     search_box->set_editable(true);
     info_message->hide();
 
-    PODVector<int> tiles;
+    Vector<int> tiles;
     tileset->get_tile_list(&tiles);
     if (tiles.empty())
         return;
@@ -440,7 +440,7 @@ void TileMapEditor::_update_palette() {
     String filter_text=search_box->get_text();
     se_string_view filter = StringUtils::strip_edges(filter_text);
 
-    PODVector<_PaletteEntry> entries;
+    Vector<_PaletteEntry> entries;
 
     for (int E : tiles) {
 
@@ -525,7 +525,7 @@ void TileMapEditor::_update_palette() {
 
             const Map<Vector2, uint32_t> &tiles2 = tileset->autotile_get_bitmask_map(sel_tile);
 
-            PODVector<Vector2> entries2;
+            Vector<Vector2> entries2;
             for (const eastl::pair<const Vector2,uint32_t> &E : tiles2) {
                 entries2.push_back(E.first);
             }
@@ -595,7 +595,7 @@ void TileMapEditor::_pick_tile(const Point2 &p_pos) {
     transpose = node->is_cell_transposed(p_pos.x, p_pos.y);
     autotile_coord = node->get_cell_autotile_coord(p_pos.x, p_pos.y);
 
-    PODVector<int> selected(1,id);
+    Vector<int> selected(1,id);
 
     set_selected_tiles(selected);
     _update_palette();
@@ -610,7 +610,7 @@ void TileMapEditor::_pick_tile(const Point2 &p_pos) {
 PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool erase, bool preview) {
 
     int prev_id = node->get_cell(p_start.x, p_start.y);
-    PODVector<int> ids(1, TileMap::INVALID_CELL);
+    Vector<int> ids(1, TileMap::INVALID_CELL);
 
     if (!erase) {
         ids = get_selected_tiles();
@@ -713,7 +713,7 @@ void TileMapEditor::_fill_points(const PoolVector<Vector2> &p_points, const Dict
     int len = p_points.size();
     PoolVector<Vector2>::Read pr = p_points.read();
 
-    PODVector<int> ids = p_op["id"].asVector<int>();
+    Vector<int> ids = p_op["id"].asVector<int>();
     bool xf = p_op["flip_h"];
     bool yf = p_op["flip_v"];
     bool tr = p_op["transpose"];
@@ -932,9 +932,9 @@ void TileMapEditor::_update_copydata() {
     }
 }
 
-static inline PODVector<Point2i> line(int x0, int x1, int y0, int y1) {
+static inline Vector<Point2i> line(int x0, int x1, int y0, int y1) {
 
-    PODVector<Point2i> points;
+    Vector<Point2i> points;
 
     float dx = ABS(x1 - x0);
     float dy = ABS(y1 - y0);
@@ -1024,7 +1024,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                 if (tool == TOOL_PAINTING) {
 
-                    PODVector<int> ids = get_selected_tiles();
+                    Vector<int> ids = get_selected_tiles();
 
                     if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
@@ -1050,7 +1050,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                     if (tool == TOOL_PAINTING) {
 
-                        PODVector<int> ids = get_selected_tiles();
+                        Vector<int> ids = get_selected_tiles();
 
                         if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
@@ -1061,7 +1061,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         }
                     } else if (tool == TOOL_LINE_PAINT) {
 
-                        PODVector<int> ids = get_selected_tiles();
+                        Vector<int> ids = get_selected_tiles();
 
                         if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
@@ -1078,7 +1078,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         }
                     } else if (tool == TOOL_RECTANGLE_PAINT) {
 
-                        PODVector<int> ids = get_selected_tiles();
+                        Vector<int> ids = get_selected_tiles();
 
                         if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
@@ -1096,11 +1096,11 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     } else if (tool == TOOL_PASTING) {
 
                         Point2 ofs = over_tile - rectangle.position;
-                        PODVector<int> ids;
+                        Vector<int> ids;
 
                         _start_undo(TTR("Paste"));
                         ids.push_back(0);
-                        for (List<TileData>::Element *E = copydata.front(); E; E = E->next()) {
+                        for (ListOld<TileData>::Element *E = copydata.front(); E; E = E->next()) {
 
                             ids[0] = E->deref().cell;
                             _set_cell(E->deref().pos + ofs, ids, E->deref().flip_h, E->deref().flip_v, E->deref().transpose, E->deref().autotile_coord);
@@ -1215,7 +1215,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                 } else if (tool == TOOL_BUCKET) {
 
-                    PODVector<int> ids;
+                    Vector<int> ids;
                     ids.push_back(node->get_cell(over_tile.x, over_tile.y));
                     Dictionary pop;
                     pop["id"] = ids;
@@ -1264,8 +1264,8 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
             // Paint using bresenham line to prevent holes in painting if the user moves fast.
 
-            PODVector<Point2i> points = line(old_over_tile.x, over_tile.x, old_over_tile.y, over_tile.y);
-            PODVector<int> ids = get_selected_tiles();
+            Vector<Point2i> points = line(old_over_tile.x, over_tile.x, old_over_tile.y, over_tile.y);
+            Vector<int> ids = get_selected_tiles();
 
             for (int i = 0; i < points.size(); ++i) {
 
@@ -1285,7 +1285,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
             // Erase using bresenham line to prevent holes in painting if the user moves fast.
 
-            PODVector<Point2i> points = line(old_over_tile.x, over_tile.x, old_over_tile.y, over_tile.y);
+            Vector<Point2i> points = line(old_over_tile.x, over_tile.x, old_over_tile.y, over_tile.y);
 
             for (int i = 0; i < points.size(); ++i) {
 
@@ -1306,7 +1306,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
         if (tool == TOOL_LINE_PAINT || tool == TOOL_LINE_ERASE) {
 
-            PODVector<int> ids = get_selected_tiles();
+            Vector<int> ids = get_selected_tiles();
             int tmp_cell[1]={0};
             bool erasing = tool == TOOL_LINE_ERASE;
 
@@ -1323,7 +1323,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
             if (!ids.empty() && ids[0] != TileMap::INVALID_CELL) {
 
-                PODVector<Point2i> points = line(rectangle_begin.x, over_tile.x, rectangle_begin.y, over_tile.y);
+                Vector<Point2i> points = line(rectangle_begin.x, over_tile.x, rectangle_begin.y, over_tile.y);
 
                 for (int i = 0; i < points.size(); i++) {
 
@@ -1685,7 +1685,7 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
             if (paint_undo.empty())
                 return;
 
-            PODVector<int> ids = get_selected_tiles();
+            Vector<int> ids = get_selected_tiles();
 
             if (ids.size() == 1 && ids[0] == TileMap::INVALID_CELL)
                 return;
@@ -1697,7 +1697,7 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
         } else if (tool == TOOL_RECTANGLE_PAINT) {
 
-            PODVector<int> ids = get_selected_tiles();
+            Vector<int> ids = get_selected_tiles();
 
             if (ids.size() == 1 && ids[0] == TileMap::INVALID_CELL)
                 return;
@@ -1720,7 +1720,7 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
             Point2 ofs = over_tile - rectangle.position;
 
-            for (List<TileData>::Element *E = copydata.front(); E; E = E->next()) {
+            for (ListOld<TileData>::Element *E = copydata.front(); E; E = E->next()) {
 
                 if (!ts->has_tile(E->deref().cell))
                     continue;
@@ -1743,12 +1743,12 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
         } else if (tool == TOOL_BUCKET) {
 
-            PODVector<int> tiles = get_selected_tiles();
+            Vector<int> tiles = get_selected_tiles();
             _draw_fill_preview(p_overlay, tiles[0], over_tile, flip_h, flip_v, transpose, autotile_coord, xform);
 
         } else {
 
-            PODVector<int> st = get_selected_tiles();
+            Vector<int> st = get_selected_tiles();
 
             if (st.size() == 1 && st[0] == TileMap::INVALID_CELL)
                 return;

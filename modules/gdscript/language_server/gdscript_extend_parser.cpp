@@ -593,7 +593,7 @@ const lsp::DocumentSymbol *ExtendGDScriptParser::get_member_symbol(se_string_vie
     return nullptr;
 }
 
-const PODVector<lsp::DocumentLink> &ExtendGDScriptParser::get_document_links() const {
+const Vector<lsp::DocumentLink> &ExtendGDScriptParser::get_document_links() const {
     return document_links;
 }
 

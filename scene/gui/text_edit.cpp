@@ -92,8 +92,8 @@ public:
     };
 
 private:
-    const PODVector<TextEdit::ColorRegion> *color_regions;
-    mutable PODVector<Line> text;
+    const Vector<TextEdit::ColorRegion> *color_regions;
+    mutable Vector<Line> text;
     Ref<Font> font;
     int indent_size;
 
@@ -102,7 +102,7 @@ private:
 public:
     void set_indent_size(int p_indent_size);
     void set_font(const Ref<Font> &p_font);
-    void set_color_regions(const PODVector<TextEdit::ColorRegion> *p_regions) { color_regions = p_regions; }
+    void set_color_regions(const Vector<TextEdit::ColorRegion> *p_regions) { color_regions = p_regions; }
     int get_line_width(int p_line) const;
     int get_max_width(bool p_exclude_hidden = false) const;
     int get_char_width(CharType c, CharType next_c, int px) const;
@@ -210,7 +210,7 @@ struct TextEdit::PrivateData {
 
     Map<int, HighlighterInfo> _get_line_syntax_highlighting(TextEdit *te,int p_line);
 
-    PODVector<TextEdit::ColorRegion> color_regions;
+    Vector<TextEdit::ColorRegion> color_regions;
 
     eastl::unordered_map<UIString, Color> keywords;
     eastl::unordered_map<UIString, Color> member_keywords;
@@ -1201,7 +1201,7 @@ void TextEdit::_notification(int p_what) {
                         current_color = m_priv->cache.font_color_readonly;
                     }
 
-                    PODVector<UIString> wrap_rows = get_wrap_rows_text(minimap_line);
+                    Vector<UIString> wrap_rows = get_wrap_rows_text(minimap_line);
                     int line_wrap_amount = times_line_wraps(minimap_line);
                     int last_wrap_column = 0;
 
@@ -1326,7 +1326,7 @@ void TextEdit::_notification(int p_what) {
 
                 bool underlined = false;
 
-                PODVector<UIString> wrap_rows = get_wrap_rows_text(line);
+                Vector<UIString> wrap_rows = get_wrap_rows_text(line);
                 int line_wrap_amount = times_line_wraps(line);
                 int last_wrap_column = 0;
 
@@ -2309,7 +2309,7 @@ void TextEdit::_get_mouse_pos(const Point2i &p_mouse, int &r_row, int &r_col) co
         col = get_char_pos_for_line(colx, row, wrap_index);
         if (is_wrap_enabled() && wrap_index < times_line_wraps(row)) {
             // Move back one if we are at the end of the row.
-            PODVector<UIString> rows2 = get_wrap_rows_text(row);
+            Vector<UIString> rows2 = get_wrap_rows_text(row);
             int row_end_col = 0;
             for (int i = 0; i < wrap_index + 1; i++) {
                 row_end_col += rows2[i].length();
@@ -2335,7 +2335,7 @@ Vector2i TextEdit::_get_cursor_pixel_pos() {
         row += times_line_wraps(i);
     }
     // Row might be wrapped. Adjust row and r_column
-    PODVector<UIString> rows2 = get_wrap_rows_text(cursor.line);
+    Vector<UIString> rows2 = get_wrap_rows_text(cursor.line);
     while (rows2.size() > 1) {
         if (cursor.column >= rows2[0].length()) {
             cursor.column -= rows2[0].length();
@@ -3635,7 +3635,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                 } else {
 
                     // Move cursor column to start of wrapped row and then to start of text.
-                    PODVector<UIString> rows = get_wrap_rows_text(cursor.line);
+                    Vector<UIString> rows = get_wrap_rows_text(cursor.line);
                     int wi = get_cursor_wrap_index();
                     int row_start_col = 0;
                     for (int i = 0; i < wi; i++) {
@@ -3694,7 +3694,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     cursor_set_line(get_last_unhidden_line(), true, false, 9999);
 
                 // Move cursor column to end of wrapped row and then to end of text.
-                PODVector<UIString> rows = get_wrap_rows_text(cursor.line);
+                Vector<UIString> rows = get_wrap_rows_text(cursor.line);
                 int wi = get_cursor_wrap_index();
                 int row_end_col = -1;
                 for (int i = 0; i < wi + 1; i++) {
@@ -4452,7 +4452,7 @@ void TextEdit::_update_wrap_at() {
         // Update all values that wrap.
         if (!line_wraps(i))
             continue;
-        PODVector<UIString> rows = get_wrap_rows_text(i);
+        Vector<UIString> rows = get_wrap_rows_text(i);
         m_priv->text.set_line_wrap_amount(i, rows.size() - 1);
     }
 }
@@ -4560,7 +4560,7 @@ int TextEdit::times_line_wraps(int line) const {
     int wrap_amount = m_priv->text.get_line_wrap_amount(line);
     if (wrap_amount == -1) {
         // Update the value.
-        PODVector<UIString> rows = get_wrap_rows_text(line);
+        Vector<UIString> rows = get_wrap_rows_text(line);
         wrap_amount = rows.size() - 1;
         m_priv->text.set_line_wrap_amount(line, wrap_amount);
     }
@@ -4568,11 +4568,11 @@ int TextEdit::times_line_wraps(int line) const {
     return wrap_amount;
 }
 
-PODVector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
+Vector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
 
-    ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), PODVector<UIString>());
+    ERR_FAIL_INDEX_V(p_line, m_priv->text.size(), Vector<UIString>());
 
-    PODVector<UIString> lines;
+    Vector<UIString> lines;
     if (!line_wraps(p_line)) {
         lines.emplace_back(m_priv->text[p_line]);
         return lines;
@@ -4657,7 +4657,7 @@ int TextEdit::get_line_wrap_index_at_col(int p_line, int p_column) const {
     // Loop through wraps in the line text until we get to the column.
     int wrap_index = 0;
     int col = 0;
-    PODVector<UIString> rows = get_wrap_rows_text(p_line);
+    Vector<UIString> rows = get_wrap_rows_text(p_line);
     for (int i = 0; i < rows.size(); i++) {
         wrap_index = i;
         UIString s = rows[wrap_index];
@@ -4720,7 +4720,7 @@ void TextEdit::cursor_set_line(int p_row, bool p_adjust_viewport, bool p_can_be_
 
     int n_col = get_char_pos_for_line(cursor.last_fit_x, p_row, p_wrap_index);
     if (n_col != 0 && is_wrap_enabled() && p_wrap_index < times_line_wraps(p_row)) {
-        PODVector<UIString> rows = get_wrap_rows_text(p_row);
+        Vector<UIString> rows = get_wrap_rows_text(p_row);
         int row_end_col = 0;
         for (int i = 0; i < p_wrap_index + 1; i++) {
             row_end_col += rows[i].length();
@@ -4854,7 +4854,7 @@ int TextEdit::get_char_pos_for_line(int p_px, int p_line, int p_wrap_index) cons
             p_px -= wrap_offset_px;
         else
             p_wrap_index = 0;
-        PODVector<UIString> rows = get_wrap_rows_text(p_line);
+        Vector<UIString> rows = get_wrap_rows_text(p_line);
         int c_pos = get_char_pos_for(p_px, rows[p_wrap_index]);
         for (int i = 0; i < p_wrap_index; i++) {
             UIString s = rows[i];
@@ -4879,7 +4879,7 @@ int TextEdit::get_column_x_offset_for_line(int p_char, int p_line) const {
 
     int n_char = p_char;
     int col = 0;
-    PODVector<UIString> rows = get_wrap_rows_text(p_line);
+    Vector<UIString> rows = get_wrap_rows_text(p_line);
     int wrap_index = 0;
     for (int i = 0; i < rows.size(); i++) {
         wrap_index = i;
@@ -5855,7 +5855,7 @@ void TextEdit::set_line_as_bookmark(int p_line, bool p_bookmark) {
     update();
 }
 
-void TextEdit::get_bookmarks(PODVector<int> *p_bookmarks) const {
+void TextEdit::get_bookmarks(Vector<int> *p_bookmarks) const {
 
     for (int i = 0; i < m_priv->text.size(); i++) {
         if (m_priv->text.is_bookmark(i))
@@ -5886,7 +5886,7 @@ void TextEdit::set_line_as_breakpoint(int p_line, bool p_breakpoint) {
     update();
 }
 
-void TextEdit::get_breakpoints(PODVector<int> *p_breakpoints) const {
+void TextEdit::get_breakpoints(Vector<int> *p_breakpoints) const {
 
     for (int i = 0; i < m_priv->text.size(); i++) {
         if (m_priv->text.is_breakpoint(i))
@@ -6133,8 +6133,8 @@ bool TextEdit::is_folded(int p_line) const {
     return !is_line_hidden(p_line) && is_line_hidden(p_line + 1);
 }
 
-PODVector<int> TextEdit::get_folded_lines() const {
-    PODVector<int> folded_lines;
+Vector<int> TextEdit::get_folded_lines() const {
+    Vector<int> folded_lines;
 
     for (int i = 0; i < m_priv->text.size(); i++) {
         if (is_folded(i)) {
@@ -6272,7 +6272,7 @@ void TextEdit::_clear_redo() {
     _push_current_op();
 
     while (undo_stack_pos) {
-        List<TextOperation>::Element *elem = undo_stack_pos;
+        ListOld<TextOperation>::Element *elem = undo_stack_pos;
         undo_stack_pos = undo_stack_pos->next();
         undo_stack.erase(elem);
     }
@@ -6614,7 +6614,7 @@ float TextEdit::get_v_scroll_speed() const {
     return v_scroll_speed;
 }
 
-void TextEdit::set_completion(bool p_enabled, const PODVector<UIString> &p_prefixes) {
+void TextEdit::set_completion(bool p_enabled, const Vector<UIString> &p_prefixes) {
 
     completion_prefixes.clear();
     completion_enabled = p_enabled;
@@ -6771,9 +6771,9 @@ void TextEdit::_update_completion_candidates() {
     completion_options.clear();
     completion_index = 0;
     completion_base = s;
-    PODVector<float> sim_cache;
+    Vector<float> sim_cache;
     bool single_quote = StringUtils::begins_with(s,"'");
-    PODVector<ScriptCodeCompletionOption> completion_options_casei;
+    Vector<ScriptCodeCompletionOption> completion_options_casei;
 
     for (ScriptCodeCompletionOption& option : completion_sources) {
 
@@ -6876,7 +6876,7 @@ void TextEdit::set_code_hint(const String &p_hint) {
     update();
 }
 
-void TextEdit::code_complete(const PODVector<ScriptCodeCompletionOption> &p_strings, bool p_forced) {
+void TextEdit::code_complete(const Vector<ScriptCodeCompletionOption> &p_strings, bool p_forced) {
 
     completion_sources = p_strings;
     completion_active = true;

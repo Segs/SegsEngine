@@ -107,7 +107,7 @@ const lsp::DocumentSymbol *GDScriptWorkspace::get_script_symbol(se_string_view p
 }
 
 void GDScriptWorkspace::reload_all_workspace_scripts() {
-    ListPOD<String> paths;
+    List<String> paths;
     list_script_files("res://", paths);
     for (const String &path : paths) {
         Error err;
@@ -126,7 +126,7 @@ void GDScriptWorkspace::reload_all_workspace_scripts() {
     }
 }
 
-void GDScriptWorkspace::list_script_files(se_string_view p_root_dir, ListPOD<String> &r_files) {
+void GDScriptWorkspace::list_script_files(se_string_view p_root_dir, List<String> &r_files) {
     Error err;
     DirAccessRef dir = DirAccess::open(p_root_dir, &err);
     if (OK == err) {
@@ -175,7 +175,7 @@ Array GDScriptWorkspace::symbol(const Dictionary &p_params) {
         return arr;
     }
     for (const auto &E : scripts) {
-        PODVector<lsp::DocumentedSymbolInformation> script_symbols;
+        Vector<lsp::DocumentedSymbolInformation> script_symbols;
         E.second->get_symbols().symbol_tree_as_list(E.first, script_symbols);
         for (size_t i = 0; i < script_symbols.size(); ++i) {
             if (StringUtils::is_subsequence_of(query,script_symbols[i].name,StringUtils::CaseInsensitive)) {
@@ -219,7 +219,7 @@ Error GDScriptWorkspace::initialize() {
             class_symbol.children.push_back(symbol);
         }
 
-        PODVector<DocData::PropertyDoc> properties;
+        Vector<DocData::PropertyDoc> properties;
         properties.push_back(class_data.properties);
         const int theme_prop_start_idx = properties.size();
         properties.push_back(class_data.theme_properties);
@@ -240,7 +240,7 @@ Error GDScriptWorkspace::initialize() {
             class_symbol.children.push_back(symbol);
         }
 
-        PODVector<DocData::MethodDoc> methods_signals;
+        Vector<DocData::MethodDoc> methods_signals;
         methods_signals.push_back(class_data.methods);
         const int signal_start_idx = methods_signals.size();
         methods_signals.push_back(class_data.defined_signals);
@@ -365,7 +365,7 @@ void GDScriptWorkspace::publish_diagnostics(se_string_view p_path) {
     Array errors;
     const auto ele = parse_results.find_as(p_path);
     if (ele!=parse_results.end()) {
-        const PODVector<lsp::Diagnostic> &list = ele->second->get_diagnostics();
+        const Vector<lsp::Diagnostic> &list = ele->second->get_diagnostics();
         errors.resize(list.size());
         for (int i = 0; i < list.size(); ++i) {
             errors[i] = list[i].to_json();
@@ -376,7 +376,7 @@ void GDScriptWorkspace::publish_diagnostics(se_string_view p_path) {
     GDScriptLanguageProtocol::get_singleton()->notify_client(("textDocument/publishDiagnostics"), params);
 }
 
-void GDScriptWorkspace::completion(const lsp::CompletionParams &p_params, PODVector<ScriptCodeCompletionOption> *r_options) {
+void GDScriptWorkspace::completion(const lsp::CompletionParams &p_params, Vector<ScriptCodeCompletionOption> *r_options) {
 
     String path = get_file_path(p_params.textDocument.uri);
     String call_hint;
@@ -396,7 +396,7 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_symbol(const lsp::TextDocu
     if (const ExtendGDScriptParser *parser = get_parse_result(path)) {
 
         se_string_view symbol_identifier = p_symbol_name;
-        PODVector<se_string_view> identifier_parts = StringUtils::split(symbol_identifier,'(');
+        Vector<se_string_view> identifier_parts = StringUtils::split(symbol_identifier,'(');
         if (identifier_parts.size()) {
             symbol_identifier = identifier_parts[0];
         }
@@ -449,7 +449,7 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_symbol(const lsp::TextDocu
     return symbol;
 }
 
-void GDScriptWorkspace::resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, ListPOD<const lsp::DocumentSymbol *> &r_list) {
+void GDScriptWorkspace::resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, List<const lsp::DocumentSymbol *> &r_list) {
 
     String path = get_file_path(p_doc_pos.textDocument.uri);
     if (const ExtendGDScriptParser *parser = get_parse_result(path)) {
@@ -505,9 +505,9 @@ const lsp::DocumentSymbol *GDScriptWorkspace::resolve_native_symbol(const lsp::N
     return nullptr;
 }
 
-void GDScriptWorkspace::resolve_document_links(se_string_view p_uri, PODVector<lsp::DocumentLink> &r_list) {
+void GDScriptWorkspace::resolve_document_links(se_string_view p_uri, Vector<lsp::DocumentLink> &r_list) {
     if (const ExtendGDScriptParser *parser = get_parse_successed_script(get_file_path(p_uri))) {
-        const PODVector<lsp::DocumentLink> &links = parser->get_document_links();
+        const Vector<lsp::DocumentLink> &links = parser->get_document_links();
         for (const lsp::DocumentLink &E : links) {
             r_list.push_back(E);
         }
@@ -528,7 +528,7 @@ Error GDScriptWorkspace::resolve_signature(const lsp::TextDocumentPositionParams
 
         if (parser->get_left_function_call(p_doc_pos.position, text_pos.position, r_signature.activeParameter) == OK) {
 
-            ListPOD<const lsp::DocumentSymbol *> symbols;
+            List<const lsp::DocumentSymbol *> symbols;
 
             if (const lsp::DocumentSymbol *symbol = resolve_symbol(text_pos)) {
                 symbols.push_back(symbol);

@@ -37,7 +37,7 @@
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
 VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)
 
-void AnimationNodeBlendSpace2D::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeBlendSpace2D::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::VECTOR2, blend_position);
     r_list->emplace_back(VariantType::INT, closest, PropertyHint::None, "", 0);
     r_list->emplace_back(VariantType::REAL, length_internal, PropertyHint::None, "", 0);
@@ -52,7 +52,7 @@ Variant AnimationNodeBlendSpace2D::get_parameter_default_value(const StringName 
     }
 }
 
-void AnimationNodeBlendSpace2D::get_child_nodes(List<ChildNode> *r_child_nodes) {
+void AnimationNodeBlendSpace2D::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
     for (int i = 0; i < blend_points_used; i++) {
         ChildNode cn;
         cn.name = StringName(itos(i));
@@ -288,7 +288,7 @@ void AnimationNodeBlendSpace2D::_add_blend_point(int p_index, const Ref<Animatio
     }
 }
 
-void AnimationNodeBlendSpace2D::_set_triangles(const PODVector<int> &p_triangles) {
+void AnimationNodeBlendSpace2D::_set_triangles(const Vector<int> &p_triangles) {
 
     if (auto_triangles)
         return;
@@ -298,9 +298,9 @@ void AnimationNodeBlendSpace2D::_set_triangles(const PODVector<int> &p_triangles
     }
 }
 
-PODVector<int> AnimationNodeBlendSpace2D::_get_triangles() const {
+Vector<int> AnimationNodeBlendSpace2D::_get_triangles() const {
 
-    PODVector<int> t;
+    Vector<int> t;
     if (auto_triangles && trianges_dirty)
         return t;
 
@@ -334,13 +334,13 @@ void AnimationNodeBlendSpace2D::_update_triangles() {
         return;
     }
 
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
     points.reserve(blend_points_used);
     for (int i = 0; i < blend_points_used; i++) {
         points.emplace_back(blend_points[i].position);
     }
 
-    PODVector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(points);
+    Vector<Delaunay2D::Triangle> triangles = Delaunay2D::triangulate(points);
 
     for (const Delaunay2D::Triangle & tri : triangles) {
         add_triangle(tri.points[0], tri.points[1], tri.points[2]);

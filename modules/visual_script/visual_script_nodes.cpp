@@ -191,7 +191,7 @@ bool VisualScriptFunction::_get(const StringName &p_name, Variant &r_ret) const 
 
     return false;
 }
-void VisualScriptFunction::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void VisualScriptFunction::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::INT, "argument_count", PropertyHint::Range, "0,256"));
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
@@ -592,7 +592,7 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void VisualScriptLists::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void VisualScriptLists::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     if (is_input_port_editable()) {
         p_list->push_back(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,256"));
@@ -1297,7 +1297,7 @@ void VisualScriptVariableGet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "var_name" && get_visual_script()) {
         Ref<VisualScript> vs = get_visual_script();
-        PODVector<StringName> vars;
+        Vector<StringName> vars;
         vs->get_variable_list(&vars);
 
         String vhint;
@@ -1421,7 +1421,7 @@ void VisualScriptVariableSet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "var_name" && get_visual_script()) {
         Ref<VisualScript> vs = get_visual_script();
-        PODVector<StringName> vars;
+        Vector<StringName> vars;
         vs->get_variable_list(&vars);
 
         String vhint;
@@ -2038,7 +2038,7 @@ void VisualScriptClassConstant::_validate_property(PropertyInfo &property) const
 
     if (property.name == "constant") {
 
-        ListPOD<String> constants;
+        List<String> constants;
         ClassDB::get_integer_constant_list(base_type, &constants, true);
 
         property.hint_string = "";
@@ -2133,7 +2133,7 @@ StringName VisualScriptBasicTypeConstant::get_basic_type_constant() const {
 void VisualScriptBasicTypeConstant::set_basic_type(VariantType p_which) {
 
     type = p_which;
-    PODVector<StringName> constants;
+    Vector<StringName> constants;
     Variant::get_constants_for_type(type, &constants);
     if (constants.size() > 0) {
         bool found_name = false;
@@ -2186,7 +2186,7 @@ void VisualScriptBasicTypeConstant::_validate_property(PropertyInfo &property) c
 
     if (property.name == "constant") {
 
-        PODVector<StringName> constants;
+        Vector<StringName> constants;
         Variant::get_constants_for_type(type, &constants);
 
         if (constants.empty()) {
@@ -2440,7 +2440,7 @@ void VisualScriptEngineSingleton::_validate_property(PropertyInfo &property) con
 
     String cc;
 
-    const PODVector<Engine::Singleton> &singletons = Engine::get_singleton()->get_singletons();
+    const Vector<Engine::Singleton> &singletons = Engine::get_singleton()->get_singletons();
 
     for (const Engine::Singleton &E : singletons) {
         if (E.name == "VS" || E.name == "PS" || E.name == "PS2D" || E.name == "AS" || E.name == "TS" || E.name == "SS" || E.name == "SS2D")
@@ -3911,7 +3911,7 @@ void VisualScriptInputAction::_validate_property(PropertyInfo &property) const {
 
     property.hint = PropertyHint::Enum;
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     ProjectSettings::get_singleton()->get_property_list(&pinfo);
     FixedVector<String,32,true> al;
 
@@ -4008,7 +4008,7 @@ void VisualScriptDeconstruct::_update_elements() {
     Variant::CallError ce;
     v = Variant::construct(type, nullptr, 0, ce);
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     v.get_property_list(&pinfo);
 
     for(const PropertyInfo & E : pinfo) {
@@ -4059,7 +4059,7 @@ Array VisualScriptDeconstruct::_get_elem_cache() const {
 class VisualScriptNodeInstanceDeconstruct : public VisualScriptNodeInstance {
 public:
     VisualScriptInstance *instance;
-    PODVector<StringName> outputs;
+    Vector<StringName> outputs;
 
     //virtual int get_working_memory_size() const { return 0; }
 
@@ -4194,7 +4194,7 @@ void register_visual_script_nodes() {
 
     for (int i = 1; i < (int)VariantType::VARIANT_MAX; i++) {
 
-        PODVector<MethodInfo> constructors;
+        Vector<MethodInfo> constructors;
         Variant::get_constructor_list(VariantType(i), &constructors);
 
         for (const MethodInfo &E : constructors) {

@@ -543,7 +543,7 @@ void GridMapEditor::_fill_selection() {
 
 void GridMapEditor::_clear_clipboard_data() {
 
-    for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
+    for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
         VisualServer::get_singleton()->free_rid(E->deref().instance);
     }
@@ -603,7 +603,7 @@ void GridMapEditor::_update_paste_indicator() {
 
     VisualServer::get_singleton()->instance_set_transform(paste_instance, node->get_global_transform() * xf);
 
-    for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
+    for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
         ClipboardItem &item = E->deref();
 
@@ -631,7 +631,7 @@ void GridMapEditor::_do_paste() {
     Vector3 ofs = paste_indicator.current - paste_indicator.click;
     undo_redo->create_action_ui(TTR("GridMap Paste Selection"));
 
-    for (List<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
+    for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
         ClipboardItem &item = E->deref();
 
@@ -719,12 +719,12 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
                 if (!set_items.empty()) {
                     undo_redo->create_action_ui(TTR("GridMap Paint"));
-                    for (List<SetItem>::Element *E = set_items.front(); E; E = E->next()) {
+                    for (ListOld<SetItem>::Element *E = set_items.front(); E; E = E->next()) {
 
                         const SetItem &si = E->deref();
                         undo_redo->add_do_method(node, "set_cell_item", si.pos.x, si.pos.y, si.pos.z, si.new_value, si.new_orientation);
                     }
-                    for (List<SetItem>::Element *E = set_items.back(); E; E = E->prev()) {
+                    for (ListOld<SetItem>::Element *E = set_items.back(); E; E = E->prev()) {
 
                         const SetItem &si = E->deref();
                         undo_redo->add_undo_method(node, "set_cell_item", si.pos.x, si.pos.y, si.pos.z, si.old_value, si.old_orientation);
@@ -904,9 +904,9 @@ void GridMapEditor::update_palette() {
     search_box->set_editable(true);
     info_message->hide();
 
-    PODVector<int> ids = mesh_library->get_item_list();
+    Vector<int> ids = mesh_library->get_item_list();
 
-    PODVector<_CGMEItemSort> il;
+    Vector<_CGMEItemSort> il;
     for (int id : ids) {
 
         _CGMEItemSort is;
@@ -1025,8 +1025,8 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         edit_floor[i] = edited_floor[i];
     }
 
-    PODVector<Vector3> grid_points[3];
-    PODVector<Color> grid_colors[3];
+    Vector<Vector3> grid_points[3];
+    Vector<Color> grid_colors[3];
 
     for (int i = 0; i < 3; i++) {
 
@@ -1366,9 +1366,9 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     {
         // Selection mesh create.
 
-        PODVector<Vector3> lines;
-        PODVector<Vector3> triangles;
-        PODVector<Vector3> square[3];
+        Vector<Vector3> lines;
+        Vector<Vector3> triangles;
+        Vector<Vector3> square[3];
 
         triangles.reserve(6*6);
 

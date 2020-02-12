@@ -46,7 +46,7 @@ using Mutex = std::recursive_mutex;
 class FileAccessNetworkClient {
 
     void *m_priv;
-    PODVector<uint8_t> block;
+    Vector<uint8_t> block;
     Ref<StreamPeerTCP> client;
     SemaphoreOld *sem;
     Thread *thread;
@@ -103,7 +103,7 @@ class FileAccessNetwork : public FileAccess {
     friend class FileAccessNetworkClient;
     void _queue_page(int p_page) const;
     void _respond(size_t p_len, Error p_status);
-    void _set_block(int p_offset, const PODVector<uint8_t> &p_block);
+    void _set_block(int p_offset, const Vector<uint8_t> &p_block);
 
 public:
     enum Command {

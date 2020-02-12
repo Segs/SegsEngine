@@ -44,7 +44,7 @@ bool ConvexPolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, flo
 
 void ConvexPolygonShape2D::_update_shape() {
 
-    PODVector<Vector2> final_points = points;
+    Vector<Vector2> final_points = points;
     if (Geometry::is_polygon_clockwise(final_points)) { //needs to be counter clockwise
         eastl::reverse(final_points.begin(),final_points.end());
     }
@@ -54,7 +54,7 @@ void ConvexPolygonShape2D::_update_shape() {
 
 void ConvexPolygonShape2D::set_point_cloud(Span<const Vector2> p_points) {
 
-    PODVector<Point2> hull = Geometry::convex_hull_2d(p_points);
+    Vector<Point2> hull = Geometry::convex_hull_2d(p_points);
     ERR_FAIL_COND(hull.size() < 3);
     set_points(hull);
 }

@@ -64,7 +64,7 @@ Variant Script::_get_property_default_value(const StringName &p_property) {
 
 Array Script::_get_script_property_list() {
     Array ret;
-    PODVector<PropertyInfo> list;
+    Vector<PropertyInfo> list;
     get_script_property_list(&list);
     for(PropertyInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -74,7 +74,7 @@ Array Script::_get_script_property_list() {
 
 Array Script::_get_script_method_list() {
     Array ret;
-    PODVector<MethodInfo> list;
+    Vector<MethodInfo> list;
     get_script_method_list(&list);
     for(MethodInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -84,7 +84,7 @@ Array Script::_get_script_method_list() {
 
 Array Script::_get_script_signal_list() {
     Array ret;
-    PODVector<MethodInfo> list;
+    Vector<MethodInfo> list;
     get_script_signal_list(&list);
     for(MethodInfo &E : list ) {
         ret.append(E.operator Dictionary());
@@ -257,9 +257,9 @@ StringName ScriptServer::get_global_class_native_base(const StringName &p_class)
     }
     return base;
 }
-void ScriptServer::get_global_class_list(PODVector<StringName> *r_global_classes) {
+void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
     const StringName *K = nullptr;
-    PODVector<StringName> classes;
+    Vector<StringName> classes;
     classes.reserve(classes.size());
     while ((K = global_classes.next(K))) {
         classes.push_back(*K);
@@ -270,7 +270,7 @@ void ScriptServer::get_global_class_list(PODVector<StringName> *r_global_classes
     }
 }
 void ScriptServer::save_global_classes() {
-    PODVector<StringName> gc;
+    Vector<StringName> gc;
     get_global_class_list(&gc);
     Array gcarr;
     for (size_t i=0,fin=gc.size(); i<fin; ++i) {
@@ -287,9 +287,9 @@ void ScriptServer::save_global_classes() {
 }
 
 ////////////////////
-void ScriptInstance::get_property_state(PODVector<Pair<StringName, Variant>> &state) {
+void ScriptInstance::get_property_state(Vector<Pair<StringName, Variant>> &state) {
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     get_property_list(&pinfo);
 
     for(PropertyInfo &E : pinfo ) {
@@ -490,7 +490,7 @@ bool PlaceHolderScriptInstance::get(const StringName &p_name, Variant &r_ret) co
     return false;
 }
 
-void PlaceHolderScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
+void PlaceHolderScriptInstance::get_property_list(Vector<PropertyInfo> *p_properties) const {
 
     if (script->is_placeholder_fallback_enabled()) {
         for (const PropertyInfo &E : properties) {
@@ -527,7 +527,7 @@ VariantType PlaceHolderScriptInstance::get_property_type(const StringName &p_nam
     return VariantType::NIL;
 }
 
-void PlaceHolderScriptInstance::get_method_list(PODVector<MethodInfo> *p_list) const {
+void PlaceHolderScriptInstance::get_method_list(Vector<MethodInfo> *p_list) const {
 
     if (script->is_placeholder_fallback_enabled())
         return;
@@ -547,7 +547,7 @@ bool PlaceHolderScriptInstance::has_method(const StringName &p_method) const {
     return false;
 }
 
-void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
+void PlaceHolderScriptInstance::update(const Vector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
 
     Set<StringName> new_values;
     for(const PropertyInfo &E : p_properties ) {
@@ -563,7 +563,7 @@ void PlaceHolderScriptInstance::update(const PODVector<PropertyInfo> &p_properti
     }
 
     properties = p_properties;
-    ListPOD<StringName> to_remove;
+    List<StringName> to_remove;
 
     for (eastl::pair<const StringName,Variant> &E : values) {
 

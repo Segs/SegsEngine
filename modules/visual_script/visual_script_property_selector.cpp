@@ -95,15 +95,15 @@ void VisualScriptPropertySelector::_update_search() {
     TreeItem *root = search_options->create_item();
     bool found = false;
     StringName base(base_type);
-    PODVector<StringName> base_list;
+    Vector<StringName> base_list;
     while (base) {
         base_list.push_back(base);
         base = ClassDB::get_parent_class_nocheck(base);
     }
 
     for (const StringName &E : base_list) {
-        PODVector<MethodInfo> methods;
-        PODVector<PropertyInfo> props;
+        Vector<MethodInfo> methods;
+        Vector<PropertyInfo> props;
         TreeItem *category = nullptr;
         Ref<Texture> type_icons[(int)VariantType::VARIANT_MAX] = {
             Control::get_icon("Variant", "EditorIcons"),
@@ -338,17 +338,17 @@ void VisualScriptPropertySelector::create_visualscript_item(StringName name, Tre
 void VisualScriptPropertySelector::get_visual_node_names(se_string_view root_filter, const Set<String> &p_modifiers, bool &found, TreeItem *const root, LineEdit *const search_box) {
     Map<String, TreeItem *> path_cache;
 
-    List<String> fnodes;
+    ListOld<String> fnodes;
     VisualScriptLanguage::singleton->get_registered_node_names(&fnodes);
 
-    for (List<String>::Element *E = fnodes.front(); E; E = E->next()) {
+    for (ListOld<String>::Element *E = fnodes.front(); E; E = E->next()) {
         if (!StringUtils::begins_with(E->deref(),root_filter)) {
             continue;
         }
-        PODVector<se_string_view> path = StringUtils::split(E->deref(),'/');
+        Vector<se_string_view> path = StringUtils::split(E->deref(),'/');
         // check if the name has the filter
         bool in_filter = false;
-        PODVector<se_string_view> tx_filters = StringUtils::split(search_box->get_text(),' ');
+        Vector<se_string_view> tx_filters = StringUtils::split(search_box->get_text(),' ');
         for (size_t i = 0; i < tx_filters.size(); i++) {
             in_filter = tx_filters[i].empty();
             if (StringUtils::contains(E->deref(),tx_filters[i])) {
@@ -478,14 +478,14 @@ void VisualScriptPropertySelector::_item_selected() {
     Map<StringName, DocData::ClassDoc>::iterator T = dd->class_list.find(class_type);
     if (T!=dd->class_list.end()) {
         for (int i = 0; i < T->second.methods.size(); i++) {
-            PODVector<se_string_view> functions = StringUtils::rsplit(name,"/", false, 1);
+            Vector<se_string_view> functions = StringUtils::rsplit(name,"/", false, 1);
             if (T->second.methods[i].name == functions[functions.size() - 1]) {
                 text = T->second.methods[i].description;
             }
         }
     }
 
-    List<String> names;
+    ListOld<String> names;
     VisualScriptLanguage::singleton->get_registered_node_names(&names);
     if (names.find(name) != nullptr) {
         Ref<VisualScriptOperator> operator_node(dynamic_ref_cast<VisualScriptOperator>(VisualScriptLanguage::singleton->create_node_from_name(name)));
@@ -551,7 +551,7 @@ void VisualScriptPropertySelector::select_method_from_base_type(se_string_view p
     _update_search();
 }
 
-void VisualScriptPropertySelector::set_type_filter(PODVector<VariantType> &&p_type_filter) {
+void VisualScriptPropertySelector::set_type_filter(Vector<VariantType> &&p_type_filter) {
     type_filter = eastl::move(p_type_filter);
 }
 

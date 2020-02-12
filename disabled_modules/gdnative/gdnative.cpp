@@ -162,7 +162,7 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
     String entry_lib_path;
     {
 
-        PODVector<String> entry_keys;
+        Vector<String> entry_keys;
 
         if (p_config_file->has_section("entry"))
             p_config_file->get_section_keys_utf8("entry", entry_keys);
@@ -513,7 +513,7 @@ RES GDNativeLibraryResourceLoader::load(se_string_view p_path, se_string_view p_
     return lib;
 }
 
-void GDNativeLibraryResourceLoader::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void GDNativeLibraryResourceLoader::get_recognized_extensions(Vector<String> &p_extensions) const {
     p_extensions.push_back("gdnlib");
 }
 

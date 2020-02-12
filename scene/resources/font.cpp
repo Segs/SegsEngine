@@ -203,7 +203,7 @@ PoolVector<int> BitmapFont::_get_kernings() const {
     return kernings;
 }
 
-void BitmapFont::_set_textures(const PODVector<Variant> &p_textures) {
+void BitmapFont::_set_textures(const Vector<Variant> &p_textures) {
 
     textures.clear();
     textures.reserve(p_textures.size());
@@ -214,9 +214,9 @@ void BitmapFont::_set_textures(const PODVector<Variant> &p_textures) {
     }
 }
 
-PODVector<Variant> BitmapFont::_get_textures() const {
+Vector<Variant> BitmapFont::_get_textures() const {
 
-    PODVector<Variant> rtextures;
+    Vector<Variant> rtextures;
     rtextures.reserve(textures.size());
     for (int i = 0; i < textures.size(); i++)
         rtextures.emplace_back(textures[i].get_ref_ptr());
@@ -406,9 +406,9 @@ int BitmapFont::get_character_count() const {
     return char_map.size();
 };
 
-PODVector<CharType> BitmapFont::get_char_keys() const {
+Vector<CharType> BitmapFont::get_char_keys() const {
 
-    PODVector<CharType> chars;
+    Vector<CharType> chars;
     chars.reserve(char_map.size());
 
     for(const auto &v  : char_map) {
@@ -458,9 +458,9 @@ void BitmapFont::add_kerning_pair(CharType p_A, CharType p_B, int p_kerning) {
     }
 }
 
-PODVector<BitmapFont::KerningPairKey> BitmapFont::get_kerning_pair_keys() const {
+Vector<BitmapFont::KerningPairKey> BitmapFont::get_kerning_pair_keys() const {
 
-    PODVector<BitmapFont::KerningPairKey> ret;
+    Vector<BitmapFont::KerningPairKey> ret;
     ret.reserve(kerning_map.size());
 
     for (const eastl::pair<const KerningPairKey,int> &E : kerning_map) {
@@ -541,11 +541,11 @@ Size2 Font::get_wordwrap_ui_string_size(const UIString &p_string, float p_width)
     float line_w = 0;
     float h = 0;
     float space_w = get_char_size(' ').width;
-    PODVector<UIString> lines = StringUtils::split(p_string,'\n');
+    Vector<UIString> lines = StringUtils::split(p_string,'\n');
     for (const UIString &t : lines) {
         h += get_height();
         line_w = 0;
-        PODVector<UIString> words = StringUtils::split(t,' ');
+        Vector<UIString> words = StringUtils::split(t,' ');
         for (const UIString &word : words) {
             line_w += get_ui_string_size(word).x;
             if (line_w > p_width) {
@@ -701,7 +701,7 @@ RES ResourceFormatLoaderBMFont::load(se_string_view p_path, se_string_view p_ori
     return font;
 }
 
-void ResourceFormatLoaderBMFont::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderBMFont::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("fnt"));
 }

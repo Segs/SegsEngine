@@ -46,7 +46,7 @@ protected:
     static void _bind_methods();
     void _update_shape() override;
 
-    PODVector<Vector3> get_debug_mesh_lines() override;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
     void set_map_width(int p_new);

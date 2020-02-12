@@ -67,7 +67,7 @@ public:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -93,7 +93,7 @@ public:
 
     int find_item_by_name(se_string_view p_name) const;
 
-    PODVector<int> get_item_list() const;
+    Vector<int> get_item_list() const;
     int get_last_unused_item_id() const;
 
     MeshLibrary();

@@ -59,12 +59,12 @@ class SpriteEditor : public Control {
 
     ConfirmationDialog *debug_uv_dialog;
     Control *debug_uv;
-    PODVector<Vector2> uv_lines;
-    PODVector<PODVector<Vector2> > outline_lines;
-    PODVector<PODVector<Vector2> > computed_outline_lines;
-    PODVector<Vector2> computed_vertices;
-    PODVector<Vector2> computed_uv;
-    PODVector<int> computed_indices;
+    Vector<Vector2> uv_lines;
+    Vector<Vector<Vector2> > outline_lines;
+    Vector<Vector<Vector2> > computed_outline_lines;
+    Vector<Vector2> computed_vertices;
+    Vector<Vector2> computed_uv;
+    Vector<int> computed_indices;
 
     SpinBox *simplification;
     SpinBox *grow_pixels;

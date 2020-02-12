@@ -5,7 +5,7 @@ template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::basic_string<char, wr
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<String,wrap_allocator>;
 
 const String null_se_string;
-const PODVector<String> null_string_pvec;
+const Vector<String> null_string_pvec;
 
 int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list arguments)
 {

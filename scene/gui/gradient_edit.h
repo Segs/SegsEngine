@@ -47,7 +47,7 @@ class GradientEdit : public Control {
 
     bool grabbing;
     int grabbed;
-    PODVector<Gradient::Point> points;
+    Vector<Gradient::Point> points;
 
     void _draw_checker(int x, int y, int w, int h);
     void _color_changed(const Color &p_color);
@@ -60,11 +60,11 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_ramp(Span<const float> p_offsets, const PODVector<Color> &p_colors);
-    PODVector<float> get_offsets() const;
-    PODVector<Color> get_colors() const;
-    void set_points(const PODVector<Gradient::Point> &p_points);
-    PODVector<Gradient::Point> &get_points();
+    void set_ramp(Span<const float> p_offsets, const Vector<Color> &p_colors);
+    Vector<float> get_offsets() const;
+    Vector<Color> get_colors() const;
+    void set_points(const Vector<Gradient::Point> &p_points);
+    Vector<Gradient::Point> &get_points();
     Size2 get_minimum_size() const override;
 
     GradientEdit();

@@ -73,8 +73,8 @@ private:
     String script_key;
 
     Set<String> selected_files;
-    PODVector<String> patches;
-    PODVector<PropertyInfo> properties;
+    Vector<String> patches;
+    Vector<PropertyInfo> properties;
     Map<StringName, Variant> values;
 
     int script_mode;
@@ -85,14 +85,14 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     Ref<EditorExportPlatform> get_platform() const;
 
     bool has(const StringName &p_property) const { return values.contains(p_property); }
 
-    PODVector<String> get_files_to_export() const;
+    Vector<String> get_files_to_export() const;
 
     void add_export_file(se_string_view p_path);
     void remove_export_file(se_string_view p_path);
@@ -117,7 +117,7 @@ public:
     void set_patch(int p_index, se_string_view p_path);
     const String &get_patch(int p_index);
     void remove_patch(int p_idx);
-    const PODVector<String> &get_patches() const { return patches; }
+    const Vector<String> &get_patches() const { return patches; }
 
     void set_custom_features(se_string_view p_custom_features);
     const String & get_custom_features() const;
@@ -131,16 +131,16 @@ public:
     void set_script_encryption_key(const String &p_key);
     const String &get_script_encryption_key() const;
 
-    const PODVector<PropertyInfo> &get_properties() const { return properties; }
+    const Vector<PropertyInfo> &get_properties() const { return properties; }
 
     EditorExportPreset();
 };
 
 struct SharedObject {
     String path;
-    PODVector<String> tags;
+    Vector<String> tags;
 
-    SharedObject(se_string_view p_path, const PODVector<String> &p_tags) :
+    SharedObject(se_string_view p_path, const Vector<String> &p_tags) :
             path(p_path),
             tags(p_tags) {
     }
@@ -153,7 +153,7 @@ class EditorExportPlatform : public RefCounted {
     GDCLASS(EditorExportPlatform,RefCounted)
 
 public:
-    using EditorExportSaveFunction = Error (*)(void *, se_string_view, const PODVector<uint8_t> &, int, int);
+    using EditorExportSaveFunction = Error (*)(void *, se_string_view, const Vector<uint8_t> &, int, int);
     using EditorExportSaveSharedObject = Error (*)(void *, const SharedObject &);
 
 private:
@@ -165,11 +165,11 @@ private:
     void _export_find_resources(EditorFileSystemDirectory *p_dir, Set<String> &p_paths);
     void _export_find_dependencies(se_string_view p_path, Set<String> &p_paths);
 
-    void gen_debug_flags(PODVector<String> &r_flags, int p_flags);
-    static Error _save_pack_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total);
-    static Error _save_zip_file(void *p_userdata, se_string_view p_path, const PODVector<uint8_t> &p_data, int p_file, int p_total);
+    void gen_debug_flags(Vector<String> &r_flags, int p_flags);
+    static Error _save_pack_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
+    static Error _save_zip_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
 
-    void _edit_files_with_filter(DirAccess *da, const PODVector<String> &p_filters, Set<String> &r_list, bool exclude);
+    void _edit_files_with_filter(DirAccess *da, const Vector<String> &p_filters, Set<String> &r_list, bool exclude);
     void _edit_filter_list(Set<String> &r_list, se_string_view p_filter, bool exclude);
 
     static Error _add_shared_object(void *p_userdata, const SharedObject &p_so);
@@ -184,10 +184,10 @@ protected:
 
     bool exists_export_template(se_string_view template_file_name, String *err) const;
     String find_export_template(se_string_view template_file_name, String *err = nullptr) const;
-    void gen_export_flags(PODVector<String> &r_flags, int p_flags);
+    void gen_export_flags(Vector<String> &r_flags, int p_flags);
 
 public:
-    virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) = 0;
+    virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, Vector<String> *r_features) = 0;
 
     struct ExportOption {
         PropertyInfo option;
@@ -202,7 +202,7 @@ public:
 
     virtual Ref<EditorExportPreset> create_preset();
 
-    virtual void get_export_options(PODVector<ExportOption> *r_options) = 0;
+    virtual void get_export_options(Vector<ExportOption> *r_options) = 0;
     virtual bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const { return true; }
 
     virtual const String & get_os_name() const = 0;
@@ -211,7 +211,7 @@ public:
 
     Error export_project_files(const Ref<EditorExportPreset> &p_preset, EditorExportSaveFunction p_func, void *p_udata, EditorExportSaveSharedObject p_so_func = nullptr);
 
-    Error save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, PODVector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
+    Error save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, Vector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
     Error save_zip(const Ref<EditorExportPreset> &p_preset, const String &p_path);
 
     virtual bool poll_export() { return false; }
@@ -235,11 +235,11 @@ public:
     StringName test_etc2() const; //generic test for etc2 since most platforms use it
     virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const = 0;
 
-    virtual PODVector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const = 0;
+    virtual Vector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const = 0;
     virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) = 0;
     virtual Error export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0);
     virtual Error export_zip(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0);
-    virtual void get_platform_features(PODVector<String> *r_features) = 0;
+    virtual void get_platform_features(Vector<String> *r_features) = 0;
     virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) = 0;
 
     EditorExportPlatform();
@@ -252,13 +252,13 @@ class EditorExportPlugin : public RefCounted {
 
     Ref<EditorExportPreset> export_preset;
 
-    PODVector<SharedObject> shared_objects;
+    Vector<SharedObject> shared_objects;
     struct ExtraFile {
         String path;
-        PODVector<uint8_t> data;
+        Vector<uint8_t> data;
         bool remap;
     };
-    PODVector<ExtraFile> extra_files;
+    Vector<ExtraFile> extra_files;
     bool skipped;
 
     _FORCE_INLINE_ void _clear() {
@@ -278,8 +278,8 @@ protected:
     void set_export_preset(const Ref<EditorExportPreset> &p_preset);
     Ref<EditorExportPreset> get_export_preset() const;
 public: // exposed to scripting
-    void add_file(se_string_view p_path, const PODVector<uint8_t> &p_file, bool p_remap);
-    void add_shared_object(se_string_view p_path, const PODVector<String> &tags);
+    void add_file(se_string_view p_path, const Vector<uint8_t> &p_file, bool p_remap);
+    void add_shared_object(se_string_view p_path, const Vector<String> &tags);
     void skip();
 protected:
 
@@ -296,9 +296,9 @@ public:
 class EditorExport : public Node {
     GDCLASS(EditorExport,Node)
 
-    PODVector<Ref<EditorExportPlatform> > export_platforms;
-    PODVector<Ref<EditorExportPreset> > export_presets;
-    PODVector<Ref<EditorExportPlugin> > export_plugins;
+    Vector<Ref<EditorExportPlatform> > export_platforms;
+    Vector<Ref<EditorExportPreset> > export_presets;
+    Vector<Ref<EditorExportPlugin> > export_plugins;
 
     Timer *save_timer;
     bool block_save;
@@ -328,7 +328,7 @@ public:
 
     void add_export_plugin(const Ref<EditorExportPlugin> &p_plugin);
     void remove_export_plugin(const Ref<EditorExportPlugin> &p_plugin);
-    const PODVector<Ref<EditorExportPlugin> > &get_export_plugins();
+    const Vector<Ref<EditorExportPlugin> > &get_export_plugins();
 
     void load_config();
 
@@ -363,16 +363,16 @@ private:
     FixUpEmbeddedPckFunc fixup_embedded_pck_func;
 
 public:
-    void get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) override;
+    void get_preset_features(const Ref<EditorExportPreset> &p_preset, Vector<String> *r_features) override;
 
-    void get_export_options(PODVector<ExportOption> *r_options) override;
+    void get_export_options(Vector<ExportOption> *r_options) override;
 
     const String &get_name() const override;
     const String &get_os_name() const override;
     Ref<Texture> get_logo() const override;
 
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
-    PODVector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override;
+    Vector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override;
     Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
     virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path);
 
@@ -388,7 +388,7 @@ public:
     void set_debug_32(se_string_view p_file);
 
     void add_platform_feature(se_string_view p_feature);
-    void get_platform_features(PODVector<String> *r_features) override;
+    void get_platform_features(Vector<String> *r_features) override;
     void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) override;
 
     int get_chmod_flags() const;

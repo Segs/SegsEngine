@@ -129,11 +129,11 @@ private:
     ItemList *favorites;
     ItemList *recent;
 
-    PODVector<String> local_history;
+    Vector<String> local_history;
     int local_history_pos;
     void _push_history();
 
-    PODVector<String> filters;
+    Vector<String> filters;
 
     bool preview_waiting;
     int preview_wheel_index;
@@ -208,7 +208,7 @@ public:
     void add_filter(se_string_view p_filter);
 
     void set_enable_multiple_selection(bool p_enable);
-    PODVector<String> get_selected_files() const;
+    Vector<String> get_selected_files() const;
 
     String get_current_dir() const;
     String get_current_file() const;

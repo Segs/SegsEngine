@@ -593,7 +593,7 @@ inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_re
     rad = MIN(border_bottom, border_left);
     inner_corner_radius[3] = MAX(corner_radius[3] - rad, 0);
 }
-inline void draw_ring(PODVector<Vector2> &verts, PODVector<int> &indices, PoolVector<Color> &colors, const Rect2 &style_rect, const int corner_radius[4],
+inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<Color> &colors, const Rect2 &style_rect, const int corner_radius[4],
         Rect2 ring_rect, Rect2 inner_rect, const Color &inner_color, const Color &outer_color, const int corner_detail, const bool fill_center = false) {
 
     int vert_offset = verts.size();
@@ -756,8 +756,8 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
             }
         }
     }
-    PODVector<Point2> verts;
-    PODVector<int> indices;
+    Vector<Point2> verts;
+    Vector<int> indices;
     PoolVector<Color> colors;
     PoolVector<Point2> uvs;
 

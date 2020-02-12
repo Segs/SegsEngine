@@ -58,7 +58,7 @@ protected:
     SpinBox *emission_amount;
     OptionButton *emission_fill;
 
-    PODVector<Face3> geometry;
+    Vector<Face3> geometry;
 
     bool _generate(PoolVector<Vector3> &points, PoolVector<Vector3> &normals);
     virtual void _generate_emission_points() = 0;

@@ -56,7 +56,7 @@ void CollisionPolygon2D::_build_polygon() {
 
         //here comes the sun, lalalala
         //decompose concave into multiple convex polygons and add them
-        PODVector<PODVector<Vector2> > decomp = _decompose_in_convex();
+        Vector<Vector<Vector2> > decomp = _decompose_in_convex();
         for (size_t i = 0; i < decomp.size(); i++) {
             Ref<ConvexPolygonShape2D> convex(make_ref_counted<ConvexPolygonShape2D>());
             convex->set_points(decomp[i]);
@@ -83,8 +83,8 @@ void CollisionPolygon2D::_build_polygon() {
     }
 }
 
-PODVector<PODVector<Vector2> > CollisionPolygon2D::_decompose_in_convex() {
-    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
+Vector<Vector<Vector2> > CollisionPolygon2D::_decompose_in_convex() {
+    Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(polygon);
     return decomp;
 }
 
@@ -155,7 +155,7 @@ void CollisionPolygon2D::_notification(int p_what) {
 #define DEBUG_DECOMPOSE
 #if defined(TOOLS_ENABLED) && defined(DEBUG_DECOMPOSE)
 
-            PODVector<PODVector<Vector2> > decomp = _decompose_in_convex();
+            Vector<Vector<Vector2> > decomp = _decompose_in_convex();
 
             Color c(0.4f, 0.9f, 0.1f);
             for (int i = 0; i < decomp.size(); i++) {
@@ -172,7 +172,7 @@ void CollisionPolygon2D::_notification(int p_what) {
                 dcol.a = 1.0;
                 Vector2 line_to(0, 20);
                 draw_line(Vector2(), line_to, dcol, 3);
-                PODVector<Vector2> pts;
+                Vector<Vector2> pts;
                 float tsize = 8;
                 pts.push_back(line_to + (Vector2(0, tsize)));
                 pts.push_back(line_to + (Vector2(0.707f * tsize, 0)));
@@ -187,7 +187,7 @@ void CollisionPolygon2D::_notification(int p_what) {
     }
 }
 
-void CollisionPolygon2D::set_polygon(const PODVector<Point2> &p_polygon) {
+void CollisionPolygon2D::set_polygon(const Vector<Point2> &p_polygon) {
 
     polygon = p_polygon;
 

@@ -297,7 +297,7 @@ String FileAccess::get_line() const {
     return line;
 }
 
-PODVector<String> FileAccess::get_csv_line(char p_delim) const {
+Vector<String> FileAccess::get_csv_line(char p_delim) const {
 
     String l;
     int qc;
@@ -317,7 +317,7 @@ PODVector<String> FileAccess::get_csv_line(char p_delim) const {
 
     l = StringUtils::substr(l,0, l.length() - 1);
 
-    PODVector<String> strings;
+    Vector<String> strings;
 
     bool in_quote = false;
     String current;
@@ -498,7 +498,7 @@ void FileAccess::store_line(se_string_view p_line) {
     store_8('\n');
 }
 
-void FileAccess::store_csv_line(const PODVector<String> &p_values, char p_delim) {
+void FileAccess::store_csv_line(const Vector<String> &p_values, char p_delim) {
 
     String line;
     int size = p_values.size();
@@ -524,16 +524,16 @@ void FileAccess::store_buffer(const uint8_t *p_src, int p_length) {
         store_8(p_src[i]);
 }
 
-PODVector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
+Vector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, READ, r_error);
     if (!f) {
         if (r_error) { // if error requested, do not throw error
-            return PODVector<uint8_t>();
+            return Vector<uint8_t>();
         }
-        ERR_FAIL_V_MSG(PODVector<uint8_t>(), "Can't open file from path '" + String(p_path) + "'.");
+        ERR_FAIL_V_MSG(Vector<uint8_t>(), "Can't open file from path '" + String(p_path) + "'.");
     }
-    PODVector<uint8_t> data;
+    Vector<uint8_t> data;
     data.resize(f->get_len());
     f->get_buffer(data.data(), data.size());
     memdelete(f);
@@ -586,7 +586,7 @@ String FileAccess::get_md5(se_string_view p_file) {
     return StringUtils::md5(hash);
 }
 
-String FileAccess::get_multiple_md5(const PODVector<String> &p_file) {
+String FileAccess::get_multiple_md5(const Vector<String> &p_file) {
 
     CryptoCore::MD5Context ctx;
     ctx.start();

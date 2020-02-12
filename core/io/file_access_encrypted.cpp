@@ -124,7 +124,7 @@ void FileAccessEncrypted::close() {
 
     if (writing) {
 
-        PODVector<uint8_t> compressed;
+        Vector<uint8_t> compressed;
         size_t len = data.size();
         if (len % 16) {
             len += 16 - (len % 16);

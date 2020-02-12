@@ -168,7 +168,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
         if (p_name == CoreStringNames::get_singleton()->_custom_features) {
             String val_str(p_value);
-            PODVector<se_string_view> custom_feature_array = StringUtils::split(val_str,',');
+            Vector<se_string_view> custom_feature_array = StringUtils::split(val_str,',');
             for (int i = 0; i < custom_feature_array.size(); i++) {
 
                 custom_features.insert(custom_feature_array[i]);
@@ -179,7 +179,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
         if (!disable_feature_overrides) {
             auto dot = StringUtils::find(p_name,".");
             if (dot != String::npos) {
-                PODVector<se_string_view> s = StringUtils::split(p_name,'.');
+                Vector<se_string_view> s = StringUtils::split(p_name,'.');
 
                 bool override_valid = false;
                 for (size_t i = 1; i < s.size(); i++) {
@@ -234,7 +234,7 @@ struct _VCSort {
     bool operator<(const _VCSort &p_vcs) const { return order == p_vcs.order ? name < p_vcs.name : order < p_vcs.order; }
 };
 
-void ProjectSettings::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     _THREAD_SAFE_METHOD_
     using namespace StringUtils;
@@ -539,7 +539,7 @@ Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
         String key(cs.data());
 
         uint32_t vlen = f->get_32();
-        PODVector<uint8_t> d;
+        Vector<uint8_t> d;
         d.resize(vlen);
         f->get_buffer(d.data(), vlen);
         Variant value;
@@ -667,7 +667,7 @@ Error ProjectSettings::save() {
     return save_custom(PathUtils::plus_file(get_resource_path(),"project.godot"));
 }
 
-Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -678,7 +678,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
 
     int count = 0;
 
-    for (const eastl::pair<const String,ListPOD<String> > &E : props) {
+    for (const eastl::pair<const String,List<String> > &E : props) {
 
         count += E.second.size();
     }
@@ -697,7 +697,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
             ERR_FAIL_V(err);
         }
 
-        PODVector<uint8_t> buff;
+        Vector<uint8_t> buff;
         buff.resize(len);
 
         err = encode_variant(p_custom_features, buff.data(), len, false);
@@ -712,7 +712,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
         file->store_32(count); //store how many properties are saved
     }
 
-    for (const eastl::pair<const String,ListPOD<String> > &E : props) {
+    for (const eastl::pair<const String,List<String> > &E : props) {
 
         for(String key : E.second ) {
             if (!E.first.empty())
@@ -733,7 +733,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
                 memdelete(file);
             ERR_FAIL_COND_V_MSG(err != OK, ERR_INVALID_DATA, "Error when trying to encode Variant.");
 
-            PODVector<uint8_t> buff;
+            Vector<uint8_t> buff;
             buff.resize(len);
 
             err = encode_variant(value, buff.data(), len, true);
@@ -751,7 +751,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
     return OK;
 }
 
-Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<String, ListPOD<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -772,7 +772,7 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<Stri
         file->store_string("custom_features=\"" + p_custom_features + "\"\n");
     file->store_string(("\n"));
 
-    for (Map<String, ListPOD<String> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
+    for (Map<String, List<String> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
 
         if (E != props.begin())
             file->store_string("\n");
@@ -808,7 +808,7 @@ Error ProjectSettings::_save_custom_bnd(se_string_view p_file) { // add other pa
     return save_custom(p_file);
 };
 
-Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const PODVector<String> &p_custom_features, bool p_merge_with_current) {
+Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const Vector<String> &p_custom_features, bool p_merge_with_current) {
 
     ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.");
 
@@ -850,7 +850,7 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         vclist.insert(vc);
     }
 
-    Map<String, ListPOD<String> > props;
+    Map<String, List<String> > props;
 
     for (const _VCSort &E : vclist) {
 
@@ -902,11 +902,11 @@ Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_re
     ProjectSettings::get_singleton()->set_restart_if_changed(p_var, p_restart_if_changed);
     return ret;
 }
-PODVector<String> ProjectSettings::get_optimizer_presets() const {
+Vector<String> ProjectSettings::get_optimizer_presets() const {
 
-    PODVector<PropertyInfo> pi;
+    Vector<PropertyInfo> pi;
     ProjectSettings::get_singleton()->get_property_list(&pi);
-    PODVector<String> names;
+    Vector<String> names;
 
     for(const PropertyInfo &E : pi ) {
 

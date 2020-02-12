@@ -63,7 +63,7 @@ private:
 
 	Ref<AudioStreamPlayback> stream_playback;
 	Ref<AudioStream> stream;
-	PODVector<AudioFrame> mix_buffer;
+	Vector<AudioFrame> mix_buffer;
 
 	volatile float setseek;
 	volatile bool active;

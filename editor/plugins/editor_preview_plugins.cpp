@@ -404,10 +404,10 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
     int lons = 32;
     float radius = 1.0;
 
-    PODVector<Vector3> vertices;
-    PODVector<Vector3> normals;
-    PODVector<Vector2> uvs;
-    PODVector<float> tangents;
+    Vector<Vector3> vertices;
+    Vector<Vector3> normals;
+    Vector<Vector2> uvs;
+    Vector<float> tangents;
     Basis tt = Basis(Vector3(0, 1, 0), Math_PI * 0.5);
 
     for (int i = 1; i <= lats; i++) {
@@ -506,7 +506,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     if (code.empty())
         return Ref<Texture>();
 
-    PODVector<String> kwors;
+    Vector<String> kwors;
     scr->get_language()->get_reserved_words(&kwors);
 
     Set<String> keywords;
@@ -639,7 +639,7 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
     }
     int frame_length = AudioServer::get_singleton()->get_mix_rate() * len_s;
 
-    PODVector<AudioFrame> frames;
+    Vector<AudioFrame> frames;
     frames.resize(frame_length);
 
     playback->start();

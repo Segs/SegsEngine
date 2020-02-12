@@ -58,13 +58,13 @@ struct DrawEdge {
 };
 } // end of anonymous namespace
 
-PODVector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
+Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
 
     Set<DrawEdge> edges;
 
     PoolVector<Vector3> data = get_faces();
     int datalen = data.size();
-    ERR_FAIL_COND_V((datalen % 3) != 0, PODVector<Vector3>());
+    ERR_FAIL_COND_V((datalen % 3) != 0, Vector<Vector3>());
 
     PoolVector<Vector3>::Read r = data.read();
 
@@ -77,7 +77,7 @@ PODVector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
         }
     }
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
     points.resize(edges.size() * 2);
     int idx = 0;
     for (const DrawEdge &E : edges) {

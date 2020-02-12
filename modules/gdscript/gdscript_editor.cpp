@@ -50,12 +50,12 @@
 
 using namespace eastl;
 
-void GDScriptLanguage::get_comment_delimiters(PODVector<String> *p_delimiters) const {
+void GDScriptLanguage::get_comment_delimiters(Vector<String> *p_delimiters) const {
 
     p_delimiters->emplace_back("#");
 }
 
-void GDScriptLanguage::get_string_delimiters(PODVector<String> *p_delimiters) const {
+void GDScriptLanguage::get_string_delimiters(Vector<String> *p_delimiters) const {
 
     p_delimiters->emplace_back(("\" \""));
     p_delimiters->emplace_back(("' '"));
@@ -128,8 +128,8 @@ void GDScriptLanguage::make_template(se_string_view p_class_name, se_string_view
     p_script->set_source_code(_template);
 }
 
-bool GDScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, PODVector<
-        String> *r_functions, PODVector<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
+bool GDScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, Vector<
+        String> *r_functions, Vector<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
 
     GDScriptParser parser;
 
@@ -298,7 +298,7 @@ String GDScriptLanguage::debug_get_stack_level_source(int p_level) const {
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].function->get_source().asCString();
 }
-void GDScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void GDScriptLanguage::debug_get_stack_level_locals(int p_level, Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_line >= 0)
         return;
@@ -308,7 +308,7 @@ void GDScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<Strin
 
     GDScriptFunction *f = _call_stack[l].function;
 
-    PODVector<Pair<StringName, int> > locals;
+    Vector<Pair<StringName, int> > locals;
 
     f->debug_get_stack_member_state(*_call_stack[l].line, &locals);
     for (const Pair<StringName, int> &E : locals) {
@@ -317,7 +317,7 @@ void GDScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<Strin
         p_values->emplace_back(_call_stack[l].stack[E.second]);
     }
 }
-void GDScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void GDScriptLanguage::debug_get_stack_level_members(int p_level, Vector<String> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_line >= 0)
         return;
@@ -355,12 +355,12 @@ ScriptInstance *GDScriptLanguage::debug_get_stack_level_instance(int p_level) {
     return instance;
 }
 
-void GDScriptLanguage::debug_get_globals(PODVector<String> *p_globals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void GDScriptLanguage::debug_get_globals(Vector<String> *p_globals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     const Map<StringName, int> &name_idx = GDScriptLanguage::get_singleton()->get_global_map();
     const Variant *globals = GDScriptLanguage::get_singleton()->get_global_array();
 
-    PODVector<Pair<se_string_view, Variant> > cinfo;
+    Vector<Pair<se_string_view, Variant> > cinfo;
     get_public_constants(&cinfo);
 
     for (const eastl::pair<const StringName,int> &E : name_idx) {
@@ -404,12 +404,12 @@ String GDScriptLanguage::debug_parse_stack_level_expression(int p_level, se_stri
     return String();
 }
 
-void GDScriptLanguage::get_recognized_extensions(PODVector<String> *p_extensions) const {
+void GDScriptLanguage::get_recognized_extensions(Vector<String> *p_extensions) const {
 
     p_extensions->push_back("gd");
 }
 
-void GDScriptLanguage::get_public_functions(PODVector<MethodInfo> *p_functions) const {
+void GDScriptLanguage::get_public_functions(Vector<MethodInfo> *p_functions) const {
 
     for (int i = 0; i < GDScriptFunctions::FUNC_MAX; i++) {
 
@@ -441,7 +441,7 @@ void GDScriptLanguage::get_public_functions(PODVector<MethodInfo> *p_functions) 
     }
 }
 
-void GDScriptLanguage::get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const {
+void GDScriptLanguage::get_public_constants(Vector<Pair<se_string_view, Variant>> *p_constants) const {
 
     Pair<se_string_view, Variant> pi;
     pi.first = "PI";
@@ -820,7 +820,7 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                 MethodBind *mb = ClassDB::get_method(native_type.native_type, id);
                                 if (mb && mb->is_const()) {
                                     bool all_is_const = true;
-                                    PODVector<Variant> args;
+                                    Vector<Variant> args;
                                     GDScriptCompletionContext c2 = p_context;
                                     c2.line = op->line;
                                     for (int i = 2; all_is_const && i < op->arguments.size(); i++) {
@@ -851,7 +851,7 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                                                     r_type = _type_from_variant(GDScriptLanguage::get_singleton()->get_named_globals_map().at(whichname));
                                                     found = true;
                                                 } else {
-                                                    PODVector<PropertyInfo> props;
+                                                    Vector<PropertyInfo> props;
                                                     ProjectSettings::get_singleton()->get_property_list(&props);
 
                                                     for(const PropertyInfo & E : props) {
@@ -1317,7 +1317,7 @@ static bool _guess_identifier_type(GDScriptCompletionContext &p_context, const S
                     }
                 } break;
                 case GDScriptParser::DataType::NATIVE: {
-                    PODVector<MethodInfo> methods;
+                    Vector<MethodInfo> methods;
                     ClassDB::get_method_list(base_type.native_type, &methods);
                     ClassDB::get_virtual_methods(base_type.native_type, &methods);
 
@@ -1486,7 +1486,7 @@ static bool _guess_identifier_type_from_base(GDScriptCompletionContext &p_contex
                     }
 
                     if (!_static) {
-                        PODVector<PropertyInfo> members;
+                        Vector<PropertyInfo> members;
                         scr->get_script_property_list(&members);
                         for (const PropertyInfo &prop : members) {
                             if (prop.name == p_identifier) {
@@ -1517,7 +1517,7 @@ static bool _guess_identifier_type_from_base(GDScriptCompletionContext &p_contex
 
                 // Skip constants since they're all integers. Type does not matter because int has no members
 
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 ClassDB::get_property_list(class_name, &props);
                 for (const PropertyInfo &prop : props) {
                     if (prop.name == p_identifier) {
@@ -1672,7 +1672,7 @@ static bool _guess_method_return_type_from_base(GDScriptCompletionContext &p_con
             case GDScriptParser::DataType::SCRIPT: {
                 Ref<Script> scr = base_type.script_type;
                 if (scr) {
-                    PODVector<MethodInfo> methods;
+                    Vector<MethodInfo> methods;
                     scr->get_script_method_list(&methods);
                     for(MethodInfo &mi : methods) {
 
@@ -1714,7 +1714,7 @@ static bool _guess_method_return_type_from_base(GDScriptCompletionContext &p_con
                     return false;
                 }
 
-                PODVector<MethodInfo> methods;
+                Vector<MethodInfo> methods;
                 tmp.get_method_list(&methods);
 
                 for (MethodInfo &mi : methods) {
@@ -1840,7 +1840,7 @@ static void _find_enumeration_candidates(se_string_view p_enum_hint, Map<String,
             return;
         }
 
-        ListPOD<StringName> enum_constants;
+        List<StringName> enum_constants;
         ClassDB::get_enum_constants(class_name, enum_name, &enum_constants);
         for(const StringName & E : enum_constants) {
             String candidate = class_name.asCString() + String(".") + E.asCString();
@@ -1947,7 +1947,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                 if (script) {
                     if (!_static && !p_only_functions) {
                         if (p_context.base && p_context.base->get_script_instance()) {
-                            PODVector<PropertyInfo> members;
+                            Vector<PropertyInfo> members;
                             p_context.base->get_script_instance()->get_property_list(&members);
                             for(const PropertyInfo & E : members) {
                                 ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_MEMBER);
@@ -2000,7 +2000,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                 Ref<Script> scr = base_type.script_type;
                 if (scr) {
                     if (!_static && !p_only_functions) {
-                        PODVector<PropertyInfo> members;
+                        Vector<PropertyInfo> members;
                         scr->get_script_property_list(&members);
                         for(const PropertyInfo & E : members) {
                             ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_MEMBER);
@@ -2016,7 +2016,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                         }
                     }
 
-                    PODVector<MethodInfo> methods;
+                    Vector<MethodInfo> methods;
                     scr->get_script_method_list(&methods);
                     for(const MethodInfo & E : methods) {
                         ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_FUNCTION);
@@ -2049,7 +2049,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                 }
 
                 if (!p_only_functions) {
-                    ListPOD<String> constants;
+                    List<String> constants;
                     ClassDB::get_integer_constant_list(type, &constants);
                     for(const String & E : constants) {
                         ScriptCodeCompletionOption option(E, ScriptCodeCompletionOption::KIND_CONSTANT);
@@ -2057,7 +2057,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                     }
 
                     if (!_static) {
-                        PODVector<PropertyInfo> pinfo;
+                        Vector<PropertyInfo> pinfo;
                         ClassDB::get_property_list(type, &pinfo);
                         for(const PropertyInfo & E : pinfo) {
                             if (E.usage & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY)) {
@@ -2073,7 +2073,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                 }
 
                 if (!_static) {
-                    PODVector<MethodInfo> methods;
+                    Vector<MethodInfo> methods;
                     bool is_autocompleting_getters = GLOBAL_GET("debug/gdscript/completion/autocomplete_setters_and_getters").booleanize();
                     ClassDB::get_method_list(type, &methods, false, !is_autocompleting_getters);
                     for(const MethodInfo & E : methods) {
@@ -2099,7 +2099,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                 }
 
                 if (!p_only_functions) {
-                    PODVector<PropertyInfo> members;
+                    Vector<PropertyInfo> members;
                     p_base.value.get_property_list(&members);
 
                     for(const PropertyInfo & E : members) {
@@ -2110,7 +2110,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                     }
                 }
 
-                PODVector<MethodInfo> methods;
+                Vector<MethodInfo> methods;
                 tmp.get_method_list(&methods);
                 for(const MethodInfo & E : methods) {
                     ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_FUNCTION);
@@ -2203,7 +2203,7 @@ static void _find_identifiers(const GDScriptCompletionContext &p_context, bool p
     }
 
     // Autoload singletons
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for(const PropertyInfo & E : props) {
         se_string_view s = E.name.asCString();
@@ -2218,7 +2218,7 @@ static void _find_identifiers(const GDScriptCompletionContext &p_context, bool p
     }
 
     // Named scripts
-    PODVector<StringName> named_scripts;
+    Vector<StringName> named_scripts;
     ScriptServer::get_global_class_list(&named_scripts);
     for (size_t i=0,fin=named_scripts.size(); i<fin; ++i) {
         ScriptCodeCompletionOption option(named_scripts[i].asCString(), ScriptCodeCompletionOption::KIND_CLASS);
@@ -2268,7 +2268,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                 Ref<GDScript> gds = dynamic_ref_cast<GDScript>(base_type.script_type);
                 if (gds) {
                     if ((p_method == "connect" || p_method == "emit_signal") && p_argidx == 0) {
-                        PODVector<MethodInfo> script_signals;
+                        Vector<MethodInfo> script_signals;
                         gds->get_script_signal_list(&script_signals);
                         for(const MethodInfo & E : script_signals) {
                             ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_SIGNAL);
@@ -2297,7 +2297,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                     }
                 }
 
-                PODVector<MethodInfo> methods;
+                Vector<MethodInfo> methods;
                 ClassDB::get_method_list(class_name, &methods);
                 ClassDB::get_virtual_methods(class_name, &methods);
                 int method_args = 0;
@@ -2308,7 +2308,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                         if (base.get_type() == VariantType::OBJECT) {
                             Object *obj = base.operator Object *();
                             if (obj) {
-                                ListPOD<String> options;
+                                List<String> options;
                                 obj->get_argument_options(p_method, p_argidx, &options);
                                 for(const String & F : options) {
                                     ScriptCodeCompletionOption option(F, ScriptCodeCompletionOption::KIND_FUNCTION);
@@ -2330,7 +2330,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                 }
 
                 if ((p_method == "connect" || p_method == "emit_signal") && p_argidx == 0) {
-                    PODVector<MethodInfo> class_signals;
+                    Vector<MethodInfo> class_signals;
                     ClassDB::get_signal_list(class_name, &class_signals);
                     for(const MethodInfo & E : class_signals) {
                         ScriptCodeCompletionOption option(E.name.asCString(), ScriptCodeCompletionOption::KIND_SIGNAL);
@@ -2341,7 +2341,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
 
                 if (ClassDB::is_parent_class(class_name, "Node") && (p_method == "get_node" || p_method == "has_node") && p_argidx == 0) {
                     // Get autoloads
-                    PODVector<PropertyInfo> props;
+                    Vector<PropertyInfo> props;
                     ProjectSettings::get_singleton()->get_property_list(&props);
 
                     for(const PropertyInfo & E : props) {
@@ -2359,7 +2359,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                 if (p_argidx == 0 && method_args > 0 && ClassDB::is_parent_class(class_name, "InputEvent") &&
                         StringUtils::contains(p_method, "action")) {
                     // Get input actions
-                    PODVector<PropertyInfo> props;
+                    Vector<PropertyInfo> props;
                     ProjectSettings::get_singleton()->get_property_list(&props);
                     for(const PropertyInfo & E : props) {
                         se_string_view s = E.name.asCString();
@@ -2384,7 +2384,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                     }
                 }
 
-                PODVector<MethodInfo> methods;
+                Vector<MethodInfo> methods;
                 base.get_method_list(&methods);
                 for(const MethodInfo & E : methods) {
                     if (E.name == p_method) {
@@ -2443,7 +2443,7 @@ static void _find_call_arguments(GDScriptCompletionContext &p_context, const GDS
             // Complete constructor
             const GDScriptParser::TypeNode *tn = static_cast<const GDScriptParser::TypeNode *>(op->arguments[0]);
 
-            PODVector<MethodInfo> constructors;
+            Vector<MethodInfo> constructors;
             Variant::get_constructor_list(tn->vtype, &constructors);
 
             int i = 0;
@@ -2532,7 +2532,7 @@ static void _find_call_arguments(GDScriptCompletionContext &p_context, const GDS
     r_forced = !r_result.empty();
 }
 
-Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_path, Object *p_owner, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) {
+Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_path, Object *p_owner, Vector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) {
 
     const String quote_style(EDITOR_DEF(("text_editor/completion/use_single_quotes"), false) ? "'" : "\"");
 
@@ -2558,7 +2558,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
         case GDScriptParser::COMPLETION_NONE: {
         } break;
         case GDScriptParser::COMPLETION_BUILT_IN_TYPE_CONSTANT: {
-            PODVector<StringName> constants;
+            Vector<StringName> constants;
             Variant::get_constants_for_type(parser.get_completion_built_in_constant(), &constants);
             for (const StringName &E : constants) {
                 ScriptCodeCompletionOption option(E.asCString(), ScriptCodeCompletionOption::KIND_CONSTANT);
@@ -2577,7 +2577,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
         } break;
         case GDScriptParser::COMPLETION_GET_NODE: {
             if (p_owner) {
-                ListPOD<String> opts;
+                List<String> opts;
                 p_owner->get_argument_options("get_node", 0, &opts);
 
                 for(const String & E : opts) {
@@ -2597,7 +2597,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
                 }
 
                 // Get autoloads
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
 
                 for(const PropertyInfo & E : props) {
@@ -2686,7 +2686,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
 
             bool use_type_hint = EditorSettings::get_singleton()->get_setting(("text_editor/completion/add_type_hints")).as<bool>();
 
-            PODVector<MethodInfo> virtual_methods;
+            Vector<MethodInfo> virtual_methods;
             ClassDB::get_virtual_methods(class_name, &virtual_methods);
             for(MethodInfo &mi : virtual_methods) {
 
@@ -2756,7 +2756,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
                     case GDScriptParser::DataType::GDSCRIPT: {
                         Ref<Script> scr = base_type.script_type;
                         if (scr) {
-                            PODVector<MethodInfo> script_signals;
+                            Vector<MethodInfo> script_signals;
                             scr->get_script_signal_list(&script_signals);
                             for(const MethodInfo & E : script_signals) {
                                 ScriptCodeCompletionOption option(quote_style + E.name.asCString() + quote_style, ScriptCodeCompletionOption::KIND_SIGNAL);
@@ -2784,7 +2784,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
                             }
                         }
 
-                        PODVector<MethodInfo> class_signals;
+                        Vector<MethodInfo> class_signals;
                         ClassDB::get_signal_list(class_name, &class_signals);
                         for(const MethodInfo & E : class_signals) {
                             ScriptCodeCompletionOption option(quote_style + E.name.asCString() + quote_style, ScriptCodeCompletionOption::KIND_SIGNAL);
@@ -2841,7 +2841,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
                     ScriptCodeCompletionOption option((Variant::get_type_name((VariantType)i)), ScriptCodeCompletionOption::KIND_CLASS);
                     options.emplace(option.display, option);
                 }
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
                 for(const PropertyInfo & E : props) {
                     se_string_view s = E.name.asCString();
@@ -2853,7 +2853,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
                 }
             }
 
-            PODVector<StringName> native_classes;
+            Vector<StringName> native_classes;
             ClassDB::get_class_list(&native_classes);
             for (size_t i=0,fin=native_classes.size(); i<fin; ++i) {
                 se_string_view class_name = native_classes[i].asCString();
@@ -2868,7 +2868,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
             }
 
             // Named scripts
-            PODVector<StringName> named_scripts;
+            Vector<StringName> named_scripts;
             ScriptServer::get_global_class_list(&named_scripts);
             for (size_t i=0,fin=named_scripts.size(); i<fin; ++i) {
                 ScriptCodeCompletionOption option(named_scripts[i].asCString(), ScriptCodeCompletionOption::KIND_CLASS);
@@ -3015,9 +3015,9 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
 
     const char *indent = _get_indentation();
 
-    const PODVector<se_string_view> lines(StringUtils::split(p_code,'\n'));
-    List<int> indent_stack;
-    PODVector<String> res;
+    const Vector<se_string_view> lines(StringUtils::split(p_code,'\n'));
+    ListOld<int> indent_stack;
+    Vector<String> res;
     res.reserve(p_code.size()+(p_code.size()>>4)); // assume 1.25 overhead for indent
     for (int i = 0; i < lines.size(); i++) {
 
@@ -3149,7 +3149,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, se
                     return OK;
                 }
 
-                PODVector<MethodInfo> virtual_methods;
+                Vector<MethodInfo> virtual_methods;
                 ClassDB::get_virtual_methods(class_name, &virtual_methods, true);
                 for(const MethodInfo & E : virtual_methods) {
                     if (E.name == symbol_name) {
@@ -3168,7 +3168,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, se
                     return OK;
                 }
 
-                ListPOD<String> constants;
+                List<String> constants;
                 ClassDB::get_integer_constant_list(class_name, &constants, true);
                 for(const String & E : constants) {
                     if (E == p_symbol) {
@@ -3179,7 +3179,7 @@ static Error _lookup_symbol_from_base(const GDScriptParser::DataType &p_base, se
                     }
                 }
 
-                PODVector<PropertyInfo> properties;
+                Vector<PropertyInfo> properties;
                 ClassDB::get_property_list(class_name, &properties, true);
                 for(const PropertyInfo & E : properties) {
                     if (E.name == symbol_name) {
@@ -3381,7 +3381,7 @@ Error GDScriptLanguage::lookup_code(se_string_view p_code, se_string_view p_symb
 
             if (!is_function) {
                 // Guess in autoloads as singletons
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
 
                 for(const PropertyInfo & E : props) {

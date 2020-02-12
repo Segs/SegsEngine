@@ -409,7 +409,7 @@ Error ResourceFormatBPTC::decompress_image(Image *img)
 
 }
 
-void ResourceFormatBPTC::fill_modes(PODVector<int> &tgt) const
+void ResourceFormatBPTC::fill_modes(Vector<int> &tgt) const
 {
     tgt.push_back(ImageCompressMode::COMPRESS_BPTC);
 }

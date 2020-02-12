@@ -340,7 +340,7 @@ String PluginScriptLanguage::debug_get_stack_level_source(int p_level) const {
     return String("Nothing");
 }
 
-void PluginScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void PluginScriptLanguage::debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
     if (_desc.debug_get_stack_level_locals) {
         PoolStringArray locals;
         Array values;
@@ -354,7 +354,7 @@ void PluginScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<s
     }
 }
 
-void PluginScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<se_string_view> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void PluginScriptLanguage::debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
     if (_desc.debug_get_stack_level_members) {
         PoolStringArray members;
         Array values;
@@ -368,7 +368,7 @@ void PluginScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<
     }
 }
 
-void PluginScriptLanguage::debug_get_globals(PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void PluginScriptLanguage::debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
     if (_desc.debug_get_globals) {
         PoolStringArray locals;
         Array values;

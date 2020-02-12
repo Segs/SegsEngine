@@ -59,7 +59,7 @@ class SoftBodyBullet : public CollisionObjectBullet {
 
 private:
     btSoftBody *bt_soft_body;
-    PODVector<PODVector<int> > indices_table;
+    Vector<Vector<int> > indices_table;
     btSoftBody::Material *mat0; // This is just a copy of pointer managed by btSoftBody
     bool isScratched;
 
@@ -74,7 +74,7 @@ private:
     real_t pose_matching_coefficient; // [0,1]
     real_t damping_coefficient; // [0,1]
     real_t drag_coefficient; // [0,1]
-    PODVector<int> pinned_nodes;
+    Vector<int> pinned_nodes;
 
     // Other property to add
     //btScalar				kVC;			// Volume conversation coefficient [0,+inf]
@@ -152,7 +152,7 @@ public:
     _FORCE_INLINE_ real_t get_drag_coefficient() const { return drag_coefficient; }
 
 private:
-    void set_trimesh_body_shape(const PODVector<int> &p_indices, Span<const Vector3> p_vertices);
+    void set_trimesh_body_shape(const Vector<int> &p_indices, Span<const Vector3> p_vertices);
     void setup_soft_body();
 
     void pin_node(int p_node_index);

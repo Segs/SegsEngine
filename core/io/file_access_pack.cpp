@@ -72,7 +72,7 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
 
         if (StringUtils::contains(p,'/')) { //in a subdir
 
-            PODVector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
+            Vector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
 
             for (se_string_view sv : ds) {
                 auto iter =  cd->subdirs.find_as<se_string_view>(sv);
@@ -222,7 +222,7 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
         absolute = true;
     }
 
-    PODVector<se_string_view> paths = StringUtils::split(nd,'/');
+    Vector<se_string_view> paths = StringUtils::split(nd,'/');
 
     PackedData::PackedDir *pd;
 

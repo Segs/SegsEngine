@@ -51,7 +51,7 @@ StringName ResourceImporterWAV::get_visible_name() const {
 
     return StringName("Microsoft WAV");
 }
-void ResourceImporterWAV::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceImporterWAV::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.emplace_back("wav");
 }
@@ -81,7 +81,7 @@ StringName ResourceImporterWAV::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterWAV::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterWAV::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/8_bit"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/mono"), false));
@@ -93,8 +93,8 @@ void ResourceImporterWAV::get_import_options(ListPOD<ImportOption> *r_options, i
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Disabled,RAM (Ima-ADPCM)"), 0));
 }
 
-Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
-        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     /* STEP 1, READ WAVE FILE */
 
@@ -143,7 +143,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
     uint32_t loop_end = 0;
     size_t frames = 0;
 
-    PODVector<float> data;
+    Vector<float> data;
 
     while (!file->eof_reached()) {
 
@@ -324,7 +324,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         // resample!
         int new_data_frames = (int)(frames * (float)limit_rate_hz / (float)rate);
 
-        PODVector<float> new_data;
+        Vector<float> new_data;
         new_data.resize(new_data_frames * format_channels);
         for (int c = 0; c < format_channels; c++) {
 
@@ -420,7 +420,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         }
 
         if (first < last) {
-            PODVector<float> new_data;
+            Vector<float> new_data;
             new_data.resize((last - first) * format_channels);
             for (int i = first; i < last; i++) {
 
@@ -454,7 +454,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
 
     if (force_mono && format_channels == 2) {
 
-        PODVector<float> new_data;
+        Vector<float> new_data;
         new_data.resize(data.size() / 2);
         for (size_t i = 0; i < frames; i++) {
             new_data[i] = (data[i * 2 + 0] + data[i * 2 + 1]) / 2.0f;
@@ -470,7 +470,7 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         is16 = false;
     }
 
-    PODVector<uint8_t> dst_data;
+    Vector<uint8_t> dst_data;
     AudioStreamSample::Format dst_format;
 
     if (compression == 1) {
@@ -481,8 +481,8 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
         } else {
 
             //byte interleave
-            PODVector<float> left;
-            PODVector<float> right;
+            Vector<float> left;
+            Vector<float> right;
 
             int tframes = data.size() / 2;
             left.resize(tframes);
@@ -493,8 +493,8 @@ Error ResourceImporterWAV::import(se_string_view p_source_file, se_string_view p
                 right[i] = data[i * 2 + 1];
             }
 
-            PODVector<uint8_t> bleft;
-            PODVector<uint8_t> bright;
+            Vector<uint8_t> bleft;
+            Vector<uint8_t> bright;
 
             _compress_ima_adpcm(left, bleft);
             _compress_ima_adpcm(right, bright);

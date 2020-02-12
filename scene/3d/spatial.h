@@ -88,7 +88,7 @@ class GODOT_EXPORT Spatial : public Node {
 
         int children_lock;
         Spatial *parent;
-        PODVector<Spatial *> children;
+        Vector<Spatial *> children;
 
         bool toplevel_active;
         bool toplevel;

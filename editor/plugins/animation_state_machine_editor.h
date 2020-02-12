@@ -87,7 +87,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
 
     PopupMenu *menu;
     PopupMenu *animations_menu;
-    PODVector<StringName> animations_to_add;
+    Vector<StringName> animations_to_add;
 
     Vector2 add_node_pos;
 
@@ -116,7 +116,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
         Rect2 edit;
     };
 
-    PODVector<NodeRect> node_rects;
+    Vector<NodeRect> node_rects;
 
     struct TransitionLine {
         StringName from_node;
@@ -131,7 +131,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
         float width;
     };
 
-    PODVector<TransitionLine> transition_lines;
+    Vector<TransitionLine> transition_lines;
 
     StringName selected_transition_from;
     StringName selected_transition_to;
@@ -157,7 +157,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     bool last_active;
     StringName last_blend_from_node;
     StringName last_current_node;
-    PODVector<StringName> last_travel_path;
+    Vector<StringName> last_travel_path;
     float last_play_pos;
     float play_pos;
     float current_length;

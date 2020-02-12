@@ -369,7 +369,7 @@ void TileMap::update_dirty_quadrants() {
 
         Quadrant &q = *dirty_quadrant_list.first()->self();
 
-        for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+        for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
             vs->free_rid(E->deref());
         }
@@ -561,7 +561,7 @@ void TileMap::update_dirty_quadrants() {
                 tex->draw_rect_region(canvas_item, rect, r, modulate, c.transpose, normal_map, clip_uv);
             }
 
-            const PODVector<TileSet::ShapeData> &shapes = tile_set->tile_get_shapes(c.id);
+            const Vector<TileSet::ShapeData> &shapes = tile_set->tile_get_shapes(c.id);
 
             for (int j = 0; j < shapes.size(); j++) {
                 Ref<Shape2D> shape = shapes[j].shape;
@@ -641,11 +641,11 @@ void TileMap::update_dirty_quadrants() {
                             int vsize = navigation_polygon_vertices.size();
 
                             if (vsize > 2) {
-                                PODVector<Color> colors;
-                                PODVector<Vector2> vertices(navigation_polygon_vertices);
+                                Vector<Color> colors;
+                                Vector<Vector2> vertices(navigation_polygon_vertices);
                                 colors.resize(vsize,debug_navigation_color);
 
-                                PODVector<int> indices;
+                                Vector<int> indices;
 
                                 for (int j = 0; j < navpoly->get_polygon_count(); j++) {
                                     const auto &polygon = navpoly->get_polygon(j);
@@ -709,7 +709,7 @@ void TileMap::update_dirty_quadrants() {
         for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
             Quadrant &q = E.second;
-            for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+            for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
                 VisualServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
             }
@@ -802,7 +802,7 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
         collision_parent->remove_shape_owner(q.shape_owner_id);
     }
 
-    for (List<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+    for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
         VisualServer::get_singleton()->free_rid(E->deref());
     }
@@ -1191,7 +1191,7 @@ void TileMap::_update_all_items_material_state() {
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         Quadrant &q = E.second;
-        for (List<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+        for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
             _update_item_material_state(F->deref());
         }
@@ -1597,7 +1597,7 @@ bool TileMap::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void TileMap::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void TileMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     PropertyInfo p(VariantType::INT, "format", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     p_list->push_back(p);
@@ -1766,7 +1766,7 @@ void TileMap::set_light_mask(int p_light_mask) {
     CanvasItem::set_light_mask(p_light_mask);
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        for (List<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
+        for (ListOld<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
             VisualServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
         }
     }

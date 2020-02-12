@@ -56,7 +56,7 @@ void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
         int rlen = iarr.size();
 
         for (int j = 0; j < rlen; j += 3) {
-            PODVector<int> vi {
+            Vector<int> vi {
                 iarr[j + 0] + from,
                 iarr[j + 1] + from,
                 iarr[j + 2] + from,
@@ -256,13 +256,13 @@ bool NavigationMesh::get_filter_walkable_low_height_spans() const {
     return filter_walkable_low_height_spans;
 }
 
-void NavigationMesh::set_vertices(PODVector<Vector3> &&p_vertices) {
+void NavigationMesh::set_vertices(Vector<Vector3> &&p_vertices) {
 
     vertices = eastl::move(p_vertices);
     Object_change_notify(this,StringName());
 }
 
-const PODVector<Vector3> &NavigationMesh::get_vertices() const {
+const Vector<Vector3> &NavigationMesh::get_vertices() const {
 
     return vertices;
 }
@@ -271,7 +271,7 @@ void NavigationMesh::_set_polygons(const Array &p_array) {
 
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons[i].indices = p_array[i].as<PODVector<int>>();
+        polygons[i].indices = p_array[i].as<Vector<int>>();
     }
     Object_change_notify(this,StringName());
 }
@@ -287,7 +287,7 @@ Array NavigationMesh::_get_polygons() const {
     return ret;
 }
 
-void NavigationMesh::add_polygon(PODVector<int> &&p_polygon) {
+void NavigationMesh::add_polygon(Vector<int> &&p_polygon) {
 
     Polygon polygon;
     polygon.indices = eastl::move(p_polygon);
@@ -298,7 +298,7 @@ int NavigationMesh::get_polygon_count() const {
 
     return polygons.size();
 }
-const PODVector<int> &NavigationMesh::get_polygon(int p_idx) {
+const Vector<int> &NavigationMesh::get_polygon(int p_idx) {
 
     ERR_FAIL_INDEX_V(p_idx, polygons.size(), null_int_pvec);
     return polygons[p_idx].indices;
@@ -313,17 +313,17 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
     if (debug_mesh)
         return debug_mesh;
 
-    const PODVector<Vector3> &vertices = get_vertices();
-    PODVector<Face3> faces;
+    const Vector<Vector3> &vertices = get_vertices();
+    Vector<Face3> faces;
     size_t face_count=0;
     for (int i = 0; i < get_polygon_count(); i++) {
-        const PODVector<int> &p = get_polygon(i);
+        const Vector<int> &p = get_polygon(i);
         face_count += p.size()-2;
     }
     faces.reserve(face_count);
 
     for (int i = 0; i < get_polygon_count(); i++) {
-        const PODVector<int> &p = get_polygon(i);
+        const Vector<int> &p = get_polygon(i);
 
         for (int j = 2; j < p.size(); j++) {
             faces.emplace_back(vertices[p[0]],vertices[p[j - 1]],vertices[p[j]]);
@@ -362,7 +362,7 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
             }
         }
     }
-    PODVector<Vector3> lines;
+    Vector<Vector3> lines;
 
     for (const eastl::pair<const _EdgeKey, bool> &E : edge_map) {
 

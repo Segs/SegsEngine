@@ -76,7 +76,7 @@ private:
     int highlight_arrow;
     bool buttons_visible;
     bool missing_right;
-    PODVector<Tab> tabs;
+    Vector<Tab> tabs;
     int current;
     int _get_top_margin() const;
     TabAlign tab_align;

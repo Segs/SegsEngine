@@ -181,7 +181,7 @@ protected:
 
         return false;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         if (sig == StringName())
             return;
@@ -335,7 +335,7 @@ protected:
 
         return false;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         if (var == StringName())
             return;
@@ -447,7 +447,7 @@ void VisualScriptEditor::_update_graph_connections() {
 
     graph->clear_connections();
 
-    PODVector<StringName> funcs;
+    Vector<StringName> funcs;
     script->get_function_list(&funcs);
 
     if (funcs.empty()) {
@@ -457,18 +457,18 @@ void VisualScriptEditor::_update_graph_connections() {
 
     for (int fi=0; fi<funcs.size(); ++fi) {
 
-        List<VisualScript::SequenceConnection> sequence_conns;
+        ListOld<VisualScript::SequenceConnection> sequence_conns;
         script->get_sequence_connection_list(funcs[fi], &sequence_conns);
 
-        for (List<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
 
             graph->connect_node(StringName(itos(E->deref().from_node)), E->deref().from_output, StringName(itos(E->deref().to_node)), 0);
         }
 
-        List<VisualScript::DataConnection> data_conns;
+        ListOld<VisualScript::DataConnection> data_conns;
         script->get_data_connection_list(funcs[fi], &data_conns);
 
-        for (List<VisualScript::DataConnection>::Element *E = data_conns.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::DataConnection>::Element *E = data_conns.front(); E; E = E->next()) {
 
             VisualScript::DataConnection dc = E->deref();
 
@@ -510,7 +510,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
         }
     }
 
-    PODVector<StringName> funcs;
+    Vector<StringName> funcs;
     script->get_function_list(&funcs);
 
     if (funcs.empty()) {
@@ -557,7 +557,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
     for (const StringName &fnname : funcs ) { // loop through all the functions
 
-        PODVector<int> ids;
+        Vector<int> ids;
         script->get_node_list(fnname, &ids);
         StringName editor_icons = "EditorIcons";
 
@@ -957,7 +957,7 @@ void VisualScriptEditor::_update_members() {
     functions->add_button(0, Control::get_icon("Add", "EditorIcons"), 0, false, TTR("Create a new function."));
     functions->set_custom_color(0, Control::get_color("mono_color", "Editor"));
 
-    PODVector<StringName> func_names;
+    Vector<StringName> func_names;
     script->get_function_list(&func_names);
     for(int fi=0; fi<func_names.size(); ++fi) {
 
@@ -1010,7 +1010,7 @@ void VisualScriptEditor::_update_members() {
         Control::get_icon("PoolColorArray", "EditorIcons")
     };
 
-    PODVector<StringName> var_names;
+    Vector<StringName> var_names;
     script->get_variable_list(&var_names);
     for(int fi=0; fi<var_names.size(); ++fi) {
         TreeItem *ti = members->create_item(variables);
@@ -1033,7 +1033,7 @@ void VisualScriptEditor::_update_members() {
     _signals->add_button(0, Control::get_icon("Add", "EditorIcons"), -1, false, TTR("Create a new signal."));
     _signals->set_custom_color(0, Control::get_color("mono_color", "Editor"));
 
-    PODVector<StringName> signal_names;
+    Vector<StringName> signal_names;
     script->get_custom_signal_list(&signal_names);
     for(int fi=0; fi<signal_names.size(); ++fi) {
         TreeItem *ti = members->create_item(_signals);
@@ -1135,10 +1135,10 @@ void VisualScriptEditor::_member_edited() {
         }
 
         // also fix all function calls
-        PODVector<StringName> flst;
+        Vector<StringName> flst;
         script->get_function_list(&flst);
         for(int fi=0; fi<flst.size(); ++fi) {
-            PODVector<int> lst;
+            Vector<int> lst;
             script->get_node_list(flst[fi], &lst);
             for (int F : lst) {
                 Ref<VisualScriptFunctionCall> fncall = dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(flst[fi], F));
@@ -1471,11 +1471,11 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
 
     undo_redo->create_action_ui(TTR("Remove Output Port"), UndoRedo::MERGE_ENDS);
 
-    List<VisualScript::DataConnection> data_connections;
+    ListOld<VisualScript::DataConnection> data_connections;
     script->get_data_connection_list(func, &data_connections);
 
     HashMap<int, Set<int> > conn_map;
-    for (const List<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
+    for (const ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
         if (E->deref().from_node == p_id && E->deref().from_port == p_port) {
             // push into the connections map
             if (!conn_map.contains(E->deref().to_node))
@@ -1487,7 +1487,7 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
     undo_redo->add_do_method(vsn.get(), "remove_output_data_port", p_port);
     undo_redo->add_do_method(this, "_update_graph", p_id);
 
-    ListPOD<int> keys;
+    List<int> keys;
     conn_map.get_key_list(keys);
     for (const int E : keys) {
         for (const int F : conn_map[E]) {
@@ -1540,11 +1540,11 @@ Vector2 VisualScriptEditor::_get_available_pos(bool centered, Vector2 ofs) const
 
     while (true) {
         bool exists = false;
-        PODVector<StringName> all_fn;
+        Vector<StringName> all_fn;
         script->get_function_list(&all_fn);
         for (int fi=0; fi<all_fn.size(); ++fi) {
             StringName curr_fn = all_fn[fi];
-            PODVector<int> existing;
+            Vector<int> existing;
             script->get_node_list(curr_fn, &existing);
             for (int E : existing) {
                 Point2 pos = script->get_node_position(curr_fn, E);
@@ -1588,7 +1588,7 @@ void VisualScriptEditor::_on_nodes_delete() {
 
     // delete all the selected nodes
 
-    List<int> to_erase;
+    ListOld<int> to_erase;
 
     for (int i = 0; i < graph->get_child_count(); i++) {
         GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
@@ -1604,7 +1604,7 @@ void VisualScriptEditor::_on_nodes_delete() {
 
     undo_redo->create_action_ui(TTR("Remove VisualScript Nodes"));
 
-    for (List<int>::Element *F = to_erase.front(); F; F = F->next()) {
+    for (ListOld<int>::Element *F = to_erase.front(); F; F = F->next()) {
 
         int cr_node = F->deref();
 
@@ -1613,20 +1613,20 @@ void VisualScriptEditor::_on_nodes_delete() {
         undo_redo->add_do_method(script.get(), "remove_node", func, cr_node);
         undo_redo->add_undo_method(script.get(), "add_node", func, cr_node, script->get_node(func, cr_node), script->get_node_position(func, cr_node));
 
-        List<VisualScript::SequenceConnection> sequence_conns;
+        ListOld<VisualScript::SequenceConnection> sequence_conns;
         script->get_sequence_connection_list(func, &sequence_conns);
 
-        for (List<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
 
             if (E->deref().from_node == cr_node || E->deref().to_node == cr_node) {
                 undo_redo->add_undo_method(script.get(), "sequence_connect", func, E->deref().from_node, E->deref().from_output, E->deref().to_node);
             }
         }
 
-        List<VisualScript::DataConnection> data_conns;
+        ListOld<VisualScript::DataConnection> data_conns;
         script->get_data_connection_list(func, &data_conns);
 
-        for (List<VisualScript::DataConnection>::Element *E = data_conns.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::DataConnection>::Element *E = data_conns.front(); E; E = E->next()) {
 
             if (E->deref().from_node == F->deref() || E->deref().to_node == F->deref()) {
                 undo_redo->add_undo_method(script.get(), "data_connect", func, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
@@ -1642,7 +1642,7 @@ void VisualScriptEditor::_on_nodes_delete() {
 void VisualScriptEditor::_on_nodes_duplicate() {
 
     Set<int> to_duplicate;
-    List<StringName> funcs;
+    ListOld<StringName> funcs;
 
     for (int i = 0; i < graph->get_child_count(); i++) {
         GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
@@ -1680,18 +1680,18 @@ void VisualScriptEditor::_on_nodes_duplicate() {
         undo_redo->add_undo_method(script.get(), "remove_node", default_func, new_id);
     }
 
-    for (List<StringName>::Element *F = funcs.front(); F; F = F->next()) {
-        List<VisualScript::SequenceConnection> seqs;
+    for (ListOld<StringName>::Element *F = funcs.front(); F; F = F->next()) {
+        ListOld<VisualScript::SequenceConnection> seqs;
         script->get_sequence_connection_list(F->deref(), &seqs);
-        for (List<VisualScript::SequenceConnection>::Element *E = seqs.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::SequenceConnection>::Element *E = seqs.front(); E; E = E->next()) {
             if (to_duplicate.contains(E->deref().from_node) && to_duplicate.contains(E->deref().to_node)) {
                 undo_redo->add_do_method(script.get(), "sequence_connect", default_func, remap[E->deref().from_node], E->deref().from_output, remap[E->deref().to_node]);
             }
         }
 
-        List<VisualScript::DataConnection> data;
+        ListOld<VisualScript::DataConnection> data;
         script->get_data_connection_list(F->deref(), &data);
-        for (List<VisualScript::DataConnection>::Element *E = data.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::DataConnection>::Element *E = data.front(); E; E = E->next()) {
             if (to_duplicate.contains(E->deref().from_node) && to_duplicate.contains(E->deref().to_node)) {
                 undo_redo->add_do_method(script.get(), "data_connect", default_func, remap[E->deref().from_node], E->deref().from_port, remap[E->deref().to_node], E->deref().to_port);
             }
@@ -1817,10 +1817,10 @@ void VisualScriptEditor::_rename_function(const StringName &name, const StringNa
     }
 
     // also fix all function calls
-    PODVector<StringName> flst;
+    Vector<StringName> flst;
     script->get_function_list(&flst);
     for (int i=0; i<flst.size(); ++i) {
-        PODVector<int> lst;
+        Vector<int> lst;
         script->get_node_list(flst[i], &lst);
         for (int F : lst) {
             Ref<VisualScriptFunctionCall> fncall = dynamic_ref_cast<VisualScriptFunctionCall>(script->get_node(flst[i], F));
@@ -2127,7 +2127,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         Array files = d["files"];
 
-        List<int> new_ids;
+        ListOld<int> new_ids;
         int new_id = script->get_available_id();
 
         if (!files.empty()) {
@@ -2155,7 +2155,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
             undo_redo->commit_action();
         }
 
-        for (List<int>::Element *E = new_ids.front(); E; E = E->next()) {
+        for (ListOld<int>::Element *E = new_ids.front(); E; E = E->next()) {
 
             Node *node = graph->get_node(NodePath(itos(E->deref())));
             if (node) {
@@ -2428,7 +2428,7 @@ void VisualScriptEditor::set_edited_resource(const RES &p_res) {
     _update_members();
 }
 
-PODVector<String> VisualScriptEditor::get_functions() {
+Vector<String> VisualScriptEditor::get_functions() {
 
     return {};
 }
@@ -2525,7 +2525,7 @@ void VisualScriptEditor::goto_line(int p_line, bool p_with_error) {
     if (p_with_error)
         error_line = p_line;
 
-    PODVector<StringName> functions;
+    Vector<StringName> functions;
     script->get_function_list(&functions);
     for (int i=0; i<functions.size(); ++i) {
 
@@ -2572,13 +2572,13 @@ void VisualScriptEditor::reload(bool p_soft) {
     _update_graph();
 }
 
-void VisualScriptEditor::get_breakpoints(PODVector<int> *p_breakpoints) {
+void VisualScriptEditor::get_breakpoints(Vector<int> *p_breakpoints) {
 
-    PODVector<StringName> functions;
+    Vector<StringName> functions;
     script->get_function_list(&functions);
     for (int i=0; i<functions.size(); ++i) {
 
-        PODVector<int> nodes;
+        Vector<int> nodes;
         script->get_node_list(functions[i], &nodes);
         for (int F : nodes) {
 
@@ -2746,7 +2746,7 @@ void VisualScriptEditor::_move_node(const StringName &p_func, int p_id, const Ve
 
 StringName VisualScriptEditor::_get_function_of_node(int p_id) const {
 
-    PODVector<StringName> funcs;
+    Vector<StringName> funcs;
     script->get_function_list(&funcs);
     for (int fi=0; fi<funcs.size(); ++fi) {
         if (script->has_node(funcs[fi], p_id)) {
@@ -2774,20 +2774,20 @@ void VisualScriptEditor::_remove_node(int p_id) {
     undo_redo->add_do_method(script.get(), "remove_node", func, p_id);
     undo_redo->add_undo_method(script.get(), "add_node", func, p_id, script->get_node(func, p_id), script->get_node_position(func, p_id));
 
-    List<VisualScript::SequenceConnection> sequence_conns;
+    ListOld<VisualScript::SequenceConnection> sequence_conns;
     script->get_sequence_connection_list(func, &sequence_conns);
 
-    for (List<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
+    for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_id || E->deref().to_node == p_id) {
             undo_redo->add_undo_method(script.get(), "sequence_connect", func, E->deref().from_node, E->deref().from_output, E->deref().to_node);
         }
     }
 
-    List<VisualScript::DataConnection> data_conns;
+    ListOld<VisualScript::DataConnection> data_conns;
     script->get_data_connection_list(func, &data_conns);
 
-    for (List<VisualScript::DataConnection>::Element *E = data_conns.front(); E; E = E->next()) {
+    for (ListOld<VisualScript::DataConnection>::Element *E = data_conns.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_id || E->deref().to_node == p_id) {
             undo_redo->add_undo_method(script.get(), "data_connect", func, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
@@ -2806,10 +2806,10 @@ void VisualScriptEditor::_node_ports_changed(se_string_view p_func, int p_id) {
 }
 
 bool VisualScriptEditor::node_has_sequence_connections(const StringName &p_func, int p_id) {
-    List<VisualScript::SequenceConnection> sequence_conns;
+    ListOld<VisualScript::SequenceConnection> sequence_conns;
     script->get_sequence_connection_list(p_func, &sequence_conns);
 
-    for (List<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
+    for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
         int from = E->deref().from_node;
         int to = E->deref().to_node;
 
@@ -3077,12 +3077,12 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
     nodes_to_move.insert(p_id);
     Set<int> sequence_connections;
     {
-        List<VisualScript::SequenceConnection> sequence_conns;
+        ListOld<VisualScript::SequenceConnection> sequence_conns;
         script->get_sequence_connection_list(p_func_from, &sequence_conns);
 
         HashMap<int, Map<int, int> > seqcons; // from => List(out_p => to)
 
-        for (List<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
             int from = E->deref().from_node;
             int to = E->deref().to_node;
             int out_p = E->deref().from_output;
@@ -3094,7 +3094,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         }
 
         int conn = p_id;
-        List<int> stack;
+        ListOld<int> stack;
         HashMap<int, Set<int> > seen; // from, outp
         while (seqcons.contains(conn)) {
             int size = seqcons[conn].size();
@@ -3130,12 +3130,12 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
     }
 
     {
-        List<VisualScript::DataConnection> data_connections;
+        ListOld<VisualScript::DataConnection> data_connections;
         script->get_data_connection_list(p_func_from, &data_connections);
 
         HashMap<int, Map<int, Pair<int, int> > > connections;
 
-        for (List<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
+        for (ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
             int from = E->deref().from_node;
             int to = E->deref().to_node;
             int out_p = E->deref().from_port;
@@ -3150,7 +3150,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         Set<int> nodes_to_be_added;
         for (int id : nodes_to_move) {
             HashMap<int, Set<int> > seen;
-            PODVector<int> stack;
+            Vector<int> stack;
             while (connections.contains(id)) {
                 int size = connections[id].size();
                 for (eastl::pair<const int, Pair<int, int>> &E : connections[id]) {
@@ -3202,13 +3202,13 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
     }
 
     // * this is primarily for the sake of the having proper undo
-    PODVector<VisualScript::SequenceConnection> seqext;
-    PODVector<VisualScript::DataConnection> dataext;
+    Vector<VisualScript::SequenceConnection> seqext;
+    Vector<VisualScript::DataConnection> dataext;
 
-    List<VisualScript::SequenceConnection> seq_connections;
+    ListOld<VisualScript::SequenceConnection> seq_connections;
     script->get_sequence_connection_list(p_func_from, &seq_connections);
 
-    for (List<VisualScript::SequenceConnection>::Element *E = seq_connections.front(); E; E = E->next()) {
+    for (ListOld<VisualScript::SequenceConnection>::Element *E = seq_connections.front(); E; E = E->next()) {
         if (!nodes_to_move.contains(E->deref().from_node) && nodes_to_move.contains(E->deref().to_node)) {
             seqext.push_back(E->deref());
         } else if (nodes_to_move.contains(E->deref().from_node) && !nodes_to_move.contains(E->deref().to_node)) {
@@ -3216,10 +3216,10 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         }
     }
 
-    List<VisualScript::DataConnection> data_connections;
+    ListOld<VisualScript::DataConnection> data_connections;
     script->get_data_connection_list(p_func_from, &data_connections);
 
-    for (List<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
+    for (ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
         if (!nodes_to_move.contains(E->deref().from_node) && nodes_to_move.contains(E->deref().to_node)) {
             dataext.push_back(E->deref());
         } else if (nodes_to_move.contains(E->deref().from_node) && !nodes_to_move.contains(E->deref().to_node)) {
@@ -3239,7 +3239,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         undo_redo->add_undo_method(script.get(), "add_node", p_func_from, id, script->get_node(p_func_from, id), script->get_node_position(p_func_from, id));
     }
 
-    ListPOD<int> skeys;
+    List<int> skeys;
     seqconns_to_move.get_key_list(skeys);
     for (int E : skeys) {
         int from_node = E;
@@ -3251,7 +3251,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         }
     }
 
-    ListPOD<int> keys;
+    List<int> keys;
     dataconns_to_move.get_key_list(keys);
     for ( int E : keys) {
         int to_node = E; // to_node
@@ -3325,7 +3325,7 @@ VisualScriptNode::TypeGuess VisualScriptEditor::_guess_output_type(int p_port_ac
         return tg;
     }
 
-    PODVector<VisualScriptNode::TypeGuess> in_guesses;
+    Vector<VisualScriptNode::TypeGuess> in_guesses;
 
     for (int i = 0; i < node->get_input_value_port_count(); i++) {
         PropertyInfo pi = node->get_input_value_port_info(i);
@@ -3753,7 +3753,7 @@ void VisualScriptEditor::_selected_new_virtual_method(se_string_view p_text, se_
 
     MethodInfo minfo;
     {
-        PODVector<MethodInfo> methods;
+        Vector<MethodInfo> methods;
         bool found = false;
         ClassDB::get_virtual_methods(script->get_instance_base_type(), &methods);
         for (const MethodInfo &E : methods) {
@@ -3918,7 +3918,7 @@ void VisualScriptEditor::_notification(int p_what) {
 
             bool dark_theme = tm->get_constant("dark_theme", "Editor");
 
-            PODVector<Pair<se_string_view, Color>> colors;
+            Vector<Pair<se_string_view, Color>> colors;
             if (dark_theme) {
                 colors.emplace_back("flow_control", Color(0.96f, 0.96f, 0.96f));
                 colors.emplace_back("functions", Color(0.96f, 0.52f, 0.51f));
@@ -4011,7 +4011,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
         } break;
         case EDIT_TOGGLE_BREAKPOINT: {
 
-            List<StringName> reselect;
+            ListOld<StringName> reselect;
             for (int i = 0; i < graph->get_child_count(); i++) {
                 GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
                 if (gn) {
@@ -4029,7 +4029,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
 
             _update_graph();
 
-            for (List<StringName>::Element *E = reselect.front(); E; E = E->next()) {
+            for (ListOld<StringName>::Element *E = reselect.front(); E; E = E->next()) {
                 GraphNode *gn = object_cast<GraphNode>(graph->get_node(NodePath(E->deref())));
                 gn->set_selected(true);
             }
@@ -4073,11 +4073,11 @@ void VisualScriptEditor::_menu_option(int p_what) {
                 break;
 
             for (const String &F : funcs) {
-                List<VisualScript::SequenceConnection> sequence_connections;
+                ListOld<VisualScript::SequenceConnection> sequence_connections;
 
                 script->get_sequence_connection_list(StringName(F), &sequence_connections);
 
-                for (List<VisualScript::SequenceConnection>::Element *E = sequence_connections.front(); E; E = E->next()) {
+                for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_connections.front(); E; E = E->next()) {
 
                     if (clipboard->nodes.contains(E->deref().from_node) && clipboard->nodes.contains(E->deref().to_node)) {
 
@@ -4085,11 +4085,11 @@ void VisualScriptEditor::_menu_option(int p_what) {
                     }
                 }
 
-                List<VisualScript::DataConnection> data_connections;
+                ListOld<VisualScript::DataConnection> data_connections;
 
                 script->get_data_connection_list(StringName(F), &data_connections);
 
-                for (List<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
+                for (ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
 
                     if (clipboard->nodes.contains(E->deref().from_node) && clipboard->nodes.contains(E->deref().to_node)) {
 
@@ -4121,10 +4121,10 @@ void VisualScriptEditor::_menu_option(int p_what) {
             Set<Vector2> existing_positions;
 
             {
-                PODVector<StringName> functions;
+                Vector<StringName> functions;
                 script->get_function_list(&functions);
                 for (int F=0; F<functions.size(); ++F) {
-                    PODVector<int> nodes;
+                    Vector<int> nodes;
                     script->get_node_list(functions[F], &nodes);
                     for (int E : nodes) {
                         Vector2 pos = script->get_node_position(functions[F], E).snapped(Vector2(2, 2));
@@ -4227,7 +4227,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
                     return;
                 }
             } else {
-                List<VisualScript::SequenceConnection> seqs;
+                ListOld<VisualScript::SequenceConnection> seqs;
                 script->get_sequence_connection_list(function, &seqs);
 
                 if (seqs.size() == 0) {
@@ -4261,7 +4261,7 @@ void VisualScriptEditor::_menu_option(int p_what) {
                     // pick the node with input sequence
                     Set<int> nodes_from;
                     Set<int> nodes_to;
-                    for (List<VisualScript::SequenceConnection>::Element *E = seqs.front(); E; E = E->next()) {
+                    for (ListOld<VisualScript::SequenceConnection>::Element *E = seqs.front(); E; E = E->next()) {
                         if (nodes.contains(E->deref().from_node) && nodes.contains(E->deref().to_node)) {
                             seqmove.insert(E->deref());
                             nodes_from.emplace(int(E->deref().from_node));
@@ -4299,12 +4299,12 @@ void VisualScriptEditor::_menu_option(int p_what) {
                 return; // this should not happen, but just in case something goes wrong
             }
 
-            List<VariantType> inputs; // input types
-            List<Pair<int, int> > input_connections;
+            ListOld<VariantType> inputs; // input types
+            ListOld<Pair<int, int> > input_connections;
             {
-                List<VisualScript::DataConnection> dats;
+                ListOld<VisualScript::DataConnection> dats;
                 script->get_data_connection_list(function, &dats);
-                for (List<VisualScript::DataConnection>::Element *E = dats.front(); E; E = E->next()) {
+                for (ListOld<VisualScript::DataConnection>::Element *E = dats.front(); E; E = E->next()) {
                     if (nodes.contains(E->deref().from_node) && nodes.contains(E->deref().to_node)) {
                         datamove.insert(E->deref());
                     } else if (!nodes.contains(E->deref().from_node) && nodes.contains(E->deref().to_node)) {
@@ -4396,8 +4396,8 @@ void VisualScriptEditor::_menu_option(int p_what) {
 
             // * might make the system more intelligent by checking port from info.
             int i = 0;
-            List<Pair<int, int> >::Element *F = input_connections.front();
-            for (List<VariantType>::Element *E = inputs.front(); E && F; E = E->next(), F = F->next()) {
+            ListOld<Pair<int, int> >::Element *F = input_connections.front();
+            for (ListOld<VariantType>::Element *E = inputs.front(); E && F; E = E->next(), F = F->next()) {
                 func_node->add_argument(E->deref(), StringName("arg_" + StringUtils::num_int64(i)), i);
                 undo_redo->add_do_method(script.get(), "data_connect", new_fn, fn_id, i, F->deref().first, F->deref().second);
                 i++; // increment i
@@ -4433,8 +4433,8 @@ void VisualScriptEditor::_menu_option(int p_what) {
 // this is likely going to be very slow and I am not sure if I should keep it
 // but I hope that it will not be a problem considering that we won't be creating functions so frequently
 // and cyclic connections would be a problem but hopefully we won't let them get to this point
-void VisualScriptEditor::_get_ends(int p_node, const List<VisualScript::SequenceConnection> &p_seqs, const Set<int> &p_selected, Set<int> &r_end_nodes) {
-    for (const List<VisualScript::SequenceConnection>::Element *E = p_seqs.front(); E; E = E->next()) {
+void VisualScriptEditor::_get_ends(int p_node, const ListOld<VisualScript::SequenceConnection> &p_seqs, const Set<int> &p_selected, Set<int> &r_end_nodes) {
+    for (const ListOld<VisualScript::SequenceConnection>::Element *E = p_seqs.front(); E; E = E->next()) {
         int from = E->deref().from_node;
         int to = E->deref().to_node;
 
@@ -4513,25 +4513,25 @@ void VisualScriptEditor::_member_option(int p_option) {
                 undo_redo->create_action_ui(TTR("Remove Function"));
                 undo_redo->add_do_method(script.get(), "remove_function", name);
                 undo_redo->add_undo_method(script.get(), "add_function", name);
-                PODVector<int> nodes;
+                Vector<int> nodes;
                 script->get_node_list(name, &nodes);
                 for (int E : nodes) {
                     undo_redo->add_undo_method(script.get(), "add_node", name, E, script->get_node(name, E), script->get_node_position(name, E));
                 }
 
-                List<VisualScript::SequenceConnection> seq_connections;
+                ListOld<VisualScript::SequenceConnection> seq_connections;
 
                 script->get_sequence_connection_list(name, &seq_connections);
 
-                for (List<VisualScript::SequenceConnection>::Element *E = seq_connections.front(); E; E = E->next()) {
+                for (ListOld<VisualScript::SequenceConnection>::Element *E = seq_connections.front(); E; E = E->next()) {
                     undo_redo->add_undo_method(script.get(), "sequence_connect", name, E->deref().from_node, E->deref().from_output, E->deref().to_node);
                 }
 
-                List<VisualScript::DataConnection> data_connections;
+                ListOld<VisualScript::DataConnection> data_connections;
 
                 script->get_data_connection_list(name, &data_connections);
 
-                for (List<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
+                for (ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
                     undo_redo->add_undo_method(script.get(), "data_connect", name, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
                 }
 

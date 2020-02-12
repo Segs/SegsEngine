@@ -86,10 +86,10 @@ void gd_mono_setup_runtime_main_args() {
     String execpath = OS::get_singleton()->get_executable_path();
 
     // Copy since mono_runtime_set_main_args uses arguments as char *
-    ListPOD<String> cmdline_args = OS::get_singleton()->get_cmdline_args();
+    List<String> cmdline_args = OS::get_singleton()->get_cmdline_args();
 
-    PODVector<CharString> cmdline_args_utf8;
-    PODVector<char *> main_args;
+    Vector<CharString> cmdline_args_utf8;
+    Vector<char *> main_args;
     main_args.reserve(cmdline_args.size() + 1);
 
     main_args.emplace_back(execpath.data());
@@ -255,7 +255,7 @@ void GDMono::determine_mono_dirs(String &r_assembly_rootdir, String &r_config_di
     const char *c_config_dir = mono_get_config_dir();
 
     if (!c_assembly_rootdir || !c_config_dir || !DirAccess::exists(c_assembly_rootdir) || !DirAccess::exists(c_config_dir)) {
-        PODVector<const char *> locations;
+        Vector<const char *> locations;
         locations.push_back("/Library/Frameworks/Mono.framework/Versions/Current/");
         locations.push_back("/usr/local/var/homebrew/linked/mono/");
 

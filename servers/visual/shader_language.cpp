@@ -2042,7 +2042,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
 
     ERR_FAIL_COND_V(p_func->op != OP_CALL && p_func->op != OP_CONSTRUCT, false);
 
-    PODVector<DataType> args;
+    Vector<DataType> args;
 
     ERR_FAIL_COND_V(p_func->arguments[0]->type != Node::TYPE_VARIABLE, false);
 
@@ -2394,7 +2394,7 @@ bool ShaderLanguage::is_sampler_type(DataType p_type) {
            p_type == TYPE_SAMPLERCUBE;
 }
 
-Variant ShaderLanguage::constant_value_to_variant(const PODVector<ShaderLanguage::ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint) {
+Variant ShaderLanguage::constant_value_to_variant(const Vector<ShaderLanguage::ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint) {
     if (!p_value.empty()) {
         Variant value;
         switch (p_type) {
@@ -2497,7 +2497,7 @@ Variant ShaderLanguage::constant_value_to_variant(const PODVector<ShaderLanguage
     return Variant();
 }
 
-void ShaderLanguage::get_keyword_list(PODVector<se_string_view> *r_keywords) {
+void ShaderLanguage::get_keyword_list(Vector<se_string_view> *r_keywords) {
 
     Set<se_string_view> kws;
 
@@ -2523,7 +2523,7 @@ void ShaderLanguage::get_keyword_list(PODVector<se_string_view> *r_keywords) {
     }
 }
 
-void ShaderLanguage::get_builtin_funcs(PODVector<String> *r_keywords) {
+void ShaderLanguage::get_builtin_funcs(Vector<String> *r_keywords) {
 
     Set<se_string_view> kws;
 
@@ -2748,7 +2748,7 @@ bool ShaderLanguage::_validate_assign(Node *p_node, const Map<StringName, BuiltI
         *r_message = "Assignment to constant expression.";
     return false;
 }
-static String join_args(const PODVector<ShaderLanguage::Node *> &arguments) {
+static String join_args(const Vector<ShaderLanguage::Node *> &arguments) {
     String at;
     bool first_done=false;
     for (const ShaderLanguage::Node *argnode : arguments) {
@@ -2762,7 +2762,7 @@ static String join_args(const PODVector<ShaderLanguage::Node *> &arguments) {
 }
 ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types) {
 
-    PODVector<Expression> expression;
+    Vector<Expression> expression;
 
     //Vector<TokenType> operators;
 
@@ -3655,7 +3655,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
         DataType base = get_scalar_type(type);
         int cardinality = get_cardinality(type);
 
-        PODVector<ConstantNode::Value> values;
+        Vector<ConstantNode::Value> values;
 
         for (size_t i = 1; i < op->arguments.size(); i++) {
 
@@ -3718,7 +3718,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
 
             DataType base = get_scalar_type(cn->datatype);
 
-            PODVector<ConstantNode::Value> values;
+            Vector<ConstantNode::Value> values;
 
             for (ConstantNode::Value & value : cn->values) {
 
@@ -4655,7 +4655,7 @@ String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_typ
 //	}
 //	return OK;
 //}
-Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
 
     Token tk = _get_token();
 
@@ -5419,7 +5419,7 @@ String ShaderLanguage::get_shader_type(const String &p_code) {
     return String();
 }
 
-Error ShaderLanguage::compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
 
     clear();
 
@@ -5436,7 +5436,7 @@ Error ShaderLanguage::compile(const String &p_code, const Map<StringName, Functi
     return OK;
 }
 
-Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const PODVector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, PODVector
+Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, Vector
         <ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
 
     clear();

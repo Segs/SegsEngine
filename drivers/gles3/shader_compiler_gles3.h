@@ -50,12 +50,12 @@ public:
 
     struct GeneratedCode {
 
-        PODVector<String> defines;
-        PODVector<StringName> texture_uniforms;
-        PODVector<ShaderLanguage::DataType> texture_types;
-        PODVector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
+        Vector<String> defines;
+        Vector<StringName> texture_uniforms;
+        Vector<ShaderLanguage::DataType> texture_types;
+        Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
 
-        PODVector<uint32_t> uniform_offsets;
+        Vector<uint32_t> uniform_offsets;
         uint32_t uniform_total_size;
         String uniforms;
         String vertex_global;

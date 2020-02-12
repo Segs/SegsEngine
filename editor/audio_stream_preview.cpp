@@ -113,7 +113,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 
     int mixbuff_chunk_frames = AudioServer::get_singleton()->get_mix_rate() * muxbuff_chunk_s;
 
-    PODVector<AudioFrame> mix_chunk;
+    Vector<AudioFrame> mix_chunk;
     mix_chunk.resize(mixbuff_chunk_frames);
 
     int frames_total = AudioServer::get_singleton()->get_mix_rate() * preview->preview->length;
@@ -190,7 +190,7 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 
     int frames = AudioServer::get_singleton()->get_mix_rate() * len_s;
 
-    PODVector<uint8_t> maxmin;
+    Vector<uint8_t> maxmin;
     int pw = frames / 20;
     maxmin.resize(pw * 2,127);
 
@@ -217,7 +217,7 @@ void AudioStreamPreviewGenerator::_notification(int p_what) {
     if (p_what != NOTIFICATION_PROCESS)
         return;
 
-    PODVector<ObjectID> to_erase;
+    Vector<ObjectID> to_erase;
     for (eastl::pair<const ObjectID,Preview> &E : previews) {
         if (!E.second.generating) {
             if (E.second.thread) {

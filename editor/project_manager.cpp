@@ -540,7 +540,7 @@ private:
 
                     int ret = unzGoToFirstFile(pkg);
 
-                    PODVector<String> failed_files;
+                    Vector<String> failed_files;
 
                     int idx = 0;
                     while (ret == UNZ_OK) {
@@ -1046,7 +1046,7 @@ public:
     int get_project_count() const;
     void select_project(int p_index);
     void erase_selected_projects();
-    PODVector<Item> get_selected_projects() const;
+    Vector<Item> get_selected_projects() const;
     const Set<StringName> &get_selected_project_keys() const;
     void ensure_project_visible(int p_index);
     int get_single_selected_index() const;
@@ -1079,7 +1079,7 @@ private:
     VBoxContainer *_scroll_children;
     int _icon_load_index;
 
-    PODVector<Item> _projects;
+    Vector<Item> _projects;
 };
 
 IMPL_GDCLASS(ProjectList)
@@ -1231,7 +1231,7 @@ void ProjectList::load_projects() {
     // TODO Would be nice to change how projects and favourites are stored... it complicates things a bit.
     // Use a dictionary associating project path to metadata (like is_favorite).
 
-    PODVector<PropertyInfo> properties;
+    Vector<PropertyInfo> properties;
     EditorSettings::get_singleton()->get_property_list(&properties);
 
     Set<String> favorites;
@@ -1444,8 +1444,8 @@ const Set<StringName> &ProjectList::get_selected_project_keys() const {
     return _selected_project_keys;
 }
 
-PODVector<ProjectList::Item> ProjectList::get_selected_projects() const {
-    PODVector<Item> items;
+Vector<ProjectList::Item> ProjectList::get_selected_projects() const {
+    Vector<Item> items;
     if (_selected_project_keys.empty()) {
         return items;
     }
@@ -1566,7 +1566,7 @@ int ProjectList::refresh_project(se_string_view dir_path) {
     bool should_be_in_list = false;
     StringName property_key("projects/" + project_key);
     {
-        PODVector<PropertyInfo> properties;
+        Vector<PropertyInfo> properties;
         EditorSettings::get_singleton()->get_property_list(&properties);
         StringName favorite_property_key("favorite_projects/" + project_key);
 
@@ -1628,7 +1628,7 @@ int ProjectList::get_project_count() const {
 
 void ProjectList::select_project(int p_index) {
 
-    PODVector<Item> previous_selected_items = get_selected_projects();
+    Vector<Item> previous_selected_items = get_selected_projects();
     _selected_project_keys.clear();
 
     for (int i = 0; i < previous_selected_items.size(); ++i) {
@@ -1843,7 +1843,7 @@ void ProjectManager::_dim_window() {
 
 void ProjectManager::_update_project_buttons() {
 
-    PODVector<ProjectList::Item> selected_projects = _project_list->get_selected_projects();
+    Vector<ProjectList::Item> selected_projects = _project_list->get_selected_projects();
     bool empty_selection = selected_projects.empty();
     bool is_missing_project_selected = false;
     for (int i = 0; i < selected_projects.size(); ++i) {
@@ -1968,7 +1968,7 @@ void ProjectManager::_load_recent_projects() {
 }
 
 void ProjectManager::_on_projects_updated() {
-    PODVector<ProjectList::Item> selected_projects = _project_list->get_selected_projects();
+    Vector<ProjectList::Item> selected_projects = _project_list->get_selected_projects();
     int index = 0;
     for (int i = 0; i < selected_projects.size(); ++i) {
         index = _project_list->refresh_project(selected_projects[i].path);
@@ -1998,7 +1998,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
 
     int id = (int)p_id;
     if (id == ProjectList::GLOBAL_NEW_WINDOW) {
-        ListPOD<String> args;
+        List<String> args;
         args.push_back("-p");
         String exec = OS::get_singleton()->get_executable_path();
 
@@ -2008,7 +2008,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
         String conf = (String)p_meta;
 
         if (!conf.empty()) {
-            ListPOD<String> args;
+            List<String> args;
             args.push_back(conf);
             String exec = OS::get_singleton()->get_executable_path();
 
@@ -2034,7 +2034,7 @@ void ProjectManager::_open_selected_projects() {
 
         print_line("Editing project: " + path + " (" + selected + ")");
 
-        ListPOD<String> args;
+        List<String> args;
 
         args.push_back(("--path"));
         args.push_back(path);
@@ -2116,7 +2116,7 @@ void ProjectManager::_open_selected_projects_ask() {
 
 void ProjectManager::_run_project_confirm() {
 
-    PODVector<ProjectList::Item> selected_list = _project_list->get_selected_projects();
+    Vector<ProjectList::Item> selected_list = _project_list->get_selected_projects();
 
     for (int i = 0; i < selected_list.size(); ++i) {
 
@@ -2138,7 +2138,7 @@ void ProjectManager::_run_project_confirm() {
 
         print_line("Running project: " + path + " (" + selected + ")");
 
-        PODVector<String> args;
+        Vector<String> args;
 
         args.emplace_back("--path");
         args.emplace_back(path);
@@ -2172,7 +2172,7 @@ void ProjectManager::_run_project() {
     }
 }
 
-void ProjectManager::_scan_dir(se_string_view path, PODVector<String> *r_projects) {
+void ProjectManager::_scan_dir(se_string_view path, Vector<String> *r_projects) {
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     da->change_dir(path);
     da->list_dir_begin();
@@ -2192,7 +2192,7 @@ void ProjectManager::_scan_dir(se_string_view path, PODVector<String> *r_project
 void ProjectManager::_scan_begin(se_string_view p_base) {
 
     print_line(String("Scanning projects at: ") + p_base);
-    PODVector<String> projects;
+    Vector<String> projects;
     _scan_dir(p_base, &projects);
     print_line("Found " + itos(projects.size()) + " projects.");
 
@@ -2284,7 +2284,7 @@ void ProjectManager::_language_selected(int p_id) {
 
 void ProjectManager::_restart_confirm() {
 
-    const ListPOD<String> &args(OS::get_singleton()->get_cmdline_args());
+    const List<String> &args(OS::get_singleton()->get_cmdline_args());
     String exec(OS::get_singleton()->get_executable_path());
     OS::ProcessID pid = 0;
     Error err = OS::get_singleton()->execute(exec, args, false, &pid);
@@ -2491,7 +2491,7 @@ ProjectManager::ProjectManager() {
     Label *sort_label = memnew(Label);
     sort_label->set_text(TTR("Sort:"));
     sort_filters->add_child(sort_label);
-    PODVector<String> sort_filter_titles;
+    Vector<String> sort_filter_titles;
     sort_filter_titles.push_back(TTR("Name").asCString());
     sort_filter_titles.push_back(TTR("Path").asCString());
     sort_filter_titles.push_back(TTR("Last Modified").asCString());
@@ -2617,8 +2617,8 @@ ProjectManager::ProjectManager() {
     language_btn->set_flat(true);
     language_btn->set_focus_mode(Control::FOCUS_NONE);
 
-    PODVector<se_string_view> editor_languages;
-    PODVector<PropertyInfo> editor_settings_properties;
+    Vector<se_string_view> editor_languages;
+    Vector<PropertyInfo> editor_settings_properties;
     EditorSettings::get_singleton()->get_property_list(&editor_settings_properties);
     for (const PropertyInfo &pi : editor_settings_properties) {
         if (pi.name == "interface/editor/editor_language") {
@@ -2717,7 +2717,7 @@ ProjectManager::~ProjectManager() {
         EditorSettings::destroy();
 }
 
-void ProjectListFilter::_setup_filters(const PODVector<String> &options) {
+void ProjectListFilter::_setup_filters(const Vector<String> &options) {
 
     filter_option->clear();
     for (size_t i = 0; i < options.size(); i++)

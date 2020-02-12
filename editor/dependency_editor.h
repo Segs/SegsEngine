@@ -49,7 +49,7 @@ class DependencyEditor : public AcceptDialog {
 
     String replacing;
     String editing;
-    ListPOD<String> missing;
+    List<String> missing;
 
     void _fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<String, String> > &candidates);
 
@@ -100,8 +100,8 @@ class DependencyRemoveDialog : public ConfirmationDialog {
     Tree *owners;
 
     Map<String, String> all_remove_files;
-    PODVector<String> dirs_to_delete;
-    PODVector<String> files_to_delete;
+    Vector<String> dirs_to_delete;
+    Vector<String> files_to_delete;
 
     struct RemovedDependency {
         String file;
@@ -119,15 +119,15 @@ class DependencyRemoveDialog : public ConfirmationDialog {
     };
 
     void _find_files_in_removed_folder(EditorFileSystemDirectory *efsd, se_string_view p_folder);
-    void _find_all_removed_dependencies(EditorFileSystemDirectory *efsd, PODVector<RemovedDependency> &p_removed);
-    void _build_removed_dependency_tree(const PODVector<RemovedDependency> &p_removed);
+    void _find_all_removed_dependencies(EditorFileSystemDirectory *efsd, Vector<RemovedDependency> &p_removed);
+    void _build_removed_dependency_tree(const Vector<RemovedDependency> &p_removed);
 
     void ok_pressed() override;
 
     static void _bind_methods();
 
 public:
-    void show(const PODVector<String> &p_folders, const PODVector<String> &p_files);
+    void show(const Vector<String> &p_folders, const Vector<String> &p_files);
     DependencyRemoveDialog();
 };
 
@@ -150,7 +150,7 @@ private:
     void custom_action(se_string_view) override;
 
 public:
-    void show(Mode p_mode, se_string_view p_for_file, const PODVector<String> &report);
+    void show(Mode p_mode, se_string_view p_for_file, const Vector<String> &report);
     DependencyErrorDialog();
 };
 
@@ -164,8 +164,8 @@ class OrphanResourcesDialog : public ConfirmationDialog {
 
     bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent);
 
-    PODVector<String> paths;
-    void _find_to_delete(TreeItem *p_item, PODVector<String> &paths);
+    Vector<String> paths;
+    void _find_to_delete(TreeItem *p_item, Vector<String> &paths);
     void _delete_confirm();
     void _button_pressed(Object *p_item, int p_column, int p_id);
 

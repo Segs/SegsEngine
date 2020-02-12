@@ -51,7 +51,7 @@ class BakedLightmapData : public Resource {
         int instance_index;
     };
 
-    PODVector<User> users;
+    Vector<User> users;
 public:
     void _set_user_data(const Array &p_data);
     Array _get_user_data() const;
@@ -131,7 +131,7 @@ private:
 
     struct PlotMesh {
         Ref<Material> override_material;
-        PODVector<Ref<Material> > instance_materials;
+        Vector<Ref<Material> > instance_materials;
         Ref<Mesh> mesh;
         Transform local_xform;
         NodePath path;
@@ -143,7 +143,7 @@ private:
         Transform local_xform;
     };
 
-    void _find_meshes_and_lights(Node *p_at_node, PODVector<PlotMesh> &plot_meshes, PODVector<PlotLight> &plot_lights);
+    void _find_meshes_and_lights(Node *p_at_node, Vector<PlotMesh> &plot_meshes, Vector<PlotLight> &plot_lights);
 public:
     void debug_bake();
 private:
@@ -201,7 +201,7 @@ public:
     const String &get_image_path() const;
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     BakeError bake(Node *p_from_node, bool p_create_visual_debug = false);
     BakedLightmap();

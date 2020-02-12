@@ -88,7 +88,7 @@ bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float 
 }
 #endif
 
-void NavigationPolygon::set_vertices(PODVector<Vector2> &&p_vertices) {
+void NavigationPolygon::set_vertices(Vector<Vector2> &&p_vertices) {
     navmesh_generation->lock();
     navmesh.unref();
     navmesh_generation->unlock();
@@ -102,7 +102,7 @@ void NavigationPolygon::_set_polygons(const Array &p_array) {
     navmesh_generation->unlock();
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons[i].indices = p_array[i].as<PODVector<int>>();
+        polygons[i].indices = p_array[i].as<Vector<int>>();
     }
 }
 
@@ -137,7 +137,7 @@ Array NavigationPolygon::_get_outlines() const {
     return ret;
 }
 
-void NavigationPolygon::add_polygon(PODVector<int> &&p_polygon) {
+void NavigationPolygon::add_polygon(Vector<int> &&p_polygon) {
 
     Polygon polygon;
     polygon.indices = eastl::move(p_polygon);
@@ -157,7 +157,7 @@ int NavigationPolygon::get_polygon_count() const {
 
     return polygons.size();
 }
-const PODVector<int> &NavigationPolygon::get_polygon(int p_idx) {
+const Vector<int> &NavigationPolygon::get_polygon(int p_idx) {
 
     ERR_FAIL_INDEX_V(p_idx, polygons.size(), null_int_pvec);
     return polygons[p_idx].indices;
@@ -174,9 +174,9 @@ const Ref<NavigationMesh> &NavigationPolygon::get_mesh() {
     navmesh_generation->lock();
     if (!navmesh) {
         navmesh = make_ref_counted<NavigationMesh>();
-        PODVector<Vector3> verts;
+        Vector<Vector3> verts;
         verts.reserve(get_vertices().size());
-        const PODVector<Vector2> &r(get_vertices());
+        const Vector<Vector2> &r(get_vertices());
 
         for (int i(0); i < get_vertices().size(); i++) {
             verts.emplace_back(r[i].x, 0.0, r[i].y);
@@ -184,7 +184,7 @@ const Ref<NavigationMesh> &NavigationPolygon::get_mesh() {
         navmesh->set_vertices(eastl::move(verts));
 
         for (int i(0); i < get_polygon_count(); i++) {
-            navmesh->add_polygon(PODVector<int>(get_polygon(i)));
+            navmesh->add_polygon(Vector<int>(get_polygon(i)));
         }
     }
     navmesh_generation->unlock();
@@ -436,7 +436,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
 
             if (is_inside_tree() && (Engine::get_singleton()->is_editor_hint() || get_tree()->is_debugging_navigation_hint()) && navpoly) {
 
-                const PODVector<Vector2> &verts = navpoly->get_vertices();
+                const Vector<Vector2> &verts = navpoly->get_vertices();
                 int vsize = verts.size();
                 if (vsize < 3)
                     return;
@@ -447,15 +447,15 @@ void NavigationPolygonInstance::_notification(int p_what) {
                 } else {
                     color = get_tree()->get_debug_navigation_disabled_color();
                 }
-                PODVector<Color> colors;
-                PODVector<Vector2> vertices;
+                Vector<Color> colors;
+                Vector<Vector2> vertices;
                 vertices = verts;
                 colors.resize(vsize,color);
 
-                PODVector<int> indices;
+                Vector<int> indices;
                 indices.reserve(navpoly->get_polygon_count()*2*3);
                 for (int i = 0; i < navpoly->get_polygon_count(); i++) {
-                    const PODVector<int> &polygon = navpoly->get_polygon(i);
+                    const Vector<int> &polygon = navpoly->get_polygon(i);
 
                     for (int j = 2; j < polygon.size(); j++) {
 

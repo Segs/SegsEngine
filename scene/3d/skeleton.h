@@ -92,7 +92,7 @@ private:
         PhysicalBone* cache_parent_physical_bone;
 #endif // _3D_DISABLED
 
-        PODVector<uint32_t> nodes_bound;
+        Vector<uint32_t> nodes_bound;
 
         Bone() {
             parent = -1;
@@ -110,8 +110,8 @@ private:
 
 
     Set<SkinReference *> skin_bindings;
-    PODVector<Bone> bones;
-    PODVector<int> process_order;
+    Vector<Bone> bones;
+    Vector<int> process_order;
     bool process_order_dirty;
     bool dirty;
 
@@ -122,7 +122,7 @@ public:
     Array _get_bound_child_nodes_to_bone(int p_bone) const {
 
         Array bound;
-        PODVector<Node *> children;
+        Vector<Node *> children;
         get_bound_child_nodes_to_bone(p_bone, &children);
         for (int i = 0; i < children.size(); i++) {
             bound.push_back(Variant(children[i]));
@@ -135,7 +135,7 @@ public:
 protected:
     bool _get(const StringName &p_path, Variant &r_ret) const;
     bool _set(const StringName &p_path, const Variant &p_value);
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _notification(int p_what);
     static void _bind_methods();
 
@@ -175,7 +175,7 @@ public:
 
     void bind_child_node_to_bone(int p_bone, Node *p_node);
     void unbind_child_node_from_bone(int p_bone, Node *p_node);
-    void get_bound_child_nodes_to_bone(int p_bone, PODVector<Node *> *p_bound) const;
+    void get_bound_child_nodes_to_bone(int p_bone, Vector<Node *> *p_bound) const;
 
     void clear_bones();
 

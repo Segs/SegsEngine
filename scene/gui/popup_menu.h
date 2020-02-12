@@ -79,8 +79,8 @@ class PopupMenu : public Popup {
     };
 
     class Timer *submenu_timer;
-    PODVector<Rect2> autohide_areas;
-    PODVector<Item> items;
+    Vector<Rect2> autohide_areas;
+    Vector<Item> items;
     int initial_button_mask;
     bool during_grabbed_click;
     int mouse_over;
@@ -197,7 +197,7 @@ public:
 
     StringName get_tooltip(const Point2 &p_pos) const override;
 
-    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
+    void get_translatable_strings(List<StringName> *p_strings) const override;
 
     void add_autohide_area(const Rect2 &p_area);
     void clear_autohide_areas();

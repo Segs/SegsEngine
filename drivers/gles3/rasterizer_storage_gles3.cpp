@@ -1359,9 +1359,9 @@ const String &RasterizerStorageGLES3::texture_get_path(RID p_texture) const {
     ERR_FAIL_COND_V(!texture, null_se_string);
     return texture->path;
 }
-void RasterizerStorageGLES3::texture_debug_usage(PODVector<VisualServer::TextureInfo> *r_info) {
+void RasterizerStorageGLES3::texture_debug_usage(Vector<VisualServer::TextureInfo> *r_info) {
 
-    ListPOD<RID> textures;
+    List<RID> textures;
     texture_owner.get_owned_list(&textures);
 
     for (const RID &E : textures) {
@@ -2230,7 +2230,7 @@ void RasterizerStorageGLES3::update_dirty_shaders() {
     }
 }
 
-void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const {
+void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const {
 
     Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND(!shader);
@@ -2451,7 +2451,7 @@ Variant RasterizerStorageGLES3::material_get_param_default(RID p_material, const
     if (material->shader) {
         if (material->shader->uniforms.contains(p_param)) {
             ShaderLanguage::ShaderNode::Uniform uniform = material->shader->uniforms[p_param];
-            PODVector<ShaderLanguage::ConstantNode::Value> default_value = uniform.default_value;
+            Vector<ShaderLanguage::ConstantNode::Value> default_value = uniform.default_value;
             return ShaderLanguage::constant_value_to_variant(default_value, uniform.type, uniform.hint);
         }
     }
@@ -2796,7 +2796,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
     }
 }
 
-static void _fill_std140_ubo_value(ShaderLanguage::DataType type, const PODVector<ShaderLanguage::ConstantNode::Value> &value, uint8_t *data) {
+static void _fill_std140_ubo_value(ShaderLanguage::DataType type, const Vector<ShaderLanguage::ConstantNode::Value> &value, uint8_t *data) {
 
     switch (type) {
         case ShaderLanguage::TYPE_BOOL: {
@@ -3204,10 +3204,10 @@ RID RasterizerStorageGLES3::mesh_create() {
     return mesh_owner.make_rid(mesh);
 }
 
-void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
+void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
 
     Span<const uint8_t> array = p_array;
-    PODVector<uint8_t> converted_array;
+    Vector<uint8_t> converted_array;
 
     Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND(!mesh);
@@ -3521,7 +3521,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
         if (config.generate_wireframes && p_primitive == VS::PRIMITIVE_TRIANGLES) {
             //generate wireframes, this is used mostly by editor
-            PODVector<uint32_t> wf_indices;
+            Vector<uint32_t> wf_indices;
             int index_count;
 
             if (p_format & VS::ARRAY_FORMAT_INDEX) {
@@ -3838,16 +3838,16 @@ AABB RasterizerStorageGLES3::mesh_surface_get_aabb(RID p_mesh, int p_surface) co
     return mesh->surfaces[p_surface]->aabb;
 }
 
-PODVector<PODVector<uint8_t>> RasterizerStorageGLES3::mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const {
+Vector<Vector<uint8_t>> RasterizerStorageGLES3::mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const {
 
-    PODVector<PODVector<uint8_t> > bsarr;
+    Vector<Vector<uint8_t> > bsarr;
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND_V(!mesh, bsarr);
     ERR_FAIL_INDEX_V(p_surface, mesh->surfaces.size(), bsarr);
 
     for (size_t i = 0; i < mesh->surfaces[p_surface]->blend_shapes.size(); i++) {
 
-        PODVector<uint8_t> ret;
+        Vector<uint8_t> ret;
         ret.resize(mesh->surfaces[p_surface]->array_byte_size);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->surfaces[p_surface]->blend_shapes[i].vertex_id);
 
@@ -3861,8 +3861,8 @@ PODVector<PODVector<uint8_t>> RasterizerStorageGLES3::mesh_surface_get_blend_sha
     return bsarr;
 }
 
-const PODVector<AABB> &RasterizerStorageGLES3::mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const {
-    static const PODVector<AABB> null_aabb_pvec;
+const Vector<AABB> &RasterizerStorageGLES3::mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const {
+    static const Vector<AABB> null_aabb_pvec;
 
     const Mesh *mesh = mesh_owner.getornull(p_mesh);
     ERR_FAIL_COND_V(!mesh, null_aabb_pvec);

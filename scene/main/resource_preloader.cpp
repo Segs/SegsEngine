@@ -146,7 +146,7 @@ PoolVector<String> ResourcePreloader::_get_resource_list() const {
     return res;
 }
 
-void ResourcePreloader::get_resource_list(ListPOD<StringName> *p_list) {
+void ResourcePreloader::get_resource_list(List<StringName> *p_list) {
 
     for (eastl::pair<const StringName,RES> &E : resources) {
 

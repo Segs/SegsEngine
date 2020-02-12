@@ -61,9 +61,9 @@ String EditorQuickOpen::get_selected() const {
     return "res://" + ti->get_text(0);
 }
 
-PODVector<String> EditorQuickOpen::get_selected_files() const {
+Vector<String> EditorQuickOpen::get_selected_files() const {
 
-    PODVector<String> files;
+    Vector<String> files;
 
     TreeItem *item = search_options->get_next_selected(search_options->get_root());
     while (item) {
@@ -125,7 +125,7 @@ float EditorQuickOpen::_path_cmp(se_string_view search, se_string_view path) con
     return StringUtils::similarity(StringUtils::to_lower(path),StringUtils::to_lower(search));
 }
 
-void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, PODVector<Pair<String, Ref<Texture> > > &list) {
+void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<String, Ref<Texture> > > &list) {
 
     if (!add_directories) {
         for (int i = 0; i < efsd->get_subdir_count(); i++) {
@@ -187,15 +187,15 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, PODVector<Pair<
     }
 }
 
-PODVector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(PODVector<Pair<String, Ref<Texture> > > &list) {
+Vector<Pair<String, Ref<Texture> > > EditorQuickOpen::_sort_fs(Vector<Pair<String, Ref<Texture> > > &list) {
 
     String search_text = search_box->get_text();
-    PODVector<Pair<String, Ref<Texture> > > sorted_list;
+    Vector<Pair<String, Ref<Texture> > > sorted_list;
 
     if (search_text.empty() || list.empty())
         return list;
 
-    PODVector<float> scores;
+    Vector<float> scores;
     scores.resize(list.size());
     for (int i = 0; i < list.size(); i++)
         scores[i] = _path_cmp(search_text, list[i].first);
@@ -226,7 +226,7 @@ void EditorQuickOpen::_update_search() {
     search_options->clear();
     TreeItem *root = search_options->create_item();
     EditorFileSystemDirectory *efsd = EditorFileSystem::get_singleton()->get_filesystem();
-    PODVector<Pair<String, Ref<Texture> > > list;
+    Vector<Pair<String, Ref<Texture> > > list;
 
     _parse_fs(efsd, list);
     list = _sort_fs(list);

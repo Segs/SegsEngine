@@ -315,7 +315,7 @@ void CanvasItemEditor::_snap_other_nodes(
         const Point2 p_value,
         const Transform2D p_transform_to_snap,
         Point2 &r_current_snap, SnapTarget (&r_current_snap_target)[2],
-        const SnapTarget p_snap_target, const PODVector<const CanvasItem *> &p_exceptions,
+        const SnapTarget p_snap_target, const Vector<const CanvasItem *> &p_exceptions,
         const Node *p_current) {
     const CanvasItem *canvas_item = object_cast<CanvasItem>(p_current);
     // Check if the element is in the exception
@@ -341,7 +341,7 @@ void CanvasItemEditor::_snap_other_nodes(
 }
 
 Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsigned int p_forced_modes, const CanvasItem *p_self_canvas_item, const
-        PODVector<CanvasItem *> &p_other_nodes_exceptions) {
+        Vector<CanvasItem *> &p_other_nodes_exceptions) {
 
     snap_target[0] = SNAP_TARGET_NONE;
     snap_target[1] = SNAP_TARGET_NONE;
@@ -411,7 +411,7 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
     // Other nodes sides
     if ((is_snap_active && snap_other_nodes && (p_modes & SNAP_OTHER_NODES)) || (p_forced_modes & SNAP_OTHER_NODES)) {
         Transform2D to_snap_transform = Transform2D();
-        PODVector<const CanvasItem *> exceptions;
+        Vector<const CanvasItem *> exceptions;
         exceptions.assign(p_other_nodes_exceptions.begin(), p_other_nodes_exceptions.end());
         if (p_self_canvas_item) {
             exceptions.push_back(p_self_canvas_item);
@@ -447,7 +447,7 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
         // Grid
         Point2 offset = grid_offset;
         if (snap_relative) {
-            PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+            Vector<CanvasItem *> selection = _get_edited_canvas_items();
             if (selection.size() == 1 && object_cast<Node2D>(selection[0])) {
                 offset = object_cast<Node2D>(selection[0])->get_global_position();
             } else if (!selection.empty()) {
@@ -516,7 +516,7 @@ void CanvasItemEditor::_keying_changed() {
         animation_hb->hide();
 }
 
-Rect2 CanvasItemEditor::_get_encompassing_rect_from_list(const PODVector<CanvasItem *> &p_list) {
+Rect2 CanvasItemEditor::_get_encompassing_rect_from_list(const Vector<CanvasItem *> &p_list) {
     ERR_FAIL_COND_V(p_list.empty(), Rect2());
 
     // Handles the first element
@@ -576,7 +576,7 @@ Rect2 CanvasItemEditor::_get_encompassing_rect(const Node *p_node) {
     return rect;
 }
 
-void CanvasItemEditor::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_node, PODVector<CanvasItemEditor::_SelectResult> &r_items, const Transform2D &p_parent_xform, const Transform2D &p_canvas_xform) {
+void CanvasItemEditor::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_node, Vector<CanvasItemEditor::_SelectResult> &r_items, const Transform2D &p_parent_xform, const Transform2D &p_canvas_xform) {
     if (!p_node)
         return;
     if (object_cast<Viewport>(p_node))
@@ -613,7 +613,7 @@ void CanvasItemEditor::_find_canvas_items_at_pos(const Point2 &p_pos, Node *p_no
     }
 }
 
-void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, PODVector<CanvasItemEditor::_SelectResult> &r_items) {
+void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, Vector<CanvasItemEditor::_SelectResult> &r_items) {
 
     Node *scene = editor->get_edited_scene();
 
@@ -657,13 +657,13 @@ void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, PODVector<C
     }
 }
 
-void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, PODVector<CanvasItemEditor::_SelectResult> &r_items) {
+void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<CanvasItemEditor::_SelectResult> &r_items) {
     Point2 screen_pos = transform.xform(p_pos);
 
     for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
         Node2D *from_node = object_cast<Node2D>(ObjectDB::get_instance(E.first.from));
 
-        PODVector<Vector2> bone_shape;
+        Vector<Vector2> bone_shape;
         if (!_get_bone_shape(&bone_shape, nullptr, E))
             continue;
 
@@ -691,7 +691,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, PODVector<CanvasIt
     }
 }
 
-bool CanvasItemEditor::_get_bone_shape(PODVector<Vector2> *shape, PODVector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone) {
+bool CanvasItemEditor::_get_bone_shape(Vector<Vector2> *shape, Vector<Vector2> *outline_shape, eastl::pair<const BoneKey, BoneList> &bone) {
     int bone_width = EditorSettings::get_singleton()->get("editors/2d/bone_width");
     int bone_outline_width = EditorSettings::get_singleton()->get("editors/2d/bone_outline_size");
 
@@ -739,7 +739,7 @@ bool CanvasItemEditor::_get_bone_shape(PODVector<Vector2> *shape, PODVector<Vect
     return true;
 }
 //TODO: SEGS: r_items could be a deque instead
-void CanvasItemEditor::_find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, PODVector<CanvasItem *> *r_items, const Transform2D &p_parent_xform, const Transform2D &p_canvas_xform) {
+void CanvasItemEditor::_find_canvas_items_in_rect(const Rect2 &p_rect, Node *p_node, Vector<CanvasItem *> *r_items, const Transform2D &p_parent_xform, const Transform2D &p_canvas_xform) {
     if (!p_node)
         return;
     if (object_cast<Viewport>(p_node))
@@ -814,9 +814,9 @@ bool CanvasItemEditor::_select_click_on_item(CanvasItem *item, Point2 p_click_po
     return still_selected;
 }
 
-PODVector<CanvasItem *> CanvasItemEditor::_get_edited_canvas_items(bool retreive_locked,
+Vector<CanvasItem *> CanvasItemEditor::_get_edited_canvas_items(bool retreive_locked,
         bool remove_canvas_item_if_parent_in_selection) {
-    PODVector<CanvasItem *> selection;
+    Vector<CanvasItem *> selection;
     for (eastl::pair<Node*, Object *> E : editor_selection->get_selection()) {
         CanvasItem *canvas_item = object_cast<CanvasItem>(E.first);
         if (canvas_item && canvas_item->is_visible_in_tree() && canvas_item->get_viewport() == EditorNode::get_singleton()->get_scene_root() && (retreive_locked || !_is_node_locked(canvas_item))) {
@@ -831,7 +831,7 @@ PODVector<CanvasItem *> CanvasItemEditor::_get_edited_canvas_items(bool retreive
         return selection;
     }
 
-    PODVector<CanvasItem *> filtered_selection;
+    Vector<CanvasItem *> filtered_selection;
     for (CanvasItem *E : selection) {
         if (!selection.contains((CanvasItem *)E->get_parent())) {
             filtered_selection.push_back(E);
@@ -859,7 +859,7 @@ Vector2 CanvasItemEditor::_position_to_anchor(const Control *p_control, Vector2 
     return (p_control->get_transform().xform(position) - parent_rect.position) / parent_rect.size;
 }
 
-void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_item, PODVector<float> *p_bones_length, PODVector<Dictionary> *p_bones_state) {
+void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_item, Vector<float> *p_bones_length, Vector<Dictionary> *p_bones_state) {
     if (p_bones_length)
         *p_bones_length = {};
     if (p_bones_state)
@@ -868,7 +868,7 @@ void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_ite
     const Node2D *bone = object_cast<Node2D>(p_canvas_item);
     if (bone && bone->has_meta("_edit_bone_")) {
         // Check if we have an IK chain
-        PODVector<const Node2D *> bone_ik_list;
+        Vector<const Node2D *> bone_ik_list;
         bool ik_found = false;
         bone = object_cast<Node2D>(bone->get_parent());
         while (bone) {
@@ -898,7 +898,7 @@ void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_ite
     }
 }
 
-void CanvasItemEditor::_save_canvas_item_state(PODVector<CanvasItem *> p_canvas_items, bool save_bones) {
+void CanvasItemEditor::_save_canvas_item_state(Vector<CanvasItem *> p_canvas_items, bool save_bones) {
     for (CanvasItem *canvas_item : p_canvas_items) {
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
         if (se) {
@@ -916,7 +916,7 @@ void CanvasItemEditor::_save_canvas_item_state(PODVector<CanvasItem *> p_canvas_
     }
 }
 
-void CanvasItemEditor::_restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, const PODVector<Dictionary> *p_bones_state) {
+void CanvasItemEditor::_restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, const Vector<Dictionary> *p_bones_state) {
     CanvasItem *canvas_item = p_canvas_item;
     for (const Dictionary &E : *p_bones_state) {
         canvas_item = object_cast<CanvasItem>(canvas_item->get_parent());
@@ -924,7 +924,7 @@ void CanvasItemEditor::_restore_canvas_item_ik_chain(CanvasItem *p_canvas_item, 
     }
 }
 
-void CanvasItemEditor::_restore_canvas_item_state(const PODVector<CanvasItem *> &, bool restore_bones) {
+void CanvasItemEditor::_restore_canvas_item_state(const Vector<CanvasItem *> &, bool restore_bones) {
     for (CanvasItem *canvas_item : drag_selection) {
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
         canvas_item->_edit_set_state(se->undo_state);
@@ -934,7 +934,7 @@ void CanvasItemEditor::_restore_canvas_item_state(const PODVector<CanvasItem *> 
     }
 }
 
-void CanvasItemEditor::_commit_canvas_item_state(const PODVector<CanvasItem *> &p_canvas_items, const StringName& action_name, bool commit_bones) {
+void CanvasItemEditor::_commit_canvas_item_state(const Vector<CanvasItem *> &p_canvas_items, const StringName& action_name, bool commit_bones) {
     undo_redo->create_action_ui(action_name);
     for (CanvasItem *canvas_item : p_canvas_items) {
 
@@ -1341,7 +1341,7 @@ bool CanvasItemEditor::_gui_input_pivot(const Ref<InputEvent> &p_event) {
     if (drag_type == DRAG_NONE) {
         if ((b && b->is_pressed() && b->get_button_index() == BUTTON_LEFT && tool == TOOL_EDIT_PIVOT) ||
                 (k && k->is_pressed() && !k->is_echo() && k->get_scancode() == KEY_V)) {
-            PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+            Vector<CanvasItem *> selection = _get_edited_canvas_items();
 
             // Filters the selection with nodes that allow setting the pivot
             drag_selection.clear();
@@ -1418,8 +1418,8 @@ void CanvasItemEditor::_solve_IK(Node2D *leaf_node, Point2 target_position) {
         // Build the node list
         Point2 leaf_pos = target_position;
 
-        PODVector<Node2D *> joints_list;
-        PODVector<Point2> joints_pos;
+        Vector<Node2D *> joints_list;
+        Vector<Point2> joints_pos;
         Node2D *joint = leaf_node;
         Transform2D joint_transform = leaf_node->get_global_transform_with_canvas();
         for (int i = 0; i < nb_bones + 1; i++) {
@@ -1487,7 +1487,7 @@ bool CanvasItemEditor::_gui_input_rotate(const Ref<InputEvent> &p_event) {
     if (drag_type == DRAG_NONE) {
         if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed()) {
             if ((b->get_control() && !b->get_alt() && tool == TOOL_SELECT) || tool == TOOL_ROTATE) {
-                PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+                Vector<CanvasItem *> selection = _get_edited_canvas_items();
 
                 // Remove not movable nodes
                 //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
@@ -1561,7 +1561,7 @@ bool CanvasItemEditor::_gui_input_open_scene_on_double_click(const Ref<InputEven
 
     // Open a sub-scene on double-click
     if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed() && b->is_doubleclick() && tool == TOOL_SELECT) {
-        PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+        Vector<CanvasItem *> selection = _get_edited_canvas_items();
         if (selection.size() == 1) {
             CanvasItem *canvas_item = selection[0];
             if (!canvas_item->get_filename().empty() && canvas_item != editor->get_edited_scene()) {
@@ -1580,7 +1580,7 @@ bool CanvasItemEditor::_gui_input_anchors(const Ref<InputEvent> &p_event) {
     // Starts anchor dragging if needed
     if (drag_type == DRAG_NONE) {
         if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed() && tool == TOOL_SELECT) {
-            PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+            Vector<CanvasItem *> selection = _get_edited_canvas_items();
             if (selection.size() == 1) {
                 Control *control = object_cast<Control>(selection[0]);
                 if (control && _is_node_movable(control)) {
@@ -1703,7 +1703,7 @@ bool CanvasItemEditor::_gui_input_resize(const Ref<InputEvent> &p_event) {
     // Drag resize handles
     if (drag_type == DRAG_NONE) {
         if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed() && tool == TOOL_SELECT) {
-            PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+            Vector<CanvasItem *> selection = _get_edited_canvas_items();
             if (selection.size() == 1) {
                 CanvasItem *canvas_item = selection[0];
                 if (canvas_item->_edit_use_rect() && _is_node_movable(canvas_item)) {
@@ -1887,7 +1887,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
     // Drag resize handles
     if (drag_type == DRAG_NONE) {
         if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed() && ((b->get_alt() && b->get_control()) || tool == TOOL_SCALE)) {
-            PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+            Vector<CanvasItem *> selection = _get_edited_canvas_items();
             if (selection.size() == 1) {
                 CanvasItem *canvas_item = selection[0];
 
@@ -2003,7 +2003,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
         //Start moving the nodes
         if (b && b->get_button_index() == BUTTON_LEFT && b->is_pressed()) {
             if ((b->get_alt() && !b->get_control()) || tool == TOOL_MOVE) {
-                PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+                Vector<CanvasItem *> selection = _get_edited_canvas_items();
 
                 // Remove not movable nodes
                 //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
@@ -2030,10 +2030,10 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
         if (m) {
 
             // Save the ik chain for reapplying before IK solve
-            PODVector<PODVector<Dictionary> > all_bones_ik_states;
+            Vector<Vector<Dictionary> > all_bones_ik_states;
             all_bones_ik_states.reserve(drag_selection.size());
             for (CanvasItem *E : drag_selection) {
-                PODVector<Dictionary> bones_ik_states;
+                Vector<Dictionary> bones_ik_states;
                 _save_canvas_item_ik_chain(E, nullptr, &bones_ik_states);
                 all_bones_ik_states.push_back(bones_ik_states);
             }
@@ -2124,9 +2124,9 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
         if (!drag_selection.empty()) {
 
             // Save the ik chain for reapplying before IK solve
-            PODVector<PODVector<Dictionary> > all_bones_ik_states;
+            Vector<Vector<Dictionary> > all_bones_ik_states;
             for (CanvasItem * E : drag_selection) {
-                PODVector<Dictionary> bones_ik_states;
+                Vector<Dictionary> bones_ik_states;
                 _save_canvas_item_ik_chain(E, nullptr, &bones_ik_states);
                 all_bones_ik_states.emplace_back(eastl::move(bones_ik_states));
             }
@@ -2273,7 +2273,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
             CanvasItem *canvas_item = nullptr;
 
             // Retrieve the bones
-            PODVector<_SelectResult> selection;
+            Vector<_SelectResult> selection;
             _get_bones_at_pos(click, selection);
             if (!selection.empty()) {
                 canvas_item = selection[0].item;
@@ -2304,7 +2304,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
                 // Start dragging
                 if (still_selected) {
                     // Drag the node(s) if requested
-                    PODVector<CanvasItem *> selection2 = _get_edited_canvas_items();
+                    Vector<CanvasItem *> selection2 = _get_edited_canvas_items();
 
                     // Remove not movable nodes
                     //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
@@ -2333,7 +2333,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
             // Confirms box selection
             Node *scene = editor->get_edited_scene();
             if (scene) {
-                PODVector<CanvasItem *> selitems;
+                Vector<CanvasItem *> selitems;
 
                 Point2 bsfrom = drag_from;
                 Point2 bsto = box_selecting_to;
@@ -2417,12 +2417,12 @@ bool CanvasItemEditor::_gui_input_hover(const Ref<InputEvent> &p_event) {
     Point2 click = transform.affine_inverse().xform(m->get_position());
 
     // Checks if the hovered items changed, update the viewport if so
-    PODVector<_SelectResult> hovering_results_items;
+    Vector<_SelectResult> hovering_results_items;
     _get_canvas_items_at_pos(click, hovering_results_items);
     eastl::sort(hovering_results_items.begin(), hovering_results_items.end());
 
     // Compute the nodes names and icon position
-    PODVector<_HoverResult> hovering_results_tmp;
+    Vector<_HoverResult> hovering_results_tmp;
     for (int i = 0; i < hovering_results_items.size(); i++) {
         CanvasItem *canvas_item = hovering_results_items[i].item;
 
@@ -2671,7 +2671,7 @@ void CanvasItemEditor::_draw_rulers() {
     // The rule transform
     Transform2D ruler_transform = Transform2D();
     if (show_grid || grid_snap_active) {
-        PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+        Vector<CanvasItem *> selection = _get_edited_canvas_items();
         if (snap_relative && !selection.empty()) {
             ruler_transform.translate(_get_encompassing_rect_from_list(selection).position);
             ruler_transform.scale_basis(grid_step * Math::pow(2.0f, grid_step_multiplier));
@@ -2764,7 +2764,7 @@ void CanvasItemEditor::_draw_grid() {
     if (show_grid || grid_snap_active) {
         // Draw the grid
         Vector2 real_grid_offset;
-        const PODVector<CanvasItem *> selection = _get_edited_canvas_items();
+        const Vector<CanvasItem *> selection = _get_edited_canvas_items();
 
         if (snap_relative && selection.size() > 0) {
             const Vector2 topleft = _get_encompassing_rect_from_list(selection).position;
@@ -3176,7 +3176,7 @@ void CanvasItemEditor::_draw_selection() {
 
     RID ci = viewport->get_canvas_item();
 
-    PODVector<CanvasItem *> selection = _get_edited_canvas_items(false, false);
+    Vector<CanvasItem *> selection = _get_edited_canvas_items(false, false);
 
     bool single = selection.size() == 1;
     for (CanvasItem *canvas_item : selection) {
@@ -3349,7 +3349,7 @@ void CanvasItemEditor::_draw_selection() {
 void CanvasItemEditor::_draw_straight_line(Point2 p_from, Point2 p_to, Color p_color) {
     // Draw a line going through the whole screen from a vector
     RID ci = viewport->get_canvas_item();
-    PODVector<Point2> points;
+    Vector<Point2> points;
     Point2 from = transform.xform(p_from);
     Point2 to = transform.xform(p_to);
     Size2 viewport_size = viewport->get_size();
@@ -3428,8 +3428,8 @@ void CanvasItemEditor::_draw_bones() {
 
         for (eastl::pair<const BoneKey,BoneList> &E : bone_list) {
 
-            PODVector<Vector2> bone_shape;
-            PODVector<Vector2> bone_shape_outline;
+            Vector<Vector2> bone_shape;
+            Vector<Vector2> bone_shape_outline;
             if (!_get_bone_shape(&bone_shape, &bone_shape_outline, E))
                 continue;
 
@@ -3513,7 +3513,7 @@ void CanvasItemEditor::_draw_invisible_nodes_positions(Node *p_node, const Trans
 }
 
 void CanvasItemEditor::_draw_hover() {
-    PODVector<Rect2> previous_rects;
+    Vector<Rect2> previous_rects;
 
     for (int i = 0; i < hovering_results.size(); i++) {
 
@@ -3662,7 +3662,7 @@ void CanvasItemEditor::_draw_viewport() {
     // hide/show buttons depending on the selection
     bool all_locked = true;
     bool all_group = true;
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
     if (selection.empty()) {
         all_locked = false;
         all_group = false;
@@ -3739,7 +3739,7 @@ void CanvasItemEditor::_process_physics_notification()
     int nb_having_pivot = 0;
 
     // Update the viewport if the canvas_item changes
-    PODVector<CanvasItem *> selection = _get_edited_canvas_items(true);
+    Vector<CanvasItem *> selection = _get_edited_canvas_items(true);
     for (CanvasItem *canvas_item : selection) {
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
 
@@ -3968,7 +3968,7 @@ void CanvasItemEditor::_selection_changed() {
     // Update the anchors_mode
     int nbValidControls = 0;
     int nbAnchorsMode = 0;
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
     for (Node * E : selection) {
         Control *control = object_cast<Control>(E);
         if (!control)
@@ -4019,7 +4019,7 @@ void CanvasItemEditor::_update_bone_list() {
         _build_bones_list(editor->get_edited_scene());
     }
 
-    PODVector<Map<BoneKey, BoneList>::iterator> bone_to_erase;
+    Vector<Map<BoneKey, BoneList>::iterator> bone_to_erase;
     for (auto E = bone_list.begin(); E!=bone_list.end(); ++E) {
         if (E->second.last_pass != bone_last_frame) {
             bone_to_erase.push_back(E);
@@ -4173,7 +4173,7 @@ void CanvasItemEditor::_update_scroll(float) {
 }
 
 void CanvasItemEditor::_set_anchors_and_margins_preset(Control::LayoutPreset p_preset) {
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     undo_redo->create_action_ui(TTR("Change Anchors and Margins"));
 
@@ -4215,7 +4215,7 @@ void CanvasItemEditor::_set_anchors_and_margins_preset(Control::LayoutPreset p_p
 }
 
 void CanvasItemEditor::_set_anchors_and_margins_to_keep_ratio() {
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     undo_redo->create_action_ui(TTR("Change Anchors and Margins"));
 
@@ -4244,7 +4244,7 @@ void CanvasItemEditor::_set_anchors_and_margins_to_keep_ratio() {
 }
 
 void CanvasItemEditor::_set_anchors_preset(Control::LayoutPreset p_preset) {
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     undo_redo->create_action_ui(TTR("Change Anchors"));
     for (Node * E : selection) {
@@ -4405,7 +4405,7 @@ void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, 
 }
 
 void CanvasItemEditor::_button_toggle_anchor_mode(bool p_status) {
-    PODVector<CanvasItem *> selection = _get_edited_canvas_items(false, false);
+    Vector<CanvasItem *> selection = _get_edited_canvas_items(false, false);
     for (CanvasItem * E : selection) {
         Control *control = object_cast<Control>(E);
         if (!control || object_cast<Container>(control->get_parent()))
@@ -4541,7 +4541,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         case LOCK_SELECTED: {
             undo_redo->create_action_ui(TTR("Lock Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
             for (Node * E : selection) {
                 CanvasItem *canvas_item = object_cast<CanvasItem>(E);
                 if (!canvas_item || !canvas_item->is_inside_tree())
@@ -4561,7 +4561,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         case UNLOCK_SELECTED: {
             undo_redo->create_action_ui(TTR("Unlock Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
             for (Node *E : selection) {
                 CanvasItem *canvas_item = object_cast<CanvasItem>(E);
                 if (!canvas_item || !canvas_item->is_inside_tree())
@@ -4581,7 +4581,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         case GROUP_SELECTED: {
             undo_redo->create_action_ui(TTR("Group Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
             for (Node *E : selection) {
                 CanvasItem *canvas_item = object_cast<CanvasItem>(E);
                 if (!canvas_item || !canvas_item->is_inside_tree())
@@ -4601,7 +4601,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         case UNGROUP_SELECTED: {
             undo_redo->create_action_ui(TTR("Ungroup Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
             for (Node * E : selection) {
                 CanvasItem *canvas_item = object_cast<CanvasItem>(E);
                 if (!canvas_item || !canvas_item->is_inside_tree())
@@ -4915,7 +4915,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_SET_IK_CHAIN: {
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             undo_redo->create_action_ui(TTR("Make IK Chain"));
             for (Node *E : selection) {
@@ -5839,7 +5839,7 @@ void CanvasItemEditorViewport::_on_change_type_closed() {
     _remove_preview();
 }
 
-void CanvasItemEditorViewport::_create_preview(const PODVector<String> &files) const {
+void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) const {
 
     bool add_preview = false;
     for (const String &path : files) {
@@ -5928,7 +5928,7 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_strin
 
     // handle with different property for texture
     se_string_view  property("texture");
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     child->get_property_list(&props);
     for (const PropertyInfo &E : props) {
         if (E.name == "config/texture") { // Particles2D
@@ -6016,7 +6016,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
         return;
     }
 
-    PODVector<se_string_view> error_files;
+    Vector<se_string_view> error_files;
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
@@ -6087,7 +6087,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
         return false;
     }
 
-    PODVector<String> files(d["files"].as<PODVector<String>>());
+    Vector<String> files(d["files"].as<Vector<String>>());
     bool can_instance = false;
     for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
         RES res(ResourceLoader::load(files[i]));
@@ -6133,7 +6133,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
 
 void CanvasItemEditorViewport::_show_resource_type_selector() {
     _remove_preview();
-    PODVector<BaseButton *> btn_list = button_group->get_buttons();
+    Vector<BaseButton *> btn_list = button_group->get_buttons();
 
     for (int i = 0; i < btn_list.size(); i++) {
         CheckBox *check = object_cast<CheckBox>(btn_list[i]);
@@ -6161,12 +6161,12 @@ void CanvasItemEditorViewport::drop_data(const Point2 &p_point, const Variant &p
     selected_files.clear();
     Dictionary d = p_data;
     if (d.has("type") && UIString(d["type"]) == "files") {
-        selected_files = d["files"].as<PODVector<String>>();
+        selected_files = d["files"].as<Vector<String>>();
     }
     if (selected_files.empty())
         return;
 
-    const PODVector<Node *> &list = editor->get_editor_selection()->get_selected_node_list();
+    const Vector<Node *> &list = editor->get_editor_selection()->get_selected_node_list();
     Node *tgt=nullptr;
     if (list.empty()) {
         Node *root_node = editor->get_edited_scene();

@@ -347,7 +347,7 @@ Error PluginScript::reload(bool p_keep_state) {
 #undef FREE_SCRIPT_MANIFEST
 }
 
-void PluginScript::get_script_method_list(PODVector<MethodInfo> *r_methods) const {
+void PluginScript::get_script_method_list(Vector<MethodInfo> *r_methods) const {
     ASSERT_SCRIPT_VALID()
     for (auto &e : _methods_info) {
         r_methods->push_back(e.second);

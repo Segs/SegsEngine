@@ -62,8 +62,8 @@ private:
     Color color_accum;
 
     SpriteBase3D *parent_sprite;
-    List<SpriteBase3D *> children;
-    List<SpriteBase3D *>::Element *pI;
+    ListOld<SpriteBase3D *> children;
+    ListOld<SpriteBase3D *>::Element *pI;
 
     bool centered;
     Point2 offset;
@@ -139,7 +139,7 @@ public:
     virtual Rect2 get_item_rect() const = 0;
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
     Ref<TriangleMesh> generate_triangle_mesh() const;
 
     SpriteBase3D();

@@ -64,7 +64,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
         animations_menu->clear();
         animations_to_add.clear();
 
-        PODVector<StringName> classes;
+        Vector<StringName> classes;
         ClassDB::get_inheriters_from_class("AnimationRootNode", &classes);
         eastl::sort(classes.begin(), classes.end(),WrapAlphaCompare());
 
@@ -77,7 +77,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_gui_input(const Ref<InputEven
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
 
             if (ap) {
-                PODVector<StringName> names(ap->get_animation_list());
+                Vector<StringName> names(ap->get_animation_list());
 
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
@@ -379,7 +379,7 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<String> filters;
+        Vector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const String &E : filters) {
             open_file->add_filter("*." + E);

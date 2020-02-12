@@ -65,7 +65,7 @@ void AnimationTreeEditor::edit(AnimationTree *p_tree) {
         return;
     }
 
-    PODVector<String> path(tree->get_meta("_tree_edit_path").as<PODVector<String>>());
+    Vector<String> path(tree->get_meta("_tree_edit_path").as<Vector<String>>());
     edit_path(path);
 }
 
@@ -104,7 +104,7 @@ void AnimationTreeEditor::_update_path() {
     }
 }
 
-void AnimationTreeEditor::edit_path(const PODVector<String> &p_path) {
+void AnimationTreeEditor::edit_path(const Vector<String> &p_path) {
 
     button_path.clear();
 
@@ -142,13 +142,13 @@ void AnimationTreeEditor::edit_path(const PODVector<String> &p_path) {
     _update_path();
 }
 
-const PODVector<String>& AnimationTreeEditor::get_edited_path() const {
+const Vector<String>& AnimationTreeEditor::get_edited_path() const {
     return button_path;
 }
 
 void AnimationTreeEditor::enter_editor(se_string_view p_path) {
 
-    PODVector<String> path(eastl::move(edited_path));
+    Vector<String> path(eastl::move(edited_path));
     path.emplace_back(p_path);
     edit_path(path);
 }
@@ -211,7 +211,7 @@ bool AnimationTreeEditor::can_edit(const Ref<AnimationNode> &p_node) const {
     return false;
 }
 
-PODVector<String> AnimationTreeEditor::get_animation_list() {
+Vector<String> AnimationTreeEditor::get_animation_list() {
 
     if (!singleton->is_visible()) {
         return {};
@@ -226,8 +226,8 @@ PODVector<String> AnimationTreeEditor::get_animation_list() {
     if (!ap)
         return {};
 
-    PODVector<StringName> anims(ap->get_animation_list());
-    PODVector<String> ret;
+    Vector<StringName> anims(ap->get_animation_list());
+    Vector<String> ret;
     for (const StringName &E : anims) {
         ret.emplace_back(E);
     }

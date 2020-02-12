@@ -37,12 +37,12 @@ class NavigationPolygon : public Resource {
 
     GDCLASS(NavigationPolygon,Resource)
 
-    PODVector<Vector2> vertices;
+    Vector<Vector2> vertices;
     struct Polygon {
-        PODVector<int> indices;
+        Vector<int> indices;
     };
-    PODVector<Polygon> polygons;
-    PODVector<PoolVector<Vector2> > outlines;
+    Vector<Polygon> polygons;
+    Vector<PoolVector<Vector2> > outlines;
 
     mutable Rect2 item_rect;
     mutable bool rect_cache_dirty;
@@ -65,10 +65,10 @@ public:
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 #endif
 
-    void set_vertices(PODVector<Vector2> &&p_vertices);
-    const PODVector<Vector2> &get_vertices() const { return vertices; }
+    void set_vertices(Vector<Vector2> &&p_vertices);
+    const Vector<Vector2> &get_vertices() const { return vertices; }
 
-    void add_polygon(PODVector<int> &&p_polygon);
+    void add_polygon(Vector<int> &&p_polygon);
     int get_polygon_count() const;
 
     void add_outline(const PoolVector<Vector2> &p_outline);
@@ -81,7 +81,7 @@ public:
     void clear_outlines();
     void make_polygons_from_outlines();
 
-    const PODVector<int> &get_polygon(int p_idx);
+    const Vector<int> &get_polygon(int p_idx);
     void clear_polygons();
 
     const Ref<NavigationMesh> &get_mesh();

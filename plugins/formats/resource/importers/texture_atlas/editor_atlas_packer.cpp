@@ -86,10 +86,10 @@ void EditorAtlasPacker::_plot_triangle(Ref<BitMap> p_bitmap, Vector2i *vertices)
             xt += dx_low;
     }
 }
-void EditorAtlasPacker::chart_pack(PODVector<Chart> &charts, int &r_width, int &r_height, int p_atlas_max_size, int p_cell_resolution) {
+void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_height, int p_atlas_max_size, int p_cell_resolution) {
 
     int divide_by = MIN(64, p_cell_resolution);
-    PODVector<PlottedBitmap> bitmaps;
+    Vector<PlottedBitmap> bitmaps;
 
     int max_w = 0;
 
@@ -152,8 +152,8 @@ void EditorAtlasPacker::chart_pack(PODVector<Chart> &charts, int &r_width, int &
 
         max_w = MAX(max_w, heights_size);
 
-        PODVector<int> top_heights;
-        PODVector<int> bottom_heights;
+        Vector<int> top_heights;
+        Vector<int> bottom_heights;
         top_heights.resize(heights_size);
         bottom_heights.resize(heights_size);
 
@@ -225,7 +225,7 @@ void EditorAtlasPacker::chart_pack(PODVector<Chart> &charts, int &r_width, int &
         atlas_h = 0;
 
         //do a tetris
-        PODVector<int> heights(atlas_w,0);
+        Vector<int> heights(atlas_w,0);
 
         int *atlas_ptr = heights.data();
 

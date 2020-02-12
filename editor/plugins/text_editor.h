@@ -129,8 +129,8 @@ public:
     bool is_unsaved() override;
     Variant get_edit_state() override;
     void set_edit_state(const Variant &p_state) override;
-    PODVector<String> get_functions() override;
-    void get_breakpoints(PODVector<int> *p_breakpoints) override;
+    Vector<String> get_functions() override;
+    void get_breakpoints(Vector<int> *p_breakpoints) override;
     void goto_line(int p_line, bool p_with_error = false) override;
     void goto_line_selection(int p_line, int p_begin, int p_end);
     void set_executing_line(int p_line) override;

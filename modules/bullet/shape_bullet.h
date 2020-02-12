@@ -196,13 +196,13 @@ public:
     ConvexPolygonShapeBullet();
 
     void set_data(const Variant &p_data) override;
-    void get_vertices(PODVector<Vector3> &out_vertices);
+    void get_vertices(Vector<Vector3> &out_vertices);
     Variant get_data() const override;
     PhysicsServer::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
-    void setup(const PODVector<Vector3> &p_vertices);
+    void setup(const Vector<Vector3> &p_vertices);
 };
 
 class ConcavePolygonShapeBullet : public ShapeBullet {

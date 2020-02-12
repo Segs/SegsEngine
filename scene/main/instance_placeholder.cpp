@@ -57,7 +57,7 @@ bool InstancePlaceholder::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void InstancePlaceholder::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void InstancePlaceholder::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (const auto & E : stored_values) {
         PropertyInfo pi;

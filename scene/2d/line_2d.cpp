@@ -284,7 +284,7 @@ void Line2D::_draw() {
 
     // TODO Is this really needed?
     // Copy points for faster access
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
     points.resize(_points.size());
     int len = points.size();
     {

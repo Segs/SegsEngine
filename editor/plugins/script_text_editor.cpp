@@ -50,14 +50,14 @@ IMPL_GDCLASS(ScriptTextEditor)
 void ConnectionInfoDialog::ok_pressed() {
 }
 
-void ConnectionInfoDialog::popup_connections(se_string_view p_method, const PODVector<Node *> &p_nodes) {
+void ConnectionInfoDialog::popup_connections(se_string_view p_method, const Vector<Node *> &p_nodes) {
     method->set_text(StringName(p_method));
 
     tree->clear();
     TreeItem *root = tree->create_item();
 
     for (int i = 0; i < p_nodes.size(); i++) {
-        ListPOD<Connection> all_connections;
+        List<Connection> all_connections;
         p_nodes[i]->get_signals_connected_to_this(&all_connections);
 
         for(const Connection &connection : all_connections) {
@@ -116,13 +116,13 @@ ConnectionInfoDialog::ConnectionInfoDialog() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PODVector<String> ScriptTextEditor::get_functions() {
+Vector<String> ScriptTextEditor::get_functions() {
 
     String errortxt;
     int line = -1, col;
     TextEdit *te = code_editor->get_text_edit();
     String text(te->get_text_utf8());
-    PODVector<String> fnc;
+    Vector<String> fnc;
 
     if (script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc)) {
 
@@ -171,7 +171,7 @@ void ScriptTextEditor::_update_member_keywords() {
 
     if (instance_base == StringName())
         return;
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     ClassDB::get_property_list(instance_base, &plist);
 
     for(const PropertyInfo & E : plist) {
@@ -184,7 +184,7 @@ void ScriptTextEditor::_update_member_keywords() {
         code_editor->get_text_edit()->add_member_keyword(name, member_variable_color);
     }
 
-    ListPOD<String> clist;
+    List<String> clist;
     ClassDB::get_integer_constant_list(instance_base, &clist);
 
     for(const String & E : clist) {
@@ -285,7 +285,7 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     TextEdit *text_edit = code_editor->get_text_edit();
 
-    PODVector<String> keywords;
+    Vector<String> keywords;
     script->get_language()->get_reserved_words(&keywords);
 
     for (const String &E : keywords) {
@@ -320,7 +320,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     text_edit->add_keyword_color("PoolColorArray", basetype_color);
 
     //colorize engine types
-    PODVector<StringName> types;
+    Vector<StringName> types;
     ClassDB::get_class_list(&types);
 
     for (size_t i=0,fin=types.size(); i<fin; ++i) {
@@ -333,7 +333,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
     _update_member_keywords();
     //colorize user types
-    PODVector<StringName> global_classes;
+    Vector<StringName> global_classes;
     ScriptServer::get_global_class_list(&global_classes);
 
     for (size_t i=0; i<global_classes.size(); ++i) {
@@ -342,7 +342,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
 
     //colorize singleton autoloads (as types, just as engine singletons are)
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (const PropertyInfo &E : props) {
         se_string_view s(E.name);
@@ -356,7 +356,7 @@ void ScriptTextEditor::_set_theme_for_script() {
         }
     }
     //colorize comments
-    PODVector<String> comments;
+    Vector<String> comments;
     script->get_language()->get_comment_delimiters(&comments);
 
     for (const String &comment : comments) {
@@ -368,7 +368,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     }
 
     //colorize strings
-    PODVector<String> strings;
+    Vector<String> strings;
     script->get_language()->get_string_delimiters(&strings);
     for (const String &string : strings) {
 
@@ -592,9 +592,9 @@ void ScriptTextEditor::_validate_script() {
     TextEdit *te = code_editor->get_text_edit();
 
     String text = te->get_text_utf8();
-    PODVector<String> fnc;
+    Vector<String> fnc;
     Set<int> safe_lines;
-    PODVector<ScriptLanguage::Warning> warnings;
+    Vector<ScriptLanguage::Warning> warnings;
 
     if (!script->get_language()->validate(text, line, col, errortxt, script->get_path(), &fnc, &warnings, &safe_lines)) {
         String error_text = "error(" + itos(line) + "," + itos(col) + "): " + errortxt;
@@ -718,9 +718,9 @@ void ScriptTextEditor::_bookmark_item_pressed(int p_idx) {
     }
 }
 
-static PODVector<Node *> _find_all_node_for_script(Node *p_base, Node *p_current, const Ref<Script> &p_script) {
+static Vector<Node *> _find_all_node_for_script(Node *p_base, Node *p_current, const Ref<Script> &p_script) {
 
-    PODVector<Node *> nodes;
+    Vector<Node *> nodes;
 
     if (p_current->get_owner() != p_base && p_base != p_current) {
         return nodes;
@@ -732,7 +732,7 @@ static PODVector<Node *> _find_all_node_for_script(Node *p_base, Node *p_current
     }
 
     for (int i = 0; i < p_current->get_child_count(); i++) {
-        PODVector<Node *> found = _find_all_node_for_script(p_base, p_current->get_child(i), p_script);
+        Vector<Node *> found = _find_all_node_for_script(p_base, p_current->get_child(i), p_script);
         nodes.push_back(found);
     }
 
@@ -807,13 +807,13 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
     }
 }
 
-void ScriptTextEditor::_code_complete_scripts(void *p_ud, const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_scripts(void *p_ud, const String &p_code, Vector<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     ScriptTextEditor *ste = (ScriptTextEditor *)p_ud;
     ste->_code_complete_script(p_code, r_options, r_force);
 }
 
-void ScriptTextEditor::_code_complete_script(const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_force) {
+void ScriptTextEditor::_code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options, bool &r_force) {
 
     if (color_panel->is_visible_in_tree()) return;
     Node *base = get_tree()->get_edited_scene_root();
@@ -885,7 +885,7 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
     if (ScriptServer::is_global_class(p_symbol)) {
         EditorNode::get_singleton()->load_resource(ScriptServer::get_global_class_path(p_symbol));
     } else if (PathUtils::is_resource_file(p_symbol)) {
-        PODVector<String> scene_extensions;
+        Vector<String> scene_extensions;
         ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), scene_extensions);
 
         if (scene_extensions.contains(String(PathUtils::get_extension(p_symbol)))) {
@@ -991,11 +991,11 @@ void ScriptTextEditor::_update_connected_methods() {
         return;
     }
 
-    PODVector<Node *> nodes = _find_all_node_for_script(base, base, script);
+    Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
     Set<StringName> methods_found;
 
     for (int i = 0; i < nodes.size(); i++) {
-        ListPOD<Connection> connections;
+        List<Connection> connections;
         nodes[i]->get_signals_connected_to_this(&connections);
 
         for(const Connection &connection : connections) {
@@ -1055,7 +1055,7 @@ void ScriptTextEditor::_lookup_connections(int p_row, se_string_view p_method) {
         return;
     }
 
-    PODVector<Node *> nodes = _find_all_node_for_script(base, base, script);
+    Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
     connection_info_dialog->popup_connections(p_method, nodes);
 }
 
@@ -1170,7 +1170,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 end = tx->get_line_count() - 1;
             }
             scr->get_language()->auto_indent_code(text, begin, end);
-            PODVector<se_string_view> lines = StringUtils::split(text,'\n');
+            Vector<se_string_view> lines = StringUtils::split(text,'\n');
             for (int i = begin; i <= end; ++i) {
                 tx->set_line(i, lines[i]);
             }
@@ -1208,8 +1208,8 @@ void ScriptTextEditor::_edit_option(int p_op) {
         case EDIT_EVALUATE: {
 
             Expression expression;
-            PODVector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
-            PODVector<String> results;
+            Vector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
+            Vector<String> results;
 
             for (size_t i = 0; i < lines.size(); i++) {
                 se_string_view line = lines[i];
@@ -1290,7 +1290,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case DEBUG_REMOVE_ALL_BREAKPOINTS: {
 
-            PODVector<int> bpoints;
+            Vector<int> bpoints;
             tx->get_breakpoints(&bpoints);
 
             for (int line : bpoints) {
@@ -1301,7 +1301,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case DEBUG_GOTO_NEXT_BREAKPOINT: {
 
-            PODVector<int> bpoints;
+            Vector<int> bpoints;
             tx->get_breakpoints(&bpoints);
             if (bpoints.empty()) {
                 return;
@@ -1328,7 +1328,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
         } break;
         case DEBUG_GOTO_PREV_BREAKPOINT: {
 
-            PODVector<int> bpoints;
+            Vector<int> bpoints;
             tx->get_breakpoints(&bpoints);
             if (bpoints.empty()) {
                 return;
@@ -1378,7 +1378,7 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
         return;
 
     String delimiter("#");
-    PODVector<String> comment_delimiters;
+    Vector<String> comment_delimiters;
     script->get_language()->get_comment_delimiters(&comment_delimiters);
 
     for (const String &E : comment_delimiters) {
@@ -1462,7 +1462,7 @@ void ScriptTextEditor::reload(bool p_soft) {
     scr->get_language()->reload_tool_script(scr, soft);
 }
 
-void ScriptTextEditor::get_breakpoints(PODVector<int> *p_breakpoints) {
+void ScriptTextEditor::get_breakpoints(Vector<int> *p_breakpoints) {
 
     code_editor->get_text_edit()->get_breakpoints(p_breakpoints);
 }
@@ -1656,7 +1656,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
                 color_args = StringUtils::substr(line, begin, end - begin);
                 String stripped = StringUtils::replace(
                         StringUtils::replace(StringUtils::replace(color_args, " ", ""), "(", ""), ")", "");
-                PODVector<float> color = StringUtils::split_floats(stripped, ",");
+                Vector<float> color = StringUtils::split_floats(stripped, ",");
                 if (color.size() > 2) {
                     float alpha = color.size() > 3 ? color[3] : 1.0f;
                     color_picker->set_pick_color(Color(color[0], color[1], color[2], alpha));

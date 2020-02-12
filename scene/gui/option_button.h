@@ -89,7 +89,7 @@ public:
 
     PopupMenu *get_popup() const;
 
-    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
+    void get_translatable_strings(List<StringName> *p_strings) const override;
 
     OptionButton();
     ~OptionButton() override;

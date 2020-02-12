@@ -91,11 +91,11 @@ public:
         bool billboard;
     };
 
-    PODVector<Vector3> collision_segments;
+    Vector<Vector3> collision_segments;
     Ref<TriangleMesh> collision_mesh;
-    PODVector<Vector3> handles;
-    PODVector<Vector3> secondary_handles;
-    PODVector<Instance> instances;
+    Vector<Vector3> handles;
+    Vector<Vector3> secondary_handles;
+    Vector<Instance> instances;
     Spatial *base;
     Spatial *spatial_node;
     EditorSpatialGizmoPlugin *gizmo_plugin;
@@ -108,12 +108,12 @@ protected:
     static void _bind_methods();
 
 public:
-    void add_lines(const PODVector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard = false, const Color &p_modulate = Color(1, 1, 1));
+    void add_lines(const Vector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard = false, const Color &p_modulate = Color(1, 1, 1));
     void add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard = false, const Ref<SkinReference> &p_skin_reference = Ref<SkinReference>(), const Ref<Material> &p_material = Ref<Material>());
-    void add_collision_segments(const PODVector<Vector3> &p_lines);
+    void add_collision_segments(const Vector<Vector3> &p_lines);
     void add_collision_triangles(const Ref<TriangleMesh> &p_tmesh);
     void add_unscaled_billboard(const Ref<Material> &p_material, float p_scale = 1, const Color &p_modulate = Color(1, 1, 1));
-    void add_handles(PODVector<Vector3> &&p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
+    void add_handles(Vector<Vector3> &&p_handles, const Ref<Material> &p_material, bool p_billboard = false, bool p_secondary = false);
     void add_solid_box(Ref<Material> &p_material, Vector3 p_size, Vector3 p_position = Vector3());
 
     virtual bool is_handle_highlighted(int p_idx) const;
@@ -198,7 +198,7 @@ private:
     void _menu_option(int p_option);
     Spatial *preview_node;
     AABB *preview_bounds;
-    PODVector<String> selected_files;
+    Vector<String> selected_files;
     AcceptDialog *accept;
 
     Node *target_node;
@@ -245,7 +245,7 @@ private:
     void _select_clicked(bool p_append, bool p_single);
     void _select(Node *p_node, bool p_append, bool p_single);
     ObjectID _select_ray(const Point2 &p_pos, bool p_append, bool &r_includes_current, int *r_gizmo_handle = nullptr, bool p_alt_select = false);
-    void _find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, PODVector<_RayResult> &results, bool p_alt_select = false);
+    void _find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, Vector<_RayResult> &results, bool p_alt_select = false);
     Vector3 _get_ray_pos(const Vector2 &p_pos) const;
     Vector3 _get_ray(const Vector2 &p_pos) const;
     Point2 _point_to_screen(const Vector3 &p_point);
@@ -269,7 +269,7 @@ private:
     float get_fov() const;
 
     ObjectID clicked;
-    PODVector<_RayResult> selection_results;
+    Vector<_RayResult> selection_results;
     bool clicked_includes_current;
     bool clicked_wants_append;
 
@@ -386,7 +386,7 @@ private:
 
     Vector3 _get_instance_position(const Point2 &p_pos) const;
     static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
-    void _create_preview(const PODVector<String> &files) const;
+    void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
     bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
     bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
@@ -657,8 +657,8 @@ private:
     static SpatialEditor *singleton;
 
     void _node_removed(Node *p_node);
-    PODVector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_priority;
-    PODVector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_name;
+    Vector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_priority;
+    Vector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_name;
 
     void _register_all_gizmos();
 
@@ -784,8 +784,8 @@ public:
 
 private:
     int current_state;
-    PODVector<EditorSpatialGizmo *> current_gizmos;
-    DefHashMap<String, PODVector<Ref<SpatialMaterial> > > materials;
+    Vector<EditorSpatialGizmo *> current_gizmos;
+    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();

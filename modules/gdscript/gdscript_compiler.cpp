@@ -160,7 +160,7 @@ GDScriptDataType GDScriptCompiler::_gdtype_from_datatype(const GDScriptParser::D
         case GDScriptParser::DataType::CLASS: {
             // Locate class by constructing the path to it and following that path
             GDScriptParser::ClassNode *class_type = p_datatype.class_type;
-            PODVector<StringName> names;
+            Vector<StringName> names;
             while (class_type->owner) {
                 names.push_back(class_type->name);
                 class_type = class_type->owner;
@@ -415,7 +415,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
         case GDScriptParser::Node::TYPE_ARRAY: {
 
             const GDScriptParser::ArrayNode *an = static_cast<const GDScriptParser::ArrayNode *>(p_expression);
-            PODVector<int> values;
+            Vector<int> values;
 
             int slevel = p_stack_level;
 
@@ -446,7 +446,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
         case GDScriptParser::Node::TYPE_DICTIONARY: {
 
             const GDScriptParser::DictionaryNode *dn = static_cast<const GDScriptParser::DictionaryNode *>(p_expression);
-            PODVector<int> values;
+            Vector<int> values;
 
             int slevel = p_stack_level;
 
@@ -552,7 +552,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                     const GDScriptParser::IdentifierNode *in = (const GDScriptParser::IdentifierNode *)on->arguments[0];
 
-                    PODVector<int> arguments;
+                    Vector<int> arguments;
                     int slevel = p_stack_level;
                     for (int i = 1; i < on->arguments.size(); i++) {
 
@@ -585,7 +585,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                         const GDScriptParser::TypeNode *tn = (const GDScriptParser::TypeNode *)on->arguments[0];
                         int vtype = (int)tn->vtype;
 
-                        PODVector<int> arguments;
+                        Vector<int> arguments;
                         int slevel = p_stack_level;
                         for (int i = 1; i < on->arguments.size(); i++) {
 
@@ -612,7 +612,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                         ERR_FAIL_COND_V(on->arguments.empty(), -1);
 
-                        PODVector<int> arguments;
+                        Vector<int> arguments;
                         int slevel = p_stack_level;
                         for (int i = 1; i < on->arguments.size(); i++) {
 
@@ -645,7 +645,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                             //room for optimization
                         }
 
-                        PODVector<int> arguments;
+                        Vector<int> arguments;
                         int slevel = p_stack_level;
 
                         for (int i = 0; i < on->arguments.size(); i++) {
@@ -688,7 +688,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                     ERR_FAIL_COND_V(!on->arguments.empty() && on->arguments.size() != 2, -1);
 
-                    PODVector<int> arguments;
+                    Vector<int> arguments;
                     int slevel = p_stack_level;
                     for (int i = 0; i < on->arguments.size(); i++) {
 
@@ -992,7 +992,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
 
                         StringName assign_property;
 
-                        PODVector<GDScriptParser::OperatorNode *> chain;
+                        Vector<GDScriptParser::OperatorNode *> chain;
 
                         {
                             //create get/set chain
@@ -1031,7 +1031,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                             codegen.alloc_stack(slevel);
                         }
 
-                        PODVector<int> setchain;
+                        Vector<int> setchain;
 
                         if (assign_property != StringName()) {
 
@@ -1591,7 +1591,7 @@ Error GDScriptCompiler::_parse_block(CodeGen &codegen, const GDScriptParser::Blo
 
 Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser::ClassNode *p_class, const GDScriptParser::FunctionNode *p_func, bool p_for_ready) {
 
-    PODVector<int> bytecode;
+    Vector<int> bytecode;
     CodeGen codegen;
 
     codegen.class_node = p_class;
@@ -1601,7 +1601,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
     codegen.current_line = 0;
     codegen.call_max = 0;
     codegen.debug_stack = ScriptDebugger::get_singleton() != nullptr;
-    PODVector<StringName> argnames;
+    Vector<StringName> argnames;
 
     int stack_level = 0;
 
@@ -1655,7 +1655,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
 
     /* Parse default argument code -if applies- */
 
-    PODVector<int> defarg_addr;
+    Vector<int> defarg_addr;
     StringName func_name;
 
     if (p_func) {

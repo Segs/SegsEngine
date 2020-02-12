@@ -65,14 +65,14 @@ IMPL_GDCLASS(EditorNavigationMeshGenerator)
 EditorNavigationMeshGenerator *EditorNavigationMeshGenerator::singleton = nullptr;
 
 namespace {
-void _add_vertex(const Vector3 &p_vec3, PODVector<float> &p_verticies) {
+void _add_vertex(const Vector3 &p_vec3, Vector<float> &p_verticies) {
     p_verticies.push_back(p_vec3.x);
     p_verticies.push_back(p_vec3.y);
     p_verticies.push_back(p_vec3.z);
 }
 }
 
-void EditorNavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Transform &p_xform, PODVector<float> &p_verticies, PODVector<int> &p_indices) {
+void EditorNavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Transform &p_xform, Vector<float> &p_verticies, Vector<int> &p_indices) {
 
     for (int i = 0; i < p_mesh->get_surface_count(); i++) {
         int current_vertex_count = p_verticies.size() / 3;
@@ -128,7 +128,7 @@ void EditorNavigationMeshGenerator::_add_mesh(const Ref<Mesh> &p_mesh, const Tra
     }
 }
 
-void EditorNavigationMeshGenerator::_add_faces(const PoolVector3Array &p_faces, const Transform &p_xform, PODVector<float> &p_verticies, PODVector<int> &p_indices) {
+void EditorNavigationMeshGenerator::_add_faces(const PoolVector3Array &p_faces, const Transform &p_xform, Vector<float> &p_verticies, Vector<int> &p_indices) {
     int face_count = p_faces.size() / 3;
     int current_vertex_count = p_verticies.size() / 3;
 
@@ -143,7 +143,7 @@ void EditorNavigationMeshGenerator::_add_faces(const PoolVector3Array &p_faces, 
     }
 }
 
-void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform, Node *p_node, PODVector<float> &p_verticies, PODVector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask, bool p_recurse_children) {
+void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform, Node *p_node, Vector<float> &p_verticies, Vector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask, bool p_recurse_children) {
 
     if (object_cast<MeshInstance>(p_node) && p_generate_from != NavigationMesh::PARSED_GEOMETRY_STATIC_COLLIDERS) {
 
@@ -222,7 +222,7 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
 
                     ConvexPolygonShape *convex_polygon = object_cast<ConvexPolygonShape>(s.get());
                     if (convex_polygon) {
-                        const PODVector<Vector3> &varr(convex_polygon->get_points());
+                        const Vector<Vector3> &varr(convex_polygon->get_points());
                         Geometry::MeshData md;
 
                         Error err = QuickHull::build(varr, md);
@@ -281,7 +281,7 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
 
 void EditorNavigationMeshGenerator::_convert_detail_mesh_to_native_navigation_mesh(const rcPolyMeshDetail *p_detail_mesh, Ref<NavigationMesh> p_nav_mesh) {
 
-    PODVector<Vector3> nav_vertices;
+    Vector<Vector3> nav_vertices;
 
     for (int i = 0; i < p_detail_mesh->nverts; i++) {
         const float *v = &p_detail_mesh->verts[i * 3];
@@ -297,7 +297,7 @@ void EditorNavigationMeshGenerator::_convert_detail_mesh_to_native_navigation_me
         const unsigned char *tris = &p_detail_mesh->tris[btris * 4];
         for (unsigned int j = 0; j < ntris; j++) {
             // Polygon order in recast is opposite than godot's
-            PODVector<int> nav_indices {
+            Vector<int> nav_indices {
                 (int)(bverts + tris[j * 4 + 0]),
                 (int)(bverts + tris[j * 4 + 2]),
                 (int)(bverts + tris[j * 4 + 1]),
@@ -309,7 +309,7 @@ void EditorNavigationMeshGenerator::_convert_detail_mesh_to_native_navigation_me
 
 void EditorNavigationMeshGenerator::_build_recast_navigation_mesh(Ref<NavigationMesh> p_nav_mesh, EditorProgress *ep,
         rcHeightfield *hf, rcCompactHeightfield *chf, rcContourSet *cset, rcPolyMesh *poly_mesh, rcPolyMeshDetail *detail_mesh,
-        PODVector<float> &vertices, PODVector<int> &indices) {
+        Vector<float> &vertices, Vector<int> &indices) {
     rcContext ctx;
     ep->step(TTR("Setting up Configuration..."), 1);
 
@@ -456,8 +456,8 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
     EditorProgress ep(("bake"), TTR("Navigation Mesh Generator Setup:"), 11);
     ep.step(TTR("Parsing Geometry..."), 0);
 
-    PODVector<float> vertices;
-    PODVector<int> indices;
+    Vector<float> vertices;
+    Vector<int> indices;
     Deque<Node *> parse_nodes;
     if (p_nav_mesh->get_source_geometry_mode() == NavigationMesh::SOURCE_GEOMETRY_NAVMESH_CHILDREN) {
         parse_nodes.push_back(p_node);

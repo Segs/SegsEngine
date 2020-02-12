@@ -87,8 +87,8 @@ class SceneTreeEditor : public Control {
     bool pending_test_update;
     Timer *update_timer;
 
-    PODVector<StringName> *script_types;
-    PODVector<StringName> valid_types;
+    Vector<StringName> *script_types;
+    Vector<StringName> valid_types;
 
     void _compute_hash(Node *p_node, uint64_t &hash);
 
@@ -148,7 +148,7 @@ public:
     void set_editor_selection(EditorSelection *p_selection);
 
     void set_show_enabled_subscene(bool p_show) { show_enabled_subscene = p_show; }
-    void set_valid_types(const PODVector<StringName> &p_valid);
+    void set_valid_types(const Vector<StringName> &p_valid);
 
     void update_tree() { _update_tree(); }
 

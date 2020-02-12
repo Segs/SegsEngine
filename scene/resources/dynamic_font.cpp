@@ -224,7 +224,7 @@ DynamicFontData::~DynamicFontData() {
 }
 
 ////////////////////
-HashMap<String, PODVector<uint8_t> > DynamicFontAtSize::_fontdata;
+HashMap<String, Vector<uint8_t> > DynamicFontAtSize::_fontdata;
 
 Error DynamicFontAtSize::_load() {
 
@@ -248,7 +248,7 @@ Error DynamicFontAtSize::_load() {
             }
 
             size_t len = f->get_len();
-            PODVector<uint8_t> &fontdata = _fontdata[font->font_path];
+            Vector<uint8_t> &fontdata = _fontdata[font->font_path];
             fontdata.clear();
             fontdata.resize(len);
             fontdata.shrink_to_fit();
@@ -357,7 +357,7 @@ float DynamicFontAtSize::get_descent() const {
     return descent;
 }
 
-const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFontAtSize::_find_char_with_font(CharType p_char, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
+const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFontAtSize::_find_char_with_font(CharType p_char, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
     const Character *chr = char_map.getptr(p_char);
     ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)));
 
@@ -389,7 +389,7 @@ const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFon
     return Pair<const Character *, DynamicFontAtSize *>(chr, const_cast<DynamicFontAtSize *>(this));
 }
 
-Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
+Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
 
     if (!valid)
         return Size2(1, 1);
@@ -418,7 +418,7 @@ void DynamicFontAtSize::set_texture_flags(uint32_t p_flags) {
     }
 }
 
-float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const PODVector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only, bool p_outline) const {
+float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only, bool p_outline) const {
 
     if (!valid)
         return 0;
@@ -916,7 +916,7 @@ float DynamicFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_
     if (not font_at_size)
         return 0;
 
-    const PODVector<Ref<DynamicFontAtSize> > &fallbacks = p_outline && outline_cache_id.outline_size > 0 ? fallback_outline_data_at_size : fallback_data_at_size;
+    const Vector<Ref<DynamicFontAtSize> > &fallbacks = p_outline && outline_cache_id.outline_size > 0 ? fallback_outline_data_at_size : fallback_data_at_size;
     Color color = p_outline && outline_cache_id.outline_size > 0 ? p_modulate * outline_color : p_modulate;
 
     // If requested outline draw, but no outline is present, simply return advance without drawing anything
@@ -1005,7 +1005,7 @@ bool DynamicFont::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void DynamicFont::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void DynamicFont::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < fallbacks.size(); i++) {
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("fallback/" + itos(i)), PropertyHint::ResourceType, "DynamicFontData"));
@@ -1104,7 +1104,7 @@ void DynamicFont::finish_dynamic_fonts() {
 
 void DynamicFont::update_oversampling() {
 
-    PODVector<Ref<DynamicFont> > changed;
+    Vector<Ref<DynamicFont> > changed;
 
     if (dynamic_font_mutex)
         dynamic_font_mutex->lock();
@@ -1159,7 +1159,7 @@ RES ResourceFormatLoaderDynamicFont::load(se_string_view p_path, se_string_view 
     return dfont;
 }
 
-void ResourceFormatLoaderDynamicFont::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderDynamicFont::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.emplace_back("ttf");
     p_extensions.emplace_back("otf");

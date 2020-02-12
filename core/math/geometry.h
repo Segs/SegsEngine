@@ -689,7 +689,7 @@ public:
         return -1;
     }
 
-    static PODVector<Vector3> clip_polygon(Span<const Vector3> &polygon, const Plane &p_plane) {
+    static Vector<Vector3> clip_polygon(Span<const Vector3> &polygon, const Plane &p_plane) {
 
         enum LocationCache {
             LOC_INSIDE = 1,
@@ -729,7 +729,7 @@ public:
         }
 
         long previous = polygon.size() - 1;
-        PODVector<Vector3> clipped;
+        Vector<Vector3> clipped;
         clipped.reserve(polygon.size()/2);
         for (int index = 0; index < polygon.size(); index++) {
             int loc = location_cache[index];
@@ -783,53 +783,53 @@ public:
         END_ROUND
     };
 
-    static PODVector<PODVector<Point2> > merge_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > merge_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_UNION, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > clip_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > clip_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > intersect_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > intersect_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_INTERSECTION, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > exclude_polygons_2d(const PODVector<Point2> &p_polygon_a, const PODVector<Point2> &p_polygon_b) {
+    static Vector<Vector<Point2> > exclude_polygons_2d(const Vector<Point2> &p_polygon_a, const Vector<Point2> &p_polygon_b) {
 
         return _polypaths_do_operation(OPERATION_XOR, p_polygon_a, p_polygon_b);
     }
 
-    static PODVector<PODVector<Point2> > clip_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
+    static Vector<Vector<Point2> > clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
         return _polypaths_do_operation(OPERATION_DIFFERENCE, p_polyline, p_polygon, true);
     }
 
-    static PODVector<PODVector<Point2> > intersect_polyline_with_polygon_2d(const PODVector<Vector2> &p_polyline, const PODVector<Vector2> &p_polygon) {
+    static Vector<Vector<Point2> > intersect_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline, const Vector<Vector2> &p_polygon) {
 
         return _polypaths_do_operation(OPERATION_INTERSECTION, p_polyline, p_polygon, true);
     }
 
-    static PODVector<PODVector<Point2> > offset_polygon_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
+    static Vector<Vector<Point2> > offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type) {
 
         return _polypath_offset(p_polygon, p_delta, p_join_type, END_POLYGON);
     }
 
-    static PODVector<PODVector<Point2> > offset_polyline_2d(const PODVector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
+    static Vector<Vector<Point2> > offset_polyline_2d(const Vector<Vector2> &p_polygon, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type) {
 
-        ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, PODVector<PODVector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
+        ERR_FAIL_COND_V_MSG(p_end_type == END_POLYGON, Vector<Vector<Point2> >(), "Attempt to offset a polyline like a polygon (use offset_polygon_2d instead).");
 
         return _polypath_offset(p_polygon, p_delta, p_join_type, p_end_type);
     }
 
 
-    static PODVector<int> triangulate_delaunay_2d(Span<const Vector2> p_points) {
+    static Vector<int> triangulate_delaunay_2d(Span<const Vector2> p_points) {
 
-        PODVector<Delaunay2D::Triangle> tr(Delaunay2D::triangulate(p_points));
-        PODVector<int> triangles;
+        Vector<Delaunay2D::Triangle> tr(Delaunay2D::triangulate(p_points));
+        Vector<int> triangles;
         triangles.reserve(tr.size());
 
         for (const Delaunay2D::Triangle &dt: tr) {
@@ -840,11 +840,11 @@ public:
         return triangles;
     }
 
-    static PODVector<int> triangulate_polygon(Span<const Vector2> p_polygon) {
+    static Vector<int> triangulate_polygon(Span<const Vector2> p_polygon) {
 
-        PODVector<int> triangles;
+        Vector<int> triangles;
         if (!Triangulate::triangulate(p_polygon, triangles))
-            return PODVector<int>(); //fail
+            return Vector<int>(); //fail
         return triangles;
     }
 
@@ -901,15 +901,15 @@ public:
 
         struct Face {
             Plane plane;
-            PODVector<int> indices;
+            Vector<int> indices;
         };
         struct Edge {
             int a, b;
         };
 
-        PODVector<Face> faces;
-        PODVector<Edge> edges;
-        PODVector<Vector3> vertices;
+        Vector<Face> faces;
+        Vector<Edge> edges;
+        Vector<Vector3> vertices;
 
         void optimize_vertices();
     };
@@ -966,8 +966,8 @@ public:
         return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
     }
 
-    static PODVector<Point2> convex_hull_2d(Span<const Point2> P);
-    static PODVector<PODVector<Vector2> > decompose_polygon_in_convex(Span<const Point2> polygon);
+    static Vector<Point2> convex_hull_2d(Span<const Point2> P);
+    static Vector<Vector<Vector2> > decompose_polygon_in_convex(Span<const Point2> polygon);
 
     static MeshData build_convex_mesh(const PoolVector<Plane> &p_planes);
     static PoolVector<Plane> build_sphere_planes(real_t p_radius, int p_lats, int p_lons, Vector3::Axis p_axis = Vector3::AXIS_Z);
@@ -975,9 +975,9 @@ public:
     static PoolVector<Plane> build_cylinder_planes(real_t p_radius, real_t p_height, int p_sides, Vector3::Axis p_axis = Vector3::AXIS_Z);
     static PoolVector<Plane> build_capsule_planes(real_t p_radius, real_t p_height, int p_sides, int p_lats, Vector3::Axis p_axis = Vector3::AXIS_Z);
 
-    static void make_atlas(const PODVector<Size2i> &p_rects, PODVector<Point2i> &r_result, Size2i &r_size);
+    static void make_atlas(const Vector<Size2i> &p_rects, Vector<Point2i> &r_result, Size2i &r_size);
 
 private:
-    static PODVector<PODVector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const PODVector<Point2> &p_polypath_a, const PODVector<Point2> &p_polypath_b, bool is_a_open = false);
-    static PODVector<PODVector<Point2> > _polypath_offset(const PODVector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
+    static Vector<Vector<Point2> > _polypaths_do_operation(PolyBooleanOperation p_op, const Vector<Point2> &p_polypath_a, const Vector<Point2> &p_polypath_b, bool is_a_open = false);
+    static Vector<Vector<Point2> > _polypath_offset(const Vector<Point2> &p_polypath, real_t p_delta, PolyJoinType p_join_type, PolyEndType p_end_type);
 };

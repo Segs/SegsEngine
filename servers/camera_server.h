@@ -64,7 +64,7 @@ private:
 protected:
     static CreateFunc create_func;
 
-    PODVector<Ref<CameraFeed> > feeds;
+    Vector<Ref<CameraFeed> > feeds;
 
     static CameraServer *singleton;
 

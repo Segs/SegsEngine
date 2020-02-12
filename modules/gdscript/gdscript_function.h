@@ -186,21 +186,21 @@ private:
     GDScript *_script;
 
     StringName name;
-    PODVector<Variant> constants;
-    PODVector<StringName> global_names;
+    Vector<Variant> constants;
+    Vector<StringName> global_names;
 #ifdef TOOLS_ENABLED
-    PODVector<StringName> named_globals;
+    Vector<StringName> named_globals;
 #endif
-    PODVector<int> default_arguments;
-    PODVector<int> code;
-    PODVector<GDScriptDataType> argument_types;
+    Vector<int> default_arguments;
+    Vector<int> code;
+    Vector<GDScriptDataType> argument_types;
     GDScriptDataType return_type;
 
 #ifdef TOOLS_ENABLED
-    PODVector<StringName> arg_names;
+    Vector<StringName> arg_names;
 #endif
 
-    ListPOD<StackDebug> stack_debug;
+    List<StackDebug> stack_debug;
 
     Variant *_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, String &r_error) const;
     String _get_call_error(const Variant::CallError &p_err, se_string_view p_where, const Variant **argptrs) const;
@@ -232,7 +232,7 @@ public:
 
         ObjectID instance_id;
         GDScriptInstance *instance;
-        PODVector<uint8_t> stack;
+        Vector<uint8_t> stack;
         int stack_size;
         Variant self;
         uint32_t alloca_size;
@@ -258,7 +258,7 @@ public:
     GDScript *get_script() const { return _script; }
     StringName get_source() const { return source; }
 
-    void debug_get_stack_member_state(int p_line, PODVector<Pair<StringName, int> > *r_stackvars) const;
+    void debug_get_stack_member_state(int p_line, Vector<Pair<StringName, int> > *r_stackvars) const;
 
     bool is_empty() const { return _code_size == 0; }
 

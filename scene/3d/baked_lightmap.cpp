@@ -245,7 +245,7 @@ float BakedLightmap::get_bake_default_texels_per_unit() const {
     return bake_default_texels_per_unit;
 }
 
-void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, PODVector<BakedLightmap::PlotMesh> &plot_meshes, PODVector<BakedLightmap::PlotLight> &plot_lights) {
+void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightmap::PlotMesh> &plot_meshes, Vector<BakedLightmap::PlotLight> &plot_lights) {
 
     MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
@@ -404,8 +404,8 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
     baker.begin_bake(bake_subdiv, bake_bounds);
 
-    PODVector<PlotMesh> mesh_list;
-    PODVector<PlotLight> light_list;
+    Vector<PlotMesh> mesh_list;
+    Vector<PlotLight> light_list;
 
     _find_meshes_and_lights(p_from_node ? p_from_node : get_parent(), mesh_list, light_list);
 
@@ -800,8 +800,8 @@ const String &BakedLightmap::get_image_path() const {
 AABB BakedLightmap::get_aabb() const {
     return AABB(-extents, extents * 2);
 }
-PODVector<Face3> BakedLightmap::get_faces(uint32_t p_usage_flags) const {
-    return PODVector<Face3>();
+Vector<Face3> BakedLightmap::get_faces(uint32_t p_usage_flags) const {
+    return Vector<Face3>();
 }
 
 void BakedLightmap::_bind_methods() {

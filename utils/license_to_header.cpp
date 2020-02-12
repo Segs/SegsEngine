@@ -1100,7 +1100,6 @@ bool generate_mono_glue(QStringList args) {
     QString src = args.takeFirst();
     QString dst = args.takeFirst();
     QString version_dst = args.takeFirst();
-//        from compat import byte_to_str
 
     QFile header(dst);
     QDir d(".");
@@ -1126,47 +1125,15 @@ bool generate_mono_glue(QStringList args) {
     QDirIterator visitor(src,QDirIterator::Subdirectories);
     while(visitor.hasNext()) {
         QString fname = visitor.next();
+        if(fname.contains("Generated"))
+            continue;
         if(!fname.endsWith(".cs"))
             continue;
         QFileInfo fi(fname);
         if(latest_mtime<fi.lastModified())
             latest_mtime=fi.lastModified();
         cs_file_count += 1;
-        QString filepath = fname;
-//        filepath_src_rel = os.path.relpath(filepath, src)
-//        mtime = os.path.getmtime(filepath)
-//        latest_mtime = mtime if mtime > latest_mtime else latest_mtime
-//        with open(filepath, "rb") as f:
-//            buf = f.read()
-//            decompr_size = len(buf)
-//            import zlib
-//            buf = zlib.compress(buf)
-//            compr_size = len(buf)
-//            name = str(cs_file_count)
-//            header.write("\n")
-//            header.write("// " + filepath_src_rel + "\n")
-//            header.write("static const int _cs_" + name + "_compressed_size = " + str(compr_size) + ";\n")
-//            header.write("static const int _cs_" + name + "_uncompressed_size = " + str(decompr_size) + ";\n")
-//            header.write("static const unsigned char _cs_" + name + "_compressed[] = { ")
-//            for i, buf_idx in enumerate(range(compr_size)):
-//                if i > 0:
-//                    header.write(", ")
-//                header.write(byte_to_str(buf[buf_idx]))
-//            header.write(" };\n")
-//            inserted_files += '\tr_files.insert("' + filepath_src_rel.replace('\\', '\\\\') + '", ' \
-//                                'GodotCsCompressedFile(_cs_' + name + '_compressed_size, ' \
-//                                '_cs_' + name + '_uncompressed_size, ' \
-//                                '_cs_' + name + '_compressed));\n'
     }
-//    header.write("\nstruct GodotCsCompressedFile\n" '{\n'
-//        '\tint compressed_size;\n' '\tint uncompressed_size;\n' '\tconst unsigned char* data;\n'
-//        '\n\tGodotCsCompressedFile(int p_comp_size, int p_uncomp_size, const unsigned char* p_data)\n'
-//        '\t{\n' '\t\tcompressed_size = p_comp_size;\n' '\t\tuncompressed_size = p_uncomp_size;\n'
-//        '\t\tdata = p_data;\n' '\t}\n' '\n\tGodotCsCompressedFile() {}\n' '};\n'
-//        '\nvoid get_compressed_files(Map<String, GodotCsCompressedFile>& r_files)\n' '{\n' + inserted_files + '}\n'
-//        )
-//    header.write('\n#endif // TOOLS_ENABLED\n')
-//    header.write('\n#endif // CS_COMPRESSED_H\n')
 
     auto glue_version = latest_mtime.toSecsSinceEpoch(); // The latest modified time will do for now
     d.mkpath(QFileInfo(version_dst).path());

@@ -155,9 +155,9 @@ private:
         float margin[4];
         float anchor[4];
         StringName tooltip;
-        List<Control *>::Element *MI; //modal item
-        List<Control *>::Element *SI;
-        List<Control *>::Element *RI;
+        ListOld<Control *>::Element *MI; //modal item
+        ListOld<Control *>::Element *SI;
+        ListOld<Control *>::Element *RI;
         CanvasItem *parent_canvas_item;
 
         Control *parent;
@@ -245,7 +245,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_notification);
 
@@ -477,7 +477,7 @@ public:
     void set_disable_visibility_clip(bool p_ignore);
     bool is_visibility_clip_disabled() const;
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
     StringName get_configuration_warning() const override;
 
     Control();

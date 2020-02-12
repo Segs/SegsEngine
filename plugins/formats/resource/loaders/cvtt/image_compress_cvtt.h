@@ -43,5 +43,5 @@ class ResourceFormatBPTC : public QObject, public ImageCodecInterface {
 public:
     Error compress_image(Image * p_image, CompressParams params) override;
     Error decompress_image(Image * /*p_image*/) override;
-    void fill_modes(PODVector<int> &tgt) const override;
+    void fill_modes(Vector<int> &tgt) const override;
 };

@@ -867,8 +867,8 @@ void ItemList::_notification(int p_what) {
         Color font_color = get_color("font_color");
         Color font_color_selected = get_color("font_color_selected");
         int font_height = font->get_height();
-        PODVector<int> line_size_cache;
-        PODVector<int> line_limit_cache;
+        Vector<int> line_size_cache;
+        Vector<int> line_limit_cache;
 
         if (max_text_lines) {
             line_size_cache.resize(max_text_lines);
@@ -1385,8 +1385,8 @@ real_t ItemList::get_icon_scale() const {
     return icon_scale;
 }
 
-PODVector<int> ItemList::get_selected_items() {
-    PODVector<int> selected;
+Vector<int> ItemList::get_selected_items() {
+    Vector<int> selected;
     for (int i = 0; i < items.size(); i++) {
         if (items[i].selected) {
             selected.push_back(i);

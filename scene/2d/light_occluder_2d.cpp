@@ -86,7 +86,7 @@ bool OccluderPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float 
 }
 #endif
 
-void OccluderPolygon2D::set_polygon(const PODVector<Vector2> &p_polygon) {
+void OccluderPolygon2D::set_polygon(const Vector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     rect_cache_dirty = true;
@@ -190,7 +190,7 @@ void LightOccluder2D::_notification(int p_what) {
 
             if (occluder_polygon) {
 
-                const PODVector<Vector2> &poly = occluder_polygon->get_polygon();
+                const Vector<Vector2> &poly = occluder_polygon->get_polygon();
 
                 if (poly.size()) {
                     if (occluder_polygon->is_closed()) {

@@ -734,7 +734,7 @@ InputDefault::InputDefault() {
     String env_mapping(env_var);
     if (!env_mapping.empty()) {
 
-        PODVector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
+        Vector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
         for (size_t i = 0; i < entries.size(); i++) {
             if (entries[i].empty())
                 continue;
@@ -996,7 +996,7 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
     for (int i = 0; i < HAT_MAX; ++i)
         mapping.hat[i].index = 1024 + i;
 
-    PODVector<se_string_view> entry = StringUtils::split(p_mapping,',');
+    Vector<se_string_view> entry = StringUtils::split(p_mapping,',');
     if (entry.size() < 2) {
         return;
     }

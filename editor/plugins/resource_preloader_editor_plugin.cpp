@@ -59,7 +59,7 @@ void ResourcePreloaderEditor::_notification(int p_what) {
     }
 }
 
-void ResourcePreloaderEditor::_files_load_request(const PODVector<String> &p_paths) {
+void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths) {
 
     for (int i = 0; i < p_paths.size(); i++) {
 
@@ -99,7 +99,7 @@ void ResourcePreloaderEditor::_load_pressed() {
     loading_scene = false;
 
     file->clear_filters();
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("", extensions);
     for (const String & ext : extensions)
         file->add_filter("*." + ext);
@@ -189,10 +189,10 @@ void ResourcePreloaderEditor::_update_library() {
     tree->set_hide_root(true);
     TreeItem *root = tree->create_item(nullptr);
 
-    ListPOD<StringName> rnames;
+    List<StringName> rnames;
     preloader->get_resource_list(&rnames);
 
-    PODVector<StringName> names(rnames.begin(),rnames.end());
+    Vector<StringName> names(rnames.begin(),rnames.end());
 
     eastl::sort(names.begin(),names.end());
 
@@ -341,7 +341,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 
     if (d["type"].as<String>() == "files") {
 
-        PODVector<String> files(d["files"].as<PODVector<String>>());
+        Vector<String> files(d["files"].as<Vector<String>>());
 
         _files_load_request(files);
     }

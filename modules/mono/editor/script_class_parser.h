@@ -52,7 +52,7 @@ public:
     struct ClassDecl {
         String name;
         String namespace_;
-        PODVector<String> base;
+        Vector<String> base;
         bool nested;
         bool has_script_attr;
     };
@@ -65,7 +65,7 @@ private:
     bool error;
     Variant value;
 
-    PODVector<ClassDecl> classes;
+    Vector<ClassDecl> classes;
 
     enum Token {
         TK_BRACKET_OPEN,
@@ -94,7 +94,7 @@ private:
     Error _skip_generic_type_params();
 
     Error _parse_type_full_name(String &r_full_name);
-    Error _parse_class_base(PODVector<String> &r_base);
+    Error _parse_class_base(Vector<String> &r_base);
     Error _parse_type_constraints();
     Error _parse_namespace_name(String &r_name, int &r_curly_stack);
 
@@ -106,7 +106,7 @@ public:
         return error_str;
     }
 
-    const PODVector<ClassDecl> &get_classes() { return classes; }
+    const Vector<ClassDecl> &get_classes() { return classes; }
 };
 
 #endif // SCRIPT_CLASS_PARSER_H

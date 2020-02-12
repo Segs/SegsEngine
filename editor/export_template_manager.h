@@ -59,7 +59,7 @@ class ExportTemplateManager : public ConfirmationDialog {
     HTTPRequest *request_mirror;
     HTTPRequest *download_templates;
 
-    PODVector<uint8_t> download_data;
+    Vector<uint8_t> download_data;
 
     float update_countdown;
 

@@ -100,12 +100,12 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_stack_level_members(int p_level, PODVector<se_string_view> *p_members, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_globals(PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
-    // virtual PODVector<StackInfo> debug_get_current_stack_info() { return PODVector<StackInfo>(); }
+    // virtual Vector<StackInfo> debug_get_current_stack_info() { return Vector<StackInfo>(); }
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;

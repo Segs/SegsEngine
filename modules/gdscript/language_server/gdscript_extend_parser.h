@@ -52,11 +52,11 @@ typedef DefHashMap<String, const lsp::DocumentSymbol *> ClassMembers;
 class ExtendGDScriptParser : public GDScriptParser {
 
     String path;
-    PODVector<String> lines;
+    Vector<String> lines;
 
     lsp::DocumentSymbol class_symbol;
-    PODVector<lsp::Diagnostic> diagnostics;
-    PODVector<lsp::DocumentLink> document_links;
+    Vector<lsp::Diagnostic> diagnostics;
+    Vector<lsp::DocumentLink> document_links;
     ClassMembers members;
     DefHashMap<String, ClassMembers> inner_classes;
 
@@ -78,9 +78,9 @@ class ExtendGDScriptParser : public GDScriptParser {
 
 public:
     const String &get_path() const { return path; }
-    const PODVector<String> &get_lines() const { return lines; }
+    const Vector<String> &get_lines() const { return lines; }
     const lsp::DocumentSymbol &get_symbols() const { return class_symbol; }
-    const PODVector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
+    const Vector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
     const ClassMembers &get_members() const { return members; }
     const DefHashMap<String, ClassMembers> &get_inner_classes() const { return inner_classes; }
 
@@ -93,7 +93,7 @@ public:
 
     const lsp::DocumentSymbol *get_symbol_defined_at_line(int p_line) const;
     const lsp::DocumentSymbol *get_member_symbol(se_string_view p_name, se_string_view p_subclass = {}) const;
-    const PODVector<lsp::DocumentLink> &get_document_links() const;
+    const Vector<lsp::DocumentLink> &get_document_links() const;
 
     const Array &get_member_completions();
     Dictionary generate_api() const;

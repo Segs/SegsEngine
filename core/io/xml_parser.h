@@ -69,7 +69,7 @@ private:
     char *P;
     uint64_t length;
     void unescape(UIString &p_str);
-    PODVector<se_string_view> special_characters;
+    Vector<se_string_view> special_characters;
     String node_name;
     bool node_empty;
     NodeType node_type;
@@ -80,7 +80,7 @@ private:
         String value;
     };
 
-    PODVector<Attribute> attributes;
+    Vector<Attribute> attributes;
 
     String _replace_special_characters(const String &origstr);
     bool _set_text(char *start, char *end);

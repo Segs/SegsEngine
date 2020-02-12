@@ -950,7 +950,7 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
     effect_options = memnew(PopupMenu);
     effect_options->connect("index_pressed", this, "_effect_add");
     add_child(effect_options);
-    PODVector<StringName> effects;
+    Vector<StringName> effects;
     ClassDB::get_inheriters_from_class("AudioEffect", &effects);
     eastl::sort(effects.begin(), effects.end());
 
@@ -1401,7 +1401,7 @@ EditorAudioBuses::EditorAudioBuses() {
     edited_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout").as<String>();
 
     file_dialog = memnew(EditorFileDialog);
-    PODVector<String> ext;
+    Vector<String> ext;
     ResourceLoader::get_recognized_extensions_for_type("AudioBusLayout", ext);
     for (const String &E : ext) {
         file_dialog->add_filter("*." + E + "; Audio Bus Layout");

@@ -73,7 +73,7 @@ void EditorPluginSettings::update_plugins() {
 
     String d = da->get_next();
 
-    PODVector<String> plugins;
+    Vector<String> plugins;
 
     while (!d.empty()) {
 

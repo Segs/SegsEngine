@@ -51,7 +51,7 @@ class PCKPacker : public RefCounted {
         int size;
         uint64_t offset_offset;
     };
-    PODVector<File> files;
+    Vector<File> files;
 
 public:
     Error pck_start(se_string_view p_file, int p_alignment = 0);

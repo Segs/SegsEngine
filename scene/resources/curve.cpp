@@ -700,7 +700,7 @@ void Curve2D::_bake() const {
     Vector2 pos = points[0].pos;
 
     //start always from origin
-    PODVector<Vector2> pointlist {pos};
+    Vector<Vector2> pointlist {pos};
 
     for (int i = 0; i < points.size() - 1; i++) {
 
@@ -951,7 +951,7 @@ PoolVector2Array Curve2D::tessellate(int p_max_stages, float p_tolerance) const 
     if (points.empty()) {
         return tess;
     }
-    PODVector<Map<float, Vector2> > midpoints;
+    Vector<Map<float, Vector2> > midpoints;
 
     midpoints.resize(points.size() - 1);
 
@@ -1207,7 +1207,7 @@ void Curve3D::_bake() const {
     }
 
     Vector3 pos = points[0].pos;
-    PODVector<Plane> pointlist {Plane(pos, points[0].tilt)};
+    Vector<Plane> pointlist {Plane(pos, points[0].tilt)};
     // TODO: SEGS: consider calculating size to reserve in pointlist
 
     for (int i = 0; i < points.size() - 1; i++) {
@@ -1630,7 +1630,7 @@ PoolVector3Array Curve3D::tessellate(int p_max_stages, float p_tolerance) const 
     if (points.empty()) {
         return tess;
     }
-    PODVector<Map<float, Vector3> > midpoints;
+    Vector<Map<float, Vector3> > midpoints;
 
     midpoints.resize(points.size() - 1);
 

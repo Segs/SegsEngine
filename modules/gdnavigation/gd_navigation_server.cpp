@@ -199,7 +199,7 @@ real_t GdNavigationServer::map_get_edge_connection_margin(RID p_map) const {
     return map->get_edge_connection_margin();
 }
 
-PODVector<Vector3> GdNavigationServer::map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const {
+Vector<Vector3> GdNavigationServer::map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const {
     NavMap *map = map_owner.getornull(p_map);
     ERR_FAIL_COND_V(map == nullptr, {});
 

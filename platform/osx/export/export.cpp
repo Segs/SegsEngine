@@ -55,8 +55,8 @@ class EditorExportPlatformOSX final : public EditorExportPlatform {
 
     Ref<ImageTexture> logo;
 
-    void _fix_plist(const Ref<EditorExportPreset> &p_preset, PODVector<uint8_t> &plist, se_string_view p_binary);
-    void _make_icon(const Ref<Image> &p_icon, PODVector<uint8_t> &p_data);
+    void _fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, se_string_view p_binary);
+    void _make_icon(const Ref<Image> &p_icon, Vector<uint8_t> &p_data);
 
     Error _code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path);
     Error _create_dmg(se_string_view p_dmg_path, se_string_view p_pkg_name, se_string_view p_app_path_name);
@@ -70,16 +70,16 @@ class EditorExportPlatformOSX final : public EditorExportPlatform {
 #endif
 
 protected:
-    void get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) override;
-    void get_export_options(PODVector<ExportOption> *r_options) override;
+    void get_preset_features(const Ref<EditorExportPreset> &p_preset, Vector<String> *r_features) override;
+    void get_export_options(Vector<ExportOption> *r_options) override;
 
 public:
     const String & get_name() const override { static const String v("Mac OSX"); return v;}
     const String & get_os_name() const override { static const String v("OSX"); return v; }
     Ref<Texture> get_logo() const override { return logo; }
 
-    PODVector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override {
-        PODVector<String> list;
+    Vector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override {
+        Vector<String> list;
         if (use_dmg()) {
             list.push_back("dmg");
         }
@@ -90,7 +90,7 @@ public:
 
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
 
-    void get_platform_features(PODVector<String> *r_features) override {
+    void get_platform_features(Vector<String> *r_features) override {
 
         r_features->push_back("pc");
         r_features->push_back("s3tc");
@@ -106,7 +106,7 @@ public:
 
 IMPL_GDCLASS(EditorExportPlatformOSX)
 
-void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> &p_preset, PODVector<String> *r_features) {
+void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> &p_preset, Vector<String> *r_features) {
     if (p_preset->get("texture_format/s3tc")) {
         r_features->push_back("s3tc");
     }
@@ -120,7 +120,7 @@ void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> 
     r_features->push_back("64");
 }
 
-void EditorExportPlatformOSX::get_export_options(PODVector<EditorExportPlatform::ExportOption> *r_options) {
+void EditorExportPlatformOSX::get_export_options(Vector<EditorExportPlatform::ExportOption> *r_options) {
 
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/debug", PropertyHint::GlobalFile, "*.zip"), ""));
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "custom_template/release", PropertyHint::GlobalFile, "*.zip"), ""));
@@ -151,11 +151,11 @@ void EditorExportPlatformOSX::get_export_options(PODVector<EditorExportPlatform:
     r_options->push_back(ExportOption(PropertyInfo(VariantType::BOOL, "texture_format/etc2"), false));
 }
 
-void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_source, PODVector<uint8_t> &p_dest) {
+void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_source, Vector<uint8_t> &p_dest) {
 
     int src_len = p_size * p_size;
 
-    PODVector<uint8_t> result;
+    Vector<uint8_t> result;
     result.resize(src_len * 1.25f); //temp vector for rle encoded data, make it 25% larger for worst case scenario
     int res_size = 0;
 
@@ -218,11 +218,11 @@ void _rgba8_to_packbits_encode(int p_ch, int p_size, PoolVector<uint8_t> &p_sour
     memcpy(&p_dest[ofs], result.data(), res_size);
 }
 
-void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, PODVector<uint8_t> &p_data) {
+void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_t> &p_data) {
 
     Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
 
-    PODVector<uint8_t> data;
+    Vector<uint8_t> data;
 
     data.resize(8);
     data[0] = 'i';
@@ -323,11 +323,11 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, PODVector<uin
     p_data = data;
 }
 
-void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, PODVector<uint8_t> &plist, se_string_view p_binary) {
+void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, se_string_view p_binary) {
 
     String strnew;
     String str((const char *)plist.data(), plist.size());
-    PODVector<se_string_view> lines = StringUtils::split(str,'\n');
+    Vector<se_string_view> lines = StringUtils::split(str,'\n');
     const std::pair<const char*,String> replacements[] = {
         {"$binary", String(p_binary)},
         {"$name", String(p_binary)},
@@ -364,7 +364,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
 **/
 
 Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
-    ListPOD<String> args;
+    List<String> args;
 
     if (p_preset->get("codesign/timestamp")) {
         args.emplace_back("--timestamp");
@@ -409,7 +409,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
 }
 
 Error EditorExportPlatformOSX::_create_dmg(se_string_view p_dmg_path, se_string_view p_pkg_name, se_string_view p_app_path_name) {
-    ListPOD<String> args;
+    List<String> args;
 
     if (FileAccess::exists(p_dmg_path)) {
         OS::get_singleton()->move_to_trash(p_dmg_path);
@@ -549,7 +549,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         String file(fname);
 
-        PODVector<uint8_t> data;
+        Vector<uint8_t> data;
         data.resize(info.uncompressed_size);
 
         //read
@@ -691,7 +691,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
         if (export_format == "dmg") {
             String pack_path = tmp_app_path_name + "/Contents/Resources/" + pkg_name + ".pck";
-            PODVector<SharedObject> shared_objects;
+            Vector<SharedObject> shared_objects;
             err = save_pack(p_preset, pack_path, &shared_objects);
 
             // see if we can code sign our new package
@@ -736,7 +736,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
             String pack_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".pck");
 
-            PODVector<SharedObject> shared_objects;
+            Vector<SharedObject> shared_objects;
             err = save_pack(p_preset, pack_path, &shared_objects);
 
             if (err == OK) {
@@ -774,7 +774,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             if (err == OK) {
                 //add shared objects
                 for (int i = 0; i < shared_objects.size(); i++) {
-                    PODVector<uint8_t> file = FileAccess::get_file_as_array(shared_objects[i].path);
+                    Vector<uint8_t> file = FileAccess::get_file_as_array(shared_objects[i].path);
                     ERR_CONTINUE(file.empty());
 
                     zipOpenNewFileInZip(dst_pkg_zip,

@@ -170,8 +170,8 @@ AABB RootMotionView::get_aabb() const {
 
     return AABB(Vector3(-radius, 0, -radius), Vector3(radius * 2, 0.001f, radius * 2));
 }
-PODVector<Face3> RootMotionView::get_faces(uint32_t p_usage_flags) const {
-    return PODVector<Face3>();
+Vector<Face3> RootMotionView::get_faces(uint32_t p_usage_flags) const {
+    return Vector<Face3>();
 }
 
 void RootMotionView::_bind_methods() {

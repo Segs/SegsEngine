@@ -68,7 +68,7 @@ RID VisualServer::texture_create_from_image(const Ref<Image> &p_image, uint32_t 
 
 Array VisualServer::_texture_debug_usage_bind() {
 
-    PODVector<TextureInfo> tex_infos;
+    Vector<TextureInfo> tex_infos;
     texture_debug_usage(&tex_infos);
     Array arr;
     for (const TextureInfo &E : tex_infos) {
@@ -88,12 +88,12 @@ Array VisualServer::_texture_debug_usage_bind() {
 
 Array VisualServer::_shader_get_param_list_bind(RID p_shader) const {
 
-    PODVector<PropertyInfo> l;
+    Vector<PropertyInfo> l;
     shader_get_param_list(p_shader, &l);
     return convert_property_vector(l);
 }
 
-static Array to_array(const PODVector<ObjectID> &ids) {
+static Array to_array(const Vector<ObjectID> &ids) {
     Array a;
     a.resize(ids.size());
     for (int i = 0; i < ids.size(); ++i) {
@@ -104,26 +104,26 @@ static Array to_array(const PODVector<ObjectID> &ids) {
 
 Array VisualServer::_instances_cull_aabb_bind(const AABB &p_aabb, RID p_scenario) const {
 
-    PODVector<ObjectID> ids = instances_cull_aabb(p_aabb, p_scenario);
+    Vector<ObjectID> ids = instances_cull_aabb(p_aabb, p_scenario);
     return to_array(ids);
 }
 
 Array VisualServer::_instances_cull_ray_bind(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario) const {
 
-    PODVector<ObjectID> ids = instances_cull_ray(p_from, p_to, p_scenario);
+    Vector<ObjectID> ids = instances_cull_ray(p_from, p_to, p_scenario);
     return to_array(ids);
 }
 
 Array VisualServer::_instances_cull_convex_bind(const Array &p_convex, RID p_scenario) const {
     //TODO: SEGS: use a fixed vector here, with a sane'ish number of on-stack entries, and marked as growing to allow for larger counts.
-    PODVector<Plane> planes;
+    Vector<Plane> planes;
     for (int i = 0; i < p_convex.size(); ++i) {
         Variant v = p_convex[i];
         ERR_FAIL_COND_V(v.get_type() != VariantType::PLANE, Array());
         planes.push_back(v);
     }
 
-    PODVector<ObjectID> ids = instances_cull_convex(planes, p_scenario);
+    Vector<ObjectID> ids = instances_cull_convex(planes, p_scenario);
     return to_array(ids);
 }
 
@@ -187,10 +187,10 @@ void VisualServer::_free_internal_rids() {
 
 RID VisualServer::_make_test_cube() {
 
-    PODVector<Vector3> vertices;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
+    Vector<Vector3> vertices;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
 
 #define ADD_VTX(m_idx)                           \
     vertices.push_back(face_points[m_idx]);      \
@@ -237,7 +237,7 @@ RID VisualServer::_make_test_cube() {
 
     RID test_cube = mesh_create();
 
-    PODVector<int> indices(vertices.size());
+    Vector<int> indices(vertices.size());
 
     SurfaceArrays d(eastl::move(vertices));
     d.m_normals = eastl::move(normals);
@@ -267,8 +267,8 @@ RID VisualServer::_make_test_cube() {
 
 RID VisualServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
 
-    PODVector<Vector3> vertices;
-    PODVector<Vector3> normals;
+    Vector<Vector3> vertices;
+    Vector<Vector3> normals;
 
     for (int i = 1; i <= p_lats; i++) {
         double lat0 = Math_PI * (-0.5 + (double)(i - 1) / p_lats);
@@ -343,7 +343,7 @@ constexpr Vector3 SMALL_VEC3(0.00001f, 0.00001f, 0.00001f);
 
 }
 
-Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PODVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PODVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb) {
+Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb) {
 
     int max_bone = 0;
 
@@ -484,7 +484,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
             case VS::ARRAY_TANGENT: {
 
-                const PODVector<float> &array = p_arrays.m_tangents;
+                const Vector<float> &array = p_arrays.m_tangents;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len * 4, ERR_INVALID_PARAMETER);
 
@@ -521,7 +521,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
             } break;
             case VS::ARRAY_COLOR: {
 
-                const PODVector<Color> &array = p_arrays.m_colors;
+                const Vector<Color> &array = p_arrays.m_colors;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len, ERR_INVALID_PARAMETER);
 
@@ -607,7 +607,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
 
                 //ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_REAL_ARRAY, ERR_INVALID_PARAMETER);
 
-                const PODVector<real_t> &array = p_arrays.m_weights;
+                const Vector<real_t> &array = p_arrays.m_weights;
 
                 ERR_FAIL_COND_V(array.size() != p_vertex_array_len * VS::ARRAY_WEIGHTS_SIZE, ERR_INVALID_PARAMETER);
 
@@ -680,7 +680,7 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
                 ERR_FAIL_COND_V(p_index_array_len <= 0, ERR_INVALID_DATA);
                 //ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_INT_ARRAY, ERR_INVALID_PARAMETER);
 
-                const PODVector<int> &indices = p_arrays.m_indices;
+                const Vector<int> &indices = p_arrays.m_indices;
                 ERR_FAIL_COND_V(indices.size() == 0, ERR_INVALID_PARAMETER);
                 ERR_FAIL_COND_V(indices.size() != p_index_array_len, ERR_INVALID_PARAMETER);
 
@@ -722,8 +722,8 @@ Error VisualServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_
         }
 
         auto vertices = p_arrays.positions3();
-        const PODVector<int> &bones = p_arrays.m_bones;
-        const PODVector<float> &weights = p_arrays.m_weights;
+        const Vector<int> &bones = p_arrays.m_bones;
+        const Vector<float> &weights = p_arrays.m_weights;
 
         bool any_valid = false;
 
@@ -897,7 +897,7 @@ uint32_t VisualServer::mesh_surface_make_offsets_from_format(uint32_t p_format, 
     return total_elem_size;
 }
 
-void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, PODVector<SurfaceArrays> &&p_blend_shapes, uint32_t p_compress_format) {
+void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, Vector<SurfaceArrays> &&p_blend_shapes, uint32_t p_compress_format) {
 
     ERR_FAIL_INDEX(p_primitive, VS::PRIMITIVE_MAX);
 
@@ -1059,27 +1059,27 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
 
     int array_size = total_elem_size * array_len;
 
-    PODVector<uint8_t> vertex_array;
+    Vector<uint8_t> vertex_array;
     vertex_array.resize(array_size);
 
     int index_array_size = offsets[VS::ARRAY_INDEX] * index_array_len;
 
-    PODVector<uint8_t> index_array;
+    Vector<uint8_t> index_array;
     index_array.resize(index_array_size);
 
     AABB aabb;
-    PODVector<AABB> bone_aabb;
+    Vector<AABB> bone_aabb;
 
     Error err = _surface_set_data(p_arrays, format, offsets, total_elem_size, vertex_array, array_len, index_array, index_array_len, aabb, bone_aabb);
     ERR_FAIL_COND_MSG(err, "Invalid array format for surface.");
 
-    PODVector<PoolVector<uint8_t> > blend_shape_data;
+    Vector<PoolVector<uint8_t> > blend_shape_data;
 
     for (int i = 0; i < p_blend_shapes.size(); i++) {
 
-        PODVector<uint8_t> vertex_array_shape;
+        Vector<uint8_t> vertex_array_shape;
         vertex_array_shape.resize(array_size);
-        PODVector<uint8_t> noindex;
+        Vector<uint8_t> noindex;
 
         AABB laabb;
         Error err2 = _surface_set_data(p_blend_shapes[i], format & ~VS::ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
@@ -1232,7 +1232,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
 
                 if (p_format & VS::ARRAY_FLAG_USE_2D_VERTICES) {
 
-                    PODVector<Vector2> arr_2d;
+                    Vector<Vector2> arr_2d;
                     arr_2d.resize(p_vertex_len);
 
                     if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
@@ -1254,7 +1254,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
                     ret.set_positions(eastl::move(arr_2d));
                 } else {
 
-                    PODVector<Vector3> arr_3d;
+                    Vector<Vector3> arr_3d;
                     arr_3d.resize(p_vertex_len);
 
                     if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
@@ -1278,7 +1278,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
 
             } break;
             case VS::ARRAY_NORMAL: {
-                PODVector<Vector3> arr;
+                Vector<Vector3> arr;
                 arr.reserve(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_NORMAL) {
@@ -1303,7 +1303,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             } break;
 
             case VS::ARRAY_TANGENT: {
-                PODVector<float> arr;
+                Vector<float> arr;
                 arr.reserve(p_vertex_len*4);
                 if (p_format & VS::ARRAY_COMPRESS_TANGENT) {
                     for (int j = 0; j < p_vertex_len; j++) {
@@ -1327,7 +1327,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             } break;
             case VS::ARRAY_COLOR: {
 
-                PODVector<Color> arr;
+                Vector<Color> arr;
                 arr.reserve(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_COLOR) {
@@ -1350,7 +1350,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             } break;
             case VS::ARRAY_TEX_UV: {
 
-                PODVector<Vector2> arr;
+                Vector<Vector2> arr;
                 arr.resize(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_TEX_UV) {
@@ -1373,7 +1373,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             } break;
 
             case VS::ARRAY_TEX_UV2: {
-                PODVector<Vector2> arr;
+                Vector<Vector2> arr;
                 arr.resize(p_vertex_len);
 
                 if (p_format & VS::ARRAY_COMPRESS_TEX_UV2) {
@@ -1397,7 +1397,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             } break;
             case VS::ARRAY_WEIGHTS: {
 
-                PODVector<float> arr;
+                Vector<float> arr;
                 arr.resize(p_vertex_len * 4);
                 if (p_format & VS::ARRAY_COMPRESS_WEIGHTS) {
 
@@ -1423,7 +1423,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             } break;
             case VS::ARRAY_BONES: {
 
-                PODVector<int> arr;
+                Vector<int> arr;
                 arr.resize(p_vertex_len * 4);
                 if (p_format & VS::ARRAY_FLAG_USE_16_BIT_BONES) {
 
@@ -1450,7 +1450,7 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
             case VS::ARRAY_INDEX: {
                 /* determine whether using 16 or 32 bits indices */
 
-                PODVector<int> arr;
+                Vector<int> arr;
                 arr.resize(p_index_len);
                 if (p_vertex_len < (1 << 16)) {
 
@@ -1495,7 +1495,7 @@ Array VisualServer::_mesh_surface_get_arrays(RID p_mesh, int p_surface) const {
 }
 void VisualServer::_mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes, uint32_t p_compress_format) {
     ERR_FAIL_COND(p_arrays.size() != VS::ARRAY_MAX);
-    PODVector<SurfaceArrays> blend_shapes;
+    Vector<SurfaceArrays> blend_shapes;
     blend_shapes.reserve(p_blend_shapes.size());
     for(int i=0; i<p_blend_shapes.size(); ++i) {
         blend_shapes.emplace_back(SurfaceArrays::fromArray(p_blend_shapes[i].as<Array>()));
@@ -1504,18 +1504,18 @@ void VisualServer::_mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p
 }
 Array VisualServer::_mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
     Array res;
-    PODVector<SurfaceArrays> from=mesh_surface_get_blend_shape_arrays(p_mesh,p_surface);
+    Vector<SurfaceArrays> from=mesh_surface_get_blend_shape_arrays(p_mesh,p_surface);
     res.resize(from.size());
     int idx=0;
     for(const SurfaceArrays & s : from)
         res[idx++] = (Array)s;
     return res;
 }
-PODVector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
+Vector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const {
 
-    const PODVector<PODVector<uint8_t> > &blend_shape_data(mesh_surface_get_blend_shapes(p_mesh, p_surface));
+    const Vector<Vector<uint8_t> > &blend_shape_data(mesh_surface_get_blend_shapes(p_mesh, p_surface));
     if (blend_shape_data.empty()) {
-        return PODVector<SurfaceArrays>();
+        return Vector<SurfaceArrays>();
     }
 
     int vertex_len = mesh_surface_get_array_len(p_mesh, p_surface);
@@ -1525,7 +1525,7 @@ PODVector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p
 
     uint32_t format = mesh_surface_get_format(p_mesh, p_surface);
 
-    PODVector<SurfaceArrays> blend_shape_array;
+    Vector<SurfaceArrays> blend_shape_array;
     blend_shape_array.reserve(blend_shape_data.size());
     for (int i = 0; i < blend_shape_data.size(); i++) {
         blend_shape_array.emplace_back(eastl::move(_get_array_from_surface(format, blend_shape_data[i], vertex_len, index_data.toSpan(), index_len)));
@@ -1536,7 +1536,7 @@ PODVector<SurfaceArrays> VisualServer::mesh_surface_get_blend_shape_arrays(RID p
 
 Array VisualServer::_mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const {
 
-    const PODVector<AABB> &vec = VisualServer::get_singleton()->mesh_surface_get_skeleton_aabb(p_mesh, p_surface);
+    const Vector<AABB> &vec = VisualServer::get_singleton()->mesh_surface_get_skeleton_aabb(p_mesh, p_surface);
     Array arr;
     for (int i = 0; i < vec.size(); i++) {
         arr[i] = vec[i];
@@ -1881,12 +1881,12 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("canvas_item_add_texture_rect_region", {"item", "rect", "texture", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &VisualServer::canvas_item_add_texture_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(RID()), DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_nine_patch", {"item", "rect", "source", "texture", "topleft", "bottomright", "x_axis_mode", "y_axis_mode", "draw_center", "modulate", "normal_map"}), &VisualServer::canvas_item_add_nine_patch, {DEFVAL(VS::NINE_PATCH_STRETCH), DEFVAL(VS::NINE_PATCH_STRETCH), DEFVAL(true), DEFVAL(Color(1, 1, 1)), DEFVAL(RID())});
     MethodBinder::bind_method(D_METHOD("canvas_item_add_primitive", {"item", "points", "colors", "uvs", "texture", "width", "normal_map"}), &VisualServer::canvas_item_add_primitive, {DEFVAL(1.0), DEFVAL(RID())});
-    MethodBinder::bind_method(D_METHOD("canvas_item_add_polygon", {"item", "points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &VisualServer::canvas_item_add_polygon, {DEFVAL(PODVector<Point2>()), DEFVAL(RID()), DEFVAL(RID()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("canvas_item_add_polygon", {"item", "points", "colors", "uvs", "texture", "normal_map", "antialiased"}), &VisualServer::canvas_item_add_polygon, {DEFVAL(Vector<Point2>()), DEFVAL(RID()), DEFVAL(RID()), DEFVAL(false)});
     MethodBinder::bind_method(
             D_METHOD("canvas_item_add_triangle_array", { "item", "indices", "points", "colors", "uvs", "bones", "weights",
                                                                "texture", "count", "normal_map", "antialiased","antialiasing_use_indices" }),
             &VisualServer::canvas_item_add_triangle_array,
-            { DEFVAL(PODVector<Point2>()), DEFVAL(PODVector<int>()), DEFVAL(PODVector<float>()), DEFVAL(RID()), DEFVAL(-1),
+            { DEFVAL(Vector<Point2>()), DEFVAL(Vector<int>()), DEFVAL(Vector<float>()), DEFVAL(RID()), DEFVAL(-1),
                     DEFVAL(RID()), DEFVAL(false), DEFVAL(false) });
     MethodBinder::bind_method(D_METHOD("canvas_item_add_mesh", {"item", "mesh", "transform", "modulate", "texture", "normal_map"}), &VisualServer::canvas_item_add_mesh, {DEFVAL(Transform2D()), DEFVAL(Color(1, 1, 1)), DEFVAL(RID()), DEFVAL(RID())});
 
@@ -2221,7 +2221,7 @@ void VisualServer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("frame_post_draw"));
 }
 
-void VisualServer::_canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const PODVector<float> &p_margins, const Color &p_modulate) {
+void VisualServer::_canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate) {
 
     ERR_FAIL_COND(p_margins.size() != 4);
     //canvas_item_add_style_box(p_item,p_rect,p_source,p_texture,Vector2(p_margins[0],p_margins[1]),Vector2(p_margins[2],p_margins[3]),true,p_modulate);
@@ -2234,8 +2234,8 @@ void VisualServer::_camera_set_orthogonal(RID p_camera, float p_size, float p_z_
 
 void VisualServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry::MeshData &p_mesh_data) {
 
-    PODVector<Vector3> vertices;
-    PODVector<Vector3> normals;
+    Vector<Vector3> vertices;
+    Vector<Vector3> normals;
     size_t cnt=0;
     for (const Geometry::MeshData::Face &f : p_mesh_data.faces) {
         cnt += f.indices.size()-2;

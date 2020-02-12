@@ -80,8 +80,8 @@ Error DirAccess::make_dir_utf8(se_string_view p_dir)
 
 static Error _erase_recursive(DirAccess *da) {
 
-    PODVector<String> dirs;
-    PODVector<String> files;
+    Vector<String> dirs;
+    Vector<String> files;
 
     da->list_dir_begin();
     String n(da->get_next());
@@ -372,7 +372,7 @@ public:
 };
 
 Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_chmod_flags) {
-    PODVector<se_string_view> dirs;
+    Vector<se_string_view> dirs;
 
     String curdir = get_current_dir();
     list_dir_begin();

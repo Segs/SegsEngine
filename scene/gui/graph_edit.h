@@ -108,13 +108,13 @@ private:
     Point2 box_selecting_from;
     Point2 box_selecting_to;
     Rect2 box_selecting_rect;
-    PODVector<GraphNode *> previus_selected;
+    Vector<GraphNode *> previus_selected;
 
     bool setting_scroll_ofs;
     bool right_disconnects;
     bool updating;
     bool awaiting_scroll_offset_update;
-    List<Connection> connections;
+    ListOld<Connection> connections;
     Control *connections_layer;
     GraphEditFilter *top_layer;
     bool lines_on_bg;
@@ -145,7 +145,7 @@ private:
 
     HBoxContainer *zoom_hb;
 public:
-    void _bake_segment2d(PODVector<Vector2> &points, PODVector<Color> &colors, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_min_depth, int p_max_depth, float p_tol, const Color &p_color, const Color &p_to_color, int &lines) const;
+    void _bake_segment2d(Vector<Vector2> &points, Vector<Color> &colors, float p_begin, float p_end, const Vector2 &p_a, const Vector2 &p_out, const Vector2 &p_b, const Vector2 &p_in, int p_depth, int p_min_depth, int p_max_depth, float p_tol, const Color &p_color, const Color &p_to_color, int &lines) const;
 
     void _draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const Vector2 &p_to, const Color &p_color, const Color &p_to_color);
 
@@ -198,7 +198,7 @@ public:
     float get_zoom() const;
 
     GraphEditFilter *get_top_layer() const { return top_layer; }
-    void get_connection_list(List<Connection> *r_connections) const;
+    void get_connection_list(ListOld<Connection> *r_connections) const;
 
     void set_right_disconnects(bool p_enable);
     bool is_right_disconnects_enabled() const;

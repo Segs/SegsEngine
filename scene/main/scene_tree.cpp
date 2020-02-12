@@ -425,7 +425,7 @@ bool SceneTreeTimer::is_pause_mode_process() {
 
 void SceneTreeTimer::release_connections() {
 
-    ListPOD<Connection> connections;
+    List<Connection> connections;
     get_all_signal_connections(&connections);
 
     for (Connection const &connection : connections) {
@@ -577,7 +577,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
         VARIANT_ARGPTRS
 
-        PODVector<Variant> args;
+        Vector<Variant> args;
         for (int i = 0; i < VARIANT_ARG_MAX; i++) {
             if (argptr[i]->get_type() == VariantType::NIL)
                 break;
@@ -590,7 +590,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
     _update_group_order(g);
 
-    PODVector<Node *> nodes_copy = g.nodes;
+    Vector<Node *> nodes_copy = g.nodes;
     Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
@@ -645,7 +645,7 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
 
     _update_group_order(g);
 
-    PODVector<Node *> nodes_copy = g.nodes;
+    Vector<Node *> nodes_copy = g.nodes;
     Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
@@ -694,7 +694,7 @@ void SceneTree::set_group_flags(uint32_t p_call_flags, const StringName &p_group
 
     _update_group_order(g);
 
-    PODVector<Node *> nodes_copy = g.nodes;
+    Vector<Node *> nodes_copy = g.nodes;
     Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
@@ -1213,11 +1213,11 @@ Ref<ArrayMesh> SceneTree::get_debug_contact_mesh() {
     };
     /* clang-format on */
 
-    PODVector<int> indices;
+    Vector<int> indices;
     for (int i = 0; i < 8 * 3; i++)
         indices.push_back(diamond_faces[i]);
 
-    PODVector<Vector3> vertices;
+    Vector<Vector3> vertices;
     for (int i = 0; i < 6; i++)
         vertices.push_back(diamond[i] * 0.1f);
 
@@ -1259,7 +1259,7 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
 
     //copy, so copy on write happens in case something is removed from process while being called
     //performance is not lost because only if something is added/removed the vector is copied.
-    PODVector<Node *> nodes_copy = g.nodes;
+    Vector<Node *> nodes_copy = g.nodes;
 
     int node_count = nodes_copy.size();
     Node **nodes = nodes_copy.data();
@@ -1303,7 +1303,7 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
 
     //copy, so copy on write happens in case something is removed from process while being called
     //performance is not lost because only if something is added/removed the vector is copied.
-    PODVector<Node *> nodes_copy = g.nodes;
+    Vector<Node *> nodes_copy = g.nodes;
 
     int node_count = nodes_copy.size();
     Node **nodes = nodes_copy.data();
@@ -1665,7 +1665,7 @@ void SceneTree::add_current_scene(Node *p_current) {
     root->add_child(p_current);
 }
 
-void SceneTree::drop_files(const PODVector<String> &p_files, int p_from_screen) {
+void SceneTree::drop_files(const Vector<String> &p_files, int p_from_screen) {
 
     emit_signal("files_dropped", Variant::from(p_files), p_from_screen);
     MainLoop::drop_files(p_files, p_from_screen);
@@ -1768,7 +1768,7 @@ int SceneTree::get_network_unique_id() const {
     return multiplayer->get_network_unique_id();
 }
 
-PODVector<int> SceneTree::get_network_connected_peers() const {
+Vector<int> SceneTree::get_network_connected_peers() const {
 
     return multiplayer->get_network_connected_peers();
 }
@@ -1946,12 +1946,12 @@ bool SceneTree::is_using_font_oversampling() const {
     return use_font_oversampling;
 }
 
-void SceneTree::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void SceneTree::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
     using namespace PathUtils;
 
     if (p_function == "change_scene") {
         DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-        List<String> directories;
+        ListOld<String> directories;
         directories.push_back(dir_access->get_current_dir());
 
         while (!directories.empty()) {
@@ -2053,7 +2053,7 @@ SceneTree::SceneTree() {
 
     { //load default fallback environment
         //get possible extensions
-        PODVector<String> exts;
+        Vector<String> exts;
         ResourceLoader::get_recognized_extensions_for_type("Environment", exts);
         String ext_hint;
         for (const String &E : exts) {

@@ -63,7 +63,7 @@ private:
     bool use_hidden_tabs_for_min_size;
     int tabs_rearrange_group;
 
-    PODVector<Control *> _get_tabs() const;
+    Vector<Control *> _get_tabs() const;
     int _get_tab_width(int p_index) const;
     void _on_theme_changed();
     void _on_mouse_exited();
@@ -112,7 +112,7 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void get_translatable_strings(ListPOD<StringName> *p_strings) const override;
+    void get_translatable_strings(List<StringName> *p_strings) const override;
 
     void set_popup(Node *p_popup);
     Popup *get_popup() const;

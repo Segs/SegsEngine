@@ -71,7 +71,7 @@ bool FabrikInverseKinematic::build_chain(Task *p_task, bool p_force_simple_chain
     chain.middle_chain_item = nullptr;
 
     // Holds all IDs that are composing a single chain in reverse order
-    PODVector<BoneId> chain_ids;
+    Vector<BoneId> chain_ids;
     // This is used to know the chain size
     int sub_chain_size;
     // Resize only one time in order to fit all joints for performance reason

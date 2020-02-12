@@ -82,7 +82,7 @@ struct Node::PrivData {
 
     Node *parent;
     Node *owner;
-    PODVector<Node *> children; // list of children
+    Vector<Node *> children; // list of children
     int pos;
     int depth;
     StringName name;
@@ -92,8 +92,8 @@ struct Node::PrivData {
 
 
     Map<StringName, GroupData> grouped;
-    ListPOD<Node *>::iterator OW; // owned element
-    ListPOD<Node *> owned;
+    List<Node *>::iterator OW; // owned element
+    List<Node *> owned;
 
     PauseMode pause_mode;
     Node *pause_owner;
@@ -1017,7 +1017,7 @@ const char *Node::invalid_character(". : @ / \"");
 //TODO: SEGS: validate_node_name should do what it's named after, not modify the passed name
 bool Node::_validate_node_name(String &p_name) {
     String name = p_name;
-    PODVector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
+    Vector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
     for (size_t i = 0; i < chars.size(); i++) {
         name = StringUtils::replace(name,chars[i], String());
     }
@@ -1593,7 +1593,7 @@ bool Node::is_greater_than(const Node *p_node) const {
     return res;
 }
 
-void Node::get_owned_by(Node *p_by, PODVector<Node *> *p_owned) {
+void Node::get_owned_by(Node *p_by, Vector<Node *> *p_owned) {
 
     if (data->owner == p_by)
         p_owned->push_back(this);
@@ -1711,7 +1711,7 @@ NodePath Node::get_path_to(const Node *p_node) const {
 
     visited.clear();
 
-    PODVector<StringName> path;
+    Vector<StringName> path;
 
     n = p_node;
 
@@ -1744,7 +1744,7 @@ NodePath Node::get_path() const {
 
     const Node *n = this;
 
-    PODVector<StringName> path;
+    Vector<StringName> path;
 
     while (n) {
         path.push_back(n->get_name());
@@ -1800,7 +1800,7 @@ void Node::remove_from_group(const StringName &p_identifier) {
 Array Node::_get_groups() const {
 
     Array groups;
-    PODVector<GroupInfo> gi;
+    Vector<GroupInfo> gi;
     get_groups(&gi);
     for (const GroupInfo &E : gi) {
         groups.push_back(E.name);
@@ -1809,7 +1809,7 @@ Array Node::_get_groups() const {
     return groups;
 }
 
-void Node::get_groups(PODVector<GroupInfo> *p_groups) const {
+void Node::get_groups(Vector<GroupInfo> *p_groups) const {
     p_groups->reserve(p_groups->size()+data->grouped.size());
     for (const eastl::pair<const StringName, GroupData> &E : data->grouped) {
         GroupInfo gi;
@@ -1924,7 +1924,7 @@ void Node::remove_and_skip() {
 
     Node *new_owner = get_owner();
 
-    List<Node *> children;
+    ListOld<Node *> children;
 
     while (true) {
 
@@ -2094,7 +2094,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 
     StringName script_property_name = CoreStringNames::get_singleton()->_script;
 
-    List<const Node *> hidden_roots;
+    ListOld<const Node *> hidden_roots;
     Dequeue<const Node *> node_tree;
     node_tree.push_front(this);
 
@@ -2132,7 +2132,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
             }
         }
 
-        PODVector<PropertyInfo> plist;
+        Vector<PropertyInfo> plist;
         N->get_property_list(&plist);
 
         for (const PropertyInfo & E : plist) {
@@ -2169,7 +2169,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
 #endif
 
     if (p_flags & DUPLICATE_GROUPS) {
-        PODVector<GroupInfo> gi;
+        Vector<GroupInfo> gi;
         get_groups(&gi);
         for (const GroupInfo &E : gi) {
 
@@ -2202,7 +2202,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         }
     }
 
-    for (List<const Node *>::Element *E = hidden_roots.front(); E; E = E->next()) {
+    for (ListOld<const Node *>::Element *E = hidden_roots.front(); E; E = E->next()) {
 
         Node *parent = node->get_node(get_path_to(E->deref()->data->parent));
         if (!parent) {
@@ -2279,7 +2279,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
         }
     }
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
 
     get_property_list(&plist);
 
@@ -2294,7 +2294,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p
         node->set(name, value);
     }
 
-    PODVector<GroupInfo> groups;
+    Vector<GroupInfo> groups;
     get_groups(&groups);
 
     for (const GroupInfo &E : groups)
@@ -2332,7 +2332,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
     if (this != p_original && (get_owner() != p_original && get_owner() != p_original->get_owner()))
         return;
 
-    ListPOD<Connection> conns;
+    List<Connection> conns;
     get_all_signal_connections(&conns);
 
     for (const Connection &E : conns) {
@@ -2382,7 +2382,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     }
     node->set_name(get_name());
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
 
     get_property_list(&plist);
 
@@ -2394,7 +2394,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
         node->set(name, get(name));
     }
 
-    PODVector<GroupInfo> groups;
+    Vector<GroupInfo> groups;
     get_groups(&groups);
 
     for (const GroupInfo &E : groups)
@@ -2412,7 +2412,7 @@ Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
     return node;
 }
 
-static void find_owned_by(Node *p_by, Node *p_node, ListPOD<Node *> *p_owned) {
+static void find_owned_by(Node *p_by, Node *p_node, List<Node *> *p_owned) {
 
     if (p_node->get_owner() == p_by)
         p_owned->push_back(p_node);
@@ -2434,15 +2434,15 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_COND(p_node->data->parent);
 
-    ListPOD<Node *> owned = data->owned;
-    ListPOD<Node *> owned_by_owner;
+    List<Node *> owned = data->owned;
+    List<Node *> owned_by_owner;
     Node *owner = (data->owner == this) ? p_node : data->owner;
 
-    PODVector<_NodeReplaceByPair> replace_data;
+    Vector<_NodeReplaceByPair> replace_data;
 
     if (p_keep_data) {
 
-        PODVector<PropertyInfo> plist;
+        Vector<PropertyInfo> plist;
         get_property_list(&plist);
 
         for (const PropertyInfo &E : plist) {
@@ -2454,7 +2454,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
             rd.value = get(rd.name);
         }
 
-        PODVector<GroupInfo> groups;
+        Vector<GroupInfo> groups;
         get_groups(&groups);
 
         for (const GroupInfo &E : groups)
@@ -2505,7 +2505,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
 void Node::_replace_connections_target(Node *p_new_target) {
 
-    ListPOD<Connection> cl;
+    List<Connection> cl;
     get_signals_connected_to_this(&cl);
 
     for (Connection &c : cl) {
@@ -2521,9 +2521,9 @@ void Node::_replace_connections_target(Node *p_new_target) {
     }
 }
 
-PODVector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
+Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
 
-    PODVector<Variant> ret;
+    Vector<Variant> ret;
 
     if (p_arg1.get_type() == VariantType::NIL)
         return ret;
@@ -2558,7 +2558,7 @@ bool Node::has_node_and_resource(const NodePath &p_path) const {
     if (!has_node(p_path))
         return false;
     RES res;
-    PODVector<StringName> leftover_path;
+    Vector<StringName> leftover_path;
     Node *node = get_node_and_resource(p_path, res, leftover_path, false);
 
     return node;
@@ -2567,7 +2567,7 @@ bool Node::has_node_and_resource(const NodePath &p_path) const {
 Array Node::_get_node_and_resource(const NodePath &p_path) {
 
     RES res;
-    PODVector<StringName> leftover_path;
+    Vector<StringName> leftover_path;
     Node *node = get_node_and_resource(p_path, res, leftover_path, false);
     Array result;
 
@@ -2581,16 +2581,16 @@ Array Node::_get_node_and_resource(const NodePath &p_path) {
     else
         result.push_back(Variant());
 
-    result.push_back(NodePath(eastl::move(PODVector<StringName>()), eastl::move(leftover_path), false));
+    result.push_back(NodePath(eastl::move(Vector<StringName>()), eastl::move(leftover_path), false));
 
     return result;
 }
 
-Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, PODVector<StringName> &r_leftover_subpath, bool p_last_is_property) const {
+Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property) const {
 
     Node *node = get_node(p_path);
     r_res = RES();
-    r_leftover_subpath = PODVector<StringName>();
+    r_leftover_subpath = Vector<StringName>();
     if (!node)
         return nullptr;
 
@@ -2725,7 +2725,7 @@ NodePath Node::get_import_path() const {
 #endif
 }
 
-static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPOD<String> *r_options) {
+static void _add_nodes_to_options(const Node *p_base, const Node *p_node, List<String> *r_options) {
 
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -2742,7 +2742,7 @@ static void _add_nodes_to_options(const Node *p_base, const Node *p_node, ListPO
     }
 }
 
-void Node::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void Node::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 
     StringName pf = p_function;
     if ((pf == "has_node" || pf == "get_node") && p_idx == 0) {

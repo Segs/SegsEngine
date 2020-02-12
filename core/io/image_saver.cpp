@@ -41,7 +41,7 @@
 #include <QObject>
 
 namespace {
-    PODVector<ImageFormatSaver *> g_savers;
+    Vector<ImageFormatSaver *> g_savers;
 
 struct ImagePluginResolver : public ResolverInterface
 {
@@ -115,7 +115,7 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
     return ERR_FILE_UNRECOGNIZED;
 }
 
-Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, PODVector<uint8_t> &tgt, float p_quality)
+Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, Vector<uint8_t> &tgt, float p_quality)
 {
     register_plugin_resolver();
     ImageData result_data;
@@ -137,7 +137,7 @@ Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, POD
     return ERR_FILE_UNRECOGNIZED;
 }
 
-void ImageSaver::get_recognized_extensions(PODVector<String> &p_extensions) {
+void ImageSaver::get_recognized_extensions(Vector<String> &p_extensions) {
     register_plugin_resolver();
 
     for (ImageFormatSaver *g_saver : g_savers) {
@@ -168,7 +168,7 @@ void ImageSaver::remove_image_format_saver(ImageFormatSaver *p_loader) {
     g_savers.erase_first_unsorted(p_loader);
 }
 
-const PODVector<ImageFormatSaver *> &ImageSaver::get_image_format_savers() {
+const Vector<ImageFormatSaver *> &ImageSaver::get_image_format_savers() {
 
     return g_savers;
 }

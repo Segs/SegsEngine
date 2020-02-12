@@ -803,7 +803,7 @@ void CodeTextEditor::_code_complete_timer_timeout() {
 
 void CodeTextEditor::_complete_request() {
 
-    PODVector<ScriptCodeCompletionOption> entries;
+    Vector<ScriptCodeCompletionOption> entries;
     String ctext = text_editor->get_text_for_completion_utf8();
     _code_complete_script(ctext, &entries);
     bool forced = false;
@@ -1562,7 +1562,7 @@ void CodeTextEditor::toggle_bookmark() {
 
 void CodeTextEditor::goto_next_bookmark() {
 
-    PODVector<int> bmarks;
+    Vector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
     if (bmarks.empty()) {
         return;
@@ -1587,7 +1587,7 @@ void CodeTextEditor::goto_next_bookmark() {
 
 void CodeTextEditor::goto_prev_bookmark() {
 
-    PODVector<int> bmarks;
+    Vector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
     if (bmarks.empty()) {
         return;
@@ -1612,7 +1612,7 @@ void CodeTextEditor::goto_prev_bookmark() {
 
 void CodeTextEditor::remove_all_bookmarks() {
 
-    PODVector<int> bmarks;
+    Vector<int> bmarks;
     text_editor->get_bookmarks(&bmarks);
 
     for (int E : bmarks) {
@@ -1749,7 +1749,7 @@ CodeTextEditor::CodeTextEditor() {
     text_editor->connect("cursor_changed", this, "_line_col_changed");
     text_editor->connect("text_changed", this, "_text_changed");
     text_editor->connect("request_completion", this, "_complete_request");
-    const PODVector<UIString> cs = {
+    const Vector<UIString> cs = {
         UIString("."),
         UIString(","),
         UIString("("),

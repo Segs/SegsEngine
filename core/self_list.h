@@ -118,16 +118,16 @@ public:
 private:
     List *_root;
     T *_self;
-    SelfList<T> *_next;
-    SelfList<T> *_prev;
+    SelfList *_next;
+    SelfList *_prev;
 
 public:
     _FORCE_INLINE_ bool in_list() const { return _root; }
     _FORCE_INLINE_ SelfList<T> *next() { return _next; }
     _FORCE_INLINE_ SelfList<T> *prev() { return _prev; }
-    _FORCE_INLINE_ const SelfList<T> *next() const { return _next; }
-    _FORCE_INLINE_ const SelfList<T> *prev() const { return _prev; }
-    _FORCE_INLINE_ T *self() const { return _self; }
+    _FORCE_INLINE_ const SelfList *next() const { return _next; }
+    _FORCE_INLINE_ const SelfList *prev() const { return _prev; }
+    T *self() const { return _self; }
 
     _FORCE_INLINE_ SelfList(T *p_self) {
 

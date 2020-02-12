@@ -77,7 +77,7 @@ void ResourceImporterTexture::_texture_reimport_normal(StringName p_tex_path) {
     singleton->mutex->unlock();
 }
 
-void ResourceImporterTexture::build_reconfigured_list(PODVector<String> &to_reimport) {
+void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimport) {
 
     mutex->lock();
 
@@ -136,7 +136,7 @@ StringName ResourceImporterTexture::get_visible_name() const {
 
     return "Texture";
 }
-void ResourceImporterTexture::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceImporterTexture::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -189,7 +189,7 @@ StringName ResourceImporterTexture::get_preset_name(int p_idx) const {
     return StaticCString(preset_names[p_idx],true);
 }
 
-void ResourceImporterTexture::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterTexture::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "compress/lossy_quality", PropertyHint::Range, "0,1,0.01"), 0.7));
@@ -277,7 +277,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_vi
                     image->shrink_x2();
                 }
 
-                PODVector<uint8_t> data = Image::lossless_packer(image);
+                Vector<uint8_t> data = Image::lossless_packer(image);
                 int data_len = data.size();
                 f->store_32(data_len);
 
@@ -305,7 +305,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_vi
                     image->shrink_x2();
                 }
 
-                PODVector<uint8_t> data = Image::lossy_packer(image, p_lossy_quality);
+                Vector<uint8_t> data = Image::lossy_packer(image, p_lossy_quality);
                 int data_len = data.size();
                 f->store_32(data_len);
 
@@ -368,8 +368,8 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_vi
     memdelete(f);
 }
 
-Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
-        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     int compress_mode = p_options.at("compress/mode");
     float lossy = p_options.at("compress/lossy_quality");
@@ -576,9 +576,9 @@ bool ResourceImporterTexture::are_import_settings_valid(se_string_view p_path) c
         return true; //do not care about non vram
     }
 
-    PODVector<String> formats_imported;
+    Vector<String> formats_imported;
     if (metadata.has("imported_formats")) {
-        formats_imported = metadata["imported_formats"].as<PODVector<String>>();
+        formats_imported = metadata["imported_formats"].as<Vector<String>>();
     }
 
     int index = 0;

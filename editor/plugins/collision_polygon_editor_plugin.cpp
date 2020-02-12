@@ -147,7 +147,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
         //Let the snap happen when the point is being moved, instead.
         //cpoint = CanvasItemEditor::get_singleton()->snap_point(cpoint);
 
-        PODVector<Vector2> poly = node->call("get_polygon").as<PODVector<Vector2>>();
+        Vector<Vector2> poly = node->call("get_polygon").as<Vector<Vector2>>();
 
         //first check if a point is to be added (segment split)
         real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
@@ -379,12 +379,12 @@ void Polygon3DEditor::_polygon_draw() {
     if (!node)
         return;
 
-    PODVector<Vector2> poly;
+    Vector<Vector2> poly;
 
     if (wip_active)
         poly = wip;
     else
-        poly = node->call("get_polygon").as<PODVector<Vector2>>();
+        poly = node->call("get_polygon").as<Vector<Vector2>>();
 
     float depth = _get_depth() * 0.5f;
 
@@ -476,7 +476,7 @@ void Polygon3DEditor::_polygon_draw() {
     if (poly.empty())
         return;
 
-    PODVector<Vector3> va;
+    Vector<Vector3> va;
     {
 
         va.resize(poly.size());

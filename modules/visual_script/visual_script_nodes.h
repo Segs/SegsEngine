@@ -45,7 +45,7 @@ class VisualScriptFunction : public VisualScriptNode {
         String hint_string;
     };
 
-    PODVector<Argument> arguments;
+    Vector<Argument> arguments;
 
     bool stack_less;
     int stack_size;
@@ -55,7 +55,7 @@ class VisualScriptFunction : public VisualScriptNode {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     int get_output_sequence_port_count() const override;
@@ -114,8 +114,8 @@ class VisualScriptLists : public VisualScriptNode {
     };
 
 protected:
-    PODVector<Port> inputports;
-    PODVector<Port> outputports;
+    Vector<Port> inputports;
+    Vector<Port> outputports;
 
     enum {
         OUTPUT_EDITABLE = 0x0001,
@@ -132,7 +132,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 
@@ -1072,7 +1072,7 @@ class VisualScriptDeconstruct : public VisualScriptNode {
         VariantType type;
     };
 
-    PODVector<Element> elements;
+    Vector<Element> elements;
 
     void _update_elements();
     VariantType type;

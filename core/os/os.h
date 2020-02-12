@@ -56,7 +56,7 @@ class GODOT_EXPORT OS {
 
     static OS *singleton;
     String _execpath;
-    ListPOD<String> _cmdline;
+    List<String> _cmdline;
     bool _keep_screen_on;
     bool low_processor_usage_mode;
     int low_processor_usage_mode_sleep_usec;
@@ -77,7 +77,7 @@ class GODOT_EXPORT OS {
     CompositeLogger *_logger;
 
     bool restart_on_exit;
-    ListPOD<String> restart_commandline;
+    List<String> restart_commandline;
 
 protected:
     void _set_logger(CompositeLogger *p_logger);
@@ -144,7 +144,7 @@ protected:
     virtual void finalize() = 0;
     virtual void finalize_core() = 0;
 
-    virtual void set_cmdline(se_string_view p_execpath, const ListPOD<String> &p_args);
+    virtual void set_cmdline(se_string_view p_execpath, const List<String> &p_args);
 
     void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(se_string_view p_feature) = 0;
@@ -188,7 +188,7 @@ public:
 
     virtual void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) = 0;
     virtual VideoMode get_video_mode(int p_screen = 0) const = 0;
-    virtual void get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen = 0) const = 0;
+    virtual void get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen = 0) const = 0;
 
     enum VideoDriver {
         VIDEO_DRIVER_GLES3,
@@ -277,8 +277,8 @@ public:
     virtual int get_low_processor_usage_mode_sleep_usec() const;
 
     virtual String get_executable_path() const;
-    virtual Error execute(se_string_view p_path, const ListPOD<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
-    Error execute_utf8(se_string_view p_path, const PODVector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
+    virtual Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
+    Error execute_utf8(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
     virtual Error kill(const ProcessID &p_pid) = 0;
     virtual int get_process_id() const;
     virtual void vibrate_handheld(int p_duration_ms = 500);
@@ -291,7 +291,7 @@ public:
     virtual bool set_environment(se_string_view p_var, se_string_view p_value) const = 0;
 
     virtual String get_name() const = 0;
-    virtual const ListPOD<String> &get_cmdline_args() const { return _cmdline; }
+    virtual const List<String> &get_cmdline_args() const { return _cmdline; }
     virtual String get_model_name() const;
 
     virtual MainLoop *get_main_loop() const = 0;
@@ -486,7 +486,7 @@ public:
 
     virtual bool can_use_threads() const;
 
-    virtual Error dialog_show(UIString p_title, UIString p_description, const PODVector<UIString> p_buttons, Object *p_obj, const StringName &p_callback);
+    virtual Error dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName &p_callback);
     virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
 
     enum LatinKeyboardVariant {
@@ -540,9 +540,9 @@ public:
     bool is_layered_allowed() const { return _allow_layered; }
     bool is_hidpi_allowed() const { return _allow_hidpi; }
 
-    void set_restart_on_exit(bool p_restart, const ListPOD<String> &p_restart_arguments);
+    void set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments);
     bool is_restart_on_exit_set() const;
-    ListPOD<String> get_restart_on_exit_arguments() const;
+    List<String> get_restart_on_exit_arguments() const;
 
     virtual bool request_permission(se_string_view /*p_name*/) { return true; }
     virtual bool request_permissions() { return true; }

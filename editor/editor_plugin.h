@@ -97,7 +97,7 @@ public:
     Error save_scene();
     void save_scene_as(se_string_view p_scene, bool p_with_preview = true);
 
-    PODVector<Ref<Texture>> make_mesh_previews(const PODVector<Ref<Mesh>> &p_meshes, PODVector<Transform> *p_transforms,
+    Vector<Ref<Texture>> make_mesh_previews(const Vector<Ref<Mesh>> &p_meshes, Vector<Transform> *p_transforms,
             int p_preview_size);
 
     void set_main_screen_editor(const StringName &p_name);
@@ -199,8 +199,8 @@ public:
     virtual void clear(); // clear any temporary data in the editor, reset it (likely new scene or load another scene)
     virtual void save_external_data(); // if editor references external resources/scenes, save them
     virtual void apply_changes(); // if changes are pending in editor, apply them
-    virtual void get_breakpoints(PODVector<String> *p_breakpoints);
-    virtual bool get_remove_list(PODVector<Node *> *p_list);
+    virtual void get_breakpoints(Vector<String> *p_breakpoints);
+    virtual bool get_remove_list(Vector<Node *> *p_list);
     virtual void set_window_layout(Ref<ConfigFile> p_layout);
     virtual void get_window_layout(Ref<ConfigFile> p_layout);
     virtual void edited_scene_changed() {} // if changes are pending in editor, apply them

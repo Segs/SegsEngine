@@ -92,7 +92,7 @@ public:
     void set_dst_node(Node *p_node);
     StringName get_dst_method_name() const;
     void set_dst_method(const StringName &p_method);
-    const PODVector<Variant> &get_binds() const;
+    const Vector<Variant> &get_binds() const;
 
     bool get_deferred() const;
     bool get_oneshot() const;

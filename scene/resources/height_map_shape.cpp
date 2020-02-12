@@ -36,8 +36,8 @@
 
 IMPL_GDCLASS(HeightMapShape)
 
-PODVector<Vector3> HeightMapShape::get_debug_mesh_lines() {
-    PODVector<Vector3> points;
+Vector<Vector3> HeightMapShape::get_debug_mesh_lines() {
+    Vector<Vector3> points;
 
     if ((map_width != 0) && (map_depth != 0)) {
 

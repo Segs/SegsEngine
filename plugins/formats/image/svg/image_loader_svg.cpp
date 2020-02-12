@@ -83,7 +83,7 @@ void ImageLoaderSVG::_convert_colors(NSVGimage *p_svg_image) {
     }
 }
 
-void ImageLoaderSVG::set_convert_colors(PODVector<eastl::pair<Color,Color>> *p_replace_color) {
+void ImageLoaderSVG::set_convert_colors(Vector<eastl::pair<Color,Color>> *p_replace_color) {
 
     if (p_replace_color) {
         for (const eastl::pair<Color,Color> &entry : *p_replace_color) {
@@ -149,7 +149,7 @@ Error ImageLoaderSVG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
     return _create_image(p_image, &src_image, params);
 }
 
-void ImageLoaderSVG::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ImageLoaderSVG::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("svg"));
     p_extensions.push_back(("svgz"));

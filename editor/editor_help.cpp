@@ -605,7 +605,7 @@ void EditorHelp::_update_doc() {
     bool method_descr = false;
     bool sort_methods = EditorSettings::get_singleton()->get("text_editor/help/sort_functions_alphabetically");
 
-    PODVector<DocData::MethodDoc> methods;
+    Vector<DocData::MethodDoc> methods;
 
     for (int i = 0; i < cd.methods.size(); i++) {
         if (skip_methods.contains_as(cd.methods[i].name)) {
@@ -636,7 +636,7 @@ void EditorHelp::_update_doc() {
 
         bool any_previous = false;
         for (int pass = 0; pass < 2; pass++) {
-            PODVector<DocData::MethodDoc> m;
+            Vector<DocData::MethodDoc> m;
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
@@ -824,8 +824,8 @@ void EditorHelp::_update_doc() {
     // Constants and enums
     if (!cd.constants.empty()) {
 
-        Map<String, PODVector<DocData::ConstantDoc> > enums;
-        PODVector<DocData::ConstantDoc> constants;
+        Map<String, Vector<DocData::ConstantDoc> > enums;
+        Vector<DocData::ConstantDoc> constants;
 
         for (int i = 0; i < cd.constants.size(); i++) {
 
@@ -850,7 +850,7 @@ void EditorHelp::_update_doc() {
 
             class_desc->add_newline();
 
-            for (eastl::pair<const String, PODVector<DocData::ConstantDoc> > &E : enums) {
+            for (eastl::pair<const String, Vector<DocData::ConstantDoc> > &E : enums) {
 
                 enum_line[E.first] = class_desc->get_line_count() - 2;
 
@@ -873,7 +873,7 @@ void EditorHelp::_update_doc() {
                 class_desc->add_newline();
 
                 class_desc->push_indent(1);
-                PODVector<DocData::ConstantDoc> enum_list = E.second;
+                Vector<DocData::ConstantDoc> enum_list = E.second;
 
                 Map<String, int> enumValuesContainer;
                 int enumStartingLine = enum_line[E.first];
@@ -943,7 +943,7 @@ void EditorHelp::_update_doc() {
                 se_string_view cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
                     String stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
-                    PODVector<float> color = StringUtils::split_floats(stripped,",");
+                    Vector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
                         static const CharType prefix[3] = { 0x25CF /* filled circle */, ' ', 0 };
@@ -1111,7 +1111,7 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
 
         for (int pass = 0; pass < 2; pass++) {
-            PODVector<DocData::MethodDoc> methods_filtered;
+            Vector<DocData::MethodDoc> methods_filtered;
 
             for (int i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
@@ -1496,8 +1496,8 @@ void EditorHelp::go_to_class(se_string_view p_class, int p_scroll) {
     _goto_desc(p_class, p_scroll);
 }
 
-PODVector<Pair<String, int> > EditorHelp::get_sections() {
-    PODVector<Pair<String, int> > sections;
+Vector<Pair<String, int> > EditorHelp::get_sections() {
+    Vector<Pair<String, int> > sections;
 
     for (int i = 0; i < section_line.size(); i++) {
         sections.emplace_back(section_line[i].first, i);

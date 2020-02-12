@@ -48,7 +48,7 @@ IMPL_GDCLASS(AnimationTree)
 VARIANT_ENUM_CAST(AnimationNode::FilterAction)
 VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
 
-void AnimationNode::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNode::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
         Array parameters = get_script_instance()->call("get_parameter_list");
         for (int i = 0; i < parameters.size(); i++) {
@@ -84,11 +84,11 @@ Variant AnimationNode::get_parameter(const StringName &p_name) const {
     return state->tree->property_map[path];
 }
 
-void AnimationNode::get_child_nodes(List<ChildNode> *r_child_nodes) {
+void AnimationNode::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
 
     if (get_script_instance()) {
         Dictionary cn = get_script_instance()->call("get_child_nodes");
-        PODVector<Variant> keys(cn.get_key_list());
+        Vector<Variant> keys(cn.get_key_list());
         for (const Variant &E :keys) {
             ChildNode child;
             child.name = E;
@@ -130,7 +130,7 @@ void AnimationNode::blend_animation(const StringName &p_animation, float p_time,
     state->animation_states.push_back(anim_state);
 }
 
-float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const PODVector<
+float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<
         StringName> &p_connections) {
 
     base_path = p_base_path;
@@ -182,7 +182,7 @@ float AnimationNode::blend_input(int p_input, float p_time, bool p_seek, float p
     if(state->tree->input_activity_map.end()==ac_iter)
         return ret;
 
-    PODVector<AnimationTree::Activity> &activity_ptr = ac_iter->second;
+    Vector<AnimationTree::Activity> &activity_ptr = ac_iter->second;
 
     if (p_input < activity_ptr.size()) {
         activity_ptr[p_input].last_pass = state->last_pass;
@@ -196,7 +196,7 @@ float AnimationNode::blend_node(const StringName &p_sub_path, const Ref<Animatio
     return _blend_node(p_sub_path, {}, this, p_node, p_time, p_seek, p_blend, p_filter, p_optimize);
 }
 
-float AnimationNode::_blend_node(const StringName &p_subpath, const PODVector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize, float *r_max) {
+float AnimationNode::_blend_node(const StringName &p_subpath, const Vector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter, bool p_optimize, float *r_max) {
 
     ERR_FAIL_COND_V(not p_node, 0);
     ERR_FAIL_COND_V(!state, 0);
@@ -567,7 +567,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
     }
     Node *parent = player->get_node(player->get_root());
 
-    PODVector<StringName> sname(player->get_animation_list());
+    Vector<StringName> sname(player->get_animation_list());
 
     for (const StringName &E : sname) {
         Ref<Animation> anim = player->get_animation(E);
@@ -591,7 +591,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
             if (!track) {
 
                 RES resource;
-                PODVector<StringName> leftover_path;
+                Vector<StringName> leftover_path;
                 Node *child = parent->get_node_and_resource(path, resource, leftover_path);
 
                 if (!child) {
@@ -715,7 +715,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
         }
     }
 
-    List<NodePath> to_delete;
+    ListOld<NodePath> to_delete;
 
     const NodePath *K = nullptr;
     while ((K = track_cache.next(K))) {
@@ -862,7 +862,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
         bool can_call = is_inside_tree() && !Engine::get_singleton()->is_editor_hint();
 
-        for (List<AnimationNode::AnimationState>::Element *E = state.animation_states.front(); E; E = E->next()) {
+        for (ListOld<AnimationNode::AnimationState>::Element *E = state.animation_states.front(); E; E = E->next()) {
 
             const AnimationNode::AnimationState &as = E->deref();
 
@@ -1010,10 +1010,10 @@ void AnimationTree::_process_graph(float p_delta) {
 
                         } else if (delta != 0) {
 
-                            List<int> indices;
+                            ListOld<int> indices;
                             a->value_track_get_key_indices(i, time, delta, &indices);
 
-                            for (List<int>::Element *F = indices.front(); F; F = F->next()) {
+                            for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
 
                                 Variant value = a->track_get_key_value(i, F->deref());
                                 t->object->set_indexed(t->subpath, value);
@@ -1028,14 +1028,14 @@ void AnimationTree::_process_graph(float p_delta) {
                         }
                         TrackCacheMethod *t = static_cast<TrackCacheMethod *>(track);
 
-                        List<int> indices;
+                        ListOld<int> indices;
 
                         a->method_track_get_key_indices(i, time, delta, &indices);
 
-                        for (List<int>::Element *F = indices.front(); F; F = F->next()) {
+                        for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
 
                             StringName method = a->method_track_get_name(i, F->deref());
-                            const PODVector<Variant> &params = a->method_track_get_params(i, F->deref());
+                            const Vector<Variant> &params = a->method_track_get_params(i, F->deref());
 
                             int s = params.size();
 
@@ -1110,7 +1110,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
                         } else {
                             //find stuff to play
-                            List<int> to_play;
+                            ListOld<int> to_play;
                             a->track_get_key_indices_in_range(i, time, delta, &to_play);
                             if (!to_play.empty()) {
                                 int idx = to_play.back()->deref();
@@ -1212,7 +1212,7 @@ void AnimationTree::_process_graph(float p_delta) {
                             }
                         } else {
                             //find stuff to play
-                            List<int> to_play;
+                            ListOld<int> to_play;
                             a->track_get_key_indices_in_range(i, time, delta, &to_play);
                             if (!to_play.empty()) {
                                 int idx = to_play.back()->deref();
@@ -1422,7 +1422,7 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
 
     if (node->get_input_count() && !input_activity_map.contains(p_base_path)) {
 
-        PODVector<Activity> activity;
+        Vector<Activity> activity;
         activity.reserve(node->get_input_count());
         for (int i = 0; i < node->get_input_count(); i++) {
             Activity a;
@@ -1436,7 +1436,7 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
                 &input_activity_map[p_base_path];
     }
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     node->get_parameter_list(&plist);
     for (PropertyInfo pinfo : plist) {
 
@@ -1452,10 +1452,10 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
         properties.emplace_back(eastl::move(pinfo));
     }
 
-    List<AnimationNode::ChildNode> children;
+    ListOld<AnimationNode::ChildNode> children;
     node->get_child_nodes(&children);
 
-    for (List<AnimationNode::ChildNode>::Element *E = children.front(); E; E = E->next()) {
+    for (ListOld<AnimationNode::ChildNode>::Element *E = children.front(); E; E = E->next()) {
         _update_properties_for_node(StringName(String(p_base_path) + E->deref().name + "/"), E->deref().node);
     }
 }
@@ -1505,7 +1505,7 @@ bool AnimationTree::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void AnimationTree::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AnimationTree::_get_property_list(Vector<PropertyInfo> *p_list) const {
     if (properties_dirty) {
         const_cast<AnimationTree *>(this)->_update_properties();
     }
@@ -1532,7 +1532,7 @@ float AnimationTree::get_connection_activity(const StringName &p_path, int p_con
     if (!input_activity_map_get.contains(p_path)) {
         return 0;
     }
-    const PODVector<Activity> *activity = input_activity_map_get.at(p_path);
+    const Vector<Activity> *activity = input_activity_map_get.at(p_path);
 
     if (!activity || p_connection < 0 || p_connection >= activity->size()) {
         return 0;

@@ -71,7 +71,7 @@ Variant NavigationPolygonEditor::_get_polygon(int p_idx) const {
     if (navpoly)
         return Variant(navpoly->get_outline(p_idx));
     else
-        return Variant(PODVector<Vector2>());
+        return Variant(Vector<Vector2>());
 }
 
 void NavigationPolygonEditor::_set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const {

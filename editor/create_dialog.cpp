@@ -384,7 +384,7 @@ void CreateDialog::_update_search() {
                 ClassDB::is_parent_class(type, base_type)) {
             // there are custom types based on this... cool.
 
-            const PODVector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types().at(type);
+            const Vector<EditorData::CustomType> &ct = EditorNode::get_editor_data().get_custom_types().at(type);
             for (size_t idx_c = 0; idx_c < ct.size(); idx_c++) {
 
                 bool show = StringUtils::is_subsequence_of(

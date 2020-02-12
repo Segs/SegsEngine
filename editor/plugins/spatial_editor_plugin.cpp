@@ -325,7 +325,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     Vector3 pos = _get_ray_pos(p_pos);
     Vector2 shrinked_pos = p_pos / viewport_container->get_stretch_shrink();
 
-    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
@@ -387,12 +387,12 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     return closest;
 }
 
-void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, PODVector<SpatialEditorViewport::_RayResult> &results, bool p_alt_select) {
+void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_includes_current, Vector<SpatialEditorViewport::_RayResult> &results, bool p_alt_select) {
 
     Vector3 ray = _get_ray(p_pos);
     Vector3 pos = _get_ray_pos(p_pos);
 
-    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     r_includes_current = false;
@@ -515,8 +515,8 @@ void SpatialEditorViewport::_select_region() {
         frustum.push_back(far);
     }
 
-    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
-    PODVector<Node *> selected;
+    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<Node *> selected;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
 
@@ -585,7 +585,7 @@ void SpatialEditorViewport::_compute_edit(const Point2 &p_point) {
     spatial_editor->update_transform_gizmo();
     _edit.center = spatial_editor->get_gizmo_transform().origin;
 
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     for (Node *E : selection) {
 
@@ -972,7 +972,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                     //cancel motion
                     _edit.mode = TRANSFORM_NONE;
 
-                    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+                    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
                     for (Node * E : selection) {
 
@@ -1194,7 +1194,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         static const char *_transform_name[4] = { "None", "Rotate", "Translate", "Scale" };
                         undo_redo->create_action(_transform_name[_edit.mode]);
 
-                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+                        const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         for (Node * E : selection) {
 
@@ -1381,7 +1381,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                             motion = Vector3(scale, scale, scale);
                         }
 
-                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+                        const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         // Disable local transformation for TRANSFORM_VIEW
                         bool local_coords = spatial_editor->are_local_coords_enabled() && _edit.plane != TRANSFORM_VIEW;
@@ -1509,7 +1509,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                             }
                         }
 
-                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+                        const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         // Disable local transformation for TRANSFORM_VIEW
                         bool local_coords = spatial_editor->are_local_coords_enabled() && _edit.plane != TRANSFORM_VIEW;
@@ -1618,7 +1618,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         set_message(FormatSN(TTR("Rotating %s degrees.").asCString(), StringUtils::num(angle, snap_step_decimals).c_str()));
                         angle = Math::deg2rad(angle);
 
-                        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+                        const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
                         bool local_coords = spatial_editor->are_local_coords_enabled() && _edit.plane != TRANSFORM_VIEW; // Disable local transformation for TRANSFORM_VIEW
 
@@ -1858,7 +1858,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                 return;
             }
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             for (Node *E : selection) {
 
@@ -2594,7 +2594,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             Transform camera_transform = camera->get_global_transform();
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             undo_redo->create_action_ui(TTR("Align Transform with View"));
 
@@ -2631,7 +2631,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             Transform camera_transform = camera->get_global_transform();
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             undo_redo->create_action_ui(TTR("Align Rotation with View"));
             for (Node *E : selection) {
@@ -3174,7 +3174,7 @@ void SpatialEditorViewport::focus_selection() {
     Vector3 center;
     int count = 0;
 
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     for (Node *E : selection) {
 
@@ -3209,7 +3209,7 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
     Vector3 world_ray = _get_ray(p_pos);
     Vector3 world_pos = _get_ray_pos(p_pos);
 
-    PODVector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(world_pos, world_ray, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(world_pos, world_ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     float closest_dist = MAX_DISTANCE;
@@ -3289,7 +3289,7 @@ AABB SpatialEditorViewport::_calculate_spatial_bounds(const Spatial *p_parent, b
     return bounds;
 }
 
-void SpatialEditorViewport::_create_preview(const PODVector<String> &files) const {
+void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
     for (int i = 0; i < files.size(); i++) {
         const String &path = files[i];
         RES res(ResourceLoader::load(path));
@@ -3406,7 +3406,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, se_string_view path, 
 void SpatialEditorViewport::_perform_drop_data() {
     _remove_preview();
 
-    PODVector<String> error_files;
+    Vector<String> error_files;
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
@@ -3446,11 +3446,11 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
     if (!preview_node->is_inside_tree()) {
         Dictionary d = p_data;
         if (d.has("type") && UIString(d["type"]) == "files") {
-            PODVector<String> files(d["files"].as<PODVector<String>>());
+            Vector<String> files(d["files"].as<Vector<String>>());
 
-            PODVector<String> scene_extensions;
+            Vector<String> scene_extensions;
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", scene_extensions);
-            PODVector<String> mesh_extensions;
+            Vector<String> mesh_extensions;
             ResourceLoader::get_recognized_extensions_for_type("Mesh", mesh_extensions);
             eastl::fixed_hash_set<se_string_view,64,16> fast_check;
             for(const String &s : scene_extensions)
@@ -3511,10 +3511,10 @@ void SpatialEditorViewport::drop_data_fw(const Point2 &p_point, const Variant &p
     selected_files.clear();
     Dictionary d = p_data;
     if (d.has("type") && UIString(d["type"]) == "files") {
-        selected_files = d["files"].as<PODVector<String>>();
+        selected_files = d["files"].as<Vector<String>>();
     }
 
-    const PODVector<Node *> &list = editor->get_editor_selection()->get_selected_node_list();
+    const Vector<Node *> &list = editor->get_editor_selection()->get_selected_node_list();
     Node *tgt = nullptr;
     if (list.empty()) {
         Node *root_node = editor->get_edited_scene();
@@ -4088,7 +4088,7 @@ void SpatialEditor::select_gizmo_highlight_axis(int p_axis) {
 
 void SpatialEditor::update_transform_gizmo() {
 
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
     AABB center;
     bool first = true;
 
@@ -4339,7 +4339,7 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
 
     if (d.has("gizmos_status")) {
         Dictionary gizmos_status = d["gizmos_status"];
-        PODVector<Variant> keys(gizmos_status.get_key_list());
+        Vector<Variant> keys(gizmos_status.get_key_list());
 
         for (int j = 0; j < gizmo_plugins_by_name.size(); ++j) {
             if (!gizmo_plugins_by_name[j]->can_be_hidden()) continue;
@@ -4403,7 +4403,7 @@ void SpatialEditor::_xform_dialog_action() {
 
     undo_redo->create_action_ui(TTR("XForm Dialog"));
 
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     for (Node *E : selection) {
 
@@ -4657,7 +4657,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         case MENU_LOCK_SELECTED: {
             undo_redo->create_action_ui(TTR("Lock Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             for (Node * E : selection) {
 
@@ -4681,7 +4681,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         case MENU_UNLOCK_SELECTED: {
             undo_redo->create_action_ui(TTR("Unlock Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             for (Node * E : selection) {
 
@@ -4705,7 +4705,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         case MENU_GROUP_SELECTED: {
             undo_redo->create_action_ui(TTR("Group Selected"));
 
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             for (Node * E : selection) {
 
@@ -4728,7 +4728,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
         } break;
         case MENU_UNGROUP_SELECTED: {
             undo_redo->create_action_ui(TTR("Ungroup Selected"));
-            const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+            const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             for (Node * E : selection) {
 
@@ -4763,8 +4763,8 @@ void SpatialEditor::_init_indicators() {
         indicator_mat->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
         indicator_mat->set_flag(SpatialMaterial::FLAG_SRGB_VERTEX_COLOR, true);
 
-        PODVector<Color> origin_colors;
-        PODVector<Vector3> origin_points;
+        Vector<Color> origin_colors;
+        Vector<Vector3> origin_points;
 
         for (int i = 0; i < 3; i++) {
             Vector3 axis;
@@ -5103,8 +5103,8 @@ void SpatialEditor::_update_gizmos_menu_theme() {
 
 void SpatialEditor::_init_grid() {
 
-    PODVector<Color> grid_colors[3];
-    PODVector<Vector3> grid_points[3];
+    Vector<Color> grid_colors[3];
+    Vector<Vector3> grid_points[3];
 
     Color primary_grid_color = EditorSettings::get_singleton()->get("editors/3d/primary_grid_color");
     Color secondary_grid_color = EditorSettings::get_singleton()->get("editors/3d/secondary_grid_color");
@@ -5187,7 +5187,7 @@ void SpatialEditor::_refresh_menu_icons() {
     bool all_locked = true;
     bool all_grouped = true;
 
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
     if (selection.empty()) {
         all_locked = false;
@@ -5250,7 +5250,7 @@ Set<RID> _get_physics_bodies_rid(Node *node) {
 }
 
 void SpatialEditor::snap_selected_nodes_to_floor() {
-    const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+    const Vector<Node *> &selection = editor_selection->get_selected_node_list();
     Dictionary snap_data;
 
     for (Node * E : selection) {
@@ -5647,7 +5647,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     hbc_menu = memnew(HBoxContainer);
     vbc->add_child(hbc_menu);
 
-    PODVector<Variant> button_binds;
+    Vector<Variant> button_binds;
     button_binds.resize(1);
     UIString sct;
 
@@ -6117,7 +6117,7 @@ void EditorSpatialGizmoPlugin::create_material(se_string_view p_name, const Colo
 
     Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
-    PODVector<Ref<SpatialMaterial> > mats;
+    Vector<Ref<SpatialMaterial> > mats;
 
     for (int i = 0; i < 4; i++) {
         bool selected = i % 2 == 1;
@@ -6159,7 +6159,7 @@ void EditorSpatialGizmoPlugin::create_icon_material(const String &p_name, const 
 
     Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
-    PODVector<Ref<SpatialMaterial> > icons;
+    Vector<Ref<SpatialMaterial> > icons;
 
     for (int i = 0; i < 4; i++) {
         bool selected = i % 2 == 1;

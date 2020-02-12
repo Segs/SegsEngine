@@ -75,11 +75,11 @@ public:
         if (!StringUtils::ends_with(p_path,".gd") || script_mode == EditorExportPreset::MODE_SCRIPT_TEXT)
             return;
 
-        PODVector<uint8_t> file_contents = FileAccess::get_file_as_array(p_path);
+        Vector<uint8_t> file_contents = FileAccess::get_file_as_array(p_path);
         if (file_contents.empty())
             return;
 
-        PODVector<uint8_t> file = GDScriptTokenizerBuffer::parse_code_string({(const char *)file_contents.data(), file_contents.size()});
+        Vector<uint8_t> file = GDScriptTokenizerBuffer::parse_code_string({(const char *)file_contents.data(), file_contents.size()});
         String base_path(PathUtils::get_basename(p_path));
         if (!file.empty()) {
 

@@ -175,7 +175,7 @@ StringName AnimationNodeStateMachinePlayback::get_current_node() const {
 StringName AnimationNodeStateMachinePlayback::get_blend_from_node() const {
     return fading_from;
 }
-const PODVector<StringName> &AnimationNodeStateMachinePlayback::get_travel_path() const {
+const Vector<StringName> &AnimationNodeStateMachinePlayback::get_travel_path() const {
     return path;
 }
 float AnimationNodeStateMachinePlayback::get_current_play_pos() const {
@@ -203,7 +203,7 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
 
     Map<StringName, AStarCost> cost_map;
 
-    List<int> open_list;
+    ListOld<int> open_list;
 
     //build open list
     for (int i = 0; i < p_state_machine->transitions.size(); i++) {
@@ -232,10 +232,10 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
         }
 
         //find the last cost transition
-        List<int>::Element *least_cost_transition = nullptr;
+        ListOld<int>::Element *least_cost_transition = nullptr;
         float least_cost = 1e20f;
 
-        for (List<int>::Element *E = open_list.front(); E; E = E->next()) {
+        for (ListOld<int>::Element *E = open_list.front(); E; E = E->next()) {
 
             float cost = cost_map[p_state_machine->transitions[E->deref()].to].distance;
             cost += p_state_machine->states[p_state_machine->transitions[E->deref()].to].position.distance_to(target_pos);
@@ -527,9 +527,9 @@ AnimationNodeStateMachinePlayback::AnimationNodeStateMachinePlayback() {
 
 ///////////////////////////////////////////////////////
 
-void AnimationNodeStateMachine::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeStateMachine::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->push_back(PropertyInfo(VariantType::OBJECT, playback, PropertyHint::ResourceType, "AnimationNodeStateMachinePlayback", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
-    PODVector<StringName> advance_conditions;
+    Vector<StringName> advance_conditions;
     for (int i = 0; i < transitions.size(); i++) {
         StringName ac = transitions[i].transition->get_advance_condition_name();
         if (ac != StringName() && advance_conditions.find(ac) == nullptr) {
@@ -588,8 +588,8 @@ StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_
     ERR_FAIL_V(StringName());
 }
 
-void AnimationNodeStateMachine::get_child_nodes(List<ChildNode> *r_child_nodes) {
-    PODVector<StringName> nodes;
+void AnimationNodeStateMachine::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+    Vector<StringName> nodes;
 
     for (eastl::pair<const StringName,State> &E : states) {
         nodes.push_back(E.first);
@@ -681,9 +681,9 @@ void AnimationNodeStateMachine::rename_node(const StringName &p_name, const Stri
     emit_signal("tree_changed");
 }
 
-void AnimationNodeStateMachine::get_node_list(ListPOD<StringName> *r_nodes) const {
+void AnimationNodeStateMachine::get_node_list(List<StringName> *r_nodes) const {
 
-    ListPOD<StringName> nodes;
+    List<StringName> nodes;
     for (const eastl::pair<const StringName,State> &E : states) {
         nodes.push_back(E.first);
     }
@@ -912,9 +912,9 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
 
     return false;
 }
-void AnimationNodeStateMachine::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AnimationNodeStateMachine::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    PODVector<StringName> names;
+    Vector<StringName> names;
     for (const eastl::pair<const StringName,State> &E : states) {
         names.push_back(E.first);
     }

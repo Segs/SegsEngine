@@ -408,7 +408,7 @@ public:
         return *this;
     }
     constexpr PoolVector() : alloc(nullptr) {}
-    explicit PoolVector(PODVector<T> &from) : PoolVector() {
+    explicit PoolVector(Vector<T> &from) : PoolVector() {
         resize(from.size());
         auto wr(write());
         int idx=0;

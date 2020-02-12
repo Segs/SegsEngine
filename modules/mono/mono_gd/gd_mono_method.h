@@ -43,7 +43,7 @@ class GDMonoMethod : public IMonoClassMember {
 
 	int params_count;
 	ManagedType return_type;
-	PODVector<ManagedType> param_types;
+	Vector<ManagedType> param_types;
 
 	bool method_info_fetched;
 	MethodInfo method_info;
@@ -87,8 +87,8 @@ public:
     String get_ret_type_full_name() const;
     String get_signature_desc(bool p_namespaces = false) const;
 
-	void get_parameter_names(PODVector<StringName> &names) const;
-	void get_parameter_types(PODVector<ManagedType> &types) const;
+	void get_parameter_names(Vector<StringName> &names) const;
+	void get_parameter_types(Vector<ManagedType> &types) const;
 
 	const MethodInfo &get_method_info();
 

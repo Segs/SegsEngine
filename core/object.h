@@ -91,7 +91,7 @@ private:
 #define ADD_PROPERTY_DEFAULT(m_property, m_default) ClassDB::set_property_default_value(get_class_static_name(), m_property, m_default)
 #define ADD_GROUP(m_name, m_prefix) ClassDB::add_property_group(get_class_static_name(), m_name, m_prefix)
 
-Array convert_property_list(const ListPOD<PropertyInfo> *p_list);
+Array convert_property_list(const List<PropertyInfo> *p_list);
 Array convert_property_vector(Span<const PropertyInfo> p_list);
 
 /*
@@ -172,10 +172,10 @@ protected:                                                                      
         }                                                                                                              \
         return false;                                                                                                  \
     }                                                                                                                  \
-    void (Object::*_get_get_property_list() const)(PODVector<PropertyInfo> * p_list) const {             \
-        return (void (Object::*)(PODVector<PropertyInfo> *) const) & m_class::_get_property_list;                        \
+    void (Object::*_get_get_property_list() const)(Vector<PropertyInfo> * p_list) const {             \
+        return (void (Object::*)(Vector<PropertyInfo> *) const) & m_class::_get_property_list;                        \
     }                                                                                                                  \
-    void _get_property_listv(PODVector<PropertyInfo> *p_list, bool p_reversed) const override;                           \
+    void _get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const override;                           \
     void (Object::*_get_notification() const)(int) {                                                    \
         return (void (Object::*)(int)) & m_class::_notification;                                                       \
     }                                                                                                                  \
@@ -201,7 +201,7 @@ private:
         }                                                                                                              \
         if (p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                       \
     }                                                                                                                  \
-    void m_class::_get_property_listv(PODVector<PropertyInfo> *p_list, bool p_reversed) const {                        \
+    void m_class::_get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const {                        \
         if (!p_reversed) {                                                                                             \
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
         }                                                                                                              \
@@ -248,7 +248,7 @@ public:
 
     struct Connection {
 
-        PODVector<Variant> binds;
+        Vector<Variant> binds;
         StringName signal;
         StringName method;
         Object *source = nullptr;
@@ -313,14 +313,14 @@ protected:
     virtual bool _initialize_classv() { return initialize_class(); }
     virtual bool _setv(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
     virtual bool _getv(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
-    virtual void _get_property_listv(PODVector<PropertyInfo> *, bool /*p_reversed*/) const {}
+    virtual void _get_property_listv(Vector<PropertyInfo> *, bool /*p_reversed*/) const {}
     virtual void _notificationv(int /*p_notification*/, bool /*p_reversed*/){}
 
     static const char *_get_category() { return ""; }
     static void _bind_methods();
     bool _set(const StringName & /*p_name*/, const Variant & /*p_property*/) { return false; }
     bool _get(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
-    void _get_property_list(PODVector<PropertyInfo> * /*p_list*/) const {}
+    void _get_property_list(Vector<PropertyInfo> * /*p_list*/) const {}
     void _notification(int /*p_notification*/){}
 
     static void (*_get_bind_methods())() {
@@ -332,7 +332,7 @@ protected:
     bool (Object::*_get_set() const)(const StringName &p_name, const Variant &p_property) {
         return &Object::_set;
     }
-    void (Object::*_get_get_property_list() const)(PODVector<PropertyInfo> *p_list) const {
+    void (Object::*_get_get_property_list() const)(Vector<PropertyInfo> *p_list) const {
         return &Object::_get_property_list;
     }
     void (Object::*_get_notification() const)(int) {
@@ -417,13 +417,13 @@ public:
     TGT_TYPE getT(const StringName &p_name, bool *r_valid = nullptr) const {
         return (TGT_TYPE)get(p_name, r_valid);
     }
-    void set_indexed(const PODVector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
-    Variant get_indexed(const PODVector<StringName> &p_names, bool *r_valid = nullptr) const;
+    void set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
+    Variant get_indexed(const Vector<StringName> &p_names, bool *r_valid = nullptr) const;
 
-    void get_property_list(PODVector<PropertyInfo> *p_list, bool p_reversed = false) const;
+    void get_property_list(Vector<PropertyInfo> *p_list, bool p_reversed = false) const;
 
     bool has_method(const StringName &p_method) const;
-    void get_method_list(PODVector<MethodInfo> *p_list) const;
+    void get_method_list(Vector<MethodInfo> *p_list) const;
     Variant callv(const StringName &p_method, const Array &p_args);
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
@@ -449,7 +449,7 @@ public:
     void set_meta(se_string_view p_name, const Variant &p_value);
     void remove_meta(se_string_view p_name);
     Variant get_meta(se_string_view p_name) const;
-    void get_meta_list(ListPOD<String> *p_list) const;
+    void get_meta_list(List<String> *p_list) const;
 
     IObjectTooling *get_tooling_interface() const;
 
@@ -461,13 +461,13 @@ public:
     void add_user_signal(MethodInfo &&p_signal);
     Error emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
     Error emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
-    void get_signal_list(PODVector<MethodInfo> *p_signals) const;
-    void get_signal_connection_list(const StringName &p_signal, ListPOD<Connection> *p_connections) const;
-    void get_all_signal_connections(ListPOD<Connection> *p_connections) const;
+    void get_signal_list(Vector<MethodInfo> *p_signals) const;
+    void get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const;
+    void get_all_signal_connections(List<Connection> *p_connections) const;
     int get_persistent_signal_connection_count() const;
-    void get_signals_connected_to_this(ListPOD<Connection> *p_connections) const;
+    void get_signals_connected_to_this(List<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const PODVector<Variant> &p_binds =
+    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds =
         null_variant_pvec, uint32_t p_flags = 0);
     void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
     bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
@@ -479,10 +479,10 @@ public:
     bool is_blocking_signals() const;
 
     VariantType get_static_property_type(const StringName &p_property, bool *r_valid = nullptr) const;
-    VariantType get_static_property_type_indexed(const PODVector<StringName> &p_path, bool *r_valid = nullptr) const;
+    VariantType get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid = nullptr) const;
 
-    virtual void get_translatable_strings(ListPOD<StringName> *p_strings) const;
-    virtual void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const;
+    virtual void get_translatable_strings(List<StringName> *p_strings) const;
+    virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 

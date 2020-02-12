@@ -101,7 +101,7 @@ RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatPKM::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatPKM::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("pkm");
 }
@@ -118,7 +118,7 @@ String ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
     return "";
 }
 
-void ResourceFormatPKM::fill_modes(PODVector<int> &modes) const
+void ResourceFormatPKM::fill_modes(Vector<int> &modes) const
 {
     modes.push_back(ImageCompressMode::COMPRESS_ETC);
     modes.push_back(ImageCompressMode::COMPRESS_ETC2);

@@ -82,10 +82,10 @@ private:
     };
 
     struct ShapeUpdateSurface {
-        PODVector<Vector3> vertices;
-        PODVector<Vector3> normals;
-        PODVector<Vector2> uvs;
-        PODVector<float> tans;
+        Vector<Vector3> vertices;
+        Vector<Vector3> normals;
+        Vector<Vector2> uvs;
+        Vector<float> tans;
         Ref<Material> material;
         int last_added;
     };
@@ -122,10 +122,10 @@ public:
     void set_operation(Operation p_operation);
     Operation get_operation() const;
 
-    virtual PODVector<Vector3> get_brush_faces();
+    virtual Vector<Vector3> get_brush_faces();
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     void set_use_collision(bool p_enable);
     bool is_using_collision() const;
@@ -359,7 +359,7 @@ public:
 private:
     CSGBrush *_build_brush() override;
 
-    PODVector<Vector2> polygon;
+    Vector<Vector2> polygon;
     Ref<Material> material;
 
     Mode mode;
@@ -392,8 +392,8 @@ protected:
     void _notification(int p_what);
 
 public:
-    void set_polygon(const PODVector<Vector2> &p_polygon);
-    const PODVector<Vector2> &get_polygon() const;
+    void set_polygon(const Vector<Vector2> &p_polygon);
+    const Vector<Vector2> &get_polygon() const;
 
     void set_mode(Mode p_mode);
     Mode get_mode() const;

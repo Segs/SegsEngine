@@ -118,7 +118,7 @@ private:
         Ref<Texture> normal_map;
         Vector2 offset;
         Rect2i region;
-        PODVector<ShapeData> shapes_data;
+        Vector<ShapeData> shapes_data;
         Vector2 occluder_offset;
         Ref<OccluderPolygon2D> occluder;
         Vector2 navigation_polygon_offset;
@@ -141,7 +141,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 public:
 
     void _tile_set_shapes(int p_id, const Array &p_shapes);
@@ -218,8 +218,8 @@ public:
     void tile_add_shape(int p_id, const Ref<Shape2D> &p_shape, const Transform2D &p_transform, bool p_one_way = false, const Vector2 &p_autotile_coord = Vector2());
     int tile_get_shape_count(int p_id) const;
 
-    void tile_set_shapes(int p_id, const PODVector<ShapeData> &p_shapes);
-    const PODVector<TileSet::ShapeData> &tile_get_shapes(int p_id) const;
+    void tile_set_shapes(int p_id, const Vector<ShapeData> &p_shapes);
+    const Vector<TileSet::ShapeData> &tile_get_shapes(int p_id) const;
 
     void tile_set_material(int p_id, const Ref<ShaderMaterial> &p_material);
     Ref<ShaderMaterial> tile_get_material(int p_id) const;
@@ -257,7 +257,7 @@ public:
     bool is_tile_bound(int p_drawn_id, int p_neighbor_id);
 
     int find_tile_by_name(se_string_view p_name) const;
-    void get_tile_list(PODVector<int> *p_tiles) const;
+    void get_tile_list(Vector<int> *p_tiles) const;
 
     void clear();
 

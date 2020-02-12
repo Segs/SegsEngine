@@ -242,7 +242,7 @@ private:
         AudioNotch() = default;
     };
 
-    PODVector<AudioNotch> notches;
+    Vector<AudioNotch> notches;
 
 public:
     float line_length;

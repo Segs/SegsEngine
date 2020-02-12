@@ -164,7 +164,7 @@ void EditorSubScene::ok_pressed() {
     clear();
 }
 
-void EditorSubScene::_reown(Node *p_node, PODVector<Node *> *p_to_reown) {
+void EditorSubScene::_reown(Node *p_node, Vector<Node *> *p_to_reown) {
 
     if (p_node == scene) {
 
@@ -194,7 +194,7 @@ void EditorSubScene::move(Node *p_new_parent, Node *p_new_owner) {
         if (!selnode) {
             return;
         }
-        PODVector<Node *> to_reown;
+        Vector<Node *> to_reown;
         _reown(selnode, &to_reown);
         if (selnode != scene) {
             selnode->get_parent()->remove_child(selnode);
@@ -262,7 +262,7 @@ EditorSubScene::EditorSubScene() {
     tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
 
     for (const String &E : extensions) {

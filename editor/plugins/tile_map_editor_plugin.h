@@ -124,7 +124,7 @@ class TileMapEditor : public VBoxContainer {
 	Rect2i bucket_cache_rect;
 	int bucket_cache_tile;
 	PoolVector<Vector2> bucket_cache;
-	List<Point2i> bucket_queue;
+	ListOld<Point2i> bucket_queue;
 
 	struct CellOp {
 		int idx;
@@ -157,7 +157,7 @@ class TileMapEditor : public VBoxContainer {
 				transpose(false) {}
 	};
 
-	List<TileData> copydata;
+	ListOld<TileData> copydata;
 
 	Map<Point2i, CellOp> undo_data;
     static constexpr int invalid_cell[1] = {TileMap::INVALID_CELL};
@@ -178,8 +178,8 @@ class TileMapEditor : public VBoxContainer {
 
 	void _update_copydata();
 
-	PODVector<int> get_selected_tiles() const;
-	void set_selected_tiles(const PODVector<int>& p_tile);
+	Vector<int> get_selected_tiles() const;
+	void set_selected_tiles(const Vector<int>& p_tile);
 
 	void _manual_toggled(bool p_enabled);
 	void _priority_toggled(bool p_enabled);

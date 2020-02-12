@@ -38,11 +38,11 @@
 class EditorAtlasPacker {
 public:
     struct Chart {
-        PODVector<Vector2> vertices;
+        Vector<Vector2> vertices;
         struct Face {
             int vertex[3];
         };
-        PODVector<Face> faces;
+        Vector<Face> faces;
         Vector2 final_offset;
 
         bool can_transpose;
@@ -51,8 +51,8 @@ public:
 
 private:
     struct PlottedBitmap {
-        PODVector<int> top_heights;
-        PODVector<int> bottom_heights;
+        Vector<int> top_heights;
+        Vector<int> bottom_heights;
         Vector2i offset;
         Vector2 final_pos;
         int chart_index;
@@ -68,5 +68,5 @@ private:
     static void _plot_triangle(Ref<BitMap> p_bitmap, Vector2i *vertices);
 
 public:
-    static void chart_pack(PODVector<Chart> &charts, int &r_width, int &r_height, int p_atlas_max_size = 2048, int p_cell_resolution = 4);
+    static void chart_pack(Vector<Chart> &charts, int &r_width, int &r_height, int p_atlas_max_size = 2048, int p_cell_resolution = 4);
 };

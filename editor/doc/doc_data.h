@@ -51,7 +51,7 @@ public:
         String return_enum;
         String qualifiers;
         String description;
-        PODVector<ArgumentDoc> arguments;
+        Vector<ArgumentDoc> arguments;
         bool operator<(const MethodDoc &p_md) const {
             return name < p_md.name;
         }
@@ -86,12 +86,12 @@ public:
         String category;
         String brief_description;
         String description;
-        PODVector<String> tutorials;
-        PODVector<MethodDoc> methods;
-        PODVector<MethodDoc> defined_signals;
-        PODVector<ConstantDoc> constants;
-        PODVector<PropertyDoc> properties;
-        PODVector<PropertyDoc> theme_properties;
+        Vector<String> tutorials;
+        Vector<MethodDoc> methods;
+        Vector<MethodDoc> defined_signals;
+        Vector<ConstantDoc> constants;
+        Vector<PropertyDoc> properties;
+        Vector<PropertyDoc> theme_properties;
     };
 
     String version;

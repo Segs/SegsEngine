@@ -447,7 +447,7 @@ Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, in
 }
 
 template <class T>
-Error VariantParser::_parse_construct(VariantParserStream *p_stream, PODVector<T> &r_construct, int &line, String &r_err_str) {
+Error VariantParser::_parse_construct(VariantParserStream *p_stream, Vector<T> &r_construct, int &line, String &r_err_str) {
 
     Token token;
     get_token(p_stream, token, line, r_err_str);
@@ -523,7 +523,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             value = Variant();
         else if (id == "Vector2"_sv) {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -536,7 +536,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             return OK;
         } else if (id == "Rect2") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -549,7 +549,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             return OK;
         } else if (id == "Vector3") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -562,7 +562,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             return OK;
         } else if (id == "Transform2D" || id == "Matrix32") { //compatibility
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -578,7 +578,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             return OK;
         } else if (id == "Plane") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -591,7 +591,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             return OK;
         } else if (id == "Quat") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -605,7 +605,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "AABB" || id == "Rect3") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -619,7 +619,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "Basis" || id == "Matrix3") { //compatibility
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -632,7 +632,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             return OK;
         } else if (id == "Transform") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -646,7 +646,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "Color") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -871,7 +871,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             }
         } else if (id == "PoolByteArray" || id == "ByteArray") {
 
-            PODVector<uint8_t> args;
+            Vector<uint8_t> args;
             Error err = _parse_construct<uint8_t>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -892,7 +892,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "PoolIntArray" || id == "IntArray") {
 
-            PODVector<int> args;
+            Vector<int> args;
             Error err = _parse_construct<int>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -913,7 +913,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "PoolRealArray" || id == "FloatArray") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -939,7 +939,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
                 return ERR_PARSE_ERROR;
             }
 
-            PODVector<UIString> cs;
+            Vector<UIString> cs;
 
             bool first = true;
             while (true) {
@@ -984,7 +984,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == se_string_view("PoolVector2Array") || id == "Vector2Array") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -1005,7 +1005,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "PoolVector3Array" || id == "Vector3Array") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -1026,7 +1026,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         } else if (id == "PoolColorArray" || id == "ColorArray") {
 
-            PODVector<float> args;
+            Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
             if (err)
                 return err;
@@ -1574,7 +1574,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             p_store_string_func(p_store_string_ud, "Object(" + String(obj->get_class()) + ",");
 
-            PODVector<PropertyInfo> props;
+            Vector<PropertyInfo> props;
             obj->get_property_list(&props);
             bool first = true;
             for (const PropertyInfo & E : props) {
@@ -1601,7 +1601,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             Dictionary dict = p_variant;
 
-            PODVector<Variant> keys(dict.get_key_list());
+            Vector<Variant> keys(dict.get_key_list());
             eastl::sort(keys.begin(),keys.end(),Comparator<Variant>());
 
             p_store_string_func(p_store_string_ud, "{\n");

@@ -392,7 +392,7 @@ RES ResourceFormatLoaderVideoStreamGDNative::load(const String &p_path, const St
     return ogv_stream;
 }
 
-void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderVideoStreamGDNative::get_recognized_extensions(Vector<String> &p_extensions) const {
     const Map<String, int> &exts(VideoDecoderServer::get_instance()->get_extensions());
     for (const auto &val : exts) {
         p_extensions->push_back(val.first);

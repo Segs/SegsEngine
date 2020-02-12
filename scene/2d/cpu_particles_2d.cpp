@@ -176,14 +176,14 @@ void CPUParticles2D::_update_mesh_texture() {
     } else {
         tex_size = Size2(1, 1);
     }
-    PODVector<Vector2> vertices {
+    Vector<Vector2> vertices {
         Vector2(-tex_size * 0.5),
         Vector2(-tex_size * 0.5 + Vector2(tex_size.x, 0)),
         Vector2(-tex_size * 0.5 + Vector2(tex_size.x, tex_size.y)),
         Vector2(-tex_size * 0.5 + Vector2(0, tex_size.y)),
     };
 
-    PODVector<Vector2> uvs;
+    Vector<Vector2> uvs;
     AtlasTexture *atlas_texure = object_cast<AtlasTexture>(texture.get());
     if (atlas_texure && atlas_texure->get_atlas()) {
         Rect2 region_rect = atlas_texure->get_region();
@@ -198,13 +198,13 @@ void CPUParticles2D::_update_mesh_texture() {
         uvs.push_back(Vector2(1, 1));
         uvs.push_back(Vector2(0, 1));
     }
-    PODVector<Color> colors {
+    Vector<Color> colors {
         Color(1, 1, 1, 1),
         Color(1, 1, 1, 1),
         Color(1, 1, 1, 1),
         Color(1, 1, 1, 1),
     };
-    PODVector<int> indices{
+    Vector<int> indices{
         0,
         1,
         2,

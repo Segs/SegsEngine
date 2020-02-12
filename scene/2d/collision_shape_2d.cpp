@@ -136,7 +136,7 @@ void CollisionShape2D::_notification(int p_what) {
                 }
                 Vector2 line_to(0, 20);
                 draw_line(Vector2(), line_to, draw_col, 2, true);
-                PODVector<Vector2> pts;
+                Vector<Vector2> pts;
                 float tsize = 8;
                 pts.push_back(line_to + (Vector2(0, tsize)));
                 pts.push_back(line_to + (Vector2(0.707 * tsize, 0)));

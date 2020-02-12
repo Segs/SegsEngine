@@ -76,7 +76,7 @@ void Navigation2D::set_edge_connection_margin(float p_edge_connection_margin) {
     Navigation2DServer::get_singleton()->map_set_edge_connection_margin(map, edge_connection_margin);
 }
 
-PODVector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize) {
+Vector<Vector2> Navigation2D::get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize) {
     return Navigation2DServer::get_singleton()->map_get_path(map, p_start, p_end, p_optimize);
 }
 

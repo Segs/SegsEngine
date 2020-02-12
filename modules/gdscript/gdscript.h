@@ -90,7 +90,7 @@ class GDScript : public Script {
     Map<StringName, GDScriptFunction *> member_functions;
     Map<StringName, MemberInfo> member_indices; //members are just indices to the instanced script.
     Map<StringName, Ref<GDScript> > subclasses;
-    Map<StringName, PODVector<StringName> > _signals;
+    Map<StringName, Vector<StringName> > _signals;
 
 #ifdef TOOLS_ENABLED
 
@@ -98,13 +98,13 @@ class GDScript : public Script {
 
     Map<StringName, Variant> member_default_values;
 
-    PODVector<PropertyInfo> members_cache;
+    Vector<PropertyInfo> members_cache;
     Map<StringName, Variant> member_default_values_cache;
     Ref<GDScript> base_cache;
     Set<ObjectID> inheriters_cache;
     bool source_changed_cache;
     bool placeholder_fallback_enabled;
-    void _update_exports_values(Map<StringName, Variant> &values, PODVector<PropertyInfo> &propnames);
+    void _update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
 
 #endif
     Map<StringName, PropertyInfo> member_info;
@@ -132,7 +132,7 @@ class GDScript : public Script {
 
 #ifdef DEBUG_ENABLED
 
-    Map<ObjectID, PODVector<Pair<StringName, Variant> > > pending_reload_state;
+    Map<ObjectID, Vector<Pair<StringName, Variant> > > pending_reload_state;
 
 #endif
 
@@ -143,7 +143,7 @@ class GDScript : public Script {
 protected:
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(PODVector<PropertyInfo> *p_properties) const;
+    void _get_property_list(Vector<PropertyInfo> *p_properties) const;
 
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     //void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount);
@@ -165,7 +165,7 @@ public:
     const StringName &get_script_class_name() const { return name; }
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(PODVector<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(Vector<MethodInfo> *r_signals) const override;
 
     bool is_tool() const override { return tool; }
     Ref<GDScript> get_base() const;
@@ -195,15 +195,15 @@ public:
     Error load_source_code(se_string_view p_path);
     Error load_byte_code(se_string_view p_path);
 
-    PODVector<uint8_t> get_as_byte_code() const;
+    Vector<uint8_t> get_as_byte_code() const;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
 
-    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_script_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     MethodInfo get_method_info(const StringName &p_method) const override;
 
-    void get_script_property_list(PODVector<PropertyInfo> *p_list) const override;
+    void get_script_property_list(Vector<PropertyInfo> *p_list) const override;
 
     ScriptLanguage *get_language() const override;
 
@@ -238,7 +238,7 @@ class GDScriptInstance : public ScriptInstance {
 #ifdef DEBUG_ENABLED
     Map<StringName, int> member_indices_cache; //used only for hot script reloading
 #endif
-    PODVector<Variant> members;
+    Vector<Variant> members;
     bool base_ref;
 
     void _ml_call_reversed(GDScript *sptr, const StringName &p_method, const Variant **p_args, int p_argcount);
@@ -248,10 +248,10 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(PODVector<PropertyInfo> *p_properties) const override;
+    void get_property_list(Vector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
-    void get_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
@@ -309,7 +309,7 @@ struct GDScriptWarning {
         STANDALONE_TERNARY, // Return value of ternary expression is discarded
         WARNING_MAX,
     } code;
-    PODVector<String> symbols;
+    Vector<String> symbols;
     int line;
 
     String get_name() const;
@@ -331,7 +331,7 @@ class GDScriptLanguage : public ScriptLanguage {
     static GDScriptLanguage *singleton;
 
     Variant *_global_array;
-    PODVector<Variant> global_array;
+    Vector<Variant> global_array;
     Map<StringName, int> globals;
     Map<StringName, Variant> named_globals;
 
@@ -414,11 +414,11 @@ public:
         _debug_call_stack_pos--;
     }
 
-    PODVector<StackInfo> debug_get_current_stack_info() override {
+    Vector<StackInfo> debug_get_current_stack_info() override {
         if (Thread::get_main_id() != Thread::get_caller_id())
-            return PODVector<StackInfo>();
+            return Vector<StackInfo>();
 
-        PODVector<StackInfo> csi;
+        Vector<StackInfo> csi;
         csi.resize(_debug_call_stack_pos);
         for (int i = 0; i < _debug_call_stack_pos; i++) {
             csi[_debug_call_stack_pos - i - 1].line = _call_stack[i].line ? *_call_stack[i].line : 0;
@@ -458,22 +458,22 @@ public:
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(PODVector<String> *p_words) const override;
-    void get_comment_delimiters(PODVector<String> *p_delimiters) const override;
-    void get_string_delimiters(PODVector<String> *p_delimiters) const override;
+    void get_reserved_words(Vector<String> *p_words) const override;
+    void get_comment_delimiters(Vector<String> *p_delimiters) const override;
+    void get_string_delimiters(Vector<String> *p_delimiters) const override;
     virtual String _get_processed_template(se_string_view p_template, se_string_view p_base_class_name) const;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
-    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path = {}, PODVector
-            <String> *r_functions = nullptr, PODVector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path = {}, Vector
+            <String> *r_functions = nullptr, Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
     bool can_inherit_from_file() override { return true; }
     int find_function(se_string_view p_function, se_string_view p_code) const override;
     String make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const override;
-    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) override;
+    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, Vector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) override;
 #ifdef TOOLS_ENABLED
     Error lookup_code(se_string_view p_code, se_string_view p_symbol, se_string_view p_path, Object *p_owner, LookupResult &r_result) override;
 #endif
@@ -490,10 +490,10 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_locals(int p_level, Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_members(int p_level, Vector<String> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     ScriptInstance *debug_get_stack_level_instance(int p_level) override;
-    void debug_get_globals(PODVector<String> *p_globals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_globals(Vector<String> *p_globals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
     void reload_all_scripts() override;
@@ -501,8 +501,8 @@ public:
 
     void frame() override;
 
-    void get_public_functions(PODVector<MethodInfo> *p_functions) const override;
-    void get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const override;
+    void get_public_functions(Vector<MethodInfo> *p_functions) const override;
+    void get_public_constants(Vector<Pair<se_string_view, Variant>> *p_constants) const override;
 
     void profiling_start() override;
     void profiling_stop() override;
@@ -512,7 +512,7 @@ public:
 
     /* LOADER FUNCTIONS */
 
-    void get_recognized_extensions(PODVector<String> *p_extensions) const override;
+    void get_recognized_extensions(Vector<String> *p_extensions) const override;
 
     /* GLOBAL CLASSES */
 
@@ -529,16 +529,16 @@ public:
 class ResourceFormatLoaderGDScript : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
 };
 
 class ResourceFormatSaverGDScript : public ResourceFormatSaver {
 public:
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
     bool recognize(const RES &p_resource) const override;
 };
 

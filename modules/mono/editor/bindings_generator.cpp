@@ -122,7 +122,7 @@ static String fix_doc_description(se_string_view p_bbcode) {
 static String snake_to_pascal_case(se_string_view p_identifier, bool p_input_is_upper = false) {
 
     String ret;
-    PODVector<se_string_view> parts = StringUtils::split(p_identifier,"_", true);
+    Vector<se_string_view> parts = StringUtils::split(p_identifier,"_", true);
 
     for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
@@ -203,7 +203,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
 
     xml_output.append("<para>");
 
-    ListPOD<String> tag_stack;
+    List<String> tag_stack;
     bool code_tag = false;
 
     size_t pos = 0;
@@ -218,7 +218,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             if (code_tag || tag_stack.size() > 0) {
                 xml_output.append(StringUtils::xml_escape(text));
             } else {
-                PODVector<se_string_view> lines = StringUtils::split(text,'\n');
+                Vector<se_string_view> lines = StringUtils::split(text,'\n');
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
                         xml_output.append("<para>");
@@ -241,7 +241,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             if (code_tag || tag_stack.size() > 0) {
                 xml_output.append(StringUtils::xml_escape(text));
             } else {
-                PODVector<se_string_view> lines = StringUtils::split(text,'\n');
+                Vector<se_string_view> lines = StringUtils::split(text,'\n');
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
                         xml_output.append("<para>");
@@ -285,7 +285,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             se_string_view link_target = tag.substr(tag.find(" ") + 1, tag.length());
             se_string_view link_tag = tag.substr(0, tag.find(" "));
 
-            PODVector<se_string_view> link_target_parts = StringUtils::split(link_target,".");
+            Vector<se_string_view> link_target_parts = StringUtils::split(link_target,".");
 
             if (link_target_parts.size() <= 0 || link_target_parts.size() > 2) {
                 ERR_PRINT("Invalid reference format: '" + tag + "'.");
@@ -789,7 +789,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
         if (iconstant.const_doc && iconstant.const_doc->description.size()) {
             String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), nullptr);
-            auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+            auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
             if (summary_lines.size()) {
                 p_output.append(MEMBER_BEGIN "/// <summary>\n");
@@ -849,7 +849,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
             if (iconstant.const_doc && iconstant.const_doc->description.size()) {
                 String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), nullptr);
-                PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+                Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
                 if (summary_lines.size()) {
                     p_output.append(INDENT2 "/// <summary>\n");
@@ -901,7 +901,7 @@ Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
     String base_gen_dir = path::join(p_proj_dir, "Generated");
     String godot_objects_gen_dir = path::join(base_gen_dir, "GodotObjects");
 
-    PODVector<String> compile_items;
+    Vector<String> compile_items;
 
     // Generate source file for global scope constants and enums
     {
@@ -1016,7 +1016,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
     String base_gen_dir = path::join(p_proj_dir, "Generated");
     String godot_objects_gen_dir = path::join(base_gen_dir, "GodotObjects");
 
-    PODVector<String> compile_items;
+    Vector<String> compile_items;
 
     for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next()) {
         const TypeInterface &itype = E.get();
@@ -1162,7 +1162,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
         CRASH_COND(itype.is_singleton);
     }
 
-    ListPOD<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
+    List<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
 
     _log("Generating %s.cs...\n", itype.proxy_name.asCString());
 
@@ -1185,7 +1185,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
     if (class_doc && class_doc->description.size()) {
         String xml_summary = bbcode_to_xml(fix_doc_description(class_doc->description), &itype);
-        PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
         if (summary_lines.size()) {
             output.append(INDENT1 "/// <summary>\n");
@@ -1231,7 +1231,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
             if (iconstant.const_doc && iconstant.const_doc->description.size()) {
                 String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
-                PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+                Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
                 if (summary_lines.size()) {
                     output.append(MEMBER_BEGIN "/// <summary>\n");
@@ -1270,7 +1270,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
                 if (iconstant.const_doc && iconstant.const_doc->description.size()) {
                     String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
-                    PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+                    Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
                     if (summary_lines.size()) {
                         output.append(INDENT3 "/// <summary>\n");
@@ -1450,7 +1450,7 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
 
     if (p_iprop.prop_doc && p_iprop.prop_doc->description.size()) {
         String xml_summary = bbcode_to_xml(fix_doc_description(p_iprop.prop_doc->description), &p_itype);
-        PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
         if (!summary_lines.empty()) {
             p_output.append(MEMBER_BEGIN "/// <summary>\n");
@@ -1626,7 +1626,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
     {
         if (p_imethod.method_doc && p_imethod.method_doc->description.size()) {
             String xml_summary = bbcode_to_xml(fix_doc_description(p_imethod.method_doc->description), &p_itype);
-            PODVector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : PODVector<String>();
+            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
             if (summary_lines.size() || default_args_doc.get_string_length()) {
                 p_output.append(MEMBER_BEGIN "/// <summary>\n");
@@ -1780,7 +1780,7 @@ Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
             CRASH_COND(itype.is_singleton);
         }
 
-        ListPOD<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
+        List<InternalCall> &custom_icalls = itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
 
         OS::get_singleton()->print(FormatVE("Generating %s...\n", itype.name.c_str()));
 
@@ -2291,7 +2291,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
     obj_types.clear();
 
-    PODVector<StringName> class_list;
+    Vector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
     eastl::sort(class_list.begin(),class_list.end(),WrapAlphaCompare());
 
@@ -2341,7 +2341,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         // Populate properties
 
-        PODVector<PropertyInfo> property_list;
+        Vector<PropertyInfo> property_list;
         ClassDB::get_property_list(type_cname, &property_list, true);
 
         Map<StringName, StringName> accessor_methods;
@@ -2393,10 +2393,10 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         // Populate methods
 
-        PODVector<MethodInfo> virtual_method_list;
+        Vector<MethodInfo> virtual_method_list;
         ClassDB::get_virtual_methods(type_cname, &virtual_method_list, true);
 
-        PODVector<MethodInfo> method_list;
+        Vector<MethodInfo> method_list;
         ClassDB::get_method_list(type_cname, &method_list, true);
         eastl::sort(method_list.begin(),method_list.end());
         for (const MethodInfo &method_info : method_list) {
@@ -2574,10 +2574,10 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
         // Populate enums and constants
 
-        ListPOD<String> constants;
+        List<String> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
-        const DefHashMap<StringName, ListPOD<StringName> > &enum_map = class_iter->second.enum_map;
+        const DefHashMap<StringName, List<StringName> > &enum_map = class_iter->second.enum_map;
         for(const auto &F: enum_map) {
             auto parts = StringUtils::split(F.first,"::");
             if(parts.size()>1 && itype.name==parts[0]) {
@@ -2592,7 +2592,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 enum_proxy_cname = StringName(enum_proxy_name);
             }
             EnumInterface ienum(enum_proxy_cname);
-            const ListPOD<StringName> &enum_constants = F.second;
+            const List<StringName> &enum_constants = F.second;
             for (const StringName &constant_cname : enum_constants) {
                 String constant_name(constant_cname);
                 auto value = class_iter->second.constant_map.find(constant_cname);
@@ -3198,7 +3198,7 @@ void BindingsGenerator::_populate_global_constants() {
     }
 
     // HARDCODED
-    PODVector<StringName> hardcoded_enums;
+    Vector<StringName> hardcoded_enums;
     hardcoded_enums.push_back("Vector3.Axis");
     for (const StringName &E : hardcoded_enums) {
         // These enums are not generated and must be written manually (e.g.: Vector3.Axis)
@@ -3260,7 +3260,7 @@ void BindingsGenerator::_initialize() {
     initialized = true;
 }
 
-void BindingsGenerator::handle_cmdline_args(const ListPOD<String> &p_cmdline_args) {
+void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) {
 
     const int NUM_OPTIONS = 2;
     const String generate_all_glue_option = "--generate-mono-glue";

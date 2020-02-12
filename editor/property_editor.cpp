@@ -163,7 +163,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
                     String type = hint == PropertyHint::ResourceType ? hint_text : String();
 
-                    PODVector<String> extensions;
+                    Vector<String> extensions;
                     for (int i = 0; i < StringUtils::get_slice_count(type,','); i++) {
 
                         ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
@@ -207,9 +207,9 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     if (not res_orig)
                         return;
 
-                    PODVector<PropertyInfo> property_list;
+                    Vector<PropertyInfo> property_list;
                     res_orig->get_property_list(&property_list);
-                    PODVector<Pair<StringName, Variant> > propvalues;
+                    Vector<Pair<StringName, Variant> > propvalues;
 
                     for (const PropertyInfo &pi : property_list) {
 
@@ -277,7 +277,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                         int to_type = p_which - CONVERT_BASE_ID;
 
-                        PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
+                        Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
 
                         ERR_FAIL_INDEX(to_type, conversions.size());
 
@@ -443,10 +443,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             } else if (hint == PropertyHint::Enum) {
 
-                PODVector<se_string_view> options = StringUtils::split(hint_text,',');
+                Vector<se_string_view> options = StringUtils::split(hint_text,',');
                 int current_val = 0;
                 for (int i = 0; i < options.size(); i++) {
-                    PODVector<se_string_view> text_split = StringUtils::split(options[i],':');
+                    Vector<se_string_view> text_split = StringUtils::split(options[i],':');
                     if (text_split.size() != 1)
                         current_val = StringUtils::to_int(text_split[1]);
                     menu->add_item(StringName(text_split[0]));
@@ -525,7 +525,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 easing_draw->show();
                 set_size(Size2(200, 150) * EDSCALE);
             } else if (hint == PropertyHint::Flags) {
-                PODVector<se_string_view> flags = StringUtils::split(hint_text,',');
+                Vector<se_string_view> flags = StringUtils::split(hint_text,',');
                 for (int i = 0; i < flags.size(); i++) {
                     se_string_view flag = flags[i];
                     if (flag.empty())
@@ -542,7 +542,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 return false;
 
             } else {
-                PODVector<StringName> names;
+                Vector<StringName> names;
                 names.push_back(StringName("value:"));
                 config_value_editors(1, 1, 50, names);
                 value_editor[0]->set_text(StringUtils::num(v));
@@ -568,7 +568,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 config_action_buttons(names);
             } else if (hint == PropertyHint::Enum) {
 
-                PODVector<se_string_view> options = StringUtils::split(hint_text,',');
+                Vector<se_string_view> options = StringUtils::split(hint_text,',');
                 for (int i = 0; i < options.size(); i++) {
                     menu->add_item(StringName(options[i]), i);
                 }
@@ -717,7 +717,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 return false;
 
             } else {
-                PODVector<StringName> names;
+                Vector<StringName> names;
                 names.push_back(StringName("string:"));
                 config_value_editors(1, 1, 50, names);
                 value_editor[0]->set_text_uistring(v);
@@ -916,7 +916,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             } else if (!hint_text.empty()) {
                 int idx = 0;
 
-                PODVector<EditorData::CustomType> custom_resources;
+                Vector<EditorData::CustomType> custom_resources;
 
                 if (EditorNode::get_editor_data().get_custom_types().contains("Resource")) {
                     custom_resources = EditorNode::get_editor_data().get_custom_types().at("Resource");
@@ -928,7 +928,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
                     Set<StringName> valid_inheritors;
                     valid_inheritors.insert(base);
-                    PODVector<StringName> inheritors;
+                    Vector<StringName> inheritors;
                     ClassDB::get_inheriters_from_class(StringName(StringUtils::strip_edges(base)), &inheritors);
 
                     for (int j = 0; j < custom_resources.size(); j++) {
@@ -1023,7 +1023,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             if (RES(v)) {
 
-                PODVector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
+                Vector<Ref<EditorResourceConversionPlugin> > conversions = EditorNode::get_singleton()->find_resource_conversion_plugin(RES(v));
                 if (!conversions.empty()) {
                     menu->add_separator();
                 }
@@ -1288,7 +1288,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     file->clear_filters();
 
                     if (!hint_text.empty()) {
-                        PODVector<se_string_view> extensions = StringUtils::split(hint_text,',');
+                        Vector<se_string_view> extensions = StringUtils::split(hint_text,',');
                         for (int i = 0; i < extensions.size(); i++) {
 
                             String filter(extensions[i]);
@@ -1386,7 +1386,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
 
                 file->set_access(EditorFileDialog::ACCESS_RESOURCES);
                 file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-                PODVector<String> extensions;
+                Vector<String> extensions;
                 StringName type = hint == PropertyHint::ResourceType ? StringName(hint_text) : StringName();
 
                 ResourceLoader::get_recognized_extensions_for_type(type, extensions);
@@ -1419,9 +1419,9 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 if (not res_orig)
                     return;
 
-                PODVector<PropertyInfo> property_list;
+                Vector<PropertyInfo> property_list;
                 res_orig->get_property_list(&property_list);
-                PODVector<Pair<StringName, Variant> > propvalues;
+                Vector<Pair<StringName, Variant> > propvalues;
 
                 for (PropertyInfo &pi :property_list) {
 
@@ -1837,7 +1837,7 @@ void CustomPropertyEditor::config_action_buttons(Span<const StringName> p_string
     set_size(Size2(max_width, height) + Size2(margin_left + margin_right, margin_top + margin_bottom));
 }
 
-void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int p_label_w, const PODVector<StringName> &p_strings) {
+void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int p_label_w, const Vector<StringName> &p_strings) {
 
     int cell_width = 95;
     int cell_height = 25;
@@ -1867,7 +1867,7 @@ void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int
         }
     }
 }
-void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const PODVector<se_string_view> &p_strings) {
+void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<se_string_view> &p_strings) {
 
     int cell_width = 95;
     int cell_height = 25;

@@ -151,7 +151,7 @@ bool GDScriptParser::_enter_indent_block(BlockNode *p_block) {
     }
 }
 
-bool GDScriptParser::_parse_arguments(Node *p_parent, PODVector<Node *> &p_args, bool p_static, bool p_can_codecomplete, bool p_parsing_constant) {
+bool GDScriptParser::_parse_arguments(Node *p_parent, Vector<Node *> &p_args, bool p_static, bool p_can_codecomplete, bool p_parsing_constant) {
 
     if (tokenizer->get_token() == GDScriptTokenizer::TK_PARENTHESIS_CLOSE) {
         tokenizer->advance();
@@ -259,7 +259,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
     //Vector<Node*> expressions;
     //Vector<OperatorNode::Operator> operators;
 
-    PODVector<Expression> expression;
+    Vector<Expression> expression;
 
     Node *expr = nullptr;
 
@@ -2254,7 +2254,7 @@ GDScriptParser::PatternNode *GDScriptParser::_parse_pattern(bool p_static) {
     return pattern;
 }
 
-void GDScriptParser::_parse_pattern_block(BlockNode *p_block, PODVector<PatternBranchNode *> &p_branches, bool p_static) {
+void GDScriptParser::_parse_pattern_block(BlockNode *p_block, Vector<PatternBranchNode *> &p_branches, bool p_static) {
     IndentLevel current_level = indent_level.back()->deref();
 
     p_block->has_return = true;
@@ -3120,8 +3120,8 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     if (op->op == OperatorNode::OP_CALL && op->arguments[0]->type == Node::TYPE_BUILT_IN_FUNCTION && static_cast<BuiltInFunctionNode *>(op->arguments[0])->function == GDScriptFunctions::GEN_RANGE) {
                         //iterating a range, so see if range() can be optimized without allocating memory, by replacing it by vectors (which can work as iterable too!)
 
-                        PODVector<Node *> args;
-                        PODVector<double> constants;
+                        Vector<Node *> args;
+                        Vector<double> constants;
 
                         bool constant = false;
 
@@ -3320,7 +3320,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     }
                 tokenizer->advance();
 
-                PODVector<Node *> args;
+                Vector<Node *> args;
                 const bool result = _parse_arguments(p_block, args, p_static);
                 if (!result) {
                     return;
@@ -3794,11 +3794,11 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 tokenizer->advance();
 
-                PODVector<StringName> arguments;
-                PODVector<DataType> argument_types;
-                PODVector<Node *> default_values;
+                Vector<StringName> arguments;
+                Vector<DataType> argument_types;
+                Vector<Node *> default_values;
 #ifdef DEBUG_ENABLED
-                PODVector<int> arguments_usage;
+                Vector<int> arguments_usage;
 #endif // DEBUG_ENABLED
 
                 int fnline = tokenizer->get_token_line();
@@ -4556,7 +4556,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                             current_export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
                             Dictionary enum_values = constant;
 
-                            PODVector<Variant> keys(enum_values.get_key_list());
+                            Vector<Variant> keys(enum_values.get_key_list());
 
                             bool first = true;
                             for (const Variant &E : keys) {
@@ -5332,7 +5332,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                 }
                 p = nullptr;
             } else {
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
                 for(const PropertyInfo & E : props) {
                     StringName s = E.name;
@@ -5706,7 +5706,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
                 name_part++;
                 continue;
             }
-            PODVector<PropertyInfo> props;
+            Vector<PropertyInfo> props;
             ProjectSettings::get_singleton()->get_property_list(&props);
             String singleton_path;
             for(const PropertyInfo & E : props) {
@@ -6778,7 +6778,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
     return node_type;
 }
 
-bool GDScriptParser::_get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, PODVector<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const {
+bool GDScriptParser::_get_function_signature(DataType &p_base_type, const StringName &p_function, DataType &r_return_type, Vector<DataType> &r_arg_types, int &r_default_arg_count, bool &r_static, bool &r_vararg) const {
 
     r_static = false;
     r_default_arg_count = 0;
@@ -6898,7 +6898,7 @@ bool GDScriptParser::_get_function_signature(DataType &p_base_type, const String
 
     if (!method) {
         // Try virtual methods
-        PODVector<MethodInfo> virtuals;
+        Vector<MethodInfo> virtuals;
         ClassDB::get_virtual_methods(native, &virtuals);
 
         for (const MethodInfo &mi : virtuals) {
@@ -6962,7 +6962,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
     }
 
     DataType return_type;
-    PODVector<DataType> arg_types;
+    Vector<DataType> arg_types;
     int default_args_count = 0;
     int arg_count = p_call->arguments.size();
     StringName callee_name;
@@ -6973,7 +6973,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
             // Built-in constructor, special case
             TypeNode *tn = static_cast<TypeNode *>(p_call->arguments[0]);
 
-            PODVector<DataType> par_types;
+            Vector<DataType> par_types;
             par_types.reserve(p_call->arguments.size() - 1);
             for (int i = 1; i < p_call->arguments.size(); i++) {
                 par_types.emplace_back(_reduce_node_type(p_call->arguments[i]));
@@ -6991,7 +6991,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
                 }
             }
             bool match = false;
-            PODVector<MethodInfo> constructors;
+            Vector<MethodInfo> constructors;
             Variant::get_constructor_list(tn->vtype, &constructors);
             PropertyInfo return_type2;
 
@@ -7372,7 +7372,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             return true;
         }
 
-        PODVector<PropertyInfo> properties;
+        Vector<PropertyInfo> properties;
         scr->get_script_property_list(&properties);
         for(const PropertyInfo & E : properties) {
             if (E.name == p_member) {
@@ -7414,7 +7414,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
     }
 
     if (!base_type.is_meta_type) {
-        PODVector<PropertyInfo> properties;
+        Vector<PropertyInfo> properties;
         ClassDB::get_property_list(native, &properties);
         for(const PropertyInfo & E : properties) {
             if (E.name == p_member) {
@@ -7454,7 +7454,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             return true;
         }
 
-        PODVector<PropertyInfo> properties;
+        Vector<PropertyInfo> properties;
         ClassDB::get_property_list(native, &properties);
         for(const PropertyInfo & E : properties) {
             if (E.name == p_member) {
@@ -7593,7 +7593,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
         }
 
         // Non-tool singletons aren't loaded, check project settings
-        PODVector<PropertyInfo> props;
+        Vector<PropertyInfo> props;
         ProjectSettings::get_singleton()->get_property_list(&props);
 
         for(const PropertyInfo & E : props) {
@@ -7639,7 +7639,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
 #ifdef DEBUG_ENABLED
     {
         DataType tmp_type;
-        PODVector<DataType> arg_types;
+        Vector<DataType> arg_types;
         int argcount;
         bool _static;
         bool vararg;
@@ -7905,7 +7905,7 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
         // Signature for the initializer may vary
 #ifdef DEBUG_ENABLED
         DataType return_type;
-        PODVector<DataType> arg_types;
+        Vector<DataType> arg_types;
         int default_arg_count = 0;
         bool _static = false;
         bool vararg = false;
@@ -8502,7 +8502,7 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
 #ifdef DEBUG_ENABLED
 
     // Resolve warning ignores
-    PODVector<Pair<int, String> > warning_skips(tokenizer->get_warning_skips());
+    Vector<Pair<int, String> > warning_skips(tokenizer->get_warning_skips());
     bool warning_is_error = GLOBAL_GET("debug/gdscript/warnings/treat_warnings_as_errors").booleanize();
     for (auto E = warnings.begin(); E!=warnings.end();) {
         GDScriptWarning &w = *E;
@@ -8534,7 +8534,7 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
     return OK;
 }
 
-Error GDScriptParser::parse_bytecode(const PODVector<uint8_t> &p_bytecode, se_string_view p_base_path, se_string_view p_self_path) {
+Error GDScriptParser::parse_bytecode(const Vector<uint8_t> &p_bytecode, se_string_view p_base_path, se_string_view p_self_path) {
 
     clear();
 

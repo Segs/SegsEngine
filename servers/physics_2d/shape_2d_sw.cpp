@@ -952,7 +952,7 @@ void ConcavePolygonShape2DSW::set_data(const Variant &p_data) {
             points[E.second] = E.first;
         }
 
-        PODVector<BVH> main_vbh;
+        Vector<BVH> main_vbh;
         main_vbh.resize(segments.size());
         for (int i = 0; i < main_vbh.size(); i++) {
 

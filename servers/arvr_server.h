@@ -79,8 +79,8 @@ public:
     };
 
 private:
-    PODVector<Ref<ARVRInterface> > interfaces;
-    PODVector<ARVRPositionalTracker *> trackers;
+    Vector<Ref<ARVRInterface> > interfaces;
+    Vector<ARVRPositionalTracker *> trackers;
 
     Ref<ARVRInterface> primary_interface; /* we'll identify one interface as primary, this will be used by our viewports */
 

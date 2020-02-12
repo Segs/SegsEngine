@@ -92,7 +92,7 @@ class GODOT_EXPORT ShaderMaterial : public Material {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 public:
     bool property_can_revert(StringName p_name);
     Variant property_get_revert(StringName p_name);
@@ -100,7 +100,7 @@ protected:
 
     static void _bind_methods();
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
     bool _can_do_next_pass() const override;
 

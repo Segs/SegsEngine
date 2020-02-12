@@ -137,7 +137,7 @@ String EditorFileSystemDirectory::get_named_file_path(se_string_view named_file)
     return "res://" + file;
 }
 
-const PODVector<String> &EditorFileSystemDirectory::get_file_deps(int p_idx) const {
+const Vector<String> &EditorFileSystemDirectory::get_file_deps(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, files.size(), null_string_pvec);
     return files[p_idx]->deps;
@@ -247,14 +247,14 @@ void EditorFileSystem::_scan_from_cache()
         if (l.empty()) continue;
 
         if (StringUtils::begins_with(l, "::")) {
-            PODVector<se_string_view> split = StringUtils::split(l, "::");
+            Vector<se_string_view> split = StringUtils::split(l, "::");
             ERR_CONTINUE(split.size() != 3);
             se_string_view name = split[1];
 
             cpath = name;
 
         } else {
-            PODVector<se_string_view> split = StringUtils::split(l, "::");
+            Vector<se_string_view> split = StringUtils::split(l, "::");
             ERR_CONTINUE(split.size() != 8);
             String name = PathUtils::plus_file(cpath, split[0]);
 
@@ -270,7 +270,7 @@ void EditorFileSystem::_scan_from_cache()
 
             se_string_view deps = StringUtils::strip_edges(split[7]);
             if (deps.length()) {
-                PODVector<se_string_view> dp = StringUtils::split(deps, "<>");
+                Vector<se_string_view> dp = StringUtils::split(deps, "<>");
                 for (int i = 0; i < dp.size(); i++) {
                     se_string_view path = dp[i];
                     fc.deps.emplace_back(path);
@@ -395,11 +395,11 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
     int lines = 0;
     String error_text;
 
-    PODVector<String> to_check;
+    Vector<String> to_check;
 
     String source_file;
     String source_md5;
-    PODVector<String> dest_files;
+    Vector<String> dest_files;
     String dest_md5;
 
     while (true) {
@@ -430,7 +430,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
                 if (assign == "source_file") {
                     source_file = value.as<String>();
                 } else if (assign == "dest_files") {
-                    dest_files = value.as<PODVector<String>>();
+                    dest_files = value.as<Vector<String>>();
                 }
             }
 
@@ -519,7 +519,7 @@ bool EditorFileSystem::_update_scan_actions() {
 
     bool fs_changed = false;
 
-    PODVector<String> reimports;
+    Vector<String> reimports;
     PoolVector<String> reloads;
 
     for (ItemAction &ia : scan_actions) {
@@ -687,8 +687,8 @@ EditorFileSystem::ScanProgress EditorFileSystem::ScanProgress::get_sub(int p_cur
 
 void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess *da, const ScanProgress &p_progress) {
 
-    PODVector<String> dirs;
-    PODVector<String> files;
+    Vector<String> dirs;
+    Vector<String> files;
 
     String cd = da->get_current_dir();
 
@@ -1052,7 +1052,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
 
 void EditorFileSystem::_delete_internal_files(se_string_view p_file) {
     if (FileAccess::exists(String(p_file) + ".import")) {
-        PODVector<String> paths;
+        Vector<String> paths;
         ResourceFormatImporter::get_singleton()->get_internal_resource_path_list(p_file, &paths);
         DirAccess *da = DirAccess::create(DirAccess::ACCESS_RESOURCES);
         for (const String &E : paths) {
@@ -1077,7 +1077,7 @@ void EditorFileSystem::_thread_func_sources(void *_userdata) {
     efs->scanning_changes_done = true;
 }
 
-void EditorFileSystem::get_changed_sources(ListPOD<UIString> *r_changed) {
+void EditorFileSystem::get_changed_sources(List<UIString> *r_changed) {
 
     *r_changed = sources_changed;
 }
@@ -1253,7 +1253,7 @@ bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirecto
     f = StringUtils::substr(f,6, f.length());
     f = PathUtils::from_native_path(f);
 
-    PODVector<se_string_view> path = StringUtils::split(f,'/');
+    Vector<se_string_view> path = StringUtils::split(f,'/');
 
     if (path.empty())
         return false;
@@ -1366,7 +1366,7 @@ EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(se_string_view 
     if (StringUtils::ends_with(f,"/"))
         f = StringUtils::substr(f,0, f.length() - 1);
 
-    PODVector<se_string_view> path = StringUtils::split(f,'/');
+    Vector<se_string_view> path = StringUtils::split(f,'/');
 
     if (path.empty())
         return nullptr;
@@ -1405,9 +1405,9 @@ void EditorFileSystem::_save_late_updated_files() {
     }
 }
 
-PODVector<String> EditorFileSystem::_get_dependencies(se_string_view p_path) {
+Vector<String> EditorFileSystem::_get_dependencies(se_string_view p_path) {
 
-    PODVector<String> deps;
+    Vector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
 
     return deps;
@@ -1559,7 +1559,7 @@ void EditorFileSystem::update_file(se_string_view p_file) {
     _queue_update_script_classes();
 }
 
-Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVector<String> &p_files) {
+Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vector<String> &p_files) {
 
     String importer_name;
 
@@ -1585,7 +1585,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
 
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
         ERR_FAIL_COND_V(importer==nullptr, ERR_FILE_CORRUPT);
-        ListPOD<ResourceImporter::ImportOption> options;
+        List<ResourceImporter::ImportOption> options;
         importer->get_import_options(&options);
         //set default values
         for (const ResourceImporter::ImportOption &E : options) {
@@ -1594,7 +1594,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
         }
 
         if (config->has_section("params")) {
-            PODVector<String> sk = config->get_section_keys("params");
+            Vector<String> sk = config->get_section_keys("params");
             for (const String &param : sk) {
                 Variant value = config->get_value("params", param);
                 //override with whathever is in file
@@ -1627,7 +1627,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
             f->store_line(String("type=\"") + importer->get_resource_type() + "\"");
         }
 
-        PODVector<String> dest_paths;
+        Vector<String> dest_paths;
 
         if (err == OK) {
             String path = base_path + "." + importer->get_save_extension();
@@ -1659,7 +1659,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const PODVe
 
         //store options in provided order, to avoid file changing. Order is also important because first match is accepted first.
 
-        ListPOD<ResourceImporter::ImportOption> options;
+        List<ResourceImporter::ImportOption> options;
         importer->get_import_options(&options);
         //set default values
         for (const ResourceImporter::ImportOption &F : options) {
@@ -1736,7 +1736,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
         Error err = cf->load(p_file + ".import");
         if (err == OK) {
             if (cf->has_section("params")) {
-                PODVector<String> sk = cf->get_section_keys("params");
+                Vector<String> sk = cf->get_section_keys("params");
                 for (const String &E : sk) {
                     params[StringName(E)] = cf->get_value("params", E);
                 }
@@ -1769,7 +1769,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     //mix with default params, in case a parameter is missing
 
-    ListPOD<ResourceImporter::ImportOption> opts;
+    List<ResourceImporter::ImportOption> opts;
     importer->get_import_options(&opts);
     for (const ResourceImporter::ImportOption &E : opts) {
         if (!params.contains(E.option.name)) { //this one is not present
@@ -1780,7 +1780,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     if (load_default && ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + importer->get_importer_name()))) {
         //use defaults if exist
         Dictionary d = ProjectSettings::get_singleton()->get(StringName(String("importer_defaults/") + importer->get_importer_name()));
-        PODVector<Variant> v(d.get_key_list());
+        Vector<Variant> v(d.get_key_list());
 
         for (const Variant &E : v) {
             params[E] = d[E];
@@ -1790,8 +1790,8 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     //finally, perform import!!
     String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(p_file);
 
-    PODVector<String> import_variants;
-    PODVector<String> gen_files;
+    Vector<String> import_variants;
+    Vector<String> gen_files;
     Variant metadata;
     Error err = importer->import(p_file, base_path, params, &import_variants, &gen_files, &metadata);
 
@@ -1812,7 +1812,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
         f->store_line(String("type=\"") + importer->get_resource_type() + "\"");
     }
 
-    PODVector<String> dest_paths;
+    Vector<String> dest_paths;
 
     if (err == OK) {
 
@@ -1919,7 +1919,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
 }
 
-void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<String, PODVector<String> > &group_files, Set<String> &groups_to_reimport) {
+void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<String, Vector<String> > &group_files, Set<String> &groups_to_reimport) {
 
     for (EditorFileSystemDirectory::FileInfo * fi : efd->files) {
         if (groups_to_reimport.contains(fi->import_group_file)) {
@@ -1932,7 +1932,7 @@ void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<Str
     }
 }
 
-void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
+void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
 
     { //check that .import folder exists
         DirAccess *da = DirAccess::open("res://");
@@ -1949,7 +1949,7 @@ void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
     importing = true;
     EditorProgress pr(("reimport"), TTR("(Re)Importing Assets"), p_files.size());
 
-    PODVector<ImportFile> files;
+    Vector<ImportFile> files;
     Set<String> groups_to_reimport;
 
     for (int i = 0; i < p_files.size(); i++) {
@@ -1991,9 +1991,9 @@ void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
     //reimport groups
 
     if (!groups_to_reimport.empty()) {
-        Map<String, PODVector<String> > group_files;
+        Map<String, Vector<String> > group_files;
         _find_group_files(filesystem, group_files, groups_to_reimport);
-        for (eastl::pair<const String,PODVector<String> > &E : group_files) {
+        for (eastl::pair<const String,Vector<String> > &E : group_files) {
 
             Error err = _reimport_group(E.first, E.second);
             if (err == OK) {
@@ -2013,7 +2013,7 @@ void EditorFileSystem::reimport_files(const PODVector<String> &p_files) {
 
 Error EditorFileSystem::_resource_import(se_string_view p_path) {
 
-    PODVector<String> files { String(p_path) };
+    Vector<String> files { String(p_path) };
 
     singleton->update_file(p_path);
     singleton->reimport_files(files);
@@ -2044,7 +2044,7 @@ void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, se_stri
                 config->set_value("remap", "group_file", p_new_location);
             }
 
-            PODVector<String> sk = config->get_section_keys("params");
+            Vector<String> sk = config->get_section_keys("params");
             for (const String & param : sk) {
                 //not very clean, but should work
                 String value = config->get_value("params", param);
@@ -2097,7 +2097,7 @@ void EditorFileSystem::_update_extensions() {
     valid_extensions.clear();
     import_extensions.clear();
 
-    PODVector<String> extensionsl;
+    Vector<String> extensionsl;
     ResourceLoader::get_recognized_extensions_for_type("", extensionsl);
     for (const String &E : extensionsl) {
 

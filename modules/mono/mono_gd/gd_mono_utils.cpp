@@ -368,7 +368,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
     separator.func = "--- " + RTR("End of inner exception stack trace") + " ---";
     separator.line = 0;
 
-    PODVector<ScriptLanguage::StackInfo> si;
+    Vector<ScriptLanguage::StackInfo> si;
     String exc_msg;
 
     while (p_exc != nullptr) {
@@ -386,7 +386,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
             return;
         }
 
-        PODVector<ScriptLanguage::StackInfo> _si;
+        Vector<ScriptLanguage::StackInfo> _si;
         if (stack_trace != nullptr) {
             _si = CSharpLanguage::get_singleton()->stack_trace_get_info(stack_trace);
             for (int i = _si.size() - 1; i >= 0; i--)

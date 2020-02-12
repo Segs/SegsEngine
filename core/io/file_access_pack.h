@@ -93,7 +93,7 @@ private:
             a = b = 0;
         }
 
-        PathMD5(const PODVector<uint8_t> &p_buf) {
+        PathMD5(const Vector<uint8_t> &p_buf) {
             assert(p_buf.size()>=16);
             a = *((uint64_t *)&p_buf[0]);
             b = *((uint64_t *)&p_buf[8]);
@@ -103,7 +103,7 @@ private:
 
     Map<PathMD5, PackedDataFile> files;
 
-    PODVector<PackSourceInterface *> sources;
+    Vector<PackSourceInterface *> sources;
 
     PackedDir *root;
     //Map<String,PackedDir*> dirs;
@@ -153,8 +153,8 @@ class DirAccessPack : public DirAccess {
 
     PackedData::PackedDir *current;
 
-    PODVector<String> list_dirs;
-    PODVector<String> list_files;
+    Vector<String> list_dirs;
+    Vector<String> list_files;
     int m_dir_offset=0;
     int m_file_offset=0;
     bool cdir;

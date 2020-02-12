@@ -35,12 +35,12 @@
 
 IMPL_GDCLASS(CapsuleShape)
 
-PODVector<Vector3> CapsuleShape::get_debug_mesh_lines() {
+Vector<Vector3> CapsuleShape::get_debug_mesh_lines() {
 
     float radius = get_radius();
     float height = get_height();
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
 
     Vector3 d(0, 0, height * 0.5f);
     for (int i = 0; i < 360; i++) {

@@ -69,7 +69,7 @@ LONG _RegOpenKey(HKEY hKey, LPCWSTR lpSubKey, PHKEY phkResult) {
 
 LONG _RegKeyQueryString(HKEY hKey, const String &p_value_name, String &r_value) {
 
-	PODVector<WCHAR> buffer;
+	Vector<WCHAR> buffer;
 	buffer.resize(512);
 	DWORD dwBufferSize = buffer.size();
     UIString vn(StringUtils::from_utf8(p_value_name));
@@ -175,7 +175,7 @@ String find_msbuild_tools_path() {
 	String vswhere_path = OS::get_singleton()->get_environment(sizeof(size_t) == 8 ? "ProgramFiles(x86)" : "ProgramFiles");
 	vswhere_path += "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
 
-	ListPOD<String> vswhere_args;
+	List<String> vswhere_args;
 	vswhere_args.push_back("-latest");
 	vswhere_args.push_back("-products");
 	vswhere_args.push_back("*");
@@ -187,7 +187,7 @@ String find_msbuild_tools_path() {
 	OS::get_singleton()->execute(vswhere_path, vswhere_args, true, nullptr, &output, &exit_code);
 
 	if (exit_code == 0) {
-		PODVector<se_string_view> lines = StringUtils::split(output,'\n');
+		Vector<se_string_view> lines = StringUtils::split(output,'\n');
 
 		for (int i = 0; i < lines.size(); i++) {
 			se_string_view line = lines[i];

@@ -78,7 +78,7 @@ public:
 	void set_fallback_environment(const Ref<Environment> &p_environment);
 	Ref<Environment> get_fallback_environment() const;
 
-    void get_camera_list(PODVector<Camera *> *r_cameras);
+    void get_camera_list(Vector<Camera *> *r_cameras);
 
 	PhysicsDirectSpaceState *get_direct_space_state();
 

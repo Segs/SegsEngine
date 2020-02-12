@@ -42,8 +42,8 @@
 struct PackData {
     Rect2 region;
     bool is_mesh;
-    PODVector<int> chart_pieces; // one for region, many for mesh
-    PODVector<PODVector<Vector2>> chart_vertices; // for mesh
+    Vector<int> chart_pieces; // one for region, many for mesh
+    Vector<Vector<Vector2>> chart_vertices; // for mesh
     Ref<Image> image;
 };
 
@@ -57,7 +57,7 @@ StringName ResourceImporterTextureAtlas::get_visible_name() const {
 
     return "TextureAtlas";
 }
-void ResourceImporterTextureAtlas::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceImporterTextureAtlas::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -84,7 +84,7 @@ StringName ResourceImporterTextureAtlas::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterTextureAtlas::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterTextureAtlas::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "atlas_file", PropertyHint::SaveFile, "*.png"), ""));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "import_mode", PropertyHint::Enum, "Region,Mesh2D"), 0));
@@ -94,8 +94,8 @@ StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
-        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
 
@@ -207,8 +207,8 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
 
     ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG); //should never happen
 
-    PODVector<EditorAtlasPacker::Chart> charts;
-    PODVector<PackData> pack_data_files;
+    Vector<EditorAtlasPacker::Chart> charts;
+    Vector<PackData> pack_data_files;
 
     pack_data_files.resize(p_source_file_options.size());
 
@@ -262,7 +262,7 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
             Ref<BitMap> bit_map(make_ref_counted<BitMap>());
 
             bit_map->create_from_image_alpha(image);
-            PODVector<PODVector<Vector2> > polygons(bit_map->clip_opaque_to_polygons(Rect2(0, 0, image->get_width(), image->get_height())));
+            Vector<Vector<Vector2> > polygons(bit_map->clip_opaque_to_polygons(Rect2(0, 0, image->get_width(), image->get_height())));
 
             for (auto & polygon : polygons) {
 
@@ -270,7 +270,7 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
                 chart.vertices = polygon;
                 chart.can_transpose = true;
 
-                PODVector<int> poly = Geometry::triangulate_polygon(polygon);
+                Vector<int> poly = Geometry::triangulate_polygon(polygon);
                 for (size_t i = 0; i < poly.size(); i += 3) {
 
                     EditorAtlasPacker::Chart::Face f;
@@ -359,9 +359,9 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
 
             for (size_t i = 0; i < pack_data.chart_pieces.size(); i++) {
                 const EditorAtlasPacker::Chart &chart = charts[pack_data.chart_pieces[i]];
-                PODVector<Vector2> vertices;
-                PODVector<int> indices;
-                PODVector<Vector2> uvs;
+                Vector<Vector2> vertices;
+                Vector<int> indices;
+                Vector<Vector2> uvs;
                 size_t vc = chart.vertices.size();
                 size_t fc = chart.faces.size();
                 vertices.resize(vc);
