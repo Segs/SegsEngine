@@ -5,8 +5,6 @@
 #include "core/map.h"
 #include "core/error_list.h"
 
-template <class T>
-class Vector;
 class EditorServiceInterface;
 /* NOTE: the orignal importer order was as follows:
  * ResourceImporterTexture 14

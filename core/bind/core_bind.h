@@ -44,7 +44,7 @@ class Image;
 class FileAccess;
 class DirAccess;
 class Thread;
-class Semaphore;
+class SemaphoreOld;
 
 using RES = Ref<Resource>;
 namespace std {
@@ -109,7 +109,7 @@ protected:
 public:
     enum VideoDriver {
         VIDEO_DRIVER_GLES3,
-        VIDEO_DRIVER_GLES2,
+        VIDEO_DRIVER_VULKAN,
     };
 
     enum PowerState {
@@ -634,7 +634,7 @@ public:
 class _Semaphore : public RefCounted {
 
     GDCLASS(_Semaphore, RefCounted);
-    Semaphore *semaphore;
+    SemaphoreOld *semaphore;
 
     static void _bind_methods();
 

@@ -37,8 +37,6 @@
 
 class Array;
 class Variant;
-template <class T>
-class Vector;
 using CharString = QByteArray;
 using CharProxy = QCharRef;
 using CharType = QChar;

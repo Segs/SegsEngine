@@ -140,6 +140,19 @@ void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, PODVec
     }
 }
 
+StringName ClassDB::get_compatibility_remapped_class(const StringName &p_class) {
+
+    if (classes.contains(p_class)) {
+        return p_class;
+    }
+
+    if (compat_classes.contains(p_class)) {
+        return compat_classes[p_class];
+    }
+
+    return p_class;
+}
+
 StringName ClassDB::get_parent_class_nocheck(const StringName &p_class) {
 
     RWLockRead _rw_lockr_(lock);

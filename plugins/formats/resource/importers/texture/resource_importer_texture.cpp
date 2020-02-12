@@ -463,21 +463,21 @@ Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_vi
 
         bool ok_on_pc = false;
         bool is_hdr = (image->get_format() >= Image::FORMAT_RF && image->get_format() <= Image::FORMAT_RGBE9995);
-        bool is_ldr = (image->get_format() >= Image::FORMAT_L8 && image->get_format() <= Image::FORMAT_RGBA5551);
+        bool is_ldr = (image->get_format() >= Image::FORMAT_L8 && image->get_format() <= Image::FORMAT_RGB565);
         bool can_bptc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_bptc").as<bool>();
         bool can_s3tc = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_s3tc").as<bool>();
 
         if (can_bptc) {
-            Image::DetectChannels channels = image->get_detected_channels();
+            ImageUsedChannels channels = image->detect_used_channels();
             if (is_hdr) {
 
-                if (channels == Image::DETECTED_LA || channels == Image::DETECTED_RGBA) {
+                if (channels == ImageUsedChannels::USED_CHANNELS_LA || channels == ImageUsedChannels::USED_CHANNELS_RGBA) {
                     can_bptc = false;
                 }
             } else if (is_ldr) {
 
                 //handle "RGBA Only" setting
-                if (bptc_ldr == 1 && channels != Image::DETECTED_LA && channels != Image::DETECTED_RGBA) {
+                if (bptc_ldr == 1 && channels != ImageUsedChannels::USED_CHANNELS_LA && channels != ImageUsedChannels::USED_CHANNELS_RGBA) {
                     can_bptc = false;
                 }
             }

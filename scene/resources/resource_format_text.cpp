@@ -104,7 +104,7 @@ Ref<Resource> ResourceInteractiveLoaderText::get_resource() {
     return resource;
 }
 
-Error ResourceInteractiveLoaderText::_parse_sub_resource_dummy(DummyReadData *p_data, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
+Error ResourceInteractiveLoaderText::_parse_sub_resource_dummy(DummyReadData *p_data, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
 
     VariantParser::Token token;
     VariantParser::get_token(p_stream, token, line, r_err_str);
@@ -133,7 +133,7 @@ Error ResourceInteractiveLoaderText::_parse_sub_resource_dummy(DummyReadData *p_
     return OK;
 }
 
-Error ResourceInteractiveLoaderText::_parse_ext_resource_dummy(DummyReadData *p_data, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
+Error ResourceInteractiveLoaderText::_parse_ext_resource_dummy(DummyReadData *p_data, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
 
     VariantParser::Token token;
     VariantParser::get_token(p_stream, token, line, r_err_str);
@@ -157,7 +157,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource_dummy(DummyReadData *p_
     return OK;
 }
 
-Error ResourceInteractiveLoaderText::_parse_sub_resource(VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
+Error ResourceInteractiveLoaderText::_parse_sub_resource(VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
 
     VariantParser::Token token;
     VariantParser::get_token(p_stream, token, line, r_err_str);
@@ -191,7 +191,7 @@ Error ResourceInteractiveLoaderText::_parse_sub_resource(VariantParser::Stream *
     return OK;
 }
 
-Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
+Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
 
     VariantParser::Token token;
     VariantParser::get_token(p_stream, token, line, r_err_str);

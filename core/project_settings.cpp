@@ -564,7 +564,7 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
         return ERR_FILE_NOT_FOUND;
     }
 
-    VariantParser::Stream *stream = VariantParser::get_file_stream(f);
+    VariantParserStream *stream = VariantParser::get_file_stream(f);
 
     String assign;
     Variant value;

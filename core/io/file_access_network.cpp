@@ -278,7 +278,7 @@ FileAccessNetworkClient::FileAccessNetworkClient() {
     singleton = this;
     last_id = 0;
     client= make_ref_counted<StreamPeerTCP>();
-    sem = Semaphore::create();
+    sem = SemaphoreOld::create();
     lockcount = 0;
 }
 
@@ -607,8 +607,8 @@ FileAccessNetwork::FileAccessNetwork() {
     eof_flag = false;
     opened = false;
     pos = 0;
-    sem = Semaphore::create();
-    page_sem = Semaphore::create();
+    sem = SemaphoreOld::create();
+    page_sem = SemaphoreOld::create();
     buffer_mutex = memnew(Mutex);
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     id = nc->record_access_source(this);

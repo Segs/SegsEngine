@@ -48,6 +48,10 @@ protected:
 public:
     void set_extents(const Vector3 &p_extents);
     Vector3 get_extents() const;
+    /// Returns the radius of a sphere that fully enclose this shape
+    real_t get_enclosing_radius() const override {
+        return extents.length();
+    }
 
     BoxShape();
 };

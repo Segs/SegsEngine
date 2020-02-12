@@ -49,6 +49,10 @@ public:
     void set_radius(float p_radius);
     float get_radius() const;
 
+    real_t get_enclosing_radius() const override {
+        return radius;
+    }
+
     SphereShape();
 };
 

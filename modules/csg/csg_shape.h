@@ -39,6 +39,7 @@
 
 class Mesh;
 
+
 class CSGShape : public GeometryInstance {
     GDCLASS(CSGShape,GeometryInstance)
 
@@ -113,6 +114,9 @@ protected:
     void _validate_property(PropertyInfo &property) const override;
 
 public:
+    PositionedMeshInfo get_meshes_root() const {
+        return { root_mesh,Transform() };
+    }
     Array get_meshes() const;
 
     void set_operation(Operation p_operation);

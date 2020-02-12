@@ -1214,7 +1214,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 return;
             }
 
-            VariantParser::Stream *ss = VariantParser::get_string_stream(*p_inputs[0]);
+            VariantParserStream *ss = VariantParser::get_string_stream(*p_inputs[0]);
 
             String errs;
             int line;

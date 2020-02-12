@@ -34,53 +34,60 @@
 #include "scene/resources/shape_2d.h"
 
 class SegmentShape2D : public Shape2D {
-	GDCLASS(SegmentShape2D,Shape2D)
+    GDCLASS(SegmentShape2D,Shape2D)
 
-	Vector2 a;
-	Vector2 b;
+    Vector2 a;
+    Vector2 b;
 
-	void _update_shape();
+    void _update_shape();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
-	void set_a(const Vector2 &p_a);
-	void set_b(const Vector2 &p_b);
+    void set_a(const Vector2 &p_a);
+    void set_b(const Vector2 &p_b);
 
-	Vector2 get_a() const;
-	Vector2 get_b() const;
+    Vector2 get_a() const;
+    Vector2 get_b() const;
 
-	void draw(const RID &p_to_rid, const Color &p_color) override;
-	Rect2 get_rect() const override;
+    real_t get_enclosing_radius() const override {
+        return (a + b).length();
+    }
+    void draw(const RID &p_to_rid, const Color &p_color) override;
+    Rect2 get_rect() const override;
 
-	SegmentShape2D();
+    SegmentShape2D();
 };
 
 class RayShape2D : public Shape2D {
-	GDCLASS(RayShape2D,Shape2D)
+    GDCLASS(RayShape2D,Shape2D)
 
-	real_t length;
-	bool slips_on_slope;
+    real_t length;
+    bool slips_on_slope;
 
-	void _update_shape();
+    void _update_shape();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	void set_length(real_t p_length);
-	real_t get_length() const;
+    void set_length(real_t p_length);
+    real_t get_length() const;
 
-	void set_slips_on_slope(bool p_active);
-	bool get_slips_on_slope() const;
+    void set_slips_on_slope(bool p_active);
+    bool get_slips_on_slope() const;
 
-	void draw(const RID &p_to_rid, const Color &p_color) override;
-	Rect2 get_rect() const override;
+    real_t get_enclosing_radius() const override {
+        return length;
+    }
 
-	RayShape2D();
+    void draw(const RID &p_to_rid, const Color &p_color) override;
+    Rect2 get_rect() const override;
+
+    RayShape2D();
 };
 
 #endif // SEGMENT_SHAPE_2D_H

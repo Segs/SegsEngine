@@ -37,6 +37,7 @@
 #include "core/string_utils.inl"
 #include "core/pool_vector.h"
 
+#include "EASTL/unique_ptr.h"
 
 IMPL_GDCLASS(ConfigFile)
 
@@ -247,7 +248,21 @@ Error ConfigFile::load_encrypted_pass(se_string_view p_path, se_string_view p_pa
 
 Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
 
-    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
+    eastl::unique_ptr<VariantParserStream,wrap_deleter> vps(VariantParser::get_file_stream(f));
+    Error err = _parse(p_path, vps.get());
+    vps.reset();
+    memdelete(f);
+
+    return err;
+}
+
+Error ConfigFile::parse(String &&p_data) {
+
+    eastl::unique_ptr<VariantParserStream,wrap_deleter> vps(VariantParser::get_string_stream(eastl::move(p_data)));
+    return _parse("<string>", vps.get());
+}
+
+Error ConfigFile::_parse(se_string_view p_path, VariantParserStream *p_stream) {
 
     String assign;
     Variant value;
@@ -264,16 +279,12 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
         next_tag.fields.clear();
         next_tag.name.clear();
 
-        Error err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        Error err = VariantParser::parse_tag_assign_eof(p_stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
-            VariantParser::release_stream(stream);
-            memdelete(f);
             return OK;
         } else if (err != OK) {
-            ERR_PRINT("ConfgFile::load - " + String(p_path) + ":" + ::to_string(lines) +
+            ERR_PRINT("ConfgFile - " + String(p_path) + ":" + ::to_string(lines) +
                       " error: " + error_text + ".");
-            VariantParser::release_stream(stream);
-            memdelete(f);
             return err;
         }
 
@@ -283,6 +294,7 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
             section = next_tag.name;
         }
     }
+    return OK;
 }
 
 void ConfigFile::_bind_methods() {
@@ -300,6 +312,7 @@ void ConfigFile::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("erase_section_key", {"section", "key"}), &ConfigFile::erase_section_key);
 
     MethodBinder::bind_method(D_METHOD("load", {"path"}), &ConfigFile::load);
+    MethodBinder::bind_method(D_METHOD("parse",{"data"}), &ConfigFile::parse);
     MethodBinder::bind_method(D_METHOD("save", {"path"}), &ConfigFile::save);
 
     MethodBinder::bind_method(D_METHOD("load_encrypted", {"path", "key"}), &ConfigFile::load_encrypted);

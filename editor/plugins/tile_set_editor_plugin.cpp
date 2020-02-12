@@ -2768,7 +2768,7 @@ void TileSetEditor::draw_polygon_shapes() {
                             colors.push_back(c_bg);
                         }
                     } else {
-                        PoolVector<Vector2> vertices = shape->get_vertices();
+                        const auto &vertices = shape->get_vertices();
                         for (int j = 0; j < shape->get_polygon(0).size(); j++) {
                             polygon.push_back(vertices[shape->get_polygon(0)[j]] + anchor);
                             colors.push_back(c_bg);
@@ -2816,7 +2816,7 @@ void TileSetEditor::draw_polygon_shapes() {
                                 colors.push_back(c_bg);
                             }
                         } else {
-                            PoolVector<Vector2> vertices = shape->get_vertices();
+                            const auto &vertices = shape->get_vertices();
                             for (int j = 0; j < shape->get_polygon(0).size(); j++) {
                                 polygon.push_back(vertices[shape->get_polygon(0)[j]] + anchor);
                                 colors.push_back(c_bg);
@@ -2926,19 +2926,18 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
     } else if (edit_mode == EDITMODE_NAVIGATION) {
         Ref<NavigationPolygon> shape(make_ref_counted<NavigationPolygon>());
 
-        PoolVector<Vector2> polygon;
-        PoolVector<int> indices;
-        polygon.resize(current_shape.size());
-        PoolVector<Vector2>::Write w = polygon.write();
+        PODVector<Vector2> polygon;
+        PODVector<int> indices;
+        polygon.reserve(current_shape.size());
+        indices.reserve(current_shape.size());
 
         for (int i = 0; i < current_shape.size(); i++) {
-            w[i] = current_shape[i] - shape_anchor;
+            polygon.emplace_back(current_shape[i] - shape_anchor);
             indices.push_back(i);
         }
 
-        w.release();
-        shape->set_vertices(polygon);
-        shape->add_polygon(indices);
+        shape->set_vertices(eastl::move(polygon));
+        shape->add_polygon(eastl::move(indices));
 
         undo_redo->create_action_ui(TTR("Create Navigation Polygon"));
         if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::AUTO_TILE || tileset->tile_get_tile_mode(get_current_tile()) == TileSet::ATLAS_TILE) {
@@ -2989,7 +2988,7 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
             current_shape.resize(0);
             if (edited_navigation_shape) {
                 if (edited_navigation_shape->get_polygon_count() > 0) {
-                    PoolVector<Vector2> vertices = edited_navigation_shape->get_vertices();
+                    const PODVector<Vector2> &vertices = edited_navigation_shape->get_vertices();
                     for (int i = 0; i < edited_navigation_shape->get_polygon(0).size(); i++) {
                         current_shape.push_back(vertices[edited_navigation_shape->get_polygon(0)[i]] + current_tile_region.position);
                     }
@@ -3038,7 +3037,7 @@ void TileSetEditor::select_coord(const Vector2 &coord) {
             current_shape.resize(0);
             if (edited_navigation_shape) {
                 if (edited_navigation_shape->get_polygon_count() > 0) {
-                    PoolVector<Vector2> vertices = edited_navigation_shape->get_vertices();
+                    const auto &vertices = edited_navigation_shape->get_vertices();
                     for (int i = 0; i < edited_navigation_shape->get_polygon(0).size(); i++) {
                         current_shape.push_back(vertices[edited_navigation_shape->get_polygon(0)[i]] + shape_anchor);
                     }

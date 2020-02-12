@@ -54,12 +54,12 @@ void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_l
         return;
     }
 
-    const char *err_type = "**ERROR**";
+    const char *err_type = "ERROR";
     switch (p_type) {
-        case ERR_ERROR: err_type = "**ERROR**"; break;
-        case ERR_WARNING: err_type = "**WARNING**"; break;
-        case ERR_SCRIPT: err_type = "**SCRIPT ERROR**"; break;
-        case ERR_SHADER: err_type = "**SHADER ERROR**"; break;
+        case ERR_ERROR: err_type = "ERROR"; break;
+        case ERR_WARNING: err_type = "WARNING"; break;
+        case ERR_SCRIPT: err_type = "SCRIPT ERROR"; break;
+        case ERR_SHADER: err_type = "SHADER ERROR"; break;
         default: ERR_PRINT("Unknown error type"); break;
     }
 
@@ -70,7 +70,11 @@ void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_l
         err_details = p_code;
 
     logf_error(FormatVE("%s: %.*s\n",err_type,err_details.size(),err_details.data()));
-    logf_error(FormatVE("   At: %.*s:%i:%.*s() - %.*s\n",p_file.size(),p_file.data(),p_line,p_function.size(),p_function.data(),p_code.size(),p_code.data()));
+    logf_error(FormatVE("   at: %.*s (%.*s:%i) - %.*s\n",
+                        p_function.size(),p_function.data(),
+                        p_file.size(),p_file.data(),p_line,
+                        p_code.size(),p_code.data())
+               );
 }
 
 void Logger::logf(se_string_view p_msg) {

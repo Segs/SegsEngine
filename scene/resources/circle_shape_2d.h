@@ -34,24 +34,29 @@
 #include "scene/resources/shape_2d.h"
 
 class CircleShape2D : public Shape2D {
-	GDCLASS(CircleShape2D,Shape2D)
+    GDCLASS(CircleShape2D,Shape2D)
 
-	real_t radius;
-	void _update_shape();
+    real_t radius;
+    void _update_shape();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
-	void set_radius(real_t p_radius);
-	real_t get_radius() const;
+    void set_radius(real_t p_radius);
+    real_t get_radius() const;
 
-	void draw(const RID &p_to_rid, const Color &p_color) override;
-	Rect2 get_rect() const override;
+    real_t get_enclosing_radius() const override {
+        return radius;
+    }
 
-	CircleShape2D();
+    void draw(const RID &p_to_rid, const Color &p_color) override;
+    Rect2 get_rect() const override;
+
+    CircleShape2D();
+
 };
 
 #endif // CIRCLE_SHAPE_2D_H

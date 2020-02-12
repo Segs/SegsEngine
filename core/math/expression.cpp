@@ -756,7 +756,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 return;
             }
 
-            VariantParser::Stream *ss=VariantParser::get_string_stream(p_inputs[0]->as<String>());
+            VariantParserStream *ss=VariantParser::get_string_stream(p_inputs[0]->as<String>());
 
             String errs;
             int line;

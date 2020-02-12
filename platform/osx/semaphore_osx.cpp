@@ -34,35 +34,35 @@
 #include <unistd.h>
 
 void cgsem_init(cgsem_t *cgsem) {
-	int flags, fd, i;
+    int flags, fd, i;
 
-	pipe(cgsem->pipefd);
+    pipe(cgsem->pipefd);
 
-	/* Make the pipes FD_CLOEXEC to allow them to close should we call
-	 * execv on restart. */
-	for (i = 0; i < 2; i++) {
-		fd = cgsem->pipefd[i];
-		flags = fcntl(fd, F_GETFD, 0);
-		flags |= FD_CLOEXEC;
-		fcntl(fd, F_SETFD, flags);
-	}
+    /* Make the pipes FD_CLOEXEC to allow them to close should we call
+     * execv on restart. */
+    for (i = 0; i < 2; i++) {
+        fd = cgsem->pipefd[i];
+        flags = fcntl(fd, F_GETFD, 0);
+        flags |= FD_CLOEXEC;
+        fcntl(fd, F_SETFD, flags);
+    }
 }
 
 void cgsem_post(cgsem_t *cgsem) {
-	const char buf = 1;
+    const char buf = 1;
 
-	write(cgsem->pipefd[1], &buf, 1);
+    write(cgsem->pipefd[1], &buf, 1);
 }
 
 void cgsem_wait(cgsem_t *cgsem) {
-	char buf;
+    char buf;
 
-	read(cgsem->pipefd[0], &buf, 1);
+    read(cgsem->pipefd[0], &buf, 1);
 }
 
 void cgsem_destroy(cgsem_t *cgsem) {
-	close(cgsem->pipefd[1]);
-	close(cgsem->pipefd[0]);
+    close(cgsem->pipefd[1]);
+    close(cgsem->pipefd[0]);
 }
 
 #include "core/os/memory.h"
@@ -71,37 +71,37 @@ void cgsem_destroy(cgsem_t *cgsem) {
 
 Error SemaphoreOSX::wait() {
 
-	cgsem_wait(&sem);
-	return OK;
+    cgsem_wait(&sem);
+    return OK;
 }
 
 Error SemaphoreOSX::post() {
 
-	cgsem_post(&sem);
+    cgsem_post(&sem);
 
-	return OK;
+    return OK;
 }
 int SemaphoreOSX::get() const {
 
-	return 0;
+    return 0;
 }
 
-Semaphore *SemaphoreOSX::create_semaphore_osx() {
+SemaphoreOld *SemaphoreOSX::create_semaphore_osx() {
 
-	return memnew(SemaphoreOSX);
+    return memnew(SemaphoreOSX);
 }
 
 void SemaphoreOSX::make_default() {
 
-	create_func = create_semaphore_osx;
+    create_func = create_semaphore_osx;
 }
 
 SemaphoreOSX::SemaphoreOSX() {
 
-	cgsem_init(&sem);
+    cgsem_init(&sem);
 }
 
 SemaphoreOSX::~SemaphoreOSX() {
 
-	cgsem_destroy(&sem);
+    cgsem_destroy(&sem);
 }

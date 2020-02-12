@@ -38,6 +38,7 @@
 #include "scene/resources/mesh_library.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
+#include "servers/navigation_server.h"
 #include "scene/main/scene_tree.h"
 #include "servers/visual_server.h"
 #include "core/se_string.h"
@@ -426,12 +427,11 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
     }
 
     //erase navigation
-    if (navigation) {
-        for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {
-            navigation->navmesh_remove(E.second.id);
-        }
-        g.navmesh_ids.clear();
+    for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {
+        NavigationServer::get_singleton()->free(E.second.region);
+
     }
+    g.navmesh_ids.clear();
 
     //erase multimeshes
 
@@ -507,9 +507,11 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
             nm.xform = xform * mesh_library->get_item_navmesh_transform(c.item);
 
             if (navigation) {
-                nm.id = navigation->navmesh_add(navmesh, xform, this);
-            } else {
-                nm.id = -1;
+                RID region = NavigationServer::get_singleton()->region_create();
+                NavigationServer::get_singleton()->region_set_navmesh(region, navmesh);
+                NavigationServer::get_singleton()->region_set_transform(region, navigation->get_global_transform() * nm.xform);
+                NavigationServer::get_singleton()->region_set_map(region, navigation->get_rid());
+                nm.region = region;
             }
             g.navmesh_ids[E] = nm;
         }
@@ -599,10 +601,14 @@ void GridMap::_octant_enter_world(const OctantKey &p_key) {
     if (navigation && mesh_library) {
         for (eastl::pair<const IndexKey,Octant::NavMesh> &F : g.navmesh_ids) {
 
-            if (cell_map.contains(F.first) && F.second.id < 0) {
+            if (cell_map.contains(F.first) && false==F.second.region.is_valid()) {
                 Ref<NavigationMesh> nm = mesh_library->get_item_navmesh(cell_map[F.first].item);
                 if (nm) {
-                    F.second.id = navigation->navmesh_add(nm, F.second.xform, this);
+                    RID region = NavigationServer::get_singleton()->region_create();
+                    NavigationServer::get_singleton()->region_set_navmesh(region, nm);
+                    NavigationServer::get_singleton()->region_set_transform(region, navigation->get_global_transform() * F.second.xform);
+                    NavigationServer::get_singleton()->region_set_map(region, navigation->get_rid());
+                    F.second.region = region;
                 }
             }
         }
@@ -628,9 +634,9 @@ void GridMap::_octant_exit_world(const OctantKey &p_key) {
     if (navigation) {
         for (eastl::pair<const IndexKey,Octant::NavMesh> &F : g.navmesh_ids) {
 
-            if (F.second.id >= 0) {
-                navigation->navmesh_remove(F.second.id);
-                F.second.id = -1;
+            if (F.second.region.is_valid()) {
+                NavigationServer::get_singleton()->free(F.second.region);
+                F.second.region = RID();
             }
         }
     }
@@ -649,12 +655,10 @@ void GridMap::_octant_clean_up(const OctantKey &p_key) {
     PhysicsServer::get_singleton()->free_rid(g.static_body);
 
     //erase navigation
-    if (navigation) {
-        for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {
-            navigation->navmesh_remove(E.second.id);
-        }
-        g.navmesh_ids.clear();
+    for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {
+        NavigationServer::get_singleton()->free(E.second.region);
     }
+    g.navmesh_ids.clear();
 
     //erase multimeshes
 
@@ -932,6 +936,39 @@ Array GridMap::get_used_cells() const {
     }
 
     return a;
+}
+
+PODVector<PositionedMeshInfo> GridMap::get_positioned_meshes() const
+{
+    PODVector<PositionedMeshInfo> res;
+    if (not mesh_library)
+        return res;
+
+    Vector3 ofs = _get_offset();
+
+    for (const eastl::pair<const IndexKey,Cell> &E : cell_map) {
+
+        int id = E.second.item;
+        if (!mesh_library->has_item(id))
+            continue;
+        Ref<Mesh> mesh = mesh_library->get_item_mesh(id);
+        if (not mesh)
+            continue;
+
+        IndexKey ik = E.first;
+
+        Vector3 cellpos = Vector3(ik.x, ik.y, ik.z);
+
+        Transform xform;
+
+        xform.basis.set_orthogonal_index(E.second.rot);
+
+        xform.set_origin(cellpos * cell_size + ofs);
+        xform.basis.scale(Vector3(cell_scale, cell_scale, cell_scale));
+        res.emplace_back(PositionedMeshInfo{mesh,xform});
+    }
+
+    return res;
 }
 
 Array GridMap::get_meshes() {

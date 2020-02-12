@@ -178,7 +178,9 @@ void HeightMapShape::set_map_data(const PoolRealArray& p_new) {
 PoolRealArray HeightMapShape::get_map_data() const {
     return map_data;
 }
-
+real_t HeightMapShape::get_enclosing_radius() const {
+    return Vector3(real_t(map_width), max_height - min_height, real_t(map_depth)).length();
+}
 void HeightMapShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_map_width", {"width"}), &HeightMapShape::set_map_width);
     MethodBinder::bind_method(D_METHOD("get_map_width"), &HeightMapShape::get_map_width);

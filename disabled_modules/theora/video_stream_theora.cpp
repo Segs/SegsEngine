@@ -697,7 +697,7 @@ VideoStreamPlaybackTheora::VideoStreamPlaybackTheora() {
     int rb_power = nearest_shift(RB_SIZE_KB * 1024);
     ring_buffer.resize(rb_power);
     read_buffer.resize(RB_SIZE_KB * 1024);
-    thread_sem = Semaphore::create();
+    thread_sem = SemaphoreOld::create();
     thread = NULL;
     thread_exit = false;
     thread_eof = false;

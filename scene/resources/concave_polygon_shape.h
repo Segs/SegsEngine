@@ -48,5 +48,7 @@ public:
     void set_faces(const PoolVector<Vector3> &p_faces);
     PoolVector<Vector3> get_faces() const;
 
+    real_t get_enclosing_radius() const override;
+
     ConcavePolygonShape();
 };

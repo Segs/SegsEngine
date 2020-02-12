@@ -36,7 +36,7 @@
 
 class Thread;
 class FileAccessNetwork;
-class Semaphore;
+class SemaphoreOld;
 class StreamPeerTCP;
 namespace std {
 class recursive_mutex;
@@ -48,7 +48,7 @@ class FileAccessNetworkClient {
     void *m_priv;
     PODVector<uint8_t> block;
     Ref<StreamPeerTCP> client;
-    Semaphore *sem;
+    SemaphoreOld *sem;
     Thread *thread;
     Mutex *mutex;
     Mutex *blockrequest_mutex;
@@ -84,8 +84,8 @@ public:
 
 class FileAccessNetwork : public FileAccess {
 
-    Semaphore *sem;
-    Semaphore *page_sem;
+    SemaphoreOld *sem;
+    SemaphoreOld *page_sem;
     Mutex *buffer_mutex;
     bool opened;
     size_t total_size;

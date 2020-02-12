@@ -108,7 +108,7 @@
 #include "editor/import/editor_import_plugin.h"
 #include "editor/editor_inspector.h"
 #include "editor/editor_plugin.h"
-#include "modules/recast/navigation_mesh_generator.h"
+#include "modules/gdnavigation/navigation_mesh_generator.h"
 #include "editor/property_editor.h"
 #include "editor/editor_resource_preview.h"
 #include "editor/import/resource_importer_scene.h"
@@ -175,7 +175,12 @@
 #include "core/io/multiplayer_api.h"
 #include "scene/3d/navigation.h"
 #include "scene/2d/navigation_2d.h"
-#include "scene/3d/navigation_mesh.h"
+#include "scene/3d/navigation_agent.h"
+#include "scene/2d/navigation_agent_2d.h"
+#include "modules/gdnavigation/navigation_mesh_generator.h"
+#include "scene/3d/navigation_mesh_instance.h"
+#include "scene/3d/navigation_obstacle.h"
+#include "scene/2d/navigation_obstacle_2d.h"
 #include "scene/2d/navigation_polygon.h"
 #include "modules/enet/networked_multiplayer_enet.h"
 #include "core/io/networked_multiplayer_peer.h"
@@ -11180,6 +11185,12 @@ int32_t godot_icall_ConfigFile_load_cb25197e(Object * ptr, MonoString* arg1) {
     return (int32_t)ret;
 }
 
+int32_t godot_icall_ConfigFile_parse_73262d91(Object * ptr, MonoString* arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    String arg1_in = GDMonoMarshal::mono_string_to_godot(arg1);
+    auto ret = static_cast<ConfigFile *>(ptr)->parse(eastl::move(arg1_in));
+    return (int32_t)ret;
+}
 int32_t godot_icall_ConfigFile_save_cb25197e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
@@ -13781,26 +13792,6 @@ void godot_icall_EditorInterface_set_distraction_free_mode_ba24800b(Object * ptr
 }
 
 #endif // TOOLS_ENABLED
-#ifdef TOOLS_ENABLED
-void godot_icall_EditorNavigationMeshGenerator_bake_cd00ac03(Object * ptr, Object * arg1, Object * arg2) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<EditorNavigationMeshGenerator *>(ptr)->bake(AutoRef(arg1), (Node*)arg2);
-}
-
-#endif // TOOLS_ENABLED
-#ifdef TOOLS_ENABLED
-void godot_icall_EditorNavigationMeshGenerator_clear_ded908a4(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<EditorNavigationMeshGenerator *>(ptr)->clear(AutoRef(arg1));
-}
-
-#endif // TOOLS_ENABLED
-Object* godot_icall_EditorNavigationMeshGenerator_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "EditorNavigationMeshGenerator")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
 #ifdef TOOLS_ENABLED
 void godot_icall_EditorPlugin_add_control_to_container_8f04cd94(Object * ptr, int32_t arg1, Object * arg2) {
     ERR_FAIL_NULL(ptr);
@@ -18055,6 +18046,12 @@ MonoBoolean godot_icall_Image_is_invisible_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
+int32_t godot_icall_Image_detect_used_channels_cbc886f4(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<Image *>(ptr)->detect_used_channels((ImageCompressSource)arg1_in);
+    return static_cast<int32_t>(ret);
+}
 int32_t godot_icall_Image_compress_d8dd7e0e(Object * ptr, int32_t arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
@@ -18063,7 +18060,14 @@ int32_t godot_icall_Image_compress_d8dd7e0e(Object * ptr, int32_t arg1, int32_t 
     auto ret = static_cast<Image *>(ptr)->compress((ImageCompressMode)arg1_in, (ImageCompressSource)arg2_in, arg3_in);
     return (int32_t)ret;
 }
-
+int32_t godot_icall_Image_compress_from_channels_d8dd7e0e(Object * ptr, int32_t arg1, int32_t arg2, float* arg3) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    int32_t arg2_in = static_cast<int32_t>(arg2);
+    float arg3_in = static_cast<float>(*arg3);
+    auto ret = static_cast<Image *>(ptr)->compress_from_channels((ImageCompressMode)arg1_in, (ImageUsedChannels)arg2_in, arg3_in);
+    return (int32_t)ret;
+}
 int32_t godot_icall_Image_decompress_f04570f5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     auto ret = static_cast<Image *>(ptr)->decompress();
@@ -22688,24 +22692,10 @@ Object* godot_icall_MultiplayerAPI_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_Navigation_navmesh_add_37390460(Object * ptr, Object * arg1, GDMonoMarshal::M_Transform* arg2, Object * arg3) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    auto ret = static_cast<Navigation *>(ptr)->navmesh_add(AutoRef(arg1), arg2_in, (Object*)arg3);
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Navigation_navmesh_set_transform_7ede1ff(Object * ptr, int32_t arg1, GDMonoMarshal::M_Transform* arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<Navigation *>(ptr)->navmesh_set_transform(arg1_in, arg2_in);
-}
-
-void godot_icall_Navigation_navmesh_remove_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<Navigation *>(ptr)->navmesh_remove(arg1_in);
+RID* godot_icall_Navigation_get_rid_6623661e(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<Navigation *>(ptr)->get_rid();
+    return memnew(RID(ret));
 }
 
 MonoArray* godot_icall_Navigation_get_simple_path_b6e4683e(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, MonoBoolean arg3) {
@@ -22715,36 +22705,6 @@ MonoArray* godot_icall_Navigation_get_simple_path_b6e4683e(Object * ptr, GDMonoM
     bool arg3_in = static_cast<bool>(arg3);
     auto ret = static_cast<Navigation *>(ptr)->get_simple_path(arg1_in, arg2_in, arg3_in);
     return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
-}
-
-void godot_icall_Navigation_get_closest_point_to_segment_b42d2d21(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, MonoBoolean arg3, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    bool arg3_in = static_cast<bool>(arg3);
-    auto ret = static_cast<Navigation *>(ptr)->get_closest_point_to_segment(arg1_in, arg2_in, arg3_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Navigation_get_closest_point_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Navigation *>(ptr)->get_closest_point(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Navigation_get_closest_point_normal_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Navigation *>(ptr)->get_closest_point_normal(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-MonoObject* godot_icall_Navigation_get_closest_point_owner_1d0b2f19(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Navigation *>(ptr)->get_closest_point_owner(arg1_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
 void godot_icall_Navigation_set_up_vector_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
@@ -22759,30 +22719,40 @@ void godot_icall_Navigation_get_up_vector_9b4ea24f(Object * ptr, GDMonoMarshal::
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
+void godot_icall_Navigation_set_cell_size_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<Navigation *>(ptr)->set_cell_size(arg1_in);
+}
+
+void godot_icall_Navigation_get_cell_size_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<Navigation *>(ptr)->get_cell_size();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Navigation_set_edge_connection_margin_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<Navigation *>(ptr)->set_edge_connection_margin(arg1_in);
+}
+
+void godot_icall_Navigation_get_edge_connection_margin_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<Navigation *>(ptr)->get_edge_connection_margin();
+    *arg_ret = (float)ret;
+}
+
 Object* godot_icall_Navigation_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "Navigation")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
 
-int32_t godot_icall_Navigation2D_navpoly_add_5650b352(Object * ptr, Object * arg1, GDMonoMarshal::M_Transform2D* arg2, Object * arg3) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    auto ret = static_cast<Navigation2D *>(ptr)->navpoly_add(AutoRef(arg1), arg2_in, (Object*)arg3);
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Navigation2D_navpoly_set_transform_ae22ee09(Object * ptr, int32_t arg1, GDMonoMarshal::M_Transform2D* arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    static_cast<Navigation2D *>(ptr)->navpoly_set_transform(arg1_in, arg2_in);
-}
-
-void godot_icall_Navigation2D_navpoly_remove_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<Navigation2D *>(ptr)->navpoly_remove(arg1_in);
+RID* godot_icall_Navigation2D_get_rid_6623661e(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<Navigation2D *>(ptr)->get_rid();
+    return memnew(RID(ret));
 }
 
 MonoArray* godot_icall_Navigation2D_get_simple_path_9ddca2d(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector2* arg2, MonoBoolean arg3) {
@@ -22794,22 +22764,390 @@ MonoArray* godot_icall_Navigation2D_get_simple_path_9ddca2d(Object * ptr, GDMono
     return GDMonoMarshal::PoolVector2Array_to_mono_array(ret);
 }
 
-void godot_icall_Navigation2D_get_closest_point_af4cfa54(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    auto ret = static_cast<Navigation2D *>(ptr)->get_closest_point(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+void godot_icall_Navigation2D_set_cell_size_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<Navigation2D *>(ptr)->set_cell_size(arg1_in);
 }
 
-MonoObject* godot_icall_Navigation2D_get_closest_point_owner_1d0b2f18(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    auto ret = static_cast<Navigation2D *>(ptr)->get_closest_point_owner(arg1_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+void godot_icall_Navigation2D_get_cell_size_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<Navigation2D *>(ptr)->get_cell_size();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Navigation2D_set_edge_connection_margin_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<Navigation2D *>(ptr)->set_edge_connection_margin(arg1_in);
+}
+
+void godot_icall_Navigation2D_get_edge_connection_margin_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<Navigation2D *>(ptr)->get_edge_connection_margin();
+    *arg_ret = (float)ret;
 }
 
 Object* godot_icall_Navigation2D_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "Navigation2D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+void godot_icall_NavigationAgent_set_target_desired_distance_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_target_desired_distance(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_target_desired_distance_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_target_desired_distance();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_radius_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_radius(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_radius_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_radius();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_agent_height_offset_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_agent_height_offset(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_agent_height_offset_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_agent_height_offset();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_ignore_y_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<NavigationAgent *>(ptr)->set_ignore_y(arg1_in);
+}
+
+MonoBoolean godot_icall_NavigationAgent_get_ignore_y_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_ignore_y();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_NavigationAgent_set_navigation_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<NavigationAgent *>(ptr)->set_navigation((Navigation*)arg1);
+}
+
+MonoObject* godot_icall_NavigationAgent_get_navigation_87a9bfc5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_navigation();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+void godot_icall_NavigationAgent_set_neighbor_dist_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_neighbor_dist(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_neighbor_dist_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_neighbor_dist();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_max_neighbors_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<NavigationAgent *>(ptr)->set_max_neighbors(arg1_in);
+}
+
+int32_t godot_icall_NavigationAgent_get_max_neighbors_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_max_neighbors();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_NavigationAgent_set_time_horizon_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_time_horizon(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_time_horizon_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_time_horizon();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_max_speed_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_max_speed(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_max_speed_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_max_speed();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_path_max_distance_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent *>(ptr)->set_path_max_distance(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_path_max_distance_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_path_max_distance();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_target_location_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<NavigationAgent *>(ptr)->set_target_location(arg1_in);
+}
+
+void godot_icall_NavigationAgent_get_target_location_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_target_location();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_NavigationAgent_get_next_location_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_next_location();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_NavigationAgent_distance_to_target_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->distance_to_target();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent_set_velocity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<NavigationAgent *>(ptr)->set_velocity(arg1_in);
+}
+
+MonoArray* godot_icall_NavigationAgent_get_nav_path_36607e58(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_nav_path();
+    return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
+}
+
+int32_t godot_icall_NavigationAgent_get_nav_path_index_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_nav_path_index();
+    return static_cast<int32_t>(ret);
+}
+
+MonoBoolean godot_icall_NavigationAgent_is_target_reached_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent *>(ptr)->is_target_reached();
+    return static_cast<MonoBoolean>(ret);
+}
+
+MonoBoolean godot_icall_NavigationAgent_is_target_reachable_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent *>(ptr)->is_target_reachable();
+    return static_cast<MonoBoolean>(ret);
+}
+
+MonoBoolean godot_icall_NavigationAgent_is_navigation_finished_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent *>(ptr)->is_navigation_finished();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_NavigationAgent_get_final_location_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent *>(ptr)->get_final_location();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+Object* godot_icall_NavigationAgent_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "NavigationAgent")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+void godot_icall_NavigationAgent2D_set_target_desired_distance_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_target_desired_distance(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_target_desired_distance_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_target_desired_distance();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_radius_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_radius(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_radius_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_radius();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_navigation_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<NavigationAgent2D *>(ptr)->set_navigation((Navigation2D*)arg1);
+}
+
+MonoObject* godot_icall_NavigationAgent2D_get_navigation_87a9bfc5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_navigation();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+void godot_icall_NavigationAgent2D_set_neighbor_dist_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_neighbor_dist(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_neighbor_dist_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_neighbor_dist();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_max_neighbors_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_max_neighbors(arg1_in);
+}
+
+int32_t godot_icall_NavigationAgent2D_get_max_neighbors_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_max_neighbors();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_NavigationAgent2D_set_time_horizon_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_time_horizon(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_time_horizon_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_time_horizon();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_max_speed_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_max_speed(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_max_speed_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_max_speed();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_path_max_distance_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_path_max_distance(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_path_max_distance_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_path_max_distance();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_target_location_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_target_location(arg1_in);
+}
+
+void godot_icall_NavigationAgent2D_get_target_location_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_target_location();
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_NavigationAgent2D_get_next_location_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_next_location();
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_NavigationAgent2D_distance_to_target_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->distance_to_target();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_NavigationAgent2D_set_velocity_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    static_cast<NavigationAgent2D *>(ptr)->set_velocity(arg1_in);
+}
+
+MonoArray* godot_icall_NavigationAgent2D_get_nav_path_e910f1af(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_nav_path();
+    return GDMonoMarshal::PoolVector2Array_to_mono_array(ret);
+}
+
+int32_t godot_icall_NavigationAgent2D_get_nav_path_index_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_nav_path_index();
+    return static_cast<int32_t>(ret);
+}
+
+MonoBoolean godot_icall_NavigationAgent2D_is_target_reached_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->is_target_reached();
+    return static_cast<MonoBoolean>(ret);
+}
+
+MonoBoolean godot_icall_NavigationAgent2D_is_target_reachable_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->is_target_reachable();
+    return static_cast<MonoBoolean>(ret);
+}
+
+MonoBoolean godot_icall_NavigationAgent2D_is_navigation_finished_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->is_navigation_finished();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_NavigationAgent2D_get_final_location_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<NavigationAgent2D *>(ptr)->get_final_location();
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+Object* godot_icall_NavigationAgent2D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "NavigationAgent2D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -23138,6 +23476,20 @@ Object* godot_icall_NavigationMesh_Ctor(MonoObject* obj) {
     return instance;
 }
 
+void godot_icall_NavigationMeshGenerator_bake_cd00ac03(Object * ptr, Object * arg1, Object * arg2) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<NavigationMeshGenerator *>(ptr)->bake(AutoRef(arg1), (Node*)arg2);
+}
+
+void godot_icall_NavigationMeshGenerator_clear_ded908a4(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<NavigationMeshGenerator *>(ptr)->clear(AutoRef(arg1));
+}
+
+Object* godot_icall_NavigationMeshGenerator_get_singleton() {
+    return Engine::get_singleton()->get_singleton_object("NavigationMeshGenerator");
+}
+
 void godot_icall_NavigationMeshInstance_set_navigation_mesh_ded908a4(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
     static_cast<NavigationMeshInstance *>(ptr)->set_navigation_mesh(AutoRef(arg1));
@@ -23161,16 +23513,53 @@ MonoBoolean godot_icall_NavigationMeshInstance_is_enabled_68fe5f59(Object * ptr)
     return static_cast<MonoBoolean>(ret);
 }
 
+void godot_icall_NavigationMeshInstance_bake_navigation_mesh_c8e54a7b(Object * ptr) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<NavigationMeshInstance *>(ptr)->bake_navigation_mesh();
+}
 Object* godot_icall_NavigationMeshInstance_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "NavigationMeshInstance")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
 
-void godot_icall_NavigationPolygon_set_vertices_3a3116bd(Object * ptr, MonoArray* arg1) {
+void godot_icall_NavigationObstacle_set_navigation_598860a7(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    PoolVector2Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector2Array(arg1);
-    static_cast<NavigationPolygon *>(ptr)->set_vertices(arg1_in);
+    static_cast<NavigationObstacle *>(ptr)->set_navigation((Navigation *)arg1);
+}
+
+MonoObject* godot_icall_NavigationObstacle_get_navigation_87a9bfc5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<NavigationObstacle *>(ptr)->get_navigation();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+Object* godot_icall_NavigationObstacle_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "NavigationObstacle")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+void godot_icall_NavigationObstacle2D_set_navigation_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<NavigationObstacle2D *>(ptr)->set_navigation((Navigation2D*)arg1);
+}
+
+MonoObject* godot_icall_NavigationObstacle2D_get_navigation_87a9bfc5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<NavigationObstacle2D *>(ptr)->get_navigation();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+Object* godot_icall_NavigationObstacle2D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "NavigationObstacle2D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+void godot_icall_NavigationPolygon_set_vertices_b8a866ba(Object * ptr, MonoArray* arg1) {
+    ERR_FAIL_NULL(ptr);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector2(arg1);
+    static_cast<NavigationPolygon *>(ptr)->set_vertices(eastl::move(arg1_in));
 }
 
 MonoArray* godot_icall_NavigationPolygon_get_vertices_e910f1af(Object * ptr) {
@@ -23179,10 +23568,10 @@ MonoArray* godot_icall_NavigationPolygon_get_vertices_e910f1af(Object * ptr) {
     return GDMonoMarshal::PoolVector2Array_to_mono_array(ret);
 }
 
-void godot_icall_NavigationPolygon_add_polygon_fb3c9f9f(Object * ptr, MonoArray* arg1) {
+void godot_icall_NavigationPolygon_add_polygon_6b64efb8(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
-    PoolIntArray arg1_in = GDMonoMarshal::mono_array_to_PoolIntArray(arg1);
-    static_cast<NavigationPolygon *>(ptr)->add_polygon(arg1_in);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecInt(arg1);
+    static_cast<NavigationPolygon *>(ptr)->add_polygon(eastl::move(arg1_in));
 }
 
 int32_t godot_icall_NavigationPolygon_get_polygon_count_1f886eb0(Object * ptr) {
@@ -50237,9 +50626,9 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 9617781489711829214U; }
+uint64_t get_core_api_hash() { return 7982866888582804672U; }
 #ifdef TOOLS_ENABLED
-uint64_t get_editor_api_hash() { return 11503419152231262158U; }
+uint64_t get_editor_api_hash() { return 12653219099717887913U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
 uint32_t get_cs_glue_version() { return 1580938708; }
@@ -50460,8 +50849,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MultiplayerAPI_Ctor", (void*)godot_icall_MultiplayerAPI_Ctor);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_Ctor", (void*)godot_icall_Navigation_Ctor);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_Ctor", (void*)godot_icall_Navigation2D_Ctor);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_Ctor", (void*)godot_icall_NavigationAgent_Ctor);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_Ctor", (void*)godot_icall_NavigationAgent2D_Ctor);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_Ctor", (void*)godot_icall_NavigationMesh_Ctor);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshGenerator_get_singleton", (void*)godot_icall_NavigationMeshGenerator_get_singleton);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshInstance_Ctor", (void*)godot_icall_NavigationMeshInstance_Ctor);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationObstacle_Ctor", (void*)godot_icall_NavigationObstacle_Ctor);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationObstacle2D_Ctor", (void*)godot_icall_NavigationObstacle2D_Ctor);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_Ctor", (void*)godot_icall_NavigationPolygon_Ctor);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygonInstance_Ctor", (void*)godot_icall_NavigationPolygonInstance_Ctor);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_Ctor", (void*)godot_icall_NetworkedMultiplayerENet_Ctor);
@@ -50752,7 +51146,6 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorImportPlugin_Ctor", (void*)godot_icall_EditorImportPlugin_Ctor);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspector_Ctor", (void*)godot_icall_EditorInspector_Ctor);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_Ctor", (void*)godot_icall_EditorInspectorPlugin_Ctor);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorNavigationMeshGenerator_Ctor", (void*)godot_icall_EditorNavigationMeshGenerator_Ctor);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_Ctor", (void*)godot_icall_EditorPlugin_Ctor);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_Ctor", (void*)godot_icall_EditorProperty_Ctor);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourceConversionPlugin_Ctor", (void*)godot_icall_EditorResourceConversionPlugin_Ctor);
@@ -52385,6 +52778,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_erase_section_919b8b17", (void*)godot_icall_ConfigFile_erase_section_919b8b17);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_erase_section_key_e8a7f384", (void*)godot_icall_ConfigFile_erase_section_key_e8a7f384);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_cb25197e", (void*)godot_icall_ConfigFile_load_cb25197e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_parse_73262d91", (void*)godot_icall_ConfigFile_parse_73262d91);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_cb25197e", (void*)godot_icall_ConfigFile_save_cb25197e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_encrypted_f03c9d45", (void*)godot_icall_ConfigFile_load_encrypted_f03c9d45);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_encrypted_pass_21276c93", (void*)godot_icall_ConfigFile_load_encrypted_pass_21276c93);
@@ -52495,7 +52889,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Control_set_drag_preview_3dddc41c", (void*)godot_icall_Control_set_drag_preview_3dddc41c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Control_warp_mouse_6df7471e", (void*)godot_icall_Control_warp_mouse_6df7471e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Control_minimum_size_changed_c8e54a7b", (void*)godot_icall_Control_minimum_size_changed_c8e54a7b);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape_set_points_b8a866b9", (void*)godot_icall_ConvexPolygonShape_set_points_b8a866b9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape_set_points_b8a866b9", (void*)godot_icall_ConvexPolygonShape_set_points_b8a866b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape_get_points_36607e58", (void*)godot_icall_ConvexPolygonShape_get_points_36607e58);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape2D_set_point_cloud_2923a790", (void*)godot_icall_ConvexPolygonShape2D_set_point_cloud_2923a790);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape2D_set_points_2923a790", (void*)godot_icall_ConvexPolygonShape2D_set_points_2923a790);
@@ -52743,8 +53137,6 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_save_scene_as_3e40a80", (void*)godot_icall_EditorInterface_save_scene_as_3e40a80);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_set_main_screen_editor_2f29e819", (void*)godot_icall_EditorInterface_set_main_screen_editor_2f29e819);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_set_distraction_free_mode_ba24800b", (void*)godot_icall_EditorInterface_set_distraction_free_mode_ba24800b);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorNavigationMeshGenerator_bake_cd00ac03", (void*)godot_icall_EditorNavigationMeshGenerator_bake_cd00ac03);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorNavigationMeshGenerator_clear_ded908a4", (void*)godot_icall_EditorNavigationMeshGenerator_clear_ded908a4);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_control_to_container_8f04cd94", (void*)godot_icall_EditorPlugin_add_control_to_container_8f04cd94);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_control_to_bottom_panel_a3580764", (void*)godot_icall_EditorPlugin_add_control_to_bottom_panel_a3580764);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_control_to_dock_49de7d02", (void*)godot_icall_EditorPlugin_add_control_to_dock_49de7d02);
@@ -52833,7 +53225,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_collision_segments_b8a866b9", (void*)godot_icall_EditorSpatialGizmo_add_collision_segments_b8a866b9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_collision_triangles_3616c62", (void*)godot_icall_EditorSpatialGizmo_add_collision_triangles_3616c62);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_unscaled_billboard_514f3e17", (void*)godot_icall_EditorSpatialGizmo_add_unscaled_billboard_514f3e17);
-	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_handles_daf2f38f", (void*)godot_icall_EditorSpatialGizmo_add_handles_daf2f38f);
+    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_add_handles_daf2f38f", (void*)godot_icall_EditorSpatialGizmo_add_handles_daf2f38f);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_set_spatial_node_598860a7", (void*)godot_icall_EditorSpatialGizmo_set_spatial_node_598860a7);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_get_spatial_node_5ca237df", (void*)godot_icall_EditorSpatialGizmo_get_spatial_node_5ca237df);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_get_plugin_a8b6fbf9", (void*)godot_icall_EditorSpatialGizmo_get_plugin_a8b6fbf9);
@@ -53268,7 +53660,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_connect_to_host_3c965c6e", (void*)godot_icall_HTTPClient_connect_to_host_3c965c6e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_set_connection_85f8707", (void*)godot_icall_HTTPClient_set_connection_85f8707);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_get_connection_b6f76265", (void*)godot_icall_HTTPClient_get_connection_b6f76265);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_raw_e02d49ea", (void*)godot_icall_HTTPClient_request_raw_e02d49ea);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_raw_e02d49ea", (void*)godot_icall_HTTPClient_request_raw_e02d49ea);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_eb01527f", (void*)godot_icall_HTTPClient_request_eb01527f);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_close_c8e54a7b", (void*)godot_icall_HTTPClient_close_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_has_response_68fe5f59", (void*)godot_icall_HTTPClient_has_response_68fe5f59);
@@ -53352,7 +53744,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_save_exr_c860678f", (void*)godot_icall_Image_save_exr_c860678f);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_detect_alpha_cf33925f", (void*)godot_icall_Image_detect_alpha_cf33925f);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_is_invisible_68fe5f59", (void*)godot_icall_Image_is_invisible_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_detect_used_channels_cbc886f4", (void*)godot_icall_Image_detect_used_channels_cbc886f4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_compress_d8dd7e0e", (void*)godot_icall_Image_compress_d8dd7e0e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_compress_from_channels_d8dd7e0e", (void*)godot_icall_Image_compress_from_channels_d8dd7e0e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_decompress_f04570f5", (void*)godot_icall_Image_decompress_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_is_compressed_68fe5f59", (void*)godot_icall_Image_is_compressed_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_fix_alpha_edges_c8e54a7b", (void*)godot_icall_Image_fix_alpha_edges_c8e54a7b);
@@ -54054,22 +54448,78 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MultiplayerAPI_is_refusing_new_network_connections_68fe5f59", (void*)godot_icall_MultiplayerAPI_is_refusing_new_network_connections_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MultiplayerAPI_set_allow_object_decoding_ba24800b", (void*)godot_icall_MultiplayerAPI_set_allow_object_decoding_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MultiplayerAPI_is_object_decoding_allowed_68fe5f59", (void*)godot_icall_MultiplayerAPI_is_object_decoding_allowed_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_navmesh_add_37390460", (void*)godot_icall_Navigation_navmesh_add_37390460);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_navmesh_set_transform_7ede1ff", (void*)godot_icall_Navigation_navmesh_set_transform_7ede1ff);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_navmesh_remove_e1ae93bc", (void*)godot_icall_Navigation_navmesh_remove_e1ae93bc);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_rid_6623661e", (void*)godot_icall_Navigation_get_rid_6623661e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_simple_path_b6e4683e", (void*)godot_icall_Navigation_get_simple_path_b6e4683e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_closest_point_to_segment_b42d2d21", (void*)godot_icall_Navigation_get_closest_point_to_segment_b42d2d21);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_closest_point_af4cfa14", (void*)godot_icall_Navigation_get_closest_point_af4cfa14);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_closest_point_normal_af4cfa14", (void*)godot_icall_Navigation_get_closest_point_normal_af4cfa14);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_closest_point_owner_1d0b2f19", (void*)godot_icall_Navigation_get_closest_point_owner_1d0b2f19);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_set_up_vector_6df7471d", (void*)godot_icall_Navigation_set_up_vector_6df7471d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_up_vector_9b4ea24f", (void*)godot_icall_Navigation_get_up_vector_9b4ea24f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_navpoly_add_5650b352", (void*)godot_icall_Navigation2D_navpoly_add_5650b352);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_navpoly_set_transform_ae22ee09", (void*)godot_icall_Navigation2D_navpoly_set_transform_ae22ee09);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_navpoly_remove_e1ae93bc", (void*)godot_icall_Navigation2D_navpoly_remove_e1ae93bc);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_set_cell_size_904508bb", (void*)godot_icall_Navigation_set_cell_size_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_cell_size_4edcd7a9", (void*)godot_icall_Navigation_get_cell_size_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_set_edge_connection_margin_904508bb", (void*)godot_icall_Navigation_set_edge_connection_margin_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation_get_edge_connection_margin_4edcd7a9", (void*)godot_icall_Navigation_get_edge_connection_margin_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_get_rid_6623661e", (void*)godot_icall_Navigation2D_get_rid_6623661e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_get_simple_path_9ddca2d", (void*)godot_icall_Navigation2D_get_simple_path_9ddca2d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_get_closest_point_af4cfa54", (void*)godot_icall_Navigation2D_get_closest_point_af4cfa54);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_get_closest_point_owner_1d0b2f18", (void*)godot_icall_Navigation2D_get_closest_point_owner_1d0b2f18);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_set_cell_size_904508bb", (void*)godot_icall_Navigation2D_set_cell_size_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_get_cell_size_4edcd7a9", (void*)godot_icall_Navigation2D_get_cell_size_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_set_edge_connection_margin_904508bb", (void*)godot_icall_Navigation2D_set_edge_connection_margin_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_Navigation2D_get_edge_connection_margin_4edcd7a9", (void*)godot_icall_Navigation2D_get_edge_connection_margin_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_target_desired_distance_904508bb", (void*)godot_icall_NavigationAgent_set_target_desired_distance_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_target_desired_distance_4edcd7a9", (void*)godot_icall_NavigationAgent_get_target_desired_distance_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_radius_904508bb", (void*)godot_icall_NavigationAgent_set_radius_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_radius_4edcd7a9", (void*)godot_icall_NavigationAgent_get_radius_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_agent_height_offset_904508bb", (void*)godot_icall_NavigationAgent_set_agent_height_offset_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_agent_height_offset_4edcd7a9", (void*)godot_icall_NavigationAgent_get_agent_height_offset_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_ignore_y_ba24800b", (void*)godot_icall_NavigationAgent_set_ignore_y_ba24800b);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_ignore_y_68fe5f59", (void*)godot_icall_NavigationAgent_get_ignore_y_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_navigation_598860a7", (void*)godot_icall_NavigationAgent_set_navigation_598860a7);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_navigation_87a9bfc5", (void*)godot_icall_NavigationAgent_get_navigation_87a9bfc5);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_neighbor_dist_904508bb", (void*)godot_icall_NavigationAgent_set_neighbor_dist_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_neighbor_dist_4edcd7a9", (void*)godot_icall_NavigationAgent_get_neighbor_dist_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_max_neighbors_e1ae93bc", (void*)godot_icall_NavigationAgent_set_max_neighbors_e1ae93bc);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_max_neighbors_1f886eb0", (void*)godot_icall_NavigationAgent_get_max_neighbors_1f886eb0);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_time_horizon_904508bb", (void*)godot_icall_NavigationAgent_set_time_horizon_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_time_horizon_4edcd7a9", (void*)godot_icall_NavigationAgent_get_time_horizon_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_max_speed_904508bb", (void*)godot_icall_NavigationAgent_set_max_speed_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_max_speed_4edcd7a9", (void*)godot_icall_NavigationAgent_get_max_speed_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_path_max_distance_904508bb", (void*)godot_icall_NavigationAgent_set_path_max_distance_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_path_max_distance_4edcd7a9", (void*)godot_icall_NavigationAgent_get_path_max_distance_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_target_location_6df7471d", (void*)godot_icall_NavigationAgent_set_target_location_6df7471d);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_target_location_9b4ea24f", (void*)godot_icall_NavigationAgent_get_target_location_9b4ea24f);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_next_location_9b4ea24f", (void*)godot_icall_NavigationAgent_get_next_location_9b4ea24f);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_distance_to_target_4edcd7a9", (void*)godot_icall_NavigationAgent_distance_to_target_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_set_velocity_6df7471d", (void*)godot_icall_NavigationAgent_set_velocity_6df7471d);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_nav_path_36607e58", (void*)godot_icall_NavigationAgent_get_nav_path_36607e58);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_nav_path_index_1f886eb0", (void*)godot_icall_NavigationAgent_get_nav_path_index_1f886eb0);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_is_target_reached_68fe5f59", (void*)godot_icall_NavigationAgent_is_target_reached_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_is_target_reachable_68fe5f59", (void*)godot_icall_NavigationAgent_is_target_reachable_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_is_navigation_finished_68fe5f59", (void*)godot_icall_NavigationAgent_is_navigation_finished_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent_get_final_location_9b4ea24f", (void*)godot_icall_NavigationAgent_get_final_location_9b4ea24f);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_target_desired_distance_904508bb", (void*)godot_icall_NavigationAgent2D_set_target_desired_distance_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_target_desired_distance_4edcd7a9", (void*)godot_icall_NavigationAgent2D_get_target_desired_distance_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_radius_904508bb", (void*)godot_icall_NavigationAgent2D_set_radius_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_radius_4edcd7a9", (void*)godot_icall_NavigationAgent2D_get_radius_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_navigation_598860a7", (void*)godot_icall_NavigationAgent2D_set_navigation_598860a7);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_navigation_87a9bfc5", (void*)godot_icall_NavigationAgent2D_get_navigation_87a9bfc5);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_neighbor_dist_904508bb", (void*)godot_icall_NavigationAgent2D_set_neighbor_dist_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_neighbor_dist_4edcd7a9", (void*)godot_icall_NavigationAgent2D_get_neighbor_dist_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_max_neighbors_e1ae93bc", (void*)godot_icall_NavigationAgent2D_set_max_neighbors_e1ae93bc);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_max_neighbors_1f886eb0", (void*)godot_icall_NavigationAgent2D_get_max_neighbors_1f886eb0);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_time_horizon_904508bb", (void*)godot_icall_NavigationAgent2D_set_time_horizon_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_time_horizon_4edcd7a9", (void*)godot_icall_NavigationAgent2D_get_time_horizon_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_max_speed_904508bb", (void*)godot_icall_NavigationAgent2D_set_max_speed_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_max_speed_4edcd7a9", (void*)godot_icall_NavigationAgent2D_get_max_speed_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_path_max_distance_904508bb", (void*)godot_icall_NavigationAgent2D_set_path_max_distance_904508bb);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_path_max_distance_4edcd7a9", (void*)godot_icall_NavigationAgent2D_get_path_max_distance_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_target_location_6df7471e", (void*)godot_icall_NavigationAgent2D_set_target_location_6df7471e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_target_location_9b4ea24e", (void*)godot_icall_NavigationAgent2D_get_target_location_9b4ea24e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_next_location_9b4ea24e", (void*)godot_icall_NavigationAgent2D_get_next_location_9b4ea24e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_distance_to_target_4edcd7a9", (void*)godot_icall_NavigationAgent2D_distance_to_target_4edcd7a9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_set_velocity_6df7471e", (void*)godot_icall_NavigationAgent2D_set_velocity_6df7471e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_nav_path_e910f1af", (void*)godot_icall_NavigationAgent2D_get_nav_path_e910f1af);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_nav_path_index_1f886eb0", (void*)godot_icall_NavigationAgent2D_get_nav_path_index_1f886eb0);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_is_target_reached_68fe5f59", (void*)godot_icall_NavigationAgent2D_is_target_reached_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_is_target_reachable_68fe5f59", (void*)godot_icall_NavigationAgent2D_is_target_reachable_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_is_navigation_finished_68fe5f59", (void*)godot_icall_NavigationAgent2D_is_navigation_finished_68fe5f59);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationAgent2D_get_final_location_9b4ea24e", (void*)godot_icall_NavigationAgent2D_get_final_location_9b4ea24e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_sample_partition_type_e1ae93bc", (void*)godot_icall_NavigationMesh_set_sample_partition_type_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_sample_partition_type_1f886eb0", (void*)godot_icall_NavigationMesh_get_sample_partition_type_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_parsed_geometry_type_e1ae93bc", (void*)godot_icall_NavigationMesh_set_parsed_geometry_type_e1ae93bc);
@@ -54114,22 +54564,29 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_filter_ledge_spans_68fe5f59", (void*)godot_icall_NavigationMesh_get_filter_ledge_spans_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_filter_walkable_low_height_spans_ba24800b", (void*)godot_icall_NavigationMesh_set_filter_walkable_low_height_spans_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_filter_walkable_low_height_spans_68fe5f59", (void*)godot_icall_NavigationMesh_get_filter_walkable_low_height_spans_68fe5f59);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_vertices_b8a866b9", (void*)godot_icall_NavigationMesh_set_vertices_b8a866b9);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_set_vertices_b8a866b9", (void*)godot_icall_NavigationMesh_set_vertices_b8a866b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_vertices_36607e58", (void*)godot_icall_NavigationMesh_get_vertices_36607e58);
-	mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_add_polygon_6b64efb8", (void*)godot_icall_NavigationMesh_add_polygon_6b64efb8);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_add_polygon_6b64efb8", (void*)godot_icall_NavigationMesh_add_polygon_6b64efb8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_polygon_count_1f886eb0", (void*)godot_icall_NavigationMesh_get_polygon_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_get_polygon_67f65c91", (void*)godot_icall_NavigationMesh_get_polygon_67f65c91);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_clear_polygons_c8e54a7b", (void*)godot_icall_NavigationMesh_clear_polygons_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh_create_from_mesh_d5d30806", (void*)godot_icall_NavigationMesh_create_from_mesh_d5d30806);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh__set_polygons_2923a790", (void*)godot_icall_NavigationMesh__set_polygons_2923a790);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMesh__get_polygons_d80382d4", (void*)godot_icall_NavigationMesh__get_polygons_d80382d4);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshGenerator_bake_cd00ac03", (void*)godot_icall_NavigationMeshGenerator_bake_cd00ac03);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshGenerator_clear_ded908a4", (void*)godot_icall_NavigationMeshGenerator_clear_ded908a4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshInstance_set_navigation_mesh_ded908a4", (void*)godot_icall_NavigationMeshInstance_set_navigation_mesh_ded908a4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshInstance_get_navigation_mesh_c78d7c8", (void*)godot_icall_NavigationMeshInstance_get_navigation_mesh_c78d7c8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshInstance_set_enabled_ba24800b", (void*)godot_icall_NavigationMeshInstance_set_enabled_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshInstance_is_enabled_68fe5f59", (void*)godot_icall_NavigationMeshInstance_is_enabled_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_set_vertices_3a3116bd", (void*)godot_icall_NavigationPolygon_set_vertices_3a3116bd);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationMeshInstance_bake_navigation_mesh_c8e54a7b", (void*)godot_icall_NavigationMeshInstance_bake_navigation_mesh_c8e54a7b);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationObstacle_set_navigation_598860a7", (void*)godot_icall_NavigationObstacle_set_navigation_598860a7);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationObstacle_get_navigation_87a9bfc5", (void*)godot_icall_NavigationObstacle_get_navigation_87a9bfc5);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationObstacle2D_set_navigation_598860a7", (void*)godot_icall_NavigationObstacle2D_set_navigation_598860a7);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationObstacle2D_get_navigation_87a9bfc5", (void*)godot_icall_NavigationObstacle2D_get_navigation_87a9bfc5);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_set_vertices_b8a866ba", (void*)godot_icall_NavigationPolygon_set_vertices_b8a866ba);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_get_vertices_e910f1af", (void*)godot_icall_NavigationPolygon_get_vertices_e910f1af);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_add_polygon_fb3c9f9f", (void*)godot_icall_NavigationPolygon_add_polygon_fb3c9f9f);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_add_polygon_6b64efb8", (void*)godot_icall_NavigationPolygon_add_polygon_6b64efb8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_get_polygon_count_1f886eb0", (void*)godot_icall_NavigationPolygon_get_polygon_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_get_polygon_67f65c91", (void*)godot_icall_NavigationPolygon_get_polygon_67f65c91);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygon_clear_polygons_c8e54a7b", (void*)godot_icall_NavigationPolygon_clear_polygons_c8e54a7b);

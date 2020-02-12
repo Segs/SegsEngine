@@ -457,3 +457,18 @@ if(USE_TRACY_PROFILER)
     add_subdirectory(glfw)
     add_subdirectory(tracy)
 endif()
+
+set(thirdparty_sources
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Agent.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Agent.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/API.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Definitions.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/KdTree.cpp
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/KdTree.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/rvo2/Vector3.h
+)
+add_library(rvo2 OBJECT ${thirdparty_sources})
+target_include_directories(rvo2 PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/rvo2)
+target_include_directories(rvo2 INTERFACE ${PROJECT_SOURCE_DIR}/thirdparty)  # allow using rvo2 headers externally by rvo2/Header.h
+set_property(TARGET rvo2 PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_common_target_properties(rvo2)

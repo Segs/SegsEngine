@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "engine.h"
+#include "engine.h"
 
 #include "core/dictionary.h"
 #include "core/variant.h"
@@ -42,7 +43,7 @@
 
 void Engine::set_iterations_per_second(int p_ips) {
 
-    ERR_FAIL_COND_MSG(p_ips <= 0, "Engine iterations per second must be greater than 0."); 
+    ERR_FAIL_COND_MSG(p_ips <= 0, "Engine iterations per second must be greater than 0.");
     ips = p_ips;
 }
 int Engine::get_iterations_per_second() const {

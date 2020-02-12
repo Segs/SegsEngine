@@ -99,7 +99,6 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define GENERATE_TRAP __builtin_trap();
 #endif
 
-// (*): See https://stackoverflow.com/questions/257418/do-while-0-what-is-it-good-for
 /**
  * If `m_index` is less than 0 or greater than or equal to `m_size`, prints a generic
  * error message and returns from the function. This macro should be preferred to

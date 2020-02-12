@@ -54,6 +54,9 @@ public:
     void set_radius(real_t p_radius);
     real_t get_radius() const { return radius; }
 
+    real_t get_enclosing_radius() const override {
+        return radius + height * 0.5f;
+    }
     void draw(const RID &p_to_rid, const Color &p_color) override;
     Rect2 get_rect() const override;
 

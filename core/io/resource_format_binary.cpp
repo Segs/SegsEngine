@@ -1200,7 +1200,7 @@ String ResourceFormatLoaderBinary::get_resource_type(se_string_view p_path) cons
     ria->res_path = ria->local_path;
     //ria->set_local_path( Globals::get_singleton()->localize_path(p_path) );
     String r = ria->recognize(f);
-    return r;
+    return String(ClassDB::get_compatibility_remapped_class(StringName(r)));
 }
 
 ///////////////////////////////////////////////////////////

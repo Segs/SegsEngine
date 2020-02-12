@@ -34,29 +34,30 @@
 #include "scene/resources/shape_2d.h"
 
 class LineShape2D : public Shape2D {
-	GDCLASS(LineShape2D,Shape2D)
+    GDCLASS(LineShape2D,Shape2D)
 
-	Vector2 normal;
-	real_t d;
+    Vector2 normal;
+    real_t d;
 
-	void _update_shape();
+    void _update_shape();
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
 
-	void set_normal(const Vector2 &p_normal);
-	void set_d(real_t p_d);
+    void set_normal(const Vector2 &p_normal);
+    void set_d(real_t p_d);
 
-	Vector2 get_normal() const;
-	real_t get_d() const;
+    Vector2 get_normal() const;
+    real_t get_d() const;
 
-	void draw(const RID &p_to_rid, const Color &p_color) override;
-	Rect2 get_rect() const override;
+    void draw(const RID &p_to_rid, const Color &p_color) override;
+    Rect2 get_rect() const override;
+    real_t get_enclosing_radius() const override { return d; }
 
-	LineShape2D();
+    LineShape2D();
 };
 
 #endif // LINE_SHAPE_2D_H

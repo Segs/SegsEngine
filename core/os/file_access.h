@@ -36,9 +36,6 @@
 #include "core/error_list.h"
 #include "core/os/memory.h"
 
-template<class T>
-class Vector;
-
 /**
  * Multi-Platform abstraction for accessing to files.
  */

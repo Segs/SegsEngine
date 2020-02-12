@@ -35,6 +35,7 @@
 #include "core/reference.h"
 
 class FileAccess;
+struct VariantParserStream;
 
 class GODOT_EXPORT ConfigFile : public RefCounted {
 
@@ -45,6 +46,7 @@ class GODOT_EXPORT ConfigFile : public RefCounted {
     PoolStringArray _get_section_keys(se_string_view p_section) const;
     Error _internal_load(se_string_view p_path, FileAccess *f);
     Error _internal_save(FileAccess *file);
+    Error _parse(se_string_view p_path, VariantParserStream *p_stream);
 
 protected:
     static void _bind_methods();
@@ -63,6 +65,7 @@ public:
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);
 
+    Error parse(String &&p_data);
     Error save(se_string_view p_path);
     Error load(se_string_view p_path);
 

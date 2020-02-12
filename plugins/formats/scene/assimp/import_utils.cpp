@@ -1,12 +1,5 @@
 #include "import_utils.h"
 
-template<typename T>
-struct GenericDeleter {
-    void operator()(T *fa) const {
-        memdelete(fa);
-    }
-};
-
 float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
     switch (time_mode) {
     case AssetImportFbx::TIME_MODE_DEFAULT: return 24; //hack
@@ -77,7 +70,7 @@ void AssimpUtils::find_texture_path(const String &r_p_path, String &r_path, bool
 
     using namespace PathUtils;
 
-    eastl::unique_ptr<DirAccess,GenericDeleter<DirAccess>> dir(DirAccess::create(DirAccess::ACCESS_RESOURCES));
+    eastl::unique_ptr<DirAccess,wrap_deleter> dir(DirAccess::create(DirAccess::ACCESS_RESOURCES));
     PODVector<String> exts;
     ImageLoader::get_recognized_extensions(exts);
 
