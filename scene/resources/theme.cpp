@@ -745,7 +745,6 @@ void Theme::copy_theme(const Ref<Theme> &p_other) {
         }
     }
 
-    const StringName *K = nullptr;
     for (const auto & e : font_map) {
         for (const auto & f : e.second) {
             set_font(f.first, e.first, f.second);
@@ -766,8 +765,6 @@ void Theme::get_type_list(Vector<StringName> *p_list) const {
 
     Set<StringName> types;
 
-    const StringName *key = nullptr;
-
     for(auto & kv : icon_map ) {
         types.insert(kv.first);
     }
@@ -779,7 +776,7 @@ void Theme::get_type_list(Vector<StringName> *p_list) const {
 
     for (const auto & e : font_map) {
 
-        types.insert(*key);
+        types.insert(e.first);
     }
 
     for(const auto & cm : color_map) {

@@ -53,7 +53,7 @@ public:
 
 	bool set(const StringName &p_name, const Variant &p_value) override;
 	bool get(const StringName &p_name, Variant &r_ret) const override;
-	void get_property_list(ListPOD<PropertyInfo> *p_properties) const override;
+	void get_property_list(List<PropertyInfo> *p_properties) const override;
 	VariantType get_property_type(const StringName &p_name, bool *r_is_valid = nullptr) const override;
 
 	void get_method_list(Vector<MethodInfo> *p_list) const override;

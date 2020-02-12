@@ -96,7 +96,7 @@ void NativeScript::_update_placeholder(PlaceHolderScriptInstance *p_placeholder)
 
     ERR_FAIL_COND(!script_data);
 
-    ListPOD<PropertyInfo> info;
+    List<PropertyInfo> info;
     get_script_property_list(&info);
     Map<StringName, Variant> values;
     for(const PropertyInfo & E : info) {
@@ -327,7 +327,7 @@ bool NativeScript::has_script_signal(const StringName &p_signal) const {
     return false;
 }
 
-void NativeScript::get_script_signal_list(ListPOD<MethodInfo> *r_signals) const {
+void NativeScript::get_script_signal_list(List<MethodInfo> *r_signals) const {
     NativeScriptDesc *script_data = get_script_desc();
 
     if (!script_data)
@@ -389,7 +389,7 @@ void NativeScript::get_script_method_list(Vector<MethodInfo> *p_list) const {
     }
 }
 
-void NativeScript::get_script_property_list(ListPOD<PropertyInfo> *p_list) const {
+void NativeScript::get_script_property_list(List<PropertyInfo> *p_list) const {
     NativeScriptDesc *script_data = get_script_desc();
 
     Set<StringName> existing_properties;
@@ -629,7 +629,7 @@ bool NativeScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void NativeScriptInstance::get_property_list(ListPOD<PropertyInfo> *p_properties) const {
+void NativeScriptInstance::get_property_list(List<PropertyInfo> *p_properties) const {
     script->get_script_property_list(p_properties);
 
     NativeScriptDesc *script_data = GET_SCRIPT_DESC();
@@ -1079,9 +1079,9 @@ void NativeScriptLanguage::init() {
 
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
 
-    const ListPOD<String> &args(OS::get_singleton()->get_cmdline_args());
+    const List<String> &args(OS::get_singleton()->get_cmdline_args());
 
-    ListPOD<String>::const_iterator E = eastl::find(args.begin(),args.end(),"--gdnative-generate-json-api");
+    List<String>::const_iterator E = eastl::find(args.begin(),args.end(),"--gdnative-generate-json-api");
 
     if (E!=args.end() && (++E != args.end())) {
         if (generate_c_api(*E) != OK) {

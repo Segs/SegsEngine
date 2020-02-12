@@ -52,7 +52,7 @@ class OS_Server : public OS_Unix {
 
     VisualServer *visual_server;
     VideoMode current_videomode;
-    ListPOD<String> args;
+    List<String> args;
     MainLoop *main_loop;
 
     bool grab;

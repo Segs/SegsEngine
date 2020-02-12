@@ -33,7 +33,7 @@ class RefPtr;
     inline constexpr void Object_set_edited(Object *self,bool p_edited,bool increment_version=true) {}
     inline constexpr bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value) {return false;}
     inline constexpr Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid) { r_valid=false; return {};}
-    inline constexpr void Object_add_tool_properties(ListPOD<PropertyInfo> *) {}
+    inline constexpr void Object_add_tool_properties(List<PropertyInfo> *) {}
     inline constexpr bool Object_script_signal_validate(RefPtr self) { return false; }
     inline constexpr bool Object_allow_disconnect(ObjectNS::ConnectFlags f) { return true; }
     inline constexpr void Object_add_tooling_methods() {}

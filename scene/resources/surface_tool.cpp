@@ -478,7 +478,7 @@ void SurfaceTool::deindex() {
         return; //nothing to deindex
     Vector<Vertex> varr;
     varr.resize(vertex_array.size());
-    int idx = 0;
+
     vertex_array.assign(vertex_array.begin(),vertex_array.end());
     vertex_array.clear();
     for (int E : index_array) {
