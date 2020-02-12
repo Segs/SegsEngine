@@ -36,7 +36,6 @@
 #include "core/se_string.h"
 #include "core/variant.h"
 #include "core/vector.h"
-#include "core/vmap.h"
 #include "core/set.h"
 
 #include "gdscript_functions.h"
@@ -265,13 +264,7 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
         TOKEN_LINE_BITS = 24,
         TOKEN_LINE_MASK = (1 << TOKEN_LINE_BITS) - 1,
     };
-
-    PODVector<StringName> identifiers;
-    PODVector<Variant> constants;
-    VMap<uint32_t, uint32_t> lines;
-    PODVector<uint32_t> tokens;
-    Variant nil;
-    int token;
+    void *m_private_data;
 
 public:
     Error set_code_buffer(const PODVector<uint8_t> &p_buffer);
@@ -299,4 +292,5 @@ public:
     bool is_ignoring_warnings() const override { return true; }
 #endif // DEBUG_ENABLED
     GDScriptTokenizerBuffer();
+    ~GDScriptTokenizerBuffer() override;
 };

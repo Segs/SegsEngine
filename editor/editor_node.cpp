@@ -160,6 +160,7 @@
 #include "scene/resources/packed_scene.h"
 #include "servers/physics_2d_server.h"
 
+#include "EASTL/sort.h"
 #include <cstdio>
 
 EditorNode *EditorNode::singleton = nullptr;
@@ -639,7 +640,7 @@ void EditorNode::_fs_changed() {
 
 void EditorNode::_resources_reimported(const PODVector<String> &p_resources) {
 
-    List<String> scenes; // will load later
+    PODVector<String> scenes; // will load later
     int current_tab = scene_tabs->get_current_tab();
 
     for (int i = 0; i < p_resources.size(); i++) {
@@ -660,8 +661,8 @@ void EditorNode::_resources_reimported(const PODVector<String> &p_resources) {
         }
     }
 
-    for (List<String>::Element *E = scenes.front(); E; E = E->next()) {
-        reload_scene(E->deref());
+    for (const String &E : scenes) {
+        reload_scene(E);
     }
 
     scene_tabs->set_current_tab(current_tab);
@@ -819,7 +820,7 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, se_string_vie
     ResourceSaver::get_recognized_extensions(p_resource, extensions);
     file->clear_filters();
 
-    List<String> preferred;
+    PODVector<String> preferred;
     for (size_t i = 0; i < extensions.size(); i++) {
 
         if (p_resource->is_class("Script") &&
@@ -839,7 +840,7 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, se_string_vie
         } else {
             if (!extensions.empty()) {
                 file->set_current_file(String("new_" + StringUtils::to_lower(p_resource->get_class()) + ".") +
-                                       StringUtils::to_lower(preferred.front()->deref()));
+                                       StringUtils::to_lower(preferred.front()));
             } else {
                 file->set_current_file(se_string_view());
             }
@@ -858,7 +859,7 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, se_string_vie
         String existing;
         if (!extensions.empty()) {
             existing = String("new_" + StringUtils::to_lower(p_resource->get_class()) + ".") +
-                       StringUtils::to_lower(preferred.front()->deref());
+                       StringUtils::to_lower(preferred.front());
         }
         file->set_current_path(existing);
     }
@@ -1836,7 +1837,7 @@ void EditorNode::_edit_current() {
                 MultiNodeEdit *multi_node_edit = object_cast<MultiNodeEdit>(current_obj);
                 int node_count = multi_node_edit->get_node_count();
                 if (node_count > 0) {
-                    List<Node *> multi_nodes;
+                    PODVector<Node *> multi_nodes;
                     for (int node_index = 0; node_index < node_count; ++node_index) {
                         Node *node = scene->get_node(multi_node_edit->get_node(node_index));
                         if (node) {
@@ -1845,8 +1846,10 @@ void EditorNode::_edit_current() {
                     }
                     if (!multi_nodes.empty()) {
                         // Pick the top-most node
-                        multi_nodes.sort_custom<Node::Comparator>();
-                        selected_node = multi_nodes.front()->deref();
+                        //TODO: SEGS: this is sorting when it could have been a simple scan for max/min
+                        //eastl::min_element(multi_nodes.begin(),multi_nodes.end(),Node::Comparator());
+                        eastl::sort(multi_nodes.begin(),multi_nodes.end(),Node::Comparator());
+                        selected_node = multi_nodes.front();
                     }
                 }
             }
@@ -2377,7 +2380,9 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             int cur_idx = editor_data.get_edited_scene();
             _remove_edited_scene();
             Error err = load_scene(filename);
-            if (err != OK) ERR_PRINT("Failed to load scene");
+            if (err != OK) {
+                ERR_PRINT("Failed to load scene");
+            }
             editor_data.move_edited_scene_to_index(cur_idx);
             get_undo_redo()->clear_history(false);
             scene_tabs->set_current_tab(cur_idx);

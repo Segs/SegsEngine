@@ -132,15 +132,14 @@ struct SpatialIndexer {
 
     void _remove_camera(Camera *p_camera) {
         ERR_FAIL_COND(!cameras.contains(p_camera));
-        List<VisibilityNotifier *> removed;
+        PODVector<VisibilityNotifier *> removed;
         for (auto &E : cameras[p_camera].notifiers) {
 
             removed.push_back(E.first);
         }
 
-        while (!removed.empty()) {
-            removed.front()->deref()->_exit_camera(p_camera);
-            removed.pop_front();
+        for(auto v : removed) {
+            v->_exit_camera(p_camera);
         }
 
         cameras.erase(p_camera);

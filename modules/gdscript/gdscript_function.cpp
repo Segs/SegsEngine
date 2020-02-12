@@ -38,6 +38,8 @@
 #include "gdscript.h"
 #include "gdscript_functions.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(GDScriptFunctionState)
 
 Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, String &r_error) const {
@@ -1725,7 +1727,7 @@ void GDScriptFunction::debug_get_stack_member_state(int p_line, PODVector<Pair<S
         }
     }
 
-    List<_GDFKCS> stackpositions;
+    PODVector<_GDFKCS> stackpositions;
     for (eastl::pair<const StringName,_GDFKC> &E : sdmap) {
 
         _GDFKCS spp;
@@ -1734,12 +1736,11 @@ void GDScriptFunction::debug_get_stack_member_state(int p_line, PODVector<Pair<S
         spp.pos = E.second.pos.back()->deref();
         stackpositions.push_back(spp);
     }
+    eastl::sort(stackpositions.begin(),stackpositions.end());
 
-    stackpositions.sort();
+    for (const _GDFKCS &E : stackpositions) {
 
-    for (List<_GDFKCS>::Element *E = stackpositions.front(); E; E = E->next()) {
-
-        r_stackvars->emplace_back(E->deref().id,E->deref().pos);
+        r_stackvars->emplace_back(E.id,E.pos);
     }
 }
 

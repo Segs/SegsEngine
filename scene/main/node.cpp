@@ -2095,17 +2095,17 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
     StringName script_property_name = CoreStringNames::get_singleton()->_script;
 
     List<const Node *> hidden_roots;
-    List<const Node *> node_tree;
+    Dequeue<const Node *> node_tree;
     node_tree.push_front(this);
 
     if (instanced) {
         // Since nodes in the instanced hierarchy won't be duplicated explicitly, we need to make an inventory
         // of all the nodes in the tree of the instanced scene in order to transfer the values of the properties
 
-        for (List<const Node *>::Element *N = node_tree.front(); N; N = N->next()) {
-            for (int i = 0; i < N->deref()->get_child_count(); ++i) {
+        for (auto N = node_tree.begin(); N!=node_tree.end(); ++N) {
+            for (int i = 0; i < (*N)->get_child_count(); ++i) {
 
-                Node *descendant = N->deref()->get_child(i);
+                Node *descendant = (*N)->get_child(i);
                 // Skip nodes not really belonging to the instanced hierarchy; they'll be processed normally later
                 // but remember non-instanced nodes that are hidden below instanced ones
                 if (descendant->data->owner != this) {
@@ -2119,21 +2119,21 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
         }
     }
 
-    for (List<const Node *>::Element *N = node_tree.front(); N; N = N->next()) {
+    for (const Node *N : node_tree) {
 
-        Node *current_node = node->get_node(get_path_to(N->deref()));
+        Node *current_node = node->get_node(get_path_to(N));
         ERR_CONTINUE(!current_node);
 
         if (p_flags & DUPLICATE_SCRIPTS) {
             bool is_valid = false;
-            Variant script = N->deref()->get(script_property_name, &is_valid);
+            Variant script = N->get(script_property_name, &is_valid);
             if (is_valid) {
                 current_node->set(script_property_name, script);
             }
         }
 
         PODVector<PropertyInfo> plist;
-        N->deref()->get_property_list(&plist);
+        N->get_property_list(&plist);
 
         for (const PropertyInfo & E : plist) {
 
@@ -2143,7 +2143,7 @@ Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const
             if (name == script_property_name)
                 continue;
 
-            Variant value = N->deref()->get(name).duplicate(true);
+            Variant value = N->get(name).duplicate(true);
 
             if (E.usage & PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE) {
 

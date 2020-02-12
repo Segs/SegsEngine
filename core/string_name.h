@@ -142,7 +142,7 @@ public:
     explicit StringName(const char *p_name);
 
 
-    StringName(const StringName &p_name);
+    StringName(const StringName &p_name) noexcept;
     StringName(StringName &&p_name) noexcept
     {
         _data = p_name._data;

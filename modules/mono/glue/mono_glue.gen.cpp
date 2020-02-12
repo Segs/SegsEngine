@@ -50631,7 +50631,7 @@ uint64_t get_core_api_hash() { return 7982866888582804672U; }
 uint64_t get_editor_api_hash() { return 12653219099717887913U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1580938708; }
+uint32_t get_cs_glue_version() { return 1580984225; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();

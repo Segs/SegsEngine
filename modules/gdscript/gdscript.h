@@ -316,7 +316,10 @@ struct GDScriptWarning {
     String get_message() const;
     static const char *get_name_from_code(Code p_code);
     static Code get_code_from_name(const String &p_name);
-
+    // Used to order the warnings by line
+    bool operator<(const GDScriptWarning &oth) const {
+        return line<oth.line;
+    }
     GDScriptWarning() :
             code(WARNING_MAX),
             line(-1) {}

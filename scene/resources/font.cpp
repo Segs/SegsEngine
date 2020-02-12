@@ -410,7 +410,7 @@ PODVector<CharType> BitmapFont::get_char_keys() const {
 
     PODVector<CharType> chars;
     chars.reserve(char_map.size());
-    int count = 0;
+
     for(const auto &v  : char_map) {
 
         chars.push_back(v.first);

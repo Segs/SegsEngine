@@ -31,14 +31,21 @@
 #include "visual_shader.h"
 
 #include "core/method_bind.h"
-#include "core/vmap.h"
+
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/object_tooling.h"
 #include "scene/resources/shader_enum_casters.h"
 #include "servers/visual/shader_types.h"
 #include "core/string_utils.inl"
+
+#include "EASTL/vector_map.h"
+
 using namespace eastl;
+
+template<typename T,typename V>
+using VMap = eastl::vector_map<T, V,eastl::less<T>,wrap_allocator>;
+
 IMPL_GDCLASS(VisualShader)
 IMPL_GDCLASS(VisualShaderNode)
 IMPL_GDCLASS(VisualShaderNodeUniform)
@@ -52,7 +59,185 @@ IMPL_GDCLASS(VisualShaderNodeGlobalExpression)
 VARIANT_ENUM_CAST(VisualShader::Type)
 VARIANT_ENUM_CAST(VisualShaderNode::PortType)
 
+namespace {
+    Error _write_node(VisualShader::Type type,const VisualShader *vs,StringBuilder &global_code, StringBuilder &global_code_per_node,
+            Map<VisualShader::Type, StringBuilder> &global_code_per_func, StringBuilder &code,
+            PODVector<VisualShader::DefaultTextureParam> &def_tex_params,
+            const VMap<VisualShader::ConnectionKey, const List<VisualShader::Connection>::Element *> &input_connections,
+            const VMap<VisualShader::ConnectionKey, const List<VisualShader::Connection>::Element *> &output_connections, int node, Set<int> &processed,
+            bool for_preview, Set<StringName> &r_classes) {
 
+        using Type = VisualShader::Type;
+
+        const Ref<VisualShaderNode> vsnode = vs->graph[type].nodes.at(node).node;
+
+        //check inputs recursively first
+        int input_count = vsnode->get_input_port_count();
+        for (int i = 0; i < input_count; i++) {
+            VisualShader::ConnectionKey ck;
+            ck.node = node;
+            ck.port = i;
+            auto iter=input_connections.find(ck);
+            if (input_connections.end()!=iter) {
+                int from_node = iter->second->deref().from_node;
+                if (processed.contains(from_node)) {
+                    continue;
+                }
+
+                Error err = _write_node(type, vs, global_code, global_code_per_node, global_code_per_func, code,
+                        def_tex_params, input_connections, output_connections, from_node, processed, for_preview,
+                        r_classes);
+                if (err) return err;
+            }
+        }
+
+        // then this node
+
+        code += String("// ") + vsnode->get_caption() + ":" + itos(node) + "\n";
+        PODVector<String> input_vars;
+
+        input_vars.resize(vsnode->get_input_port_count());
+        String *inputs = input_vars.data();
+
+        for (int i = 0; i < input_count; i++) {
+            VisualShader::ConnectionKey ck;
+            ck.node = node;
+            ck.port = i;
+
+            auto iter=input_connections.find(ck);
+            if (input_connections.end()!=iter) {
+                //connected to something, use that output
+                int from_node = iter->second->deref().from_node;
+                int from_port = iter->second->deref().from_port;
+
+                VisualShaderNode::PortType in_type = vsnode->get_input_port_type(i);
+                VisualShaderNode::PortType out_type = vs->graph[type].nodes.at(from_node).node->get_output_port_type(from_port);
+
+                String src_var = "n_out" + itos(from_node) + "p" + itos(from_port);
+
+                if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
+                    VisualShaderNode *ptr = const_cast<VisualShaderNode *>(vs->graph[type].nodes.at(from_node).node.get());
+                    if (ptr->has_method("get_input_real_name")) {
+                        inputs[i] = ptr->call("get_input_real_name").as<String>();
+                    } else if (ptr->has_method("get_uniform_name")) {
+                        inputs[i] = ptr->call("get_uniform_name").as<String>();
+                    } else {
+                        inputs[i] = "";
+                    }
+                } else if (in_type == out_type) {
+                    inputs[i] = src_var;
+                } else if (in_type == VisualShaderNode::PORT_TYPE_SCALAR && out_type == VisualShaderNode::PORT_TYPE_VECTOR) {
+                    inputs[i] = "dot(" + src_var + ",vec3(0.333333,0.333333,0.333333))";
+                } else if (in_type == VisualShaderNode::PORT_TYPE_VECTOR && out_type == VisualShaderNode::PORT_TYPE_SCALAR) {
+                    inputs[i] = "vec3(" + src_var + ")";
+                } else if (in_type == VisualShaderNode::PORT_TYPE_BOOLEAN && out_type == VisualShaderNode::PORT_TYPE_VECTOR) {
+                    inputs[i] = "all(bvec3(" + src_var + "))";
+                } else if (in_type == VisualShaderNode::PORT_TYPE_BOOLEAN && out_type == VisualShaderNode::PORT_TYPE_SCALAR) {
+                    inputs[i] = src_var + ">0.0?true:false";
+                } else if (in_type == VisualShaderNode::PORT_TYPE_SCALAR && out_type == VisualShaderNode::PORT_TYPE_BOOLEAN) {
+                    inputs[i] = src_var + "?1.0:0.0";
+                } else if (in_type == VisualShaderNode::PORT_TYPE_VECTOR && out_type == VisualShaderNode::PORT_TYPE_BOOLEAN) {
+                    inputs[i] = "vec3(" + src_var + "?1.0:0.0)";
+                }
+            } else {
+
+                Variant defval = vsnode->get_input_port_default_value(i);
+                if (defval.get_type() == VariantType::REAL || defval.get_type() == VariantType::INT) {
+                    float val = defval;
+                    inputs[i] = "n_in" + itos(node) + "p" + itos(i);
+                    code += "\tfloat " + inputs[i] + " = " + FormatVE("%.5f", val) + ";\n";
+                } else if (defval.get_type() == VariantType::BOOL) {
+                    bool val = defval;
+                    inputs[i] = "n_in" + itos(node) + "p" + itos(i);
+                    code += "\tbool " + inputs[i] + " = " + (val ? "true" : "false") + ";\n";
+                } else if (defval.get_type() == VariantType::VECTOR3) {
+                    Vector3 val = defval;
+                    inputs[i] = "n_in" + itos(node) + "p" + itos(i);
+                    code += "\tvec3 " + inputs[i] + " = " + FormatVE("vec3(%.5f,%.5f,%.5f);\n", val.x, val.y, val.z);
+                } else if (defval.get_type() == VariantType::TRANSFORM) {
+                    Transform val = defval;
+                    val.basis.transpose();
+                    inputs[i] = "n_in" + itos(node) + "p" + itos(i);
+                    code+="\tmat4 " + inputs[i] + " = mat4( ";
+                    Array values;
+                    for (int j = 0; j < 3; j++) {
+                        code += FormatVE("vec4(%.5f,%.5f,%.5f,0.0),",val.basis[j].x,val.basis[j].y,val.basis[j].z);
+                    }
+                    code += FormatVE("vec4(%.5f,%.5f,%.5f,0.0) );\n",val.origin.x,val.origin.y,val.origin.z);
+                } else {
+                    //will go empty, node is expected to know what it is doing at this point and handle it
+                }
+            }
+        }
+
+        int output_count = vsnode->get_output_port_count();
+        PODVector<String> output_vars;
+        output_vars.reserve(output_count);
+        String *outputs = output_vars.data();
+
+        if (vsnode->is_simple_decl()) { // less code to generate for some simple_decl nodes
+            for (int i = 0; i < output_count; i++) {
+                String var_name = "n_out" + itos(node) + "p" + itos(i);
+                switch (vsnode->get_output_port_type(i)) {
+                    case VisualShaderNode::PORT_TYPE_SCALAR: output_vars.emplace_back("float " + var_name); break;
+                    case VisualShaderNode::PORT_TYPE_VECTOR: output_vars.emplace_back("vec3 " + var_name); break;
+                    case VisualShaderNode::PORT_TYPE_BOOLEAN: output_vars.emplace_back("bool " + var_name); break;
+                    case VisualShaderNode::PORT_TYPE_TRANSFORM: output_vars.emplace_back("mat4 " + var_name); break;
+                    default: {
+                    }
+                }
+            }
+
+        } else {
+            for (int i = 0; i < output_count; i++) {
+                output_vars.emplace_back("n_out" + itos(node) + "p" + itos(i));
+                const String &nout(output_vars.back());
+                switch (vsnode->get_output_port_type(i)) {
+                    case VisualShaderNode::PORT_TYPE_SCALAR: code += "\tfloat " + nout + ";\n"; break;
+                    case VisualShaderNode::PORT_TYPE_VECTOR: code += "\tvec3 " + nout + ";\n"; break;
+                    case VisualShaderNode::PORT_TYPE_BOOLEAN: code += "\tbool " + nout + ";\n"; break;
+                    case VisualShaderNode::PORT_TYPE_TRANSFORM: code += "\tmat4 " + nout + ";\n"; break;
+                    default: {
+                    }
+                }
+            }
+        }
+
+        PODVector<VisualShader::DefaultTextureParam> params = vsnode->get_default_texture_parameters(type, node);
+        for (int i = 0; i < params.size(); i++) {
+            def_tex_params.push_back(params[i]);
+        }
+
+        Ref<VisualShaderNodeInput> input = dynamic_ref_cast<VisualShaderNodeInput>(vsnode);
+        bool skip_global = input && for_preview;
+
+        if (!skip_global) {
+
+            global_code += vsnode->generate_global(vs->get_mode(), type, node);
+
+            StringName class_name = vsnode->get_class_name();
+            if (class_name == "VisualShaderNodeCustom") {
+                class_name = vsnode->get_script_instance()->get_script()->get_language()->get_global_class_name(vsnode->get_script_instance()->get_script()->get_path());
+            }
+            if (!r_classes.contains(class_name)) {
+                global_code_per_node += vsnode->generate_global_per_node(vs->get_mode(), type, node);
+                for (int i = 0; i < VisualShader::TYPE_MAX; i++) {
+                    global_code_per_func[Type(i)] += vsnode->generate_global_per_func(vs->get_mode(), Type(i), node);
+                }
+                r_classes.insert(class_name);
+            }
+        }
+
+        code += vsnode->generate_code(vs->get_mode(), type, node, inputs, outputs, for_preview);
+
+        code += "\n"; //
+        processed.insert(node);
+
+        return OK;
+    }
+
+
+}
 
 void VisualShaderNode::set_output_port_for_preview(int p_index) {
 
@@ -699,19 +884,19 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
         from_key.node = E->deref().from_node;
         from_key.port = E->deref().from_port;
 
-        output_connections.insert(from_key, E);
+        output_connections.emplace(from_key, E);
 
         ConnectionKey to_key;
         to_key.node = E->deref().to_node;
         to_key.port = E->deref().to_port;
 
-        input_connections.insert(to_key, E);
+        input_connections.emplace(to_key, E);
     }
 
     code += "\nvoid fragment() {\n";
 
     Set<int> processed;
-    Error err = _write_node(p_type, global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, p_node, processed, true, classes);
+    Error err = _write_node(p_type, this, global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, p_node, processed, true, classes);
     ERR_FAIL_COND_V(err != OK, String());
 
     if (node->get_output_port_type(p_port) == VisualShaderNode::PORT_TYPE_SCALAR) {
@@ -1070,173 +1255,6 @@ void VisualShader::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     }
 }
 
-Error VisualShader::_write_node(Type type, StringBuilder &global_code, StringBuilder &global_code_per_node, Map<Type, StringBuilder> &global_code_per_func, StringBuilder &code, PODVector<DefaultTextureParam> &def_tex_params, const VMap<ConnectionKey, const List<Connection>::Element *> &input_connections, const VMap<ConnectionKey, const List<Connection>::Element *> &output_connections, int node, Set<int> &processed, bool for_preview, Set<StringName> &r_classes) const {
-
-    const Ref<VisualShaderNode> vsnode = graph[type].nodes.at(node).node;
-
-    //check inputs recursively first
-    int input_count = vsnode->get_input_port_count();
-    for (int i = 0; i < input_count; i++) {
-        ConnectionKey ck;
-        ck.node = node;
-        ck.port = i;
-
-        if (input_connections.has(ck)) {
-            int from_node = input_connections[ck]->deref().from_node;
-            if (processed.contains(from_node)) {
-                continue;
-            }
-
-            Error err = _write_node(type, global_code, global_code_per_node, global_code_per_func, code, def_tex_params, input_connections, output_connections, from_node, processed, for_preview, r_classes);
-            if (err)
-                return err;
-        }
-    }
-
-    // then this node
-
-    code += String("// ") + vsnode->get_caption() + ":" + itos(node) + "\n";
-    PODVector<String> input_vars;
-
-    input_vars.resize(vsnode->get_input_port_count());
-    String *inputs = input_vars.data();
-
-    for (int i = 0; i < input_count; i++) {
-        ConnectionKey ck;
-        ck.node = node;
-        ck.port = i;
-
-        if (input_connections.has(ck)) {
-            //connected to something, use that output
-            int from_node = input_connections[ck]->deref().from_node;
-            int from_port = input_connections[ck]->deref().from_port;
-
-            VisualShaderNode::PortType in_type = vsnode->get_input_port_type(i);
-            VisualShaderNode::PortType out_type = graph[type].nodes.at(from_node).node->get_output_port_type(from_port);
-
-            String src_var = "n_out" + itos(from_node) + "p" + itos(from_port);
-
-            if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
-                VisualShaderNode *ptr = const_cast<VisualShaderNode *>(graph[type].nodes.at(from_node).node.get());
-                if (ptr->has_method("get_input_real_name")) {
-                    inputs[i] = ptr->call("get_input_real_name").as<String>();
-                } else if (ptr->has_method("get_uniform_name")) {
-                    inputs[i] = ptr->call("get_uniform_name").as<String>();
-                } else {
-                    inputs[i] = "";
-                }
-            } else if (in_type == out_type) {
-                inputs[i] = src_var;
-            } else if (in_type == VisualShaderNode::PORT_TYPE_SCALAR && out_type == VisualShaderNode::PORT_TYPE_VECTOR) {
-                inputs[i] = "dot(" + src_var + ",vec3(0.333333,0.333333,0.333333))";
-            } else if (in_type == VisualShaderNode::PORT_TYPE_VECTOR && out_type == VisualShaderNode::PORT_TYPE_SCALAR) {
-                inputs[i] = "vec3(" + src_var + ")";
-            } else if (in_type == VisualShaderNode::PORT_TYPE_BOOLEAN && out_type == VisualShaderNode::PORT_TYPE_VECTOR) {
-                inputs[i] = "all(bvec3(" + src_var + "))";
-            } else if (in_type == VisualShaderNode::PORT_TYPE_BOOLEAN && out_type == VisualShaderNode::PORT_TYPE_SCALAR) {
-                inputs[i] = src_var + ">0.0?true:false";
-            } else if (in_type == VisualShaderNode::PORT_TYPE_SCALAR && out_type == VisualShaderNode::PORT_TYPE_BOOLEAN) {
-                inputs[i] = src_var + "?1.0:0.0";
-            } else if (in_type == VisualShaderNode::PORT_TYPE_VECTOR && out_type == VisualShaderNode::PORT_TYPE_BOOLEAN) {
-                inputs[i] = "vec3(" + src_var + "?1.0:0.0)";
-            }
-        } else {
-
-            Variant defval = vsnode->get_input_port_default_value(i);
-            if (defval.get_type() == VariantType::REAL || defval.get_type() == VariantType::INT) {
-                float val = defval;
-                inputs[i] = "n_in" + itos(node) + "p" + itos(i);
-                code += "\tfloat " + inputs[i] + " = " + FormatVE("%.5f", val) + ";\n";
-            } else if (defval.get_type() == VariantType::BOOL) {
-                bool val = defval;
-                inputs[i] = "n_in" + itos(node) + "p" + itos(i);
-                code += "\tbool " + inputs[i] + " = " + (val ? "true" : "false") + ";\n";
-            } else if (defval.get_type() == VariantType::VECTOR3) {
-                Vector3 val = defval;
-                inputs[i] = "n_in" + itos(node) + "p" + itos(i);
-                code += "\tvec3 " + inputs[i] + " = " + FormatVE("vec3(%.5f,%.5f,%.5f);\n", val.x, val.y, val.z);
-            } else if (defval.get_type() == VariantType::TRANSFORM) {
-                Transform val = defval;
-                val.basis.transpose();
-                inputs[i] = "n_in" + itos(node) + "p" + itos(i);
-                code+="\tmat4 " + inputs[i] + " = mat4( ";
-                Array values;
-                for (int j = 0; j < 3; j++) {
-                    code += FormatVE("vec4(%.5f,%.5f,%.5f,0.0),",val.basis[j].x,val.basis[j].y,val.basis[j].z);
-                }
-                code += FormatVE("vec4(%.5f,%.5f,%.5f,0.0) );\n",val.origin.x,val.origin.y,val.origin.z);
-            } else {
-                //will go empty, node is expected to know what it is doing at this point and handle it
-            }
-        }
-    }
-
-    int output_count = vsnode->get_output_port_count();
-    PODVector<String> output_vars;
-    output_vars.reserve(output_count);
-    String *outputs = output_vars.data();
-
-    if (vsnode->is_simple_decl()) { // less code to generate for some simple_decl nodes
-        for (int i = 0; i < output_count; i++) {
-            String var_name = "n_out" + itos(node) + "p" + itos(i);
-            switch (vsnode->get_output_port_type(i)) {
-                case VisualShaderNode::PORT_TYPE_SCALAR: output_vars.emplace_back("float " + var_name); break;
-                case VisualShaderNode::PORT_TYPE_VECTOR: output_vars.emplace_back("vec3 " + var_name); break;
-                case VisualShaderNode::PORT_TYPE_BOOLEAN: output_vars.emplace_back("bool " + var_name); break;
-                case VisualShaderNode::PORT_TYPE_TRANSFORM: output_vars.emplace_back("mat4 " + var_name); break;
-                default: {
-                }
-            }
-        }
-
-    } else {
-        for (int i = 0; i < output_count; i++) {
-            output_vars.emplace_back("n_out" + itos(node) + "p" + itos(i));
-            const String &nout(output_vars.back());
-            switch (vsnode->get_output_port_type(i)) {
-                case VisualShaderNode::PORT_TYPE_SCALAR: code += "\tfloat " + nout + ";\n"; break;
-                case VisualShaderNode::PORT_TYPE_VECTOR: code += "\tvec3 " + nout + ";\n"; break;
-                case VisualShaderNode::PORT_TYPE_BOOLEAN: code += "\tbool " + nout + ";\n"; break;
-                case VisualShaderNode::PORT_TYPE_TRANSFORM: code += "\tmat4 " + nout + ";\n"; break;
-                default: {
-                }
-            }
-        }
-    }
-
-    PODVector<VisualShader::DefaultTextureParam> params = vsnode->get_default_texture_parameters(type, node);
-    for (int i = 0; i < params.size(); i++) {
-        def_tex_params.push_back(params[i]);
-    }
-
-    Ref<VisualShaderNodeInput> input = dynamic_ref_cast<VisualShaderNodeInput>(vsnode);
-    bool skip_global = input && for_preview;
-
-    if (!skip_global) {
-
-        global_code += vsnode->generate_global(get_mode(), type, node);
-
-        StringName class_name = vsnode->get_class_name();
-        if (class_name == "VisualShaderNodeCustom") {
-            class_name = vsnode->get_script_instance()->get_script()->get_language()->get_global_class_name(vsnode->get_script_instance()->get_script()->get_path());
-        }
-        if (!r_classes.contains(class_name)) {
-            global_code_per_node += vsnode->generate_global_per_node(get_mode(), type, node);
-            for (int i = 0; i < TYPE_MAX; i++) {
-                global_code_per_func[Type(i)] += vsnode->generate_global_per_func(get_mode(), Type(i), node);
-            }
-            r_classes.insert(class_name);
-        }
-    }
-
-    code += vsnode->generate_code(get_mode(), type, node, inputs, outputs, for_preview);
-
-    code += "\n"; //
-    processed.insert(node);
-
-    return OK;
-}
-
 void VisualShader::_update_shader() const {
     if (!dirty)
         return;
@@ -1332,19 +1350,19 @@ void VisualShader::_update_shader() const {
             from_key.node = E->deref().from_node;
             from_key.port = E->deref().from_port;
 
-            output_connections.insert(from_key, E);
+            output_connections.emplace(from_key, E);
 
             ConnectionKey to_key;
             to_key.node = E->deref().to_node;
             to_key.port = E->deref().to_port;
 
-            input_connections.insert(to_key, E);
+            input_connections.emplace(to_key, E);
         }
 
         code += "\nvoid " + String(func_name[i]) + "() {\n";
 
         Set<int> processed;
-        Error err = _write_node(Type(i), global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, NODE_ID_OUTPUT, processed, false, classes);
+        Error err = _write_node(Type(i), this, global_code, global_code_per_node, global_code_per_func, code, default_tex_params, input_connections, output_connections, NODE_ID_OUTPUT, processed, false, classes);
         ERR_FAIL_COND(err != OK);
         insertion_pos.push_back(code.get_string_length());
 

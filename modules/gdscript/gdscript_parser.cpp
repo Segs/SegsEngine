@@ -8425,18 +8425,7 @@ void GDScriptParser::_add_warning(int p_code, int p_line, const std::initializer
         warn.symbols.push_back(String(s));
     warn.line = p_line == -1 ? tokenizer->get_token_line() : p_line;
 
-    List<GDScriptWarning>::iterator before = nullptr;
-    for (List<GDScriptWarning>::iterator E = warnings.front(); E; E = E->next()) {
-        if (E->deref().line > warn.line) {
-            break;
-        }
-        before = E;
-    }
-    if (before) {
-        warnings.insert_after(before, warn);
-    } else {
-        warnings.push_front(warn);
-    }
+    warnings.insert(warn);
 }
 #endif // DEBUG_ENABLED
 
@@ -8515,16 +8504,15 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
     // Resolve warning ignores
     PODVector<Pair<int, String> > warning_skips(tokenizer->get_warning_skips());
     bool warning_is_error = GLOBAL_GET("debug/gdscript/warnings/treat_warnings_as_errors").booleanize();
-    for (List<GDScriptWarning>::Element *E = warnings.front(); E;) {
-        GDScriptWarning &w = E->deref();
+    for (auto E = warnings.begin(); E!=warnings.end();) {
+        GDScriptWarning &w = *E;
         int skip_index = -1;
-        for (int i = 0; i < warning_skips.size(); i++) {
+        for (size_t i = 0; i < warning_skips.size(); i++) {
             if (warning_skips[i].first >= w.line) {
                 break;
             }
             skip_index = i;
         }
-        List<GDScriptWarning>::Element *next = E->next();
         bool erase = false;
         if (skip_index != -1) {
             if (warning_skips[skip_index].second == (StringUtils::to_lower(GDScriptWarning::get_name_from_code(w.code)))) {
@@ -8533,12 +8521,13 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
             warning_skips.erase_at(skip_index);
         }
         if (erase) {
-            warnings.erase(E);
+            E = warnings.erase(E);
         } else if (warning_is_error) {
             _set_error(w.get_message() + " (warning treated as error)", w.line);
             return ERR_PARSE_ERROR;
         }
-        E = next;
+        else
+            E++;
     }
 #endif // DEBUG_ENABLED
 

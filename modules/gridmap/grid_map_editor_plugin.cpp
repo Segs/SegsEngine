@@ -48,6 +48,8 @@
 #include "core/math/geometry.h"
 #include "core/os/keyboard.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(GridMapEditor)
 IMPL_GDCLASS(GridMapEditorPlugin)
 
@@ -904,7 +906,7 @@ void GridMapEditor::update_palette() {
 
     PODVector<int> ids = mesh_library->get_item_list();
 
-    List<_CGMEItemSort> il;
+    PODVector<_CGMEItemSort> il;
     for (int id : ids) {
 
         _CGMEItemSort is;
@@ -912,14 +914,14 @@ void GridMapEditor::update_palette() {
         is.name = mesh_library->get_item_name(id);
         il.push_back(is);
     }
-    il.sort();
+    eastl::sort(il.begin(),il.end());
 
     String filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
 
     int item = 0;
 
-    for (List<_CGMEItemSort>::Element *E = il.front(); E; E = E->next()) {
-        int id = E->deref().id;
+    for (const _CGMEItemSort &E : il) {
+        int id = E.id;
         String name = mesh_library->get_item_name(id);
         Ref<Texture> preview = mesh_library->get_item_preview(id);
 

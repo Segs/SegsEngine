@@ -2288,7 +2288,7 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
     int pos = 0;
 
-    List<se_string_view> tag_stack;
+    ListPOD<se_string_view> tag_stack;
     Ref<Font> normal_font = get_font("normal_font");
     Ref<Font> bold_font = get_font("bold_font");
     Ref<Font> italics_font = get_font("italics_font");
@@ -2330,13 +2330,13 @@ Error RichTextLabel::append_bbcode(se_string_view p_bbcode) {
 
         if (tag.starts_with('/') && !tag_stack.empty()) {
 
-            bool tag_ok = !tag_stack.empty() && tag_stack.front()->deref() == StringUtils::substr(tag,1, tag.length());
+            bool tag_ok = !tag_stack.empty() && tag_stack.front() == StringUtils::substr(tag,1, tag.length());
 
-            if (tag_stack.front()->deref() == se_string_view("b"))
+            if (tag_stack.front() == se_string_view("b"))
                 in_bold = false;
-            if (tag_stack.front()->deref() == se_string_view("i"))
+            if (tag_stack.front() == se_string_view("i"))
                 in_italics = false;
-            if (tag_stack.front()->deref() == se_string_view("indent"))
+            if (tag_stack.front() == se_string_view("indent"))
                 indent_level--;
 
             if (!tag_ok) {

@@ -38,8 +38,6 @@
 #include <cstring>
 #include <type_traits>
 
-template <class T>
-class Vector;
 template <class T, class V>
 class VMap;
 

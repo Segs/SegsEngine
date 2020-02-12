@@ -847,7 +847,7 @@ void EditorAssetLibrary::_update_image_queue() {
     const int max_images = 6;
     int current_images = 0;
 
-    List<int> to_delete;
+    PODVector<int> to_delete;
     for (eastl::pair<const int, ImageQueue> &E : image_queue) {
         if (!E.second.active && current_images < max_images) {
 
@@ -876,10 +876,9 @@ void EditorAssetLibrary::_update_image_queue() {
         }
     }
 
-    while (!to_delete.empty()) {
-        image_queue[to_delete.front()->deref()].request->queue_delete();
-        image_queue.erase(to_delete.front()->deref());
-        to_delete.pop_front();
+    for(int d : to_delete) {
+        image_queue[d].request->queue_delete();
+        image_queue.erase(d);
     }
 }
 

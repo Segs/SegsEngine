@@ -261,8 +261,7 @@ static bool _teststr(const String &p_what, const char *_str) {
 
     // remove trailing spaces and numbers, some apps like blender add ".number" to duplicates so also compensate for
     // this
-    while (what.length() && (what[what.length() - 1] >= '0' && what[what.length() - 1] <= '9' ||
-                                    what[what.length() - 1] <= 32 || what[what.length() - 1] == '.')) {
+    while (!what.empty() && ((what.back() >= '0' && what.back() <= '9') || what.back() <= 32 || what.back() == '.')) {
 
         what = StringUtils::substr(what, 0, what.length() - 1);
     }
@@ -699,7 +698,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 
         for (int j = 0; j < default_anim->get_track_count(); j++) {
 
-            List<float> keys;
+
             int kc = default_anim->track_get_key_count(j);
             int dtrack = -1;
             for (int k = 0; k < kc; k++) {
@@ -788,7 +787,7 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 
     anim->remove_animation("default"); // remove default (no longer needed)
 }
-
+//TODO: SEGS: use UnorderedSet here.
 void ResourceImporterScene::_filter_anim_tracks(const Ref<Animation> &anim, Set<String> &keep) {
 
     const Ref<Animation> &a(anim);

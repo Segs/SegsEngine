@@ -200,15 +200,13 @@ struct SpatialIndexer2D {
 
     void _remove_viewport(Viewport *p_viewport) {
         ERR_FAIL_COND(!viewports.contains(p_viewport));
-        List<VisibilityNotifier2D *> removed;
+        PODVector<VisibilityNotifier2D *> removed;
         for (auto &E : viewports[p_viewport].notifiers) {
 
             removed.push_back(E.first);
         }
-
-        while (!removed.empty()) {
-            removed.front()->deref()->_exit_viewport(p_viewport);
-            removed.pop_front();
+        for(VisibilityNotifier2D *n : removed) {
+            n->_exit_viewport(p_viewport);
         }
 
         viewports.erase(p_viewport);
@@ -226,8 +224,8 @@ struct SpatialIndexer2D {
             Point2i end = E.second.rect.position + E.second.rect.size;
             end /= cell_size;
             pass++;
-            List<VisibilityNotifier2D *> added;
-            List<VisibilityNotifier2D *> removed;
+            PODVector<VisibilityNotifier2D *> added;
+            PODVector<VisibilityNotifier2D *> removed;
 
             int visible_cells = (end.x - begin.x) * (end.y - begin.y);
 
@@ -296,15 +294,13 @@ struct SpatialIndexer2D {
                     removed.push_back(F.first);
             }
 
-            while (!added.empty()) {
-                added.front()->deref()->_enter_viewport(E.first);
-                added.pop_front();
+            for(VisibilityNotifier2D *vn : added) {
+                vn->_enter_viewport(E.first);
             }
 
-            while (!removed.empty()) {
-                E.second.notifiers.erase(removed.front()->deref());
-                removed.front()->deref()->_exit_viewport(E.first);
-                removed.pop_front();
+            for(VisibilityNotifier2D *vn : removed) {
+                E.second.notifiers.erase(vn);
+                vn->_exit_viewport(E.first);
             }
         }
 

@@ -182,7 +182,7 @@ private:
     void _update_font_oversampling(float p_ratio);
     void _update_root_rect();
 
-    List<ObjectID> delete_queue;
+    PODVector<ObjectID> delete_queue;
     //TODO: SEGS: consider replacing PODVector below with FixedVector<Variant,VARIANT_ARG_MAX>
     Map<UGCall, PODVector<Variant> > unique_group_calls;
     bool ugc_locked;
@@ -207,7 +207,7 @@ private:
     void _change_scene(Node *p_to);
     //void _call_group(uint32_t p_call_flags,const StringName& p_group,const StringName& p_function,const Variant& p_arg1,const Variant& p_arg2);
 
-    List<Ref<SceneTreeTimer> > timers;
+    ListPOD<Ref<SceneTreeTimer> > timers;
 
     ///network///
 

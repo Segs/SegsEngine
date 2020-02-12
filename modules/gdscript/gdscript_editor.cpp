@@ -136,8 +136,7 @@ bool GDScriptLanguage::validate(se_string_view p_script, int &r_line_error, int 
     Error err = parser.parse(p_script, PathUtils::get_base_dir(p_path), true, p_path, false, r_safe_lines);
 #ifdef DEBUG_ENABLED
     if (r_warnings) {
-        for (const List<GDScriptWarning>::Element *E = parser.get_warnings().front(); E; E = E->next()) {
-            const GDScriptWarning &warn = E->deref();
+        for (const GDScriptWarning &warn : parser.get_warnings()) {
             ScriptLanguage::Warning w;
             w.line = warn.line;
             w.code = (int)warn.code;

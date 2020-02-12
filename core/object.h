@@ -254,7 +254,8 @@ public:
         Object *source = nullptr;
         Object *target = nullptr;
         uint32_t flags = 0;
-        bool operator<(const Connection &p_conn) const;
+
+        bool operator<(const Connection &p_conn) const noexcept;
 
         operator Variant() const;
         Connection() = default;

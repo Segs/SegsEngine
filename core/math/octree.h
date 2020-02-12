@@ -589,7 +589,6 @@ bool Octree<T, use_pairs, AL>::_remove_element_from_octant(Element *p_element, O
         if (use_pairs && p_octant->last_pass != pass) {
             // check whether we should unpair stuff
             // always test pairable
-            ElementIterator E = p_octant->pairable_elements.begin();
             for(auto &E : p_octant->pairable_elements) {
                 _pair_unreference(p_element, E);
             }

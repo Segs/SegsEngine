@@ -833,8 +833,8 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
             CRASH_COND(enum_class_name != se_string_view("Variant")); // Hard-coded...
 
-            _log("Declaring global enum '%.*s' inside static class '%.*s'\n", enum_proxy_name.size(),enum_proxy_name.data(),
-                 enum_class_name.size(),enum_class_name.data());
+            _log("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_proxy_name.size()),enum_proxy_name.data(),
+                 int(enum_class_name.size()),enum_class_name.data());
 
             p_output.append("\n" INDENT1 "public static partial class ");
             p_output.append(enum_class_name);

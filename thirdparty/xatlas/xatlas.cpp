@@ -41,7 +41,9 @@ Copyright (c) 2012 Brandon Pelfrey
 #include <float.h> // FLT_MAX
 #include <limits.h>
 #include <math.h>
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>

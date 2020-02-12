@@ -65,7 +65,7 @@ public:
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);
 
-    Error parse(String &&p_data);
+    Error parse(const String &p_data);
     Error save(se_string_view p_path);
     Error load(se_string_view p_path);
 

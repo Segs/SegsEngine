@@ -1058,8 +1058,9 @@ Error EditorExportPlatform::save_zip(const Ref<EditorExportPreset> &p_preset, co
     zd.zip = zip;
 
     Error err = export_project_files(p_preset, _save_zip_file, &zd);
-    if (err != OK && err != ERR_SKIP)
+    if (err != OK && err != ERR_SKIP) {
         ERR_PRINT("Failed to export project files");
+    }
 
     zipClose(zip, nullptr);
 

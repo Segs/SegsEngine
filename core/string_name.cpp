@@ -37,9 +37,6 @@
 #include "core/vector.h"
 #include "core/string_utils.inl"
 
-template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<StringName,wrap_allocator>;
-template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::list<StringName,wrap_allocator>;
-
 const PODVector<StringName> g_null_stringname_vec; //!< Can be used wherever user needs to return/pass a const PODVector<StringName> reference.
 
 namespace
@@ -226,7 +223,7 @@ StringName &StringName::operator=(const StringName &p_name) {
     return *this;
 }
 
-StringName::StringName(const StringName &p_name) {
+StringName::StringName(const StringName &p_name) noexcept {
 
     _data = nullptr;
 

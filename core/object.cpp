@@ -56,11 +56,11 @@ struct Object::Signal  {
 
         _FORCE_INLINE_ bool operator<(const Target &p_target) const { return (_id == p_target._id) ? (method < p_target.method) : (_id < p_target._id); }
 
-        Target(const ObjectID &p_id, const StringName &p_method) :
+        Target(const ObjectID &p_id, const StringName &p_method) noexcept :
                 _id(p_id),
                 method(p_method) {
         }
-        Target() {}
+        Target() noexcept = default;
     };
 
     struct Slot {
@@ -265,7 +265,7 @@ Object::Connection::operator Variant() const {
     return d;
 }
 
-bool Object::Connection::operator<(const Connection &p_conn) const {
+bool Object::Connection::operator<(const Connection &p_conn) const noexcept {
 
     if (source != p_conn.source) {
         return source < p_conn.source;

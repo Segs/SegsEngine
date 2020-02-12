@@ -140,23 +140,23 @@ void EditorPropertyRootMotion::_node_assign() {
                 //path in skeleton
                 const String &bone = concat;
                 int idx = skeleton->find_bone(bone);
-                List<String> bone_path;
+                PODVector<String> bone_path;
                 while (idx != -1) {
                     bone_path.push_front(skeleton->get_bone_name(idx));
                     idx = skeleton->get_bone_parent(idx);
                 }
 
                 accum += ':';
-                for (auto *F = bone_path.front(); F; F = F->next()) {
-                    if (F != bone_path.front()) {
+                for (const String & F : bone_path) {
+                    if ((void *)F.data() != (void *)bone_path.front().data()) { // compare pointers to check if first
                         accum += '/';
                     }
 
-                    accum += F->deref();
+                    accum += F;
                     if (!parenthood.contains(accum)) {
                         ti = filters->create_item(ti);
                         parenthood[accum] = ti;
-                        ti->set_text_utf8(0, F->deref());
+                        ti->set_text_utf8(0, F);
                         ti->set_selectable(0, true);
                         ti->set_editable(0, false);
                         ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
