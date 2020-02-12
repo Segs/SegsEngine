@@ -206,9 +206,9 @@ private:
     void _on_priority_changed(float val);
     void _on_z_index_changed(float val);
     void _on_grid_snap_toggled(bool p_val);
-    PODVector<Vector2> _get_collision_shape_points(const Ref<Shape2D> &p_shape);
-    PODVector<Vector2> _get_edited_shape_points();
-    void _set_edited_shape_points(const PODVector<Vector2> &points);
+    Vector<Vector2> _get_collision_shape_points(const Ref<Shape2D> &p_shape);
+    Vector<Vector2> _get_edited_shape_points();
+    void _set_edited_shape_points(const Vector<Vector2> &points);
     void _update_tile_data();
     void _update_toggle_shape_button();
     void _select_next_tile();
@@ -233,7 +233,7 @@ private:
     void _zoom_reset();
 
     void draw_highlight_current_tile();
-    void draw_highlight_subtile(Vector2 coord, const PODVector<Vector2> &other_highlighted = PODVector<Vector2>());
+    void draw_highlight_subtile(Vector2 coord, const Vector<Vector2> &other_highlighted = Vector<Vector2>());
     void draw_tile_subdivision(int p_id, Color p_color) const;
     void draw_edited_region_subdivision() const;
     void draw_grid_snap();
@@ -271,7 +271,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     static void _bind_methods();
 
 public:

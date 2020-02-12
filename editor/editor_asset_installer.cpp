@@ -228,7 +228,7 @@ void EditorAssetInstaller::ok_pressed() {
 
     int ret = unzGoToFirstFile(pkg);
 
-    PODVector<String> failed_files;
+    Vector<String> failed_files;
 
     ProgressDialog::get_singleton()->add_task("uncompress", TTR("Uncompressing Assets"), status_map.size());
 

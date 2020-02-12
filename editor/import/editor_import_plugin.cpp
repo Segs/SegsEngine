@@ -49,7 +49,7 @@ StringName EditorImportPlugin::get_visible_name() const {
     return get_script_instance()->call("get_visible_name");
 }
 
-void EditorImportPlugin::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void EditorImportPlugin::get_recognized_extensions(Vector<String> &p_extensions) const {
     ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")));
     Array extensions = get_script_instance()->call("get_recognized_extensions");
     p_extensions.reserve(p_extensions.size()+extensions.size());
@@ -92,7 +92,7 @@ int EditorImportPlugin::get_import_order() const {
     return get_script_instance()->call("get_import_order");
 }
 
-void EditorImportPlugin::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void EditorImportPlugin::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
     ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_import_options")));
     Array needed;
@@ -134,8 +134,8 @@ bool EditorImportPlugin::get_option_visibility(const StringName &p_option, const
     return get_script_instance()->call("get_option_visibility", p_option, d);
 }
 
-Error EditorImportPlugin::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
-        *r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
+Error EditorImportPlugin::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("import")), ERR_UNAVAILABLE);
     Dictionary options;

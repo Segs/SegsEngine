@@ -427,9 +427,9 @@ se_string_view StringUtils::get_slice(se_string_view str,char p_splitter, int p_
        return substr(str,prev);
     return se_string_view();
 }
-PODVector<UIString> StringUtils::split_spaces(const UIString &str) {
+Vector<UIString> StringUtils::split_spaces(const UIString &str) {
 
-    PODVector<UIString> ret;
+    Vector<UIString> ret;
     int from = 0;
     int i = 0;
     int len = str.length();
@@ -460,9 +460,9 @@ PODVector<UIString> StringUtils::split_spaces(const UIString &str) {
 
     return ret;
 }
-PODVector<se_string_view> StringUtils::split_spaces(se_string_view str) {
+Vector<se_string_view> StringUtils::split_spaces(se_string_view str) {
 
-    PODVector<se_string_view> ret;
+    Vector<se_string_view> ret;
     int from = 0;
     int i = 0;
     int len = str.length();
@@ -493,9 +493,9 @@ PODVector<se_string_view> StringUtils::split_spaces(se_string_view str) {
 
     return ret;
 }
-PODVector<UIString> StringUtils::split(const UIString &str,const UIString &p_splitter, bool p_allow_empty, int p_maxsplit) {
+Vector<UIString> StringUtils::split(const UIString &str,const UIString &p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    PODVector<UIString> ret;
+    Vector<UIString> ret;
     int from = 0;
     int len = str.length();
 
@@ -528,21 +528,21 @@ PODVector<UIString> StringUtils::split(const UIString &str,const UIString &p_spl
 
     return ret;
 }
-PODVector<UIString> StringUtils::split(const UIString &str,const CharType p_splitter, bool p_allow_empty) {
-    PODVector<UIString> ret;
+Vector<UIString> StringUtils::split(const UIString &str,const CharType p_splitter, bool p_allow_empty) {
+    Vector<UIString> ret;
     auto val = str.splitRef(p_splitter,p_allow_empty ? QString::KeepEmptyParts : QString::SkipEmptyParts);
     ret.resize(val.size());
     for(int i=0,fin=val.size(); i<fin; ++i)
         ret[i] = val[i].toString();
     return ret;
 }
-PODVector<se_string_view> StringUtils::split(se_string_view str,char p_splitter, bool p_allow_empty) {
-    PODVector<se_string_view> ret;
+Vector<se_string_view> StringUtils::split(se_string_view str,char p_splitter, bool p_allow_empty) {
+    Vector<se_string_view> ret;
     String::split_ref(ret,str,p_splitter,p_allow_empty);
     return ret;
 }
-PODVector<se_string_view> StringUtils::split(se_string_view str,se_string_view p_splitter, bool p_allow_empty,int p_maxsplit) {
-    PODVector<se_string_view> ret;
+Vector<se_string_view> StringUtils::split(se_string_view str,se_string_view p_splitter, bool p_allow_empty,int p_maxsplit) {
+    Vector<se_string_view> ret;
     size_t from = 0;
     size_t len = str.length();
 
@@ -575,9 +575,9 @@ PODVector<se_string_view> StringUtils::split(se_string_view str,se_string_view p
 
     return ret;
 }
-PODVector<UIString> StringUtils::rsplit(const UIString &str,const UIString &p_splitter, bool p_allow_empty, int p_maxsplit) {
+Vector<UIString> StringUtils::rsplit(const UIString &str,const UIString &p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    PODVector<UIString> ret;
+    Vector<UIString> ret;
     const int len = str.length();
     int remaining_len = len;
 
@@ -609,9 +609,9 @@ PODVector<UIString> StringUtils::rsplit(const UIString &str,const UIString &p_sp
     reverse(ret.begin(),ret.end());
     return ret;
 }
-PODVector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty, int p_maxsplit) {
+Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    PODVector<se_string_view> ret;
+    Vector<se_string_view> ret;
     const size_t len = str.length();
     const size_t split_len = p_splitter.size();
     size_t remaining_len = len;
@@ -668,9 +668,9 @@ PODVector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view 
 
 //    return ret;
 //}
-PODVector<float> StringUtils::split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty) {
+Vector<float> StringUtils::split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty) {
 
-    PODVector<float> ret;
+    Vector<float> ret;
     int from = 0;
     int len = str.length();
 
@@ -719,9 +719,9 @@ PODVector<float> StringUtils::split_floats(se_string_view str,se_string_view p_s
 
 //    return ret;
 //}
-PODVector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
+Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
 
-    PODVector<float> ret;
+    Vector<float> ret;
     size_t from = 0;
     size_t len = str.length();
     ret.reserve(str.size()/8); // just a ballpark to reduce number of reallocations.
@@ -745,7 +745,7 @@ PODVector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view 
     return ret;
 }
 
-UIString StringUtils::join(const UIString &str,const PODVector<UIString> &parts) {
+UIString StringUtils::join(const UIString &str,const Vector<UIString> &parts) {
     UIString ret;
     for (size_t i = 0; i < parts.size(); ++i) {
         if (i > 0) {
@@ -1468,12 +1468,12 @@ String StringUtils::sha256_text(se_string_view cs) {
 //    }
 //    return ret;
 //};
-PODVector<uint8_t> StringUtils::md5_buffer(se_string_view cs) {
+Vector<uint8_t> StringUtils::md5_buffer(se_string_view cs) {
 
     unsigned char hash[16];
     CryptoCore::md5((unsigned char *)cs.data(), cs.length(), hash);
 
-    PODVector<uint8_t> ret;
+    Vector<uint8_t> ret;
     ret.resize(16);
     for (int i = 0; i < 16; i++) {
         ret[i] = hash[i];
@@ -1481,25 +1481,25 @@ PODVector<uint8_t> StringUtils::md5_buffer(se_string_view cs) {
     return ret;
 };
 
-PODVector<uint8_t> StringUtils::sha1_buffer(const UIString &str) {
+Vector<uint8_t> StringUtils::sha1_buffer(const UIString &str) {
     String cs = to_utf8(str);
-    PODVector<uint8_t> ret(20,0);
+    Vector<uint8_t> ret(20,0);
     CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-PODVector<uint8_t> StringUtils::sha1_buffer(se_string_view cs) {
-    PODVector<uint8_t> ret(20,0);
+Vector<uint8_t> StringUtils::sha1_buffer(se_string_view cs) {
+    Vector<uint8_t> ret(20,0);
     CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-PODVector<uint8_t> StringUtils::sha256_buffer(const UIString &str)  {
+Vector<uint8_t> StringUtils::sha256_buffer(const UIString &str)  {
     String cs = to_utf8(str);
-    PODVector<uint8_t> ret(32,0);
+    Vector<uint8_t> ret(32,0);
     CryptoCore::sha256((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-PODVector<uint8_t> StringUtils::sha256_buffer(se_string_view str)  {
-    PODVector<uint8_t> ret(32,0);
+Vector<uint8_t> StringUtils::sha256_buffer(se_string_view str)  {
+    Vector<uint8_t> ret(32,0);
     CryptoCore::sha256((unsigned char *)str.data(), str.length(), ret.data());
     return ret;
 }
@@ -1776,9 +1776,9 @@ int StringUtils::countn(se_string_view s,se_string_view p_string, int p_from, in
     return str_count(s,p_string, p_from, p_to, true);
 }
 
-PODVector<se_string_view> StringUtils::bigrams(se_string_view str) {
+Vector<se_string_view> StringUtils::bigrams(se_string_view str) {
     int n_pairs = str.length() - 1;
-    PODVector<se_string_view> b;
+    Vector<se_string_view> b;
     if (n_pairs <= 0) {
         return b;
     }
@@ -1800,8 +1800,8 @@ float StringUtils::similarity(se_string_view lhs,se_string_view p_string) {
         return 0.0f;
     }
 
-    PODVector<se_string_view> src_bigrams = bigrams(lhs);
-    PODVector<se_string_view> tgt_bigrams = bigrams(p_string);
+    Vector<se_string_view> src_bigrams = bigrams(lhs);
+    Vector<se_string_view> tgt_bigrams = bigrams(p_string);
 
     int src_size = src_bigrams.size();
     int tgt_size = tgt_bigrams.size();
@@ -1910,7 +1910,7 @@ String StringUtils::format(se_string_view fmt, const Variant &values) {
         }
     } else if (values.get_type() == VariantType::DICTIONARY) {
         Dictionary d = values;
-        PODVector<Variant> keys(d.get_key_list());
+        Vector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
             String key(E.as<String>());

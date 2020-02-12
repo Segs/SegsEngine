@@ -36,11 +36,11 @@
 
 IMPL_GDCLASS(SphereShape)
 
-PODVector<Vector3> SphereShape::get_debug_mesh_lines() {
+Vector<Vector3> SphereShape::get_debug_mesh_lines() {
 
     float r = get_radius();
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
 
     for (int i = 0; i <= 360; i++) {
 

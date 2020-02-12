@@ -72,21 +72,21 @@ struct ImportState {
 
     // Generation 3 - determinisitic iteration
     // to lower potential recursion errors
-    PODVector<const aiNode *> nodes;
+    Vector<const aiNode *> nodes;
     Map<const aiNode *, Spatial *> flat_node_map;
     AnimationPlayer *animation_player;
 
     // Generation 3 - deterministic armatures
     // list of armature nodes - flat and simple to parse
     // assimp node, node in godot
-    PODVector<aiNode *> armature_nodes;
+    Vector<aiNode *> armature_nodes;
     Map<const aiNode *, Skeleton *> armature_skeletons;
     Map<aiBone *, Skeleton *> skeleton_bone_map;
     // Generation 3 - deterministic bone handling
     // bones from the stack are popped when found
     // this means we can detect
     // what bones are for other armatures
-    PODVector<aiBone *> bone_stack;
+    Vector<aiBone *> bone_stack;
 };
 
 struct AssimpImageData {

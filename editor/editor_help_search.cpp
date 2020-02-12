@@ -54,11 +54,11 @@ class EditorHelpSearch::Runner : public RefCounted {
     struct ClassMatch {
         DocData::ClassDoc *doc;
         bool name;
-        PODVector<DocData::MethodDoc *> methods;
-        PODVector<DocData::MethodDoc *> defined_signals;
-        PODVector<DocData::ConstantDoc *> constants;
-        PODVector<DocData::PropertyDoc *> properties;
-        PODVector<DocData::PropertyDoc *> theme_properties;
+        Vector<DocData::MethodDoc *> methods;
+        Vector<DocData::MethodDoc *> defined_signals;
+        Vector<DocData::ConstantDoc *> constants;
+        Vector<DocData::PropertyDoc *> properties;
+        Vector<DocData::PropertyDoc *> theme_properties;
 
         bool required() {
             return name || !methods.empty() || !defined_signals.empty() || !constants.empty() || !properties.empty() || !theme_properties.empty();

@@ -41,7 +41,7 @@ class ImmediateGeometry : public GeometryInstance {
     RID im;
     //a list of textures drawn need to be kept, to avoid references
     // in VisualServer from becoming invalid if the texture is no longer used
-    PODVector<Ref<Texture> > cached_textures;
+    Vector<Ref<Texture> > cached_textures;
     bool empty;
     AABB aabb;
 
@@ -64,7 +64,7 @@ public:
     void add_sphere(int p_lats, int p_lons, float p_radius, bool p_add_uv = true);
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     ImmediateGeometry();
     ~ImmediateGeometry() override;

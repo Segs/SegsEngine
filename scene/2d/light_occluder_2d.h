@@ -46,7 +46,7 @@ public:
 
 private:
     RID occ_polygon;
-    PODVector<Vector2> polygon;
+    Vector<Vector2> polygon;
     bool closed;
     CullMode cull;
 
@@ -61,8 +61,8 @@ public:
     virtual Rect2 _edit_get_rect() const;
     virtual bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 #endif
-    void set_polygon(const PODVector<Vector2> &p_polygon);
-    const PODVector<Vector2> &get_polygon() const { return polygon; }
+    void set_polygon(const Vector<Vector2> &p_polygon);
+    const Vector<Vector2> &get_polygon() const { return polygon; }
 
     void set_closed(bool p_closed);
     bool is_closed() const;

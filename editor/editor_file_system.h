@@ -52,7 +52,7 @@ class EditorFileSystemDirectory : public Object {
     bool verified; //used for checking changes
 
     EditorFileSystemDirectory *parent;
-    PODVector<EditorFileSystemDirectory *> subdirs;
+    Vector<EditorFileSystemDirectory *> subdirs;
 
     struct FileInfo {
         String file;
@@ -61,7 +61,7 @@ class EditorFileSystemDirectory : public Object {
         uint64_t import_modified_time;
         bool import_valid;
         String import_group_file;
-        PODVector<String> deps;
+        Vector<String> deps;
         bool verified; //used for checking changes
         StringName script_class_name;
         StringName script_class_extends;
@@ -76,7 +76,7 @@ class EditorFileSystemDirectory : public Object {
 
     void sort_files();
 
-    PODVector<FileInfo *> files;
+    Vector<FileInfo *> files;
 
     static void _bind_methods();
 
@@ -93,7 +93,7 @@ public:
     String get_file_path(int p_idx) const;
     String get_named_file_path(se_string_view file) const;
     StringName get_file_type(int p_idx) const;
-    const PODVector<String> &get_file_deps(int p_idx) const;
+    const Vector<String> &get_file_deps(int p_idx) const;
     bool get_file_import_is_valid(int p_idx) const;
     StringName get_file_script_class_name(int p_idx) const; //used for scripts
     StringName get_file_script_class_extends(int p_idx) const; //used for scripts
@@ -171,7 +171,7 @@ class EditorFileSystem : public Node {
         String type;
         uint64_t modification_time;
         uint64_t import_modification_time;
-        PODVector<String> deps;
+        Vector<String> deps;
         bool import_valid;
         String import_group_file;
         StringName script_class_name;
@@ -210,21 +210,21 @@ class EditorFileSystem : public Node {
 
     static void _thread_func_sources(void *_userdata);
 
-    ListPOD<UIString> sources_changed;
-    ListPOD<ItemAction> scan_actions;
+    List<UIString> sources_changed;
+    List<ItemAction> scan_actions;
 
     bool _update_scan_actions();
 
     void _update_extensions();
 
     void _reimport_file(const String &p_file);
-    Error _reimport_group(se_string_view p_group_file, const PODVector<String> &p_files);
+    Error _reimport_group(se_string_view p_group_file, const Vector<String> &p_files);
 
     bool _test_for_reimport(se_string_view p_path, bool p_only_imported_files);
 
     bool reimport_on_missing_imported_files;
 
-    PODVector<String> _get_dependencies(se_string_view p_path);
+    Vector<String> _get_dependencies(se_string_view p_path);
 
     struct ImportFile {
         String path;
@@ -244,7 +244,7 @@ class EditorFileSystem : public Node {
 
     bool using_fat32_or_exfat; // Workaround for projects in FAT32 or exFAT filesystem (pendrives, most of the time)
 
-    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, PODVector<String> > &group_files, Set<String> &groups_to_reimport);
+    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
 
     void _move_group_files(EditorFileSystemDirectory *efd, se_string_view p_group_file, se_string_view p_new_location);
 
@@ -266,14 +266,14 @@ public:
     float get_scanning_progress() const;
     void scan();
     void scan_changes();
-    void get_changed_sources(ListPOD<UIString> *r_changed);
+    void get_changed_sources(List<UIString> *r_changed);
     void update_file(se_string_view p_file);
 
     EditorFileSystemDirectory *get_filesystem_path(se_string_view p_path);
     String get_file_type(se_string_view p_file) const;
     EditorFileSystemDirectory *find_file(se_string_view p_file, int *r_index) const;
 
-    void reimport_files(const PODVector<String> &p_files);
+    void reimport_files(const Vector<String> &p_files);
 
     void update_script_classes();
 

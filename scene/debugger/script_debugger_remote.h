@@ -56,9 +56,9 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         }
     };
 
-    PODVector<ScriptLanguage::ProfilingInfo> profile_info;
-    PODVector<ScriptLanguage::ProfilingInfo *> profile_info_ptrs;
-    PODVector<MultiplayerAPI::ProfilingInfo> network_profile_info;
+    Vector<ScriptLanguage::ProfilingInfo> profile_info;
+    Vector<ScriptLanguage::ProfilingInfo *> profile_info_ptrs;
+    Vector<MultiplayerAPI::ProfilingInfo> network_profile_info;
 
     Map<StringName, int> profiler_function_signature_map;
     float frame_time, idle_time, physics_time, physics_frame_time;
@@ -94,11 +94,11 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         Array callstack;
     };
 
-    ListPOD<String> output_strings;
-    ListPOD<Message> messages;
+    List<String> output_strings;
+    List<Message> messages;
     int max_messages_per_frame;
     int n_messages_dropped;
-    ListPOD<OutputError> errors;
+    List<OutputError> errors;
     int max_errors_per_second;
     int max_warnings_per_second;
     int n_errors_dropped;
@@ -144,7 +144,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         Array data;
     };
 
-    PODVector<FrameData> profile_frame_data;
+    Vector<FrameData> profile_frame_data;
 
     void _put_variable(se_string_view p_name, const Variant &p_variable);
 
@@ -162,7 +162,7 @@ public:
         bool operator<(const ResourceUsage &p_img) const { return vram == p_img.vram ? id < p_img.id : vram > p_img.vram; }
     };
 
-    using ResourceUsageFunc = void (*)(ListPOD<ResourceUsage> *);
+    using ResourceUsageFunc = void (*)(List<ResourceUsage> *);
 
     static ResourceUsageFunc resource_usage_func;
 
@@ -175,7 +175,7 @@ public:
     void request_quit() override;
 
     void send_message(const String &p_message, const Array &p_args) override;
-    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) override;
+    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
     void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) override;
 

@@ -81,8 +81,8 @@ void Gradient::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "colors"), COLOR_RAMP_SET_COLORS, COLOR_RAMP_GET_COLORS);
 }
 
-PODVector<float> Gradient::get_offsets() const {
-    PODVector<float> offsets;
+Vector<float> Gradient::get_offsets() const {
+    Vector<float> offsets;
     offsets.reserve(points.size());
     for (int i = 0; i < points.size(); i++) {
         offsets.emplace_back(points[i].offset);
@@ -90,8 +90,8 @@ PODVector<float> Gradient::get_offsets() const {
     return offsets;
 }
 
-PODVector<Color> Gradient::get_colors() const {
-    PODVector<Color> colors;
+Vector<Color> Gradient::get_colors() const {
+    Vector<Color> colors;
     colors.reserve(points.size());
     for (int i = 0; i < points.size(); i++) {
         colors.emplace_back(points[i].color);
@@ -147,7 +147,7 @@ Color Gradient::get_color_at_offset(float p_offset) {
     return pointFirst.color.linear_interpolate(pointSecond.color, (p_offset - pointFirst.offset) / (pointSecond.offset - pointFirst.offset));
 }
 
-void Gradient::set_offsets(const PODVector<float> &p_offsets) {
+void Gradient::set_offsets(const Vector<float> &p_offsets) {
     points.resize(p_offsets.size());
     for (int i = 0; i < points.size(); i++) {
         points[i].offset = p_offsets[i];
@@ -156,7 +156,7 @@ void Gradient::set_offsets(const PODVector<float> &p_offsets) {
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-void Gradient::set_colors(const PODVector<Color> &p_colors) {
+void Gradient::set_colors(const Vector<Color> &p_colors) {
     if (points.size() < p_colors.size())
         is_sorted = false;
     points.resize(p_colors.size());
@@ -166,7 +166,7 @@ void Gradient::set_colors(const PODVector<Color> &p_colors) {
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-PODVector<Gradient::Point> &Gradient::get_points() {
+Vector<Gradient::Point> &Gradient::get_points() {
     return points;
 }
 
@@ -189,7 +189,7 @@ void Gradient::remove_point(int p_index) {
     emit_signal(CoreStringNames::get_singleton()->changed);
 }
 
-void Gradient::set_points(const PODVector<Gradient::Point> &p_points) {
+void Gradient::set_points(const Vector<Gradient::Point> &p_points) {
     points = p_points;
     is_sorted = false;
     emit_signal(CoreStringNames::get_singleton()->changed);

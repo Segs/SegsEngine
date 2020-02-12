@@ -72,10 +72,10 @@ public:
                 int calls;
             };
 
-            PODVector<Item> items;
+            Vector<Item> items;
         };
 
-        PODVector<Category> categories;
+        Vector<Category> categories;
 
         Map<StringName, Category *> category_ptrs;
         Map<StringName, Category::Item *> item_ptrs;
@@ -114,7 +114,7 @@ private:
 
     SpinBox *cursor_metric_edit;
 
-    PODVector<Metric> frame_metrics;
+    Vector<Metric> frame_metrics;
     int last_metric;
 
     int max_functions;
@@ -169,7 +169,7 @@ public:
 
     void clear();
 
-    PODVector<PODVector<String> > get_data_as_csv() const;
+    Vector<Vector<String> > get_data_as_csv() const;
 
     EditorProfiler();
 };

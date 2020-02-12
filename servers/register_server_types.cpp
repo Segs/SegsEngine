@@ -66,9 +66,9 @@
 #include "visual/shader_types.h"
 #include "visual_server.h"
 
-static void _debugger_get_resource_usage(ListPOD<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
+static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
-    PODVector<VisualServer::TextureInfo> tinfo;
+    Vector<VisualServer::TextureInfo> tinfo;
     VisualServer::get_singleton()->texture_debug_usage(&tinfo);
 
     for (const VisualServer::TextureInfo &E : tinfo) {

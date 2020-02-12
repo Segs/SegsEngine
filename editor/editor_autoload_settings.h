@@ -66,7 +66,7 @@ class EditorAutoloadSettings : public VBoxContainer {
         }
     };
 
-    PODVector<AutoLoadInfo> autoload_cache;
+    Vector<AutoLoadInfo> autoload_cache;
     String autoload_changed;
     Tree *tree;
     EditorLineEditFileChooser *autoload_add_path;

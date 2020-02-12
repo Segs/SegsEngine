@@ -55,7 +55,7 @@ public:
         String name;
     };
 
-    PODVector<Input> inputs;
+    Vector<Input> inputs;
 
     float process_input(int p_input, float p_time, bool p_seek, float p_blend);
 
@@ -66,7 +66,7 @@ public:
         Ref<Animation> animation;
         float time;
         float delta;
-        const PODVector<float> *track_blends;
+        const Vector<float> *track_blends;
         float blend;
         bool seeked;
     };
@@ -75,7 +75,7 @@ public:
 
         int track_count;
         HashMap<NodePath, int> track_map;
-        List<AnimationState> animation_states;
+        ListOld<AnimationState> animation_states;
         bool valid;
         AnimationPlayer *player;
         AnimationTree *tree;
@@ -83,15 +83,15 @@ public:
         uint64_t last_pass;
     };
 
-    PODVector<float> blends;
+    Vector<float> blends;
     State *state;
 
-    float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const PODVector<StringName> &p_connections);
+    float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<StringName> &p_connections);
     void _pre_update_animations(HashMap<NodePath, int> *track_map);
 
     //all this is temporary
     StringName base_path;
-    PODVector<StringName> connections;
+    Vector<StringName> connections;
     AnimationNode *parent;
 
     HashMap<NodePath, bool> filter;
@@ -100,7 +100,7 @@ public:
     Array _get_filters() const;
     void _set_filters(const Array &p_filters);
     friend class AnimationNodeBlendTree;
-    float _blend_node(const StringName &p_subpath, const PODVector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true, float *r_max = nullptr);
+    float _blend_node(const StringName &p_subpath, const Vector<StringName> &p_connections, AnimationNode *p_new_parent, Ref<AnimationNode> p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true, float *r_max = nullptr);
 public:
     void blend_animation(const StringName &p_animation, float p_time, float p_delta, bool p_seeked, float p_blend);
     float blend_node(const StringName &p_sub_path, const Ref<AnimationNode>& p_node, float p_time, bool p_seek, float p_blend, FilterAction p_filter = FILTER_IGNORE, bool p_optimize = true);
@@ -115,7 +115,7 @@ protected:
     void _set_parent(Object *p_parent);
 
 public:
-    virtual void get_parameter_list(PODVector<PropertyInfo> *r_list) const;
+    virtual void get_parameter_list(Vector<PropertyInfo> *r_list) const;
     virtual Variant get_parameter_default_value(const StringName &p_parameter) const;
 
     void set_parameter(const StringName &p_name, const Variant &p_value);
@@ -126,7 +126,7 @@ public:
         Ref<AnimationNode> node;
     };
 
-    virtual void get_child_nodes(List<ChildNode> *r_child_nodes);
+    virtual void get_child_nodes(ListOld<ChildNode> *r_child_nodes);
 
     virtual float process(float p_time, bool p_seek);
     virtual se_string_view get_caption() const;
@@ -210,7 +210,7 @@ private:
     struct TrackCacheValue : public TrackCache {
 
         Variant value;
-        PODVector<StringName> subpath;
+        Vector<StringName> subpath;
         TrackCacheValue() { type = Animation::TYPE_VALUE; }
     };
 
@@ -222,7 +222,7 @@ private:
     struct TrackCacheBezier : public TrackCache {
 
         float value;
-        PODVector<StringName> subpath;
+        Vector<StringName> subpath;
         TrackCacheBezier() {
             type = Animation::TYPE_BEZIER;
             value = 0;
@@ -283,7 +283,7 @@ private:
     bool properties_dirty;
     void _tree_changed();
     void _update_properties();
-    PODVector<PropertyInfo> properties;
+    Vector<PropertyInfo> properties;
     DefHashMap<StringName, DefHashMap<StringName, StringName> > property_parent_map;
     DefHashMap<StringName, Variant> property_map;
 
@@ -292,8 +292,8 @@ private:
         float activity;
     };
 
-    DefHashMap<StringName, PODVector<Activity> > input_activity_map;
-    DefHashMap<StringName, PODVector<Activity> *> input_activity_map_get;
+    DefHashMap<StringName, Vector<Activity> > input_activity_map;
+    DefHashMap<StringName, Vector<Activity> *> input_activity_map_get;
 
     void _update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node);
 
@@ -302,7 +302,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_what);
     static void _bind_methods();

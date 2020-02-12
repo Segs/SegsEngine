@@ -77,7 +77,7 @@ class EditorResourcePreview : public Node {
         uint64_t modified_time;
     };
 
-    ListPOD<QueueItem> queue;
+    List<QueueItem> queue;
 
     Mutex *preview_mutex;
     SemaphoreOld *preview_sem;
@@ -86,7 +86,7 @@ class EditorResourcePreview : public Node {
     volatile bool exited;
     int order;
     Map<String, Item> cache;
-    PODVector<Ref<EditorResourcePreviewGenerator> > preview_generators;
+    Vector<Ref<EditorResourcePreviewGenerator> > preview_generators;
 
     void _preview_ready(se_string_view p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, ObjectID id, const StringName &p_func, const Variant &p_ud);
     void _generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, se_string_view cache_base);

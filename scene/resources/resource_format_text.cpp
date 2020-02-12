@@ -71,7 +71,7 @@ class ResourceFormatSaverTextInstance {
     Map<NonPersistentKey, RES> non_persistent_map;
 
     Set<RES> resource_set;
-    ListPOD<RES> saved_resources;
+    List<RES> saved_resources;
     Map<RES, int> external_resources;
     Map<RES, int> internal_resources;
 
@@ -382,7 +382,7 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
                 binds = next_tag.fields["binds"];
             }
 
-            PODVector<int> bind_ints;
+            Vector<int> bind_ints;
             bind_ints.reserve(binds.size());
             for (int i = 0; i < binds.size(); i++) {
                 bind_ints.emplace_back(packed_scene->get_state()->add_value(binds[i]));
@@ -726,7 +726,7 @@ ResourceInteractiveLoaderText::~ResourceInteractiveLoaderText() {
     memdelete(f);
 }
 
-void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, PODVector<String> &p_dependencies, bool p_add_types) {
+void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types) {
 
     open(p_f);
     ignore_resource_parsing = true;
@@ -1069,8 +1069,8 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
         return ERR_CANT_OPEN;
     }
 
-    PODVector<size_t> local_offsets;
-    PODVector<size_t> local_pointers_pos;
+    Vector<size_t> local_offsets;
+    Vector<size_t> local_pointers_pos;
 
     while (next_tag.name == "sub_resource" || next_tag.name == "resource") {
 
@@ -1173,7 +1173,7 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
 
         error = OK;
         //get it here
-        PODVector<PropertyInfo> props;
+        Vector<PropertyInfo> props;
         packed_scene->get_property_list(&props);
 
         bs_save_unicode_string(wf, se_string_view("local://0"));
@@ -1219,7 +1219,7 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
 
     wf->seek_end();
 
-    PODVector<uint8_t> data = FileAccess::get_file_as_array(temp_file);
+    Vector<uint8_t> data = FileAccess::get_file_as_array(temp_file);
     wf->store_buffer(data.data(), data.size());
     {
         DirAccessRef dar = DirAccess::open(PathUtils::get_base_dir(temp_file));
@@ -1300,7 +1300,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(se_str
     return ria;
 }
 
-void ResourceFormatLoaderText::get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderText::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const {
 
     if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
@@ -1313,7 +1313,7 @@ void ResourceFormatLoaderText::get_recognized_extensions_for_type(se_string_view
         p_extensions.push_back(("tres"));
 }
 
-void ResourceFormatLoaderText::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderText::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("tscn"));
     p_extensions.push_back(("tres"));
@@ -1347,7 +1347,7 @@ String ResourceFormatLoaderText::get_resource_type(se_string_view p_path) const 
     return r;
 }
 
-void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
@@ -1458,7 +1458,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
             if (resource_set.contains(res))
                 return;
 
-            PODVector<PropertyInfo> property_list;
+            Vector<PropertyInfo> property_list;
 
             res->get_property_list(&property_list);
             eastl::sort(property_list.begin(), property_list.end());
@@ -1503,7 +1503,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
         case VariantType::DICTIONARY: {
 
             Dictionary d = p_variant;
-            PODVector<Variant> keys(d.get_key_list());
+            Vector<Variant> keys(d.get_key_list());
             for (const Variant & E : keys) {
 
                 Variant v = d[E];
@@ -1610,7 +1610,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
     }
 #endif
 
-    PODVector<ResourceSort> sorted_er;
+    Vector<ResourceSort> sorted_er;
 
     for (eastl::pair<const RES,int> &E : external_resources) {
 
@@ -1681,7 +1681,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             Object_set_edited(res.get(),false);
         }
 
-        PODVector<PropertyInfo> property_list;
+        Vector<PropertyInfo> property_list;
         res->get_property_list(&property_list);
         //property_list.sort();
         for (const PropertyInfo &PE : property_list) {
@@ -1734,7 +1734,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             NodePath owner = state->get_node_owner_path(i);
             Ref<PackedScene> instance = state->get_node_instance(i);
             String instance_placeholder = state->get_node_instance_placeholder(i);
-            PODVector<StringName> groups = state->get_node_groups(i);
+            Vector<StringName> groups = state->get_node_groups(i);
 
             String header("[node");
             header += " name=\"" + StringUtils::c_escape(name) + "\"";
@@ -1816,7 +1816,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
             f->store_line("]");
         }
 
-        const PODVector<NodePath> &editable_instances = state->get_editable_instances();
+        const Vector<NodePath> &editable_instances = state->get_editable_instances();
         for (const NodePath &np : editable_instances) {
             f->store_line("\n[editable path=\"" + (String)np + "\"]");
         }
@@ -1847,7 +1847,7 @@ bool ResourceFormatSaverText::recognize(const RES &p_resource) const {
 
     return true; // all recognized!
 }
-void ResourceFormatSaverText::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
+void ResourceFormatSaverText::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
     if (se_string_view(p_resource->get_class())==se_string_view("PackedScene"))
         p_extensions.push_back(("tscn")); //text scene

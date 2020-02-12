@@ -63,7 +63,7 @@ Error ImageLoaderPNG::load_image(ImageData &p_image,const uint8_t *p_png, int p_
 
     return OK;
 }
-void ImageLoaderPNG::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ImageLoaderPNG::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.emplace_back("png");
 }
@@ -75,7 +75,7 @@ ImageData ImageLoaderPNG::load_mem_png(const uint8_t *p_png, int p_size) {
     return dat;
 }
 
-Error ImageLoaderPNG::save_image(const ImageData &p_image, PODVector<uint8_t> &tgt, SaveParams params)
+Error ImageLoaderPNG::save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params)
 {
     Error err = PNGDriverCommon::image_to_png(p_image, tgt);
     return err!=OK ? err : (tgt.empty() ? ERR_CANT_CREATE : OK);
@@ -83,7 +83,7 @@ Error ImageLoaderPNG::save_image(const ImageData &p_image, PODVector<uint8_t> &t
 
 Error ImageLoaderPNG::save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params)
 {
-    PODVector<uint8_t> tgt;
+    Vector<uint8_t> tgt;
     Error err = PNGDriverCommon::image_to_png(p_image, tgt);
     if(err!=OK)
         return err;

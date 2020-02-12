@@ -43,34 +43,34 @@
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {
 public:
-    PODVector<float> m_position_data;
-    PODVector<Vector3> m_normals;
-    PODVector<float> m_tangents;
-    PODVector<Color> m_colors;
-    PODVector<Vector2> m_uv_1;
-    PODVector<Vector2> m_uv_2;
-    PODVector<float> m_weights;
-    PODVector<int> m_bones;
-    PODVector<int> m_indices;
+    Vector<float> m_position_data;
+    Vector<Vector3> m_normals;
+    Vector<float> m_tangents;
+    Vector<Color> m_colors;
+    Vector<Vector2> m_uv_1;
+    Vector<Vector2> m_uv_2;
+    Vector<float> m_weights;
+    Vector<int> m_bones;
+    Vector<int> m_indices;
     bool m_vertices_2d;
-    explicit SurfaceArrays(PODVector<Vector3> && positions) :
+    explicit SurfaceArrays(Vector<Vector3> && positions) :
         m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
         m_vertices_2d(false)
     {
 
     }
-    explicit SurfaceArrays(PODVector<Vector2> && positions) :
+    explicit SurfaceArrays(Vector<Vector2> && positions) :
         m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
         m_vertices_2d(true)
     {
 
     }
-    void set_positions(PODVector<Vector2> &&from) {
-        m_position_data = PODVector<float>(eastl::move(from),eastl::I_LIVE_DANGEROUSLY);
+    void set_positions(Vector<Vector2> &&from) {
+        m_position_data = Vector<float>(eastl::move(from),eastl::I_LIVE_DANGEROUSLY);
         m_vertices_2d = true;
     }
-    void set_positions(PODVector<Vector3> &&from) {
-        m_position_data = PODVector<float>(eastl::move(from),eastl::I_LIVE_DANGEROUSLY);
+    void set_positions(Vector<Vector3> &&from) {
+        m_position_data = Vector<float>(eastl::move(from),eastl::I_LIVE_DANGEROUSLY);
         m_vertices_2d = false;
     }
 
@@ -109,19 +109,19 @@ public:
         SurfaceArrays res;
         Variant dat=a[VS::ARRAY_VERTEX];
         if(dat.get_type()==VariantType::POOL_VECTOR2_ARRAY)
-            res.m_position_data = PODVector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<PODVector<Vector2>>()),eastl::I_LIVE_DANGEROUSLY);
+            res.m_position_data = Vector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<Vector<Vector2>>()),eastl::I_LIVE_DANGEROUSLY);
         else if (dat.get_type()==VariantType::POOL_VECTOR3_ARRAY) {
-            res.m_position_data = PODVector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<PODVector<Vector3>>()),eastl::I_LIVE_DANGEROUSLY);
+            res.m_position_data = Vector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<Vector<Vector3>>()),eastl::I_LIVE_DANGEROUSLY);
         }
-        res.m_normals = a[VS::ARRAY_NORMAL].as<PODVector<Vector3>>();
-        res.m_tangents = a[VS::ARRAY_TANGENT].as<PODVector<float>>();
+        res.m_normals = a[VS::ARRAY_NORMAL].as<Vector<Vector3>>();
+        res.m_tangents = a[VS::ARRAY_TANGENT].as<Vector<float>>();
         //res[VS::ARRAY_TANGENT] = m_normal_data;
-        res.m_colors = a[VS::ARRAY_COLOR].as<PODVector<Color>>();
-        res.m_uv_1 = a[VS::ARRAY_TEX_UV].as<PODVector<Vector2>>();
-        res.m_uv_2 = a[VS::ARRAY_TEX_UV2].as<PODVector<Vector2>>();
-        res.m_bones = a[VS::ARRAY_BONES].as<PODVector<int>>();
-        res.m_weights = a[VS::ARRAY_WEIGHTS].as<PODVector<float>>();
-        res.m_indices = a[VS::ARRAY_INDEX].as<PODVector<int>>();
+        res.m_colors = a[VS::ARRAY_COLOR].as<Vector<Color>>();
+        res.m_uv_1 = a[VS::ARRAY_TEX_UV].as<Vector<Vector2>>();
+        res.m_uv_2 = a[VS::ARRAY_TEX_UV2].as<Vector<Vector2>>();
+        res.m_bones = a[VS::ARRAY_BONES].as<Vector<int>>();
+        res.m_weights = a[VS::ARRAY_WEIGHTS].as<Vector<float>>();
+        res.m_indices = a[VS::ARRAY_INDEX].as<Vector<int>>();
         return res;
     }
     bool empty() const { return m_position_data.empty(); }
@@ -196,7 +196,7 @@ public:
 };
 
 /*
-    TODO: SEGS: Add function overrides that take ownership of passed buffers Span<> -> PODVector<>&&
+    TODO: SEGS: Add function overrides that take ownership of passed buffers Span<> -> Vector<>&&
 */
 class VisualServer : public Object {
 
@@ -207,7 +207,7 @@ class VisualServer : public Object {
     int mm_policy;
 
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
-    void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const PODVector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
+    void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
     SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, int p_vertex_len,
             Span<const uint8_t> p_index_data, int p_index_len) const;
 
@@ -218,7 +218,7 @@ protected:
     RID white_texture;
     RID test_material;
 
-    Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, PODVector<uint8_t> &r_vertex_array, int p_vertex_array_len, PODVector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, PODVector<AABB> &r_bone_aabb);
+    Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
 
     static VisualServer *(*create_func)();
     static void _bind_methods();
@@ -283,7 +283,7 @@ public:
         String path;
     };
 
-    virtual void texture_debug_usage(PODVector<TextureInfo> *r_info) = 0;
+    virtual void texture_debug_usage(Vector<TextureInfo> *r_info) = 0;
     Array _texture_debug_usage_bind();
 
     virtual void textures_keep_original(bool p_enable) = 0;
@@ -302,7 +302,7 @@ public:
 
     virtual void shader_set_code(RID p_shader, const String &p_code) = 0;
     virtual String shader_get_code(RID p_shader) const = 0;
-    virtual void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const = 0;
+    virtual void shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const = 0;
     Array _shader_get_param_list_bind(RID p_shader) const;
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;
@@ -331,8 +331,8 @@ public:
     virtual uint32_t mesh_surface_get_format_stride(uint32_t p_format, int p_vertex_len, int p_index_len) const;
     /// Returns stride
     virtual uint32_t mesh_surface_make_offsets_from_format(uint32_t p_format, int p_vertex_len, int p_index_len, uint32_t *r_offsets) const;
-    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, PODVector<SurfaceArrays> &&p_blend_shapes = {}, uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
-    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const PODVector<PoolVector<uint8_t> > &p_blend_shapes = PODVector<PoolVector<uint8_t> >(), const PoolVector<AABB> &p_bone_aabbs = PoolVector<AABB>()) = 0;
+    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, Vector<SurfaceArrays> &&p_blend_shapes = {}, uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
+    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const PoolVector<AABB> &p_bone_aabbs = PoolVector<AABB>()) = 0;
 
     virtual void mesh_set_blend_shape_count(RID p_mesh, int p_amount) = 0;
     virtual int mesh_get_blend_shape_count(RID p_mesh) const = 0;
@@ -352,14 +352,14 @@ public:
     virtual PoolVector<uint8_t> mesh_surface_get_index_array(RID p_mesh, int p_surface) const = 0;
 
     virtual SurfaceArrays mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
-    virtual PODVector<SurfaceArrays> mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
+    virtual Vector<SurfaceArrays> mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
     virtual uint32_t mesh_surface_get_format(RID p_mesh, int p_surface) const = 0;
     virtual VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
 
     virtual AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const = 0;
-    virtual PODVector<PODVector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
-    virtual const PODVector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
+    virtual Vector<Vector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
+    virtual const Vector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const = 0;
     Array _mesh_surface_get_skeleton_aabb_bind(RID p_mesh, int p_surface) const;
 
     virtual void mesh_remove_surface(RID p_mesh, int p_index) = 0;
@@ -676,9 +676,9 @@ public:
     virtual void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) = 0;
 
     // don't use these in a game!
-    virtual PODVector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const = 0;
-    virtual PODVector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const = 0;
-    virtual PODVector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const = 0;
+    virtual Vector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const = 0;
+    virtual Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const = 0;
+    virtual Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const = 0;
 
     Array _instances_cull_aabb_bind(const AABB &p_aabb, RID p_scenario = RID()) const;
     Array _instances_cull_ray_bind(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
@@ -718,15 +718,15 @@ public:
     virtual void canvas_item_set_draw_behind_parent(RID p_item, bool p_enable) = 0;
 
     virtual void canvas_item_add_line(RID p_item, const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false) = 0;
-    //TODO: SEGS: move p_points using `PODVector<Point2> &&`, will need to consider scripting api?
-    virtual void canvas_item_add_polyline(RID p_item, const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
-    virtual void canvas_item_add_multiline(RID p_item, const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
+    //TODO: SEGS: move p_points using `Vector<Point2> &&`, will need to consider scripting api?
+    virtual void canvas_item_add_polyline(RID p_item, const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
+    virtual void canvas_item_add_multiline(RID p_item, const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false) = 0;
     virtual void canvas_item_add_rect(RID p_item, const Rect2 &p_rect, const Color &p_color) = 0;
     virtual void canvas_item_add_circle(RID p_item, const Point2 &p_pos, float p_radius, const Color &p_color) = 0;
     virtual void canvas_item_add_texture_rect(RID p_item, const Rect2 &p_rect, RID p_texture, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_texture_rect_region(RID p_item, const Rect2 &p_rect, RID p_texture, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID(), bool p_clip_uv = false) = 0;
     virtual void canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, VS::NinePatchAxisMode p_x_axis_mode = VS::NINE_PATCH_STRETCH, VS::NinePatchAxisMode p_y_axis_mode = VS::NINE_PATCH_STRETCH, bool p_draw_center = true, const Color &p_modulate = Color(1, 1, 1), RID p_normal_map = RID()) = 0;
-    virtual void canvas_item_add_primitive(RID p_item, const PODVector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width = 1.0, RID p_normal_map = RID()) = 0;
+    virtual void canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width = 1.0, RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), RID p_texture = RID(), RID p_normal_map = RID(), bool p_antialiased = false) = 0;
     virtual void canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), const PoolVector<int> &p_bones = PoolVector<int>(), const PoolVector<float> &p_weights = PoolVector<float>(), RID p_texture = RID(), int p_count = -1, RID p_normal_map = RID(), bool p_antialiased = false, bool p_antialiasing_use_indices = false) = 0;
 

@@ -102,7 +102,7 @@ public:
     UpdateMode get_update_mode() const;
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     ReflectionProbe();
     ~ReflectionProbe() override;

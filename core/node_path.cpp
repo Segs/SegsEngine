@@ -38,14 +38,14 @@ using namespace eastl;
 
 namespace {
 // references to this static variable are returned from get_names and get_subnames
-static PODVector<StringName> s_null_stringname_vec;
+static Vector<StringName> s_null_stringname_vec;
 }
 
 struct Data {
 
     SafeRefCount refcount;
-    PODVector<StringName> path;
-    PODVector<StringName> subpath;
+    Vector<StringName> path;
+    Vector<StringName> subpath;
     StringName concatenated_subpath;
     bool absolute;
     bool has_slashes;
@@ -231,14 +231,14 @@ NodePath::NodePath(const NodePath &p_path) {
     }
 }
 
-const PODVector<StringName> &NodePath::get_names() const {
+const Vector<StringName> &NodePath::get_names() const {
 
     if (data)
         return data->path;
     return s_null_stringname_vec;
 }
 
-const PODVector<StringName> &NodePath::get_subnames() const {
+const Vector<StringName> &NodePath::get_subnames() const {
 
     if (data)
         return data->subpath;
@@ -265,8 +265,8 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
     ERR_FAIL_COND_V(!is_absolute(), NodePath());
     ERR_FAIL_COND_V(!p_np.is_absolute(), NodePath());
 
-    const PODVector<StringName> &src_dirs(get_names());
-    const PODVector<StringName> &dst_dirs(p_np.get_names());
+    const Vector<StringName> &src_dirs(get_names());
+    const Vector<StringName> &dst_dirs(p_np.get_names());
 
     //find common parent
     size_t common_parent = 0;
@@ -283,7 +283,7 @@ NodePath NodePath::rel_path_to(const NodePath &p_np) const {
 
     common_parent--;
 
-    PODVector<StringName> relpath;
+    Vector<StringName> relpath;
 
     for (int i = src_dirs.size() - 1; i > common_parent; i--) {
 
@@ -306,7 +306,7 @@ NodePath NodePath::get_as_property_path() const {
     if (!data || data->path.empty()) {
         return *this;
     } else {
-        PODVector<StringName> new_path = data->subpath;
+        Vector<StringName> new_path = data->subpath;
 
         String initial_subname(data->path[0]);
 
@@ -319,7 +319,7 @@ NodePath NodePath::get_as_property_path() const {
     }
 }
 
-NodePath::NodePath(const PODVector<StringName> &p_path, bool p_absolute) {
+NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
 
     data = nullptr;
 
@@ -333,7 +333,7 @@ NodePath::NodePath(const PODVector<StringName> &p_path, bool p_absolute) {
     data->has_slashes = true;
 }
 
-NodePath::NodePath(const PODVector<StringName> &p_path, const PODVector<StringName> &p_subpath, bool p_absolute) {
+NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute) {
 
     data = nullptr;
 
@@ -347,7 +347,7 @@ NodePath::NodePath(const PODVector<StringName> &p_path, const PODVector<StringNa
     data->subpath = p_subpath;
     data->has_slashes = true;
 }
-NodePath::NodePath(PODVector<StringName> &&p_path, PODVector<StringName> &&p_subpath, bool p_absolute) {
+NodePath::NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute) {
 
     data = nullptr;
 
@@ -402,7 +402,7 @@ NodePath::NodePath(se_string_view p_path) {
         return;
 
     String path(p_path);
-    PODVector<StringName> subpath;
+    Vector<StringName> subpath;
 
     bool absolute = (path[0] == '/');
     bool last_is_slash = true;

@@ -85,12 +85,12 @@ GDMonoClass *GDMonoClass::get_nesting_class() {
 }
 
 #ifdef TOOLS_ENABLED
-PODVector<MonoClassField *> GDMonoClass::get_enum_fields() {
+Vector<MonoClassField *> GDMonoClass::get_enum_fields() {
 
     bool class_is_enum = mono_class_is_enum(mono_class);
-    ERR_FAIL_COND_V(!class_is_enum, PODVector<MonoClassField *>());
+    ERR_FAIL_COND_V(!class_is_enum, Vector<MonoClassField *>());
 
-    PODVector<MonoClassField *> enum_fields;
+    Vector<MonoClassField *> enum_fields;
 
     void *iter = nullptr;
     MonoClassField *raw_field = nullptr;
@@ -353,7 +353,7 @@ GDMonoField *GDMonoClass::get_field(const StringName &p_name) {
     return nullptr;
 }
 
-const PODVector<GDMonoField *> &GDMonoClass::get_all_fields() {
+const Vector<GDMonoField *> &GDMonoClass::get_all_fields() {
 
     if (fields_fetched)
         return fields_list;
@@ -401,7 +401,7 @@ GDMonoProperty *GDMonoClass::get_property(const StringName &p_name) {
     return nullptr;
 }
 
-const PODVector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
+const Vector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
 
     if (properties_fetched)
         return properties_list;
@@ -427,7 +427,7 @@ const PODVector<GDMonoProperty *> &GDMonoClass::get_all_properties() {
     return properties_list;
 }
 
-const PODVector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
+const Vector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
     if (delegates_fetched)
         return delegates_list;
 
@@ -455,7 +455,7 @@ const PODVector<GDMonoClass *> &GDMonoClass::get_all_delegates() {
     return delegates_list;
 }
 
-const PODVector<GDMonoMethod *> &GDMonoClass::get_all_methods() {
+const Vector<GDMonoMethod *> &GDMonoClass::get_all_methods() {
 
     if (method_list_fetched) {
         return method_list;
@@ -510,7 +510,7 @@ GDMonoClass::~GDMonoClass() {
         // Therefore, we must avoid deleting the same pointer twice.
 
         int offset = 0;
-        PODVector<GDMonoMethod *> deleted_methods;
+        Vector<GDMonoMethod *> deleted_methods;
         deleted_methods.resize(methods.size());
 
         for( auto & k : methods) {

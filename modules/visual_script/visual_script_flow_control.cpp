@@ -720,7 +720,7 @@ bool VisualScriptSwitch::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void VisualScriptSwitch::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void VisualScriptSwitch::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::INT, "case_count", PropertyHint::Range, "0,128"));
 
@@ -910,7 +910,7 @@ void VisualScriptTypeCast::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_base_script", {"path"}), &VisualScriptTypeCast::set_base_script);
     MethodBinder::bind_method(D_METHOD("get_base_script"), &VisualScriptTypeCast::get_base_script);
 
-    PODVector<String> script_extensions;
+    Vector<String> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }

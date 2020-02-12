@@ -38,11 +38,11 @@ class NavigationMesh : public Resource {
 
     GDCLASS(NavigationMesh, Resource);
 
-    PODVector<Vector3> vertices;
+    Vector<Vector3> vertices;
     struct Polygon {
-        PODVector<int> indices;
+        Vector<int> indices;
     };
-    PODVector<Polygon> polygons;
+    Vector<Polygon> polygons;
     Ref<ArrayMesh> debug_mesh;
 
     struct _EdgeKey {
@@ -179,12 +179,12 @@ public:
 
     void create_from_mesh(const Ref<Mesh> &p_mesh);
 
-    void set_vertices(PODVector<Vector3> &&p_vertices);
-    const PODVector<Vector3> &get_vertices() const;
+    void set_vertices(Vector<Vector3> &&p_vertices);
+    const Vector<Vector3> &get_vertices() const;
 
-    void add_polygon(PODVector<int> &&p_polygon);
+    void add_polygon(Vector<int> &&p_polygon);
     int get_polygon_count() const;
-    const PODVector<int> &get_polygon(int p_idx);
+    const Vector<int> &get_polygon(int p_idx);
     void clear_polygons();
 
     Ref<Mesh> get_debug_mesh();

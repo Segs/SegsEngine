@@ -677,7 +677,7 @@ struct Diagnostic {
      * An array of related diagnostic information, e.g. when symbol-names within
      * a scope collide all definitions can be marked via this property.
      */
-    PODVector<DiagnosticRelatedInformation> relatedInformation;
+    Vector<DiagnosticRelatedInformation> relatedInformation;
 
     Dictionary to_json() const {
         Dictionary dict;
@@ -910,14 +910,14 @@ struct CompletionItem {
      * (for example adding an import statement at the top of the file if the completion item will
      * insert an unqualified type).
      */
-    PODVector<TextEdit> additionalTextEdits;
+    Vector<TextEdit> additionalTextEdits;
 
     /**
      * An optional set of characters that when pressed while this completion is active will accept it first and
      * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
      * characters will be ignored.
      */
-    PODVector<String> commitCharacters;
+    Vector<String> commitCharacters;
 
     /**
      * An optional command that is executed *after* inserting this completion. *Note* that
@@ -988,7 +988,7 @@ struct CompletionList {
     /**
      * The completion items.
      */
-    PODVector<CompletionItem> items;
+    Vector<CompletionItem> items;
 };
 
 // Use namespace instead of enumeration to follow the LSP specifications
@@ -1147,7 +1147,7 @@ struct DocumentSymbol {
     /**
      * Children of this symbol, e.g. properties of a class.
      */
-    PODVector<DocumentSymbol> children;
+    Vector<DocumentSymbol> children;
 
     Dictionary to_json(bool with_doc = false) const {
         Dictionary dict;
@@ -1170,7 +1170,7 @@ struct DocumentSymbol {
         return dict;
     }
 
-    void symbol_tree_as_list(se_string_view p_uri, PODVector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
+    void symbol_tree_as_list(se_string_view p_uri, Vector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
         DocumentedSymbolInformation si;
         if (p_join_name && !p_container.empty()) {
             si.name = String(p_container) + ">" + name;
@@ -1452,7 +1452,7 @@ struct SignatureInformation {
     /**
      * The parameters of this signature.
      */
-    PODVector<ParameterInformation> parameters;
+    Vector<ParameterInformation> parameters;
 
     Dictionary to_json() const {
         Dictionary dict;
@@ -1476,7 +1476,7 @@ struct SignatureHelp {
     /**
      * One or more signatures.
      */
-    PODVector<SignatureInformation> signatures;
+    Vector<SignatureInformation> signatures;
 
     /**
      * The active signature. If omitted or the value lies outside the
@@ -1684,7 +1684,7 @@ struct GodotNativeClassInfo {
     const DocData::ClassDoc *class_doc = NULL;
     const ClassDB::ClassInfo *class_info = NULL;
 
-    Dictionary to_json() {
+    Dictionary to_json() const {
         Dictionary dict;
         dict["name"] = name;
         dict["inherits"] = class_doc->inherits;
@@ -1703,8 +1703,8 @@ struct GodotCapabilities {
     Dictionary to_json() {
         Dictionary dict;
         Array classes;
-        for (List<GodotNativeClassInfo>::Element *E = native_classes.front(); E; E = E->next()) {
-            classes.push_back(E->deref().to_json());
+        for (const GodotNativeClassInfo &E : native_classes) {
+            classes.push_back(E.to_json());
         }
         dict["native_classes"] = classes;
         return dict;
@@ -1716,7 +1716,7 @@ inline String marked_documentation(se_string_view p_bbcode) {
     using namespace StringUtils;
     String markdown(strip_edges(p_bbcode));
 
-    PODVector<se_string_view> lines = split(markdown,'\n');
+    Vector<se_string_view> lines = split(markdown,'\n');
     bool in_code_block = false;
     int code_block_indent = -1;
 

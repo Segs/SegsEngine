@@ -41,13 +41,13 @@ class AudioEffectDelayInstance : public AudioEffectInstance {
     friend class AudioEffectDelay;
     Ref<AudioEffectDelay> base;
 
-    PODVector<AudioFrame> ring_buffer;
+    Vector<AudioFrame> ring_buffer;
 
     unsigned int ring_buffer_pos;
     unsigned int ring_buffer_mask;
 
     /* feedback buffer */
-    PODVector<AudioFrame> feedback_buffer;
+    Vector<AudioFrame> feedback_buffer;
 
     unsigned int feedback_buffer_pos;
 

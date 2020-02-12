@@ -59,7 +59,7 @@ struct _GlobalConstant {
 #endif
 };
 
-static PODVector<_GlobalConstant> _global_constants;
+static Vector<_GlobalConstant> _global_constants;
 
 #ifdef DEBUG_METHODS_ENABLED
 

@@ -134,51 +134,51 @@ Array mono_array_to_Array(MonoArray *p_array);
 // PoolIntArray
 
 MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array);
-MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array);
+MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array);
 PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array);
-PODVector<int> mono_array_to_NC_VecInt(MonoArray* p_array);
+Vector<int> mono_array_to_NC_VecInt(MonoArray* p_array);
 
 // PoolByteArray
 
 MonoArray *PoolByteArray_to_mono_array(const PoolByteArray &p_array);
-MonoArray *PoolByteArray_to_mono_array(const PODVector<uint8_t> &p_array);
+MonoArray *PoolByteArray_to_mono_array(const Vector<uint8_t> &p_array);
 PoolByteArray mono_array_to_PoolByteArray(MonoArray *p_array);
-PODVector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array);
+Vector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array);
 
 // PoolRealArray
 
 MonoArray *PoolRealArray_to_mono_array(const PoolRealArray &p_array);
-MonoArray *PoolRealArray_to_mono_array(const PODVector<float> &p_array);
+MonoArray *PoolRealArray_to_mono_array(const Vector<float> &p_array);
 PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array);
-PODVector<float> mono_array_to_NC_VecFloat(MonoArray *p_array);
+Vector<float> mono_array_to_NC_VecFloat(MonoArray *p_array);
 
 // PoolStringArray
 
 MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array);
-MonoArray *PoolStringArray_to_mono_array(const PODVector<StringName> &p_array);
-MonoArray *PoolStringArray_to_mono_array(const PODVector<String> &p_array);
+MonoArray *PoolStringArray_to_mono_array(const Vector<StringName> &p_array);
+MonoArray *PoolStringArray_to_mono_array(const Vector<String> &p_array);
 PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array);
-PODVector<String> mono_array_to_NC_VecString(MonoArray *p_array);
+Vector<String> mono_array_to_NC_VecString(MonoArray *p_array);
 // PoolColorArray
 
 MonoArray *PoolColorArray_to_mono_array(const PoolColorArray &p_array);
-MonoArray *PoolColorArray_to_mono_array(const PODVector<Color> &p_array);
+MonoArray *PoolColorArray_to_mono_array(const Vector<Color> &p_array);
 PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array);
-PODVector<Color> mono_array_to_NC_VecColor(MonoArray* p_array);
+Vector<Color> mono_array_to_NC_VecColor(MonoArray* p_array);
 
 
 // PoolVector2Array
 
 MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array);
-MonoArray *PoolVector2Array_to_mono_array(const PODVector<Vector2> &p_array);
+MonoArray *PoolVector2Array_to_mono_array(const Vector<Vector2> &p_array);
 PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array);
-PODVector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array);
+Vector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array);
 // PoolVector3Array
 
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array);
-MonoArray *PoolVector3Array_to_mono_array(const PODVector<Vector3> &p_array);
-MonoArray *PoolVector3Array_to_mono_array(const PODVector<Face3> &p_array);
-PODVector<Vector3> mono_array_to_NC_VecVector3(MonoArray* p_array);
+MonoArray *PoolVector3Array_to_mono_array(const Vector<Vector3> &p_array);
+MonoArray *PoolVector3Array_to_mono_array(const Vector<Face3> &p_array);
+Vector<Vector3> mono_array_to_NC_VecVector3(MonoArray* p_array);
 PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array);
 MonoArray *PoolVector3Array_to_mono_array(const PoolVector<Face3> &p_array);
 

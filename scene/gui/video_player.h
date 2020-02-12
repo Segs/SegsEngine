@@ -57,7 +57,7 @@ class VideoPlayer : public Control {
     Ref<ImageTexture> texture;
 
     AudioRBResampler resampler;
-    PODVector<AudioFrame> mix_buffer;
+    Vector<AudioFrame> mix_buffer;
     int wait_resampler, wait_resampler_limit;
 
     bool paused;

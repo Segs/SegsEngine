@@ -50,7 +50,7 @@ void EditorAutoloadSettings::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        PODVector<String> afn;
+        Vector<String> afn;
         ResourceLoader::get_recognized_extensions_for_type("Script", afn);
         ResourceLoader::get_recognized_extensions_for_type("PackedScene", afn);
 
@@ -104,7 +104,7 @@ bool EditorAutoloadSettings::_autoload_name_is_valid(const StringName &p_name, S
     }
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-        PODVector<String> keywords;
+        Vector<String> keywords;
         ScriptServer::get_language(i)->get_reserved_words(&keywords);
         for (const String &E : keywords) {
             if (E == p_name) {
@@ -383,7 +383,7 @@ void EditorAutoloadSettings::update_autoload() {
     updating_autoload = true;
 
     Map<se_string_view, AutoLoadInfo> to_remove;
-    PODVector<AutoLoadInfo *> to_add;
+    Vector<AutoLoadInfo *> to_add;
 
     for (AutoLoadInfo &info : autoload_cache) {
         to_remove.emplace(info.name, info);
@@ -394,7 +394,7 @@ void EditorAutoloadSettings::update_autoload() {
     tree->clear();
     TreeItem *root = tree->create_item();
 
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
 
     for (const PropertyInfo &pi : props) {
@@ -482,7 +482,7 @@ void EditorAutoloadSettings::update_autoload() {
     }
 
     // Load new/changed autoloads
-    PODVector<Node *> nodes_to_add;
+    Vector<Node *> nodes_to_add;
     for (AutoLoadInfo *info : to_add) {
 
         info->node = _create_autoload(info->path);
@@ -616,7 +616,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     Dictionary drop_data = p_data;
     PoolVector<String> autoloads = drop_data["autoloads"].as<PoolVector<String>>();
 
-    PODVector<int> orders;
+    Vector<int> orders;
     orders.reserve(autoload_cache.size());
     if(move_to_back) {
         for (int i = 0; i < autoloads.size(); i++) {
@@ -774,7 +774,7 @@ void EditorAutoloadSettings::_bind_methods() {
 EditorAutoloadSettings::EditorAutoloadSettings() {
 
     // Make first cache
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (const PropertyInfo &pi : props) {
 

@@ -232,7 +232,7 @@ void IP::clear_cache(const String &p_hostname) {
 Array IP::_get_local_addresses() const {
 
     Array addresses;
-    PODVector<IP_Address> ip_addresses;
+    Vector<IP_Address> ip_addresses;
     get_local_addresses(&ip_addresses);
     for (const IP_Address &E : ip_addresses) {
         addresses.push_back(Variant(E));
@@ -265,7 +265,7 @@ Array IP::_get_local_interfaces() const {
     return results;
 }
 
-void IP::get_local_addresses(PODVector<IP_Address> *r_addresses) const {
+void IP::get_local_addresses(Vector<IP_Address> *r_addresses) const {
 
     Map<String, Interface_Info> interfaces;
     get_local_interfaces(&interfaces);

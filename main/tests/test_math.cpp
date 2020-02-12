@@ -483,7 +483,7 @@ MainLoop *test() {
     print_line("later Mem used: " + itos(MemoryPool::total_memory));
     print_line("Mlater Ax mem used: " + itos(MemoryPool::max_memory));
 
-    const ListPOD<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const List<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!
@@ -500,7 +500,7 @@ MainLoop *test() {
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
 
-    PODVector<uint8_t> buf;
+    Vector<uint8_t> buf;
     int flen = fa->get_len();
     buf.resize(fa->get_len() + 1);
     fa->get_buffer(buf.data(), flen);
@@ -517,13 +517,13 @@ MainLoop *test() {
 
     {
 
-        PODVector<int> hashes;
-        PODVector<StringName> tl;
+        Vector<int> hashes;
+        Vector<StringName> tl;
         ClassDB::get_class_list(&tl);
 
         for (size_t i=0,fin=tl.size(); i<fin; ++i) {
 
-            PODVector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asCString());
+            Vector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asCString());
             hashes.push_back(hashes.size());
         }
 
@@ -589,7 +589,7 @@ MainLoop *test() {
 
     String ret;
 
-    ListPOD<String> args;
+    List<String> args;
     args.push_back("-l");
     Error err = OS::get_singleton()->execute("/bin/ls", args, true, nullptr, &ret);
     print_line("error: " + itos(err));

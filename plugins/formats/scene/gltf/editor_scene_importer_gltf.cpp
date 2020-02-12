@@ -122,7 +122,7 @@ namespace {
         Quat rotation;
         Vector3 scale;
 
-        PODVector<int> children;
+        Vector<int> children;
         GLTFNodeIndex fake_joint_parent;
 
         GLTFNode() :
@@ -178,11 +178,11 @@ namespace {
 
     struct GLTFSkeleton {
         // The *synthesized* skeletons joints
-        PODVector<GLTFNodeIndex> joints;
+        Vector<GLTFNodeIndex> joints;
 
         // The roots of the skeleton. If there are multiple, each root must have the same parent
         // (ie roots are siblings)
-        PODVector<GLTFNodeIndex> roots;
+        Vector<GLTFNodeIndex> roots;
 
         // The created Skeleton for the scene
         Skeleton* godot_skeleton;
@@ -201,22 +201,22 @@ namespace {
         // The "skeleton" property defined in the gltf spec. -1 = Scene Root
         GLTFNodeIndex skin_root;
 
-        PODVector<GLTFNodeIndex> joints_original;
-        PODVector<Transform> inverse_binds;
+        Vector<GLTFNodeIndex> joints_original;
+        Vector<Transform> inverse_binds;
 
         // Note: joints + non_joints should form a complete subtree, or subtrees with a common parent
 
         // All nodes that are skins that are caught in-between the original joints
         // (inclusive of joints_original)
-        PODVector<GLTFNodeIndex> joints;
+        Vector<GLTFNodeIndex> joints;
 
         // All Nodes that are caught in-between skin joint nodes, and are not defined
         // as joints by any skin
-        PODVector<GLTFNodeIndex> non_joints;
+        Vector<GLTFNodeIndex> non_joints;
 
         // The roots of the skin. In the case of multiple roots, their parent *must*
         // be the same (the roots must be siblings)
-        PODVector<GLTFNodeIndex> roots;
+        Vector<GLTFNodeIndex> roots;
 
         // The GLTF Skeleton this Skin points to (after we determine skeletons)
         GLTFSkeletonIndex skeleton;
@@ -236,7 +236,7 @@ namespace {
 
     struct GLTFMesh {
         Ref<ArrayMesh> mesh;
-        PODVector<float> blend_weights;
+        Vector<float> blend_weights;
     };
 
     struct GLTFCamera {
@@ -266,8 +266,8 @@ namespace {
         template <class T>
         struct Channel {
             Interpolation interpolation;
-            PODVector<float> times;
-            PODVector<T> values;
+            Vector<float> times;
+            Vector<T> values;
         };
 
         struct Track {
@@ -275,7 +275,7 @@ namespace {
             Channel<Vector3> translation_track;
             Channel<Quat> rotation_track;
             Channel<Vector3> scale_track;
-            PODVector<Channel<float> > weight_tracks;
+            Vector<Channel<float> > weight_tracks;
         };
 
         String name;
@@ -288,29 +288,29 @@ namespace {
         Dictionary json;
         int major_version;
         int minor_version;
-        PODVector<uint8_t> glb_data;
+        Vector<uint8_t> glb_data;
 
-        PODVector<GLTFNode*> nodes;
-        PODVector<PODVector<uint8_t> > buffers;
-        PODVector<GLTFBufferView> buffer_views;
-        PODVector<GLTFAccessor> accessors;
+        Vector<GLTFNode*> nodes;
+        Vector<Vector<uint8_t> > buffers;
+        Vector<GLTFBufferView> buffer_views;
+        Vector<GLTFAccessor> accessors;
 
-        PODVector<GLTFMesh> meshes; //meshes are loaded directly, no reason not to.
-        PODVector<Ref<Material> > materials;
+        Vector<GLTFMesh> meshes; //meshes are loaded directly, no reason not to.
+        Vector<Ref<Material> > materials;
 
         String scene_name;
-        PODVector<int> root_nodes;
+        Vector<int> root_nodes;
 
-        PODVector<GLTFTexture> textures;
-        PODVector<Ref<Texture> > images;
+        Vector<GLTFTexture> textures;
+        Vector<Ref<Texture> > images;
 
-        PODVector<GLTFSkin> skins;
-        PODVector<GLTFCamera> cameras;
+        Vector<GLTFSkin> skins;
+        Vector<GLTFCamera> cameras;
 
         Set<String> unique_names;
 
-        PODVector<GLTFSkeleton> skeletons;
-        PODVector<GLTFAnimation> animations;
+        Vector<GLTFSkeleton> skeletons;
+        Vector<GLTFAnimation> animations;
 
         Map<GLTFNodeIndex, Node*> scene_nodes;
 
@@ -324,7 +324,7 @@ namespace {
     // Function Prototypes
     /*******************************************************************************************************/
     void _compute_node_heights(GLTFState& state);
-    Error _reparent_non_joint_skeleton_subtrees(GLTFState& state, GLTFSkeleton& skeleton, const PODVector<GLTFNodeIndex>& non_joints);
+    Error _reparent_non_joint_skeleton_subtrees(GLTFState& state, GLTFSkeleton& skeleton, const Vector<GLTFNodeIndex>& non_joints);
     Error _determine_skeleton_roots(GLTFState& state, const GLTFSkeletonIndex skel_i);
     Error _reparent_to_fake_joint(GLTFState& state, GLTFSkeleton& skeleton, const GLTFNodeIndex node_index);
     Error _map_skin_joints_indices_to_skeleton_bone_indices(GLTFState& state);
@@ -360,7 +360,7 @@ namespace {
     };
 
     template <class T>
-    T _interpolate_track(const PODVector<float>& p_times, const PODVector<T>& p_values, const float p_time, const GLTFAnimation::Interpolation p_interp) {
+    T _interpolate_track(const Vector<float>& p_times, const Vector<T>& p_values, const float p_time, const GLTFAnimation::Interpolation p_interp) {
 
         //could use binary search, worth it?
         int idx = -1;
@@ -499,7 +499,7 @@ namespace {
         ERR_FAIL_INDEX_V(bv.buffer, state.buffers.size(), ERR_PARSE_ERROR);
 
         const uint32_t offset = bv.byte_offset + byte_offset;
-        const PODVector<uint8_t>& buffer = state.buffers[bv.buffer]; //copy on write, so no performance hit
+        const Vector<uint8_t>& buffer = state.buffers[bv.buffer]; //copy on write, so no performance hit
         const uint8_t* bufptr = buffer.data();
 
         //use to debug
@@ -866,21 +866,21 @@ namespace {
             }
         }
     }
-    static PODVector<uint8_t> _parse_base64_uri(const String& uri) {
+    static Vector<uint8_t> _parse_base64_uri(const String& uri) {
 
         auto start = StringUtils::find(uri, ",");
-        ERR_FAIL_COND_V(start == String::npos, PODVector<uint8_t>());
+        ERR_FAIL_COND_V(start == String::npos, Vector<uint8_t>());
 
         String substr(StringUtils::right(uri, start + 1));
 
         int strlen = substr.length();
 
-        PODVector<uint8_t> buf;
+        Vector<uint8_t> buf;
         buf.resize(strlen / 4 * 3 + 1 + 1);
 
         size_t len = 0;
         Error err = CryptoCore::b64_decode(buf.data(), buf.size(), &len, (unsigned char*)substr.data(), strlen);
-        ERR_FAIL_COND_V(err != OK, PODVector<uint8_t>());
+        ERR_FAIL_COND_V(err != OK, Vector<uint8_t>());
 
         buf.resize(len);
 
@@ -902,7 +902,7 @@ namespace {
             const Dictionary& buffer = buffers[i];
             if (buffer.has("uri")) {
 
-                PODVector<uint8_t> buffer_data;
+                Vector<uint8_t> buffer_data;
                 String uri = buffer["uri"];
 
                 if (StringUtils::findn(uri, "data:application/octet-stream;base64") == 0) {
@@ -1050,12 +1050,12 @@ namespace {
         return 0;
     }
 
-    PODVector<double> _decode_accessor(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<double> _decode_accessor(GLTFState &state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
         //spec, for reference:
         //https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#data-alignment
 
-        ERR_FAIL_INDEX_V(p_accessor, state.accessors.size(), PODVector<double>());
+        ERR_FAIL_INDEX_V(p_accessor, state.accessors.size(), Vector<double>());
 
         const GLTFAccessor& a = state.accessors[p_accessor];
 
@@ -1065,7 +1065,7 @@ namespace {
 
         const int component_count = component_count_for_type[a.type];
         const int component_size = _get_component_type_size(a.component_type);
-        ERR_FAIL_COND_V(component_size == 0, PODVector<double>());
+        ERR_FAIL_COND_V(component_size == 0, Vector<double>());
         int element_size = component_count * component_size;
 
         int skip_every = 0;
@@ -1099,17 +1099,17 @@ namespace {
         }
         }
 
-        PODVector<double> dst_buffer;
+        Vector<double> dst_buffer;
         dst_buffer.resize(component_count * a.count);
         double* dst = dst_buffer.data();
 
         if (a.buffer_view >= 0) {
 
-            ERR_FAIL_INDEX_V(a.buffer_view, state.buffer_views.size(), PODVector<double>());
+            ERR_FAIL_INDEX_V(a.buffer_view, state.buffer_views.size(), Vector<double>());
 
             const Error err = _decode_buffer_view(state, dst, a.buffer_view, skip_every, skip_bytes, element_size, a.count, a.type, component_count, a.component_type, component_size, a.normalized, a.byte_offset, p_for_vertex);
             if (err != OK)
-                return PODVector<double>();
+                return Vector<double>();
 
         }
         else {
@@ -1121,19 +1121,19 @@ namespace {
 
         if (a.sparse_count > 0) {
             // I could not find any file using this, so this code is so far untested
-            PODVector<double> indices;
+            Vector<double> indices;
             indices.resize(a.sparse_count);
             const int indices_component_size = _get_component_type_size(a.sparse_indices_component_type);
 
             Error err = _decode_buffer_view(state, indices.data(), a.sparse_indices_buffer_view, 0, 0, indices_component_size, a.sparse_count, TYPE_SCALAR, 1, a.sparse_indices_component_type, indices_component_size, false, a.sparse_indices_byte_offset, false);
             if (err != OK)
-                return PODVector<double>();
+                return Vector<double>();
 
-            PODVector<double> data;
+            Vector<double> data;
             data.resize(component_count * a.sparse_count);
             err = _decode_buffer_view(state, data.data(), a.sparse_values_buffer_view, skip_every, skip_bytes, element_size, a.sparse_count, a.type, component_count, a.component_type, component_size, a.normalized, a.sparse_values_byte_offset, p_for_vertex);
             if (err != OK)
-                return PODVector<double>();
+                return Vector<double>();
 
             for (int i = 0; i < indices.size(); i++) {
                 const int write_offset = int(indices[i]) * component_count;
@@ -1147,10 +1147,10 @@ namespace {
         return dst_buffer;
     }
 
-    PODVector<int> _decode_accessor_as_ints(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<int> _decode_accessor_as_ints(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<int> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<int> ret;
         if (attribs.empty())
             return ret;
         const double* attribs_ptr = attribs.data();
@@ -1162,10 +1162,10 @@ namespace {
         return ret;
     }
 
-    PODVector<float> _decode_accessor_as_floats(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<float> _decode_accessor_as_floats(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<float> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<float> ret;
         if (attribs.empty())
             return ret;
         const double* attribs_ptr = attribs.data();
@@ -1177,10 +1177,10 @@ namespace {
         return ret;
     }
 
-    PODVector<Vector2> _decode_accessor_as_vec2(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<Vector2> _decode_accessor_as_vec2(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Vector2> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Vector2> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 2 != 0, ret);
@@ -1193,10 +1193,10 @@ namespace {
         return ret;
     }
 
-    PODVector<Vector3> _decode_accessor_as_vec3(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<Vector3> _decode_accessor_as_vec3(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Vector3> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Vector3> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 3 != 0, ret);
@@ -1209,10 +1209,10 @@ namespace {
         return ret;
     }
 
-    PODVector<Color> _decode_accessor_as_color(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<Color> _decode_accessor_as_color(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Color> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Color> ret;
 
         if (attribs.empty())
             return ret;
@@ -1235,10 +1235,10 @@ namespace {
         }
         return ret;
     }
-    PODVector<Quat> _decode_accessor_as_quat(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
+    Vector<Quat> _decode_accessor_as_quat(GLTFState& state, const GLTFAccessorIndex p_accessor, const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Quat> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Quat> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 4 != 0, ret);
@@ -1251,11 +1251,11 @@ namespace {
         return ret;
     }
 
-    PODVector<Transform2D> _decode_accessor_as_xform2d(GLTFState &state, const GLTFAccessorIndex p_accessor,
+    Vector<Transform2D> _decode_accessor_as_xform2d(GLTFState &state, const GLTFAccessorIndex p_accessor,
             const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Transform2D> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Transform2D> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 4 != 0, ret);
@@ -1267,10 +1267,10 @@ namespace {
         return ret;
     }
 
-    PODVector<Basis> _decode_accessor_as_basis(GLTFState &state, const GLTFAccessorIndex p_accessor, bool p_for_vertex) {
+    Vector<Basis> _decode_accessor_as_basis(GLTFState &state, const GLTFAccessorIndex p_accessor, bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Basis> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Basis> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 9 != 0, ret);
@@ -1283,11 +1283,11 @@ namespace {
         return ret;
     }
 
-    PODVector<Transform> _decode_accessor_as_xform(GLTFState &state, const GLTFAccessorIndex p_accessor,
+    Vector<Transform> _decode_accessor_as_xform(GLTFState &state, const GLTFAccessorIndex p_accessor,
             const bool p_for_vertex) {
 
-        const PODVector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
-        PODVector<Transform> ret;
+        const Vector<double> attribs = _decode_accessor(state, p_accessor, p_for_vertex);
+        Vector<Transform> ret;
         if (attribs.empty())
             return ret;
         ERR_FAIL_COND_V(attribs.size() % 16 != 0, ret);
@@ -1371,7 +1371,7 @@ namespace {
                     array.m_bones = eastl::move(_decode_accessor_as_ints(state, a["JOINTS_0"], true));
                 }
                 if (a.has("WEIGHTS_0")) {
-                    PODVector<float> weights(_decode_accessor_as_floats(state, a["WEIGHTS_0"], true));
+                    Vector<float> weights(_decode_accessor_as_floats(state, a["WEIGHTS_0"], true));
                     { //gltf does not seem to normalize the weights for some reason..
                         int wc = weights.size();
 
@@ -1395,7 +1395,7 @@ namespace {
 
                 if (p.has("indices")) {
 
-                    PODVector<int> indices = _decode_accessor_as_ints(state, p["indices"], false);
+                    Vector<int> indices = _decode_accessor_as_ints(state, p["indices"], false);
 
                     if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
                         //swap around indices, convert ccw to cw for front face
@@ -1411,7 +1411,7 @@ namespace {
                     //generate indices because they need to be swapped for CW/CCW
                     auto vertices = array.positions3();
                     ERR_FAIL_COND_V(vertices.empty(), ERR_PARSE_ERROR);
-                    PODVector<int> indices;
+                    Vector<int> indices;
                     const int vs = vertices.size();
                     indices.resize(vs);
                     {
@@ -1425,7 +1425,7 @@ namespace {
                 }
 
                 bool generated_tangents = false;
-                PODVector<int> erased_indices;
+                Vector<int> erased_indices;
 
                 if (primitive == Mesh::PRIMITIVE_TRIANGLES && !a.has("TANGENT") && a.has("TEXCOORD_0") && a.has("NORMAL")) {
                     //must generate mikktspace tangents.. ergh..
@@ -1436,7 +1436,7 @@ namespace {
                         //morph targets should not be reindexed, as array size might differ
                         //removing indices is the best bet here
                         st->deindex();
-                        erased_indices = a[Mesh::ARRAY_INDEX].as<PODVector<int>>();
+                        erased_indices = a[Mesh::ARRAY_INDEX].as<Vector<int>>();
                         a[Mesh::ARRAY_INDEX] = Variant();
                     }
                     st->generate_tangents();
@@ -1444,7 +1444,7 @@ namespace {
                     generated_tangents = true;
                 }
 
-                PODVector<SurfaceArrays> morphs;
+                Vector<SurfaceArrays> morphs;
                 //blend shapes
                 if (p.has("targets")) {
                     print_verbose("glTF: Mesh has targets");
@@ -1471,7 +1471,7 @@ namespace {
                         array_copy.m_indices.clear();
 
                         if (t.has("POSITION")) {
-                            PODVector<Vector3> varr(_decode_accessor_as_vec3(state, t["POSITION"], true));
+                            Vector<Vector3> varr(_decode_accessor_as_vec3(state, t["POSITION"], true));
                             auto src_varr = array.positions3();
                             const int size = src_varr.size();
                             ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
@@ -1492,7 +1492,7 @@ namespace {
                             array_copy.set_positions(eastl::move(varr));
                         }
                         if (t.has("NORMAL")) {
-                            PODVector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"], true);
+                            Vector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"], true);
                             const auto &src_narr = array.m_normals;
                             size_t size = src_narr.size();
                             ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
@@ -1512,10 +1512,10 @@ namespace {
                             array_copy.m_normals = eastl::move(narr);
                         }
                         if (t.has("TANGENT")) {
-                            const PODVector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
+                            const Vector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
                             const auto & src_tangents = array.m_tangents;
                             ERR_FAIL_COND_V(src_tangents.empty(), ERR_PARSE_ERROR);
-                            PODVector<float> tangents_v4;
+                            Vector<float> tangents_v4;
 
                             {
 
@@ -1601,7 +1601,7 @@ namespace {
                 mimetype = d["mimeType"].as<String>();
             }
 
-            PODVector<uint8_t> data;
+            Vector<uint8_t> data;
             const uint8_t* data_ptr = nullptr;
             int data_size = 0;
 
@@ -1850,7 +1850,7 @@ namespace {
         return OK;
     }
 
-    GLTFNodeIndex _find_highest_node(GLTFState& state, const PODVector<GLTFNodeIndex>& subset) {
+    GLTFNodeIndex _find_highest_node(GLTFState& state, const Vector<GLTFNodeIndex>& subset) {
         int highest = -1;
         GLTFNodeIndex best_node = -1;
 
@@ -1906,7 +1906,7 @@ namespace {
             }
         }
 
-        PODVector<GLTFNodeIndex> roots;
+        Vector<GLTFNodeIndex> roots;
         disjoint_set.get_representatives(roots);
 
         if (roots.size() <= 1) {
@@ -1983,7 +1983,7 @@ namespace {
         // Grab all nodes that lay in between skin joints/nodes
         DisjointSet<GLTFNodeIndex> disjoint_set;
 
-        PODVector<GLTFNodeIndex> all_skin_nodes;
+        Vector<GLTFNodeIndex> all_skin_nodes;
         all_skin_nodes.push_back(skin.joints);
         all_skin_nodes.push_back(skin.non_joints);
 
@@ -1997,13 +1997,13 @@ namespace {
             }
         }
 
-        PODVector<GLTFNodeIndex> out_owners;
+        Vector<GLTFNodeIndex> out_owners;
         disjoint_set.get_representatives(out_owners);
 
-        PODVector<GLTFNodeIndex> out_roots;
+        Vector<GLTFNodeIndex> out_roots;
 
         for (size_t i = 0; i < out_owners.size(); ++i) {
-            PODVector<GLTFNodeIndex> set;
+            Vector<GLTFNodeIndex> set;
             disjoint_set.get_members(set, out_owners[i]);
 
             const GLTFNodeIndex root = _find_highest_node(state, set);
@@ -2032,7 +2032,7 @@ namespace {
         // Grab all nodes that lay in between skin joints/nodes
         DisjointSet<GLTFNodeIndex> disjoint_set;
 
-        PODVector<GLTFNodeIndex> all_skin_nodes;
+        Vector<GLTFNodeIndex> all_skin_nodes;
         all_skin_nodes.push_back(skin.joints);
         all_skin_nodes.push_back(skin.non_joints);
 
@@ -2045,12 +2045,12 @@ namespace {
                 disjoint_set.create_union(parent, node_index);
             }
         }
-        PODVector<GLTFNodeIndex> out_owners;
+        Vector<GLTFNodeIndex> out_owners;
         disjoint_set.get_representatives(out_owners);
 
-        PODVector<GLTFNodeIndex> out_roots;
+        Vector<GLTFNodeIndex> out_roots;
         for (int i = 0; i < out_owners.size(); ++i) {
-            PODVector<GLTFNodeIndex> set;
+            Vector<GLTFNodeIndex> set;
             disjoint_set.get_members(set, out_owners[i]);
 
             const GLTFNodeIndex root = _find_highest_node(state, set);
@@ -2148,7 +2148,7 @@ namespace {
         for (GLTFSkinIndex skin_i = 0; skin_i < state.skins.size(); ++skin_i) {
             const GLTFSkin& skin = state.skins[skin_i];
 
-            PODVector<GLTFNodeIndex> all_skin_nodes;
+            Vector<GLTFNodeIndex> all_skin_nodes;
             all_skin_nodes.push_back(skin.joints);
             all_skin_nodes.push_back(skin.non_joints);
 
@@ -2170,14 +2170,14 @@ namespace {
         }
 
         { // attempt to joint all touching subsets (siblings/parent are part of another skin)
-            PODVector<GLTFNodeIndex> groups_representatives;
+            Vector<GLTFNodeIndex> groups_representatives;
             skeleton_sets.get_representatives(groups_representatives);
 
-            PODVector<GLTFNodeIndex> highest_group_members;
-            PODVector<PODVector<GLTFNodeIndex> > groups;
+            Vector<GLTFNodeIndex> highest_group_members;
+            Vector<Vector<GLTFNodeIndex> > groups;
             groups.reserve(groups_representatives.size());
             for (const GLTFNodeIndex grp_rep : groups_representatives) {
-                PODVector<GLTFNodeIndex> group;
+                Vector<GLTFNodeIndex> group;
                 skeleton_sets.get_members(group, grp_rep);
                 highest_group_members.emplace_back(_find_highest_node(state, group));
                 groups.emplace_back(eastl::move(group));
@@ -2200,7 +2200,7 @@ namespace {
                 const GLTFNodeIndex node_i_parent = state.nodes[node_i]->parent;
                 if (node_i_parent >= 0) {
                     for (int j = 0; j < groups.size() && i != j; ++j) {
-                        const PODVector<GLTFNodeIndex>& group = groups[j];
+                        const Vector<GLTFNodeIndex>& group = groups[j];
 
                         if (group.contains(node_i_parent)) {
                             const GLTFNodeIndex node_j = highest_group_members[j];
@@ -2212,7 +2212,7 @@ namespace {
         }
 
         // At this point, the skeleton groups should be finalized
-        PODVector<GLTFNodeIndex> skeleton_owners;
+        Vector<GLTFNodeIndex> skeleton_owners;
         skeleton_sets.get_representatives(skeleton_owners);
 
         // Mark all the skins actual skeletons, after we have merged them
@@ -2221,7 +2221,7 @@ namespace {
             const GLTFNodeIndex skeleton_owner = skeleton_owners[skel_i];
             GLTFSkeleton skeleton;
 
-            PODVector<GLTFNodeIndex> skeleton_nodes;
+            Vector<GLTFNodeIndex> skeleton_nodes;
             skeleton_sets.get_members(skeleton_nodes, skeleton_owner);
 
             for (GLTFSkinIndex skin_i = 0; skin_i < state.skins.size(); ++skin_i) {
@@ -2237,7 +2237,7 @@ namespace {
                 }
             }
 
-            PODVector<GLTFNodeIndex> non_joints;
+            Vector<GLTFNodeIndex> non_joints;
             for (int i = 0; i < skeleton_nodes.size(); ++i) {
                 const GLTFNodeIndex node_i = skeleton_nodes[i];
 
@@ -2272,7 +2272,7 @@ namespace {
         return OK;
     }
 
-    Error _reparent_non_joint_skeleton_subtrees(GLTFState& state, GLTFSkeleton& skeleton, const PODVector<GLTFNodeIndex>& non_joints) {
+    Error _reparent_non_joint_skeleton_subtrees(GLTFState& state, GLTFSkeleton& skeleton, const Vector<GLTFNodeIndex>& non_joints) {
 
         DisjointSet<GLTFNodeIndex> subtree_set;
 
@@ -2297,13 +2297,13 @@ namespace {
 
         // Find all the non joint subtrees and re-parent them to a new "fake" joint
 
-        PODVector<GLTFNodeIndex> non_joint_subtree_roots;
+        Vector<GLTFNodeIndex> non_joint_subtree_roots;
         subtree_set.get_representatives(non_joint_subtree_roots);
 
         for (int root_i = 0; root_i < non_joint_subtree_roots.size(); ++root_i) {
             const GLTFNodeIndex subtree_root = non_joint_subtree_roots[root_i];
 
-            PODVector<GLTFNodeIndex> subtree_nodes;
+            Vector<GLTFNodeIndex> subtree_nodes;
             subtree_set.get_members(subtree_nodes, subtree_root);
 
             for (size_t subtree_i = 0; subtree_i < subtree_nodes.size(); ++subtree_i) {
@@ -2407,13 +2407,13 @@ namespace {
 
         GLTFSkeleton& skeleton = state.skeletons[skel_i];
 
-        PODVector<GLTFNodeIndex> owners;
+        Vector<GLTFNodeIndex> owners;
         disjoint_set.get_representatives(owners);
 
-        PODVector<GLTFNodeIndex> roots;
+        Vector<GLTFNodeIndex> roots;
         roots.reserve(owners.size());
         for (int i = 0; i < owners.size(); ++i) {
-            PODVector<GLTFNodeIndex> set;
+            Vector<GLTFNodeIndex> set;
             disjoint_set.get_members(set, owners[i]);
             const GLTFNodeIndex root = _find_highest_node(state, set);
             ERR_FAIL_COND_V(root < 0, FAILED);
@@ -2470,7 +2470,7 @@ namespace {
                 ERR_FAIL_COND_V(node->skeleton != skel_i, FAILED);
 
                 { // Add all child nodes to the stack (deterministically)
-                    PODVector<GLTFNodeIndex> child_nodes;
+                    Vector<GLTFNodeIndex> child_nodes;
                     for (int i = 0; i < node->children.size(); ++i) {
                         const GLTFNodeIndex child_i = node->children[i];
                         if (state.nodes[child_i]->skeleton == skel_i) {
@@ -2745,27 +2745,27 @@ namespace {
                     }
                 }
 
-                const PODVector<float> times = _decode_accessor_as_floats(state, input, false);
+                const Vector<float> times = _decode_accessor_as_floats(state, input, false);
                 if (path == "translation") {
-                    const PODVector<Vector3> translations = _decode_accessor_as_vec3(state, output, false);
+                    const Vector<Vector3> translations = _decode_accessor_as_vec3(state, output, false);
                     track->translation_track.interpolation = interp;
                     track->translation_track.times = times; //convert via variant
                     track->translation_track.values = translations; //convert via variant
                 }
                 else if (path == "rotation") {
-                    const PODVector<Quat> rotations = _decode_accessor_as_quat(state, output, false);
+                    const Vector<Quat> rotations = _decode_accessor_as_quat(state, output, false);
                     track->rotation_track.interpolation = interp;
                     track->rotation_track.times = times; //convert via variant
                     track->rotation_track.values = rotations; //convert via variant
                 }
                 else if (path == "scale") {
-                    const PODVector<Vector3> scales = _decode_accessor_as_vec3(state, output, false);
+                    const Vector<Vector3> scales = _decode_accessor_as_vec3(state, output, false);
                     track->scale_track.interpolation = interp;
                     track->scale_track.times = times; //convert via variant
                     track->scale_track.values = scales; //convert via variant
                 }
                 else if (path == "weights") {
-                    const PODVector<float> weights = _decode_accessor_as_floats(state, output, false);
+                    const Vector<float> weights = _decode_accessor_as_floats(state, output, false);
 
                     ERR_FAIL_INDEX_V(state.nodes[node]->mesh, state.meshes.size(), ERR_PARSE_ERROR);
                     const GLTFMesh* mesh = &state.meshes[state.nodes[node]->mesh];
@@ -2784,7 +2784,7 @@ namespace {
                         GLTFAnimation::Channel<float> cf;
                         cf.interpolation = interp;
                         cf.times = times;
-                        PODVector<float> wdata;
+                        Vector<float> wdata;
                         wdata.reserve(wlen);
                         for (size_t l = 0; l < wlen; l++) {
                             wdata.emplace_back(weights[l * wc + k]);
@@ -3230,7 +3230,7 @@ namespace {
 
 
 
-Node *EditorSceneImporterGLTF::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterGLTF::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     GLTFState state;
 
@@ -3345,7 +3345,7 @@ uint32_t EditorSceneImporterGLTF::get_import_flags() const {
 
     return IMPORT_SCENE | IMPORT_ANIMATION;
 }
-void EditorSceneImporterGLTF::get_extensions(PODVector<String>& r_extensions) const {
+void EditorSceneImporterGLTF::get_extensions(Vector<String>& r_extensions) const {
 
     r_extensions.push_back("gltf");
     r_extensions.push_back("glb");

@@ -63,7 +63,7 @@ uint32_t EditorSceneImporter::get_import_flags() const {
 
     ERR_FAIL_V(0);
 }
-void EditorSceneImporter::get_extensions(PODVector<String> &r_extensions) const {
+void EditorSceneImporter::get_extensions(Vector<String> &r_extensions) const {
 
     if (get_script_instance()) {
         Array arr = get_script_instance()->call("_get_extensions");
@@ -76,7 +76,7 @@ void EditorSceneImporter::get_extensions(PODVector<String> &r_extensions) const 
     ERR_FAIL();
 }
 Node *EditorSceneImporter::import_scene(
-        se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) {
+        se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     if (get_script_instance()) {
         return get_script_instance()->call("_import_scene", p_path, p_flags, p_bake_fps);
@@ -182,7 +182,7 @@ StringName ResourceImporterScene::get_visible_name() const {
     return "Scene";
 }
 
-void ResourceImporterScene::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceImporterScene::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     for (EditorSceneImporterInterface *E : importers) {
         E->get_extensions(p_extensions);
@@ -302,7 +302,7 @@ static se_string_view _fixstr(se_string_view p_what, se_string_view p_str) {
         return String(StringUtils::substr(what, 0, what.length() - (p_str.length() + 1))) + end;
     return what;
 }
-static void _gen_shape_list(const Ref<Mesh> &mesh, ListPOD<Ref<Shape>> &r_shape_list, bool p_convex) {
+static void _gen_shape_list(const Ref<Mesh> &mesh, List<Ref<Shape>> &r_shape_list, bool p_convex) {
 
     if (!p_convex) {
 
@@ -310,7 +310,7 @@ static void _gen_shape_list(const Ref<Mesh> &mesh, ListPOD<Ref<Shape>> &r_shape_
         r_shape_list.push_back(shape);
     } else {
 
-        PODVector<Ref<Shape>> cd = mesh->convex_decompose();
+        Vector<Ref<Shape>> cd = mesh->convex_decompose();
         if (!cd.empty()) {
             r_shape_list.insert(r_shape_list.end(), eastl::make_move_iterator(cd.begin()), eastl::make_move_iterator(cd.end()));
         }
@@ -318,7 +318,7 @@ static void _gen_shape_list(const Ref<Mesh> &mesh, ListPOD<Ref<Shape>> &r_shape_
 }
 
 Node *ResourceImporterScene::_fix_node(
-        Node *p_node, Node *p_root, Map<Ref<Mesh>, ListPOD<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode) {
+        Node *p_node, Node *p_root, Map<Ref<Mesh>, List<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode) {
 
     // children first
     for (int i = 0; i < p_node->get_child_count(); i++) {
@@ -376,7 +376,7 @@ Node *ResourceImporterScene::_fix_node(
         // remove animations referencing non-importable nodes
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
-        PODVector<StringName> anims(ap->get_animation_list());
+        Vector<StringName> anims(ap->get_animation_list());
         for (const StringName &E : anims) {
 
             Ref<Animation> anim = ap->get_animation(E);
@@ -404,7 +404,7 @@ Node *ResourceImporterScene::_fix_node(
             Ref<Mesh> mesh = mi->get_mesh();
 
             if (mesh) {
-                ListPOD<Ref<Shape>> shapes;
+                List<Ref<Shape>> shapes;
                 String fixed_name;
                 if (collision_map.contains(mesh)) {
                     shapes = collision_map[mesh];
@@ -489,7 +489,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
-            ListPOD<Ref<Shape>> shapes;
+            List<Ref<Shape>> shapes;
             if (collision_map.contains(mesh)) {
                 shapes = collision_map[mesh];
             } else {
@@ -526,7 +526,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
-            ListPOD<Ref<Shape>> shapes;
+            List<Ref<Shape>> shapes;
             String fixed_name;
             if (collision_map.contains(mesh)) {
                 shapes = collision_map[mesh];
@@ -636,7 +636,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         if (mesh) {
 
-            ListPOD<Ref<Shape>> shapes;
+            List<Ref<Shape>> shapes;
             if (collision_map.contains(mesh)) {
                 shapes = collision_map[mesh];
             } else if (_teststr(mesh->get_name(), "col")) {
@@ -812,13 +812,13 @@ void ResourceImporterScene::_filter_tracks(Node *scene, se_string_view p_text) {
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim);
 
-    PODVector<se_string_view> strings = StringUtils::split(p_text, '\n');
+    Vector<se_string_view> strings = StringUtils::split(p_text, '\n');
     for (se_string_view &sv : strings) {
 
         sv = StringUtils::strip_edges(sv);
     }
 
-    PODVector<StringName> anim_names(anim->get_animation_list());
+    Vector<StringName> anim_names(anim->get_animation_list());
     for (const StringName &E : anim_names) {
 
         se_string_view name = E;
@@ -838,7 +838,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, se_string_view p_text) {
                 }
                 keep_local.clear();
 
-                PODVector<se_string_view> filters =
+                Vector<se_string_view> filters =
                         StringUtils::split(StringUtils::substr(strings[i], 1, strings[i].length()), ',');
                 for (se_string_view val : filters) {
 
@@ -912,7 +912,7 @@ void ResourceImporterScene::_optimize_animations(
     AnimationPlayer *anim = object_cast<AnimationPlayer>(n);
     ERR_FAIL_COND(!anim);
 
-    PODVector<StringName> anim_names(anim->get_animation_list());
+    Vector<StringName> anim_names(anim->get_animation_list());
     for (const StringName &E : anim_names) {
 
         Ref<Animation> a = anim->get_animation(E);
@@ -939,7 +939,7 @@ static String _make_extname(se_string_view p_str) {
 
 void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes) {
 
-    PODVector<PropertyInfo> pi;
+    Vector<PropertyInfo> pi;
     p_node->get_property_list(&pi);
 
     MeshInstance *mi = object_cast<MeshInstance>(p_node);
@@ -971,13 +971,13 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, se_string_vie
         Map<Ref<Animation>, Ref<Animation>> &p_animations, Map<Ref<Material>, Ref<Material>> &p_materials,
         Map<Ref<ArrayMesh>, Ref<ArrayMesh>> &p_meshes) {
 
-    PODVector<PropertyInfo> pi;
+    Vector<PropertyInfo> pi;
 
     if (p_make_animations) {
         if (object_cast<AnimationPlayer>(p_node)) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
-            PODVector<StringName> anims(ap->get_animation_list());
+            Vector<StringName> anims(ap->get_animation_list());
             for (const StringName &E : anims) {
 
                 Ref<Animation> anim = ap->get_animation(E);
@@ -1150,13 +1150,13 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, se_string_vie
     }
 }
 
-void ResourceImporterScene::get_import_options(ListPOD<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterScene::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(
             PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Spatial"));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/root_name"), "Scene Root"));
 
-    PODVector<String> script_extentions;
+    Vector<String> script_extentions;
     ResourceLoader::get_recognized_extensions_for_type("Script", script_extentions);
 
     String script_ext_hint;
@@ -1264,7 +1264,7 @@ Node *ResourceImporterScene::import_scene_from_other_importer(
     for (EditorSceneImporterInterface *E : importers) {
 
         if (E == p_exception) continue;
-        PODVector<String> extensions;
+        Vector<String> extensions;
         E->get_extensions(extensions);
 
         for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
@@ -1281,7 +1281,7 @@ Node *ResourceImporterScene::import_scene_from_other_importer(
 
     ERR_FAIL_COND_V(importer == nullptr, nullptr);
 
-    PODVector<String> missing;
+    Vector<String> missing;
     Error err;
     return importer->import_scene(p_path, p_flags, p_bake_fps, &missing, &err);
 }
@@ -1295,7 +1295,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
     for (EditorSceneImporterInterface *E : importers) {
 
         if (E == p_exception) continue;
-        PODVector<String> extensions;
+        Vector<String> extensions;
         E->get_extensions(extensions);
 
         for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
@@ -1316,7 +1316,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
 }
 
 Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, PODVector<String> *r_platform_variants, PODVector<String> *
+        const Map<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {
 
@@ -1330,7 +1330,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
 
     for (EditorSceneImporterInterface *E : importers) {
 
-        PODVector<String> extensions;
+        Vector<String> extensions;
         E->get_extensions(extensions);
 
         for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
@@ -1364,7 +1364,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
         import_flags |= EditorSceneImporter::IMPORT_MATERIALS_IN_INSTANCES;
 
     Error err = OK;
-    PODVector<String> missing_deps; // for now, not much will be done with this
+    Vector<String> missing_deps; // for now, not much will be done with this
     Node *scene = importer->import_scene(src_path, import_flags, fps, &missing_deps, &err);
     if (!scene || err != OK) {
         return err;
@@ -1415,7 +1415,7 @@ Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view
     float anim_optimizer_maxang = p_options.at("animation/optimizer/max_angle");
     int light_bake_mode = p_options.at("meshes/light_baking");
 
-    Map<Ref<Mesh>, ListPOD<Ref<Shape>>> collision_map;
+    Map<Ref<Mesh>, List<Ref<Shape>>> collision_map;
 
     scene = _fix_node(scene, scene, collision_map, LightBakeMode(light_bake_mode));
 
@@ -1602,11 +1602,11 @@ ResourceImporterScene::ResourceImporterScene() {
 uint32_t EditorSceneImporterESCN::get_import_flags() const {
     return IMPORT_SCENE;
 }
-void EditorSceneImporterESCN::get_extensions(PODVector<String> &r_extensions) const {
+void EditorSceneImporterESCN::get_extensions(Vector<String> &r_extensions) const {
     r_extensions.push_back("escn");
 }
 Node *EditorSceneImporterESCN::import_scene(se_string_view p_path, uint32_t /*p_flags*/, int /*p_bake_fps*/,
-        PODVector<String> * /*r_missing_deps*/, Error * /*r_err*/) {
+        Vector<String> * /*r_missing_deps*/, Error * /*r_err*/) {
 
     Error error;
     Ref<PackedScene> ps =

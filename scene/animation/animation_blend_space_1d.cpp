@@ -33,7 +33,7 @@
 
 IMPL_GDCLASS(AnimationNodeBlendSpace1D)
 
-void AnimationNodeBlendSpace1D::get_parameter_list(PODVector<PropertyInfo> *r_list) const {
+void AnimationNodeBlendSpace1D::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::REAL, blend_position);
 }
 Variant AnimationNodeBlendSpace1D::get_parameter_default_value(const StringName &p_parameter) const {
@@ -95,7 +95,7 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "value_label", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
 }
 
-void AnimationNodeBlendSpace1D::get_child_nodes(List<ChildNode> *r_child_nodes) {
+void AnimationNodeBlendSpace1D::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
     for (int i = 0; i < blend_points_used; i++) {
         ChildNode cn;
         cn.name = StringName(itos(i));

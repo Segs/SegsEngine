@@ -58,7 +58,7 @@ public:
         String description;
         bool installs;
         String script;
-        PODVector<String> install_files;
+        Vector<String> install_files;
     };
 
 private:
@@ -95,8 +95,8 @@ private:
     String config_file_path;
     String project_config_dir;
 
-    PODVector<String> favorites;
-    PODVector<String> recent_dirs;
+    Vector<String> favorites;
+    Vector<String> recent_dirs;
 
     bool save_changed_setting;
     bool optimize_save; //do not save stuff that came from config but was not set from engine
@@ -106,7 +106,7 @@ private:
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _initial_set(const StringName &p_name, const Variant &p_value);
 public:
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _add_property_info_bind(const Dictionary &p_info);
 
     void _load_defaults(const Ref<ConfigFile> &p_extra_config = Ref<ConfigFile>());
@@ -165,10 +165,10 @@ public:
     void set_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_data);
     Variant get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const;
 
-    void set_favorites(const PODVector<String> &p_favorites);
-    const PODVector<String> &get_favorites() const;
-    void set_recent_dirs(const PODVector<String> &p_recent_dirs);
-    const PODVector<String> &get_recent_dirs() const;
+    void set_favorites(const Vector<String> &p_favorites);
+    const Vector<String> &get_favorites() const;
+    void set_recent_dirs(const Vector<String> &p_recent_dirs);
+    const Vector<String> &get_recent_dirs() const;
     void load_favorites();
 
     bool is_dark_theme();
@@ -180,13 +180,13 @@ public:
     bool save_text_editor_theme_as(se_string_view p_file);
     bool is_default_text_editor_theme();
 
-    PODVector<String> get_script_templates(se_string_view p_extension, se_string_view p_custom_path = {});
+    Vector<String> get_script_templates(se_string_view p_extension, se_string_view p_custom_path = {});
     String get_editor_layouts_config() const;
 
     void add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortcut);
     bool is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const;
     Ref<ShortCut> get_shortcut(se_string_view p_name) const;
-    void get_shortcut_list(PODVector<String> *r_shortcuts);
+    void get_shortcut_list(Vector<String> *r_shortcuts);
 
     void notify_changes();
 

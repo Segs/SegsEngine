@@ -67,7 +67,7 @@ struct UndoRedo::PrivateData
         uint64_t last_tick;
     };
 
-    PODVector<Action> actions;
+    Vector<Action> actions;
     int current_action=-1;
     int action_level=0;
     uint64_t version=1;
@@ -139,7 +139,7 @@ struct UndoRedo::PrivateData
 
                 case Operation::TYPE_METHOD: {
 
-                    PODVector<const Variant *> argptrs;
+                    Vector<const Variant *> argptrs;
                     argptrs.resize(VARIANT_ARG_MAX);
                     int argc = 0;
 

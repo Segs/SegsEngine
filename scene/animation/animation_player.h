@@ -41,11 +41,11 @@
 class AnimatedValuesBackup {
     struct Entry {
         Object *object;
-        PODVector<StringName> subpath; // Unused if bone
+        Vector<StringName> subpath; // Unused if bone
         int bone_idx; // -1 if not a bone
         Variant value;
     };
-    PODVector<Entry> entries;
+    Vector<Entry> entries;
 
     friend class AnimationPlayer;
 
@@ -114,7 +114,7 @@ private:
 
             TrackNodeCache *owner;
             SpecialProperty special; //small optimization
-            PODVector<StringName> subpath;
+            Vector<StringName> subpath;
             Object *object;
             Variant value_accum;
             uint64_t accum_pass;
@@ -131,7 +131,7 @@ private:
 
         struct BezierAnim {
 
-            PODVector<StringName> bezier_property;
+            Vector<StringName> bezier_property;
             TrackNodeCache *owner;
             float bezier_accum;
             Object *object;
@@ -193,7 +193,7 @@ private:
     struct AnimationData {
         String name;
         StringName next;
-        PODVector<TrackNodeCache *> node_cache;
+        Vector<TrackNodeCache *> node_cache;
         Ref<Animation> animation;
     };
 
@@ -240,14 +240,14 @@ private:
 
     struct Playback {
 
-        List<Blend> blend;
+        ListOld<Blend> blend;
         PlaybackData current;
         StringName assigned;
         bool seeked;
         bool started;
     } playback;
 
-    ListPOD<StringName> queued;
+    List<StringName> queued;
 
     bool end_reached;
     bool end_notify;
@@ -284,7 +284,7 @@ protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
     void _validate_property(PropertyInfo &property) const override;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _notification(int p_what);
 
     static void _bind_methods();
@@ -297,7 +297,7 @@ public:
     void rename_animation(const StringName &p_name, const StringName &p_new_name);
     bool has_animation(const StringName &p_name) const;
     Ref<Animation> get_animation(const StringName &p_name) const;
-    PODVector<StringName> get_animation_list() const;
+    Vector<StringName> get_animation_list() const;
 
     void set_blend_time(const StringName &p_animation1, const StringName &p_animation2, float p_time);
     float get_blend_time(const StringName &p_animation1, const StringName &p_animation2) const;
@@ -349,7 +349,7 @@ public:
 
     void clear_caches(); ///< must be called by hand if an animation was modified after added
 
-    void get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const override;
+    void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 
 #ifdef TOOLS_ENABLED
     // These may be interesting for games, but are too dangerous for general use

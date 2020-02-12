@@ -127,12 +127,12 @@ private:
     };
 
     Map<PosKey, Cell> tile_map;
-    PODVector<PosKey> dirty_bitmask;
+    Vector<PosKey> dirty_bitmask;
 
     struct Quadrant {
 
         Vector2 pos;
-        List<RID> canvas_items;
+        ListOld<RID> canvas_items;
         RID body;
         uint32_t shape_owner_id;
 
@@ -231,7 +231,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_what);
     static void _bind_methods();

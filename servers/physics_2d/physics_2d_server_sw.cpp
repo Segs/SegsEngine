@@ -298,7 +298,7 @@ void Physics2DServerSW::space_set_debug_contacts(RID p_space, int p_max_contacts
     space->set_debug_contacts(p_max_contacts);
 }
 
-const PODVector<Vector2> &Physics2DServerSW::space_get_contacts(RID p_space) const {
+const Vector<Vector2> &Physics2DServerSW::space_get_contacts(RID p_space) const {
 
     Space2DSW *space = space_owner.get(p_space);
     ERR_FAIL_COND_V(!space, null_vec2_pvec);
@@ -972,7 +972,7 @@ void Physics2DServerSW::body_remove_collision_exception(RID p_body, RID p_body_b
     body->wakeup();
 };
 
-void Physics2DServerSW::body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) {
+void Physics2DServerSW::body_get_collision_exceptions(RID p_body, ListOld<RID> *p_exceptions) {
 
     Body2DSW *body = body_owner.get(p_body);
     ERR_FAIL_COND(!body);

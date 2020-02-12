@@ -58,7 +58,7 @@ class ScriptEditorQuickOpen : public ConfirmationDialog {
     void _update_search();
 
     void _sbox_input(const Ref<InputEvent> &p_ie);
-    PODVector<String> functions;
+    Vector<String> functions;
 
     void _confirmed();
     void _text_changed(se_string_view p_newtext);
@@ -68,7 +68,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void popup_dialog(const PODVector<String> &p_functions, bool p_dontclear = false);
+    void popup_dialog(const Vector<String> &p_functions, bool p_dontclear = false);
     ScriptEditorQuickOpen();
 };
 
@@ -87,7 +87,7 @@ public:
 
     virtual void apply_code() = 0;
     virtual RES get_edited_resource() const = 0;
-    virtual PODVector<String> get_functions() = 0;
+    virtual Vector<String> get_functions() = 0;
     virtual void set_edited_resource(const RES &p_res) = 0;
     virtual void reload_text() = 0;
     virtual String get_name() = 0;
@@ -105,7 +105,7 @@ public:
     virtual void ensure_focus() = 0;
     virtual void tag_saved_version() = 0;
     virtual void reload(bool p_soft) {}
-    virtual void get_breakpoints(PODVector<int> *p_breakpoints) = 0;
+    virtual void get_breakpoints(Vector<int> *p_breakpoints) = 0;
     virtual void add_callback(const StringName &p_function, const PoolVector<String> &p_args) = 0;
     virtual void update_settings() = 0;
     virtual void set_debugger_active(bool p_active) = 0;
@@ -263,10 +263,10 @@ class ScriptEditor : public PanelContainer {
         Variant state;
     };
 
-    PODVector<ScriptHistory> history;
+    Vector<ScriptHistory> history;
     int history_pos;
 
-    PODVector<String> previous_scripts;
+    Vector<String> previous_scripts;
 
     void _tab_changed(int p_which);
     void _menu_option(int p_option);
@@ -430,7 +430,7 @@ public:
     _FORCE_INLINE_ bool edit(const RES &p_resource, bool p_grab_focus = true) { return edit(p_resource, -1, 0, p_grab_focus); }
     bool edit(const RES &p_resource, int p_line, int p_col, bool p_grab_focus = true);
 
-    void get_breakpoints(PODVector<String> *p_breakpoints);
+    void get_breakpoints(Vector<String> *p_breakpoints);
 
     void save_all_scripts();
 
@@ -438,7 +438,7 @@ public:
     void get_window_layout(Ref<ConfigFile> p_layout);
 
     void set_scene_root_script(const Ref<Script>& p_script);
-    PODVector<Ref<Script>> get_open_scripts() const;
+    Vector<Ref<Script>> get_open_scripts() const;
 
     bool script_goto_method(Ref<Script> p_script, const StringName &p_method);
 
@@ -489,7 +489,7 @@ public:
     void set_window_layout(Ref<ConfigFile> p_layout) override;
     void get_window_layout(Ref<ConfigFile> p_layout) override;
 
-    void get_breakpoints(PODVector<String> *p_breakpoints) override;
+    void get_breakpoints(Vector<String> *p_breakpoints) override;
 
     void edited_scene_changed() override;
 

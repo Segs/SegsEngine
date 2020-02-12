@@ -137,7 +137,7 @@ void ShaderGLES3::unbind() {
     active = nullptr;
 }
 
-static void _display_error_with_code(const String &p_error, const PODVector<const char *> &p_code) {
+static void _display_error_with_code(const String &p_error, const Vector<const char *> &p_code) {
 
     int line = 1;
     String total_code;
@@ -145,7 +145,7 @@ static void _display_error_with_code(const String &p_error, const PODVector<cons
     for (int i = 0; i < p_code.size(); i++) {
         total_code += p_code[i];
     }
-    PODVector<se_string_view> lines;
+    Vector<se_string_view> lines;
     String::split_ref(lines,total_code,'\n');
 
     for (size_t j = 0; j < lines.size(); j++) {
@@ -195,7 +195,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     v.ok = false;
     /* SETUP CONDITIONALS */
 
-    PODVector<const char *> strings;
+    Vector<const char *> strings;
     strings.push_back("#version 330\n");
 
     for (size_t i = 0; i < custom_defines.size(); i++) {
@@ -427,7 +427,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     //if feedback exists, set it up
 
     if (feedback_count) {
-        PODVector<const char *> feedback;
+        Vector<const char *> feedback;
         for (int i = 0; i < feedback_count; i++) {
 
             if (feedbacks[i].conditional == -1 || (1 << feedbacks[i].conditional) & conditional_version.version) {
@@ -691,8 +691,8 @@ uint32_t ShaderGLES3::create_custom_shader() {
 
 void ShaderGLES3::set_custom_shader_code(uint32_t p_code_id, const String &p_vertex,
         const String &p_vertex_globals, const String &p_fragment, const String &p_light,
-        const String &p_fragment_globals, const String &p_uniforms, const PODVector<StringName> &p_texture_uniforms,
-        const PODVector<String> &p_custom_defines) {
+        const String &p_fragment_globals, const String &p_uniforms, const Vector<StringName> &p_texture_uniforms,
+        const Vector<String> &p_custom_defines) {
 
     ERR_FAIL_COND(!custom_code_map.contains(p_code_id));
     CustomCode *cc = &custom_code_map[p_code_id];

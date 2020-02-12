@@ -186,8 +186,8 @@ private:
     Color modulate;
     Color self_modulate;
 
-    ListPOD<CanvasItem *> children_items;
-    ListPOD<CanvasItem *>::iterator C;
+    List<CanvasItem *> children_items;
+    List<CanvasItem *>::iterator C;
 
     int light_mask;
 
@@ -302,18 +302,18 @@ public:
     /* DRAWING API */
 
     void draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_polyline(const PODVector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_polyline_colors(const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_polyline(const Vector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_polyline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void draw_arc(const Vector2 &p_center, float p_radius, float p_start_angle, float p_end_angle, int p_point_count, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_multiline(const PODVector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
-    void draw_multiline_colors(const PODVector<Vector2> &p_points, const PODVector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
+    void draw_multiline(const Vector<Vector2> &p_points, const Color &p_color, float p_width = 1.0, bool p_antialiased = false);
+    void draw_multiline_colors(const Vector<Vector2> &p_points, const Vector<Color> &p_colors, float p_width = 1.0, bool p_antialiased = false);
     void draw_rect(const Rect2 &p_rect, const Color &p_color, bool p_filled = true, float p_width = 1.0, bool p_antialiased = false);
     void draw_circle(const Point2 &p_pos, float p_radius, const Color &p_color);
     void draw_texture(const Ref<Texture> &p_texture, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1, 1), const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect(const Ref<Texture> &p_texture, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_texture_rect_region(const Ref<Texture> &p_texture, const Rect2 &p_rect, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_clip_uv = false);
     void draw_style_box(const Ref<StyleBox> &p_style_box, const Rect2 &p_rect);
-    void draw_primitive(const PODVector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
+    void draw_primitive(const Vector<Vector2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, Ref<Texture> p_texture = Ref<Texture>(), float p_width = 1, const Ref<Texture> &p_normal_map = Ref<Texture>());
     void draw_polygon(Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
     void draw_colored_polygon(Span<const Point2> p_points, const Color &p_color, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), Ref<Texture> p_texture = Ref<Texture>(), const Ref<Texture> &p_normal_map = Ref<Texture>(), bool p_antialiased = false);
 

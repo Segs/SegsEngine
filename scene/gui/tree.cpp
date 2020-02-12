@@ -186,7 +186,7 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
 
     if (cells[p_column].mode == TreeItem::CELL_MODE_RANGE) {
 
-        PODVector<se_string_view> strings = StringUtils::split(p_text,',');
+        Vector<se_string_view> strings = StringUtils::split(p_text,',');
         cells[p_column].min = INT_MAX;
         cells[p_column].max = INT_MIN;
         for (size_t i = 0; i < strings.size(); i++) {
@@ -1365,7 +1365,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                         int option = (int)p_item->cells[i].val;
 
                         String s(RTR("(Other)"));
-                        PODVector<se_string_view> strings = StringUtils::split(p_item->cells[i].text,',');
+                        Vector<se_string_view> strings = StringUtils::split(p_item->cells[i].text,',');
                         for (size_t j = 0; j < strings.size(); j++) {
                             int value = j;
                             if (!StringUtils::get_slice(strings[j],':', 1).empty()) {

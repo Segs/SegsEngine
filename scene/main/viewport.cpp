@@ -413,7 +413,7 @@ void Viewport::_notification(int p_what) {
                 VisualServer::get_singleton()->canvas_item_clear(contact_2d_debug);
                 VisualServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
-                const PODVector<Vector2> &points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
+                const Vector<Vector2> &points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
                 int point_count = Physics2DServer::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
                 Color ccol = get_tree()->get_debug_collision_contact_color();
 
@@ -425,7 +425,7 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_3d_debug_multimesh.is_valid()) {
 
-                const PODVector<Vector3> & points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
+                const Vector<Vector3> & points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
                 int point_count = PhysicsServer::get_singleton()->space_get_contact_count(find_world()->get_space());
 
                 VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
@@ -445,7 +445,7 @@ void Viewport::_notification(int p_what) {
                     // if no mouse event exists, create a motion one. This is necessary because objects or camera may have moved.
                     // while this extra event is sent, it is checked if both camera and last object and last ID did not move. If nothing changed, the event is discarded to avoid flooding with unnecessary motion events every frame
                     bool has_mouse_event = false;
-                    for (List<Ref<InputEvent> >::Element *E = physics_picking_events.front(); E; E = E->next()) {
+                    for (ListOld<Ref<InputEvent> >::Element *E = physics_picking_events.front(); E; E = E->next()) {
                         Ref<InputEventMouse> m = dynamic_ref_cast<InputEventMouse>(E->deref());
                         if (m) {
                             has_mouse_event = true;
@@ -591,7 +591,7 @@ void Viewport::_notification(int p_what) {
                         }
 
                         if (is_mouse) {
-                            List<Map<ObjectID, uint64_t>::iterator > to_erase;
+                            ListOld<Map<ObjectID, uint64_t>::iterator > to_erase;
 
                             for (Map<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
                                 if (iter->second != frame) {
@@ -1503,7 +1503,7 @@ void Viewport::_gui_prepare_subwindows() {
     if (gui.subwindow_visibility_dirty) {
 
         gui.subwindows.clear();
-        for (List<Control *>::Element *E = gui.all_known_subwindows.front(); E; E = E->next()) {
+        for (ListOld<Control *>::Element *E = gui.all_known_subwindows.front(); E; E = E->next()) {
             if (E->deref()->is_visible_in_tree()) {
                 gui.subwindows.push_back(E->deref());
             }
@@ -1732,7 +1732,7 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
     _gui_prepare_subwindows();
 
-    for (List<Control *>::Element *E = gui.subwindows.back(); E; E = E->prev()) {
+    for (ListOld<Control *>::Element *E = gui.subwindows.back(); E; E = E->prev()) {
 
         Control *sw = E->deref();
         if (!sw->is_visible_in_tree())
@@ -1752,7 +1752,7 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
     _gui_sort_roots();
 
-    for (List<Control *>::Element *E = gui.roots.back(); E; E = E->prev()) {
+    for (ListOld<Control *>::Element *E = gui.roots.back(); E; E = E->prev()) {
 
         Control *sw = E->deref();
         if (!sw->is_visible_in_tree())
@@ -2491,13 +2491,13 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
     }
 }
 
-List<Control *>::Element *Viewport::_gui_add_root_control(Control *p_control) {
+ListOld<Control *>::Element *Viewport::_gui_add_root_control(Control *p_control) {
 
     gui.roots_order_dirty = true;
     return gui.roots.push_back(p_control);
 }
 
-List<Control *>::Element *Viewport::_gui_add_subwindow_control(Control *p_control) {
+ListOld<Control *>::Element *Viewport::_gui_add_subwindow_control(Control *p_control) {
 
     p_control->connect("visibility_changed", this, "_subwindow_visibility_changed");
 
@@ -2517,16 +2517,16 @@ void Viewport::_gui_set_root_order_dirty() {
     gui.roots_order_dirty = true;
 }
 
-void Viewport::_gui_remove_modal_control(List<Control *>::Element *MI) {
+void Viewport::_gui_remove_modal_control(ListOld<Control *>::Element *MI) {
 
     gui.modal_stack.erase(MI);
 }
 
-void Viewport::_gui_remove_from_modal_stack(List<Control *>::Element *MI, ObjectID p_prev_focus_owner) {
+void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, ObjectID p_prev_focus_owner) {
 
     //transfer the focus stack to the next
 
-    List<Control *>::Element *next = MI->next();
+    ListOld<Control *>::Element *next = MI->next();
 
     gui.modal_stack.erase(MI);
 
@@ -2583,12 +2583,12 @@ void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
     gui.drag_preview = p_control;
 }
 
-void Viewport::_gui_remove_root_control(List<Control *>::Element *RI) {
+void Viewport::_gui_remove_root_control(ListOld<Control *>::Element *RI) {
 
     gui.roots.erase(RI);
 }
 
-void Viewport::_gui_remove_subwindow_control(List<Control *>::Element *SI) {
+void Viewport::_gui_remove_subwindow_control(ListOld<Control *>::Element *SI) {
 
     ERR_FAIL_COND(!SI);
 
@@ -2596,7 +2596,7 @@ void Viewport::_gui_remove_subwindow_control(List<Control *>::Element *SI) {
 
     control->disconnect("visibility_changed", this, "_subwindow_visibility_changed");
 
-    List<Control *>::Element *E = gui.subwindows.find(control);
+    ListOld<Control *>::Element *E = gui.subwindows.find(control);
     if (E)
         gui.subwindows.erase(E);
 
@@ -2737,9 +2737,9 @@ void Viewport::_drop_physics_mouseover() {
 #endif
 }
 
-List<Control *>::Element *Viewport::_gui_show_modal(Control *p_control) {
+ListOld<Control *>::Element *Viewport::_gui_show_modal(Control *p_control) {
 
-    List<Control *>::Element *node = gui.modal_stack.push_back(p_control);
+    ListOld<Control *>::Element *node = gui.modal_stack.push_back(p_control);
     if (gui.key_focus)
         p_control->_modal_set_prev_focus_owner(gui.key_focus->get_instance_id());
     else

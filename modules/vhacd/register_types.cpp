@@ -32,11 +32,11 @@
 #include "scene/resources/mesh.h"
 #include "thirdparty/vhacd/public/VHACD.h"
 
-static PODVector<PODVector<Face3> > convex_decompose(const PODVector<Face3> &p_faces) {
+static Vector<Vector<Face3> > convex_decompose(const Vector<Face3> &p_faces) {
 
-    PODVector<float> vertices;
+    Vector<float> vertices;
     vertices.resize(p_faces.size() * 9);
-    PODVector<uint32_t> indices;
+    Vector<uint32_t> indices;
     indices.resize(p_faces.size() * 3);
 
     for (int i = 0; i < p_faces.size(); i++) {
@@ -54,11 +54,11 @@ static PODVector<PODVector<Face3> > convex_decompose(const PODVector<Face3> &p_f
 
     int hull_count = decomposer->GetNConvexHulls();
 
-    PODVector<PODVector<Face3> > ret;
+    Vector<Vector<Face3> > ret;
     ret.reserve(hull_count);
 
     for (int i = 0; i < hull_count; i++) {
-        PODVector<Face3> triangles;
+        Vector<Face3> triangles;
         VHACD::IVHACD::ConvexHull hull;
         decomposer->GetConvexHull(i, hull);
         triangles.resize(hull.m_nTriangles);

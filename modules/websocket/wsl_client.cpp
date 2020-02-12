@@ -104,11 +104,11 @@ void WSLClient::_do_handshake() {
 
 bool WSLClient::_verify_headers(String &r_protocol) {
     String s((char *)_resp_buf);
-    PODVector<se_string_view> psa = StringUtils::split(s,"\r\n");
+    Vector<se_string_view> psa = StringUtils::split(s,"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
-    PODVector<se_string_view> req = StringUtils::split(psa[0],' ', false);
+    Vector<se_string_view> req = StringUtils::split(psa[0],' ', false);
     ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
@@ -116,7 +116,7 @@ bool WSLClient::_verify_headers(String &r_protocol) {
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
-        PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i] + ".");
         String name = StringUtils::to_lower(header[0]);
         se_string_view value = StringUtils::strip_edges( header[1]);

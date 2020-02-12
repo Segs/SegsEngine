@@ -1111,7 +1111,7 @@ public:
         int compound_child_index;
     };
 
-    PODVector<BroadphaseResult> results;
+    Vector<BroadphaseResult> results;
 
 public:
     RecoverPenetrationBroadPhaseCallback(const btCollisionObject *p_self_collision_object, uint32_t p_collision_layer, uint32_t p_collision_mask, btVector3 p_aabb_min, btVector3 p_aabb_max) :

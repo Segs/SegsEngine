@@ -62,7 +62,7 @@ struct ImageLoadPluginResolver : public ResolverInterface
 
 bool loader_recognizes(const ImageFormatLoader *ldr,se_string_view p_extension) {
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ldr->get_recognized_extensions(extensions);
     for (const String & e : extensions) {
 
@@ -155,7 +155,7 @@ ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data,
     return result_data;
 }
 
-void ImageLoader::get_recognized_extensions(PODVector<String> &p_extensions) {
+void ImageLoader::get_recognized_extensions(Vector<String> &p_extensions) {
     register_plugin_resolver();
 
     for (ImageFormatLoader *ldr : loader) {
@@ -176,7 +176,7 @@ ImageFormatLoader *ImageLoader::recognize(se_string_view p_extension) {
     return nullptr;
 }
 
-PODVector<ImageFormatLoader *> ImageLoader::loader;
+Vector<ImageFormatLoader *> ImageLoader::loader;
 
 void ImageLoader::add_image_format_loader(ImageFormatLoader *p_loader) {
 
@@ -188,7 +188,7 @@ void ImageLoader::remove_image_format_loader(ImageFormatLoader *p_loader) {
     loader.erase_first(p_loader);
 }
 
-const PODVector<ImageFormatLoader *> &ImageLoader::get_image_format_loaders() {
+const Vector<ImageFormatLoader *> &ImageLoader::get_image_format_loaders() {
     register_plugin_resolver();
 
     return loader;
@@ -266,7 +266,7 @@ RES ResourceFormatLoaderImage::load(se_string_view p_path, se_string_view p_orig
     return image;
 }
 
-void ResourceFormatLoaderImage::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderImage::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("image");
 }

@@ -290,7 +290,7 @@ void GroupDialog::_rename_group_item(se_string_view p_old_name, se_string_view p
 }
 
 void GroupDialog::_load_groups(Node *p_current) {
-    PODVector<Node::GroupInfo> gi;
+    Vector<Node::GroupInfo> gi;
     p_current->get_groups(&gi);
 
     for (const Node::GroupInfo &E : gi) {
@@ -620,7 +620,7 @@ void GroupsEditor::update_tree() {
     if (!node)
         return;
 
-    PODVector<Node::GroupInfo> groups;
+    Vector<Node::GroupInfo> groups;
     node->get_groups(&groups);
     eastl::sort(groups.begin(),groups.end(),_GroupInfoComparator());
 

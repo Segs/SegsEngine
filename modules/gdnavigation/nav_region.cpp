@@ -78,7 +78,7 @@ void NavRegion::update_polygons() {
     if (!mesh)
         return;
 
-    const PODVector<Vector3> &vertices = mesh->get_vertices();
+    const Vector<Vector3> &vertices = mesh->get_vertices();
     int len = vertices.size();
     if (len == 0)
         return;
@@ -91,7 +91,7 @@ void NavRegion::update_polygons() {
         gd::Polygon &p = polygons[i];
         p.owner = this;
 
-        const PODVector<int> &mesh_poly = mesh->get_polygon(i);
+        const Vector<int> &mesh_poly = mesh->get_polygon(i);
         const int *indices = mesh_poly.data();
         bool valid(true);
         p.points.resize(mesh_poly.size());

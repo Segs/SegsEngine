@@ -428,7 +428,7 @@ static void _parser_show_function(const GDScriptParser::FunctionNode *p_func, in
     _parser_show_block(p_func->body, p_indent + 1);
 }
 
-static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const PODVector<se_string_view> &p_code) {
+static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const Vector<se_string_view> &p_code) {
 
     if (p_indent == 0 && (!p_class->extends_file.empty() || !p_class->extends_class.empty())) {
 
@@ -528,7 +528,7 @@ static String _disassemble_addr(const Ref<GDScript> &p_script, const GDScriptFun
     return "<err>";
 }
 
-static void _disassemble_class(const Ref<GDScript> &p_class, const PODVector<se_string_view> &p_code) {
+static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_string_view> &p_code) {
 
     const Map<StringName, GDScriptFunction *> &mf = p_class->debug_get_member_functions();
 
@@ -933,7 +933,7 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const PODVector<se_
 
 MainLoop *test(TestType p_type) {
 
-    const ListPOD<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const List<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         return nullptr;
@@ -948,7 +948,7 @@ MainLoop *test(TestType p_type) {
     FileAccess *fa = FileAccess::open(test, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!fa, nullptr, "Could not open file: " + test);
 
-    PODVector<uint8_t> buf;
+    Vector<uint8_t> buf;
     int flen = fa->get_len();
     buf.resize(fa->get_len() + 1);
     fa->get_buffer(buf.data(), flen);
@@ -956,7 +956,7 @@ MainLoop *test(TestType p_type) {
 
     se_string_view code((const char *)&buf[0]);
 
-    PODVector<se_string_view> lines;
+    Vector<se_string_view> lines;
     int last = 0;
 
     for (size_t i = 0; i <= code.length(); i++) {
@@ -1061,7 +1061,7 @@ MainLoop *test(TestType p_type) {
 
     } else if (p_type == TEST_BYTECODE) {
 
-        PODVector<uint8_t> buf2 = GDScriptTokenizerBuffer::parse_code_string(code);
+        Vector<uint8_t> buf2 = GDScriptTokenizerBuffer::parse_code_string(code);
         String dst = String(PathUtils::get_basename(test)) + ".gdc";
         FileAccess *fw = FileAccess::open(dst, FileAccess::WRITE);
         fw->store_buffer(buf2.data(), buf2.size());

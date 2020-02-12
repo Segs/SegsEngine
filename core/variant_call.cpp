@@ -355,11 +355,11 @@ struct _VariantCall {
     }
     VCALL_SU_LOCALMEM0R(String, capitalize)
     static void _call_String_split(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        PODVector<se_string_view> parts(StringUtils::split(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
+        Vector<se_string_view> parts(StringUtils::split(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_rsplit(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        PODVector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
+        Vector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_split_floats(Variant &r_ret, Variant &p_self, const Variant **p_args) {
@@ -1051,14 +1051,14 @@ struct _VariantCall {
     struct ConstructData {
 
         int arg_count;
-        PODVector<VariantType> arg_types;
-        PODVector<String> arg_names;
+        Vector<VariantType> arg_types;
+        Vector<String> arg_names;
         VariantConstructFunc func;
     };
 
     struct ConstructFunc {
 
-        PODVector<ConstructData> constructors;
+        Vector<ConstructData> constructors;
     };
 
     static ConstructFunc *construct_funcs;
@@ -1229,7 +1229,7 @@ struct _VariantCall {
 
         Map<StringName, int> value;
 #ifdef DEBUG_ENABLED
-        ListPOD<StringName> value_ordered;
+        List<StringName> value_ordered;
 #endif
         Map<StringName, Variant> variant_value;
     };
@@ -1509,7 +1509,7 @@ VariantType Variant::get_method_return_type(VariantType p_type, const StringName
 
     return E->second.return_type;
 }
-static const PODVector<Variant> s_empty;
+static const Vector<Variant> s_empty;
 
 Span<const Variant> Variant::get_method_default_arguments(VariantType p_type, const StringName &p_method) {
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
@@ -1521,7 +1521,7 @@ Span<const Variant> Variant::get_method_default_arguments(VariantType p_type, co
     return E->second.default_args;
 }
 
-void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
+void Variant::get_method_list(Vector<MethodInfo> *p_list) const {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)type];
 
@@ -1559,7 +1559,7 @@ void Variant::get_method_list(PODVector<MethodInfo> *p_list) const {
     }
 }
 
-void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_list) {
+void Variant::get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list) {
 
     ERR_FAIL_INDEX(int(p_type), int(VariantType::VARIANT_MAX));
 
@@ -1595,7 +1595,7 @@ void Variant::get_constructor_list(VariantType p_type, PODVector<MethodInfo> *p_
     }
 }
 
-void Variant::get_constants_for_type(VariantType p_type, PODVector<StringName> *p_constants) {
+void Variant::get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants) {
 
     ERR_FAIL_INDEX((int)p_type, (int)VariantType::VARIANT_MAX);
 

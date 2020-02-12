@@ -45,7 +45,7 @@ protected:
 
     void _update_shape() override;
 
-    PODVector<Vector3> get_debug_mesh_lines() override;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
     void set_radius(float p_radius);

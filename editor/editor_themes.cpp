@@ -131,7 +131,7 @@ static void editor_register_and_generate_icons(
         // This dictionary stores color codes to convert to other colors
         // for better readability on a light theme.
         //Dictionary dark_icon_color_dictionary;
-        PODVector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
+        Vector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
         // The names of the icons to never convert, even if one of their colors
         // are contained in the dictionary above.
         Set<se_string_view> exceptions;

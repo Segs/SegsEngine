@@ -130,7 +130,7 @@ void CSharpLanguage::init() {
     // Generate bindings here, before loading assemblies. 'initialize_load_assemblies' aborts
     // the applications if the api assemblies or the main tools assembly is missing, but this
     // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
-    const ListPOD<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
+    const List<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
     BindingsGenerator::handle_cmdline_args(cmdline_args);
 #endif
 
@@ -182,7 +182,7 @@ void CSharpLanguage::finish() {
     finalizing = false;
 }
 
-void CSharpLanguage::get_reserved_words(PODVector<String> *p_words) const {
+void CSharpLanguage::get_reserved_words(Vector<String> *p_words) const {
 
     static const char *_reserved_words[] = {
         // Reserved keywords
@@ -298,13 +298,13 @@ void CSharpLanguage::get_reserved_words(PODVector<String> *p_words) const {
     p_words->assign(eastl::begin(_reserved_words),eastl::end(_reserved_words));
 }
 
-void CSharpLanguage::get_comment_delimiters(PODVector<String> *p_delimiters) const {
+void CSharpLanguage::get_comment_delimiters(Vector<String> *p_delimiters) const {
 
     p_delimiters->push_back("//"); // single-line comment
     p_delimiters->push_back("/* */"); // delimited comment
 }
 
-void CSharpLanguage::get_string_delimiters(PODVector<String> *p_delimiters) const {
+void CSharpLanguage::get_string_delimiters(Vector<String> *p_delimiters) const {
 
     p_delimiters->push_back("' '"); // character literal
     p_delimiters->push_back("\" \""); // regular string literal
@@ -371,7 +371,7 @@ void CSharpLanguage::make_template(se_string_view p_class_name, se_string_view p
 }
 /* TODO */
 bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-        se_string_view p_path, PODVector<String> *r_functions, PODVector<ScriptLanguage::Warning> *r_warnings,
+        se_string_view p_path, Vector<String> *r_functions, Vector<ScriptLanguage::Warning> *r_warnings,
         Set<int> *r_safe_lines) const {
     return true;
 }
@@ -379,7 +379,7 @@ bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r
 String CSharpLanguage::validate_path(se_string_view p_path) const {
 
     String class_name(PathUtils::get_basename(PathUtils::get_file(p_path)));
-    PODVector<String> keywords;
+    Vector<String> keywords;
     get_reserved_words(&keywords);
     if (keywords.contains(class_name)) {
         return TTR("Class name can't be a reserved keyword").asCString();
@@ -558,14 +558,14 @@ String CSharpLanguage::debug_get_stack_level_source(int p_level) const {
     return String();
 }
 
-PODVector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info() {
+Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info() {
 
 #ifdef DEBUG_ENABLED
-    _TLS_RECURSION_GUARD_V_(PODVector<StackInfo>())
+    _TLS_RECURSION_GUARD_V_(Vector<StackInfo>())
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     if (!gdmono->is_runtime_initialized() || !GDMono::get_singleton()->get_core_api_assembly() || !GDMonoCache::cached_data.corlib_cache_updated)
-        return PODVector<StackInfo>();
+        return Vector<StackInfo>();
 
     MonoObject *stack_trace = mono_object_new(mono_domain_get(), CACHED_CLASS(System_Diagnostics_StackTrace)->get_mono_ptr());
 
@@ -574,7 +574,7 @@ PODVector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_inf
 
     CACHED_METHOD(System_Diagnostics_StackTrace, ctor_bool)->invoke_raw(stack_trace, ctor_args);
 
-    PODVector<StackInfo> si;
+    Vector<StackInfo> si;
     si = stack_trace_get_info(stack_trace);
 
     return si;
@@ -584,9 +584,9 @@ PODVector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_inf
 }
 
 #ifdef DEBUG_ENABLED
-PODVector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoObject *p_stack_trace) {
+Vector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoObject *p_stack_trace) {
 
-    _TLS_RECURSION_GUARD_V_(PODVector<StackInfo>());
+    _TLS_RECURSION_GUARD_V_(Vector<StackInfo>());
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoException *exc = nullptr;
@@ -595,15 +595,15 @@ PODVector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoOb
 
     if (exc) {
         GDMonoUtils::debug_print_unhandled_exception(exc);
-        return PODVector<StackInfo>();
+        return Vector<StackInfo>();
     }
 
     int frame_count = mono_array_length(frames);
 
     if (frame_count <= 0)
-        return PODVector<StackInfo>();
+        return Vector<StackInfo>();
 
-    PODVector<StackInfo> si;
+    Vector<StackInfo> si;
     si.resize(frame_count);
 
     for (int i = 0; i < frame_count; i++) {
@@ -617,7 +617,7 @@ PODVector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoOb
 
         if (exc) {
             GDMonoUtils::debug_print_unhandled_exception(exc);
-            return PODVector<StackInfo>();
+            return Vector<StackInfo>();
         }
 
         // TODO
@@ -763,7 +763,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
 
     // There is no soft reloading with Mono. It's always hard reloading.
 
-    PODVector<Ref<CSharpScript> > scripts;
+    Vector<Ref<CSharpScript> > scripts;
 
     {
         SCOPED_MUTEX_LOCK(script_instances_mutex);
@@ -774,10 +774,10 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         }
     }
 
-    ListPOD<Ref<CSharpScript> > to_reload;
+    List<Ref<CSharpScript> > to_reload;
 
     // We need to keep reference instances alive during reloading
-    ListPOD<Ref<RefCounted> > ref_instances;
+    List<Ref<RefCounted> > ref_instances;
 
     for (auto &E : script_bindings) {
         CSharpScriptBinding &script_binding = E.second;
@@ -896,7 +896,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         return;
     }
 
-    ListPOD<Ref<CSharpScript> > to_reload_state;
+    List<Ref<CSharpScript> > to_reload_state;
 
     for (Ref<CSharpScript> &script : to_reload) {
 
@@ -1088,7 +1088,7 @@ void CSharpLanguage::_load_scripts_metadata() {
     }
 }
 
-void CSharpLanguage::get_recognized_extensions(PODVector<String> *p_extensions) const {
+void CSharpLanguage::get_recognized_extensions(Vector<String> *p_extensions) const {
 
     p_extensions->emplace_back("cs");
 }
@@ -1614,9 +1614,9 @@ bool CSharpInstance::get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void CSharpInstance::get_properties_state_for_reloading(PODVector<Pair<StringName, Variant>> &r_state) {
+void CSharpInstance::get_properties_state_for_reloading(Vector<Pair<StringName, Variant>> &r_state) {
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     get_property_list(&pinfo);
 
     for (const PropertyInfo &E : pinfo) {
@@ -1639,7 +1639,7 @@ void CSharpInstance::get_properties_state_for_reloading(PODVector<Pair<StringNam
     }
 }
 
-void CSharpInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
+void CSharpInstance::get_property_list(Vector<PropertyInfo> *p_properties) const {
 
     for (const auto &E : script->member_info) {
         p_properties->push_back(E.second);
@@ -2230,7 +2230,7 @@ void CSharpScript::_placeholder_erased(PlaceHolderScriptInstance *p_placeholder)
 #endif
 
 #ifdef TOOLS_ENABLED
-void CSharpScript::_update_exports_values(Map<StringName, Variant> &values, PODVector<PropertyInfo> &propnames) {
+void CSharpScript::_update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames) {
 
     if (base_cache) {
         base_cache->_update_exports_values(values, propnames);
@@ -2261,7 +2261,7 @@ void CSharpScript::_update_member_info_no_exports() {
         PropertyInfo prop_info;
         bool exported;
 
-        const PODVector<GDMonoField *> &fields = top->get_all_fields();
+        const Vector<GDMonoField *> &fields = top->get_all_fields();
 
         for (int i = fields.size() - 1; i >= 0; i--) {
             GDMonoField *field = fields[i];
@@ -2275,7 +2275,7 @@ void CSharpScript::_update_member_info_no_exports() {
             }
         }
 
-        const PODVector<GDMonoProperty *> &properties = top->get_all_properties();
+        const Vector<GDMonoProperty *> &properties = top->get_all_properties();
 
         for (int i = properties.size() - 1; i >= 0; i--) {
             GDMonoProperty *property = properties[i];
@@ -2353,7 +2353,7 @@ bool CSharpScript::_update_exports() {
             PropertyInfo prop_info;
             bool exported;
 
-            const PODVector<GDMonoField *> &fields = top->get_all_fields();
+            const Vector<GDMonoField *> &fields = top->get_all_fields();
 
             for (int i = fields.size() - 1; i >= 0; i--) {
                 GDMonoField *field = fields[i];
@@ -2374,7 +2374,7 @@ bool CSharpScript::_update_exports() {
                 }
             }
 
-            const PODVector<GDMonoProperty *> &properties = top->get_all_properties();
+            const Vector<GDMonoProperty *> &properties = top->get_all_properties();
 
             for (int i = properties.size() - 1; i >= 0; i--) {
                 GDMonoProperty *property = properties[i];
@@ -2434,7 +2434,7 @@ bool CSharpScript::_update_exports() {
     if (!placeholders.empty()) {
         // Update placeholders if any
         Map<StringName, Variant> values;
-        PODVector<PropertyInfo> propnames;
+        Vector<PropertyInfo> propnames;
         _update_exports_values(values, propnames);
 
         for (PlaceHolderScriptInstance * E : placeholders) {
@@ -2461,9 +2461,9 @@ void CSharpScript::load_script_signals(GDMonoClass *p_class, GDMonoClass *p_nati
 
     GDMonoClass *top = p_class;
     while (top && top != p_native_class) {
-        const PODVector<GDMonoClass *> &delegates = top->get_all_delegates();
+        const Vector<GDMonoClass *> &delegates = top->get_all_delegates();
         for (int i = delegates.size() - 1; i >= 0; --i) {
-            PODVector<Argument> parameters;
+            Vector<Argument> parameters;
 
             GDMonoClass *delegate = delegates[i];
 
@@ -2478,7 +2478,7 @@ void CSharpScript::load_script_signals(GDMonoClass *p_class, GDMonoClass *p_nati
     signals_invalidated = false;
 }
 
-bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, PODVector<CSharpScript::Argument> &params) {
+bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Vector<CSharpScript::Argument> &params) {
 
     GD_MONO_SCOPE_THREAD_ATTACH;
 
@@ -2493,8 +2493,8 @@ bool CSharpScript::_get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, PO
     // Arguments are accessibles as arguments of .Invoke method
     GDMonoMethod *invoke = p_delegate->get_method("Invoke", -1);
 
-    PODVector<StringName> names;
-    PODVector<ManagedType> types;
+    Vector<StringName> names;
+    Vector<ManagedType> types;
     invoke->get_parameter_names(names);
     invoke->get_parameter_types(types);
 
@@ -2612,7 +2612,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
     if (p_variant_type == VariantType::INT && p_type.type_encoding == MONO_TYPE_VALUETYPE && mono_class_is_enum(p_type.type_class->get_mono_ptr())) {
         r_hint = PropertyHint::Enum;
 
-        PODVector<MonoClassField *> fields = p_type.type_class->get_enum_fields();
+        Vector<MonoClassField *> fields = p_type.type_class->get_enum_fields();
 
         MonoType *enum_basetype = mono_class_enum_basetype(p_type.type_class->get_mono_ptr());
 
@@ -2774,7 +2774,7 @@ bool CSharpScript::_set(const StringName &p_name, const Variant &p_value) {
     return false;
 }
 
-void CSharpScript::_get_property_list(PODVector<PropertyInfo> *p_properties) const {
+void CSharpScript::_get_property_list(Vector<PropertyInfo> *p_properties) const {
 
     p_properties->emplace_back(VariantType::STRING, CSharpLanguage::singleton->string_names._script_source, PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
 }
@@ -3098,7 +3098,7 @@ void CSharpScript::set_source_code(String p_code) {
 #endif
 }
 
-void CSharpScript::get_script_method_list(PODVector<MethodInfo> *p_list) const {
+void CSharpScript::get_script_method_list(Vector<MethodInfo> *p_list) const {
 
     if (!script_class)
         return;
@@ -3106,7 +3106,7 @@ void CSharpScript::get_script_method_list(PODVector<MethodInfo> *p_list) const {
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     // TODO: Filter out things unsuitable for explicit calls, like constructors.
-    const PODVector<GDMonoMethod *> &methods = script_class->get_all_methods();
+    const Vector<GDMonoMethod *> &methods = script_class->get_all_methods();
     for (int i = 0; i < methods.size(); ++i) {
         p_list->push_back(methods[i]->get_method_info());
     }
@@ -3276,7 +3276,7 @@ bool CSharpScript::has_script_signal(const StringName &p_signal) const {
     return _signals.contains(p_signal);
 }
 
-void CSharpScript::get_script_signal_list(PODVector<MethodInfo> *r_signals) const {
+void CSharpScript::get_script_signal_list(Vector<MethodInfo> *r_signals) const {
     for (const auto & E : _signals) {
         MethodInfo mi;
 
@@ -3296,7 +3296,7 @@ Ref<Script> CSharpScript::get_base_script() const {
     return Ref<Script>();
 }
 
-void CSharpScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
+void CSharpScript::get_script_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (const auto &E : member_info) {
         p_list->push_back(E.second);
@@ -3390,7 +3390,7 @@ RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view
     return scriptres;
 }
 
-void ResourceFormatLoaderCSharpScript::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderCSharpScript::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("cs");
 }
@@ -3449,7 +3449,7 @@ Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_
     return OK;
 }
 
-void ResourceFormatSaverCSharpScript::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
+void ResourceFormatSaverCSharpScript::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
     if (object_cast<CSharpScript>(p_resource.get())) {
         p_extensions.push_back("cs");

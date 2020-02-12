@@ -41,7 +41,7 @@ class AudioEffectChorusInstance : public AudioEffectInstance {
     friend class AudioEffectChorus;
     Ref<AudioEffectChorus> base;
 
-    PODVector<AudioFrame> audio_buffer;
+    Vector<AudioFrame> audio_buffer;
     unsigned int buffer_pos;
     unsigned int buffer_mask;
 

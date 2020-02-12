@@ -150,7 +150,7 @@ Error ImageLoaderHDR::load_image(ImageData & p_image, FileAccess *f, LoadParams 
     return OK;
 }
 
-void ImageLoaderHDR::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ImageLoaderHDR::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("hdr");
 }

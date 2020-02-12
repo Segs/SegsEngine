@@ -451,8 +451,8 @@ Error Main::setup(bool p_second_phase) {
     MAIN_PRINT("Main: Parse CMDLine");
 
     /* argument parsing and main creation */
-    ListPOD<String> args;
-    ListPOD<String> main_args;
+    List<String> args;
+    List<String> main_args;
     QStringList q_args = qApp->arguments();
     String execpath = StringUtils::to_utf8(q_args.takeFirst());
 
@@ -460,7 +460,7 @@ Error Main::setup(bool p_second_phase) {
         args.push_back(StringUtils::to_utf8(arg));
     }
 
-    ListPOD<String>::iterator I = args.begin();
+    List<String>::iterator I = args.begin();
 
     for(String &a : args) {
 
@@ -481,7 +481,7 @@ Error Main::setup(bool p_second_phase) {
     String remotefs;
     String remotefs_pass;
 
-    PODVector<se_string_view> breakpoints;
+    Vector<se_string_view> breakpoints;
     bool use_custom_res = true;
     bool force_res = false;
     bool saw_vsync_via_compositor_override = false;
@@ -498,7 +498,7 @@ Error Main::setup(bool p_second_phase) {
     I = args.begin();
     while (I!= args.end()) {
 
-        ListPOD<String>::iterator N = eastl::next(I);
+        List<String>::iterator N = eastl::next(I);
 
         if (*I == "-h" || *I == "--help" || *I == "/?") { // display help
 
@@ -1493,7 +1493,7 @@ bool Main::start() {
 
     bool hasicon = false;
     String doc_tool;
-    PODVector<String> removal_docs;
+    Vector<String> removal_docs;
     String positional_arg;
     String game_path;
     String script;
@@ -1508,9 +1508,9 @@ bool Main::start() {
 
     main_timer_sync.init(OS::get_singleton()->get_ticks_usec());
 
-    const ListPOD<String> &args(OS::get_singleton()->get_cmdline_args());
-    for (ListPOD<String>::const_iterator i = args.begin(); i!=args.end(); ++i) {
-        ListPOD<String>::const_iterator next = i;
+    const List<String> &args(OS::get_singleton()->get_cmdline_args());
+    for (List<String>::const_iterator i = args.begin(); i!=args.end(); ++i) {
+        List<String>::const_iterator next = i;
         ++next;
         bool has_next = next!=args.end();
 
@@ -1550,7 +1550,7 @@ bool Main::start() {
 #ifdef TOOLS_ENABLED
             } else if (*i == "--doctool") {
                 doc_tool = *next;
-                ListPOD<String>::const_iterator j = next;
+                List<String>::const_iterator j = next;
                 ++j;
                 for ( ; j != args.end(); ++j)
                     removal_docs.push_back(*j);
@@ -1734,7 +1734,7 @@ bool Main::start() {
                     remote_debugger->set_scene_tree(sml);
                 }
                 //autoload
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 ProjectSettings::get_singleton()->get_property_list(&props);
 
                 //first pass, add the constants so they exist before any script is loaded
@@ -1758,7 +1758,7 @@ bool Main::start() {
                 }
 
                 //second pass, load into global constants
-                PODVector<Node *> to_add;
+                Vector<Node *> to_add;
                 for (const PropertyInfo &E : props) {
 
                     StringName s(E.name);
@@ -2318,10 +2318,10 @@ void Main::cleanup() {
     if (OS::get_singleton()->is_restart_on_exit_set()) {
         //attempt to restart with arguments
         String exec = OS::get_singleton()->get_executable_path();
-        ListPOD<String> args = OS::get_singleton()->get_restart_on_exit_arguments();
+        List<String> args = OS::get_singleton()->get_restart_on_exit_arguments();
         OS::ProcessID pid = 0;
         OS::get_singleton()->execute(exec, args, false, &pid);
-        OS::get_singleton()->set_restart_on_exit(false, ListPOD<String>()); //clear list (uses memory)
+        OS::get_singleton()->set_restart_on_exit(false, List<String>()); //clear list (uses memory)
     }
 
     unregister_core_driver_types();

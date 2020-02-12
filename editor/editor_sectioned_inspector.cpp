@@ -74,12 +74,12 @@ class SectionedInspectorFilter : public Object {
         r_ret = edited->get(name, &valid);
         return valid;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         if (!edited)
             return;
 
-        PODVector<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
         edited->get_property_list(&pinfo);
         for (const PropertyInfo &E : pinfo) {
 
@@ -228,7 +228,7 @@ void SectionedInspector::update_category_list() {
     if (!o)
         return;
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     o->get_property_list(&pinfo);
 
     section_map.clear();
@@ -260,7 +260,7 @@ void SectionedInspector::update_category_list() {
         if (sp == String::npos)
             p_name = "global/" + p_name;
 
-        PODVector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
+        Vector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
         String metasection;
 
 

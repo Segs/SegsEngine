@@ -131,7 +131,7 @@ void MultiMeshEditor::_populate() {
 
     Transform geom_xform = node->get_global_transform().affine_inverse() * ss_instance->get_global_transform();
 
-    PODVector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
+    Vector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
 
     if (geometry.size() == 0) {
 
@@ -150,7 +150,7 @@ void MultiMeshEditor::_populate() {
         }
     }
 
-    PODVector<Face3> &faces = geometry;
+    Vector<Face3> &faces = geometry;
     int facecount = faces.size();
     ERR_FAIL_COND_MSG(!facecount, "Parent has no solid faces to populate.");
 

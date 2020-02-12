@@ -139,7 +139,7 @@ class EditorFeatureProfileManager : public AcceptDialog {
     void _create_new_profile();
     String _get_selected_profile();
 
-    void _import_profiles(const PODVector<String> &p_paths);
+    void _import_profiles(const Vector<String> &p_paths);
     void _export_profile(se_string_view p_path);
 
     bool updating_features;

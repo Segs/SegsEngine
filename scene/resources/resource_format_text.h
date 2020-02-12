@@ -112,7 +112,7 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     friend class ResourceFormatLoaderText;
 
-    ListPOD<RES> resource_cache;
+    List<RES> resource_cache;
     Error error;
 
     RES resource;
@@ -129,7 +129,7 @@ public:
 
     void open(FileAccess *p_f, bool p_skip_first_tag = false);
     String recognize(FileAccess *p_f);
-    void get_dependencies(FileAccess *p_f, PODVector<String> &p_dependencies, bool p_add_types);
+    void get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types);
     Error rename_dependencies(FileAccess *p_f, se_string_view p_path, const Map<String, String> &p_map);
 
     Error save_as_binary(FileAccess *p_f, se_string_view p_path);
@@ -141,11 +141,11 @@ class ResourceFormatLoaderText : public ResourceFormatLoader {
 public:
     static ResourceFormatLoaderText *singleton;
     Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = {}, Error *r_error = nullptr) override;
-    void get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types = false) override;
+    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
     Error rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) override;
 
     static Error convert_file_to_binary(se_string_view p_src_path, se_string_view p_dst_path);
@@ -158,7 +158,7 @@ public:
     static ResourceFormatSaverText *singleton;
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
 
     ResourceFormatSaverText();
 };

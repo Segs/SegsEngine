@@ -92,7 +92,7 @@ static void handle_crash(int sig) {
                 }
             }
 
-            PODVector<String> args;
+            Vector<String> args;
 
             char str[1024];
             snprintf(str, 1024, "%p", bt_buffer[i]);

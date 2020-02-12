@@ -317,7 +317,7 @@ void CSGShape::_update_shape() {
 
     OAHashMap<Vector3, Vector3> vec_map;
 
-    PODVector<int> face_count;
+    Vector<int> face_count;
     face_count.resize(n->materials.size() + 1,0);
 
     for (int i = 0; i < n->faces.size(); i++) {
@@ -343,7 +343,7 @@ void CSGShape::_update_shape() {
         face_count[idx]++;
     }
 
-    PODVector<ShapeUpdateSurface> surfaces;
+    Vector<ShapeUpdateSurface> surfaces;
 
     surfaces.resize(face_count.size());
 
@@ -484,14 +484,14 @@ AABB CSGShape::get_aabb() const {
     return node_aabb;
 }
 
-PODVector<Vector3> CSGShape::get_brush_faces() {
+Vector<Vector3> CSGShape::get_brush_faces() {
     ERR_FAIL_COND_V(!is_inside_tree(), {});
     CSGBrush *b = _get_brush();
     if (!b) {
         return {};
     }
 
-    PODVector<Vector3> faces;
+    Vector<Vector3> faces;
     int fc = b->faces.size();
     faces.resize(fc * 3);
     {
@@ -505,9 +505,9 @@ PODVector<Vector3> CSGShape::get_brush_faces() {
     return faces;
 }
 
-PODVector<Face3> CSGShape::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> CSGShape::get_faces(uint32_t p_usage_flags) const {
 
-    return PODVector<Face3>();
+    return Vector<Face3>();
 }
 
 void CSGShape::_notification(int p_what) {
@@ -756,10 +756,10 @@ CSGBrush *CSGMesh::_build_brush() {
         if (avertices.empty())
             continue;
 
-        const PODVector<Vector3> &anormals = arrays.m_normals;
+        const Vector<Vector3> &anormals = arrays.m_normals;
         bool nr_used = !anormals.empty();
 
-        const PODVector<Vector2> &auvs = arrays.m_uv_1;
+        const Vector<Vector2> &auvs = arrays.m_uv_1;
         bool uvr_used = !auvs.empty();
 
         Ref<Material> mat;
@@ -769,7 +769,7 @@ CSGBrush *CSGMesh::_build_brush() {
             mat = mesh->surface_get_material(i);
         }
 
-        const PODVector<int> &aindices = arrays.m_indices;
+        const Vector<int> &aindices = arrays.m_indices;
         if (aindices.size()) {
             int as = vertices.size();
             int is = aindices.size();
@@ -1772,13 +1772,13 @@ CSGBrush *CSGPolygon::_build_brush() {
     if (polygon.size() < 3)
         return nullptr;
 
-    PODVector<Point2> final_polygon = polygon;
+    Vector<Point2> final_polygon = polygon;
 
     if (Triangulate::get_area(final_polygon) > 0) {
         eastl::reverse(final_polygon.begin(),final_polygon.end());
     }
 
-    PODVector<int> triangles(Geometry::triangulate_polygon(final_polygon));
+    Vector<int> triangles(Geometry::triangulate_polygon(final_polygon));
 
     if (triangles.size() < 3)
         return nullptr;
@@ -2339,13 +2339,13 @@ void CSGPolygon::_bind_methods() {
     BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW)
 }
 
-void CSGPolygon::set_polygon(const PODVector<Vector2> &p_polygon) {
+void CSGPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
     polygon = p_polygon;
     _make_dirty();
     update_gizmo();
 }
 
-const PODVector<Vector2> &CSGPolygon::get_polygon() const {
+const Vector<Vector2> &CSGPolygon::get_polygon() const {
     return polygon;
 }
 

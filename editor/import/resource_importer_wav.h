@@ -39,17 +39,17 @@ class ResourceImporterWAV : public ResourceImporter {
 public:
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
 
-    static void _compress_ima_adpcm(Span<const float> p_data, PODVector<uint8_t> &dst_data) {
+    static void _compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t> &dst_data) {
         /*p_sample_data->data = (void*)malloc(len);
         xm_s8 *dataptr=(xm_s8*)p_sample_data->data;*/
 
@@ -161,8 +161,8 @@ public:
         }
     }
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, PODVector<String>
-            *r_platform_variants, PODVector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+            *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     ResourceImporterWAV();
 };

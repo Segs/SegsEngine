@@ -64,7 +64,7 @@ Ref<Texture> FileSystemDock::_get_tree_item_icon(EditorFileSystemDirectory *p_di
     return file_icon;
 }
 
-bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, PODVector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path) {
+bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path) {
 
     bool parent_should_expand = false;
 
@@ -157,13 +157,13 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
     return parent_should_expand;
 }
 
-PODVector<String> FileSystemDock::_compute_uncollapsed_paths() {
+Vector<String> FileSystemDock::_compute_uncollapsed_paths() {
     // Register currently collapsed paths.
     TreeItem *root = tree->get_root();
     if (!root) {
         return {};
     }
-    PODVector<String> uncollapsed_paths;
+    Vector<String> uncollapsed_paths;
 
     TreeItem *favorites_item = root->get_children();
     if (!favorites_item->is_collapsed()) {
@@ -190,7 +190,7 @@ PODVector<String> FileSystemDock::_compute_uncollapsed_paths() {
     return uncollapsed_paths;
 }
 
-void FileSystemDock::_update_tree(const PODVector<String> &p_uncollapsed_paths, bool p_uncollapse_root, bool p_select_in_favorites, bool p_unfold_path) {
+void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, bool p_uncollapse_root, bool p_select_in_favorites, bool p_unfold_path) {
 
     // Recreate the tree.
     tree->clear();
@@ -205,7 +205,7 @@ void FileSystemDock::_update_tree(const PODVector<String> &p_uncollapsed_paths, 
     favorites->set_metadata(0, "Favorites");
     favorites->set_collapsed(not p_uncollapsed_paths.contains("Favorites"));
 
-    PODVector<String> favorite_paths = EditorSettings::get_singleton()->get_favorites();
+    Vector<String> favorite_paths = EditorSettings::get_singleton()->get_favorites();
     for (int i = 0; i < favorite_paths.size(); i++) {
         String fave = favorite_paths[i];
         if (!StringUtils::begins_with(fave,"res://"))
@@ -258,7 +258,7 @@ void FileSystemDock::_update_tree(const PODVector<String> &p_uncollapsed_paths, 
         }
     }
 
-    PODVector<String> uncollapsed_paths = p_uncollapsed_paths;
+    Vector<String> uncollapsed_paths = p_uncollapsed_paths;
     if (p_uncollapse_root) {
         uncollapsed_paths.push_back(String("res://"));
     }
@@ -586,7 +586,7 @@ bool FileSystemDock::_is_file_type_disabled_by_feature_profile(const StringName 
     return false;
 }
 
-void FileSystemDock::_search(EditorFileSystemDirectory *p_path, ListPOD<FileSystemDock::FileInfo> *matches, int p_max_items) {
+void FileSystemDock::_search(EditorFileSystemDirectory *p_path, List<FileSystemDock::FileInfo> *matches, int p_max_items) {
 
     if (matches->size() > p_max_items)
         return;
@@ -676,10 +676,10 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
 
     // Build the FileInfo list.
-    ListPOD<FileInfo> filelist;
+    List<FileInfo> filelist;
     if (path == "Favorites") {
         // Display the favorites.
-        PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+        Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
         for (int i = 0; i < favorites.size(); i++) {
             String favorite = favorites[i];
             String text;
@@ -986,7 +986,7 @@ void FileSystemDock::_push_to_history() {
     button_hist_next->set_disabled(history_pos == history.size() - 1);
 }
 
-void FileSystemDock::_get_all_items_in_dir(EditorFileSystemDirectory *efsd, PODVector<String> &files, PODVector<String> &folders) const {
+void FileSystemDock::_get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vector<String> &files, Vector<String> &folders) const {
     if (efsd == nullptr)
         return;
 
@@ -999,12 +999,12 @@ void FileSystemDock::_get_all_items_in_dir(EditorFileSystemDirectory *efsd, PODV
     }
 }
 
-void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, PODVector<String> &to_remaps) const {
+void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, Vector<String> &to_remaps) const {
     for (int i = 0; i < efsd->get_subdir_count(); i++) {
         _find_remaps(efsd->get_subdir(i), renames, to_remaps);
     }
     for (int i = 0; i < efsd->get_file_count(); i++) {
-        const PODVector<String> &deps = efsd->get_file_deps(i);
+        const Vector<String> &deps = efsd->get_file_deps(i);
         for (int j = 0; j < deps.size(); j++) {
             if (renames.contains(deps[j])) {
                 to_remaps.push_back(efsd->get_file_path(i));
@@ -1032,8 +1032,8 @@ void FileSystemDock::_try_move_item(const FileOrFolder &p_item, se_string_view p
     }
 
     // Build a list of files which will have new paths as a result of this operation.
-    PODVector<String> file_changed_paths;
-    PODVector<String> folder_changed_paths;
+    Vector<String> file_changed_paths;
+    Vector<String> folder_changed_paths;
     if (p_item.is_file) {
         file_changed_paths.push_back(old_path);
     } else {
@@ -1121,7 +1121,7 @@ void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const Strin
 void FileSystemDock::_update_resource_paths_after_move(const Map<String, String> &p_renames) const {
 
     // Rename all resources loaded, be it subresources or actual resources.
-    ListPOD<Ref<Resource> > cached;
+    List<Ref<Resource> > cached;
     ResourceCache::get_cached_resources(&cached);
 
     for (Ref<Resource> r : cached) {
@@ -1172,7 +1172,7 @@ void FileSystemDock::_update_dependencies_after_move(const Map<String, String> &
     //The following code assumes that the following holds:
     // 1) EditorFileSystem contains the old paths/folder structure from before the rename/move.
     // 2) ResourceLoader can use the new paths without needing to call rescan.
-    PODVector<String> remaps;
+    Vector<String> remaps;
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
     for (int i = 0; i < remaps.size(); ++i) {
         //Because we haven't called a rescan yet the found remap might still be an old path itself.
@@ -1202,7 +1202,7 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
     }
 
     // Also search for the file in autoload, as they are stored differently from normal files.
-    PODVector<PropertyInfo> property_list;
+    Vector<PropertyInfo> property_list;
     ProjectSettings::get_singleton()->get_property_list(&property_list);
     for (const PropertyInfo &E : property_list) {
         if (StringUtils::begins_with(E.name,"autoload/")) {
@@ -1222,8 +1222,8 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
 
 void FileSystemDock::_update_favorites_list_after_move(const Map<String, String> &p_files_renames, const Map<String, String> &p_folders_renames) const {
 
-    PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
-    PODVector<String> new_favorites;
+    Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+    Vector<String> new_favorites;
 
     for (int i = 0; i < favorites.size(); i++) {
         String old_path = favorites[i];
@@ -1240,9 +1240,9 @@ void FileSystemDock::_update_favorites_list_after_move(const Map<String, String>
 }
 
 void FileSystemDock::_save_scenes_after_move(const Map<String, String> &p_renames) const {
-    PODVector<String> remaps;
+    Vector<String> remaps;
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
-    PODVector<String> new_filenames;
+    Vector<String> new_filenames;
 
     for (int i = 0; i < remaps.size(); ++i) {
         const String &file = p_renames.contains(remaps[i]) ? p_renames.at(remaps[i]) : remaps[i];
@@ -1304,7 +1304,7 @@ void FileSystemDock::_make_scene_confirm() {
     }
 
     se_string_view extension(PathUtils::get_extension(scene_name));
-    PODVector<String> extensions;
+    Vector<String> extensions;
     Ref<PackedScene> sd(make_ref_counted<PackedScene>());
     ResourceSaver::get_recognized_extensions(sd, extensions);
 
@@ -1508,9 +1508,9 @@ void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool over
     }
 }
 
-PODVector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion) {
+Vector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion) {
     // Build a list of selected items with the active one at the first position.
-    PODVector<String> selected_strings;
+    Vector<String> selected_strings;
 
     TreeItem *favorites_item = tree->get_root()->get_children();
     TreeItem *active_selected = tree->get_selected();
@@ -1533,9 +1533,9 @@ PODVector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion)
     return selected_strings;
 }
 
-PODVector<String> FileSystemDock::_remove_self_included_paths(const PODVector<String> &selected_strings) {
+Vector<String> FileSystemDock::_remove_self_included_paths(const Vector<String> &selected_strings) {
     // Remove paths or files that are included into another.
-    PODVector<String> res = selected_strings;
+    Vector<String> res = selected_strings;
     if (res.size() > 1) {
         eastl::sort(res.begin(), res.end(), NaturalNoCaseComparator());
         String last_path;
@@ -1553,7 +1553,7 @@ PODVector<String> FileSystemDock::_remove_self_included_paths(const PODVector<St
 }
 
 void FileSystemDock::_tree_rmb_option(int p_option) {
-    PODVector<String> selected_strings = _tree_get_selected(false);
+    Vector<String> selected_strings = _tree_get_selected(false);
 
     // Execute the current option.
     switch (p_option) {
@@ -1586,8 +1586,8 @@ void FileSystemDock::_tree_rmb_option(int p_option) {
 }
 
 void FileSystemDock::_file_list_rmb_option(int p_option) {
-    PODVector<int> selected_id = files->get_selected_items();
-    PODVector<String> selected;
+    Vector<int> selected_id = files->get_selected_items();
+    Vector<String> selected;
     selected.reserve(selected_id.size());
     for (int i : selected_id) {
         selected.emplace_back(files->get_item_metadata(i));
@@ -1595,7 +1595,7 @@ void FileSystemDock::_file_list_rmb_option(int p_option) {
     _file_option(p_option, selected);
 }
 
-void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selected) {
+void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected) {
     // The first one should be the active item.
 
     switch (p_option) {
@@ -1660,7 +1660,7 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
 
         case FILE_ADD_FAVORITE: {
             // Add the files from favorites.
-            PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+            Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < p_selected.size(); i++) {
                 if (!favorites.contains(p_selected[i])) {
                     favorites.push_back(p_selected[i]);
@@ -1672,7 +1672,7 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
 
         case FILE_REMOVE_FAVORITE: {
             // Remove the files from favorites.
-            PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+            Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < p_selected.size(); i++) {
                 favorites.erase_first(p_selected[i]);
             }
@@ -1701,7 +1701,7 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
         case FILE_MOVE: {
             // Move the files to a given location.
             to_move.clear();
-            PODVector<String> collapsed_paths = _remove_self_included_paths(p_selected);
+            Vector<String> collapsed_paths = _remove_self_included_paths(p_selected);
             for (int i = collapsed_paths.size() - 1; i >= 0; i--) {
                 String fpath = collapsed_paths[i];
                 if (fpath != "res://") {
@@ -1739,9 +1739,9 @@ void FileSystemDock::_file_option(int p_option, const PODVector<String> &p_selec
 
         case FILE_REMOVE: {
             // Remove the selected files.
-            PODVector<String> remove_files;
-            PODVector<String> remove_folders;
-            PODVector<String> collapsed_paths = _remove_self_included_paths(p_selected);
+            Vector<String> remove_files;
+            Vector<String> remove_folders;
+            Vector<String> collapsed_paths = _remove_self_included_paths(p_selected);
 
             for (int i = 0; i < collapsed_paths.size(); i++) {
                 String fpath = collapsed_paths[i];
@@ -1860,11 +1860,11 @@ void FileSystemDock::_search_changed(const String &p_text, const Control *p_from
     bool unfold_path = p_text.empty() && not path.empty();
     switch (display_mode) {
         case DISPLAY_MODE_TREE_ONLY: {
-            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : PODVector<String>(), false, false, unfold_path);
+            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<String>(), false, false, unfold_path);
         } break;
         case DISPLAY_MODE_SPLIT: {
             _update_file_list(false);
-            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : PODVector<String>(), false, false, unfold_path);
+            _update_tree(searched_string.length() == 0 ? uncollapsed_paths_before_search : Vector<String>(), false, false, unfold_path);
         } break;
     }
 }
@@ -1901,7 +1901,7 @@ Variant FileSystemDock::get_drag_data_fw(const Point2 &p_point, Control *p_from)
     bool all_favorites = true;
     bool all_not_favorites = true;
 
-    PODVector<String> paths;
+    Vector<String> paths;
 
     if (p_from == tree) {
         // Check if the first selected is in favorite.
@@ -1998,7 +1998,7 @@ bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
         // Attempting to move a folder into itself will fail later,
         // rather than bring up a message don't try to do it in the first place
         to_dir = StringUtils::ends_with(to_dir,"/") ? to_dir : to_dir + "/";
-        PODVector<String> fnames(drag_data["files"].as<PODVector<String>>());
+        Vector<String> fnames(drag_data["files"].as<Vector<String>>());
         for (int i = 0; i < fnames.size(); ++i) {
             if (StringUtils::ends_with(fnames[i],"/") && StringUtils::begins_with(to_dir,fnames[i]))
                 return false;
@@ -2016,7 +2016,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         return;
     Dictionary drag_data = p_data;
 
-    PODVector<String> dirs = EditorSettings::get_singleton()->get_favorites();
+    Vector<String> dirs = EditorSettings::get_singleton()->get_favorites();
 
     if (drag_data.has("favorite")) {
 
@@ -2049,7 +2049,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         }
 
         // Remove dragged favorites.
-        PODVector<int> to_remove;
+        Vector<int> to_remove;
         int offset = 0;
         for (int i = 0; i < files.size(); i++) {
             int to_remove_pos = dirs.index_of(files[i]);
@@ -2110,7 +2110,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         } else if (favorite) {
             // Add the files from favorites.
             PoolVector<String> fnames(drag_data["files"].as<PoolVector<String>>());
-            PODVector<String> favorites = EditorSettings::get_singleton()->get_favorites();
+            Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
             for (int i = 0; i < fnames.size(); i++) {
                 if (!favorites.contains(fnames[i])) {
                     favorites.push_back(fnames[i]);
@@ -2182,14 +2182,14 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
 }
 
 void FileSystemDock::_file_and_folders_fill_popup(
-        PopupMenu *p_popup, const PODVector<String> &p_paths, bool p_display_path_dependent_options) {
+        PopupMenu *p_popup, const Vector<String> &p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
     ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty."); 
 
-    PODVector<String> filenames;
-    PODVector<String> foldernames;
+    Vector<String> filenames;
+    Vector<String> foldernames;
 
-    const PODVector<String> &favorites = EditorSettings::get_singleton()->get_favorites();
+    const Vector<String> &favorites = EditorSettings::get_singleton()->get_favorites();
 
     bool all_files = true;
     bool all_files_scenes = true;
@@ -2295,7 +2295,7 @@ void FileSystemDock::_file_and_folders_fill_popup(
 
 void FileSystemDock::_tree_rmb_select(const Vector2 &p_pos) {
     // Right click is pressed in the tree.
-    PODVector<String> paths = _tree_get_selected(false);
+    Vector<String> paths = _tree_get_selected(false);
 
     if (paths.size() == 1) {
         if (StringUtils::ends_with(paths[0],"/")) {
@@ -2334,7 +2334,7 @@ void FileSystemDock::_tree_empty_selected() {
 
 void FileSystemDock::_file_list_rmb_select(int p_item, const Vector2 &p_pos) {
     // Right click is pressed in the file list.
-    PODVector<String> paths;
+    Vector<String> paths;
     for (int i = 0; i < files->get_item_count(); i++) {
         if (!files->is_selected(i))
             continue;
@@ -2441,7 +2441,7 @@ void FileSystemDock::_update_import_dock() {
         return;
 
     // List selected.
-    PODVector<String> selected;
+    Vector<String> selected;
     if (display_mode == DISPLAY_MODE_TREE_ONLY) {
         // Use the tree
         selected = _tree_get_selected();
@@ -2457,7 +2457,7 @@ void FileSystemDock::_update_import_dock() {
     }
 
     // Check import.
-    PODVector<String> imports;
+    Vector<String> imports;
     String import_type;
     for (const String &fpath : selected) {
         if (StringUtils::ends_with(fpath,"/")) {

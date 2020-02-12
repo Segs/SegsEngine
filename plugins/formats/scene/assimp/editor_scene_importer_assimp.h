@@ -74,7 +74,7 @@ private:
         float weight;
     };
 
-    Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const PODVector<int> &p_surface_indices,
+    Ref<Mesh> _generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices,
             const aiNode *assimp_node, Ref<Skin> &skin,
             Skeleton *&skeleton_assigned);
     // simple object creation functions
@@ -96,11 +96,11 @@ private:
     Spatial *_generate_scene(se_string_view p_path, aiScene *scene, const uint32_t p_flags, int p_bake_fps, const int32_t p_max_bone_weights);
 
     template <class T>
-    T _interpolate_track(const PODVector<float> &p_times, const PODVector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
-    void _register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const PODVector<String> &exts, PODVector<String> &r_extensions, const bool p_enabled) const;
+    T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
+    void _register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const;
 
     struct ImportFormat {
-        PODVector<String> extensions;
+        Vector<String> extensions;
         bool is_default;
     };
 
@@ -111,9 +111,9 @@ public:
     EditorSceneImporterAssimp();
     ~EditorSceneImporterAssimp() override;
 
-    void get_extensions(PODVector<String> &r_extensions) const override;
+    void get_extensions(Vector<String> &r_extensions) const override;
     uint32_t get_import_flags() const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Image> load_image(ImportState &state, const aiScene *p_scene, UIString p_path);
 
     // EditorSceneImporterInterface interface

@@ -150,7 +150,7 @@ void AnimationPlayer::_validate_property(PropertyInfo &property) const {
     if (se_string_view(property.name) != se_string_view("current_animation"))
         return;
 
-    PODVector<se_string_view> names;
+    Vector<se_string_view> names;
     names.push_back("[stop]");
 
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
@@ -162,9 +162,9 @@ void AnimationPlayer::_validate_property(PropertyInfo &property) const {
     property.hint_string = eastl::move(hint);
 }
 
-void AnimationPlayer::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AnimationPlayer::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    PODVector<PropertyInfo> anim_names;
+    Vector<PropertyInfo> anim_names;
     anim_names.reserve(animation_set.size());
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
 
@@ -245,7 +245,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
 
         p_anim->node_cache[i] = nullptr;
         RES resource;
-        PODVector<StringName> leftover_path;
+        Vector<StringName> leftover_path;
         Node *child = parent->get_node_and_resource(a->track_get_path(i), resource, leftover_path);
         ERR_CONTINUE_MSG(!child, "On Animation: '" + p_anim->name + "', couldn't resolve track:  '" + String(a->track_get_path(i)) + "'."); // couldn't find the child node
         uint32_t id = resource ? resource->get_instance_id() : child->get_instance_id();
@@ -479,10 +479,10 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
 
                 } else if (p_is_current && p_delta != 0) {
 
-                    List<int> indices;
+                    ListOld<int> indices;
                     a->value_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                    for (List<int>::Element *F = indices.front(); F; F = F->next()) {
+                    for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
 
                         Variant value = a->track_get_key_value(i, F->deref());
                         switch (pa->special) {
@@ -538,14 +538,14 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                 if (!p_is_current)
                     break;
 
-                List<int> indices;
+                ListOld<int> indices;
 
                 a->method_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                for (List<int>::Element *E = indices.front(); E; E = E->next()) {
+                for (ListOld<int>::Element *E = indices.front(); E; E = E->next()) {
 
                     StringName method = a->method_track_get_name(i, E->deref());
-                    const PODVector<Variant> &params = a->method_track_get_params(i, E->deref());
+                    const Vector<Variant> &params = a->method_track_get_params(i, E->deref());
 
                     int s = params.size();
 
@@ -648,7 +648,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
 
                 } else {
                     //find stuff to play
-                    List<int> to_play;
+                    ListOld<int> to_play;
                     a->track_get_key_indices_in_range(i, p_time, p_delta, &to_play);
                     if (!to_play.empty()) {
                         int idx = to_play.back()->deref();
@@ -741,7 +741,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     }
                 } else {
                     //find stuff to play
-                    List<int> to_play;
+                    ListOld<int> to_play;
                     a->track_get_key_indices_in_range(i, p_time, p_delta, &to_play);
                     if (!to_play.empty()) {
                         int idx = to_play.back()->deref();
@@ -829,8 +829,8 @@ void AnimationPlayer::_animation_process2(float p_delta, bool p_started) {
         c.seeked = false;
     }
 
-    List<Blend>::Element *prev = nullptr;
-    for (List<Blend>::Element *E = c.blend.back(); E; E = prev) {
+    ListOld<Blend>::Element *prev = nullptr;
+    for (ListOld<Blend>::Element *E = c.blend.back(); E; E = prev) {
 
         Blend &b = E->deref();
         float blend = b.blend_left / b.blend_time;
@@ -1028,7 +1028,7 @@ void AnimationPlayer::rename_animation(const StringName &p_name, const StringNam
     animation_set.erase(p_name);
     animation_set[p_new_name] = ad;
 
-    List<BlendKey> to_erase;
+    ListOld<BlendKey> to_erase;
     Map<BlendKey, float> to_insert;
     for (eastl::pair<const BlendKey,float> &E : blend_times) {
 
@@ -1080,9 +1080,9 @@ Ref<Animation> AnimationPlayer::get_animation(const StringName &p_name) const {
 
     return data.animation;
 }
-PODVector<StringName> AnimationPlayer::get_animation_list() const {
+Vector<StringName> AnimationPlayer::get_animation_list() const {
 
-    PODVector<StringName> anims;
+    Vector<StringName> anims;
     anims.reserve(animation_set.size());
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
         anims.emplace_back(E.first);
@@ -1528,7 +1528,7 @@ NodePath AnimationPlayer::get_root() const {
     return root;
 }
 
-void AnimationPlayer::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void AnimationPlayer::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
     const char *quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -1538,7 +1538,7 @@ void AnimationPlayer::get_argument_options(const StringName &p_function, int p_i
 
     String pf(p_function);
     if (p_function == "play" || p_function == "play_backwards" || p_function == "remove_animation" || p_function == "has_animation" || p_function == "queue") {
-        PODVector<StringName> al(get_animation_list());
+        Vector<StringName> al(get_animation_list());
         for (const StringName &E : al) {
 
             r_options->emplace_back(quote_style + String(E) + quote_style);

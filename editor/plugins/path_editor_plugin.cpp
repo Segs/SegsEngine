@@ -238,7 +238,7 @@ void PathSpatialGizmo::redraw() {
     int v3s = v3a.size();
     if (v3s == 0)
         return;
-    PODVector<Vector3> v3p;
+    Vector<Vector3> v3p;
     PoolVector<Vector3>::Read r = v3a.read();
 
     v3p.reserve((v3s - 1)*2);
@@ -261,8 +261,8 @@ void PathSpatialGizmo::redraw() {
     }
 
     v3p.clear();
-    PODVector<Vector3> handles;
-    PODVector<Vector3> sec_handles;
+    Vector<Vector3> handles;
+    Vector<Vector3> sec_handles;
 
     for (int i = 0; i < c->get_point_count(); i++) {
 

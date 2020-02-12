@@ -82,7 +82,7 @@ struct ClassInfo {
     }
 };
 
-static PODVector<ClassInfo> physics_2d_servers;
+static Vector<ClassInfo> physics_2d_servers;
 }
 void Physics2DDirectBodyState::integrate_forces() {
 
@@ -315,7 +315,7 @@ Physics2DShapeQueryParameters::Physics2DShapeQueryParameters() {
     collide_with_areas = false;
 }
 
-Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const PODVector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
     Set<RID> exclude;
@@ -343,7 +343,7 @@ Array Physics2DDirectSpaceState::_intersect_shape(const Ref<Physics2DShapeQueryP
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
-    PODVector<ShapeResult> sr;
+    Vector<ShapeResult> sr;
     sr.resize(p_max_results);
     int rc = intersect_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->motion, p_shape_query->margin, sr.data(), sr.size(), p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
     Array ret;
@@ -377,13 +377,13 @@ Array Physics2DDirectSpaceState::_cast_motion(const Ref<Physics2DShapeQueryParam
     return ret;
 }
 
-Array Physics2DDirectSpaceState::_intersect_point_impl(const Vector2 &p_point, int p_max_results, const PODVector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_filter_by_canvas, ObjectID p_canvas_instance_id) {
+Array Physics2DDirectSpaceState::_intersect_point_impl(const Vector2 &p_point, int p_max_results, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_filter_by_canvas, ObjectID p_canvas_instance_id) {
 
     Set<RID> exclude;
     for (int i = 0; i < p_exclude.size(); i++)
         exclude.insert(p_exclude[i]);
 
-    PODVector<ShapeResult> ret;
+    Vector<ShapeResult> ret;
     ret.resize(p_max_results);
 
     int rc;
@@ -410,12 +410,12 @@ Array Physics2DDirectSpaceState::_intersect_point_impl(const Vector2 &p_point, i
     return r;
 }
 
-Array Physics2DDirectSpaceState::_intersect_point(const Vector2 &p_point, int p_max_results, const PODVector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Array Physics2DDirectSpaceState::_intersect_point(const Vector2 &p_point, int p_max_results, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     return _intersect_point_impl(p_point, p_max_results, p_exclude, p_layers, p_collide_with_bodies, p_collide_with_areas);
 }
 
-Array Physics2DDirectSpaceState::_intersect_point_on_canvas(const Vector2 &p_point, ObjectID p_canvas_intance_id, int p_max_results, const PODVector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Array Physics2DDirectSpaceState::_intersect_point_on_canvas(const Vector2 &p_point, ObjectID p_canvas_intance_id, int p_max_results, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     return _intersect_point_impl(p_point, p_max_results, p_exclude, p_layers, p_collide_with_bodies, p_collide_with_areas, true, p_canvas_intance_id);
 }
@@ -424,14 +424,14 @@ Array Physics2DDirectSpaceState::_collide_shape(const Ref<Physics2DShapeQueryPar
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
-    PODVector<Vector2> ret;
+    Vector<Vector2> ret;
     ret.resize(p_max_results * 2);
     int rc = 0;
     bool res = collide_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->motion, p_shape_query->margin, ret.data(), p_max_results, rc, p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
     if (!res)
         return Array();
 
-    PODVector<Variant> r;
+    Vector<Variant> r;
     r.reserve(rc * 2);
     for (int i = 0; i < rc * 2; i++)
         ret.emplace_back(ret[i]);

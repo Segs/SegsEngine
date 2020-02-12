@@ -125,9 +125,9 @@ void FileDialog::set_enable_multiple_selection(bool p_enable) {
     tree->set_select_mode(p_enable ? Tree::SELECT_MULTI : Tree::SELECT_SINGLE);
 };
 
-PODVector<String> FileDialog::get_selected_files() const {
+Vector<String> FileDialog::get_selected_files() const {
 
-    PODVector<String> list;
+    Vector<String> list;
 
     TreeItem *item = tree->get_root();
     while ((item = tree->get_next_selected(item))) {
@@ -430,8 +430,8 @@ void FileDialog::update_file_list() {
     TreeItem *root = tree->create_item();
     Ref<Texture> folder = get_icon("folder");
     const Color folder_color = get_color("folder_icon_modulate");
-    List<String> files;
-    List<String> dirs;
+    ListOld<String> files;
+    ListOld<String> dirs;
 
     bool is_hidden;
     String item;
@@ -470,7 +470,7 @@ void FileDialog::update_file_list() {
         dirs.pop_front();
     }
 
-    PODVector<String> patterns;
+    Vector<String> patterns;
     // build filter
     if (filter->get_selected() == filter->get_item_count() - 1) {
 
@@ -599,13 +599,13 @@ void FileDialog::add_filter(se_string_view p_filter) {
     invalidate();
 }
 
-void FileDialog::set_filters(const PODVector<String> &p_filters) {
+void FileDialog::set_filters(const Vector<String> &p_filters) {
     filters = p_filters;
     update_filters();
     invalidate();
 }
 
-const PODVector<String> &FileDialog::get_filters() const {
+const Vector<String> &FileDialog::get_filters() const {
     return filters;
 }
 

@@ -510,7 +510,7 @@ void EditorProperty::update_reload_status() {
 }
 
 bool EditorProperty::use_keying_next() const {
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     object->get_property_list(&plist, true);
 
     for (const PropertyInfo &p : plist) {
@@ -895,7 +895,7 @@ void EditorInspectorPlugin::add_property_editor(se_string_view p_for_property, C
     added_editors.emplace_back(ae);
 }
 
-void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const PODVector<String> &p_properties, Control *p_prop) {
+void EditorInspectorPlugin::add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<String> &p_properties, Control *p_prop) {
 
     AddedEditor ae;
     ae.properties = p_properties;
@@ -1435,7 +1435,7 @@ void EditorInspector::update_tree() {
     if (!object)
         return;
 
-    PODVector<Ref<EditorInspectorPlugin> > valid_plugins;
+    Vector<Ref<EditorInspectorPlugin> > valid_plugins;
 
     for (int i = inspector_plugin_count - 1; i >= 0; i--) { //start by last, so lastly added can override newly added
         if (!inspector_plugins[i]->can_handle(object))
@@ -1460,7 +1460,7 @@ void EditorInspector::update_tree() {
     String group_base;
     VBoxContainer *category_vbox = nullptr;
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     object->get_property_list(&plist, true);
 
     HashMap<String, VBoxContainer *> item_path;
@@ -1704,7 +1704,7 @@ void EditorInspector::update_tree() {
 
             bool exclusive = ped->parse_property(object, p.type, p.name, p.hint, p.hint_string, p.usage);
             //make to a temporary, since plugins may be used again in a sub-inspector
-            PODVector<EditorInspectorPlugin::AddedEditor> editors = eastl::move(ped->added_editors);
+            Vector<EditorInspectorPlugin::AddedEditor> editors = eastl::move(ped->added_editors);
             ped->added_editors = {}; // reinitialize from moved-from state to empty
 
             for (const EditorInspectorPlugin::AddedEditor &F : editors) {
@@ -1909,7 +1909,7 @@ void EditorInspector::collapse_all_folding() {
         E->fold();
     }
 
-    for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+    for (eastl::pair<const StringName,Vector<EditorProperty *> > &F : editor_property_map) {
         for (EditorProperty *E : F.second) {
             E->collapse_all_folding();
         }
@@ -1920,7 +1920,7 @@ void EditorInspector::expand_all_folding() {
     for (EditorInspectorSection *E : sections) {
         E->unfold();
     }
-    for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+    for (eastl::pair<const StringName,Vector<EditorProperty *> > &F : editor_property_map) {
         for (EditorProperty *E : F.second) {
             E->expand_all_folding();
         }
@@ -2051,7 +2051,7 @@ void EditorInspector::_property_changed_update_all(se_string_view /*p_path*/, co
     update_tree();
 }
 
-void EditorInspector::_multiple_properties_changed(const PODVector<String> &p_paths, Array p_values) {
+void EditorInspector::_multiple_properties_changed(const Vector<String> &p_paths, Array p_values) {
 
     ERR_FAIL_COND(p_paths.empty() || p_values.empty());
     ERR_FAIL_COND(p_paths.size() != p_values.size());
@@ -2102,7 +2102,7 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
         } else {
 
             Variant to_create;
-            PODVector<PropertyInfo> pinfo;
+            Vector<PropertyInfo> pinfo;
             object->get_property_list(&pinfo);
             for (const PropertyInfo &E : pinfo) {
                 if (E.name == p_path) {
@@ -2131,7 +2131,7 @@ void EditorInspector::_property_selected(const StringName &p_path, int p_focusab
     property_selected = p_path;
     property_focusable = p_focusable;
     //deselect the others
-    for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+    for (eastl::pair<const StringName,Vector<EditorProperty *> > &F : editor_property_map) {
         if (F.first == property_selected)
             continue;
         for (EditorProperty *E : F.second) {
@@ -2194,7 +2194,7 @@ void EditorInspector::_notification(int p_what) {
         if (refresh_countdown > 0) {
             refresh_countdown -= get_process_delta_time();
             if (refresh_countdown <= 0) {
-                for (eastl::pair<const StringName,PODVector<EditorProperty *> > &F : editor_property_map) {
+                for (eastl::pair<const StringName,Vector<EditorProperty *> > &F : editor_property_map) {
                     for (EditorProperty *E : F.second) {
                         E->update_property();
                         E->update_reload_status();

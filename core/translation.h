@@ -59,7 +59,7 @@ public:
     virtual StringName get_message(const StringName &p_src_text) const; //overridable for other implementations
     void erase_message(const StringName &p_src_text);
 
-    void get_message_list(ListPOD<StringName> *r_messages) const;
+    void get_message_list(List<StringName> *r_messages) const;
     int get_message_count() const;
 
     Translation();
@@ -102,8 +102,8 @@ public:
 
     StringName translate(const StringName &p_message) const;
 
-    static PODVector<String> get_all_locales();
-    static PODVector<String> get_all_locale_names();
+    static Vector<String> get_all_locales();
+    static Vector<String> get_all_locale_names();
     static bool is_locale_valid(se_string_view p_locale);
     static String standardize_locale(se_string_view p_locale);
     static se_string_view get_language_code(se_string_view p_locale);

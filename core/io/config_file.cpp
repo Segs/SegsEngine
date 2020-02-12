@@ -43,7 +43,7 @@ IMPL_GDCLASS(ConfigFile)
 
 PoolStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
 
-    PODVector<String> s = get_section_keys(p_section);
+    Vector<String> s = get_section_keys(p_section);
     PoolStringArray arr;
     arr.resize(s.size());
     int idx = 0;
@@ -102,10 +102,10 @@ bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key)
     return iter->second.contains_as(p_key);
 }
 
-PODVector<String> ConfigFile::get_sections() const {
+Vector<String> ConfigFile::get_sections() const {
     return values.keys();
 }
-PODVector<String> ConfigFile::get_section_keys(se_string_view _section) const {
+Vector<String> ConfigFile::get_section_keys(se_string_view _section) const {
     const String p_section(_section);
     auto iter = values.find_as(_section);
 
@@ -138,7 +138,7 @@ Error ConfigFile::save(se_string_view p_path) {
     return _internal_save(file);
 }
 
-Error ConfigFile::save_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key) {
+Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -209,7 +209,7 @@ Error ConfigFile::load(se_string_view p_path) {
     return _internal_load(p_path, f);
 }
 
-Error ConfigFile::load_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key) {
+Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);

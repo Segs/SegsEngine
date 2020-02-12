@@ -237,7 +237,7 @@ public:
 
         uint32_t flags=0; // put here to align next field to 8 bytes
         Set<Texture *> proxy_owners;
-        PODVector<Ref<Image> > images; //TODO: SEGS: consider using FixedVector here
+        Vector<Ref<Image> > images; //TODO: SEGS: consider using FixedVector here
         String path;
 
         RenderTarget *render_target = nullptr;
@@ -326,7 +326,7 @@ public:
 
     void texture_set_shrink_all_x2_on_set_data(bool p_enable) override;
 
-    void texture_debug_usage(PODVector<VisualServer::TextureInfo> *r_info) override;
+    void texture_debug_usage(Vector<VisualServer::TextureInfo> *r_info) override;
 
     RID texture_create_radiance_cubemap(RID p_source, int p_resolution = -1) const override;
 
@@ -364,9 +364,9 @@ public:
         uint32_t version;
         Map<StringName, ShaderLanguage::ShaderNode::Uniform> uniforms;
         Map<StringName, RID> default_textures;
-        PODVector<uint32_t> ubo_offsets;
-        PODVector<ShaderLanguage::DataType> texture_types;
-        PODVector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
+        Vector<uint32_t> ubo_offsets;
+        Vector<ShaderLanguage::DataType> texture_types;
+        Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
         SelfList<Material>::List materials;
         SelfList<Shader> dirty_list;
         String code;
@@ -478,7 +478,7 @@ public:
 
     void shader_set_code(RID p_shader, const String &p_code) override;
     String shader_get_code(RID p_shader) const override;
-    void shader_get_param_list(RID p_shader, PODVector<PropertyInfo> *p_param_list) const override;
+    void shader_get_param_list(RID p_shader, Vector<PropertyInfo> *p_param_list) const override;
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) override;
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const override;
@@ -498,8 +498,8 @@ public:
         Map<RasterizerScene::InstanceBase *, int> instance_owners;
         SelfList<Material> list;
         SelfList<Material> dirty_list;
-        PODVector<bool> texture_is_3d; //TODO: SEGS: consider using dynamic_bitvector here.
-        PODVector<RID> textures;
+        Vector<bool> texture_is_3d; //TODO: SEGS: consider using dynamic_bitvector here.
+        Vector<RID> textures;
         RID next_pass;
         float line_width;
         uint32_t ubo_size=0;
@@ -573,9 +573,9 @@ public:
         };
 
         Attrib attribs[VS::ARRAY_MAX];
-        PODVector<AABB> skeleton_bone_aabb;
-        PODVector<bool> skeleton_bone_used;
-        PODVector<BlendShape> blend_shapes;
+        Vector<AABB> skeleton_bone_aabb;
+        Vector<bool> skeleton_bone_used;
+        Vector<BlendShape> blend_shapes;
 
         AABB aabb;
         Mesh *mesh;
@@ -638,7 +638,7 @@ public:
     struct Mesh : public GeometryOwner {
 
         bool active;
-        PODVector<Surface *> surfaces;
+        Vector<Surface *> surfaces;
         int blend_shape_count;
         VS::BlendShapeMode blend_shape_mode;
         AABB custom_aabb;
@@ -666,7 +666,7 @@ public:
     RID mesh_create() override;
 
     void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const
-                          PODVector<PoolVector<uint8_t>> &p_blend_shapes = PODVector<PoolVector<uint8_t>>(), Span<const AABB> p_bone_aabbs = {}) override;
+                          Vector<PoolVector<uint8_t>> &p_blend_shapes = Vector<PoolVector<uint8_t>>(), Span<const AABB> p_bone_aabbs = {}) override;
 
     void mesh_set_blend_shape_count(RID p_mesh, int p_amount) override;
     int mesh_get_blend_shape_count(RID p_mesh) const override;
@@ -689,8 +689,8 @@ public:
     VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const override;
 
     AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const override;
-    PODVector<PODVector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
-    const PODVector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
+    Vector<Vector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
+    const Vector<AABB> &mesh_surface_get_skeleton_aabb(RID p_mesh, int p_surface) const override;
 
     void mesh_remove_surface(RID p_mesh, int p_surface) override;
     int mesh_get_surface_count(RID p_mesh) const override;
@@ -778,13 +778,13 @@ public:
     struct Immediate : public Geometry {
 
         struct Chunk {
-            PODVector<Vector3> vertices;
+            Vector<Vector3> vertices;
             RID texture;
-            PODVector<Vector3> normals;
-            PODVector<Plane> tangents;
-            PODVector<Color> colors;
-            PODVector<Vector2> uvs;
-            PODVector<Vector2> uvs2;
+            Vector<Vector3> normals;
+            Vector<Plane> tangents;
+            Vector<Color> colors;
+            Vector<Vector2> uvs;
+            Vector<Vector2> uvs2;
             VS::PrimitiveType primitive;
         };
 
@@ -1066,7 +1066,7 @@ public:
 
     struct Particles : public GeometryOwner {
 
-        PODVector<RID> draw_passes;
+        Vector<RID> draw_passes;
         RID process_material;
         AABB custom_aabb;
         Transform emission_transform;
@@ -1212,7 +1212,7 @@ public:
                     int height;
                 };
 
-                PODVector<Size> sizes;
+                Vector<Size> sizes;
                 GLuint color;
                 int levels;
 
@@ -1231,7 +1231,7 @@ public:
 
                 GLuint linear_depth;
 
-                PODVector<GLuint> depth_mipmap_fbos; //fbos for depth mipmapsla ver
+                Vector<GLuint> depth_mipmap_fbos; //fbos for depth mipmapsla ver
 
                 SSAO() :
                         linear_depth(0) {
@@ -1328,7 +1328,7 @@ public:
         GLuint array_id; // 0 means, unconfigured
         GLuint vertex_id; // 0 means, unconfigured
         GLuint index_id; // 0 means, unconfigured
-        PODVector<Vector2> lines;
+        Vector<Vector2> lines;
         int len;
     };
 

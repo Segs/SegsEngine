@@ -213,7 +213,7 @@ class OS_Windows : public OS {
 
     HCURSOR cursors[CURSOR_MAX] = { NULL };
     CursorShape cursor_shape;
-    Map<CursorShape, PODVector<Variant> > cursors_cache;
+    Map<CursorShape, Vector<Variant> > cursors_cache;
 
     InputDefault *input;
     JoypadWindows *joypad;
@@ -290,7 +290,7 @@ public:
 
     void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
     VideoMode get_video_mode(int p_screen = 0) const override;
-    void get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen = 0) const override;
+    void get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen = 0) const override;
 
     int get_screen_count() const override;
     int get_current_screen() const override;
@@ -354,7 +354,7 @@ public:
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(se_string_view p_path, const ListPOD<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 

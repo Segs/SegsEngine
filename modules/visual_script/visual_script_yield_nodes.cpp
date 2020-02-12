@@ -425,11 +425,11 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
     if (property.name == "signal") {
         property.hint = PropertyHint::Enum;
 
-        PODVector<MethodInfo> methods;
+        Vector<MethodInfo> methods;
 
         ClassDB::get_signal_list(_get_base_type(), &methods);
 
-        PODVector<se_string_view> mstring;
+        Vector<se_string_view> mstring;
         for(const MethodInfo & E : methods) {
             if (StringUtils::begins_with(E.name,"_"))
                 continue;

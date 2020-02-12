@@ -81,7 +81,7 @@ class GODOT_EXPORT ResourceLoader {
     static void *dep_err_notify_ud;
     static DependencyErrorNotify dep_err_notify;
     static bool abort_on_missing_resource;
-    static DefHashMap<String, PODVector<String> > translation_remaps;
+    static DefHashMap<String, Vector<String> > translation_remaps;
     static DefHashMap<String, String> path_remaps;
 
     static String _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);
@@ -110,13 +110,13 @@ public:
     static RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false, Error *r_error = nullptr);
     static bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
 
-    static void get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions);
+    static void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions);
     static void add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front = false);
     static void add_resource_format_loader(ResourceLoaderInterface *, bool p_at_front = false);
     static void remove_resource_format_loader(const ResourceLoaderInterface *p_format_loader);
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
     static String get_resource_type(se_string_view p_path);
-    static void get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types = false);
+    static void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
     static Error rename_dependencies(se_string_view p_path, const DefMap<String, String> &p_map);
     static bool is_import_valid(se_string_view p_path);
     static String get_import_group_file(se_string_view p_path);

@@ -229,7 +229,7 @@ void EditorProfiler::_update_plot() {
         highest *= 1.2; //leave some upper room
         graph_height = highest;
 
-        PODVector<int> columnv;
+        Vector<int> columnv;
         columnv.resize(h * 4);
 
         int *column = columnv.data();
@@ -632,16 +632,16 @@ bool EditorProfiler::is_profiling() {
     return activate->is_pressed();
 }
 
-PODVector<PODVector<String> > EditorProfiler::get_data_as_csv() const {
-    PODVector<PODVector<String> > res;
+Vector<Vector<String> > EditorProfiler::get_data_as_csv() const {
+    Vector<Vector<String> > res;
 
     if (frame_metrics.empty()) {
         return res;
     }
 
     // signatures
-    PODVector<String> signatures;
-    const PODVector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
+    Vector<String> signatures;
+    const Vector<EditorProfiler::Metric::Category> &categories = frame_metrics[0].categories;
 
     for (int j = 0; j < categories.size(); j++) {
 
@@ -655,7 +655,7 @@ PODVector<PODVector<String> > EditorProfiler::get_data_as_csv() const {
     res.push_back(signatures);
 
     // values
-    PODVector<String> values;
+    Vector<String> values;
     values.resize(signatures.size());
 
     int index = last_metric;
@@ -672,7 +672,7 @@ PODVector<PODVector<String> > EditorProfiler::get_data_as_csv() const {
             continue;
         }
         int it = 0;
-        const PODVector<EditorProfiler::Metric::Category> &frame_cat = frame_metrics[index].categories;
+        const Vector<EditorProfiler::Metric::Category> &frame_cat = frame_metrics[index].categories;
 
         for (int j = 0; j < frame_cat.size(); j++) {
 

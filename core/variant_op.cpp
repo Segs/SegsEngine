@@ -2862,7 +2862,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
     return false;
 }
 
-void Variant::get_property_list(PODVector<PropertyInfo> *p_list) const {
+void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
 
     switch (type) {
         case VariantType::VECTOR2: {
@@ -2966,7 +2966,7 @@ void Variant::get_property_list(PODVector<PropertyInfo> *p_list) const {
         case VariantType::DICTIONARY: {
 
             const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
-            PODVector<Variant> keys(dic->get_key_list());
+            Vector<Variant> keys(dic->get_key_list());
             for(Variant &E : keys ) {
                 if (E.get_type() == VariantType::STRING) {
                     p_list->push_back(PropertyInfo(VariantType::STRING, E));

@@ -452,7 +452,7 @@ RES ResourceFormatDDS::load(se_string_view p_path, se_string_view p_original_pat
     return texture;
 }
 
-void ResourceFormatDDS::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatDDS::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("dds");
 }

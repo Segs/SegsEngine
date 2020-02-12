@@ -55,7 +55,7 @@ struct AnimationTreeNodeBase {
     bool cycletest;
     NodeType type;
 
-    PODVector<AnimationTreeInput> inputs;
+    Vector<AnimationTreeInput> inputs;
 
     AnimationTreeNodeBase() { cycletest = false; };
     virtual ~AnimationTreeNodeBase() { cycletest = false; }
@@ -80,7 +80,7 @@ struct AnimationTreeNode : public AnimationTreeNodeBase {
     };
 
     uint64_t last_version;
-    ListPOD<TrackRef> tref;
+    List<TrackRef> tref;
     String from;
     AnimationTreeNode *next;
     float time;
@@ -199,7 +199,7 @@ struct TransitionNode : public AnimationTreeNodeBase {
         InputData() { auto_advance = false; }
     };
 
-    PODVector<InputData> input_data;
+    Vector<InputData> input_data;
 
     float prev_time=0.0f;
     float prev_xfading=0.0f;
@@ -477,7 +477,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                     node["animation"] = an->animation;
                 }
                 Array k;
-                ListPOD<NodePath> keys;
+                List<NodePath> keys;
                 an->filter.get_key_list(keys);
                 k.resize(keys.size());
                 int i = 0;
@@ -496,7 +496,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                 node["autorestart_random_delay"] = osn->autorestart_random_delay;
 
                 Array k;
-                ListPOD<NodePath> keys;
+                List<NodePath> keys;
                 osn->filter.get_key_list(keys);
                 k.resize(keys.size());
                 int i = 0;
@@ -514,7 +514,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                 Blend2Node *bn = static_cast<Blend2Node *>(n);
                 node["blend"] = bn->value;
                 Array k;
-                ListPOD<NodePath> keys;
+                List<NodePath> keys;
                 bn->filter.get_key_list(keys);
                 k.resize(keys.size());
                 int i = 0;
@@ -565,13 +565,13 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
     data["nodes"] = nodes;
     //connectiosn
 
-    List<Connection> connections;
+    ListOld<Connection> connections;
     get_connection_list(&connections);
     Array connections_arr;
     connections_arr.resize(connections.size() * 3);
 
     int idx = 0;
-    for (List<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
         connections_arr.set(idx + 0, E->deref().src_node);
         connections_arr.set(idx + 1, E->deref().dst_node);
@@ -589,7 +589,7 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void AnimationTreePlayer::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AnimationTreePlayer::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK));
 }
@@ -644,7 +644,7 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
 
     if (p_filter != nullptr) {
 
-        ListPOD<NodePath> key_list;
+        List<NodePath> key_list;
         p_filter->get_key_list(key_list);
 
         for (const NodePath &E : key_list) {
@@ -663,7 +663,7 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
         }
     }
 
-    ListPOD<NodePath> key_list;
+    List<NodePath> key_list;
     p_weights->get_key_list(key_list);
 
     for (const NodePath &E : key_list) {
@@ -1071,12 +1071,12 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
                     } break;
                     case Animation::TYPE_METHOD: { ///< Call any method on a specific node.
 
-                        List<int> indices;
+                        ListOld<int> indices;
                         a->method_track_get_key_indices(tr.local_track, anim_list->time, anim_list->step, &indices);
-                        for (List<int>::Element *F = indices.front(); F; F = F->next()) {
+                        for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
 
                             StringName method = a->method_track_get_name(tr.local_track, F->deref());
-                            PODVector<Variant> args = a->method_track_get_params(tr.local_track, F->deref());
+                            Vector<Variant> args = a->method_track_get_params(tr.local_track, F->deref());
                             args.resize(VARIANT_ARG_MAX);
                             tr.track->object->call(method, args[0], args[1], args[2], args[3], args[4]);
                         }
@@ -1220,7 +1220,7 @@ void AnimationTreePlayer::animation_node_set_filter_path(const StringName &p_nod
         n->filter.erase(p_track_path);
 }
 
-void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const {
+void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
 
     GET_NODE(NODE_ANIMATION, AnimationTreeNode)
 
@@ -1285,7 +1285,7 @@ void AnimationTreePlayer::oneshot_node_set_filter_path(const StringName &p_node,
         n->filter.erase(p_filter);
 }
 
-void AnimationTreePlayer::oneshot_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const {
+void AnimationTreePlayer::oneshot_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
 
     GET_NODE(NODE_ONESHOT, OneShotNode)
 
@@ -1314,7 +1314,7 @@ void AnimationTreePlayer::blend2_node_set_filter_path(const StringName &p_node, 
         n->filter.erase(p_filter);
 }
 
-void AnimationTreePlayer::blend2_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const {
+void AnimationTreePlayer::blend2_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
 
     GET_NODE(NODE_BLEND2, Blend2Node)
 
@@ -1537,15 +1537,15 @@ int AnimationTreePlayer::transition_node_get_current(const StringName &p_node) c
 }
 
 /*misc  */
-void AnimationTreePlayer::get_node_list(ListPOD<StringName> *p_node_list) const {
+void AnimationTreePlayer::get_node_list(List<StringName> *p_node_list) const {
 
     for (const eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
         p_node_list->push_back(E.first);
     }
 }
-PODVector<StringName> AnimationTreePlayer::get_node_vector() const {
-    PODVector<StringName> res;
+Vector<StringName> AnimationTreePlayer::get_node_vector() const {
+    Vector<StringName> res;
     res.reserve(node_map.size());
     for (const eastl::pair<const StringName, AnimationTreeNodeBase*>& E : node_map) {
 
@@ -1667,7 +1667,7 @@ void AnimationTreePlayer::disconnect_nodes(const StringName &p_node, int p_input
     dirty_caches = true;
 }
 
-void AnimationTreePlayer::get_connection_list(List<Connection> *p_connections) const {
+void AnimationTreePlayer::get_connection_list(ListOld<Connection> *p_connections) const {
 
     for (const eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
@@ -1691,7 +1691,7 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
     ERR_FAIL_COND_V(!parent, nullptr);
 
     RES resource;
-    PODVector<StringName> leftover_path;
+    Vector<StringName> leftover_path;
     Node *child = parent->get_node_and_resource(p_path, resource, leftover_path);
     if (!child) {
         String err = "Animation track references unknown Node: '" + String(p_path) + "'.";
@@ -1834,7 +1834,7 @@ NodePath AnimationTreePlayer::get_master_player() const {
 
 PoolVector<String> AnimationTreePlayer::_get_node_list() {
 
-    PODVector<StringName> nl=get_node_vector();
+    Vector<StringName> nl=get_node_vector();
     PoolVector<String> ret;
     ret.resize(nl.size());
     int idx = 0;

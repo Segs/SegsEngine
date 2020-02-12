@@ -39,7 +39,7 @@ class EditorPath : public MenuButton {
 
     EditorHistory *history;
 
-    PODVector<ObjectID> objects;
+    Vector<ObjectID> objects;
 
     void _id_pressed(int p_idx);
     void _about_to_show();

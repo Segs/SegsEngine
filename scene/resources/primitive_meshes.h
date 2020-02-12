@@ -71,7 +71,7 @@ public:
     int surface_get_array_len(int p_idx) const override;
     int surface_get_array_index_len(int p_idx) const override;
     SurfaceArrays surface_get_arrays(int p_surface) const override;
-    PODVector<SurfaceArrays> surface_get_blend_shape_arrays(int p_surface) const override;
+    Vector<SurfaceArrays> surface_get_blend_shape_arrays(int p_surface) const override;
     uint32_t surface_get_format(int p_idx) const override;
     Mesh::PrimitiveType surface_get_primitive_type(int p_idx) const override;
     void surface_set_material(int p_idx, const Ref<Material> &p_material) override;

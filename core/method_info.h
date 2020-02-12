@@ -36,8 +36,8 @@ public:
     PropertyInfo return_val;
     uint32_t flags=METHOD_FLAG_NORMAL;
     int id = 0;
-    PODVector<PropertyInfo> arguments;
-    PODVector<Variant> default_arguments;
+    Vector<PropertyInfo> arguments;
+    Vector<Variant> default_arguments;
 
     bool operator==(const MethodInfo &p_method) const { return id == p_method.id; }
     bool operator<(const MethodInfo &p_method) const { return id == p_method.id ? (se_string_view(name).compare(p_method.name)<0) : (id < p_method.id); }

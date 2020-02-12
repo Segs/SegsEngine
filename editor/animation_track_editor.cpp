@@ -560,7 +560,7 @@ public:
 
         return false;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         if (not animation)
             return;
@@ -660,7 +660,7 @@ public:
 
                     AnimationPlayer *ap = object_cast<AnimationPlayer>(root_path->get_node(animation->track_get_path(track)));
                     if (ap) {
-                        PODVector<StringName> anims(ap->get_animation_list());
+                        Vector<StringName> anims(ap->get_animation_list());
                         animations = String::joined(anims,",");
                     }
                 }
@@ -770,7 +770,7 @@ public:
         if (animation != p_anim)
             return;
 
-        for (eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
+        for (eastl::pair<const int,Vector<float> > &E : key_ofs_map) {
 
             for (float key_ofs : E.second) {
 
@@ -795,7 +795,7 @@ public:
 
         bool update_obj = false;
         bool change_notify_deserved = false;
-        for (eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
+        for (eastl::pair<const int,Vector<float> > &E : key_ofs_map) {
 
             int track = E.first;
             for (float key_ofs : E.second) {
@@ -1078,7 +1078,7 @@ public:
     bool _get(const StringName &p_name, Variant &r_ret) const {
         using namespace eastl;
 
-        for (const eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
+        for (const eastl::pair<const int,Vector<float> > &E : key_ofs_map) {
 
             int track = E.first;
             for (float key_ofs : E.second) {
@@ -1214,7 +1214,7 @@ public:
 
         return false;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         if (not animation)
             return;
@@ -1225,7 +1225,7 @@ public:
         bool show_time = true;
         bool same_track_type = true;
         bool same_key_type = true;
-        for (const eastl::pair<const int,PODVector<float> > &E : key_ofs_map) {
+        for (const eastl::pair<const int,Vector<float> > &E : key_ofs_map) {
 
             int track = E.first;
             ERR_FAIL_INDEX(track, animation->get_track_count());
@@ -1349,7 +1349,7 @@ public:
                         break;
 
                     String animations;
-                    PODVector<StringName> anims;
+                    Vector<StringName> anims;
 
                     if (root_path && root_path->has_node(animation->track_get_path(first_track))) {
 
@@ -1369,7 +1369,7 @@ public:
 
     Ref<Animation> animation;
 
-    Map<int, PODVector<float> > key_ofs_map;
+    Map<int, Vector<float> > key_ofs_map;
     Map<int, NodePath> base_map;
     PropertyInfo hint;
 
@@ -2491,7 +2491,7 @@ void AnimationTrackEdit::_path_entered(se_string_view p_text) {
 bool AnimationTrackEdit::_is_value_key_valid(const Variant &p_key_value, VariantType &r_valid_type) const {
 
     RES res;
-    PODVector<StringName> leftover_path;
+    Vector<StringName> leftover_path;
     Node *node = root->get_node_and_resource(animation->track_get_path(track), res, leftover_path);
 
     Object *obj = nullptr;
@@ -3863,7 +3863,7 @@ PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_b
     }
 
     RES res;
-    PODVector<StringName> leftover_path;
+    Vector<StringName> leftover_path;
     Node *node = root->get_node_and_resource(path, res, leftover_path, true);
 
     if (node) {
@@ -3898,7 +3898,7 @@ PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_b
         property_info_base = property_info_base.get_named(leftover_path[i]);
     }
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     property_info_base.get_property_list(&pinfo);
 
     for(const PropertyInfo & E : pinfo) {
@@ -3911,8 +3911,8 @@ PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_b
     return PropertyInfo();
 }
 
-static PODVector<se_string_view> _get_bezier_subindices_for_type(VariantType p_type, bool *r_valid = nullptr) {
-    PODVector<se_string_view> subindices;
+static Vector<se_string_view> _get_bezier_subindices_for_type(VariantType p_type, bool *r_valid = nullptr) {
+    Vector<se_string_view> subindices;
     if (r_valid) {
         *r_valid = true;
     }
@@ -3970,7 +3970,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
 
         if (p_create_beziers) {
             bool valid;
-            PODVector<se_string_view> subindices = _get_bezier_subindices_for_type(p_id.value.get_type(), &valid);
+            Vector<se_string_view> subindices = _get_bezier_subindices_for_type(p_id.value.get_type(), &valid);
             if (valid) {
 
             for (size_t i = 0; i < subindices.size(); i++) {
@@ -4157,7 +4157,7 @@ void AnimationTrackEditor::_update_tracks() {
             if (root && root->has_node_and_resource(path)) {
                 RES res;
                 NodePath base_path;
-                PODVector<StringName> leftover_path;
+                Vector<StringName> leftover_path;
                 Node *node = root->get_node_and_resource(path, res, leftover_path, true);
                 PropertyInfo pinfo = _find_hint_for_track(i, base_path);
 
@@ -4478,7 +4478,7 @@ void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
         } break;
         case Animation::TYPE_BEZIER: {
 
-            const PODVector<VariantType> filter = {
+            const Vector<VariantType> filter = {
                 VariantType::INT,
                 VariantType::REAL,
                 VariantType::VECTOR2,
@@ -4577,7 +4577,7 @@ void AnimationTrackEditor::_new_track_property_selected(se_string_view p_name) {
         undo_redo->add_undo_method(animation.get(), "remove_track", animation->get_track_count());
         undo_redo->commit_action();
     } else {
-        PODVector<se_string_view> subindices;
+        Vector<se_string_view> subindices;
         {
             //hack
             NodePath np;
@@ -4744,7 +4744,7 @@ void AnimationTrackEditor::_add_method_key(const StringName &p_method) {
     }
     Node *base = root->get_node(animation->track_get_path(insert_key_from_track_call_track));
 
-    PODVector<MethodInfo> minfo;
+    Vector<MethodInfo> minfo;
     base->get_method_list(&minfo);
 
     for(const MethodInfo & E : minfo) {
@@ -4904,7 +4904,7 @@ void AnimationTrackEditor::_update_key_edit() {
         multi_key_edit = memnew(AnimationMultiTrackKeyEdit);
         multi_key_edit->animation = animation;
 
-        Map<int, PODVector<float> > key_ofs_map;
+        Map<int, Vector<float> > key_ofs_map;
         Map<int, NodePath> base_map;
         int first_track = -1;
         for (eastl::pair<const SelectedKey,KeyInfo> &E : selection) {
@@ -4914,7 +4914,7 @@ void AnimationTrackEditor::_update_key_edit() {
                 first_track = track;
 
             if (!key_ofs_map.contains(track)) {
-                key_ofs_map[track] = PODVector<float>();
+                key_ofs_map[track] = Vector<float>();
                 base_map[track] = NodePath();
             }
 
@@ -4963,7 +4963,7 @@ void AnimationTrackEditor::_move_selection_commit() {
 
     undo_redo->create_action_ui(TTR("Anim Move Keys"));
 
-    PODVector<_AnimMoveRestore> to_restore;
+    Vector<_AnimMoveRestore> to_restore;
 
     float motion = moving_selection_offset;
     // 1 - remove the keys
@@ -5201,7 +5201,7 @@ void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
 
         undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
 
-        PODVector<Pair<int, float> > new_selection_values;
+        Vector<Pair<int, float> > new_selection_values;
 
         for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
 
@@ -5441,7 +5441,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
             undo_redo->create_action_ui(TTR("Anim Scale Keys"));
 
-            PODVector<_AnimMoveRestore> to_restore;
+            Vector<_AnimMoveRestore> to_restore;
 
             // 1-remove the keys
             for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
@@ -5604,7 +5604,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
         } break;
         case EDIT_CLEAN_UP_ANIMATION_CONFIRM: {
             if (cleanup_all->is_pressed()) {
-                PODVector<StringName> names = AnimationPlayerEditor::singleton->get_player()->get_animation_list();
+                Vector<StringName> names = AnimationPlayerEditor::singleton->get_player()->get_animation_list();
                 for (const StringName &E : names) {
                     _cleanup_animation(AnimationPlayerEditor::singleton->get_player()->get_animation(E));
                 }
@@ -5625,7 +5625,7 @@ void AnimationTrackEditor::_cleanup_animation(const Ref<Animation> &p_animation)
         Object *obj = nullptr;
 
         RES res;
-        PODVector<StringName> leftover_path;
+        Vector<StringName> leftover_path;
 
         Node *node = root->get_node_and_resource(p_animation->track_get_path(i), res, leftover_path);
 

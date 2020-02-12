@@ -69,7 +69,7 @@ public:
     bool get_zero_y() const;
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     RootMotionView();
     ~RootMotionView() override;

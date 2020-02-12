@@ -80,7 +80,7 @@ Variant LightOccluder2DEditor::_get_polygon(int p_idx) const {
     if (occluder)
         return Variant(occluder->get_polygon());
     else
-        return Variant(PODVector<Vector2>());
+        return Variant(Vector<Vector2>());
 }
 
 void LightOccluder2DEditor::_set_polygon(int p_idx, const PoolVector<Vector2> &p_polygon) const {

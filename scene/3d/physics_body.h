@@ -289,8 +289,8 @@ private:
     bool on_floor;
     bool on_ceiling;
     bool on_wall;
-    PODVector<Collision> colliders;
-    PODVector<Ref<KinematicCollision> > slide_colliders;
+    Vector<Collision> colliders;
+    Vector<Ref<KinematicCollision> > slide_colliders;
     Ref<KinematicCollision> motion_cache;
 public:
     bool _ignores_mode(PhysicsServer::BodyMode) const;
@@ -376,7 +376,7 @@ public:
         /// "j" is used to set the parameter inside the PhysicsServer
         virtual bool _set(const StringName &p_name, const Variant &p_value, RID j = RID());
         virtual bool _get(const StringName &p_name, Variant &r_ret) const;
-        virtual void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+        virtual void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
         virtual ~JointData() {}
     };
@@ -386,7 +386,7 @@ public:
 
         bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
-        void _get_property_list(PODVector<PropertyInfo> *p_list) const override;
+        void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
         real_t bias;
         real_t damping;
@@ -403,7 +403,7 @@ public:
 
         bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
-        void _get_property_list(PODVector<PropertyInfo> *p_list) const override;
+        void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
         real_t swing_span;
         real_t twist_span;
@@ -424,7 +424,7 @@ public:
 
         bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
-        void _get_property_list(PODVector<PropertyInfo> *p_list) const override;
+        void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
         bool angular_limit_enabled;
         real_t angular_limit_upper;
@@ -447,7 +447,7 @@ public:
 
         bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
-        void _get_property_list(PODVector<PropertyInfo> *p_list) const override;
+        void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
         real_t linear_limit_upper;
         real_t linear_limit_lower;
@@ -502,7 +502,7 @@ public:
 
         bool _set(const StringName &p_name, const Variant &p_value, RID j = RID()) override;
         bool _get(const StringName &p_name, Variant &r_ret) const override;
-        void _get_property_list(PODVector<PropertyInfo> *p_list) const override;
+        void _get_property_list(Vector<PropertyInfo> *p_list) const override;
 
         SixDOFAxisData axis_data[3];
 
@@ -537,7 +537,7 @@ private:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _notification(int p_what);
     void _direct_state_changed(Object *p_state);
 

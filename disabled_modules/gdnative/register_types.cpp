@@ -83,7 +83,7 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
 
     {
 
-        PODVector<String> entry_keys;
+        Vector<String> entry_keys;
         config->get_section_keys_utf8("entry", entry_keys);
 
         for (const String &key : entry_keys) {
@@ -115,7 +115,7 @@ void GDNativeExportPlugin::_export_file(const String &p_path, const String &p_ty
     }
 
     {
-        PODVector<String> dependency_keys;
+        Vector<String> dependency_keys;
         config->get_section_keys_utf8("dependencies", dependency_keys);
 
         for (const String &key : dependency_keys) {

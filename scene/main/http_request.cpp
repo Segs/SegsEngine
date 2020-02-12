@@ -50,7 +50,7 @@ VARIANT_ENUM_CAST(HTTPClient::Status);
 namespace {
 struct HTTPRequestData
 {
-    PODVector<String> headers;
+    Vector<String> headers;
     PoolByteArray body;
     PoolVector<String> response_headers;
     String request_string;
@@ -162,7 +162,7 @@ bool _handle_response(HTTPRequestData &impl,HTTPRequest *tgt,bool *ret_value) {
 
     impl.got_response = true;
     impl.response_code = impl.client->get_response_code();
-    ListPOD<String> rheaders;
+    List<String> rheaders;
     impl.client->get_response_headers(&rheaders);
     impl.response_headers.resize(0);
     impl.downloaded = 0;
@@ -397,7 +397,7 @@ void HTTPRequest::_redirect_request(se_string_view /*p_new_url*/) {
 }
 
 #define IMPLD() ((HTTPRequestData*)m_impl)
-Error HTTPRequest::request(se_string_view p_url, const PODVector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
+Error HTTPRequest::request(se_string_view p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED);
     ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");

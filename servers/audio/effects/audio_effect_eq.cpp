@@ -119,7 +119,7 @@ bool AudioEffectEQ::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void AudioEffectEQ::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AudioEffectEQ::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < band_names.size(); i++) {
 

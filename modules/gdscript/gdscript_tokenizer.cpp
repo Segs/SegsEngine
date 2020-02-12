@@ -1214,10 +1214,10 @@ void GDScriptTokenizerText::advance(int p_amount) {
 #define BYTECODE_VERSION 13
 
 struct TokenizerBufferPrivate {
-    PODVector<StringName> identifiers;
-    PODVector<Variant> constants;
+    Vector<StringName> identifiers;
+    Vector<Variant> constants;
     eastl::vector_map<uint32_t, uint32_t,eastl::less<uint32_t>,wrap_allocator> lines;
-    PODVector<uint32_t> tokens;
+    Vector<uint32_t> tokens;
     Variant nil;
     int token=0;
 
@@ -1228,7 +1228,7 @@ struct TokenizerBufferPrivate {
 };
 #define D() ((TokenizerBufferPrivate *)m_private_data)
 
-Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffer) {
+Error GDScriptTokenizerBuffer::set_code_buffer(const Vector<uint8_t> &p_buffer) {
 
     const uint8_t *buf = p_buffer.data();
     int total_len = p_buffer.size();
@@ -1251,7 +1251,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
         int len = decode_uint32(b);
         ERR_FAIL_COND_V(len > total_len, ERR_INVALID_DATA);
         b += 4;
-        PODVector<uint8_t> cs;
+        Vector<uint8_t> cs;
         cs.resize(len);
         for (int j = 0; j < len; j++) {
             cs[j] = b[j] ^ 0xb6;
@@ -1314,14 +1314,14 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const PODVector<uint8_t> &p_buffe
     return OK;
 }
 
-PODVector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code) {
+Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code) {
 
-    PODVector<uint8_t> buf;
+    Vector<uint8_t> buf;
 
     Map<StringName, int> identifier_map;
     HashMap<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
     Map<uint32_t, int> line_map;
-    PODVector<uint32_t> token_array;
+    Vector<uint32_t> token_array;
 
     GDScriptTokenizerText tt;
     tt.set_code(p_code);
@@ -1370,7 +1370,7 @@ PODVector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_c
             } break;
             case TK_ERROR: {
 
-                ERR_FAIL_V(PODVector<uint8_t>());
+                ERR_FAIL_V(Vector<uint8_t>());
             } break;
             default: {
             }
@@ -1441,7 +1441,7 @@ PODVector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_c
         int len;
         // Objects cannot be constant, never encode objects
         Error err = encode_variant(E.second, nullptr, len, false);
-        ERR_FAIL_COND_V_MSG(err != OK, PODVector<uint8_t>(), "Error when trying to encode Variant.");
+        ERR_FAIL_COND_V_MSG(err != OK, Vector<uint8_t>(), "Error when trying to encode Variant.");
         int pos = buf.size();
         buf.resize(pos + len);
         encode_variant(E.second, &buf[pos], len, false);

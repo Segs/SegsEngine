@@ -181,7 +181,7 @@ private:
 
     JoyEvent hat_map_default[HAT_MAX];
 
-    PODVector<JoyDeviceMapping> map_db;
+    Vector<JoyDeviceMapping> map_db;
 
     JoyEvent _find_to_event(StringName p_to);
     void _button_event(int p_device, int p_index, bool p_pressed);
@@ -190,7 +190,7 @@ private:
 
     void _parse_input_event_impl(const Ref<InputEvent> &p_event, bool p_is_emulated);
 
-    ListPOD<Ref<InputEvent> > accumulated_events;
+    List<Ref<InputEvent> > accumulated_events;
     bool use_accumulated_input;
 
 public:

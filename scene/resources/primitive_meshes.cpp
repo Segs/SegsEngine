@@ -69,8 +69,8 @@ void PrimitiveMesh::_update() const {
     }
 
     if (flip_faces) {
-        PODVector<Vector3> &normals = arr.m_normals;
-        PODVector<int> &indices = arr.m_indices;
+        Vector<Vector3> &normals = arr.m_normals;
+        Vector<int> &indices = arr.m_indices;
         if (normals.size() && indices.size()) {
 
             {
@@ -142,13 +142,13 @@ SurfaceArrays PrimitiveMesh::surface_get_arrays(int p_surface) const {
     return VisualServer::get_singleton()->mesh_surface_get_arrays(mesh, 0);
 }
 
-PODVector<SurfaceArrays> PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
-    ERR_FAIL_INDEX_V(p_surface, 1, PODVector<SurfaceArrays>());
+Vector<SurfaceArrays> PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
+    ERR_FAIL_INDEX_V(p_surface, 1, Vector<SurfaceArrays>());
     if (pending_request) {
         _update();
     }
 
-    return PODVector<SurfaceArrays>();
+    return Vector<SurfaceArrays>();
 }
 
 uint32_t PrimitiveMesh::surface_get_format(int p_idx) const {
@@ -289,11 +289,11 @@ void CapsuleMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 
     // note, this has been aligned with our collision shape but I've left the descriptions as top/middle/bottom
 
-    PODVector<Vector3> points;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -502,11 +502,11 @@ void CubeMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 
     // set our bounding box
 
-    PODVector<Vector3> points;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -753,11 +753,11 @@ void CylinderMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
     float x, y, z, u, v, radius;
 
-    PODVector<Vector3> points;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -969,11 +969,11 @@ void PlaneMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 
     Size2 start_pos = size * -0.5;
 
-    PODVector<Vector3> points;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1086,11 +1086,11 @@ void PrismMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 
     // set our bounding box
 
-    PODVector<Vector3> points;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1364,10 +1364,10 @@ PrismMesh::PrismMesh() {
 */
 
 void QuadMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
-    PODVector<Vector3> faces;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
+    Vector<Vector3> faces;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
 
     faces.resize(6);
     normals.resize(6);
@@ -1444,11 +1444,11 @@ void SphereMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 
     // set our bounding box
 
-    PODVector<Vector3> points;
-    PODVector<Vector3> normals;
-    PODVector<float> tangents;
-    PODVector<Vector2> uvs;
-    PODVector<int> indices;
+    Vector<Vector3> points;
+    Vector<Vector3> normals;
+    Vector<float> tangents;
+    Vector<Vector2> uvs;
+    Vector<int> indices;
     point = 0;
 
 #define ADD_TANGENT(m_x, m_y, m_z, m_d) \
@@ -1588,7 +1588,7 @@ SphereMesh::SphereMesh() {
 */
 
 void PointMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
-    PODVector<Vector3> faces {
+    Vector<Vector3> faces {
         Vector3(0.0, 0.0, 0.0)
     };
 

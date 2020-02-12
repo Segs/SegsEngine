@@ -121,7 +121,7 @@ void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     Vector2 tip = Vector2(0, get_length());
     VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, Vector2(), tip, p_color, 3);
-    PODVector<Vector2> pts;
+    Vector<Vector2> pts;
     float tsize = 4;
     pts.push_back(tip + Vector2(0, tsize));
     pts.push_back(tip + Vector2(0.707 * tsize, 0));

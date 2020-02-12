@@ -183,7 +183,7 @@ void SpriteFrames::rename_animation(const StringName &p_prev, const StringName &
 PoolVector<String> SpriteFrames::_get_animation_list() const {
 
     PoolVector<String> ret;
-    ListPOD<StringName> al;
+    List<StringName> al;
     get_animation_list(&al);
     for (const StringName &E : al) {
 
@@ -199,7 +199,7 @@ void SpriteFrames::report_missing_animation(const char *name)
     ERR_PRINT(msg);
 }
 
-void SpriteFrames::get_animation_list(ListPOD<StringName> *r_animations) const {
+void SpriteFrames::get_animation_list(List<StringName> *r_animations) const {
 
     for (const eastl::pair<const StringName,Anim> &E : animations) {
         r_animations->push_back(E.first);
@@ -209,7 +209,7 @@ void SpriteFrames::get_animation_list(ListPOD<StringName> *r_animations) const {
 PoolVector<String> SpriteFrames::get_animation_names() const {
 
     PoolVector<String> names;
-    PODVector<StringName> name_keys  = animations.keys();
+    Vector<StringName> name_keys  = animations.keys();
     //TODO: SEGS: returned keys should be sorted already ??
     eastl::sort(name_keys.begin(),name_keys.end());
     for (const StringName &k : name_keys) {
@@ -349,13 +349,13 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
     if (property.name == "animation") {
 
         property.hint = PropertyHint::Enum;
-        ListPOD<StringName> names;
+        List<StringName> names;
         frames->get_animation_list(&names);
         names.sort(WrapAlphaCompare());
 
         bool current_found = false;
 
-        for (ListPOD<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
+        for (List<StringName>::iterator E = names.begin(); E!=names.end(); ++E) {
             if (E!=names.begin()) {
                 property.hint_string += ',';
             }

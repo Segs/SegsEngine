@@ -204,7 +204,7 @@ static bool _filter_drive(struct mntent *mnt) {
 }
 #endif
 
-static void _get_drives(PODVector<String> *vec) {
+static void _get_drives(Vector<String> *vec) {
 
 #if defined(HAVE_MNTENT) && defined(X11_ENABLED)
     // Check /etc/mtab for the list of mounted partitions
@@ -260,7 +260,7 @@ static void _get_drives(PODVector<String> *vec) {
 
 int DirAccessUnix::get_drive_count() {
 
-    PODVector<String> list;
+    Vector<String> list;
     _get_drives(&list);
 
     return list.size();
@@ -268,7 +268,7 @@ int DirAccessUnix::get_drive_count() {
 
 String DirAccessUnix::get_drive(int p_drive) {
 
-    PODVector<String> list;
+    Vector<String> list;
     _get_drives(&list);
 
     ERR_FAIL_INDEX_V(p_drive, list.size(), String());

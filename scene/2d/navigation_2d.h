@@ -60,7 +60,7 @@ public:
         return edge_connection_margin;
     }
 
-    PODVector<Vector2> get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize = true);
+    Vector<Vector2> get_simple_path(const Vector2 &p_start, const Vector2 &p_end, bool p_optimize = true);
 
     Navigation2D();
 };

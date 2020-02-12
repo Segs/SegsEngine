@@ -107,7 +107,12 @@ public:
     const void *data_unique_pointer() const {
         return (void *)_data;
     }
-    bool operator!=(const StringName &p_name) const;
+    bool operator!=(const StringName &p_name) const noexcept {
+
+        // the real magic of all this mess happens here.
+        // this is why path comparisons are very fast
+        return _data != p_name._data;
+    }
 
     StringName& operator=(StringName &&p_name)
     {
@@ -181,7 +186,7 @@ public:
     }
 };
 GODOT_EXPORT StringName operator+(StringName v,se_string_view sv);
-extern const PODVector<StringName> g_null_stringname_vec;
+extern const Vector<StringName> g_null_stringname_vec;
 
 struct WrapAlphaCompare
 {

@@ -108,14 +108,14 @@ struct ConstantAPI {
 
 struct SignalAPI {
     String name;
-    PODVector<String> argument_types;
-    PODVector<String> argument_names;
+    Vector<String> argument_types;
+    Vector<String> argument_names;
     Map<int, Variant> default_arguments;
 };
 
 struct EnumAPI {
     se_string_view name;
-    PODVector<Pair<int, se_string_view> > values;
+    Vector<Pair<int, se_string_view> > values;
 };
 
 struct ClassAPI {
@@ -129,11 +129,11 @@ struct ClassAPI {
     // @Unclear
     bool is_reference;
     String singleton_name;
-    PODVector<MethodAPI> methods;
-    PODVector<PropertyAPI> properties;
-    PODVector<ConstantAPI> constants;
-    PODVector<SignalAPI> signals_;
-    PODVector<EnumAPI> enums;
+    Vector<MethodAPI> methods;
+    Vector<PropertyAPI> properties;
+    Vector<ConstantAPI> constants;
+    Vector<SignalAPI> signals_;
+    Vector<EnumAPI> enums;
 };
 
 static String get_type_name(const PropertyInfo &info) {
@@ -280,7 +280,7 @@ List<ClassAPI> generate_c_api_classes() {
                     signal.argument_types.push_back(type);
                 }
 
-                const PODVector<Variant> &default_arguments(method_info.default_arguments);
+                const Vector<Variant> &default_arguments(method_info.default_arguments);
 
                 int default_start = signal.argument_names.size() - default_arguments.size();
 
@@ -322,7 +322,7 @@ List<ClassAPI> generate_c_api_classes() {
 
         //methods
         {
-            PODVector<MethodInfo> methods;
+            Vector<MethodInfo> methods;
             ClassDB::get_method_list(class_name, &methods, true);
             eastl::sort(methods.begin(),methods.end(),MethodInfoComparator());
 

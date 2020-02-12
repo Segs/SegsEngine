@@ -996,7 +996,7 @@ MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array) {
     return ret;
 }
 
-MonoArray *PoolIntArray_to_mono_array(const PODVector<int> &p_array) {
+MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array) {
 
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
 
@@ -1020,8 +1020,8 @@ PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array) {
 
     return ret;
 }
-PODVector<int> mono_array_to_NC_VecInt(MonoArray* p_array) {
-    PODVector<int> ret;
+Vector<int> mono_array_to_NC_VecInt(MonoArray* p_array) {
+    Vector<int> ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
@@ -1043,7 +1043,7 @@ MonoArray *PoolByteArray_to_mono_array(const PoolByteArray &p_array) {
 
     return ret;
 }
-MonoArray *PoolByteArray_to_mono_array(const PODVector<uint8_t> &p_array) {
+MonoArray *PoolByteArray_to_mono_array(const Vector<uint8_t> &p_array) {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(uint8_t), p_array.size());
 
     for (int i = 0, fin = p_array.size(); i < fin; ++i) {
@@ -1066,8 +1066,8 @@ PoolByteArray mono_array_to_PoolByteArray(MonoArray *p_array) {
 
     return ret;
 }
-PODVector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array) {
-    PODVector<uint8_t> ret;
+Vector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array) {
+    Vector<uint8_t> ret;
     if (!p_array)
         return ret;
     ret.reserve(mono_array_length(p_array));
@@ -1089,7 +1089,7 @@ MonoArray *PoolRealArray_to_mono_array(const PoolRealArray &p_array) {
 
     return ret;
 }
-MonoArray *PoolRealArray_to_mono_array(const PODVector<float> &p_array)
+MonoArray *PoolRealArray_to_mono_array(const Vector<float> &p_array)
 {
     MonoArray *ret = mono_array_new(mono_domain_get(), REAL_T_MONOCLASS, p_array.size());
 
@@ -1113,8 +1113,8 @@ PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array) {
 
     return ret;
 }
-PODVector<float> mono_array_to_NC_VecFloat(MonoArray *p_array) {
-    PODVector<float> ret;
+Vector<float> mono_array_to_NC_VecFloat(MonoArray *p_array) {
+    Vector<float> ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
@@ -1137,7 +1137,7 @@ MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array) {
 
     return ret;
 }
-MonoArray *PoolStringArray_to_mono_array(const PODVector<StringName> &p_array) {
+MonoArray *PoolStringArray_to_mono_array(const Vector<StringName> &p_array) {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
 
     for (size_t i = 0; i < p_array.size(); i++) {
@@ -1146,7 +1146,7 @@ MonoArray *PoolStringArray_to_mono_array(const PODVector<StringName> &p_array) {
     }
     return ret;
 }
-MonoArray *PoolStringArray_to_mono_array(const PODVector<String> &p_array) {
+MonoArray *PoolStringArray_to_mono_array(const Vector<String> &p_array) {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
 
     for (size_t i = 0; i < p_array.size(); i++) {
@@ -1170,8 +1170,8 @@ PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array) {
 
     return ret;
 }
-PODVector<String> mono_array_to_NC_VecString(MonoArray *p_array) {
-    PODVector<String> ret;
+Vector<String> mono_array_to_NC_VecString(MonoArray *p_array) {
+    Vector<String> ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
@@ -1195,7 +1195,7 @@ MonoArray *PoolColorArray_to_mono_array(const PoolColorArray &p_array) {
 
     return ret;
 }
-MonoArray *PoolColorArray_to_mono_array(const PODVector<Color> &p_array) {
+MonoArray *PoolColorArray_to_mono_array(const Vector<Color> &p_array) {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Color), p_array.size());
 
     for (int i = 0; i < p_array.size(); i++) {
@@ -1219,8 +1219,8 @@ PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array) {
 
     return ret;
 }
-PODVector<Color> mono_array_to_NC_VecColor(MonoArray* p_array) {
-    PODVector<Color> ret;
+Vector<Color> mono_array_to_NC_VecColor(MonoArray* p_array) {
+    Vector<Color> ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
@@ -1243,7 +1243,7 @@ MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array) {
 
     return ret;
 }
-MonoArray *PoolVector2Array_to_mono_array(const PODVector<Vector2> &p_array) {
+MonoArray *PoolVector2Array_to_mono_array(const Vector<Vector2> &p_array) {
 
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
 
@@ -1268,8 +1268,8 @@ PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array) {
 
     return ret;
 }
-PODVector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array) {
-    PODVector<Vector2> ret;
+Vector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array) {
+    Vector<Vector2> ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
@@ -1294,7 +1294,7 @@ MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array) {
     return ret;
 }
 
-MonoArray *PoolVector3Array_to_mono_array(const PODVector<Vector3> &p_array) {
+MonoArray *PoolVector3Array_to_mono_array(const Vector<Vector3> &p_array) {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size());
 
     for (int i = 0, fin = p_array.size(); i < fin; ++i) {
@@ -1304,8 +1304,8 @@ MonoArray *PoolVector3Array_to_mono_array(const PODVector<Vector3> &p_array) {
     return ret;
 }
 
-PODVector<Vector3> mono_array_to_NC_VecVector3(MonoArray *p_array) {
-    PODVector<Vector3> ret;
+Vector<Vector3> mono_array_to_NC_VecVector3(MonoArray *p_array) {
+    Vector<Vector3> ret;
     if (!p_array)
         return ret;
     int length = mono_array_length(p_array);
@@ -1349,7 +1349,7 @@ MonoArray * PoolVector3Array_to_mono_array(const PoolVector<Face3>& p_array)
 
     return ret;
 }
-MonoArray * PoolVector3Array_to_mono_array(const PODVector<Face3>& p_array)
+MonoArray * PoolVector3Array_to_mono_array(const Vector<Face3>& p_array)
 {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
 

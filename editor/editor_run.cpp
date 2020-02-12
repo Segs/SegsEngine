@@ -42,9 +42,9 @@ EditorRun::Status EditorRun::get_status() const {
 
     return status;
 }
-Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const PODVector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
+Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
 
-    PODVector<String> args;
+    Vector<String> args;
 
     String resource_path(ProjectSettings::get_singleton()->get_resource_path());
     String remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host").as<String>();

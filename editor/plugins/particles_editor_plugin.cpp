@@ -246,7 +246,7 @@ ParticlesEditorBase::ParticlesEditorBase() {
     add_child(emission_tree_dialog);
     emission_tree_dialog->connect("selected", this, "_node_selected");
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Mesh", extensions);
 
     emission_file_dialog->clear_filters();

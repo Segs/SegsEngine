@@ -71,7 +71,7 @@ public:
     void remove_animation(const StringName &p_anim);
     void rename_animation(const StringName &p_prev, const StringName &p_next);
 
-    void get_animation_list(ListPOD<StringName> *r_animations) const;
+    void get_animation_list(List<StringName> *r_animations) const;
     PoolVector<String> get_animation_names() const;
 
     const Map<StringName, Anim> & animation_name_map() const { return animations; }

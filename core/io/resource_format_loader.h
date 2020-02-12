@@ -52,12 +52,12 @@ public:
     virtual Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr);
     virtual Ref<Resource> load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr);
     virtual bool exists(se_string_view p_path) const;
-    virtual void get_recognized_extensions(PODVector<String> &p_extensions) const;
-    virtual void get_recognized_extensions_for_type(se_string_view p_type, PODVector<String> &p_extensions) const;
+    virtual void get_recognized_extensions(Vector<String> &p_extensions) const;
+    virtual void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const;
     virtual bool recognize_path(se_string_view p_path, se_string_view p_for_type = se_string_view()) const;
     virtual bool handles_type(se_string_view p_type) const;
     virtual String get_resource_type(se_string_view p_path) const;
-    virtual void get_dependencies(se_string_view p_path, PODVector<String> &p_dependencies, bool p_add_types = false);
+    virtual void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
     virtual Error rename_dependencies(se_string_view p_path, const DefMap<String, String> &p_map);
     virtual bool is_import_valid(se_string_view /*p_path*/) const { return true; }
     virtual bool is_imported(se_string_view /*p_path*/) const { return false; }

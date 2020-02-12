@@ -71,8 +71,8 @@ class Polygon3DEditor : public HBoxContainer {
 
     int edited_point;
     Vector2 edited_point_pos;
-    PODVector<Vector2> pre_move_edit;
-    PODVector<Vector2> wip;
+    Vector<Vector2> pre_move_edit;
+    Vector<Vector2> wip;
     bool wip_active;
     bool snap_ignore;
 

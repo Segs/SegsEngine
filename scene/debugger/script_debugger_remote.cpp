@@ -49,7 +49,7 @@
 
 void ScriptDebuggerRemote::_send_video_memory() {
 
-    ListPOD<ResourceUsage> usage;
+    List<ResourceUsage> usage;
     if (resource_usage_func)
         resource_usage_func(&usage);
 
@@ -202,8 +202,8 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 ERR_CONTINUE(cmd.size() != 1);
                 int lv = cmd[0];
 
-                PODVector<String> members;
-                PODVector<Variant> member_vals;
+                Vector<String> members;
+                Vector<Variant> member_vals;
                 if (ScriptInstance *inst = p_script->debug_get_stack_level_instance(lv)) {
                     members.push_back("self");
                     //TODO: SEGS: member_vals will break Reference pre/post conditions if owner is Reference
@@ -212,13 +212,13 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 p_script->debug_get_stack_level_members(lv, &members, &member_vals);
                 ERR_CONTINUE(members.size() != member_vals.size());
 
-                PODVector<String> locals;
-                PODVector<Variant> local_vals;
+                Vector<String> locals;
+                Vector<Variant> local_vals;
                 p_script->debug_get_stack_level_locals(lv, &locals, &local_vals);
                 ERR_CONTINUE(locals.size() != local_vals.size());
 
-                PODVector<String> globals;
-                PODVector<Variant> globals_vals;
+                Vector<String> globals;
+                Vector<Variant> globals_vals;
                 p_script->debug_get_globals(&globals, &globals_vals);
                 ERR_CONTINUE(globals.size() != globals_vals.size());
 
@@ -464,7 +464,7 @@ void ScriptDebuggerRemote::_err_handler(void *ud, se_string_view p_func, se_stri
     if (p_type == ERR_HANDLER_SCRIPT)
         return; //ignore script errors, those go through debugger
 
-    PODVector<ScriptLanguage::StackInfo> si;
+    Vector<ScriptLanguage::StackInfo> si;
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         si = ScriptServer::get_language(i)->debug_get_current_stack_info();
@@ -570,7 +570,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
         return;
 
     using PropertyDesc = Pair<PropertyInfo, Variant>;
-    ListPOD<PropertyDesc> properties;
+    List<PropertyDesc> properties;
 
 if (ScriptInstance *si = obj->get_script_instance()) {
     if (si->get_script()) {
@@ -656,7 +656,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
         }
     }
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     obj->get_property_list(&pinfo, true);
     for(PropertyInfo &E : pinfo ) {
         if (E.usage & (PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CATEGORY)) {
@@ -1018,7 +1018,7 @@ void ScriptDebuggerRemote::send_message(const String &p_message, const Array &p_
     mutex->unlock();
 }
 
-void ScriptDebuggerRemote::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const PODVector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerRemote::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
 
     OutputError oe;
     oe.error = p_err;

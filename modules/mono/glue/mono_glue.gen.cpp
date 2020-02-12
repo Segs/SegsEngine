@@ -9622,7 +9622,7 @@ void godot_icall_CanvasItem_draw_polygon_7e2c1116(Object * ptr, Array* arg1, Mon
     PoolColorArray arg2_in = GDMonoMarshal::mono_array_to_PoolColorArray(arg2);
     PoolVector2Array arg3_in = GDMonoMarshal::mono_array_to_PoolVector2Array(arg3);
     bool arg6_in = static_cast<bool>(arg6);
-    static_cast<CanvasItem *>(ptr)->draw_polygon(Variant(*arg1).as<PODVector<Vector2>>(), arg2_in, arg3_in, AutoRef(arg4), AutoRef(arg5), arg6_in);
+    static_cast<CanvasItem *>(ptr)->draw_polygon(Variant(*arg1).as<Vector<Vector2>>(), arg2_in, arg3_in, AutoRef(arg4), AutoRef(arg5), arg6_in);
 }
 
 void godot_icall_CanvasItem_draw_colored_polygon_e53fc01c(Object * ptr, Array* arg1, GDMonoMarshal::M_Color* arg2, MonoArray* arg3, Object * arg4, Object * arg5, MonoBoolean arg6) {
@@ -9630,7 +9630,7 @@ void godot_icall_CanvasItem_draw_colored_polygon_e53fc01c(Object * ptr, Array* a
     Color arg2_in = MARSHALLED_IN(Color, arg2);
     PoolVector2Array arg3_in = GDMonoMarshal::mono_array_to_PoolVector2Array(arg3);
     bool arg6_in = static_cast<bool>(arg6);
-    static_cast<CanvasItem *>(ptr)->draw_colored_polygon(Variant(*arg1).as<PODVector<Vector2>>(), arg2_in, arg3_in, AutoRef(arg4), AutoRef(arg5), arg6_in);
+    static_cast<CanvasItem *>(ptr)->draw_colored_polygon(Variant(*arg1).as<Vector<Vector2>>(), arg2_in, arg3_in, AutoRef(arg4), AutoRef(arg5), arg6_in);
 }
 
 void godot_icall_CanvasItem_draw_string_c722fa14(Object * ptr, Object * arg1, GDMonoMarshal::M_Vector2* arg2, MonoString* arg3, GDMonoMarshal::M_Color* arg4, int32_t arg5) {
@@ -11942,12 +11942,12 @@ Object* godot_icall_ConvexPolygonShape_Ctor(MonoObject* obj) {
 
 void godot_icall_ConvexPolygonShape2D_set_point_cloud_2923a790(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<ConvexPolygonShape2D *>(ptr)->set_point_cloud(Variant(*arg1).as<PODVector<Vector2>>());
+    static_cast<ConvexPolygonShape2D *>(ptr)->set_point_cloud(Variant(*arg1).as<Vector<Vector2>>());
 }
 
 void godot_icall_ConvexPolygonShape2D_set_points_2923a790(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<ConvexPolygonShape2D *>(ptr)->set_points(Variant(*arg1).as<PODVector<Vector2>>());
+    static_cast<ConvexPolygonShape2D *>(ptr)->set_points(Variant(*arg1).as<Vector<Vector2>>());
 }
 
 Array* godot_icall_ConvexPolygonShape2D_get_points_d80382d4(Object * ptr) {
@@ -25054,7 +25054,7 @@ int32_t godot_icall_Object_connect_c78b711c(Object * ptr, MonoString* arg1, Obje
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     StringName arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
     uint32_t arg5_in = static_cast<uint32_t>(arg5);
-    auto ret = static_cast<Object *>(ptr)->connect(arg1_in, (Object*)arg2, arg3_in, Variant(*arg4).as<PODVector<Variant>>(), arg5_in);
+    auto ret = static_cast<Object *>(ptr)->connect(arg1_in, (Object*)arg2, arg3_in, Variant(*arg4).as<Vector<Variant>>(), arg5_in);
     return (int32_t)ret;
 }
 
@@ -27194,7 +27194,7 @@ Array* godot_icall_Physics2DDirectSpaceState_intersect_point_10cea668(Object * p
     uint32_t arg4_in = static_cast<uint32_t>(arg4);
     bool arg5_in = static_cast<bool>(arg5);
     bool arg6_in = static_cast<bool>(arg6);
-    auto ret = static_cast<Physics2DDirectSpaceState *>(ptr)->_intersect_point(arg1_in, arg2_in, Variant(*arg3).as<PODVector<RID>>(), arg4_in, arg5_in, arg6_in);
+    auto ret = static_cast<Physics2DDirectSpaceState *>(ptr)->_intersect_point(arg1_in, arg2_in, Variant(*arg3).as<Vector<RID>>(), arg4_in, arg5_in, arg6_in);
     return memnew(Array(Variant::from(ret)));
 }
 
@@ -27206,7 +27206,7 @@ Array* godot_icall_Physics2DDirectSpaceState_intersect_point_on_canvas_b12900da(
     uint32_t arg5_in = static_cast<uint32_t>(arg5);
     bool arg6_in = static_cast<bool>(arg6);
     bool arg7_in = static_cast<bool>(arg7);
-    auto ret = static_cast<Physics2DDirectSpaceState *>(ptr)->_intersect_point_on_canvas(arg1_in, arg2_in, arg3_in, Variant(*arg4).as<PODVector<RID>>(), arg5_in, arg6_in, arg7_in);
+    auto ret = static_cast<Physics2DDirectSpaceState *>(ptr)->_intersect_point_on_canvas(arg1_in, arg2_in, arg3_in, Variant(*arg4).as<Vector<RID>>(), arg5_in, arg6_in, arg7_in);
     return memnew(Array(Variant::from(ret)));
 }
 
@@ -49386,26 +49386,26 @@ MonoBoolean godot_icall__Geometry_is_point_in_polygon_d73c54f0(Object * ptr, GDM
 
 MonoArray* godot_icall__Geometry_triangulate_polygon_2c4d204d(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<_Geometry *>(ptr)->triangulate_polygon(Variant(*arg1).as<PODVector<Vector2>>());
+    auto ret = static_cast<_Geometry *>(ptr)->triangulate_polygon(Variant(*arg1).as<Vector<Vector2>>());
     return GDMonoMarshal::PoolIntArray_to_mono_array(ret);
 }
 
 MonoArray* godot_icall__Geometry_triangulate_delaunay_2d_2c4d204d(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<_Geometry *>(ptr)->triangulate_delaunay_2d(Variant(*arg1).as<PODVector<Vector2>>());
+    auto ret = static_cast<_Geometry *>(ptr)->triangulate_delaunay_2d(Variant(*arg1).as<Vector<Vector2>>());
     return GDMonoMarshal::PoolIntArray_to_mono_array(ret);
 }
 
 MonoArray* godot_icall__Geometry_convex_hull_2d_1dab5517(Object * ptr, Array* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<_Geometry *>(ptr)->convex_hull_2d(Variant(*arg1).as<PODVector<Vector2>>());
+    auto ret = static_cast<_Geometry *>(ptr)->convex_hull_2d(Variant(*arg1).as<Vector<Vector2>>());
     return GDMonoMarshal::PoolVector2Array_to_mono_array(ret);
 }
 
 MonoArray* godot_icall__Geometry_clip_polygon_b8c3916f(Object * ptr, Array* arg1, GDMonoMarshal::M_Plane* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     Plane arg2_in = MARSHALLED_IN(Plane, arg2);
-    auto ret = static_cast<_Geometry *>(ptr)->clip_polygon(Variant(*arg1).as<PODVector<Vector3>>(), arg2_in);
+    auto ret = static_cast<_Geometry *>(ptr)->clip_polygon(Variant(*arg1).as<Vector<Vector3>>(), arg2_in);
     return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
 }
 
@@ -50631,7 +50631,7 @@ uint64_t get_core_api_hash() { return 7982866888582804672U; }
 uint64_t get_editor_api_hash() { return 12653219099717887913U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1580984225; }
+uint32_t get_cs_glue_version() { return 1580668175; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();

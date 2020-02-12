@@ -48,8 +48,8 @@ public:
 private:
     Ref<AudioStreamPlayback> stream_playback;
     Ref<AudioStream> stream;
-    PODVector<AudioFrame> mix_buffer;
-    PODVector<AudioFrame> fadeout_buffer;
+    Vector<AudioFrame> mix_buffer;
+    Vector<AudioFrame> fadeout_buffer;
     bool use_fadeout;
 
     volatile float setseek;

@@ -41,7 +41,7 @@ class GODOT_EXPORT Skin : public Resource {
         Transform pose;
     };
 
-    PODVector<Bind> binds;
+    Vector<Bind> binds;
 
     Bind *binds_ptr;
     int bind_count;
@@ -49,7 +49,7 @@ class GODOT_EXPORT Skin : public Resource {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     static void _bind_methods();
 

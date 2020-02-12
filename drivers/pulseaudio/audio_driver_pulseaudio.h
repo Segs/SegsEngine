@@ -61,8 +61,8 @@ class AudioDriverPulseAudio : public AudioDriver {
     String capture_new_device;
     String capture_default_device;
 
-    PODVector<int32_t> samples_in;
-    PODVector<int16_t> samples_out;
+    Vector<int32_t> samples_in;
+    Vector<int16_t> samples_out;
 
     unsigned int mix_rate=0;
     unsigned int buffer_frames=0;

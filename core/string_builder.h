@@ -38,12 +38,12 @@ class StringBuilder {
 
     uint32_t string_length;
 
-    PODVector<String> strings;
-    PODVector<const char *> c_strings;
+    Vector<String> strings;
+    Vector<const char *> c_strings;
 
     // -1 means it's a Godot String
     // a natural number means C string.
-    PODVector<int32_t> appended_strings;
+    Vector<int32_t> appended_strings;
 
 public:
     StringBuilder &append(se_string_view p_string);

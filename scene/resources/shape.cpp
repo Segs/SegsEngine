@@ -40,9 +40,9 @@
 IMPL_GDCLASS(Shape)
 RES_BASE_EXTENSION_IMPL(Shape,"shape")
 
-void Shape::add_vertices_to_array(PODVector<Vector3> &array, const Transform &p_xform) {
+void Shape::add_vertices_to_array(Vector<Vector3> &array, const Transform &p_xform) {
 
-    PODVector<Vector3> toadd(get_debug_mesh_lines());
+    Vector<Vector3> toadd(get_debug_mesh_lines());
 
     if (!toadd.empty()) {
         // Do transform in temporary buffer
@@ -69,13 +69,13 @@ Ref<ArrayMesh> Shape::get_debug_mesh() {
     if (debug_mesh_cache)
         return debug_mesh_cache;
 
-    PODVector<Vector3> lines = get_debug_mesh_lines();
+    Vector<Vector3> lines = get_debug_mesh_lines();
 
     debug_mesh_cache = make_ref_counted<ArrayMesh>();
 
     if (!lines.empty()) {
         //make mesh
-        PODVector<Vector3> array = lines;
+        Vector<Vector3> array = lines;
         SurfaceArrays arr(eastl::move(array));
 
         SceneTree *st = object_cast<SceneTree>(OS::get_singleton()->get_main_loop());

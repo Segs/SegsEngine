@@ -72,14 +72,14 @@ class GdNavigationServer : public NavigationServer {
     /// Mutex used to make any operation threadsafe.
     mutable Mutex operations_mutex;
 
-    PODVector<SetCommand *> commands;
+    Vector<SetCommand *> commands;
 
     mutable RID_Owner<NavMap> map_owner;
     mutable RID_Owner<NavRegion> region_owner;
     mutable RID_Owner<RvoAgent> agent_owner;
 
     bool active;
-    PODVector<NavMap *> active_maps;
+    Vector<NavMap *> active_maps;
 
 public:
     GdNavigationServer();
@@ -100,7 +100,7 @@ public:
     COMMAND_2(map_set_edge_connection_margin, RID, p_map, real_t, p_connection_margin);
     virtual real_t map_get_edge_connection_margin(RID p_map) const;
 
-    virtual PODVector<Vector3> map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const;
+    virtual Vector<Vector3> map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const;
 
     virtual RID region_create() const;
     COMMAND_2(region_set_map, RID, p_region, RID, p_map);

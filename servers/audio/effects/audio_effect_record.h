@@ -52,8 +52,8 @@ class AudioEffectRecordInstance : public AudioEffectInstance {
     Thread *io_thread;
     bool thread_active;
 
-    PODVector<AudioFrame> ring_buffer;
-    PODVector<float> recording_data;
+    Vector<AudioFrame> ring_buffer;
+    Vector<float> recording_data;
 
     unsigned int ring_buffer_pos;
     unsigned int ring_buffer_mask;

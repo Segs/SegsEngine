@@ -118,7 +118,7 @@ public:
     real_t space_get_param(RID p_space, SpaceParameter p_param) const override;
 
     void space_set_debug_contacts(RID p_space, int p_max_contacts) override;
-    const PODVector<Vector2> &space_get_contacts(RID p_space) const override;
+    const Vector<Vector2> &space_get_contacts(RID p_space) const override;
     int space_get_contact_count(RID p_space) const override;
 
     // this function only works on physics process, errors and returns null otherwise
@@ -232,7 +232,7 @@ public:
 
     void body_add_collision_exception(RID p_body, RID p_body_b) override;
     void body_remove_collision_exception(RID p_body, RID p_body_b) override;
-    void body_get_collision_exceptions(RID p_body, List<RID> *p_exceptions) override;
+    void body_get_collision_exceptions(RID p_body, ListOld<RID> *p_exceptions) override;
 
     void body_set_contacts_reported_depth_threshold(RID p_body, real_t p_threshold) override;
     real_t body_get_contacts_reported_depth_threshold(RID p_body) const override;

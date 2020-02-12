@@ -77,12 +77,12 @@ public:
     struct Node {
         Ref<VisualShaderNode> node;
         Vector2 position;
-        List<int> prev_connected_nodes;
+        ListOld<int> prev_connected_nodes;
     };
 
     struct Graph {
         Map<int, Node> nodes;
-        List<Connection> connections;
+        ListOld<Connection> connections;
     } graph[TYPE_MAX];
 
     mutable String previous_code;
@@ -111,7 +111,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     enum {
@@ -125,7 +125,7 @@ public:
     Vector2 get_node_position(Type p_type, int p_id) const;
     Ref<VisualShaderNode> get_node(Type p_type, int p_id) const;
 
-    PODVector<int> get_node_list(Type p_type) const;
+    Vector<int> get_node_list(Type p_type) const;
     int get_valid_node_id(Type p_type) const;
 
     int find_node_id(Type p_type, const Ref<VisualShaderNode> &p_node) const;
@@ -140,7 +140,7 @@ public:
     bool is_port_types_compatible(int p_a, int p_b) const;
 
     void rebuild();
-    void get_node_connections(Type p_type, List<Connection> *r_connections) const;
+    void get_node_connections(Type p_type, ListOld<Connection> *r_connections) const;
 
     void set_mode(ShaderMode p_mode);
     ShaderMode get_mode() const override;
@@ -150,9 +150,9 @@ public:
     void set_graph_offset(const Vector2 &p_offset);
     Vector2 get_graph_offset() const;
 
-    String generate_preview_shader(Type p_type, int p_node, int p_port, PODVector<DefaultTextureParam> &r_default_tex_params) const;
+    String generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &r_default_tex_params) const;
 
-    String validate_port_name(se_string_view p_name, const PODVector<StringName> &p_input_ports, const PODVector<StringName> &p_output_ports) const;
+    String validate_port_name(se_string_view p_name, const Vector<StringName> &p_input_ports, const Vector<StringName> &p_output_ports) const;
     String validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
 
     VisualShader();
@@ -207,9 +207,9 @@ public:
 
     virtual bool is_port_separator(int p_index) const;
 
-    virtual PODVector<StringName> get_editable_properties() const;
+    virtual Vector<StringName> get_editable_properties() const;
 
-    virtual PODVector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
+    virtual Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
     virtual String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
     virtual String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
     virtual String generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
@@ -229,8 +229,8 @@ class VisualShaderNodeCustom : public VisualShaderNode {
         int type;
     };
 
-    PODVector<Port> input_ports;
-    PODVector<Port> output_ports;
+    Vector<Port> input_ports;
+    Vector<Port> output_ports;
 
     friend class VisualShaderEditor;
 
@@ -305,7 +305,7 @@ public:
 
     PortType get_input_type_by_name(StringName p_name) const;
 
-    PODVector<StringName> get_editable_properties() const override;
+    Vector<StringName> get_editable_properties() const override;
 
     VisualShaderNodeInput();
 };

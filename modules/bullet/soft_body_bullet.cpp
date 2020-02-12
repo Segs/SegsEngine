@@ -83,7 +83,7 @@ void SoftBodyBullet::update_visual_server(SoftBodyVisualServerHandler *p_visual_
     const btSoftBody::tNodeArray &nodes(bt_soft_body->m_nodes);
     const int nodes_count = nodes.size();
 
-    const PODVector<int> *vs_indices;
+    const Vector<int> *vs_indices;
     const void *vertex_position;
     const void *vertex_normal;
 
@@ -317,7 +317,7 @@ void SoftBodyBullet::set_drag_coefficient(real_t p_val) {
     }
 }
 
-void SoftBodyBullet::set_trimesh_body_shape(const PODVector<int>& p_indices, Span<const Vector3> p_vertices) {
+void SoftBodyBullet::set_trimesh_body_shape(const Vector<int>& p_indices, Span<const Vector3> p_vertices) {
     /// Assert the current soft body is destroyed
     destroy_soft_body();
 
@@ -326,7 +326,7 @@ void SoftBodyBullet::set_trimesh_body_shape(const PODVector<int>& p_indices, Spa
 
     {
         /// This is the map of visual server indices to physics indices (So it's the inverse of idices_map), Thanks to it I don't need make a heavy search in the indices_map
-        PODVector<int> vs_indices_to_physics_table;
+        Vector<int> vs_indices_to_physics_table;
 
         { // Map vertices
             indices_table.clear();
@@ -357,7 +357,7 @@ void SoftBodyBullet::set_trimesh_body_shape(const PODVector<int>& p_indices, Spa
 
         const int indices_map_size(indices_table.size());
 
-        PODVector<btScalar> bt_vertices;
+        Vector<btScalar> bt_vertices;
 
         { // Parse vertices to bullet
 
@@ -370,7 +370,7 @@ void SoftBodyBullet::set_trimesh_body_shape(const PODVector<int>& p_indices, Spa
             }
         }
 
-        PODVector<int> bt_triangles;
+        Vector<int> bt_triangles;
         const int triangles_size(p_indices.size() / 3);
 
         { // Parse indices

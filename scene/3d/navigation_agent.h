@@ -59,7 +59,7 @@ class NavigationAgent : public Node {
     real_t path_max_distance;
 
     Vector3 target_location;
-    PODVector<Vector3> navigation_path;
+    Vector<Vector3> navigation_path;
     int nav_path_index;
     bool velocity_submitted;
     Vector3 prev_safe_velocity;
@@ -138,7 +138,7 @@ public:
 
     Vector3 get_next_location();
 
-    const PODVector<Vector3> &get_nav_path() const {
+    const Vector<Vector3> &get_nav_path() const {
         return navigation_path;
     }
 

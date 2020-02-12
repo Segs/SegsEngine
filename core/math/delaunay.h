@@ -91,10 +91,10 @@ public:
         return false;
     }
 
-    static PODVector<Triangle> triangulate(Span<const Vector2> p_points) {
+    static Vector<Triangle> triangulate(Span<const Vector2> p_points) {
 
-        PODVector<Vector2> points(p_points.begin(),p_points.end());
-        PODVector<Triangle> triangles;
+        Vector<Vector2> points(p_points.begin(),p_points.end());
+        Vector<Triangle> triangles;
 
         Rect2 rect;
         for (int i = 0; i < p_points.size(); i++) {
@@ -118,7 +118,7 @@ public:
             //std::cout << "Traitement du point " << *p << std::endl;
             //std::cout << "_triangles contains " << _triangles.size() << " elements" << std::endl;
 
-            PODVector<Edge> polygon;
+            Vector<Edge> polygon;
 
             for (size_t j = 0; j < triangles.size(); j++) {
                 if (circum_circle_contains(points, triangles[j], i)) {

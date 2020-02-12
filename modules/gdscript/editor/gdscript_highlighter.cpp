@@ -352,8 +352,8 @@ String GDScriptSyntaxHighlighter::get_name() const {
     return "GDScript";
 }
 
-PODVector<String> GDScriptSyntaxHighlighter::get_supported_languages() {
-    PODVector<String> languages {"GDScript"};
+Vector<String> GDScriptSyntaxHighlighter::get_supported_languages() {
+    Vector<String> languages {"GDScript"};
     return languages;
 }
 

@@ -77,7 +77,7 @@ void ThemeEditor::_type_menu_cbk(int p_option) {
 void ThemeEditor::_name_menu_about_to_show() {
 
     StringName fromtype(type_edit->get_text());
-    PODVector<StringName> names;
+    Vector<StringName> names;
 
     if (popup_mode == POPUP_ADD) {
 
@@ -144,7 +144,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
     Map<StringName, _TECategory> categories;
 
     // Fill types.
-    PODVector<StringName> type_list;
+    Vector<StringName> type_list;
     Theme::get_default()->get_type_list(&type_list);
     for (const StringName &E : type_list) {
         categories.emplace(E, _TECategory());
@@ -155,7 +155,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
         _TECategory &tc(E.second);
 
-        PODVector<StringName> stylebox_list = Theme::get_default()->get_stylebox_list(E.first);
+        Vector<StringName> stylebox_list = Theme::get_default()->get_stylebox_list(E.first);
         for (const StringName &F : stylebox_list) {
             _TECategory::RefItem<StyleBox> it;
             it.name = F;
@@ -163,7 +163,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
             tc.stylebox_items.insert(it);
         }
 
-        PODVector<StringName> font_list;
+        Vector<StringName> font_list;
         Theme::get_default()->get_font_list(E.first, &font_list);
         for (const StringName &F : font_list) {
             _TECategory::RefItem<Font> it;
@@ -172,7 +172,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
             tc.font_items.insert(it);
         }
 
-        PODVector<StringName> icon_list;
+        Vector<StringName> icon_list;
         Theme::get_default()->get_icon_list(E.first, &icon_list);
         for (const StringName &F : icon_list) {
             _TECategory::RefItem<Texture> it;
@@ -181,7 +181,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
             tc.icon_items.insert(it);
         }
 
-        PODVector<StringName> color_list;
+        Vector<StringName> color_list;
         Theme::get_default()->get_color_list(E.first, &color_list);
         for (const StringName &F : color_list) {
             _TECategory::Item<Color> it;
@@ -190,7 +190,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
             tc.color_items.insert(it);
         }
 
-        PODVector<StringName> constant_list;
+        Vector<StringName> constant_list;
         Theme::get_default()->get_constant_list(E.first, &constant_list);
         for (const StringName &F : constant_list) {
             _TECategory::Item<int> it;
@@ -344,7 +344,7 @@ void ThemeEditor::_dialog_cbk() {
         case POPUP_CLASS_ADD: {
 
             StringName fromtype = StringName(type_edit->get_text());
-            PODVector<StringName> names;
+            Vector<StringName> names;
 
             {
                 names.clear();
@@ -397,7 +397,7 @@ void ThemeEditor::_dialog_cbk() {
         } break;
         case POPUP_CLASS_REMOVE: {
             StringName fromtype = StringName(type_edit->get_text());
-            PODVector<StringName> names;
+            Vector<StringName> names;
 
             {
                 names.clear();
@@ -454,46 +454,46 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
 
         {
 
-            PODVector<StringName> types;
+            Vector<StringName> types;
             base_theme->get_type_list(&types);
 
             for (const StringName &type : types) {
 
-                PODVector<StringName> icons;
+                Vector<StringName> icons;
                 base_theme->get_icon_list(type, &icons);
 
                 for (const StringName &E : icons) {
                     theme->set_icon(E, type, import ? base_theme->get_icon(E, type) : Ref<Texture>());
                 }
 
-                PODVector<StringName> shaders;
+                Vector<StringName> shaders;
                 base_theme->get_shader_list(type, &shaders);
 
                 for (const StringName &E : shaders) {
                     theme->set_shader(E, type, import ? base_theme->get_shader(E, type) : Ref<Shader>());
                 }
 
-                PODVector<StringName> styleboxs = base_theme->get_stylebox_list(type);
+                Vector<StringName> styleboxs = base_theme->get_stylebox_list(type);
 
                 for (const StringName &E : styleboxs) {
                     theme->set_stylebox(E, type, import ? base_theme->get_stylebox(E, type) : Ref<StyleBox>());
                 }
 
-                PODVector<StringName> fonts;
+                Vector<StringName> fonts;
                 base_theme->get_font_list(type, &fonts);
 
                 for (const StringName &E : fonts) {
                     theme->set_font(E, type, Ref<Font>());
                 }
 
-                PODVector<StringName> colors;
+                Vector<StringName> colors;
                 base_theme->get_color_list(type, &colors);
 
                 for (const StringName &E : colors) {
                     theme->set_color(E, type, import ? base_theme->get_color(E, type) : Color());
                 }
 
-                PODVector<StringName> constants;
+                Vector<StringName> constants;
                 base_theme->get_constant_list(type, &constants);
 
                 for (const StringName &E : constants) {
@@ -557,14 +557,14 @@ void ThemeEditor::_theme_menu_cbk(int p_option) {
 
     ERR_FAIL_COND(not theme);
 
-    PODVector<StringName> types;
+    Vector<StringName> types;
     base_theme->get_type_list(&types);
 
     type_menu->get_popup()->clear();
 
     if (p_option == 0 || p_option == 1) { // Add.
 
-        PODVector<StringName> new_types;
+        Vector<StringName> new_types;
         theme->get_type_list(&new_types);
         for (const StringName &F : new_types) {
             bool found = false;

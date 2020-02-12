@@ -105,7 +105,7 @@ static String decaptialize(String a)
     }
     return res;
 }
-void EditorSceneImporterAssimp::get_extensions(PODVector<String> &r_extensions) const {
+void EditorSceneImporterAssimp::get_extensions(Vector<String> &r_extensions) const {
 
     const se_string_view import_setting_string("filesystem/import/open_asset_import/");
     Assimp::Importer importer;
@@ -126,7 +126,7 @@ void EditorSceneImporterAssimp::get_extensions(PODVector<String> &r_extensions) 
     }
 }
 
-void EditorSceneImporterAssimp::_register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const PODVector<String> &exts, PODVector<String> &r_extensions, const bool p_enabled) const {
+void EditorSceneImporterAssimp::_register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const {
     String use_generic = String("use_") + generic;
     StringName valname(String(import_setting_string) + use_generic);
     _GLOBAL_DEF(valname, p_enabled, true);
@@ -154,7 +154,7 @@ EditorSceneImporterAssimp::~EditorSceneImporterAssimp() {
     Assimp::DefaultLogger::kill();
 }
 
-Node *EditorSceneImporterAssimp::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterAssimp::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
     Assimp::Importer importer;
     String s_path(ProjectSettings::get_singleton()->globalize_path(p_path));
     importer.SetPropertyBool(AI_CONFIG_PP_FD_REMOVE, true);
@@ -263,7 +263,7 @@ struct EditorSceneImporterAssetImportInterpolate<Quat> {
 };
 
 template <class T>
-T EditorSceneImporterAssimp::_interpolate_track(const PODVector<float> &p_times, const PODVector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp) {
+T EditorSceneImporterAssimp::_interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp) {
     //could use binary search, worth it?
     int idx = -1;
     for (int i = 0; i < p_times.size(); i++) {
@@ -509,7 +509,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
 
         print_verbose("generating mesh phase from skeletal mesh");
 
-        PODVector<Spatial *> cleanup_template_nodes;
+        Vector<Spatial *> cleanup_template_nodes;
 
         for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
             const aiNode *assimp_node = key_value_pair.first;
@@ -539,7 +539,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
                     parent_node->remove_child(mesh_template);
 
                     // re-parent children
-                    PODVector<Node *> children;
+                    Vector<Node *> children;
                     // re-parent all children to new node
                     // note: since get_child_count will change during execution we must build a list first to be safe.
                     for (int childId = 0; childId < mesh_template->get_child_count(); childId++) {
@@ -664,12 +664,12 @@ void EditorSceneImporterAssimp::_insert_animation_track(ImportState &scene, cons
 
     bool last = false;
 
-    PODVector<Vector3> pos_values;
-    PODVector<float> pos_times;
-    PODVector<Vector3> scale_values;
-    PODVector<float> scale_times;
-    PODVector<Quat> rot_values;
-    PODVector<float> rot_times;
+    Vector<Vector3> pos_values;
+    Vector<float> pos_times;
+    Vector<Vector3> scale_values;
+    Vector<float> scale_times;
+    Vector<Quat> rot_values;
+    Vector<float> rot_times;
 
     for (size_t p = 0; p < assimp_track->mNumPositionKeys; p++) {
         aiVector3D pos = assimp_track->mPositionKeys[p].mValue;
@@ -882,7 +882,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 // Mesh Generation from indices ? why do we need so much mesh code
 // [debt needs looked into]
 Ref<Mesh>
-EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &state, const PODVector<int> &p_surface_indices,
+EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &state, const Vector<int> &p_surface_indices,
         const aiNode *assimp_node, Ref<Skin> &skin,
         Skeleton *&skeleton_assigned) {
 
@@ -914,7 +914,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
         const unsigned int mesh_idx = p_surface_indices[i];
         const aiMesh *ai_mesh = state.assimp_scene->mMeshes[mesh_idx];
 
-        Map<uint32_t, PODVector<BoneInfo> > vertex_weights;
+        Map<uint32_t, Vector<BoneInfo> > vertex_weights;
 
         if (ai_mesh->mNumBones > 0) {
             for (size_t b = 0; b < ai_mesh->mNumBones; b++) {
@@ -988,10 +988,10 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             // We have vertex weights right?
             if (vertex_weights.contains(j)) {
 
-                const PODVector<BoneInfo> &bone_info = vertex_weights[j];
-                PODVector<int> bones;
+                const Vector<BoneInfo> &bone_info = vertex_weights[j];
+                Vector<int> bones;
                 bones.resize(bone_info.size());
-                PODVector<float> weights;
+                Vector<float> weights;
                 weights.resize(bone_info.size());
                 // todo? do we really need to loop over all bones? - assimp may have helper to find all influences on this vertex.
                 for (int k = 0; k < bone_info.size(); k++) {
@@ -1221,7 +1221,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
         }
 
         SurfaceArrays array_mesh = st->commit_to_arrays();
-        PODVector<SurfaceArrays> morphs;
+        Vector<SurfaceArrays> morphs;
         morphs.reserve(ai_mesh->mNumAnimMeshes);
         Mesh::PrimitiveType primitive = Mesh::PRIMITIVE_TRIANGLES;
         for (size_t j = 0; j < ai_mesh->mNumAnimMeshes; j++) {
@@ -1236,7 +1236,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             const size_t num_vertices = ai_mesh->mAnimMeshes[j]->mNumVertices;
             array_copy.m_indices.clear();
             if (ai_mesh->mAnimMeshes[j]->HasPositions()) {
-                PODVector<Vector3> vertices;
+                Vector<Vector3> vertices;
                 vertices.resize(num_vertices);
                 for (size_t l = 0; l < num_vertices; l++) {
                     const aiVector3D ai_pos = ai_mesh->mAnimMeshes[j]->mVertices[l];
@@ -1250,7 +1250,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
 
             int32_t color_set = 0;
             if (ai_mesh->mAnimMeshes[j]->HasVertexColors(color_set)) {
-                PODVector<Color> colors;
+                Vector<Color> colors;
                 colors.resize(num_vertices);
                 for (size_t l = 0; l < num_vertices; l++) {
                     const aiColor4D ai_color = ai_mesh->mAnimMeshes[j]->mColors[color_set][l];
@@ -1262,7 +1262,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             }
 
             if (ai_mesh->mAnimMeshes[j]->HasNormals()) {
-                PODVector<Vector3> normals;
+                Vector<Vector3> normals;
                 normals.resize(num_vertices);
                 for (size_t l = 0; l < num_vertices; l++) {
                     const aiVector3D ai_normal = ai_mesh->mAnimMeshes[j]->mNormals[l];
@@ -1280,7 +1280,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
                 for (size_t l = 0; l < num_vertices; l++) {
                     AssimpUtils::calc_tangent_from_mesh(ai_mesh, j, l, l, w);
                 }
-                PODVector<float> new_tangents;
+                Vector<float> new_tangents;
                 ERR_CONTINUE(array_copy.m_tangents.size() != tangents.size() * 4);
                 new_tangents.reserve(tangents.size()*4);
                 for (int32_t l = 0; l < tangents.size(); l++) {
@@ -1313,7 +1313,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
     Ref<Mesh> mesh;
     Ref<Skin> skin;
     // see if we have mesh cache for this.
-    PODVector<int> surface_indices;
+    Vector<int> surface_indices;
 
     RegenerateBoneStack(state);
 

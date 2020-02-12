@@ -127,7 +127,7 @@ class BodySW : public CollisionObjectSW {
         Vector3 collider_velocity_at_pos;
     };
 
-    PODVector<Contact> contacts; //no contacts by default
+    Vector<Contact> contacts; //no contacts by default
     int contact_count;
 
     struct ForceIntegrationCallback {

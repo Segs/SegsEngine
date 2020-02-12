@@ -59,8 +59,8 @@ public:
     bool has_section(se_string_view p_section) const;
     bool has_section_key(se_string_view p_section, se_string_view p_key) const;
 
-    PODVector<String> get_sections() const;
-    PODVector<String> get_section_keys(se_string_view p_section) const;
+    Vector<String> get_sections() const;
+    Vector<String> get_section_keys(se_string_view p_section) const;
 
     void erase_section(se_string_view p_section);
     void erase_section_key(se_string_view p_section, se_string_view p_key);
@@ -69,10 +69,10 @@ public:
     Error save(se_string_view p_path);
     Error load(se_string_view p_path);
 
-    Error load_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
+    Error load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
     Error load_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
-    Error save_encrypted(se_string_view p_path, const PODVector<uint8_t> &p_key);
+    Error save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key);
     Error save_encrypted_pass(se_string_view p_path, se_string_view p_pass);
 
     ConfigFile();

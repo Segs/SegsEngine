@@ -221,7 +221,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void ArrayPropertyEdit::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Variant arr = get_array();
     int size = arr.call("size");

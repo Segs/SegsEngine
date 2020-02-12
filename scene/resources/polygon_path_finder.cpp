@@ -52,7 +52,7 @@ bool PolygonPathFinder::_is_point_inside(const Vector2 &p_point) const {
     return crosses & 1;
 }
 
-void PolygonPathFinder::setup(const PODVector<Vector2> &p_points, const PODVector<int> &p_connections) {
+void PolygonPathFinder::setup(const Vector<Vector2> &p_points, const Vector<int> &p_connections) {
 
     ERR_FAIL_COND(p_connections.size() & 1);
 
@@ -134,9 +134,9 @@ void PolygonPathFinder::setup(const PODVector<Vector2> &p_points, const PODVecto
     }
 }
 
-PODVector<Vector2> PolygonPathFinder::find_path(const Vector2 &p_from, const Vector2 &p_to) {
+Vector<Vector2> PolygonPathFinder::find_path(const Vector2 &p_from, const Vector2 &p_to) {
 
-    PODVector<Vector2> path;
+    Vector<Vector2> path;
 
     Vector2 from = p_from;
     Vector2 to = p_to;
@@ -536,9 +536,9 @@ Vector2 PolygonPathFinder::get_closest_point(const Vector2 &p_point) const {
     return closest_point;
 }
 
-PODVector<Vector2> PolygonPathFinder::get_intersections(const Vector2 &p_from, const Vector2 &p_to) const {
+Vector<Vector2> PolygonPathFinder::get_intersections(const Vector2 &p_from, const Vector2 &p_to) const {
 
-    PODVector<Vector2> inters(edges.size()/2); // guess
+    Vector<Vector2> inters(edges.size()/2); // guess
 
     for (const Edge &E : edges) {
         Vector2 a = points[E.points[0]].pos;

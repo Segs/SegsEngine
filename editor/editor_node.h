@@ -103,7 +103,7 @@ public:
 
     struct ExecuteThreadArgs {
         String path;
-        ListPOD<String> args;
+        List<String> args;
         String output;
         Thread *execute_output_thread;
         Mutex *execute_output_mutex;
@@ -339,8 +339,8 @@ private:
     EditorQuickOpen *quick_run;
 
     HBoxContainer *main_editor_button_vb;
-    PODVector<ToolButton *> main_editor_buttons;
-    PODVector<EditorPlugin *> editor_table;
+    Vector<ToolButton *> main_editor_buttons;
+    Vector<EditorPlugin *> editor_table;
 
     AudioStreamPreviewGenerator *preview_gen;
     ProgressDialog *progress_dialog;
@@ -395,7 +395,7 @@ private:
     uint64_t update_spinner_step_frame;
     int update_spinner_step;
 
-    PODVector<EditorPlugin *> editor_plugins;
+    Vector<EditorPlugin *> editor_plugins;
     EditorPlugin *editor_plugin_screen;
     EditorPluginList *editor_plugins_over;
     EditorPluginList *editor_plugins_force_over;
@@ -417,7 +417,7 @@ private:
         ToolButton *button;
     };
 
-    PODVector<BottomPanelItem> bottom_panel_items;
+    Vector<BottomPanelItem> bottom_panel_items;
 
     PanelContainer *bottom_panel;
     HBoxContainer *bottom_panel_hb;
@@ -433,7 +433,7 @@ private:
     void _bottom_panel_switch(bool p_enable, int p_idx);
 
     String external_file;
-    ListPOD<String> previous_scenes;
+    List<String> previous_scenes;
     bool opening_prev;
 
     void _dialog_action(se_string_view p_file);
@@ -459,7 +459,7 @@ private:
     void _on_plugin_ready(Object *p_script, const StringName &p_activate_name);
 
     void _fs_changed();
-    void _resources_reimported(const PODVector<String> &p_resources);
+    void _resources_reimported(const Vector<String> &p_resources);
     void _sources_changed(bool p_exist);
 
     void _node_renamed();
@@ -484,10 +484,10 @@ private:
     void _discard_changes(se_string_view p_str = se_string_view ());
 
     void _inherit_request(se_string_view p_file);
-    void _instance_request(const PODVector<String> &p_files);
+    void _instance_request(const Vector<String> &p_files);
 
     void _display_top_editors(bool p_display);
-    void _set_top_editors(PODVector<EditorPlugin *> &&p_editor_plugins_over);
+    void _set_top_editors(Vector<EditorPlugin *> &&p_editor_plugins_over);
     void _set_editing_top_editors(Object *p_current_object);
 
     void _quick_opened();
@@ -502,8 +502,8 @@ private:
     void _update_recent_scenes();
     void _open_recent_scene(int p_idx);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
-    void _dropped_files(const PODVector<String> &p_files, int p_screen);
-    void _add_dropped_files_recursive(const PODVector<String> &p_files, se_string_view to_path);
+    void _dropped_files(const Vector<String> &p_files, int p_screen);
+    void _add_dropped_files_recursive(const Vector<String> &p_files, se_string_view to_path);
     UIString _recent_scene;
 
     void _exit_editor();
@@ -563,14 +563,14 @@ private:
     };
 
     static EditorNode *singleton;
-    static PODVector<EditorNodeInitCallback> _init_callbacks;
+    static Vector<EditorNodeInitCallback> _init_callbacks;
     static int plugin_init_callback_count;
     static EditorPluginInitializeCallback plugin_init_callbacks[MAX_INIT_CALLBACKS];
     static int build_callback_count;
     static EditorBuildCallback build_callbacks[MAX_BUILD_CALLBACKS];
     bool cmdline_export_mode;
     bool restoring_scenes;
-    PODVector<Ref<EditorResourceConversionPlugin> > resource_conversion_plugins;
+    Vector<Ref<EditorResourceConversionPlugin> > resource_conversion_plugins;
 
     bool _find_scene_in_use(Node *p_node, se_string_view p_path) const;
 
@@ -749,7 +749,7 @@ public:
     static VSplitContainer *get_top_split() { return singleton->top_split; }
 
     void request_instance_scene(se_string_view p_path);
-    void request_instance_scenes(const PODVector<String> &p_files);
+    void request_instance_scenes(const Vector<String> &p_files);
     FileSystemDock *get_filesystem_dock();
     ImportDock *get_import_dock();
     SceneTreeDock *get_scene_tree_dock();
@@ -824,14 +824,14 @@ public:
     void remove_bottom_panel_item(Control *p_item);
 
     Variant drag_resource(const Ref<Resource> &p_res, Control *p_from);
-    Variant drag_files_and_dirs(const PODVector<String> &p_paths, Control *p_from);
+    Variant drag_files_and_dirs(const Vector<String> &p_paths, Control *p_from);
 
     void add_tool_menu_item(const StringName &p_name, Object *p_handler, se_string_view p_callback, const Variant &p_ud = Variant());
     void add_tool_submenu_item(const StringName &p_name, PopupMenu *p_submenu);
     void remove_tool_menu_item(const StringName &p_name);
 
     void save_all_scenes();
-    void save_scene_list(const PODVector<String> &p_scene_filenames);
+    void save_scene_list(const Vector<String> &p_scene_filenames);
     void restart_editor();
 
     void dim_editor(bool p_dimming, bool p_force_dim = false);
@@ -842,7 +842,7 @@ public:
     void update_keying() const;
     bool has_scenes_in_session();
 
-    int execute_and_show_output(const StringName &p_title, se_string_view p_path, const ListPOD<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
+    int execute_and_show_output(const StringName &p_title, se_string_view p_path, const List<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
 
     EditorNode();
     ~EditorNode() override;
@@ -850,7 +850,7 @@ public:
 
     void add_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin);
     void remove_resource_conversion_plugin(const Ref<EditorResourceConversionPlugin> &p_plugin);
-    PODVector<Ref<EditorResourceConversionPlugin>> find_resource_conversion_plugin(const Ref<Resource> &p_for_resource);
+    Vector<Ref<EditorResourceConversionPlugin>> find_resource_conversion_plugin(const Ref<Resource> &p_for_resource);
 
     static void add_init_callback(EditorNodeInitCallback p_callback) { _init_callbacks.push_back(p_callback); }
     static void add_build_callback(EditorBuildCallback p_callback);
@@ -876,14 +876,14 @@ struct EditorProgress {
 
 class EditorPluginList : public Object {
 private:
-    PODVector<EditorPlugin *> plugins_list;
+    Vector<EditorPlugin *> plugins_list;
 
 public:
-    void set_plugins_list(PODVector<EditorPlugin *> && p_plugins_list) {
+    void set_plugins_list(Vector<EditorPlugin *> && p_plugins_list) {
         plugins_list = eastl::move(p_plugins_list);
     }
 
-    PODVector<EditorPlugin *> &get_plugins_list() {
+    Vector<EditorPlugin *> &get_plugins_list() {
         return plugins_list;
     }
 

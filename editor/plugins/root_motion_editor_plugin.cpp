@@ -75,7 +75,7 @@ void EditorPropertyRootMotion::_node_assign() {
 
     Set<String> paths;
     {
-        PODVector<StringName> animations(player->get_animation_list());
+        Vector<StringName> animations(player->get_animation_list());
 
         for (const StringName & E : animations) {
 
@@ -140,7 +140,7 @@ void EditorPropertyRootMotion::_node_assign() {
                 //path in skeleton
                 const String &bone = concat;
                 int idx = skeleton->find_bone(bone);
-                PODVector<String> bone_path;
+                Vector<String> bone_path;
                 while (idx != -1) {
                     bone_path.push_front(skeleton->get_bone_name(idx));
                     idx = skeleton->get_bone_parent(idx);

@@ -83,16 +83,16 @@ class GDMonoClass {
     // Most method-related functions refer to this and it's possible this is unintuitive for outside users; this may be a prime location for refactoring or renaming.
     DefHashMap<MethodKey, GDMonoMethod *, MethodKey::Hasher> methods;
 
-    PODVector<GDMonoMethod *> method_list;
+    Vector<GDMonoMethod *> method_list;
 
     Map<StringName, GDMonoField *> fields;
-    PODVector<GDMonoField *> fields_list;
+    Vector<GDMonoField *> fields_list;
 
     Map<StringName, GDMonoProperty *> properties;
-    PODVector<GDMonoProperty *> properties_list;
+    Vector<GDMonoProperty *> properties_list;
 
     Map<StringName, GDMonoClass *> delegates;
-    PODVector<GDMonoClass *> delegates_list;
+    Vector<GDMonoClass *> delegates_list;
 
     bool attrs_fetched;
     bool methods_fetched;
@@ -125,7 +125,7 @@ public:
     GDMonoClass *get_nesting_class();
 
 #ifdef TOOLS_ENABLED
-    PODVector<MonoClassField *> get_enum_fields();
+    Vector<MonoClassField *> get_enum_fields();
 #endif
 
     GDMonoMethod *get_fetched_method_unknown_params(const StringName &p_name);
@@ -146,14 +146,14 @@ public:
     GDMonoMethod *get_method_with_desc(const String &p_description, bool p_include_namespace);
 
     GDMonoField *get_field(const StringName &p_name);
-    const PODVector<GDMonoField *> &get_all_fields();
+    const Vector<GDMonoField *> &get_all_fields();
 
     GDMonoProperty *get_property(const StringName &p_name);
-    const PODVector<GDMonoProperty *> &get_all_properties();
+    const Vector<GDMonoProperty *> &get_all_properties();
 
-    const PODVector<GDMonoClass *> &get_all_delegates();
+    const Vector<GDMonoClass *> &get_all_delegates();
 
-    const PODVector<GDMonoMethod *> &get_all_methods();
+    const Vector<GDMonoMethod *> &get_all_methods();
 
     ~GDMonoClass();
 };

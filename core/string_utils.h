@@ -43,7 +43,7 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT String hex_encode_buffer(const uint8_t *p_buffer, int p_len);
 
 [[nodiscard]] GODOT_EXPORT float similarity(se_string_view lhs,se_string_view p_string);
-[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> bigrams(se_string_view str);
+[[nodiscard]] GODOT_EXPORT Vector<se_string_view> bigrams(se_string_view str);
 [[nodiscard]] GODOT_EXPORT int compare(const UIString &lhs,const UIString &rhs,Compare case_sensitive=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT int compare(se_string_view lhs,se_string_view rhs,Compare case_sensitive=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT UIString percent_encode(const UIString &src);
@@ -57,12 +57,12 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT String sha1_text(const UIString &str);
 [[nodiscard]] GODOT_EXPORT String sha256_text(se_string_view str);
 //[[nodiscard]] GODOT_EXPORT String sha256_text(const String &str);
-[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> md5_buffer(se_string_view str);
-[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha1_buffer(const UIString &str);
-[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha256_buffer(const UIString &str);
+[[nodiscard]] GODOT_EXPORT Vector<uint8_t> md5_buffer(se_string_view str);
+[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha1_buffer(const UIString &str);
+[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha256_buffer(const UIString &str);
 
-[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha1_buffer(se_string_view str);
-[[nodiscard]] GODOT_EXPORT PODVector<uint8_t> sha256_buffer(se_string_view str);
+[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha1_buffer(se_string_view str);
+[[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha256_buffer(se_string_view str);
 
 [[nodiscard]] GODOT_EXPORT CharType char_uppercase(CharType p_char);
 [[nodiscard]] GODOT_EXPORT CharType char_lowercase(CharType p_char);
@@ -96,19 +96,19 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT bool is_subsequence_of(const UIString &str,const UIString &p_string, Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool is_subsequence_of(se_string_view str,se_string_view p_string, Compare mode=CaseSensitive);
 
-[[nodiscard]] GODOT_EXPORT UIString join(const UIString &str, const PODVector<UIString> &parts);
+[[nodiscard]] GODOT_EXPORT UIString join(const UIString &str, const Vector<UIString> &parts);
 [[nodiscard]] GODOT_EXPORT UIString repeat(const UIString &str,int p_count);
-[[nodiscard]] GODOT_EXPORT PODVector<UIString> rsplit(const UIString &str,const UIString &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT PODVector<UIString> split(const UIString &str,CharType p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT PODVector<UIString> split(const UIString &str,const UIString &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> split(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
-[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> split(se_string_view str,char p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT PODVector<UIString> split_spaces(const UIString &str);
-//[[nodiscard]] GODOT_EXPORT PODVector<float> split_floats(const String &str,const String &p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT PODVector<float> split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT PODVector<float> split_floats_mk(se_string_view str,se_string_view split_chars, bool p_allow_empty = true);
-[[nodiscard]] GODOT_EXPORT PODVector<se_string_view> split_spaces(se_string_view str);
+[[nodiscard]] GODOT_EXPORT Vector<UIString> rsplit(const UIString &str,const UIString &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT Vector<se_string_view> rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT Vector<UIString> split(const UIString &str,CharType p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT Vector<UIString> split(const UIString &str,const UIString &p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT Vector<se_string_view> split(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true, int p_maxsplit = 0);
+[[nodiscard]] GODOT_EXPORT Vector<se_string_view> split(se_string_view str,char p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT Vector<UIString> split_spaces(const UIString &str);
+//[[nodiscard]] GODOT_EXPORT Vector<float> split_floats(const String &str,const String &p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT Vector<float> split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT Vector<float> split_floats_mk(se_string_view str,se_string_view split_chars, bool p_allow_empty = true);
+[[nodiscard]] GODOT_EXPORT Vector<se_string_view> split_spaces(se_string_view str);
 [[nodiscard]] GODOT_EXPORT bool contains(const UIString &heystack,CharType c,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const UIString &heystack,const UIString &needle,Compare mode=CaseSensitive);
 [[nodiscard]] GODOT_EXPORT bool contains(const UIString &heystack, se_string_view needle,Compare mode=CaseSensitive);

@@ -67,7 +67,7 @@ void DependencyEditor::_load_pressed(Object *p_item, int p_cell, int p_button) {
     search->set_title(TTR("Search Replacement For:") + " " + PathUtils::get_file(replacing));
 
     search->clear_filters();
-    PODVector<String> ext;
+    Vector<String> ext;
     ResourceLoader::get_recognized_extensions_for_type(ti->get_metadata(0).as<String>(), ext);
     for (const String &E : ext) {
         search->add_filter("*" + E);
@@ -101,9 +101,9 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_str
             String current = StringUtils::replace_first(path,"res://", String());
             String lost = StringUtils::replace_first(E.first,"res://", String());
 
-            PODVector<se_string_view> existingv = StringUtils::split(existing,'/');
-            PODVector<se_string_view> currentv = StringUtils::split(current,'/');
-            PODVector<se_string_view> lostv = StringUtils::split(lost,'/');
+            Vector<se_string_view> existingv = StringUtils::split(existing,'/');
+            Vector<se_string_view> currentv = StringUtils::split(current,'/');
+            Vector<se_string_view> lostv = StringUtils::split(lost,'/');
             eastl::reverse(existingv.begin(),existingv.end());
             eastl::reverse(currentv.begin(),currentv.end());
             eastl::reverse(lostv.begin(),lostv.end());
@@ -174,7 +174,7 @@ void DependencyEditor::_update_file() {
 
 void DependencyEditor::_update_list() {
 
-    PODVector<String> deps;
+    Vector<String> deps;
     ResourceLoader::get_dependencies(editing, deps, true);
 
     tree->clear();
@@ -334,7 +334,7 @@ void DependencyEditorOwners::_fill_owners(EditorFileSystemDirectory *efsd) {
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
-        const PODVector<String> &deps = efsd->get_file_deps(i);
+        const Vector<String> &deps = efsd->get_file_deps(i);
         bool found = false;
         for (int j = 0; j < deps.size(); j++) {
             if (deps[j] == editing) {
@@ -393,7 +393,7 @@ void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirec
     }
 }
 
-void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDirectory *efsd, PODVector<RemovedDependency> &p_removed) {
+void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDirectory *efsd, Vector<RemovedDependency> &p_removed) {
     if (!efsd)
         return;
 
@@ -408,7 +408,7 @@ void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDire
         if (all_remove_files.contains(path))
             continue;
 
-        const PODVector<String> &all_deps = efsd->get_file_deps(i);
+        const Vector<String> &all_deps = efsd->get_file_deps(i);
         for (int j = 0; j < all_deps.size(); ++j) {
             if (all_remove_files.contains(all_deps[j])) {
                 RemovedDependency dep;
@@ -422,7 +422,7 @@ void DependencyRemoveDialog::_find_all_removed_dependencies(EditorFileSystemDire
     }
 }
 
-void DependencyRemoveDialog::_build_removed_dependency_tree(const PODVector<RemovedDependency> &p_removed) {
+void DependencyRemoveDialog::_build_removed_dependency_tree(const Vector<RemovedDependency> &p_removed) {
     owners->clear();
     owners->create_item(); // root
 
@@ -460,7 +460,7 @@ void DependencyRemoveDialog::_build_removed_dependency_tree(const PODVector<Remo
     }
 }
 
-void DependencyRemoveDialog::show(const PODVector<String> &p_folders, const PODVector<String> &p_files) {
+void DependencyRemoveDialog::show(const Vector<String> &p_folders, const Vector<String> &p_files) {
     all_remove_files.clear();
     dirs_to_delete.clear();
     files_to_delete.clear();
@@ -476,7 +476,7 @@ void DependencyRemoveDialog::show(const PODVector<String> &p_folders, const PODV
         files_to_delete.push_back(p_files[i]);
     }
 
-    PODVector<RemovedDependency> removed_deps;
+    Vector<RemovedDependency> removed_deps;
     _find_all_removed_dependencies(EditorFileSystem::get_singleton()->get_filesystem(), removed_deps);
     eastl::sort(removed_deps.begin(),removed_deps.end());
     if (removed_deps.empty()) {
@@ -559,8 +559,8 @@ void DependencyRemoveDialog::ok_pressed() {
     }
 
     // If some files/dirs would be deleted, favorite dirs need to be updated
-    const PODVector<String> &previous_favorites(EditorSettings::get_singleton()->get_favorites());
-    PODVector<String> new_favorites;
+    const Vector<String> &previous_favorites(EditorSettings::get_singleton()->get_favorites());
+    Vector<String> new_favorites;
 
     for (int i = 0; i < previous_favorites.size(); ++i) {
         if (StringUtils::ends_with(previous_favorites[i],"/")) {
@@ -600,7 +600,7 @@ DependencyRemoveDialog::DependencyRemoveDialog() {
 
 //////////////
 
-void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const PODVector<String> &report) {
+void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const Vector<String> &report) {
 
     mode = p_mode;
     for_file = p_for_file;
@@ -710,7 +710,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
     for (int i = 0; i < efsd->get_file_count(); i++) {
 
         if (!p_parent) {
-            const PODVector<String> &deps = efsd->get_file_deps(i);
+            const Vector<String> &deps = efsd->get_file_deps(i);
             for (int j = 0; j < deps.size(); j++) {
 
                 if (!refs.contains(deps[j])) {
@@ -758,7 +758,7 @@ void OrphanResourcesDialog::show() {
     popup_centered_ratio();
 }
 
-void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, PODVector<String> &paths) {
+void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, Vector<String> &paths) {
 
     while (p_item) {
 

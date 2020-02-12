@@ -47,11 +47,11 @@ WSLServer::PendingPeer::PendingPeer() {
 }
 
 bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocols) {
-    PODVector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
+    Vector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
-    PODVector<se_string_view> req = StringUtils::split(psa[0]," ", false);
+    Vector<se_string_view> req = StringUtils::split(psa[0]," ", false);
     ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
@@ -59,7 +59,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocol
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
-        PODVector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i]);
         String name = StringUtils::to_lower(header[0]);
         se_string_view value =StringUtils::strip_edges( header[1]);
@@ -81,7 +81,7 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocol
 #undef _WSL_CHECK
     key = headers["sec-websocket-key"];
     if (headers.contains("sec-websocket-protocol")) {
-        PODVector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
+        Vector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
             auto proto = StringUtils::strip_edges(protos[i]);
             // Check if we have the given protocol
@@ -177,7 +177,7 @@ Error WSLServer::listen(int p_port, const PoolVector<String> &p_protocols, bool 
 
 void WSLServer::poll() {
 
-    List<int> remove_ids;
+    ListOld<int> remove_ids;
     for (eastl::pair<const int,Ref<WebSocketPeer> > &E : _peer_map) {
         Ref<WSLPeer> peer((WSLPeer *)E.second.get());
         peer->poll();
@@ -186,13 +186,13 @@ void WSLServer::poll() {
             remove_ids.push_back(E.first);
         }
     }
-    for (List<int>::Element *E = remove_ids.front(); E; E = E->next()) {
+    for (ListOld<int>::Element *E = remove_ids.front(); E; E = E->next()) {
         _peer_map.erase(E->deref());
     }
     remove_ids.clear();
 
-    List<Ref<PendingPeer> > remove_peers;
-    for (List<Ref<PendingPeer> >::Element *E = _pending.front(); E; E = E->next()) {
+    ListOld<Ref<PendingPeer> > remove_peers;
+    for (ListOld<Ref<PendingPeer> >::Element *E = _pending.front(); E; E = E->next()) {
         Ref<PendingPeer> ppeer = E->deref();
         Error err = ppeer->do_handshake(_protocols);
         if (err == ERR_BUSY) {
@@ -219,7 +219,7 @@ void WSLServer::poll() {
         remove_peers.push_back(ppeer);
         _on_connect(id, ppeer->protocol);
     }
-    for (List<Ref<PendingPeer> >::Element *E = remove_peers.front(); E; E = E->next()) {
+    for (ListOld<Ref<PendingPeer> >::Element *E = remove_peers.front(); E; E = E->next()) {
         _pending.erase(E->deref());
     }
     remove_peers.clear();

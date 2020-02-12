@@ -346,8 +346,8 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             if (strlen & 0x80000000) {
                 //new format
                 ERR_FAIL_COND_V(len < 12, ERR_INVALID_DATA);
-                PODVector<StringName> names;
-                PODVector<StringName> subnames;
+                Vector<StringName> names;
+                Vector<StringName> subnames;
 
                 uint32_t namecount = strlen &= 0x7FFFFFFF;
                 uint32_t subnamecount = decode_uint32(buf + 4);
@@ -1113,7 +1113,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 } else {
                     _encode_string(obj->get_class(), buf, r_len);
 
-                    PODVector<PropertyInfo> props;
+                    Vector<PropertyInfo> props;
                     obj->get_property_list(&props);
 
                     int pc = 0;
@@ -1174,7 +1174,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
             }
             r_len += 4;
 
-            PODVector<Variant> keys(d.get_key_list());
+            Vector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {
 

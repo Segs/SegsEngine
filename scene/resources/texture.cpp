@@ -85,7 +85,7 @@ namespace  {
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
             ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path));
-            PODVector<uint8_t> buffer;
+            Vector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 
             file->store_buffer(buffer.data(), buffer.size());
@@ -104,7 +104,7 @@ namespace  {
 
             return dynamic_ref_cast<ImageTexture>(p_resource)!=nullptr;
         }
-        void get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const final {
+        void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const final {
             if (object_cast<ImageTexture>(p_resource.get()))
                 return m_saver->get_saved_extensions(p_extensions);
         }
@@ -243,7 +243,7 @@ bool ImageTexture::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void ImageTexture::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void ImageTexture::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic,sRGB,Mirrored Repeat"));
     p_list->push_back(PropertyInfo(VariantType::OBJECT, "image", PropertyHint::ResourceType, "Image", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESOURCE_NOT_PERSISTENT));
@@ -651,9 +651,9 @@ Error StreamTexture::_load_data(se_string_view p_path, int &tw, int &th, int &tw
         }
 
         //mipmaps need to be read independently, they will be later combined
-        PODVector<Ref<Image> > mipmap_images;
+        Vector<Ref<Image> > mipmap_images;
         int total_size = 0;
-        PODVector<uint8_t> pv;
+        Vector<uint8_t> pv;
 
         for (uint32_t i = 0; i < mipmaps; i++) {
 
@@ -963,7 +963,7 @@ RES ResourceFormatLoaderStreamTexture::load(se_string_view p_path, se_string_vie
     return st;
 }
 
-void ResourceFormatLoaderStreamTexture::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderStreamTexture::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("stex"));
 }
@@ -1686,7 +1686,7 @@ bool CubeMap::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void CubeMap::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void CubeMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
     p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));
@@ -2478,12 +2478,12 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
             //look for a PNG file inside
 
             int mipmaps = f->get_32();
-            PODVector<Ref<Image> > mipmap_images;
+            Vector<Ref<Image> > mipmap_images;
 
             for (int i = 0; i < mipmaps; i++) {
                 uint32_t size = f->get_32();
 
-                PODVector<uint8_t> pv;
+                Vector<uint8_t> pv;
                 pv.resize(size);
                 f->get_buffer(pv.data(), size);
 
@@ -2569,7 +2569,7 @@ RES ResourceFormatLoaderTextureLayered::load(se_string_view p_path, se_string_vi
     return lt;
 }
 
-void ResourceFormatLoaderTextureLayered::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderTextureLayered::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back(("tex3d"));
     p_extensions.push_back(("texarr"));

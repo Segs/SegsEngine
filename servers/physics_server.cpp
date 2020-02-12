@@ -287,7 +287,7 @@ PhysicsShapeQueryParameters::PhysicsShapeQueryParameters() {
 
 /////////////////////////////////////
 
-Dictionary PhysicsDirectSpaceState::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const PODVector<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Dictionary PhysicsDirectSpaceState::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
     Set<RID> exclude;
@@ -314,10 +314,10 @@ Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParam
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
-    PODVector<ShapeResult> sr;
+    Vector<ShapeResult> sr;
     sr.resize(p_max_results);
     int rc = intersect_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->margin, sr.data(), sr.size(), p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
-    PODVector<Variant> ret;
+    Vector<Variant> ret;
     ret.reserve(rc);
     for (int i = 0; i < rc; i++) {
 
@@ -350,13 +350,13 @@ Array PhysicsDirectSpaceState::_collide_shape(const Ref<PhysicsShapeQueryParamet
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
-    PODVector<Vector3> ret;
+    Vector<Vector3> ret;
     ret.resize(p_max_results * 2);
     int rc = 0;
     bool res = collide_shape(p_shape_query->shape, p_shape_query->transform, p_shape_query->margin, ret.data(), p_max_results, rc, p_shape_query->exclude, p_shape_query->collision_mask, p_shape_query->collide_with_bodies, p_shape_query->collide_with_areas);
     if (!res)
         return Array();
-    PODVector<Variant> r;
+    Vector<Variant> r;
     r.resize(rc * 2);
     for (int i = 0; i < rc * 2; i++)
         r[i] = ret[i];
@@ -761,7 +761,7 @@ PhysicsServer::~PhysicsServer() {
     singleton = nullptr;
 }
 
-PODVector<PhysicsServerManager::ClassInfo> PhysicsServerManager::physics_servers;
+Vector<PhysicsServerManager::ClassInfo> PhysicsServerManager::physics_servers;
 int PhysicsServerManager::default_server_id = -1;
 int PhysicsServerManager::default_server_priority = -1;
 const StaticCString PhysicsServerManager::setting_property_name("physics/3d/physics_engine");

@@ -40,7 +40,7 @@ VARIANT_ENUM_CAST(TileSet::AutotileBindings);
 VARIANT_ENUM_CAST(TileSet::BitmaskMode);
 VARIANT_ENUM_CAST(TileSet::TileMode);
 
-static const PODVector<TileSet::ShapeData> null_shape_vec;
+static const Vector<TileSet::ShapeData> null_shape_vec;
 
 bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
@@ -336,7 +336,7 @@ bool TileSet::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void TileSet::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void TileSet::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (const eastl::pair<const int,TileData> &E : tile_map) {
 
@@ -647,8 +647,8 @@ Vector2 TileSet::autotile_get_subtile_for_bitmask(int p_id, uint16_t p_bitmask, 
         }
     }
 
-    PODVector<Vector2> coords;
-    PODVector<uint32_t> priorities;
+    Vector<Vector2> coords;
+    Vector<uint32_t> priorities;
     uint32_t priority_sum = 0;
     uint32_t mask;
     uint16_t mask_;
@@ -705,7 +705,7 @@ Vector2 TileSet::atlastile_get_subtile_by_priority(int p_id, const Node *p_tilem
 
     Vector2 coord = tile_get_region(p_id).size / autotile_get_size(p_id);
 
-    PODVector<Vector2> coords(size_t(int(coord.x)*int(coord.y)));
+    Vector<Vector2> coords(size_t(int(coord.x)*int(coord.y)));
     for (int x = 0; x < coord.x; x++) {
         for (int y = 0; y < coord.y; y++) {
             for (int i = 0; i < autotile_get_subtile_priority(p_id, Vector2(x, y)); i++) {
@@ -964,7 +964,7 @@ Vector2 TileSet::tile_get_occluder_offset(int p_id) const {
     return tile_map.at(p_id).occluder_offset;
 }
 
-void TileSet::tile_set_shapes(int p_id, const PODVector<TileSet::ShapeData> &p_shapes) {
+void TileSet::tile_set_shapes(int p_id, const Vector<TileSet::ShapeData> &p_shapes) {
 
     ERR_FAIL_COND(!tile_map.contains(p_id));
     tile_map[p_id].shapes_data = p_shapes;
@@ -974,7 +974,7 @@ void TileSet::tile_set_shapes(int p_id, const PODVector<TileSet::ShapeData> &p_s
     emit_changed();
 }
 
-const PODVector<TileSet::ShapeData> &TileSet::tile_get_shapes(int p_id) const {
+const Vector<TileSet::ShapeData> &TileSet::tile_get_shapes(int p_id) const {
 
     ERR_FAIL_COND_V(!tile_map.contains(p_id), null_shape_vec);
 
@@ -997,7 +997,7 @@ void TileSet::tile_set_z_index(int p_id, int p_z_index) {
 void TileSet::_tile_set_shapes(int p_id, const Array &p_shapes) {
 
     ERR_FAIL_COND(!tile_map.contains(p_id));
-    PODVector<ShapeData> shapes_data;
+    Vector<ShapeData> shapes_data;
     Transform2D default_transform = tile_get_shape_transform(p_id, 0);
     bool default_one_way = tile_get_shape_one_way(p_id, 0);
     Vector2 default_autotile_coord = Vector2();
@@ -1059,7 +1059,7 @@ Array TileSet::_tile_get_shapes(int p_id) const {
     ERR_FAIL_COND_V(!tile_map.contains(p_id), Array());
     Array arr;
 
-    const PODVector<ShapeData> &data = tile_map.at(p_id).shapes_data;
+    const Vector<ShapeData> &data = tile_map.at(p_id).shapes_data;
     for (int i = 0; i < data.size(); i++) {
         Dictionary shape_data;
         shape_data["shape"] = data[i].shape;
@@ -1090,7 +1090,7 @@ void TileSet::_decompose_convex_shape(Ref<Shape2D> p_shape) {
     Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(p_shape);
     if (not convex)
         return;
-    PODVector<PODVector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(convex->get_points());
+    Vector<Vector<Vector2> > decomp = Geometry::decompose_polygon_in_convex(convex->get_points());
     if (decomp.size() > 1) {
         Array sub_shapes;
         for (size_t i = 0; i < decomp.size(); i++) {
@@ -1104,7 +1104,7 @@ void TileSet::_decompose_convex_shape(Ref<Shape2D> p_shape) {
     }
 }
 
-void TileSet::get_tile_list(PODVector<int> *p_tiles) const {
+void TileSet::get_tile_list(Vector<int> *p_tiles) const {
     p_tiles->reserve(tile_map.size());
     for (const eastl::pair<const int,TileData> &E : tile_map) {
 

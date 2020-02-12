@@ -62,9 +62,9 @@ VARIANT_ENUM_CAST(VisualShaderNode::PortType)
 namespace {
     Error _write_node(VisualShader::Type type,const VisualShader *vs,StringBuilder &global_code, StringBuilder &global_code_per_node,
             Map<VisualShader::Type, StringBuilder> &global_code_per_func, StringBuilder &code,
-            PODVector<VisualShader::DefaultTextureParam> &def_tex_params,
-            const VMap<VisualShader::ConnectionKey, const List<VisualShader::Connection>::Element *> &input_connections,
-            const VMap<VisualShader::ConnectionKey, const List<VisualShader::Connection>::Element *> &output_connections, int node, Set<int> &processed,
+            Vector<VisualShader::DefaultTextureParam> &def_tex_params,
+            const VMap<VisualShader::ConnectionKey, const ListOld<VisualShader::Connection>::Element *> &input_connections,
+            const VMap<VisualShader::ConnectionKey, const ListOld<VisualShader::Connection>::Element *> &output_connections, int node, Set<int> &processed,
             bool for_preview, Set<StringName> &r_classes) {
 
         using Type = VisualShader::Type;
@@ -94,7 +94,7 @@ namespace {
         // then this node
 
         code += String("// ") + vsnode->get_caption() + ":" + itos(node) + "\n";
-        PODVector<String> input_vars;
+        Vector<String> input_vars;
 
         input_vars.resize(vsnode->get_input_port_count());
         String *inputs = input_vars.data();
@@ -171,7 +171,7 @@ namespace {
         }
 
         int output_count = vsnode->get_output_port_count();
-        PODVector<String> output_vars;
+        Vector<String> output_vars;
         output_vars.reserve(output_count);
         String *outputs = output_vars.data();
 
@@ -203,7 +203,7 @@ namespace {
             }
         }
 
-        PODVector<VisualShader::DefaultTextureParam> params = vsnode->get_default_texture_parameters(type, node);
+        Vector<VisualShader::DefaultTextureParam> params = vsnode->get_default_texture_parameters(type, node);
         for (int i = 0; i < params.size(); i++) {
             def_tex_params.push_back(params[i]);
         }
@@ -266,8 +266,8 @@ bool VisualShaderNode::is_port_separator(int /*p_index*/) const {
     return false;
 }
 
-PODVector<VisualShader::DefaultTextureParam> VisualShaderNode::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
-    return PODVector<VisualShader::DefaultTextureParam>();
+Vector<VisualShader::DefaultTextureParam> VisualShaderNode::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
+    return Vector<VisualShader::DefaultTextureParam>();
 }
 String VisualShaderNode::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     return String();
@@ -281,8 +281,8 @@ String VisualShaderNode::generate_global_per_func(ShaderMode p_mode, VisualShade
     return String();
 }
 
-PODVector<StringName> VisualShaderNode::get_editable_properties() const {
-    return PODVector<StringName>();
+Vector<StringName> VisualShaderNode::get_editable_properties() const {
+    return Vector<StringName>();
 }
 
 Array VisualShaderNode::get_default_input_values() const {
@@ -544,11 +544,11 @@ Ref<VisualShaderNode> VisualShader::get_node(Type p_type, int p_id) const {
     return g->nodes.at(p_id).node;
 }
 
-PODVector<int> VisualShader::get_node_list(Type p_type) const {
-    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, PODVector<int>());
+Vector<int> VisualShader::get_node_list(Type p_type) const {
+    ERR_FAIL_INDEX_V(p_type, TYPE_MAX, Vector<int>());
     const Graph *g = &graph[p_type];
 
-    PODVector<int> ret;
+    Vector<int> ret;
     ret.reserve(g->nodes.size());
     for (const eastl::pair<const int,Node> &E : g->nodes) {
         ret.push_back(E.first);
@@ -586,8 +586,8 @@ void VisualShader::remove_node(Type p_type, int p_id) {
 
     g->nodes.erase(p_id);
 
-    for (List<Connection>::Element *E = g->connections.front(); E;) {
-        List<Connection>::Element *N = E->next();
+    for (ListOld<Connection>::Element *E = g->connections.front(); E;) {
+        ListOld<Connection>::Element *N = E->next();
         if (E->deref().from_node == p_id || E->deref().to_node == p_id) {
             g->connections.erase(E);
             if (E->deref().from_node == p_id) {
@@ -604,7 +604,7 @@ bool VisualShader::is_node_connection(Type p_type, int p_from_node, int p_from_p
     ERR_FAIL_INDEX_V(p_type, TYPE_MAX, false);
     const Graph *g = &graph[p_type];
 
-    for (const List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
             return true;
@@ -619,7 +619,7 @@ bool VisualShader::is_nodes_connected_relatively(const Graph *p_graph, int p_nod
 
     const VisualShader::Node &node = p_graph->nodes.at(p_node);
 
-    for (const List<int>::Element *E = node.prev_connected_nodes.front(); E; E = E->next()) {
+    for (const ListOld<int>::Element *E = node.prev_connected_nodes.front(); E; E = E->next()) {
 
         if (E->deref() == p_target) {
             return true;
@@ -660,7 +660,7 @@ bool VisualShader::can_connect_nodes(Type p_type, int p_from_node, int p_from_po
         return false;
     }
 
-    for (const List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
             return false;
@@ -703,7 +703,7 @@ Error VisualShader::connect_nodes(Type p_type, int p_from_node, int p_from_port,
 
     ERR_FAIL_COND_V_MSG(!is_port_types_compatible(from_port_type, to_port_type), ERR_INVALID_PARAMETER, "Incompatible port types (scalar/vec/bool) with transform.");
 
-    for (List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
             ERR_FAIL_V(ERR_ALREADY_EXISTS);
@@ -726,7 +726,7 @@ void VisualShader::disconnect_nodes(Type p_type, int p_from_node, int p_from_por
     ERR_FAIL_INDEX(p_type, TYPE_MAX);
     Graph *g = &graph[p_type];
 
-    for (List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
 
         if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
             g->connections.erase(E);
@@ -742,7 +742,7 @@ Array VisualShader::_get_node_connections(Type p_type) const {
     const Graph *g = &graph[p_type];
 
     Array ret;
-    for (const List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
         Dictionary d;
         d["from_node"] = E->deref().from_node;
         d["from_port"] = E->deref().from_port;
@@ -754,11 +754,11 @@ Array VisualShader::_get_node_connections(Type p_type) const {
     return ret;
 }
 
-void VisualShader::get_node_connections(Type p_type, List<Connection> *r_connections) const {
+void VisualShader::get_node_connections(Type p_type, ListOld<Connection> *r_connections) const {
     ERR_FAIL_INDEX(p_type, TYPE_MAX);
     const Graph *g = &graph[p_type];
 
-    for (const List<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
         r_connections->push_back(E->deref());
     }
 }
@@ -787,11 +787,11 @@ void VisualShader::set_mode(ShaderMode p_mode) {
         output->shader_mode = shader_mode;
 
         // clear connections since they are no longer valid
-        for (List<Connection>::Element *E = graph[i].connections.front(); E;) {
+        for (ListOld<Connection>::Element *E = graph[i].connections.front(); E;) {
 
             bool keep = true;
 
-            List<Connection>::Element *N = E->next();
+            ListOld<Connection>::Element *N = E->next();
 
             int from = E->deref().from_node;
             int to = E->deref().to_node;
@@ -841,7 +841,7 @@ bool VisualShader::is_text_shader() const {
     return false;
 }
 
-String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port, PODVector<VisualShader::DefaultTextureParam> &default_tex_params) const {
+String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port, Vector<VisualShader::DefaultTextureParam> &default_tex_params) const {
 
     Ref<VisualShaderNode> node = get_node(p_type, p_node);
     ERR_FAIL_COND_V(not node, String());
@@ -876,10 +876,10 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
     global_code += global_expressions;
 
     //make it faster to go around through shader
-    VMap<ConnectionKey, const List<Connection>::Element *> input_connections;
-    VMap<ConnectionKey, const List<Connection>::Element *> output_connections;
+    VMap<ConnectionKey, const ListOld<Connection>::Element *> input_connections;
+    VMap<ConnectionKey, const ListOld<Connection>::Element *> output_connections;
 
-    for (const List<Connection>::Element *E = graph[p_type].connections.front(); E; E = E->next()) {
+    for (const ListOld<Connection>::Element *E = graph[p_type].connections.front(); E; E = E->next()) {
         ConnectionKey from_key;
         from_key.node = E->deref().from_node;
         from_key.port = E->deref().from_port;
@@ -920,7 +920,7 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
 
 #define IS_SYMBOL_CHAR(m_d) (((m_d) >= 'a' && (m_d) <= 'z') || ((m_d) >= 'A' && (m_d) <= 'Z') || ((m_d) >= '0' && (m_d) <= '9') || (m_d) == '_')
 
-String VisualShader::validate_port_name(se_string_view p_name, const PODVector<StringName> &p_input_ports, const PODVector<StringName> &p_output_ports) const {
+String VisualShader::validate_port_name(se_string_view p_name, const Vector<StringName> &p_input_ports, const Vector<StringName> &p_output_ports) const {
     String name(p_name);
 
     while (name.length() && !IS_INITIAL_CHAR(name[0])) {
@@ -1151,8 +1151,8 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
         String index(StringUtils::get_slice(name,'/', 2));
         if (index == "connections") {
 
-            PODVector<int> conns;
-            for (const List<Connection>::Element *E = graph[type].connections.front(); E; E = E->next()) {
+            Vector<int> conns;
+            for (const ListOld<Connection>::Element *E = graph[type].connections.front(); E; E = E->next()) {
                 conns.push_back(E->deref().from_node);
                 conns.push_back(E->deref().from_port);
                 conns.push_back(E->deref().to_node);
@@ -1188,7 +1188,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
     }
     return false;
 }
-void VisualShader::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void VisualShader::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     //mode
     p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Spatial,CanvasItem,Particles"));
@@ -1265,9 +1265,9 @@ void VisualShader::_update_shader() const {
     StringBuilder global_code_per_node;
     Map<Type, StringBuilder> global_code_per_func;
     StringBuilder code;
-    PODVector<DefaultTextureParam> default_tex_params;
+    Vector<DefaultTextureParam> default_tex_params;
     Set<StringName> classes;
-    PODVector<int> insertion_pos;
+    Vector<int> insertion_pos;
     static constexpr const char *shader_mode_str[] = { "spatial", "canvas_item", "particles" };
 
     global_code += String() + "shader_type " + shader_mode_str[int(shader_mode)] + ";\n";
@@ -1342,10 +1342,10 @@ void VisualShader::_update_shader() const {
     for (int i = 0; i < TYPE_MAX; i++) {
 
         //make it faster to go around through shader
-        VMap<ConnectionKey, const List<Connection>::Element *> input_connections;
-        VMap<ConnectionKey, const List<Connection>::Element *> output_connections;
+        VMap<ConnectionKey, const ListOld<Connection>::Element *> input_connections;
+        VMap<ConnectionKey, const ListOld<Connection>::Element *> output_connections;
 
-        for (const List<Connection>::Element *E = graph[i].connections.front(); E; E = E->next()) {
+        for (const ListOld<Connection>::Element *E = graph[i].connections.front(); E; E = E->next()) {
             ConnectionKey from_key;
             from_key.node = E->deref().from_node;
             from_key.port = E->deref().from_port;
@@ -1403,8 +1403,8 @@ void VisualShader::_input_type_changed(Type p_type, int p_id) {
     //erase connections using this input, as type changed
     Graph *g = &graph[p_type];
 
-    for (List<Connection>::Element *E = g->connections.front(); E;) {
-        List<Connection>::Element *N = E->next();
+    for (ListOld<Connection>::Element *E = g->connections.front(); E;) {
+        ListOld<Connection>::Element *N = E->next();
         if (E->deref().from_node == p_id) {
             g->connections.erase(E);
             g->nodes[E->deref().to_node].prev_connected_nodes.erase(p_id);
@@ -1863,8 +1863,8 @@ void VisualShaderNodeInput::_validate_property(PropertyInfo &property) const {
     }
 }
 
-PODVector<StringName> VisualShaderNodeInput::get_editable_properties() const {
-    PODVector<StringName> props { "input_name" };
+Vector<StringName> VisualShaderNodeInput::get_editable_properties() const {
+    Vector<StringName> props { "input_name" };
 
     return props;
 }
@@ -2104,13 +2104,13 @@ void VisualShaderNodeGroupBase::set_inputs(const String &p_inputs) {
 
     inputs = p_inputs;
 
-    PODVector<se_string_view> input_strings = StringUtils::split(inputs,';', false);
+    Vector<se_string_view> input_strings = StringUtils::split(inputs,';', false);
 
     int input_port_count = input_strings.size();
 
     for (int i = 0; i < input_port_count; i++) {
 
-        PODVector<se_string_view> arr = StringUtils::split(input_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(input_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
 
         int port_idx = StringUtils::to_int(arr[0]);
@@ -2137,13 +2137,13 @@ void VisualShaderNodeGroupBase::set_outputs(const String &p_outputs) {
 
     outputs = p_outputs;
 
-    PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
 
     int output_port_count = output_strings.size();
 
     for (int i = 0; i < output_port_count; i++) {
 
-        PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
 
         int port_idx = StringUtils::to_int(arr[0]);
@@ -2181,7 +2181,7 @@ bool VisualShaderNodeGroupBase::is_valid_port_name(const String &p_name) const {
 void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const String &p_name) {
 
     String str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
-    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int index = 0;
     if (p_id < inputs_strings.size()) {
         for (size_t i = 0; i < inputs_strings.size(); i++) {
@@ -2219,11 +2219,11 @@ void VisualShaderNodeGroupBase::remove_input_port(int p_id) {
 
     ERR_FAIL_COND(!has_input_port(p_id));
 
-    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             count = inputs_strings[i].size();
             break;
@@ -2290,11 +2290,11 @@ void VisualShaderNodeGroupBase::remove_output_port(int p_id) {
 
     ERR_FAIL_COND(!has_output_port(p_id));
 
-    PODVector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (se_string_view output : outputs_strings) {
-        PODVector<se_string_view> arr = StringUtils::split(output,',');
+        Vector<se_string_view> arr = StringUtils::split(output,',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             count = output.size();
             break;
@@ -2335,11 +2335,11 @@ void VisualShaderNodeGroupBase::set_input_port_type(int p_id, int p_type) {
     if (input_ports[p_id].type == p_type)
         return;
 
-    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
@@ -2369,11 +2369,11 @@ void VisualShaderNodeGroupBase::set_input_port_name(int p_id, const String &p_na
     if (input_ports[p_id].name == p_name)
         return;
 
-    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
             count = arr[2].size() - 1;
@@ -2402,11 +2402,11 @@ void VisualShaderNodeGroupBase::set_output_port_type(int p_id, int p_type) {
     if (output_ports[p_id].type == p_type)
         return;
 
-    PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (size_t i = 0; i < output_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
             count = arr[1].size() - 1;
@@ -2435,11 +2435,11 @@ void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const String &p_n
     if (output_ports[p_id].name == p_name)
         return;
 
-    PODVector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (size_t i = 0; i < output_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
             count = arr[2].size() - 1;
@@ -2479,14 +2479,14 @@ Control *VisualShaderNodeGroupBase::get_control(int p_index) {
 
 void VisualShaderNodeGroupBase::_apply_port_changes() {
 
-    PODVector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
-    PODVector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
 
     clear_input_ports();
     clear_output_ports();
 
     for (size_t i = 0; i < inputs_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);
@@ -2494,7 +2494,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
         input_ports[i] = port;
     }
     for (size_t i = 0; i < outputs_strings.size(); i++) {
-        PODVector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
+        Vector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);

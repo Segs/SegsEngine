@@ -46,8 +46,8 @@ class GODOT_EXPORT AudioDriverALSA : public AudioDriver {
     String device_name;
     String new_device;
 
-    PODVector<int32_t> samples_in;
-    PODVector<int16_t> samples_out;
+    Vector<int32_t> samples_in;
+    Vector<int16_t> samples_out;
 
     Error init_device();
     void finish_device();

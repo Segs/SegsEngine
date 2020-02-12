@@ -1422,7 +1422,7 @@ void PopupMenu::set_parent_rect(const Rect2 &p_rect) {
     parent_rect = p_rect;
 }
 
-void PopupMenu::get_translatable_strings(ListPOD<StringName> *p_strings) const {
+void PopupMenu::get_translatable_strings(List<StringName> *p_strings) const {
 
     for (int i = 0; i < items.size(); i++) {
 

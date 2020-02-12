@@ -91,12 +91,12 @@ public:
     static Error compress_image(Image *,CompressParams p);
     static Error decompress_image(Image *,CompressParams p);
 
-    static PODVector<uint8_t> lossy_packer(const Ref<Image> &p_image, float p_quality);
-    static Ref<Image> lossy_unpacker(const PODVector<uint8_t> &p_buffer);
-    static PODVector<uint8_t> lossless_packer(const Ref<Image> &p_image);
-    static Ref<Image> lossless_unpacker(const PODVector<uint8_t> &p_buffer);
-    static PODVector<uint8_t> basis_universal_packer(const Ref<Image> &p_image, ImageUsedChannels p_channels);
-    static Ref<Image> basis_universal_unpacker(const PODVector<uint8_t> &p_buffer);
+    static Vector<uint8_t> lossy_packer(const Ref<Image> &p_image, float p_quality);
+    static Ref<Image> lossy_unpacker(const Vector<uint8_t> &p_buffer);
+    static Vector<uint8_t> lossless_packer(const Ref<Image> &p_image);
+    static Ref<Image> lossless_unpacker(const Vector<uint8_t> &p_buffer);
+    static Vector<uint8_t> basis_universal_packer(const Ref<Image> &p_image, ImageUsedChannels p_channels);
+    static Ref<Image> basis_universal_unpacker(const Vector<uint8_t> &p_buffer);
 
     PoolVector<uint8_t>::Write write_lock;
 

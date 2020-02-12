@@ -86,7 +86,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     } else if (p_id == BUTTON_VISIBILITY) {
         undo_redo->create_action_ui(TTR("Toggle Visible"));
         _toggle_visible(n);
-        const PODVector<Node *> &selection = editor_selection->get_selected_node_list();
+        const Vector<Node *> &selection = editor_selection->get_selected_node_list();
         if (selection.size() > 1 && selection.find(n) != nullptr) {
             for (Node * nv : selection) {
                 ERR_FAIL_COND(!nv);
@@ -849,7 +849,7 @@ bool SceneTreeEditor::get_display_foreign_nodes() const {
     return display_foreign;
 }
 
-void SceneTreeEditor::set_valid_types(const PODVector<StringName> &p_valid) {
+void SceneTreeEditor::set_valid_types(const Vector<StringName> &p_valid) {
     valid_types = p_valid;
 }
 
@@ -926,8 +926,8 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
     if (!can_rename)
         return Variant(); //not editable tree
 
-    PODVector<Node *> selected;
-    PODVector<Ref<Texture> > icons;
+    Vector<Node *> selected;
+    Vector<Ref<Texture> > icons;
     TreeItem *next = tree->get_next_selected(nullptr);
     while (next) {
 
@@ -1006,7 +1006,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
 
     if (UIString(d["type"]) == "files") {
 
-        PODVector<String> files(d["files"].as<PODVector<String>>());
+        Vector<String> files(d["files"].as<Vector<String>>());
 
         if (files.empty())
             return false; //weird
@@ -1066,7 +1066,7 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
 
     if (UIString(d["type"]) == "files") {
 
-        PODVector<String> files(d["files"].as<PODVector<String>>());
+        Vector<String> files(d["files"].as<Vector<String>>());
 
         String ftype = EditorFileSystem::get_singleton()->get_file_type(files[0]);
         if (_is_script_type(StringName(ftype))) {
@@ -1215,7 +1215,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     update_timer->set_wait_time(0.5);
     add_child(update_timer);
 
-    script_types = memnew(PODVector<StringName>);
+    script_types = memnew(Vector<StringName>);
     ClassDB::get_inheriters_from_class("Script", script_types);
 }
 

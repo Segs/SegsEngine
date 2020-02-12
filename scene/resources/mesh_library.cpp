@@ -100,7 +100,7 @@ bool MeshLibrary::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void MeshLibrary::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void MeshLibrary::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (const eastl::pair<const int,Item> &E : item_map) {
 
@@ -239,9 +239,9 @@ void MeshLibrary::clear() {
     emit_changed();
 }
 
-PODVector<int> MeshLibrary::get_item_list() const {
+Vector<int> MeshLibrary::get_item_list() const {
 
-    PODVector<int> ret;
+    Vector<int> ret;
     ret.reserve(item_map.size());
 
     for (const eastl::pair<const int,Item> &E : item_map) {

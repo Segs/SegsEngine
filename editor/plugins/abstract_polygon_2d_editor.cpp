@@ -348,7 +348,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
                     if (insert.valid()) {
 
-                        PODVector<Vector2> vertices = _get_polygon(insert.polygon).as<PODVector<Vector2>>();
+                        Vector<Vector2> vertices = _get_polygon(insert.polygon).as<Vector<Vector2>>();
 
                         if (vertices.size() < (_is_line() ? 2 : 3)) {
 
@@ -396,7 +396,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
                         //apply
 
-                        PODVector<Vector2> vertices = _get_polygon(edited_point.polygon).as<PODVector<Vector2>>();
+                        Vector<Vector2> vertices = _get_polygon(edited_point.polygon).as<Vector<Vector2>>();
                         ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false);
                         vertices[edited_point.vertex] = edited_point.pos - _get_offset(edited_point.polygon);
 
@@ -439,7 +439,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                 if (_is_line()) {
 
                     // for lines, we don't have a wip mode, and we can undo each single add point.
-                    PODVector<Vector2> vertices = _get_polygon(0).as<PODVector<Vector2>>();
+                    Vector<Vector2> vertices = _get_polygon(0).as<Vector<Vector2>>();
                     vertices.push_back(cpoint);
                     undo_redo->create_action_ui(TTR("Insert Point"));
                     _action_set_polygon(0, vertices);

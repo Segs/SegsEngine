@@ -175,9 +175,9 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
     Size2i s = Size2(img->get_width(), img->get_height());
     ERR_FAIL_COND(s.width == 0 || s.height == 0);
 
-    PODVector<Point2> valid_positions;
-    PODVector<Point2> valid_normals;
-    PODVector<uint8_t> valid_colors;
+    Vector<Point2> valid_positions;
+    Vector<Point2> valid_normals;
+    Vector<uint8_t> valid_colors;
 
     valid_positions.resize(s.width * s.height);
 
@@ -393,7 +393,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
     toolbar->add_child(menu);
 
     file = memnew(EditorFileDialog);
-    PODVector<String> ext;
+    Vector<String> ext;
     ImageLoader::get_recognized_extensions(ext);
     for (int i=0,fin=ext.size(); i<fin; ++i) {
         file->add_filter("*." + ext[i] + "; " + StringUtils::to_upper(ext[i]));

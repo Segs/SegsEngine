@@ -177,7 +177,7 @@ float EQ::get_band_frequency(int p_band) {
     ERR_FAIL_INDEX_V(p_band, band.size(), 0);
     return band[p_band].freq;
 }
-void EQ::set_bands(const PODVector<float> &p_bands) {
+void EQ::set_bands(const Vector<float> &p_bands) {
 
     band.resize(p_bands.size());
     for (int i = 0; i < p_bands.size(); i++) {

@@ -501,7 +501,7 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     return texture;
 }
 
-void ResourceLoaderCoHTexture::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceLoaderCoHTexture::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("texture");
 }

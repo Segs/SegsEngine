@@ -104,10 +104,10 @@ class GridMap : public Spatial {
                 IndexKey key;
             };
 
-            PODVector<Item> items; //tools only, for changing visibility
+            Vector<Item> items; //tools only, for changing visibility
         };
 
-        PODVector<MultimeshInstance> multimesh_instances;
+        Vector<MultimeshInstance> multimesh_instances;
         Set<IndexKey> cells;
         RID collision_debug;
         RID collision_debug_instance;
@@ -175,7 +175,7 @@ class GridMap : public Spatial {
         RID instance;
     };
 
-    PODVector<BakedMesh> baked_meshes;
+    Vector<BakedMesh> baked_meshes;
 
     _FORCE_INLINE_ Vector3 _octant_get_offset(const OctantKey &p_key) const {
 
@@ -202,7 +202,7 @@ protected:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     void _notification(int p_what);
     void _update_visibility();
@@ -254,7 +254,7 @@ public:
     float get_cell_scale() const;
 
     Array get_used_cells() const;
-    PODVector<PositionedMeshInfo> get_positioned_meshes() const;
+    Vector<PositionedMeshInfo> get_positioned_meshes() const;
     Array get_meshes();
 
     void clear_baked_meshes();

@@ -108,9 +108,9 @@ class SpaceBullet : public RIDBullet {
     Vector3 gravityDirection;
     real_t gravityMagnitude;
 
-    PODVector<AreaBullet *> areas;
+    Vector<AreaBullet *> areas;
 
-    PODVector<Vector3> contactDebug;
+    Vector<Vector3> contactDebug;
     int contactDebugCount;
     real_t delta_time;
 
@@ -170,7 +170,7 @@ public:
         if (contactDebugCount < contactDebug.size())
             contactDebug[contactDebugCount++] = p_contact;
     }
-    const PODVector<Vector3> &get_debug_contacts() { return contactDebug; }
+    const Vector<Vector3> &get_debug_contacts() { return contactDebug; }
     _FORCE_INLINE_ int get_debug_contact_count() { return contactDebugCount; }
 
     const Vector3 &get_gravity_direction() const { return gravityDirection; }

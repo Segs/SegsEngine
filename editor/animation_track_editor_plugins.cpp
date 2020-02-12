@@ -139,7 +139,7 @@ void AnimationTrackEditColor::draw_key_link(int p_index, float p_pixels_sec, int
 
     int y_from = (get_size().height - fh) / 2;
 
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
     PoolVector<Color> colors;
 
     points.emplace_back(x_from, y_from);
@@ -299,7 +299,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         Rect2 rect = Rect2(from_x, (get_size().height - fh) / 2, to_x - from_x, fh);
         draw_rect(rect, Color(0.25, 0.25, 0.25));
 
-        PODVector<Vector2> lines;
+        Vector<Vector2> lines;
         lines.reserve((to_x - from_x + 1) * 2);
         preview_len = preview->get_length();
 
@@ -314,7 +314,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
             lines.emplace_back(i, rect.position.y + max * rect.size.y);
         }
 
-        PODVector<Color> color;
+        Vector<Color> color;
         color.push_back(Color(0.75, 0.75, 0.75));
 
         VisualServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, color);
@@ -401,7 +401,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
             return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
         }
 
-        ListPOD<StringName> animations;
+        List<StringName> animations;
         sf->get_animation_list(&animations);
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
@@ -496,7 +496,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
             return;
         }
 
-        ListPOD<StringName> animations;
+        List<StringName> animations;
         sf->get_animation_list(&animations);
 
         int frame = get_animation()->track_get_key_value(get_track(), p_index);
@@ -658,8 +658,8 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         bg.b = 1 - color.b;
         draw_rect(rect, bg);
 
-        PODVector<Vector2> lines;
-        PODVector<Color> colorv;
+        Vector<Vector2> lines;
+        Vector<Color> colorv;
         {
             Ref<Animation> animation = ap->get_animation(anim);
 
@@ -917,7 +917,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     Rect2 rect = Rect2(from_x, (h - fh) / 2, to_x - from_x, fh);
     draw_rect(rect, Color(0.25, 0.25, 0.25));
 
-    PODVector<Vector2> lines;
+    Vector<Vector2> lines;
     lines.reserve((to_x - from_x + 1) * 2);
     preview_len = preview->get_length();
 
@@ -936,7 +936,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
         lines.emplace_back(i, rect.position.y + max * rect.size.y);
     }
 
-    PODVector<Color> color;
+    Vector<Color> color;
     color.push_back(Color(0.75, 0.75, 0.75));
 
     VisualServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, color);
@@ -1241,8 +1241,8 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
         bg.b = 1 - color.b;
         draw_rect(rect, bg);
 
-        PODVector<Vector2> lines;
-        PODVector<Color> colorv;
+        Vector<Vector2> lines;
+        Vector<Color> colorv;
         {
             Ref<Animation> animation = ap->get_animation(anim);
 

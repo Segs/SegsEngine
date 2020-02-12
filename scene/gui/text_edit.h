@@ -131,8 +131,8 @@ private:
 
     TextOperation current_op;
 
-    List<TextOperation> undo_stack;
-    List<TextOperation>::Element *undo_stack_pos;
+    ListOld<TextOperation> undo_stack;
+    ListOld<TextOperation>::Element *undo_stack_pos;
 
     void _clear_redo();
     void _do_text_op(const TextOperation &p_op, bool p_reverse);
@@ -140,8 +140,8 @@ private:
 
     Set<UIString> completion_prefixes;
     bool completion_enabled;
-    PODVector<ScriptCodeCompletionOption> completion_sources;
-    PODVector<ScriptCodeCompletionOption> completion_options;
+    Vector<ScriptCodeCompletionOption> completion_sources;
+    Vector<ScriptCodeCompletionOption> completion_options;
     bool completion_active;
     bool completion_forced;
     ScriptCodeCompletionOption completion_current;
@@ -260,7 +260,7 @@ public:
     void _update_wrap_at();
     bool line_wraps(int line) const;
     int times_line_wraps(int line) const;
-    PODVector<UIString> get_wrap_rows_text(int p_line) const;
+    Vector<UIString> get_wrap_rows_text(int p_line) const;
     int get_cursor_wrap_index() const;
     int get_line_wrap_index_at_col(int p_line, int p_column) const;
     int get_char_count();
@@ -406,7 +406,7 @@ public:
     void set_line_as_marked(int p_line, bool p_marked);
     void set_line_as_bookmark(int p_line, bool p_bookmark);
     bool is_line_set_as_bookmark(int p_line) const;
-    void get_bookmarks(PODVector<int> *p_bookmarks) const;
+    void get_bookmarks(Vector<int> *p_bookmarks) const;
     Array get_bookmarks_array() const;
     void set_line_as_breakpoint(int p_line, bool p_breakpoint);
     bool is_line_set_as_breakpoint(int p_line) const;
@@ -414,7 +414,7 @@ public:
     void clear_executing_line();
     void set_line_as_safe(int p_line, bool p_safe);
     bool is_line_set_as_safe(int p_line) const;
-    void get_breakpoints(PODVector<int> *p_breakpoints) const;
+    void get_breakpoints(Vector<int> *p_breakpoints) const;
     Array get_breakpoints_array() const;
     void remove_breakpoints();
 
@@ -431,7 +431,7 @@ public:
 
     bool can_fold(int p_line) const;
     bool is_folded(int p_line) const;
-    PODVector<int> get_folded_lines() const;
+    Vector<int> get_folded_lines() const;
     void fold_line(int p_line);
     void unfold_line(int p_line);
     void toggle_fold_line(int p_line);
@@ -618,8 +618,8 @@ public:
 
     void set_tooltip_request_func(Object *p_obj, const StringName &p_function, const Variant &p_udata);
 
-    void set_completion(bool p_enabled, const PODVector<UIString> &p_prefixes);
-    void code_complete(const PODVector<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
+    void set_completion(bool p_enabled, const Vector<UIString> &p_prefixes);
+    void code_complete(const Vector<ScriptCodeCompletionOption> &p_strings, bool p_forced = false);
     void set_code_hint(const String &p_hint);
     void query_code_comple();
 
@@ -657,7 +657,7 @@ public:
     virtual Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(int p_line) = 0;
 
     virtual String get_name() const = 0;
-    virtual PODVector<String> get_supported_languages() = 0;
+    virtual Vector<String> get_supported_languages() = 0;
 
     void set_text_editor(TextEdit *p_text_editor);
     TextEdit *get_text_editor();

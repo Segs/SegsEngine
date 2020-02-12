@@ -79,7 +79,7 @@ gd::PointKey NavMap::get_point_key(const Vector3 &p_pos) const {
     return p;
 }
 
-PODVector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize) const {
+Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize) const {
 
     const gd::Polygon *begin_poly = NULL;
     const gd::Polygon *end_poly = NULL;
@@ -120,19 +120,19 @@ PODVector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, boo
     }
 
     if (begin_poly == end_poly) {
-        PODVector<Vector3> path {
+        Vector<Vector3> path {
             begin_point,
             end_point
         };
         return path;
     }
 
-    PODVector<gd::NavigationPoly> navigation_polys;
+    Vector<gd::NavigationPoly> navigation_polys;
     navigation_polys.reserve(polygons.size() * 0.75);
 
     // The elements indices in the `navigation_polys`.
     int least_cost_id(-1);
-    ListPOD<uint32_t> open_list;
+    List<uint32_t> open_list;
     bool found_route = false;
 
     navigation_polys.push_back(gd::NavigationPoly(begin_poly));
@@ -283,7 +283,7 @@ PODVector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, boo
 
     if (found_route) {
 
-        PODVector<Vector3> path;
+        Vector<Vector3> path;
         if (p_optimize) {
 
             // String pulling
@@ -626,7 +626,7 @@ void NavMap::dispatch_callbacks() {
     }
 }
 
-void NavMap::clip_path(const PODVector<gd::NavigationPoly> &p_navigation_polys, PODVector<Vector3> &path, const gd::NavigationPoly *from_poly, const Vector3 &p_to_point, const gd::NavigationPoly *p_to_poly) const {
+void NavMap::clip_path(const Vector<gd::NavigationPoly> &p_navigation_polys, Vector<Vector3> &path, const gd::NavigationPoly *from_poly, const Vector3 &p_to_point, const gd::NavigationPoly *p_to_poly) const {
     Vector3 from = path[path.size() - 1];
 
     if (from.distance_to(p_to_point) < CMP_EPSILON)

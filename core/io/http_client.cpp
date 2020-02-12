@@ -120,7 +120,7 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
     return connection;
 }
 
-Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const PODVector<uint8_t> &p_body) {
+Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
@@ -162,7 +162,7 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
     request += ("\r\n");
 
     //TODO: SEGS: why on earth are there allocations made here, when it could just call connection->put_data a few times?
-    PODVector<uint8_t> data;
+    Vector<uint8_t> data;
     data.reserve(request.length()+p_body.size());
     data.resize(request.length());
     memcpy(data.data(),request.data(),request.size());
@@ -183,7 +183,7 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const PODVe
     return OK;
 }
 
-Error HTTPClient::request(Method p_method, se_string_view p_url, const PODVector<String> &p_headers, const String &p_body) {
+Error HTTPClient::request(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const String &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
@@ -253,7 +253,7 @@ int HTTPClient::get_response_code() const {
     return response_num;
 }
 
-Error HTTPClient::get_response_headers(ListPOD<String> *r_response) {
+Error HTTPClient::get_response_headers(List<String> *r_response) {
 
     if (response_headers.empty())
         return ERR_INVALID_PARAMETER;
@@ -431,7 +431,7 @@ Error HTTPClient::poll() {
                     // End of response, parse.
                     response_str.push_back(0);
                     String response((const char *)response_str.data(),response_str.size());
-                    PODVector<se_string_view> responses = StringUtils::split(response,'\n');
+                    Vector<se_string_view> responses = StringUtils::split(response,'\n');
                     body_size = -1;
                     chunked = false;
                     body_left = 0;
@@ -784,7 +784,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
 
 Dictionary HTTPClient::get_response_headers_as_dictionary() {
 
-    ListPOD<String> rh;
+    List<String> rh;
     get_response_headers(&rh);
     Dictionary ret;
     for (const String &s : rh) {
@@ -799,12 +799,12 @@ Dictionary HTTPClient::get_response_headers_as_dictionary() {
     return ret;
 }
 
-PODVector<String> HTTPClient::_get_response_headers() {
+Vector<String> HTTPClient::_get_response_headers() {
 
-    ListPOD<String> response_headers;
+    List<String> response_headers;
     get_response_headers(&response_headers);
 
-    PODVector<String> ret;
+    Vector<String> ret;
     ret.resize(response_headers.size());
     {
         int idx = 0;

@@ -297,8 +297,8 @@ private:
     bool on_wall;
     bool sync_to_physics;
 
-    PODVector<Collision> colliders;
-    PODVector<Ref<KinematicCollision2D> > slide_colliders;
+    Vector<Collision> colliders;
+    Vector<Ref<KinematicCollision2D> > slide_colliders;
     Ref<KinematicCollision2D> motion_cache;
     Transform2D last_valid_transform;
 public:

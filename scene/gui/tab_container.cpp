@@ -58,7 +58,7 @@ int TabContainer::_get_top_margin() const {
     Ref<Font> font = get_font("font");
     int content_height = font->get_height();
 
-    PODVector<Control *> tabs = _get_tabs();
+    Vector<Control *> tabs = _get_tabs();
     for (Control *c : tabs) {
 
         if (!c->has_meta("_tab_icon"))
@@ -116,7 +116,7 @@ void TabContainer::_gui_input(const Ref<InputEvent> &p_event) {
             Ref<Texture> decrement = get_icon("decrement");
             if (pos.x > size.width - increment->get_width() - popup_ofs) {
 
-                PODVector<Control *> tabs = _get_tabs();
+                Vector<Control *> tabs = _get_tabs();
 
                 if (last_tab_cache < tabs.size() - 1) {
                     first_tab_cache += 1;
@@ -246,7 +246,7 @@ void TabContainer::_notification(int p_what) {
 
             // Find the width of all tabs after first_tab_cache.
             int all_tabs_width = 0;
-            PODVector<Control *> tabs = _get_tabs();
+            Vector<Control *> tabs = _get_tabs();
             for (int i = first_tab_cache; i < tabs.size(); i++) {
                 int tab_width = _get_tab_width(i);
                 all_tabs_width += tab_width;
@@ -300,7 +300,7 @@ void TabContainer::_notification(int p_what) {
 
             // Check if all tabs would fit into the header area.
             int all_tabs_width = 0;
-            PODVector<Control *> tabs = _get_tabs();
+            Vector<Control *> tabs = _get_tabs();
             for (int i = 0; i < tabs.size(); i++) {
                 if (get_tab_hidden(i)) {
                     continue;
@@ -492,9 +492,9 @@ int TabContainer::_get_tab_width(int p_index) const {
     return width;
 }
 
-PODVector<Control *> TabContainer::_get_tabs() const {
+Vector<Control *> TabContainer::_get_tabs() const {
 
-    PODVector<Control *> controls;
+    Vector<Control *> controls;
 
     for (int i = 0; i < get_child_count(); i++) {
 
@@ -561,7 +561,7 @@ void TabContainer::set_current_tab(int p_current) {
     current = p_current;
 
     Ref<StyleBox> sb = get_stylebox("panel");
-    PODVector<Control *> tabs = _get_tabs();
+    Vector<Control *> tabs = _get_tabs();
     for (int i = 0; i < tabs.size(); i++) {
 
         Control *c = tabs[i];
@@ -604,7 +604,7 @@ int TabContainer::get_previous_tab() const {
 
 Control *TabContainer::get_tab_control(int p_idx) const {
 
-    PODVector<Control *> tabs = _get_tabs();
+    Vector<Control *> tabs = _get_tabs();
     if (p_idx >= 0 && p_idx < tabs.size())
         return tabs[p_idx];
     else
@@ -759,7 +759,7 @@ int TabContainer::get_tab_idx_at_point(const Point2 &p_point) const {
     }
 
     // get the tab at the point
-    //PODVector<Control *> tabs = _get_tabs();
+    //Vector<Control *> tabs = _get_tabs();
     int px = p_point.x;
     px -= tabs_ofs_cache;
     for (int i = first_tab_cache; i <= last_tab_cache; i++) {
@@ -793,7 +793,7 @@ void TabContainer::set_tabs_visible(bool p_visible) {
 
     tabs_visible = p_visible;
 
-    PODVector<Control *> tabs = _get_tabs();
+    Vector<Control *> tabs = _get_tabs();
     for (Control *c : tabs) {
 
         if (p_visible)
@@ -898,9 +898,9 @@ bool TabContainer::get_tab_hidden(int p_tab) const {
         return false;
 }
 
-void TabContainer::get_translatable_strings(ListPOD<StringName> *p_strings) const {
+void TabContainer::get_translatable_strings(List<StringName> *p_strings) const {
 
-    PODVector<Control *> tabs = _get_tabs();
+    Vector<Control *> tabs = _get_tabs();
     for (Control *c : tabs) {
 
         if (!c->has_meta("_tab_name"))
@@ -917,7 +917,7 @@ Size2 TabContainer::get_minimum_size() const {
 
     Size2 ms;
 
-    PODVector<Control *> tabs = _get_tabs();
+    Vector<Control *> tabs = _get_tabs();
     for (Control *c : tabs) {
 
         if (!c->is_visible_in_tree() && !use_hidden_tabs_for_min_size)

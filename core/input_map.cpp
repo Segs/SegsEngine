@@ -36,7 +36,7 @@
 #include "core/method_bind.h"
 
 namespace  {
-PODVector<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const Ref<InputEvent> &p_event, bool *p_pressed=nullptr, float *p_strength=nullptr) {
+Vector<Ref<InputEvent> >::iterator _find_event(InputMap::Action &p_action, const Ref<InputEvent> &p_event, bool *p_pressed=nullptr, float *p_strength=nullptr) {
 
     for (auto iter = p_action.inputs.begin(); iter!=p_action.inputs.end(); ++iter) {
 
@@ -99,7 +99,7 @@ void InputMap::erase_action(const StringName &p_action) {
 Array InputMap::_get_actions() {
 
     Array ret;
-    PODVector<StringName> actions(get_actions());
+    Vector<StringName> actions(get_actions());
     if (actions.empty())
         return ret;
 
@@ -110,7 +110,7 @@ Array InputMap::_get_actions() {
     return ret;
 }
 
-PODVector<StringName> InputMap::get_actions() const {
+Vector<StringName> InputMap::get_actions() const {
     if (input_map.empty()) {
         return {};
     }
@@ -164,7 +164,7 @@ void InputMap::action_erase_events(const StringName &p_action) {
 Array InputMap::_get_action_list(const StringName &p_action) {
 
     Array ret;
-    const PODVector<Ref<InputEvent> > *al = get_action_list(p_action);
+    const Vector<Ref<InputEvent> > *al = get_action_list(p_action);
     if (al) {
         for (const Ref<InputEvent> &E : *al) {
             ret.push_back(E);
@@ -174,7 +174,7 @@ Array InputMap::_get_action_list(const StringName &p_action) {
     return ret;
 }
 
-const PODVector<Ref<InputEvent> > *InputMap::get_action_list(const StringName &p_action) {
+const Vector<Ref<InputEvent> > *InputMap::get_action_list(const StringName &p_action) {
 
     const Map<StringName, Action>::iterator E = input_map.find(p_action);
     if (E==input_map.end())
@@ -202,7 +202,7 @@ bool InputMap::event_get_action_status(const Ref<InputEvent> &p_event, const Str
 
     bool pressed;
     float strength;
-    PODVector<Ref<InputEvent> >::iterator event = _find_event(E->second, p_event, &pressed, &strength);
+    Vector<Ref<InputEvent> >::iterator event = _find_event(E->second, p_event, &pressed, &strength);
     if (event != E->second.inputs.end()) {
         if (p_pressed != nullptr)
             *p_pressed = pressed;
@@ -220,7 +220,7 @@ void InputMap::load_from_globals() {
     using namespace StringUtils;
     input_map.clear();
 
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     ProjectSettings::get_singleton()->get_property_list(&pinfo);
 
     for (const PropertyInfo &pi :pinfo) {

@@ -117,7 +117,7 @@ public:
     }
 
     FUNC2(space_set_debug_contacts, RID, int);
-    const PODVector<Vector2> &space_get_contacts(RID p_space) const override {
+    const Vector<Vector2> &space_get_contacts(RID p_space) const override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), null_vec2_pvec);
         return physics_2d_server->space_get_contacts(p_space);
@@ -236,7 +236,7 @@ public:
 
     FUNC2(body_add_collision_exception, RID, RID);
     FUNC2(body_remove_collision_exception, RID, RID);
-    FUNC2S(body_get_collision_exceptions, RID, List<RID> *);
+    FUNC2S(body_get_collision_exceptions, RID, ListOld<RID> *);
 
     FUNC2(body_set_max_contacts_reported, RID, int);
     FUNC1RC(int, body_get_max_contacts_reported, RID);

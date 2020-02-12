@@ -122,14 +122,14 @@ void ProjectSettingsEditor::_notification(int p_what) {
             popup_add->add_icon_item(get_icon("JoyAxis", "EditorIcons"), TTR("Joy Axis"), INPUT_JOY_MOTION);
             popup_add->add_icon_item(get_icon("Mouse", "EditorIcons"), TTR("Mouse Button"), INPUT_MOUSE_BUTTON);
 
-            PODVector<String> tfn;
+            Vector<String> tfn;
             ResourceLoader::get_recognized_extensions_for_type("Translation", tfn);
             for (const String &E : tfn) {
 
                 translation_file_open->add_filter("*." + E);
             }
 
-            PODVector<String> rfn;
+            Vector<String> rfn;
             ResourceLoader::get_recognized_extensions_for_type("Resource", rfn);
             for (const String &E : rfn) {
                 translation_res_file_open->add_filter("*." + E);
@@ -691,7 +691,7 @@ void ProjectSettingsEditor::_update_actions() {
     TreeItem *root = input_editor->create_item();
     input_editor->set_hide_root(true);
 
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
 
     for (const PropertyInfo &pi : props) {
@@ -720,7 +720,7 @@ void ProjectSettingsEditor::_update_actions() {
         item->set_custom_bg_color(1, get_color("prop_subsection", "Editor"));
 
         item->add_button(2, get_icon("Add", "EditorIcons"), 1, false, TTR("Add Event"));
-        const ListPOD<String> &presets(ProjectSettings::get_singleton()->get_input_presets());
+        const List<String> &presets(ProjectSettings::get_singleton()->get_input_presets());
         bool has_pi = eastl::find(presets.begin(),presets.end(),pi.name)!=presets.end();
         if (!has_pi) {
             item->add_button(2, get_icon("Remove", "EditorIcons"), 2, false, TTR("Remove"));
@@ -1021,19 +1021,19 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
     presets.insert("Server");
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_platform_count(); i++) {
-        PODVector<String> p;
+        Vector<String> p;
         EditorExport::get_singleton()->get_export_platform(i)->get_platform_features(&p);
         presets.insert(p.begin(), p.end());
     }
 
     for (int i = 0; i < EditorExport::get_singleton()->get_export_preset_count(); i++) {
 
-        PODVector<String> p;
+        Vector<String> p;
         EditorExport::get_singleton()->get_export_preset(i)->get_platform()->get_preset_features(EditorExport::get_singleton()->get_export_preset(i), &p);
         presets.insert(p.begin(), p.end());
 
         String custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
-        PODVector<se_string_view> custom_list = StringUtils::split(custom,',');
+        Vector<se_string_view> custom_list = StringUtils::split(custom,',');
         for (int j = 0; j < custom_list.size(); j++) {
             String f(StringUtils::strip_edges( custom_list[j]));
             if (!f.empty()) {
@@ -1306,7 +1306,7 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     String path = ed->get_metadata(1);
     int which = ed->get_range(1);
 
-    PODVector<String> langs = TranslationServer::get_all_locales();
+    Vector<String> langs = TranslationServer::get_all_locales();
 
     ERR_FAIL_INDEX(which, langs.size());
 
@@ -1501,8 +1501,8 @@ void ProjectSettingsEditor::_update_translations() {
         }
     }
 
-    PODVector<String> langs = TranslationServer::get_all_locales();
-    PODVector<String> names = TranslationServer::get_all_locale_names();
+    Vector<String> langs = TranslationServer::get_all_locales();
+    Vector<String> names = TranslationServer::get_all_locale_names();
 
     //update filter tab
     Array l_filter_all;
@@ -1606,9 +1606,9 @@ void ProjectSettingsEditor::_update_translations() {
     if (ProjectSettings::get_singleton()->has_setting("locale/translation_remaps")) {
 
         Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
-        PODVector<Variant> rk(remaps.get_key_list());
+        Vector<Variant> rk(remaps.get_key_list());
 
-        PODVector<String> keys;
+        Vector<String> keys;
         for (const Variant &E : rk) {
             keys.emplace_back(E.as<String>());
         }

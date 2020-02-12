@@ -12,7 +12,7 @@ set_plugin_options(
     CLASSPROP ResourceImporterTextureArray
     TYPE resource
     SOURCES ${source_files} ${plugin_sources}
-    DISABLED
+#    DISABLED
 )
 
 set(plugin_sources
@@ -23,5 +23,5 @@ set_plugin_options(
     CLASSPROP ResourceImporter3DTexture
     TYPE resource
     SOURCES ${source_files} ${plugin_sources}
-    DISABLED
+#   DISABLED
 )

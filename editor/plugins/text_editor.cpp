@@ -195,7 +195,7 @@ void TextEditor::add_callback(const StringName &p_function, const PoolVector<Str
 void TextEditor::set_debugger_active(bool p_active) {
 }
 
-void TextEditor::get_breakpoints(PODVector<int> *p_breakpoints) {
+void TextEditor::get_breakpoints(Vector<int> *p_breakpoints) {
 }
 
 void TextEditor::reload_text() {
@@ -336,7 +336,7 @@ void TextEditor::ensure_focus() {
     code_editor->get_text_edit()->grab_focus();
 }
 
-PODVector<String> TextEditor::get_functions() {
+Vector<String> TextEditor::get_functions() {
 
     return {};
 }

@@ -73,8 +73,8 @@ struct AudioServerBus {
         bool used;
         bool active;
         AudioFrame peak_volume;
-        PODVector<AudioFrame> buffer;
-        PODVector<Ref<AudioEffectInstance> > effect_instances;
+        Vector<AudioFrame> buffer;
+        Vector<Ref<AudioEffectInstance> > effect_instances;
         uint64_t last_mix_with_audio;
         Channel() {
             last_mix_with_audio = 0;
@@ -84,7 +84,7 @@ struct AudioServerBus {
         }
     };
 
-    PODVector<Channel> channels;
+    Vector<Channel> channels;
 
     struct Effect {
         Ref<AudioEffect> effect;
@@ -94,7 +94,7 @@ struct AudioServerBus {
 #endif
     };
 
-    PODVector<Effect> effects;
+    Vector<Effect> effects;
     float volume_db;
     StringName send;
     int index_cache;
@@ -1443,7 +1443,7 @@ namespace {
                 bool enabled;
             };
 
-            PODVector<Effect> effects;
+            Vector<Effect> effects;
 
             float volume_db;
             StringName send;
@@ -1456,7 +1456,7 @@ namespace {
             }
         };
 
-        PODVector<Bus> buses;
+        Vector<Bus> buses;
         AudioBusLayout_priv() {
             buses.resize(1);
             buses[0].name = "Master";
@@ -1465,7 +1465,7 @@ namespace {
 } // end of anonymous namespace
 #define D() ((AudioBusLayout_priv *)m_priv)
 
-void AudioBusLayout::generate_bus_layout(const PODVector<AudioServerBus *> &buses) {
+void AudioBusLayout::generate_bus_layout(const Vector<AudioServerBus *> &buses) {
     D()->buses.resize(buses.size());
 
     for (int i = 0; i < buses.size(); i++) {
@@ -1624,7 +1624,7 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
     return false;
 }
-void AudioBusLayout::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void AudioBusLayout::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     for (int i = 0; i < D()->buses.size(); i++) {
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName("bus/" + itos(i) + "/name"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));

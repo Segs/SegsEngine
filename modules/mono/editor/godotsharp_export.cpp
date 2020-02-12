@@ -50,7 +50,7 @@ String get_assemblyref_name(MonoImage *p_image, int index) {
     return String(mono_metadata_string_heap(p_image, cols[MONO_ASSEMBLYREF_NAME]));
 }
 
-Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const PODVector<String> &p_search_dirs, Dictionary &r_dependencies) {
+Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<String> &p_search_dirs, Dictionary &r_dependencies) {
     MonoImage *image = p_assembly->get_image();
 
     for (int i = 0; i < mono_image_get_table_rows(image, MONO_TABLE_ASSEMBLYREF); i++) {
@@ -109,7 +109,7 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_dependencie
 
     _GDMONO_SCOPE_DOMAIN_(export_domain);
 
-    PODVector<String> search_dirs;
+    Vector<String> search_dirs;
     GDMonoAssembly::fill_search_dirs(search_dirs, p_build_config, p_custom_bcl_dir);
 
     for (const Variant *key = p_initial_dependencies.next(); key; key = p_initial_dependencies.next(key)) {

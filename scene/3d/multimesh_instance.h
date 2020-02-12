@@ -44,7 +44,7 @@ protected:
     // bind helpers
 
 public:
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     void set_multimesh(const Ref<MultiMesh> &p_multimesh);
     Ref<MultiMesh> get_multimesh() const;

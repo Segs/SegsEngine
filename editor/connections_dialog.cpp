@@ -72,7 +72,7 @@ class ConnectDialogBinds : public Object {
     GDCLASS(ConnectDialogBinds,Object)
 
 public:
-    PODVector<Variant> params;
+    Vector<Variant> params;
 
     bool _set(const StringName &p_name, const Variant &p_value) {
 
@@ -98,7 +98,7 @@ public:
         return true;
     }
 
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         for (size_t i = 0; i < params.size(); i++) {
             p_list->push_back(PropertyInfo(params[i].get_type(), StringName("bind/" + itos(i + 1))));
@@ -293,7 +293,7 @@ void ConnectDialog::set_dst_method(const StringName &p_method) {
     dst_method->set_text(p_method);
 }
 
-const PODVector<Variant> &ConnectDialog::get_binds() const {
+const Vector<Variant> &ConnectDialog::get_binds() const {
 
     return cdbinds->params;
 }
@@ -909,7 +909,7 @@ void ConnectionsDock::update_tree() {
 
     TreeItem *root = tree->create_item();
 
-    PODVector<MethodInfo> node_signals;
+    Vector<MethodInfo> node_signals;
 
     selectedNode->get_signal_list(&node_signals);
 
@@ -918,7 +918,7 @@ void ConnectionsDock::update_tree() {
 
     while (base) {
 
-        PODVector<MethodInfo> node_signals2;
+        Vector<MethodInfo> node_signals2;
         Ref<Texture> icon;
         String name;
 
@@ -1027,7 +1027,7 @@ void ConnectionsDock::update_tree() {
             }
 
             // List existing connections
-            ListPOD<Object::Connection> connections;
+            List<Object::Connection> connections;
             selectedNode->get_signal_connection_list(signal_name, &connections);
 
             for (Object::Connection &c : connections) {

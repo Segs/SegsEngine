@@ -43,16 +43,16 @@ class MeshDataTool : public RefCounted {
         Plane tangent;
         Vector2 uv;
         Vector2 uv2;
-        PODVector<int> bones;
-        PODVector<float> weights;
-        PODVector<int> edges;
-        PODVector<int> faces;
+        Vector<int> bones;
+        Vector<float> weights;
+        Vector<int> edges;
+        Vector<int> faces;
         Variant meta;
     };
     struct Edge {
 
         int vertex[2];
-        PODVector<int> faces;
+        Vector<int> faces;
         Variant meta;
     };
     struct Face {
@@ -64,9 +64,9 @@ class MeshDataTool : public RefCounted {
 
 	int format;
 
-	PODVector<Vertex> vertices;
-    PODVector<Edge> edges;
-    PODVector<Face> faces;
+	Vector<Vertex> vertices;
+    Vector<Edge> edges;
+    Vector<Face> faces;
 	Ref<Material> material;
 
 protected:
@@ -101,20 +101,20 @@ public:
 	Color get_vertex_color(int p_idx) const;
 	void set_vertex_color(int p_idx, const Color &p_color);
 
-    const PODVector<int> &get_vertex_bones(int p_idx) const;
-	void set_vertex_bones(int p_idx, PODVector<int> &&p_bones);
+    const Vector<int> &get_vertex_bones(int p_idx) const;
+	void set_vertex_bones(int p_idx, Vector<int> &&p_bones);
 
-    const PODVector<float> &get_vertex_weights(int p_idx) const;
-	void set_vertex_weights(int p_idx, PODVector<float> &&p_weights);
+    const Vector<float> &get_vertex_weights(int p_idx) const;
+	void set_vertex_weights(int p_idx, Vector<float> &&p_weights);
 
 	Variant get_vertex_meta(int p_idx) const;
 	void set_vertex_meta(int p_idx, const Variant &p_meta);
 
-    const PODVector<int> &get_vertex_edges(int p_idx) const;
-    const PODVector<int> &get_vertex_faces(int p_idx) const;
+    const Vector<int> &get_vertex_edges(int p_idx) const;
+    const Vector<int> &get_vertex_faces(int p_idx) const;
 
 	int get_edge_vertex(int p_edge, int p_vertex) const;
-    const PODVector<int> &get_edge_faces(int p_edge) const;
+    const Vector<int> &get_edge_faces(int p_edge) const;
 	Variant get_edge_meta(int p_idx) const;
 	void set_edge_meta(int p_idx, const Variant &p_meta);
 

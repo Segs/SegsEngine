@@ -71,7 +71,7 @@ Variant DictionaryPropertyEdit::get_dictionary() const {
     return dict;
 }
 
-void DictionaryPropertyEdit::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void DictionaryPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Dictionary dict = get_dictionary();
 

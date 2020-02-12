@@ -63,7 +63,7 @@ struct SpatialIndexer {
         VISIBILITY_CULL_MAX = 32768
     };
 
-    PODVector<VisibilityNotifier *> cull;
+    Vector<VisibilityNotifier *> cull;
 
     uint64_t pass;
     uint64_t last_frame;
@@ -97,7 +97,7 @@ struct SpatialIndexer {
         octree.erase(E->second.id);
         notifiers.erase(p_notifier);
 
-        PODVector<Camera *> removed;
+        Vector<Camera *> removed;
         for (eastl::pair< Camera *const,CameraData> &F : cameras) {
 
             Map<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
@@ -132,7 +132,7 @@ struct SpatialIndexer {
 
     void _remove_camera(Camera *p_camera) {
         ERR_FAIL_COND(!cameras.contains(p_camera));
-        PODVector<VisibilityNotifier *> removed;
+        Vector<VisibilityNotifier *> removed;
         for (auto &E : cameras[p_camera].notifiers) {
 
             removed.push_back(E.first);
@@ -166,8 +166,8 @@ struct SpatialIndexer {
 
             VisibilityNotifier **ptr = cull.data();
 
-            PODVector<VisibilityNotifier *> added;
-            PODVector<VisibilityNotifier *> removed;
+            Vector<VisibilityNotifier *> added;
+            Vector<VisibilityNotifier *> removed;
 
             for (int i = 0; i < culled; i++) {
 
@@ -303,7 +303,7 @@ PhysicsDirectSpaceState *World::get_direct_space_state() {
     return PhysicsServer::get_singleton()->space_get_direct_state(space);
 }
 
-void World::get_camera_list(PODVector<Camera *> *r_cameras) {
+void World::get_camera_list(Vector<Camera *> *r_cameras) {
 
     for (const eastl::pair<Camera *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
         r_cameras->push_back(E.first);

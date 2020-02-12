@@ -367,7 +367,7 @@ bool NativeScript::get_property_default_value(const StringName &p_property, Vari
 void NativeScript::update_exports() {
 }
 
-void NativeScript::get_script_method_list(PODVector<MethodInfo> *p_list) const {
+void NativeScript::get_script_method_list(Vector<MethodInfo> *p_list) const {
     NativeScriptDesc *script_data = get_script_desc();
 
     if (!script_data)
@@ -703,7 +703,7 @@ VariantType NativeScriptInstance::get_property_type(const StringName &p_name, bo
     return VariantType::NIL;
 }
 
-void NativeScriptInstance::get_method_list(PODVector<MethodInfo> *p_list) const {
+void NativeScriptInstance::get_method_list(Vector<MethodInfo> *p_list) const {
     script->get_script_method_list(p_list);
 }
 
@@ -1162,9 +1162,9 @@ String NativeScriptLanguage::debug_get_stack_level_source(int p_level) const {
 }
 void NativeScriptLanguage::debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
-void NativeScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<se_string_view> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
-void NativeScriptLanguage::debug_get_globals(PODVector<se_string_view> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
 String NativeScriptLanguage::debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) {
     return String();
@@ -1746,7 +1746,7 @@ RES ResourceFormatLoaderNativeScript::load(const String &p_path, const String &p
     return ResourceFormatLoaderText::singleton->load(p_path, p_original_path, r_error);
 }
 
-void ResourceFormatLoaderNativeScript::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderNativeScript::get_recognized_extensions(Vector<String> &p_extensions) const {
     p_extensions->push_back(String("gdns"));
 }
 

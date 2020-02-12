@@ -39,7 +39,7 @@ class PacketPeer : public RefCounted {
 
     GDCLASS(PacketPeer, RefCounted)
 
-    PODVector<uint8_t> encode_buffer;
+    Vector<uint8_t> encode_buffer;
     // TODO: SEGS: encode_buffer_max_size is basically encode_buffer.capacity(), use that?
     int encode_buffer_max_size = 8 * 1024 * 1024;
     mutable Error last_get_error = OK;
@@ -86,8 +86,8 @@ class PacketPeerStream : public PacketPeer {
 
     mutable Ref<StreamPeer> peer;
     mutable RingBuffer<uint8_t> ring_buffer;
-    mutable PODVector<uint8_t> input_buffer;
-    mutable PODVector<uint8_t> output_buffer;
+    mutable Vector<uint8_t> input_buffer;
+    mutable Vector<uint8_t> output_buffer;
 
     Error _poll_buffer() const;
 

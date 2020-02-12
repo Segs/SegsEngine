@@ -174,7 +174,7 @@ public:
     virtual String get_token_error(int p_offset = 0) const = 0;
     virtual void advance(int p_amount = 1) = 0;
 #ifdef DEBUG_ENABLED
-    virtual const PODVector<Pair<int, String> > &get_warning_skips() const = 0;
+    virtual const Vector<Pair<int, String> > &get_warning_skips() const = 0;
     virtual const Set<String> &get_warning_global_skips() const = 0;
     virtual bool is_ignoring_warnings() const = 0;
 #endif // DEBUG_ENABLED
@@ -227,7 +227,7 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     bool error_flag;
 
 #ifdef DEBUG_ENABLED
-    PODVector<Pair<int, String> > warning_skips;
+    Vector<Pair<int, String> > warning_skips;
     Set<String> warning_global_skips;
     bool ignore_warnings;
 #endif // DEBUG_ENABLED
@@ -248,7 +248,7 @@ public:
     String get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-    const PODVector<Pair<int, String> > &get_warning_skips() const override { return warning_skips; }
+    const Vector<Pair<int, String> > &get_warning_skips() const override { return warning_skips; }
     const Set<String> &get_warning_global_skips() const override { return warning_global_skips; }
     bool is_ignoring_warnings() const override { return ignore_warnings; }
 #endif // DEBUG_ENABLED
@@ -267,8 +267,8 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
     void *m_private_data;
 
 public:
-    Error set_code_buffer(const PODVector<uint8_t> &p_buffer);
-    static PODVector<uint8_t> parse_code_string(se_string_view p_code);
+    Error set_code_buffer(const Vector<uint8_t> &p_buffer);
+    static Vector<uint8_t> parse_code_string(se_string_view p_code);
     Token get_token(int p_offset = 0) const override;
     StringName get_token_identifier(int p_offset = 0) const override;
     GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const override;
@@ -281,8 +281,8 @@ public:
     String get_token_error(int p_offset = 0) const override;
     void advance(int p_amount = 1) override;
 #ifdef DEBUG_ENABLED
-    const PODVector<Pair<int, String> > &get_warning_skips() const override {
-        static const PODVector<Pair<int, String> > v;
+    const Vector<Pair<int, String> > &get_warning_skips() const override {
+        static const Vector<Pair<int, String> > v;
         return v;
     }
     const Set<String> &get_warning_global_skips() const override {

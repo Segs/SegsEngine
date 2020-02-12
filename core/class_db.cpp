@@ -54,7 +54,7 @@
 //    return md;
 //}
 
-//MethodDefinition D_METHOD(StringName p_name, PODVector<StringName> &&names) {
+//MethodDefinition D_METHOD(StringName p_name, Vector<StringName> &&names) {
 
 //    MethodDefinition md;
 //    md.name = eastl::move(p_name);
@@ -108,7 +108,7 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 
     return false;
 }
-void ClassDB::get_class_list(PODVector<StringName> *p_classes) {
+void ClassDB::get_class_list(Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -119,7 +119,7 @@ void ClassDB::get_class_list(PODVector<StringName> *p_classes) {
     eastl::sort(p_classes->begin(),p_classes->end());
 }
 
-void ClassDB::get_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes) {
+void ClassDB::get_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -130,7 +130,7 @@ void ClassDB::get_inheriters_from_class(const StringName &p_class, PODVector<Str
     }
 }
 
-void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes) {
+void ClassDB::get_direct_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -194,7 +194,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 #ifdef DEBUG_METHODS_ENABLED
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
     // TODO: bunch of copiers are made here, the containers should just hold pointers/const references to objects ?
-    PODVector<class_iter> entries;
+    Vector<class_iter> entries;
     entries.reserve(classes.size());
 
     for(auto iter=classes.begin(),fin=classes.end(); iter!=fin; ++iter) {
@@ -204,7 +204,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
     eastl::stable_sort(entries.begin(), entries.end(),
             [](class_iter a, class_iter b) -> bool { return StringName::AlphCompare(a->first, b->first); });
     // must be alphabetically sorted for hash to compute
-    PODVector<StringName> snames;
+    Vector<StringName> snames;
     const StringName *k;
 
     for (const auto &iter : entries) {
@@ -410,7 +410,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
 }
 
 void ClassDB::get_method_list(
-        const StringName& p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance, bool p_exclude_from_properties) {
+        const StringName& p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance, bool p_exclude_from_properties) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -524,7 +524,7 @@ void ClassDB::bind_integer_constant(
         }
         const StringName interned_enum_name(enum_name);
 
-        ListPOD<StringName> &constants_list = type->enum_map[interned_enum_name];
+        List<StringName> &constants_list = type->enum_map[interned_enum_name];
 
         constants_list.push_back(p_name);
     }
@@ -534,7 +534,7 @@ void ClassDB::bind_integer_constant(
 #endif
 }
 
-void ClassDB::get_integer_constant_list(const StringName &p_class, ListPOD<String> *p_constants, bool p_no_inheritance) {
+void ClassDB::get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -609,7 +609,7 @@ StringName ClassDB::get_integer_constant_enum(
     return StringName();
 }
 
-void ClassDB::get_enum_list(const StringName &p_class, ListPOD<StringName> *p_enums, bool p_no_inheritance) {
+void ClassDB::get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -629,7 +629,7 @@ void ClassDB::get_enum_list(const StringName &p_class, ListPOD<StringName> *p_en
 }
 
 void ClassDB::get_enum_constants(
-        const StringName &p_class, const StringName &p_enum, ListPOD<StringName> *p_constants, bool p_no_inheritance) {
+        const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -674,7 +674,7 @@ void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
     class_signal_map(*type)[sname] = eastl::move(p_signal);
 }
 
-void ClassDB::get_signal_list(StringName p_class, PODVector<MethodInfo> *p_signals, bool p_no_inheritance) {
+void ClassDB::get_signal_list(StringName p_class, Vector<MethodInfo> *p_signals, bool p_no_inheritance) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -809,7 +809,7 @@ void ClassDB::set_property_default_value(StringName p_class, const StringName &p
 }
 
 void ClassDB::get_property_list(
-        StringName p_class, PODVector<PropertyInfo> *p_list, bool p_no_inheritance, const Object *p_validator) {
+        StringName p_class, Vector<PropertyInfo> *p_list, bool p_no_inheritance, const Object *p_validator) {
 
     RWLockRead _rw_lockr_(lock);
 
@@ -1089,7 +1089,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 
     type->method_map[mdname] = p_bind;
 
-    PODVector<Variant> defvals;
+    Vector<Variant> defvals;
 
     defvals.reserve(def_vals.size());
     for (size_t i = 0; i < def_vals.size(); i++) {
@@ -1123,7 +1123,7 @@ void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_
 #endif
 }
 
-void ClassDB::get_virtual_methods(const StringName &p_class, PODVector<MethodInfo> *p_methods, bool p_no_inheritance) {
+void ClassDB::get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance) {
 
     ERR_FAIL_COND(!classes.contains(p_class));
 
@@ -1195,14 +1195,14 @@ void ClassDB::add_resource_base_extension(const StringName &p_extension, const S
     resource_base_extensions[p_extension] = p_class;
 }
 
-void ClassDB::get_resource_base_extensions(PODVector<String> &p_extensions) {
+void ClassDB::get_resource_base_extensions(Vector<String> &p_extensions) {
     for(const auto &p : resource_base_extensions)
     {
         p_extensions.push_back(p.first.asCString());
     }
 }
 
-void ClassDB::get_extensions_for_type(const StringName &p_class, PODVector<String> *p_extensions) {
+void ClassDB::get_extensions_for_type(const StringName &p_class, Vector<String> *p_extensions) {
 
     for (const auto &p : resource_base_extensions) {
         if (is_parent_class(p_class, p.second) || is_parent_class(p.second, p_class))
@@ -1235,7 +1235,7 @@ Variant ClassDB::class_get_default_property_value(
 
         if (c) {
 
-            PODVector<PropertyInfo> plist;
+            Vector<PropertyInfo> plist;
             c->get_property_list(&plist);
             for (const PropertyInfo &pi : plist) {
                 if (pi.usage & (PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR)) {

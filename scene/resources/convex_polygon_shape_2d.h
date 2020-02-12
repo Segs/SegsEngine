@@ -36,7 +36,7 @@
 class ConvexPolygonShape2D : public Shape2D {
     GDCLASS(ConvexPolygonShape2D,Shape2D)
 
-    PODVector<Vector2> points;
+    Vector<Vector2> points;
     void _update_shape();
 
 protected:

@@ -61,7 +61,7 @@ class AnimationBezierTrackEdit : public Control {
 	Ref<Animation> animation;
 	int track;
 
-	PODVector<Rect2> view_rects;
+	Vector<Rect2> view_rects;
 
 	Ref<Texture> bezier_icon;
 	Ref<Texture> bezier_handle_icon;
@@ -127,7 +127,7 @@ class AnimationBezierTrackEdit : public Control {
 		Rect2 out_rect;
 	};
 
-    PODVector<EditPoint> edit_points;
+    Vector<EditPoint> edit_points;
 
 	Set<int> selection;
 

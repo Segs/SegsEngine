@@ -103,7 +103,7 @@ public:
 
     void cleanup() {
 
-        PODVector<Map<String, Cache>::iterator> to_clean;
+        Vector<Map<String, Cache>::iterator> to_clean;
 
         Map<String, Cache>::iterator I = cached.begin();
         for (;I!=cached.end(); ++I) {
@@ -158,7 +158,7 @@ public:
     ~EditorScriptCodeCompletionCache() override = default;
 };
 
-void ScriptEditorQuickOpen::popup_dialog(const PODVector<String> &p_functions, bool p_dontclear) {
+void ScriptEditorQuickOpen::popup_dialog(const Vector<String> &p_functions, bool p_dontclear) {
 
     popup_centered_ratio(0.6f);
     if (p_dontclear)
@@ -537,7 +537,7 @@ void ScriptEditor::_open_recent_script(int p_idx) {
     String path = rc[p_idx];
     // if its not on disk its a help file or deleted
     if (FileAccess::exists(path)) {
-        PODVector<String> extensions;
+        Vector<String> extensions;
         ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
 
         if (extensions.contains(String(PathUtils::get_extension(path)))) {
@@ -928,7 +928,7 @@ void ScriptEditor::_file_dialog_action(se_string_view p_file) {
         }
         case ACT_FILE_OPEN: {
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
             if (ContainerUtils::contains(extensions,PathUtils::get_extension(p_file))) {
                 Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(p_file));
@@ -998,7 +998,7 @@ Ref<Script> ScriptEditor::_get_current_script() {
 Array ScriptEditor::_get_open_scripts() const {
 
     Array ret;
-    PODVector<Ref<Script> > scripts = get_open_scripts();
+    Vector<Ref<Script> > scripts = get_open_scripts();
     int scrits_amount = scripts.size();
     for (int idx_script = 0; idx_script < scrits_amount; idx_script++) {
         ret.push_back(scripts[idx_script]);
@@ -1037,7 +1037,7 @@ void ScriptEditor::_menu_option(int p_option) {
             file_dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
             file_dialog_option = ACT_FILE_OPEN;
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
             file_dialog->clear_filters();
             for (const String & ext : extensions) {
@@ -1056,7 +1056,7 @@ void ScriptEditor::_menu_option(int p_option) {
             String path = previous_scripts.back();
             previous_scripts.pop_back();
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
             bool built_in = !PathUtils::is_resource_file(path);
 
@@ -1219,7 +1219,7 @@ void ScriptEditor::_menu_option(int p_option) {
                     file_dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
                     file_dialog_option = FILE_SAVE_AS;
 
-                    PODVector<String> extensions;
+                    Vector<String> extensions;
                     ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
                     file_dialog->clear_filters();
                     file_dialog->set_current_dir(PathUtils::get_base_dir(text_file->get_path()));
@@ -1563,7 +1563,7 @@ void ScriptEditor::notify_script_changed(const Ref<Script> &p_script) {
     emit_signal("editor_script_changed", p_script);
 }
 
-void ScriptEditor::get_breakpoints(PODVector<String> *p_breakpoints) {
+void ScriptEditor::get_breakpoints(Vector<String> *p_breakpoints) {
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
 
@@ -1576,7 +1576,7 @@ void ScriptEditor::get_breakpoints(PODVector<String> *p_breakpoints) {
             continue;
         }
 
-        PODVector<int> bpoints;
+        Vector<int> bpoints;
         se->get_breakpoints(&bpoints);
         String base = script->get_path();
         //TODO replace below with PathUtils::is_internal_path ?
@@ -1719,7 +1719,7 @@ void ScriptEditor::_update_members_overview() {
         return;
     }
 
-    PODVector<String> functions = se->get_functions();
+    Vector<String> functions = se->get_functions();
     if (EditorSettings::get_singleton()->get("text_editor/tools/sort_members_outline_alphabetically")) {
         eastl::sort(functions.begin(), functions.end());
     }
@@ -1778,7 +1778,7 @@ void ScriptEditor::_update_help_overview() {
         return;
     }
 
-    PODVector<Pair<String, int> > sections = se->get_sections();
+    Vector<Pair<String, int> > sections = se->get_sections();
     for (int i = 0; i < sections.size(); i++) {
         help_overview->add_item(StringName(sections[i].first));
         help_overview->set_item_metadata(i, sections[i].second);
@@ -1842,7 +1842,7 @@ void ScriptEditor::_update_script_names() {
     ScriptSortBy sort_by = (ScriptSortBy)(int)EditorSettings::get_singleton()->get("text_editor/script_list/sort_scripts_by");
     ScriptListName display_as = (ScriptListName)(int)EditorSettings::get_singleton()->get("text_editor/script_list/list_script_names_as");
 
-    PODVector<_ScriptEditorItemData> sedata;
+    Vector<_ScriptEditorItemData> sedata;
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
 
@@ -1949,7 +1949,7 @@ void ScriptEditor::_update_script_names() {
         _sort_list_on_update = false;
     }
 
-    PODVector<_ScriptEditorItemData> sedata_filtered;
+    Vector<_ScriptEditorItemData> sedata_filtered;
     for (int i = 0; i < sedata.size(); i++) {
         String filter = filter_scripts->get_text();
         if (filter.empty() || StringUtils::is_subsequence_of(filter,sedata[i].name,StringUtils::CaseInsensitive)) {
@@ -2083,7 +2083,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         String path = EditorSettings::get_singleton()->get("text_editor/external/exec_path");
         String flags = EditorSettings::get_singleton()->get("text_editor/external/exec_flags");
 
-        ListPOD<String> args;
+        List<String> args;
         bool has_file_flag = false;
         String script_path = ProjectSettings::get_singleton()->globalize_path(p_resource->get_path());
 
@@ -2182,7 +2182,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
             se->add_syntax_highlighter(highlighter);
 
             if (script != nullptr && !highlighter_set) {
-                PODVector<String> languages = highlighter->get_supported_languages();
+                Vector<String> languages = highlighter->get_supported_languages();
                 if (languages.contains(String(script->get_language()->get_name()))) {
                     se->set_syntax_highlighter(highlighter);
                     highlighter_set = true;
@@ -2704,7 +2704,7 @@ void ScriptEditor::set_window_layout(Ref<ConfigFile> p_layout) {
 
     restoring_layout = true;
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
 
     for (int i = 0; i < scripts.size(); i++) {
@@ -2954,9 +2954,9 @@ void ScriptEditor::_history_back() {
     }
 }
 
-PODVector<Ref<Script>> ScriptEditor::get_open_scripts() const {
+Vector<Ref<Script>> ScriptEditor::get_open_scripts() const {
 
-    PODVector<Ref<Script> > out_scripts;
+    Vector<Ref<Script> > out_scripts;
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
         ScriptEditorBase *se = object_cast<ScriptEditorBase>(tab_container->get_child(i));
@@ -3606,7 +3606,7 @@ void ScriptEditorPlugin::get_window_layout(Ref<ConfigFile> p_layout) {
     script_editor->get_window_layout(p_layout);
 }
 
-void ScriptEditorPlugin::get_breakpoints(PODVector<String> *p_breakpoints) {
+void ScriptEditorPlugin::get_breakpoints(Vector<String> *p_breakpoints) {
 
     script_editor->get_breakpoints(p_breakpoints);
 }

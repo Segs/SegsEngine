@@ -126,7 +126,7 @@ Error MeshDataTool::create_from_surface(const Ref<ArrayMesh> &p_mesh, int p_surf
         vertices[i] = v;
     }
 
-    PODVector<int> indices;
+    Vector<int> indices;
 
     if (!arrays.m_indices.empty()) {
 
@@ -188,15 +188,15 @@ Error MeshDataTool::commit_to_surface(const Ref<ArrayMesh> &p_mesh) {
     SurfaceArrays arr;
     int vcount = vertices.size();
 
-    PODVector<Vector3> v;
-    PODVector<Vector3> n;
-    PODVector<real_t> t;
-    PODVector<Vector2> u;
-    PODVector<Vector2> u2;
-    PODVector<Color> c;
-    PODVector<int> b;
-    PODVector<real_t> w;
-    PODVector<int> in;
+    Vector<Vector3> v;
+    Vector<Vector3> n;
+    Vector<real_t> t;
+    Vector<Vector2> u;
+    Vector<Vector2> u2;
+    Vector<Color> c;
+    Vector<int> b;
+    Vector<real_t> w;
+    Vector<int> in;
 
     {
 
@@ -390,23 +390,23 @@ void MeshDataTool::set_vertex_color(int p_idx, const Color &p_color) {
     format |= Mesh::ARRAY_FORMAT_COLOR;
 }
 
-const PODVector<int> &MeshDataTool::get_vertex_bones(int p_idx) const {
+const Vector<int> &MeshDataTool::get_vertex_bones(int p_idx) const {
     ERR_FAIL_INDEX_V(p_idx, vertices.size(), null_int_pvec);
     return vertices[p_idx].bones;
 }
-void MeshDataTool::set_vertex_bones(int p_idx, PODVector<int> &&p_bones) {
+void MeshDataTool::set_vertex_bones(int p_idx, Vector<int> &&p_bones) {
 
     ERR_FAIL_INDEX(p_idx, vertices.size());
     vertices[p_idx].bones = eastl::move(p_bones);
     format |= Mesh::ARRAY_FORMAT_BONES;
 }
 
-const PODVector<float> &MeshDataTool::get_vertex_weights(int p_idx) const {
+const Vector<float> &MeshDataTool::get_vertex_weights(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, vertices.size(), null_float_pvec);
     return vertices[p_idx].weights;
 }
-void MeshDataTool::set_vertex_weights(int p_idx, PODVector<float> &&p_weights) {
+void MeshDataTool::set_vertex_weights(int p_idx, Vector<float> &&p_weights) {
     ERR_FAIL_INDEX(p_idx, vertices.size());
     vertices[p_idx].weights = eastl::move(p_weights);
     format |= Mesh::ARRAY_FORMAT_WEIGHTS;
@@ -424,13 +424,13 @@ void MeshDataTool::set_vertex_meta(int p_idx, const Variant &p_meta) {
     vertices[p_idx].meta = p_meta;
 }
 
-const PODVector<int> &MeshDataTool::get_vertex_edges(int p_idx) const {
+const Vector<int> &MeshDataTool::get_vertex_edges(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, vertices.size(), null_int_pvec);
     return vertices[p_idx].edges;
 }
 
-const PODVector<int> &MeshDataTool::get_vertex_faces(int p_idx) const {
+const Vector<int> &MeshDataTool::get_vertex_faces(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, vertices.size(), null_int_pvec);
     return vertices[p_idx].faces;
@@ -443,7 +443,7 @@ int MeshDataTool::get_edge_vertex(int p_edge, int p_vertex) const {
     return edges[p_edge].vertex[p_vertex];
 }
 
-const PODVector<int> &MeshDataTool::get_edge_faces(int p_edge) const {
+const Vector<int> &MeshDataTool::get_edge_faces(int p_edge) const {
 
     ERR_FAIL_INDEX_V(p_edge, edges.size(), null_int_pvec);
     return edges[p_edge].faces;

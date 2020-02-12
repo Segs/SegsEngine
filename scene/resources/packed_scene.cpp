@@ -72,7 +72,7 @@ bool SceneState::can_instance() const {
 Node *SceneState::instance(GenEditState p_edit_state) const {
 
     // nodes where instancing failed (because something is missing)
-    PODVector<Node *> stray_instances;
+    Vector<Node *> stray_instances;
 
 #define NODE_FROM_ID(p_name, p_id)                   \
     Node *p_name;                                    \
@@ -87,7 +87,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     int nc = nodes.size();
     ERR_FAIL_COND_V(nc == 0, nullptr);
 
-    const PODVector<StringName> &snames(names);
+    const Vector<StringName> &snames(names);
     size_t sname_count = names.size();
 
     const Variant *props = nullptr;
@@ -222,7 +222,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                         //https://github.com/godotengine/godot/issues/2958
 
                         //store old state
-                        PODVector<Pair<StringName, Variant> > old_state;
+                        Vector<Pair<StringName, Variant> > old_state;
                         if (node->get_script_instance()) {
                             node->get_script_instance()->get_property_state(old_state);
                         }
@@ -345,7 +345,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
         if (!cfrom || !cto)
             continue;
 
-        PODVector<Variant> binds;
+        Vector<Variant> binds;
         if (!c.binds.empty()) {
             binds.resize(c.binds.size());
             for (int j = 0; j < c.binds.size(); j++)
@@ -439,7 +439,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // with the instance states, we can query for identical properties/groups
     // and only save what has changed
 
-    List<PackState> pack_state_stack;
+    ListOld<PackState> pack_state_stack;
 
     bool instanced_by_owner = true;
 
@@ -503,7 +503,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // all setup, we then proceed to check all properties for the node
     // and save the ones that are worth saving
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     p_node->get_property_list(&plist);
     StringName type = p_node->get_class_name();
 
@@ -548,7 +548,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
             bool exists = false;
             Variant original;
 
-            for (List<PackState>::Element *F = pack_state_stack.back(); F; F = F->prev()) {
+            for (ListOld<PackState>::Element *F = pack_state_stack.back(); F; F = F->prev()) {
                 //check all levels of pack to see if the property exists somewhere
                 const PackState &ps = F->deref();
 
@@ -597,7 +597,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // save the groups this node is into
     // discard groups that come from the original scene
 
-    PODVector<Node::GroupInfo> groups;
+    Vector<Node::GroupInfo> groups;
     p_node->get_groups(&groups);
     for (Node::GroupInfo &gi : groups) {
 
@@ -609,7 +609,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
         */
 
         bool skip = false;
-        for (List<PackState>::Element *F = pack_state_stack.front(); F; F = F->next()) {
+        for (ListOld<PackState>::Element *F = pack_state_stack.front(); F; F = F->next()) {
             //check all levels of pack to see if the group was added somewhere
             const PackState &ps = F->deref();
             if (ps.state->is_node_in_group(ps.node, gi.name)) {
@@ -706,7 +706,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
     if (p_node != p_owner && p_node->get_owner() && p_node->get_owner() != p_owner && !p_owner->is_editable_instance(p_node->get_owner()))
         return OK;
 
-    PODVector<MethodInfo> _signals;
+    Vector<MethodInfo> _signals;
     p_node->get_signal_list(&_signals);
     eastl::sort(_signals.begin(), _signals.end());
     
@@ -716,7 +716,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
     for (const MethodInfo &E : _signals) {
 
-        ListPOD<Node::Connection> conns;
+        List<Node::Connection> conns;
         p_node->get_signal_connection_list(E.name, &conns);
 
         conns.sort();
@@ -1249,7 +1249,7 @@ Dictionary SceneState::get_bundled_scene() const {
     d["names"] = rnames;
     d["variants"] = Variant::from(variants);
 
-    PODVector<int> rnodes;
+    Vector<int> rnodes;
     d["node_count"] = nodes.size();
     rnodes.reserve(nodes.size()*15);
     for (size_t i = 0; i < nodes.size(); i++) {
@@ -1279,7 +1279,7 @@ Dictionary SceneState::get_bundled_scene() const {
 
     d["nodes"] = rnodes;
 
-    PODVector<int> rconns;
+    Vector<int> rconns;
     d["conn_count"] = connections.size();
     rconns.reserve(connections.size()*12);
     for (int i = 0; i < connections.size(); i++) {
@@ -1379,9 +1379,9 @@ String SceneState::get_node_instance_placeholder(int p_idx) const {
     return String();
 }
 
-PODVector<StringName> SceneState::get_node_groups(int p_idx) const {
+Vector<StringName> SceneState::get_node_groups(int p_idx) const {
     ERR_FAIL_INDEX_V(p_idx, nodes.size(), {});
-    PODVector<StringName> groups;
+    Vector<StringName> groups;
     for (int i = 0; i < nodes[p_idx].groups.size(); i++) {
         groups.emplace_back(names[nodes[p_idx].groups[i]]);
     }
@@ -1400,7 +1400,7 @@ NodePath SceneState::get_node_path(int p_idx, bool p_for_parent) const {
         }
     }
 
-    PODVector<StringName> sub_path;
+    Vector<StringName> sub_path;
     NodePath base_path;
     int nidx = p_idx;
     while (true) {
@@ -1551,7 +1551,7 @@ bool SceneState::has_connection(const NodePath &p_node_from, const StringName &p
     return false;
 }
 
-const PODVector<NodePath> &SceneState::get_editable_instances() const {
+const Vector<NodePath> &SceneState::get_editable_instances() const {
     return editable_instances;
 }
 //add
@@ -1619,7 +1619,7 @@ void SceneState::set_base_scene(int p_idx) {
     ERR_FAIL_INDEX(p_idx, variants.size());
     base_scene_idx = p_idx;
 }
-void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, PODVector<int> &&p_binds) {
+void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method, int p_flags, Vector<int> &&p_binds) {
 
     ERR_FAIL_INDEX(p_signal, names.size());
     ERR_FAIL_INDEX(p_method, names.size());
@@ -1643,7 +1643,7 @@ void SceneState::add_editable_instance(const NodePath &p_path) {
 
 PoolVector<String> SceneState::_get_node_groups(int p_idx) const {
 
-    PODVector<StringName> groups = get_node_groups(p_idx);
+    Vector<StringName> groups = get_node_groups(p_idx);
     PoolVector<String> ret;
 
     for (int i = 0; i < groups.size(); i++)

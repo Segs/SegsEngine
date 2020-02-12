@@ -79,7 +79,7 @@ void EditorFileServer::_subthread_start(void *s) {
         ERR_FAIL_COND(passlen > 512);
     } else if (passlen > 0) {
 
-        PODVector<char> passutf8;
+        Vector<char> passutf8;
         passutf8.resize(passlen + 1);
         err = cd->connection->get_data((uint8_t *)passutf8.data(), passlen);
         if (err != OK) {
@@ -144,7 +144,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 }
 
                 int namelen = decode_uint32(buf4);
-                PODVector<char> fileutf8;
+                Vector<char> fileutf8;
                 fileutf8.resize(namelen + 1);
                 err = cd->connection->get_data((uint8_t *)fileutf8.data(), namelen);
                 if (err != OK) {
@@ -243,7 +243,7 @@ void EditorFileServer::_subthread_start(void *s) {
                 ERR_CONTINUE(blocklen > (16 * 1024 * 1024));
 
                 cd->files[id]->seek(offset);
-                PODVector<uint8_t> buf;
+                Vector<uint8_t> buf;
                 buf.resize(blocklen);
                 int read = cd->files[id]->get_buffer(buf.data(), blocklen);
                 ERR_CONTINUE(read < 0);

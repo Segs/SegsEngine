@@ -90,7 +90,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
-        PODVector<StringName> classes;
+        Vector<StringName> classes;
         //BUG: SEGS: the original code was attempting to sort empty vector here, maybe it was meant to sort inheriters instead ?
         //classes.sort(WrapAlphaCompare());
 
@@ -102,7 +102,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
-                PODVector<StringName> names(ap->get_animation_list());
+                Vector<StringName> names(ap->get_animation_list());
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
                     animations_to_add.push_back(E);
@@ -332,7 +332,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         {
             //snap
             Vector2 cpos = state_machine->get_node_position(selected_node) + drag_ofs / EDSCALE;
-            ListPOD<StringName> nodes;
+            List<StringName> nodes;
             state_machine->get_node_list(&nodes);
 
             float best_d_x = 1e20f;
@@ -426,7 +426,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<String> filters;
+        Vector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const String &E : filters) {
             open_file->add_filter("*." + E);
@@ -595,7 +595,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     bool playing = false;
     StringName current;
     StringName blend_from;
-    PODVector<StringName> travel_path;
+    Vector<StringName> travel_path;
 
     if (playback) {
         playing = playback->is_playing();
@@ -609,7 +609,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
     }
     int sep = 3 * EDSCALE;
 
-    ListPOD<StringName> nodes;
+    List<StringName> nodes;
     state_machine->get_node_list(&nodes);
 
     node_rects.clear();
@@ -1019,7 +1019,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
         }
 
         bool same_travel_path = true;
-        PODVector<StringName> tp;
+        Vector<StringName> tp;
         bool is_playing = false;
         StringName current_node;
         StringName blend_from_node;

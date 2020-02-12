@@ -1058,7 +1058,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             int fcount = DragQueryFileW(hDropInfo, 0xFFFFFFFF, nullptr, 0);
 
-            PODVector<String> files;
+            Vector<String> files;
 
             for (int i = 0; i < fcount; i++) {
 
@@ -1731,7 +1731,7 @@ OS::VideoMode OS_Windows::get_video_mode(int p_screen) const {
 
     return video_mode;
 }
-void OS_Windows::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
+void OS_Windows::get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen) const {
 }
 
 static BOOL CALLBACK _MonitorEnumProcCount(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData) {
@@ -2465,7 +2465,7 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
         cursors_cache.erase(p_shape);
         return;
     }
-    Map<CursorShape, PODVector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
+    Map<CursorShape, Vector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
 
     if (cursor_c!=cursors_cache.end()) {
         if (cursor_c->second[0] == p_cursor && cursor_c->second[1] == p_hotspot) {
@@ -2558,7 +2558,7 @@ void OS_Windows::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shap
 
     cursors[p_shape] = CreateIconIndirect(&iconinfo);
 
-    PODVector<Variant> params;
+    Vector<Variant> params;
     params.push_back(p_cursor);
     params.push_back(p_hotspot);
     cursors_cache.emplace(p_shape, eastl::move(params));
@@ -2626,7 +2626,7 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
     DeleteDC(hMainDC);
 }
 
-Error OS_Windows::execute(se_string_view p_path, const ListPOD<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Windows::execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
     if (p_blocking && r_pipe) {
 
@@ -2794,7 +2794,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 
     // Read the big icon
     DWORD bytecount_big = icon_dir->idEntries[big_icon_index].dwBytesInRes;
-    PODVector<uint8_t> data_big;
+    Vector<uint8_t> data_big;
     data_big.resize(bytecount_big);
     pos = icon_dir->idEntries[big_icon_index].dwImageOffset;
     f->seek(pos);
@@ -2804,7 +2804,7 @@ void OS_Windows::set_native_icon(const String &p_filename) {
 
     // Read the small icon
     DWORD bytecount_small = icon_dir->idEntries[small_icon_index].dwBytesInRes;
-    PODVector<uint8_t> data_small;
+    Vector<uint8_t> data_small;
     data_small.resize(bytecount_small);
     pos = icon_dir->idEntries[small_icon_index].dwImageOffset;
     f->seek(pos);
@@ -2839,7 +2839,7 @@ void OS_Windows::set_icon(const Ref<Image> &p_icon) {
 
     /* Create temporary bitmap buffer */
     int icon_len = 40 + h * w * 4;
-    PODVector<BYTE> v;
+    Vector<BYTE> v;
     v.resize(icon_len);
     BYTE *icon_bmp = v.data();
 
@@ -3267,7 +3267,7 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     AudioDriverManager::add_driver(&driver_xaudio2);
 #endif
 
-    PODVector<Logger *> loggers { memnew(WindowsTerminalLogger) };
+    Vector<Logger *> loggers { memnew(WindowsTerminalLogger) };
     _set_logger(memnew_args(CompositeLogger,eastl::move(loggers)));
 }
 

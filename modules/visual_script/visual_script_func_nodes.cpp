@@ -716,7 +716,7 @@ void VisualScriptFunctionCall::_bind_methods() {
         bt += Variant::get_type_name(VariantType(i));
     }
 
-    PODVector<String> script_extensions;
+    Vector<String> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
@@ -1048,7 +1048,7 @@ PropertyInfo VisualScriptPropertySet::get_input_value_port_info(int p_idx) const
         }
     }
 
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
@@ -1182,7 +1182,7 @@ void VisualScriptPropertySet::_update_cache() {
         Variant::CallError ce;
         v = Variant::construct(basic_type, nullptr, 0, ce);
 
-        PODVector<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
         v.get_property_list(&pinfo);
 
         for(const PropertyInfo & E : pinfo) {
@@ -1233,7 +1233,7 @@ void VisualScriptPropertySet::_update_cache() {
             }
         }
 
-        PODVector<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
 
         if (node) {
 
@@ -1423,7 +1423,7 @@ void VisualScriptPropertySet::_validate_property(PropertyInfo &property) const {
 
         Variant::CallError ce;
         Variant v = Variant::construct(type_cache.type, nullptr, 0, ce);
-        PODVector<PropertyInfo> plist;
+        Vector<PropertyInfo> plist;
         v.get_property_list(&plist);
         String options;
         for(const PropertyInfo & E : plist) {
@@ -1475,7 +1475,7 @@ void VisualScriptPropertySet::_bind_methods() {
         bt += (Variant::get_type_name(VariantType(i)));
     }
 
-    PODVector<String> script_extensions;
+    Vector<String> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
@@ -1818,7 +1818,7 @@ PropertyInfo VisualScriptPropertyGet::get_input_value_port_info(int p_idx) const
 }
 
 PropertyInfo VisualScriptPropertyGet::get_output_value_port_info(int p_idx) const {
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
     ClassDB::get_property_list(_get_base_type(), &props, false);
     for(const PropertyInfo & E : props) {
         if (E.name == property) {
@@ -1889,7 +1889,7 @@ void VisualScriptPropertyGet::_update_cache() {
         Variant::CallError ce;
         v = Variant::construct(basic_type, nullptr, 0, ce);
 
-        PODVector<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
         v.get_property_list(&pinfo);
 
         for(const PropertyInfo & E : pinfo) {
@@ -2137,7 +2137,7 @@ void VisualScriptPropertyGet::_validate_property(PropertyInfo &property) const {
 
         Variant::CallError ce;
         Variant v = Variant::construct(type_cache, nullptr, 0, ce);
-        PODVector<PropertyInfo> plist;
+        Vector<PropertyInfo> plist;
         v.get_property_list(&plist);
         String options;
         for(const PropertyInfo & E : plist) {
@@ -2186,7 +2186,7 @@ void VisualScriptPropertyGet::_bind_methods() {
         bt += Variant::get_type_name(VariantType(i));
     }
 
-    PODVector<String> script_extensions;
+    Vector<String> script_extensions;
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         ScriptServer::get_language(i)->get_recognized_extensions(&script_extensions);
     }
@@ -2408,7 +2408,7 @@ void VisualScriptEmitSignal::_validate_property(PropertyInfo &property) const {
     if (property.name == "signal") {
         property.hint = PropertyHint::Enum;
 
-        PODVector<StringName> sigs;
+        Vector<StringName> sigs;
 
         Ref<VisualScript> vs = get_visual_script();
         if (vs) {
@@ -2471,7 +2471,7 @@ VisualScriptEmitSignal::VisualScriptEmitSignal() {
 
 static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) {
 
-    PODVector<se_string_view > path = StringUtils::split(p_name,'/');
+    Vector<se_string_view > path = StringUtils::split(p_name,'/');
     ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>());
     se_string_view  base_type = path[2];
     se_string_view  method = path[3];
@@ -2513,7 +2513,7 @@ void register_visual_script_func_nodes() {
         String type_name(Variant::get_type_name(t));
         Variant::CallError ce;
         Variant vt = Variant::construct(t, nullptr, 0, ce);
-        PODVector<MethodInfo> ml;
+        Vector<MethodInfo> ml;
         vt.get_method_list(&ml);
 
         for(const MethodInfo & E : ml) {

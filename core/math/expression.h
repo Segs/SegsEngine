@@ -124,7 +124,7 @@ private:
 //        Input() = default;
 //    };
 
-//    PODVector<Input> inputs;
+//    Vector<Input> inputs;
     VariantType output_type = VariantType::NIL;
 
     String expression;
@@ -289,7 +289,7 @@ private:
 
     struct ConstructorNode : public ENode {
         VariantType data_type;
-        PODVector<ENode *> arguments;
+        Vector<ENode *> arguments;
 
         ConstructorNode() {
             type = TYPE_CONSTRUCTOR;
@@ -299,7 +299,7 @@ private:
     struct CallNode : public ENode {
         ENode *base;
         StringName method;
-        PODVector<ENode *> arguments;
+        Vector<ENode *> arguments;
 
         CallNode() {
             type = TYPE_CALL;
@@ -307,14 +307,14 @@ private:
     };
 
     struct ArrayNode : public ENode {
-        PODVector<ENode *> array;
+        Vector<ENode *> array;
         ArrayNode() {
             type = TYPE_ARRAY;
         }
     };
 
     struct DictionaryNode : public ENode {
-        PODVector<ENode *> dict;
+        Vector<ENode *> dict;
         DictionaryNode() {
             type = TYPE_DICTIONARY;
         }
@@ -322,7 +322,7 @@ private:
 
     struct BuiltinFuncNode : public ENode {
         BuiltinFunc func;
-        PODVector<ENode *> arguments;
+        Vector<ENode *> arguments;
         BuiltinFuncNode() {
             type = TYPE_BUILTIN_FUNC;
         }
@@ -339,7 +339,7 @@ private:
     ENode *root = nullptr;
     ENode *nodes = nullptr;
 
-    PODVector<String> input_names;
+    Vector<String> input_names;
 
     bool execution_error=false;
     bool _execute(const Array &p_inputs, Object *p_instance, Expression::ENode *p_node, Variant &r_ret, String &r_error_str);
@@ -348,7 +348,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error parse(se_string_view p_expression, const PODVector<String> &p_input_names = {});
+    Error parse(se_string_view p_expression, const Vector<String> &p_input_names = {});
     Variant execute(const Array& p_inputs, Object *p_base = nullptr, bool p_show_error = true);
     bool has_execute_failed() const;
     const String &get_error_text() const;

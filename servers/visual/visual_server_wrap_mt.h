@@ -117,7 +117,7 @@ public:
         }
     }
     FUNC1(texture_set_shrink_all_x2_on_set_data, bool)
-    FUNC1S(texture_debug_usage, PODVector<TextureInfo> *)
+    FUNC1S(texture_debug_usage, Vector<TextureInfo> *)
 
     FUNC1(textures_keep_original, bool)
 
@@ -137,7 +137,7 @@ public:
     FUNC2(shader_set_code, RID, const String &)
     FUNC1RC(String, shader_get_code, RID)
 
-    FUNC2SC(shader_get_param_list, RID, PODVector<PropertyInfo> *)
+    FUNC2SC(shader_get_param_list, RID, Vector<PropertyInfo> *)
 
     FUNC3(shader_set_default_texture_param, RID, const StringName &, RID)
     FUNC2RC(RID, shader_get_default_texture_param, RID, const StringName &)
@@ -161,7 +161,7 @@ public:
 
     FUNCRID(mesh)
 
-    FUNC10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const PODVector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
+    FUNC10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
 
     FUNC2(mesh_set_blend_shape_count, RID, int)
     FUNC1RC(int, mesh_get_blend_shape_count, RID)
@@ -184,10 +184,10 @@ public:
     FUNC2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     FUNC2RC(AABB, mesh_surface_get_aabb, RID, int)
-    FUNC2RC(PODVector<PODVector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
-    const PODVector<AABB> & mesh_surface_get_skeleton_aabb(RID p1, int p2) const override {
+    FUNC2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
+    const Vector<AABB> & mesh_surface_get_skeleton_aabb(RID p1, int p2) const override {
         if (Thread::get_caller_id() != server_thread) {
-            using RetType = const PODVector<AABB> *;
+            using RetType = const Vector<AABB> *;
 
             RetType ret;
             command_queue.push_and_ret(server_name, (RetType(ServerName::*)(RID, int))&ServerName::mesh_surface_get_skeleton_aabb, p1, p2, &ret);
@@ -502,9 +502,9 @@ public:
     FUNC2(instance_set_extra_visibility_margin, RID, real_t)
 
     // don't use these in a game!
-    FUNC2RC(PODVector<ObjectID>, instances_cull_aabb, const AABB &, RID)
-    FUNC3RC(PODVector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
-    FUNC2RC(PODVector<ObjectID>, instances_cull_convex, Span<const Plane>, RID)
+    FUNC2RC(Vector<ObjectID>, instances_cull_aabb, const AABB &, RID)
+    FUNC3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
+    FUNC2RC(Vector<ObjectID>, instances_cull_convex, Span<const Plane>, RID)
 
     FUNC3(instance_geometry_set_flag, RID, VS::InstanceFlags, bool)
     FUNC2(instance_geometry_set_cast_shadows_setting, RID, VS::ShadowCastingSetting)
@@ -539,14 +539,14 @@ public:
     FUNC2(canvas_item_set_draw_behind_parent, RID, bool)
 
     FUNC6(canvas_item_add_line, RID, const Point2 &, const Point2 &, const Color &, float, bool)
-    FUNC5(canvas_item_add_polyline, RID, const PODVector<Point2> &, const PODVector<Color> &, float, bool)
-    FUNC5(canvas_item_add_multiline, RID, const PODVector<Point2> &, const PODVector<Color> &, float, bool)
+    FUNC5(canvas_item_add_polyline, RID, const Vector<Point2> &, const Vector<Color> &, float, bool)
+    FUNC5(canvas_item_add_multiline, RID, const Vector<Point2> &, const Vector<Color> &, float, bool)
     FUNC3(canvas_item_add_rect, RID, const Rect2 &, const Color &)
     FUNC4(canvas_item_add_circle, RID, const Point2 &, float, const Color &)
     FUNC7(canvas_item_add_texture_rect, RID, const Rect2 &, RID, bool, const Color &, bool, RID)
     FUNC8(canvas_item_add_texture_rect_region, RID, const Rect2 &, RID, const Rect2 &, const Color &, bool, RID, bool)
     FUNC11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
-    FUNC7(canvas_item_add_primitive, RID, const PODVector<Point2> &, const PoolVector<Color> &, const PoolVector<Point2> &, RID, float, RID)
+    FUNC7(canvas_item_add_primitive, RID, const Vector<Point2> &, const PoolVector<Color> &, const PoolVector<Point2> &, RID, float, RID)
     FUNC7(canvas_item_add_polygon, RID, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, RID, RID, bool)
     FUNC12(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, const PoolVector<int> &, const PoolVector<float> &, RID, int, RID, bool,bool)
     FUNC6(canvas_item_add_mesh, RID, const RID &, const Transform2D &, const Color &, RID, RID)

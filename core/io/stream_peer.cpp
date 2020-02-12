@@ -227,7 +227,7 @@ void StreamPeer::put_utf8_string(se_string_view p_string) {
 void StreamPeer::put_var(const Variant &p_variant, bool p_full_objects) {
 
     int len = 0;
-    PODVector<uint8_t> buf;
+    Vector<uint8_t> buf;
     encode_variant(p_variant, nullptr, len, p_full_objects);
     buf.resize(len);
     put_32(len);
@@ -349,7 +349,7 @@ Variant StreamPeer::get_var(bool p_allow_objects) {
 
     int len = get_32();
     ERR_FAIL_COND_V(len >= 512*1024*1024, Variant());
-    PODVector<uint8_t> var;
+    Vector<uint8_t> var;
     var.resize(len);
     Error err = get_data(var.data(), len);
     ERR_FAIL_COND_V(err != OK, Variant());

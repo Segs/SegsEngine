@@ -46,7 +46,7 @@ class VisualScriptExpression : public VisualScriptNode {
         Input() { type = VariantType::NIL; }
     };
 
-    PODVector<Input> inputs;
+    Vector<Input> inputs;
     VariantType output_type;
 
     String expression;
@@ -210,7 +210,7 @@ class VisualScriptExpression : public VisualScriptNode {
 
     struct ConstructorNode : public ENode {
         VariantType data_type;
-        PODVector<ENode *> arguments;
+        Vector<ENode *> arguments;
 
         ConstructorNode() {
             type = TYPE_CONSTRUCTOR;
@@ -220,7 +220,7 @@ class VisualScriptExpression : public VisualScriptNode {
     struct CallNode : public ENode {
         ENode *base;
         StringName method;
-        PODVector<ENode *> arguments;
+        Vector<ENode *> arguments;
 
         CallNode() {
             type = TYPE_CALL;
@@ -228,14 +228,14 @@ class VisualScriptExpression : public VisualScriptNode {
     };
 
     struct ArrayNode : public ENode {
-        PODVector<ENode *> array;
+        Vector<ENode *> array;
         ArrayNode() {
             type = TYPE_ARRAY;
         }
     };
 
     struct DictionaryNode : public ENode {
-        PODVector<ENode *> dict;
+        Vector<ENode *> dict;
         DictionaryNode() {
             type = TYPE_DICTIONARY;
         }
@@ -243,7 +243,7 @@ class VisualScriptExpression : public VisualScriptNode {
 
     struct BuiltinFuncNode : public ENode {
         VisualScriptBuiltinFunc::BuiltinFunc func;
-        PODVector<ENode *> arguments;
+        Vector<ENode *> arguments;
         BuiltinFuncNode() {
             type = TYPE_BUILTIN_FUNC;
         }
@@ -263,7 +263,7 @@ class VisualScriptExpression : public VisualScriptNode {
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     int get_output_sequence_port_count() const override;

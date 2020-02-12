@@ -184,8 +184,8 @@ private:
 
     float global_rate_scale;
 
-    PODVector<PODVector<AudioFrame> > temp_buffer; //temp_buffer for each level
-    PODVector<AudioServerBus *> buses;
+    Vector<Vector<AudioFrame> > temp_buffer; //temp_buffer for each level
+    Vector<AudioServerBus *> buses;
     Map<StringName, AudioServerBus *> bus_map;
 
     void _update_bus_effects(int p_bus);
@@ -346,13 +346,13 @@ class AudioBusLayout : public Resource {
 
     void *m_priv; // PIMPL data
     // Used by audio server to retrieve/set the layout
-    void generate_bus_layout(const PODVector<AudioServerBus *> &buses);
+    void generate_bus_layout(const Vector<AudioServerBus *> &buses);
     size_t bus_count() const;
     void fill_bus_info(int idx, AudioServerBus *tgt);
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
 

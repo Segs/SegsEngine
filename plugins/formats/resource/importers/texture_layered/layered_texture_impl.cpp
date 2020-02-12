@@ -48,7 +48,7 @@ StringName LayeredTextureImpl::get_visible_name() const {
 
     return is_3d ? StringName("Texture3D") : StringName("TextureArray");
 }
-void LayeredTextureImpl::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void LayeredTextureImpl::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
 }
@@ -80,7 +80,7 @@ StringName LayeredTextureImpl::get_preset_name(int p_idx) const {
     return StaticCString(preset_names[p_idx],true);
 }
 
-void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void LayeredTextureImpl::get_import_options(List<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress/no_bptc_if_rgb"), false));
@@ -92,7 +92,7 @@ void LayeredTextureImpl::get_import_options(ListPOD<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
 }
 
-void LayeredTextureImpl::_save_tex(const PODVector<Ref<Image>> &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
+void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -139,7 +139,7 @@ void LayeredTextureImpl::_save_tex(const PODVector<Ref<Image>> &p_images, se_str
                         image->shrink_x2();
                     }
 
-                    PODVector<uint8_t> data = Image::lossless_packer(image);
+                    Vector<uint8_t> data = Image::lossless_packer(image);
                     int data_len = data.size();
                     f->store_32(data_len);
                     f->store_buffer(data.data(), data_len);
@@ -151,7 +151,7 @@ void LayeredTextureImpl::_save_tex(const PODVector<Ref<Image>> &p_images, se_str
                 Ref<Image> image = dynamic_ref_cast<Image>(p_images[i]->duplicate());
                 image->generate_mipmaps(false);
 
-                ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_LAYERED;
+                ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_GENERIC; //ImageCompressSource::COMPRESS_SOURCE_LAYERED;
                 image->compress(p_vram_compression, csource, 0.7f);
 
                 if (i == 0) {
@@ -190,8 +190,8 @@ void LayeredTextureImpl::_save_tex(const PODVector<Ref<Image>> &p_images, se_str
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, PODVector<String> *
-        r_platform_variants, PODVector<String> *r_gen_files, Variant *r_metadata) {
+Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, Vector<String> *
+        r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     String p_save_path(_save_path);
     int compress_mode = p_options.at("compress/mode");
@@ -221,7 +221,7 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
     if (srgb == 1)
         tex_flags |= Texture::FLAG_CONVERT_TO_LINEAR;
 
-    PODVector<Ref<Image> > slices;
+    Vector<Ref<Image> > slices;
 
     int slice_w = image->get_width() / hslices;
     int slice_h = image->get_height() / vslices;
@@ -267,8 +267,8 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
             encode_bptc = true;
 
             if (no_bptc_if_rgb) {
-                Image::DetectChannels channels = image->detect_used_channels();
-                if (channels != Image::DETECTED_LA && channels != Image::DETECTED_RGBA) {
+                ImageUsedChannels channels = image->detect_used_channels();
+                if (channels != ImageUsedChannels::USED_CHANNELS_LA && channels != ImageUsedChannels::USED_CHANNELS_RGBA) {
                     encode_bptc = false;
                 }
             }
@@ -370,9 +370,9 @@ bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const 
         return true; //do not care about non vram
     }
 
-    PODVector<String> formats_imported;
+    Vector<String> formats_imported;
     if (metadata.has("imported_formats")) {
-        formats_imported = metadata["imported_formats"].as<PODVector<String>>();
+        formats_imported = metadata["imported_formats"].as<Vector<String>>();
     }
 
     int index = 0;

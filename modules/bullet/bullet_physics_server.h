@@ -52,7 +52,7 @@ class BulletPhysicsServer : public PhysicsServer {
 
     bool active;
     char active_spaces_count;
-    PODVector<SpaceBullet *> active_spaces;
+    Vector<SpaceBullet *> active_spaces;
 
     mutable RID_Owner<SpaceBullet> space_owner;
     mutable RID_Owner<ShapeBullet> shape_owner;
@@ -115,7 +115,7 @@ public:
     PhysicsDirectSpaceState *space_get_direct_state(RID p_space) override;
 
     void space_set_debug_contacts(RID p_space, int p_max_contacts) override;
-    const PODVector<Vector3> &space_get_contacts(RID p_space) const override;
+    const Vector<Vector3> &space_get_contacts(RID p_space) const override;
     int space_get_contact_count(RID p_space) const override;
 
     /* AREA API */

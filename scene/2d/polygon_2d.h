@@ -48,7 +48,7 @@ class Polygon2D : public Node2D {
         PoolVector<float> weights;
     };
 
-    PODVector<Bone> bone_weights;
+    Vector<Bone> bone_weights;
 
     Color color;
     Ref<Texture> texture;

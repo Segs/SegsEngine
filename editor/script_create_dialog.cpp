@@ -199,7 +199,7 @@ StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file
 
     /* Check file extension */
     se_string_view extension = PathUtils::get_extension(p);
-    PODVector<String> extensions;
+    Vector<String> extensions;
 
     // get all possible extensions for script
     for (int l = 0; l < language_menu->get_item_count(); l++) {
@@ -364,7 +364,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
             _path_changed(path);
         } else {
             // change extension by selected language
-            PODVector<String> extensions;
+            Vector<String> extensions;
             // get all possible extensions for script
             for (int m = 0; m < language_menu->get_item_count(); m++) {
                 ScriptServer::get_language(m)->get_recognized_extensions(&extensions);
@@ -422,8 +422,8 @@ void ScriptCreateDialog::_lang_changed(int l) {
             templates[i].id = new_id;
         }
         // Disable overridden
-        for (eastl::pair<const String,PODVector<int> > &E : template_overrides) {
-            const PODVector<int> &overrides = E.second;
+        for (eastl::pair<const String,Vector<int> > &E : template_overrides) {
+            const Vector<int> &overrides = E.second;
 
             if (overrides.size() == 1) {
                 continue; // doesn't override anything
@@ -474,7 +474,7 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
     template_list.clear();
     template_overrides.clear();
 
-    PODVector<String> dirs;
+    Vector<String> dirs;
 
     // Ordered from local to global for correct override mechanism
     dirs.emplace_back(EditorSettings::get_singleton()->get_project_script_templates_dir());
@@ -482,7 +482,7 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
 
     for (int i = 0; i < dirs.size(); i++) {
 
-        PODVector<String> list(EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]));
+        Vector<String> list(EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]));
 
         for (const String & entry : list) {
             ScriptTemplateInfo sinfo;
@@ -493,11 +493,11 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
             template_list.push_back(sinfo);
 
             if (!template_overrides.contains(sinfo.name)) {
-                PODVector<int> overrides;
+                Vector<int> overrides;
                 overrides.push_back(template_list.size() - 1); // first one
                 template_overrides.emplace(sinfo.name, overrides);
             } else {
-                PODVector<int> &overrides = template_overrides[sinfo.name];
+                Vector<int> &overrides = template_overrides[sinfo.name];
                 overrides.push_back(template_list.size() - 1);
             }
         }
@@ -531,7 +531,7 @@ void ScriptCreateDialog::_browse_path(bool browse_parent, bool p_save) {
 
     file_browse->set_disable_overwrite_warning(true);
     file_browse->clear_filters();
-    PODVector<String> extensions;
+    Vector<String> extensions;
 
     int lang = language_menu->get_selected();
     ScriptServer::get_language(lang)->get_recognized_extensions(&extensions);

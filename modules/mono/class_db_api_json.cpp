@@ -44,7 +44,7 @@
 void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) {
     Dictionary classes_dict;
 
-    ListPOD<StringName> names;
+    List<StringName> names;
 
     for(const eastl::pair<const StringName, ClassDB::ClassInfo> &k : ClassDB::classes) {
 
@@ -68,7 +68,7 @@ void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) 
 
         { //methods
 
-            ListPOD<StringName> snames;
+            List<StringName> snames;
 
             for(const eastl::pair<StringName, MethodBind *> &ck : t->method_map) {
 
@@ -130,7 +130,7 @@ void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) 
 
         { //constants
 
-            ListPOD<StringName> snames;
+            List<StringName> snames;
 
             for(const auto &k : t->constant_map) {
 
@@ -156,7 +156,7 @@ void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) 
 
         { //signals
 
-            PODVector<StringName> snames;
+            Vector<StringName> snames;
             auto &signal_map(t->class_signal_map());
             signal_map.keys_into(snames);
             eastl::sort(snames.begin(),snames.end(),WrapAlphaCompare());
@@ -186,7 +186,7 @@ void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) 
 
         { //properties
 
-            PODVector<StringName> snames;
+            Vector<StringName> snames;
             t->property_setget.keys_into(snames);
             eastl::sort(snames.begin(),snames.end(),WrapAlphaCompare());
 

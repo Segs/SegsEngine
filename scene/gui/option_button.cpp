@@ -308,7 +308,7 @@ void OptionButton::_set_items(const Array &p_items) {
     }
 }
 
-void OptionButton::get_translatable_strings(ListPOD<StringName> *p_strings) const {
+void OptionButton::get_translatable_strings(List<StringName> *p_strings) const {
 
     popup->get_translatable_strings(p_strings);
 }

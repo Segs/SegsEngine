@@ -43,9 +43,6 @@ class VMap;
 
 template <class T>
 class CowData {
-    template <class TV>
-    friend class Vector;
-
     template <class TV, class VV>
     friend class VMap;
 

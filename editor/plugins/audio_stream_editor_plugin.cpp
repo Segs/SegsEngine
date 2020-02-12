@@ -80,7 +80,7 @@ void AudioStreamEditor::_draw_preview() {
     Ref<AudioStreamPreview> preview = AudioStreamPreviewGenerator::get_singleton()->generate_preview(stream);
     float preview_len = preview->get_length();
 
-    PODVector<Vector2> lines;
+    Vector<Vector2> lines;
     lines.reserve(size.width * 2);
 
     for (int i = 0; i < size.width; i++) {
@@ -94,7 +94,7 @@ void AudioStreamEditor::_draw_preview() {
         lines.emplace_back(i + 1, rect.position.y + max * rect.size.y);
     }
 
-    PODVector<Color> color;
+    Vector<Color> color;
     color.push_back(get_color("contrast_color_2", "Editor"));
 
     VisualServer::get_singleton()->canvas_item_add_multiline(_preview->get_canvas_item(), lines, color);

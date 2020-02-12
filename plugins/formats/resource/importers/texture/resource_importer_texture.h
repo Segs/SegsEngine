@@ -62,7 +62,7 @@ public:
     static ResourceImporterTexture *get_singleton() { return singleton; }
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 
@@ -78,7 +78,7 @@ public:
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(ListPOD<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
 
     void _save_stex(const Ref<Image> &p_image, se_string_view p_to_path, int p_compress_mode, float p_lossy_quality,
@@ -87,10 +87,10 @@ public:
             bool p_force_po2_for_compressed);
 
     Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
-            PODVector<String> *r_platform_variants, PODVector<String> *r_gen_files = nullptr,
+            Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
-    void build_reconfigured_list(PODVector<String> &editor_is_scanning_or_importing) override;
+    void build_reconfigured_list(Vector<String> &editor_is_scanning_or_importing) override;
 
     bool are_import_settings_valid(se_string_view p_path) const override;
     String get_import_settings_string() const override;

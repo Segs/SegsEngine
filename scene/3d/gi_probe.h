@@ -117,12 +117,12 @@ private:
 
     struct PlotMesh {
         Ref<Material> override_material;
-        PODVector<Ref<Material> > instance_materials;
+        Vector<Ref<Material> > instance_materials;
         Ref<Mesh> mesh;
         Transform local_xform;
     };
 public:
-    void _find_meshes(Node *p_at_node, PODVector<PlotMesh> &plot_meshes) const;
+    void _find_meshes(Node *p_at_node, Vector<PlotMesh> &plot_meshes) const;
     void _debug_bake();
 
 protected:
@@ -166,7 +166,7 @@ public:
     void bake(Node *p_from_node = nullptr, bool p_create_visual_debug = false);
 
     AABB get_aabb() const override;
-    PODVector<Face3> get_faces(uint32_t p_usage_flags) const override;
+    Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
     StringName get_configuration_warning() const override;
 

@@ -69,7 +69,7 @@ class ScriptEditorDebuggerVariables : public Object {
 
     GDCLASS(ScriptEditorDebuggerVariables,Object)
 
-    List<PropertyInfo> props;
+    ListOld<PropertyInfo> props;
     Map<StringName, Variant> values;
 
 protected:
@@ -85,9 +85,9 @@ protected:
         r_ret = values.at(p_name);
         return true;
     }
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
-        for (const List<PropertyInfo>::Element *E = props.front(); E; E = E->next())
+        for (const ListOld<PropertyInfo>::Element *E = props.front(); E; E = E->next())
             p_list->push_back(E->deref());
     }
 
@@ -152,10 +152,10 @@ protected:
         return true;
     }
 
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const {
+    void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
         p_list->clear(); //sorry, no want category
-        for (const List<PropertyInfo>::Element *E = prop_list.front(); E; E = E->next()) {
+        for (const ListOld<PropertyInfo>::Element *E = prop_list.front(); E; E = E->next()) {
             p_list->push_back(E->deref());
         }
     }
@@ -173,7 +173,7 @@ protected:
 public:
     UIString type_name;
     ObjectID remote_object_id;
-    List<PropertyInfo> prop_list;
+    ListOld<PropertyInfo> prop_list;
     Map<StringName, Variant> prop_values;
 
     ObjectID get_remote_object_id() {
@@ -353,7 +353,7 @@ void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
                 ERR_PRINT("Failed to open " + String(p_file));
                 return;
             }
-            PODVector<String> line;
+            Vector<String> line;
             line.resize(Performance::MONITOR_MAX);
 
             // signatures
@@ -364,7 +364,7 @@ void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
 
             // values
             for(auto riter=perf_history.rbegin(),rfin=perf_history.rend(); riter!=rfin; ++riter) {
-                const PODVector<float> &perf_data = *riter;
+                const Vector<float> &perf_data = *riter;
                 for (int i = 0; i < perf_data.size(); i++) {
 
                     line[i] = StringUtils::num_real(perf_data[i]);
@@ -373,7 +373,7 @@ void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
             }
             file->store_string("\n");
 
-            PODVector<PODVector<String> > profiler_data(profiler->get_data_as_csv());
+            Vector<Vector<String> > profiler_data(profiler->get_data_as_csv());
             for (int i = 0; i < profiler_data.size(); i++) {
                 file->store_csv_line(profiler_data[i]);
             }
@@ -808,7 +808,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
     } else if (p_msg == "performance") {
         Array arr = p_data[0];
-        PODVector<float> p;
+        Vector<float> p;
         p.resize(arr.size());
         for (int i = 0; i < arr.size(); i++) {
             p[i] = arr[i];
@@ -1055,7 +1055,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                 item.signature = profiler_signature[signature];
 
                 se_string_view name = profiler_signature[signature];
-                PODVector<se_string_view> strings = StringUtils::split(name,"::");
+                Vector<se_string_view> strings = StringUtils::split(name,"::");
                 if (strings.size() == 3) {
                     item.name = strings[2];
                     item.script = strings[0];
@@ -1126,7 +1126,7 @@ void ScriptEditorDebugger::_performance_select() {
 
 void ScriptEditorDebugger::_performance_draw() {
 
-    PODVector<int> which;
+    Vector<int> which;
     for (int i = 0; i < perf_items.size(); i++) {
 
         if (perf_items[i]->is_checked(0))
@@ -1178,7 +1178,7 @@ void ScriptEditorDebugger::_performance_draw() {
         float from = r.size.width;
 
         float prev = -1;
-        for(const PODVector<float> &history : perf_history) {
+        for(const Vector<float> &history : perf_history) {
             if(from<0)
                 break;
             float m = perf_max[pi];
@@ -2166,7 +2166,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
             file_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
             file_dialog_mode = SAVE_NODE;
 
-            PODVector<String> extensions;
+            Vector<String> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
             ResourceSaver::get_recognized_extensions(sd, extensions);
             file_dialog->clear_filters();

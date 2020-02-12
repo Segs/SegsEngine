@@ -47,7 +47,7 @@ class RegExMatch : public RefCounted {
     };
 
     String subject;
-    PODVector<Range> data;
+    Vector<Range> data;
     Map<String, int> names;
 
     friend class RegEx;

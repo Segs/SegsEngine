@@ -64,7 +64,7 @@ public:
 
     //virtual void set_video_mode(const VideoMode& p_video_mode);
     //virtual VideoMode get_video_mode() const;
-    //virtual void get_fullscreen_mode_list(PODVector<VideoMode> *p_list) const;
+    //virtual void get_fullscreen_mode_list(Vector<VideoMode> *p_list) const;
 
     Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;

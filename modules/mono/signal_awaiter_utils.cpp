@@ -54,7 +54,7 @@ Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p
     sa_con->set_connection_target(p_target);
 #endif
 
-    PODVector<Variant> binds;
+    Vector<Variant> binds;
     binds.push_back(sa_con);
 
     Error err = p_source->connect(StringName(p_signal), sa_con.get(),

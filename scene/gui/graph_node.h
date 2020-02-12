@@ -77,7 +77,7 @@ private:
 
     Rect2 close_rect;
 
-    PODVector<int> cache_y;
+    Vector<int> cache_y;
 
     struct ConnCache {
         Vector2 pos;
@@ -85,8 +85,8 @@ private:
         Color color;
     };
 
-    PODVector<ConnCache> conn_input_cache;
-    PODVector<ConnCache> conn_output_cache;
+    Vector<ConnCache> conn_input_cache;
+    Vector<ConnCache> conn_output_cache;
 
     Map<int, Slot> slot_info;
 
@@ -107,7 +107,7 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     bool has_point(const Point2 &p_point) const override;

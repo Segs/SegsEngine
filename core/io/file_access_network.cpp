@@ -70,14 +70,14 @@ struct FileAccessNetwork_priv {
     struct Page {
         int activity;
         bool queued;
-        PODVector<uint8_t> buffer;
+        Vector<uint8_t> buffer;
         Page() {
             activity = 0;
             queued = false;
         }
     };
 
-    mutable PODVector<Page> pages;
+    mutable Vector<Page> pages;
 
     mutable Error response;
 
@@ -195,7 +195,7 @@ void FileAccessNetworkClient::_thread_func() {
                 int64_t offset = get_64();
                 uint32_t len = get_32();
 
-                PODVector<uint8_t> block; // TODO: replace with Temporary-allocated vector
+                Vector<uint8_t> block; // TODO: replace with Temporary-allocated vector
                 block.resize(len);
                 client->get_data(block.data(), len);
 
@@ -339,7 +339,7 @@ void FileAccessNetworkClient::finish_access(int id, FileAccessNetwork *from)
 
     unlock_mutex();
 }
-void FileAccessNetwork::_set_block(int p_offset, const PODVector<uint8_t> &p_block) {
+void FileAccessNetwork::_set_block(int p_offset, const Vector<uint8_t> &p_block) {
 
     int page = p_offset / page_size;
     ERR_FAIL_INDEX(page, D_PRIV()->pages.size());

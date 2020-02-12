@@ -145,6 +145,6 @@ protected:
 
 public:
     BaseButton *get_pressed_button();
-    PODVector<BaseButton *> get_buttons();
+    Vector<BaseButton *> get_buttons();
     ButtonGroup();
 };

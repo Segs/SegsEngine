@@ -35,7 +35,7 @@
 
 IMPL_GDCLASS(Navigation)
 
-PODVector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize) {
+Vector<Vector3> Navigation::get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize) {
 
     return NavigationServer::get_singleton()->map_get_path(map, p_start, p_end, p_optimize);
 }

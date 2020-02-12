@@ -35,7 +35,7 @@
 template <typename T>
 class RingBuffer {
 
-    PODVector<T> data;
+    Vector<T> data;
     int read_pos;
     int write_pos;
     int size_mask;

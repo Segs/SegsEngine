@@ -127,7 +127,7 @@ RES ResourceFormatLoaderCrypto::load(se_string_view p_path, se_string_view p_ori
     return RES();
 }
 
-void ResourceFormatLoaderCrypto::get_recognized_extensions(PODVector<String> &p_extensions) const {
+void ResourceFormatLoaderCrypto::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("crt");
     p_extensions.push_back("key");
@@ -164,7 +164,7 @@ Error ResourceFormatSaverCrypto::save(se_string_view p_path, const RES &p_resour
     return OK;
 }
 
-void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const {
+void ResourceFormatSaverCrypto::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
     const X509Certificate *cert = object_cast<X509Certificate>(p_resource.get());
     const CryptoKey *key = object_cast<CryptoKey>(p_resource.get());

@@ -124,7 +124,7 @@ private:
     int active_objects;
     int collision_pairs;
 
-    PODVector<Vector2> contact_debug;
+    Vector<Vector2> contact_debug;
     int contact_debug_count;
 
     int _cull_aabb_for_body(Body2DSW *p_body, const Rect2 &p_aabb);
@@ -195,7 +195,7 @@ public:
         if (contact_debug_count < contact_debug.size())
             contact_debug[contact_debug_count++] = p_contact;
     }
-    const PODVector<Vector2> &get_debug_contacts() { return contact_debug; }
+    const Vector<Vector2> &get_debug_contacts() { return contact_debug; }
     int get_debug_contact_count() { return contact_debug_count; }
 
     Physics2DDirectSpaceStateSW *get_direct_state();

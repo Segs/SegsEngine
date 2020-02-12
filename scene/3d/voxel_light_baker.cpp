@@ -478,10 +478,10 @@ void VoxelLightBaker::_plot_face(int p_idx, int p_level, int p_x, int p_y, int p
     }
 }
 
-PODVector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color &p_color_mul,
+Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color &p_color_mul,
         const Color &p_color_add) {
 
-    PODVector<Color> ret;
+    Vector<Color> ret;
 
     if (not p_image || p_image->empty()) {
 
@@ -572,7 +572,7 @@ const VoxelLightBaker::MaterialCache &VoxelLightBaker::_get_material_cache(const
     return material_cache[p_material];
 }
 
-void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const PODVector<Ref<Material>> &p_materials, const Ref<Material> &p_override_material) {
+void VoxelLightBaker::plot_mesh(const Transform &p_xform, Ref<Mesh> &p_mesh, const Vector<Ref<Material>> &p_materials, const Ref<Material> &p_override_material) {
 
     for (int i = 0; i < p_mesh->get_surface_count(); i++) {
 
@@ -1791,7 +1791,7 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
     //step 1 - create lightmap
     int width;
     int height;
-    PODVector<LightMap> lightmap;
+    Vector<LightMap> lightmap;
     Transform xform = to_cell_space * p_xform;
     if (mesh->get_lightmap_size_hint() == Size2()) {
         double area = 0;
@@ -1856,9 +1856,9 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
     for (int i = 0; i < mesh->get_surface_count(); i++) {
         SurfaceArrays arrays = mesh->surface_get_arrays(i);
         Span<const Vector3> vertices = arrays.positions3();
-        const PODVector<Vector3> &normals = arrays.m_normals;
-        const PODVector<Vector2> &uv2 = arrays.m_uv_2;
-        const PODVector<int> &indices = arrays.m_indices;
+        const Vector<Vector3> &normals = arrays.m_normals;
+        const Vector<Vector2> &uv2 = arrays.m_uv_2;
+        const Vector<int> &indices = arrays.m_indices;
 
         ERR_FAIL_COND_V(vertices.size() == 0, ERR_INVALID_PARAMETER);
         ERR_FAIL_COND_V(normals.size() == 0, ERR_INVALID_PARAMETER);
@@ -2320,8 +2320,8 @@ Ref<MultiMesh> VoxelLightBaker::create_debug_multimesh(DebugMode p_mode) {
     {
         SurfaceArrays arr;
 
-        PODVector<Vector3> vertices;
-        PODVector<Color> colors;
+        Vector<Vector3> vertices;
+        Vector<Color> colors;
 #define ADD_VTX(m_idx)                      \
     ;                                       \
     vertices.push_back(face_points[m_idx]); \
@@ -2395,10 +2395,10 @@ PoolVector<uint8_t> VoxelLightBaker::create_capture_octree(int p_subdiv) {
 
     p_subdiv = MIN(p_subdiv, cell_subdiv); // use the smaller one
 
-    PODVector<uint32_t> remap;
+    Vector<uint32_t> remap;
     int bc = bake_cells.size();
     remap.resize(bc,CHILD_EMPTY);
-    PODVector<uint32_t> demap;
+    Vector<uint32_t> demap;
 
     int new_size = 0;
     for (int i = 0; i < bc; i++) {
@@ -2409,7 +2409,7 @@ PoolVector<uint8_t> VoxelLightBaker::create_capture_octree(int p_subdiv) {
         }
     }
 
-    PODVector<VoxelLightBakerOctree> octree;
+    Vector<VoxelLightBakerOctree> octree;
     octree.resize(new_size);
 
     for (int i = 0; i < new_size; i++) {

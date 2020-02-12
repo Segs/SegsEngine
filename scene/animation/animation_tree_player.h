@@ -108,7 +108,7 @@ protected:
         Spatial *spatial;
         Skeleton *skeleton;
         int bone_idx;
-        PODVector<StringName> subpath;
+        Vector<StringName> subpath;
 
         Vector3 loc;
         Quat rot;
@@ -165,7 +165,7 @@ protected:
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
     void _notification(int p_what);
 
     static void _bind_methods();
@@ -188,7 +188,7 @@ public:
     float animation_node_get_position(const StringName &p_node) const;
 
     void animation_node_set_filter_path(const StringName &p_node, const NodePath &p_track_path, bool p_filter);
-    void animation_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const;
+    void animation_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const;
     bool animation_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const;
 
     /* ONE SHOT NODE */
@@ -215,7 +215,7 @@ public:
     bool oneshot_node_is_active(const StringName &p_node) const;
 
     void oneshot_node_set_filter_path(const StringName &p_node, const NodePath &p_filter, bool p_enable);
-    void oneshot_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const;
+    void oneshot_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const;
     bool oneshot_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const;
 
     /* MIX/BLEND NODES */
@@ -226,7 +226,7 @@ public:
     void blend2_node_set_amount(const StringName &p_node, float p_amount);
     float blend2_node_get_amount(const StringName &p_node) const;
     void blend2_node_set_filter_path(const StringName &p_node, const NodePath &p_filter, bool p_enable);
-    void blend2_node_set_get_filtered_paths(const StringName &p_node, ListPOD<NodePath> *r_paths) const;
+    void blend2_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const;
     bool blend2_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const;
 
     void blend3_node_set_amount(const StringName &p_node, float p_amount);
@@ -264,8 +264,8 @@ public:
 
     NodeType node_get_type(const StringName &p_node) const;
 
-    void get_node_list(ListPOD<StringName> *p_node_list) const;
-    PODVector<StringName> get_node_vector() const;
+    void get_node_list(List<StringName> *p_node_list) const;
+    Vector<StringName> get_node_vector() const;
 
     void remove_node(const StringName &p_node);
 
@@ -286,7 +286,7 @@ public:
         int dst_input;
     };
 
-    void get_connection_list(List<Connection> *p_connections) const;
+    void get_connection_list(ListOld<Connection> *p_connections) const;
 
     /* playback */
 

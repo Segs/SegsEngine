@@ -53,10 +53,10 @@ namespace path {
 String find_executable(se_string_view p_name) {
 #ifdef WINDOWS_ENABLED
     String path_ext= OS::get_singleton()->get_environment("PATHEXT");
-	PODVector<se_string_view> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
+	Vector<se_string_view> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
 #endif
     String path=OS::get_singleton()->get_environment("PATH");
-    PODVector<se_string_view> env_path = StringUtils::split(path,ENV_PATH_SEP, false);
+    Vector<se_string_view> env_path = StringUtils::split(path,ENV_PATH_SEP, false);
 
 	if (env_path.empty())
         return String();

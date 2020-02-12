@@ -328,7 +328,7 @@ bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
     return true;
 }
-void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void Control::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Ref<Theme> theme = Theme::get_default();
     /* Using the default theme since the properties below are meant for editor only
@@ -341,7 +341,7 @@ void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
     }*/
 
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_icon_list(get_class_name(), &names);
         String basename("custom_icons/");
         for (const StringName &E : names) {
@@ -354,7 +354,7 @@ void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_shader_list(get_class_name(), &names);
         String basename("custom_shaders/");
         for (const StringName &E : names) {
@@ -367,7 +367,7 @@ void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
         }
     }
     {
-        PODVector<StringName> names(theme->get_stylebox_list(get_class_name()));
+        Vector<StringName> names(theme->get_stylebox_list(get_class_name()));
         String basename("custom_styles/");
         for (const StringName &E : names) {
 
@@ -379,7 +379,7 @@ void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_font_list(get_class_name(), &names);
         String basename("custom_fonts/");
         for (const StringName &E : names) {
@@ -392,7 +392,7 @@ void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_color_list(get_class_name(), &names);
         String basename("custom_colors/");
         for (const StringName &E : names) {
@@ -405,7 +405,7 @@ void Control::_get_property_list(PODVector<PropertyInfo> *p_list) const {
         }
     }
     {
-        PODVector<StringName> names;
+        Vector<StringName> names;
         theme->get_constant_list(get_class_name(), &names);
         String basename("custom_constants/");
         for (const StringName &E : names) {
@@ -2205,7 +2205,7 @@ void Control::_modal_stack_remove() {
     if (!data.MI)
         return;
 
-    List<Control *>::Element *element = data.MI;
+    ListOld<Control *>::Element *element = data.MI;
     data.MI = nullptr;
 
     get_viewport()->_gui_remove_from_modal_stack(element, data.modal_prev_focus_owner);
@@ -2715,7 +2715,7 @@ bool Control::is_visibility_clip_disabled() const {
 }
 
 
-void Control::get_argument_options(const StringName &p_function, int p_idx, ListPOD<String> *r_options) const {
+void Control::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
     using namespace eastl;
 #ifdef TOOLS_ENABLED
     const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
@@ -2726,7 +2726,7 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     Node::get_argument_options(p_function, p_idx, r_options);
 
     if (p_idx == 0) {
-        PODVector<StringName> sn;
+        Vector<StringName> sn;
         se_string_view pf = p_function;
         if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);

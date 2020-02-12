@@ -42,8 +42,8 @@ struct DictionaryPrivate {
     OrderedHashMap<Variant, Variant, Hasher<Variant>, VariantComparator> variant_map;
 };
 
-PODVector<Variant> Dictionary::get_key_list() const {
-    PODVector<Variant> res;
+Vector<Variant> Dictionary::get_key_list() const {
+    Vector<Variant> res;
     if (_p->variant_map.empty())
         return {};
     res.reserve(_p->variant_map.size());

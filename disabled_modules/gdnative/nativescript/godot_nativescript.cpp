@@ -142,8 +142,8 @@ void GDAPI godot_nativescript_register_signal(void *p_gdnative_handle, const cha
     Map<StringName, NativeScriptDesc>::iterator E = classes.find(StringName(p_name));
     ERR_FAIL_COND_MSG(E==classes.end(), "Attempted to register method on non-existent class."); 
 
-    PODVector<PropertyInfo> args;
-    PODVector<Variant> default_args;
+    Vector<PropertyInfo> args;
+    Vector<Variant> default_args;
 
     args.reserve(p_signal->num_args);
 
@@ -211,7 +211,7 @@ void GDAPI godot_nativescript_set_method_argument_information(void *p_gdnative_h
 
     MethodInfo *method_information = &method->second.info;
 
-    PODVector<PropertyInfo> args;
+    Vector<PropertyInfo> args;
     args.reserve(p_num_args);
 
     for (int i = 0; i < p_num_args; i++) {

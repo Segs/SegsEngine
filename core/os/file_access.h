@@ -115,7 +115,7 @@ public:
     virtual int get_buffer(uint8_t *p_dst, int p_length) const; ///< get an array of bytes
     virtual String get_line() const;
     virtual String get_token() const;
-    virtual PODVector<String> get_csv_line(char p_delim = ',') const;
+    virtual Vector<String> get_csv_line(char p_delim = ',') const;
     virtual String get_as_utf8_string() const;
 
     /**< use this for files WRITTEN in _big_ endian machines (ie, amiga/mac)
@@ -140,7 +140,7 @@ public:
 
     virtual void store_string(se_string_view p_string);
     virtual void store_line(se_string_view p_line);
-    virtual void store_csv_line(const PODVector<String> &p_values, char p_delim = ',');
+    virtual void store_csv_line(const Vector<String> &p_values, char p_delim = ',');
 
     virtual void store_pascal_string(se_string_view p_string);
     virtual String get_pascal_string();
@@ -166,9 +166,9 @@ public:
 
     static String get_md5(se_string_view p_file);
     static String get_sha256(se_string_view p_file);
-    static String get_multiple_md5(const PODVector<String> &p_file);
+    static String get_multiple_md5(const Vector<String> &p_file);
 
-    static PODVector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
+    static Vector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
     static String get_file_as_string(se_string_view p_path, Error *r_error = nullptr);
 
     template <class T>

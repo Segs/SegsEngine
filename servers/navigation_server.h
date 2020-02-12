@@ -87,7 +87,7 @@ public:
     virtual real_t map_get_edge_connection_margin(RID p_map) const = 0;
 
     /// Returns the navigation path to reach the destination from the origin.
-    virtual PODVector<Vector3> map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const = 0;
+    virtual Vector<Vector3> map_get_path(RID p_map, Vector3 p_origin, Vector3 p_destination, bool p_optimize) const = 0;
 
     /// Creates a new region.
     virtual RID region_create() const = 0;

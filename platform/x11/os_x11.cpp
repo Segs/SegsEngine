@@ -945,7 +945,7 @@ OS::VideoMode OS_X11::get_video_mode(int p_screen) const {
     return current_videomode;
 }
 
-void OS_X11::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
+void OS_X11::get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen) const {
 }
 
 void OS_X11::set_wm_fullscreen(bool p_enabled) {
@@ -2521,7 +2521,7 @@ void OS_X11::process_xevents() {
                     Property p = read_property(x11_display, x11_window, XInternAtom(x11_display, "PRIMARY", 0));
                     FixedVector<String,16,true> parts;
                     String::split_ref(parts,(const char *)p.data,"\n");
-                    PODVector<String> files;
+                    Vector<String> files;
                     for (int i = 0; i < parts.size(); i++) {
                         files.emplace_back(StringUtils::strip_edges(StringUtils::http_unescape(StringUtils::replace(parts[i],"file://", ""))));
                     }
@@ -2811,7 +2811,7 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
 
     if (p_cursor) {
 
-        Map<CursorShape, PODVector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
+        Map<CursorShape, Vector<Variant> >::iterator cursor_c = cursors_cache.find(p_shape);
 
         if (cursor_c!=cursors_cache.end()) {
             if (cursor_c->second[0] == p_cursor && cursor_c->second[1] == p_hotspot) {
@@ -2890,7 +2890,7 @@ void OS_X11::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, c
         // Save it for a further usage
         cursors[p_shape] = XcursorImageLoadCursor(x11_display, cursor_image);
 
-        PODVector<Variant> params;
+        Vector<Variant> params;
         params.push_back(p_cursor);
         params.push_back(p_hotspot);
         cursors_cache.emplace(p_shape, params);
@@ -2943,7 +2943,7 @@ void OS_X11::alert(se_string_view _alert, se_string_view _title) {
     const String p_alert(_alert);
     const String p_title(_title);
     String path = get_environment("PATH");
-    PODVector<se_string_view> path_elems = StringUtils::split(path,':', false);
+    Vector<se_string_view> path_elems = StringUtils::split(path,':', false);
     String program;
 
     for (int i = 0; i < path_elems.size(); i++) {
@@ -3047,7 +3047,7 @@ void OS_X11::set_icon(const Ref<Image> &p_icon) {
             }
 
             // We're using long to have wordsize (32Bit build -> 32 Bits, 64 Bit build -> 64 Bits
-            PODVector<long> pd;
+            Vector<long> pd;
 
             pd.resize(2 + w * h);
 
@@ -3299,7 +3299,7 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     char *layout = XGetAtomName(x11_display, xkbdesc->names->symbols);
     ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY);
 
-    PODVector<se_string_view> info = StringUtils::split(layout,'+');
+    Vector<se_string_view> info = StringUtils::split(layout,'+');
     ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY);
 
     if (StringUtils::contains(info[1],"colemak")) {

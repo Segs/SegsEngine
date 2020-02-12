@@ -166,7 +166,7 @@ Size2 OS_Server::get_window_size() const {
     return Vector2(current_videomode.width, current_videomode.height);
 }
 
-void OS_Server::get_fullscreen_mode_list(PODVector<VideoMode> *p_list, int p_screen) const {
+void OS_Server::get_fullscreen_mode_list(Vector<VideoMode> *p_list, int p_screen) const {
 }
 
 MainLoop *OS_Server::get_main_loop() const {

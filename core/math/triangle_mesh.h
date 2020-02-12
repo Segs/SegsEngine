@@ -44,8 +44,8 @@ class GODOT_EXPORT TriangleMesh : public RefCounted {
         int indices[3];
     };
 
-    PODVector<Triangle> triangles;
-    PODVector<Vector3> vertices;
+    Vector<Triangle> triangles;
+    Vector<Vector3> vertices;
 
     struct BVH {
 
@@ -72,12 +72,12 @@ public:
     bool intersect_convex_shape(const Plane *p_planes, int p_plane_count) const;
     bool inside_convex_shape(const Plane *p_planes, int p_plane_count, Vector3 p_scale = Vector3(1, 1, 1)) const;
     Vector3 get_area_normal(const AABB &p_aabb) const;
-    PODVector<Face3> get_faces() const;
+    Vector<Face3> get_faces() const;
 
-    const PODVector<Triangle> &get_triangles() const { return triangles; }
-    const PODVector<Vector3> &get_vertices() const { return vertices; }
+    const Vector<Triangle> &get_triangles() const { return triangles; }
+    const Vector<Vector3> &get_vertices() const { return vertices; }
     void get_indices(PoolVector<int> *r_triangles_indices) const;
 
-    void create(const PODVector<Vector3> &p_faces);
+    void create(const Vector<Vector3> &p_faces);
     TriangleMesh();
 };

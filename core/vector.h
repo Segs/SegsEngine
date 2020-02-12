@@ -30,15 +30,6 @@
 
 #pragma once
 
-/**
- * @class Vector
- * @author Juan Linietsky
- * Vector container. Regular Vector Container. Use with care and for smaller arrays when possible. Use PoolVector for large arrays.
-*/
-
-//#include "core/cowdata.h"
-//#include "core/cowdata_impl.h"
-
 #include "core/error_macros.h"
 #include "core/os/memory.h"
 #include "core/sort_array.h"
@@ -47,7 +38,7 @@
 #include "EASTL/span.h"
 
 template<class T>
-using PODVector = eastl::vector<T,wrap_allocator>;
+using Vector = eastl::vector<T,wrap_allocator>;
 template<class T,int N,bool GROWING=false>
 using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
 template <typename T>
@@ -159,9 +150,9 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3,wrap_allocator>;
 
 #endif
-extern const PODVector<struct Vector2> null_vec2_pvec;
-extern const PODVector<struct Vector3> null_vec3_pvec;
-extern const PODVector<Variant> null_variant_pvec;
-extern const PODVector<String> null_string_pvec;
-extern const PODVector<int> null_int_pvec;
-extern const PODVector<float> null_float_pvec;
+extern const Vector<struct Vector2> null_vec2_pvec;
+extern const Vector<struct Vector3> null_vec3_pvec;
+extern const Vector<Variant> null_variant_pvec;
+extern const Vector<String> null_string_pvec;
+extern const Vector<int> null_int_pvec;
+extern const Vector<float> null_float_pvec;

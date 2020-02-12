@@ -37,7 +37,7 @@
 #include "core/vector.h"
 #include "core/string_utils.inl"
 
-const PODVector<StringName> g_null_stringname_vec; //!< Can be used wherever user needs to return/pass a const PODVector<StringName> reference.
+const Vector<StringName> g_null_stringname_vec; //!< Can be used wherever user needs to return/pass a const Vector<StringName> reference.
 
 namespace
 {
@@ -181,13 +181,6 @@ StringName::operator const void*() const {
 uint32_t StringName::hash() const {
 
     return _data ? _data->hash : 0;
-}
-
-bool StringName::operator!=(const StringName &p_name) const {
-
-    // the real magic of all this mess happens here.
-    // this is why path comparisons are very fast
-    return _data != p_name._data;
 }
 
 StringName::operator UIString() const {

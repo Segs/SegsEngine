@@ -243,7 +243,7 @@ Vector2 VisualScript::get_function_scroll(const StringName &p_name) const {
     return functions.at(p_name).scroll;
 }
 
-void VisualScript::get_function_list(PODVector<StringName> *r_functions) const {
+void VisualScript::get_function_list(Vector<StringName> *r_functions) const {
 
     for (const eastl::pair<const StringName,Function> &E : functions) {
         r_functions->push_back(E.first);
@@ -280,7 +280,7 @@ void VisualScript::_node_ports_changed(int p_id) {
     //must revalidate all the functions
 
     {
-        List<SequenceConnection> to_remove;
+        ListOld<SequenceConnection> to_remove;
 
         for (const SequenceConnection &E : func.sequence_connections) {
             if (E.from_node == p_id && E.from_output >= vsn->get_output_sequence_port_count()) {
@@ -301,7 +301,7 @@ void VisualScript::_node_ports_changed(int p_id) {
 
     {
 
-        List<DataConnection> to_remove;
+        ListOld<DataConnection> to_remove;
 
         for (const DataConnection &E : func.data_connections) {
             if (E.from_node == p_id && E.from_port >= vsn->get_output_value_port_count()) {
@@ -362,7 +362,7 @@ void VisualScript::remove_node(const StringName &p_func, int p_id) {
 
     ERR_FAIL_COND(!func.nodes.contains(p_id));
     {
-        List<SequenceConnection> to_remove;
+        ListOld<SequenceConnection> to_remove;
 
         for (const SequenceConnection &E : func.sequence_connections) {
             if (E.from_node == p_id || E.to_node == p_id) {
@@ -378,7 +378,7 @@ void VisualScript::remove_node(const StringName &p_func, int p_id) {
 
     {
 
-        List<DataConnection> to_remove;
+        ListOld<DataConnection> to_remove;
 
         for (const DataConnection &E : func.data_connections) {
             if (E.from_node == p_id || E.to_node == p_id) {
@@ -439,7 +439,7 @@ Point2 VisualScript::get_node_position(const StringName &p_func, int p_id) const
     return func.nodes.at(p_id).pos;
 }
 
-void VisualScript::get_node_list(const StringName &p_func, PODVector<int> *r_nodes) const {
+void VisualScript::get_node_list(const StringName &p_func, Vector<int> *r_nodes) const {
 
     ERR_FAIL_COND(!functions.contains(p_func));
     const Function &func = functions.at(p_func);
@@ -491,7 +491,7 @@ bool VisualScript::has_sequence_connection(const StringName &p_func, int p_from_
     return func.sequence_connections.contains(sc);
 }
 
-void VisualScript::get_sequence_connection_list(const StringName &p_func, List<SequenceConnection> *r_connection) const {
+void VisualScript::get_sequence_connection_list(const StringName &p_func, ListOld<SequenceConnection> *r_connection) const {
 
     ERR_FAIL_COND(!functions.contains(p_func));
     const Function &func = functions.at(p_func);
@@ -576,7 +576,7 @@ bool VisualScript::get_input_value_port_connection_source(const StringName &p_fu
     return false;
 }
 
-void VisualScript::get_data_connection_list(const StringName &p_func, List<DataConnection> *r_connection) const {
+void VisualScript::get_data_connection_list(const StringName &p_func, ListOld<DataConnection> *r_connection) const {
 
     ERR_FAIL_COND(!functions.contains(p_func));
     const Function &func = functions.at(p_func);
@@ -703,7 +703,7 @@ Dictionary VisualScript::_get_variable_info(const StringName &p_name) const {
     return d;
 }
 
-void VisualScript::get_variable_list(PODVector<StringName> *r_variables) const {
+void VisualScript::get_variable_list(Vector<StringName> *r_variables) const {
 
     for (const eastl::pair<const StringName,Variable> &E : variables) {
         r_variables->push_back(E.first);
@@ -830,9 +830,9 @@ void VisualScript::rename_custom_signal(const StringName &p_name, const StringNa
     custom_signals.erase(p_name);
 }
 
-void VisualScript::get_custom_signal_list(PODVector<StringName> *r_custom_signals) const {
+void VisualScript::get_custom_signal_list(Vector<StringName> *r_custom_signals) const {
 
-    for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
+    for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
         r_custom_signals->push_back(E.first);
     }
     eastl::sort(r_custom_signals->begin(),r_custom_signals->end(),StringName::AlphCompare);
@@ -878,7 +878,7 @@ void VisualScript::_update_placeholders() {
 
     if (placeholders.empty())
         return; //no bother if no placeholders
-    PODVector<PropertyInfo> pinfo;
+    Vector<PropertyInfo> pinfo;
     Map<StringName, Variant> values;
 
     for (eastl::pair<const StringName,Variable> &E : variables) {
@@ -909,7 +909,7 @@ ScriptInstance *VisualScript::instance_create(Object *p_this) {
         PlaceHolderScriptInstance *sins = memnew(PlaceHolderScriptInstance(VisualScriptLanguage::singleton, Ref<Script>(this), p_this));
         placeholders.insert(sins);
 
-        PODVector<PropertyInfo> pinfo;
+        Vector<PropertyInfo> pinfo;
         Map<StringName, Variant> values;
 
         for (eastl::pair<const StringName,Variable> &E : variables) {
@@ -985,9 +985,9 @@ bool VisualScript::has_script_signal(const StringName &p_signal) const {
     return custom_signals.contains(p_signal);
 }
 
-void VisualScript::get_script_signal_list(PODVector<MethodInfo> *r_signals) const {
+void VisualScript::get_script_signal_list(Vector<MethodInfo> *r_signals) const {
 
-    for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
+    for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
 
         MethodInfo mi;
         mi.name = E.first;
@@ -1010,7 +1010,7 @@ bool VisualScript::get_property_default_value(const StringName &p_property, Vari
     r_value = variables.at(p_property).default_value;
     return true;
 }
-void VisualScript::get_script_method_list(PODVector<MethodInfo> *p_list) const {
+void VisualScript::get_script_method_list(Vector<MethodInfo> *p_list) const {
 
     for (const eastl::pair<const StringName,Function> &E : functions) {
 
@@ -1067,9 +1067,9 @@ MethodInfo VisualScript::get_method_info(const StringName &p_method) const {
     return mi;
 }
 
-void VisualScript::get_script_property_list(PODVector<PropertyInfo> *p_list) const {
+void VisualScript::get_script_property_list(Vector<PropertyInfo> *p_list) const {
 
-    PODVector<StringName> vars;
+    Vector<StringName> vars;
     get_variable_list(&vars);
 
     for (int i=0,fin=vars.size(); i<fin; ++i) {
@@ -1230,7 +1230,7 @@ Dictionary VisualScript::_get_data() const {
     d["variables"] = vars;
 
     Array sigs;
-    for (const eastl::pair<const StringName,PODVector<Argument> > &E : custom_signals) {
+    for (const eastl::pair<const StringName,Vector<Argument> > &E : custom_signals) {
 
         Dictionary cs;
         cs["name"] = E.first;
@@ -1376,10 +1376,10 @@ StringName VisualScript::get_default_func() const {
 }
 
 Set<int> VisualScript::get_output_sequence_ports_connected(se_string_view edited_func, int from_node) {
-    List<VisualScript::SequenceConnection> *sc = memnew(List<VisualScript::SequenceConnection>);
+    ListOld<VisualScript::SequenceConnection> *sc = memnew(ListOld<VisualScript::SequenceConnection>);
     get_sequence_connection_list(StringName(edited_func), sc);
     Set<int> connected;
-    for (List<VisualScript::SequenceConnection>::Element *E = sc->front(); E; E = E->next()) {
+    for (ListOld<VisualScript::SequenceConnection>::Element *E = sc->front(); E; E = E->next()) {
         if (E->deref().from_node == from_node) {
             connected.insert(int(E->deref().from_output));
         }
@@ -1417,7 +1417,7 @@ bool VisualScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
     r_ret = E->second;
     return true;
 }
-void VisualScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) const {
+void VisualScriptInstance::get_property_list(Vector<PropertyInfo> *p_properties) const {
 
     for (const eastl::pair<const StringName,VisualScript::Variable> &E : script->variables) {
 
@@ -1444,7 +1444,7 @@ VariantType VisualScriptInstance::get_property_type(const StringName &p_name, bo
     return E->second.info.type;
 }
 
-void VisualScriptInstance::get_method_list(PODVector<MethodInfo> *p_list) const {
+void VisualScriptInstance::get_method_list(Vector<MethodInfo> *p_list) const {
 
     for (const eastl::pair<const StringName,VisualScript::Function> &E : script->functions) {
 
@@ -2366,7 +2366,7 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
 void VisualScriptFunctionState::connect_to_signal(Object *p_obj, se_string_view p_signal, Array p_binds) {
 
-    PODVector<Variant> binds;
+    Vector<Variant> binds;
     for (int i = 0; i < p_binds.size(); i++) {
         binds.push_back(p_binds[i]);
     }
@@ -2375,7 +2375,7 @@ void VisualScriptFunctionState::connect_to_signal(Object *p_obj, se_string_view 
 }
 void VisualScriptFunctionState::connect_to_signal_sv(Object *p_obj, se_string_view p_signal, Array p_binds) {
 
-    PODVector<Variant> binds;
+    Vector<Variant> binds;
     for (int i = 0; i < p_binds.size(); i++) {
         binds.push_back(p_binds[i]);
     }
@@ -2457,11 +2457,11 @@ void VisualScriptLanguage::finish() {
 }
 
 /* EDITOR FUNCTIONS */
-void VisualScriptLanguage::get_reserved_words(PODVector<String> *p_words) const {
+void VisualScriptLanguage::get_reserved_words(Vector<String> *p_words) const {
 }
-void VisualScriptLanguage::get_comment_delimiters(PODVector<String> *p_delimiters) const {
+void VisualScriptLanguage::get_comment_delimiters(Vector<String> *p_delimiters) const {
 }
-void VisualScriptLanguage::get_string_delimiters(PODVector<String> *p_delimiters) const {
+void VisualScriptLanguage::get_string_delimiters(Vector<String> *p_delimiters) const {
 }
 Ref<Script> VisualScriptLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
 
@@ -2480,8 +2480,8 @@ void VisualScriptLanguage::make_template(se_string_view p_class_name, se_string_
     script->set_instance_base_type(StringName(p_base_class_name));
 }
 
-bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, PODVector<
-        String> *r_functions, PODVector<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
+bool VisualScriptLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, Vector<
+        String> *r_functions, Vector<ScriptLanguage::Warning> *r_warnings, Set<int> *r_safe_lines) const {
 
     return false;
 }
@@ -2583,7 +2583,7 @@ String VisualScriptLanguage::debug_get_stack_level_source(int p_level) const {
     int l = _debug_call_stack_pos - p_level - 1;
     return _call_stack[l].instance->get_script_ptr()->get_path();
 }
-void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
@@ -2658,7 +2658,7 @@ void VisualScriptLanguage::debug_get_stack_level_locals(int p_level, PODVector<S
     }
 */
 }
-void VisualScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_stack_level_members(int p_level, Vector<String> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     if (_debug_parse_err_node >= 0)
         return;
@@ -2670,7 +2670,7 @@ void VisualScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<
     if (not vs)
         return;
 
-    PODVector<StringName> vars;
+    Vector<StringName> vars;
     vs->get_variable_list(&vars);
     for (int i=0,fin=vars.size(); i<fin; ++i) {
         Variant v;
@@ -2681,7 +2681,7 @@ void VisualScriptLanguage::debug_get_stack_level_members(int p_level, PODVector<
     }
 }
 
-void VisualScriptLanguage::debug_get_globals(PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void VisualScriptLanguage::debug_get_globals(Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 
     //no globals are really reachable in gdscript
 }
@@ -2696,13 +2696,13 @@ void VisualScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool 
 }
 /* LOADER FUNCTIONS */
 
-void VisualScriptLanguage::get_recognized_extensions(PODVector<String> *p_extensions) const {
+void VisualScriptLanguage::get_recognized_extensions(Vector<String> *p_extensions) const {
 
     p_extensions->emplace_back("vs");
 }
-void VisualScriptLanguage::get_public_functions(PODVector<MethodInfo> *p_functions) const {
+void VisualScriptLanguage::get_public_functions(Vector<MethodInfo> *p_functions) const {
 }
-void VisualScriptLanguage::get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const {
+void VisualScriptLanguage::get_public_constants(Vector<Pair<se_string_view, Variant>> *p_constants) const {
 }
 
 void VisualScriptLanguage::profiling_start() {
@@ -2739,7 +2739,7 @@ Ref<VisualScriptNode> VisualScriptLanguage::create_node_from_name(const String &
     return register_funcs[p_name](p_name);
 }
 
-void VisualScriptLanguage::get_registered_node_names(List<String> *r_names) {
+void VisualScriptLanguage::get_registered_node_names(ListOld<String> *r_names) {
 
     for (eastl::pair<const String,VisualScriptNodeRegisterFunc> &E : register_funcs) {
         r_names->push_back(E.first);

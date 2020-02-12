@@ -66,7 +66,7 @@ public:
         return edge_connection_margin;
     }
 
-    PODVector<Vector3> get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize = true);
+    Vector<Vector3> get_simple_path(const Vector3 &p_start, const Vector3 &p_end, bool p_optimize = true);
 
     Navigation();
     ~Navigation();

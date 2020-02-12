@@ -354,7 +354,7 @@ void GradientEdit::_notification(int p_what) {
                 continue;
             }
 
-            PODVector<Vector2> points;
+            Vector<Vector2> points;
             PoolVector<Color> colors;
             points.emplace_back(prev.offset * total_w, h);
             points.emplace_back(prev.offset * total_w, 0);
@@ -457,7 +457,7 @@ void GradientEdit::_color_changed(const Color &p_color) {
     emit_signal("ramp_changed");
 }
 
-void GradientEdit::set_ramp(Span<const float> p_offsets, const PODVector<Color> &p_colors) {
+void GradientEdit::set_ramp(Span<const float> p_offsets, const Vector<Color> &p_colors) {
 
     ERR_FAIL_COND(p_offsets.size() != p_colors.size());
     points.clear();
@@ -473,30 +473,30 @@ void GradientEdit::set_ramp(Span<const float> p_offsets, const PODVector<Color> 
     update();
 }
 
-PODVector<float> GradientEdit::get_offsets() const {
-    PODVector<float> ret;
+Vector<float> GradientEdit::get_offsets() const {
+    Vector<float> ret;
     ret.reserve(points.size());
     for (int i = 0; i < points.size(); i++)
         ret.push_back(points[i].offset);
     return ret;
 }
 
-PODVector<Color> GradientEdit::get_colors() const {
-    PODVector<Color> ret;
+Vector<Color> GradientEdit::get_colors() const {
+    Vector<Color> ret;
     ret.reserve(points.size());
     for (int i = 0; i < points.size(); i++)
         ret.push_back(points[i].color);
     return ret;
 }
 
-void GradientEdit::set_points(const PODVector<Gradient::Point> &p_points) {
+void GradientEdit::set_points(const Vector<Gradient::Point> &p_points) {
     if (points.size() != p_points.size())
         grabbed = -1;
     points.clear();
     points = p_points;
 }
 
-PODVector<Gradient::Point> &GradientEdit::get_points() {
+Vector<Gradient::Point> &GradientEdit::get_points() {
     return points;
 }
 

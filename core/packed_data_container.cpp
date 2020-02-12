@@ -219,7 +219,7 @@ Variant PackedDataContainer::_key_at_ofs(uint32_t p_ofs, const Variant &p_key, b
     }
 }
 
-uint32_t PackedDataContainer::_pack(const Variant &p_data, PODVector<uint8_t> &tmpdata, Map<String, uint32_t> &string_cache) {
+uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpdata, Map<String, uint32_t> &string_cache) {
 
     switch (p_data.get_type()) {
 
@@ -278,8 +278,8 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, PODVector<uint8_t> &t
             encode_uint32(TYPE_DICT, &tmpdata[pos + 0]);
             encode_uint32(len, &tmpdata[pos + 4]);
 
-            PODVector<Variant> keys(d.get_key_list());
-            PODVector<DictKey> sortk;
+            Vector<Variant> keys(d.get_key_list());
+            Vector<DictKey> sortk;
             sortk.reserve(keys.size());
             for(Variant &E : keys ) {
 
@@ -332,7 +332,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, PODVector<uint8_t> &t
 
 Error PackedDataContainer::pack(const Variant &p_data) {
 
-    PODVector<uint8_t> tmpdata;
+    Vector<uint8_t> tmpdata;
     Map<String, uint32_t> string_cache;
     _pack(p_data, tmpdata, string_cache);
     datalen = tmpdata.size();

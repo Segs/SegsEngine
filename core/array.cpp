@@ -96,7 +96,7 @@ _FORCE_INLINE_ int bisect(const Variant *p_array,int size, const Variant &p_valu
 class ArrayPrivate {
 public:
     SafeRefCount refcount;
-    PODVector<Variant> array;
+    Vector<Variant> array;
 };
 
 void Array::_ref(const Array &p_from) const {
@@ -280,7 +280,7 @@ const Variant &Array::get(int p_idx) const {
     return operator[](p_idx);
 }
 
-const PODVector<Variant> &Array::vals() const
+const Vector<Variant> &Array::vals() const
 {
     return _p->array;
 }
@@ -497,7 +497,7 @@ Array::Array() {
     _p = memnew(ArrayPrivate);
     _p->refcount.init();
 }
-Array::Array(PODVector<Variant> &&from) noexcept {
+Array::Array(Vector<Variant> &&from) noexcept {
     // this function is marked noexcept even though it allocates memory, but if that allocation fails we have larger problems.
     _p = memnew(ArrayPrivate);
     _p->array = eastl::move(from);

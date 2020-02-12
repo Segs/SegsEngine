@@ -94,7 +94,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
-        PODVector<StringName> classes;
+        Vector<StringName> classes;
         //BUG: SEGS: the original code was attempting to sort empty vector here, maybe it was meant to sort inheriters instead ?
         //classes.sort(WrapAlphaCompare());
 
@@ -106,7 +106,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         if (gp && gp->has_node(gp->get_animation_player())) {
             AnimationPlayer *ap = object_cast<AnimationPlayer>(gp->get_node(gp->get_animation_player()));
             if (ap) {
-                PODVector<StringName> names(ap->get_animation_list());
+                Vector<StringName> names(ap->get_animation_list());
                 for (const StringName &E : names) {
                     animations_menu->add_icon_item(get_icon("Animation", "EditorIcons"), E);
                     animations_to_add.emplace_back(E);
@@ -170,7 +170,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
         //then try to see if a triangle can be selected
         if (!blend_space->get_auto_triangles()) { //if autotriangles use, disable this
             for (int i = 0; i < blend_space->get_triangle_count(); i++) {
-                PODVector<Vector2> triangle;
+                Vector<Vector2> triangle;
 
                 for (int j = 0; j < 3; j++) {
                     int idx = blend_space->get_triangle_point(i, j);
@@ -313,7 +313,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
     if (p_index == MENU_LOAD_FILE) {
 
         open_file->clear_filters();
-        PODVector<String> filters;
+        Vector<String> filters;
         ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const String &E : filters) {
             open_file->add_filter("*." + E);
@@ -391,12 +391,12 @@ void AnimationNodeBlendSpace2DEditor::_tool_switch(int p_tool) {
     making_triangle.clear();
 
     if (p_tool == 2) {
-        PODVector<Vector2> points;
+        Vector<Vector2> points;
         points.reserve(blend_space->get_blend_point_count());
         for (int i = 0; i < blend_space->get_blend_point_count(); i++) {
             points.emplace_back(blend_space->get_blend_point_position(i));
         }
-        PODVector<Delaunay2D::Triangle> tris = Delaunay2D::triangulate(points);
+        Vector<Delaunay2D::Triangle> tris = Delaunay2D::triangulate(points);
         for (const Delaunay2D::Triangle & tr: tris) {
             blend_space->add_triangle(tr.points[0], tr.points[1], tr.points[2]);
         }
@@ -486,7 +486,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
     //triangles first
     for (int i = 0; i < blend_space->get_triangle_count(); i++) {
 
-        PODVector<Vector2> points;
+        Vector<Vector2> points;
         points.reserve(3);
 
         for (int j = 0; j < 3; j++) {
@@ -552,7 +552,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
     }
 
     if (!making_triangle.empty()) {
-        PODVector<Vector2> points;
+        Vector<Vector2> points;
         for (int i = 0; i < making_triangle.size(); i++) {
             Vector2 point = blend_space->get_blend_point_position(making_triangle[i]);
             point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());

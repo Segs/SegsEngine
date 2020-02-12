@@ -73,7 +73,7 @@ static String _escape_string(se_string_view p_str) {
 }
 void DocDump::dump(se_string_view p_file) {
 
-    PODVector<StringName> class_list;
+    Vector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
     eastl::sort(class_list.begin(),class_list.end(),WrapAlphaCompare());
 
@@ -98,7 +98,7 @@ void DocDump::dump(se_string_view p_file) {
         _write_string(f, 1, "</description>");
         _write_string(f, 1, "<methods>");
 
-        PODVector<MethodInfo> method_list;
+        Vector<MethodInfo> method_list;
         ClassDB::get_method_list(name, &method_list, true);
         eastl::sort(method_list.begin(),method_list.end());
 
@@ -242,7 +242,7 @@ void DocDump::dump(se_string_view p_file) {
 
         _write_string(f, 1, "</methods>");
 
-        PODVector<MethodInfo> signal_list;
+        Vector<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
         if (!signal_list.empty()) {
@@ -267,12 +267,12 @@ void DocDump::dump(se_string_view p_file) {
 
         _write_string(f, 1, "<constants>");
 
-        ListPOD<String> constant_list;
+        List<String> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
         /* constants are sorted in a special way */
 
-        PODVector<_ConstantSort> constant_sort;
+        Vector<_ConstantSort> constant_sort;
 
         for (const String &E : constant_list) {
             _ConstantSort cs;

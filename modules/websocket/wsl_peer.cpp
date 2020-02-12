@@ -57,7 +57,7 @@ String WSLPeer::generate_key() {
 
 String WSLPeer::compute_key_response(se_string_view p_key) {
     String key = String(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
-    PODVector<uint8_t> sha = StringUtils::sha1_buffer(key);
+    Vector<uint8_t> sha = StringUtils::sha1_buffer(key);
     return CryptoCore::b64_encode_str(sha.data(), sha.size());
 }
 

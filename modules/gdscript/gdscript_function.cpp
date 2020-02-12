@@ -1322,7 +1322,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                         OPCODE_BREAK;
                     }
 
-                    Error err = obj->connect(signal, gdfs.get(), "_signal_callback", PODVector<Variant>{gdfs}, ObjectNS::CONNECT_ONESHOT);
+                    Error err = obj->connect(signal, gdfs.get(), "_signal_callback", Vector<Variant>{gdfs}, ObjectNS::CONNECT_ONESHOT);
                     if (err != OK) {
                         err_text = "Error connecting to signal: " + String(signal.asCString()) + " during yield().";
                         OPCODE_BREAK;
@@ -1682,7 +1682,7 @@ int GDScriptFunction::get_max_stack_size() const {
 struct _GDFKC {
 
     int order;
-    List<int> pos;
+    ListOld<int> pos;
 };
 
 struct _GDFKCS {
@@ -1697,7 +1697,7 @@ struct _GDFKCS {
     }
 };
 
-void GDScriptFunction::debug_get_stack_member_state(int p_line, PODVector<Pair<StringName, int> > *r_stackvars) const {
+void GDScriptFunction::debug_get_stack_member_state(int p_line, Vector<Pair<StringName, int> > *r_stackvars) const {
 
     int oc = 0;
     Map<StringName, _GDFKC> sdmap;
@@ -1727,7 +1727,7 @@ void GDScriptFunction::debug_get_stack_member_state(int p_line, PODVector<Pair<S
         }
     }
 
-    PODVector<_GDFKCS> stackpositions;
+    Vector<_GDFKCS> stackpositions;
     for (eastl::pair<const StringName,_GDFKC> &E : sdmap) {
 
         _GDFKCS spp;

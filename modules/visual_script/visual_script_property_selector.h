@@ -67,7 +67,7 @@ class VisualScriptPropertySelector : public ConfirmationDialog {
 
     void _item_selected();
 
-    PODVector<VariantType> type_filter;
+    Vector<VariantType> type_filter;
 
 protected:
     void _notification(int p_what);
@@ -84,7 +84,7 @@ public:
 
     void show_window(float p_screen_ratio);
 
-    void set_type_filter(PODVector<VariantType> &&p_type_filter);
+    void set_type_filter(Vector<VariantType> &&p_type_filter);
 
     VisualScriptPropertySelector();
 };

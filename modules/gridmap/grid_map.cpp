@@ -140,7 +140,7 @@ bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void GridMap::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void GridMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     if (!baked_meshes.empty()) {
         p_list->push_back(PropertyInfo(VariantType::ARRAY, "baked_meshes", PropertyHint::None, "", PROPERTY_USAGE_STORAGE));
@@ -448,7 +448,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         return true;
     }
 
-    PODVector<Vector3> col_debug;
+    Vector<Vector3> col_debug;
 
     /*
      * foreach item in this octant,
@@ -456,7 +456,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
      * and set said multimesh bounding box to one containing all cells which have this item
      */
 
-    Map<int, List<Pair<Transform, IndexKey> > > multimesh_items;
+    Map<int, ListOld<Pair<Transform, IndexKey> > > multimesh_items;
 
     for (IndexKey E : g.cells) {
 
@@ -477,7 +477,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         if (baked_meshes.empty()) {
             if (mesh_library->get_item_mesh(c.item)) {
                 if (!multimesh_items.contains(c.item)) {
-                    multimesh_items[c.item] = List<Pair<Transform, IndexKey> >();
+                    multimesh_items[c.item] = ListOld<Pair<Transform, IndexKey> >();
                 }
 
                 Pair<Transform, IndexKey> p;
@@ -528,7 +528,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
             VisualServer::get_singleton()->multimesh_set_mesh(mm, mesh_library->get_item_mesh(E.first)->get_rid());
 
             int idx = 0;
-            for (List<Pair<Transform, IndexKey> >::Element *F = E.second.front(); F; F = F->next()) {
+            for (ListOld<Pair<Transform, IndexKey> >::Element *F = E.second.front(); F; F = F->next()) {
                 VisualServer::get_singleton()->multimesh_instance_set_transform(mm, idx, F->deref().first);
 #ifdef TOOLS_ENABLED
 
@@ -803,7 +803,7 @@ void GridMap::_update_octants_callback() {
     if (!awaiting_update)
         return;
 
-    List<OctantKey> to_delete;
+    ListOld<OctantKey> to_delete;
     for (eastl::pair<const OctantKey,Octant *> &E : octant_map) {
 
         if (_octant_update(E.first)) {
@@ -938,9 +938,9 @@ Array GridMap::get_used_cells() const {
     return a;
 }
 
-PODVector<PositionedMeshInfo> GridMap::get_positioned_meshes() const
+Vector<PositionedMeshInfo> GridMap::get_positioned_meshes() const
 {
-    PODVector<PositionedMeshInfo> res;
+    Vector<PositionedMeshInfo> res;
     if (not mesh_library)
         return res;
 

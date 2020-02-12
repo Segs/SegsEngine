@@ -1127,7 +1127,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                     }
 
                     GDScript *p = base.get();
-                    PODVector<StringName> sname;
+                    Vector<StringName> sname;
 
                     while (p->_owner) {
 
@@ -1147,7 +1147,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                         return;
                     }
 
-                    NodePath cp(eastl::move(sname), eastl::move(PODVector<StringName>()), false);
+                    NodePath cp(eastl::move(sname), eastl::move(Vector<StringName>()), false);
 
                     Dictionary d;
                     d["@subpath"] = cp;

@@ -41,7 +41,7 @@ class SpatialVelocityTracker : public RefCounted {
         uint64_t frame;
 	};
 
-    PODVector<PositionHistory> position_history;
+    Vector<PositionHistory> position_history;
     int position_history_len;
     bool physics_step;
 	

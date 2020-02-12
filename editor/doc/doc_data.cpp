@@ -81,7 +81,7 @@ void DocData::merge_from(const DocData &p_data) {
                 // since polymorphic functions are allowed we need to check the type of
                 // the arguments so we make sure they are different.
                 int arg_count = cf.methods[j].arguments.size();
-                PODVector<bool> arg_used;
+                Vector<bool> arg_used;
                 arg_used.resize(arg_count);
                 for (int l = 0; l < arg_count; ++l)
                     arg_used[l] = false;
@@ -221,7 +221,7 @@ static Variant get_documentation_default_value(const StringName &p_class_name, c
         default_value = ClassDB::class_get_default_property_value(p_class_name, p_property_name, &r_default_value_valid);
     } else {
         // Cannot get default value of classes that can't be instanced
-        PODVector<StringName> inheriting_classes;
+        Vector<StringName> inheriting_classes;
         ClassDB::get_direct_inheriters_from_class(p_class_name, &inheriting_classes);
         for (const StringName &E2 : inheriting_classes) {
             if (ClassDB::can_instance(E2)) {
@@ -237,7 +237,7 @@ static Variant get_documentation_default_value(const StringName &p_class_name, c
 
 void DocData::generate(bool p_basic_types) {
 
-    PODVector<StringName> classes;
+    Vector<StringName> classes;
     ClassDB::get_class_list(&classes);
     eastl::sort(classes.begin(),classes.end(),WrapAlphaCompare());
     // Move ProjectSettings, so that other classes can register properties there.
@@ -261,8 +261,8 @@ void DocData::generate(bool p_basic_types) {
         c.name = cname;
         c.inherits = ClassDB::get_parent_class(name);
 
-        PODVector<PropertyInfo> properties;
-        PODVector<PropertyInfo> own_properties;
+        Vector<PropertyInfo> properties;
+        Vector<PropertyInfo> own_properties;
         if (name == "ProjectSettings") {
             //special case for project settings, so settings can be documented
             ProjectSettings::get_singleton()->get_property_list(&properties);
@@ -365,7 +365,7 @@ void DocData::generate(bool p_basic_types) {
             c.properties.push_back(prop);
         }
 
-        PODVector<MethodInfo> method_list;
+        Vector<MethodInfo> method_list;
         ClassDB::get_method_list(name, &method_list, true);
         eastl::sort(method_list.begin(),method_list.end());
 
@@ -424,7 +424,7 @@ void DocData::generate(bool p_basic_types) {
             c.methods.push_back(method);
         }
 
-        PODVector<MethodInfo> signal_list;
+        Vector<MethodInfo> signal_list;
         ClassDB::get_signal_list(name, &signal_list, true);
 
         if (!signal_list.empty()) {
@@ -445,7 +445,7 @@ void DocData::generate(bool p_basic_types) {
             }
         }
 
-        ListPOD<String> constant_list;
+        List<String> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
         for (const String & E : constant_list) {
@@ -460,7 +460,7 @@ void DocData::generate(bool p_basic_types) {
         //theme stuff
 
         {
-            PODVector<StringName> l;
+            Vector<StringName> l;
             Theme::get_default()->get_constant_list(cname, &l);
             for (const StringName &E : l) {
 
@@ -537,7 +537,7 @@ void DocData::generate(bool p_basic_types) {
         Variant::CallError cerror;
         Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
 
-        PODVector<MethodInfo> method_list;
+        Vector<MethodInfo> method_list;
         v.get_method_list(&method_list);
         eastl::sort(method_list.begin(),method_list.end());
         Variant::get_constructor_list(VariantType(i), &method_list);
@@ -573,7 +573,7 @@ void DocData::generate(bool p_basic_types) {
             c.methods.push_back(method);
         }
 
-        PODVector<PropertyInfo> properties;
+        Vector<PropertyInfo> properties;
         v.get_property_list(&properties);
         for (const PropertyInfo &pi : properties) {
 
@@ -585,7 +585,7 @@ void DocData::generate(bool p_basic_types) {
             c.properties.push_back(property);
         }
 
-        PODVector<StringName> constants;
+        Vector<StringName> constants;
         Variant::get_constants_for_type(VariantType(i), &constants);
 
         for (const StringName &E : constants) {
@@ -647,7 +647,7 @@ void DocData::generate(bool p_basic_types) {
             ClassDoc &c = class_list[cname];
             c.name = cname;
 
-            PODVector<MethodInfo> minfo;
+            Vector<MethodInfo> minfo;
 
             lang->get_public_functions(&minfo);
 
@@ -682,7 +682,7 @@ void DocData::generate(bool p_basic_types) {
                 c.methods.push_back(md);
             }
 
-            PODVector<Pair<se_string_view, Variant> > cinfo;
+            Vector<Pair<se_string_view, Variant> > cinfo;
             lang->get_public_constants(&cinfo);
 
             for (const Pair<se_string_view, Variant> & E : cinfo) {
@@ -696,7 +696,7 @@ void DocData::generate(bool p_basic_types) {
     }
 }
 
-static Error _parse_methods(Ref<XMLParser> &parser, PODVector<DocData::MethodDoc> &methods) {
+static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &methods) {
 
     const String section(parser->get_node_name());
     se_string_view element = StringUtils::substr(section,0, section.length() - 1);
@@ -796,7 +796,7 @@ Error DocData::erase_classes(se_string_view p_dir) {
         return err;
     }
 
-    PODVector<String> to_erase;
+    Vector<String> to_erase;
 
     da->list_dir_begin();
     String path(da->get_next());

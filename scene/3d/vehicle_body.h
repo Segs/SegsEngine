@@ -163,10 +163,10 @@ class VehicleBody : public RigidBody {
 
     Set<RID> exclude;
 
-    PODVector<Vector3> m_forwardWS;
-    PODVector<Vector3> m_axle;
-    PODVector<real_t> m_forwardImpulse;
-    PODVector<real_t> m_sideImpulse;
+    Vector<Vector3> m_forwardWS;
+    Vector<Vector3> m_axle;
+    Vector<real_t> m_forwardImpulse;
+    Vector<real_t> m_sideImpulse;
 
     struct btVehicleWheelContactPoint {
         PhysicsDirectBodyState *m_s;
@@ -189,7 +189,7 @@ class VehicleBody : public RigidBody {
     void _update_wheel(int p_idx, PhysicsDirectBodyState *s);
 
     friend class VehicleWheel;
-    PODVector<VehicleWheel *> wheels;
+    Vector<VehicleWheel *> wheels;
 
     static void _bind_methods();
 

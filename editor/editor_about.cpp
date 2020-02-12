@@ -79,7 +79,7 @@ TextureRect *EditorAbout::get_logo() const {
     return _logo;
 }
 
-ScrollContainer *EditorAbout::_populate_list(se_string_view p_name, const PODVector<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
+ScrollContainer *EditorAbout::_populate_list(se_string_view p_name, const Vector<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
 
     ScrollContainer *sc = memnew(ScrollContainer);
     sc->set_name(p_name);
@@ -155,7 +155,7 @@ EditorAbout::EditorAbout() {
 
     // Authors
 
-    PODVector<StringName> dev_sections;
+    Vector<StringName> dev_sections;
     dev_sections.emplace_back(TTR("Project Founders"));
     dev_sections.emplace_back(TTR("Lead Developer"));
     dev_sections.emplace_back(TTR("Project Manager ")); // " " appended to distinguish between 'project supervisor' and 'project list'
@@ -166,7 +166,7 @@ EditorAbout::EditorAbout() {
 
     // Donors
 
-    PODVector<StringName> donor_sections;
+    Vector<StringName> donor_sections;
     donor_sections.emplace_back(TTR("Platinum Sponsors"));
     donor_sections.emplace_back(TTR("Gold Sponsors"));
     donor_sections.emplace_back(TTR("Mini Sponsors"));

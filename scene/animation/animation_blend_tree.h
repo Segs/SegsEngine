@@ -49,9 +49,9 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
 
-    static PODVector<String> (*get_editable_animation_list)();
+    static Vector<String> (*get_editable_animation_list)();
 
     se_string_view get_caption() const override;
     float process(float p_time, bool p_seek) override;
@@ -97,7 +97,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -139,7 +139,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -163,7 +163,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -187,7 +187,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -210,7 +210,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -231,7 +231,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -250,7 +250,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -298,7 +298,7 @@ protected:
     void _validate_property(PropertyInfo &property) const override;
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     se_string_view get_caption() const override;
@@ -337,7 +337,7 @@ class AnimationNodeBlendTree : public AnimationRootNode {
     struct Node {
         Ref<AnimationNode> node;
         Vector2 position;
-        PODVector<StringName> connections;
+        Vector<StringName> connections;
     };
 
     Map<StringName, Node> nodes;
@@ -351,7 +351,7 @@ protected:
     static void _bind_methods();
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
     enum ConnectionError {
@@ -370,12 +370,12 @@ public:
     void rename_node(const StringName &p_name, const StringName &p_new_name);
     bool has_node(const StringName &p_name) const;
     StringName get_node_name(const Ref<AnimationNode> &p_node) const;
-    const PODVector<StringName> &get_node_connection_array(const StringName &p_name) const;
+    const Vector<StringName> &get_node_connection_array(const StringName &p_name) const;
 
     void set_node_position(const StringName &p_node, const Vector2 &p_position);
     Vector2 get_node_position(const StringName &p_node) const;
 
-    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
 
     void connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node);
     void disconnect_node(const StringName &p_node, int p_input_index);
@@ -387,12 +387,12 @@ public:
     };
 
     ConnectionError can_connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) const;
-    void get_node_connections(List<NodeConnection> *r_connections) const;
+    void get_node_connections(ListOld<NodeConnection> *r_connections) const;
 
     se_string_view get_caption() const override;
     float process(float p_time, bool p_seek) override;
 
-    void get_node_list(ListPOD<StringName> *r_list);
+    void get_node_list(List<StringName> *r_list);
 
     void set_graph_offset(const Vector2 &p_graph_offset);
     Vector2 get_graph_offset() const;

@@ -54,13 +54,13 @@ VARIANT_ENUM_CAST(EditorPlugin::DockSlot);
 
 Array EditorInterface::_make_mesh_previews(const Array &p_meshes, int p_preview_size) {
 
-    PODVector<Ref<Mesh> > meshes;
+    Vector<Ref<Mesh> > meshes;
 
     for (int i = 0; i < p_meshes.size(); i++) {
         meshes.push_back(refFromRefPtr<Mesh>(p_meshes[i]));
     }
 
-    PODVector<Ref<Texture> > textures = make_mesh_previews(meshes, nullptr, p_preview_size);
+    Vector<Ref<Texture> > textures = make_mesh_previews(meshes, nullptr, p_preview_size);
     Array ret;
     for (int i = 0; i < textures.size(); i++) {
         ret.push_back(textures[i]);
@@ -69,8 +69,8 @@ Array EditorInterface::_make_mesh_previews(const Array &p_meshes, int p_preview_
     return ret;
 }
 
-PODVector<Ref<Texture>> EditorInterface::make_mesh_previews(const PODVector<Ref<Mesh>> &p_meshes,
-        PODVector<Transform> *p_transforms, int p_preview_size) {
+Vector<Ref<Texture>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>> &p_meshes,
+        Vector<Transform> *p_transforms, int p_preview_size) {
 
     int size = p_preview_size;
 
@@ -97,7 +97,7 @@ PODVector<Ref<Texture>> EditorInterface::make_mesh_previews(const PODVector<Ref<
 
     EditorProgress ep(("mlib"), TTR("Creating Mesh Previews"), p_meshes.size());
 
-    PODVector<Ref<Texture> > textures;
+    Vector<Ref<Texture> > textures;
 
     for (int i = 0; i < p_meshes.size(); i++) {
 
@@ -201,7 +201,7 @@ Node *EditorInterface::get_edited_scene_root() {
 Array EditorInterface::get_open_scenes() const {
 
     Array ret;
-    PODVector<EditorData::EditedScene> scenes = EditorNode::get_editor_data().get_edited_scenes();
+    Vector<EditorData::EditedScene> scenes = EditorNode::get_editor_data().get_edited_scenes();
 
     int scns_amount = scenes.size();
     for (int idx_scn = 0; idx_scn < scns_amount; idx_scn++) {
@@ -698,7 +698,7 @@ void EditorPlugin::apply_changes() {
     }
 }
 
-void EditorPlugin::get_breakpoints(PODVector<String> *p_breakpoints) {
+void EditorPlugin::get_breakpoints(Vector<String> *p_breakpoints) {
 
     if (get_script_instance() && get_script_instance()->has_method("get_breakpoints")) {
         PoolVector<String> arr(get_script_instance()->call("get_breakpoints").as<PoolVector<String>>());
@@ -706,7 +706,7 @@ void EditorPlugin::get_breakpoints(PODVector<String> *p_breakpoints) {
             p_breakpoints->push_back(arr[i]);
     }
 }
-bool EditorPlugin::get_remove_list(PODVector<Node *> *p_list) {
+bool EditorPlugin::get_remove_list(Vector<Node *> *p_list) {
 
     return false;
 }
@@ -756,10 +756,10 @@ public:
     uint32_t get_import_flags() const override {
         return wrapped->get_import_flags();
     }
-    void get_extensions(PODVector<String> &p_extensions) const override {
+    void get_extensions(Vector<String> &p_extensions) const override {
         wrapped->get_extensions(p_extensions);
     }
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, PODVector<String> *r_missing_deps, Error *r_err) override {
+    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
         return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
     }
     Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override {

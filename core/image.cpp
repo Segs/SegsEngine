@@ -157,7 +157,7 @@ struct CodecPluginResolver : public ResolverInterface
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
             print_line(String("Adding image codec plugin:")+ob->metaObject()->className());
-            PODVector<int> modes;
+            Vector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
                 s_codecs.at(m) = interface;
@@ -169,7 +169,7 @@ struct CodecPluginResolver : public ResolverInterface
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {
             print_line(String("Removing image codec plugin:")+ob->metaObject()->className());
-            PODVector<int> modes;
+            Vector<int> modes;
             interface->fill_modes(modes);
             for(int m : modes)
                 s_codecs.at(m) = nullptr;
@@ -228,7 +228,7 @@ namespace {
 
 Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 {
-    PODVector<uint8_t> buffer;
+    Vector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
     ERR_FAIL_COND_V(source_image==nullptr, FAILED);
     Error err = ImageSaver::save_image("png",source_image,buffer);
@@ -249,7 +249,7 @@ Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
 
 Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image, bool greyscale)
 {
-    PODVector<uint8_t> buffer;
+    Vector<uint8_t> buffer;
     ERR_FAIL_COND_V(source_image==nullptr, FAILED);
     Error err = ImageSaver::save_image("exr",source_image,buffer);
     ERR_FAIL_COND_V(err, err);
@@ -1703,7 +1703,7 @@ Error Image::generate_mipmaps(bool p_renormalize) {
 }
 Error Image::generate_mipmap_roughness(RoughnessChannel p_roughness_channel, const Ref<Image> &p_normal_map) {
 
-    PODVector<double> normal_sat_vec; //summed area table
+    Vector<double> normal_sat_vec; //summed area table
     double *normal_sat = nullptr; //summed area table for normalmap
     int normal_w = 0, normal_h = 0;
 
@@ -2656,7 +2656,7 @@ void Image::fill(const Color &c) {
     unlock();
 }
 
-PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
+Vector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
 {
     Ref<Image> img = p_image;
     if (p_image->get_format() != Image::FORMAT_RGBA8 && p_image->get_format() != Image::FORMAT_RGB8)
@@ -2667,13 +2667,13 @@ PODVector<uint8_t> Image::lossy_packer(const Ref<Image> &p_image, float qualt)
         else
             img->convert(Image::FORMAT_RGB8);
     }
-    PODVector<uint8_t> tmp;
+    Vector<uint8_t> tmp;
 
     if(OK!=ImageSaver::save_image("webp",p_image,tmp,qualt))
         return {};
     return tmp;
 }
-Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
+Ref<Image> Image::lossy_unpacker(const Vector<uint8_t> &p_buffer)
 {
     int size = p_buffer.size() - 4;
     ERR_FAIL_COND_V(size <= 0, Ref<Image>());
@@ -2688,16 +2688,16 @@ Ref<Image> Image::lossy_unpacker(const PODVector<uint8_t> &p_buffer)
     return res;
 
 }
-PODVector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
+Vector<uint8_t> Image::lossless_packer(const Ref<Image> &p_image)
 {
     Ref<Image> img = prepareForPngStorage(p_image);
-    PODVector<uint8_t> tmp = {'P','N','G',' '}; // Header marker bytes.
+    Vector<uint8_t> tmp = {'P','N','G',' '}; // Header marker bytes.
 
     if(OK!=ImageSaver::save_image("png",p_image,tmp,1.0f))
         return {};
     return tmp;
 }
-Ref<Image> Image::lossless_unpacker(const PODVector<uint8_t> &p_data)
+Ref<Image> Image::lossless_unpacker(const Vector<uint8_t> &p_data)
 {
     const int len = p_data.size();
     ERR_FAIL_COND_V(len < 4, {});

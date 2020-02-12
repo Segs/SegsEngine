@@ -342,7 +342,7 @@ void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_p
         selected_profile = p_select_profile;
     }
 
-    PODVector<String> profiles;
+    Vector<String> profiles;
     DirAccessRef d = DirAccess::open(EditorSettings::get_singleton()->get_feature_profiles_dir());
     ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + EditorSettings::get_singleton()->get_feature_profiles_dir() + "'."); 
     d->list_dir_begin();
@@ -517,7 +517,7 @@ void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const S
 
     class_item->set_checked(0, true); // if its not disabled, its checked
 
-    PODVector<StringName> child_classes;
+    Vector<StringName> child_classes;
     ClassDB::get_direct_inheriters_from_class(p_class, &child_classes);
     eastl::sort(child_classes.begin(), child_classes.end(), WrapAlphaCompare());
 
@@ -570,7 +570,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
     TreeItem *properties = property_list->create_item(root);
     properties->set_text(0, TTR("Enabled Properties:"));
 
-    PODVector<PropertyInfo> props;
+    Vector<PropertyInfo> props;
 
     ClassDB::get_property_list(class_name, &props, true);
 
@@ -725,7 +725,7 @@ void EditorFeatureProfileManager::_update_selected_profile() {
     _class_list_item_selected();
 }
 
-void EditorFeatureProfileManager::_import_profiles(const PODVector<String> &p_paths) {
+void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths) {
 
     //test it first
     for (const String &path : p_paths) {

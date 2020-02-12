@@ -74,7 +74,7 @@ private:
         float c1, c2, c3;
     };
 
-    PODVector<Band> band;
+    Vector<Band> band;
 
     float mix_rate;
 
@@ -85,7 +85,7 @@ public:
 
     int get_band_count() const;
     void set_preset_band_mode(Preset p_preset);
-    void set_bands(const PODVector<float> &p_bands);
+    void set_bands(const Vector<float> &p_bands);
     BandProcess get_band_processor(int p_band) const;
     float get_band_frequency(int p_band);
 

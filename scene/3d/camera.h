@@ -145,7 +145,7 @@ public:
     bool is_position_behind(const Vector3 &p_pos) const;
     virtual Vector3 project_position(const Point2 &p_point, float p_z_depth) const;
 
-    PODVector<Vector3> get_near_plane_points() const;
+    Vector<Vector3> get_near_plane_points() const;
 
     void set_cull_mask(uint32_t p_layers);
     uint32_t get_cull_mask() const;
@@ -197,7 +197,7 @@ private:
 
     Set<RID> exclude;
 
-    PODVector<Vector3> points;
+    Vector<Vector3> points;
 
 protected:
     void _notification(int p_what);

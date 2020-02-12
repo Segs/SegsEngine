@@ -43,7 +43,7 @@ class SkeletonIKEditorPlugin : public EditorPlugin {
 
 	Button *play_btn;
 	EditorNode *editor;
-	PODVector<Transform> initial_bone_poses;
+	Vector<Transform> initial_bone_poses;
 
 	void _play();
 

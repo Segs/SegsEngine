@@ -174,7 +174,7 @@ void Resource::reload_from_file() {
     if (not s)
         return;
 
-    PODVector<PropertyInfo> pi;
+    Vector<PropertyInfo> pi;
     s->get_property_list(&pi);
 
     for(PropertyInfo &E : pi ) {
@@ -190,7 +190,7 @@ void Resource::reload_from_file() {
 
 Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, Ref<Resource> > &remap_cache) {
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     get_property_list(&plist);
 
     Resource *r = object_cast<Resource>(ClassDB::instance(get_class_name()));
@@ -231,7 +231,7 @@ Ref<Resource> Resource::duplicate_for_local_scene(Node *p_for_scene, Map<Ref<Res
 
 void Resource::configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, Ref<Resource> > &remap_cache) {
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     get_property_list(&plist);
 
     impl_data->local_scene = p_for_scene;
@@ -259,7 +259,7 @@ void Resource::configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, R
 
 Ref<Resource> Resource::duplicate(bool p_subresources) const {
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     get_property_list(&plist);
 
     Resource *r = (Resource *)ClassDB::instance(get_class_name());
@@ -330,7 +330,7 @@ uint32_t Resource::hash_edited_version() const {
 
     uint32_t hash = hash_djb2_one_32(get_tooling_interface()->get_edited_version());
 
-    PODVector<PropertyInfo> plist;
+    Vector<PropertyInfo> plist;
     get_property_list(&plist);
 
     for(PropertyInfo &E : plist ) {
@@ -589,7 +589,7 @@ Resource *ResourceCache::get(se_string_view p_path) {
     return res;
 }
 
-void ResourceCache::get_cached_resources(ListPOD<Ref<Resource>> *p_resources) {
+void ResourceCache::get_cached_resources(List<Ref<Resource>> *p_resources) {
 
     lock->read_lock();
     for(eastl::pair<const String,Resource *> & e :cached_resources) {

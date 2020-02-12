@@ -57,7 +57,7 @@ public:
     void set(int p_idx, const Variant &p_value);
     const Variant &get(int p_idx) const;
 
-    const PODVector<Variant> &vals() const;
+    const Vector<Variant> &vals() const;
 
     int size() const;
     bool empty() const;
@@ -107,7 +107,7 @@ public:
     const void *id() const;
 
     Array(const Array &p_from);
-    Array(PODVector<Variant> &&v) noexcept;
+    Array(Vector<Variant> &&v) noexcept;
     Array(Array &&from) noexcept {
         _p = from._p;
         from._p = nullptr;

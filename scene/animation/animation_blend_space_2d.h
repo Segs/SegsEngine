@@ -61,7 +61,7 @@ protected:
         int points[3];
     };
 
-    PODVector<BlendTriangle> triangles;
+    Vector<BlendTriangle> triangles;
 
     StringName blend_position;
     StringName closest;
@@ -77,8 +77,8 @@ protected:
 
 public:
     void _add_blend_point(int p_index, const Ref<AnimationRootNode> &p_node);
-    void _set_triangles(const PODVector<int> &p_triangles);
-    PODVector<int> _get_triangles() const;
+    void _set_triangles(const Vector<int> &p_triangles);
+    Vector<int> _get_triangles() const;
     void _blend_triangle(const Vector2 &p_pos, const Vector2 *p_points, float *r_weights);
     void _update_triangles();
     void _queue_auto_triangles();
@@ -89,10 +89,10 @@ protected:
     static void _bind_methods();
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
 
     void add_blend_point(const Ref<AnimationRootNode> &p_node, const Vector2 &p_position, int p_at_index = -1);
     void set_blend_point_position(int p_point, const Vector2 &p_position);

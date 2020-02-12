@@ -47,7 +47,7 @@ public:
 	};
 
 private:
-    PODVector<Point> points;
+    Vector<Point> points;
 	bool is_sorted;
 
 protected:
@@ -60,8 +60,8 @@ public:
 	void add_point(float p_offset, const Color &p_color);
 	void remove_point(int p_index);
 
-    void set_points(const PODVector<Point> &p_points);
-    PODVector<Point> &get_points();
+    void set_points(const Vector<Point> &p_points);
+    Vector<Point> &get_points();
 
 	void set_offset(int pos, const float offset);
 	float get_offset(int pos) const;
@@ -69,11 +69,11 @@ public:
 	void set_color(int pos, const Color &color);
 	Color get_color(int pos) const;
 
-    void set_offsets(const PODVector<float> &p_offsets);
-    PODVector<float> get_offsets() const;
+    void set_offsets(const Vector<float> &p_offsets);
+    Vector<float> get_offsets() const;
 
-    void set_colors(const PODVector<Color> &p_colors);
-    PODVector<Color> get_colors() const;
+    void set_colors(const Vector<Color> &p_colors);
+    Vector<Color> get_colors() const;
 
     Color get_color_at_offset(float p_offset);
     int get_points_count() const;

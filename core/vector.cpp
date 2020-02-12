@@ -16,8 +16,8 @@ template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::vector<StringName,wra
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::list<StringName,wrap_allocator>;
 template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) eastl::list<se_string_view,wrap_allocator>;
 
-const PODVector<Variant> null_variant_pvec;
-const PODVector<Vector2> null_vec2_pvec;
-const PODVector<Vector3> null_vec3_pvec;
-const PODVector<int> null_int_pvec;
-const PODVector<float> null_float_pvec;
+const Vector<Variant> null_variant_pvec;
+const Vector<Vector2> null_vec2_pvec;
+const Vector<Vector3> null_vec3_pvec;
+const Vector<int> null_int_pvec;
+const Vector<float> null_float_pvec;

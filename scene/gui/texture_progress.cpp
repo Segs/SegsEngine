@@ -376,7 +376,7 @@ void TextureProgress::_notification(int p_what) {
                                         pts.append(corners[i]);
                                 pts.sort();
                                 PoolVector<Point2> uvs;
-                                PODVector<Point2> points;
+                                Vector<Point2> points;
                                 points.reserve(pts.size()+1);
                                 uvs.push_back(get_relative_center());
                                 points.emplace_back(s.x * get_relative_center().x, s.y * get_relative_center().y);

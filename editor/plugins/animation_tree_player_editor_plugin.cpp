@@ -300,7 +300,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
                     master_anim_popup->clear();
                     master_anim_popup->add_item(TTR("Edit Filters"));
                     master_anim_popup->add_separator();
-                    PODVector<StringName> sn(ap->get_animation_list());
+                    Vector<StringName> sn(ap->get_animation_list());
                     eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
                     for (const StringName &E : sn) {
                         master_anim_popup->add_item(E);
@@ -910,10 +910,10 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
                 _draw_cos_line(click_pos, click_motion, Color(0.5f, 1.0f, 0.5f, 0.8f));
             }
 
-            List<AnimationTreePlayer::Connection> connections;
+            ListOld<AnimationTreePlayer::Connection> connections;
             anim_tree->get_connection_list(&connections);
 
-            for (List<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
+            for (ListOld<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
                 const AnimationTreePlayer::Connection &c = E->deref();
                 Point2 source = _get_slot_pos(c.src_node, false, 0);
@@ -1010,10 +1010,10 @@ void AnimationTreePlayerEditor::_node_menu_item(int p_item) {
 
             if (rclick_type == CLICK_OUTPUT_SLOT) {
 
-                List<AnimationTreePlayer::Connection> connections;
+                ListOld<AnimationTreePlayer::Connection> connections;
                 anim_tree->get_connection_list(&connections);
 
-                for (List<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
+                for (ListOld<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
 
                     const AnimationTreePlayer::Connection &c = E->deref();
                     if (c.dst_node == rclick_node) {
@@ -1114,7 +1114,7 @@ void AnimationTreePlayerEditor::_file_dialog_selected(se_string_view p_path) {
     switch (file_op) {
 
         case MENU_IMPORT_ANIMATIONS: {
-            const PODVector<String> files = file_dialog->get_selected_files();
+            const Vector<String> files = file_dialog->get_selected_files();
 
             for (int i = 0; i < files.size(); i++) {
 

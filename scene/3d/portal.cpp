@@ -91,7 +91,7 @@ bool Portal::_get(const StringName &p_name, Variant &r_ret) const {
     return true;
 }
 
-void Portal::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void Portal::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     p_list->push_back(PropertyInfo(VariantType::POOL_REAL_ARRAY, "shape"));
     p_list->push_back(PropertyInfo(VariantType::BOOL, "enabled"));

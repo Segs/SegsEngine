@@ -146,7 +146,7 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
 
     return false;
 }
-void VisualScriptExpression::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void VisualScriptExpression::_get_property_list(Vector<PropertyInfo> *p_list) const {
     char argt[7+(longest_variant_type_name+1)*(int)VariantType::VARIANT_MAX];
     fill_with_all_variant_types("Any",argt);
 
@@ -659,7 +659,7 @@ const char *VisualScriptExpression::token_name[TK_MAX] = {
 
 VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
 
-    PODVector<Expression> expression;
+    Vector<Expression> expression;
 
     while (true) {
         //keep appending stuff to expression
@@ -1366,8 +1366,8 @@ public:
 
                 const VisualScriptExpression::ConstructorNode *constructor = static_cast<const VisualScriptExpression::ConstructorNode *>(p_node);
 
-                PODVector<Variant> arr;
-                PODVector<const Variant *> argp;
+                Vector<Variant> arr;
+                Vector<const Variant *> argp;
                 arr.resize(constructor->arguments.size());
                 argp.resize(constructor->arguments.size());
 
@@ -1393,8 +1393,8 @@ public:
 
                 const VisualScriptExpression::BuiltinFuncNode *bifunc = static_cast<const VisualScriptExpression::BuiltinFuncNode *>(p_node);
 
-                PODVector<Variant> arr;
-                PODVector<const Variant *> argp;
+                Vector<Variant> arr;
+                Vector<const Variant *> argp;
                 arr.resize(bifunc->arguments.size());
                 argp.resize(bifunc->arguments.size());
 
@@ -1425,8 +1425,8 @@ public:
                 if (ret)
                     return true;
 
-                PODVector<Variant> arr;
-                PODVector<const Variant *> argp;
+                Vector<Variant> arr;
+                Vector<const Variant *> argp;
                 arr.resize(call->arguments.size());
                 argp.resize(call->arguments.size());
 

@@ -122,7 +122,7 @@ bool MainLoop::idle(float p_time) {
     return false;
 }
 
-void MainLoop::drop_files(const PODVector<String> &p_files, int p_from_screen) {
+void MainLoop::drop_files(const Vector<String> &p_files, int p_from_screen) {
 
     if (get_script_instance())
         get_script_instance()->call("_drop_files", Variant::from(p_files), p_from_screen);

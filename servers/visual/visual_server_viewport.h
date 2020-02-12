@@ -143,7 +143,7 @@ public:
         }
     };
 
-    PODVector<Viewport *> active_viewports;
+    Vector<Viewport *> active_viewports;
 
 private:
     Color clear_color;

@@ -46,7 +46,7 @@ class ConnectionInfoDialog : public AcceptDialog {
     void ok_pressed() override;
 
 public:
-    void popup_connections(se_string_view p_method, const PODVector<Node *> &p_nodes);
+    void popup_connections(se_string_view p_method, const Vector<Node *> &p_nodes);
 
     ConnectionInfoDialog();
 };
@@ -61,11 +61,11 @@ class ScriptTextEditor : public ScriptEditorBase {
     Ref<Script> script;
     bool script_is_valid;
 
-    PODVector<String> functions;
+    Vector<String> functions;
 
-    ListPOD<Connection> missing_connections;
+    List<Connection> missing_connections;
 
-    PODVector<String> member_keywords;
+    Vector<String> member_keywords;
 
     HBoxContainer *edit_hb;
 
@@ -154,8 +154,8 @@ protected:
     void _update_bookmark_list();
     void _bookmark_item_pressed(int p_idx);
 
-    static void _code_complete_scripts(void *p_ud, const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_force);
-    void _code_complete_script(const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options, bool &r_force);
+    static void _code_complete_scripts(void *p_ud, const String &p_code, Vector<ScriptCodeCompletionOption> *r_options, bool &r_force);
+    void _code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options, bool &r_force);
 
     void _load_theme_settings();
     void _set_theme_for_script();
@@ -196,7 +196,7 @@ public:
     void apply_code() override;
     RES get_edited_resource() const override;
     void set_edited_resource(const RES &p_res) override;
-    PODVector<String> get_functions() override;
+    Vector<String> get_functions() override;
     void reload_text() override;
     String get_name() override;
     Ref<Texture> get_icon() override;
@@ -218,7 +218,7 @@ public:
     void clear_executing_line() override;
 
     void reload(bool p_soft) override;
-    void get_breakpoints(PODVector<int> *p_breakpoints) override;
+    void get_breakpoints(Vector<int> *p_breakpoints) override;
 
     void add_callback(const StringName &p_function, const PoolVector<String> &p_args) override;
     void update_settings() override;

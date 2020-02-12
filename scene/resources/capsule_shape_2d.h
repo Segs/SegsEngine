@@ -40,7 +40,7 @@ class CapsuleShape2D : public Shape2D {
     real_t radius;
 
     void _update_shape();
-    PODVector<Vector2> _get_points() const;
+    Vector<Vector2> _get_points() const;
 
 protected:
     static void _bind_methods();

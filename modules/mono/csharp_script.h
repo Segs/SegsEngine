@@ -91,7 +91,7 @@ class CSharpScript : public Script {
         // TODO
         // Replace with buffer containing the serialized state of managed scripts.
         // Keep variant state backup to use only with script instance placeholders.
-        PODVector<Pair<StringName, Variant> > properties;
+        Vector<Pair<StringName, Variant> > properties;
     };
 
     Set<ObjectID> pending_reload_instances;
@@ -110,17 +110,17 @@ class CSharpScript : public Script {
         VariantType type;
     };
 
-    Map<StringName, PODVector<Argument> > _signals;
+    Map<StringName, Vector<Argument> > _signals;
     bool signals_invalidated;
 
 #ifdef TOOLS_ENABLED
-    ListPOD<PropertyInfo> exported_members_cache; // members_cache
+    List<PropertyInfo> exported_members_cache; // members_cache
     Map<StringName, Variant> exported_members_defval_cache; // member_default_values_cache
     Set<PlaceHolderScriptInstance *> placeholders;
     bool source_changed_cache;
     bool placeholder_fallback_enabled;
     bool exports_invalidated;
-    void _update_exports_values(Map<StringName, Variant> &values, PODVector<PropertyInfo> &propnames);
+    void _update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
     void _update_member_info_no_exports();
     void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
 #endif
@@ -130,7 +130,7 @@ class CSharpScript : public Script {
     void _clear();
 
     void load_script_signals(GDMonoClass *p_class, GDMonoClass *p_native_class);
-    bool _get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, PODVector<Argument> &params);
+    bool _get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Vector<Argument> &params);
 
     bool _update_exports();
 #ifdef TOOLS_ENABLED
@@ -154,7 +154,7 @@ protected:
     void _resource_path_changed() override;
     bool _get(const StringName &p_name, Variant &r_ret) const;
     bool _set(const StringName &p_name, const Variant &p_value);
-    void _get_property_list(PODVector<PropertyInfo> *p_properties) const;
+    void _get_property_list(Vector<PropertyInfo> *p_properties) const;
 
 public:
     bool can_instance() const override;
@@ -170,10 +170,10 @@ public:
     Error reload(bool p_keep_state = false) override;
 
     bool has_script_signal(const StringName &p_signal) const override;
-    void get_script_signal_list(PODVector<MethodInfo> *r_signals) const override;
+    void get_script_signal_list(Vector<MethodInfo> *r_signals) const override;
 
     bool get_property_default_value(const StringName &p_property, Variant &r_value) const override;
-    void get_script_property_list(PODVector<PropertyInfo> *p_list) const override;
+    void get_script_property_list(Vector<PropertyInfo> *p_list) const override;
     void update_exports() override;
 
     bool is_tool() const override { return tool; }
@@ -182,7 +182,7 @@ public:
     Ref<Script> get_base_script() const override;
     ScriptLanguage *get_language() const override;
 
-    void get_script_method_list(PODVector<MethodInfo> *p_list) const override;
+    void get_script_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
     MethodInfo get_method_info(const StringName &p_method) const override;
 
@@ -235,7 +235,7 @@ class CSharpInstance : public ScriptInstance {
 
     MultiplayerAPI_RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
 
-    void get_properties_state_for_reloading(PODVector<Pair<StringName, Variant>> &r_state);
+    void get_properties_state_for_reloading(Vector<Pair<StringName, Variant>> &r_state);
 
 public:
     MonoObject *get_mono_object() const;
@@ -246,10 +246,10 @@ public:
 
     bool set(const StringName &p_name, const Variant &p_value) override;
     bool get(const StringName &p_name, Variant &r_ret) const override;
-    void get_property_list(PODVector<PropertyInfo> *p_properties) const override;
+    void get_property_list(Vector<PropertyInfo> *p_properties) const override;
     VariantType get_property_type(const StringName &p_name, bool *r_is_valid) const override;
 
-    /* TODO */ void get_method_list(PODVector<MethodInfo> * /*p_list*/) const override {}
+    /* TODO */ void get_method_list(Vector<MethodInfo> * /*p_list*/) const override {}
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
     void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
@@ -395,15 +395,15 @@ public:
     void finish() override;
 
     /* EDITOR FUNCTIONS */
-    void get_reserved_words(PODVector<String> *p_words) const override;
-    void get_comment_delimiters(PODVector<String> *p_delimiters) const override;
-    void get_string_delimiters(PODVector<String> *p_delimiters) const override;
+    void get_reserved_words(Vector<String> *p_words) const override;
+    void get_comment_delimiters(Vector<String> *p_delimiters) const override;
+    void get_string_delimiters(Vector<String> *p_delimiters) const override;
     Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
     bool is_using_templates() override;
     void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
     bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-            se_string_view p_path = {}, PODVector<String> *r_functions = nullptr,
-            PODVector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+            se_string_view p_path = {}, Vector<String> *r_functions = nullptr,
+            Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     String validate_path(se_string_view p_path) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
@@ -423,11 +423,11 @@ public:
     /* TODO */
     String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override { return ""; }
 
-    void debug_get_stack_level_locals(int p_level, PODVector<String> *p_locals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
-    void debug_get_stack_level_members(int p_level, PODVector<String> *p_members, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
-    void debug_get_globals(PODVector<String> *p_globals, PODVector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_stack_level_locals(int p_level, Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_stack_level_members(int p_level, Vector<String> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
+    void debug_get_globals(Vector<String> *p_globals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override {}
 
-    PODVector<StackInfo> debug_get_current_stack_info() override;
+    Vector<StackInfo> debug_get_current_stack_info() override;
 
     /* PROFILING FUNCTIONS */
     /* TODO */ void profiling_start() override {}
@@ -437,14 +437,14 @@ public:
 
     void frame() override;
 
-    /* TODO? */ void get_public_functions(PODVector<MethodInfo> *p_functions) const override {}
-    /* TODO? */ void get_public_constants(PODVector<Pair<se_string_view, Variant>> *p_constants) const override {}
+    /* TODO? */ void get_public_functions(Vector<MethodInfo> *p_functions) const override {}
+    /* TODO? */ void get_public_constants(Vector<Pair<se_string_view, Variant>> *p_constants) const override {}
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
 
     /* LOADER FUNCTIONS */
-    void get_recognized_extensions(PODVector<String> *p_extensions) const override;
+    void get_recognized_extensions(Vector<String> *p_extensions) const override;
 
 #ifdef TOOLS_ENABLED
     Error open_in_external_editor(const Ref<Script> &p_script, int p_line, int p_col) override;
@@ -465,7 +465,7 @@ public:
     bool setup_csharp_script_binding(CSharpScriptBinding &r_script_binding, Object *p_object);
 
 #ifdef DEBUG_ENABLED
-    PODVector<StackInfo> stack_trace_get_info(MonoObject *p_stack_trace);
+    Vector<StackInfo> stack_trace_get_info(MonoObject *p_stack_trace);
 #endif
 
     void post_unsafe_reference(Object *p_obj);
@@ -478,7 +478,7 @@ public:
 class ResourceFormatLoaderCSharpScript : public ResourceFormatLoader {
 public:
     RES load(se_string_view p_path, se_string_view p_original_path = "", Error *r_error = NULL) override;
-    void get_recognized_extensions(PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(se_string_view p_type) const override;
     String get_resource_type(se_string_view p_path) const override;
 };
@@ -486,6 +486,6 @@ public:
 class ResourceFormatSaverCSharpScript : public ResourceFormatSaver {
 public:
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
-    void get_recognized_extensions(const RES &p_resource, PODVector<String> &p_extensions) const override;
+    void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
     bool recognize(const RES &p_resource) const override;
 };

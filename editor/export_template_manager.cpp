@@ -214,7 +214,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
 
         if (StringUtils::ends_with(file,"version.txt")) {
 
-            PODVector<uint8_t> data;
+            Vector<uint8_t> data;
             data.resize(info.uncompressed_size);
 
             //read
@@ -286,7 +286,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
             continue;
         }
 
-        PODVector<uint8_t> data;
+        Vector<uint8_t> data;
         data.resize(info.uncompressed_size);
 
         //read
@@ -623,7 +623,7 @@ Error ExportTemplateManager::install_android_template() {
         String base_dir = PathUtils::get_base_dir(path);
 
         if (!StringUtils::ends_with(path,'/')) {
-            PODVector<uint8_t> data;
+            Vector<uint8_t> data;
             data.resize(info.uncompressed_size);
 
             // Read.
@@ -704,7 +704,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
             continue;
         }
 
-        PODVector<uint8_t> data;
+        Vector<uint8_t> data;
         data.resize(info.uncompressed_size);
 
         // Read.

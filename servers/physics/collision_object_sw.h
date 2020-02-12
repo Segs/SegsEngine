@@ -71,7 +71,7 @@ private:
         Shape() { disabled = false; }
     };
 
-    PODVector<Shape> shapes;
+    Vector<Shape> shapes;
     SpaceSW *space;
     Transform transform;
     Transform inv_transform;

@@ -41,20 +41,20 @@ template <class T>
 struct Comparator;
 
 template<class T>
-using PODVector = eastl::vector<T,wrap_allocator>;
+using Vector = eastl::vector<T,wrap_allocator>;
 template<class T>
 using Dequeue = eastl::deque<T,wrap_allocator,((sizeof(T) <= 4) ? 64 : ((sizeof(T) <= 8) ? 32 : ((sizeof(T) <= 16) ? 16 : ((sizeof(T) <= 32) ? 8 : 4))))>;
 
 
-using BitVector = eastl::bitvector<wrap_allocator,size_t,PODVector<size_t>>;
-
-template <class T, class A>
-class List;
+using BitVector = eastl::bitvector<wrap_allocator,size_t,Vector<size_t>>;
 
 template <class T>
-using DefList = List<T,DefaultAllocator>;
+class ListOld;
+
+template <class T>
+using DefList = ListOld<T>;
 template<class T>
-using ListPOD = eastl::list<T,wrap_allocator>;
+using List = eastl::list<T,wrap_allocator>;
 template <class T>
 using Set = eastl::set<T, Comparator<T>, wrap_allocator>;
 template <class K,class V>

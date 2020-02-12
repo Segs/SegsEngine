@@ -104,7 +104,7 @@ class AnimationNodeStateMachinePlayback : public Resource {
     float fading_time;
     float fading_pos;
 
-    PODVector<StringName> path;
+    Vector<StringName> path;
     bool playing;
 
     StringName start_request;
@@ -125,7 +125,7 @@ public:
     bool is_playing() const;
     StringName get_current_node() const;
     StringName get_blend_from_node() const;
-    const PODVector<StringName> &get_travel_path() const;
+    const Vector<StringName> &get_travel_path() const;
     float get_current_play_pos() const;
     float get_current_length() const;
 
@@ -153,7 +153,7 @@ private:
         Ref<AnimationNodeStateMachineTransition> transition;
     };
 
-    PODVector<Transition> transitions;
+    Vector<Transition> transitions;
 
     StringName playback;
 
@@ -170,10 +170,10 @@ protected:
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
-    void _get_property_list(PODVector<PropertyInfo> *p_list) const;
+    void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
-    void get_parameter_list(PODVector<PropertyInfo> *r_list) const override;
+    void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     void add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position = Vector2());
@@ -182,12 +182,12 @@ public:
     void rename_node(const StringName &p_name, const StringName &p_new_name);
     bool has_node(const StringName &p_name) const;
     StringName get_node_name(const Ref<AnimationNode> &p_node) const;
-    void get_node_list(ListPOD<StringName> *r_nodes) const;
+    void get_node_list(List<StringName> *r_nodes) const;
 
     void set_node_position(const StringName &p_name, const Vector2 &p_position);
     Vector2 get_node_position(const StringName &p_name) const;
 
-    void get_child_nodes(List<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
 
     bool has_transition(const StringName &p_from, const StringName &p_to) const;
     int find_transition(const StringName &p_from, const StringName &p_to) const;

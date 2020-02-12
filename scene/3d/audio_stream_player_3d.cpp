@@ -418,7 +418,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 break;
             }
 
-            PODVector<Camera *> cameras;
+            Vector<Camera *> cameras;
             world->get_camera_list(&cameras);
 
             for (Camera *camera : cameras) {

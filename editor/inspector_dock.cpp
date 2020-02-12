@@ -91,7 +91,7 @@ void InspectorDock::_menu_option(int p_option) {
         case OBJECT_UNIQUE_RESOURCES: {
             editor_data->apply_changes_in_editors();
             if (current) {
-                PODVector<PropertyInfo> props;
+                Vector<PropertyInfo> props;
                 current->get_property_list(&props);
                 Map<RES, RES> duplicates;
                 for (const PropertyInfo &E : props) {
@@ -133,7 +133,7 @@ void InspectorDock::_menu_option(int p_option) {
 
                 int idx = p_option - OBJECT_METHOD_BASE;
 
-                PODVector<MethodInfo> methods;
+                Vector<MethodInfo> methods;
                 current->get_method_list(&methods);
 
                 ERR_FAIL_INDEX(idx, methods.size());
@@ -152,7 +152,7 @@ void InspectorDock::_new_resource() {
 void InspectorDock::_load_resource(se_string_view p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
-    PODVector<String> extensions;
+    Vector<String> extensions;
     ResourceLoader::get_recognized_extensions_for_type(p_type, extensions);
 
     load_resource_dialog->clear_filters();
@@ -458,7 +458,7 @@ void InspectorDock::update(Object *p_object) {
         p->add_icon_shortcut(get_icon("HelpSearch", "EditorIcons"), ED_SHORTCUT("property_editor/open_help", TTR("Open in Help")), OBJECT_REQUEST_HELP);
     }
 
-    PODVector<MethodInfo> methods;
+    Vector<MethodInfo> methods;
     p_object->get_method_list(&methods);
 
     if (!methods.empty()) {

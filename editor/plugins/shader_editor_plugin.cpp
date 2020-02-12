@@ -151,7 +151,7 @@ void ShaderTextEditor::_load_theme_settings() {
     get_text_edit()->add_color_override("search_result_border_color", search_result_border_color);
     get_text_edit()->add_color_override("symbol_color", symbol_color);
 
-    PODVector<se_string_view> keywords;
+    Vector<se_string_view> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
 
     if (shader) {
@@ -199,7 +199,7 @@ void ShaderTextEditor::_check_shader_mode() {
     }
 }
 
-void ShaderTextEditor::_code_complete_script(const String &p_code, PODVector<ScriptCodeCompletionOption> *r_options) {
+void ShaderTextEditor::_code_complete_script(const String &p_code, Vector<ScriptCodeCompletionOption> *r_options) {
 
     _check_shader_mode();
 

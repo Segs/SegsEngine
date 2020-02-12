@@ -2079,8 +2079,8 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
 
             const Expression::ConstructorNode *constructor = static_cast<const Expression::ConstructorNode *>(p_node);
 
-            PODVector<Variant> arr;
-            PODVector<const Variant *> argp;
+            Vector<Variant> arr;
+            Vector<const Variant *> argp;
             arr.resize(constructor->arguments.size());
             argp.resize(constructor->arguments.size());
 
@@ -2108,8 +2108,8 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
 
             const Expression::BuiltinFuncNode *bifunc = static_cast<const Expression::BuiltinFuncNode *>(p_node);
 
-            PODVector<Variant> arr;
-            PODVector<const Variant *> argp;
+            Vector<Variant> arr;
+            Vector<const Variant *> argp;
             arr.resize(bifunc->arguments.size());
             argp.resize(bifunc->arguments.size());
 
@@ -2142,8 +2142,8 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
             if (ret)
                 return true;
 
-            PODVector<Variant> arr;
-            PODVector<const Variant *> argp;
+            Vector<Variant> arr;
+            Vector<const Variant *> argp;
             arr.resize(call->arguments.size());
             argp.resize(call->arguments.size());
 
@@ -2171,7 +2171,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
     return false;
 }
 
-Error Expression::parse(se_string_view p_expression, const PODVector<String> &p_input_names) {
+Error Expression::parse(se_string_view p_expression, const Vector<String> &p_input_names) {
 
     if (nodes) {
         memdelete(nodes);
