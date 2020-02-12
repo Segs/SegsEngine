@@ -37,6 +37,10 @@
 #include "core/script_language.h"
 #include "gdscript_functions.h"
 #include "gdscript_tokenizer.h"
+#include "modules/gdscript/gdscript.h"
+
+#include "EASTL/deque.h"
+#include "EASTL/vector_multiset.h"
 
 struct GDScriptDataType;
 struct GDScriptWarning;
@@ -544,7 +548,8 @@ private:
 #endif // DEBUG_ENABLED
 
 #ifdef DEBUG_ENABLED
-    List<GDScriptWarning> warnings;
+    using WarningStore=eastl::deque<GDScriptWarning,wrap_allocator>;
+    eastl::vector_multiset<GDScriptWarning,eastl::less<GDScriptWarning>,wrap_allocator,WarningStore> warnings;
 #endif // DEBUG_ENABLED
 
     int pending_newline;
@@ -659,7 +664,7 @@ public:
     int get_error_line() const;
     int get_error_column() const;
 #ifdef DEBUG_ENABLED
-    const List<GDScriptWarning> &get_warnings() const { return warnings; }
+    const Dequeue<GDScriptWarning> &get_warnings() const { return warnings; }
 #endif // DEBUG_ENABLED
     Error parse(se_string_view p_code, se_string_view p_base_path = {}, bool p_just_validate = false, se_string_view p_self_path = {}, bool p_for_completion = false, Set<int> *r_safe_lines = nullptr, bool p_dependencies_only = false);
     Error parse_bytecode(const PODVector<uint8_t> &p_bytecode, se_string_view p_base_path = {}, se_string_view p_self_path = {});

@@ -398,7 +398,7 @@ void Polygon3DEditor::_polygon_draw() {
 
         Vector2 p, p2;
         p = i == edited_point ? edited_point_pos : poly[i];
-        if (wip_active && i == poly.size() - 1 || (i + 1) % poly.size() == edited_point)
+        if ((wip_active && i == poly.size() - 1) || (i + 1) % poly.size() == edited_point)
             p2 = edited_point_pos;
         else
             p2 = poly[(i + 1) % poly.size()];

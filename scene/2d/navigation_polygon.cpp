@@ -159,7 +159,7 @@ int NavigationPolygon::get_polygon_count() const {
 }
 const PODVector<int> &NavigationPolygon::get_polygon(int p_idx) {
 
-    ERR_FAIL_INDEX_V(p_idx, polygons.size(), {});
+    ERR_FAIL_INDEX_V(p_idx, polygons.size(), null_int_pvec);
     return polygons[p_idx].indices;
 }
 void NavigationPolygon::clear_polygons() {

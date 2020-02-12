@@ -258,7 +258,8 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
 
     ERR_FAIL_COND(!frames->has_animation(edited_anim));
 
-    List<Ref<Texture> > resources;
+    PODVector<Ref<Texture> > resources;
+    resources.reserve(p_path.size());
 
     for (int i = 0; i < p_path.size(); i++) {
 
@@ -274,7 +275,7 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
             return; ///beh should show an error i guess
         }
 
-        resources.push_back(resource);
+        resources.emplace_back(eastl::move(resource));
     }
 
     if (resources.empty()) {
@@ -286,9 +287,9 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
 
     int count = 0;
 
-    for (List<Ref<Texture> >::Element *E = resources.front(); E; E = E->next()) {
+    for (const Ref<Texture> &E : resources) {
 
-        undo_redo->add_do_method(frames, "add_frame", edited_anim, E->deref(), p_at_pos == -1 ? -1 : p_at_pos + count);
+        undo_redo->add_do_method(frames, "add_frame", edited_anim, E, p_at_pos == -1 ? -1 : p_at_pos + count);
         undo_redo->add_undo_method(frames, "remove_frame", edited_anim, p_at_pos == -1 ? fc : p_at_pos);
         count++;
     }
@@ -484,7 +485,7 @@ void SpriteFramesEditor::_animation_select() {
     _update_library(true);
 }
 
-static void _find_anim_sprites(Node *p_node, List<Node *> *r_nodes, const Ref<SpriteFrames>& p_sfames) {
+static void _find_anim_sprites(Node *p_node, PODVector<Node *> *r_nodes, const Ref<SpriteFrames>& p_sfames) {
 
     Node *edited = EditorNode::get_singleton()->get_edited_scene();
     if (!edited)
@@ -537,18 +538,18 @@ void SpriteFramesEditor::_animation_name_edited() {
         name = new_name + " " + itos(counter);
     }
 
-    List<Node *> nodes;
+    PODVector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
     undo_redo->create_action_ui(TTR("Rename Animation"));
     undo_redo->add_do_method(frames, "rename_animation", edited_anim, name);
     undo_redo->add_undo_method(frames, "rename_animation", name, edited_anim);
 
-    for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
+    for (Node * E : nodes) {
 
-        UIString current = E->deref()->call("get_animation");
-        undo_redo->add_do_method(E->deref(), "set_animation", name);
-        undo_redo->add_undo_method(E->deref(), "set_animation", edited_anim);
+        UIString current = E->call("get_animation");
+        undo_redo->add_do_method(E, "set_animation", name);
+        undo_redo->add_undo_method(E, "set_animation", edited_anim);
     }
 
     undo_redo->add_do_method(this, "_update_library");
@@ -567,7 +568,7 @@ void SpriteFramesEditor::_animation_add() {
         name += " " + itos(counter);
     }
 
-    List<Node *> nodes;
+    PODVector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
     undo_redo->create_action_ui(TTR("Add Animation"));
@@ -576,11 +577,11 @@ void SpriteFramesEditor::_animation_add() {
     undo_redo->add_do_method(this, "_update_library");
     undo_redo->add_undo_method(this, "_update_library");
 
-    for (List<Node *>::Element *E = nodes.front(); E; E = E->next()) {
+    for (Node *E : nodes) {
 
-        String current = E->deref()->call("get_animation");
-        undo_redo->add_do_method(E->deref(), "set_animation", name);
-        undo_redo->add_undo_method(E->deref(), "set_animation", current);
+        String current = E->call("get_animation");
+        undo_redo->add_do_method(E, "set_animation", name);
+        undo_redo->add_undo_method(E, "set_animation", current);
     }
 
     edited_anim = StringName(name);

@@ -307,10 +307,9 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
 
             float ofs = (i - pixel_begin) * preview_len / pixel_len;
             float ofs_n = (i + 1 - pixel_begin) * preview_len / pixel_len;
-            float max = preview->get_max(ofs, ofs_n) * 0.5 + 0.5;
-            float min = preview->get_min(ofs, ofs_n) * 0.5 + 0.5;
+            float max = preview->get_max(ofs, ofs_n) * 0.5f + 0.5f;
+            float min = preview->get_min(ofs, ofs_n) * 0.5f + 0.5f;
 
-            int idx = i - from_x;
             lines.emplace_back(i, rect.position.y + min * rect.size.y);
             lines.emplace_back(i, rect.position.y + max * rect.size.y);
         }

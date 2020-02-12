@@ -256,9 +256,9 @@ Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
     return err;
 }
 
-Error ConfigFile::parse(String &&p_data) {
+Error ConfigFile::parse(const String &p_data) {
 
-    eastl::unique_ptr<VariantParserStream,wrap_deleter> vps(VariantParser::get_string_stream(eastl::move(p_data)));
+    eastl::unique_ptr<VariantParserStream,wrap_deleter> vps(VariantParser::get_string_stream(eastl::move(String(p_data))));
     return _parse("<string>", vps.get());
 }
 

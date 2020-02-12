@@ -45,6 +45,8 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
 
+#include "EASTL/deque.h"
+
 IMPL_GDCLASS(AnimationNodeBlendTreeEditor)
 
 void AnimationNodeBlendTreeEditor::add_custom_type(se_string_view p_name, const Ref<Script> &p_script) {
@@ -626,23 +628,24 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
                 //path in skeleton
                 const StringName &bone = concat;
                 int idx = skeleton->find_bone(bone);
-                List<String> bone_path;
+                Dequeue<String> bone_path;
                 while (idx != -1) {
                     bone_path.push_front(skeleton->get_bone_name(idx));
                     idx = skeleton->get_bone_parent(idx);
                 }
 
                 accum += ":";
-                for (List<String>::Element *F = bone_path.front(); F; F = F->next()) {
-                    if (F != bone_path.front()) {
+
+                for (const String &F : bone_path) {
+                    if ((void *)F.data() != (void *)bone_path.front().data()) {
                         accum += "/";
                     }
 
-                    accum += F->deref();
+                    accum += F;
                     if (!parenthood.contains(accum)) {
                         ti = filters->create_item(ti);
                         parenthood[accum] = ti;
-                        ti->set_text_utf8(0, F->deref());
+                        ti->set_text_utf8(0, F);
                         ti->set_selectable(0, false);
                         ti->set_editable(0, false);
                         ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));

@@ -57,9 +57,7 @@ void ExtendGDScriptParser::update_diagnostics() {
         diagnostics.push_back(diagnostic);
     }
 #ifdef DEBUG_ENABLED
-    const List<GDScriptWarning> &warnings = get_warnings();
-    for (const List<GDScriptWarning>::Element *E = warnings.front(); E; E = E->next()) {
-        const GDScriptWarning &warning = E->deref();
+    for (const GDScriptWarning &warning : get_warnings()) {
         lsp::Diagnostic diagnostic;
         diagnostic.severity = lsp::DiagnosticSeverity::Warning;
         diagnostic.message = warning.get_message();
@@ -369,7 +367,7 @@ void ExtendGDScriptParser::parse_function_symbol(const GDScriptParser::FunctionN
 String ExtendGDScriptParser::parse_documentation(int p_line, bool p_docs_down) {
     ERR_FAIL_INDEX_V(p_line, lines.size(), String());
 
-    List<se_string_view> doc_lines;
+    Dequeue<se_string_view> doc_lines;
 
     if (!p_docs_down) { // inline comment
         se_string_view inline_comment = lines[p_line];
@@ -402,8 +400,8 @@ String ExtendGDScriptParser::parse_documentation(int p_line, bool p_docs_down) {
     }
 
     String doc;
-    for (List<se_string_view>::Element *E = doc_lines.front(); E; E = E->next()) {
-        doc.append(E->deref());
+    for (se_string_view E : doc_lines) {
+        doc.append(E);
         doc.push_back('\n');
     }
     return doc;

@@ -51,7 +51,7 @@ class NavigationMeshInstance : public Spatial {
 protected:
     void _notification(int p_what);
     static void _bind_methods();
-    void _changed_callback(Object *p_changed, const char *p_prop);
+    void _changed_callback(Object *p_changed, StringName p_prop) override;
 
 public:
     void set_enabled(bool p_enabled);

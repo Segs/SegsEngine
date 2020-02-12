@@ -55,7 +55,7 @@ class NavigationMesh : public Resource {
 
 protected:
     static void _bind_methods();
-    virtual void _validate_property(PropertyInfo &property) const;
+    void _validate_property(PropertyInfo &property) const override;
 public:
     void _set_polygons(const Array &p_array);
     Array _get_polygons() const;

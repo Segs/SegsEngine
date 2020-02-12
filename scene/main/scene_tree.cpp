@@ -896,30 +896,24 @@ bool SceneTree::idle(float p_time) {
 
     //go through timers
 
-    List<Ref<SceneTreeTimer> >::Element *L = timers.back(); //last element
+    auto L = &timers.back(); //last element
+    //break on last, so if new timers were added during list traversal, ignore them.
+    for (auto E = timers.begin(); E!=timers.end() && (&(*E) == L);) {
 
-    for (List<Ref<SceneTreeTimer> >::Element *E = timers.front(); E;) {
-
-        List<Ref<SceneTreeTimer> >::Element *N = E->next();
-        if (pause && !E->deref()->is_pause_mode_process()) {
-            if (E == L) {
-                break; //break on last, so if new timers were added during list traversal, ignore them.
-            }
-            E = N;
+        if (pause && !(*E)->is_pause_mode_process()) {
+            ++E;
             continue;
         }
-        float time_left = E->deref()->get_time_left();
+        float time_left = (*E)->get_time_left();
         time_left -= p_time;
-        E->deref()->set_time_left(time_left);
+        (*E)->set_time_left(time_left);
 
         if (time_left < 0) {
-            E->deref()->emit_signal("timeout");
-            timers.erase(E);
+            (*E)->emit_signal("timeout");
+            E=timers.erase(E);
         }
-        if (E == L) {
-            break; //break on last, so if new timers were added during list traversal, ignore them.
-        }
-        E = N;
+        else
+            ++E;
     }
 
     flush_transform_notifications(); //additional transforms after timers update
@@ -974,8 +968,8 @@ void SceneTree::finish() {
         root = nullptr;
     }
     // cleanup timers
-    for (List<Ref<SceneTreeTimer> >::Element *E = timers.front(); E; E = E->next()) {
-        E->deref()->release_connections();
+    for (const Ref<SceneTreeTimer> &E : timers) {
+        E->release_connections();
     }
     timers.clear();
 }
@@ -1448,14 +1442,13 @@ void SceneTree::_flush_delete_queue() {
 
     _THREAD_SAFE_METHOD_
 
-    while (!delete_queue.empty()) {
-
-        Object *obj = ObjectDB::get_instance(delete_queue.front()->deref());
+    for(ObjectID id : delete_queue) {
+        Object *obj = ObjectDB::get_instance(id);
         if (obj) {
             memdelete(obj);
         }
-        delete_queue.pop_front();
     }
+    delete_queue.clear();
 }
 
 void SceneTree::queue_delete(Object *p_object) {

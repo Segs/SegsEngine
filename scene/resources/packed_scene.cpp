@@ -72,7 +72,7 @@ bool SceneState::can_instance() const {
 Node *SceneState::instance(GenEditState p_edit_state) const {
 
     // nodes where instancing failed (because something is missing)
-    List<Node *> stray_instances;
+    PODVector<Node *> stray_instances;
 
 #define NODE_FROM_ID(p_name, p_id)                   \
     Node *p_name;                                    \
@@ -358,9 +358,8 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
     //Node *s = ret_nodes[0];
 
     //remove nodes that could not be added, likely as a result that
-    while (!stray_instances.empty()) {
-        memdelete(stray_instances.front()->deref());
-        stray_instances.pop_front();
+    for(Node * n : stray_instances) {
+        memdelete(n);
     }
 
     for (int i = 0; i < editable_instances.size(); i++) {

@@ -41,7 +41,7 @@ void ImmediateGeometry::begin(Mesh::PrimitiveType p_primitive, const Ref<Texture
 
     VisualServer::get_singleton()->immediate_begin(im, (VS::PrimitiveType)p_primitive, p_texture ? p_texture->get_rid() : RID());
     if (p_texture)
-        cached_textures.push_back(p_texture);
+        cached_textures.emplace_back(p_texture);
 }
 
 void ImmediateGeometry::set_normal(const Vector3 &p_normal) {
@@ -132,11 +132,11 @@ void ImmediateGeometry::add_sphere(int p_lats, int p_lons, float p_radius, bool 
 
 #define ADD_POINT(m_idx)                                                                                    \
     if (p_add_uv) {                                                                                         \
-        set_uv(Vector2(Math::atan2(v[m_idx].x, v[m_idx].z) / Math_PI * 0.5 + 0.5, v[m_idx].y * 0.5 + 0.5)); \
+        set_uv(Vector2(Math::atan2(v[m_idx].x, v[m_idx].z) / Math_PI * 0.5f + 0.5f, v[m_idx].y * 0.5f + 0.5f)); \
         set_tangent(Plane(Vector3(-v[m_idx].z, v[m_idx].y, v[m_idx].x), 1));                                \
     }                                                                                                       \
     set_normal(v[m_idx]);                                                                                   \
-    add_vertex(v[m_idx] * p_radius);
+    add_vertex(v[m_idx] * p_radius)
 
             ADD_POINT(0);
             ADD_POINT(1);

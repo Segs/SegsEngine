@@ -103,7 +103,7 @@ public:
 
     void cleanup() {
 
-        List<Map<String, Cache>::iterator> to_clean;
+        PODVector<Map<String, Cache>::iterator> to_clean;
 
         Map<String, Cache>::iterator I = cached.begin();
         for (;I!=cached.end(); ++I) {
@@ -112,9 +112,8 @@ public:
             }
         }
 
-        while (to_clean.front()) {
-            cached.erase(to_clean.front()->deref());
-            to_clean.pop_front();
+        for(Map<String, Cache>::iterator i : to_clean) {
+            cached.erase(i);
         }
     }
 
@@ -2069,8 +2068,9 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
     if (script != nullptr && script->get_language()->overrides_external_editor()) {
         if (should_open) {
             Error err = script->get_language()->open_in_external_editor(script, p_line >= 0 ? p_line : 0, p_col);
-            if (err != OK)
+            if (err != OK) {
                 ERR_PRINT("Couldn't open script in the overridden external text editor");
+            }
         }
         return false;
     }

@@ -868,7 +868,7 @@ void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_ite
     const Node2D *bone = object_cast<Node2D>(p_canvas_item);
     if (bone && bone->has_meta("_edit_bone_")) {
         // Check if we have an IK chain
-        List<const Node2D *> bone_ik_list;
+        PODVector<const Node2D *> bone_ik_list;
         bool ik_found = false;
         bone = object_cast<Node2D>(bone->get_parent());
         while (bone) {
@@ -886,9 +886,8 @@ void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_ite
         if (ik_found) {
             bone = object_cast<Node2D>(p_canvas_item);
             Transform2D bone_xform = bone->get_global_transform();
-            for (List<const Node2D *>::Element *bone_E = bone_ik_list.front(); bone_E; bone_E = bone_E->next()) {
+            for (const Node2D *parent_bone : bone_ik_list) {
                 bone_xform = bone_xform * bone->get_transform().affine_inverse();
-                const Node2D *parent_bone = bone_E->deref();
                 if (p_bones_length)
                     p_bones_length->push_back(parent_bone->get_global_transform().get_origin().distance_to(bone->get_global_position()));
                 if (p_bones_state)
@@ -3514,7 +3513,7 @@ void CanvasItemEditor::_draw_invisible_nodes_positions(Node *p_node, const Trans
 }
 
 void CanvasItemEditor::_draw_hover() {
-    List<Rect2> previous_rects;
+    PODVector<Rect2> previous_rects;
 
     for (int i = 0; i < hovering_results.size(); i++) {
 
@@ -3527,9 +3526,9 @@ void CanvasItemEditor::_draw_hover() {
 
         Point2 pos = transform.xform(hovering_results[i].position) - Point2(0, item_size.y) + (Point2(node_icon->get_size().x, -node_icon->get_size().y) / 4);
         // Rectify the position to avoid overlapping items
-        for (List<Rect2>::Element *E = previous_rects.front(); E; E = E->next()) {
-            if (E->deref().intersects(Rect2(pos, item_size))) {
-                pos.y = E->deref().get_position().y - item_size.y;
+        for (const Rect2 &E : previous_rects) {
+            if (E.intersects(Rect2(pos, item_size))) {
+                pos.y = E.get_position().y - item_size.y;
             }
         }
 
@@ -4020,7 +4019,7 @@ void CanvasItemEditor::_update_bone_list() {
         _build_bones_list(editor->get_edited_scene());
     }
 
-    List<Map<BoneKey, BoneList>::iterator> bone_to_erase;
+    PODVector<Map<BoneKey, BoneList>::iterator> bone_to_erase;
     for (auto E = bone_list.begin(); E!=bone_list.end(); ++E) {
         if (E->second.last_pass != bone_last_frame) {
             bone_to_erase.push_back(E);
@@ -4033,8 +4032,8 @@ void CanvasItemEditor::_update_bone_list() {
             continue;
         }
     }
-    while (!bone_to_erase.empty()) {
-        bone_list.erase(bone_to_erase.front()->deref());
+    for(Map<BoneKey, BoneList>::iterator i : bone_to_erase) {
+        bone_list.erase(i);
         bone_to_erase.pop_front();
     }
     bone_list_dirty = false;
@@ -4359,7 +4358,7 @@ void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, 
 
             if (n2d->has_meta("_edit_bone_") && n2d->get_parent_item()) {
                 //look for an IK chain
-                List<Node2D *> ik_chain;
+                FixedVector<Node2D *,32,true> ik_chain; // don't alloc heap for chains < 32
 
                 Node2D *n = object_cast<Node2D>(n2d->get_parent_item());
                 bool has_chain = false;
@@ -4379,14 +4378,14 @@ void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, 
 
                 if (has_chain && !ik_chain.empty()) {
 
-                    for (List<Node2D *>::Element *F = ik_chain.front(); F; F = F->next()) {
+                    for (Node2D *F : ik_chain) {
 
                         if (key_pos)
-                            ed->get_track_editor()->insert_node_value_key(F->deref(), ("position"), F->deref()->get_position(), p_on_existing);
+                            ed->get_track_editor()->insert_node_value_key(F, ("position"), F->get_position(), p_on_existing);
                         if (key_rot)
-                            ed->get_track_editor()->insert_node_value_key(F->deref(), ("rotation_degrees"), Math::rad2deg(F->deref()->get_rotation()), p_on_existing);
+                            ed->get_track_editor()->insert_node_value_key(F, ("rotation_degrees"), Math::rad2deg(F->get_rotation()), p_on_existing);
                         if (key_scale)
-                            ed->get_track_editor()->insert_node_value_key(F->deref(), ("scale"), F->deref()->get_scale(), p_on_existing);
+                            ed->get_track_editor()->insert_node_value_key(F, ("scale"), F->get_scale(), p_on_existing);
                     }
                 }
             }

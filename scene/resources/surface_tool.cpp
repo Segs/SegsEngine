@@ -394,7 +394,6 @@ SurfaceArrays SurfaceTool::commit_to_arrays() {
                 PODVector<float> array;
                 array.reserve(varr_len * 4);
 
-                int idx = -4;
                 for (const Vertex &v : vertex_array) {
                     ERR_CONTINUE(v.weights.size() != 4);
                     array.insert(array.end(),v.weights.begin(),v.weights.end());

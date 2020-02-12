@@ -606,8 +606,7 @@ Error GDScript::reload(bool p_keep_state) {
     }
 #ifdef DEBUG_ENABLED
     PODVector<ScriptLanguage::StackInfo> si;
-    for (const List<GDScriptWarning>::Element *E = parser.get_warnings().front(); E; E = E->next()) {
-        const GDScriptWarning &warning = E->deref();
+    for (const GDScriptWarning &warning : parser.get_warnings()) {
         if (ScriptDebugger::get_singleton()) {
             ScriptDebugger::get_singleton()->send_error({}, get_path(), warning.line, warning.get_name(), warning.get_message(), ERR_HANDLER_WARNING, si);
         }
@@ -1107,7 +1106,7 @@ void GDScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) 
     // exported members, not done yet!
 
     const GDScript *sptr = script.get();
-    List<PropertyInfo> props;
+    Dequeue<PropertyInfo> props;
 
     while (sptr) {
 
@@ -1138,7 +1137,7 @@ void GDScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) 
                     if (d.has("usage"))
                         pinfo.usage = d["usage"];
 
-                    props.push_back(pinfo);
+                    props.emplace_back(pinfo);
                 }
             }
         }
@@ -1160,15 +1159,15 @@ void GDScriptInstance::get_property_list(PODVector<PropertyInfo> *p_properties) 
 
         for (int i = 0; i < msort.size(); i++) {
 
-            props.push_front(sptr->member_info.at(msort[i].name));
+            props.emplace_front(sptr->member_info.at(msort[i].name));
         }
 
         sptr = sptr->_base;
     }
 
-    for (List<PropertyInfo>::Element *E = props.front(); E; E = E->next()) {
+    for (const PropertyInfo &E : props) {
 
-        p_properties->push_back(E->deref());
+        p_properties->push_back(E);
     }
 }
 
@@ -1611,7 +1610,7 @@ void GDScriptLanguage::reload_all_scripts() {
         lock->lock();
     }
 
-    List<Ref<GDScript> > scripts;
+    PODVector< Ref<GDScript> > scripts;
 
     SelfList<GDScript> *elem = script_list.first();
     while (elem) {
@@ -1627,14 +1626,13 @@ void GDScriptLanguage::reload_all_scripts() {
     }
 
     //as scripts are going to be reloaded, must proceed without locking here
+    eastl::sort(scripts.begin(),scripts.end(),GDScriptDepSort()); //update in inheritance dependency order
 
-    scripts.sort_custom<GDScriptDepSort>(); //update in inheritance dependency order
+    for (Ref<GDScript> &E : scripts) {
 
-    for (List<Ref<GDScript> >::Element *E = scripts.front(); E; E = E->next()) {
-
-        print_verbose("GDScript: Reloading: " + E->deref()->get_path());
-        E->deref()->load_source_code(E->deref()->get_path());
-        E->deref()->reload(true);
+        print_verbose("GDScript: Reloading: " + E->get_path());
+        E->load_source_code(E->get_path());
+        E->reload(true);
     }
 #endif
 }
@@ -1647,7 +1645,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
         lock->lock();
     }
 
-    List<Ref<GDScript> > scripts;
+    PODVector<Ref<GDScript> > scripts;
 
     SelfList<GDScript> *elem = script_list.first();
     while (elem) {
@@ -1668,24 +1666,25 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 
     //as scripts are going to be reloaded, must proceed without locking here
 
-    scripts.sort_custom<GDScriptDepSort>(); //update in inheritance dependency order
+    //update in inheritance dependency order
+    eastl::sort(eastl::make_move_iterator(scripts.begin()),eastl::make_move_iterator(scripts.end()),GDScriptDepSort());
 
-    for (List<Ref<GDScript> >::Element *E = scripts.front(); E; E = E->next()) {
+    for (const Ref<GDScript> &E : scripts) {
 
-        bool reload = Ref<Script>(E->deref()) == p_script || to_reload.contains(E->deref()->get_base());
+        bool reload = Ref<Script>(E) == p_script || to_reload.contains(E->get_base());
 
         if (!reload)
             continue;
 
-        to_reload.emplace(E->deref(), Map<ObjectID, PODVector<Pair<StringName, Variant> > >());
+        to_reload.emplace(E, Map<ObjectID, PODVector<Pair<StringName, Variant> > >());
 
         if (!p_soft_reload) {
 
             //save state and remove script from instances
-            Map<ObjectID, PODVector<Pair<StringName, Variant> > > &map = to_reload[E->deref()];
+            Map<ObjectID, PODVector<Pair<StringName, Variant> > > &map = to_reload[E];
 
-            while (E->deref()->instances.begin()!=E->deref()->instances.end()) {
-                Object *obj = *E->deref()->instances.begin();
+            while (E->instances.begin()!=E->instances.end()) {
+                Object *obj = *E->instances.begin();
                 //save instance info
                 PODVector<Pair<StringName, Variant> > state;
                 if (obj->get_script_instance()) {
@@ -1699,8 +1698,8 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 //same thing for placeholders
 #ifdef TOOLS_ENABLED
 
-            while (!E->deref()->placeholders.empty()) {
-                Object *obj = (*E->deref()->placeholders.begin())->get_owner();
+            while (!E->placeholders.empty()) {
+                Object *obj = (*E->placeholders.begin())->get_owner();
 
                 //save instance info
                 if (obj->get_script_instance()) {
@@ -1711,13 +1710,13 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
                     obj->set_script(RefPtr());
                 } else {
                     // no instance found. Let's remove it so we don't loop forever
-                    E->deref()->placeholders.erase(E->deref()->placeholders.begin());
+                    E->placeholders.erase(E->placeholders.begin());
                 }
             }
 
 #endif
 
-            for (auto &F : E->deref()->pending_reload_state) {
+            for (auto &F : E->pending_reload_state) {
                 map[F.first] = F.second; //pending to reload, use this one instead
             }
         }

@@ -35,6 +35,8 @@
 #include "core/method_bind.h"
 #include "scene/resources/font.h"
 
+#include "EASTL/sort.h"
+#include "EASTL/deque.h"
 #include <cassert>
 
 IMPL_GDCLASS(Theme)
@@ -177,52 +179,54 @@ bool Theme::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void Theme::_get_property_list(PODVector<PropertyInfo> *p_list) const {
+void Theme::_get_property_list(PODVector<PropertyInfo> *p_tgt) const {
 
-    List<PropertyInfo> list;
+    PODVector<PropertyInfo> store;
 
     for(const eastl::pair<const StringName, DefHashMap<StringName, Ref<Texture> >> &kv : icon_map) {
         for(const auto &kv2 : kv.second) {
-            list.push_back(PropertyInfo(VariantType::OBJECT, kv.first + "/icons/" + kv2.first,
-                    PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            store.emplace_back(VariantType::OBJECT, kv.first + "/icons/" + kv2.first,
+                    PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
         }
     }
 
+    TmpString<1024,false> tmp_str;
     for (const auto &e : style_map) {
-
+        tmp_str.assign(e.first.asCString());
+        tmp_str.append("/styles/");
         for (const auto &f : e.second) {
-
-            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/styles/" + f.first), PropertyHint::ResourceType, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            store.emplace_back(VariantType::OBJECT,  StringName(tmp_str + f.first.asCString()), PropertyHint::ResourceType, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
         }
     }
 
     for (const auto &e : font_map) {
-
+        tmp_str.assign(e.first.asCString());
+        tmp_str.append("/fonts/");
         for (const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::OBJECT,  StringName(String(e.first) + "/fonts/" + f.first), PropertyHint::ResourceType, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL));
+            store.emplace_back(VariantType::OBJECT,  StringName(tmp_str + f.first.asCString()), PropertyHint::ResourceType, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
         }
     }
 
     for(const auto &e : color_map) {
-
+        tmp_str.assign(e.first.asCString());
+        tmp_str.append("/colors/");
         for(const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::COLOR, StringName(String(e.first) + "/colors/" + f.first)));
+            store.emplace_back(VariantType::COLOR, StringName(tmp_str + f.first.asCString()));
         }
     }
 
     for(const auto &e : constant_map) {
+        tmp_str.assign(e.first.asCString());
+        tmp_str.append("/constants/");
         for(const auto &f : e.second) {
 
-            list.push_back(PropertyInfo(VariantType::INT, StringName(String(f.first) + "/constants/" + f.first)));
+            store.emplace_back(VariantType::INT, StringName(tmp_str + f.first.asCString()));
         }
     }
-
-    list.sort();
-    for (List<PropertyInfo>::Element *E = list.front(); E; E = E->next()) {
-        p_list->push_back(E->deref());
-    }
+    eastl::sort(store.begin(),store.end());
+    p_tgt->insert(p_tgt->end(),eastl::make_move_iterator(store.begin()),eastl::make_move_iterator(store.end()));
 }
 
 
@@ -599,8 +603,6 @@ void Theme::get_color_list(const StringName& p_type, PODVector<StringName> *p_li
 
     if (!color_map.contains(p_type))
         return;
-
-    const StringName *key = nullptr;
 
     for(const auto & c : color_map.at(p_type) ) {
 

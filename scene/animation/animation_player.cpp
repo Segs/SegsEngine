@@ -147,42 +147,33 @@ bool AnimationPlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
 void AnimationPlayer::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "current_animation") {
-        List<se_string_view> names;
+    if (se_string_view(property.name) != se_string_view("current_animation"))
+        return;
 
-        for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
-            names.push_back(E.first);
-        }
-        names.sort();
-        names.push_front("[stop]");
-        String hint;
-        for (List<se_string_view>::Element *E = names.front(); E; E = E->next()) {
+    PODVector<se_string_view> names;
+    names.push_back("[stop]");
 
-            if (E != names.front())
-                hint += ',';
-            hint += E->deref();
-        }
-
-        property.hint_string = hint;
+    for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
+        names.push_back(E.first);
     }
+    // begin()+1 so we don't sort the [stop] entry
+    eastl::sort(names.begin()+1,names.end());
+    String hint = String::joined(names,",");
+    property.hint_string = eastl::move(hint);
 }
 
 void AnimationPlayer::_get_property_list(PODVector<PropertyInfo> *p_list) const {
 
-    List<PropertyInfo> anim_names;
-
+    PODVector<PropertyInfo> anim_names;
+    anim_names.reserve(animation_set.size());
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
 
-        anim_names.push_back(PropertyInfo(VariantType::OBJECT, StringName("anims/" + String(E.first)), PropertyHint::ResourceType, "Animation", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+        anim_names.emplace_back(VariantType::OBJECT, StringName("anims/" + String(E.first)), PropertyHint::ResourceType, "Animation", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE);
         if (E.second.next != StringName())
-            anim_names.push_back(PropertyInfo(VariantType::STRING, StringName("next/" + String(E.first)), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+            anim_names.emplace_back(VariantType::STRING, StringName("next/" + String(E.first)), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL);
     }
-
-    anim_names.sort();
-
-    for (List<PropertyInfo>::Element *E = anim_names.front(); E; E = E->next()) {
-        p_list->push_back(E->deref());
-    }
+    eastl::sort(anim_names.begin(),anim_names.end());
+    p_list->insert(p_list->end(),anim_names.begin(),anim_names.end());
 
     p_list->push_back(PropertyInfo(VariantType::ARRAY, "blend_times", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 }
@@ -1448,8 +1439,9 @@ StringName AnimationPlayer::find_animation(const Ref<Animation> &p_animation) co
 }
 
 void AnimationPlayer::set_autoplay(se_string_view p_name) {
-    if (is_inside_tree() && !Engine::get_singleton()->is_editor_hint())
+    if (is_inside_tree() && !Engine::get_singleton()->is_editor_hint()) {
         WARN_PRINT("Setting autoplay after the node has been added to the scene has no effect.");
+    }
 
     autoplay = StringName(p_name);
 }

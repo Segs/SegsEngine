@@ -1286,7 +1286,6 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     set_focus_mode(FOCUS_ALL);
 
     PopupMenu *p;
-    List<PropertyInfo> defaults;
 
     add_menu = memnew(MenuButton);
     //add_menu->set_

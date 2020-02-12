@@ -144,15 +144,17 @@ RES ResourceLoaderCoHTexture::load(se_string_view p_path, se_string_view p_origi
     ERR_FAIL_COND_V_MSG(err != OK, RES(), "Unable to open DDS texture file '" + p_path + "'.");
     TexFileHdr hdr;
     f->get_buffer((uint8_t *)&hdr, sizeof(TexFileHdr));
-    if (0 != memcmp(hdr.magic, "TX2", 3))
+    if (0 != memcmp(hdr.magic, "TX2", 3)) {
         ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.");
+    }
 
     int name_bytes = hdr.header_size - sizeof(TexFileHdr);
     String data;
     data.resize(name_bytes);
 
-    if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes))
+    if (name_bytes != f->get_buffer((uint8_t *)data.data(), name_bytes)) {
         ERR_FAIL_V_MSG(RES(), "Invalid or unsupported texture file '" + p_path + "'.");
+    }
 
     if(PathUtils::get_extension(data)!=se_string_view("dds"))
     {

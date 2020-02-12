@@ -38,6 +38,7 @@ template<class T>
 using ListPOD = eastl::list<T,wrap_allocator>;
 
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<class StringName,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::list<se_string_view,wrap_allocator>;
 
 /**
  * Generic Templatized Linked List Implementation.
@@ -247,97 +248,11 @@ public:
             erase(_data->last);
     }
 
-    /**
-     * store a new element at the beginning of the list
-     */
-    Element *push_front(const T &value) {
-
-        if (!_data) {
-
-            _data = memnew_allocator(_Data, A);
-            _data->first = nullptr;
-            _data->last = nullptr;
-            _data->size_cache = 0;
-        }
-
-        Element *n = memnew_allocator(Element, A);
-        n->value = (T &)value;
-        n->prev_ptr = nullptr;
-        n->next_ptr = _data->first;
-        n->data = _data;
-
-        if (_data->first) {
-
-            _data->first->prev_ptr = n;
-        }
-
-        _data->first = n;
-
-        if (!_data->last)
-            _data->last = n;
-
-        _data->size_cache++;
-
-        return n;
-    }
-
     void pop_front() {
 
         if (_data && _data->first)
             erase(_data->first);
     }
-
-    Element *insert_after(Element *p_element, const T &p_value) {
-        CRASH_COND(p_element && (!_data || p_element->data != _data));
-
-        if (!p_element) {
-            return push_back(p_value);
-        }
-
-        Element *n = memnew_allocator(Element, A);
-        n->value = (T &)p_value;
-        n->prev_ptr = p_element;
-        n->next_ptr = p_element->next_ptr;
-        n->data = _data;
-
-        if (!p_element->next_ptr) {
-            _data->last = n;
-        } else {
-            p_element->next_ptr->prev_ptr = n;
-        }
-
-        p_element->next_ptr = n;
-
-        _data->size_cache++;
-
-        return n;
-    }
-
-//    Element *insert_before(Element *p_element, const T &p_value) {
-//        CRASH_COND(p_element && (!_data || p_element->data != _data));
-
-//        if (!p_element) {
-//            return push_back(p_value);
-//        }
-
-//        Element *n = memnew_allocator(Element, A);
-//        n->value = (T &)p_value;
-//        n->prev_ptr = p_element->prev_ptr;
-//        n->next_ptr = p_element;
-//        n->data = _data;
-
-//        if (!p_element->prev_ptr) {
-//            _data->first = n;
-//        } else {
-//            p_element->prev_ptr->next_ptr = n;
-//        }
-
-//        p_element->prev_ptr = n;
-
-//        _data->size_cache++;
-
-//        return n;
-//    }
 
     /**
      * find an element in the list,
@@ -405,31 +320,6 @@ public:
         return _data ? _data->size_cache : 0;
     }
 
-//    void swap(Element *p_A, Element *p_B) {
-
-//        ERR_FAIL_COND(!p_A || !p_B);
-//        ERR_FAIL_COND(p_A->data != _data);
-//        ERR_FAIL_COND(p_B->data != _data);
-
-//        Element *A_prev = p_A->prev_ptr;
-//        Element *A_next = p_A->next_ptr;
-
-//        p_A->next_ptr = p_B->next_ptr;
-//        p_A->prev_ptr = p_B->prev_ptr;
-
-//        p_B->next_ptr = A_next;
-//        p_B->prev_ptr = A_prev;
-
-//        if (p_A->prev_ptr)
-//            p_A->prev_ptr->next_ptr = p_A;
-//        if (p_A->next_ptr)
-//            p_A->next_ptr->prev_ptr = p_A;
-
-//        if (p_B->prev_ptr)
-//            p_B->prev_ptr->next_ptr = p_B;
-//        if (p_B->next_ptr)
-//            p_B->next_ptr->prev_ptr = p_B;
-//    }
     /**
      * copy the list
      */
@@ -453,139 +343,6 @@ public:
         _data = p_list._data;
         p_list._data = nullptr;
         return *this;
-    }
-
-//    T &operator[](int p_index) {
-
-//        CRASH_BAD_INDEX(p_index, size());
-
-//        Element *I = front();
-//        int c = 0;
-//        while (I) {
-
-//            if (c == p_index) {
-
-//                return I->deref();
-//            }
-//            I = I->next();
-//            c++;
-//        }
-
-//        CRASH_NOW(); // bug!!
-//    }
-
-//    const T &operator[](int p_index) const {
-
-//        CRASH_BAD_INDEX(p_index, size());
-
-//        const Element *I = front();
-//        int c = 0;
-//        while (I) {
-
-//            if (c == p_index) {
-
-//                return I->deref();
-//            }
-//            I = I->next();
-//            c++;
-//        }
-
-//        CRASH_NOW(); // bug!!
-//    }
-
-    void invert() {
-
-        int s = size() / 2;
-        Element *F = front();
-        Element *B = back();
-        for (int i = 0; i < s; i++) {
-
-            SWAP(F->value, B->value);
-            F = F->next();
-            B = B->prev();
-        }
-    }
-
-    void move_to_front(Element *p_I) {
-
-        ERR_FAIL_COND(p_I->data != _data);
-        if (!p_I->prev_ptr)
-            return;
-
-        if (_data->first == p_I) {
-            _data->first = p_I->next_ptr;
-        }
-
-        if (_data->last == p_I)
-            _data->last = p_I->prev_ptr;
-
-        p_I->prev_ptr->next_ptr = p_I->next_ptr;
-
-        if (p_I->next_ptr)
-            p_I->next_ptr->prev_ptr = p_I->prev_ptr;
-
-        _data->first->prev_ptr = p_I;
-        p_I->next_ptr = _data->first;
-        p_I->prev_ptr = nullptr;
-        _data->first = p_I;
-    }
-
-    /**
-     * simple insertion sort
-     */
-
-    void sort() {
-
-        sort_custom<Comparator<T> >();
-    }
-
-    template <class C>
-    void sort_custom_inplace() {
-
-        if (size() < 2)
-            return;
-
-        Element *from = front();
-        Element *current = from;
-        Element *to = from;
-
-        while (current) {
-
-            Element *next = current->next_ptr;
-
-            if (from != current) {
-
-                current->prev_ptr = nullptr;
-                current->next_ptr = from;
-
-                Element *find = from;
-                C less;
-                while (find && less(find->value, current->value)) {
-
-                    current->prev_ptr = find;
-                    current->next_ptr = find->next_ptr;
-                    find = find->next_ptr;
-                }
-
-                if (current->prev_ptr)
-                    current->prev_ptr->next_ptr = current;
-                else
-                    from = current;
-
-                if (current->next_ptr)
-                    current->next_ptr->prev_ptr = current;
-                else
-                    to = current;
-            } else {
-
-                current->prev_ptr = nullptr;
-                current->next_ptr = nullptr;
-            }
-
-            current = next;
-        }
-        _data->first = from;
-        _data->last = to;
     }
 
     template <class C>
