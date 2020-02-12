@@ -91,7 +91,7 @@ class GridMap : public Spatial {
     struct Octant {
 
         struct NavMesh {
-            int id;
+            RID region;
             Transform xform;
         };
 
@@ -145,13 +145,12 @@ class GridMap : public Spatial {
     bool _in_tree;
     Vector3 cell_size;
     int octant_size;
-    bool center_x, center_y, center_z;
     float cell_scale;
-    Navigation *navigation;
-
+    bool center_x, center_y, center_z;
     bool clip;
     bool clip_above;
     int clip_floor;
+    Navigation *navigation;
 
     bool recreating_octants;
 
@@ -255,7 +254,7 @@ public:
     float get_cell_scale() const;
 
     Array get_used_cells() const;
-
+    PODVector<PositionedMeshInfo> get_positioned_meshes() const;
     Array get_meshes();
 
     void clear_baked_meshes();

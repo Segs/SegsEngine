@@ -860,7 +860,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             }
             r_ret = *p_args[0];
 
-            VariantParser::Stream *ss = VariantParser::get_string_stream(*p_args[0]);
+            VariantParserStream *ss = VariantParser::get_string_stream(*p_args[0]);
             String errs;
             int line;
             (void)VariantParser::parse(ss, r_ret, errs, line);

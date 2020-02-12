@@ -48,7 +48,7 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     FileAccess *f;
 
-    VariantParser::Stream *stream=nullptr;
+    VariantParserStream *stream=nullptr;
 
     struct ExtResource {
         String path;
@@ -76,18 +76,18 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
     //void _printerr();
 
     static Error _parse_sub_resources(
-            void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
+            void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
         return reinterpret_cast<ResourceInteractiveLoaderText *>(p_self)->_parse_sub_resource(
                 p_stream, r_res, line, r_err_str);
     }
     static Error _parse_ext_resources(
-            void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
+            void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) {
         return reinterpret_cast<ResourceInteractiveLoaderText *>(p_self)->_parse_ext_resource(
                 p_stream, r_res, line, r_err_str);
     }
 
-    Error _parse_sub_resource(VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
-    Error _parse_ext_resource(VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
+    Error _parse_sub_resource(VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
+    Error _parse_ext_resource(VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
 
     // for converter
     class DummyResource : public Resource {
@@ -102,11 +102,11 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
         Map<int, RES> resource_map;
     };
 
-    static Error _parse_sub_resource_dummys(void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) { return _parse_sub_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
-    static Error _parse_ext_resource_dummys(void *p_self, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) { return _parse_ext_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
+    static Error _parse_sub_resource_dummys(void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) { return _parse_sub_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
+    static Error _parse_ext_resource_dummys(void *p_self, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str) { return _parse_ext_resource_dummy((DummyReadData *)(p_self), p_stream, r_res, line, r_err_str); }
 
-    static Error _parse_sub_resource_dummy(DummyReadData *p_data, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
-    static Error _parse_ext_resource_dummy(DummyReadData *p_data, VariantParser::Stream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
+    static Error _parse_sub_resource_dummy(DummyReadData *p_data, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
+    static Error _parse_ext_resource_dummy(DummyReadData *p_data, VariantParserStream *p_stream, Ref<Resource> &r_res, int &line, String &r_err_str);
 
     VariantParser::ResourceParser rp;
 

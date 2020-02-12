@@ -34,7 +34,7 @@
 #include "core/map.h"
 #include "core/se_string.h"
 #include "mesh.h"
-#include "scene/3d/navigation_mesh.h"
+#include "scene/3d/navigation_mesh_instance.h"
 #include "shape.h"
 
 class Texture;

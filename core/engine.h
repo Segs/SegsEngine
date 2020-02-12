@@ -70,6 +70,7 @@ private:
     bool _pixel_snap=false;
     bool _in_physics=false;
     bool editor_hint=false;
+    bool abort_on_gpu_errors=false;
 
     static Engine *singleton;
 
@@ -107,7 +108,7 @@ public:
     bool has_singleton(const StringName &p_name) const;
     Object *get_singleton_object(const StringName &p_name) const;
 
-    _FORCE_INLINE_ bool get_use_pixel_snap() const { return _pixel_snap; }
+    bool get_use_pixel_snap() const { return _pixel_snap; }
 
 #ifdef TOOLS_ENABLED
     void set_editor_hint(bool p_enabled) { editor_hint = p_enabled; }
@@ -123,6 +124,8 @@ public:
     Dictionary get_donor_info() const;
     Dictionary get_license_info() const;
     String get_license_text() const;
+
+    bool is_abort_on_gpu_errors_enabled() const { return abort_on_gpu_errors; }
 
     Engine();
     virtual ~Engine() = default;

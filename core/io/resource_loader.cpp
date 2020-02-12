@@ -436,6 +436,7 @@ RES ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, bool
         if (!p_no_cache) {
             _remove_from_loading_map(local_path);
         }
+        print_verbose("Failed loading resource: " + path);
         return RES();
     }
     if (!p_no_cache)
@@ -868,7 +869,7 @@ String ResourceLoader::_path_remap(se_string_view p_path, bool *r_translation_re
 
         if (f) {
 
-            VariantParser::Stream *stream=VariantParser::get_file_stream(f);
+            VariantParserStream *stream=VariantParser::get_file_stream(f);
 
             String assign;
             Variant value;

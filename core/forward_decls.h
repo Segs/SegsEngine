@@ -48,9 +48,6 @@ using Dequeue = eastl::deque<T,wrap_allocator,((sizeof(T) <= 4) ? 64 : ((sizeof(
 
 using BitVector = eastl::bitvector<wrap_allocator,size_t,PODVector<size_t>>;
 
-template <class T>
-class Vector;
-
 template <class T, class A>
 class List;
 

@@ -54,15 +54,15 @@ template <typename T>
 using Span = eastl::span<T,eastl::dynamic_extent>;
 class Variant;
 
-template <class T>
-class VectorWriteProxy {
-public:
-    _FORCE_INLINE_ T &operator[](int p_index) {
-        CRASH_BAD_INDEX(p_index, ((Vector<T> *)(this))->_cowdata.size());
+//template <class T>
+//class VectorWriteProxy {
+//public:
+//    _FORCE_INLINE_ T &operator[](int p_index) {
+//        CRASH_BAD_INDEX(p_index, ((Vector<T> *)(this))->_cowdata.size());
 
-        return ((Vector<T> *)(this))->_cowdata.ptrw()[p_index];
-    }
-};
+//        return ((Vector<T> *)(this))->_cowdata.ptrw()[p_index];
+//    }
+//};
 
 //template <class T>
 //class Vector {

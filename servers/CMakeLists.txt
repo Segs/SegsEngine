@@ -175,6 +175,12 @@ visual_server.cpp
 visual_server.h
 visual_server_enum_casters.h
 visual_server_enums.h
+
+
+navigation_2d_server.cpp
+navigation_2d_server.h
+navigation_server.cpp
+navigation_server.h
 )
 foreach(tgt ${global_targets})
     target_sources(${tgt}_engine PRIVATE

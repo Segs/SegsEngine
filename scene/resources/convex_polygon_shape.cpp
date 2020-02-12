@@ -69,6 +69,15 @@ void ConvexPolygonShape::set_points(PODVector<Vector3> &&p_points) {
     notify_change_to_owners();
 }
 
+real_t ConvexPolygonShape::get_enclosing_radius() const {
+    const auto &data = get_points();
+    real_t r = 0;
+    for (int i(0); i < data.size(); i++) {
+        r = MAX(data[i].length_squared(), r);
+    }
+    return Math::sqrt(r);
+}
+
 
 void ConvexPolygonShape::_bind_methods() {
 

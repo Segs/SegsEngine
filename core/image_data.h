@@ -13,7 +13,7 @@ struct ImageData
         FORMAT_RGB8,
         FORMAT_RGBA8,
         FORMAT_RGBA4444,
-        FORMAT_RGBA5551,
+        FORMAT_RGB565,
         FORMAT_RF, //float
         FORMAT_RGF,
         FORMAT_RGBF,
@@ -43,11 +43,14 @@ struct ImageData
         FORMAT_ETC2_RGB8,
         FORMAT_ETC2_RGBA8,
         FORMAT_ETC2_RGB8A1,
+        FORMAT_ETC2_RA_AS_RG, //used to make basis universal happy
+        FORMAT_DXT5_RA_AS_RG, //used to make basis universal happy
         FORMAT_MAX
     };
     enum {
         MAX_WIDTH = 16384, // force a limit somehow
-        MAX_HEIGHT = 16384 // force a limit somehow
+        MAX_HEIGHT = 16384, // force a limit somehow
+        MAX_PIXELS = 268435456
     };
 
     PoolVector<uint8_t> data;

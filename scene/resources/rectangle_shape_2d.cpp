@@ -63,6 +63,7 @@ Rect2 RectangleShape2D::get_rect() const {
     return Rect2(-extents, extents * 2.0);
 }
 
+
 void RectangleShape2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_extents", {"extents"}), &RectangleShape2D::set_extents);

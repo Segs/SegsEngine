@@ -46,204 +46,205 @@
 
 #include "../mono_gd/gd_mono_cache.h"
 #include "../mono_gd/gd_mono_utils.h"
+#include "EASTL/unique_ptr.h"
 
 MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_objects) {
-	Variant ret;
-	PoolByteArray varr = GDMonoMarshal::mono_array_to_PoolByteArray(p_bytes);
-	PoolByteArray::Read r = varr.read();
+    Variant ret;
+    PoolByteArray varr = GDMonoMarshal::mono_array_to_PoolByteArray(p_bytes);
+    PoolByteArray::Read r = varr.read();
     Error err = decode_variant(ret, r.ptr(), varr.size(), nullptr, p_allow_objects);
-	if (err != OK) {
-		ret = RTR("Not enough bytes for decoding bytes, or invalid format.");
-	}
-	return GDMonoMarshal::variant_to_mono_object(ret);
+    if (err != OK) {
+        ret = RTR("Not enough bytes for decoding bytes, or invalid format.");
+    }
+    return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
 MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
-	Variant what = GDMonoMarshal::mono_object_to_variant(p_what);
-	const Variant *args[1] = { &what };
-	Variant::CallError ce;
+    Variant what = GDMonoMarshal::mono_object_to_variant(p_what);
+    const Variant *args[1] = { &what };
+    Variant::CallError ce;
     Variant ret = Variant::construct(VariantType(p_type), args, 1, ce);
     ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL);
-	return GDMonoMarshal::variant_to_mono_object(ret);
+    return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
 int godot_icall_GD_hash(MonoObject *p_var) {
-	return GDMonoMarshal::mono_object_to_variant(p_var).hash();
+    return GDMonoMarshal::mono_object_to_variant(p_var).hash();
 }
 
 MonoObject *godot_icall_GD_instance_from_id(uint64_t p_instance_id) {
-	return GDMonoUtils::unmanaged_get_managed(ObjectDB::get_instance(p_instance_id));
+    return GDMonoUtils::unmanaged_get_managed(ObjectDB::get_instance(p_instance_id));
 }
 
 void godot_icall_GD_print(MonoArray *p_what) {
-	String str;
-	int length = mono_array_length(p_what);
+    String str;
+    int length = mono_array_length(p_what);
 
-	for (int i = 0; i < length; i++) {
-		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
+    for (int i = 0; i < length; i++) {
+        MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
         MonoException *exc = nullptr;
-		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
+        String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
-		if (exc) {
-			GDMonoUtils::set_pending_exception(exc);
-			return;
-		}
+        if (exc) {
+            GDMonoUtils::set_pending_exception(exc);
+            return;
+        }
 
-		str += elem_str;
-	}
+        str += elem_str;
+    }
 
-	print_line(str);
+    print_line(str);
 }
 
 void godot_icall_GD_printerr(MonoArray *p_what) {
 
-	String str;
-	int length = mono_array_length(p_what);
+    String str;
+    int length = mono_array_length(p_what);
 
-	for (int i = 0; i < length; i++) {
-		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
+    for (int i = 0; i < length; i++) {
+        MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
         MonoException *exc = nullptr;
-		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
+        String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
-		if (exc) {
-			GDMonoUtils::set_pending_exception(exc);
-			return;
-		}
+        if (exc) {
+            GDMonoUtils::set_pending_exception(exc);
+            return;
+        }
 
-		str += elem_str;
-	}
+        str += elem_str;
+    }
 
-	print_error(str);
+    print_error(str);
 }
 
 void godot_icall_GD_printraw(MonoArray *p_what) {
-	String str;
-	int length = mono_array_length(p_what);
+    String str;
+    int length = mono_array_length(p_what);
 
-	for (int i = 0; i < length; i++) {
-		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
+    for (int i = 0; i < length; i++) {
+        MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
-		MonoException *exc = NULL;
-		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
+        MonoException *exc = NULL;
+        String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
-		if (exc) {
-			GDMonoUtils::set_pending_exception(exc);
-			return;
-		}
+        if (exc) {
+            GDMonoUtils::set_pending_exception(exc);
+            return;
+        }
 
-		str += elem_str;
-	}
+        str += elem_str;
+    }
 
     OS::get_singleton()->print(str);
 }
 
 void godot_icall_GD_prints(MonoArray *p_what) {
-	String str;
-	int length = mono_array_length(p_what);
+    String str;
+    int length = mono_array_length(p_what);
 
-	for (int i = 0; i < length; i++) {
-		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
+    for (int i = 0; i < length; i++) {
+        MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
         MonoException *exc = nullptr;
-		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
+        String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
-		if (exc) {
-			GDMonoUtils::set_pending_exception(exc);
-			return;
-		}
+        if (exc) {
+            GDMonoUtils::set_pending_exception(exc);
+            return;
+        }
 
-		if (i)
-			str += " ";
+        if (i)
+            str += " ";
 
-		str += elem_str;
-	}
+        str += elem_str;
+    }
 
-	print_line(str);
+    print_line(str);
 }
 
 void godot_icall_GD_printt(MonoArray *p_what) {
-	String str;
-	int length = mono_array_length(p_what);
+    String str;
+    int length = mono_array_length(p_what);
 
-	for (int i = 0; i < length; i++) {
-		MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
+    for (int i = 0; i < length; i++) {
+        MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
         MonoException *exc = nullptr;
-		String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
+        String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
-		if (exc) {
-			GDMonoUtils::set_pending_exception(exc);
-			return;
-		}
+        if (exc) {
+            GDMonoUtils::set_pending_exception(exc);
+            return;
+        }
 
-		if (i)
-			str += "\t";
+        if (i)
+            str += "\t";
 
-		str += elem_str;
-	}
+        str += elem_str;
+    }
 
-	print_line(str);
+    print_line(str);
 }
 
 float godot_icall_GD_randf() {
-	return Math::randf();
+    return Math::randf();
 }
 
 uint32_t godot_icall_GD_randi() {
-	return Math::rand();
+    return Math::rand();
 }
 
 void godot_icall_GD_randomize() {
-	Math::randomize();
+    Math::randomize();
 }
 
 double godot_icall_GD_rand_range(double from, double to) {
-	return Math::random(from, to);
+    return Math::random(from, to);
 }
 
 uint32_t godot_icall_GD_rand_seed(uint64_t seed, uint64_t *newSeed) {
-	int ret = Math::rand_from_seed(&seed);
-	*newSeed = seed;
-	return ret;
+    int ret = Math::rand_from_seed(&seed);
+    *newSeed = seed;
+    return ret;
 }
 
 void godot_icall_GD_seed(uint64_t p_seed) {
-	Math::seed(p_seed);
+    Math::seed(p_seed);
 }
 
 MonoString *godot_icall_GD_str(MonoArray *p_what) {
-	String str;
-	Array what = GDMonoMarshal::mono_array_to_Array(p_what);
+    String str;
+    Array what = GDMonoMarshal::mono_array_to_Array(p_what);
 
-	for (int i = 0; i < what.size(); i++) {
-		String os = what[i].operator String();
+    for (int i = 0; i < what.size(); i++) {
+        String os = what[i].operator String();
 
-		if (i == 0)
-			str = os;
-		else
-			str += os;
-	}
+        if (i == 0)
+            str = os;
+        else
+            str += os;
+    }
 
-	return GDMonoMarshal::mono_string_from_godot(str);
+    return GDMonoMarshal::mono_string_from_godot(str);
 }
 
 MonoObject *godot_icall_GD_str2var(MonoString *p_str) {
-	Variant ret;
+    Variant ret;
 
-    VariantParser::StreamString ss(GDMonoMarshal::mono_string_to_godot(p_str));
+    auto ss= eastl::unique_ptr<VariantParserStream,wrap_deleter>(VariantParser::get_string_stream(eastl::move(GDMonoMarshal::mono_string_to_godot(p_str))));
 
-	String errs;
-	int line;
-	Error err = VariantParser::parse(&ss, ret, errs, line);
-	if (err != OK) {
-		String err_str = "Parse error at line " + itos(line) + ": " + errs + ".";
+    String errs;
+    int line;
+    Error err = VariantParser::parse(ss.get(), ret, errs, line);
+    if (err != OK) {
+        String err_str = "Parse error at line " + itos(line) + ": " + errs + ".";
         ERR_PRINT(err_str);
-		ret = err_str;
-	}
+        ret = err_str;
+    }
 
-	return GDMonoMarshal::variant_to_mono_object(ret);
+    return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
 MonoBoolean godot_icall_GD_type_exists(MonoString *p_type) {
@@ -259,58 +260,58 @@ void godot_icall_GD_pushwarning(MonoString *p_str) {
 }
 
 MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_objects) {
-	Variant var = GDMonoMarshal::mono_object_to_variant(p_var);
+    Variant var = GDMonoMarshal::mono_object_to_variant(p_var);
 
-	PoolByteArray barr;
-	int len;
-	Error err = encode_variant(var, NULL, len, p_full_objects);
-	ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).");
+    PoolByteArray barr;
+    int len;
+    Error err = encode_variant(var, NULL, len, p_full_objects);
+    ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).");
 
-	barr.resize(len);
-	{
-		PoolByteArray::Write w = barr.write();
-		encode_variant(var, w.ptr(), len, p_full_objects);
-	}
+    barr.resize(len);
+    {
+        PoolByteArray::Write w = barr.write();
+        encode_variant(var, w.ptr(), len, p_full_objects);
+    }
 
-	return GDMonoMarshal::PoolByteArray_to_mono_array(barr);
+    return GDMonoMarshal::PoolByteArray_to_mono_array(barr);
 }
 
 MonoString *godot_icall_GD_var2str(MonoObject *p_var) {
-	String vars;
-	VariantWriter::write_to_string(GDMonoMarshal::mono_object_to_variant(p_var), vars);
-	return GDMonoMarshal::mono_string_from_godot(vars);
+    String vars;
+    VariantWriter::write_to_string(GDMonoMarshal::mono_object_to_variant(p_var), vars);
+    return GDMonoMarshal::mono_string_from_godot(vars);
 }
 
 MonoObject *godot_icall_DefaultGodotTaskScheduler() {
-	return GDMonoCache::cached_data.task_scheduler_handle->get_target();
+    return GDMonoCache::cached_data.task_scheduler_handle->get_target();
 }
 
 void godot_register_gd_icalls() {
-	mono_add_internal_call("Godot.GD::godot_icall_GD_bytes2var", (void *)godot_icall_GD_bytes2var);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_convert", (void *)godot_icall_GD_convert);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_hash", (void *)godot_icall_GD_hash);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_instance_from_id", (void *)godot_icall_GD_instance_from_id);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_pusherror", (void *)godot_icall_GD_pusherror);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_pushwarning", (void *)godot_icall_GD_pushwarning);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_print", (void *)godot_icall_GD_print);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_printerr", (void *)godot_icall_GD_printerr);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_printraw", (void *)godot_icall_GD_printraw);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_prints", (void *)godot_icall_GD_prints);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_printt", (void *)godot_icall_GD_printt);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_randf", (void *)godot_icall_GD_randf);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_randi", (void *)godot_icall_GD_randi);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_randomize", (void *)godot_icall_GD_randomize);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_rand_range", (void *)godot_icall_GD_rand_range);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_rand_seed", (void *)godot_icall_GD_rand_seed);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_seed", (void *)godot_icall_GD_seed);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_str", (void *)godot_icall_GD_str);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_str2var", (void *)godot_icall_GD_str2var);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_type_exists", (void *)godot_icall_GD_type_exists);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_var2bytes", (void *)godot_icall_GD_var2bytes);
-	mono_add_internal_call("Godot.GD::godot_icall_GD_var2str", (void *)godot_icall_GD_var2str);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_bytes2var", (void *)godot_icall_GD_bytes2var);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_convert", (void *)godot_icall_GD_convert);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_hash", (void *)godot_icall_GD_hash);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_instance_from_id", (void *)godot_icall_GD_instance_from_id);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_pusherror", (void *)godot_icall_GD_pusherror);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_pushwarning", (void *)godot_icall_GD_pushwarning);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_print", (void *)godot_icall_GD_print);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_printerr", (void *)godot_icall_GD_printerr);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_printraw", (void *)godot_icall_GD_printraw);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_prints", (void *)godot_icall_GD_prints);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_printt", (void *)godot_icall_GD_printt);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_randf", (void *)godot_icall_GD_randf);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_randi", (void *)godot_icall_GD_randi);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_randomize", (void *)godot_icall_GD_randomize);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_rand_range", (void *)godot_icall_GD_rand_range);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_rand_seed", (void *)godot_icall_GD_rand_seed);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_seed", (void *)godot_icall_GD_seed);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_str", (void *)godot_icall_GD_str);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_str2var", (void *)godot_icall_GD_str2var);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_type_exists", (void *)godot_icall_GD_type_exists);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_var2bytes", (void *)godot_icall_GD_var2bytes);
+    mono_add_internal_call("Godot.GD::godot_icall_GD_var2str", (void *)godot_icall_GD_var2str);
 
-	// Dispatcher
-	mono_add_internal_call("Godot.Dispatcher::godot_icall_DefaultGodotTaskScheduler", (void *)godot_icall_DefaultGodotTaskScheduler);
+    // Dispatcher
+    mono_add_internal_call("Godot.Dispatcher::godot_icall_DefaultGodotTaskScheduler", (void *)godot_icall_DefaultGodotTaskScheduler);
 }
 
 #endif // MONO_GLUE_ENABLED

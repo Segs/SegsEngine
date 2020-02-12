@@ -37,6 +37,14 @@
 #include "core/list.h"
 
 class World;
+/**
+ * @brief The CSGRootInfo struct is a helper for passing data to navigation
+ * @todo Find a better places for this struct definition ?
+ */
+struct PositionedMeshInfo {
+    Ref<class Mesh> root_mesh;
+    Transform transform;
+};
 
 class GODOT_EXPORT SpatialGizmo : public RefCounted {
 

@@ -258,6 +258,18 @@ Basis Basis::scaled_local(const Vector3 &p_scale) const {
     return (*this) * b;
 }
 
+float Basis::get_uniform_scale() const {
+    return (elements[0].length() + elements[1].length() + elements[2].length()) / 3.0;
+}
+
+void Basis::make_scale_uniform() {
+    float l = (elements[0].length() + elements[1].length() + elements[2].length()) / 3.0;
+    for (int i = 0; i < 3; i++) {
+        elements[i].normalize();
+        elements[i] *= l;
+    }
+}
+
 Vector3 Basis::get_scale_abs() const {
 
     return Vector3(

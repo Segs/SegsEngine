@@ -69,7 +69,14 @@ struct GODOT_EXPORT Color {
     }
 
     Color operator+(const Color &p_color) const;
-    void operator+=(const Color &p_color);
+    void operator+=(const Color &p_color) {
+        r += p_color.r;
+        g += p_color.g;
+        b += p_color.b;
+        a += p_color.a;
+    }
+
+
 
     Color operator-() const;
     Color operator-(const Color &p_color) const;

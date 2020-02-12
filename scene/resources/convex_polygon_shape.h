@@ -50,5 +50,8 @@ public:
     void set_points(PODVector<Vector3> &&p_points);
     const PODVector<Vector3> &get_points() const { return points; }
 
+    real_t get_enclosing_radius() const override;
+
+
     ConvexPolygonShape();
 };

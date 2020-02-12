@@ -32,28 +32,28 @@
 #define SEMAPHORE_OSX_H
 
 struct cgsem {
-	int pipefd[2];
+    int pipefd[2];
 };
 
 typedef struct cgsem cgsem_t;
 
 #include "core/os/semaphore.h"
 
-class SemaphoreOSX : public Semaphore {
+class SemaphoreOSX : public SemaphoreOld {
 
-	mutable cgsem_t sem;
+    mutable cgsem_t sem;
 
-	static Semaphore *create_semaphore_osx();
+    static SemaphoreOld *create_semaphore_osx();
 
 public:
-	virtual Error wait();
-	virtual Error post();
-	virtual int get() const;
+    virtual Error wait();
+    virtual Error post();
+    virtual int get() const;
 
-	static void make_default();
-	SemaphoreOSX();
+    static void make_default();
+    SemaphoreOSX();
 
-	~SemaphoreOSX();
+    ~SemaphoreOSX();
 };
 
 #endif // SEMAPHORE_OSX_H

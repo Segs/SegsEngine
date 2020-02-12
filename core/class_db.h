@@ -238,6 +238,7 @@ public:
     static void get_direct_inheriters_from_class(const StringName &p_class, PODVector<StringName> *p_classes);
     static StringName get_parent_class_nocheck(const StringName &p_class);
     static StringName get_parent_class(const StringName &p_class);
+    static StringName get_compatibility_remapped_class(const StringName &p_class);
     static bool class_exists(const StringName &p_class);
     static bool is_parent_class(const StringName &p_class, const StringName &p_inherits);
     static bool can_instance(const StringName &p_class);
@@ -309,6 +310,8 @@ public:
 
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
+#define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
+    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_namespace::m_constant, #m_constant), #m_constant, int(m_namespace::m_constant));
 
 #else
 
@@ -317,6 +320,9 @@ public:
 
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
+
+#define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
+    ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, int(m_namespace::m_constant));
 
 #endif
 

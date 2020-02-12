@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -29,19 +29,16 @@
 /*************************************************************************/
 
 #include "navigation_mesh.h"
-#include "mesh_instance.h"
-#include "navigation.h"
-#include "scene/main/scene_tree.h"
-#include "core/method_bind.h"
-#include "core/object_tooling.h"
-#include "core/translation_helpers.h"
+
+#include "core/class_db.h"
+#include "core/method_bind_interface.h"
+#include "core/map.h"
 
 IMPL_GDCLASS(NavigationMesh)
-IMPL_GDCLASS(NavigationMeshInstance)
 
 void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
 
-    vertices.clear();
+    vertices = {};
     clear_polygons();
 
     for (int i = 0; i < p_mesh->get_surface_count(); i++) {
@@ -49,21 +46,21 @@ void NavigationMesh::create_from_mesh(const Ref<Mesh> &p_mesh) {
         if (p_mesh->surface_get_primitive_type(i) != Mesh::PRIMITIVE_TRIANGLES)
             continue;
         SurfaceArrays arr = p_mesh->surface_get_arrays(i);
-        Span<const Vector3> varr = arr.positions3();
-        const auto & iarr = arr.m_indices;
+        auto varr = arr.positions3();
+        const auto &iarr = arr.m_indices;
         if (varr.size() == 0 || iarr.size() == 0)
             continue;
 
         int from = vertices.size();
         vertices.insert(vertices.end(),varr.begin(),varr.end());
         int rlen = iarr.size();
+
         for (int j = 0; j < rlen; j += 3) {
             PODVector<int> vi {
                 iarr[j + 0] + from,
                 iarr[j + 1] + from,
                 iarr[j + 2] + from,
             };
-
             add_polygon(eastl::move(vi));
         }
     }
@@ -81,7 +78,7 @@ int NavigationMesh::get_sample_partition_type() const {
 void NavigationMesh::set_parsed_geometry_type(int p_value) {
     ERR_FAIL_COND(p_value >= PARSED_GEOMETRY_MAX);
     parsed_geometry_type = static_cast<ParsedGeometryType>(p_value);
-    Object_change_notify(this);
+    Object_change_notify(this,StringName());
 }
 
 int NavigationMesh::get_parsed_geometry_type() const {
@@ -112,10 +109,11 @@ bool NavigationMesh::get_collision_mask_bit(int p_bit) const {
 
     return get_collision_mask() & (1 << p_bit);
 }
+
 void NavigationMesh::set_source_geometry_mode(int p_geometry_mode) {
     ERR_FAIL_INDEX(p_geometry_mode, SOURCE_GEOMETRY_MAX);
     source_geometry_mode = static_cast<SourceGeometryMode>(p_geometry_mode);
-    Object_change_notify(this);
+    Object_change_notify(this,StringName());
 }
 
 int NavigationMesh::get_source_geometry_mode() const {
@@ -260,8 +258,8 @@ bool NavigationMesh::get_filter_walkable_low_height_spans() const {
 
 void NavigationMesh::set_vertices(PODVector<Vector3> &&p_vertices) {
 
-    vertices = p_vertices;
-    Object_change_notify(this);
+    vertices = eastl::move(p_vertices);
+    Object_change_notify(this,StringName());
 }
 
 const PODVector<Vector3> &NavigationMesh::get_vertices() const {
@@ -270,12 +268,12 @@ const PODVector<Vector3> &NavigationMesh::get_vertices() const {
 }
 
 void NavigationMesh::_set_polygons(const Array &p_array) {
-    polygons.clear();
-    polygons.reserve(p_array.size());
+
+    polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons.emplace_back(Polygon{p_array[i].as<PODVector<int>>()});
+        polygons[i].indices = p_array[i].as<PODVector<int>>();
     }
-    Object_change_notify(this);
+    Object_change_notify(this,StringName());
 }
 
 Array NavigationMesh::_get_polygons() const {
@@ -283,7 +281,7 @@ Array NavigationMesh::_get_polygons() const {
     Array ret;
     ret.resize(polygons.size());
     for (int i = 0; i < ret.size(); i++) {
-        ret[i] = Variant::from(polygons[i].indices);
+        ret[i] = polygons[i].indices;
     }
 
     return ret;
@@ -294,7 +292,7 @@ void NavigationMesh::add_polygon(PODVector<int> &&p_polygon) {
     Polygon polygon;
     polygon.indices = eastl::move(p_polygon);
     polygons.emplace_back(eastl::move(polygon));
-    Object_change_notify(this);
+    Object_change_notify(this,StringName());
 }
 int NavigationMesh::get_polygon_count() const {
 
@@ -317,16 +315,18 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
 
     const PODVector<Vector3> &vertices = get_vertices();
     PODVector<Face3> faces;
+    size_t face_count=0;
+    for (int i = 0; i < get_polygon_count(); i++) {
+        const PODVector<int> &p = get_polygon(i);
+        face_count += p.size()-2;
+    }
+    faces.reserve(face_count);
+
     for (int i = 0; i < get_polygon_count(); i++) {
         const PODVector<int> &p = get_polygon(i);
 
         for (int j = 2; j < p.size(); j++) {
-            Face3 f;
-            f.vertex[0] = vertices[p[0]];
-            f.vertex[1] = vertices[p[j - 1]];
-            f.vertex[2] = vertices[p[j]];
-
-            faces.push_back(f);
+            faces.emplace_back(vertices[p[0]],vertices[p[j - 1]],vertices[p[j]]);
         }
     }
 
@@ -349,7 +349,7 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
                 if (ek.from < ek.to)
                     SWAP(ek.from, ek.to);
 
-                Map<_EdgeKey, bool>::iterator F = edge_map.find(ek);
+                auto F = edge_map.find(ek);
 
                 if (F!=edge_map.end()) {
 
@@ -363,9 +363,8 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
         }
     }
     PODVector<Vector3> lines;
-    lines.reserve(edge_map.size()*2);
 
-    for (eastl::pair<const _EdgeKey,bool> &E : edge_map) {
+    for (const eastl::pair<const _EdgeKey, bool> &E : edge_map) {
 
         if (E.second) {
             lines.push_back(E.first.from);
@@ -373,7 +372,7 @@ Ref<Mesh> NavigationMesh::get_debug_mesh() {
         }
     }
 
-    debug_mesh = make_ref_counted<ArrayMesh>();
+    debug_mesh = Ref<ArrayMesh>(memnew(ArrayMesh));
 
     SurfaceArrays arr(eastl::move(lines));
 
@@ -386,89 +385,89 @@ void NavigationMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_sample_partition_type", {"sample_partition_type"}), &NavigationMesh::set_sample_partition_type);
     MethodBinder::bind_method(D_METHOD("get_sample_partition_type"), &NavigationMesh::get_sample_partition_type);
 
-    MethodBinder::bind_method(D_METHOD("set_parsed_geometry_type", {"geometry_type"}), &NavigationMesh::set_parsed_geometry_type);
+    MethodBinder::bind_method(D_METHOD("set_parsed_geometry_type", {"geometry_type"}),&NavigationMesh::set_parsed_geometry_type);
     MethodBinder::bind_method(D_METHOD("get_parsed_geometry_type"), &NavigationMesh::get_parsed_geometry_type);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &NavigationMesh::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}),&NavigationMesh::set_collision_mask);
     MethodBinder::bind_method(D_METHOD("get_collision_mask"), &NavigationMesh::get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &NavigationMesh::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &NavigationMesh::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}),&NavigationMesh::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}),&NavigationMesh::get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("set_source_geometry_mode", {"mask"}), &NavigationMesh::set_source_geometry_mode);
+    MethodBinder::bind_method(D_METHOD("set_source_geometry_mode", {"mask"}),&NavigationMesh::set_source_geometry_mode);
     MethodBinder::bind_method(D_METHOD("get_source_geometry_mode"), &NavigationMesh::get_source_geometry_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_source_group_name", {"mask"}), &NavigationMesh::set_source_group_name);
+    MethodBinder::bind_method(D_METHOD("set_source_group_name", {"mask"}),&NavigationMesh::set_source_group_name);
     MethodBinder::bind_method(D_METHOD("get_source_group_name"), &NavigationMesh::get_source_group_name);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}), &NavigationMesh::set_cell_size);
+    MethodBinder::bind_method(D_METHOD("set_cell_size", {"cell_size"}),&NavigationMesh::set_cell_size);
     MethodBinder::bind_method(D_METHOD("get_cell_size"), &NavigationMesh::get_cell_size);
 
-    MethodBinder::bind_method(D_METHOD("set_cell_height", {"cell_height"}), &NavigationMesh::set_cell_height);
+    MethodBinder::bind_method(D_METHOD("set_cell_height", {"cell_height"}),&NavigationMesh::set_cell_height);
     MethodBinder::bind_method(D_METHOD("get_cell_height"), &NavigationMesh::get_cell_height);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_height", {"agent_height"}), &NavigationMesh::set_agent_height);
+    MethodBinder::bind_method(D_METHOD("set_agent_height", {"agent_height"}),&NavigationMesh::set_agent_height);
     MethodBinder::bind_method(D_METHOD("get_agent_height"), &NavigationMesh::get_agent_height);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_radius", {"agent_radius"}), &NavigationMesh::set_agent_radius);
+    MethodBinder::bind_method(D_METHOD("set_agent_radius", {"agent_radius"}),&NavigationMesh::set_agent_radius);
     MethodBinder::bind_method(D_METHOD("get_agent_radius"), &NavigationMesh::get_agent_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_max_climb", {"agent_max_climb"}), &NavigationMesh::set_agent_max_climb);
+    MethodBinder::bind_method(D_METHOD("set_agent_max_climb", {"agent_max_climb"}),&NavigationMesh::set_agent_max_climb);
     MethodBinder::bind_method(D_METHOD("get_agent_max_climb"), &NavigationMesh::get_agent_max_climb);
 
-    MethodBinder::bind_method(D_METHOD("set_agent_max_slope", {"agent_max_slope"}), &NavigationMesh::set_agent_max_slope);
+    MethodBinder::bind_method(D_METHOD("set_agent_max_slope", {"agent_max_slope"}),&NavigationMesh::set_agent_max_slope);
     MethodBinder::bind_method(D_METHOD("get_agent_max_slope"), &NavigationMesh::get_agent_max_slope);
 
-    MethodBinder::bind_method(D_METHOD("set_region_min_size", {"region_min_size"}), &NavigationMesh::set_region_min_size);
+    MethodBinder::bind_method(D_METHOD("set_region_min_size", {"region_min_size"}),&NavigationMesh::set_region_min_size);
     MethodBinder::bind_method(D_METHOD("get_region_min_size"), &NavigationMesh::get_region_min_size);
 
-    MethodBinder::bind_method(D_METHOD("set_region_merge_size", {"region_merge_size"}), &NavigationMesh::set_region_merge_size);
+    MethodBinder::bind_method(D_METHOD("set_region_merge_size", {"region_merge_size"}),&NavigationMesh::set_region_merge_size);
     MethodBinder::bind_method(D_METHOD("get_region_merge_size"), &NavigationMesh::get_region_merge_size);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_max_length", {"edge_max_length"}), &NavigationMesh::set_edge_max_length);
+    MethodBinder::bind_method(D_METHOD("set_edge_max_length", {"edge_max_length"}),&NavigationMesh::set_edge_max_length);
     MethodBinder::bind_method(D_METHOD("get_edge_max_length"), &NavigationMesh::get_edge_max_length);
 
-    MethodBinder::bind_method(D_METHOD("set_edge_max_error", {"edge_max_error"}), &NavigationMesh::set_edge_max_error);
+    MethodBinder::bind_method(D_METHOD("set_edge_max_error", {"edge_max_error"}),&NavigationMesh::set_edge_max_error);
     MethodBinder::bind_method(D_METHOD("get_edge_max_error"), &NavigationMesh::get_edge_max_error);
 
-    MethodBinder::bind_method(D_METHOD("set_verts_per_poly", {"verts_per_poly"}), &NavigationMesh::set_verts_per_poly);
+    MethodBinder::bind_method(D_METHOD("set_verts_per_poly", {"verts_per_poly"}),&NavigationMesh::set_verts_per_poly);
     MethodBinder::bind_method(D_METHOD("get_verts_per_poly"), &NavigationMesh::get_verts_per_poly);
 
-    MethodBinder::bind_method(D_METHOD("set_detail_sample_distance", {"detail_sample_dist"}), &NavigationMesh::set_detail_sample_distance);
+    MethodBinder::bind_method(D_METHOD("set_detail_sample_distance", {"detail_sample_dist"}),&NavigationMesh::set_detail_sample_distance);
     MethodBinder::bind_method(D_METHOD("get_detail_sample_distance"), &NavigationMesh::get_detail_sample_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_detail_sample_max_error", {"detail_sample_max_error"}), &NavigationMesh::set_detail_sample_max_error);
+    MethodBinder::bind_method(D_METHOD("set_detail_sample_max_error", {"detail_sample_max_error"}),&NavigationMesh::set_detail_sample_max_error);
     MethodBinder::bind_method(D_METHOD("get_detail_sample_max_error"), &NavigationMesh::get_detail_sample_max_error);
 
-    MethodBinder::bind_method(D_METHOD("set_filter_low_hanging_obstacles", {"filter_low_hanging_obstacles"}), &NavigationMesh::set_filter_low_hanging_obstacles);
+    MethodBinder::bind_method(D_METHOD("set_filter_low_hanging_obstacles", {"filter_low_hanging_obstacles"}),&NavigationMesh::set_filter_low_hanging_obstacles);
     MethodBinder::bind_method(D_METHOD("get_filter_low_hanging_obstacles"), &NavigationMesh::get_filter_low_hanging_obstacles);
 
-    MethodBinder::bind_method(D_METHOD("set_filter_ledge_spans", {"filter_ledge_spans"}), &NavigationMesh::set_filter_ledge_spans);
+    MethodBinder::bind_method(D_METHOD("set_filter_ledge_spans", {"filter_ledge_spans"}),&NavigationMesh::set_filter_ledge_spans);
     MethodBinder::bind_method(D_METHOD("get_filter_ledge_spans"), &NavigationMesh::get_filter_ledge_spans);
 
-    MethodBinder::bind_method(D_METHOD("set_filter_walkable_low_height_spans", {"filter_walkable_low_height_spans"}), &NavigationMesh::set_filter_walkable_low_height_spans);
+    MethodBinder::bind_method(D_METHOD("set_filter_walkable_low_height_spans", {"filter_walkable_low_height_spans"}),&NavigationMesh::set_filter_walkable_low_height_spans);
     MethodBinder::bind_method(D_METHOD("get_filter_walkable_low_height_spans"), &NavigationMesh::get_filter_walkable_low_height_spans);
 
-    MethodBinder::bind_method(D_METHOD("set_vertices", {"vertices"}), &NavigationMesh::set_vertices);
+    MethodBinder::bind_method(D_METHOD("set_vertices", {"vertices"}),&NavigationMesh::set_vertices);
     MethodBinder::bind_method(D_METHOD("get_vertices"), &NavigationMesh::get_vertices);
 
-    MethodBinder::bind_method(D_METHOD("add_polygon", {"polygon"}), &NavigationMesh::add_polygon);
+    MethodBinder::bind_method(D_METHOD("add_polygon", {"polygon"}),&NavigationMesh::add_polygon);
     MethodBinder::bind_method(D_METHOD("get_polygon_count"), &NavigationMesh::get_polygon_count);
-    MethodBinder::bind_method(D_METHOD("get_polygon", {"idx"}), &NavigationMesh::get_polygon);
+    MethodBinder::bind_method(D_METHOD("get_polygon", {"idx"}),&NavigationMesh::get_polygon);
     MethodBinder::bind_method(D_METHOD("clear_polygons"), &NavigationMesh::clear_polygons);
 
-    MethodBinder::bind_method(D_METHOD("create_from_mesh", {"mesh"}), &NavigationMesh::create_from_mesh);
+    MethodBinder::bind_method(D_METHOD("create_from_mesh", {"mesh"}),&NavigationMesh::create_from_mesh);
 
-    MethodBinder::bind_method(D_METHOD("_set_polygons", {"polygons"}), &NavigationMesh::_set_polygons);
+    MethodBinder::bind_method(D_METHOD("_set_polygons", {"polygons"}),&NavigationMesh::_set_polygons);
     MethodBinder::bind_method(D_METHOD("_get_polygons"), &NavigationMesh::_get_polygons);
 
-    BIND_CONSTANT(SAMPLE_PARTITION_WATERSHED);
-    BIND_CONSTANT(SAMPLE_PARTITION_MONOTONE);
-    BIND_CONSTANT(SAMPLE_PARTITION_LAYERS);
+    BIND_CONSTANT(SAMPLE_PARTITION_WATERSHED)
+    BIND_CONSTANT(SAMPLE_PARTITION_MONOTONE)
+    BIND_CONSTANT(SAMPLE_PARTITION_LAYERS)
 
-    BIND_CONSTANT(PARSED_GEOMETRY_MESH_INSTANCES);
-    BIND_CONSTANT(PARSED_GEOMETRY_STATIC_COLLIDERS);
-    BIND_CONSTANT(PARSED_GEOMETRY_BOTH);
+    BIND_CONSTANT(PARSED_GEOMETRY_MESH_INSTANCES)
+    BIND_CONSTANT(PARSED_GEOMETRY_STATIC_COLLIDERS)
+    BIND_CONSTANT(PARSED_GEOMETRY_BOTH)
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "vertices", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_vertices", "get_vertices");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "polygons", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_polygons", "_get_polygons");
@@ -505,6 +504,7 @@ void NavigationMesh::_validate_property(PropertyInfo &property) const {
             return;
         }
     }
+
     if (property.name == "geometry/source_group_name") {
         if (source_geometry_mode == SOURCE_GEOMETRY_NAVMESH_CHILDREN) {
             property.usage = 0;
@@ -536,198 +536,4 @@ NavigationMesh::NavigationMesh() {
     filter_low_hanging_obstacles = false;
     filter_ledge_spans = false;
     filter_walkable_low_height_spans = false;
-}
-
-void NavigationMeshInstance::set_enabled(bool p_enabled) {
-
-    if (enabled == p_enabled)
-        return;
-    enabled = p_enabled;
-
-    if (!is_inside_tree())
-        return;
-
-    if (!enabled) {
-
-        if (nav_id != -1) {
-            navigation->navmesh_remove(nav_id);
-            nav_id = -1;
-        }
-    } else {
-
-        if (navigation) {
-
-            if (navmesh) {
-
-                nav_id = navigation->navmesh_add(navmesh, get_relative_transform(navigation), this);
-            }
-        }
-    }
-
-    if (debug_view) {
-        MeshInstance *dm = object_cast<MeshInstance>(debug_view);
-        if (is_enabled()) {
-            dm->set_material_override(get_tree()->get_debug_navigation_material());
-        } else {
-            dm->set_material_override(get_tree()->get_debug_navigation_disabled_material());
-        }
-    }
-
-    update_gizmo();
-}
-
-bool NavigationMeshInstance::is_enabled() const {
-
-    return enabled;
-}
-
-/////////////////////////////
-
-void NavigationMeshInstance::_notification(int p_what) {
-
-    switch (p_what) {
-        case NOTIFICATION_ENTER_TREE: {
-
-            Spatial *c = this;
-            while (c) {
-
-                navigation = object_cast<Navigation>(c);
-                if (navigation) {
-
-                    if (enabled && navmesh) {
-
-                        nav_id = navigation->navmesh_add(navmesh, get_relative_transform(navigation), this);
-                    }
-                    break;
-                }
-
-                c = c->get_parent_spatial();
-            }
-
-            if (navmesh && get_tree()->is_debugging_navigation_hint()) {
-
-                MeshInstance *dm = memnew(MeshInstance);
-                dm->set_mesh(navmesh->get_debug_mesh());
-                if (is_enabled()) {
-                    dm->set_material_override(get_tree()->get_debug_navigation_material());
-                } else {
-                    dm->set_material_override(get_tree()->get_debug_navigation_disabled_material());
-                }
-                add_child(dm);
-                debug_view = dm;
-            }
-
-        } break;
-        case NOTIFICATION_TRANSFORM_CHANGED: {
-
-            if (navigation && nav_id != -1) {
-                navigation->navmesh_set_transform(nav_id, get_relative_transform(navigation));
-            }
-
-        } break;
-        case NOTIFICATION_EXIT_TREE: {
-
-            if (navigation) {
-
-                if (nav_id != -1) {
-                    navigation->navmesh_remove(nav_id);
-                    nav_id = -1;
-                }
-            }
-
-            if (debug_view) {
-                debug_view->queue_delete();
-                debug_view = nullptr;
-            }
-            navigation = nullptr;
-        } break;
-    }
-}
-
-void NavigationMeshInstance::set_navigation_mesh(const Ref<NavigationMesh> &p_navmesh) {
-
-    if (p_navmesh == navmesh)
-        return;
-
-    if (navigation && nav_id != -1) {
-        navigation->navmesh_remove(nav_id);
-        nav_id = -1;
-    }
-
-    if (navmesh) {
-        Object_remove_change_receptor(navmesh.get(),this);
-    }
-
-    navmesh = p_navmesh;
-
-    if (navmesh) {
-        Object_add_change_receptor(navmesh.get(),this);
-    }
-
-    if (navigation && navmesh && enabled) {
-        nav_id = navigation->navmesh_add(navmesh, get_relative_transform(navigation), this);
-    }
-
-    if (debug_view && navmesh) {
-        object_cast<MeshInstance>(debug_view)->set_mesh(navmesh->get_debug_mesh());
-    }
-
-    update_gizmo();
-    update_configuration_warning();
-}
-
-Ref<NavigationMesh> NavigationMeshInstance::get_navigation_mesh() const {
-
-    return navmesh;
-}
-
-StringName NavigationMeshInstance::get_configuration_warning() const {
-
-    if (!is_visible_in_tree() || !is_inside_tree())
-        return StringName();
-
-    if (not navmesh) {
-        return TTR("A NavigationMesh resource must be set or created for this node to work.");
-    }
-    const Spatial *c = this;
-    while (c) {
-
-        if (object_cast<Navigation>(c))
-            return StringName();
-
-        c = object_cast<Spatial>(c->get_parent());
-    }
-
-    return TTR("NavigationMeshInstance must be a child or grandchild to a Navigation node. It only provides navigation data.");
-}
-
-void NavigationMeshInstance::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("set_navigation_mesh", {"navmesh"}), &NavigationMeshInstance::set_navigation_mesh);
-    MethodBinder::bind_method(D_METHOD("get_navigation_mesh"), &NavigationMeshInstance::get_navigation_mesh);
-
-    MethodBinder::bind_method(D_METHOD("set_enabled", {"enabled"}), &NavigationMeshInstance::set_enabled);
-    MethodBinder::bind_method(D_METHOD("is_enabled"), &NavigationMeshInstance::is_enabled);
-
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "navmesh", PropertyHint::ResourceType, "NavigationMesh"), "set_navigation_mesh", "get_navigation_mesh");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_enabled", "is_enabled");
-}
-
-void NavigationMeshInstance::_changed_callback(Object *p_changed, StringName p_prop) {
-    update_gizmo();
-    update_configuration_warning();
-}
-
-NavigationMeshInstance::NavigationMeshInstance() {
-
-    debug_view = nullptr;
-    navigation = nullptr;
-    nav_id = -1;
-    enabled = true;
-    set_notify_transform(true);
-}
-
-NavigationMeshInstance::~NavigationMeshInstance() {
-    if (navmesh)
-        Object_remove_change_receptor(navmesh.get(),this);
 }

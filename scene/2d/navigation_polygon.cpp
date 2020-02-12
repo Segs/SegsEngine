@@ -33,9 +33,11 @@
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/os/mutex.h"
 #include "core/engine.h"
 #include "core/translation_helpers.h"
 #include "navigation_2d.h"
+#include "servers/navigation_2d_server.h"
 #include "scene/main/scene_tree.h"
 
 #include "thirdparty/misc/triangulator.h"
@@ -86,22 +88,21 @@ bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float 
 }
 #endif
 
-void NavigationPolygon::set_vertices(const PoolVector<Vector2> &p_vertices) {
-
-    vertices = p_vertices;
+void NavigationPolygon::set_vertices(PODVector<Vector2> &&p_vertices) {
+    navmesh_generation->lock();
+    navmesh.unref();
+    navmesh_generation->unlock();
+    vertices = eastl::move(p_vertices);
     rect_cache_dirty = true;
 }
 
-const PoolVector<Vector2> &NavigationPolygon::get_vertices() const {
-
-    return vertices;
-}
-
 void NavigationPolygon::_set_polygons(const Array &p_array) {
-
+    navmesh_generation->lock();
+    navmesh.unref();
+    navmesh_generation->unlock();
     polygons.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        polygons[i].indices = p_array[i].as<PoolVector<int>>();
+        polygons[i].indices = p_array[i].as<PODVector<int>>();
     }
 }
 
@@ -136,11 +137,14 @@ Array NavigationPolygon::_get_outlines() const {
     return ret;
 }
 
-void NavigationPolygon::add_polygon(const PoolVector<int> &p_polygon) {
+void NavigationPolygon::add_polygon(PODVector<int> &&p_polygon) {
 
     Polygon polygon;
-    polygon.indices = p_polygon;
+    polygon.indices = eastl::move(p_polygon);
     polygons.push_back(polygon);
+    navmesh_generation->lock();
+    navmesh.unref();
+    navmesh_generation->unlock();
 }
 
 void NavigationPolygon::add_outline_at_index(const PoolVector<Vector2> &p_outline, int p_index) {
@@ -153,7 +157,7 @@ int NavigationPolygon::get_polygon_count() const {
 
     return polygons.size();
 }
-PoolVector<int> NavigationPolygon::get_polygon(int p_idx) {
+const PODVector<int> &NavigationPolygon::get_polygon(int p_idx) {
 
     ERR_FAIL_INDEX_V(p_idx, polygons.size(), {});
     return polygons[p_idx].indices;
@@ -161,6 +165,30 @@ PoolVector<int> NavigationPolygon::get_polygon(int p_idx) {
 void NavigationPolygon::clear_polygons() {
 
     polygons.clear();
+    navmesh_generation->lock();
+    navmesh.unref();
+    navmesh_generation->unlock();
+}
+
+const Ref<NavigationMesh> &NavigationPolygon::get_mesh() {
+    navmesh_generation->lock();
+    if (!navmesh) {
+        navmesh = make_ref_counted<NavigationMesh>();
+        PODVector<Vector3> verts;
+        verts.reserve(get_vertices().size());
+        const PODVector<Vector2> &r(get_vertices());
+
+        for (int i(0); i < get_vertices().size(); i++) {
+            verts.emplace_back(r[i].x, 0.0, r[i].y);
+        }
+        navmesh->set_vertices(eastl::move(verts));
+
+        for (int i(0); i < get_polygon_count(); i++) {
+            navmesh->add_polygon(PODVector<int>(get_polygon(i)));
+        }
+    }
+    navmesh_generation->unlock();
+    return navmesh;
 }
 
 void NavigationPolygon::add_outline(const PoolVector<Vector2> &p_outline) {
@@ -198,6 +226,10 @@ void NavigationPolygon::clear_outlines() {
     rect_cache_dirty = true;
 }
 void NavigationPolygon::make_polygons_from_outlines() {
+
+    navmesh_generation->lock();
+    navmesh.unref();
+    navmesh_generation->unlock();
 
     eastl::list<TriangulatorPoly> in_poly, out_poly;
 
@@ -321,7 +353,9 @@ void NavigationPolygon::_bind_methods() {
 }
 
 NavigationPolygon::NavigationPolygon() :
-        rect_cache_dirty(true) {
+        rect_cache_dirty(true),
+        navmesh_generation(nullptr) {
+    navmesh_generation = memnew(Mutex);
 }
 
 void NavigationPolygonInstance::set_enabled(bool p_enabled) {
@@ -335,18 +369,11 @@ void NavigationPolygonInstance::set_enabled(bool p_enabled) {
 
     if (!enabled) {
 
-        if (nav_id != -1) {
-            navigation->navpoly_remove(nav_id);
-            nav_id = -1;
-        }
+        Navigation2DServer::get_singleton()->region_set_map(region, RID());
     } else {
 
         if (navigation) {
-
-            if (navpoly) {
-
-                nav_id = navigation->navpoly_add(navpoly, get_relative_transform_to_parent(navigation), this);
-            }
+            Navigation2DServer::get_singleton()->region_set_map(region, navigation->get_rid());
         }
     }
 
@@ -383,9 +410,8 @@ void NavigationPolygonInstance::_notification(int p_what) {
                 navigation = object_cast<Navigation2D>(c);
                 if (navigation) {
 
-                    if (enabled && navpoly) {
-
-                        nav_id = navigation->navpoly_add(navpoly, get_relative_transform_to_parent(navigation), this);
+                    if (enabled) {
+                        Navigation2DServer::get_singleton()->region_set_map(region, navigation->get_rid());
                     }
                     break;
                 }
@@ -396,19 +422,13 @@ void NavigationPolygonInstance::_notification(int p_what) {
         } break;
         case NOTIFICATION_TRANSFORM_CHANGED: {
 
-            if (navigation && nav_id != -1) {
-                navigation->navpoly_set_transform(nav_id, get_relative_transform_to_parent(navigation));
-            }
+            Navigation2DServer::get_singleton()->region_set_transform(region, get_global_transform());
 
         } break;
         case NOTIFICATION_EXIT_TREE: {
 
             if (navigation) {
-
-                if (nav_id != -1) {
-                    navigation->navpoly_remove(nav_id);
-                    nav_id = -1;
-                }
+                Navigation2DServer::get_singleton()->region_set_map(region, RID());
             }
             navigation = nullptr;
         } break;
@@ -416,7 +436,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
 
             if (is_inside_tree() && (Engine::get_singleton()->is_editor_hint() || get_tree()->is_debugging_navigation_hint()) && navpoly) {
 
-                PoolVector<Vector2> verts = navpoly->get_vertices();
+                const PODVector<Vector2> &verts = navpoly->get_vertices();
                 int vsize = verts.size();
                 if (vsize < 3)
                     return;
@@ -427,23 +447,15 @@ void NavigationPolygonInstance::_notification(int p_what) {
                 } else {
                     color = get_tree()->get_debug_navigation_disabled_color();
                 }
-                PoolVector<Color> colors;
+                PODVector<Color> colors;
                 PODVector<Vector2> vertices;
-                vertices.reserve(vsize);
-                colors.resize(vsize);
-                {
-                    PoolVector<Vector2>::Read vr = verts.read();
-                    auto wr(colors.write());
-                    for (int i = 0; i < vsize; i++) {
-                        vertices.emplace_back(vr[i]);
-                        wr[i] = color;
-                    }
-                }
+                vertices = verts;
+                colors.resize(vsize,color);
 
                 PODVector<int> indices;
                 indices.reserve(navpoly->get_polygon_count()*2*3);
                 for (int i = 0; i < navpoly->get_polygon_count(); i++) {
-                    PoolVector<int> polygon = navpoly->get_polygon(i);
+                    const PODVector<int> &polygon = navpoly->get_polygon(i);
 
                     for (int j = 2; j < polygon.size(); j++) {
 
@@ -456,7 +468,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
                         }
                     }
                 }
-                VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, vertices, colors);
+                VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, vertices, PoolVector<Color>(colors));
             }
         } break;
     }
@@ -468,23 +480,15 @@ void NavigationPolygonInstance::set_navigation_polygon(const Ref<NavigationPolyg
         return;
     }
 
-    if (navigation && nav_id != -1) {
-        navigation->navpoly_remove(nav_id);
-        nav_id = -1;
-    }
-
     if (navpoly) {
         navpoly->disconnect(CoreStringNames::get_singleton()->changed, this, "_navpoly_changed");
     }
     navpoly = p_navpoly;
+    Navigation2DServer::get_singleton()->region_set_navpoly(region, p_navpoly);
     if (navpoly) {
         navpoly->connect(CoreStringNames::get_singleton()->changed, this, "_navpoly_changed");
     }
     _navpoly_changed();
-
-    if (navigation && navpoly && enabled) {
-        nav_id = navigation->navpoly_add(navpoly, get_relative_transform_to_parent(navigation), this);
-    }
 
     Object_change_notify(this,"navpoly");
     update_configuration_warning();
@@ -538,8 +542,13 @@ void NavigationPolygonInstance::_bind_methods() {
 
 NavigationPolygonInstance::NavigationPolygonInstance() {
 
-    navigation = nullptr;
-    nav_id = -1;
     enabled = true;
     set_notify_transform(true);
+    region = Navigation2DServer::get_singleton()->region_create();
+
+    navigation = nullptr;
+}
+
+NavigationPolygonInstance::~NavigationPolygonInstance() {
+    Navigation2DServer::get_singleton()->free(region);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-enum class ImageCompressSource : int8_t;
+enum class ImageUsedChannels : int8_t;
 
 struct LoadParams {
     float p_scale = 1.0;
@@ -26,5 +26,5 @@ enum ImageCompressMode : int8_t {
 struct CompressParams {
     float p_quality = 1.0;
     ImageCompressMode mode = COMPRESS_S3TC;
-    ImageCompressSource source = ImageCompressSource(0);
+    ImageUsedChannels used_channels = ImageUsedChannels(0);
 };

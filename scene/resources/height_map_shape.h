@@ -56,5 +56,7 @@ public:
     void set_map_data(const PoolRealArray& p_new);
     PoolRealArray get_map_data() const;
 
+    real_t get_enclosing_radius() const override;
+
     HeightMapShape();
 };

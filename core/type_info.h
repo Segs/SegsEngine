@@ -98,6 +98,15 @@ struct GetTypeInfo;
         constexpr static inline RawPropertyInfo get_class_info() {  \
             return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
+    }; \
+    template <>                                                                       \
+    struct GetTypeInfo<m_type &&> {                                              \
+        constexpr static const VariantType VARIANT_TYPE = m_var_type;                         \
+        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE; \
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Move; \
+        constexpr static inline RawPropertyInfo get_class_info() {  \
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
+        }\
     };
 
 #define MAKE_TYPE_INFO_WITH_META(m_type, m_var_type, m_metadata)    \
@@ -317,10 +326,6 @@ struct GetTypeInfo<const Variant &> {
                 return RawPropertyInfo{ nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE) }; \
         }\
     };
-
-MAKE_TEMPLATE_TYPE_INFO(Vector, float, VariantType::POOL_REAL_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, Vector2, VariantType::POOL_VECTOR2_ARRAY)
-MAKE_TEMPLATE_TYPE_INFO(Vector, Vector3, VariantType::POOL_VECTOR3_ARRAY)
 
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, uint8_t, VariantType::POOL_BYTE_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)
 MAKE_TEMPLATE_TYPE_INFO_META(PODVector, int, VariantType::POOL_INT_ARRAY,GodotTypeInfo::METADATA_NON_COW_CONTAINER)

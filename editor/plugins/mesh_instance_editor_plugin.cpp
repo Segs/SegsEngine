@@ -32,7 +32,7 @@
 
 #include "core/method_bind.h"
 #include "scene/3d/collision_shape.h"
-#include "scene/3d/navigation_mesh.h"
+#include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/physics_body.h"
 #include "scene/gui/box_container.h"
 #include "scene/main/scene_tree.h"

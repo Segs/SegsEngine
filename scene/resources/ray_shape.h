@@ -47,7 +47,9 @@ protected:
 public:
     void set_length(float p_length);
     float get_length() const;
-
+    real_t get_enclosing_radius() const override {
+        return length;
+    }
     void set_slips_on_slope(bool p_active);
     bool get_slips_on_slope() const;
 

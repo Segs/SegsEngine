@@ -32,49 +32,27 @@
 
 #include "core/os/file_access.h"
 #include "core/resource.h"
+#include "core/map.h"
 #include "core/variant.h"
 #include "core/se_string.h"
-#include "core/map.h"
 
-using UIString = class QString;
+struct VariantParserStream {
 
+    virtual char get_char() = 0;
+    virtual bool is_utf8() const = 0;
+    virtual bool is_eof() const = 0;
+
+    char saved = 0;
+
+    VariantParserStream() {}
+    virtual ~VariantParserStream() {}
+};
 
 class VariantParser {
 public:
-    struct Stream {
 
-        virtual char get_char() = 0;
-        virtual bool is_utf8() const = 0;
-        virtual bool is_eof() const = 0;
 
-        char saved = 0;
-
-        Stream() {}
-        virtual ~Stream() {}
-    };
-    struct StreamFile : public Stream {
-
-        FileAccess *f;
-
-        char get_char() override;
-        bool is_utf8() const override;
-        bool is_eof() const override;
-
-        StreamFile(FileAccess *fl = nullptr) : f(fl) {}
-    };
-
-    struct StreamString : public Stream {
-
-        String s;
-        int pos=0;
-
-        char get_char() override;
-        bool is_utf8() const override;
-        bool is_eof() const override;
-
-        StreamString(const String &str) : s(str) {}
-    };
-    using ParseResourceFunc = Error (*)(void *, Stream *, Ref<Resource> &, int &, String &);
+    using ParseResourceFunc = Error (*)(void *, VariantParserStream *, Ref<Resource> &, int &, String &);
 
     struct ResourceParser {
 
@@ -119,7 +97,6 @@ public:
     };
 
     struct Tag {
-
         String name;
         Map<String, Variant> fields;
     };
@@ -128,23 +105,24 @@ private:
     static const char *tk_name[TK_MAX];
 
     template <class T>
-    static Error _parse_construct(Stream *p_stream, PODVector<T> &r_construct, int &line, String &r_err_str);
+    static Error _parse_construct(VariantParserStream *p_stream, PODVector<T> &r_construct, int &line, String &r_err_str);
 
-    static Error _parse_dictionary(Dictionary &object, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
-    static Error _parse_array(Array &array, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
-    static Error _parse_tag(Token &token, Stream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser = nullptr, bool p_simple_tag = false);
+    static Error _parse_dictionary(Dictionary &object, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
+    static Error _parse_array(Array &array, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
+    static Error _parse_tag(Token &token, VariantParserStream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser = nullptr, bool p_simple_tag = false);
 
 public:
-    static Error parse_tag(Stream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser = nullptr, bool p_simple_tag = false);
-    static Error parse_tag_assign_eof(Stream *p_stream, int &line, String &r_err_str, Tag &r_tag, String &r_assign, Variant &r_value, ResourceParser *p_res_parser = nullptr, bool p_simple_tag = false);
+    static Error parse_tag(VariantParserStream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser = nullptr, bool p_simple_tag = false);
+    static Error parse_tag_assign_eof(VariantParserStream *p_stream, int &line, String &r_err_str, Tag &r_tag, String &r_assign, Variant &r_value, ResourceParser *p_res_parser = nullptr, bool p_simple_tag = false);
 
-    static Error parse_value(Token &token, Variant &value, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
-    static Error get_token(Stream *p_stream, Token &r_token, int &line, String &r_err_str);
-    static Error parse(Stream *p_stream, Variant &r_ret, String &r_err_str, int &r_err_line, ResourceParser *p_res_parser = nullptr);
+    static Error parse_value(Token &token, Variant &value, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser = nullptr);
+    static Error get_token(VariantParserStream *p_stream, Token &r_token, int &line, String &r_err_str);
+    static Error parse(VariantParserStream *p_stream, Variant &r_ret, String &r_err_str, int &r_err_line, ResourceParser *p_res_parser = nullptr);
 
-    static Stream *get_file_stream(FileAccess *f);
-    static Stream *get_string_stream(const String &f);
-    static void release_stream(Stream *s);
+    static VariantParserStream *get_file_stream(FileAccess *f);
+    static VariantParserStream *get_string_stream(const String &f);
+    static VariantParserStream *get_string_stream(String &&f);
+    static void release_stream(VariantParserStream *s);
 };
 
 class VariantWriter {

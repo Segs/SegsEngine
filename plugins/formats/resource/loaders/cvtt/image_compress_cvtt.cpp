@@ -136,7 +136,7 @@ static void _digest_job_queue(void *p_job_queue) {
     }
 }
 
-void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageCompressSource p_source) {
+void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannels p_source) {
 
     if (p_image->get_format() >= Image::FORMAT_BPTC_RGBA)
         return; //do not compress, already compressed
@@ -167,7 +167,7 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageCompressSou
 
     flags |= cvtt::Flags::BC7_RespectPunchThrough;
 
-    if (p_source == ImageCompressSource::COMPRESS_SOURCE_NORMAL) {
+    if (p_source == ImageUsedChannels::USED_CHANNELS_RG) {
         flags |= cvtt::Flags::Uniform;
     }
 
@@ -398,7 +398,7 @@ Error ResourceFormatBPTC::compress_image(Image *p_image, CompressParams params)
 {
     if(params.mode!=ImageCompressMode::COMPRESS_BPTC)
         return ERR_UNAVAILABLE;
-    image_compress_cvtt(p_image, params.p_quality, params.source);
+    image_compress_cvtt(p_image, params.p_quality, params.used_channels);
     return OK;
 }
 

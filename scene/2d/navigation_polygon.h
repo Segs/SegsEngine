@@ -31,14 +31,15 @@
 #pragma once
 
 #include "scene/2d/node_2d.h"
+#include "scene/resources/navigation_mesh.h"
 
 class NavigationPolygon : public Resource {
 
     GDCLASS(NavigationPolygon,Resource)
 
-    PoolVector<Vector2> vertices;
+    PODVector<Vector2> vertices;
     struct Polygon {
-        PoolVector<int> indices;
+        PODVector<int> indices;
     };
     PODVector<Polygon> polygons;
     PODVector<PoolVector<Vector2> > outlines;
@@ -46,6 +47,9 @@ class NavigationPolygon : public Resource {
     mutable Rect2 item_rect;
     mutable bool rect_cache_dirty;
 
+    Mutex *navmesh_generation;
+    // Navigation mesh
+    Ref<NavigationMesh> navmesh;
 protected:
     static void _bind_methods();
 public:
@@ -61,10 +65,10 @@ public:
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const;
 #endif
 
-    void set_vertices(const PoolVector<Vector2> &p_vertices);
-    const PoolVector<Vector2> &get_vertices() const;
+    void set_vertices(PODVector<Vector2> &&p_vertices);
+    const PODVector<Vector2> &get_vertices() const { return vertices; }
 
-    void add_polygon(const PoolVector<int> &p_polygon);
+    void add_polygon(PODVector<int> &&p_polygon);
     int get_polygon_count() const;
 
     void add_outline(const PoolVector<Vector2> &p_outline);
@@ -77,8 +81,10 @@ public:
     void clear_outlines();
     void make_polygons_from_outlines();
 
-    PoolVector<int> get_polygon(int p_idx);
+    const PODVector<int> &get_polygon(int p_idx);
     void clear_polygons();
+
+    const Ref<NavigationMesh> &get_mesh();
 
     NavigationPolygon();
 };
@@ -90,7 +96,7 @@ class NavigationPolygonInstance : public Node2D {
     GDCLASS(NavigationPolygonInstance,Node2D)
 
     bool enabled;
-    int nav_id;
+    RID region;
     Navigation2D *navigation;
     Ref<NavigationPolygon> navpoly;
 
@@ -115,4 +121,5 @@ public:
     StringName get_configuration_warning() const override;
 
     NavigationPolygonInstance();
+    ~NavigationPolygonInstance() override;
 };

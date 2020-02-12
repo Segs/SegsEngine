@@ -283,7 +283,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_pa
     if (!f)
         return;
 
-    VariantParser::Stream *stream=VariantParser::get_file_stream(f);
+    VariantParserStream *stream=VariantParser::get_file_stream(f);
 
     String assign;
     Variant value;

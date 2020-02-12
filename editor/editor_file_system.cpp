@@ -387,7 +387,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
         return true;
     }
 
-    VariantParser::Stream *stream = VariantParser::get_file_stream(f);
+    VariantParserStream *stream = VariantParser::get_file_stream(f);
 
     Variant value;
     VariantParser::Tag next_tag;
@@ -449,7 +449,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
         return true;
     }
 
-    VariantParser::Stream *md5_stream = VariantParser::get_file_stream(md5s);
+    VariantParserStream *md5_stream = VariantParser::get_file_stream(md5s);
 
     while (true) {
         String assign = Variant().as<String>();

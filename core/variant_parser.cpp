@@ -30,43 +30,69 @@
 
 #include "variant_parser.h"
 
-#include "core/io/resource_loader.h"
+#include "core/class_db.h"
 #include "core/color.h"
+#include "core/io/resource_loader.h"
 #include "core/list.h"
+#include "core/map.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/face3.h"
+#include "core/math/math_funcs.h"
 #include "core/math/plane.h"
 #include "core/math/quat.h"
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
-#include "core/math/math_funcs.h"
 #include "core/os/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/pool_vector.h"
-#include "core/ustring.h"
-#include "core/string_utils.inl"
-#include "core/class_db.h"
 #include "core/property_info.h"
+#include "core/string_utils.inl"
+#include "core/ustring.h"
+#include "core/variant.h"
 
 #include "EASTL/sort.h"
 
-char VariantParser::StreamFile::get_char() {
+struct StreamFile : public VariantParserStream {
+
+    FileAccess *f;
+
+    char get_char() override;
+    bool is_utf8() const override;
+    bool is_eof() const override;
+
+    StreamFile(FileAccess *fl = nullptr) : f(fl) {}
+};
+
+struct StreamString : public VariantParserStream {
+
+    String s;
+    int pos=0;
+
+    char get_char() override;
+    bool is_utf8() const override;
+    bool is_eof() const override;
+
+    StreamString(const String &str) : s(str) {}
+    StreamString(String &&str) noexcept : s(eastl::move(str)) {}
+};
+
+char StreamFile::get_char() {
 
     return f->get_8();
 }
 
-bool VariantParser::StreamFile::is_utf8() const {
+bool StreamFile::is_utf8() const {
 
     return true;
 }
-bool VariantParser::StreamFile::is_eof() const {
+bool StreamFile::is_eof() const {
 
     return f->eof_reached();
 }
 
-char VariantParser::StreamString::get_char() {
+char StreamString::get_char() {
 
     if (pos >= s.length())
         return 0;
@@ -74,10 +100,10 @@ char VariantParser::StreamString::get_char() {
         return s[pos++];
 }
 
-bool VariantParser::StreamString::is_utf8() const {
+bool StreamString::is_utf8() const {
     return false;
 }
-bool VariantParser::StreamString::is_eof() const {
+bool StreamString::is_eof() const {
     return pos > s.length();
 }
 
@@ -102,7 +128,7 @@ const char *VariantParser::tk_name[TK_MAX] = {
     "ERROR"
 };
 
-Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, String &r_err_str) {
+Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, int &line, String &r_err_str) {
     eastl::fixed_string<char, 128, true> tmp_str_buf; // static variable to prevent constat alloc/dealloc
 
     while (true) {
@@ -421,7 +447,7 @@ Error VariantParser::get_token(Stream *p_stream, Token &r_token, int &line, Stri
 }
 
 template <class T>
-Error VariantParser::_parse_construct(Stream *p_stream, PODVector<T> &r_construct, int &line, String &r_err_str) {
+Error VariantParser::_parse_construct(VariantParserStream *p_stream, PODVector<T> &r_construct, int &line, String &r_err_str) {
 
     Token token;
     get_token(p_stream, token, line, r_err_str);
@@ -461,7 +487,7 @@ Error VariantParser::_parse_construct(Stream *p_stream, PODVector<T> &r_construc
     return OK;
 }
 
-Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
+Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
     using namespace eastl; // for _sv suffix
     /*	{
         Error err = get_token(p_stream,token,line,r_err_str);
@@ -1043,7 +1069,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, Stream *p_stream,
     }
 }
 
-Error VariantParser::_parse_array(Array &array, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
+Error VariantParser::_parse_array(Array &array, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
 
     Token token;
     bool need_comma = false;
@@ -1086,7 +1112,7 @@ Error VariantParser::_parse_array(Array &array, Stream *p_stream, int &line, Str
     }
 }
 
-Error VariantParser::_parse_dictionary(Dictionary &object, Stream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
+Error VariantParser::_parse_dictionary(Dictionary &object, VariantParserStream *p_stream, int &line, String &r_err_str, ResourceParser *p_res_parser) {
 
     bool at_key = true;
     Variant key;
@@ -1155,7 +1181,7 @@ Error VariantParser::_parse_dictionary(Dictionary &object, Stream *p_stream, int
     }
 }
 
-Error VariantParser::_parse_tag(Token &token, Stream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser, bool p_simple_tag) {
+Error VariantParser::_parse_tag(Token &token, VariantParserStream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser, bool p_simple_tag) {
 
     r_tag.fields.clear();
 
@@ -1246,7 +1272,7 @@ Error VariantParser::_parse_tag(Token &token, Stream *p_stream, int &line, Strin
     return OK;
 }
 
-Error VariantParser::parse_tag(Stream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser, bool p_simple_tag) {
+Error VariantParser::parse_tag(VariantParserStream *p_stream, int &line, String &r_err_str, Tag &r_tag, ResourceParser *p_res_parser, bool p_simple_tag) {
 
     Token token;
     get_token(p_stream, token, line, r_err_str);
@@ -1263,7 +1289,7 @@ Error VariantParser::parse_tag(Stream *p_stream, int &line, String &r_err_str, T
     return _parse_tag(token, p_stream, line, r_err_str, r_tag, p_res_parser, p_simple_tag);
 }
 
-Error VariantParser::parse_tag_assign_eof(Stream *p_stream, int &line, String &r_err_str, Tag &r_tag, String &r_assign, Variant &r_value, ResourceParser *p_res_parser, bool p_simple_tag) {
+Error VariantParser::parse_tag_assign_eof(VariantParserStream *p_stream, int &line, String &r_err_str, Tag &r_tag, String &r_assign, Variant &r_value, ResourceParser *p_res_parser, bool p_simple_tag) {
 
     //assign..
     r_assign.clear();
@@ -1333,7 +1359,7 @@ Error VariantParser::parse_tag_assign_eof(Stream *p_stream, int &line, String &r
     }
 }
 
-Error VariantParser::parse(Stream *p_stream, Variant &r_ret, String &r_err_str, int &r_err_line, ResourceParser *p_res_parser) {
+Error VariantParser::parse(VariantParserStream *p_stream, Variant &r_ret, String &r_err_str, int &r_err_line, ResourceParser *p_res_parser) {
 
     Token token;
     Error err = get_token(p_stream, token, r_err_line, r_err_str);
@@ -1347,18 +1373,22 @@ Error VariantParser::parse(Stream *p_stream, Variant &r_ret, String &r_err_str, 
     return parse_value(token, r_ret, p_stream, r_err_line, r_err_str, p_res_parser);
 }
 
-VariantParser::Stream *VariantParser::get_file_stream(FileAccess *f)
+VariantParserStream *VariantParser::get_file_stream(FileAccess *f)
 {
     return memnew_args_basic(StreamFile,f);
 }
 
-VariantParser::Stream *VariantParser::get_string_stream(const String &f)
+VariantParserStream *VariantParser::get_string_stream(const String &f)
 {
     return memnew_args_basic(StreamString,f);
 
 }
+VariantParserStream *VariantParser::get_string_stream(String &&f)
+{
+    return memnew_args_basic(StreamString,eastl::move(f));
 
-void VariantParser::release_stream(VariantParser::Stream *s)
+}
+void VariantParser::release_stream(VariantParserStream *s)
 {
     memdelete(s);
 }

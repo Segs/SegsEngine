@@ -36,7 +36,7 @@
 #include "core/string_formatter.h"
 #include "main/main.h"
 #include "scene/3d/mesh_instance.h"
-#include "scene/3d/navigation_mesh.h"
+#include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/physics_body.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
@@ -207,7 +207,7 @@ void MeshLibraryEditor::_import_scene_cbk(se_string_view p_str) {
     ERR_FAIL_COND(not ps);
     Node *scene = ps->instance();
 
-    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + String(p_str) + "'."); 
+    ERR_FAIL_COND_MSG(!scene, "Cannot create an instance from PackedScene '" + String(p_str) + "'.");
 
     _import_scene(scene, mesh_library, option == MENU_OPTION_UPDATE_FROM_SCENE);
 

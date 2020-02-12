@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CYLINDER_SHAPE_H
-#define CYLINDER_SHAPE_H
+#pragma once
 
 #include "scene/resources/shape.h"
+#include "core/math/math_funcs.h"
 
 class CylinderShape : public Shape {
 
@@ -52,7 +52,9 @@ public:
     void set_height(float p_height);
     float get_height() const { return height; }
 
+    real_t get_enclosing_radius() const override {
+        return Math::sqrt(radius * radius + (height*0.5f) * (height*0.5f));
+    }
+
     CylinderShape();
 };
-
-#endif // CYLINDER_SHAPE_H

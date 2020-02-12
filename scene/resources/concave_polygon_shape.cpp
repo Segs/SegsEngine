@@ -94,6 +94,17 @@ void ConcavePolygonShape::_update_shape() {
     Shape::_update_shape();
 }
 
+real_t ConcavePolygonShape::get_enclosing_radius() const {
+    PoolVector<Vector3> data = get_faces();
+    PoolVector<Vector3>::Read read = data.read();
+    real_t r = 0;
+    for (int i(0); i < data.size(); i++) {
+        r = MAX(read[i].length_squared(), r);
+    }
+    return Math::sqrt(r);
+}
+
+
 void ConcavePolygonShape::set_faces(const PoolVector<Vector3> &p_faces) {
 
     PhysicsServer::get_singleton()->shape_set_data(get_shape(), p_faces);

@@ -267,7 +267,7 @@ Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _s
             encode_bptc = true;
 
             if (no_bptc_if_rgb) {
-                Image::DetectChannels channels = image->get_detected_channels();
+                Image::DetectChannels channels = image->detect_used_channels();
                 if (channels != Image::DETECTED_LA && channels != Image::DETECTED_RGBA) {
                     encode_bptc = false;
                 }

@@ -40,6 +40,7 @@
 #include "scene/2d/area_2d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/world_2d.h"
+#include "servers/navigation_2d_server.h"
 #include "servers/physics_2d_server.h"
 
 IMPL_GDCLASS(TileMap)
@@ -96,7 +97,7 @@ void TileMap::_notification(int p_what) {
                 if (navigation) {
                     for (eastl::pair<const PosKey,Quadrant::NavPoly> &F : q.navpoly_ids) {
 
-                        navigation->navpoly_remove(F.second.id);
+                       Navigation2DServer::get_singleton()->region_set_map(F.second.region, RID());
                     }
                     q.navpoly_ids.clear();
                 }
@@ -173,7 +174,7 @@ void TileMap::_update_quadrant_transform() {
         if (navigation) {
             for (eastl::pair<const PosKey,Quadrant::NavPoly> &F : q.navpoly_ids) {
 
-                navigation->navpoly_set_transform(F.second.id, nav_rel * F.second.xform);
+                Navigation2DServer::get_singleton()->region_set_transform(F.second.region, nav_rel * F.second.xform);
             }
         }
 
@@ -385,7 +386,7 @@ void TileMap::update_dirty_quadrants() {
         if (navigation) {
             for (eastl::pair<const PosKey,Quadrant::NavPoly> &E : q.navpoly_ids) {
 
-                navigation->navpoly_remove(E.second.id);
+                Navigation2DServer::get_singleton()->region_set_map(E.second.region, RID());
             }
             q.navpoly_ids.clear();
         }
@@ -619,10 +620,13 @@ void TileMap::update_dirty_quadrants() {
                     xform.set_origin(offset.floor() + q.pos);
                     _fix_cell_transform(xform, c, npoly_ofs, s);
 
-                    int pid = navigation->navpoly_add(navpoly, nav_rel * xform);
+                    RID region = Navigation2DServer::get_singleton()->region_create();
+                    Navigation2DServer::get_singleton()->region_set_map(region, navigation->get_rid());
+                    Navigation2DServer::get_singleton()->region_set_transform(region, nav_rel * xform);
+                    Navigation2DServer::get_singleton()->region_set_navpoly(region, navpoly);
 
                     Quadrant::NavPoly np;
-                    np.id = pid;
+                    np.region = region;
                     np.xform = xform;
                     q.navpoly_ids[E->first] = np;
 
@@ -633,35 +637,25 @@ void TileMap::update_dirty_quadrants() {
                         vs->canvas_item_set_z_index(debug_navigation_item, VS::CANVAS_ITEM_Z_MAX - 2); // Display one below collision debug
 
                         if (debug_navigation_item.is_valid()) {
-                            PoolVector<Vector2> navigation_polygon_vertices = navpoly->get_vertices();
+                            const auto & navigation_polygon_vertices = navpoly->get_vertices();
                             int vsize = navigation_polygon_vertices.size();
 
                             if (vsize > 2) {
-                                PoolVector<Color> colors;
-                                PODVector<Vector2> vertices;
-                                vertices.reserve(vsize);
-                                colors.resize(vsize);
-                                {
-                                    auto colr_wr(colors.write());
-                                    PoolVector<Vector2>::Read vr = navigation_polygon_vertices.read();
-                                    vertices.assign(vr.ptr(),vr.ptr()+vsize);
-                                    for (int j = 0; j < vsize; j++) {
-                                        colr_wr[j] = debug_navigation_color;
-                                    }
-                                }
+                                PODVector<Color> colors;
+                                PODVector<Vector2> vertices(navigation_polygon_vertices);
+                                colors.resize(vsize,debug_navigation_color);
 
                                 PODVector<int> indices;
 
                                 for (int j = 0; j < navpoly->get_polygon_count(); j++) {
-                                    PoolVector<int> polygon = navpoly->get_polygon(j);
-                                    auto rd(polygon.read());
-
+                                    const auto &polygon = navpoly->get_polygon(j);
+                                    indices.reserve((polygon.size()-2)*3);
                                     for (int k = 2; k < polygon.size(); k++) {
 
                                         int kofs[3] = { 0, k - 1, k };
                                         for (int l = 0; l < 3; l++) {
 
-                                            int idx = rd[kofs[l]];
+                                            int idx = polygon[kofs[l]];
                                             ERR_FAIL_INDEX(idx, vsize);
                                             indices.push_back(idx);
                                         }
@@ -672,7 +666,7 @@ void TileMap::update_dirty_quadrants() {
                                 _fix_cell_transform(navxform, c, npoly_ofs, s);
 
                                 vs->canvas_item_set_transform(debug_navigation_item, navxform);
-                                vs->canvas_item_add_triangle_array(debug_navigation_item, indices, vertices, colors);
+                                vs->canvas_item_add_triangle_array(debug_navigation_item, indices, vertices, PoolVector<Color>(colors));
                             }
                         }
                     }
@@ -819,7 +813,7 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
     if (navigation) {
         for (eastl::pair<const PosKey,Quadrant::NavPoly> &E : q.navpoly_ids) {
 
-            navigation->navpoly_remove(E.second.id);
+            Navigation2DServer::get_singleton()->region_set_map(E.second.region, RID());
         }
         q.navpoly_ids.clear();
     }
@@ -967,7 +961,7 @@ void TileMap::update_bitmask_region(const Vector2 &p_start, const Vector2 &p_end
 
 void TileMap::update_cell_bitmask(int p_x, int p_y) {
 
-    ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open."); 
+    ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.");
 
     PosKey p(p_x, p_y);
     Map<PosKey, Cell>::iterator E = tile_map.find(p);

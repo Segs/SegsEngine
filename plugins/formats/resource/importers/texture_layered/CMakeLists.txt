@@ -6,13 +6,14 @@ set(source_files
 set(plugin_sources
     resource_importer_layered_texture.h
 )
-
+# Both plugins are disabled since godot merge of vulkan branch
 set_plugin_options(
     NAME texture_array
     CLASSPROP ResourceImporterTextureArray
     TYPE resource
     SOURCES ${source_files} ${plugin_sources}
-    )
+    DISABLED
+)
 
 set(plugin_sources
     resource_importer_atlas_texture.h
@@ -22,4 +23,5 @@ set_plugin_options(
     CLASSPROP ResourceImporter3DTexture
     TYPE resource
     SOURCES ${source_files} ${plugin_sources}
+    DISABLED
 )
