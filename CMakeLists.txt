@@ -309,10 +309,10 @@ else()
     )
 endif()
     install(EXPORT SegsEngine
-        FILE ${tgt}_engine_targets.cmake
+        FILE ${tgt}_engine_Targets.cmake
         NAMESPACE SegsEngine::
         DESTINATION cmake
     )
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
-
+    export(TARGETS ${tgt}_engine EASTL_Import minizip_interface NAMESPACE SegsEngine:: FILE MyLibTargets.cmake)
 endforeach()
