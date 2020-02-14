@@ -34,6 +34,7 @@ RasterizerStorage *VisualServerGlobals::storage = nullptr;
 RasterizerCanvas *VisualServerGlobals::canvas_render = nullptr;
 RasterizerScene *VisualServerGlobals::scene_render = nullptr;
 Rasterizer *VisualServerGlobals::rasterizer = nullptr;
+ECS_Registry *VisualServerGlobals::ecs = nullptr;
 
 VisualServerCanvas *VisualServerGlobals::canvas = nullptr;
 VisualServerViewport *VisualServerGlobals::viewport = nullptr;

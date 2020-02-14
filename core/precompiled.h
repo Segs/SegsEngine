@@ -4,8 +4,9 @@
 #include "core/os/memory.h"
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
+#include <entt/entity/entity.hpp>
 //#define QT_RESTRICTED_CAST_FROM_ASCII
-#include <QObject>
+//#include <QObject>
 
 #ifdef USE_PRECOMPILED_HEADERS
 #if 0

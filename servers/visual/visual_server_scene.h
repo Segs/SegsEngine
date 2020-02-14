@@ -78,8 +78,6 @@ public:
         Transform transform;
     };
 
-    mutable RID_Owner<Camera> camera_owner;
-
     virtual RID camera_create();
     virtual void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
     virtual void camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
@@ -88,7 +86,7 @@ public:
     virtual void camera_set_cull_mask(RID p_camera, uint32_t p_layers);
     virtual void camera_set_environment(RID p_camera, RID p_env);
     virtual void camera_set_use_vertical_aspect(RID p_camera, bool p_enable);
-
+    static bool owns_camera(RID p_camera);
     /* SCENARIO API */
 
     struct Instance;

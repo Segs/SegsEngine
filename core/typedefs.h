@@ -34,7 +34,7 @@
 
 #ifdef _MSC_VER
 #include <sal.h>
-#include <iso646.h>
+
 #endif
 #include <cstddef>
 
@@ -61,6 +61,17 @@
  */
 
 #include "platform_config.h"
+#ifdef _WIN32
+#include <malloc.h>
+#elif defined(__linux__)
+#include <alloca.h>
+#endif
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#include <stdlib.h>
+#define PTHREAD_BSD_SET_NAME
+#endif
+
 
 #ifndef _STR
 #define _STR(m_x) #m_x

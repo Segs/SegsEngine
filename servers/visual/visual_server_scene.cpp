@@ -33,77 +33,132 @@
 #include "visual_server_globals.h"
 #include "visual_server_raster.h"
 
+#include "core/ecs_registry.h"
 #include "core/external_profiler.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include <new>
+
+
+
 /* CAMERA API */
-
+struct InstanceComponent {
+    VisualServerScene::Instance * instance;
+};
+struct Dirty {  
+};
+struct GeometryComponent {
+    VisualServerScene::InstanceGeometryData *Data;
+};
+template<typename T>
+bool has_component(RID id) {
+    return VSG::ecs->registry.valid(id.eid) && VSG::ecs->registry.has<T>(id.eid);
+}
+template<typename T>
+void clear_component(RID id) {
+    if (VSG::ecs->registry.valid(id.eid) && VSG::ecs->registry.has<T>(id.eid))
+    {
+        VSG::ecs->registry.remove<T>(id.eid);
+    }
+}
 RID VisualServerScene::camera_create() {
-
-    Camera *camera = memnew(Camera);
-    return camera_owner.make_rid(camera);
+    auto eid = VSG::ecs->registry.create();
+    VSG::ecs->registry.assign<Camera>(eid, Camera());
+    RID newid;
+    newid.eid = eid;
+    return newid;
 }
 
 void VisualServerScene::camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far) {
 
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-    camera->type = Camera::PERSPECTIVE;
-    camera->fov = p_fovy_degrees;
-    camera->znear = p_z_near;
-    camera->zfar = p_z_far;
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
+
+        camera.type = Camera::PERSPECTIVE;
+        camera.fov = p_fovy_degrees;
+        camera.znear = p_z_near;
+        camera.zfar = p_z_far;
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
 
 void VisualServerScene::camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far) {
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
 
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-    camera->type = Camera::ORTHOGONAL;
-    camera->size = p_size;
-    camera->znear = p_z_near;
-    camera->zfar = p_z_far;
+        camera.type = Camera::ORTHOGONAL;
+        camera.size = p_size;
+        camera.znear = p_z_near;
+        camera.zfar = p_z_far;
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
 
 void VisualServerScene::camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far) {
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-    camera->type = Camera::FRUSTUM;
-    camera->size = p_size;
-    camera->offset = p_offset;
-    camera->znear = p_z_near;
-    camera->zfar = p_z_far;
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
+
+        camera.type = Camera::FRUSTUM;
+        camera.size = p_size;
+        camera.offset = p_offset;
+        camera.znear = p_z_near;
+        camera.zfar = p_z_far;
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
 
 void VisualServerScene::camera_set_transform(RID p_camera, const Transform &p_transform) {
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
 
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-    camera->transform = p_transform.orthonormalized();
+        camera.transform = p_transform.orthonormalized();
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
 
 void VisualServerScene::camera_set_cull_mask(RID p_camera, uint32_t p_layers) {
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
 
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-
-    camera->visible_layers = p_layers;
+        camera.visible_layers = p_layers;
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
 
 void VisualServerScene::camera_set_environment(RID p_camera, RID p_env) {
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
 
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-    camera->env = p_env;
+        camera.env = p_env;
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
 
 void VisualServerScene::camera_set_use_vertical_aspect(RID p_camera, bool p_enable) {
+    if (VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid)) {
+        Camera &camera = VSG::ecs->registry.get<Camera>(p_camera.eid);
 
-    Camera *camera = camera_owner.get(p_camera);
-    ERR_FAIL_COND(!camera);
-    camera->vaspect = p_enable;
+        camera.vaspect = p_enable;
+    }
+    else {
+        ERR_FAIL_COND(true);
+    }
 }
-
+bool VisualServerScene::owns_camera(RID p_camera) {
+    return VSG::ecs->registry.valid(p_camera.eid) && VSG::ecs->registry.has<Camera>(p_camera.eid);
+}
 /* SCENARIO API */
 
 void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int) {
@@ -313,6 +368,9 @@ void VisualServerScene::_instance_queue_update(Instance *p_instance, bool p_upda
     if (p_update_materials)
         p_instance->update_materials = true;
 
+    auto &reg = VSG::ecs->registry;
+    reg.assign_or_replace<Dirty>(p_instance->self.eid);
+
     if (p_instance->update_item.in_list())
         return;
 
@@ -325,8 +383,10 @@ RID VisualServerScene::instance_create() {
     ERR_FAIL_COND_V(!instance, RID());
 
     RID instance_rid = instance_owner.make_rid(instance);
-    instance->self = instance_rid;
+    instance_rid.eid = VSG::ecs->registry.create();
 
+    instance->self = instance_rid;
+    VSG::ecs->registry.assign_or_replace<InstanceComponent>(instance_rid.eid, instance);
     return instance_rid;
 }
 
@@ -1715,8 +1775,8 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
 void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas) {
 // render to mono camera
 #ifndef _3D_DISABLED
+    Camera *camera = VSG::ecs->registry.try_get<Camera>(p_camera.eid);
 
-    Camera *camera = camera_owner.getornull(p_camera);
     ERR_FAIL_COND(!camera);
 
     /* STEP 1 - SETUP CAMERA */
@@ -1766,7 +1826,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
 void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInterface::Eyes p_eye, RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas) {
     // render for AR/VR interface
 
-    Camera *camera = camera_owner.getornull(p_camera);
+    Camera *camera = VSG::ecs->registry.try_get<Camera>(p_camera.eid); //camera_owner.getornull(p_camera);
     ERR_FAIL_COND(!camera);
 
     /* SETUP CAMERA, we are ignoring type and FOV here */
@@ -3475,14 +3535,11 @@ void VisualServerScene::update_dirty_instances() {
 
 bool VisualServerScene::free(RID p_rid) {
 
-    if (camera_owner.owns(p_rid)) {
+    if (VSG::ecs->registry.valid(p_rid.eid)) {
+        VSG::ecs->registry.destroy(p_rid.eid);
+    }
 
-        Camera *camera = camera_owner.get(p_rid);
-
-        camera_owner.free(p_rid);
-        memdelete(camera);
-
-    } else if (scenario_owner.owns(p_rid)) {
+    if (scenario_owner.owns(p_rid)) {
 
         Scenario *scenario = scenario_owner.get(p_rid);
 

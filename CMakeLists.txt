@@ -314,5 +314,5 @@ endif()
         DESTINATION cmake
     )
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
-
+    target_link_libraries(${tgt}_engine PUBLIC EnTT::EnTT)
 endforeach()

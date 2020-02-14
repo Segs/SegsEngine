@@ -34,7 +34,7 @@
 #include "core/safe_refcount.h"
 #include "core/set.h"
 #include "core/error_macros.h"
-
+#include "entt/fwd.hpp"
 class RID_OwnerBase;
 
 class GODOT_EXPORT RID_Data {
@@ -58,6 +58,8 @@ class GODOT_EXPORT RID {
     mutable RID_Data *_data = nullptr;
 
 public:
+    entt::entity eid {};
+
     RID_Data *get_data() const { return _data; }
 
     constexpr bool operator==(RID p_rid) const {

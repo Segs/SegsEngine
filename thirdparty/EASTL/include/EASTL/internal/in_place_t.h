@@ -29,7 +29,7 @@ namespace eastl
 		in_place_tag() = delete;
 
 	private:
-		explicit in_place_tag(Internal::in_place_tag) {}
+        constexpr explicit in_place_tag(Internal::in_place_tag) {}
 		friend inline in_place_tag Internal_ConstructInPlaceTag();
 	};
 
@@ -49,6 +49,10 @@ namespace eastl
 
 	template <class T>
 	using in_place_type_t = in_place_tag(&)(Internal::in_place_type_tag<T>);
+#if EASTL_LF3D_EXTENSIONS
+    template<class T>
+    inline constexpr in_place_type_t<T> in_place_type{};
+#endif
 
 	template <size_t N>
 	using in_place_index_t = in_place_tag(&)(Internal::in_place_index_tag<N>);
