@@ -1295,14 +1295,14 @@ public:
      * @return A newly created view.
      */
     template<typename... Component, typename... Exclude>
-    entt::basic_view<Entity, exclude_t<Exclude...>, Component...> view(exclude_t<Exclude...> = {}) {
+    entt::basic_view<Entity, Allocator, exclude_t<Exclude...>, Component...> view(exclude_t<Exclude...> = {}) {
         static_assert(sizeof...(Component) > 0);
-        return { assure<Component>()..., assure<Exclude>()... };
+        return { Allocator(), assure<Component>()..., assure<Exclude>()... };
     }
 
     /*! @copydoc view */
     template<typename... Component, typename... Exclude>
-    entt::basic_view<Entity, exclude_t<Exclude...>, Component...> view(exclude_t<Exclude...> = {}) const {
+    entt::basic_view<Entity, Allocator, exclude_t<Exclude...>, Component...> view(exclude_t<Exclude...> = {}) const {
         static_assert(eastl::conjunction_v<eastl::is_const<Component>...>);
         return const_cast<basic_registry *>(this)->view<Component...>(exclude<Exclude...>);
     }

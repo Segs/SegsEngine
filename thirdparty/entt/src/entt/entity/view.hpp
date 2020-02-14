@@ -83,7 +83,7 @@ class basic_view<Entity, Allocator, exclude_t<Exclude...>, Component...> {
     using filter_type = eastl::array<const sparse_set<Entity> *, sizeof...(Exclude)>;
 
     class iterator {
-        friend class basic_view<Entity, exclude_t<Exclude...>, Component...>;
+        friend class basic_view<Entity,Allocator, exclude_t<Exclude...>, Component...>;
 
         iterator(underlying_iterator_type first, underlying_iterator_type last, unchecked_type other, filter_type ignore) ENTT_NOEXCEPT
             : begin{first},
@@ -143,7 +143,7 @@ class basic_view<Entity, Allocator, exclude_t<Exclude...>, Component...> {
     };
 
     // we could use pool_type<Component> *..., but vs complains about it and refuses to compile for unknown reasons (likely a bug)
-    basic_view(storage<Entity, eastl::remove_const_t<Component>> *... component, storage<Entity, eastl::remove_const_t<Exclude>> *... epool) ENTT_NOEXCEPT
+    basic_view(Allocator a,storage<Entity, eastl::remove_const_t<Component>> *... component, storage<Entity, eastl::remove_const_t<Exclude>> *... epool) ENTT_NOEXCEPT
         : pools{component...},
           filter{epool...}
     {}

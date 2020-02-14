@@ -60,7 +60,6 @@
  * Basic definitions and simple functions to be used everywhere.
  */
 
-#ifdef __linux__
 #ifdef _WIN32
 #include <malloc.h>
 #elif defined(__linux__)
@@ -343,7 +342,9 @@ struct _GlobalLock {
 #define __STR(m_index) __STRX(m_index)
 
 #ifdef __GNUC__
+#undef likely
 #define likely(x) __builtin_expect(!!(x), 1)
+#undef unlikely
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #else
 #define likely(x) x

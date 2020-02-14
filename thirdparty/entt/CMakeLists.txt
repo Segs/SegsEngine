@@ -168,16 +168,16 @@ export(PACKAGE EnTT)
 # AOB
 #
 
-FILE(GLOB GH_WORKFLOWS .github/workflows/*.yml)
+#FILE(GLOB GH_WORKFLOWS .github/workflows/*.yml)
 
-add_custom_target(
-    entt_aob
-    SOURCES
-        ${GH_WORKFLOWS}
-        .github/FUNDING.yml
-        AUTHORS
-        CONTRIBUTING.md
-        LICENSE
-        README.md
-        TODO
-)
+#add_custom_target(
+#    entt_aob
+#    SOURCES
+#        ${GH_WORKFLOWS}
+#        .github/FUNDING.yml
+#        AUTHORS
+#        CONTRIBUTING.md
+#        LICENSE
+#        README.md
+#        TODO
+#)

@@ -140,7 +140,7 @@ public:
         bool update_aabb=false;
         bool update_materials=false;
 
-        SelfList<Instance> update_item;
+        //SelfList<Instance> update_item;
 
         AABB aabb;
         AABB transformed_aabb;
@@ -172,8 +172,7 @@ public:
         }
 
         Instance() :
-                scenario_item(this),
-                update_item(this) {
+                scenario_item(this) {
 
             visible = true;
 
@@ -199,33 +198,8 @@ public:
         }
     };
 
-    SelfList<Instance>::List _instance_update_list;
+    //SelfList<Instance>::List _instance_update_list;
     void _instance_queue_update(Instance *p_instance, bool p_update_aabb, bool p_update_materials = false);
-
-    struct InstanceGeometryData : public InstanceBaseData {
-
-        ListOld<Instance *> lighting;
-        bool lighting_dirty;
-        bool can_cast_shadows;
-        bool material_is_animated;
-
-        ListOld<Instance *> reflection_probes;
-        bool reflection_dirty;
-
-        ListOld<Instance *> gi_probes;
-        bool gi_probes_dirty;
-
-        ListOld<Instance *> lightmap_captures;
-
-        InstanceGeometryData() {
-
-            lighting_dirty = false;
-            reflection_dirty = true;
-            can_cast_shadows = true;
-            material_is_animated = true;
-            gi_probes_dirty = true;
-        }
-    };
 
     struct InstanceReflectionProbeData : public InstanceBaseData {
 
