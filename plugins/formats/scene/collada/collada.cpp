@@ -211,7 +211,7 @@ Transform Collada::Node::get_global_transform() const {
 Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
 
     ERR_FAIL_COND_V(keys.empty(), Vector<float>());
-    int i = 0;
+    size_t i = 0;
 
     for (i = 0; i < keys.size(); i++) {
 
@@ -222,7 +222,7 @@ Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
     if (i == 0)
         return keys[0].data;
     if (i == keys.size())
-        return keys[keys.size() - 1].data;
+        return keys.back().data;
 
     switch (keys[i].interp_type) {
 
@@ -264,9 +264,9 @@ Vector<float> Collada::AnimationTrack::get_value_at_time(float p_time) const {
 
                 Vector<float> dest;
                 dest.resize(keys[i].data.size());
-                for (int j = 0; j < dest.size(); j++) {
+                for (size_t j = 0; j < dest.size(); j++) {
 
-                    dest[j] = keys[i].data[j] * c + keys[i - 1].data[j] * (1.0 - c);
+                    dest[j] = keys[i].data[j] * c + keys[i - 1].data[j] * (1.0f - c);
                 }
                 return dest;
                 //interpolate one by one

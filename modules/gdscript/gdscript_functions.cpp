@@ -93,7 +93,6 @@ const char *GDScriptFunctions::get_func_name(Function p_func) {
         "is_equal_approx",
         "is_zero_approx",
         "ease",
-        "decimals",
         "step_decimals",
         "stepify",
         "lerp",
@@ -370,12 +369,6 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             r_ret = Math::ease((double)*p_args[0], (double)*p_args[1]);
-        } break;
-        case MATH_DECIMALS: {
-            VALIDATE_ARG_COUNT(1);
-            VALIDATE_ARG_NUM(0);
-            r_ret = Math::step_decimals((double)*p_args[0]);
-            WARN_DEPRECATED_MSG("GDScript method 'decimals' is deprecated and has been renamed to 'step_decimals', please update your code accordingly.");
         } break;
         case MATH_STEP_DECIMALS: {
             VALIDATE_ARG_COUNT(1);
@@ -1520,7 +1513,6 @@ bool GDScriptFunctions::is_deterministic(Function p_func) {
         case MATH_ISNAN:
         case MATH_ISINF:
         case MATH_EASE:
-        case MATH_DECIMALS:
         case MATH_STEP_DECIMALS:
         case MATH_STEPIFY:
         case MATH_LERP:
@@ -1700,28 +1692,23 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
             MethodInfo mi("ease", PropertyInfo(VariantType::REAL, "s"), PropertyInfo(VariantType::REAL, "curve"));
             mi.return_val.type = VariantType::REAL;
             return mi;
-        } break;
-        case MATH_DECIMALS: {
-            MethodInfo mi("decimals", PropertyInfo(VariantType::REAL, "step"));
-            mi.return_val.type = VariantType::INT;
-            return mi;
-        } break;
+        }
         case MATH_STEP_DECIMALS: {
             MethodInfo mi("step_decimals", PropertyInfo(VariantType::REAL, "step"));
             mi.return_val.type = VariantType::INT;
             return mi;
-        } break;
+        }
         case MATH_STEPIFY: {
             MethodInfo mi("stepify", PropertyInfo(VariantType::REAL, "s"), PropertyInfo(VariantType::REAL, "step"));
             mi.return_val.type = VariantType::REAL;
             return mi;
-        } break;
+        }
         case MATH_LERP: {
             MethodInfo mi("lerp", PropertyInfo(VariantType::NIL, "from"), PropertyInfo(VariantType::NIL, "to"), PropertyInfo(VariantType::REAL, "weight"));
             mi.return_val.type = VariantType::NIL;
             mi.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
             return mi;
-        } break;
+        }
         case MATH_LERP_ANGLE: {
             MethodInfo mi("lerp_angle", PropertyInfo(VariantType::REAL, "from"), PropertyInfo(VariantType::REAL, "to"), PropertyInfo(VariantType::REAL, "weight"));
             mi.return_val.type = VariantType::REAL;

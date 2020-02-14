@@ -846,6 +846,9 @@ bool ShaderLanguage::_find_identifier(const BlockNode *p_block, const Map<String
         if (r_data_type) {
             *r_data_type = p_builtin_types.at(p_identifier).type;
         }
+        if (r_is_const) {
+            *r_is_const = p_builtin_types.at(p_identifier).constant;
+        }
         if (r_type) {
             *r_type = IDENTIFIER_BUILTIN_VAR;
         }
@@ -2773,6 +2776,8 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
         Token tk = _get_token();
         TkPos pos = _get_tkpos();
 
+        bool is_const = false;
+
         if (tk.type == TK_PARENTHESIS_OPEN) {
             //handle subexpression
 
@@ -2961,7 +2966,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     }
                     if (!found) {
                         _set_error("Unknown identifier in expression: " + String(identifier));
-                        return NULL;
+                        return nullptr;
                     }
                 } else {
                     if (!_find_identifier(p_block, p_builtin_types, identifier, &data_type, &ident_type, &is_const, &array_size)) {

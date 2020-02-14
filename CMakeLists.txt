@@ -309,7 +309,7 @@ else()
     )
 endif()
     install(EXPORT SegsEngine
-        FILE ${tgt}_engine_targets.cmake
+        FILE ${tgt}_engine_Targets.cmake
         NAMESPACE SegsEngine::
         DESTINATION cmake
     )

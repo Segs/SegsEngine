@@ -60,7 +60,7 @@
  * Basic definitions and simple functions to be used everywhere.
  */
 
-#include "platform_config.h"
+#ifdef __linux__
 #ifdef _WIN32
 #include <malloc.h>
 #elif defined(__linux__)
