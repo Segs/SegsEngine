@@ -171,6 +171,9 @@ public:
         if (!m_weights.empty()) {
             lformat |= VS::ARRAY_FORMAT_WEIGHTS;
         }
+        if(!m_indices.empty()) {
+            lformat |= VS::ARRAY_FORMAT_INDEX;
+        }
         return lformat;
     }
     SurfaceArrays clone() const {

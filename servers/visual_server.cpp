@@ -1035,9 +1035,7 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
             } else {
                 elem_size = 2;
             }
-            //TODO: SEGS: this is likely a bug, indices are meant to live in another buffer, and as such their index has no influence on offset + total element size
             offsets[VS::ARRAY_INDEX] = elem_size;
-            total_elem_size += elem_size;
         }
     }
 
