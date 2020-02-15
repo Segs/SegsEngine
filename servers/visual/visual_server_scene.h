@@ -125,7 +125,7 @@ public:
 
     struct InstanceBaseData {
 
-        virtual ~InstanceBaseData() {}
+        virtual ~InstanceBaseData() = default;
     };
 
     struct Instance : RasterizerScene::InstanceBase {
@@ -139,8 +139,6 @@ public:
         //aabb stuff
         bool update_aabb=false;
         bool update_materials=false;
-
-        //SelfList<Instance> update_item;
 
         AABB aabb;
         AABB transformed_aabb;
@@ -267,17 +265,17 @@ public:
 
         struct LightCache {
 
-            VS::LightType type;
+            VS::LightType type= VS::LIGHT_DIRECTIONAL;
             Transform transform;
             Color color;
-            float energy;
-            float radius;
-            float attenuation;
-            float spot_angle;
-            float spot_attenuation;
-            bool visible;
+            float energy=1.0f;
+            float radius = 1.0f;
+            float attenuation = 1.0f;
+            float spot_angle = 1.0f;
+            float spot_attenuation = 1.0f;
+            bool visible=true;
 
-            bool operator==(const LightCache &p_cache) {
+            bool operator==(const LightCache &p_cache) const {
 
                 return (type == p_cache.type &&
                         transform == p_cache.transform &&
@@ -290,21 +288,12 @@ public:
                         visible == p_cache.visible);
             }
 
-            bool operator!=(const LightCache &p_cache) {
+            bool operator!=(const LightCache &p_cache) const {
 
                 return !operator==(p_cache);
             }
 
-            LightCache() {
-
-                type = VS::LIGHT_DIRECTIONAL;
-                energy = 1.0;
-                radius = 1.0;
-                attenuation = 1.0;
-                spot_angle = 1.0;
-                spot_attenuation = 1.0;
-                visible = true;
-            }
+            LightCache() = default;
         };
 
         struct LocalData {

@@ -41,34 +41,23 @@
 
 namespace {
 struct InstanceGeometryData {
-
     ListOld<VisualServerScene::Instance *> lighting;
-//    bool lighting_dirty;
-//    bool can_cast_shadows;
-//    bool material_is_animated;
-
     ListOld<VisualServerScene::Instance *> reflection_probes;
-//    bool reflection_dirty;
-
     ListOld<VisualServerScene::Instance *> gi_probes;
-//    bool gi_probes_dirty;
-
     ListOld<VisualServerScene::Instance *> lightmap_captures;
-
-    InstanceGeometryData() {
-
-//        lighting_dirty = false;
-//        reflection_dirty = true;
-//        can_cast_shadows = true;
-//        material_is_animated = true;
-//        gi_probes_dirty = true;
-    }
 };
 
 struct InstanceComponent {
     VisualServerScene::Instance * instance;
 };
 struct Dirty {
+    //aabb stuff
+    bool update_aabb : 1;
+    bool update_materials : 1;
+    Dirty() {
+        update_aabb = false;
+        update_materials = false;
+    }
 };
 struct GeometryComponent {
     InstanceGeometryData *Data;
