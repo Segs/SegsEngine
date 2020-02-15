@@ -211,7 +211,7 @@ class VisualServer : public Object {
 
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
     void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
-    SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, int p_vertex_len,
+    SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, uint32_t p_vertex_len,
             Span<const uint8_t> p_index_data, int p_index_len) const;
 
 protected:

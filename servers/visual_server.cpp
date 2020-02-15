@@ -1094,20 +1094,20 @@ void VisualServer::mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_
 }
 
 SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data,
-        int p_vertex_len, Span<const uint8_t> p_index_data, int p_index_len) const {
+        uint32_t p_vertex_len, Span<const uint8_t> p_index_data, int p_index_len) const {
 
     uint32_t offsets[VS::ARRAY_MAX];
 
-    int total_elem_size = 0;
+    uint32_t total_elem_size = 0;
 
-    for (int i = 0; i < VS::ARRAY_MAX; i++) {
+    for (uint32_t i = 0; i < VS::ARRAY_MAX; i++) {
 
         offsets[i] = 0; //reset
 
         if (!(p_format & (1 << i))) // no array
             continue;
 
-        int elem_size = 0;
+        uint32_t elem_size = 0;
 
         switch (i) {
 
@@ -1235,14 +1235,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
 
                     if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
-                        for (int j = 0; j < p_vertex_len; j++) {
+                        for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_2d[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                         }
                     } else {
 
-                        for (int j = 0; j < p_vertex_len; j++) {
+                        for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_2d[j] = Vector2(v[0], v[1]);
@@ -1257,14 +1257,14 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
 
                     if (p_format & VS::ARRAY_COMPRESS_VERTEX) {
 
-                        for (int j = 0; j < p_vertex_len; j++) {
+                        for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_3d[j] = Vector3(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]), Math::halfptr_to_float(&v[2]));
                         }
                     } else {
 
-                        for (int j = 0; j < p_vertex_len; j++) {
+                        for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                             arr_3d[j] = Vector3(v[0], v[1], v[2]);
@@ -1283,13 +1283,13 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
 
                     const float multiplier = 1.f / 127.f;
 
-                    for (int j = 0; j < p_vertex_len; j++) {
+                    for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                         const int8_t *v = (const int8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr.emplace_back(float(v[0]) * multiplier, float(v[1]) * multiplier, float(v[2]) * multiplier);
                     }
                 } else {
-                    for (int j = 0; j < p_vertex_len; j++) {
+                    for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         arr.emplace_back(v[0], v[1], v[2]);
@@ -1330,10 +1330,10 @@ SurfaceArrays VisualServer::_get_array_from_surface(uint32_t p_format, Span<cons
 
                 if (p_format & VS::ARRAY_COMPRESS_COLOR) {
 
-                    for (int j = 0; j < p_vertex_len; j++) {
+                    for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                         const uint8_t *v = (const uint8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        arr.emplace_back(float(v[0] / 255.0), float(v[1] / 255.0), float(v[2] / 255.0), float(v[3] / 255.0));
+                        arr.emplace_back(float(v[0] / 255.0f), float(v[1] / 255.0f), float(v[2] / 255.0f), float(v[3] / 255.0f));
                     }
                 } else {
 
