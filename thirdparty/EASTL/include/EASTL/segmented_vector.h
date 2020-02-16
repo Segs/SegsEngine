@@ -209,10 +209,11 @@ namespace eastl
 	template<typename T, size_t Count, typename Allocator>
     segmented_vector_iterator<T, Count, Allocator>
 	segmented_vector_iterator<T, Count, Allocator>::operator++(int)
-	{
-		this_type i(*this);
-		return ++i;
-	}
+    {
+        this_type i(*this);
+        operator++();
+        return i;
+    }
 
 
 	template <typename T, size_t Count, typename Allocator>

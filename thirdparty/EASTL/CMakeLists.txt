@@ -73,4 +73,5 @@ target_link_libraries(EASTL EABase)
 #-------------------------------------------------------------------------------------------
 install(TARGETS EASTL DESTINATION lib)
 install(DIRECTORY include/EASTL DESTINATION include)
+install(FILE SegsEngine_Config.h DESTINATION include/EASTL/SegsEngine_Config.h)
 install(DIRECTORY test/packages/EABase/include/Common/EABase DESTINATION include)

@@ -41,8 +41,8 @@ macro(set_plugin_options )
             set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
             target_link_libraries(${tgt_name} PRIVATE ${tgt}_engine)
             install(TARGETS ${tgt_name} EXPORT SegsEngine
-                LIBRARY DESTINATION plugins
-                RUNTIME DESTINATION plugins
+                LIBRARY DESTINATION bin/plugins
+                RUNTIME DESTINATION bin/plugins
             )
         else()
             continue()

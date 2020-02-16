@@ -48,6 +48,7 @@ include(Helpers)
 include(PluginSupport)
 
 ######################################
+include(version.cmake)
 
 option(USE_UNITY_BUILDS "Use unity builds" ON)
 option(USE_PRECOMPILED_HEADERS "Use precompiled headers" ON)
@@ -296,15 +297,16 @@ endif()
 foreach(tgt ${global_targets})
 if(WIN32)
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
-        ARCHIVE DESTINATION .
-        LIBRARY DESTINATION .
-        RUNTIME DESTINATION .
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION bin
+        RUNTIME DESTINATION bin
         INCLUDES DESTINATION include
     )
 else()
     install(TARGETS ${tgt}_engine EXPORT SegsEngine
-        LIBRARY DESTINATION .
-        RUNTIME DESTINATION .
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION bin
+        RUNTIME DESTINATION bin
         INCLUDES DESTINATION include
     )
 endif()
@@ -316,3 +318,39 @@ endif()
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
     target_link_libraries(${tgt}_engine PUBLIC EnTT::EnTT)
 endforeach()
+
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(CUSTOM_INSTALL_CONFIGDIR cmake)
+else()
+    set(CUSTOM_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SegsEngine)
+endif()
+
+#
+# Install tree package config file
+#
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    cmake/SegsEngineConfig.cmake.in
+    ${CUSTOM_INSTALL_CONFIGDIR}/SegsEngineConfig.cmake
+    INSTALL_DESTINATION ${CUSTOM_INSTALL_CONFIGDIR}
+    PATH_VARS CMAKE_INSTALL_INCLUDEDIR
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/SegsEngineConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(
+    FILES
+
+        ${CMAKE_CURRENT_BINARY_DIR}/${CUSTOM_INSTALL_CONFIGDIR}/SegsEngineConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/SegsEngineConfigVersion.cmake
+    DESTINATION ${CUSTOM_INSTALL_CONFIGDIR}
+)
+
+export(PACKAGE SegsEngine)

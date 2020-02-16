@@ -79,11 +79,11 @@ using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
 namespace eastl {
-template <typename T, ptrdiff_t Extent>
+template <typename T, size_t Extent>
 class span;
 }
 template <typename T>
-using Span = eastl::span<T,ptrdiff_t(-1)>;
+using Span = eastl::span<T,size_t(-1)>;
 
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__

@@ -18,7 +18,7 @@ namespace eastl {
     class basic_string;
     template<class T>
     class basic_string_view;
-    template <typename T, ptrdiff_t Extent>
+    template <typename T, size_t Extent>
     class span;
     template <typename Allocator, typename Element,
         typename Container >

@@ -81,7 +81,7 @@ bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float 
         const int outline_size = outline.size();
         if (outline_size < 3)
             continue;
-        if (Geometry::is_point_in_polygon(p_point, {outline.read().ptr(),outline.size()}))
+        if (Geometry::is_point_in_polygon(p_point, outline.toSpan()))
             return true;
     }
     return false;

@@ -46529,13 +46529,13 @@ void godot_icall_VisualServer_canvas_occluder_polygon_set_shape_f698a253(Object 
     bool arg3_in = static_cast<bool>(arg3);
     auto val = Variant(*arg2).as<PoolVector<Vector2>>();
 
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape(*arg1, {val.read().ptr(),val.size()}, arg3_in);
+    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape(*arg1, val.toSpan(), arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_occluder_polygon_set_shape_as_lines_c7e12dae(Object * ptr, RID* arg1, Array* arg2) {
     ERR_FAIL_NULL(ptr);
     auto val = Variant(*arg2).as<PoolVector<Vector2>>();
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape_as_lines(*arg1, {val.read().ptr(),val.size()});
+    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape_as_lines(*arg1, val.toSpan());
 }
 
 void godot_icall_VisualServer_canvas_occluder_polygon_set_cull_mode_1096e63d(Object * ptr, RID* arg1, int32_t arg2) {

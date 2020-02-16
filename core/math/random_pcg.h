@@ -32,7 +32,6 @@
 #include "core/typedefs.h"
 #include "core/math/math_defs.h"
 
-#include "thirdparty/misc/pcg.h"
 #include <cmath>
 
 #if defined(__GNUC__) || (_llvm_has_builtin(__builtin_clz))
@@ -58,28 +57,23 @@ static int __bsr_clz32(uint32_t x) {
 #endif
 
 class RandomPCG {
-    pcg32_random_t pcg;
+    typedef struct { uint64_t state;  uint64_t inc; } random_state;
+    random_state pcg;
     uint64_t current_seed; // seed with this to get the same state
     uint64_t current_inc;
 
 public:
     static const uint64_t DEFAULT_SEED = 12047754176567800795U;
-    static const uint64_t DEFAULT_INC = PCG_DEFAULT_INC_64;
+    static const uint64_t DEFAULT_INC = 1442695040888963407ULL; //PCG_DEFAULT_INC_64
     static const uint64_t RANDOM_MAX = 0xFFFFFFFF;
 
     RandomPCG(uint64_t p_seed = DEFAULT_SEED, uint64_t p_inc = DEFAULT_INC);
 
-    _FORCE_INLINE_ void seed(uint64_t p_seed) {
-        current_seed = p_seed;
-        pcg32_srandom_r(&pcg, current_seed, current_inc);
-    }
-    _FORCE_INLINE_ uint64_t get_seed() { return current_seed; }
+    void seed(uint64_t p_seed);
+    uint64_t get_seed() const { return current_seed; }
 
     void randomize();
-    _FORCE_INLINE_ uint32_t rand() {
-        current_seed = pcg.state;
-        return pcg32_random_r(&pcg);
-    }
+    uint32_t rand();
 
     // Obtaining floating point numbers in [0, 1] range with "good enough" uniformity.
     // These functions sample the output of rand() as the fraction part of an infinite binary number,
@@ -93,39 +87,16 @@ public:
     // However, all numbers below that threshold are floored to 0.
     // The thresholds are chosen to minimize rand() calls while keeping the numbers within a totally subjective quality standard.
     // If clz or ldexp isn't available, fall back to bit truncation for performance, sacrificing uniformity.
-    _FORCE_INLINE_ double randd() {
-#if defined(CLZ32)
-        uint32_t proto_exp_offset = rand();
-        if (unlikely(proto_exp_offset == 0)) {
-            return 0;
-        }
-        uint64_t significand = (((uint64_t)rand()) << 32) | rand() | 0x8000000000000001U;
-        return LDEXP((double)significand, -64 - CLZ32(proto_exp_offset));
-#else
-#pragma message("RandomPCG::randd - intrinsic clz is not available, falling back to bit truncation")
-        return (double)(((((uint64_t)rand()) << 32) | rand()) & 0x1FFFFFFFFFFFFFU) / (double)0x1FFFFFFFFFFFFFU;
-#endif
-    }
-    _FORCE_INLINE_ float randf() {
-#if defined(CLZ32)
-        uint32_t proto_exp_offset = rand();
-        if (unlikely(proto_exp_offset == 0)) {
-            return 0;
-        }
-        return LDEXPF((float)(rand() | 0x80000001), -32 - CLZ32(proto_exp_offset));
-#else
-#pragma message("RandomPCG::randf - intrinsic clz is not available, falling back to bit truncation")
-        return (float)(rand() & 0xFFFFFF) / (float)0xFFFFFF;
-#endif
-    }
+    double randd();
+    float randf();
 
-    _FORCE_INLINE_ double randfn(double p_mean, double p_deviation) {
+    double randfn(double p_mean, double p_deviation) {
         return p_mean + p_deviation * (std::cos(MathConsts<double>::TAU * randd()) *
-                                              std::sqrt(-2.0 * std::log(randd()))); // Box-Muller transform
+                                       std::sqrt(-2.0 * std::log(randd()))); // Box-Muller transform
     }
-    _FORCE_INLINE_ float randfn(float p_mean, float p_deviation) {
+    float randfn(float p_mean, float p_deviation) {
         return p_mean + p_deviation * (std::cos(float(Math_TAU) * randf()) *
-                                              std::sqrt(-2.0f * std::log(randf()))); // Box-Muller transform
+                                       std::sqrt(-2.0f * std::log(randf()))); // Box-Muller transform
     }
 
     double random(double p_from, double p_to);
