@@ -49,7 +49,7 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
         uint64_t offset;
     };
 
-    HashMapNew<String, String> remaps;
+    HashMap<String, String> remaps;
     Vector<char> str_buf;
     Vector<StringName> string_map;
     Vector<IntResource> internal_resources;
@@ -80,7 +80,7 @@ public:
     int get_stage_count() const override;
     void set_translation_remapped(bool p_remapped) override;
 
-    void set_remaps(const HashMapNew<String, String> &p_remaps) { remaps = p_remaps; }
+    void set_remaps(const HashMap<String, String> &p_remaps) { remaps = p_remaps; }
     void open(FileAccess *p_f);
     String recognize(FileAccess *p_f);
     void get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types);
@@ -97,7 +97,7 @@ public:
     bool handles_type(se_string_view /*p_type*/) const override;
     String get_resource_type(se_string_view p_path) const override;
     void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
-    Error rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map) override;
+    Error rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) override;
 };
 
 class ResourceFormatSaverBinaryInstance {
@@ -125,11 +125,11 @@ class ResourceFormatSaverBinaryInstance {
         }
     };
 
-    HashMapNew<NonPersistentKey, RES> non_persistent_map;
-    HashMapNew<StringName, int> string_map;
+    HashMap<NonPersistentKey, RES> non_persistent_map;
+    HashMap<StringName, int> string_map;
     Vector<StringName> strings;
 
-    HashMapNew<RES, int> external_resources;
+    HashMap<RES, int> external_resources;
     List<RES> saved_resources;
 
     static void _pad_buffer(FileAccess *f, int p_bytes);
@@ -140,7 +140,7 @@ class ResourceFormatSaverBinaryInstance {
 
 public:
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
-    static void write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, HashMapNew<RES, int> &external_resources, HashMapNew<StringName, int> &string_map);
+    static void write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, HashMap<RES, int> &external_resources, HashMap<StringName, int> &string_map);
 };
 
 class ResourceFormatSaverBinary : public ResourceFormatSaver {

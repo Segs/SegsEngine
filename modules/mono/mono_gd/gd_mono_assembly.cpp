@@ -438,7 +438,7 @@ GDMonoClass *GDMonoAssembly::get_class(MonoClass *p_mono_class) {
 
     ERR_FAIL_COND_V(!loaded, nullptr);
 
-    HashMapNew<MonoClass *, GDMonoClass *>::iterator match = cached_raw.find(p_mono_class);
+    HashMap<MonoClass *, GDMonoClass *>::iterator match = cached_raw.find(p_mono_class);
 
     if (match!=cached_raw.end())
         return match->second;
@@ -459,7 +459,7 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
     GDMonoClass *match = nullptr;
 
     if (gdobject_class_cache_updated) {
-        HashMapNew<StringName, GDMonoClass *>::iterator result = gdobject_class_cache.find(p_class);
+        HashMap<StringName, GDMonoClass *>::iterator result = gdobject_class_cache.find(p_class);
 
         if (result!=gdobject_class_cache.end())
             match = result->second;

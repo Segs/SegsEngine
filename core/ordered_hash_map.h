@@ -48,7 +48,7 @@ struct Hasher;
 template <class K, class V, class Hasher = Hasher<K>, class Comparator = eastl::equal_to<K>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
 class OrderedHashMap {
     using InternalList = ListOld<Pair<const K *, V> >;
-    using InternalMap = HashMapNew<K, typename InternalList::Element *, Hasher, Comparator>;
+    using InternalMap = HashMap<K, typename InternalList::Element *, Hasher, Comparator>;
 
     InternalList list;
     InternalMap map;

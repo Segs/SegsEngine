@@ -86,11 +86,11 @@ class GDMonoAssembly {
     String path;
     uint64_t modified_time;
 
-    HashMapNew<ClassKey, GDMonoClass *, ClassKey::Hasher> cached_classes;
-    HashMapNew<MonoClass *, GDMonoClass *> cached_raw;
+    HashMap<ClassKey, GDMonoClass *, ClassKey::Hasher> cached_classes;
+    HashMap<MonoClass *, GDMonoClass *> cached_raw;
 
     bool gdobject_class_cache_updated;
-    HashMapNew<StringName, GDMonoClass *> gdobject_class_cache;
+    HashMap<StringName, GDMonoClass *> gdobject_class_cache;
 
     static bool no_search;
     static bool in_preload;

@@ -283,8 +283,8 @@ public:
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
-    void set_editable_instances(const HashMapNew<NodePath, int> &p_editable_instances);
-    const HashMapNew<NodePath, int> &get_editable_instances() const;
+    void set_editable_instances(const HashMap<NodePath, int> &p_editable_instances);
+    const HashMap<NodePath, int> &get_editable_instances() const;
 
     /* NOTIFICATIONS */
 

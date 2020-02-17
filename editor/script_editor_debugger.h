@@ -160,7 +160,7 @@ private:
     Array message;
     int pending_in_queue;
 
-    HashMapNew<NodePath, int> node_path_cache;
+    HashMap<NodePath, int> node_path_cache;
     int last_path_id;
     Map<String, int> res_path_cache;
 

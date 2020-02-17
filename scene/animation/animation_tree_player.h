@@ -148,7 +148,7 @@ protected:
     Map<StringName, AnimationTreeNodeBase *> node_map;
 
     // return time left to finish animation
-    float _process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek = false, float p_fallback_weight = 1.0, HashMapNew<NodePath, float> *p_weights = nullptr);
+    float _process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek = false, float p_fallback_weight = 1.0, HashMap<NodePath, float> *p_weights = nullptr);
     void _process_animation(float p_delta);
     bool reset_request;
 
@@ -160,7 +160,7 @@ protected:
     void _recompute_caches(const StringName &p_node);
     PoolVector<String> _get_node_list();
 
-    void _compute_weights(float *p_fallback_weight, HashMapNew<NodePath, float> *p_weights, float p_coeff, const HashMapNew<NodePath, bool> *p_filter = nullptr, float p_filtered_coeff = 0);
+    void _compute_weights(float *p_fallback_weight, HashMap<NodePath, float> *p_weights, float p_coeff, const HashMap<NodePath, bool> *p_filter = nullptr, float p_filtered_coeff = 0);
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);

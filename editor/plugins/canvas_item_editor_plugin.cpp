@@ -64,6 +64,7 @@
 
 #include "animation_track_editor.h"
 
+#include "EASTL/sort.h"
 
 #define MIN_ZOOM 0.01
 #define MAX_ZOOM 100
@@ -460,7 +461,7 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
         _snap_if_closer_point(p_target, output, snap_target, grid_output, SNAP_TARGET_GRID, 0.0, -1.0);
     }
 
-    if (((snap_pixel && (p_modes & SNAP_PIXEL)) || (p_forced_modes & SNAP_PIXEL)) && rotation == 0.0) {
+    if (((snap_pixel && (p_modes & SNAP_PIXEL)) || (p_forced_modes & SNAP_PIXEL)) && rotation == 0.0f) {
         // Pixel
         output = output.snapped(Size2(1, 1));
     }
@@ -470,7 +471,10 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
 }
 
 float CanvasItemEditor::snap_angle(float p_target, float p_start) const {
-    return (((smart_snap_active || snap_rotation) ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL)) && snap_rotation_step != 0) ? Math::stepify(p_target - snap_rotation_offset, snap_rotation_step) + snap_rotation_offset : p_target;
+    return (((smart_snap_active || snap_rotation) ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL)) &&
+                   snap_rotation_step != 0.0f) ?
+                   Math::stepify(p_target - snap_rotation_offset, snap_rotation_step) + snap_rotation_offset :
+                   p_target;
 }
 
 void CanvasItemEditor::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
@@ -491,8 +495,8 @@ void CanvasItemEditor::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
             viewport->update();
         } else if ((grid_snap_active || show_grid) && divide_grid_step_shortcut && divide_grid_step_shortcut->is_shortcut(p_ev)) {
             // Divide the grid size
-            Point2 new_grid_step = grid_step * Math::pow(2.0, grid_step_multiplier - 1);
-            if (new_grid_step.x >= 1.0 && new_grid_step.y >= 1.0)
+            Point2 new_grid_step = grid_step * Math::pow(2.0f, grid_step_multiplier - 1);
+            if (new_grid_step.x >= 1.0f && new_grid_step.y >= 1.0f)
                 grid_step_multiplier--;
             viewport->update();
         }
@@ -620,7 +624,7 @@ void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, Vector<Canv
     _find_canvas_items_at_pos(p_pos, scene, r_items);
 
     //Remove invalid results
-    for (int i = 0; i < r_items.size(); i++) {
+    for (size_t i = 0; i < r_items.size(); i++) {
         Node *node = r_items[i].item;
 
         // Make sure the selected node is in the current scene, or editable
@@ -640,7 +644,7 @@ void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, Vector<Canv
 
         // Check if the canvas item is already in the list (for groups or scenes)
         bool duplicate = false;
-        for (int j = 0; j < i; j++) {
+        for (size_t j = 0; j < i; j++) {
             if (r_items[j].item == canvas_item) {
                 duplicate = true;
                 break;
@@ -673,7 +677,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<CanvasItemE
 
         // Check if the item is already in the list
         bool duplicate = false;
-        for (int i = 0; i < r_items.size(); i++) {
+        for (size_t i = 0; i < r_items.size(); i++) {
             if (r_items[i].item == from_node) {
                 duplicate = true;
                 break;

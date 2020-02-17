@@ -49,14 +49,14 @@
 #include <cstdio>
 
 namespace {
-    HashMapNew<String, Resource *> cached_resources;
+    HashMap<String, Resource *> cached_resources;
 
 } // end of anonymous namespace
 
 struct Resource::Data {
     Data(Resource *own) : remapped_list(own) {}
 #ifdef TOOLS_ENABLED
-    static HashMapNew<String, HashMapNew<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
+    static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
     static RWLock *path_cache_lock;
     String import_path;
 #endif
@@ -69,7 +69,7 @@ struct Resource::Data {
     bool local_to_scene=false;
 
 };
-HashMapNew<String, HashMapNew<String, int> > Resource::Data::resource_path_cache;
+HashMap<String, HashMap<String, int> > Resource::Data::resource_path_cache;
 RWLock *Resource::Data::path_cache_lock;
 
 

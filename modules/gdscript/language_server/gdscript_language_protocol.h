@@ -48,7 +48,7 @@ class GDScriptLanguageProtocol : public JSONRPC {
 
     static GDScriptLanguageProtocol *singleton;
 
-    HashMapNew<int, Ref<WebSocketPeer> > clients;
+    HashMap<int, Ref<WebSocketPeer> > clients;
     WebSocketServer *server;
     int lastest_client_id;
 

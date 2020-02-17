@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/method_bind_interface.h"
+#include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "scene/3d/navigation.h"
 #include "servers/navigation_server.h"
@@ -110,12 +111,12 @@ void NavigationAgent::_notification(int p_what) {
 
             // Search the navigation node and set it
             {
-                Navigation *nav = NULL;
+                Navigation *nav = nullptr;
                 Node *p = get_parent();
-                while (p != NULL) {
+                while (p != nullptr) {
                     nav = object_cast<Navigation>(p);
-                    if (nav != NULL)
-                        p = NULL;
+                    if (nav != nullptr)
+                        p = nullptr;
                     else
                         p = p->get_parent();
                 }
@@ -126,8 +127,8 @@ void NavigationAgent::_notification(int p_what) {
             set_physics_process_internal(true);
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            agent_parent = NULL;
-            set_navigation(NULL);
+            agent_parent = nullptr;
+            set_navigation(nullptr);
             set_physics_process_internal(false);
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
@@ -146,8 +147,8 @@ void NavigationAgent::_notification(int p_what) {
 }
 
 NavigationAgent::NavigationAgent() :
-        agent_parent(NULL),
-        navigation(NULL),
+        agent_parent(nullptr),
+        navigation(nullptr),
         agent(RID()),
         target_desired_distance(1.0),
         navigation_height_offset(0.0),
@@ -174,12 +175,12 @@ void NavigationAgent::set_navigation(Navigation *p_nav) {
         return; // Pointless
 
     navigation = p_nav;
-    NavigationServer::get_singleton()->agent_set_map(agent, navigation == NULL ? RID() : navigation->get_rid());
+    NavigationServer::get_singleton()->agent_set_map(agent, navigation == nullptr ? RID() : navigation->get_rid());
 }
 
 void NavigationAgent::set_navigation_node(Node *p_nav) {
     Navigation *nav = object_cast<Navigation>(p_nav);
-    ERR_FAIL_COND(nav == NULL);
+    ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }
 
@@ -246,7 +247,7 @@ Vector3 NavigationAgent::get_target_location() const {
 
 Vector3 NavigationAgent::get_next_location() {
     update_navigation();
-    if (navigation_path.size() == 0) {
+    if (navigation_path.empty()) {
         ERR_FAIL_COND_V(agent_parent == NULL, Vector3());
         return agent_parent->get_global_transform().origin;
     } else {
@@ -255,7 +256,7 @@ Vector3 NavigationAgent::get_next_location() {
 }
 
 real_t NavigationAgent::distance_to_target() const {
-    ERR_FAIL_COND_V(agent_parent == NULL, 0.0);
+    ERR_FAIL_COND_V(agent_parent == nullptr, 0.0);
     return agent_parent->get_global_transform().origin.distance_to(target_location);
 }
 
@@ -309,8 +310,8 @@ StringName NavigationAgent::get_configuration_warning() const {
 
 void NavigationAgent::update_navigation() {
 
-    if (agent_parent == NULL) return;
-    if (navigation == NULL) return;
+    if (agent_parent == nullptr) return;
+    if (navigation == nullptr) return;
     if (update_frame_id == Engine::get_singleton()->get_physics_frames()) return;
 
     update_frame_id = Engine::get_singleton()->get_physics_frames();

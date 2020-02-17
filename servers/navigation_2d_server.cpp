@@ -32,6 +32,7 @@
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "servers/navigation_server.h"
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 
 
@@ -41,7 +42,7 @@ IMPL_GDCLASS(Navigation2DServer)
     @author AndreaCatania
 */
 
-Navigation2DServer *Navigation2DServer::singleton = NULL;
+Navigation2DServer *Navigation2DServer::singleton = nullptr;
 
 #define FORWARD_0_C(FUNC_NAME)                                 \
     Navigation2DServer::FUNC_NAME()                            \

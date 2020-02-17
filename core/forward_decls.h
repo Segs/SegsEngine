@@ -68,8 +68,11 @@ using Set = eastl::set<T, Comparator<T>, wrap_allocator>;
 template <class K,class V>
 using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 
-template <class TKey, class TData, class HashFunc = eastl::hash<TKey>, class CompareFunc = eastl::equal_to<TKey>>
-using HashMapNew = eastl::hash_map<TKey, TData, HashFunc, CompareFunc, wrap_allocator,false>;
+template <class TKey, class TData, class HashFunc, class CompareFunc>
+using HashMap = eastl::hash_map<TKey, TData, HashFunc, CompareFunc, wrap_allocator,false>;
+
+template <class TKey, class TData>
+using DefHashMap = eastl::hash_map<TKey, TData, eastl::hash<TKey>, eastl::equal_to<TKey>, wrap_allocator,false>;
 
 using String = eastl::basic_string<char, wrap_allocator>;
 using se_string_view = eastl::basic_string_view<char>;

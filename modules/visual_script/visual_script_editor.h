@@ -134,7 +134,7 @@ class VisualScriptEditor : public ScriptEditorBase {
         Vector<Pair<VariantType, UIString> > args;
     };
 
-    HashMapNew<StringName, Ref<StyleBox> > node_styles;
+    HashMap<StringName, Ref<StyleBox> > node_styles;
     StringName edited_func;
     StringName default_func;
 

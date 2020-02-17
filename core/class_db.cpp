@@ -64,9 +64,9 @@
 
 #endif
 struct ClassInfoImpl {
-    HashMapNew<StringName, MethodInfo> signal_map;
+    HashMap<StringName, MethodInfo> signal_map;
 };
-static HashMapNew<StringName, MethodInfo> &class_signal_map(ClassDB::ClassInfo &ci) {
+static HashMap<StringName, MethodInfo> &class_signal_map(ClassDB::ClassInfo &ci) {
     return ci.class_signal_map();
 }
 ClassDB::APIType ClassDB::current_api = API_CORE;
@@ -81,9 +81,9 @@ ClassDB::APIType ClassDB::get_current_api() {
     return current_api;
 }
 
-HashMapNew<StringName, ClassDB::ClassInfo> ClassDB::classes;
-HashMapNew<StringName, StringName> ClassDB::resource_base_extensions;
-HashMapNew<StringName, StringName> ClassDB::compat_classes;
+HashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
+HashMap<StringName, StringName> ClassDB::resource_base_extensions;
+HashMap<StringName, StringName> ClassDB::compat_classes;
 
 ClassDB::ClassInfo::ClassInfo() = default;
 
@@ -189,7 +189,7 @@ ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
 
 uint64_t ClassDB::get_api_hash(APIType p_api) {
 
-    using class_iter = HashMapNew<StringName, ClassInfo>::iterator;
+    using class_iter = HashMap<StringName, ClassInfo>::iterator;
     RWLockRead _rw_lockr_(lock);
 #ifdef DEBUG_METHODS_ENABLED
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
@@ -1207,7 +1207,7 @@ void ClassDB::get_extensions_for_type(const StringName &p_class, Vector<String> 
     }
 }
 
-HashMapNew<StringName, HashMapNew<StringName, Variant>> ClassDB::default_values;
+HashMap<StringName, HashMap<StringName, Variant>> ClassDB::default_values;
 Set<StringName> ClassDB::default_values_cached;
 
 Variant ClassDB::class_get_default_property_value(

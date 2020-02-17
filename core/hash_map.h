@@ -38,7 +38,7 @@ template<class T>
 struct Hasher;
 
 template <class TKey, class TData, class HashFunc = eastl::hash<TKey>, class CompareFunc = eastl::equal_to<TKey>>
-using HashMapNew = eastl::unordered_map<TKey, TData, HashFunc, CompareFunc, wrap_allocator>;
+using HashMap = eastl::unordered_map<TKey, TData, HashFunc, CompareFunc, wrap_allocator>;
 
 #ifndef __MINGW32__
 //TODO: SEGS consider extern-templating common hash maps?

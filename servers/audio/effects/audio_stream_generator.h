@@ -63,10 +63,10 @@ class AudioStreamGeneratorPlayback : public AudioStreamPlaybackResampled {
 
     friend class AudioStreamGenerator;
     RingBuffer<AudioFrame> buffer;
-    int skips;
-    bool active;
-    float mixed;
     AudioStreamGenerator *generator;
+    int skips;
+    float mixed;
+    bool active;
 
 protected:
     void _mix_internal(AudioFrame *p_buffer, int p_frames) override;

@@ -37,6 +37,8 @@
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(ItemList)
 VARIANT_ENUM_CAST(ItemList::SelectMode);
 VARIANT_ENUM_CAST(ItemList::IconMode);

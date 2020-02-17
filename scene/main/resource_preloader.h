@@ -38,7 +38,7 @@ class ResourcePreloader : public Node {
 
     GDCLASS(ResourcePreloader,Node)
 
-    HashMapNew<StringName, Ref<Resource>> resources;
+    HashMap<StringName, Ref<Resource>> resources;
 public:
     void _set_resources(const Array &p_data);
     Array _get_resources() const;

@@ -45,6 +45,8 @@
 #include "scene/resources/style_box.h"
 #include "scene/main/scene_tree.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(ConnectDialog)
 IMPL_GDCLASS(ConnectionsDock)
 

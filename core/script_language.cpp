@@ -216,7 +216,7 @@ void ScriptServer::thread_exit() {
     }
 }
 
-HashMapNew<StringName, ScriptServer::GlobalScriptClass> ScriptServer::global_classes;
+HashMap<StringName, ScriptServer::GlobalScriptClass> ScriptServer::global_classes;
 
 void ScriptServer::global_classes_clear() {
     global_classes.clear();

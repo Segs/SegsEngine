@@ -474,7 +474,7 @@ void SceneTree::node_renamed(Node *p_node) {
 
 SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end()) {
         E = group_map.emplace(p_group, SceneTreeGroup()).first;
     }
@@ -488,7 +488,7 @@ SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node)
 
 void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     ERR_FAIL_COND(E==group_map.end());
 
     E->second.nodes.erase_first(p_node);
@@ -497,7 +497,7 @@ void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 }
 
 void SceneTree::make_group_changed(const StringName &p_group) {
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E!=group_map.end())
         E->second.changed = true;
 }
@@ -557,7 +557,7 @@ void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
 
 void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -636,7 +636,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
 void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_group, int p_notification) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -685,7 +685,7 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
 
 void SceneTree::set_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_name, const Variant &p_value) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -1248,7 +1248,7 @@ bool SceneTree::is_paused() const {
 
 void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -1292,7 +1292,7 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
 
 void SceneTree::_notify_group_pause(const StringName &p_group, int p_notification) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -1397,7 +1397,7 @@ int64_t SceneTree::get_event_count() const {
 Array SceneTree::_get_nodes_in_group(const StringName &p_group) {
 
     Array ret;
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return ret;
 
@@ -1423,7 +1423,7 @@ bool SceneTree::has_group(const StringName &p_identifier) const {
 }
 void SceneTree::get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list) {
 
-    HashMapNew<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
 

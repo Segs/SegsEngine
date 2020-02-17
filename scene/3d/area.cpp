@@ -256,7 +256,7 @@ void Area::_clear_monitoring() {
 
     {
 
-        HashMapNew<ObjectID, AreaState> bmcopy = eastl::move(area_map); //move to prevent allocation here
+        HashMap<ObjectID, AreaState> bmcopy = eastl::move(area_map); //move to prevent allocation here
         area_map.clear();
         //disconnect all monitored stuff
 
@@ -317,7 +317,7 @@ void Area::_area_enter_tree(ObjectID p_id) {
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
-    HashMapNew<ObjectID, AreaState>::iterator E = area_map.find(p_id);
+    HashMap<ObjectID, AreaState>::iterator E = area_map.find(p_id);
     ERR_FAIL_COND(E==area_map.end());
     ERR_FAIL_COND(E->second.in_tree);
 
@@ -334,7 +334,7 @@ void Area::_area_exit_tree(ObjectID p_id) {
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
-    HashMapNew<ObjectID, AreaState>::iterator E = area_map.find(p_id);
+    HashMap<ObjectID, AreaState>::iterator E = area_map.find(p_id);
     ERR_FAIL_COND(E==area_map.end());
     ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
@@ -353,7 +353,7 @@ void Area::_area_inout(int p_status, const RID &p_area, int p_instance, int p_ar
     Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
-    HashMapNew<ObjectID, AreaState>::iterator E = area_map.find(objid);
+    HashMap<ObjectID, AreaState>::iterator E = area_map.find(objid);
 
     if (!area_in && E==area_map.end()) {
         return; //likely removed from the tree
@@ -476,7 +476,7 @@ Array Area::get_overlapping_areas() const {
 bool Area::overlaps_area(Node *p_area) const {
 
     ERR_FAIL_NULL_V(p_area, false);
-    const HashMapNew<ObjectID, AreaState>::const_iterator E = area_map.find(p_area->get_instance_id());
+    const HashMap<ObjectID, AreaState>::const_iterator E = area_map.find(p_area->get_instance_id());
     if (E==area_map.end())
         return false;
     return E->second.in_tree;

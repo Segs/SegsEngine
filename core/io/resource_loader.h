@@ -81,8 +81,8 @@ class GODOT_EXPORT ResourceLoader {
     static void *dep_err_notify_ud;
     static DependencyErrorNotify dep_err_notify;
     static bool abort_on_missing_resource;
-    static HashMapNew<String, Vector<String> > translation_remaps;
-    static HashMapNew<String, String> path_remaps;
+    static HashMap<String, Vector<String> > translation_remaps;
+    static HashMap<String, String> path_remaps;
 
     static String _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);
     friend class Resource;
@@ -99,7 +99,7 @@ class GODOT_EXPORT ResourceLoader {
     static Ref<ResourceFormatLoader> _find_custom_resource_format_loader(se_string_view path);
     static Mutex *loading_map_mutex;
 
-    static HashMapNew<LoadingMapKey, int, Hasher<LoadingMapKey>> loading_map;
+    static HashMap<LoadingMapKey, int, Hasher<LoadingMapKey>> loading_map;
 
     static bool _add_to_loading_map(se_string_view p_path);
     static void _remove_from_loading_map(se_string_view p_path);
@@ -117,7 +117,7 @@ public:
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
     static String get_resource_type(se_string_view p_path);
     static void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
-    static Error rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map);
+    static Error rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map);
     static bool is_import_valid(se_string_view p_path);
     static String get_import_group_file(se_string_view p_path);
     static bool is_imported(se_string_view p_path);

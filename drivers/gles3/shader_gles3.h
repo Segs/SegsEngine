@@ -161,9 +161,9 @@ private:
 
 
     //this should use a way more cachefriendly version..
-    HashMapNew<ShaderVersionKey, Version> version_map;
+    HashMap<ShaderVersionKey, Version> version_map;
 
-    HashMapNew<uint32_t, CustomCode> custom_code_map;
+    HashMap<uint32_t, CustomCode> custom_code_map;
     uint32_t last_custom_code;
 
     ShaderVersionKey conditional_version;
@@ -299,8 +299,8 @@ private:
         }
     }
 
-    HashMapNew<uint32_t, Variant> uniform_defaults;
-    HashMapNew<uint32_t, CameraMatrix> uniform_cameras;
+    HashMap<uint32_t, Variant> uniform_defaults;
+    HashMap<uint32_t, CameraMatrix> uniform_cameras;
 
 protected:
     _FORCE_INLINE_ int _get_uniform(int p_which) const;

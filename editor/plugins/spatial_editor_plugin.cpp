@@ -64,7 +64,9 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/surface_tool.h"
+
 #include "EASTL/fixed_hash_set.h"
+#include "EASTL/sort.h"
 
 #define DISTANCE_DEFAULT 4
 
@@ -439,6 +441,7 @@ void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_incl
 
     if (results.empty())
         return;
+
     eastl::sort(results.begin(), results.end());
 }
 
@@ -520,7 +523,7 @@ void SpatialEditorViewport::_select_region() {
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
 
-    for (int i = 0; i < instances.size(); i++) {
+    for (size_t i = 0; i < instances.size(); i++) {
 
         Spatial *sp = object_cast<Spatial>(ObjectDB::get_instance(instances[i]));
         if (!sp || _is_node_locked(sp))
@@ -560,7 +563,7 @@ void SpatialEditorViewport::_select_region() {
     }
 
     bool single = selected.size() == 1;
-    for (int i = 0; i < selected.size(); i++) {
+    for (size_t i = 0; i < selected.size(); i++) {
         _select(selected[i], true, single);
     }
 }
@@ -646,11 +649,11 @@ bool SpatialEditorViewport::_gizmo_select(const Vector2 &p_screenpos, bool p_hig
     if (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_MOVE) {
 
         int col_axis = -1;
-        float col_d = 1e20;
+        float col_d = 1e20f;
 
         for (int i = 0; i < 3; i++) {
 
-            Vector3 grabber_pos = gt.origin + gt.basis.get_axis(i) * gs * (GIZMO_ARROW_OFFSET + GIZMO_ARROW_SIZE * 0.5);
+            Vector3 grabber_pos = gt.origin + gt.basis.get_axis(i) * gs * (GIZMO_ARROW_OFFSET + GIZMO_ARROW_SIZE * 0.5f);
             float grabber_radius = gs * GIZMO_ARROW_SIZE;
 
             Vector3 r;
@@ -667,7 +670,7 @@ bool SpatialEditorViewport::_gizmo_select(const Vector2 &p_screenpos, bool p_hig
         bool is_plane_translate = false;
         // plane select
         if (col_axis == -1) {
-            col_d = 1e20;
+            col_d = 1e20f;
 
             for (int i = 0; i < 3; i++) {
 

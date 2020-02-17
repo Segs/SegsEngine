@@ -1998,7 +1998,7 @@ void Image::create(const char **p_xpm) {
     Status status = READING_HEADER;
     int line = 0;
 
-    HashMapNew<se_string_view, Color,eastl::hash<se_string_view>> colormap;
+    HashMap<se_string_view, Color,eastl::hash<se_string_view>> colormap;
     int colormap_size = 0;
     uint32_t pixel_size = 0;
     PoolVector<uint8_t>::Write w;

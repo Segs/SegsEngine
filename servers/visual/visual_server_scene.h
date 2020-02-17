@@ -310,8 +310,8 @@ public:
 
         struct Dynamic {
 
-            HashMapNew<RID, LightCache> light_cache;
-            HashMapNew<RID, LightCache> light_cache_changes;
+            HashMap<RID, LightCache> light_cache;
+            HashMap<RID, LightCache> light_cache_changes;
             PoolVector<int> light_data;
             Vector<LocalData> local_data;
             Vector<Vector<uint32_t> > level_cell_lists;

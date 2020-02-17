@@ -41,12 +41,12 @@ class ShaderCompilerGLES3 {
 public:
     struct IdentifierActions {
 
-        HashMapNew<StringName, Pair<int *, int> > render_mode_values;
-        HashMapNew<StringName, bool *> render_mode_flags;
-        HashMapNew<StringName, bool *> usage_flag_pointers;
-        HashMapNew<StringName, bool *> write_flag_pointers;
+        HashMap<StringName, Pair<int *, int> > render_mode_values;
+        HashMap<StringName, bool *> render_mode_flags;
+        HashMap<StringName, bool *> usage_flag_pointers;
+        HashMap<StringName, bool *> write_flag_pointers;
 
-        HashMapNew<StringName, ShaderLanguage::ShaderNode::Uniform> *uniforms;
+        HashMap<StringName, ShaderLanguage::ShaderNode::Uniform> *uniforms;
     };
 
     struct GeneratedCode {
@@ -74,12 +74,12 @@ private:
 
     struct DefaultIdentifierActions {
 
-        HashMapNew<StringName, String> renames;
-        HashMapNew<StringName, String> render_mode_defines;
-        HashMapNew<StringName, String> usage_defines;
+        HashMap<StringName, String> renames;
+        HashMap<StringName, String> render_mode_defines;
+        HashMap<StringName, String> usage_defines;
     };
 
-    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const HashMapNew<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added);
+    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const HashMap<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added);
     String _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
 
     StringName current_func_name;

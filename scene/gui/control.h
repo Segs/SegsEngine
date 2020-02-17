@@ -143,12 +143,12 @@ private:
     };
 
     struct Data {
-        HashMapNew<StringName, Ref<Texture> > icon_override;
-        HashMapNew<StringName, Ref<Shader> > shader_override;
-        HashMapNew<StringName, Ref<StyleBox> > style_override;
-        HashMapNew<StringName, Ref<Font> > font_override;
-        HashMapNew<StringName, Color> color_override;
-        HashMapNew<StringName, int> constant_override;
+        HashMap<StringName, Ref<Texture> > icon_override;
+        HashMap<StringName, Ref<Shader> > shader_override;
+        HashMap<StringName, Ref<StyleBox> > style_override;
+        HashMap<StringName, Ref<Font> > font_override;
+        HashMap<StringName, Color> color_override;
+        HashMap<StringName, int> constant_override;
         NodePath focus_neighbour[4];
         NodePath focus_next;
         NodePath focus_prev;

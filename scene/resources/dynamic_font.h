@@ -32,12 +32,17 @@
 
 #include "core/hashfuncs.h"
 
+#include "core/image.h"
 #include "core/os/thread_safe.h"
-#include "core/pair.h"
+#include "core/pool_vector.h"
+#include "core/reference.h"
+#include "core/se_string.h"
+#include "core/self_list.h"
 #include "scene/resources/font.h"
 
 class DynamicFontAtSize;
 class DynamicFont;
+class ImageTexture;
 
 class DynamicFontData : public Resource {
 
@@ -88,7 +93,7 @@ private:
     Hinting hinting;
 
     String font_path;
-    HashMapNew<CacheID, DynamicFontAtSize *> size_cache;
+    HashMap<CacheID, DynamicFontAtSize *> size_cache;
 
     friend class DynamicFontAtSize;
 
@@ -113,70 +118,13 @@ class DynamicFontAtSize : public RefCounted {
 
     GDCLASS(DynamicFontAtSize, RefCounted)
 
-    _THREAD_SAFE_CLASS_
+    //_THREAD_SAFE_CLASS_
 
     struct ImplData;
-    ImplData *m_impl;
     friend struct ImplData;
+    ImplData *m_impl;
 private:
-    float ascent;
-    float descent;
-    float linegap;
-    float rect_margin;
-    float oversampling;
-    float scale_color_font;
-
-    uint32_t texture_flags;
-
-    bool valid;
-
-    struct CharTexture {
-
-        PoolVector<uint8_t> imgdata;
-        int texture_size;
-        Vector<int> offsets;
-        Ref<ImageTexture> texture;
-    };
-
-    Vector<CharTexture> textures;
-
-    struct Character {
-
-        bool found;
-        int texture_idx;
-        Rect2 rect;
-        Rect2 rect_uv;
-        float v_align;
-        float h_align;
-        float advance;
-
-        Character() {
-            texture_idx = 0;
-            v_align = 0;
-        }
-
-        static Character not_found();
-    };
-
-    struct TexturePosition {
-        int index;
-        int x;
-        int y;
-    };
-
-    const Pair<const Character *, DynamicFontAtSize *> _find_char_with_font(CharType p_char, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const;
-    Character _make_outline_char(CharType p_char);
-    TexturePosition _find_texture_pos_for_glyph(int p_color_size, Image::Format p_image_format, int p_width, int p_height);
-
-    HashMapNew<CharType, Character> char_map;
-
-    _FORCE_INLINE_ void _update_char(CharType p_char);
-
     friend class DynamicFontData;
-    Ref<DynamicFontData> font;
-    DynamicFontData::CacheID id;
-
-    static HashMapNew<String, Vector<uint8_t> > _fontdata;
     Error _load();
 
 public:

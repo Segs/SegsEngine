@@ -183,7 +183,7 @@ void Theme::_get_property_list(Vector<PropertyInfo> *p_tgt) const {
 
     Vector<PropertyInfo> store;
 
-    for(const eastl::pair<const StringName, HashMapNew<StringName, Ref<Texture> >> &kv : icon_map) {
+    for(const eastl::pair<const StringName, HashMap<StringName, Ref<Texture> >> &kv : icon_map) {
         for(const auto &kv2 : kv.second) {
             store.emplace_back(VariantType::OBJECT, kv.first + "/icons/" + kv2.first,
                     PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
@@ -462,7 +462,7 @@ Vector<StringName> Theme::get_stylebox_list(const StringName& p_type) const {
     if (!style_map.contains(p_type))
         return {};
     Vector<StringName> res;
-    const  HashMapNew<StringName, Ref<StyleBox> > &smap(style_map.at(p_type));
+    const  HashMap<StringName, Ref<StyleBox> > &smap(style_map.at(p_type));
     res.reserve(smap.size());
     for(const auto & v : smap) {
         res.emplace_back(v.first);
@@ -547,7 +547,7 @@ void Theme::set_colors(Span<const Theme::ThemeColor> colors)
         auto iter = color_map.find_as(v.type);
         if(iter==color_map.end()) {
             need_notify = true;
-            iter = color_map.emplace(eastl::make_pair(StaticCString(v.type,true), HashMapNew<StringName, Color>())).first;
+            iter = color_map.emplace(eastl::make_pair(StaticCString(v.type,true), HashMap<StringName, Color>())).first;
         }
         auto n_iter = iter->second.find_as(v.name);
         if(n_iter==iter->second.end()) {
@@ -618,7 +618,7 @@ void Theme::set_constants(Span<const ThemeConstant> vals)
         auto iter = constant_map.find_as(v.type);
         if(iter==constant_map.end()) {
             need_notify = true;
-            iter = constant_map.emplace(eastl::make_pair(StaticCString(v.type,true), HashMapNew<StringName, int>())).first;
+            iter = constant_map.emplace(eastl::make_pair(StaticCString(v.type,true), HashMap<StringName, int>())).first;
         }
         auto n_iter = iter->second.find_as(v.name);
         if(n_iter==iter->second.end()) {

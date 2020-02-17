@@ -164,7 +164,7 @@ class OrphanResourcesDialog : public ConfirmationDialog {
     ConfirmationDialog *delete_confirm;
     void ok_pressed() override;
 
-    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMapNew<String, int> &refs, TreeItem *p_parent);
+    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent);
 
     Vector<String> paths;
     void _find_to_delete(TreeItem *p_item, Vector<String> &paths);

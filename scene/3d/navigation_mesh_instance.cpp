@@ -33,6 +33,7 @@
 #include "navigation.h"
 
 #include "core/class_db.h"
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 #include "core/object_tooling.h"
 #include "core/os/thread.h"
@@ -130,9 +131,9 @@ void NavigationMeshInstance::_notification(int p_what) {
 
             if (debug_view) {
                 debug_view->queue_delete();
-                debug_view = NULL;
+                debug_view = nullptr;
             }
-            navigation = NULL;
+            navigation = nullptr;
         } break;
     }
 }
@@ -191,18 +192,18 @@ void _bake_navigation_mesh(void *p_user_data) {
 }
 
 void NavigationMeshInstance::bake_navigation_mesh() {
-    ERR_FAIL_COND(bake_thread != NULL);
+    ERR_FAIL_COND(bake_thread != nullptr);
 
     BakeThreadsArgs *args = memnew(BakeThreadsArgs);
     args->nav_mesh_instance = this;
 
     bake_thread = Thread::create(_bake_navigation_mesh, args);
-    ERR_FAIL_COND(bake_thread == NULL);
+    ERR_FAIL_COND(bake_thread == nullptr);
 }
 
 void NavigationMeshInstance::_bake_finished(Ref<NavigationMesh> p_nav_mesh) {
     set_navigation_mesh(p_nav_mesh);
-    bake_thread = NULL;
+    bake_thread = nullptr;
 }
 
 StringName NavigationMeshInstance::get_configuration_warning() const {
@@ -254,9 +255,9 @@ NavigationMeshInstance::NavigationMeshInstance() {
     set_notify_transform(true);
     region = NavigationServer::get_singleton()->region_create();
 
-    navigation = NULL;
-    debug_view = NULL;
-    bake_thread = NULL;
+    navigation = nullptr;
+    debug_view = nullptr;
+    bake_thread = nullptr;
 }
 
 NavigationMeshInstance::~NavigationMeshInstance() {

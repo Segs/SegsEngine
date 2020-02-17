@@ -1318,8 +1318,8 @@ Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code
 
     Vector<uint8_t> buf;
 
-    HashMapNew<StringName, int> identifier_map;
-    HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
+    HashMap<StringName, int> identifier_map;
+    HashMap<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
     Map<uint32_t, int> line_map;
     Vector<uint32_t> token_array;
 

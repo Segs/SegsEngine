@@ -64,7 +64,7 @@ class GODOT_EXPORT ScriptServer {
         StringName base;
     };
 
-    static HashMapNew<StringName, GlobalScriptClass> global_classes;
+    static HashMap<StringName, GlobalScriptClass> global_classes;
 
 public:
     static ScriptEditRequestFunction edit_request_func;

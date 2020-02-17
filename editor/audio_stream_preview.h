@@ -31,6 +31,7 @@
 #ifndef AUDIO_STREAM_PREVIEW_H
 #define AUDIO_STREAM_PREVIEW_H
 
+#include "core/hash_map.h"
 #include "core/os/thread.h"
 #include "scene/main/node.h"
 #include "servers/audio/audio_stream.h"
@@ -66,7 +67,7 @@ class AudioStreamPreviewGenerator : public Node {
 		Thread *thread;
 	};
 
-	Map<ObjectID, Preview> previews;
+    HashMap<ObjectID, Preview> previews;
 
 	static void _preview_thread(void *p_preview);
 

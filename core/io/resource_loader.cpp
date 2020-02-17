@@ -258,7 +258,7 @@ void ResourceFormatLoader::get_dependencies(se_string_view p_path, Vector<String
     }
 }
 
-Error ResourceFormatLoader::rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map) {
+Error ResourceFormatLoader::rename_dependencies(se_string_view p_path, const DefHashMap<String, String> &p_map) {
 
     if (get_script_instance() && get_script_instance()->has_method("rename_dependencies")) {
 
@@ -766,7 +766,7 @@ void ResourceLoader::get_dependencies(se_string_view p_path, Vector<String> &p_d
     }
 }
 
-Error ResourceLoader::rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map) {
+Error ResourceLoader::rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) {
 
     String path = _path_remap(p_path);
 
@@ -1072,7 +1072,7 @@ void ResourceLoader::remove_custom_loaders() {
 }
 
 Mutex *ResourceLoader::loading_map_mutex = nullptr;
-HashMapNew<LoadingMapKey, int,Hasher<LoadingMapKey> > ResourceLoader::loading_map;
+HashMap<LoadingMapKey, int,Hasher<LoadingMapKey> > ResourceLoader::loading_map;
 
 void ResourceLoader::initialize() {
 
@@ -1104,8 +1104,8 @@ bool ResourceLoader::abort_on_missing_resource = true;
 bool ResourceLoader::timestamp_on_load = false;
 
 SelfList<Resource>::List ResourceLoader::remapped_list;
-HashMapNew<String, Vector<String> > ResourceLoader::translation_remaps;
-HashMapNew<String, String> ResourceLoader::path_remaps;
+HashMap<String, Vector<String> > ResourceLoader::translation_remaps;
+HashMap<String, String> ResourceLoader::path_remaps;
 
 ResourceLoaderImport ResourceLoader::import = nullptr;
 

@@ -332,7 +332,7 @@ MainLoop *test() {
     SL sl;
     print_line("tokens:\n\n" + sl.token_debug(code));
 
-    HashMapNew<StringName, SL::FunctionInfo> dt;
+    HashMap<StringName, SL::FunctionInfo> dt;
     dt["fragment"].built_ins["ALBEDO"] = SL::TYPE_VEC3;
     dt["fragment"].can_discard = true;
 

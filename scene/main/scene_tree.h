@@ -144,7 +144,7 @@ private:
     bool pause;
     int root_lock;
 
-    HashMapNew<StringName, SceneTreeGroup> group_map;
+    HashMap<StringName, SceneTreeGroup> group_map;
     bool _quit;
     bool initialized;
     bool input_handled;

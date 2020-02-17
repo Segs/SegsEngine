@@ -121,7 +121,7 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
 
 void MultiNodeEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
     // TODO: consider using fixed hash map here.
-    HashMapNew<StringName, PLData> usage;
+    HashMap<StringName, PLData> usage;
 
     Node *es = EditorNode::get_singleton()->get_edited_scene();
     if (!es)

@@ -1474,7 +1474,7 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
     ListOld<VisualScript::DataConnection> data_connections;
     script->get_data_connection_list(func, &data_connections);
 
-    HashMapNew<int, Set<int> > conn_map;
+    HashMap<int, Set<int> > conn_map;
     for (const ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
         if (E->deref().from_node == p_id && E->deref().from_port == p_port) {
             // push into the connections map
@@ -1658,7 +1658,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
     int idc = script->get_available_id() + 1;
 
     Set<int> to_select;
-    HashMapNew<int, int> remap;
+    HashMap<int, int> remap;
 
     for (const int F : to_duplicate) {
 
@@ -3067,8 +3067,8 @@ void VisualScriptEditor::_graph_disconnected(se_string_view p_from, int p_from_s
 void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, const StringName &p_func_to, int p_id) {
 
     Set<int> nodes_to_move;
-    HashMapNew<int, Map<int, int> > seqconns_to_move; // from => List(outp, to)
-    HashMapNew<int, Map<int, Pair<int, int> > > dataconns_to_move; // to => List(inp_p => from, outp)
+    HashMap<int, Map<int, int> > seqconns_to_move; // from => List(outp, to)
+    HashMap<int, Map<int, Pair<int, int> > > dataconns_to_move; // to => List(inp_p => from, outp)
 
     nodes_to_move.insert(p_id);
     Set<int> sequence_connections;
@@ -3076,7 +3076,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         ListOld<VisualScript::SequenceConnection> sequence_conns;
         script->get_sequence_connection_list(p_func_from, &sequence_conns);
 
-        HashMapNew<int, Map<int, int> > seqcons; // from => List(out_p => to)
+        HashMap<int, Map<int, int> > seqcons; // from => List(out_p => to)
 
         for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
             int from = E->deref().from_node;
@@ -3089,7 +3089,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
 
         int conn = p_id;
         ListOld<int> stack;
-        HashMapNew<int, Set<int> > seen; // from, outp
+        HashMap<int, Set<int> > seen; // from, outp
         while (seqcons.contains(conn)) {
             int size = seqcons[conn].size();
             for (auto E : seqcons[conn]) {
@@ -3123,7 +3123,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         ListOld<VisualScript::DataConnection> data_connections;
         script->get_data_connection_list(p_func_from, &data_connections);
 
-        HashMapNew<int, Map<int, Pair<int, int> > > connections;
+        HashMap<int, Map<int, Pair<int, int> > > connections;
 
         for (ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
             int from = E->deref().from_node;
@@ -3137,7 +3137,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         // go through the HashMap and do all sorts of crazy ass stuff now...
         Set<int> nodes_to_be_added;
         for (int id : nodes_to_move) {
-            HashMapNew<int, Set<int> > seen;
+            HashMap<int, Set<int> > seen;
             Vector<int> stack;
             while (connections.contains(id)) {
                 int size = connections[id].size();

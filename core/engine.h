@@ -52,7 +52,7 @@ private:
     friend class Main;
 
     Vector<Singleton> singletons;
-    HashMapNew<StringName, Object *> singleton_ptrs;
+    HashMap<StringName, Object *> singleton_ptrs;
     uint64_t frames_drawn=0;
     uint64_t _frame_ticks=0;
     uint32_t _frame_delay=0;

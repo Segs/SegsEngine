@@ -80,7 +80,7 @@ static inline uint32_t hash_djb2_buffer(const uint8_t *p_buff, int p_len, uint32
 
     return hash;
 }
-static inline uint64_t hash_djb2_buffer64(const uint8_t *p_buff, int p_len, uint32_t p_prev = 5381) {
+static inline uint64_t hash_djb2_buffer64(const uint8_t *p_buff, int p_len, uint32_t p_prev = 5381) noexcept  {
 
     uint64_t hash = p_prev;
 
@@ -89,7 +89,7 @@ static inline uint64_t hash_djb2_buffer64(const uint8_t *p_buff, int p_len, uint
 
     return hash;
 }
-static inline uint32_t hash_djb2_buffer(const uint16_t *p_buff, int p_len, uint32_t p_prev = 5381) {
+static inline uint32_t hash_djb2_buffer(const uint16_t *p_buff, int p_len, uint32_t p_prev = 5381) noexcept {
 
     uint32_t hash = p_prev;
 

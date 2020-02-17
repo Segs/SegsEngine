@@ -94,7 +94,7 @@ public:
         const char *string;
     };
 
-    HashMapNew<String, int> modes;
+    HashMap<String, int> modes;
     Set<StringName> flags;
     volatile mutable bool dirty;
 

@@ -451,7 +451,7 @@ void SurfaceTool::index() {
     auto hashfunc = [](const Vertex &v) -> size_t {
         return hash_djb2_buffer((const uint8_t *)&v,sizeof(v));
     };
-    HashMapNew<Vertex, int, decltype(hashfunc)> indices(64, hashfunc);
+    HashMap<Vertex, int, decltype(hashfunc)> indices(64, hashfunc);
     Vector<Vertex> new_vertices;
 
     for (const Vertex &E : vertex_array) {
@@ -847,7 +847,7 @@ void SurfaceTool::generate_normals(bool p_flip) {
     auto hashfunc = [](const Vertex &v) -> size_t {
         return hash_djb2_buffer((const uint8_t *)&v, sizeof(v));
     };
-    HashMapNew<Vertex, Vector3, decltype(hashfunc)> vertex_hash(64, hashfunc);
+    HashMap<Vertex, Vector3, decltype(hashfunc)> vertex_hash(64, hashfunc);
 
     int count = 0;
     bool smooth = false;

@@ -37,6 +37,8 @@
 #include "core/resource.h"
 #include "core/translation.h"
 #include "scene/gui/shortcut.h"
+#include "core/hash_map.h"
+#include "core/property_info.h"
 
 class EditorPlugin;
 
@@ -81,8 +83,8 @@ private:
 
     static Ref<EditorSettings> singleton;
 
-    HashMapNew<StringName, PropertyInfo> hints;
-    HashMapNew<StringName, VariantContainer> props;
+    HashMap<StringName, PropertyInfo> hints;
+    HashMap<StringName, VariantContainer> props;
     int last_order;
 
     Ref<Resource> clipboard;

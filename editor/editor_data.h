@@ -146,8 +146,8 @@ private:
 
     bool _find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths);
 
-    HashMapNew<StringName, String> _script_class_icon_paths;
-    HashMapNew<String, StringName> _script_class_file_to_path;
+    HashMap<StringName, String> _script_class_icon_paths;
+    HashMap<String, StringName> _script_class_file_to_path;
 
 public:
     EditorPlugin *get_editor(Object *p_object);

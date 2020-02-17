@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/vector.h"
+#include "core/error_list.h"
 
 template <typename T>
 class RingBuffer {

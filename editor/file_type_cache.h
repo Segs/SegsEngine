@@ -38,7 +38,7 @@ class FileTypeCache : Object {
 
     GDCLASS(FileTypeCache,Object)
 
-    HashMapNew<String, String> file_type_map;
+    HashMap<String, String> file_type_map;
 
     static FileTypeCache *singleton;
 

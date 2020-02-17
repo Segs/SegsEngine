@@ -87,7 +87,7 @@ struct AnimationTreeNode : public AnimationTreeNodeBase {
     float step;
     bool skip;
 
-    HashMapNew<NodePath, bool> filter;
+    HashMap<NodePath, bool> filter;
 
     AnimationTreeNode() {
         type = NodeType::NODE_ANIMATION;
@@ -114,7 +114,7 @@ struct OneShotNode : public AnimationTreeNodeBase {
     bool mix;
 
 
-    HashMapNew<NodePath, bool> filter;
+    HashMap<NodePath, bool> filter;
 
     OneShotNode() {
         type = NodeType::NODE_ONESHOT;
@@ -141,7 +141,7 @@ struct MixNode : public AnimationTreeNodeBase {
 
 struct Blend2Node : public AnimationTreeNodeBase {
 
-    HashMapNew<NodePath, bool> filter;
+    HashMap<NodePath, bool> filter;
     float value;
     Blend2Node() {
         type = NodeType::NODE_BLEND2;
@@ -640,7 +640,7 @@ void AnimationTreePlayer::_notification(int p_what) {
     }
 }
 
-void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMapNew<NodePath, float> *p_weights, float p_coeff, const HashMapNew<NodePath, bool> *p_filter, float p_filtered_coeff) {
+void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<NodePath, float> *p_weights, float p_coeff, const HashMap<NodePath, bool> *p_filter, float p_filtered_coeff) {
 
     if (p_filter != nullptr) {
 
@@ -675,7 +675,7 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMapNew<
     *p_fallback_weight *= p_coeff;
 }
 
-float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMapNew<NodePath, float> *p_weights) {
+float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMap<NodePath, float> *p_weights) {
 
     ERR_FAIL_COND_V(!node_map.contains(p_node), 0);
     AnimationTreeNodeBase *nb = node_map[p_node];
@@ -687,7 +687,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_OUTPUT: {
 
             AnimationTreeNodeOut *on = static_cast<AnimationTreeNodeOut *>(nb);
-            HashMapNew<NodePath, float> weights;
+            HashMap<NodePath, float> weights;
 
             return _process_node(on->inputs[0].node, r_prev_anim, p_time, p_seek, p_fallback_weight, &weights);
 
@@ -795,7 +795,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
             float main_rem;
             float os_rem;
 
-            HashMapNew<NodePath, float> os_weights(*p_weights);
+            HashMap<NodePath, float> os_weights(*p_weights);
             float os_fallback_weight = p_fallback_weight;
             _compute_weights(&p_fallback_weight, p_weights, osn->mix ? 1.0 : 1.0 - blend, &osn->filter, 1.0);
             _compute_weights(&os_fallback_weight, &os_weights, blend, &osn->filter, 0.0);
@@ -820,7 +820,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_MIX: {
             MixNode *mn = static_cast<MixNode *>(nb);
 
-            HashMapNew<NodePath, float> mn_weights(*p_weights);
+            HashMap<NodePath, float> mn_weights(*p_weights);
             float mn_fallback_weight = p_fallback_weight;
             _compute_weights(&mn_fallback_weight, &mn_weights, mn->amount);
             float rem = _process_node(mn->inputs[0].node, r_prev_anim, p_time, p_seek, p_fallback_weight, p_weights);
@@ -832,7 +832,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
 
             Blend2Node *bn = static_cast<Blend2Node *>(nb);
 
-            HashMapNew<NodePath, float> bn_weights(*p_weights);
+            HashMap<NodePath, float> bn_weights(*p_weights);
             float bn_fallback_weight = p_fallback_weight;
             _compute_weights(&p_fallback_weight, p_weights, 1.0 - bn->value, &bn->filter, 1.0);
             _compute_weights(&bn_fallback_weight, &bn_weights, bn->value, &bn->filter, 0.0);
@@ -856,9 +856,9 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
                 upper_blend = bn->value;
             }
 
-            HashMapNew<NodePath, float> upper_weights(*p_weights);
+            HashMap<NodePath, float> upper_weights(*p_weights);
             float upper_fallback_weight = p_fallback_weight;
-            HashMapNew<NodePath, float> lower_weights(*p_weights);
+            HashMap<NodePath, float> lower_weights(*p_weights);
             float lower_fallback_weight = p_fallback_weight;
             _compute_weights(&upper_fallback_weight, &upper_weights, upper_blend);
             _compute_weights(&p_fallback_weight, p_weights, blend);
@@ -873,11 +873,11 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_BLEND4: {
             Blend4Node *bn = static_cast<Blend4Node *>(nb);
 
-            HashMapNew<NodePath, float> weights1(*p_weights);
+            HashMap<NodePath, float> weights1(*p_weights);
             float fallback_weight1 = p_fallback_weight;
-            HashMapNew<NodePath, float> weights2(*p_weights);
+            HashMap<NodePath, float> weights2(*p_weights);
             float fallback_weight2 = p_fallback_weight;
-            HashMapNew<NodePath, float> weights3(*p_weights);
+            HashMap<NodePath, float> weights3(*p_weights);
             float fallback_weight3 = p_fallback_weight;
 
             _compute_weights(&p_fallback_weight, p_weights, 1.0 - bn->value.x);
@@ -922,7 +922,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_TRANSITION: {
 
             TransitionNode *tn = static_cast<TransitionNode *>(nb);
-            HashMapNew<NodePath, float> prev_weights(*p_weights);
+            HashMap<NodePath, float> prev_weights(*p_weights);
             float prev_fallback_weight = p_fallback_weight;
 
             if (tn->prev < 0) { // process current animation, check for transition

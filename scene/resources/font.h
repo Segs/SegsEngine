@@ -42,7 +42,7 @@
 
 #include <QChar>
 
-struct Texture;
+class Texture;
 
 class Font : public Resource {
 
@@ -148,7 +148,7 @@ public:
     };
 
 private:
-    HashMapNew<uint16_t, Character> char_map;
+    HashMap<uint16_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
     Ref<BitmapFont> fallback;

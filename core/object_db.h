@@ -22,8 +22,8 @@ struct Hasher<Object *> {
 
 class ObjectDB {
 
-    static HashMapNew<ObjectID, Object *> instances;
-    static HashMapNew<Object *, ObjectID, Hasher<Object *>> instance_checks;
+    static HashMap<ObjectID, Object *> instances;
+    static HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
 
     static ObjectID instance_counter;
     friend class Object;

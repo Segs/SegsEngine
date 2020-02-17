@@ -40,7 +40,7 @@ VARIANT_ENUM_CAST(ProximityGroup::DispatchMode);
 
 void ProximityGroup::clear_groups() {
 
-    HashMapNew<StringName, uint32_t>::iterator E;
+    HashMap<StringName, uint32_t>::iterator E;
 
     {
         const int size = 16;
@@ -110,7 +110,7 @@ void ProximityGroup::add_groups(int *p_cell, StringName p_base, int p_depth) {
 
 void ProximityGroup::_new_group(const StringName& p_name) {
 
-    const HashMapNew<StringName, uint32_t>::iterator E = groups.find(p_name);
+    const HashMap<StringName, uint32_t>::iterator E = groups.find(p_name);
     if (E==groups.end()) {
         add_to_group(p_name);
     }
@@ -134,7 +134,7 @@ void ProximityGroup::_notification(int p_what) {
 
 void ProximityGroup::broadcast(se_string_view p_name, const Variant& p_params) {
 
-    HashMapNew<StringName, uint32_t>::iterator E;
+    HashMap<StringName, uint32_t>::iterator E;
     E = groups.begin();
     while (E!=groups.end()) {
 

@@ -47,7 +47,7 @@
 #define JOIN_SYMBOLS(p_path, name) ((p_path) + SYMBOL_SEPERATOR + (name))
 #endif
 
-typedef HashMapNew<String, const lsp::DocumentSymbol *> ClassMembers;
+typedef HashMap<String, const lsp::DocumentSymbol *> ClassMembers;
 
 class ExtendGDScriptParser : public GDScriptParser {
 
@@ -58,7 +58,7 @@ class ExtendGDScriptParser : public GDScriptParser {
     Vector<lsp::Diagnostic> diagnostics;
     Vector<lsp::DocumentLink> document_links;
     ClassMembers members;
-    HashMapNew<String, ClassMembers> inner_classes;
+    HashMap<String, ClassMembers> inner_classes;
 
     void update_diagnostics();
 
@@ -82,7 +82,7 @@ public:
     const lsp::DocumentSymbol &get_symbols() const { return class_symbol; }
     const Vector<lsp::Diagnostic> &get_diagnostics() const { return diagnostics; }
     const ClassMembers &get_members() const { return members; }
-    const HashMapNew<String, ClassMembers> &get_inner_classes() const { return inner_classes; }
+    const HashMap<String, ClassMembers> &get_inner_classes() const { return inner_classes; }
 
     Error get_left_function_call(const lsp::Position &p_position, lsp::Position &r_func_pos, int &r_arg_index) const;
 

@@ -90,7 +90,7 @@ protected:
 
     void _find_nodes(Node *p_node);
 
-    HashMapNew<Node *, Variant> nodes;
+    HashMap<Node *, Variant> nodes;
     void _node_removed(Node *p_node);
     bool enabler[ENABLER_MAX];
 

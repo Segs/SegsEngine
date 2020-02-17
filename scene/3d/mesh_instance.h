@@ -57,7 +57,7 @@ protected:
         }
     };
 
-    HashMapNew<StringName, BlendShapeTrack> blend_shape_tracks;
+    HashMap<StringName, BlendShapeTrack> blend_shape_tracks;
     Vector<Ref<Material> > materials;
 
     void _mesh_changed();

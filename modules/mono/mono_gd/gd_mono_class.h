@@ -81,7 +81,7 @@ class GDMonoClass {
 
     // This contains both the original method names and remapped method names from the native Godot identifiers to the C# functions.
     // Most method-related functions refer to this and it's possible this is unintuitive for outside users; this may be a prime location for refactoring or renaming.
-    HashMapNew<MethodKey, GDMonoMethod *, MethodKey::Hasher> methods;
+    HashMap<MethodKey, GDMonoMethod *, MethodKey::Hasher> methods;
 
     Vector<GDMonoMethod *> method_list;
 

@@ -1144,7 +1144,7 @@ GDMonoClass *GDMono::get_class(MonoClass *p_raw_class) {
         return corlib_assembly->get_class(p_raw_class);
 
     uint32_t domain_id = mono_domain_get_id(mono_domain_get());
-    HashMapNew<String, GDMonoAssembly *> &domain_assemblies = assemblies[domain_id];
+    HashMap<String, GDMonoAssembly *> &domain_assemblies = assemblies[domain_id];
 
     for(const auto &E : domain_assemblies) {
         GDMonoAssembly *assembly = E.second;
@@ -1162,7 +1162,7 @@ GDMonoClass *GDMono::get_class(MonoClass *p_raw_class) {
 GDMonoClass *GDMono::get_class(const StringName &p_namespace, const StringName &p_name) {
 
     uint32_t domain_id = mono_domain_get_id(mono_domain_get());
-    HashMapNew<String, GDMonoAssembly *> &domain_assemblies = assemblies[domain_id];
+    HashMap<String, GDMonoAssembly *> &domain_assemblies = assemblies[domain_id];
 
     for(const auto &E : domain_assemblies) {
         GDMonoAssembly *assembly = E.second;
@@ -1176,7 +1176,7 @@ GDMonoClass *GDMono::get_class(const StringName &p_namespace, const StringName &
 
 void GDMono::_domain_assemblies_cleanup(uint32_t p_domain_id) {
 
-    HashMapNew<String, GDMonoAssembly *> &domain_assemblies = assemblies[p_domain_id];
+    HashMap<String, GDMonoAssembly *> &domain_assemblies = assemblies[p_domain_id];
 
     for(const auto &E : domain_assemblies) {
         GDMonoAssembly *assembly = E.second;
@@ -1241,7 +1241,7 @@ GDMono::~GDMono() {
         }
 
         for(auto &E : assemblies) {
-            HashMapNew<String, GDMonoAssembly *> &domain_assemblies = E.second;
+            HashMap<String, GDMonoAssembly *> &domain_assemblies = E.second;
 
             for(const auto & F : domain_assemblies) {
                 memdelete(F.second);

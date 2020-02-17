@@ -36,6 +36,7 @@
 #include "core/math/vector3.h"
 #include "core/print_string.h"
 #include "core/vector.h"
+#include "core/hash_map.h"
 
 using OctreeElementID = uint32_t;
 
@@ -93,7 +94,8 @@ private:
                 A = p_B;
             }
         }
-
+        // used by default eastl::hash
+        explicit operator size_t() const { return key; }
         PairKey() = default;
     };
 
@@ -178,8 +180,8 @@ private:
         typename eastl::list<PairData *, AL>::iterator eA, eB;
     };
 
-    using ElementMap = Map<OctreeElementID, Element, Comparator<OctreeElementID>, AL>;
-    using PairMap = Map<PairKey, PairData, Comparator<PairKey>, AL>;
+    using ElementMap = eastl::unordered_map<OctreeElementID, Element, eastl::hash<OctreeElementID>,eastl::equal_to<OctreeElementID>, AL>;
+    using PairMap = eastl::unordered_map<PairKey, PairData,eastl::hash<PairKey>, Comparator<PairKey>, AL>;
 
     ElementMap element_map;
     PairMap pair_map;
@@ -948,7 +950,7 @@ void Octree<T, use_pairs, AL>::set_pairable(OctreeElementID p_id, bool p_pairabl
 template <class T, bool use_pairs, class AL>
 void Octree<T, use_pairs, AL>::erase(OctreeElementID p_id) {
 
-    typename ElementMap::iterator E = element_map.find(p_id);
+    auto E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;

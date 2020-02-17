@@ -52,7 +52,7 @@ bool MeshInstance::_set(const StringName &p_name, const Variant &p_value) {
     if (!get_instance().is_valid())
         return false;
 
-    HashMapNew<StringName, BlendShapeTrack>::iterator E = blend_shape_tracks.find(p_name);
+    HashMap<StringName, BlendShapeTrack>::iterator E = blend_shape_tracks.find(p_name);
     if (E!=blend_shape_tracks.end()) {
         E->second.value = p_value;
         VisualServer::get_singleton()->instance_set_blend_shape_weight(get_instance(), E->second.idx, E->second.value);
@@ -76,7 +76,7 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
     if (!get_instance().is_valid())
         return false;
 
-    const HashMapNew<StringName, BlendShapeTrack>::const_iterator E = blend_shape_tracks.find(p_name);
+    const HashMap<StringName, BlendShapeTrack>::const_iterator E = blend_shape_tracks.find(p_name);
     if (E!=blend_shape_tracks.end()) {
         r_ret = E->second.value;
         return true;

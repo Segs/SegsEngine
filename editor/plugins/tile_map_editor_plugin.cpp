@@ -43,6 +43,8 @@
 #include "scene/gui/item_list.h"
 #include "scene/resources/font.h"
 
+#include "EASTL/sort.h"
+
 IMPL_GDCLASS(TileMapEditor)
 IMPL_GDCLASS(TileMapEditorPlugin)
 
@@ -220,7 +222,7 @@ Vector<int> TileMapEditor::get_selected_tiles() const {
         items.push_back(TileMap::INVALID_CELL);
         return items;
     }
-
+    //TODO: does reverse loop really makes sense here ?
     for (int i = items.size() - 1; i >= 0; i--) {
         items[i] = palette->get_item_metadata(items[i]);
     }

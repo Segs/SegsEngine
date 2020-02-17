@@ -46,7 +46,7 @@ private:
     void unref();
 
     void _update_hash_cache() const;
-    friend class eastl::hash<NodePath>;
+    friend struct eastl::hash<NodePath>;
 public:
     StringName get_sname() const;
     String asString() const;

@@ -35,10 +35,11 @@
 #include "navigation_server.h"
 
 #include "core/method_bind_interface.h"
+#include "core/method_bind.h"
 
 IMPL_GDCLASS(NavigationServer)
 
-NavigationServer *NavigationServer::singleton = NULL;
+NavigationServer *NavigationServer::singleton = nullptr;
 
 void NavigationServer::_bind_methods() {
 
@@ -92,10 +93,10 @@ NavigationServer::NavigationServer() {
 }
 
 NavigationServer::~NavigationServer() {
-    singleton = NULL;
+    singleton = nullptr;
 }
 
-NavigationServerCallback NavigationServerManager::create_callback = NULL;
+NavigationServerCallback NavigationServerManager::create_callback = nullptr;
 
 void NavigationServerManager::set_default_server(NavigationServerCallback p_callback) {
     create_callback = p_callback;

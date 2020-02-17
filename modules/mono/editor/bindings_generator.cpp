@@ -2577,7 +2577,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         List<String> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
-        const HashMapNew<StringName, List<StringName> > &enum_map = class_iter->second.enum_map;
+        const HashMap<StringName, List<StringName> > &enum_map = class_iter->second.enum_map;
         for(const auto &F: enum_map) {
             auto parts = StringUtils::split(F.first,"::");
             if(parts.size()>1 && itype.name==parts[0]) {

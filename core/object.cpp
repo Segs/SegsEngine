@@ -75,7 +75,7 @@ struct Object::Signal  {
 
 struct Object::ObjectPrivate {
     IObjectTooling *m_tooling;
-    HashMapNew<StringName, Signal> signal_map;
+    HashMap<StringName, Signal> signal_map;
     List<Connection> connections;
 
 #ifdef DEBUG_ENABLED
@@ -1812,9 +1812,9 @@ void postinitialize_handler(Object *p_object) {
     p_object->_postinitialize();
 }
 
-HashMapNew<ObjectID, Object *> ObjectDB::instances;
+HashMap<ObjectID, Object *> ObjectDB::instances;
 ObjectID ObjectDB::instance_counter = 1;
-HashMapNew<Object *, ObjectID, Hasher<Object *>> ObjectDB::instance_checks;
+HashMap<Object *, ObjectID, Hasher<Object *>> ObjectDB::instance_checks;
 ObjectID ObjectDB::add_instance(Object *p_object) {
 
     ERR_FAIL_COND_V(p_object->get_instance_id() != 0, 0);

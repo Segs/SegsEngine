@@ -187,7 +187,7 @@ private:
 
     Vector<Vector<AudioFrame> > temp_buffer; //temp_buffer for each level
     Vector<AudioServerBus *> buses;
-    HashMapNew<StringName, AudioServerBus *> bus_map;
+    HashMap<StringName, AudioServerBus *> bus_map;
 
     void _update_bus_effects(int p_bus);
 
@@ -195,7 +195,7 @@ private:
 
     // TODO create an audiodata pool to optimize memory
 
-    HashMapNew<void *, uint32_t> audio_data;
+    HashMap<void *, uint32_t> audio_data;
     size_t audio_data_total_mem;
     size_t audio_data_max_mem;
 

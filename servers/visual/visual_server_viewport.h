@@ -107,7 +107,7 @@ public:
 
         Transform2D global_transform;
 
-        HashMapNew<RID, CanvasData> canvas_map;
+        HashMap<RID, CanvasData> canvas_map;
 
         Viewport() {
             update_mode = VS::VIEWPORT_UPDATE_WHEN_VISIBLE;

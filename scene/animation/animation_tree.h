@@ -74,7 +74,7 @@ public:
     struct State {
 
         int track_count;
-        HashMapNew<NodePath, int> track_map;
+        HashMap<NodePath, int> track_map;
         ListOld<AnimationState> animation_states;
         bool valid;
         AnimationPlayer *player;
@@ -87,14 +87,14 @@ public:
     State *state;
 
     float _pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<StringName> &p_connections);
-    void _pre_update_animations(HashMapNew<NodePath, int> *track_map);
+    void _pre_update_animations(HashMap<NodePath, int> *track_map);
 
     //all this is temporary
     StringName base_path;
     Vector<StringName> connections;
     AnimationNode *parent;
 
-    HashMapNew<NodePath, bool> filter;
+    HashMap<NodePath, bool> filter;
     bool filter_enabled;
 
     Array _get_filters() const;
@@ -253,7 +253,7 @@ private:
         }
     };
 
-    HashMapNew<NodePath, TrackCache *> track_cache;
+    HashMap<NodePath, TrackCache *> track_cache;
     Set<TrackCache *> playing_caches;
 
     Ref<AnimationNode> root;
@@ -284,16 +284,16 @@ private:
     void _tree_changed();
     void _update_properties();
     Vector<PropertyInfo> properties;
-    HashMapNew<StringName, HashMapNew<StringName, StringName> > property_parent_map;
-    HashMapNew<StringName, Variant> property_map;
+    HashMap<StringName, HashMap<StringName, StringName> > property_parent_map;
+    HashMap<StringName, Variant> property_map;
 
     struct Activity {
         uint64_t last_pass;
         float activity;
     };
 
-    HashMapNew<StringName, Vector<Activity> > input_activity_map;
-    HashMapNew<StringName, Vector<Activity> *> input_activity_map_get;
+    HashMap<StringName, Vector<Activity> > input_activity_map;
+    HashMap<StringName, Vector<Activity> *> input_activity_map_get;
 
     void _update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node);
 
