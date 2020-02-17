@@ -391,7 +391,7 @@ static int _nm_get_string(se_string_view p_string, Map<StringName, int> &name_ma
     name_map.emplace(StringName(p_string),idx);
     return idx;
 }
-static int _vm_get_variant(const Variant &p_variant, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map) {
+static int _vm_get_variant(const Variant &p_variant, HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> &variant_map) {
 
     if (variant_map.contains(p_variant))
         return variant_map[p_variant];
@@ -401,7 +401,7 @@ static int _vm_get_variant(const Variant &p_variant, HashMap<Variant, int, Hashe
     return idx;
 }
 
-Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map) {
+Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map) {
 
     // this function handles all the work related to properly packing scenes, be it
     // instanced or inherited.
@@ -701,7 +701,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     return OK;
 }
 
-Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map) {
+Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map) {
 
     if (p_node != p_owner && p_node->get_owner() && p_node->get_owner() != p_owner && !p_owner->is_editable_instance(p_node->get_owner()))
         return OK;
@@ -888,7 +888,7 @@ Error SceneState::pack(Node *p_scene) {
     Node *scene = p_scene;
 
     Map<StringName, int> name_map;
-    HashMap<Variant, int, Hasher<Variant>, VariantComparator> variant_map;
+    HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> variant_map;
     Map<Node *, int> node_map;
     Map<Node *, int> nodepath_map;
 
@@ -923,11 +923,8 @@ Error SceneState::pack(Node *p_scene) {
     }
 
     variants.resize(variant_map.size());
-    const Variant *K = nullptr;
-    while ((K = variant_map.next(K))) {
-
-        int idx = variant_map[*K];
-        variants[idx] = *K;
+    for(auto & e : variant_map) {
+        variants[e.second] = e.first;
     }
 
     node_paths.resize(nodepath_map.size());

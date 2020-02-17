@@ -38,11 +38,11 @@ target_include_directories(EASTL_Import INTERFACE
 
 target_compile_definitions(EASTL PUBLIC
     $<BUILD_INTERFACE:EASTL_USER_CONFIG_HEADER=\"${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/SegsEngine_config.h\">
-    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"include/EASTL/SegsEngine_config.h\">
+    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"EASTL/SegsEngine_config.h\">
 )
 target_compile_definitions(EASTL_Import INTERFACE
     $<BUILD_INTERFACE:EASTL_USER_CONFIG_HEADER=\"${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/SegsEngine_config.h\">
-    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"include/EASTL/SegsEngine_config.h\">
+    $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"EASTL/SegsEngine_config.h\">
 )
 
 target_compile_definitions(EASTL PRIVATE

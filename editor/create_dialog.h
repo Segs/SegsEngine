@@ -50,8 +50,8 @@ class CreateDialog : public ConfirmationDialog {
     Button *favorite;
     LineEdit *search_box;
     Tree *search_options;
-    HashMap<StringName, TreeItem *> search_options_types;
-    HashMap<StringName, RES> search_loaded_scripts;
+    HashMapNew<StringName, TreeItem *> search_options_types;
+    HashMapNew<StringName, RES> search_loaded_scripts;
     bool is_replace_mode;
     StringName base_type;
     StringName preferred_search_result_type;
@@ -79,7 +79,7 @@ class CreateDialog : public ConfirmationDialog {
 
     Ref<Texture> _get_editor_icon(const UIString &p_type) const;
 
-    void add_type(const StringName &p_type, HashMap<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select);
+    void add_type(const StringName &p_type, HashMapNew<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select);
 
     void select_type(const StringName &p_type);
 

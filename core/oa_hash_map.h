@@ -46,7 +46,7 @@
  */
 template <class TKey, class TValue,
         class Hasher = Hasher<TKey>,
-        class Comparator = HashMapComparatorDefault<TKey> >
+        class Comparator = eastl::equal_to<TKey> >
 class OAHashMap {
 
 private:
@@ -99,7 +99,7 @@ private:
                 return false;
             }
 
-            if (hashes[pos] == hash && Comparator::compare(keys[pos], p_key)) {
+            if (hashes[pos] == hash && Comparator()(keys[pos], p_key)) {
                 r_pos = pos;
                 return true;
             }

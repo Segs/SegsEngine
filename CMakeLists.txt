@@ -15,7 +15,7 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
       add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class 
     if (NOT (MSVC_VERSION LESS 1910))
-      #add_compile_options (/MP)
+      add_compile_options (/MP)
       add_compile_options (/permissive-)
       #add_compile_options (/d2cgsummary)
 	  #add_compile_options (/d1reportTime)
@@ -74,6 +74,14 @@ function(define_target )
 #    add_executable("${target_args_NAME}")
 endfunction()
 
+add_library(editor_interface INTERFACE)
+target_compile_definitions(editor_interface INTERFACE TOOLS_ENABLED)
+
+add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
+add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
+
+add_library(server_interface INTERFACE) # serve executable
+target_compile_definitions(server_interface INTERFACE _3D_DISABLED)
 
 define_target(
     NAME editor
@@ -92,7 +100,8 @@ define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OF
 # add global engine targets
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
-    target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import)
+    target_compile_definitions(${tgt}_interface INTERFACE )
+    target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import ${tgt}_interface)
     set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
 
     set_common_target_properties(${tgt}_engine)
@@ -227,6 +236,8 @@ if(NOT OPTION_DEPRECATED)
     add_definitions(-DDISABLE_DEPRECATED)
 endif()
 
+#target_compile_definitions(client_interface INTERACE TOOLS_ENABLED)
+
 if(OPTION_TOOLS)
     add_definitions(-DTOOLS_ENABLED)
 endif()
@@ -296,14 +307,14 @@ endif()
 
 foreach(tgt ${global_targets})
 if(WIN32)
-    install(TARGETS ${tgt}_engine EXPORT SegsEngine
+    install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION bin
         RUNTIME DESTINATION bin
         INCLUDES DESTINATION include
     )
 else()
-    install(TARGETS ${tgt}_engine EXPORT SegsEngine
+    install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION bin
         RUNTIME DESTINATION bin

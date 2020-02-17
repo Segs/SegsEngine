@@ -179,7 +179,7 @@ class EditorFileSystem : public Node {
         String script_class_icon_path;
     };
 
-    HashMap<String, FileCache> file_cache;
+    HashMapNew<String, FileCache> file_cache;
 
     struct ScanProgress {
 

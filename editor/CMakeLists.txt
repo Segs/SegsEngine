@@ -8,7 +8,6 @@ if(NOT OPTION_TOOLS)
 endif()
 
 add_library(edit_tools STATIC)
-add_library(editor_interface INTERFACE)
 
 add_subdirectory(plugin_interfaces)
 
@@ -76,8 +75,6 @@ target_sources(edit_tools PRIVATE ${editor_sources} ${exporter_sources}
 target_include_directories(edit_tools PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 set_property(TARGET edit_tools PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_include_directories(editor_interface INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
-# make sure users of editor_interface are linked after editor
 set_target_properties(edit_tools PROPERTIES AUTORCC_OPTIONS "--compress;7;--verbose")
 set_target_properties(edit_tools PROPERTIES AUTORCC ON)
 #target_link_libraries(edit_tools PUBLIC drivers scene)

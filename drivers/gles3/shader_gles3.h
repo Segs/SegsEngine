@@ -63,11 +63,17 @@ union ShaderVersionKey {
     bool operator==(const ShaderVersionKey &p_key) const { return key == p_key.key; }
     bool operator<(const ShaderVersionKey &p_key) const { return key < p_key.key; }
 };
-template<>
-struct Hasher<ShaderVersionKey> {
 
-    uint32_t operator()(const ShaderVersionKey &p_key) { return Hasher<uint64_t>()(p_key.key); }
-};
+namespace eastl {
+    template<>
+    struct hash<ShaderVersionKey> {
+        size_t operator()(ShaderVersionKey np) const {
+            return eastl::hash<uint64_t>()(np.key);
+        }
+
+    };
+}
+
 
 class ShaderGLES3 {
 protected:
@@ -155,9 +161,9 @@ private:
 
 
     //this should use a way more cachefriendly version..
-    HashMap<ShaderVersionKey, Version> version_map;
+    HashMapNew<ShaderVersionKey, Version> version_map;
 
-    HashMap<uint32_t, CustomCode> custom_code_map;
+    HashMapNew<uint32_t, CustomCode> custom_code_map;
     uint32_t last_custom_code;
 
     ShaderVersionKey conditional_version;
@@ -293,8 +299,8 @@ private:
         }
     }
 
-    Map<uint32_t, Variant> uniform_defaults;
-    Map<uint32_t, CameraMatrix> uniform_cameras;
+    HashMapNew<uint32_t, Variant> uniform_defaults;
+    HashMapNew<uint32_t, CameraMatrix> uniform_cameras;
 
 protected:
     _FORCE_INLINE_ int _get_uniform(int p_which) const;

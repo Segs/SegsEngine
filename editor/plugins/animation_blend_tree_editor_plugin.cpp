@@ -541,7 +541,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
     updating = true;
 
     Set<String> paths;
-    HashMap<String, Set<String> > types;
+    HashMapNew<String, Set<String> > types;
     {
         Vector<StringName> animations(player->get_animation_list());
 

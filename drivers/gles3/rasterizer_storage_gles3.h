@@ -362,8 +362,8 @@ public:
     struct Shader : public RID_Data {
 
         uint32_t version;
-        Map<StringName, ShaderLanguage::ShaderNode::Uniform> uniforms;
-        Map<StringName, RID> default_textures;
+        HashMapNew<StringName, ShaderLanguage::ShaderNode::Uniform> uniforms;
+        HashMapNew<StringName, RID> default_textures;
         Vector<uint32_t> ubo_offsets;
         Vector<ShaderLanguage::DataType> texture_types;
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
@@ -493,9 +493,9 @@ public:
 
         GLuint ubo_id=0;
         Shader *shader=nullptr;
-        Map<StringName, Variant> params;
-        Map<Geometry *, int> geometry_owners;
-        Map<RasterizerScene::InstanceBase *, int> instance_owners;
+        HashMapNew<StringName, Variant> params;
+        HashMapNew<Geometry *, int> geometry_owners;
+        HashMapNew<RasterizerScene::InstanceBase *, int> instance_owners;
         SelfList<Material> list;
         SelfList<Material> dirty_list;
         Vector<bool> texture_is_3d; //TODO: SEGS: consider using dynamic_bitvector here.

@@ -2367,7 +2367,7 @@ RID RasterizerStorageGLES3::shader_get_default_texture_param(RID p_shader, const
     const Shader *shader = shader_owner.get(p_shader);
     ERR_FAIL_COND_V(!shader, RID());
 
-    const Map<StringName, RID>::const_iterator E = shader->default_textures.find(p_name);
+    auto E = shader->default_textures.find(p_name);
     if (E==shader->default_textures.end())
         return RID();
     return E->second;
@@ -2518,7 +2518,7 @@ void RasterizerStorageGLES3::material_remove_instance_owner(RID p_material, Rast
     Material *material = material_owner.get(p_material);
     ERR_FAIL_COND(!material);
 
-    Map<RasterizerScene::InstanceBase *, int>::iterator E = material->instance_owners.find(p_instance);
+    auto E = material->instance_owners.find(p_instance);
     ERR_FAIL_COND(E==material->instance_owners.end());
     E->second--;
 
@@ -3092,7 +3092,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
             //regular uniform
             uint8_t *data = &local_ubo[material->shader->ubo_offsets[E.second.order]];
 
-            Map<StringName, Variant>::iterator V = material->params.find(E.first);
+            auto V = material->params.find(E.first);
 
             if (V!=material->params.end()) {
                 //user provided
@@ -3142,13 +3142,13 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
                 } break;
             }
 
-            Map<StringName, Variant>::iterator V = material->params.find(E.first);
+            auto V = material->params.find(E.first);
             if (V!=material->params.end()) {
                 texture = V->second;
             }
 
             if (!texture.is_valid()) {
-                Map<StringName, RID>::iterator W = material->shader->default_textures.find(E.first);
+                auto W = material->shader->default_textures.find(E.first);
                 if (W!=material->shader->default_textures.end()) {
                     texture = W->second;
                 }
@@ -3176,7 +3176,7 @@ void RasterizerStorageGLES3::_material_remove_geometry(RID p_material, Geometry 
     Material *material = material_owner.getornull(p_material);
     ERR_FAIL_COND(!material);
 
-    Map<Geometry *, int>::iterator I = material->geometry_owners.find(p_geometry);
+    auto I = material->geometry_owners.find(p_geometry);
     ERR_FAIL_COND(I==material->geometry_owners.end());
 
     I->second--;

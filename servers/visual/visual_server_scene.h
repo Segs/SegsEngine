@@ -310,17 +310,17 @@ public:
 
         struct Dynamic {
 
-            Map<RID, LightCache> light_cache;
-            Map<RID, LightCache> light_cache_changes;
+            HashMapNew<RID, LightCache> light_cache;
+            HashMapNew<RID, LightCache> light_cache_changes;
             PoolVector<int> light_data;
-            PoolVector<LocalData> local_data;
+            Vector<LocalData> local_data;
             Vector<Vector<uint32_t> > level_cell_lists;
             RID probe_data;
-            bool enabled;
             int bake_dynamic_range;
+            bool enabled;
             RasterizerStorage::GIProbeCompression compression;
 
-            Vector<PoolVector<uint8_t> > mipmaps_3d;
+            Vector<Vector<uint8_t> > mipmaps_3d;
             Vector<PoolVector<CompBlockS3TC> > mipmaps_s3tc; //for s3tc
 
             int updating_stage;

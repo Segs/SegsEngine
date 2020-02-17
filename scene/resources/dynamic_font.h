@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/hashfuncs.h"
-#include "core/io/resource_loader.h"
+
 #include "core/os/thread_safe.h"
 #include "core/pair.h"
 #include "scene/resources/font.h"
@@ -55,9 +55,17 @@ public:
             };
             uint32_t key;
         };
-        bool operator<(CacheID right) const;
-        CacheID() {
-            key = 0;
+        bool operator<(CacheID right) const {
+            return key < right.key;
+        }
+
+        bool operator==(CacheID other) const noexcept
+        {
+            return (key == other.key);
+        }
+        //To allow default hasher to convert this to a size_t
+        explicit operator size_t() const { return key;}
+        constexpr CacheID() : key(0) {
         }
     };
 
@@ -80,7 +88,7 @@ private:
     Hinting hinting;
 
     String font_path;
-    Map<CacheID, DynamicFontAtSize *> size_cache;
+    HashMapNew<CacheID, DynamicFontAtSize *> size_cache;
 
     friend class DynamicFontAtSize;
 
@@ -160,7 +168,7 @@ private:
     Character _make_outline_char(CharType p_char);
     TexturePosition _find_texture_pos_for_glyph(int p_color_size, Image::Format p_image_format, int p_width, int p_height);
 
-    HashMap<CharType, Character> char_map;
+    HashMapNew<CharType, Character> char_map;
 
     _FORCE_INLINE_ void _update_char(CharType p_char);
 
@@ -168,7 +176,7 @@ private:
     Ref<DynamicFontData> font;
     DynamicFontData::CacheID id;
 
-    static HashMap<String, Vector<uint8_t> > _fontdata;
+    static HashMapNew<String, Vector<uint8_t> > _fontdata;
     Error _load();
 
 public:

@@ -999,7 +999,7 @@ void FileSystemDock::_get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vect
     }
 }
 
-void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, Vector<String> &to_remaps) const {
+void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const HashMapNew<String, String> &renames, Vector<String> &to_remaps) const {
     for (int i = 0; i < efsd->get_subdir_count(); i++) {
         _find_remaps(efsd->get_subdir(i), renames, to_remaps);
     }
@@ -1015,7 +1015,7 @@ void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<Str
 }
 
 void FileSystemDock::_try_move_item(const FileOrFolder &p_item, se_string_view p_new_path,
-        Map<String, String> &p_file_renames, Map<String, String> &p_folder_renames) {
+        HashMapNew<String, String> &p_file_renames, HashMapNew<String, String> &p_folder_renames) {
     // Ensure folder paths end with "/".
     String old_path = p_item.is_file || StringUtils::ends_with(p_item.path,"/") ? p_item.path : p_item.path + "/";
     String new_path(p_item.is_file || StringUtils::ends_with(p_new_path,"/") ? p_new_path : String(p_new_path) + "/");
@@ -1118,7 +1118,7 @@ void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const Strin
     memdelete(da);
 }
 
-void FileSystemDock::_update_resource_paths_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_update_resource_paths_after_move(const HashMapNew<String, String> &p_renames) const {
 
     // Rename all resources loaded, be it subresources or actual resources.
     List<Ref<Resource> > cached;
@@ -1168,7 +1168,7 @@ void FileSystemDock::_update_resource_paths_after_move(const Map<String, String>
     }
 }
 
-void FileSystemDock::_update_dependencies_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_update_dependencies_after_move(const HashMapNew<String, String> &p_renames) const {
     //The following code assumes that the following holds:
     // 1) EditorFileSystem contains the old paths/folder structure from before the rename/move.
     // 2) ResourceLoader can use the new paths without needing to call rescan.
@@ -1188,7 +1188,7 @@ void FileSystemDock::_update_dependencies_after_move(const Map<String, String> &
     }
 }
 
-void FileSystemDock::_update_project_settings_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_update_project_settings_after_move(const HashMapNew<String, String> &p_renames) const {
 
     // Find all project settings of type FILE and replace them if needed.
     const Map<StringName, PropertyInfo> prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
@@ -1220,7 +1220,7 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
     ProjectSettings::get_singleton()->save();
 }
 
-void FileSystemDock::_update_favorites_list_after_move(const Map<String, String> &p_files_renames, const Map<String, String> &p_folders_renames) const {
+void FileSystemDock::_update_favorites_list_after_move(const HashMapNew<String, String> &p_files_renames, const HashMapNew<String, String> &p_folders_renames) const {
 
     Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
     Vector<String> new_favorites;
@@ -1239,7 +1239,7 @@ void FileSystemDock::_update_favorites_list_after_move(const Map<String, String>
     EditorSettings::get_singleton()->set_favorites(new_favorites);
 }
 
-void FileSystemDock::_save_scenes_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_save_scenes_after_move(const HashMapNew<String, String> &p_renames) const {
     Vector<String> remaps;
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
     Vector<String> new_filenames;
@@ -1377,8 +1377,8 @@ void FileSystemDock::_rename_operation_confirm() {
     }
     memdelete(da);
 
-    Map<String, String> file_renames;
-    Map<String, String> folder_renames;
+    HashMapNew<String, String> file_renames;
+    HashMapNew<String, String> folder_renames;
     _try_move_item(to_rename, new_path, file_renames, folder_renames);
 
     int current_tab = editor->get_current_tab();
@@ -1476,8 +1476,8 @@ void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool over
         }
     }
 
-    Map<String, String> file_renames;
-    Map<String, String> folder_renames;
+    HashMapNew<String, String> file_renames;
+    HashMapNew<String, String> folder_renames;
     bool is_moved = false;
     for (int i = 0; i < to_move.size(); i++) {
         String old_path(StringUtils::ends_with(to_move[i].path, "/") ?

@@ -216,7 +216,7 @@ void ScriptServer::thread_exit() {
     }
 }
 
-HashMap<StringName, ScriptServer::GlobalScriptClass> ScriptServer::global_classes;
+HashMapNew<StringName, ScriptServer::GlobalScriptClass> ScriptServer::global_classes;
 
 void ScriptServer::global_classes_clear() {
     global_classes.clear();
@@ -260,10 +260,9 @@ StringName ScriptServer::get_global_class_native_base(const StringName &p_class)
 void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
     const StringName *K = nullptr;
     Vector<StringName> classes;
-    classes.reserve(classes.size());
-    while ((K = global_classes.next(K))) {
-        classes.push_back(*K);
-    }
+
+    global_classes.keys_into(classes);
+
     eastl::stable_sort(classes.begin(),classes.end(),StringName::AlphCompare);
     for (const StringName &e : classes) {
         r_global_classes->push_back(e);

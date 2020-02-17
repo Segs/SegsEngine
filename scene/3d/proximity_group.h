@@ -53,7 +53,7 @@ public:
 
     DispatchMode dispatch_mode;
 
-    Map<StringName, uint32_t> groups;
+    HashMapNew<StringName, uint32_t> groups;
     StringName group_name;
 
     float cell_size;

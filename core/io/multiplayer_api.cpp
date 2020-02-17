@@ -560,11 +560,11 @@ void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, 
 
     NodePath path(paths);
 
-    PathSentCache *psc = path_send_cache.getptr(path);
-    ERR_FAIL_COND_MSG(!psc, "Invalid packet received. Tries to confirm a path which was not found in cache.");
+    auto psc = path_send_cache.find(path);
+    ERR_FAIL_COND_MSG(path_send_cache.end()==psc, "Invalid packet received. Tries to confirm a path which was not found in cache.");
 
-    Map<int, bool>:: iterator E = psc->confirmed_peers.find(p_from);
-    ERR_FAIL_COND_MSG(E==psc->confirmed_peers.end(), "Invalid packet received. Source peer was not found in cache for the given path.");
+    Map<int, bool>:: iterator E = psc->second.confirmed_peers.find(p_from);
+    ERR_FAIL_COND_MSG(E==psc->second.confirmed_peers.end(), "Invalid packet received. Source peer was not found in cache for the given path.");
     E->second = true;
 }
 
@@ -638,12 +638,10 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
     ERR_FAIL_COND_MSG(from_path.is_empty(), "Unable to send RPC. Relative path is empty. THIS IS LIKELY A BUG IN THE ENGINE!");
 
     // See if the path is cached.
-    PathSentCache *psc = path_send_cache.getptr(from_path);
-    if (!psc) {
+    auto psc = path_send_cache.find(from_path);
+    if (path_send_cache.end()==psc) {
         // Path is not cached, create.
-        path_send_cache[from_path] = PathSentCache();
-        psc = path_send_cache.getptr(from_path);
-        psc->id = last_send_cache_id++;
+        psc = path_send_cache.emplace(eastl::make_pair(from_path, PathSentCache{{},last_send_cache_id++ })).first;
     }
 
     // Create base packet, lots of hardcode because it must be tight.
@@ -660,7 +658,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
 
     // Encode ID.
     MAKE_ROOM(ofs + 4)
-    encode_uint32(psc->id, &packet_cache[ofs]);
+    encode_uint32(psc->second.id, &packet_cache[ofs]);
     ofs += 4;
 
     // Encode function name.
@@ -695,7 +693,7 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
     m_debug_data->record_rpc_call(ofs);
 
     // See if all peers have cached path (is so, call can be fast).
-    bool has_all_peers = _send_confirm_path(from_path, psc, p_to);
+    bool has_all_peers = _send_confirm_path(from_path, &psc->second, p_to);
 
     // Take chance and set transfer mode, since all send methods will use it.
     network_peer->set_transfer_mode(p_unreliable ? NetworkedMultiplayerPeer::TRANSFER_MODE_UNRELIABLE : NetworkedMultiplayerPeer::TRANSFER_MODE_RELIABLE);
@@ -722,14 +720,14 @@ void MultiplayerAPI::_send_rpc(Node *p_from, int p_to, bool p_unreliable, bool p
             if (p_to > 0 && E != p_to)
                 continue; // Continue, not for this peer.
 
-            Map<int, bool>::iterator F = psc->confirmed_peers.find(E);
-            ERR_CONTINUE(F==psc->confirmed_peers.end()); // Should never happen.
+            Map<int, bool>::iterator F = psc->second.confirmed_peers.find(E);
+            ERR_CONTINUE(F==psc->second.confirmed_peers.end()); // Should never happen.
 
             network_peer->set_target_peer(E); // To this one specifically.
 
             if (F->second) {
                 // This one confirmed path, so use id.
-                encode_uint32(psc->id, &packet_cache[1]);
+                encode_uint32(psc->second.id, &packet_cache[1]);
                 network_peer->put_packet(packet_cache.data(), ofs);
             } else {
                 // This one did not confirm path yet, so use entire path (sorry!).
@@ -754,10 +752,10 @@ void MultiplayerAPI::_del_peer(int p_id) {
     // Cleanup sent cache.
     // Some refactoring is needed to make this faster and do paths GC.
     Vector<NodePath> keys;
-    path_send_cache.get_key_list(keys);
+    path_send_cache.keys_into(keys);
     for (const NodePath &E : keys) {
-        PathSentCache *psc = path_send_cache.getptr(E);
-        psc->confirmed_peers.erase(p_id);
+        auto psc = path_send_cache.find(E);
+        psc->second.confirmed_peers.erase(p_id);
     }
     emit_signal("network_peer_disconnected", p_id);
 }

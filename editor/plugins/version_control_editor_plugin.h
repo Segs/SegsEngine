@@ -48,7 +48,7 @@ class VersionControlEditorPlugin : public EditorPlugin {
     GDCLASS(VersionControlEditorPlugin, EditorPlugin)
 
 public:
-    enum ChangeType {
+    enum ChangeType : int8_t {
 
         CHANGE_TYPE_NEW = 0,
         CHANGE_TYPE_MODIFIED = 1,
@@ -74,8 +74,8 @@ private:
     RichTextLabel *set_up_vcs_status;
     Button *set_up_ok_button;
 
-    HashMap<ChangeType, String,HashType<ChangeType> > change_type_to_strings;
-    HashMap<ChangeType, Color,HashType<ChangeType> > change_type_to_color;
+    HashMapNew<ChangeType, String,HashType<ChangeType> > change_type_to_strings;
+    HashMapNew<ChangeType, Color,HashType<ChangeType> > change_type_to_color;
 
     VBoxContainer *version_commit_dock;
     VBoxContainer *commit_box_vbc;

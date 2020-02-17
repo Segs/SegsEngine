@@ -35,9 +35,10 @@
 #include "core/os/file_access.h"
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
-#include "servers/visual_server.h"
 #include "core/se_string.h"
 #include "core/ustring.h"
+#include "scene/resources/texture.h"
+#include "servers/visual_server.h"
 
 IMPL_GDCLASS(Font)
 IMPL_GDCLASS(BitmapFont)

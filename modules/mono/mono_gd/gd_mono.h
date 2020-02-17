@@ -104,7 +104,7 @@ private:
     MonoDomain *root_domain;
     MonoDomain *scripts_domain;
 
-    DefHashMap<int32_t, DefHashMap<String, GDMonoAssembly *> > assemblies;
+    HashMapNew<int32_t, HashMapNew<String, GDMonoAssembly *> > assemblies;
 
     GDMonoAssembly *corlib_assembly;
     GDMonoAssembly *project_assembly;

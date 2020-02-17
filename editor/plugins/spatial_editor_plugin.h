@@ -785,7 +785,7 @@ public:
 private:
     int current_state;
     Vector<EditorSpatialGizmo *> current_gizmos;
-    DefHashMap<String, Vector<Ref<SpatialMaterial> > > materials;
+    HashMapNew<String, Vector<Ref<SpatialMaterial> > > materials;
 
 protected:
     static void _bind_methods();

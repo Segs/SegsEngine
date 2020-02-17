@@ -33,6 +33,8 @@
 #include "core/object.h"
 #include "core/os/main_loop.h"
 
+#include "core/hash_map.h"
+
 class Viewport;
 class SceneState;
 class MultiplayerAPI;
@@ -281,8 +283,8 @@ public:
 
     void set_editable_instance(Node *p_node, bool p_editable);
     bool is_editable_instance(const Node *p_node) const;
-    void set_editable_instances(const BaseHashMap<NodePath, int> &p_editable_instances);
-    BaseHashMap<NodePath, int> get_editable_instances() const;
+    void set_editable_instances(const HashMapNew<NodePath, int> &p_editable_instances);
+    const HashMapNew<NodePath, int> &get_editable_instances() const;
 
     /* NOTIFICATIONS */
 

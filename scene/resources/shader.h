@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/map.h"
+#include "core/hash_map.h"
 #include "core/resource.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/shader_enums.h"
@@ -49,9 +49,9 @@ private:
     // shaders keep a list of ShaderMaterial -> VisualServer name translations, to make
     // conversion fast and save memory.
     mutable bool params_cache_dirty;
-    mutable Map<StringName, StringName> params_cache; //map a shader param to a material param..
+    mutable HashMapNew<StringName, StringName> params_cache; //map a shader param to a material param..
     //TODO: SEGS: was a name->Ref<Texture> map, but default texture can also be CubeMap
-    Map<StringName, Ref<Resource> > default_textures;
+    HashMapNew<StringName, Ref<Resource> > default_textures;
 
     virtual void _update_shader() const; //used for visual shader
 protected:

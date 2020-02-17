@@ -136,15 +136,11 @@ void ShaderGLES3::unbind() {
     uniforms_dirty = true;
     active = nullptr;
 }
-
-static void _display_error_with_code(const String &p_error, const Vector<const char *> &p_code) {
+template<class CONTAINER>
+static void _display_error_with_code(const String &p_error, const CONTAINER &p_code) {
 
     int line = 1;
-    String total_code;
-
-    for (int i = 0; i < p_code.size(); i++) {
-        total_code += p_code[i];
-    }
+    String total_code = String::joined(p_code,"");
     Vector<se_string_view> lines;
     String::split_ref(lines,total_code,'\n');
 
@@ -159,14 +155,16 @@ static void _display_error_with_code(const String &p_error, const Vector<const c
 
 ShaderGLES3::Version *ShaderGLES3::get_current_version() {
 
-    Version *_v = version_map.getptr(conditional_version);
+    auto v_iter = version_map.find(conditional_version);
+
+    Version *_v = v_iter!=version_map.end() ? &v_iter->second : nullptr;
 
     if (_v) {
 
         if (conditional_version.code_version != 0) {
-            CustomCode *cc = custom_code_map.getptr(conditional_version.code_version);
-            ERR_FAIL_COND_V(!cc, _v);
-            if (cc->version == _v->code_version)
+            auto cc = custom_code_map.find(conditional_version.code_version);
+            ERR_FAIL_COND_V(cc== custom_code_map.end(), _v);
+            if (cc->second.version == _v->code_version)
                 return _v;
         } else {
             return _v;
@@ -195,12 +193,12 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     v.ok = false;
     /* SETUP CONDITIONALS */
 
-    Vector<const char *> strings;
+    FixedVector<const char *,128,true> strings;
     strings.push_back("#version 330\n");
 
-    for (size_t i = 0; i < custom_defines.size(); i++) {
+    for (auto & custom_define : custom_defines) {
 
-        strings.push_back(custom_defines[i].data());
+        strings.push_back(custom_define.data());
     }
 
     for (int j = 0; j < conditional_count; j++) {
@@ -650,11 +648,8 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
 }
 
 void ShaderGLES3::finish() {
-
-    const ShaderVersionKey *V = nullptr;
-    while ((V = version_map.next(V))) {
-
-        Version &v = version_map[*V];
+    for(const auto &version : version_map) {
+        const Version &v = version.second;
         glDeleteShader(v.vert_id);
         glDeleteShader(v.frag_id);
         glDeleteProgram(v.id);
@@ -664,10 +659,9 @@ void ShaderGLES3::finish() {
 
 void ShaderGLES3::clear_caches() {
 
-    const ShaderVersionKey *V = nullptr;
-    while ((V = version_map.next(V))) {
+    for (const auto &version : version_map) {
+        const Version &v = version.second;
 
-        Version &v = version_map[*V];
         glDeleteShader(v.vert_id);
         glDeleteShader(v.frag_id);
         glDeleteProgram(v.id);

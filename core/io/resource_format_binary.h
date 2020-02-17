@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/io/resource_format_loader.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 #include "core/set.h"
 #include "core/list.h"
 #include "core/io/resource_saver.h"
@@ -49,7 +49,7 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
         uint64_t offset;
     };
 
-    Map<String, String> remaps;
+    HashMapNew<String, String> remaps;
     Vector<char> str_buf;
     Vector<StringName> string_map;
     Vector<IntResource> internal_resources;
@@ -80,7 +80,7 @@ public:
     int get_stage_count() const override;
     void set_translation_remapped(bool p_remapped) override;
 
-    void set_remaps(const Map<String, String> &p_remaps) { remaps = p_remaps; }
+    void set_remaps(const HashMapNew<String, String> &p_remaps) { remaps = p_remaps; }
     void open(FileAccess *p_f);
     String recognize(FileAccess *p_f);
     void get_dependencies(FileAccess *p_f, Vector<String> &p_dependencies, bool p_add_types);
@@ -97,7 +97,7 @@ public:
     bool handles_type(se_string_view /*p_type*/) const override;
     String get_resource_type(se_string_view p_path) const override;
     void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
-    Error rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) override;
+    Error rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map) override;
 };
 
 class ResourceFormatSaverBinaryInstance {
@@ -118,13 +118,18 @@ class ResourceFormatSaverBinaryInstance {
         RES base;
         StringName property;
         bool operator<(const NonPersistentKey &p_key) const { return base == p_key.base ? property < p_key.property : base < p_key.base; }
+        bool operator==(const NonPersistentKey &p_key) const { return base == p_key.base && property == p_key.property; }
+        // Used by default eastl::hash<T>
+        explicit operator size_t() const {
+            return (uint64_t(property.hash())<<32) | eastl::hash<intptr_t>()(intptr_t(base.get())/next_power_of_2(sizeof(Resource)));
+        }
     };
 
-    Map<NonPersistentKey, RES> non_persistent_map;
-    Map<StringName, int> string_map;
+    HashMapNew<NonPersistentKey, RES> non_persistent_map;
+    HashMapNew<StringName, int> string_map;
     Vector<StringName> strings;
 
-    Map<RES, int> external_resources;
+    HashMapNew<RES, int> external_resources;
     List<RES> saved_resources;
 
     static void _pad_buffer(FileAccess *f, int p_bytes);
@@ -135,7 +140,7 @@ class ResourceFormatSaverBinaryInstance {
 
 public:
     Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
-    static void write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, Map<RES, int> &external_resources, Map<StringName, int> &string_map);
+    static void write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, HashMapNew<RES, int> &external_resources, HashMapNew<StringName, int> &string_map);
 };
 
 class ResourceFormatSaverBinary : public ResourceFormatSaver {

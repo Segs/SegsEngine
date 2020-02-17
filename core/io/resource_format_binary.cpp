@@ -986,7 +986,7 @@ void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, Vector<
     ria->get_dependencies(f, p_dependencies, p_add_types);
 }
 
-Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, const Map<String, String> &p_map) {
+Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, const HashMapNew<String, String> &p_map) {
 
     //Error error=OK;
     String p_path(_path);
@@ -1221,7 +1221,7 @@ void ResourceFormatSaverBinaryInstance::_write_variant(const Variant &p_property
     write_variant(f, p_property, resource_set, external_resources, string_map);
 }
 
-void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, Map<RES, int> &external_resources, Map<StringName, int> &string_map) {
+void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, HashMapNew<RES, int> &external_resources, HashMapNew<StringName, int> &string_map) {
 
     switch (p_property.get_type()) {
 

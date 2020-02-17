@@ -81,8 +81,8 @@ private:
 
     static Ref<EditorSettings> singleton;
 
-    HashMap<StringName, PropertyInfo> hints;
-    HashMap<StringName, VariantContainer> props;
+    HashMapNew<StringName, PropertyInfo> hints;
+    HashMapNew<StringName, VariantContainer> props;
     int last_order;
 
     Ref<Resource> clipboard;

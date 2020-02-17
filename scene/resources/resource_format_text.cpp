@@ -773,7 +773,7 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, Vector<Str
     }
 }
 
-Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_string_view p_path, const Map<String, String> &p_map) {
+Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_string_view p_path, const HashMapNew<String, String> &p_map) {
 
     open(p_f, true);
     ERR_FAIL_COND_V(error != OK, error);
@@ -1133,7 +1133,7 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
 
             if (!assign.empty()) {
 
-                Map<StringName, int> empty_string_map; //unused
+                HashMapNew<StringName, int> empty_string_map; //unused
                 bs_save_unicode_string(wf2, StringUtils::from_utf8(assign), true);
                 ResourceFormatSaverBinaryInstance::write_variant(wf2, value, dummy_read.resource_set, dummy_read.external_resources, empty_string_map);
                 prop_count++;
@@ -1195,7 +1195,7 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
             se_string_view  name = E.name;
             Variant value = packed_scene->get(StringName(name));
 
-            Map<StringName, int> empty_string_map; //unused
+            HashMapNew<StringName, int> empty_string_map; //unused
             bs_save_unicode_string(wf2, name, true);
             ResourceFormatSaverBinaryInstance::write_variant(wf2, value, dummy_read.resource_set, dummy_read.external_resources, empty_string_map);
             prop_count++;
@@ -1362,7 +1362,7 @@ void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, Vector<St
     ria->get_dependencies(f, p_dependencies, p_add_types);
 }
 
-Error ResourceFormatLoaderText::rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) {
+Error ResourceFormatLoaderText::rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {

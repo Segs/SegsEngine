@@ -1474,12 +1474,10 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
     ListOld<VisualScript::DataConnection> data_connections;
     script->get_data_connection_list(func, &data_connections);
 
-    HashMap<int, Set<int> > conn_map;
+    HashMapNew<int, Set<int> > conn_map;
     for (const ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
         if (E->deref().from_node == p_id && E->deref().from_port == p_port) {
             // push into the connections map
-            if (!conn_map.contains(E->deref().to_node))
-                conn_map.set(E->deref().to_node, Set<int>());
             conn_map[E->deref().to_node].insert(E->deref().to_port);
         }
     }
@@ -1487,11 +1485,9 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
     undo_redo->add_do_method(vsn.get(), "remove_output_data_port", p_port);
     undo_redo->add_do_method(this, "_update_graph", p_id);
 
-    List<int> keys;
-    conn_map.get_key_list(keys);
-    for (const int E : keys) {
-        for (const int F : conn_map[E]) {
-            undo_redo->add_undo_method(script.get(), "data_connect", func, p_id, p_port, E, F);
+    for (const auto &E : conn_map) {
+        for (const int F : E.second) {
+            undo_redo->add_undo_method(script.get(), "data_connect", func, p_id, p_port, E.first, F);
         }
     }
 
@@ -1662,7 +1658,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
     int idc = script->get_available_id() + 1;
 
     Set<int> to_select;
-    HashMap<int, int> remap;
+    HashMapNew<int, int> remap;
 
     for (const int F : to_duplicate) {
 
@@ -1673,7 +1669,7 @@ void VisualScriptEditor::_on_nodes_duplicate() {
         Ref<VisualScriptNode> dupe(dynamic_ref_cast<VisualScriptNode>(node->duplicate(true)));
 
         int new_id = idc++;
-        remap.set(F, new_id);
+        remap[F] = new_id;
 
         to_select.insert(new_id);
         undo_redo->add_do_method(script.get(), "add_node", default_func, new_id, dupe, script->get_node_position(func, F) + Vector2(20, 20));
@@ -3071,8 +3067,8 @@ void VisualScriptEditor::_graph_disconnected(se_string_view p_from, int p_from_s
 void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, const StringName &p_func_to, int p_id) {
 
     Set<int> nodes_to_move;
-    HashMap<int, Map<int, int> > seqconns_to_move; // from => List(outp, to)
-    HashMap<int, Map<int, Pair<int, int> > > dataconns_to_move; // to => List(inp_p => from, outp)
+    HashMapNew<int, Map<int, int> > seqconns_to_move; // from => List(outp, to)
+    HashMapNew<int, Map<int, Pair<int, int> > > dataconns_to_move; // to => List(inp_p => from, outp)
 
     nodes_to_move.insert(p_id);
     Set<int> sequence_connections;
@@ -3080,14 +3076,12 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         ListOld<VisualScript::SequenceConnection> sequence_conns;
         script->get_sequence_connection_list(p_func_from, &sequence_conns);
 
-        HashMap<int, Map<int, int> > seqcons; // from => List(out_p => to)
+        HashMapNew<int, Map<int, int> > seqcons; // from => List(out_p => to)
 
         for (ListOld<VisualScript::SequenceConnection>::Element *E = sequence_conns.front(); E; E = E->next()) {
             int from = E->deref().from_node;
             int to = E->deref().to_node;
             int out_p = E->deref().from_output;
-            if (!seqcons.contains(from))
-                seqcons.set(from, Map<int, int>());
             seqcons[from].emplace(out_p, to);
             sequence_connections.insert(to);
             sequence_connections.insert(from);
@@ -3095,7 +3089,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
 
         int conn = p_id;
         ListOld<int> stack;
-        HashMap<int, Set<int> > seen; // from, outp
+        HashMapNew<int, Set<int> > seen; // from, outp
         while (seqcons.contains(conn)) {
             int size = seqcons[conn].size();
             for (auto E : seqcons[conn]) {
@@ -3111,12 +3105,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
                     }
                     continue;
                 }
-                if (!seen.contains(conn))
-                    seen.set(conn, Set<int>());
                 seen[conn].insert(E.first);
                 stack.push_back(conn);
-                if (!seqconns_to_move.contains(conn))
-                    seqconns_to_move.set(conn, Map<int, int>());
                 seqconns_to_move[conn].emplace(E.first, E.second);
                 conn = E.second;
                 nodes_to_move.insert(conn);
@@ -3133,7 +3123,7 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         ListOld<VisualScript::DataConnection> data_connections;
         script->get_data_connection_list(p_func_from, &data_connections);
 
-        HashMap<int, Map<int, Pair<int, int> > > connections;
+        HashMapNew<int, Map<int, Pair<int, int> > > connections;
 
         for (ListOld<VisualScript::DataConnection>::Element *E = data_connections.front(); E; E = E->next()) {
             int from = E->deref().from_node;
@@ -3141,15 +3131,13 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
             int out_p = E->deref().from_port;
             int in_p = E->deref().to_port;
 
-            if (!connections.contains(to))
-                connections.set(to, Map<int, Pair<int, int> >());
             connections[to].emplace(in_p, Pair<int, int>(from, out_p));
         }
 
         // go through the HashMap and do all sorts of crazy ass stuff now...
         Set<int> nodes_to_be_added;
         for (int id : nodes_to_move) {
-            HashMap<int, Set<int> > seen;
+            HashMapNew<int, Set<int> > seen;
             Vector<int> stack;
             while (connections.contains(id)) {
                 int size = connections[id].size();
@@ -3179,12 +3167,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
                         }
                     }
 
-                    if (!seen.contains(id))
-                        seen.set(id, Set<int>());
                     seen[id].insert(E.first);
                     stack.push_back(id);
-                    if (!dataconns_to_move.contains(id))
-                        dataconns_to_move.set(id, Map<int, Pair<int, int> >());
                     dataconns_to_move[id].emplace(E.first, E.second);
                     id = E.second.first;
                     nodes_to_be_added.insert(id);
@@ -3239,8 +3223,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         undo_redo->add_undo_method(script.get(), "add_node", p_func_from, id, script->get_node(p_func_from, id), script->get_node_position(p_func_from, id));
     }
 
-    List<int> skeys;
-    seqconns_to_move.get_key_list(skeys);
+    FixedVector<int,64,true> skeys;
+    seqconns_to_move.keys_into(skeys);
     for (int E : skeys) {
         int from_node = E;
         for (auto F : seqconns_to_move[from_node]) {
@@ -3251,8 +3235,8 @@ void VisualScriptEditor::_move_nodes_with_rescan(const StringName &p_func_from, 
         }
     }
 
-    List<int> keys;
-    dataconns_to_move.get_key_list(keys);
+    FixedVector<int,64,true> keys;
+    dataconns_to_move.keys_into(keys);
     for ( int E : keys) {
         int to_node = E; // to_node
         for (auto &F : dataconns_to_move[E]) {

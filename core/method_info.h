@@ -54,6 +54,9 @@ public:
     MethodInfo(const char *p_name) :
         name(p_name) {
     }
+
+    MethodInfo(const StringName &p_name) noexcept : name(p_name) {    }
+
     MethodInfo(const char *p_name, PropertyInfo &&p_param1) :
         name(p_name) {
         set_args(eastl::move(p_param1));

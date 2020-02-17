@@ -484,6 +484,15 @@ inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, cons
 inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4 }); }
 inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4,p_arg5 }); }
 
+namespace eastl {
+    template<>
+    struct hash<Variant> {
+        size_t operator()(const Variant &p_variant) const {
+            return p_variant.hash();
+        }
+    };
+}
+
 template<>
 struct Hasher<Variant> {
 

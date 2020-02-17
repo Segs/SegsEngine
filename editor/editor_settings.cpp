@@ -53,6 +53,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 
+#include "EASTL/sort.h"
 #include <QtCore/QResource>
 
 #define _SYSTEM_CERTS_PATH ""
@@ -154,12 +155,12 @@ bool EditorSettings::_get(const StringName &p_name, Variant &r_ret) const {
         return true;
     }
 
-    const VariantContainer *v = props.getptr(p_name);
-    if (!v) {
+    auto v = props.find(p_name);
+    if (v==props.end()) {
         WARN_PRINT("EditorSettings::_get - Property not found: " + String(p_name));
         return false;
     }
-    r_ret = v->variant;
+    r_ret = v->second.variant;
     return true;
 }
 
@@ -184,27 +185,26 @@ void EditorSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     _THREAD_SAFE_METHOD_
 
-    const StringName *k = nullptr;
     Set<_EVCSort> vclist;
 
-    while ((k = props.next(k))) {
+    for(const auto & prop : props) {
 
-        const VariantContainer *v = props.getptr(*k);
+        const VariantContainer &v = prop.second;
 
-        if (v->hide_from_editor)
+        if (v.hide_from_editor)
             continue;
 
         _EVCSort vc;
-        vc.name = *k;
-        vc.order = v->order;
-        vc.type = v->variant.get_type();
-        vc.save = v->save;
+        vc.name = prop.first;
+        vc.order = v.order;
+        vc.type = v.variant.get_type();
+        vc.save = v.save;
         /*if (vc.save) { this should be implemented, but lets do after 3.1 is out.
             if (v->initial.get_type() != VariantType::NIL && v->initial == v->variant) {
                 vc.save = false;
             }
         }*/
-        vc.restart_if_changed = v->restart_if_changed;
+        vc.restart_if_changed = v.restart_if_changed;
 
         vclist.insert(vc);
     }
@@ -225,7 +225,7 @@ void EditorSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         PropertyInfo pi(E.type, E.name);
         pi.usage = pinfo;
         if (hints.contains(E.name))
-            pi = hints[E.name];
+            pi = hints.at(E.name);
 
         if (E.restart_if_changed) {
             pi.usage |= PROPERTY_USAGE_RESTART_IF_CHANGED;
@@ -262,7 +262,7 @@ bool EditorSettings::has_default_value(const StringName &p_setting) const {
 
     if (!props.contains(p_setting))
         return false;
-    return props[p_setting].has_default_value;
+    return const_cast<EditorSettings *>(this)->props[p_setting].has_default_value;
 }
 
 void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
@@ -707,9 +707,10 @@ bool EditorSettings::_save_text_editor_theme(se_string_view p_file) {
     se_string_view theme_section("color_theme");
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>()); // hex is better?
 
-    List<StringName> keys;
-    props.get_key_list(keys);
-    keys.sort();
+    Vector<StringName> keys;
+    props.keys_into(keys);
+    //NOTE: original code was sorting by pointers her
+    eastl::sort(keys.begin(),keys.end(),WrapAlphaCompare());
 
     for (const StringName &key : keys) {
         if (StringUtils::begins_with(key, "text_editor/highlighting/") && StringUtils::contains(key, "color")) {

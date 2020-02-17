@@ -32,7 +32,7 @@
 
 #include "servers/audio/audio_effect.h"
 #include "servers/audio/effects/eq.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 
 class AudioEffectEQ;
 
@@ -55,7 +55,7 @@ class AudioEffectEQ : public AudioEffect {
 
     EQ eq;
     Vector<float> gain;
-    Map<StringName, int> prop_band_map;
+    HashMapNew<StringName, int> prop_band_map;
     Vector<StringName> band_names;
 
 protected:

@@ -30,7 +30,7 @@
 
 #include "shader_types.h"
 
-const Map<StringName, ShaderLanguage::FunctionInfo> &ShaderTypes::get_functions(VS::ShaderMode p_mode) {
+const HashMapNew<StringName, ShaderLanguage::FunctionInfo> &ShaderTypes::get_functions(VS::ShaderMode p_mode) {
 
     return shader_modes[p_mode].functions;
 }

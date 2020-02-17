@@ -268,7 +268,7 @@ static String get_constant_text(SL::DataType p_type, const Vector<SL::ConstantNo
     }
 }
 
-void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const StringName &p_for_func, const Map<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added) {
+void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const StringName &p_for_func, const HashMapNew<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added) {
 
     int fidx = -1;
 
@@ -447,7 +447,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 r_gen_code.fragment_global += gcode;
             }
 
-            Map<StringName, String> function_code;
+            HashMapNew<StringName, String> function_code;
 
             //code for functions
             for (auto & function : pnode->functions) {

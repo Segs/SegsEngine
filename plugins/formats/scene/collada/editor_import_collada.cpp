@@ -70,7 +70,7 @@ struct ColladaImport {
     bool use_mesh_builtin_materials;
     float bake_fps;
 
-    DefHashMap<String, NodeMap,Hasher<String>> node_map; //map from collada node to engine node
+    HashMapNew<String, NodeMap,Hasher<String>> node_map; //map from collada node to engine node
     Map<String, String> node_name_map; //map from collada node to engine node
     Map<String, Ref<ArrayMesh> > mesh_cache;
     Map<String, Ref<Curve3D> > curve_cache;

@@ -129,7 +129,7 @@ private:
     Button *_replace_button;
     FileDialog *_folder_dialog;
     HBoxContainer *_filters_container;
-    HashMap<StringName, bool> _filters_preferences;
+    HashMapNew<StringName, bool> _filters_preferences;
 };
 
 class Button;

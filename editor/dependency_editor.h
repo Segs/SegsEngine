@@ -34,6 +34,8 @@
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tab_container.h"
 #include "scene/gui/tree.h"
+#include "servers/physics_2d/area_2d_sw.h"
+#include "servers/physics_2d/area_2d_sw.h"
 
 class EditorFileDialog;
 class EditorFileSystemDirectory;
@@ -162,7 +164,7 @@ class OrphanResourcesDialog : public ConfirmationDialog {
     ConfirmationDialog *delete_confirm;
     void ok_pressed() override;
 
-    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent);
+    bool _fill_owners(EditorFileSystemDirectory *efsd, HashMapNew<String, int> &refs, TreeItem *p_parent);
 
     Vector<String> paths;
     void _find_to_delete(TreeItem *p_item, Vector<String> &paths);

@@ -31,14 +31,14 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 class Resource;
 
 class ResourcePreloader : public Node {
 
     GDCLASS(ResourcePreloader,Node)
 
-    Map<StringName, Ref<Resource>> resources;
+    HashMapNew<StringName, Ref<Resource>> resources;
 public:
     void _set_resources(const Array &p_data);
     Array _get_resources() const;

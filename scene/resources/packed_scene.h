@@ -46,7 +46,7 @@ class SceneState : public RefCounted {
     Vector<Variant> variants;
     Vector<NodePath> node_paths;
     Vector<NodePath> editable_instances;
-    mutable HashMap<NodePath, int> node_path_cache;
+    mutable HashMapNew<NodePath, int> node_path_cache;
     mutable Map<int, int> base_scene_node_remap;
 
     int base_scene_idx;
@@ -96,8 +96,8 @@ class SceneState : public RefCounted {
 
     Vector<ConnectionData> connections;
 
-    Error _parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
-    Error _parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
+    Error _parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
+    Error _parse_connections(Node *p_owner, Node *p_node, Map<StringName, int> &name_map, HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, Map<Node *, int> &node_map, Map<Node *, int> &nodepath_map);
 
     String path;
 

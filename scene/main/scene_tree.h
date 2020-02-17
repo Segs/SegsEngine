@@ -36,6 +36,7 @@
 #include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
 #include "scene/main/scene_tree_notifications.h"
+#include "core/hash_map.h"
 #include "core/deque.h"
 
 class PackedScene;
@@ -143,7 +144,7 @@ private:
     bool pause;
     int root_lock;
 
-    Map<StringName, SceneTreeGroup> group_map;
+    HashMapNew<StringName, SceneTreeGroup> group_map;
     bool _quit;
     bool initialized;
     bool input_handled;

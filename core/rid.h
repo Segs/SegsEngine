@@ -88,6 +88,18 @@ public:
 
 };
 
+namespace eastl {
+template<>
+struct hash<RID> {
+    size_t operator()(const RID &np) const {
+        size_t val1 = eastl::hash<ENTT_ID_TYPE>()(to_integer(np.eid));
+        size_t val2 = intptr_t(np.get_data())/next_power_of_2(sizeof(RID_Data));
+        return val1 ^ (val2 <<16);
+    }
+
+};
+}
+
 class GODOT_EXPORT RID_OwnerBase {
 public:
 #ifdef DEBUG_ENABLED

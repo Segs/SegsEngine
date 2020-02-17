@@ -122,10 +122,10 @@ public:
         APIType api = API_NONE;
         ClassInfo *inherits_ptr=nullptr;
         const void *class_ptr=nullptr;
-        DefHashMap<StringName, MethodBind *> method_map;
-        DefHashMap<StringName, int> constant_map;
-        DefHashMap<StringName, List<StringName> > enum_map;
-        DefHashMap<StringName, MethodInfo> signal_map;
+        HashMapNew<StringName, MethodBind *> method_map;
+        HashMapNew<StringName, int> constant_map;
+        HashMapNew<StringName, List<StringName> > enum_map;
+        HashMapNew<StringName, MethodInfo> signal_map;
         Vector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
         Vector<StringName> constant_order;
@@ -135,13 +135,13 @@ public:
         StringName category;
         String usage_header;
 #endif
-        DefHashMap<StringName, PropertySetGet> property_setget;
+        HashMapNew<StringName, PropertySetGet> property_setget;
 
         StringName inherits;
         StringName name;
         bool disabled=false;
         bool exposed=false;
-        DefHashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
+        HashMapNew<StringName, MethodInfo> &class_signal_map() {return signal_map;}
         Object *(*creation_func)() = nullptr;
 
         ClassInfo();
@@ -154,9 +154,9 @@ public:
     }
 
     static RWLock *lock;
-    static DefHashMap<StringName, ClassInfo> classes;
-    static DefHashMap<StringName, StringName> resource_base_extensions;
-    static HashMap<StringName, StringName> compat_classes;
+    static HashMapNew<StringName, ClassInfo> classes;
+    static HashMapNew<StringName, StringName> resource_base_extensions;
+    static HashMapNew<StringName, StringName> compat_classes;
 
 #ifdef DEBUG_METHODS_ENABLED
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
@@ -170,7 +170,7 @@ public:
 
     static void _add_class2(const StringName &p_class, const StringName &p_inherits);
 
-    static HashMap<StringName, HashMap<StringName, Variant> > default_values;
+    static HashMapNew<StringName, HashMapNew<StringName, Variant> > default_values;
     static Set<StringName> default_values_cached;
 
 public:

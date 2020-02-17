@@ -58,5 +58,15 @@ struct StrRange {
     }
 };
 
+namespace eastl {
+    template<>
+    struct hash<CharType> {
+        size_t operator()(CharType np) const {
+            return eastl::hash<uint16_t>()(np.unicode());
+        }
+
+    };
+}
+
 #include "core/string_utils.h"
 

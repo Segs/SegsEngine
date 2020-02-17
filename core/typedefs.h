@@ -201,7 +201,7 @@ inline void __swap_tmpl(T &x, T &y) {
 
 /** Function to find the next power of 2 to an integer */
 
-static _FORCE_INLINE_ unsigned int next_power_of_2(unsigned int x) {
+constexpr static _FORCE_INLINE_ unsigned int next_power_of_2(unsigned int x) {
     if (x == 0)
         return 0;
     --x;
@@ -214,7 +214,7 @@ static _FORCE_INLINE_ unsigned int next_power_of_2(unsigned int x) {
     return ++x;
 }
 
-static _FORCE_INLINE_ unsigned int previous_power_of_2(unsigned int x) {
+constexpr static _FORCE_INLINE_ unsigned int previous_power_of_2(unsigned int x) {
 
     x |= x >> 1;
     x |= x >> 2;
@@ -224,7 +224,7 @@ static _FORCE_INLINE_ unsigned int previous_power_of_2(unsigned int x) {
     return x - (x >> 1);
 }
 
-static _FORCE_INLINE_ unsigned int closest_power_of_2(unsigned int x) {
+constexpr static _FORCE_INLINE_ unsigned int closest_power_of_2(unsigned int x) {
 
     unsigned int nx = next_power_of_2(x);
     unsigned int px = previous_power_of_2(x);

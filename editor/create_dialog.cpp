@@ -148,7 +148,7 @@ void CreateDialog::_sbox_input(const Ref<InputEvent> &p_ie) {
 }
 
 void CreateDialog::add_type(
-        const StringName &p_type, HashMap<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select) {
+        const StringName &p_type, HashMapNew<StringName, TreeItem *> &p_types, TreeItem *p_root, TreeItem **to_select) {
 
     if (p_types.contains(p_type)) return;
 

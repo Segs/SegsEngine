@@ -10,7 +10,7 @@ using ObjectID = uint64_t;
 template<>
 struct Hasher<Object *> {
 
-    uint32_t operator()(const Object *p_obj) {
+    uint32_t operator()(const Object *p_obj) const {
         union {
             const Object *p;
             unsigned long i;
@@ -22,8 +22,8 @@ struct Hasher<Object *> {
 
 class ObjectDB {
 
-    static HashMap<ObjectID, Object *> instances;
-    static HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
+    static HashMapNew<ObjectID, Object *> instances;
+    static HashMapNew<Object *, ObjectID, Hasher<Object *>> instance_checks;
 
     static ObjectID instance_counter;
     friend class Object;

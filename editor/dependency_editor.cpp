@@ -50,7 +50,7 @@ IMPL_GDCLASS(OrphanResourcesDialog)
 
 void DependencyEditor::_searched(se_string_view p_path) {
 
-    Map<String, String> dep_rename;
+    HashMapNew<String, String> dep_rename;
     dep_rename[replacing] = p_path;
 
     ResourceLoader::rename_dependencies(editing, dep_rename);
@@ -146,7 +146,7 @@ void DependencyEditor::_fix_all() {
 
     _fix_and_find(EditorFileSystem::get_singleton()->get_filesystem(), candidates);
 
-    Map<String, String> remaps;
+    HashMapNew<String, String> remaps;
 
     for (eastl::pair<const se_string_view, Map<String, String> > &E : candidates) {
 
@@ -681,7 +681,7 @@ void OrphanResourcesDialog::ok_pressed() {
     delete_confirm->popup_centered_clamped(delete_confirm->get_minimum_size());
 }
 
-bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMap<String, int> &refs, TreeItem *p_parent) {
+bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMapNew<String, int> &refs, TreeItem *p_parent) {
 
     if (!efsd)
         return false;
@@ -745,7 +745,7 @@ bool OrphanResourcesDialog::_fill_owners(EditorFileSystemDirectory *efsd, HashMa
 }
 
 void OrphanResourcesDialog::refresh() {
-    HashMap<String, int> refs;
+    HashMapNew<String, int> refs;
     _fill_owners(EditorFileSystem::get_singleton()->get_filesystem(), refs, nullptr);
     files->clear();
     TreeItem *root = files->create_item();

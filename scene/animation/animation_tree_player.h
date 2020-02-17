@@ -148,7 +148,7 @@ protected:
     Map<StringName, AnimationTreeNodeBase *> node_map;
 
     // return time left to finish animation
-    float _process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek = false, float p_fallback_weight = 1.0, HashMap<NodePath, float> *p_weights = nullptr);
+    float _process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek = false, float p_fallback_weight = 1.0, HashMapNew<NodePath, float> *p_weights = nullptr);
     void _process_animation(float p_delta);
     bool reset_request;
 
@@ -160,7 +160,7 @@ protected:
     void _recompute_caches(const StringName &p_node);
     PoolVector<String> _get_node_list();
 
-    void _compute_weights(float *p_fallback_weight, HashMap<NodePath, float> *p_weights, float p_coeff, const HashMap<NodePath, bool> *p_filter = nullptr, float p_filtered_coeff = 0);
+    void _compute_weights(float *p_fallback_weight, HashMapNew<NodePath, float> *p_weights, float p_coeff, const HashMapNew<NodePath, bool> *p_filter = nullptr, float p_filtered_coeff = 0);
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -188,7 +188,7 @@ public:
     float animation_node_get_position(const StringName &p_node) const;
 
     void animation_node_set_filter_path(const StringName &p_node, const NodePath &p_track_path, bool p_filter);
-    void animation_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const;
+    void animation_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const;
     bool animation_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const;
 
     /* ONE SHOT NODE */
@@ -215,7 +215,7 @@ public:
     bool oneshot_node_is_active(const StringName &p_node) const;
 
     void oneshot_node_set_filter_path(const StringName &p_node, const NodePath &p_filter, bool p_enable);
-    void oneshot_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const;
+    void oneshot_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const;
     bool oneshot_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const;
 
     /* MIX/BLEND NODES */
@@ -226,7 +226,7 @@ public:
     void blend2_node_set_amount(const StringName &p_node, float p_amount);
     float blend2_node_get_amount(const StringName &p_node) const;
     void blend2_node_set_filter_path(const StringName &p_node, const NodePath &p_filter, bool p_enable);
-    void blend2_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const;
+    void blend2_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const;
     bool blend2_node_is_path_filtered(const StringName &p_node, const NodePath &p_path) const;
 
     void blend3_node_set_amount(const StringName &p_node, float p_amount);

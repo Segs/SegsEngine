@@ -96,7 +96,7 @@ class GDScriptCompiler {
             }
         }
 
-        HashMap<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
+        HashMapNew<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
         Map<StringName, int> name_map;
 #ifdef TOOLS_ENABLED
         Vector<StringName> named_globals;

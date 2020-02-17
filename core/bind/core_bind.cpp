@@ -1011,7 +1011,7 @@ void _OS::print_all_textures_by_size() {
 
 void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
-    DefHashMap<String, int> type_count;
+    HashMapNew<String, int> type_count;
 
     List<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);

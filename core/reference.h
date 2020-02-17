@@ -319,4 +319,13 @@ struct GetTypeInfo<const Ref<T> &,void> {
     }
 };
 
+namespace eastl {
+template<typename T>
+struct hash<Ref<T>> {
+    size_t operator()(const Ref<T> &np) const {
+        return eastl::hash<uint64_t>()( uint64_t(np.get())/next_power_of_2(sizeof(T)) );
+    }
+};
+}
+
 #endif // DEBUG_METHODS_ENABLED

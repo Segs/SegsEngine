@@ -37,9 +37,6 @@
 template<class T>
 struct Hasher;
 
-template <class TK>
-struct HashMapComparatorDefault;
-
 /**
  * A hash map which allows to iterate elements in insertion order.
  * Insertion, lookup, deletion have O(1) complexity.
@@ -48,10 +45,10 @@ struct HashMapComparatorDefault;
  * codebase.
  * Deletion during iteration is safe and will preserve the order.
  */
-template <class K, class V, class Hasher = Hasher<K>, class Comparator = HashMapComparatorDefault<K>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
+template <class K, class V, class Hasher = Hasher<K>, class Comparator = eastl::equal_to<K>, uint8_t MIN_HASH_TABLE_POWER = 3, uint8_t RELATIONSHIP = 8>
 class OrderedHashMap {
     using InternalList = ListOld<Pair<const K *, V> >;
-    using InternalMap = HashMap<K, typename InternalList::Element *, Hasher, Comparator, MIN_HASH_TABLE_POWER, RELATIONSHIP>;
+    using InternalMap = HashMapNew<K, typename InternalList::Element *, Hasher, Comparator>;
 
     InternalList list;
     InternalMap map;
@@ -202,30 +199,30 @@ public:
     };
 
     ConstElement find(const K &p_key) const {
-        typename InternalList::Element *const *list_element = map.getptr(p_key);
-        if (list_element) {
-            return ConstElement(*list_element);
+        auto list_element = map.find(p_key);
+        if (list_element!=map.end()) {
+            return ConstElement(list_element->second);
         }
         return ConstElement(nullptr);
     }
 
     Element find(const K &p_key) {
-        typename InternalList::Element **list_element = map.getptr(p_key);
-        if (list_element) {
-            return Element(*list_element);
+        auto list_element = map.find(p_key);
+        if (list_element!=map.end()) {
+            return Element(list_element->second);
         }
         return Element(nullptr);
     }
 
     Element insert(const K &p_key, const V &p_value) {
-        typename InternalList::Element **list_element = map.getptr(p_key);
-        if (list_element) {
-            (*list_element)->deref().second = p_value;
-            return Element(*list_element);
+        auto list_element = map.find(p_key);
+        if (list_element!=map.end()) {
+            list_element->second->deref().second = p_value;
+            return Element(list_element->second);
         }
         typename InternalList::Element *new_element = list.push_back(Pair<const K *, V>(nullptr, p_value));
-        typename InternalMap::Element *e = map.set(p_key, new_element);
-        new_element->deref().first = &e->key();
+        auto e = map.emplace(eastl::make_pair(p_key, new_element)).first;
+        new_element->deref().first = &e->first;
 
         return Element(new_element);
     }
@@ -237,10 +234,10 @@ public:
     }
 
     bool erase(const K &p_key) {
-        typename InternalList::Element **list_element = map.getptr(p_key);
-        if (list_element) {
-            list.erase(*list_element);
-            map.erase(p_key);
+        auto list_element = map.find(p_key);
+        if (list_element!=map.end()) {
+            list.erase(list_element->second);
+            map.erase(list_element);
             return true;
         }
         return false;

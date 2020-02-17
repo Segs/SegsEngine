@@ -152,10 +152,6 @@ struct DynamicFontAtSize::ImplData
     }
 };
 
-bool DynamicFontData::CacheID::operator<(CacheID right) const {
-    return key < right.key;
-}
-
 Ref<DynamicFontAtSize> DynamicFontData::_get_dynamic_font_at_size(CacheID p_cache_id) {
 
     if (size_cache.contains(p_cache_id)) {
@@ -224,7 +220,7 @@ DynamicFontData::~DynamicFontData() {
 }
 
 ////////////////////
-HashMap<String, Vector<uint8_t> > DynamicFontAtSize::_fontdata;
+HashMapNew<String, Vector<uint8_t> > DynamicFontAtSize::_fontdata;
 
 Error DynamicFontAtSize::_load() {
 
@@ -358,10 +354,11 @@ float DynamicFontAtSize::get_descent() const {
 }
 
 const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFontAtSize::_find_char_with_font(CharType p_char, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const {
-    const Character *chr = char_map.getptr(p_char);
-    ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)));
+    auto chr = char_map.find(p_char);
+    ERR_FAIL_COND_V(chr== char_map.end(), (Pair<const Character *, DynamicFontAtSize *>(nullptr, nullptr)));
 
-    if (!chr->found) {
+    //TODO: the code here assumes pointer/iterator stability of char_map by returning pointers to value
+    if (!chr->second.found) {
 
         //not found, try in fallbacks
         for (int i = 0; i < p_fallbacks.size(); i++) {
@@ -371,22 +368,21 @@ const Pair<const DynamicFontAtSize::Character *, DynamicFontAtSize *> DynamicFon
                 continue;
 
             fb->_update_char(p_char);
-            const Character *fallback_chr = fb->char_map.getptr(p_char);
-            ERR_CONTINUE(!fallback_chr);
+            const auto fallback_chr = fb->char_map.find(p_char);
+            ERR_CONTINUE(fallback_chr==fb->char_map.end());
 
-            if (!fallback_chr->found)
+            if (!fallback_chr->second.found)
                 continue;
-
-            return Pair<const Character *, DynamicFontAtSize *>(fallback_chr, fb);
+            return Pair<const Character *, DynamicFontAtSize *>(&fallback_chr->second, fb);
         }
 
         //not found, try 0xFFFD to display 'not found'.
         const_cast<DynamicFontAtSize *>(this)->_update_char(0xFFFD);
-        chr = char_map.getptr(0xFFFD);
-        ERR_FAIL_COND_V(!chr, (Pair<const Character *, DynamicFontAtSize *>(NULL, NULL)));
+        chr = char_map.find(0xFFFD);
+        ERR_FAIL_COND_V(chr == char_map.end(), (Pair<const Character *, DynamicFontAtSize *>(nullptr, nullptr)));
     }
 
-    return Pair<const Character *, DynamicFontAtSize *>(chr, const_cast<DynamicFontAtSize *>(this));
+    return Pair<const Character *, DynamicFontAtSize *>(&chr->second, const_cast<DynamicFontAtSize *>(this));
 }
 
 Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const {

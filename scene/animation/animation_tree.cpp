@@ -218,12 +218,11 @@ float AnimationNode::_blend_node(const StringName &p_subpath, const Vector<Strin
             blendw[i] = 0.0; //all to zero by default
         }
 
-        const NodePath *K = nullptr;
-        while ((K = filter.next(K))) {
-            if (!state->track_map.contains(*K)) {
+        for(const auto &e : filter) {
+            if (!state->track_map.contains(e.first)) {
                 continue;
             }
-            int idx = state->track_map[*K];
+            int idx = state->track_map[e.first];
             blendw[idx] = 1.0; //filtered goes to one
         }
 
@@ -392,9 +391,8 @@ Array AnimationNode::_get_filters() const {
 
     Array paths;
 
-    const NodePath *K = nullptr;
-    while ((K = filter.next(K))) {
-        paths.push_back(String(*K)); //use strings, so sorting is possible
+    for(const auto &e : filter) {
+        paths.push_back(String(e.first)); //use strings, so sorting is possible
     }
     paths.sort(); //done so every time the scene is saved, it does not change
 
@@ -577,7 +575,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 
             TrackCache *track = nullptr;
             if (track_cache.contains(path)) {
-                track = track_cache.get(path);
+                track = track_cache.at(path);
             }
 
             //if not valid, delete track
@@ -715,18 +713,18 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
         }
     }
 
-    ListOld<NodePath> to_delete;
+    FixedVector<NodePath,16,true> to_delete;
 
     const NodePath *K = nullptr;
-    while ((K = track_cache.next(K))) {
-        TrackCache *tc = track_cache[*K];
+    for(const auto & e : track_cache) {
+        TrackCache *tc = e.second;
         if (tc->setup_pass != setup_pass) {
-            to_delete.push_back(*K);
+            to_delete.emplace_back(e.first);
         }
     }
 
-    while (to_delete.front()) {
-        NodePath np = to_delete.front()->deref();
+    while (!to_delete.empty()) {
+        const NodePath &np = to_delete.front();
         memdelete(track_cache[np]);
         track_cache.erase(np);
         to_delete.pop_front();
@@ -734,10 +732,10 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 
     state.track_map.clear();
 
-    K = nullptr;
+
     int idx = 0;
-    while ((K = track_cache.next(K))) {
-        state.track_map[*K] = idx;
+    for(const auto &e : track_cache) {
+        state.track_map[e.first] = idx;
         idx++;
     }
 
@@ -751,8 +749,8 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 void AnimationTree::_clear_caches() {
 
     const NodePath *K = nullptr;
-    while ((K = track_cache.next(K))) {
-        memdelete(track_cache[*K]);
+    for(const auto &e : track_cache) {
+        memdelete(e.second);
     }
     playing_caches.clear();
 
@@ -1241,9 +1239,8 @@ void AnimationTree::_process_graph(float p_delta) {
 
     {
         // finally, set the tracks
-        const NodePath *K = nullptr;
-        while ((K = track_cache.next(K))) {
-            TrackCache *track = track_cache[*K];
+        for(const auto &e : track_cache) {
+            TrackCache *track = e.second;
             if (track->process_pass != process_pass)
                 continue; //not processed, ignore
 

@@ -87,7 +87,7 @@ struct AnimationTreeNode : public AnimationTreeNodeBase {
     float step;
     bool skip;
 
-    HashMap<NodePath, bool> filter;
+    HashMapNew<NodePath, bool> filter;
 
     AnimationTreeNode() {
         type = NodeType::NODE_ANIMATION;
@@ -114,7 +114,7 @@ struct OneShotNode : public AnimationTreeNodeBase {
     bool mix;
 
 
-    HashMap<NodePath, bool> filter;
+    HashMapNew<NodePath, bool> filter;
 
     OneShotNode() {
         type = NodeType::NODE_ONESHOT;
@@ -141,7 +141,7 @@ struct MixNode : public AnimationTreeNodeBase {
 
 struct Blend2Node : public AnimationTreeNodeBase {
 
-    HashMap<NodePath, bool> filter;
+    HashMapNew<NodePath, bool> filter;
     float value;
     Blend2Node() {
         type = NodeType::NODE_BLEND2;
@@ -477,8 +477,8 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                     node["animation"] = an->animation;
                 }
                 Array k;
-                List<NodePath> keys;
-                an->filter.get_key_list(keys);
+                Vector<NodePath> keys;
+                an->filter.keys_into(keys);
                 k.resize(keys.size());
                 int i = 0;
                 for (const NodePath &F : keys) {
@@ -496,8 +496,8 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                 node["autorestart_random_delay"] = osn->autorestart_random_delay;
 
                 Array k;
-                List<NodePath> keys;
-                osn->filter.get_key_list(keys);
+                Vector<NodePath> keys;
+                osn->filter.keys_into(keys);
                 k.resize(keys.size());
                 int i = 0;
                 for (const NodePath &F : keys) {
@@ -514,8 +514,8 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                 Blend2Node *bn = static_cast<Blend2Node *>(n);
                 node["blend"] = bn->value;
                 Array k;
-                List<NodePath> keys;
-                bn->filter.get_key_list(keys);
+                Vector<NodePath> keys;
+                bn->filter.keys_into(keys);
                 k.resize(keys.size());
                 int i = 0;
                 for (const NodePath &F : keys) {
@@ -640,21 +640,21 @@ void AnimationTreePlayer::_notification(int p_what) {
     }
 }
 
-void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<NodePath, float> *p_weights, float p_coeff, const HashMap<NodePath, bool> *p_filter, float p_filtered_coeff) {
+void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMapNew<NodePath, float> *p_weights, float p_coeff, const HashMapNew<NodePath, bool> *p_filter, float p_filtered_coeff) {
 
     if (p_filter != nullptr) {
 
-        List<NodePath> key_list;
-        p_filter->get_key_list(key_list);
+        FixedVector<NodePath,32,true> key_list;
+        p_filter->keys_into(key_list);
 
         for (const NodePath &E : key_list) {
 
-            if ((*p_filter)[E]) {
+            if ((*p_filter).at(E,false)) {
 
                 if (p_weights->contains(E)) {
                     (*p_weights)[E] *= p_filtered_coeff;
                 } else {
-                    p_weights->set(E, *p_fallback_weight * p_filtered_coeff);
+                    (*p_weights)[E] = *p_fallback_weight * p_filtered_coeff;
                 }
 
             } else if (p_weights->contains(E)) {
@@ -663,8 +663,8 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
         }
     }
 
-    List<NodePath> key_list;
-    p_weights->get_key_list(key_list);
+    FixedVector<NodePath,32,true> key_list;
+    p_weights->keys_into(key_list);
 
     for (const NodePath &E : key_list) {
         if (p_filter == nullptr || !p_filter->contains(E)) {
@@ -675,7 +675,7 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
     *p_fallback_weight *= p_coeff;
 }
 
-float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMap<NodePath, float> *p_weights) {
+float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTreeNode **r_prev_anim, float p_time, bool p_seek, float p_fallback_weight, HashMapNew<NodePath, float> *p_weights) {
 
     ERR_FAIL_COND_V(!node_map.contains(p_node), 0);
     AnimationTreeNodeBase *nb = node_map[p_node];
@@ -687,7 +687,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_OUTPUT: {
 
             AnimationTreeNodeOut *on = static_cast<AnimationTreeNodeOut *>(nb);
-            HashMap<NodePath, float> weights;
+            HashMapNew<NodePath, float> weights;
 
             return _process_node(on->inputs[0].node, r_prev_anim, p_time, p_seek, p_fallback_weight, &weights);
 
@@ -795,7 +795,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
             float main_rem;
             float os_rem;
 
-            HashMap<NodePath, float> os_weights(*p_weights);
+            HashMapNew<NodePath, float> os_weights(*p_weights);
             float os_fallback_weight = p_fallback_weight;
             _compute_weights(&p_fallback_weight, p_weights, osn->mix ? 1.0 : 1.0 - blend, &osn->filter, 1.0);
             _compute_weights(&os_fallback_weight, &os_weights, blend, &osn->filter, 0.0);
@@ -820,7 +820,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_MIX: {
             MixNode *mn = static_cast<MixNode *>(nb);
 
-            HashMap<NodePath, float> mn_weights(*p_weights);
+            HashMapNew<NodePath, float> mn_weights(*p_weights);
             float mn_fallback_weight = p_fallback_weight;
             _compute_weights(&mn_fallback_weight, &mn_weights, mn->amount);
             float rem = _process_node(mn->inputs[0].node, r_prev_anim, p_time, p_seek, p_fallback_weight, p_weights);
@@ -832,7 +832,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
 
             Blend2Node *bn = static_cast<Blend2Node *>(nb);
 
-            HashMap<NodePath, float> bn_weights(*p_weights);
+            HashMapNew<NodePath, float> bn_weights(*p_weights);
             float bn_fallback_weight = p_fallback_weight;
             _compute_weights(&p_fallback_weight, p_weights, 1.0 - bn->value, &bn->filter, 1.0);
             _compute_weights(&bn_fallback_weight, &bn_weights, bn->value, &bn->filter, 0.0);
@@ -856,9 +856,9 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
                 upper_blend = bn->value;
             }
 
-            HashMap<NodePath, float> upper_weights(*p_weights);
+            HashMapNew<NodePath, float> upper_weights(*p_weights);
             float upper_fallback_weight = p_fallback_weight;
-            HashMap<NodePath, float> lower_weights(*p_weights);
+            HashMapNew<NodePath, float> lower_weights(*p_weights);
             float lower_fallback_weight = p_fallback_weight;
             _compute_weights(&upper_fallback_weight, &upper_weights, upper_blend);
             _compute_weights(&p_fallback_weight, p_weights, blend);
@@ -873,11 +873,11 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_BLEND4: {
             Blend4Node *bn = static_cast<Blend4Node *>(nb);
 
-            HashMap<NodePath, float> weights1(*p_weights);
+            HashMapNew<NodePath, float> weights1(*p_weights);
             float fallback_weight1 = p_fallback_weight;
-            HashMap<NodePath, float> weights2(*p_weights);
+            HashMapNew<NodePath, float> weights2(*p_weights);
             float fallback_weight2 = p_fallback_weight;
-            HashMap<NodePath, float> weights3(*p_weights);
+            HashMapNew<NodePath, float> weights3(*p_weights);
             float fallback_weight3 = p_fallback_weight;
 
             _compute_weights(&p_fallback_weight, p_weights, 1.0 - bn->value.x);
@@ -922,7 +922,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
         case NODE_TRANSITION: {
 
             TransitionNode *tn = static_cast<TransitionNode *>(nb);
-            HashMap<NodePath, float> prev_weights(*p_weights);
+            HashMapNew<NodePath, float> prev_weights(*p_weights);
             float prev_fallback_weight = p_fallback_weight;
 
             if (tn->prev < 0) { // process current animation, check for transition
@@ -1220,11 +1220,11 @@ void AnimationTreePlayer::animation_node_set_filter_path(const StringName &p_nod
         n->filter.erase(p_track_path);
 }
 
-void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
+void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const {
 
     GET_NODE(NODE_ANIMATION, AnimationTreeNode)
 
-    n->filter.get_key_list(*r_paths);
+    n->filter.keys_into(*r_paths);
 }
 
 void AnimationTreePlayer::oneshot_node_set_fadein_time(const StringName &p_node, float p_time) {
@@ -1285,11 +1285,11 @@ void AnimationTreePlayer::oneshot_node_set_filter_path(const StringName &p_node,
         n->filter.erase(p_filter);
 }
 
-void AnimationTreePlayer::oneshot_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
+void AnimationTreePlayer::oneshot_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const {
 
     GET_NODE(NODE_ONESHOT, OneShotNode)
 
-    n->filter.get_key_list(*r_paths);
+    n->filter.keys_into(*r_paths);
 }
 
 void AnimationTreePlayer::mix_node_set_amount(const StringName &p_node, float p_amount) {
@@ -1314,11 +1314,11 @@ void AnimationTreePlayer::blend2_node_set_filter_path(const StringName &p_node, 
         n->filter.erase(p_filter);
 }
 
-void AnimationTreePlayer::blend2_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
+void AnimationTreePlayer::blend2_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const {
 
     GET_NODE(NODE_BLEND2, Blend2Node)
 
-    n->filter.get_key_list(*r_paths);
+    n->filter.keys_into(*r_paths);
 }
 
 void AnimationTreePlayer::blend3_node_set_amount(const StringName &p_node, float p_amount) {

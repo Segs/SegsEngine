@@ -113,7 +113,7 @@ struct _IP_ResolverPrivate {
         }
     }
 
-    HashMap<String, IP_Address> cache;
+    HashMapNew<String, IP_Address> cache;
 
     static String get_cache_key(se_string_view p_hostname, IP::Type p_type) {
         return ::to_string(p_type) + p_hostname;

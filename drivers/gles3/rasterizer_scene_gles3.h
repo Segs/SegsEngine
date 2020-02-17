@@ -243,7 +243,7 @@ public:
         GLuint fbo;
         GLuint depth;
 
-        Map<RID, uint32_t> shadow_owners;
+        HashMapNew<RID, uint32_t> shadow_owners;
     };
 
     struct ShadowCubeMap {

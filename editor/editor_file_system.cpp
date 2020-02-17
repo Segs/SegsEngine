@@ -779,7 +779,8 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
 
         String path = PathUtils::plus_file(cd,fi->file);
 
-        FileCache *fc = file_cache.getptr(path);
+        auto fc_iter = file_cache.find(path);
+        FileCache *fc = file_cache.end()==fc_iter ? nullptr : &fc_iter->second;
         uint64_t mt = FileAccess::get_modified_time(path);
 
         if (import_extensions.contains(ext)) {

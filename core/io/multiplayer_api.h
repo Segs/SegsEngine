@@ -90,7 +90,7 @@ private:
     Ref<NetworkedMultiplayerPeer> network_peer;
     int rpc_sender_id;
     Set<int> connected_peers;
-    HashMap<NodePath, PathSentCache> path_send_cache;
+    HashMapNew<NodePath, PathSentCache, Hasher<NodePath> > path_send_cache;
     Map<int, PathGetCache> path_get_cache;
     int last_send_cache_id;
     Vector<uint8_t> packet_cache;

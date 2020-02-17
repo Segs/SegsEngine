@@ -39,7 +39,7 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/print_string.h"
-#include "core/map.h"
+//#include "core/map.h"
 #include "core/node_path.h"
 #include "core/hash_map.h"
 #include "core/script_language.h"
@@ -48,7 +48,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
-
+#include "scene/2d/animated_sprite.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -78,7 +78,7 @@ struct Node::PrivData {
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
 
-    HashMap<NodePath, int> editable_instances;
+    HashMapNew<NodePath, int> editable_instances;
 
     Node *parent;
     Node *owner;
@@ -91,7 +91,7 @@ struct Node::PrivData {
 #endif
 
 
-    Map<StringName, GroupData> grouped;
+    HashMapNew<StringName, GroupData> grouped;
     List<Node *>::iterator OW; // owned element
     List<Node *> owned;
 
@@ -99,8 +99,8 @@ struct Node::PrivData {
     Node *pause_owner;
 
     int network_master;
-    Map<StringName, MultiplayerAPI_RPCMode> rpc_methods;
-    Map<StringName, MultiplayerAPI_RPCMode> rpc_properties;
+    HashMapNew<StringName, MultiplayerAPI_RPCMode> rpc_methods;
+    HashMapNew<StringName, MultiplayerAPI_RPCMode> rpc_properties;
 
 
     bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
@@ -1787,7 +1787,7 @@ void Node::remove_from_group(const StringName &p_identifier) {
 
     ERR_FAIL_COND(!data->grouped.contains(p_identifier));
 
-    Map<StringName, GroupData>::iterator E = data->grouped.find(p_identifier);
+    HashMapNew<StringName, GroupData>::iterator E = data->grouped.find(p_identifier);
 
     ERR_FAIL_COND(E==data->grouped.end());
 
@@ -2006,12 +2006,12 @@ bool Node::is_editable_instance(const Node *p_node) const {
     return data->editable_instances.contains(p);
 }
 
-void Node::set_editable_instances(const HashMap<NodePath, int> &p_editable_instances) {
+void Node::set_editable_instances(const HashMapNew<NodePath, int> &p_editable_instances) {
 
     data->editable_instances = p_editable_instances;
 }
 
-HashMap<NodePath, int> Node::get_editable_instances() const {
+const HashMapNew<NodePath, int> &Node::get_editable_instances() const {
 
     return data->editable_instances;
 }

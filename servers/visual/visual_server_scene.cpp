@@ -2486,12 +2486,12 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
     probe->dynamic.local_data.resize(header->cell_count);
 
     int cell_count = probe->dynamic.local_data.size();
-    PoolVector<InstanceGIProbeData::LocalData>::Write ldw = probe->dynamic.local_data.write();
+    Vector<InstanceGIProbeData::LocalData> &ldw = probe->dynamic.local_data;
     const GIProbeDataCell *cells = (GIProbeDataCell *)&r[16];
 
     probe->dynamic.level_cell_lists.resize(header->cell_subdiv);
 
-    _gi_probe_fill_local_data(0, 0, 0, 0, 0, cells, header, ldw.ptr(), probe->dynamic.level_cell_lists.data());
+    _gi_probe_fill_local_data(0, 0, 0, 0, 0, cells, header, ldw.data(), probe->dynamic.level_cell_lists.data());
 
     bool compress = VSG::storage->gi_probe_is_compressed(p_instance->base);
 
@@ -2522,15 +2522,12 @@ void VisualServerScene::_setup_gi_probe(Instance *p_instance) {
         int z = header->depth >> i;
 
         //create and clear mipmap
-        PoolVector<uint8_t> mipmap;
         int size = x * y * z * 4;
         size /= size_divisor;
-        mipmap.resize(size);
-        PoolVector<uint8_t>::Write w = mipmap.write();
-        memset(w.ptr(), 0, size);
-        w.release();
 
-        probe->dynamic.mipmaps_3d.push_back(mipmap);
+        Vector<uint8_t> mipmap(size,uint8_t(0));
+
+        probe->dynamic.mipmaps_3d.emplace_back(eastl::move(mipmap));
 
         if (x <= size_limit || y <= size_limit || z <= size_limit)
             break;
@@ -3020,9 +3017,7 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
     int leaf_count = probe_data->dynamic.level_cell_lists[header->cell_subdiv - 1].size();
     const uint32_t *leaves = probe_data->dynamic.level_cell_lists[header->cell_subdiv - 1].data();
 
-    PoolVector<InstanceGIProbeData::LocalData>::Write ldw = probe_data->dynamic.local_data.write();
-
-    InstanceGIProbeData::LocalData *local_data = ldw.ptr();
+    InstanceGIProbeData::LocalData *local_data = probe_data->dynamic.local_data.data();
 
     //remove what must be removed
     for (eastl::pair<const RID,InstanceGIProbeData::LightCache> &E : probe_data->dynamic.light_cache) {
@@ -3070,8 +3065,7 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
             int level_cell_count = probe_data->dynamic.level_cell_lists[i].size();
             const uint32_t *level_cells = probe_data->dynamic.level_cell_lists[i].data();
 
-            PoolVector<uint8_t>::Write lw = probe_data->dynamic.mipmaps_3d[stage].write();
-            uint8_t *mipmapw = lw.ptr();
+            uint8_t *mipmapw = probe_data->dynamic.mipmaps_3d[stage].data();
 
             uint32_t sizes[3] = { header->width >> stage, header->height >> stage, header->depth >> stage };
 
@@ -3099,7 +3093,7 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
 
         for (int mmi = 0; mmi < mipmap_count; mmi++) {
 
-            PoolVector<uint8_t>::Write mmw = probe_data->dynamic.mipmaps_3d[mmi].write();
+            Vector<uint8_t> &mmw(probe_data->dynamic.mipmaps_3d[mmi]);
             int block_count = probe_data->dynamic.mipmaps_s3tc[mmi].size();
             PoolVector<InstanceGIProbeData::CompBlockS3TC>::Read mmr = probe_data->dynamic.mipmaps_s3tc[mmi].read();
 
@@ -3399,8 +3393,8 @@ void VisualServerScene::render_probes() {
 
                     for (int i = 0; i < (int)probe->dynamic.mipmaps_3d.size(); i++) {
 
-                        PoolVector<uint8_t>::Read r = probe->dynamic.mipmaps_3d[i].read();
-                        VSG::storage->gi_probe_dynamic_data_update(probe->dynamic.probe_data, 0, probe->dynamic.grid_size[2] >> i, i, r.ptr());
+                        const Vector<uint8_t> &r(probe->dynamic.mipmaps_3d[i]);
+                        VSG::storage->gi_probe_dynamic_data_update(probe->dynamic.probe_data, 0, probe->dynamic.grid_size[2] >> i, i, r.data());
                     }
 
                     probe->dynamic.updating_stage = GI_UPDATE_STAGE_CHECK;

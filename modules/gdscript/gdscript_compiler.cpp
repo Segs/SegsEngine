@@ -1720,10 +1720,9 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
         gdfunc->_constant_count = codegen.constant_map.size();
         gdfunc->constants.resize(codegen.constant_map.size());
         gdfunc->_constants_ptr = gdfunc->constants.data();
-        const Variant *K = nullptr;
-        while ((K = codegen.constant_map.next(K))) {
-            int idx = codegen.constant_map[*K];
-            gdfunc->constants[idx] = *K;
+        
+        for(const auto & e : codegen.constant_map) {
+            gdfunc->constants[e.second] = e.first;
         }
     } else {
 

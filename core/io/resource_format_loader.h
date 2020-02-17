@@ -3,6 +3,7 @@
 #include "core/reference.h"
 #include "core/os/thread.h"
 #include "core/se_string.h"
+#include "core/forward_decls.h"
 
 namespace eastl {
 template <typename Key, typename T, typename Compare, typename Allocator>
@@ -58,7 +59,7 @@ public:
     virtual bool handles_type(se_string_view p_type) const;
     virtual String get_resource_type(se_string_view p_path) const;
     virtual void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
-    virtual Error rename_dependencies(se_string_view p_path, const DefMap<String, String> &p_map);
+    virtual Error rename_dependencies(se_string_view p_path, const HashMapNew<String, String> &p_map);
     virtual bool is_import_valid(se_string_view /*p_path*/) const { return true; }
     virtual bool is_imported(se_string_view /*p_path*/) const { return false; }
     virtual int get_import_order(se_string_view /*p_path*/) const { return 0; }

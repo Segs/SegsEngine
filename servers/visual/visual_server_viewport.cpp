@@ -41,7 +41,7 @@ static Transform2D _canvas_get_transform(VisualServerViewport::Viewport *p_viewp
 
     Transform2D xf = p_viewport->global_transform;
 
-    float scale = 1.0;
+    float scale = 1.0f;
     if (p_viewport->canvas_map.contains(p_canvas->parent)) {
         xf = xf * p_viewport->canvas_map[p_canvas->parent].transform;
         scale = p_canvas->parent_scale;
@@ -573,10 +573,7 @@ void VisualServerViewport::viewport_attach_canvas(RID p_viewport, RID p_canvas) 
     ERR_FAIL_COND(!canvas);
 
     canvas->viewports.insert(p_viewport);
-    viewport->canvas_map[p_canvas] = Viewport::CanvasData();
-    viewport->canvas_map[p_canvas].layer = 0;
-    viewport->canvas_map[p_canvas].sublayer = 0;
-    viewport->canvas_map[p_canvas].canvas = canvas;
+    viewport->canvas_map[p_canvas] = {canvas,{},0,0};
 }
 
 void VisualServerViewport::viewport_remove_canvas(RID p_viewport, RID p_canvas) {
@@ -620,8 +617,9 @@ void VisualServerViewport::viewport_set_canvas_stacking(RID p_viewport, RID p_ca
     ERR_FAIL_COND(!viewport);
 
     ERR_FAIL_COND(!viewport->canvas_map.contains(p_canvas));
-    viewport->canvas_map[p_canvas].layer = p_layer;
-    viewport->canvas_map[p_canvas].sublayer = p_sublayer;
+    auto &entry(viewport->canvas_map[p_canvas]);
+    entry.layer = p_layer;
+    entry.sublayer = p_sublayer;
 }
 
 void VisualServerViewport::viewport_set_shadow_atlas_size(RID p_viewport, int p_size) {

@@ -1645,13 +1645,13 @@ String ScriptEditorDebugger::get_var_value(se_string_view p_var) const {
 
 int ScriptEditorDebugger::_get_node_path_cache(const NodePath &p_path) {
 
-    const int *r = node_path_cache.getptr(p_path);
-    if (r)
-        return *r;
+    auto r = node_path_cache.find(p_path);
+    if (r!=node_path_cache.end())
+        return r->second;
 
     last_path_id++;
 
-    node_path_cache[p_path] = last_path_id;
+    node_path_cache.emplace(p_path,last_path_id);
     Array msg;
     msg.push_back("live_node_path");
     msg.push_back(p_path);

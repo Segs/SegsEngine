@@ -89,7 +89,7 @@ void GDScriptTextDocument::initialize() {
 
     if (GDScriptLanguageProtocol::get_singleton()->is_smart_resolve_enabled()) {
 
-        const DefHashMap<StringName, ClassMembers> &native_members = GDScriptLanguageProtocol::get_singleton()->get_workspace()->native_members;
+        const HashMapNew<StringName, ClassMembers> &native_members = GDScriptLanguageProtocol::get_singleton()->get_workspace()->native_members;
 
         for(const auto & class_p : native_members) {
 
