@@ -4,6 +4,15 @@
 #include "core/os/memory.h"
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
+#include <EASTL/deque.h>
+#include <EASTL/unordered_map.h>
+#include <EASTL/unordered_set.h>
+#include <EASTL/memory.h>
+#include <EASTL/functional.h>
+#include <EASTL/array.h>
+#include <EASTL/type_traits.h>
+#include <EASTL/utility.h>
+
 #include <entt/entity/entity.hpp>
 //#define QT_RESTRICTED_CAST_FROM_ASCII
 //#include <QObject>
@@ -13,14 +22,6 @@
 
 #include "Export.h"
 
-#include <EASTL/deque.h>
-#include <EASTL/unordered_map.h>
-#include <EASTL/unordered_set.h>
-#include <EASTL/memory.h>
-#include <EASTL/functional.h>
-#include <EASTL/array.h>
-#include <EASTL/type_traits.h>
-#include <EASTL/utility.h>
 namespace ea = eastl;
 #endif
 #endif

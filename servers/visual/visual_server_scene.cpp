@@ -3417,138 +3417,70 @@ void VisualServerScene::_update_dirty_instance(Instance *p_instance) {
         _update_instance_aabb(p_instance);
     }
 
-    if (p_instance->update_materials) {
+    if (!p_instance->update_materials) {
+        clear_component<Dirty>(p_instance->self);
 
-        if (p_instance->base_type == VS::INSTANCE_MESH) {
-            //remove materials no longer used and un-own them
+        _update_instance(p_instance);
 
-            int new_mat_count = VSG::storage->mesh_get_surface_count(p_instance->base);
-            for (int i = p_instance->materials.size() - 1; i >= new_mat_count; i--) {
-                if (p_instance->materials[i].is_valid()) {
-                    VSG::storage->material_remove_instance_owner(p_instance->materials[i], p_instance);
-                }
-            }
-            p_instance->materials.resize(new_mat_count);
+        p_instance->update_aabb = false;
+        p_instance->update_materials = false;
+        return;
+    }
 
-            int new_blend_shape_count = VSG::storage->mesh_get_blend_shape_count(p_instance->base);
-            if (new_blend_shape_count != p_instance->blend_values.size()) {
-                p_instance->blend_values.resize(new_blend_shape_count);
-                for (int i = 0; i < new_blend_shape_count; i++) {
-                    p_instance->blend_values[i] = 0;
-                }
+    if (p_instance->base_type == VS::INSTANCE_MESH) {
+        //remove materials no longer used and un-own them
+
+        int new_mat_count = VSG::storage->mesh_get_surface_count(p_instance->base);
+        for (int i = p_instance->materials.size() - 1; i >= new_mat_count; i--) {
+            if (p_instance->materials[i].is_valid()) {
+                VSG::storage->material_remove_instance_owner(p_instance->materials[i], p_instance);
             }
         }
+        p_instance->materials.resize(new_mat_count);
 
-        if ((1 << p_instance->base_type) & VS::INSTANCE_GEOMETRY_MASK) {
+        int new_blend_shape_count = VSG::storage->mesh_get_blend_shape_count(p_instance->base);
+        if (new_blend_shape_count != p_instance->blend_values.size()) {
+            p_instance->blend_values.resize(new_blend_shape_count);
+            for (int i = 0; i < new_blend_shape_count; i++) {
+                p_instance->blend_values[i] = 0;
+            }
+        }
+    }
+    if (has_component<GeometryComponent>(p_instance->self.eid)) {
 
-            InstanceGeometryData *geom = get_instance_geometry(p_instance->self);
-            GeometryComponent & gcomp = get_component<GeometryComponent>(p_instance->self);
+        InstanceGeometryData *geom = get_instance_geometry(p_instance->self);
+        auto & gcomp = get_component<GeometryComponent>(p_instance->self);
 
-            bool can_cast_shadows = true;
-            bool is_animated = false;
+        bool can_cast_shadows = true;
+        bool is_animated = false;
 
-            if (p_instance->cast_shadows == VS::SHADOW_CASTING_SETTING_OFF) {
-                can_cast_shadows = false;
-            } else if (p_instance->material_override.is_valid()) {
-                can_cast_shadows = VSG::storage->material_casts_shadows(p_instance->material_override);
-                is_animated = VSG::storage->material_is_animated(p_instance->material_override);
-            } else {
+        if (p_instance->cast_shadows == VS::SHADOW_CASTING_SETTING_OFF) {
+            can_cast_shadows = false;
+        } else if (p_instance->material_override.is_valid()) {
+            can_cast_shadows = VSG::storage->material_casts_shadows(p_instance->material_override);
+            is_animated = VSG::storage->material_is_animated(p_instance->material_override);
+        } else {
 
-                if (p_instance->base_type == VS::INSTANCE_MESH) {
-                    RID mesh = p_instance->base;
+            if (p_instance->base_type == VS::INSTANCE_MESH) {
+                RID mesh = p_instance->base;
 
-                    if (mesh.is_valid()) {
-                        bool cast_shadows = false;
-
-                        for (int i = 0; i < p_instance->materials.size(); i++) {
-
-                            RID mat = p_instance->materials[i].is_valid() ? p_instance->materials[i] : VSG::storage->mesh_surface_get_material(mesh, i);
-
-                            if (!mat.is_valid()) {
-                                cast_shadows = true;
-                            } else {
-
-                                if (VSG::storage->material_casts_shadows(mat)) {
-                                    cast_shadows = true;
-                                }
-
-                                if (VSG::storage->material_is_animated(mat)) {
-                                    is_animated = true;
-                                }
-                            }
-                        }
-
-                        if (!cast_shadows) {
-                            can_cast_shadows = false;
-                        }
-                    }
-
-                } else if (p_instance->base_type == VS::INSTANCE_MULTIMESH) {
-                    RID mesh = VSG::storage->multimesh_get_mesh(p_instance->base);
-                    if (mesh.is_valid()) {
-
-                        bool cast_shadows = false;
-
-                        int sc = VSG::storage->mesh_get_surface_count(mesh);
-                        for (int i = 0; i < sc; i++) {
-
-                            RID mat = VSG::storage->mesh_surface_get_material(mesh, i);
-
-                            if (!mat.is_valid()) {
-                                cast_shadows = true;
-
-                            } else {
-
-                                if (VSG::storage->material_casts_shadows(mat)) {
-                                    cast_shadows = true;
-                                }
-                                if (VSG::storage->material_is_animated(mat)) {
-                                    is_animated = true;
-                                }
-                            }
-                        }
-
-                        if (!cast_shadows) {
-                            can_cast_shadows = false;
-                        }
-                    }
-                } else if (p_instance->base_type == VS::INSTANCE_IMMEDIATE) {
-
-                    RID mat = VSG::storage->immediate_get_material(p_instance->base);
-
-                    can_cast_shadows = !mat.is_valid() || VSG::storage->material_casts_shadows(mat);
-
-                    if (mat.is_valid() && VSG::storage->material_is_animated(mat)) {
-                        is_animated = true;
-                    }
-                } else if (p_instance->base_type == VS::INSTANCE_PARTICLES) {
-
+                if (mesh.is_valid()) {
                     bool cast_shadows = false;
 
-                    int dp = VSG::storage->particles_get_draw_passes(p_instance->base);
+                    for (int i = 0; i < p_instance->materials.size(); i++) {
 
-                    for (int i = 0; i < dp; i++) {
+                        RID mat = p_instance->materials[i].is_valid() ? p_instance->materials[i] : VSG::storage->mesh_surface_get_material(mesh, i);
 
-                        RID mesh = VSG::storage->particles_get_draw_pass_mesh(p_instance->base, i);
-                        if (!mesh.is_valid())
-                            continue;
+                        if (!mat.is_valid()) {
+                            cast_shadows = true;
+                        } else {
 
-                        int sc = VSG::storage->mesh_get_surface_count(mesh);
-                        for (int j = 0; j < sc; j++) {
-
-                            RID mat = VSG::storage->mesh_surface_get_material(mesh, j);
-
-                            if (!mat.is_valid()) {
+                            if (VSG::storage->material_casts_shadows(mat)) {
                                 cast_shadows = true;
-                            } else {
+                            }
 
-                                if (VSG::storage->material_casts_shadows(mat)) {
-                                    cast_shadows = true;
-                                }
-
-                                if (VSG::storage->material_is_animated(mat)) {
-                                    is_animated = true;
-                                }
+                            if (VSG::storage->material_is_animated(mat)) {
+                                is_animated = true;
                             }
                         }
                     }
@@ -3557,20 +3489,94 @@ void VisualServerScene::_update_dirty_instance(Instance *p_instance) {
                         can_cast_shadows = false;
                     }
                 }
-            }
 
-            if (can_cast_shadows != gcomp.can_cast_shadows) {
-                //ability to cast shadows change, let lights now
-                for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
-                    InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
-                    light->shadow_dirty = true;
+            } else if (p_instance->base_type == VS::INSTANCE_MULTIMESH) {
+                RID mesh = VSG::storage->multimesh_get_mesh(p_instance->base);
+                if (mesh.is_valid()) {
+
+                    bool cast_shadows = false;
+
+                    int sc = VSG::storage->mesh_get_surface_count(mesh);
+                    for (int i = 0; i < sc; i++) {
+
+                        RID mat = VSG::storage->mesh_surface_get_material(mesh, i);
+
+                        if (!mat.is_valid()) {
+                            cast_shadows = true;
+
+                        } else {
+
+                            if (VSG::storage->material_casts_shadows(mat)) {
+                                cast_shadows = true;
+                            }
+                            if (VSG::storage->material_is_animated(mat)) {
+                                is_animated = true;
+                            }
+                        }
+                    }
+
+                    if (!cast_shadows) {
+                        can_cast_shadows = false;
+                    }
+                }
+            } else if (p_instance->base_type == VS::INSTANCE_IMMEDIATE) {
+
+                RID mat = VSG::storage->immediate_get_material(p_instance->base);
+
+                can_cast_shadows = !mat.is_valid() || VSG::storage->material_casts_shadows(mat);
+
+                if (mat.is_valid() && VSG::storage->material_is_animated(mat)) {
+                    is_animated = true;
+                }
+            } else if (p_instance->base_type == VS::INSTANCE_PARTICLES) {
+
+                bool cast_shadows = false;
+
+                int dp = VSG::storage->particles_get_draw_passes(p_instance->base);
+
+                for (int i = 0; i < dp; i++) {
+
+                    RID mesh = VSG::storage->particles_get_draw_pass_mesh(p_instance->base, i);
+                    if (!mesh.is_valid())
+                        continue;
+
+                    int sc = VSG::storage->mesh_get_surface_count(mesh);
+                    for (int j = 0; j < sc; j++) {
+
+                        RID mat = VSG::storage->mesh_surface_get_material(mesh, j);
+
+                        if (!mat.is_valid()) {
+                            cast_shadows = true;
+                        } else {
+
+                            if (VSG::storage->material_casts_shadows(mat)) {
+                                cast_shadows = true;
+                            }
+
+                            if (VSG::storage->material_is_animated(mat)) {
+                                is_animated = true;
+                            }
+                        }
+                    }
                 }
 
-                gcomp.can_cast_shadows = can_cast_shadows;
+                if (!cast_shadows) {
+                    can_cast_shadows = false;
+                }
+            }
+        }
+
+        if (can_cast_shadows != gcomp.can_cast_shadows) {
+            //ability to cast shadows change, let lights now
+            for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
+                InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
+                light->shadow_dirty = true;
             }
 
-            gcomp.material_is_animated = is_animated;
+            gcomp.can_cast_shadows = can_cast_shadows;
         }
+
+        gcomp.material_is_animated = is_animated;
     }
 
     clear_component<Dirty>(p_instance->self);

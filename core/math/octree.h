@@ -31,10 +31,9 @@
 #pragma once
 
 #include "core/list.h"
-#include "core/map.h"
 #include "core/math/aabb.h"
 #include "core/math/vector3.h"
-#include "core/print_string.h"
+
 #include "core/vector.h"
 #include "core/hash_map.h"
 
@@ -43,7 +42,7 @@ using OctreeElementID = uint32_t;
 #define OCTREE_ELEMENT_INVALID_ID 0
 #define OCTREE_SIZE_LIMIT 1e15
 
-template <class T, bool use_pairs = false, class AL = wrap_allocator>
+template <class T, bool use_pairs = false>
 class Octree {
 public:
     using PairCallback = void *(*)(void *, OctreeElementID, T *, int, OctreeElementID, T *, int);
@@ -113,8 +112,8 @@ private:
         int children_count; // cache for amount of childrens (fast check for removal)
         int parent_index; // cache for parent index (fast check for removal)
 
-        eastl::list<Element *, AL> pairable_elements;
-        eastl::list<Element *, AL> elements;
+        eastl::list<Element *, wrap_allocator> pairable_elements;
+        eastl::list<Element *, wrap_allocator> elements;
 
         Octant() {
             children_count = 0;
@@ -146,15 +145,15 @@ private:
         AABB aabb;
         AABB container_aabb;
 
-        eastl::list<PairData *, AL> pair_list;
+        eastl::list<PairData *, wrap_allocator> pair_list;
 
         struct OctantOwner {
 
             Octant *octant;
-            typename eastl::list<Element *, AL>::iterator E;
+            typename eastl::list<Element *, wrap_allocator>::iterator E;
         }; // an element can be in max 8 octants
 
-        eastl::list<OctantOwner, AL> octant_owners;
+        eastl::list<OctantOwner, wrap_allocator> octant_owners;
 
         Element() {
             last_pass = 0;
@@ -169,7 +168,7 @@ private:
         }
     };
 
-    using ElementIterator = typename eastl::list<Element *, AL>::iterator;
+    using ElementIterator = typename eastl::list<Element *, wrap_allocator>::iterator;
 
     struct PairData {
 
@@ -177,11 +176,11 @@ private:
         bool intersect;
         Element *A, *B;
         void *ud;
-        typename eastl::list<PairData *, AL>::iterator eA, eB;
+        typename eastl::list<PairData *, wrap_allocator>::iterator eA, eB;
     };
 
-    using ElementMap = eastl::unordered_map<OctreeElementID, Element, eastl::hash<OctreeElementID>,eastl::equal_to<OctreeElementID>, AL>;
-    using PairMap = eastl::unordered_map<PairKey, PairData,eastl::hash<PairKey>, Comparator<PairKey>, AL>;
+    using ElementMap = eastl::unordered_map<OctreeElementID, Element, eastl::hash<OctreeElementID>,eastl::equal_to<OctreeElementID>, wrap_allocator>;
+    using PairMap = eastl::unordered_map<PairKey, PairData,eastl::hash<PairKey>, Comparator<PairKey>, wrap_allocator>;
 
     ElementMap element_map;
     PairMap pair_map;
@@ -267,7 +266,7 @@ private:
             return; // no pair
         }
 
-        E->second.refcount--;
+        --E->second.refcount;
 
         if (E->second.refcount == 0) {
             // bye pair
@@ -317,7 +316,7 @@ private:
                 new_root->parent_index = -1;
             }
 
-            memdelete_allocator<Octant, AL>(root);
+            memdelete_allocator<Octant, wrap_allocator>(root);
             octant_count--;
             root = new_root;
         }
@@ -356,7 +355,7 @@ private:
                 _remove_tree(p_octant->children[i]);
         }
 
-        memdelete_allocator<Octant, AL>(p_octant);
+        memdelete_allocator<Octant, wrap_allocator>(p_octant);
     }
 
 public:
@@ -386,23 +385,23 @@ public:
 
 /* PRIVATE FUNCTIONS */
 
-template <class T, bool use_pairs, class AL>
-T *Octree<T, use_pairs, AL>::get(OctreeElementID p_id) const {
+template <class T, bool use_pairs>
+T *Octree<T, use_pairs>::get(OctreeElementID p_id) const {
     const typename ElementMap::const_iterator E = element_map.find(p_id);
     ERR_FAIL_COND_V(E==element_map.end(), nullptr);
     return E->second.userdata;
 }
 
-template <class T, bool use_pairs, class AL>
-bool Octree<T, use_pairs, AL>::is_pairable(OctreeElementID p_id) const {
+template <class T, bool use_pairs>
+bool Octree<T, use_pairs>::is_pairable(OctreeElementID p_id) const {
 
     const typename ElementMap::const_iterator E = element_map.find(p_id);
     ERR_FAIL_COND_V(E==element_map.end(), false);
     return E->second.pairable;
 }
 
-template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::get_subindex(OctreeElementID p_id) const {
+template <class T, bool use_pairs>
+int Octree<T, use_pairs>::get_subindex(OctreeElementID p_id) const {
 
     const typename ElementMap::const_iterator E = element_map.find(p_id);
     ERR_FAIL_COND_V(E==element_map.end(), -1);
@@ -411,8 +410,8 @@ int Octree<T, use_pairs, AL>::get_subindex(OctreeElementID p_id) const {
 
 #define OCTREE_DIVISOR 4
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_insert_element(Element *p_element, Octant *p_octant) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_insert_element(Element *p_element, Octant *p_octant) {
 
     real_t element_size = p_element->aabb.get_longest_axis_size() * 1.01; // avoid precision issues
 
@@ -515,8 +514,8 @@ void Octree<T, use_pairs, AL>::_insert_element(Element *p_element, Octant *p_oct
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_ensure_valid_root(const AABB &p_aabb) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_ensure_valid_root(const AABB &p_aabb) {
 
     if (!root) {
         // octre is empty
@@ -574,8 +573,8 @@ void Octree<T, use_pairs, AL>::_ensure_valid_root(const AABB &p_aabb) {
     }
 }
 
-template <class T, bool use_pairs, class AL>
-bool Octree<T, use_pairs, AL>::_remove_element_from_octant(Element *p_element, Octant *p_octant, Octant *p_limit) {
+template <class T, bool use_pairs>
+bool Octree<T, use_pairs>::_remove_element_from_octant(Element *p_element, Octant *p_octant, Octant *p_limit) {
 
     bool octant_removed = false;
 
@@ -622,7 +621,7 @@ bool Octree<T, use_pairs, AL>::_remove_element_from_octant(Element *p_element, O
                 parent->children_count--;
             }
 
-            memdelete_allocator<Octant, AL>(p_octant);
+            memdelete_allocator<Octant>(p_octant);
             octant_count--;
             removed = true;
             octant_removed = true;
@@ -637,8 +636,8 @@ bool Octree<T, use_pairs, AL>::_remove_element_from_octant(Element *p_element, O
     return octant_removed;
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_unpair_element(Element *p_element, Octant *p_octant) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_unpair_element(Element *p_element, Octant *p_octant) {
 
     // always test pairable
     for(auto &E : p_octant->pairable_elements) {
@@ -670,8 +669,8 @@ void Octree<T, use_pairs, AL>::_unpair_element(Element *p_element, Octant *p_oct
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_pair_element(Element *p_element, Octant *p_octant) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_pair_element(Element *p_element, Octant *p_octant) {
 
     // always test pairable
 
@@ -702,8 +701,8 @@ void Octree<T, use_pairs, AL>::_pair_element(Element *p_element, Octant *p_octan
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_remove_element(Element *p_element) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_remove_element(Element *p_element) {
 
     pass++; // will do a new pass for this
 
@@ -755,8 +754,8 @@ void Octree<T, use_pairs, AL>::_remove_element(Element *p_element) {
     }
 }
 
-template <class T, bool use_pairs, class AL>
-OctreeElementID Octree<T, use_pairs, AL>::create(T *p_userdata, const AABB &p_aabb, int p_subindex, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
+template <class T, bool use_pairs>
+OctreeElementID Octree<T, use_pairs>::create(T *p_userdata, const AABB &p_aabb, int p_subindex, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
 
 // check for AABB validity
 #ifdef DEBUG_ENABLED
@@ -795,8 +794,8 @@ OctreeElementID Octree<T, use_pairs, AL>::create(T *p_userdata, const AABB &p_aa
     return last_element_id - 1;
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::move(OctreeElementID p_id, const AABB &p_aabb) {
 
 #ifdef DEBUG_ENABLED
     // check for AABB validity
@@ -919,8 +918,8 @@ void Octree<T, use_pairs, AL>::move(OctreeElementID p_id, const AABB &p_aabb) {
     _optimize();
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::set_pairable(OctreeElementID p_id, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::set_pairable(OctreeElementID p_id, bool p_pairable, uint32_t p_pairable_type, uint32_t p_pairable_mask) {
 
     typename ElementMap::iterator E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
@@ -947,8 +946,8 @@ void Octree<T, use_pairs, AL>::set_pairable(OctreeElementID p_id, bool p_pairabl
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::erase(OctreeElementID p_id) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::erase(OctreeElementID p_id) {
 
     auto E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
@@ -964,8 +963,8 @@ void Octree<T, use_pairs, AL>::erase(OctreeElementID p_id) {
     _optimize();
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_cull_convex(Octant *p_octant, _CullConvexData *p_cull) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_cull_convex(Octant *p_octant, _CullConvexData *p_cull) {
 
     if (*p_cull->result_idx == p_cull->result_max)
         return; //pointless
@@ -1021,8 +1020,8 @@ void Octree<T, use_pairs, AL>::_cull_convex(Octant *p_octant, _CullConvexData *p
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_cull_aabb(Octant *p_octant, const AABB &p_aabb, T **p_result_array, int *p_result_idx, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_cull_aabb(Octant *p_octant, const AABB &p_aabb, T **p_result_array, int *p_result_idx, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
 
     if (*p_result_idx == p_result_max)
         return; //pointless
@@ -1084,8 +1083,8 @@ void Octree<T, use_pairs, AL>::_cull_aabb(Octant *p_octant, const AABB &p_aabb, 
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_cull_segment(Octant *p_octant, const Vector3 &p_from, const Vector3 &p_to, T **p_result_array, int *p_result_idx, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_cull_segment(Octant *p_octant, const Vector3 &p_from, const Vector3 &p_to, T **p_result_array, int *p_result_idx, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
 
     if (*p_result_idx == p_result_max)
         return; //pointless
@@ -1150,8 +1149,8 @@ void Octree<T, use_pairs, AL>::_cull_segment(Octant *p_octant, const Vector3 &p_
     }
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::_cull_point(Octant *p_octant, const Vector3 &p_point, T **p_result_array, int *p_result_idx, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::_cull_point(Octant *p_octant, const Vector3 &p_point, T **p_result_array, int *p_result_idx, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
 
     if (*p_result_idx == p_result_max)
         return; //pointless
@@ -1217,8 +1216,8 @@ void Octree<T, use_pairs, AL>::_cull_point(Octant *p_octant, const Vector3 &p_po
     }
 }
 
-template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
+template <class T, bool use_pairs>
+int Octree<T, use_pairs>::cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
 
     if (!root)
         return 0;
@@ -1238,8 +1237,8 @@ int Octree<T, use_pairs, AL>::cull_convex(Span<const Plane> p_convex, T **p_resu
     return result_count;
 }
 
-template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::cull_aabb(const AABB &p_aabb, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
+template <class T, bool use_pairs>
+int Octree<T, use_pairs>::cull_aabb(const AABB &p_aabb, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
 
     if (!root)
         return 0;
@@ -1251,8 +1250,8 @@ int Octree<T, use_pairs, AL>::cull_aabb(const AABB &p_aabb, T **p_result_array, 
     return result_count;
 }
 
-template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::cull_segment(const Vector3 &p_from, const Vector3 &p_to, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
+template <class T, bool use_pairs>
+int Octree<T, use_pairs>::cull_segment(const Vector3 &p_from, const Vector3 &p_to, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
 
     if (!root)
         return 0;
@@ -1264,8 +1263,8 @@ int Octree<T, use_pairs, AL>::cull_segment(const Vector3 &p_from, const Vector3 
     return result_count;
 }
 
-template <class T, bool use_pairs, class AL>
-int Octree<T, use_pairs, AL>::cull_point(const Vector3 &p_point, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
+template <class T, bool use_pairs>
+int Octree<T, use_pairs>::cull_point(const Vector3 &p_point, T **p_result_array, int p_result_max, int *p_subindex_array, uint32_t p_mask) {
 
     if (!root)
         return 0;
@@ -1277,21 +1276,21 @@ int Octree<T, use_pairs, AL>::cull_point(const Vector3 &p_point, T **p_result_ar
     return result_count;
 }
 
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::set_pair_callback(PairCallback p_callback, void *p_userdata) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::set_pair_callback(PairCallback p_callback, void *p_userdata) {
 
     pair_callback = p_callback;
     pair_callback_userdata = p_userdata;
 }
-template <class T, bool use_pairs, class AL>
-void Octree<T, use_pairs, AL>::set_unpair_callback(UnpairCallback p_callback, void *p_userdata) {
+template <class T, bool use_pairs>
+void Octree<T, use_pairs>::set_unpair_callback(UnpairCallback p_callback, void *p_userdata) {
 
     unpair_callback = p_callback;
     unpair_callback_userdata = p_userdata;
 }
 
-template <class T, bool use_pairs, class AL>
-Octree<T, use_pairs, AL>::Octree(real_t p_unit_size) {
+template <class T, bool use_pairs>
+Octree<T, use_pairs>::Octree(real_t p_unit_size) {
 
     last_element_id = 1;
     pass = 1;

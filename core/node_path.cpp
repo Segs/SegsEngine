@@ -41,7 +41,7 @@ namespace {
 static Vector<StringName> s_null_stringname_vec;
 }
 
-struct Data {
+struct NodePathData {
 
     SafeRefCount refcount;
     Vector<StringName> path;
@@ -81,7 +81,7 @@ StringName NodePath::get_sname() const {
 void NodePath::prepend_period() {
 
     if (!data->path.empty() && se_string_view(data->path[0]) != "."_sv) {
-        data->path.insert(0, StaticCString("."));
+        data->path.push_front(StaticCString("."));
         hash_cache_valid = false;
     }
 }
@@ -326,7 +326,7 @@ NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
     if (p_path.empty())
         return;
 
-    data = memnew(Data);
+    data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = p_absolute;
     data->path = p_path;
@@ -340,7 +340,7 @@ NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p
     if (p_path.empty() && p_subpath.empty())
         return;
 
-    data = memnew(Data);
+    data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = p_absolute;
     data->path = p_path;
@@ -354,7 +354,7 @@ NodePath::NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, 
     if (p_path.empty() && p_subpath.empty())
         return;
 
-    data = memnew(Data);
+    data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = p_absolute;
     data->path = eastl::move(p_path);
@@ -451,7 +451,7 @@ NodePath::NodePath(se_string_view p_path) {
     if (slices == 0 && !absolute && subpath.empty())
         return;
 
-    data = memnew(Data);
+    data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = absolute;
     data->has_slashes = has_slashes;
@@ -497,6 +497,5 @@ bool NodePath::is_empty() const {
 NodePath::NodePath() = default;
 
 NodePath::~NodePath() {
-
     unref();
 }
