@@ -190,7 +190,7 @@ public:
 
         Vector<ClassNode *> subclasses;
         Vector<Member> variables;
-        Map<StringName, Constant> constant_expressions;
+        HashMap<StringName, Constant> constant_expressions;
         Vector<FunctionNode *> functions;
         Vector<FunctionNode *> static_functions;
         Vector<Signal> _signals;
@@ -244,7 +244,7 @@ public:
         ClassNode *parent_class;
         BlockNode *parent_block;
         Vector<Node *> statements;
-        Map<StringName, LocalVarNode *> variables;
+        HashMap<StringName, LocalVarNode *> variables;
         bool has_return;
 
         Node *if_condition; //tiny hack to improve code completion on if () blocks
@@ -427,7 +427,7 @@ public:
 
         Node *constant;
         StringName bind;
-        Map<ConstantNode *, PatternNode *> dictionary;
+        HashMap<ConstantNode *, PatternNode *> dictionary;
         Vector<PatternNode *> array;
     };
 
@@ -618,7 +618,7 @@ private:
     PatternNode *_parse_pattern(bool p_static);
     void _parse_pattern_block(BlockNode *p_block, Vector<PatternBranchNode *> &p_branches, bool p_static);
     void _transform_match_statment(MatchNode *p_match_statement);
-    void _generate_pattern(PatternNode *p_pattern, Node *p_node_to_match, Node *&p_resulting_node, Map<StringName, Node *> &p_bindings);
+    void _generate_pattern(PatternNode *p_pattern, Node *p_node_to_match, Node *&p_resulting_node, HashMap<StringName, Node *> &p_bindings);
 
     void _parse_block(BlockNode *p_block, bool p_static);
     void _parse_extends(ClassNode *p_class);

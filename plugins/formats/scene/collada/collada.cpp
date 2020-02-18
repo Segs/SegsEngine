@@ -2197,7 +2197,7 @@ void Collada::_merge_skeletons(VisualScene *p_vscene, Node *p_node) {
         if (gnode->controller) {
 
             // recount skeletons used
-            Set<NodeSkeleton *> skeletons;
+            HashSet<NodeSkeleton *> skeletons;
 
             for (const String &nodeid : gnode->skeletons) {
 
@@ -2213,7 +2213,7 @@ void Collada::_merge_skeletons(VisualScene *p_vscene, Node *p_node) {
             if (skeletons.size() > 1) {
 
                 //do the merger!!
-                Set<NodeSkeleton *>::iterator E = skeletons.begin();
+                HashSet<NodeSkeleton *>::iterator E = skeletons.begin();
                 NodeSkeleton *base = *(E++);
 
                 for ( ; E!=skeletons.end(); ++E) {

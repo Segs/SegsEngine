@@ -407,7 +407,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
 
                 //StringName property=a->track_get_path(i).get_property();
 
-                Map<StringName, TrackNodeCache::PropertyAnim>::iterator E = nc->property_anim.find(a->track_get_path(i).get_concatenated_subnames());
+                HashMap<StringName, TrackNodeCache::PropertyAnim>::iterator E = nc->property_anim.find(a->track_get_path(i).get_concatenated_subnames());
                 ERR_CONTINUE(E==nc->property_anim.end()); //should it continue, or create a new one?
 
                 TrackNodeCache::PropertyAnim *pa = &E->second;

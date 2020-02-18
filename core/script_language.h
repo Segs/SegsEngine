@@ -32,7 +32,7 @@
 
 
 #include "core/map.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 #include "core/hash_map.h"
 #include "core/pair.h"
 #include "core/resource.h"
@@ -155,8 +155,8 @@ public:
 
     virtual int get_member_line(const StringName & /*p_member*/) const { return -1; }
 
-    virtual void get_constants(Map<StringName, Variant> * /*p_constants*/) {}
-    virtual void get_members(Set<StringName> * /*p_constants*/) {}
+    virtual void get_constants(HashMap<StringName, Variant> * /*p_constants*/) {}
+    virtual void get_members(HashSet<StringName> * /*p_constants*/) {}
 
     virtual bool is_placeholder_fallback_enabled() const { return false; }
 
@@ -388,8 +388,8 @@ class PlaceHolderScriptInstance : public ScriptInstance {
 
     Object *owner;
     Vector<PropertyInfo> properties;
-    Map<StringName, Variant> values;
-    Map<StringName, Variant> constants;
+    HashMap<StringName, Variant> values;
+    HashMap<StringName, Variant> constants;
     ScriptLanguage *language;
     Ref<Script> script;
 
@@ -418,7 +418,7 @@ public:
 
     Object *get_owner() override { return owner; }
 
-    void update(const Vector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values); //likely changed in editor
+    void update(const Vector<PropertyInfo> &p_properties, const HashMap<StringName, Variant> &p_values); //likely changed in editor
 
     bool is_placeholder() const override { return true; }
 
@@ -442,7 +442,7 @@ class GODOT_EXPORT ScriptDebugger {
     int depth;
 
     static ScriptDebugger *singleton;
-    Map<int, Set<StringName> > breakpoints;
+    Map<int, HashSet<StringName> > breakpoints;
 
     ScriptLanguage *break_lang;
 
@@ -461,7 +461,7 @@ public:
     bool is_breakpoint(int p_line, const StringName &p_source) const;
     bool is_breakpoint_line(int p_line) const;
     void clear_breakpoints();
-    const Map<int, Set<StringName> > &get_breakpoints() const { return breakpoints; }
+    const Map<int, HashSet<StringName> > &get_breakpoints() const { return breakpoints; }
 
     virtual void debug(ScriptLanguage *p_script, bool p_can_continue = true, bool p_is_error_breakpoint = false) = 0;
     virtual void idle_poll();

@@ -135,8 +135,8 @@ public:
     Array _get_node_and_resource(const NodePath &p_path);
 
     void _duplicate_signals(const Node *p_original, Node *p_copy) const;
-    void _duplicate_and_reown(Node *p_new_parent, const DefMap<Node *, Node *> &p_reown_map) const;
-    Node *_duplicate(int p_flags, DefMap<const Node *, Node *> *r_duplimap = nullptr) const;
+    void _duplicate_and_reown(Node *p_new_parent, const HashMap<Node *, Node *> &p_reown_map) const;
+    Node *_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap = nullptr) const;
     Array _get_children() const;
     Array _get_groups() const;
     Variant _rpc_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
@@ -322,9 +322,9 @@ public:
     int get_position_in_parent() const;
 
     Node *duplicate(int p_flags = DUPLICATE_GROUPS | DUPLICATE_SIGNALS | DUPLICATE_SCRIPTS) const;
-    Node *duplicate_and_reown(const DefMap<Node *, Node *> &p_reown_map) const;
+    Node *duplicate_and_reown(const HashMap<Node *, Node *> &p_reown_map) const;
 #ifdef TOOLS_ENABLED
-    Node *duplicate_from_editor(DefMap<const Node *, Node *> &r_duplimap) const;
+    Node *duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) const;
 #endif
 
     // used by editors, to save what has changed only

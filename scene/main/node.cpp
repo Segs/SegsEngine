@@ -349,7 +349,7 @@ void Node::_propagate_exit_tree() {
 
     if (ScriptDebugger::get_singleton() && data->filename && !data->filename->empty()) {
         //used for live edit
-        Map<String, Set<Node *> >::iterator E = tree->get_live_scene_edit_cache().find(*data->filename);
+        auto E = tree->get_live_scene_edit_cache().find(*data->filename);
         if (E!=tree->get_live_scene_edit_cache().end()) {
             E->second.erase(this);
             if (E->second.empty()) {
@@ -357,7 +357,7 @@ void Node::_propagate_exit_tree() {
             }
         }
 
-        Map<Node *, Map<ObjectID, Node *> >::iterator F = tree->get_live_edit_remove_list().find(this);
+        auto F = tree->get_live_edit_remove_list().find(this);
         if (F!=tree->get_live_edit_remove_list().end()) {
             for (eastl::pair<const ObjectID, Node *> &G : F->second) {
 
@@ -1909,7 +1909,7 @@ void Node::_propagate_replace_owner(Node *p_owner, Node *p_by_owner) {
         set_owner(p_by_owner);
 
     blocked++;
-    for (int i = 0; i < data->children.size(); i++)
+    for (size_t i = 0; i < data->children.size(); i++)
         data->children[i]->_propagate_replace_owner(p_owner, p_by_owner);
     blocked--;
 }
@@ -1929,7 +1929,7 @@ void Node::remove_and_skip() {
     while (true) {
 
         bool clear = true;
-        for (int i = 0; i < data->children.size(); i++) {
+        for (size_t i = 0; i < data->children.size(); i++) {
             Node *c_node = data->children[i];
             if (!c_node->get_owner())
                 continue;
@@ -2051,7 +2051,7 @@ int Node::get_position_in_parent() const {
     return data->pos;
 }
 
-Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const {
+Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) const {
 
     Node *node = nullptr;
 
@@ -2242,7 +2242,7 @@ Node *Node::duplicate(int p_flags) const {
 }
 
 #ifdef TOOLS_ENABLED
-Node *Node::duplicate_from_editor(Map<const Node *, Node *> &r_duplimap) const {
+Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) const {
 
     Node *dupe = _duplicate(DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS | DUPLICATE_USE_INSTANCING | DUPLICATE_FROM_EDITOR, &r_duplimap);
 
@@ -2255,7 +2255,7 @@ Node *Node::duplicate_from_editor(Map<const Node *, Node *> &r_duplimap) const {
 }
 #endif
 
-void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p_reown_map) const {
+void Node::_duplicate_and_reown(Node *p_new_parent, const HashMap<Node *, Node *> &p_reown_map) const {
 
     if (get_owner() != get_parent()->get_owner())
         return;
@@ -2368,7 +2368,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
     }
 }
 
-Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
+Node *Node::duplicate_and_reown(const HashMap<Node *, Node *> &p_reown_map) const {
 
     ERR_FAIL_COND_V(!get_filename().empty(), nullptr);
 
@@ -2755,7 +2755,7 @@ void Node::get_argument_options(const StringName &p_function, int p_idx, List<St
 void Node::clear_internal_tree_resource_paths() {
 
     clear_internal_resource_paths();
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
         data->children[i]->clear_internal_tree_resource_paths();
     }
 }

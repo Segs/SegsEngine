@@ -4194,11 +4194,11 @@ void VisualScriptEditor::_menu_option(int p_what) {
                 return; // nothing to be done if there are no valid nodes selected
             }
 
-            Set<VisualScript::SequenceConnection> seqmove;
-            Set<VisualScript::DataConnection> datamove;
+            HashSet<VisualScript::SequenceConnection> seqmove;
+            HashSet<VisualScript::DataConnection> datamove;
 
-            Set<VisualScript::SequenceConnection> seqext;
-            Set<VisualScript::DataConnection> dataext;
+            HashSet<VisualScript::SequenceConnection> seqext;
+            HashSet<VisualScript::DataConnection> dataext;
 
             int start_node = -1;
             Set<int> end_nodes;

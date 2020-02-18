@@ -2068,9 +2068,9 @@ Error GDScriptCompiler::_parse_class_blocks(GDScript *p_script, const GDScriptPa
     //validate instances if keeping state
 
     if (p_keep_state) {
-        for (Set<Object *>::iterator E = p_script->instances.begin(); E!=p_script->instances.end();) {
+        for (auto E = p_script->instances.begin(); E!=p_script->instances.end();) {
 
-            Set<Object *>::iterator N = E;
+            HashSet<Object *>::iterator N = E;
             N++;
 
             ScriptInstance *si = (*E)->get_script_instance();
@@ -2115,7 +2115,7 @@ Error GDScriptCompiler::_parse_class_blocks(GDScript *p_script, const GDScriptPa
     }
 #endif
 
-    for (int i = 0; i < p_class->subclasses.size(); i++) {
+    for (size_t i = 0; i < p_class->subclasses.size(); i++) {
         StringName name = p_class->subclasses[i]->name;
         GDScript *subclass = p_script->subclasses[name].get();
 

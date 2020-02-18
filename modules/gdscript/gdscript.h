@@ -34,7 +34,8 @@
 #include "core/io/resource_saver.h"
 #include "core/script_language.h"
 #include "gdscript_function.h"
-#include "core/set.h"
+#include "core/hash_set.h"
+#include "core/hash_map.h"
 
 namespace std {
 class recursive_mutex;
@@ -85,8 +86,8 @@ class GDScript : public Script {
     GDScript *_base; //fast pointer access
     GDScript *_owner; //for subclasses
 
-    Set<StringName> members; //members are just indices to the instanced script.
-    Map<StringName, Variant> constants;
+    HashSet<StringName> members; //members are just indices to the instanced script.
+    HashMap<StringName, Variant> constants;
     Map<StringName, GDScriptFunction *> member_functions;
     Map<StringName, MemberInfo> member_indices; //members are just indices to the instanced script.
     Map<StringName, Ref<GDScript> > subclasses;
@@ -96,15 +97,15 @@ class GDScript : public Script {
 
     Map<StringName, int> member_lines;
 
-    Map<StringName, Variant> member_default_values;
+    HashMap<StringName, Variant> member_default_values;
 
     Vector<PropertyInfo> members_cache;
-    Map<StringName, Variant> member_default_values_cache;
+    HashMap<StringName, Variant> member_default_values_cache;
     Ref<GDScript> base_cache;
-    Set<ObjectID> inheriters_cache;
+    HashSet<ObjectID> inheriters_cache;
     bool source_changed_cache;
     bool placeholder_fallback_enabled;
-    void _update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
+    void _update_exports_values(HashMap<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
 
 #endif
     Map<StringName, PropertyInfo> member_info;
@@ -112,7 +113,7 @@ class GDScript : public Script {
     GDScriptFunction *initializer; //direct pointer to _init , faster to locate
 
     int subclass_count;
-    Set<Object *> instances;
+    HashSet<Object *> instances;
     //exported members
     String source;
     String path;
@@ -125,7 +126,7 @@ class GDScript : public Script {
     void _set_subclass_path(Ref<GDScript> &p_sc, se_string_view p_path);
 
 #ifdef TOOLS_ENABLED
-    Set<PlaceHolderScriptInstance *> placeholders;
+    HashSet<PlaceHolderScriptInstance *> placeholders;
     //void _update_placeholder(PlaceHolderScriptInstance *p_placeholder);
     void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
 #endif
@@ -154,8 +155,8 @@ public:
     bool is_valid() const override { return valid; }
 
     const Map<StringName, Ref<GDScript> > &get_subclasses() const { return subclasses; }
-    const Map<StringName, Variant> &get_constants() const { return constants; }
-    const Set<StringName> &get_members() const { return members; }
+    const HashMap<StringName, Variant> &get_constants() const { return constants; }
+    const HashSet<StringName> &get_members() const { return members; }
     const GDScriptDataType &get_member_type(const StringName &p_member) const {
         CRASH_COND(!member_indices.contains(p_member));
         return member_indices.at(p_member).data_type;
@@ -216,8 +217,8 @@ public:
             return -1;
     }
 
-    void get_constants(Map<StringName, Variant> *p_constants) override;
-    void get_members(Set<StringName> *p_members) override;
+    void get_constants(HashMap<StringName, Variant> *p_constants) override;
+    void get_members(HashSet<StringName> *p_members) override;
 
 #ifdef TOOLS_ENABLED
     bool is_placeholder_fallback_enabled() const override { return placeholder_fallback_enabled; }
@@ -333,7 +334,7 @@ class GDScriptLanguage : public ScriptLanguage {
     Variant *_global_array;
     Vector<Variant> global_array;
     Map<StringName, int> globals;
-    Map<StringName, Variant> named_globals;
+    HashMap<StringName, Variant> named_globals;
 
     struct CallLevel {
 
@@ -444,7 +445,7 @@ public:
     _FORCE_INLINE_ int get_global_array_size() const { return global_array.size(); }
     _FORCE_INLINE_ Variant *get_global_array() { return _global_array; }
     _FORCE_INLINE_ const Map<StringName, int> &get_global_map() const { return globals; }
-    _FORCE_INLINE_ const Map<StringName, Variant> &get_named_globals_map() const { return named_globals; }
+    _FORCE_INLINE_ const HashMap<StringName, Variant> &get_named_globals_map() const { return named_globals; }
 
     _FORCE_INLINE_ static GDScriptLanguage *get_singleton() { return singleton; }
 

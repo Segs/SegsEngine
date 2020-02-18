@@ -311,6 +311,7 @@ set(generic_core_sources
     typesystem_decls.h
 
     hash_map.h
+    hash_set.h
     list.h
     map.h
     ordered_hash_map.h

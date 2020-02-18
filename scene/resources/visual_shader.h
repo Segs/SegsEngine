@@ -95,7 +95,7 @@ public:
     };
 
     HashMap<String, int> modes;
-    Set<StringName> flags;
+    HashSet<StringName> flags;
     volatile mutable bool dirty;
 
     static RenderModeEnums render_mode_enums[];

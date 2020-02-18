@@ -866,7 +866,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                         // Using current_class instead of cln here, since cln is const*
                         _determine_inheritance(current_class, false);
                         if (cln->base_type.has_type && cln->base_type.kind == DataType::GDSCRIPT && cln->base_type.script_type->is_valid()) {
-                            Map<StringName, Variant> parent_constants;
+                            HashMap<StringName, Variant> parent_constants;
                             current_class->base_type.script_type->get_constants(&parent_constants);
                             if (parent_constants.contains(identifier)) {
                                 ConstantNode *constant = alloc_node<ConstantNode>();
@@ -2339,7 +2339,7 @@ void GDScriptParser::_parse_pattern_block(BlockNode *p_block, Vector<PatternBran
     }
 }
 
-void GDScriptParser::_generate_pattern(PatternNode *p_pattern, Node *p_node_to_match, Node *&p_resulting_node, Map<StringName, Node *> &p_bindings) {
+void GDScriptParser::_generate_pattern(PatternNode *p_pattern, Node *p_node_to_match, Node *&p_resulting_node, HashMap<StringName, Node *> &p_bindings) {
 
     const DataType &to_match_type = p_node_to_match->get_datatype();
 
@@ -2643,20 +2643,20 @@ void GDScriptParser::_transform_match_statment(MatchNode *p_match_statement) {
         return;
     }
 
-    for (int i = 0; i < p_match_statement->branches.size(); i++) {
+    for (size_t i = 0; i < p_match_statement->branches.size(); i++) {
 
         PatternBranchNode *branch = p_match_statement->branches[i];
 
         MatchNode::CompiledPatternBranch compiled_branch;
         compiled_branch.compiled_pattern = nullptr;
 
-        Map<StringName, Node *> binding;
+        HashMap<StringName, Node *> binding;
 
-        for (int j = 0; j < branch->patterns.size(); j++) {
+        for (size_t j = 0; j < branch->patterns.size(); j++) {
             PatternNode *pattern = branch->patterns[j];
             _mark_line_as_safe(pattern->line);
 
-            Map<StringName, Node *> bindings;
+            HashMap<StringName, Node *> bindings;
             Node *resulting_node = nullptr;
             _generate_pattern(pattern, id, resulting_node, bindings);
 
@@ -5812,7 +5812,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
             Ref<Script> scr = base_type.script_type;
             ERR_FAIL_COND_V(not scr, result);
             while (scr) {
-                Map<StringName, Variant> constants;
+                HashMap<StringName, Variant> constants;
                 scr->get_constants(&constants);
 
                 if (constants.contains(id)) {
@@ -7365,7 +7365,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
 
     // Check other script types
     while (scr) {
-        Map<StringName, Variant> constants;
+        HashMap<StringName, Variant> constants;
         scr->get_constants(&constants);
         if (constants.contains(p_member)) {
             r_member_type = _type_from_variant(constants[p_member]);

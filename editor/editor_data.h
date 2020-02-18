@@ -236,7 +236,7 @@ class EditorSelection : public Object {
     GDCLASS(EditorSelection,Object)
 
 private:
-    Map<Node *, Object *> selection;
+    HashMap<Node *, Object *> selection;
 
     bool emitted;
     bool changed;
@@ -275,7 +275,7 @@ public:
 
     const Vector<Node *> &get_selected_node_list();
     Vector<Node *> get_full_selected_node_list();
-    Map<Node *, Object *> &get_selection() { return selection; }
+    HashMap<Node *, Object *> &get_selection() { return selection; }
 
     EditorSelection();
     ~EditorSelection() override;

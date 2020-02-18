@@ -261,7 +261,7 @@ public:
 
         ListOld<PairInfo> geometries;
 
-        Set<Instance *> lights;
+        HashSet<Instance *> lights;
 
         struct LightCache {
 
@@ -357,7 +357,7 @@ public:
         };
         ListOld<PairInfo> geometries;
 
-        Set<Instance *> users;
+        HashSet<Instance *> users;
 
         InstanceLightmapCaptureData() {}
     };

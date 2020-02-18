@@ -66,7 +66,7 @@ void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
 }
 
 void TextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    HashMap<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
     for (;el != highlighters.end(); ++el) {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(el->first), false);
     }

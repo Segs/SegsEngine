@@ -40,7 +40,7 @@ const Vector<StringName> &ShaderTypes::get_modes(VS::ShaderMode p_mode) {
     return shader_modes[p_mode].modes;
 }
 
-const Set<StringName> &ShaderTypes::get_types() {
+const HashSet<StringName> &ShaderTypes::get_types() {
     return shader_types;
 }
 

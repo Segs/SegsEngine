@@ -763,7 +763,7 @@ void Theme::copy_theme(const Ref<Theme> &p_other) {
 
 void Theme::get_type_list(Vector<StringName> *p_list) const {
 
-    Set<StringName> types;
+    HashSet<StringName> types;
 
     for(auto & kv : icon_map ) {
         types.insert(kv.first);

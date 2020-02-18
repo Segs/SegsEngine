@@ -428,7 +428,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
             // flat node map parent lookup tool
             state.flat_node_map.emplace(element_assimp_node, spatial);
 
-            Map<const aiNode *, Spatial *>::iterator parent_lookup = state.flat_node_map.find(parent_assimp_node);
+            HashMap<const aiNode *, Spatial *>::iterator parent_lookup = state.flat_node_map.find(parent_assimp_node);
 
             // note: this always fails on the root node :) keep that in mind this is by design
             if (parent_lookup!=state.flat_node_map.end()) {

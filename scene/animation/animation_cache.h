@@ -59,7 +59,7 @@ class AnimationCache : public Object {
         }
     };
 
-    Set<Node *> connected_nodes;
+    HashSet<Node *> connected_nodes;
     Vector<Path> path_cache;
 
     Node *root;

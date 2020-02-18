@@ -95,7 +95,7 @@ class AnimationTreePlayerEditor : public Control {
 
     AnimationTreePlayer *anim_tree;
     List<StringName> order;
-    Set<StringName> active_nodes;
+    HashSet<StringName> active_nodes;
 
     int last_x, last_y;
 

@@ -51,8 +51,8 @@ public:
     float get_priority() const override;
     int get_import_order() const override;
     void get_import_options(List<ImportOption> *r_options, int p_preset) const override;
-    bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+    bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
             *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata = nullptr) override;
 };
 

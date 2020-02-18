@@ -31,6 +31,7 @@
 
 #include "core/rid.h"
 #include "scene/resources/material.h"
+#include "core/hash_map.h"
 
 class CurveTexture;
 class GradientTexture;
@@ -92,6 +93,8 @@ private:
         bool operator<(const MaterialKey &p_key) const {
             return key < p_key.key;
         }
+        // for shader_map eastl::hash key
+        constexpr operator size_t() const { return key; }
     };
 
     struct ShaderData {
@@ -99,7 +102,7 @@ private:
         int users;
     };
 
-    static Map<MaterialKey, ShaderData> shader_map;
+    static HashMap<MaterialKey, ShaderData> shader_map;
 
     MaterialKey current_key;
 

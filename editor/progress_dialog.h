@@ -50,8 +50,8 @@ class BackgroundProgress : public HBoxContainer {
         ProgressBar *progress;
     };
 
-    Map<StringName, Task> tasks;
-    Map<StringName, int> updates;
+    HashMap<StringName, Task> tasks;
+    HashMap<StringName, int> updates;
     void _update();
 
 protected:
@@ -84,7 +84,7 @@ class ProgressDialog : public Popup {
     HBoxContainer *cancel_hb;
     Button *cancel;
 
-    Map<StringName, Task> tasks;
+    HashMap<StringName, Task> tasks;
     VBoxContainer *main;
     uint64_t last_progress_tick;
 

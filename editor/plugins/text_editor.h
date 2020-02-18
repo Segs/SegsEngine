@@ -104,7 +104,7 @@ protected:
     void _make_context_menu(bool p_selection, bool p_can_fold, bool p_is_folded, Vector2 p_position);
     void _text_edit_gui_input(const Ref<InputEvent> &ev);
 
-    Map<String, SyntaxHighlighter *> highlighters;
+    HashMap<String, SyntaxHighlighter *> highlighters;
     void _change_syntax_highlighter(int p_idx);
     void _load_theme_settings();
 

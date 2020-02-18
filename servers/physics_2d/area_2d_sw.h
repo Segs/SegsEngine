@@ -102,7 +102,7 @@ class Area2DSW : public CollisionObject2DSW {
 
 	//virtual void shape_changed_notify(Shape2DSW *p_shape);
 	//virtual void shape_deleted_notify(Shape2DSW *p_shape);
-	Set<Constraint2DSW *> constraints;
+    HashSet<Constraint2DSW *> constraints;
 
 	void _shapes_changed() override;
 	void _queue_monitor_update();
@@ -155,7 +155,7 @@ public:
 
 	_FORCE_INLINE_ void add_constraint(Constraint2DSW *p_constraint) { constraints.insert(p_constraint); }
 	_FORCE_INLINE_ void remove_constraint(Constraint2DSW *p_constraint) { constraints.erase(p_constraint); }
-	_FORCE_INLINE_ const Set<Constraint2DSW *> &get_constraints() const { return constraints; }
+    const HashSet<Constraint2DSW *> &get_constraints() const { return constraints; }
 	_FORCE_INLINE_ void clear_constraints() { constraints.clear(); }
 
 	void set_monitorable(bool p_monitorable);

@@ -32,7 +32,7 @@
 
 #include "core/typedefs.h"
 #include "core/safe_refcount.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 #include "core/error_macros.h"
 #include "entt/fwd.hpp"
 class RID_OwnerBase;
@@ -103,7 +103,7 @@ struct hash<RID> {
 class GODOT_EXPORT RID_OwnerBase {
 public:
 #ifdef DEBUG_ENABLED
-    mutable Set<RID_Data *> id_map;
+    mutable HashSet<RID_Data *> id_map;
 #endif
 protected:
     static SafeRefCount refcount;

@@ -4339,7 +4339,7 @@ void CanvasItemEditor::_button_tool_select(int p_index) {
 
 void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, bool p_scale, bool p_on_existing) {
 
-    Map<Node *, Object *> &selection = editor_selection->get_selection();
+    HashMap<Node *, Object *> &selection = editor_selection->get_selection();
     AnimationPlayerEditor *ed=AnimationPlayerEditor::singleton;
     for (const eastl::pair<Node *,Object *> E : selection) {
 
@@ -4747,7 +4747,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
 
             pose_clipboard.clear();
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             for (const eastl::pair<Node *,Object *> E : selection) {
 
@@ -4794,7 +4794,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case ANIM_CLEAR_POSE: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             for (const eastl::pair<Node *,Object *> E : selection) {
 
@@ -4867,7 +4867,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_MAKE_BONES: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             undo_redo->create_action_ui(TTR("Create Custom Bone(s) from Node(s)"));
             for (const eastl::pair<Node *,Object *> E : selection) {
@@ -4894,7 +4894,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_CLEAR_BONES: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             undo_redo->create_action_ui(TTR("Clear Bones"));
             for (const eastl::pair<Node *,Object *> E : selection) {
@@ -4942,7 +4942,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_CLEAR_IK_CHAIN: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             undo_redo->create_action_ui(TTR("Clear IK Chain"));
             for (const eastl::pair<Node *,Object *> E : selection) {
@@ -4971,7 +4971,7 @@ void CanvasItemEditor::_focus_selection(int p_op) {
     Rect2 rect;
     int count = 0;
 
-    Map<Node *, Object *> &selection = editor_selection->get_selection();
+    HashMap<Node *, Object *> &selection = editor_selection->get_selection();
     for (const eastl::pair<Node *,Object *> E : selection) {
         CanvasItem *canvas_item = object_cast<CanvasItem>(E.first);
         if (!canvas_item) continue;

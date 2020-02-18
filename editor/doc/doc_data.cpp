@@ -249,7 +249,7 @@ void DocData::generate(bool p_basic_types) {
 
     for(int i=0,fin=classes.size(); i<fin; ++i) {
 
-        Set<StringName> setters_getters;
+        HashSet<StringName> setters_getters;
 
         StringName name = classes[i];
         StringName cname(name);

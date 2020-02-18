@@ -93,7 +93,7 @@ void InspectorDock::_menu_option(int p_option) {
             if (current) {
                 Vector<PropertyInfo> props;
                 current->get_property_list(&props);
-                Map<RES, RES> duplicates;
+                HashMap<RES, RES> duplicates;
                 for (const PropertyInfo &E : props) {
 
                     if (!(E.usage & PROPERTY_USAGE_STORAGE))

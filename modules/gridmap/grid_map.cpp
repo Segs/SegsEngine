@@ -764,7 +764,8 @@ void GridMap::_queue_octants_dirty() {
 void GridMap::_recreate_octant_data() {
 
     recreating_octants = true;
-    Map<IndexKey, Cell> cell_copy = cell_map;
+    //TODO: SEGS: consider using move semantics to prevent full blown copy here
+    HashMap<IndexKey, Cell> cell_copy = cell_map;
     _clear_internal();
     for (eastl::pair<const IndexKey,Cell> &E : cell_copy) {
 

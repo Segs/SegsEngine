@@ -591,7 +591,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 Vector<Node *> owned;
                 node->get_owned_by(node->get_owner(), &owned);
 
-                Map<const Node *, Node *> duplimap;
+                HashMap<const Node *, Node *> duplimap;
                 Node *dup = node->duplicate_from_editor(duplimap);
 
                 if (EditorNode::get_singleton()->get_edited_scene()->is_editable_instance(node))
@@ -654,11 +654,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 break;
 
             const Vector<Node *> &nodes = editor_selection->get_selected_node_list();
-            Set<Node *> nodeset;
-            for (Node *E : nodes) {
-
-                nodeset.insert(E);
-            }
+            HashSet<Node *> nodeset;
+            nodeset.insert(nodes.begin(),nodes.end());
             reparent_dialog->popup_centered_ratio();
             reparent_dialog->set_current(nodeset);
 
@@ -2204,7 +2201,7 @@ void SceneTreeDock::_new_scene_from(se_string_view p_file) {
 
     Node *base = selection.front();
 
-    Map<Node *, Node *> reown;
+    HashMap<Node *, Node *> reown;
     reown[editor_data->get_edited_scene_root()] = base;
     Node *copy = base->duplicate_and_reown(reown);
     if (copy) {

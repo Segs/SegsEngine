@@ -70,7 +70,7 @@ class ScriptEditorDebuggerVariables : public Object {
     GDCLASS(ScriptEditorDebuggerVariables,Object)
 
     ListOld<PropertyInfo> props;
-    Map<StringName, Variant> values;
+    HashMap<StringName, Variant> values;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value) {
@@ -174,7 +174,7 @@ public:
     UIString type_name;
     ObjectID remote_object_id;
     ListOld<PropertyInfo> prop_list;
-    Map<StringName, Variant> prop_values;
+    HashMap<StringName, Variant> prop_values;
 
     ObjectID get_remote_object_id() {
         return remote_object_id;
@@ -591,7 +591,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         debugObj->prop_list.clear();
         int new_props_added = 0;
-        Set<StringName> changed;
+        HashSet<StringName> changed;
         for (int i = 0; i < properties.size(); i++) {
 
             Array prop = properties[i];

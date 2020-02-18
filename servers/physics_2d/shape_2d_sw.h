@@ -31,12 +31,9 @@
 #pragma once
 
 #include "servers/physics_2d_server.h"
+#include "core/hash_map.h"
+
 #define _SEGMENT_IS_VALID_SUPPORT_THRESHOLD 0.99998
-
-#include "EASTL/unordered_map.h"
-
-template<class TKey, class TData>
-using EUnorderdMap = eastl::unordered_map<TKey,TData,eastl::hash<TKey>,eastl::equal_to<TKey>,wrap_allocator>;
 
 /*
 
@@ -67,7 +64,7 @@ class Shape2DSW : public RID_Data {
     bool configured;
     real_t custom_bias;
 
-    using OwnerStorage = EUnorderdMap<ShapeOwner2DSW *, int>;
+    using OwnerStorage = HashMap<ShapeOwner2DSW *, int>;
     OwnerStorage owners;
 
 protected:

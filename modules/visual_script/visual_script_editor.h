@@ -154,8 +154,8 @@ class VisualScriptEditor : public ScriptEditorBase {
         Map<int, Ref<VisualScriptNode> > nodes;
         Map<int, Vector2> nodes_positions;
 
-        Set<VisualScript::SequenceConnection> sequence_connections;
-        Set<VisualScript::DataConnection> data_connections;
+        HashSet<VisualScript::SequenceConnection> sequence_connections;
+        HashSet<VisualScript::DataConnection> data_connections;
     };
 
     static Clipboard *clipboard;

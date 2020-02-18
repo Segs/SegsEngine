@@ -51,13 +51,13 @@ struct SpatialIndexer {
         OctreeElementID id;
     };
 
-    Map<VisibilityNotifier *, NotifierData> notifiers;
+    HashMap<VisibilityNotifier *, NotifierData> notifiers;
     struct CameraData {
 
-        Map<VisibilityNotifier *, uint64_t> notifiers;
+        HashMap<VisibilityNotifier *, uint64_t> notifiers;
     };
 
-    Map<Camera *, CameraData> cameras;
+    HashMap<Camera *, CameraData> cameras;
 
     enum {
         VISIBILITY_CULL_MAX = 32768
@@ -79,7 +79,7 @@ struct SpatialIndexer {
 
     void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E==notifiers.end());
         if (E->second.aabb == p_rect)
             return;
@@ -91,7 +91,7 @@ struct SpatialIndexer {
 
     void _notifier_remove(VisibilityNotifier *p_notifier) {
 
-        Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E!=notifiers.end());
 
         octree.erase(E->second.id);
@@ -100,7 +100,7 @@ struct SpatialIndexer {
         Vector<Camera *> removed;
         for (eastl::pair< Camera *const,CameraData> &F : cameras) {
 
-            Map<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
+            HashMap<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
 
             if (G!=F.second.notifiers.end()) {
                 F.second.notifiers.erase(G);
@@ -125,7 +125,7 @@ struct SpatialIndexer {
 
     void _update_camera(Camera *p_camera) {
 
-        Map<Camera *, CameraData>::iterator E = cameras.find(p_camera);
+        HashMap<Camera *, CameraData>::iterator E = cameras.find(p_camera);
         ERR_FAIL_COND(E==cameras.end());
         changed = true;
     }
@@ -173,7 +173,7 @@ struct SpatialIndexer {
 
                 //notifiers in frustum
 
-                Map<VisibilityNotifier *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
+                HashMap<VisibilityNotifier *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
                 if (H==E.second.notifiers.end()) {
 
                     E.second.notifiers.emplace(ptr[i], pass);

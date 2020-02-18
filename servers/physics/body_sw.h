@@ -33,7 +33,7 @@
 #include "area_sw.h"
 #include "collision_object_sw.h"
 #include "core/vset.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 #include "EASTL/vector_set.h"
 
 class ConstraintSW;
@@ -97,7 +97,7 @@ class BodySW : public CollisionObjectSW {
     void _shapes_changed() override;
     Transform new_transform;
 
-    Map<ConstraintSW *, int> constraint_map;
+    HashMap<ConstraintSW *, int> constraint_map;
 
     struct AreaCMP {
 
@@ -199,7 +199,7 @@ public:
 
     _FORCE_INLINE_ void add_constraint(ConstraintSW *p_constraint, int p_pos) { constraint_map[p_constraint] = p_pos; }
     _FORCE_INLINE_ void remove_constraint(ConstraintSW *p_constraint) { constraint_map.erase(p_constraint); }
-    const Map<ConstraintSW *, int> &get_constraint_map() const { return constraint_map; }
+    const HashMap<ConstraintSW *, int> &get_constraint_map() const { return constraint_map; }
     _FORCE_INLINE_ void clear_constraint_map() { constraint_map.clear(); }
 
     _FORCE_INLINE_ void set_omit_force_integration(bool p_omit_force_integration) { omit_force_integration = p_omit_force_integration; }

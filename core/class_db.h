@@ -34,7 +34,7 @@
 #include "core/string_name.h"
 #include "core/hashfuncs.h"
 #include "core/variant.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 #include "core/list.h"
 #include "core/method_info.h"
 
@@ -130,7 +130,7 @@ public:
 #ifdef DEBUG_METHODS_ENABLED
         Vector<StringName> constant_order;
         Vector<StringName> method_order;
-        Set<StringName> methods_in_properties;
+        HashSet<StringName> methods_in_properties;
         Vector<MethodInfo> virtual_methods;
         StringName category;
         String usage_header;
@@ -171,7 +171,7 @@ public:
     static void _add_class2(const StringName &p_class, const StringName &p_inherits);
 
     static HashMap<StringName, HashMap<StringName, Variant> > default_values;
-    static Set<StringName> default_values_cached;
+    static HashSet<StringName> default_values_cached;
 
 public:
     // DO NOT USE THIS!!!!!! NEEDS TO BE PUBLIC BUT DO NOT USE NO MATTER WHAT!!!

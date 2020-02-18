@@ -157,7 +157,7 @@ private:
     Viewport *parent;
 
     Listener *listener;
-    Set<Listener *> listeners;
+    HashSet<Listener *> listeners;
 
     bool arvr;
     struct CameraOverrideData {
@@ -179,8 +179,8 @@ private:
     } camera_override;
 
     Camera *camera;
-    Set<Camera *> cameras;
-    Set<CanvasLayer *> canvas_layers;
+    HashSet<Camera *> cameras;
+    HashSet<CanvasLayer *> canvas_layers;
 
     RID viewport;
     RID current_canvas;
@@ -245,7 +245,7 @@ private:
     bool handle_input_locally;
     bool local_input_handled;
 
-    Map<ObjectID, uint64_t> physics_2d_mouseover;
+    HashMap<ObjectID, uint64_t> physics_2d_mouseover;
 
     Ref<World2D> world_2d;
     Ref<World> world;
@@ -283,7 +283,7 @@ private:
     bool hdr;
 
     Ref<ViewportTexture> default_texture;
-    Set<ViewportTexture *> viewport_textures;
+    HashSet<ViewportTexture *> viewport_textures;
 
     struct GUI {
         // info used when this is a window

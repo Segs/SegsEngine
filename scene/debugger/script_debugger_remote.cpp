@@ -562,8 +562,8 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
 void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
 
-    using ScriptMemberMap = Map<const Script *, Set<StringName> >;
-    using ScriptConstantsMap = Map<const Script *, Map<StringName, Variant> >;
+    using ScriptMemberMap = Map<const Script *, HashSet<StringName> >;
+    using ScriptConstantsMap = Map<const Script *, HashMap<StringName, Variant> >;
 
     Object *obj = ObjectDB::get_instance(p_id);
     if (!obj)
@@ -576,26 +576,26 @@ if (ScriptInstance *si = obj->get_script_instance()) {
     if (si->get_script()) {
 
         ScriptMemberMap members;
-        members[si->get_script().get()] = Set<StringName>();
+        members[si->get_script().get()] = HashSet<StringName>();
         si->get_script()->get_members(&(members[si->get_script().get()]));
 
         ScriptConstantsMap constants;
-        constants[si->get_script().get()] = Map<StringName, Variant>();
+        constants[si->get_script().get()] = HashMap<StringName, Variant>();
         si->get_script()->get_constants(&(constants[si->get_script().get()]));
 
         Ref<Script> base = si->get_script()->get_base_script();
         while (base) {
 
-            members[base.get()] = Set<StringName>();
+            members[base.get()] = HashSet<StringName>();
             base->get_members(&(members[base.get()]));
 
-            constants[base.get()] = Map<StringName, Variant>();
+            constants[base.get()] = HashMap<StringName, Variant>();
             base->get_constants(&(constants[base.get()]));
 
             base = base->get_base_script();
         }
 
-        for (const eastl::pair<const Script *, Set<StringName>> &sm : members) {
+        for (const eastl::pair<const Script *, HashSet<StringName>> &sm : members) {
             for (const StringName &E : sm.second) {
                 Variant m;
                 if (si->get(E, m)) {
@@ -641,7 +641,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
 
     } else if (Resource *res = object_cast<Resource>(obj)) {
         if (Script *s = object_cast<Script>(res)) {
-            Map<StringName, Variant> constants;
+            HashMap<StringName, Variant> constants;
             s->get_constants(&constants);
             for (eastl::pair<const StringName,Variant> &E : constants) {
                 if (E.second.get_type() == VariantType::OBJECT) {

@@ -33,6 +33,7 @@
 #include "core/io/image_loader.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"
+#include "core/set.h"
 
 IMPL_GDCLASS(BitMap)
 

@@ -172,7 +172,7 @@ protected:
     struct ContactMonitor {
 
         bool locked;
-        Map<ObjectID, BodyState> body_map;
+        HashMap<ObjectID, BodyState> body_map;
     };
 
     ContactMonitor *contact_monitor;

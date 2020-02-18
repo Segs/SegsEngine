@@ -94,7 +94,7 @@ Array Script::_get_script_signal_list() {
 
 Dictionary Script::_get_script_constant_map() {
     Dictionary ret;
-    Map<StringName, Variant> map;
+    HashMap<StringName, Variant> map;
     get_constants(&map);
     for (const eastl::pair<const StringName,Variant> &E : map) {
         ret[E.first] = E.second;
@@ -382,7 +382,7 @@ int ScriptDebugger::get_depth() const {
 void ScriptDebugger::insert_breakpoint(int p_line, const StringName &p_source) {
 
     if (!breakpoints.contains(p_line))
-        breakpoints[p_line] = Set<StringName>();
+        breakpoints[p_line] = HashSet<StringName>();
     breakpoints[p_line].insert(p_source);
 }
 
@@ -546,9 +546,9 @@ bool PlaceHolderScriptInstance::has_method(const StringName &p_method) const {
     return false;
 }
 
-void PlaceHolderScriptInstance::update(const Vector<PropertyInfo> &p_properties, const Map<StringName, Variant> &p_values) {
+void PlaceHolderScriptInstance::update(const Vector<PropertyInfo> &p_properties, const HashMap<StringName, Variant> &p_values) {
 
-    Set<StringName> new_values;
+    HashSet<StringName> new_values;
     for(const PropertyInfo &E : p_properties ) {
 
         StringName n = E.name;
@@ -619,7 +619,7 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
 Variant PlaceHolderScriptInstance::property_get_fallback(const StringName &p_name, bool *r_valid) {
 
     if (script->is_placeholder_fallback_enabled()) {
-        Map<StringName, Variant>::iterator E = values.find(p_name);
+        HashMap<StringName, Variant>::iterator E = values.find(p_name);
 
         if (E!=values.end()) {
             if (r_valid)

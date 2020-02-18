@@ -30,15 +30,12 @@
 
 #pragma once
 
+#include "core/hash_map.h"
 #include "core/math/bsp_tree.h"
 #include "core/math/geometry.h"
 #include "core/pool_vector.h"
 #include "servers/physics_server.h"
 
-#include "EASTL/unordered_map.h"
-
-template<class TKey, class TData>
-using EUnorderdMap = eastl::unordered_map<TKey,TData,eastl::hash<TKey>,eastl::equal_to<TKey>,wrap_allocator>;
 
 /*
 
@@ -68,7 +65,7 @@ class ShapeSW : public RID_Data {
     AABB aabb;
     bool configured;
     real_t custom_bias;
-    using OwnerStorage = EUnorderdMap<ShapeOwnerSW *, int>;
+    using OwnerStorage = HashMap<ShapeOwnerSW *, int>;
     OwnerStorage owners;
 
 protected:

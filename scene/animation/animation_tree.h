@@ -254,7 +254,7 @@ private:
     };
 
     HashMap<NodePath, TrackCache *> track_cache;
-    Set<TrackCache *> playing_caches;
+    HashSet<TrackCache *> playing_caches;
 
     Ref<AnimationNode> root;
 

@@ -56,12 +56,6 @@ struct eastl::hash<QStringRef> {
         return StringUtils::hash(p.constData(), p.length());
     }
 };
-template<>
-struct eastl::hash<UIString> {
-    size_t operator()(const UIString &p) const {
-        return StringUtils::hash(p);
-    }
-};
 
 class Text {
 public:

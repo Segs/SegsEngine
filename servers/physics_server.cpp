@@ -290,9 +290,9 @@ PhysicsShapeQueryParameters::PhysicsShapeQueryParameters() {
 Dictionary PhysicsDirectSpaceState::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
-    Set<RID> exclude;
-    for (int i = 0; i < p_exclude.size(); i++)
-        exclude.insert(p_exclude[i]);
+    HashSet<RID> exclude;
+
+    exclude.insert(p_exclude.begin(),p_exclude.end());
 
     bool res = intersect_ray(p_from, p_to, inters, exclude, p_collision_mask, p_collide_with_bodies, p_collide_with_areas);
 

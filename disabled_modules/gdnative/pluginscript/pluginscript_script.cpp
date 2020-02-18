@@ -164,7 +164,7 @@ void PluginScript::update_exports() {
     if (placeholders.size()) {
 
         //update placeholders if any
-        Map<StringName, Variant> propdefvalues;
+        HashMap<StringName, Variant> propdefvalues;
         List<PropertyInfo> propinfos;
 
         get_script_property_list(&propinfos);
@@ -389,7 +389,7 @@ PropertyInfo PluginScript::get_property_info(const StringName &p_property) const
 bool PluginScript::get_property_default_value(const StringName &p_property, Variant &r_value) const {
     ASSERT_SCRIPT_VALID_V(false)
 #ifdef TOOLS_ENABLED
-    const Map<StringName, Variant>::const_iterator e = _properties_default_values.find(p_property);
+    const HashMap<StringName, Variant>::const_iterator e = _properties_default_values.find(p_property);
     if (e != _properties_default_values.end()) {
         r_value = e->second;
         return true;

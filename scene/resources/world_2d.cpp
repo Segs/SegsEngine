@@ -78,21 +78,21 @@ struct SpatialIndexer2D {
 
     struct CellData {
 
-        Map<VisibilityNotifier2D *, CellRef> notifiers;
+        HashMap<VisibilityNotifier2D *, CellRef> notifiers;
     };
 
     Map<CellKey, CellData> cells;
     int cell_size;
 
-    Map<VisibilityNotifier2D *, Rect2> notifiers;
+    HashMap<VisibilityNotifier2D *, Rect2> notifiers;
 
     struct ViewportData {
 
-        Map<VisibilityNotifier2D *, uint64_t> notifiers;
+        HashMap<VisibilityNotifier2D *, uint64_t> notifiers;
         Rect2 rect;
     };
 
-    Map<Viewport *, ViewportData> viewports;
+    HashMap<Viewport *, ViewportData> viewports;
 
     bool changed;
 
@@ -143,7 +143,7 @@ struct SpatialIndexer2D {
 
     void _notifier_update(VisibilityNotifier2D *p_notifier, const Rect2 &p_rect) {
 
-        Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E==notifiers.end());
         if (E->second == p_rect)
             return;
@@ -156,7 +156,7 @@ struct SpatialIndexer2D {
 
     void _notifier_remove(VisibilityNotifier2D *p_notifier) {
 
-        Map<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier2D *, Rect2>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E==notifiers.end());
         _notifier_update_cells(p_notifier, E->second, false);
         notifiers.erase(p_notifier);
@@ -164,7 +164,7 @@ struct SpatialIndexer2D {
         Vector<Viewport *> removed;
         for (eastl::pair<Viewport *const ,ViewportData> &F : viewports) {
 
-            Map<VisibilityNotifier2D *, uint64_t>::const_iterator G = F.second.notifiers.find(p_notifier);
+            HashMap<VisibilityNotifier2D *, uint64_t>::const_iterator G = F.second.notifiers.find(p_notifier);
 
             if (G!=F.second.notifiers.end()) {
                 F.second.notifiers.erase(G);
@@ -190,7 +190,7 @@ struct SpatialIndexer2D {
 
     void _update_viewport(Viewport *p_viewport, const Rect2 &p_rect) {
 
-        Map<Viewport *, ViewportData>::iterator E = viewports.find(p_viewport);
+        HashMap<Viewport *, ViewportData>::iterator E = viewports.find(p_viewport);
         ERR_FAIL_COND(E==viewports.end());
         if (E->second.rect == p_rect)
             return;
@@ -245,7 +245,7 @@ struct SpatialIndexer2D {
                     //notifiers in cell
                     for (auto &G : F.second.notifiers) {
 
-                        Map<VisibilityNotifier2D *, uint64_t>::iterator H = E.second.notifiers.find(G.first);
+                        HashMap<VisibilityNotifier2D *, uint64_t>::iterator H = E.second.notifiers.find(G.first);
                         if (H==E.second.notifiers.end()) {
 
                             H = E.second.notifiers.emplace(G.first, pass).first;

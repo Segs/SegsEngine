@@ -2435,8 +2435,8 @@ void EditorPropertyResource::_update_menu_items() {
 
             se_string_view base = StringUtils::get_slice(base_type,',', i);
 
-            Set<StringName> valid_inheritors;
-            valid_inheritors.insert(base);
+            HashSet<StringName> valid_inheritors;
+            valid_inheritors.insert(StringName(base));
             Vector<StringName> inheritors;
             ClassDB::get_inheriters_from_class(StringName(StringUtils::strip_edges(base)), &inheritors);
 

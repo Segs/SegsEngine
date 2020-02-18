@@ -2230,7 +2230,7 @@ void CSharpScript::_placeholder_erased(PlaceHolderScriptInstance *p_placeholder)
 #endif
 
 #ifdef TOOLS_ENABLED
-void CSharpScript::_update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames) {
+void CSharpScript::_update_exports_values(HashMap<StringName, Variant> &values, Vector<PropertyInfo> &propnames) {
 
     if (base_cache) {
         base_cache->_update_exports_values(values, propnames);
@@ -2433,7 +2433,7 @@ bool CSharpScript::_update_exports() {
 
     if (!placeholders.empty()) {
         // Update placeholders if any
-        Map<StringName, Variant> values;
+        HashMap<StringName, Variant> values;
         Vector<PropertyInfo> propnames;
         _update_exports_values(values, propnames);
 

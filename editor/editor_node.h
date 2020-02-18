@@ -34,6 +34,8 @@
 #include "editor/editor_run.h"
 #include "editor/editor_data.h"
 #include "core/print_string.h"
+#include "core/hash_set.h"
+#include "core/hash_map.h"
 
 using EditorNodeInitCallback = void (*)();
 using EditorPluginInitializeCallback = void (*)();
@@ -518,14 +520,14 @@ private:
 
     UIString import_reload_fn;
 
-    Set<FileDialog *> file_dialogs;
-    Set<EditorFileDialog *> editor_file_dialogs;
+    HashSet<FileDialog *> file_dialogs;
+    HashSet<EditorFileDialog *> editor_file_dialogs;
 
-    Map<StringName, Ref<Texture> > icon_type_cache;
+    HashMap<StringName, Ref<Texture> > icon_type_cache;
     void _build_icon_type_cache();
 
     bool _initializing_addons;
-    Map<StringName, EditorPlugin *> plugin_addons;
+    HashMap<StringName, EditorPlugin *> plugin_addons;
 
     static Ref<Texture> _file_dialog_get_icon(se_string_view p_path);
     static void _file_dialog_register(FileDialog *p_dialog);

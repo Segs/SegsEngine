@@ -38,7 +38,7 @@
 
 Mutex *ParticlesMaterial::material_mutex = nullptr;
 SelfList<ParticlesMaterial>::List *ParticlesMaterial::dirty_materials = nullptr;
-Map<ParticlesMaterial::MaterialKey, ParticlesMaterial::ShaderData> ParticlesMaterial::shader_map;
+HashMap<ParticlesMaterial::MaterialKey, ParticlesMaterial::ShaderData> ParticlesMaterial::shader_map;
 ParticlesMaterial::ShaderNames *ParticlesMaterial::shader_names = nullptr;
 
 IMPL_GDCLASS(ParticlesMaterial)

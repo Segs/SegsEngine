@@ -30,6 +30,7 @@
 
 #include "soft_body_bullet.h"
 
+#include "core/map.h"
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "scene/3d/soft_body.h"
@@ -329,10 +330,11 @@ void SoftBodyBullet::set_trimesh_body_shape(const Vector<int>& p_indices, Span<c
         Vector<int> vs_indices_to_physics_table;
 
         { // Map vertices
-            indices_table.clear();
             //TODO: SEGS: consider shrink_to_fit call ?
+            indices_table.clear();
 
             int index = 0;
+            //TODO: SEGS: hash map can be used here as long as we have same Vector3==Vector3 behavior in use.
             Map<Vector3, int> unique_vertices;
 
             const int vs_vertices_size(p_vertices.size());

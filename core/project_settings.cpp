@@ -667,7 +667,7 @@ Error ProjectSettings::save() {
     return save_custom(PathUtils::plus_file(get_resource_path(),"project.godot"));
 }
 
-Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_binary(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -751,7 +751,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const Map<St
     return OK;
 }
 
-Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_text(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -772,7 +772,7 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const Map<Stri
         file->store_string("custom_features=\"" + p_custom_features + "\"\n");
     file->store_string(("\n"));
 
-    for (Map<String, List<String> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
+    for (HashMap<String, List<String> >::const_iterator E = props.begin(); E!=props.end(); ++E) {
 
         if (E != props.begin())
             file->store_string("\n");
@@ -840,7 +840,7 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
     for (const eastl::pair<const StringName,Variant> &E : p_custom) {
 
         // Lookup global prop to store in the same order
-        Map<StringName, VariantContainer>::iterator global_prop = props.find(E.first);
+        HashMap<StringName, VariantContainer>::iterator global_prop = props.find(E.first);
 
         _VCSort vc;
         vc.name = E.first;
@@ -850,7 +850,7 @@ Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_cus
         vclist.insert(vc);
     }
 
-    Map<String, List<String> > props;
+    HashMap<String, List<String> > props;
 
     for (const _VCSort &E : vclist) {
 
@@ -945,7 +945,7 @@ void ProjectSettings::set_custom_property_info(const StringName &p_prop, const P
     custom_prop_info[p_prop].name = p_prop;
 }
 
-const Map<StringName, PropertyInfo> &ProjectSettings::get_custom_property_info() const {
+const HashMap<StringName, PropertyInfo> &ProjectSettings::get_custom_property_info() const {
     return custom_prop_info;
 }
 
@@ -969,7 +969,7 @@ struct CompareStringAndStringName {
 
 bool ProjectSettings::property_can_revert(se_string_view p_name) {
 
-    auto iter = props.find_as(p_name,CompareStringAndStringName());
+    auto iter = props.find_as(p_name,eastl::hash<se_string_view>(),CompareStringAndStringName());
     if (iter==props.end())
         return false;
 
@@ -977,7 +977,7 @@ bool ProjectSettings::property_can_revert(se_string_view p_name) {
 }
 
 Variant ProjectSettings::property_get_revert(se_string_view p_name) {
-    auto iter = props.find_as(p_name,CompareStringAndStringName());
+    auto iter = props.find_as(p_name,eastl::hash<se_string_view>(),CompareStringAndStringName());
     if (iter==props.end())
         return Variant();
 

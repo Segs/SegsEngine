@@ -40,7 +40,7 @@ class EditorAssetInstaller : public ConfirmationDialog {
     Tree *tree;
     String package_path;
     AcceptDialog *error;
-    Map<String, TreeItem *> status_map;
+    HashMap<String, TreeItem *> status_map;
     bool updating;
     void _update_subitems(TreeItem *p_item, bool p_check, bool p_first = false);
     void _item_edited();

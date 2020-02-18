@@ -879,7 +879,7 @@ void VisualScript::_update_placeholders() {
     if (placeholders.empty())
         return; //no bother if no placeholders
     Vector<PropertyInfo> pinfo;
-    Map<StringName, Variant> values;
+    HashMap<StringName, Variant> values;
 
     for (eastl::pair<const StringName,Variable> &E : variables) {
 
@@ -910,7 +910,7 @@ ScriptInstance *VisualScript::instance_create(Object *p_this) {
         placeholders.insert(sins);
 
         Vector<PropertyInfo> pinfo;
-        Map<StringName, Variant> values;
+        HashMap<StringName, Variant> values;
 
         for (eastl::pair<const StringName,Variable> &E : variables) {
 
@@ -1040,7 +1040,7 @@ bool VisualScript::has_method(const StringName &p_method) const {
 }
 MethodInfo VisualScript::get_method_info(const StringName &p_method) const {
 
-    const Map<StringName, Function>::const_iterator E = functions.find(p_method);
+    const HashMap<StringName, Function>::const_iterator E = functions.find(p_method);
     if (E==functions.end())
         return MethodInfo();
 
@@ -1399,7 +1399,7 @@ VisualScript::~VisualScript() {
 
 bool VisualScriptInstance::set(const StringName &p_name, const Variant &p_value) {
 
-    Map<StringName, Variant>::iterator E = variables.find(p_name);
+    HashMap<StringName, Variant>::iterator E = variables.find(p_name);
     if (E==variables.end())
         return false;
 
@@ -1410,7 +1410,7 @@ bool VisualScriptInstance::set(const StringName &p_name, const Variant &p_value)
 
 bool VisualScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
 
-    const Map<StringName, Variant>::const_iterator E = variables.find(p_name);
+    const HashMap<StringName, Variant>::const_iterator E = variables.find(p_name);
     if (E==variables.end())
         return false;
 
@@ -1431,7 +1431,7 @@ void VisualScriptInstance::get_property_list(Vector<PropertyInfo> *p_properties)
 }
 VariantType VisualScriptInstance::get_property_type(const StringName &p_name, bool *r_is_valid) const {
 
-    const Map<StringName, VisualScript::Variable>::const_iterator E = script->variables.find(p_name);
+    const HashMap<StringName, VisualScript::Variable>::const_iterator E = script->variables.find(p_name);
     if (E==script->variables.end()) {
         if (r_is_valid)
             *r_is_valid = false;
@@ -2053,7 +2053,7 @@ MultiplayerAPI_RPCMode VisualScriptInstance::get_rpc_mode(const StringName &p_me
     if (p_method == script->get_default_func())
         return MultiplayerAPI_RPCMode(0);
 
-    const Map<StringName, VisualScript::Function>::const_iterator E = script->functions.find(p_method);
+    const HashMap<StringName, VisualScript::Function>::const_iterator E = script->functions.find(p_method);
     if (E==script->functions.end()) {
         return MultiplayerAPI_RPCMode(0);
     }

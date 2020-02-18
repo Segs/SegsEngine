@@ -338,7 +338,7 @@ MainLoop *test() {
 
     Vector<StringName> rm {StringName("popo")};
 
-    Set<StringName> types;
+    HashSet<StringName> types;
     types.insert("spatial");
 
     Error err = sl.compile(code, dt, rm, types);

@@ -4,17 +4,11 @@
 #include "core/os/thread.h"
 #include "core/se_string.h"
 #include "core/forward_decls.h"
+#include "core/hash_map.h"
 
-namespace eastl {
-template <typename Key, typename T, typename Compare, typename Allocator>
-class map;
-}
 template <class T>
 struct Comparator;
 class wrap_allocator;
-
-template <class K,class V>
-using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 
 class Resource;
 using RES = Ref<Resource>;
@@ -59,7 +53,7 @@ public:
     virtual bool handles_type(se_string_view p_type) const;
     virtual String get_resource_type(se_string_view p_path) const;
     virtual void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
-    virtual Error rename_dependencies(se_string_view p_path, const DefHashMap<String, String> &p_map);
+    virtual Error rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map);
     virtual bool is_import_valid(se_string_view /*p_path*/) const { return true; }
     virtual bool is_imported(se_string_view /*p_path*/) const { return false; }
     virtual int get_import_order(se_string_view /*p_path*/) const { return 0; }

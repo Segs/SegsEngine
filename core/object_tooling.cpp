@@ -10,12 +10,13 @@
 #include "core/script_language.h"
 #include "core/se_string.h"
 #include "core/set.h"
+#include "core/hash_set.h"
 
 #ifdef TOOLS_ENABLED
 struct ObjectToolingImpl final : public IObjectTooling {
 
     Set<String> editor_section_folding;
-    Set<Object *> change_receptors;
+    HashSet<Object *> change_receptors;
     uint32_t _edited_version;
     bool _edited;
 

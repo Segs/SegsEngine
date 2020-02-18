@@ -45,7 +45,7 @@ class SectionedInspector : public HSplitContainer {
     Tree *sections;
     SectionedInspectorFilter *filter;
 
-    Map<String, TreeItem *> section_map;
+    HashMap<String, TreeItem *> section_map;
     EditorInspector *inspector;
     LineEdit *search_box;
 

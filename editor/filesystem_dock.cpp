@@ -1191,7 +1191,7 @@ void FileSystemDock::_update_dependencies_after_move(const HashMap<String, Strin
 void FileSystemDock::_update_project_settings_after_move(const HashMap<String, String> &p_renames) const {
 
     // Find all project settings of type FILE and replace them if needed.
-    const Map<StringName, PropertyInfo> prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
+    const HashMap<StringName, PropertyInfo> &prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
     for (const eastl::pair<const StringName,PropertyInfo> &E : prop_info) {
         if (E.second.hint == PropertyHint::File) {
             String old_path = GLOBAL_GET(E.first);
@@ -1225,7 +1225,7 @@ void FileSystemDock::_update_favorites_list_after_move(const HashMap<String, Str
     Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
     Vector<String> new_favorites;
 
-    for (int i = 0; i < favorites.size(); i++) {
+    for (size_t i = 0; i < favorites.size(); i++) {
         String old_path = favorites[i];
         if (p_folders_renames.contains(old_path)) {
             new_favorites.push_back(p_folders_renames.at(old_path));
@@ -1244,7 +1244,7 @@ void FileSystemDock::_save_scenes_after_move(const HashMap<String, String> &p_re
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
     Vector<String> new_filenames;
 
-    for (int i = 0; i < remaps.size(); ++i) {
+    for (size_t i = 0; i < remaps.size(); ++i) {
         const String &file = p_renames.contains(remaps[i]) ? p_renames.at(remaps[i]) : remaps[i];
         if (ResourceLoader::get_resource_type(file) == "PackedScene") {
             new_filenames.emplace_back(file);
@@ -1438,7 +1438,7 @@ void FileSystemDock::_move_with_overwrite() {
 
 bool FileSystemDock::_check_existing() {
     String &p_to_path = to_move_path;
-    for (int i = 0; i < to_move.size(); i++) {
+    for (size_t i = 0; i < to_move.size(); i++) {
         String ol_pth(StringUtils::ends_with(to_move[i].path, "/") ?
                                  StringUtils::substr(to_move[i].path, 0, to_move[i].path.length() - 1) :
                                  to_move[i].path);

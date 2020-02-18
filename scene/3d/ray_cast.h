@@ -48,7 +48,7 @@ class RayCast : public Spatial {
 	Vector3 collision_normal;
 
 	Vector3 cast_to;
-	Set<RID> exclude;
+    HashSet<RID> exclude;
 
 	uint32_t collision_mask;
 	bool exclude_parent_body;

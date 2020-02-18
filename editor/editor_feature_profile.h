@@ -55,9 +55,9 @@ public:
     };
 
 private:
-    Set<StringName> disabled_classes;
-    Set<StringName> disabled_editors;
-    Map<StringName, Set<StringName> > disabled_properties;
+    HashSet<StringName> disabled_classes;
+    HashSet<StringName> disabled_editors;
+    HashMap<StringName, HashSet<StringName> > disabled_properties;
 
     bool features_disabled[FEATURE_MAX];
     static const char *feature_names[FEATURE_MAX];

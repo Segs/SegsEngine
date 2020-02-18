@@ -33,6 +33,7 @@
 #include "core/pool_vector.h"
 #include "servers/physics_server.h"
 #include "core/method_bind.h"
+#include "core/set.h"
 
 IMPL_GDCLASS(ConcavePolygonShape)
 

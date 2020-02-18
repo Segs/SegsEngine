@@ -36,7 +36,7 @@
 
 void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
 
-    Map<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
+    HashMap<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
 
     ERR_FAIL_COND(p_elem->_static && p_with->_static);
 
@@ -52,7 +52,7 @@ void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
 
 void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
 
-    Map<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
+    HashMap<Element *, PairData *>::iterator E = p_elem->paired.find(p_with);
 
     ERR_FAIL_COND(E==p_elem->paired.end()); //this should really be paired..
 
@@ -205,9 +205,9 @@ void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool
     if (sz.width * sz.height > large_object_min_surface) {
 
         //unpair all elements, instead of checking all, just check what is already paired, so we at least save from checking static vs static
-        Map<Element *, PairData *>::iterator E = p_elem->paired.begin();
+        HashMap<Element *, PairData *>::iterator E = p_elem->paired.begin();
         while (E!=p_elem->paired.end()) {
-            Map<Element *, PairData *>::iterator next = E;
+            HashMap<Element *, PairData *>::iterator next = E;
             ++next;
             _unpair_attempt(p_elem, E->first);
             E = next;
@@ -336,7 +336,7 @@ BroadPhase2DHashGrid::ID BroadPhase2DHashGrid::create(CollisionObject2DSW *p_obj
 
 void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
 
-    Map<ID, Element>::iterator E = element_map.find(p_id);
+    HashMap<ID, Element>::iterator E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
@@ -362,7 +362,7 @@ void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
 }
 void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
 
-    Map<ID, Element>::iterator E = element_map.find(p_id);
+    HashMap<ID, Element>::iterator E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
@@ -382,7 +382,7 @@ void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
 }
 void BroadPhase2DHashGrid::remove(ID p_id) {
 
-    Map<ID, Element>::iterator E = element_map.find(p_id);
+    HashMap<ID, Element>::iterator E = element_map.find(p_id);
     ERR_FAIL_COND(E==element_map.end());
 
     Element &e = E->second;
@@ -395,19 +395,19 @@ void BroadPhase2DHashGrid::remove(ID p_id) {
 
 CollisionObject2DSW *BroadPhase2DHashGrid::get_object(ID p_id) const {
 
-    const Map<ID, Element>::const_iterator E = element_map.find(p_id);
+    const HashMap<ID, Element>::const_iterator E = element_map.find(p_id);
     ERR_FAIL_COND_V(E==element_map.end(), nullptr);
     return E->second.owner;
 }
 bool BroadPhase2DHashGrid::is_static(ID p_id) const {
 
-    const Map<ID, Element>::const_iterator E = element_map.find(p_id);
+    const HashMap<ID, Element>::const_iterator E = element_map.find(p_id);
     ERR_FAIL_COND_V(E==element_map.end(), false);
     return E->second._static;
 }
 int BroadPhase2DHashGrid::get_subindex(ID p_id) const {
 
-    const Map<ID, Element>::const_iterator E = element_map.find(p_id);
+    const HashMap<ID, Element>::const_iterator E = element_map.find(p_id);
     ERR_FAIL_COND_V(E==element_map.end(), -1);
     return E->second.subindex;
 }

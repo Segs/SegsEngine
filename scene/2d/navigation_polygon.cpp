@@ -39,6 +39,7 @@
 #include "navigation_2d.h"
 #include "servers/navigation_2d_server.h"
 #include "scene/main/scene_tree.h"
+#include "core/map.h"
 
 #include "thirdparty/misc/triangulator.h"
 
@@ -301,7 +302,7 @@ void NavigationPolygon::make_polygons_from_outlines() {
 
     polygons.clear();
     vertices.resize(0);
-
+    //TODO: SEGS: consider faster data structure here.
     Map<Vector2, int> points;
     for (TriangulatorPoly &tp : out_poly) {
         struct Polygon p;

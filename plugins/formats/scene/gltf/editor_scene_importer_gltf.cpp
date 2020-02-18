@@ -223,7 +223,7 @@ namespace {
 
         // A mapping from the joint indices (in the order of joints_original) to the
         // Godot Skeleton's bone_indices
-        Map<int, int> joint_i_to_bone_i;
+        HashMap<int, int> joint_i_to_bone_i;
 
         // The Actual Skin that will be created as a mapping between the IBM's of this skin
         // to the generated skeleton for the mesh instances.
@@ -280,7 +280,7 @@ namespace {
 
         String name;
 
-        Map<int, Track> tracks;
+        HashMap<int, Track> tracks;
         bool loop = false;
     };
     struct GLTFState {
@@ -312,7 +312,7 @@ namespace {
         Vector<GLTFSkeleton> skeletons;
         Vector<GLTFAnimation> animations;
 
-        Map<GLTFNodeIndex, Node*> scene_nodes;
+        HashMap<GLTFNodeIndex, Node*> scene_nodes;
 
         ~GLTFState() {
             for (int i = 0; i < nodes.size(); i++) {

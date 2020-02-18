@@ -1464,7 +1464,7 @@ void EditorInspector::update_tree() {
     object->get_property_list(&plist, true);
 
     HashMap<String, VBoxContainer *> item_path;
-    Map<VBoxContainer *, EditorInspectorSection *> section_map;
+    HashMap<VBoxContainer *, EditorInspectorSection *> section_map;
 
     item_path[""] = main_vbox;
 
@@ -1669,9 +1669,9 @@ void EditorInspector::update_tree() {
             String descr;
             bool found = false;
 
-            Map<StringName, Map<StringName, String> >::iterator E = descr_cache.find(classname);
+            auto E = descr_cache.find(classname);
             if (E!=descr_cache.end()) {
-                Map<StringName, String>::iterator F = E->second.find(propname);
+                auto F = E->second.find(propname);
                 if (F!=E->second.end()) {
                     found = true;
                     descr = F->second;
@@ -1682,7 +1682,7 @@ void EditorInspector::update_tree() {
                 DocData *dd = EditorHelp::get_doc_data();
                 Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(classname);
                 while (F!=dd->class_list.end() && descr.empty()) {
-                    for (int i = 0; i < F->second.properties.size(); i++) {
+                    for (size_t i = 0; i < F->second.properties.size(); i++) {
                         if (F->second.properties[i].name == propname.asCString()) {
                             descr = StringUtils::strip_edges(F->second.properties[i].description);
                             break;
@@ -1947,7 +1947,7 @@ void EditorInspector::set_sub_inspector(bool p_enable) {
         add_style_override("bg", get_stylebox("bg", "Tree"));
     }
 }
-
+//TODO: pass p_property as StringName
 void EditorInspector::_edit_request_change(Object *p_object, se_string_view p_property) {
 
     if (object != p_object) //may be undoing/redoing for a non edited object, so ignore
@@ -1959,13 +1959,13 @@ void EditorInspector::_edit_request_change(Object *p_object, se_string_view p_pr
     if (p_property.empty())
         update_tree_pending = true;
     else {
-        pending.insert(p_property);
+        pending.emplace(p_property);
     }
 }
 
 void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, bool p_refresh_all, se_string_view p_changed_field) {
 
-    auto iter=editor_property_map.find_as(p_name,SNSVComparer());
+    auto iter=editor_property_map.find_as(p_name,eastl::hash<se_string_view>(),SNSVComparer());
     if (autoclear && editor_property_map.end()!=iter) {
         for (EditorProperty *E : iter->second) {
             if (E->is_checkable()) {
@@ -2055,14 +2055,11 @@ void EditorInspector::_multiple_properties_changed(const Vector<String> &p_paths
 
     ERR_FAIL_COND(p_paths.empty() || p_values.empty());
     ERR_FAIL_COND(p_paths.size() != p_values.size());
-    String names;
-    for (int i = 0; i < p_paths.size(); i++) {
-        if (i > 0)
-            names += ',';
-        names += p_paths[i];
-    }
+
+    String names = String::joined(p_paths,",");
+
     undo_redo->create_action_ui(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
-    for (int i = 0; i < p_paths.size(); i++) {
+    for (size_t i = 0; i < p_paths.size(); i++) {
         _edit_set(StringName(p_paths[i]), p_values[i], false, se_string_view());
         if (restart_request_props.contains(StringName(p_paths[i]))) {
             emit_signal("restart_requested");

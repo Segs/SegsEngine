@@ -79,7 +79,7 @@ private:
         HashMap<StringName, String> usage_defines;
     };
 
-    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const HashMap<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added);
+    void _dump_function_deps(ShaderLanguage::ShaderNode *p_node, const StringName &p_for_func, const HashMap<StringName, String> &p_func_code, String &r_to_add, HashSet<StringName> &added);
     String _dump_node_code(ShaderLanguage::Node *p_node, int p_level, GeneratedCode &r_gen_code, IdentifierActions &p_actions, const DefaultIdentifierActions &p_default_actions, bool p_assigning);
 
     StringName current_func_name;
@@ -88,10 +88,10 @@ private:
     StringName light_name;
     StringName time_name;
 
-    Set<StringName> used_name_defines;
-    Set<StringName> used_flag_pointers;
-    Set<StringName> used_rmode_defines;
-    Set<StringName> internal_functions;
+    HashSet<StringName> used_name_defines;
+    HashSet<StringName> used_flag_pointers;
+    HashSet<StringName> used_rmode_defines;
+    HashSet<StringName> internal_functions;
 
     DefaultIdentifierActions actions[VS::SHADER_MAX];
 

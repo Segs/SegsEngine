@@ -560,7 +560,7 @@ void Viewport::_notification(int p_what) {
 
                             Vector2 point = canvas_transform.affine_inverse().xform(pos);
 
-                            int rc = ss2d->intersect_point_on_canvas(point, canvas_layer_id, res, 64, Set<RID>(), 0xFFFFFFFF, true, true, true);
+                            int rc = ss2d->intersect_point_on_canvas(point, canvas_layer_id, res, 64, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                             for (int i = 0; i < rc; i++) {
 
                                 if (res[i].collider_id && res[i].collider) {
@@ -568,7 +568,7 @@ void Viewport::_notification(int p_what) {
                                     if (co) {
                                         bool send_event = true;
                                         if (is_mouse) {
-                                            Map<ObjectID, uint64_t>::iterator F = physics_2d_mouseover.find(res[i].collider_id);
+                                            HashMap<ObjectID, uint64_t>::iterator F = physics_2d_mouseover.find(res[i].collider_id);
 
                                             if (F==physics_2d_mouseover.end()) {
                                                 physics_2d_mouseover.emplace(res[i].collider_id, frame);
@@ -591,9 +591,9 @@ void Viewport::_notification(int p_what) {
                         }
 
                         if (is_mouse) {
-                            ListOld<Map<ObjectID, uint64_t>::iterator > to_erase;
+                            ListOld<HashMap<ObjectID, uint64_t>::iterator > to_erase;
 
-                            for (Map<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
+                            for (HashMap<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
                                 if (iter->second != frame) {
                                     Object *o = ObjectDB::get_instance(iter->first);
                                     if (o) {
@@ -655,7 +655,7 @@ void Viewport::_notification(int p_what) {
                             PhysicsDirectSpaceState *space = PhysicsServer::get_singleton()->space_get_direct_state(find_world()->get_space());
                             if (space) {
 
-                                bool col = space->intersect_ray(from, from + dir * 10000, result, Set<RID>(), 0xFFFFFFFF, true, true, true);
+                                bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                                 ObjectID new_collider = 0;
                                 if (col) {
 

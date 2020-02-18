@@ -61,7 +61,7 @@ StringName LayeredTextureImpl::get_resource_type() const {
     return is_3d ? StringName("Texture3D") : StringName("TextureArray");
 }
 
-bool LayeredTextureImpl::get_option_visibility(const StringName & /*p_option*/, const Map<StringName, Variant> &/*p_options*/) const {
+bool LayeredTextureImpl::get_option_visibility(const StringName & /*p_option*/, const HashMap<StringName, Variant> &/*p_options*/) const {
 
     return true;
 }
@@ -190,7 +190,7 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, se_string
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const Map<StringName, Variant> &p_options, Vector<String> *
+Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const HashMap<StringName, Variant> &p_options, Vector<String> *
         r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     String p_save_path(_save_path);

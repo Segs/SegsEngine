@@ -47,9 +47,9 @@ public:
     StringName get_preset_name(int p_idx) const override;
 
     void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
-    bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
+    bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     ResourceImporterOGGVorbis();

@@ -4606,7 +4606,7 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const HashMap<StringName,
 
     return OK;
 }
-String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_types) const {
+String ShaderLanguage::_get_shader_type_list(const HashSet<StringName> &p_shader_types) const {
 
     // Return a list of shader types as an human-readable string
     String valid_types;
@@ -4660,7 +4660,7 @@ String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_typ
 //	}
 //	return OK;
 //}
-Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types) {
 
     Token tk = _get_token();
 
@@ -5424,7 +5424,7 @@ String ShaderLanguage::get_shader_type(const String &p_code) {
     return String();
 }
 
-Error ShaderLanguage::compile(const String &p_code, const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::compile(const String &p_code, const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types) {
 
     clear();
 
@@ -5441,7 +5441,7 @@ Error ShaderLanguage::compile(const String &p_code, const HashMap<StringName, Fu
     return OK;
 }
 
-Error ShaderLanguage::complete(const String &p_code, const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, Vector
+Error ShaderLanguage::complete(const String &p_code, const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types, Vector
         <ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
 
     clear();

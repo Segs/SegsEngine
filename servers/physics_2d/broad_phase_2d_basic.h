@@ -57,11 +57,13 @@ class BroadPhase2DBasic : public BroadPhase2DSW {
 			uint64_t key;
 		};
 
-		_FORCE_INLINE_ bool operator<(const PairKey &p_key) const {
-			return key < p_key.key;
+        bool operator==(const PairKey &p_key) const {
+            return key == p_key.key;
 		}
+        // for default eastl::hash impl
+        operator size_t() const { return eastl::hash<uint64_t>()(key); }
 
-		PairKey() { key = 0; }
+        constexpr PairKey() : key(0) { }
 		PairKey(ID p_a, ID p_b) {
 			if (p_a > p_b) {
 				a = p_b;
@@ -73,7 +75,7 @@ class BroadPhase2DBasic : public BroadPhase2DSW {
 		}
 	};
 
-	Map<PairKey, void *> pair_map;
+    HashMap<PairKey, void *> pair_map;
 
 	PairCallback pair_callback;
 	void *pair_userdata;

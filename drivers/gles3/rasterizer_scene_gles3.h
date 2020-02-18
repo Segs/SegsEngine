@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RASTERIZERSCENEGLES3_H
-#define RASTERIZERSCENEGLES3_H
+#pragma once
 
 /* Must come before shaders or the Windows build fails... */
 #include "rasterizer_storage_gles3.h"
@@ -539,7 +538,7 @@ public:
 
         Rect2 directional_rect;
 
-        Set<RID> shadow_atlases; //shadow atlases where this light is registered
+        HashSet<RID> shadow_atlases; //shadow atlases where this light is registered
 
         LightInstance() {}
     };
@@ -788,5 +787,3 @@ public:
     RasterizerSceneGLES3();
     ~RasterizerSceneGLES3() override;
 };
-
-#endif // RASTERIZERSCENEGLES3_H

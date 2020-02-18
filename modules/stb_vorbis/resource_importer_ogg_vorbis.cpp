@@ -60,7 +60,7 @@ StringName ResourceImporterOGGVorbis::get_resource_type() const {
     return ("AudioStreamOGGVorbis");
 }
 
-bool ResourceImporterOGGVorbis::get_option_visibility(const StringName &/*p_option*/, const Map<StringName, Variant> &/*p_options*/) const {
+bool ResourceImporterOGGVorbis::get_option_visibility(const StringName &/*p_option*/, const HashMap<StringName, Variant> &/*p_options*/) const {
 
     return true;
 }
@@ -79,7 +79,7 @@ void ResourceImporterOGGVorbis::get_import_options(List<ImportOption> *r_options
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "loop_offset"), 0));
 }
 
-Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterOGGVorbis::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     bool loop = p_options.at("loop");

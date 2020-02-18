@@ -236,7 +236,7 @@ public:
     struct Texture : public RID_Data {
 
         uint32_t flags=0; // put here to align next field to 8 bytes
-        Set<Texture *> proxy_owners;
+        HashSet<Texture *> proxy_owners;
         Vector<Ref<Image> > images; //TODO: SEGS: consider using FixedVector here
         String path;
 

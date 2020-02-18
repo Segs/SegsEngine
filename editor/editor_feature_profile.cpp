@@ -98,7 +98,7 @@ void EditorFeatureProfile::set_disable_class_property(const StringName &p_class,
 
     if (p_disabled) {
         if (!disabled_properties.contains(p_class)) {
-            disabled_properties[p_class] = Set<StringName>();
+            disabled_properties[p_class] = HashSet<StringName>();
         }
 
         disabled_properties[p_class].insert(p_property);
@@ -162,7 +162,7 @@ Error EditorFeatureProfile::save_to_file(se_string_view p_path) {
 
     Array dis_props;
 
-    for (eastl::pair<const StringName,Set<StringName> > &E : disabled_properties) {
+    for (eastl::pair<const StringName,HashSet<StringName> > &E : disabled_properties) {
         for (const StringName &F : E.second) {
             dis_props.push_back(String(E.first) + ":" + F);
         }

@@ -77,8 +77,8 @@ public:
 
         Vector<Category> categories;
 
-        Map<StringName, Category *> category_ptrs;
-        Map<StringName, Category::Item *> item_ptrs;
+        HashMap<StringName, Category *> category_ptrs;
+        HashMap<StringName, Category::Item *> item_ptrs;
 
         Metric() {
             valid = false;
@@ -107,7 +107,7 @@ private:
     Tree *variables;
     HSplitContainer *h_split;
 
-    Set<StringName> plot_sigs;
+    HashSet<StringName> plot_sigs;
 
     OptionButton *display_mode;
     OptionButton *display_time;

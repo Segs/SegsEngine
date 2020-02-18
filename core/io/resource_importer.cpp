@@ -133,7 +133,7 @@ RES ResourceFormatImporter::load(se_string_view p_path, se_string_view p_origina
 
 void ResourceFormatImporter::get_recognized_extensions(Vector<String> &p_extensions) const {
 
-    Set<String> found;
+    HashSet<String> found;
 
     for (size_t i = 0; i < importers.size(); i++) {
         Vector<String> local_exts;
@@ -164,7 +164,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
         return;
     }
 
-    Set<String> found;
+    HashSet<String> found;
 
     for (size_t i = 0; i < importers.size(); i++) {
         StringName res_type(importers[i]->get_resource_type());

@@ -1231,7 +1231,7 @@ struct _VariantCall {
 #ifdef DEBUG_ENABLED
         List<StringName> value_ordered;
 #endif
-        Map<StringName, Variant> variant_value;
+        HashMap<StringName, Variant> variant_value;
     };
 
     static ConstantData *constant_data;
@@ -1634,7 +1634,7 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
 
     Map<StringName, int>::iterator E = cd.value.find(p_value);
     if (E==cd.value.end()) {
-        Map<StringName, Variant>::iterator F = cd.variant_value.find(p_value);
+        HashMap<StringName, Variant>::iterator F = cd.variant_value.find(p_value);
         if (F!=cd.variant_value.end()) {
             if (r_valid)
                 *r_valid = true;

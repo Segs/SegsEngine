@@ -992,7 +992,7 @@ void ScriptTextEditor::_update_connected_methods() {
     }
 
     Vector<Node *> nodes = _find_all_node_for_script(base, base, script);
-    Set<StringName> methods_found;
+    HashSet<StringName> methods_found;
 
     for (int i = 0; i < nodes.size(); i++) {
         List<Connection> connections;

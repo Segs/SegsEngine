@@ -343,7 +343,7 @@ void CreateDialog::_update_search() {
         if (cpp_type) {
             bool skip = false;
 
-            for (Set<StringName>::iterator E = type_blacklist.begin(); E != type_blacklist.end() && !skip; ++E) {
+            for (HashSet<StringName>::iterator E = type_blacklist.begin(); E != type_blacklist.end() && !skip; ++E) {
                 if (ClassDB::is_parent_class(type, *E)) skip = true;
             }
             if (skip) continue;

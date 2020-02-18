@@ -148,7 +148,7 @@ void BroadPhase2DBasic::update() {
 
             PairKey key(I->first, J->first);
 
-            Map<PairKey, void *>::iterator E = pair_map.find(key);
+            HashMap<PairKey, void *>::iterator E = pair_map.find(key);
 
             if (!pair_ok && E!=pair_map.end()) {
                 if (unpair_callback)

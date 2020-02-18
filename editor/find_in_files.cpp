@@ -699,7 +699,7 @@ void FindInFilesPanel::draw_result_text(Object *item_obj, Rect2 rect) {
     if (!item)
         return;
 
-    Map<TreeItem *, Result>::iterator E = _result_items.find(item);
+    HashMap<TreeItem *, Result>::iterator E = _result_items.find(item);
     if (E==_result_items.end())
         return;
     Result r = E->second;
@@ -744,7 +744,7 @@ void FindInFilesPanel::_on_cancel_button_clicked() {
 void FindInFilesPanel::_on_result_selected() {
 
     TreeItem *item = _results_display->get_selected();
-    Map<TreeItem *, Result>::iterator E = _result_items.find(item);
+    HashMap<TreeItem *, Result>::iterator E = _result_items.find(item);
 
     if (E == _result_items.end())
         return;
@@ -777,7 +777,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
             if (!item->is_checked(0))
                 continue;
 
-            Map<TreeItem *, Result>::iterator F = _result_items.find(item);
+            HashMap<TreeItem *, Result>::iterator F = _result_items.find(item);
             ERR_FAIL_COND(F == _result_items.end());
             locations.push_back(F->second);
         }

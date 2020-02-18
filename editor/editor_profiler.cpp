@@ -208,12 +208,12 @@ void EditorProfiler::_update_plot() {
 
         for (const StringName &E : plot_sigs) {
 
-            const Map<StringName, Metric::Category *>::const_iterator F = m.category_ptrs.find(E);
+            auto F = m.category_ptrs.find(E);
             if (F!=m.category_ptrs.end()) {
                 highest = MAX(F->second->total_time, highest);
             }
 
-            const Map<StringName, Metric::Category::Item *>::const_iterator G = m.item_ptrs.find(E);
+            auto G = m.item_ptrs.find(E);
             if (G!=m.item_ptrs.end()) {
                 if (use_self) {
                     highest = MAX(G->second->self, highest);
@@ -270,7 +270,7 @@ void EditorProfiler::_update_plot() {
 
                     float value = 0;
 
-                    const Map<StringName, Metric::Category *>::const_iterator F = m.category_ptrs.find(E);
+                    auto F = m.category_ptrs.find(E);
                     if (F!=m.category_ptrs.end()) {
                         value = F->second->total_time;
                     }

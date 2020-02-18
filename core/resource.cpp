@@ -60,7 +60,7 @@ struct Resource::Data {
     static RWLock *path_cache_lock;
     String import_path;
 #endif
-    Set<ObjectID> owners;
+    HashSet<ObjectID> owners;
     SelfList<Resource> remapped_list;
     String name;
     String path_cache;

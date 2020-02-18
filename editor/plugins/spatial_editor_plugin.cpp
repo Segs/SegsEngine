@@ -207,7 +207,7 @@ Transform SpatialEditorViewport::to_camera_transform(const Cursor &p_cursor) con
 
 int SpatialEditorViewport::get_selected_count() const {
 
-    Map<Node *, Object *> &selection = editor_selection->get_selection();
+    HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
     int count = 0;
 
@@ -2199,7 +2199,7 @@ void SpatialEditorViewport::_notification(int p_what) {
 
         _update_camera(delta);
 
-        Map<Node *, Object *> &selection = editor_selection->get_selection();
+        HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
         bool changed = false;
         bool exist = false;
@@ -5220,8 +5220,8 @@ void SpatialEditor::_refresh_menu_icons() {
 }
 
 template <typename T>
-Set<T *> _get_child_nodes(Node *parent_node) {
-    Set<T *> nodes = Set<T *>();
+HashSet<T *> _get_child_nodes(Node *parent_node) {
+    HashSet<T *> nodes;
     T *node = object_cast<T>(parent_node);
     if (node) {
         nodes.insert(node);
@@ -5229,22 +5229,22 @@ Set<T *> _get_child_nodes(Node *parent_node) {
 
     for (int i = 0; i < parent_node->get_child_count(); i++) {
         Node *child_node = parent_node->get_child(i);
-        Set<T *> child_nodes = _get_child_nodes<T>(child_node);
-        for (T * I : child_nodes) {
-            nodes.insert(I);
-        }
+        HashSet<T *> child_nodes = _get_child_nodes<T>(child_node);
+        nodes.insert(child_nodes.begin(),child_nodes.end());
     }
 
     return nodes;
 }
 
-Set<RID> _get_physics_bodies_rid(Node *node) {
-    Set<RID> rids = Set<RID>();
+HashSet<RID> _get_physics_bodies_rid(Node *node) {
+    HashSet<RID> rids;
     PhysicsBody *pb = object_cast<PhysicsBody>(node);
+    HashSet<PhysicsBody *> child_nodes = _get_child_nodes<PhysicsBody>(node);
+
+    rids.reserve((pb ? 1 : 0)+child_nodes.size());
     if (pb) {
         rids.insert(pb->get_rid());
     }
-    Set<PhysicsBody *> child_nodes = _get_child_nodes<PhysicsBody>(node);
     for (const PhysicsBody * I : child_nodes) {
         rids.insert(I->get_rid());
     }
@@ -5263,8 +5263,8 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             Vector3 position_offset = Vector3();
 
             // Priorities for snapping to floor are CollisionShapes, VisualInstances and then origin
-            Set<VisualInstance *> vi = _get_child_nodes<VisualInstance>(sp);
-            Set<CollisionShape *> cs = _get_child_nodes<CollisionShape>(sp);
+            HashSet<VisualInstance *> vi = _get_child_nodes<VisualInstance>(sp);
+            HashSet<CollisionShape *> cs = _get_child_nodes<CollisionShape>(sp);
 
             if (!cs.empty()) {
                 AABB aabb = sp->get_global_transform().xform((*cs.begin())->get_shape()->get_debug_mesh()->get_aabb());
@@ -5319,7 +5319,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             Dictionary d = snap_data[Variant(node)];
             Vector3 from = d["from"];
             Vector3 to = from - Vector3(0.0, max_snap_height, 0.0);
-            Set<RID> excluded = _get_physics_bodies_rid(sp);
+            HashSet<RID> excluded = _get_physics_bodies_rid(sp);
 
             if (ss->intersect_ray(from, to, result, excluded)) {
                 snapped_to_floor = true;
@@ -5336,7 +5336,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
                 Dictionary d = snap_data[Variant(node)];
                 Vector3 from = d["from"];
                 Vector3 to = from - Vector3(0.0, max_snap_height, 0.0);
-                Set<RID> excluded = _get_physics_bodies_rid(sp);
+                HashSet<RID> excluded = _get_physics_bodies_rid(sp);
 
                 if (ss->intersect_ray(from, to, result, excluded)) {
                     Vector3 position_offset = d["position_offset"];
@@ -5480,7 +5480,7 @@ void SpatialEditor::_request_gizmo(Object *p_obj) {
 
     Ref<EditorSpatialGizmo> seg;
 
-    for (int i = 0; i < gizmo_plugins_by_priority.size(); ++i) {
+    for (size_t i = 0; i < gizmo_plugins_by_priority.size(); ++i) {
         seg = gizmo_plugins_by_priority[i]->get_gizmo(sp);
 
         if (seg) {

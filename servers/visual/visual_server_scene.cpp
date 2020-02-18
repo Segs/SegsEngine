@@ -49,6 +49,8 @@ struct InstanceGeometryData {
 
 struct InstanceComponent {
     VisualServerScene::Instance * instance;
+    InstanceComponent(VisualServerScene::Instance *c) : instance(c) {}
+    InstanceComponent() = default;
 };
 struct Dirty {
     //aabb stuff

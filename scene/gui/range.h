@@ -42,7 +42,7 @@ class Range : public Control {
         bool exp_ratio;
         bool allow_greater;
         bool allow_lesser;
-        Set<Range *> owners;
+        HashSet<Range *> owners;
         void emit_value_changed();
         void emit_changed(StringName p_what = "");
     };

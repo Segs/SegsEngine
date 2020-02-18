@@ -37,6 +37,7 @@
 #include "scene/resources/world_2d.h"
 #include "scene/main/scene_tree_notifications.h"
 #include "core/hash_map.h"
+#include "core/hash_set.h"
 #include "core/deque.h"
 
 class PackedScene;
@@ -71,8 +72,8 @@ class ISceneTreeDebugAccessor {
              const NodePath &p_at, const NodePath &p_new_place, const String &p_new_name, int p_at_pos)=0;
 public:
     virtual ~ISceneTreeDebugAccessor() {}
-    virtual Map<String, Set<Node *>> &get_live_scene_edit_cache() = 0;
-    virtual Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
+    virtual HashMap<String, HashSet<Node *>> &get_live_scene_edit_cache() = 0;
+    virtual HashMap<Node *, HashMap<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
 };
 
 class SceneTreeTimer : public RefCounted {
@@ -168,12 +169,16 @@ private:
         StringName group;
         StringName call;
 
-        bool operator<(const UGCall &p_with) const { return group == p_with.group ? call < p_with.call : group < p_with.group; }
+        bool operator==(const UGCall &p_with) const { return group == p_with.group && call == p_with.call; }
+     private:
+        friend eastl::hash<UGCall>;
+        explicit operator size_t() const { return (size_t(group.hash())<<16) ^ call.hash(); }
+
     };
 
     //safety for when a node is deleted while a group is being called
     int call_lock;
-    Set<Node *> call_skip; //skip erased nodes
+    HashSet<Node *> call_skip; //skip erased nodes
 
     StretchMode stretch_mode;
     StretchAspect stretch_aspect;
@@ -185,7 +190,7 @@ private:
 
     Vector<ObjectID> delete_queue;
     //TODO: SEGS: consider replacing Vector below with FixedVector<Variant,VARIANT_ARG_MAX>
-    Map<UGCall, Vector<Variant> > unique_group_calls;
+    HashMap<UGCall, Vector<Variant> > unique_group_calls;
     bool ugc_locked;
     void _flush_ugc();
 
@@ -328,8 +333,8 @@ public:
     void set_debug_navigation_hint(bool p_enabled);
     bool is_debugging_navigation_hint() const;
 
-    Map<String, Set<Node *> > &get_live_scene_edit_cache();
-    Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list();
+    HashMap<String, HashSet<Node *> > &get_live_scene_edit_cache();
+    HashMap<Node *, HashMap<ObjectID, Node *> > &get_live_edit_remove_list();
 #else
     void set_debug_collisions_hint(bool p_enabled) {}
     bool is_debugging_collisions_hint() const { return false; }

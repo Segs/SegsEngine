@@ -1458,7 +1458,7 @@ static bool _guess_identifier_type_from_base(GDScriptCompletionContext &p_contex
                         return true;
                     }
                     if (!_static) {
-                        const Set<StringName>::iterator m = gds->get_members().find(p_identifier);
+                        const HashSet<StringName>::iterator m = gds->get_members().find(p_identifier);
                         if (m!=gds->get_members().end()) {
                             r_type = _type_from_gdtype(gds->get_member_type(p_identifier));
                             return true;
@@ -1478,7 +1478,7 @@ static bool _guess_identifier_type_from_base(GDScriptCompletionContext &p_contex
             case GDScriptParser::DataType::SCRIPT: {
                 Ref<Script> scr = base_type.script_type;
                 if (scr) {
-                    Map<StringName, Variant> constants;
+                    HashMap<StringName, Variant> constants;
                     scr->get_constants(&constants);
                     if (constants.contains(p_identifier)) {
                         r_type = _type_from_variant(constants[p_identifier]);
@@ -2008,7 +2008,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
                         }
                     }
                     if (!p_only_functions) {
-                        Map<StringName, Variant> constants;
+                        HashMap<StringName, Variant> constants;
                         scr->get_constants(&constants);
                         for (eastl::pair<const StringName,Variant> &E : constants) {
                             ScriptCodeCompletionOption option(E.first.asCString(), ScriptCodeCompletionOption::KIND_CONSTANT);
@@ -2945,7 +2945,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
                     case GDScriptParser::DataType::GDSCRIPT: {
                         Ref<Script> scr = base_type.script_type;
                         if (scr) {
-                            Map<StringName, Variant> constants;
+                            HashMap<StringName, Variant> constants;
                             scr->get_constants(&constants);
                             for (eastl::pair<const StringName,Variant> &E : constants) {
                                 Ref<Script> const_scr = refFromVariant<Script>(E.second);

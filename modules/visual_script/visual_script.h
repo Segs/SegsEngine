@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/os/thread.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 #include "core/script_language.h"
 #include "core/string_utils.h"
 #include "core/math/vector2.h"
@@ -50,7 +50,7 @@ class VisualScriptNode : public Resource {
 
     friend class VisualScript;
 
-    Set<VisualScript *> scripts_used;
+    HashSet<VisualScript *> scripts_used;
 
     Array default_input_values;
     bool breakpoint;
@@ -190,10 +190,14 @@ public:
             uint64_t id;
         };
 
-        bool operator<(const SequenceConnection &p_connection) const {
+        bool operator==(const SequenceConnection &p_connection) const {
 
-            return id < p_connection.id;
+            return id == p_connection.id;
         }
+    private:
+        friend eastl::hash<SequenceConnection>;
+        explicit operator size_t() const {return id;}
+
     };
 
     struct DataConnection {
@@ -209,10 +213,13 @@ public:
             uint64_t id;
         };
 
-        bool operator<(const DataConnection &p_connection) const {
+        bool operator==(const DataConnection &p_connection) const {
 
-            return id < p_connection.id;
+            return id == p_connection.id;
         }
+    private:
+        friend eastl::hash<DataConnection>;
+        explicit operator size_t() const {return id;}
     };
 
 private:
@@ -232,9 +239,9 @@ private:
 
         Map<int, NodeData> nodes;
 
-        Set<SequenceConnection> sequence_connections;
+        HashSet<SequenceConnection> sequence_connections;
 
-        Set<DataConnection> data_connections;
+        HashSet<DataConnection> data_connections;
 
         int function_id;
 
@@ -250,16 +257,16 @@ private:
         // add getter & setter options here
     };
 
-    Map<StringName, Function> functions;
-    Map<StringName, Variable> variables;
-    Map<StringName, Vector<Argument> > custom_signals;
+    HashMap<StringName, Function> functions;
+    HashMap<StringName, Variable> variables;
+    HashMap<StringName, Vector<Argument> > custom_signals;
 
-    Map<Object *, VisualScriptInstance *> instances;
+    HashMap<Object *, VisualScriptInstance *> instances;
 
     bool is_tool_script;
 
 #ifdef TOOLS_ENABLED
-    Set<PlaceHolderScriptInstance *> placeholders;
+    HashSet<PlaceHolderScriptInstance *> placeholders;
     //void _update_placeholder(PlaceHolderScriptInstance *p_placeholder);
     void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
     void _update_placeholders();
@@ -383,7 +390,7 @@ class VisualScriptInstance : public ScriptInstance {
     Object *owner;
     Ref<VisualScript> script;
 
-    Map<StringName, Variant> variables; //using variable path, not script
+    HashMap<StringName, Variant> variables; //using variable path, not script
     Map<int, VisualScriptNodeInstance *> instances;
 
     struct Function {
@@ -423,7 +430,7 @@ public:
 
     bool set_variable(const StringName &p_variable, const Variant &p_value) {
 
-        Map<StringName, Variant>::iterator E = variables.find(p_variable);
+        HashMap<StringName, Variant>::iterator E = variables.find(p_variable);
         if (E==variables.end())
             return false;
 
@@ -433,7 +440,7 @@ public:
 
     bool get_variable(const StringName &p_variable, Variant *r_variable) const {
 
-        const Map<StringName, Variant>::const_iterator E = variables.find(p_variable);
+        const HashMap<StringName, Variant>::const_iterator E = variables.find(p_variable);
         if (E==variables.end())
             return false;
 

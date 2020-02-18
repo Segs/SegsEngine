@@ -262,9 +262,9 @@ class EditorInspector : public ScrollContainer {
     VBoxContainer *main_vbox;
 
     //map use to cache the instanced editors
-    Map<StringName, Vector<EditorProperty *> > editor_property_map;
+    HashMap<StringName, Vector<EditorProperty *> > editor_property_map;
     Vector<EditorInspectorSection *> sections;
-    Set<StringName> pending;
+    HashSet<StringName> pending;
 
     void _clear();
     Object *object;
@@ -292,11 +292,11 @@ class EditorInspector : public ScrollContainer {
     int property_focusable;
     int update_scroll_request;
 
-    Map<StringName, Map<StringName, String> > descr_cache;
-    Map<StringName, String> class_descr_cache;
-    Set<StringName> restart_request_props;
+    HashMap<StringName, HashMap<StringName, String> > descr_cache;
+    HashMap<StringName, String> class_descr_cache;
+    HashSet<StringName> restart_request_props;
 
-    Map<ObjectID, int> scroll_cache;
+    HashMap<ObjectID, int> scroll_cache;
 
     String property_prefix; //used for sectioned inspector
     StringName object_class;

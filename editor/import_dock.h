@@ -50,7 +50,7 @@ class ImportDock : public VBoxContainer {
     EditorInspector *import_opts;
 
     Vector<PropertyInfo> properties;
-    Map<StringName, Variant> property_values;
+    HashMap<StringName, Variant> property_values;
 
     ConfirmationDialog *reimport_confirm;
     Label *label_warning;

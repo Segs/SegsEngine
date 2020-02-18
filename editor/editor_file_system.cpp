@@ -1564,7 +1564,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
 
     String importer_name;
 
-    Map<String, Map<StringName, Variant> > source_file_options;
+    Map<String, HashMap<StringName, Variant> > source_file_options;
     Map<String, String> base_paths;
     for (int i = 0; i < p_files.size(); i++) {
 
@@ -1581,7 +1581,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
             ERR_FAIL_V(ERR_FILE_CORRUPT);
         }
 
-        source_file_options[p_files[i]] = Map<StringName, Variant>();
+        source_file_options[p_files[i]] = HashMap<StringName, Variant>();
         importer_name = file_importer_name;
 
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
@@ -1613,7 +1613,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
     Error err = importer->import_group_file(p_group_file, source_file_options, base_paths);
 
     //all went well, overwrite config files with proper remaps and md5s
-    for (eastl::pair<const String, Map<StringName, Variant> > &E : source_file_options) {
+    for (eastl::pair<const String, HashMap<StringName, Variant> > &E : source_file_options) {
 
         const String &file = E.first;
         String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(file);
@@ -1728,7 +1728,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     //try to obtain existing params
 
-    Map<StringName, Variant> params;
+    HashMap<StringName, Variant> params;
     String importer_name;
 
     if (FileAccess::exists(p_file + ".import")) {

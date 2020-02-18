@@ -258,7 +258,7 @@ void ResourceFormatLoader::get_dependencies(se_string_view p_path, Vector<String
     }
 }
 
-Error ResourceFormatLoader::rename_dependencies(se_string_view p_path, const DefHashMap<String, String> &p_map) {
+Error ResourceFormatLoader::rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) {
 
     if (get_script_instance() && get_script_instance()->has_method("rename_dependencies")) {
 

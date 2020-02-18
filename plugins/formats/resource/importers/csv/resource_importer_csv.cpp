@@ -56,7 +56,7 @@ StringName ResourceImporterCSV::get_resource_type() const {
     return "TextFile";
 }
 
-bool ResourceImporterCSV::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterCSV::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     return true;
 }
@@ -72,7 +72,7 @@ StringName ResourceImporterCSV::get_preset_name(int p_idx) const {
 void ResourceImporterCSV::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterCSV::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterCSV::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
     return OK;
 }

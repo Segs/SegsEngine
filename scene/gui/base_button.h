@@ -138,7 +138,7 @@ class ButtonGroup : public Resource {
     GDCLASS(ButtonGroup,Resource)
 
     friend class BaseButton;
-    Set<BaseButton *> buttons;
+    HashSet<BaseButton *> buttons;
 
 protected:
     static void _bind_methods();

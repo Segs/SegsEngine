@@ -34,7 +34,7 @@
 #include "core/os/thread_safe.h"
 #include "core/property_info.h"
 #include "core/set.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 #include "core/se_string.h"
 #include "core/string_name.h"
 #include "core/list.h"
@@ -47,7 +47,7 @@ class GODOT_EXPORT ProjectSettings : public Object {
     _THREAD_SAFE_CLASS_
 
 public:
-    using CustomMap = Map<StringName, Variant>;
+    using CustomMap = HashMap<StringName, Variant>;
 
     enum {
         //properties that are not for built in values begin from this value, so builtin ones are displayed first
@@ -75,15 +75,15 @@ protected:
     bool registering_order;
     int last_order;
     int last_builtin_order;
-    Map<StringName, VariantContainer> props;
+    HashMap<StringName, VariantContainer> props;
     String resource_path;
-    Map<StringName, PropertyInfo> custom_prop_info;
+    HashMap<StringName, PropertyInfo> custom_prop_info;
     bool disable_feature_overrides;
     bool using_datapack;
     List<String> input_presets;
 
     Set<String> custom_features;
-    Map<StringName, StringName> feature_overrides;
+    HashMap<StringName, StringName> feature_overrides;
 
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -95,8 +95,8 @@ public:
     Error _load_settings_binary(se_string_view p_path);
     Error _load_settings_text_or_binary(se_string_view p_text_path, se_string_view p_bin_path);
 
-    Error _save_settings_text(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
-    Error _save_settings_binary(se_string_view p_file, const Map<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_text(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_binary(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
 
     Error _save_custom_bnd(se_string_view p_file);
 
@@ -140,7 +140,7 @@ public:
     Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const Vector<String> &p_custom_features = {}, bool p_merge_with_current = true);
     Error save();
     void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
-    const Map<StringName, PropertyInfo> &get_custom_property_info() const;
+    const HashMap<StringName, PropertyInfo> &get_custom_property_info() const;
 
     Vector<String> get_optimizer_presets() const;
 

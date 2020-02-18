@@ -60,7 +60,7 @@ StringName ResourceImporterCSVTranslation::get_resource_type() const {
     return "Translation";
 }
 
-bool ResourceImporterCSVTranslation::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterCSVTranslation::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     return true;
 }
@@ -79,7 +79,7 @@ void ResourceImporterCSVTranslation::get_import_options(List<ImportOption> *r_op
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
 }
 
-Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     bool compress = p_options.at("compress").as<bool>();

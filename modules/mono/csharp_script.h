@@ -84,7 +84,7 @@ class CSharpScript : public Script {
 
     Ref<CSharpScript> base_cache; // TODO what's this for?
 
-    Set<Object *> instances;
+    HashSet<Object *> instances;
 
 #ifdef GD_MONO_HOT_RELOAD
     struct StateBackup {
@@ -94,7 +94,7 @@ class CSharpScript : public Script {
         Vector<Pair<StringName, Variant> > properties;
     };
 
-    Set<ObjectID> pending_reload_instances;
+    HashSet<ObjectID> pending_reload_instances;
     Map<ObjectID, StateBackup> pending_reload_state;
     StringName tied_class_name_for_reload;
     StringName tied_class_namespace_for_reload;
@@ -115,17 +115,17 @@ class CSharpScript : public Script {
 
 #ifdef TOOLS_ENABLED
     List<PropertyInfo> exported_members_cache; // members_cache
-    Map<StringName, Variant> exported_members_defval_cache; // member_default_values_cache
-    Set<PlaceHolderScriptInstance *> placeholders;
+    HashMap<StringName, Variant> exported_members_defval_cache; // member_default_values_cache
+    HashSet<PlaceHolderScriptInstance *> placeholders;
     bool source_changed_cache;
     bool placeholder_fallback_enabled;
     bool exports_invalidated;
-    void _update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
+    void _update_exports_values(HashMap<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
     void _update_member_info_no_exports();
     void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
 #endif
 
-    Map<StringName, PropertyInfo> member_info;
+    HashMap<StringName, PropertyInfo> member_info;
 
     void _clear();
 
