@@ -32,6 +32,7 @@
 
 #include "core/string_builder.h"
 #include "core/se_string.h"
+#include "core/map.h"
 
 #include "scene/gui/control.h"
 #include "scene/resources/shader.h"

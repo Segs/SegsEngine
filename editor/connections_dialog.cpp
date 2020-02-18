@@ -1002,9 +1002,9 @@ void ConnectionsDock::update_tree() {
 
                 if (!found) {
                     DocData *dd = EditorHelp::get_doc_data();
-                    Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(base);
+                    auto F = dd->class_list.find(base);
                     while (F!=dd->class_list.end() && descr.empty()) {
-                        for (int i = 0; i < F->second.defined_signals.size(); i++) {
+                        for (size_t i = 0; i < F->second.defined_signals.size(); i++) {
                             if (F->second.defined_signals[i].name == signal_name.asCString()) {
                                 descr = StringUtils::strip_edges(F->second.defined_signals[i].description);
                                 break;

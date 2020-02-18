@@ -37,6 +37,9 @@
 #include "core/hash_set.h"
 #include "core/hash_map.h"
 
+#include "core/map.h"
+#include "core/set.h"
+
 using EditorNodeInitCallback = void (*)();
 using EditorPluginInitializeCallback = void (*)();
 using EditorBuildCallback = bool (*)();

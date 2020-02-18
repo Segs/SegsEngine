@@ -1082,8 +1082,8 @@ void EditorNode::_save_edited_subresources(Node *scene, Map<RES, bool> &processe
 
 void EditorNode::_find_node_types(Node *p_node, int &count_2d, int &count_3d) {
 
-    if (p_node->is_class("Viewport") || p_node != editor_data.get_edited_scene_root() &&
-        p_node->get_owner() != editor_data.get_edited_scene_root())
+    if (p_node->is_class("Viewport") || (p_node != editor_data.get_edited_scene_root() &&
+        p_node->get_owner() != editor_data.get_edited_scene_root()))
         return;
 
     if (p_node->is_class("CanvasItem"))
@@ -1661,7 +1661,7 @@ void EditorNode::edit_item(Object *p_object) {
     }
     bool same = true;
     if (sub_plugins.size() == editor_plugins_over->get_plugins_list().size()) {
-        for (int i = 0; i < sub_plugins.size(); i++) {
+        for (size_t i = 0; i < sub_plugins.size(); i++) {
             if (sub_plugins[i] != editor_plugins_over->get_plugins_list()[i]) {
                 same = false;
             }
@@ -3413,11 +3413,8 @@ Error EditorNode::load_scene(se_string_view p_scene, bool p_ignore_broken_deps, 
     if (!p_ignore_broken_deps && dependency_errors.contains(lpath)) {
 
         current_option = -1;
-        Vector<String> errors;
-        for (const String &E : dependency_errors[lpath]) {
+        Vector<String> errors(dependency_errors[lpath].begin(),dependency_errors[lpath].end());
 
-            errors.emplace_back(E);
-        }
         dependency_error->show(DependencyErrorDialog::MODE_SCENE, lpath, errors);
         opening_prev = false;
 
@@ -4128,10 +4125,10 @@ Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringN
         return dynamic_ref_cast<Texture>(icon);
     }
 
-    const Map<StringName, Vector<EditorData::CustomType>> &p_map = EditorNode::get_editor_data().get_custom_types();
+    auto &p_map = EditorNode::get_editor_data().get_custom_types();
     for (const eastl::pair<const StringName, Vector<EditorData::CustomType>> &E : p_map) {
         const Vector<EditorData::CustomType> &ct = E.second;
-        for (int i = 0; i < ct.size(); ++i) {
+        for (size_t i = 0; i < ct.size(); ++i) {
             if (ct[i].name == p_class) {
                 if (ct[i].icon) {
                     return ct[i].icon;

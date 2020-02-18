@@ -1589,8 +1589,8 @@ bool Main::start() {
         doc.generate(doc_base);
 
         DocData docsrc;
-        Map<StringName, String> doc_data_classes;
-        Set<String> checked_paths;
+        HashMap<StringName, String> doc_data_classes;
+        HashSet<String> checked_paths;
         print_line("Loading docs...");
 
         for (int i = 0; i < _doc_data_class_path_count; i++) {

@@ -55,7 +55,7 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
                 type(std::move(p_type)) {
         }
     };
-    Map<StringName, ProgressBar *> animations;
+    HashMap<StringName, ProgressBar *> animations;
     Vector<EditorProperty *> visible_properties;
     Vector<AddOption> add_options;
 

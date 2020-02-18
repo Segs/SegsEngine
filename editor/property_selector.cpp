@@ -357,9 +357,9 @@ void PropertySelector::_item_selected() {
 
         while (!at_class.empty()) {
 
-            Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
+            auto E = dd->class_list.find(at_class);
             if (E!=dd->class_list.end()) {
-                for (int i = 0; i < E->second.properties.size(); i++) {
+                for (size_t i = 0; i < E->second.properties.size(); i++) {
                     if (E->second.properties[i].name == name) {
                         text = E->second.properties[i].description;
                     }
@@ -374,9 +374,9 @@ void PropertySelector::_item_selected() {
 
         while (!at_class.empty()) {
 
-            Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
+            auto E = dd->class_list.find(at_class);
             if (E!=dd->class_list.end()) {
-                for (int i = 0; i < E->second.methods.size(); i++) {
+                for (size_t i = 0; i < E->second.methods.size(); i++) {
                     if (E->second.methods[i].name == name) {
                         text = E->second.methods[i].description;
                     }

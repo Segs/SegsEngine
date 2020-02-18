@@ -283,7 +283,7 @@ static se_string_view _fixstr(se_string_view p_what, se_string_view p_str) {
 
     // remove trailing spaces and numbers, some apps like blender add ".number" to duplicates so also compensate for
     // this
-    while (what.length() && (what.back() >= '0' && what.back() <= '9' || what.back() <= 32 || what.back() == '.')) {
+    while (!what.empty() && (isdigit(what.back()) || what.back() <= 32 || what.back() == '.')) {
 
         what = StringUtils::substr(what, 0, what.length() - 1);
     }

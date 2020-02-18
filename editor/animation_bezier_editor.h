@@ -32,6 +32,8 @@
 #define ANIMATION_BEZIER_EDITOR_H
 
 #include "animation_track_editor.h"
+#include "core/set.h"
+#include "core/map.h"
 
 class AnimationBezierTrackEdit : public Control {
 

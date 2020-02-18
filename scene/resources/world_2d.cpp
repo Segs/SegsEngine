@@ -74,6 +74,9 @@ struct SpatialIndexer2D {
         _FORCE_INLINE_ bool operator<(const CellKey &p_key) const {
             return key < p_key.key;
         }
+    private:
+        friend eastl::hash<CellKey>;
+        explicit operator size_t() const { return key; }
     };
 
     struct CellData {
@@ -81,7 +84,7 @@ struct SpatialIndexer2D {
         HashMap<VisibilityNotifier2D *, CellRef> notifiers;
     };
 
-    Map<CellKey, CellData> cells;
+    HashMap<CellKey, CellData> cells;
     int cell_size;
 
     HashMap<VisibilityNotifier2D *, Rect2> notifiers;
@@ -111,7 +114,7 @@ struct SpatialIndexer2D {
                 CellKey ck;
                 ck.x = i;
                 ck.y = j;
-                Map<CellKey, CellData>::iterator E = cells.find(ck);
+                HashMap<CellKey, CellData>::iterator E = cells.find(ck);
 
                 if (p_add) {
 
@@ -267,7 +270,7 @@ struct SpatialIndexer2D {
                         ck.x = i;
                         ck.y = j;
 
-                        Map<CellKey, CellData>::iterator F = cells.find(ck);
+                        HashMap<CellKey, CellData>::iterator F = cells.find(ck);
                         if (F==cells.end()) {
                             continue;
                         }

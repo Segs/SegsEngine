@@ -49,10 +49,10 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     List<StringName> keys;
     p_from->get_message_list(&keys);
 
-    int size = Math::larger_prime(keys.size());
+    size_t size = Math::larger_prime(keys.size());
 
     Vector<Vector<Pair<int, String> > > buckets;
-    Vector<Map<uint32_t, int> > table;
+    Vector<HashMap<uint32_t, int> > table;
     Vector<uint32_t> hfunc_table;
     Vector<_PHashTranslationCmp> compressed;
 
@@ -108,10 +108,10 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
 
     int bucket_table_size = 0;
 
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
 
         const Vector<Pair<int, String> > &b = buckets[i];
-        Map<uint32_t, int> &t = table[i];
+        HashMap<uint32_t, int> &t = table[i];
 
         if (b.empty())
             continue;
@@ -151,9 +151,9 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     int btindex = 0;
     int collisions = 0;
 
-    for (int i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
 
-        const Map<uint32_t, int> &t = table[i];
+        const HashMap<uint32_t, int> &t = table[i];
         if (t.empty()) {
             htw[i] = 0xFFFFFFFF; //nothing
             continue;
@@ -165,7 +165,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         btw[btindex++] = t.size();
         btw[btindex++] = hfunc_table[i];
 
-        for (const eastl::pair<const uint32_t, int> E : t) {
+        for (const eastl::pair<const uint32_t, int> &E : t) {
 
             btw[btindex++] = E.first;
             btw[btindex++] = compressed[E.second].offset;
@@ -219,7 +219,7 @@ bool PHashTranslation::_get(const StringName &p_name, Variant &r_ret) const {
 
 StringName PHashTranslation::get_message(const StringName &p_src_text) const {
 
-    int htsize = hash_table.size();
+    size_t htsize = hash_table.size();
 
     if (htsize == 0)
         return StringName();

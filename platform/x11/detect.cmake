@@ -6,8 +6,15 @@ if(UNIX)
 
     # -O3 -ffast-math is identical to -Ofast. We need to split it out so we can selectively disable
     # -ffast-math in code for which it generates wrong results.
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ffast-math")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # clang lowers some math functions to removed from libm _finite version in fast-math mode
+
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math -fno-finite-math-only")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ffast-math -fno-finite-math-only")
+    else()
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -ffast-math")
+    endif()
     if (${OPTION_DEBUG_SYMBOLS} EQUAL "yes")
         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g1")
     endif()

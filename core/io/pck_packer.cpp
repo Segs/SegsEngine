@@ -167,7 +167,7 @@ Error PCKPacker::flush(bool p_verbose) {
         count += 1;
         if (p_verbose) {
             if (count % 100 == 0) {
-                printf("%i/%llu (%.2f)\r", count, files.size(), float(count) / files.size() * 100);
+                printf("%i/%zu (%.2f)\r", count, files.size(), double(count) / files.size() * 100);
                 fflush(stdout);
             }
         }

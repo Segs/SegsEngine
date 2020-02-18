@@ -2356,25 +2356,25 @@ void TileSetEditor::_undo_tile_removal(int p_id) {
         undo_redo->add_undo_method(tileset.get(), "tile_set_light_occluder", p_id, tileset->tile_get_light_occluder(p_id));
         undo_redo->add_undo_method(tileset.get(), "tile_set_navigation_polygon", p_id, tileset->tile_get_navigation_polygon(p_id));
     } else {
-        Map<Vector2, Ref<OccluderPolygon2D> > oclusion_map = tileset->autotile_get_light_oclusion_map(p_id);
-        for (eastl::pair<const Vector2,Ref<OccluderPolygon2D> > &E : oclusion_map) {
+        const auto &oclusion_map = tileset->autotile_get_light_oclusion_map(p_id);
+        for (const auto &E : oclusion_map) {
             undo_redo->add_undo_method(tileset.get(), "autotile_set_light_occluder", p_id, E.second, E.first);
         }
-        Map<Vector2, Ref<NavigationPolygon> > navigation_map = tileset->autotile_get_navigation_map(p_id);
-        for (eastl::pair<const Vector2,Ref<NavigationPolygon> > &E : navigation_map) {
+        const auto &navigation_map = tileset->autotile_get_navigation_map(p_id);
+        for (const auto &E : navigation_map) {
             undo_redo->add_undo_method(tileset.get(), "autotile_set_navigation_polygon", p_id, E.second, E.first);
         }
-        Map<Vector2, uint32_t> bitmask_map = tileset->autotile_get_bitmask_map(p_id);
-        for (eastl::pair<const Vector2,uint32_t> &E : bitmask_map) {
+        const auto &bitmask_map = tileset->autotile_get_bitmask_map(p_id);
+        for (const auto &E : bitmask_map) {
             undo_redo->add_undo_method(tileset.get(), "autotile_set_bitmask", p_id, E.first, E.second);
         }
-        Map<Vector2, int> priority_map = tileset->autotile_get_priority_map(p_id);
-        for (eastl::pair<const Vector2,int> &E : priority_map) {
+        const auto &priority_map = tileset->autotile_get_priority_map(p_id);
+        for (const auto &E : priority_map) {
             undo_redo->add_undo_method(tileset.get(), "autotile_set_subtile_priority", p_id, E.first, E.second);
         }
         undo_redo->add_undo_method(tileset.get(), "autotile_set_icon_coordinate", p_id, tileset->autotile_get_icon_coordinate(p_id));
-        Map<Vector2, int> z_map = tileset->autotile_get_z_index_map(p_id);
-        for (eastl::pair<const Vector2,int> &E : z_map) {
+        const auto &z_map = tileset->autotile_get_z_index_map(p_id);
+        for (const auto &E : z_map) {
             undo_redo->add_undo_method(tileset.get(), "autotile_set_z_index", p_id, E.first, E.second);
         }
         undo_redo->add_undo_method(tileset.get(), "tile_set_tile_mode", p_id, tileset->tile_get_tile_mode(p_id));
@@ -2679,8 +2679,8 @@ void TileSetEditor::draw_polygon_shapes() {
                             colors.push_back(c_bg);
                         }
                     } else {
-                        for (int j = 0; j < shape->get_polygon().size(); j++) {
-                            polygon.push_back(shape->get_polygon()[j] + anchor);
+                        for (Vector2 v : shape->get_polygon()) {
+                            polygon.push_back(v + anchor);
                             colors.push_back(c_bg);
                         }
                     }
@@ -2688,7 +2688,7 @@ void TileSetEditor::draw_polygon_shapes() {
 
                     if (!creating_shape) {
                         if (polygon.size() > 1) {
-                            for (int j = 0; j < polygon.size() - 1; j++) {
+                            for (size_t j = 0; j < polygon.size() - 1; j++) {
                                 workspace->draw_line(polygon[j], polygon[j + 1], c_border, 1, true);
                             }
                             workspace->draw_line(polygon[polygon.size() - 1], polygon[0], c_border, 1, true);
@@ -2699,8 +2699,8 @@ void TileSetEditor::draw_polygon_shapes() {
                     }
                 }
             } else {
-                Map<Vector2, Ref<OccluderPolygon2D> > map = tileset->autotile_get_light_oclusion_map(t_id);
-                for (eastl::pair<const Vector2,Ref<OccluderPolygon2D> > &E : map) {
+                const auto &map = tileset->autotile_get_light_oclusion_map(t_id);
+                for (const auto &E : map) {
                     Vector2 coord = E.first;
                     Vector2 anchor = tileset->autotile_get_size(t_id);
                     anchor.x += tileset->autotile_get_spacing(t_id);
@@ -2728,7 +2728,7 @@ void TileSetEditor::draw_polygon_shapes() {
                                 colors.push_back(c_bg);
                             }
                         } else {
-                            for (int j = 0; j < shape->get_polygon().size(); j++) {
+                            for (size_t j = 0; j < shape->get_polygon().size(); j++) {
                                 polygon.push_back(shape->get_polygon()[j] + anchor);
                                 colors.push_back(c_bg);
                             }
@@ -2737,7 +2737,7 @@ void TileSetEditor::draw_polygon_shapes() {
 
                         if (coord == edited_shape_coord) {
                             if (!creating_shape) {
-                                for (int j = 0; j < polygon.size() - 1; j++) {
+                                for (size_t j = 0; j < polygon.size() - 1; j++) {
                                     workspace->draw_line(polygon[j], polygon[j + 1], c_border, 1, true);
                                 }
                                 workspace->draw_line(polygon[polygon.size() - 1], polygon[0], c_border, 1, true);
@@ -2787,8 +2787,8 @@ void TileSetEditor::draw_polygon_shapes() {
                     }
                 }
             } else {
-                Map<Vector2, Ref<NavigationPolygon> > map = tileset->autotile_get_navigation_map(t_id);
-                for (eastl::pair<const Vector2,Ref<NavigationPolygon> > &E : map) {
+                const auto &map = tileset->autotile_get_navigation_map(t_id);
+                for (const auto &E : map) {
                     Vector2 coord = E.first;
                     Vector2 anchor = tileset->autotile_get_size(t_id);
                     anchor.x += tileset->autotile_get_spacing(t_id);
@@ -2817,8 +2817,9 @@ void TileSetEditor::draw_polygon_shapes() {
                             }
                         } else {
                             const auto &vertices = shape->get_vertices();
-                            for (int j = 0; j < shape->get_polygon(0).size(); j++) {
-                                polygon.push_back(vertices[shape->get_polygon(0)[j]] + anchor);
+                            polygon.reserve(shape->get_polygon(0).size());
+                            for (int idx : shape->get_polygon(0)) {
+                                polygon.push_back(vertices[idx] + anchor);
                                 colors.push_back(c_bg);
                             }
                         }

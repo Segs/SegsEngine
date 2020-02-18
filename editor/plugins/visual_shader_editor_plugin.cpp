@@ -349,7 +349,7 @@ void VisualShaderEditor::_update_options_menu() {
 
         if (!use_filter || StringUtils::findn(add_options[i].name.asString(),filter) != -1) {
 
-            if (add_options[i].func != current_func && add_options[i].func != -1 || !_is_available(add_options[i].mode))
+            if ((add_options[i].func != current_func && add_options[i].func != -1) || !_is_available(add_options[i].mode))
                 continue;
 
             if (prev_category != add_options[i].category) {
@@ -1742,7 +1742,7 @@ void VisualShaderEditor::_node_changed(int p_id) {
     }
 }
 
-void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) {
+void VisualShaderEditor::_dup_update_excluded(int p_type, HashSet<int> &r_excluded) {
     r_excluded.clear();
     VisualShader::Type type = (VisualShader::Type)p_type;
 
@@ -1762,7 +1762,7 @@ void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) 
     }
 }
 
-void VisualShaderEditor::_dup_copy_nodes(int p_type, Vector<int> &r_nodes, Set<int> &r_excluded) {
+void VisualShaderEditor::_dup_copy_nodes(int p_type, Vector<int> &r_nodes, HashSet<int> &r_excluded) {
 
     VisualShader::Type type = (VisualShader::Type)p_type;
 
@@ -1792,15 +1792,15 @@ void VisualShaderEditor::_dup_copy_nodes(int p_type, Vector<int> &r_nodes, Set<i
     selection_center /= (float)r_nodes.size();
 }
 
-void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select) {
+void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, HashSet<int> &r_excluded, const Vector2 &p_offset, bool p_select) {
 
     VisualShader::Type type = (VisualShader::Type)p_type;
     VisualShader::Type pasted_type = (VisualShader::Type)p_pasted_type;
 
     int base_id = visual_shader->get_valid_node_id(type);
     int id_from = base_id;
-    Map<int, int> connection_remap;
-    Set<int> unsupported_set;
+    HashMap<int, int> connection_remap;
+    HashSet<int> unsupported_set;
 
     for (int E : r_nodes) {
 
@@ -1886,7 +1886,7 @@ void VisualShaderEditor::_duplicate_nodes() {
     int type = edit_type->get_selected();
 
     Vector<int> nodes;
-    Set<int> excluded;
+    HashSet<int> excluded;
 
     _dup_copy_nodes(type, nodes, excluded);
 

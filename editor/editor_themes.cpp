@@ -134,7 +134,7 @@ static void editor_register_and_generate_icons(
         Vector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
         // The names of the icons to never convert, even if one of their colors
         // are contained in the dictionary above.
-        Set<se_string_view> exceptions;
+        HashSet<se_string_view> exceptions;
 
         if (!p_dark_theme) {
             dark_icon_color_dictionary.reserve(100);
@@ -202,27 +202,27 @@ static void editor_register_and_generate_icons(
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#79f3e8", "#12d5c3"); // VS object
             ADD_CONVERT_COLOR(dark_icon_color_dictionary, "#77edb1", "#57e99f"); // VS dict
 
-            exceptions.insert("EditorPivot");
-            exceptions.insert("EditorHandle");
-            exceptions.insert("Editor3DHandle");
-            exceptions.insert("Godot");
-            exceptions.insert("PanoramaSky");
-            exceptions.insert("ProceduralSky");
-            exceptions.insert("EditorControlAnchor");
-            exceptions.insert("DefaultProjectIcon");
-            exceptions.insert("GuiCloseCustomizable");
-            exceptions.insert("GuiGraphNodePort");
-            exceptions.insert("GuiResizer");
-            exceptions.insert("ZoomMore");
-            exceptions.insert("ZoomLess");
-            exceptions.insert("ZoomReset");
-            exceptions.insert("LockViewport");
-            exceptions.insert("GroupViewport");
-            exceptions.insert("StatusError");
-            exceptions.insert("StatusSuccess");
-            exceptions.insert("StatusWarning");
-            exceptions.insert("NodeWarning");
-            exceptions.insert("OverbrightIndicator");
+            exceptions.emplace("EditorPivot");
+            exceptions.emplace("EditorHandle");
+            exceptions.emplace("Editor3DHandle");
+            exceptions.emplace("Godot");
+            exceptions.emplace("PanoramaSky");
+            exceptions.emplace("ProceduralSky");
+            exceptions.emplace("EditorControlAnchor");
+            exceptions.emplace("DefaultProjectIcon");
+            exceptions.emplace("GuiCloseCustomizable");
+            exceptions.emplace("GuiGraphNodePort");
+            exceptions.emplace("GuiResizer");
+            exceptions.emplace("ZoomMore");
+            exceptions.emplace("ZoomLess");
+            exceptions.emplace("ZoomReset");
+            exceptions.emplace("LockViewport");
+            exceptions.emplace("GroupViewport");
+            exceptions.emplace("StatusError");
+            exceptions.emplace("StatusSuccess");
+            exceptions.emplace("StatusWarning");
+            exceptions.emplace("NodeWarning");
+            exceptions.emplace("OverbrightIndicator");
         }
 
         // These ones should be converted even if we are using a dark theme.

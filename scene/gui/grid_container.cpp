@@ -30,6 +30,7 @@
 
 #include "grid_container.h"
 #include "core/method_bind.h"
+#include "core/set.h"
 
 IMPL_GDCLASS(GridContainer)
 
@@ -40,8 +41,8 @@ void GridContainer::_notification(int p_what) {
         case NOTIFICATION_SORT_CHILDREN: {
 
 
-            Map<int, int> col_minw; // Max of min_width  of all controls in each col (indexed by col).
-            Map<int, int> row_minh; // Max of min_height of all controls in each row (indexed by row).
+            HashMap<int, int> col_minw; // Max of min_width  of all controls in each col (indexed by col).
+            HashMap<int, int> row_minh; // Max of min_height of all controls in each row (indexed by row).
             Set<int> col_expanded; // Columns which have the SIZE_EXPAND flag set.
             Set<int> row_expanded; // Rows which have the SIZE_EXPAND flag set.
 
@@ -200,8 +201,8 @@ void GridContainer::_bind_methods() {
 
 Size2 GridContainer::get_minimum_size() const {
 
-    Map<int, int> col_minw;
-    Map<int, int> row_minh;
+    HashMap<int, int> col_minw;
+    HashMap<int, int> row_minh;
 
     int hsep = get_constant("hseparation");
     int vsep = get_constant("vseparation");

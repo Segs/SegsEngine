@@ -86,30 +86,30 @@ private:
 
     bool connecting;
     StringName connecting_from;
-    bool connecting_out;
     int connecting_index;
     int connecting_type;
     Color connecting_color;
-    bool connecting_target;
     Vector2 connecting_to;
     StringName connecting_target_to;
     int connecting_target_index;
-    bool just_disconnected;
 
-    bool dragging;
-    bool just_selected;
     Vector2 drag_accum;
     Point2 drag_origin; // Workaround for GH-5907
 
     float zoom;
 
-    bool box_selecting;
-    bool box_selection_mode_aditive;
     Point2 box_selecting_from;
     Point2 box_selecting_to;
     Rect2 box_selecting_rect;
     Vector<GraphNode *> previus_selected;
 
+    bool connecting_out;
+    bool connecting_target;
+    bool just_disconnected;
+    bool dragging;
+    bool just_selected;
+    bool box_selecting;
+    bool box_selection_mode_aditive;
     bool setting_scroll_ofs;
     bool right_disconnects;
     bool updating;
@@ -129,19 +129,24 @@ private:
             uint64_t key;
         };
 
-        bool operator<(const ConnType &p_type) const {
-            return key < p_type.key;
+        bool operator==(ConnType p_type) const {
+            return key == p_type.key;
         }
 
         ConnType(uint32_t a = 0, uint32_t b = 0) {
             type_a = a;
             type_b = b;
         }
+    private:
+        friend eastl::hash<ConnType>;
+        explicit operator size_t() const {
+            return key;
+        }
     };
 
-    Set<ConnType> valid_connection_types;
-    Set<int> valid_left_disconnect_types;
-    Set<int> valid_right_disconnect_types;
+    HashSet<ConnType> valid_connection_types;
+    HashSet<int> valid_left_disconnect_types;
+    HashSet<int> valid_right_disconnect_types;
 
     HBoxContainer *zoom_hb;
 public:

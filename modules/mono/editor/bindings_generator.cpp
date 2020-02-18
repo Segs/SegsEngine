@@ -3131,7 +3131,7 @@ void BindingsGenerator::_populate_global_constants() {
     int global_constants_count = GlobalConstants::get_global_constant_count();
     auto *dd=EditorHelp::get_doc_data();
     if (global_constants_count > 0) {
-        Map<StringName, DocData::ClassDoc>::iterator match = dd->class_list.find("@GlobalScope");
+        HashMap<StringName, DocData::ClassDoc>::iterator match = dd->class_list.find("@GlobalScope");
 
         CRASH_COND_MSG(match==dd->class_list.end(), "Could not find '@GlobalScope' in DocData.");
 

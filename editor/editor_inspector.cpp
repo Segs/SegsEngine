@@ -1526,7 +1526,7 @@ void EditorInspector::update_tree() {
 
                     String descr;
                     DocData *dd = EditorHelp::get_doc_data();
-                    Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(type2);
+                    auto E = dd->class_list.find(type2);
                     if (E!=dd->class_list.end()) {
                         descr = E->second.brief_description;
                     }
@@ -1680,7 +1680,7 @@ void EditorInspector::update_tree() {
 
             if (!found) {
                 DocData *dd = EditorHelp::get_doc_data();
-                Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(classname);
+                auto F = dd->class_list.find(classname);
                 while (F!=dd->class_list.end() && descr.empty()) {
                     for (size_t i = 0; i < F->second.properties.size(); i++) {
                         if (F->second.properties[i].name == propname.asCString()) {
@@ -1730,7 +1730,7 @@ void EditorInspector::update_tree() {
                             //use existin one
                             ep->set_label(name);
                         }
-                        for (int i = 0; i < F.properties.size(); i++) {
+                        for (size_t i = 0; i < F.properties.size(); i++) {
                             StringName prop(F.properties[i]);
                             editor_property_map[prop].push_back(ep);
                         }

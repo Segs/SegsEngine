@@ -31,7 +31,8 @@
 #pragma once
 
 #include "scene/3d/spatial.h"
-#include "core/set.h"
+#include "core/hash_set.h"
+#include "core/rid.h"
 
 class Shape;
 class SpringArm : public Spatial {
@@ -39,11 +40,11 @@ class SpringArm : public Spatial {
 
 	Ref<Shape> shape;
     HashSet<RID> excluded_objects;
-	float spring_length;
-	float current_spring_length;
-	bool keep_child_basis;
-	uint32_t mask;
-	float margin;
+    float spring_length=1.0f;
+    float current_spring_length=0.0f;
+    float margin=0.01f;
+    uint32_t mask=1;
+    bool keep_child_basis=false;
 
 protected:
 	void _notification(int p_what);
@@ -55,13 +56,13 @@ public:
 	void set_shape(const Ref<Shape>& p_shape);
 	Ref<Shape> get_shape() const;
 	void set_mask(uint32_t p_mask);
-	uint32_t get_mask();
+    uint32_t get_mask() { return mask; }
 	void add_excluded_object(RID p_rid);
 	bool remove_excluded_object(RID p_rid);
 	void clear_excluded_objects();
-	float get_hit_length();
+    float get_hit_length() const { return current_spring_length; }
 	void set_margin(float p_margin);
-	float get_margin();
+    float get_margin() const { return margin; }
 
 	SpringArm();
 

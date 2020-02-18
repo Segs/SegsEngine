@@ -32,8 +32,8 @@
 
 #include "core/resource.h"
 #include "core/se_string.h"
-#include "core/map.h"
-#include "core/set.h"
+#include "core/hash_map.h"
+#include "core/hash_set.h"
 
 class GODOT_EXPORT Translation : public Resource {
 
@@ -42,7 +42,7 @@ class GODOT_EXPORT Translation : public Resource {
     RES_BASE_EXTENSION("translation")
 
     String locale;
-    Map<StringName, StringName> translation_map;
+    HashMap<StringName, StringName> translation_map;
 public:
     PoolStringArray _get_message_list() const;
     PoolStringArray _get_messages() const;
@@ -72,10 +72,10 @@ class GODOT_EXPORT TranslationServer : public Object {
     String locale;
     String fallback;
 
-    Set<Ref<Translation> > translations;
+    HashSet<Ref<Translation> > translations;
     Ref<Translation> tool_translation;
 
-    Map<String, String> locale_name_map;
+    HashMap<String, String> locale_name_map;
 
     bool enabled = true;
 

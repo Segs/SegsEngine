@@ -328,7 +328,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
 }
 Error EditorHelp::_goto_desc(se_string_view p_class, int p_vscr) {
 
-    if (!doc->class_list.contains_as(p_class,SNSVComparer()))
+    if (!doc->class_list.contains_as(p_class,eastl::hash<se_string_view>(),SNSVComparer()))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -1305,7 +1305,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.contains_as(tag,SNSVComparer())) {
+        } else if (doc->class_list.contains_as(tag,eastl::hash<se_string_view>(),SNSVComparer())) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("#") + tag);

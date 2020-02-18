@@ -992,7 +992,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
     return OK;
 }
 
-Error DocData::save_classes(se_string_view p_default_path, const Map<StringName, String> &p_class_path) {
+Error DocData::save_classes(se_string_view p_default_path, const HashMap<StringName, String> &p_class_path) {
 
     for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
 

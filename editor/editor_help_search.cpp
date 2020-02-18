@@ -65,8 +65,8 @@ class EditorHelpSearch::Runner : public RefCounted {
         }
     };
 
-    Map<StringName, ClassMatch> matches;
-    Map<StringName, TreeItem *> class_items;
+    HashMap<StringName, ClassMatch> matches;
+    HashMap<StringName, TreeItem *> class_items;
     Control *ui_service;
     Tree *results_tree;
     String term;
@@ -76,8 +76,8 @@ class EditorHelpSearch::Runner : public RefCounted {
     int phase;
     Color disabled_color;
 
-    Map<StringName, DocData::ClassDoc>::iterator iterator_doc;
-    Map<StringName, ClassMatch>::iterator iterator_match;
+    HashMap<StringName, DocData::ClassDoc>::iterator iterator_doc;
+    HashMap<StringName, ClassMatch>::iterator iterator_match;
     TreeItem *root_item;
     TreeItem *matched_item;
 

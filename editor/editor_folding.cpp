@@ -37,6 +37,7 @@
 #include "editor_inspector.h"
 #include "editor_settings.h"
 #include "core/string_utils.h"
+#include "core/set.h"
 
 PoolVector<String> EditorFolding::_get_unfolds(const Object *p_object) {
 
