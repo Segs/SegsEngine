@@ -137,13 +137,7 @@ public:
         OctreeElementID octree_id = 0;
 
         //aabb stuff
-        bool update_aabb=false;
-        bool update_materials=false;
 
-        AABB aabb;
-        AABB transformed_aabb;
-        AABB *custom_aabb; // <Zylann> would using aabb directly with a bool be better?
-        float extra_margin=0.0f;
         uint32_t object_id=0;
 
         float lod_begin;
@@ -184,15 +178,12 @@ public:
             version = 1;
             base_data = nullptr;
 
-            custom_aabb = nullptr;
         }
 
         ~Instance() override {
 
             if (base_data)
                 memdelete(base_data);
-            if (custom_aabb)
-                memdelete(custom_aabb);
         }
     };
 
@@ -408,16 +399,23 @@ public:
     _FORCE_INLINE_ void _update_instance(Instance *p_instance);
     _FORCE_INLINE_ void _update_instance_aabb(Instance *p_instance);
     _FORCE_INLINE_ void _update_dirty_instance(Instance *p_instance);
+    void _update_instance_material(Instance *p_instance);
     _FORCE_INLINE_ void _update_instance_lightmap_captures(Instance *p_instance);
 
-    _FORCE_INLINE_ bool _light_instance_update_shadow(Instance *p_instance, const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_shadow_atlas, Scenario *p_scenario);
+    _FORCE_INLINE_ bool _light_instance_update_shadow(Instance *p_instance, const Transform p_cam_transform,
+            const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_shadow_atlas, Scenario *p_scenario);
 
-    void _prepare_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe);
-    void _render_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe, int p_reflection_probe_pass);
+    void _prepare_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal,
+            RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas,
+            RID p_reflection_probe);
+    void _render_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal,
+            RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe,
+            int p_reflection_probe_pass);
     void render_empty_scene(RID p_scenario, RID p_shadow_atlas);
 
     void render_camera(RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas);
-    void render_camera(Ref<ARVRInterface> &p_interface, ARVRInterface::Eyes p_eye, RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas);
+    void render_camera(Ref<ARVRInterface> &p_interface, ARVRInterface::Eyes p_eye, RID p_camera, RID p_scenario,
+            Size2 p_viewport_size, RID p_shadow_atlas);
     void update_dirty_instances();
 
     //probes
@@ -457,11 +455,16 @@ public:
     ListOld<Instance *> probe_bake_list;
 
     bool _render_reflection_probe_step(Instance *p_instance, int p_step);
-    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell);
+    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell,
+            const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data,
+            Vector<uint32_t> *prev_cell);
 
     _FORCE_INLINE_ uint32_t _gi_bake_find_cell(const GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv);
-    void _bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate);
-    void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells, InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count, const InstanceGIProbeData::LightCache &light_cache, int p_sign);
+    void _bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells,
+            const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate);
+    void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells,
+            InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count,
+            const InstanceGIProbeData::LightCache &light_cache, int p_sign);
     void _bake_gi_probe(Instance *p_gi_probe);
     bool _check_gi_probe(Instance *p_gi_probe);
     void _setup_gi_probe(Instance *p_instance);

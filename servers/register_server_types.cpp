@@ -57,7 +57,7 @@
 #include "audio_server.h"
 #include "camera/camera_feed.h"
 #include "camera_server.h"
-#include "physics/physics_server_sw.h"
+
 #include "physics_2d/physics_2d_server_sw.h"
 #include "physics_2d/physics_2d_server_wrap_mt.h"
 #include "physics_2d_server.h"
@@ -88,10 +88,6 @@ static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsag
 }
 
 ShaderTypes *shader_types = nullptr;
-
-PhysicsServer *_createGodotPhysicsCallback() {
-    return memnew(PhysicsServerSW);
-}
 
 Physics2DServer *_createGodotPhysics2DCallback() {
     return Physics2DServerWrapMT::init_server<Physics2DServerSW>();
@@ -155,9 +151,7 @@ void register_server_types() {
     AudioEffectBandLimitFilter::initialize_class();
     AudioEffectLowShelfFilter::initialize_class();
     AudioEffectHighShelfFilter::initialize_class();
-    PhysicsServerSW::initialize_class();
-    PhysicsDirectBodyStateSW::initialize_class();
-    PhysicsDirectSpaceStateSW::initialize_class();
+
     CameraServer::initialize_class();
     ARVRServer::initialize_class();
     ARVRPositionalTracker::initialize_class();
@@ -265,9 +259,6 @@ void setup_server_defs()
     GLOBAL_DEF(PhysicsServerManager::setting_property_name, "DEFAULT");
     ProjectSettings::get_singleton()->set_custom_property_info(PhysicsServerManager::setting_property_name,
         PropertyInfo(VariantType::STRING, StringName(PhysicsServerManager::setting_property_name), PropertyHint::Enum, "DEFAULT"));
-
-    PhysicsServerManager::register_server("GodotPhysics", &_createGodotPhysicsCallback);
-    PhysicsServerManager::set_default_server(("GodotPhysics"));
 
 }
 void unregister_server_types() {
