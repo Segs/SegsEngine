@@ -3622,7 +3622,7 @@ void VisualServerScene::update_dirty_instances() {
         if (dt.update_materials) {
             _update_instance_material(p_instance);
         }
-        _update_dirty_instance(p_instance);
+        _update_instance(p_instance);
     }
     //remove dirty for everything
     VSG::ecs->registry.reset<Dirty>();
