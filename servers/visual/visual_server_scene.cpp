@@ -900,9 +900,6 @@ void VisualServerScene::instance_attach_skeleton(RID p_instance, RID p_skeleton)
     _instance_queue_update(instance, true);
 }
 
-void VisualServerScene::instance_set_exterior(RID p_instance, bool p_enabled) {
-}
-
 void VisualServerScene::instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) {
     Instance *instance = instance_owner.get(p_instance);
     ERR_FAIL_COND(!instance);

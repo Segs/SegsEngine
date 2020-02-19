@@ -11191,6 +11191,7 @@ int32_t godot_icall_ConfigFile_parse_73262d91(Object * ptr, MonoString* arg1) {
     auto ret = static_cast<ConfigFile *>(ptr)->parse(eastl::move(arg1_in));
     return (int32_t)ret;
 }
+
 int32_t godot_icall_ConfigFile_save_cb25197e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
@@ -18052,6 +18053,7 @@ int32_t godot_icall_Image_detect_used_channels_cbc886f4(Object * ptr, int32_t ar
     auto ret = static_cast<Image *>(ptr)->detect_used_channels((ImageCompressSource)arg1_in);
     return static_cast<int32_t>(ret);
 }
+
 int32_t godot_icall_Image_compress_d8dd7e0e(Object * ptr, int32_t arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
@@ -18060,6 +18062,7 @@ int32_t godot_icall_Image_compress_d8dd7e0e(Object * ptr, int32_t arg1, int32_t 
     auto ret = static_cast<Image *>(ptr)->compress((ImageCompressMode)arg1_in, (ImageCompressSource)arg2_in, arg3_in);
     return (int32_t)ret;
 }
+
 int32_t godot_icall_Image_compress_from_channels_d8dd7e0e(Object * ptr, int32_t arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
@@ -18068,6 +18071,7 @@ int32_t godot_icall_Image_compress_from_channels_d8dd7e0e(Object * ptr, int32_t 
     auto ret = static_cast<Image *>(ptr)->compress_from_channels((ImageCompressMode)arg1_in, (ImageUsedChannels)arg2_in, arg3_in);
     return (int32_t)ret;
 }
+
 int32_t godot_icall_Image_decompress_f04570f5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     auto ret = static_cast<Image *>(ptr)->decompress();
@@ -23556,6 +23560,7 @@ Object* godot_icall_NavigationObstacle2D_Ctor(MonoObject* obj) {
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
+
 void godot_icall_NavigationPolygon_set_vertices_b8a866ba(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector2(arg1);
@@ -46036,12 +46041,6 @@ void godot_icall_VisualServer_instance_attach_skeleton_48010164(Object * ptr, RI
     static_cast<VisualServer *>(ptr)->instance_attach_skeleton(*arg1, *arg2);
 }
 
-void godot_icall_VisualServer_instance_set_exterior_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_exterior(*arg1, arg2_in);
-}
-
 void godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
@@ -50626,12 +50625,12 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 13617026699186256670U; }
+uint64_t get_core_api_hash() { return 16429463360525151867U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 4719693846311282490U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1581583463; }
+uint32_t get_cs_glue_version() { return 1582053245; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();
@@ -57967,7 +57966,6 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_use_lightmap_5e9a7854", (void*)godot_icall_VisualServer_instance_set_use_lightmap_5e9a7854);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_custom_aabb_119d5c29", (void*)godot_icall_VisualServer_instance_set_custom_aabb_119d5c29);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_attach_skeleton_48010164", (void*)godot_icall_VisualServer_instance_attach_skeleton_48010164);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_exterior_56de082b", (void*)godot_icall_VisualServer_instance_set_exterior_56de082b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb", (void*)godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_geometry_set_flag_5bd5be2", (void*)godot_icall_VisualServer_instance_geometry_set_flag_5bd5be2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_geometry_set_cast_shadows_setting_4480f47e", (void*)godot_icall_VisualServer_instance_geometry_set_cast_shadows_setting_4480f47e);

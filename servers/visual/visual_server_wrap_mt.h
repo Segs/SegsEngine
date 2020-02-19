@@ -497,7 +497,6 @@ public:
     FUNC2(instance_set_custom_aabb, RID, AABB)
 
     FUNC2(instance_attach_skeleton, RID, RID)
-    FUNC2(instance_set_exterior, RID, bool)
 
     FUNC2(instance_set_extra_visibility_margin, RID, real_t)
 

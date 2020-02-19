@@ -1844,7 +1844,6 @@ void VisualServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("instance_set_use_lightmap", {"instance", "lightmap_instance", "lightmap"}), &VisualServer::instance_set_use_lightmap);
     MethodBinder::bind_method(D_METHOD("instance_set_custom_aabb", {"instance", "aabb"}), &VisualServer::instance_set_custom_aabb);
     MethodBinder::bind_method(D_METHOD("instance_attach_skeleton", {"instance", "skeleton"}), &VisualServer::instance_attach_skeleton);
-    MethodBinder::bind_method(D_METHOD("instance_set_exterior", {"instance", "enabled"}), &VisualServer::instance_set_exterior);
     MethodBinder::bind_method(D_METHOD("instance_set_extra_visibility_margin", {"instance", "margin"}), &VisualServer::instance_set_extra_visibility_margin);
     MethodBinder::bind_method(D_METHOD("instance_geometry_set_flag", {"instance", "flag", "enabled"}), &VisualServer::instance_geometry_set_flag);
     MethodBinder::bind_method(D_METHOD("instance_geometry_set_cast_shadows_setting", {"instance", "shadow_casting_setting"}), &VisualServer::instance_geometry_set_cast_shadows_setting);

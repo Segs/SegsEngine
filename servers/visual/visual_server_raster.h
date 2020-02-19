@@ -553,7 +553,6 @@ public:
     BIND2(instance_set_custom_aabb, RID, AABB)
 
     BIND2(instance_attach_skeleton, RID, RID)
-    BIND2(instance_set_exterior, RID, bool)
 
     BIND2(instance_set_extra_visibility_margin, RID, real_t)
 

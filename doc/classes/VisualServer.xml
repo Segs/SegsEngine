@@ -1967,17 +1967,6 @@
                 Sets a custom AABB to use when culling objects from the view frustum. Equivalent to [method GeometryInstance.set_custom_aabb].
             </description>
         </method>
-        <method name="instance_set_exterior">
-            <return type="void">
-            </return>
-            <argument index="0" name="instance" type="RID">
-            </argument>
-            <argument index="1" name="enabled" type="bool">
-            </argument>
-            <description>
-                Function not implemented in Godot 3.x.
-            </description>
-        </method>
         <method name="instance_set_extra_visibility_margin">
             <return type="void">
             </return>
