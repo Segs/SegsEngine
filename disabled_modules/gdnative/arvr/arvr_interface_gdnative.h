@@ -73,16 +73,16 @@ public:
 	/** rendering and internal **/
 	Size2 get_render_targetsize() override;
 	bool is_stereo() override;
-	Transform get_transform_for_eye(ARVRInterface::Eyes p_eye, const Transform &p_cam_transform) override;
+	Transform get_transform_for_eye(ARVREyes p_eye, const Transform &p_cam_transform) override;
 
 	// we expose a PoolVector<float> version of this function to GDNative
-	PoolVector<float> _get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far);
+	PoolVector<float> _get_projection_for_eye(ARVREyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far);
 
 	// and a CameraMatrix version to ARVRServer
-	CameraMatrix get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) override;
+	CameraMatrix get_projection_for_eye(ARVREyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) override;
 
-	unsigned int get_external_texture_for_eye(ARVRInterface::Eyes p_eye) override;
-	void commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) override;
+	unsigned int get_external_texture_for_eye(ARVREyes p_eye) override;
+	void commit_for_eye(ARVREyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) override;
 
 	void process() override;
 	void notification(int p_what) override;

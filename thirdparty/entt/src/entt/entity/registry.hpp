@@ -1345,7 +1345,7 @@ public:
      * @tparam Exclude Types of components used to filter the group.
      * @return A newly created group.
      */
-    template<typename Allocator,typename... Owned, typename... Get, typename... Exclude>
+    template<typename... Owned, typename... Get, typename... Exclude>
     entt::basic_group<Entity, Allocator, exclude_t<Exclude...>, get_t<Get...>, Owned...> group(Allocator &&a,get_t<Get...>, exclude_t<Exclude...> = {}) {
         static_assert(sizeof...(Owned) + sizeof...(Get) > 0);
         static_assert(sizeof...(Owned) + sizeof...(Get) + sizeof...(Exclude) > 1);

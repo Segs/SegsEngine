@@ -147,8 +147,8 @@ public:
 
 private:
     Color clear_color;
-    void _draw_3d(Viewport *p_viewport, ARVRInterface::Eyes p_eye);
-    void _draw_viewport(Viewport *p_viewport, ARVRInterface::Eyes p_eye = ARVRInterface::EYE_MONO);
+    void _draw_3d(Viewport *p_viewport, ARVREyes p_eye);
+    void _draw_viewport(Viewport *p_viewport, ARVREyes p_eye = ARVREyes::EYE_MONO);
 
 public:
     RID viewport_create();

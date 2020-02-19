@@ -395,7 +395,7 @@ endif()
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
     target_link_libraries(${tgt}_core PUBLIC se_core)
-    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface)
+    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface concurrent_queue)
 
 
 

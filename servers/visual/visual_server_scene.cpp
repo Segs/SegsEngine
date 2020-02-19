@@ -1904,7 +1904,7 @@ void VisualServerScene::render_camera(RID p_camera, RID p_scenario, Size2 p_view
 #endif
 }
 
-void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInterface::Eyes p_eye, RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas) {
+void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVREyes p_eye, RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas) {
     // render for AR/VR interface
 
     Camera *camera = VSG::ecs->registry.try_get<Camera>(p_camera.eid); //camera_owner.getornull(p_camera);
@@ -1920,12 +1920,12 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
     Transform cam_transform = p_interface->get_transform_for_eye(p_eye, world_origin);
 
     // For stereo render we only prepare for our left eye and then reuse the outcome for our right eye
-    if (p_eye == ARVRInterface::EYE_LEFT) {
+    if (p_eye == ARVREyes::EYE_LEFT) {
         ///@TODO possibly move responsibility for this into our ARVRServer or ARVRInterface?
 
         // Center our transform, we assume basis is equal.
         Transform mono_transform = cam_transform;
-        Transform right_transform = p_interface->get_transform_for_eye(ARVRInterface::EYE_RIGHT, world_origin);
+        Transform right_transform = p_interface->get_transform_for_eye(ARVREyes::EYE_RIGHT, world_origin);
         mono_transform.origin += right_transform.origin;
         mono_transform.origin *= 0.5;
 
@@ -1938,19 +1938,19 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
         float eye_dist = (mono_transform.origin - cam_transform.origin).length();
         float z_near = camera_matrix.get_z_near(); // get our near plane
         float z_far = camera_matrix.get_z_far(); // get our far plane
-        float width = (2.0 * z_near) / camera_matrix.matrix[0][0];
+        float width = (2.0f * z_near) / camera_matrix.matrix[0][0];
         float x_shift = width * camera_matrix.matrix[2][0];
-        float height = (2.0 * z_near) / camera_matrix.matrix[1][1];
+        float height = (2.0f * z_near) / camera_matrix.matrix[1][1];
         float y_shift = height * camera_matrix.matrix[2][1];
 
         // printf("Eye_dist = %f, Near = %f, Far = %f, Width = %f, Shift = %f\n", eye_dist, z_near, z_far, width, x_shift);
 
         // - calculate our near plane size (horizontal only, right_near is mirrored)
-        float left_near = -eye_dist - ((width - x_shift) * 0.5);
+        float left_near = -eye_dist - ((width - x_shift) * 0.5f);
 
         // - calculate our far plane size (horizontal only, right_far is mirrored)
-        float left_far = -eye_dist - (z_far * (width - x_shift) * 0.5 / z_near);
-        float left_far_right_eye = eye_dist - (z_far * (width + x_shift) * 0.5 / z_near);
+        float left_far = -eye_dist - (z_far * (width - x_shift) * 0.5f / z_near);
+        float left_far_right_eye = eye_dist - (z_far * (width + x_shift) * 0.5f / z_near);
         if (left_far > left_far_right_eye) {
             // on displays smaller then double our iod, the right eye far frustrum can overtake the left eyes.
             left_far = left_far_right_eye;
@@ -1961,9 +1961,9 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
         float z_shift = (left_near / slope) - z_near;
 
         // - figure out new vertical near plane size (this will be slightly oversized thanks to our z-shift)
-        float top_near = (height - y_shift) * 0.5;
+        float top_near = (height - y_shift) * 0.5f;
         top_near += (top_near / z_near) * z_shift;
-        float bottom_near = -(height + y_shift) * 0.5;
+        float bottom_near = -(height + y_shift) * 0.5f;
         bottom_near += (bottom_near / z_near) * z_shift;
 
         // printf("Left_near = %f, Left_far = %f, Top_near = %f, Bottom_near = %f, Z_shift = %f\n", left_near, left_far, top_near, bottom_near, z_shift);
@@ -1979,7 +1979,7 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVRInter
 
         // now prepare our scene with our adjusted transform projection matrix
         _prepare_scene(mono_transform, combined_matrix, false, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, RID());
-    } else if (p_eye == ARVRInterface::EYE_MONO) {
+    } else if (p_eye == ARVREyes::EYE_MONO) {
         // For mono render, prepare as per usual
         _prepare_scene(cam_transform, camera_matrix, false, camera->env, camera->visible_layers, p_scenario, p_shadow_atlas, RID());
     }
@@ -2389,7 +2389,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
 
         //render cubemap side
         CameraMatrix cm;
-        cm.set_perspective(90, 1, 0.01, max_distance);
+        cm.set_perspective(90, 1, 0.01f, max_distance);
 
         static const Vector3 view_up[6] = {
             Vector3(0, -1, 0),
@@ -2428,11 +2428,11 @@ void VisualServerScene::_gi_probe_fill_local_data(int p_idx, int p_level, int p_
     if ((uint32_t)p_level == p_header->cell_subdiv - 1) {
 
         Vector3 emission;
-        emission.x = (p_cell[p_idx].emission >> 24) / 255.0;
-        emission.y = ((p_cell[p_idx].emission >> 16) & 0xFF) / 255.0;
-        emission.z = ((p_cell[p_idx].emission >> 8) & 0xFF) / 255.0;
-        float l = (p_cell[p_idx].emission & 0xFF) / 255.0;
-        l *= 8.0;
+        emission.x = (p_cell[p_idx].emission >> 24) / 255.0f;
+        emission.y = ((p_cell[p_idx].emission >> 16) & 0xFF) / 255.0f;
+        emission.z = ((p_cell[p_idx].emission >> 8) & 0xFF) / 255.0f;
+        float l = (p_cell[p_idx].emission & 0xFF) / 255.0f;
+        l *= 8.0f;
 
         emission *= l;
 
@@ -2724,11 +2724,11 @@ uint32_t VisualServerScene::_gi_bake_find_cell(const GIProbeDataCell *cells, int
     int half = size / 2;
 
     if (x < 0 || x >= size)
-        return -1;
+        return ~0U;
     if (y < 0 || y >= size)
-        return -1;
+        return ~0U;
     if (z < 0 || z >= size)
-        return -1;
+        return ~0U;
 
     for (int i = 0; i < p_cell_subdiv - 1; i++) {
 
@@ -2828,7 +2828,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                 const GIProbeDataCell *cell = &cells[idx];
                 InstanceGIProbeData::LocalData *light = &local_data[idx];
 
-                Vector3 to(light->pos[0] + 0.5f, light->pos[1] + 0.5, light->pos[2] + 0.5f);
+                Vector3 to(light->pos[0] + 0.5f, light->pos[1] + 0.5f, light->pos[2] + 0.5f);
                 to += -light_axis.sign() * 0.47f; //make it more likely to receive a ray
 
                 Vector3 norm(
@@ -2837,7 +2837,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                         (((cells[idx].normal >> 0) & 0xFF) / 255.0f) * 2.0f - 1.0f);
 
                 float att = norm.dot(-light_axis);
-                if (att < 0.001) {
+                if (att < 0.001f) {
                     //not lighting towards this
                     continue;
                 }
@@ -2868,9 +2868,9 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
 
                 if (result == idx) {
                     //cell hit itself! hooray!
-                    light->energy[0] += int32_t(light_r * att * ((cell->albedo >> 16) & 0xFF) / 255.0);
-                    light->energy[1] += int32_t(light_g * att * ((cell->albedo >> 8) & 0xFF) / 255.0);
-                    light->energy[2] += int32_t(light_b * att * ((cell->albedo) & 0xFF) / 255.0);
+                    light->energy[0] += int32_t(light_r * att * ((cell->albedo >> 16) & 0xFF) / 255.0f);
+                    light->energy[1] += int32_t(light_g * att * ((cell->albedo >> 8) & 0xFF) / 255.0f);
+                    light->energy[2] += int32_t(light_b * att * ((cell->albedo) & 0xFF) / 255.0f);
                     success_count++;
                 }
             }
@@ -2896,13 +2896,13 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                 const GIProbeDataCell *cell = &cells[idx];
                 InstanceGIProbeData::LocalData *light = &local_data[idx];
 
-                Vector3 to(light->pos[0] + 0.5, light->pos[1] + 0.5, light->pos[2] + 0.5);
-                to += (light_pos - to).sign() * 0.47; //make it more likely to receive a ray
+                Vector3 to(light->pos[0] + 0.5f, light->pos[1] + 0.5f, light->pos[2] + 0.5f);
+                to += (light_pos - to).sign() * 0.47f; //make it more likely to receive a ray
 
                 Vector3 norm(
-                        (((cells[idx].normal >> 16) & 0xFF) / 255.0) * 2.0 - 1.0,
-                        (((cells[idx].normal >> 8) & 0xFF) / 255.0) * 2.0 - 1.0,
-                        (((cells[idx].normal >> 0) & 0xFF) / 255.0) * 2.0 - 1.0);
+                        (((cells[idx].normal >> 16) & 0xFF) / 255.0f) * 2.0f - 1.0f,
+                        (((cells[idx].normal >> 8) & 0xFF) / 255.0f) * 2.0f - 1.0f,
+                        (((cells[idx].normal >> 0) & 0xFF) / 255.0f) * 2.0f - 1.0f);
 
                 Vector3 light_axis = (to - light_pos).normalized();
                 float distance_adv = _get_normal_advance(light_axis);
@@ -2919,7 +2919,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                         continue; // too far away
 
                     float dt = CLAMP((d + distance_adv) / local_radius, 0, 1);
-                    att *= powf(1.0 - dt, light_cache.attenuation);
+                    att *= powf(1.0f - dt, light_cache.attenuation);
                 }
 
                 if (light_cache.type == VS::LIGHT_SPOT) {
@@ -2929,7 +2929,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                         continue;
 
                     float d = CLAMP(angle / light_cache.spot_angle, 0, 1);
-                    att *= powf(1.0 - d, light_cache.spot_attenuation);
+                    att *= powf(1.0f - d, light_cache.spot_attenuation);
                 }
 
                 clip_planes = 0;
@@ -2944,7 +2944,7 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
 
                         clip[clip_planes].d = limits[c] + 1;
                     } else {
-                        clip[clip_planes].d -= 1.0;
+                        clip[clip_planes].d -= 1.0f;
                     }
 
                     clip_planes++;
@@ -2978,9 +2978,9 @@ void VisualServerScene::_bake_gi_probe_light(const GIProbeDataHeader *header, co
                 if (result == idx) {
                     //cell hit itself! hooray!
 
-                    light->energy[0] += int32_t(light_r * att * ((cell->albedo >> 16) & 0xFF) / 255.0);
-                    light->energy[1] += int32_t(light_g * att * ((cell->albedo >> 8) & 0xFF) / 255.0);
-                    light->energy[2] += int32_t(light_b * att * ((cell->albedo) & 0xFF) / 255.0);
+                    light->energy[0] += int32_t(light_r * att * ((cell->albedo >> 16) & 0xFF) / 255.0f);
+                    light->energy[1] += int32_t(light_g * att * ((cell->albedo >> 8) & 0xFF) / 255.0f);
+                    light->energy[2] += int32_t(light_b * att * ((cell->albedo) & 0xFF) / 255.0f);
                 }
             }
             //print_line("BAKE TIME: " + rtos((OS::get_singleton()->get_ticks_usec() - us) / 1000000.0));
@@ -3009,7 +3009,7 @@ void VisualServerScene::_bake_gi_downscale_light(int p_idx, int p_level, const G
         sum[0] += p_local_data[child].energy[0];
         sum[1] += p_local_data[child].energy[1];
         sum[2] += p_local_data[child].energy[2];
-        divisor += 1.0;
+        divisor += 1.0f;
     }
 
     divisor = Math::lerp((float)8.0, divisor, p_propagate);
@@ -3126,9 +3126,9 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
 
                 for (uint32_t j = 0; j < b.source_count; j++) {
 
-                    colors[j].x = (local_data[b.sources[j]].energy[0] / float(probe_data->dynamic.bake_dynamic_range)) / 1024.0;
-                    colors[j].y = (local_data[b.sources[j]].energy[1] / float(probe_data->dynamic.bake_dynamic_range)) / 1024.0;
-                    colors[j].z = (local_data[b.sources[j]].energy[2] / float(probe_data->dynamic.bake_dynamic_range)) / 1024.0;
+                    colors[j].x = (local_data[b.sources[j]].energy[0] / float(probe_data->dynamic.bake_dynamic_range)) / 1024.0f;
+                    colors[j].y = (local_data[b.sources[j]].energy[1] / float(probe_data->dynamic.bake_dynamic_range)) / 1024.0f;
+                    colors[j].z = (local_data[b.sources[j]].energy[2] / float(probe_data->dynamic.bake_dynamic_range)) / 1024.0f;
                 }
                 //super quick and dirty compression
                 //find 2 most further apart

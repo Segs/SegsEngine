@@ -92,7 +92,7 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
     Vector3 ray;
 
-    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
+    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVREyes::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
 
     Vector2 screen_he = cm.get_viewport_half_extents();
     ray = Vector3(((cpos.x / viewport_size.width) * 2.0 - 1.0) * screen_he.x, ((1.0 - (cpos.y / viewport_size.height)) * 2.0 - 1.0) * screen_he.y, -get_znear()).normalized();
@@ -115,7 +115,7 @@ Point2 ARVRCamera::unproject_position(const Vector3 &p_pos) const {
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
-    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
+    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVREyes::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
 
     Plane p(get_camera_transform().xform_inv(p_pos), 1.0);
 
@@ -144,7 +144,7 @@ Vector3 ARVRCamera::project_position(const Point2 &p_point, float p_z_depth) con
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
-    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
+    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVREyes::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
 
     Vector2 vp_he = cm.get_viewport_half_extents();
 
@@ -172,7 +172,7 @@ Frustum ARVRCamera::get_frustum() const {
     ERR_FAIL_COND_V(!is_inside_world(), Frustum());
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
-    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVRInterface::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
+    CameraMatrix cm = arvr_interface->get_projection_for_eye(ARVREyes::EYE_MONO, viewport_size.aspect(), get_znear(), get_zfar());
     return cm.get_projection_planes(get_camera_transform());
 };
 
@@ -602,7 +602,7 @@ void ARVROrigin::_notification(int p_what) {
             Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
             if (arvr_interface && tracked_camera != nullptr) {
                 // get our positioning transform for our headset
-                Transform t = arvr_interface->get_transform_for_eye(ARVRInterface::EYE_MONO, Transform());
+                Transform t = arvr_interface->get_transform_for_eye(ARVREyes::EYE_MONO, Transform());
 
                 // now apply this to our camera
                 tracked_camera->set_transform(t);

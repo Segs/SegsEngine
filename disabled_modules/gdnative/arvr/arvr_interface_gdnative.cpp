@@ -187,7 +187,7 @@ Size2 ARVRInterfaceGDNative::get_render_targetsize() {
     return *vec;
 }
 
-Transform ARVRInterfaceGDNative::get_transform_for_eye(ARVRInterface::Eyes p_eye, const Transform &p_cam_transform) {
+Transform ARVRInterfaceGDNative::get_transform_for_eye(ARVREyes p_eye, const Transform &p_cam_transform) {
     Transform *ret;
 
     ERR_FAIL_COND_V(interface == nullptr, Transform())
@@ -199,7 +199,7 @@ Transform ARVRInterfaceGDNative::get_transform_for_eye(ARVRInterface::Eyes p_eye
     return *ret;
 }
 
-CameraMatrix ARVRInterfaceGDNative::get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) {
+CameraMatrix ARVRInterfaceGDNative::get_projection_for_eye(ARVREyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) {
     CameraMatrix cm;
 
     ERR_FAIL_COND_V(interface == nullptr, CameraMatrix())
@@ -209,7 +209,7 @@ CameraMatrix ARVRInterfaceGDNative::get_projection_for_eye(ARVRInterface::Eyes p
     return cm;
 }
 
-unsigned int ARVRInterfaceGDNative::get_external_texture_for_eye(ARVRInterface::Eyes p_eye) {
+unsigned int ARVRInterfaceGDNative::get_external_texture_for_eye(ARVREyes p_eye) {
 
     ERR_FAIL_COND_V(interface == nullptr, 0)
 
@@ -220,7 +220,7 @@ unsigned int ARVRInterfaceGDNative::get_external_texture_for_eye(ARVRInterface::
     }
 }
 
-void ARVRInterfaceGDNative::commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) {
+void ARVRInterfaceGDNative::commit_for_eye(ARVREyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) {
 
     ERR_FAIL_COND(interface == nullptr);
 
@@ -279,13 +279,13 @@ godot_transform GDAPI godot_arvr_get_reference_frame() {
 
 void GDAPI godot_arvr_blit(godot_int p_eye, godot_rid *p_render_target, godot_rect2 *p_rect) {
     // blits out our texture as is, handy for preview display of one of the eyes that is already rendered with lens distortion on an external HMD
-    ARVRInterface::Eyes eye = (ARVRInterface::Eyes)p_eye;
+    ARVREyes eye = (ARVREyes)p_eye;
     RID *render_target = (RID *)p_render_target;
     Rect2 screen_rect = *(Rect2 *)p_rect;
 
-    if (eye == ARVRInterface::EYE_LEFT) {
+    if (eye == ARVREyes::EYE_LEFT) {
         screen_rect.size.x /= 2.0f;
-    } else if (p_eye == ARVRInterface::EYE_RIGHT) {
+    } else if (p_eye == ARVREyes::EYE_RIGHT) {
         screen_rect.size.x /= 2.0f;
         screen_rect.position.x += screen_rect.size.x;
     }
