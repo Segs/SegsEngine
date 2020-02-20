@@ -854,23 +854,22 @@ public:
     /* Light API */
 
     struct Light : Instantiable {
-
-        VS::LightType type;
         float param[VS::LIGHT_PARAM_MAX];
         Color color;
         Color shadow_color;
         RID projector;
-        bool shadow;
-        bool negative;
-        bool reverse_cull;
-        bool use_gi;
+        uint64_t version;
         uint32_t cull_mask;
+        VS::LightType type;
         VS::LightOmniShadowMode omni_shadow_mode;
         VS::LightOmniShadowDetail omni_shadow_detail;
         VS::LightDirectionalShadowMode directional_shadow_mode;
         VS::LightDirectionalShadowDepthRangeMode directional_range_mode;
-        uint64_t version;
-        bool directional_blend_splits;
+        bool shadow : 1;
+        bool negative : 1;
+        bool reverse_cull : 1;
+        bool use_gi : 1;
+        bool directional_blend_splits : 1;
     };
 
     mutable RID_Owner<Light> light_owner;
@@ -914,18 +913,18 @@ public:
 
     struct ReflectionProbe : Instantiable {
 
-        VS::ReflectionProbeUpdateMode update_mode;
-        float intensity;
         Color interior_ambient;
+        Vector3 extents;
+        Vector3 origin_offset;
+        float intensity;
         float interior_ambient_energy;
         float interior_ambient_probe_contrib;
         float max_distance;
-        Vector3 extents;
-        Vector3 origin_offset;
         uint32_t cull_mask;
-        bool interior;
-        bool box_projection;
-        bool enable_shadows;
+        VS::ReflectionProbeUpdateMode update_mode;
+        bool interior : 1;
+        bool box_projection: 1;
+        bool enable_shadows: 1;
     };
 
     mutable RID_Owner<ReflectionProbe> reflection_probe_owner;

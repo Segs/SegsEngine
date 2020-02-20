@@ -1635,8 +1635,8 @@ void AnimationTimelineEdit::_notification(int p_what) {
 
                 for (int i = 0; i < zoomw; i++) {
 
-                    float pos = get_value() + double(i) / scale;
-                    float prev = get_value() + (double(i) - 1.0) / scale;
+                    float pos = get_value() + float(i) / scale;
+                    float prev = get_value() + (float(i) - 1.0f) / scale;
 
                     int frame = pos / step_size;
                     int prev_frame = prev / step_size;
@@ -1656,14 +1656,14 @@ void AnimationTimelineEdit::_notification(int p_what) {
         } else {
             for (int i = 0; i < zoomw; i++) {
 
-                float pos = get_value() + double(i) / scale;
-                float prev = get_value() + (double(i) - 1.0f) / scale;
+                float pos = get_value() + float(i) / scale;
+                float prev = get_value() + (float(i) - 1.0f) / scale;
 
                 int sc = int(Math::floor(pos * SC_ADJ));
                 int prev_sc = int(Math::floor(prev * SC_ADJ));
                 bool sub = sc % SC_ADJ;
 
-                if (sc / step != prev_sc / step || prev_sc < 0 && sc >= 0) {
+                if (sc / step != prev_sc / step || (prev_sc < 0 && sc >= 0)) {
 
                     int scd = sc < 0 ? prev_sc : sc;
                     draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
@@ -5179,10 +5179,10 @@ void AnimationTrackEditor::_bezier_edit(int p_for_track) {
 
 void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
     //duplicait!
-    if (!selection.empty() && animation && (!transpose || _get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count())) {
+    if (!selection.empty() && animation && (!transpose || (_get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count()))) {
 
         int top_track = 0x7FFFFFFF;
-        float top_time = 1e10;
+        float top_time = 1e10f;
         for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
 
             const SelectedKey &sk = E->first;
@@ -5193,7 +5193,7 @@ void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
             if (sk.track < top_track)
                 top_track = sk.track;
         }
-        ERR_FAIL_COND(top_track == 0x7FFFFFFF || top_time == 1e10);
+        ERR_FAIL_COND(top_track == 0x7FFFFFFF || top_time == 1e10f);
 
         //
 

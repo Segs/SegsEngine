@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUALSERVERVIEWPORT_H
-#define VISUALSERVERVIEWPORT_H
+#pragma once
 
 #include "core/self_list.h"
 #include "rasterizer.h"
@@ -42,41 +41,6 @@ public:
     };
 
     struct Viewport : public RID_Data {
-
-        RID self;
-        RID parent;
-
-        bool use_arvr; /* use arvr interface to override camera positioning and projection matrices and control output */
-
-        Size2i size;
-        RID camera;
-        RID scenario;
-
-        VS::ViewportUpdateMode update_mode;
-        RID render_target;
-        RID render_target_texture;
-
-        int viewport_to_screen;
-        Rect2 viewport_to_screen_rect;
-        bool viewport_render_direct_to_screen;
-
-        bool hide_scenario;
-        bool hide_canvas;
-        bool disable_environment;
-        bool disable_3d;
-        bool disable_3d_by_usage;
-        bool keep_3d_linear;
-
-        RID shadow_atlas;
-        int shadow_atlas_size;
-
-        int render_info[VS::VIEWPORT_RENDER_INFO_MAX];
-        VS::ViewportDebugDraw debug_draw;
-
-        VS::ViewportClearMode clear_mode;
-
-        bool transparent_bg;
-
         struct CanvasKey {
 
             int64_t stacking;
@@ -106,8 +70,34 @@ public:
         };
 
         Transform2D global_transform;
-
         HashMap<RID, CanvasData> canvas_map;
+        RID self;
+        RID parent;
+        RID camera;
+        RID scenario;
+        RID render_target;
+        RID render_target_texture;
+        RID shadow_atlas;
+        Size2i size;
+        Rect2 viewport_to_screen_rect;
+
+        int render_info[VS::VIEWPORT_RENDER_INFO_MAX];
+        int viewport_to_screen;
+        int shadow_atlas_size;
+        VS::ViewportUpdateMode update_mode;
+        VS::ViewportDebugDraw debug_draw;
+        VS::ViewportClearMode clear_mode;
+
+        bool viewport_render_direct_to_screen : 1;
+        bool hide_scenario : 1;
+        bool hide_canvas : 1;
+        bool disable_environment : 1;
+        bool disable_3d : 1;
+        bool disable_3d_by_usage : 1;
+        bool keep_3d_linear : 1;
+        bool use_arvr : 1; /* use arvr interface to override camera positioning and projection matrices and control output */
+
+        bool transparent_bg;
 
         Viewport() {
             update_mode = VS::VIEWPORT_UPDATE_WHEN_VISIBLE;
@@ -204,5 +194,3 @@ public:
     VisualServerViewport() = default;
     virtual ~VisualServerViewport() = default;
 };
-
-#endif // VISUALSERVERVIEWPORT_H

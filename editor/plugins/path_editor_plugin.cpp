@@ -319,14 +319,14 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
         if (!mb->is_pressed())
             set_handle_clicked(false);
 
-        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && (curve_create->is_pressed() || curve_edit->is_pressed() && mb->get_control())) {
+        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && (curve_create->is_pressed() || (curve_edit->is_pressed() && mb->get_control()))) {
             //click into curve, break it down
             PoolVector<Vector3> v3a = c->tessellate();
             int idx = 0;
             int rc = v3a.size();
             int closest_seg = -1;
             Vector3 closest_seg_point;
-            float closest_d = 1e20;
+            float closest_d = 1e20f;
 
             if (rc >= 2) {
                 PoolVector<Vector3>::Read r = v3a.read();
@@ -413,7 +413,8 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
                 //add new at pos
             }
 
-        } else if (mb->is_pressed() && (mb->get_button_index() == BUTTON_LEFT && curve_del->is_pressed() || mb->get_button_index() == BUTTON_RIGHT && curve_edit->is_pressed())) {
+        } else if (mb->is_pressed() && ((mb->get_button_index() == BUTTON_LEFT && curve_del->is_pressed()) ||
+                                        (mb->get_button_index() == BUTTON_RIGHT && curve_edit->is_pressed()))) {
 
             for (int i = 0; i < c->get_point_count(); i++) {
                 real_t dist_to_p = p_camera->unproject_position(gt.xform(c->get_point_position(i))).distance_to(mbpos);
@@ -657,8 +658,8 @@ int PathSpatialGizmoPlugin::get_priority() const {
 
 PathSpatialGizmoPlugin::PathSpatialGizmoPlugin() {
 
-    Color path_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/path", Color(0.5, 0.5, 1.0, 0.8));
+    Color path_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/path", Color(0.5f, 0.5f, 1.0f, 0.8f));
     create_material("path_material", path_color);
-    create_material("path_thin_material", Color(0.5, 0.5, 0.5));
+    create_material("path_thin_material", Color(0.5f, 0.5f, 0.5f));
     create_handle_material("handles");
 }

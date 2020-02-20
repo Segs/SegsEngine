@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 namespace VisualServerEnums {
 enum {
@@ -25,14 +26,14 @@ enum TextureFlags {
     TEXTURE_FLAGS_DEFAULT = TEXTURE_FLAG_REPEAT | TEXTURE_FLAG_MIPMAPS | TEXTURE_FLAG_FILTER
 };
 
-enum TextureType {
+enum TextureType : int8_t  {
     TEXTURE_TYPE_2D,
     TEXTURE_TYPE_CUBEMAP,
     TEXTURE_TYPE_2D_ARRAY,
     TEXTURE_TYPE_3D,
 };
 
-enum CubeMapSide {
+enum CubeMapSide : int8_t  {
 
     CUBEMAP_LEFT,
     CUBEMAP_RIGHT,
@@ -43,7 +44,7 @@ enum CubeMapSide {
 };
 /* SHADER API */
 
-enum ShaderMode {
+enum ShaderMode : int8_t  {
 
     SHADER_SPATIAL,
     SHADER_CANVAS_ITEM,
@@ -61,7 +62,7 @@ enum {
 
 /* MESH API */
 
-enum ArrayType {
+enum ArrayType : int8_t  {
 
     ARRAY_VERTEX = 0,
     ARRAY_NORMAL = 1,
@@ -106,7 +107,7 @@ enum ArrayFormat {
 
 };
 
-enum PrimitiveType {
+enum PrimitiveType : int8_t  {
     PRIMITIVE_POINTS = 0,
     PRIMITIVE_LINES = 1,
     PRIMITIVE_LINE_STRIP = 2,
@@ -117,25 +118,25 @@ enum PrimitiveType {
     PRIMITIVE_MAX = 7,
 };
 
-enum BlendShapeMode {
+enum BlendShapeMode : int8_t  {
     BLEND_SHAPE_MODE_NORMALIZED,
     BLEND_SHAPE_MODE_RELATIVE,
 };
 /* MULTIMESH API */
 
-enum MultimeshTransformFormat {
+enum MultimeshTransformFormat : int8_t  {
     MULTIMESH_TRANSFORM_2D,
     MULTIMESH_TRANSFORM_3D,
 };
 
-enum MultimeshColorFormat {
+enum MultimeshColorFormat  : int8_t {
     MULTIMESH_COLOR_NONE,
     MULTIMESH_COLOR_8BIT,
     MULTIMESH_COLOR_FLOAT,
     MULTIMESH_COLOR_MAX
 };
 
-enum MultimeshCustomDataFormat {
+enum MultimeshCustomDataFormat : int8_t  {
     MULTIMESH_CUSTOM_DATA_NONE,
     MULTIMESH_CUSTOM_DATA_8BIT,
     MULTIMESH_CUSTOM_DATA_FLOAT,
@@ -143,13 +144,13 @@ enum MultimeshCustomDataFormat {
 };
 /* Light API */
 
-enum LightType {
+enum LightType : int8_t {
     LIGHT_DIRECTIONAL,
     LIGHT_OMNI,
     LIGHT_SPOT
 };
 
-enum LightParam {
+enum LightParam  : int8_t {
 
     LIGHT_PARAM_ENERGY,
     LIGHT_PARAM_INDIRECT_ENERGY,
@@ -169,36 +170,36 @@ enum LightParam {
     LIGHT_PARAM_MAX
 };
 // omni light
-enum LightOmniShadowMode {
+enum LightOmniShadowMode : int8_t {
     LIGHT_OMNI_SHADOW_DUAL_PARABOLOID,
     LIGHT_OMNI_SHADOW_CUBE,
 };
 // omni light
-enum LightOmniShadowDetail {
+enum LightOmniShadowDetail : int8_t{
     LIGHT_OMNI_SHADOW_DETAIL_VERTICAL,
     LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL
 };
 // directional light
-enum LightDirectionalShadowMode {
+enum LightDirectionalShadowMode : int8_t {
     LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL,
     LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS,
     LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS
 };
 
-enum LightDirectionalShadowDepthRangeMode {
+enum LightDirectionalShadowDepthRangeMode : int8_t {
     LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE,
     LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED,
 
 };
 /* PROBE API */
 
-enum ReflectionProbeUpdateMode {
+enum ReflectionProbeUpdateMode : int8_t {
     REFLECTION_PROBE_UPDATE_ONCE,
     REFLECTION_PROBE_UPDATE_ALWAYS,
 };
 /* PARTICLES API */
 
-enum ParticlesDrawOrder {
+enum ParticlesDrawOrder : int8_t  {
     PARTICLES_DRAW_ORDER_INDEX,
     PARTICLES_DRAW_ORDER_LIFETIME,
     PARTICLES_DRAW_ORDER_VIEW_DEPTH,
@@ -206,19 +207,19 @@ enum ParticlesDrawOrder {
 
 /* VIEWPORT TARGET API */
 
-enum ViewportUpdateMode {
+enum ViewportUpdateMode : int8_t {
     VIEWPORT_UPDATE_DISABLED,
     VIEWPORT_UPDATE_ONCE, //then goes to disabled, must be manually updated
     VIEWPORT_UPDATE_WHEN_VISIBLE, // default
     VIEWPORT_UPDATE_ALWAYS
 };
-enum ViewportClearMode {
+enum ViewportClearMode : int8_t  {
 
     VIEWPORT_CLEAR_ALWAYS,
     VIEWPORT_CLEAR_NEVER,
     VIEWPORT_CLEAR_ONLY_NEXT_FRAME
 };
-enum ViewportMSAA {
+enum ViewportMSAA : int8_t {
     VIEWPORT_MSAA_DISABLED,
     VIEWPORT_MSAA_2X,
     VIEWPORT_MSAA_4X,
@@ -227,13 +228,13 @@ enum ViewportMSAA {
     VIEWPORT_MSAA_EXT_2X,
     VIEWPORT_MSAA_EXT_4X,
 };
-enum ViewportUsage {
+enum ViewportUsage : int8_t {
     VIEWPORT_USAGE_2D,
     VIEWPORT_USAGE_2D_NO_SAMPLING,
     VIEWPORT_USAGE_3D,
     VIEWPORT_USAGE_3D_NO_EFFECTS,
 };
-enum ViewportRenderInfo {
+enum ViewportRenderInfo : int8_t {
 
     VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME,
     VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME,
@@ -243,7 +244,7 @@ enum ViewportRenderInfo {
     VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME,
     VIEWPORT_RENDER_INFO_MAX
 };
-enum ViewportDebugDraw {
+enum ViewportDebugDraw : int8_t {
     VIEWPORT_DEBUG_DRAW_DISABLED,
     VIEWPORT_DEBUG_DRAW_UNSHADED,
     VIEWPORT_DEBUG_DRAW_OVERDRAW,
@@ -251,7 +252,7 @@ enum ViewportDebugDraw {
 };
 /* ENVIRONMENT API */
 
-enum EnvironmentBG {
+enum EnvironmentBG : int8_t {
 
     ENV_BG_CLEAR_COLOR,
     ENV_BG_COLOR,
@@ -262,30 +263,30 @@ enum EnvironmentBG {
     ENV_BG_CAMERA_FEED,
     ENV_BG_MAX
 };
-enum EnvironmentDOFBlurQuality {
+enum EnvironmentDOFBlurQuality : int8_t {
     ENV_DOF_BLUR_QUALITY_LOW,
     ENV_DOF_BLUR_QUALITY_MEDIUM,
     ENV_DOF_BLUR_QUALITY_HIGH,
 };
-enum EnvironmentGlowBlendMode {
+enum EnvironmentGlowBlendMode : int8_t {
     GLOW_BLEND_MODE_ADDITIVE,
     GLOW_BLEND_MODE_SCREEN,
     GLOW_BLEND_MODE_SOFTLIGHT,
     GLOW_BLEND_MODE_REPLACE,
 };
-enum EnvironmentToneMapper {
+enum EnvironmentToneMapper : int8_t {
     ENV_TONE_MAPPER_LINEAR,
     ENV_TONE_MAPPER_REINHARD,
     ENV_TONE_MAPPER_FILMIC,
     ENV_TONE_MAPPER_ACES
 };
-enum EnvironmentSSAOQuality {
+enum EnvironmentSSAOQuality : int8_t {
     ENV_SSAO_QUALITY_LOW,
     ENV_SSAO_QUALITY_MEDIUM,
     ENV_SSAO_QUALITY_HIGH,
 };
 
-enum EnvironmentSSAOBlur {
+enum EnvironmentSSAOBlur : int8_t {
     ENV_SSAO_BLUR_DISABLED,
     ENV_SSAO_BLUR_1x1,
     ENV_SSAO_BLUR_2x2,
@@ -293,7 +294,7 @@ enum EnvironmentSSAOBlur {
 };
 /* SCENARIO API */
 
-enum ScenarioDebugMode {
+enum ScenarioDebugMode : int8_t {
     SCENARIO_DEBUG_DISABLED,
     SCENARIO_DEBUG_WIREFRAME,
     SCENARIO_DEBUG_OVERDRAW,
@@ -317,31 +318,31 @@ enum InstanceType {
 
     INSTANCE_GEOMETRY_MASK = (1 << INSTANCE_MESH) | (1 << INSTANCE_MULTIMESH) | (1 << INSTANCE_IMMEDIATE) | (1 << INSTANCE_PARTICLES)
 };
-enum InstanceFlags {
+enum InstanceFlags : int8_t {
     INSTANCE_FLAG_USE_BAKED_LIGHT,
     INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE,
     INSTANCE_FLAG_MAX
 };
 
-enum ShadowCastingSetting {
+enum ShadowCastingSetting : int8_t {
     SHADOW_CASTING_SETTING_OFF,
     SHADOW_CASTING_SETTING_ON,
     SHADOW_CASTING_SETTING_DOUBLE_SIDED,
     SHADOW_CASTING_SETTING_SHADOWS_ONLY,
 };
-enum NinePatchAxisMode {
+enum NinePatchAxisMode : int8_t {
     NINE_PATCH_STRETCH,
     NINE_PATCH_TILE,
     NINE_PATCH_TILE_FIT,
 };
-enum CanvasLightMode {
+enum CanvasLightMode : int8_t {
     CANVAS_LIGHT_MODE_ADD,
     CANVAS_LIGHT_MODE_SUB,
     CANVAS_LIGHT_MODE_MIX,
     CANVAS_LIGHT_MODE_MASK,
 };
 
-enum CanvasLightShadowFilter {
+enum CanvasLightShadowFilter : int8_t {
     CANVAS_LIGHT_FILTER_NONE,
     CANVAS_LIGHT_FILTER_PCF3,
     CANVAS_LIGHT_FILTER_PCF5,
@@ -349,7 +350,7 @@ enum CanvasLightShadowFilter {
     CANVAS_LIGHT_FILTER_PCF9,
     CANVAS_LIGHT_FILTER_PCF13,
 };
-enum CanvasOccluderPolygonCullMode {
+enum CanvasOccluderPolygonCullMode : int8_t {
     CANVAS_OCCLUDER_POLYGON_CULL_DISABLED,
     CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE,
     CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE,
@@ -357,7 +358,7 @@ enum CanvasOccluderPolygonCullMode {
 
 /* STATUS INFORMATION */
 
-enum RenderInfo {
+enum RenderInfo : int8_t {
 
     INFO_OBJECTS_IN_FRAME,
     INFO_VERTICES_IN_FRAME,
@@ -373,7 +374,7 @@ enum RenderInfo {
 
 /* TESTING */
 
-enum Features {
+enum Features : int8_t {
     FEATURE_SHADERS,
     FEATURE_MULTITHREADED,
 };

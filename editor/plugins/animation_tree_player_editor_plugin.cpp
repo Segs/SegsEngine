@@ -652,7 +652,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
         int inputs = anim_tree->node_get_input_count(node);
         int count = MAX(inputs, 1);
 
-        if (inputs == 0 || pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT) {
+        if (inputs == 0 || (pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT)) {
 
             if (y < count * h) {
 

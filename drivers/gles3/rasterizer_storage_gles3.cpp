@@ -1685,7 +1685,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         GLenum format = GL_RGBA;
         GLenum type = use_float ? GL_HALF_FLOAT : GL_UNSIGNED_INT_2_10_10_10_REV;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, nullptr);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -1708,7 +1708,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
             glGenTextures(1, &tmp_tex);
             glBindTexture(GL_TEXTURE_2D, tmp_tex);
-            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, upscale_size, 2.0 * upscale_size, 0, format, type, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, upscale_size, 2.0f * upscale_size, 0, format, type, nullptr);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp_tex, 0);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1790,7 +1790,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         GLenum format = GL_RGBA;
         GLenum type = use_float ? GL_HALF_FLOAT : GL_UNSIGNED_INT_2_10_10_10_REV;
 
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internal_format, size, size * 2, array_level, 0, format, type, NULL);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, internal_format, size, size * 2, array_level, 0, format, type, nullptr);
 
         glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1803,7 +1803,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
             glGenTextures(1, &tmp_tex);
             glBindTexture(GL_TEXTURE_2D, tmp_tex);
-            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, nullptr);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp_tex, 0);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1904,7 +1904,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         GLenum format = GL_RGBA;
         GLenum type = use_float ? GL_HALF_FLOAT : GL_UNSIGNED_INT_2_10_10_10_REV;
 
-        glTexStorage2DCustom(GL_TEXTURE_2D, mipmaps, internal_format, size, size * 2.0, format, type);
+        glTexStorage2DCustom(GL_TEXTURE_2D, mipmaps, internal_format, size, size * 2.0f, format, type);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmaps - 1);
@@ -1919,7 +1919,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
             glGenTextures(1, &tmp_tex);
             glBindTexture(GL_TEXTURE_2D, tmp_tex);
-            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, nullptr);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp_tex, 0);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1943,7 +1943,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
             ERR_CONTINUE(status != GL_FRAMEBUFFER_COMPLETE);
 #endif
             glBindTexture(GL_TEXTURE_2D, tmp_tex);
-            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, nullptr);
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp_tex, 0);
 #ifdef GLES_OVER_GL
@@ -3226,7 +3226,7 @@ void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, VS:
 
     int stride = 0;
 
-    for (int i = 0; i < VS::ARRAY_MAX; i++) {
+    for (uint8_t i = 0; i < VS::ARRAY_MAX; i++) {
 
         attribs[i].index = i;
 
@@ -4068,7 +4068,7 @@ void RasterizerStorageGLES3::mesh_render_blend_shapes(Surface *s, const float *p
 
     glBindVertexArray(s->array_id);
 
-    BlendShapeShaderGLES3::Conditionals cond[VS::ARRAY_MAX - 1] = {
+    static constexpr const BlendShapeShaderGLES3::Conditionals cond[VS::ARRAY_MAX - 1] = {
         BlendShapeShaderGLES3::ENABLE_NORMAL, //will be ignored
         BlendShapeShaderGLES3::ENABLE_NORMAL,
         BlendShapeShaderGLES3::ENABLE_TANGENT,
@@ -4108,7 +4108,7 @@ void RasterizerStorageGLES3::mesh_render_blend_shapes(Surface *s, const float *p
     //copy all first
     float base_weight = 1.0;
 
-    int mtc = s->blend_shapes.size();
+    size_t mtc = s->blend_shapes.size();
 
     if (s->mesh->blend_shape_mode == VS::BLEND_SHAPE_MODE_NORMALIZED) {
 
@@ -4136,7 +4136,7 @@ void RasterizerStorageGLES3::mesh_render_blend_shapes(Surface *s, const float *p
     for (int ti = 0; ti < mtc; ti++) {
         float weight = p_weights[ti];
 
-        if (weight < 0.00001) //not bother with this one
+        if (weight < 0.00001f) //not bother with this one
             continue;
 
         glBindVertexArray(s->blend_shapes[ti].array_id);
@@ -4146,7 +4146,7 @@ void RasterizerStorageGLES3::mesh_render_blend_shapes(Surface *s, const float *p
         shaders.blend_shapes.set_uniform(BlendShapeShaderGLES3::BLEND_AMOUNT, weight);
 
         int ofs = 0;
-        for (int i = 0; i < VS::ARRAY_MAX - 1; i++) {
+        for (uint8_t i = 0; i < VS::ARRAY_MAX - 1; i++) {
 
             if (s->format & (1 << i)) {
                 glEnableVertexAttribArray(i + 8);
@@ -4216,7 +4216,7 @@ void RasterizerStorageGLES3::mesh_render_blend_shapes(Surface *s, const float *p
     glBindBuffer(GL_ARRAY_BUFFER, resources.transform_feedback_buffers[0]);
 
     int ofs = 0;
-    for (int i = 0; i < VS::ARRAY_MAX - 1; i++) {
+    for (uint8_t i = 0; i < VS::ARRAY_MAX - 1; i++) {
 
         if (s->format & (1 << i)) {
             glEnableVertexAttribArray(i);

@@ -488,7 +488,7 @@ EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
 static bool _epp_is_text_char(CharType c) {
 
-    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
+    return c.isLetterOrNumber() || c == '_';
 }
 
 bool EditorScriptPreviewPlugin::handles(se_string_view p_type) const {
@@ -528,7 +528,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     img->lock();
 
-    if (bg_color.a == 0)
+    if (bg_color.a == 0.0f)
         bg_color = Color(0, 0, 0, 0);
     bg_color.a = MAX(bg_color.a, 0.2f); // some background
 
@@ -552,7 +552,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
             if (col < thumbnail_size) {
                 Color color = text_color;
 
-                if (c != '_' && (c >= '!' && c <= '/' || c >= ':' && c <= '@' || c >= '[' && c <= '`' || c >= '{' && c <= '~' || c == '\t')) {
+                if (c != '_' && ((c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~') || c == '\t')) {
                     //make symbol a little visible
                     color = symbol_color;
                     in_keyword = false;

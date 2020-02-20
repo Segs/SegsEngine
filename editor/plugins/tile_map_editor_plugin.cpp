@@ -333,7 +333,7 @@ void TileMapEditor::_set_cell(const Point2i &p_pos, Span<const int> p_values, bo
     if (tool == TOOL_PASTING)
         return;
 
-    if (manual_autotile || p_value != -1 && node->get_tileset()->tile_get_tile_mode(p_value) == TileSet::ATLAS_TILE) {
+    if (manual_autotile || (p_value != -1 && node->get_tileset()->tile_get_tile_mode(p_value) == TileSet::ATLAS_TILE)) {
         if (current != -1) {
             node->set_cell_autotile_coord(p_pos.x, p_pos.y, position);
         } else if (node->get_tileset()->tile_get_tile_mode(p_value) == TileSet::ATLAS_TILE && priority_atlastile) {
@@ -604,7 +604,8 @@ void TileMapEditor::_pick_tile(const Point2 &p_pos) {
     set_selected_tiles(selected);
     _update_palette();
 
-    if (manual_autotile && node->get_tileset()->tile_get_tile_mode(id) == TileSet::AUTO_TILE || !priority_atlastile && node->get_tileset()->tile_get_tile_mode(id) == TileSet::ATLAS_TILE) {
+    if ((manual_autotile && node->get_tileset()->tile_get_tile_mode(id) == TileSet::AUTO_TILE) ||
+            (!priority_atlastile && node->get_tileset()->tile_get_tile_mode(id) == TileSet::ATLAS_TILE)) {
         manual_palette->select(manual_palette->find_metadata((Point2)autotile_coord));
     }
 
@@ -815,10 +816,10 @@ void TileMapEditor::_draw_cell(Control *p_viewport, int p_cell, const Point2i &p
 
     if (compatibility_mode_enabled && !centered_texture) {
         if (rect.size.y > rect.size.x) {
-            if ((p_flip_h && (p_flip_v || p_transpose)) || p_flip_v && !p_transpose)
+            if ((p_flip_h && (p_flip_v || p_transpose)) || (p_flip_v && !p_transpose))
                 tile_ofs.y += rect.size.y - rect.size.x;
         } else if (rect.size.y < rect.size.x) {
-            if ((p_flip_v && (p_flip_h || p_transpose)) || p_flip_h && !p_transpose)
+            if ((p_flip_v && (p_flip_h || p_transpose)) || (p_flip_h && !p_transpose))
                 tile_ofs.x += rect.size.x - rect.size.y;
         }
     }

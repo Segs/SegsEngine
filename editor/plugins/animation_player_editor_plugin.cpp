@@ -1466,7 +1466,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
 
         float pos = cpos + step_off * anim->get_step();
 
-        bool valid = anim->has_loop() || pos >= 0 && pos <= anim->get_length();
+        bool valid = anim->has_loop() || (pos >= 0 && pos <= anim->get_length());
         onion.captures_valid[cidx] = valid;
         if (valid) {
             player->seek(pos, true);

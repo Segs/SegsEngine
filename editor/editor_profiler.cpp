@@ -505,9 +505,7 @@ void EditorProfiler::_graph_tex_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
     Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
 
-    if (
-            mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed() ||
-            mm) {
+    if ( (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) || mm) {
 
         int x = me->get_position().x;
         x = x * frame_metrics.size() / graph->get_size().width;

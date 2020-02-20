@@ -1971,7 +1971,7 @@ void EditorNode::_run(bool p_current, se_string_view p_custom) {
     bool skip_breakpoints;
 
     if (p_current ||
-            editor_data.get_edited_scene_root() && p_custom == editor_data.get_edited_scene_root()->get_filename()) {
+            (editor_data.get_edited_scene_root() && p_custom == editor_data.get_edited_scene_root()->get_filename())) {
 
         Node *scene = editor_data.get_edited_scene_root();
 
@@ -2831,8 +2831,8 @@ void EditorNode::_discard_changes(se_string_view p_str) {
                 }
             } else if (current_option == FILE_CLOSE_OTHERS || current_option == FILE_CLOSE_RIGHT) {
                 if (editor_data.get_edited_scene_count() == 1 ||
-                        current_option == FILE_CLOSE_RIGHT &&
-                        editor_data.get_edited_scene_count() <= editor_data.get_edited_scene() + 1) {
+                        (current_option == FILE_CLOSE_RIGHT &&
+                        editor_data.get_edited_scene_count() <= editor_data.get_edited_scene() + 1)) {
                     current_option = -1;
                     save_confirmation->hide();
                 } else {
@@ -4971,8 +4971,8 @@ void EditorNode::_scene_tab_input(const Ref<InputEvent> &p_input) {
             _scene_tab_closed(scene_tabs->get_hovered_tab());
         }
     } else {
-        if (mb->get_button_index() == BUTTON_LEFT && mb->is_doubleclick() ||
-                mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed()) {
+        if ((mb->get_button_index() == BUTTON_LEFT && mb->is_doubleclick()) ||
+            (mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed())) {
             _menu_option_confirm(FILE_NEW_SCENE, true);
         }
     }
@@ -5694,13 +5694,13 @@ void EditorNode::_feature_profile_changed() {
         if (StreamPeerSSL::is_available())
             main_editor_buttons[EDITOR_ASSETLIB]->set_visible(
                     !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_ASSET_LIB));
-        if (profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D) &&
-            singleton->main_editor_buttons[EDITOR_3D]->is_pressed() ||
-                profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT) &&
-                singleton->main_editor_buttons[EDITOR_SCRIPT]->is_pressed() ||
-                StreamPeerSSL::is_available() &&
+        if ((profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D) &&
+            singleton->main_editor_buttons[EDITOR_3D]->is_pressed()) ||
+                (profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT) &&
+                singleton->main_editor_buttons[EDITOR_SCRIPT]->is_pressed()) ||
+                (StreamPeerSSL::is_available() &&
                 profile->is_feature_disabled(EditorFeatureProfile::FEATURE_ASSET_LIB) &&
-                singleton->main_editor_buttons[EDITOR_ASSETLIB]->is_pressed()) {
+                singleton->main_editor_buttons[EDITOR_ASSETLIB]->is_pressed())) {
             _editor_select(EDITOR_2D);
         }
     } else {

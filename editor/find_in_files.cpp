@@ -63,7 +63,7 @@ inline void pop_back(T &container) {
 
 // TODO Copied from TextEdit private, would be nice to extract it in a single place
 static bool is_text_char(CharType c) {
-    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
+    return c.isLetter() || c.isDigit() || c == '_';
 }
 
 static bool find_next(const String &line, const String& pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
@@ -849,9 +849,9 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
 
     int offset = 0;
 
-    for (int i = 0; i < locations.size(); ++i) {
+    for (const FindInFilesPanel::Result &r : locations) {
 
-        int repl_line_number = locations[i].line_number;
+        int repl_line_number = r.line_number;
 
         while (current_line < repl_line_number) {
             buffer += line;
@@ -860,8 +860,8 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
             offset = 0;
         }
 
-        int repl_begin = locations[i].begin + offset;
-        int repl_end = locations[i].end + offset;
+        int repl_begin = r.begin + offset;
+        int repl_end = r.end + offset;
 
         int _;
         if (!find_next(line, search_text, repl_begin, _finder->is_match_case(), _finder->is_whole_words(), _, _)) {

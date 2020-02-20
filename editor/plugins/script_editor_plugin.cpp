@@ -348,7 +348,7 @@ void ScriptEditor::_set_execution(REF p_script, int p_line) {
             if (!se)
                 continue;
 
-            if (script != nullptr && se->get_edited_resource() == script || se->get_edited_resource()->get_path() == script->get_path()) {
+            if ((script != nullptr && se->get_edited_resource() == script) || se->get_edited_resource()->get_path() == script->get_path()) {
                 se->set_executing_line(p_line);
             }
         }
@@ -364,7 +364,7 @@ void ScriptEditor::_clear_execution(REF p_script) {
             if (!se)
                 continue;
 
-            if (script != nullptr && se->get_edited_resource() == script || se->get_edited_resource()->get_path() == script->get_path()) {
+            if ((script != nullptr && se->get_edited_resource() == script) || se->get_edited_resource()->get_path() == script->get_path()) {
                 se->clear_executing_line();
             }
         }
@@ -2107,7 +2107,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
                     }
                     inside_quotes = !inside_quotes;
 
-                } else if (flags[i] == '\0' || !inside_quotes && flags[i] == ' ') {
+                } else if (flags[i] == '\0' || (!inside_quotes && flags[i] == ' ')) {
 
                     se_string_view arg = StringUtils::substr(flags,from, num_chars);
                     if (StringUtils::contains(arg,"{file}")) {
@@ -2144,7 +2144,8 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         if (!se)
             continue;
 
-        if (script != nullptr && se->get_edited_resource() == p_resource || se->get_edited_resource()->get_path() == p_resource->get_path()) {
+        if ((script != nullptr && se->get_edited_resource() == p_resource) ||
+                se->get_edited_resource()->get_path() == p_resource->get_path()) {
 
             if (should_open) {
                 if (tab_container->get_current_tab() != i) {

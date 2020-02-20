@@ -160,7 +160,8 @@ bool ScriptCreateDialog::_validate_class(const UIString &p_string) {
                 return false; // no start with number plz
         }
 
-        bool valid_char = p_string[i] >= '0' && p_string[i] <= '9' || p_string[i] >= 'a' && p_string[i] <= 'z' || p_string[i] >= 'A' && p_string[i] <= 'Z' || p_string[i] == '_' || p_string[i] == '.';
+        bool valid_char = p_string[i].isDigit() || p_string[i].isLetter() ||
+                          p_string[i] == '_' || p_string[i] == '.';
 
         if (!valid_char)
             return false;
@@ -480,7 +481,7 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
     dirs.emplace_back(EditorSettings::get_singleton()->get_project_script_templates_dir());
     dirs.emplace_back(EditorSettings::get_singleton()->get_script_templates_dir());
 
-    for (int i = 0; i < dirs.size(); i++) {
+    for (size_t i = 0; i < dirs.size(); i++) {
 
         Vector<String> list(EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]));
 
@@ -555,7 +556,7 @@ void ScriptCreateDialog::_file_selected(const String &p_file) {
         _path_changed(p);
 
         String filename(PathUtils::get_basename(PathUtils::get_file(p)));
-        int select_start = StringUtils::find_last(p,filename);
+        auto select_start = StringUtils::find_last(p,filename);
         file_path->select(select_start, select_start + filename.length());
         file_path->set_cursor_position(select_start + filename.length());
         file_path->grab_focus();

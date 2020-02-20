@@ -269,7 +269,7 @@ public:
             float spot_attenuation = 1.0f;
             bool visible=true;
 
-            bool operator==(const LightCache &p_cache) const {
+            bool operator==(const LightCache &p_cache) const noexcept {
 
                 return (type == p_cache.type &&
                         transform == p_cache.transform &&
@@ -282,7 +282,7 @@ public:
                         visible == p_cache.visible);
             }
 
-            bool operator!=(const LightCache &p_cache) const {
+            bool operator!=(const LightCache &p_cache) const noexcept {
 
                 return !operator==(p_cache);
             }

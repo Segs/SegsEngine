@@ -190,7 +190,7 @@ void CreateDialog::add_type(
             return;
     }
 
-    bool can_instance = cpp_type && ClassDB::can_instance(p_type) || ScriptServer::is_global_class(p_type);
+    bool can_instance = (cpp_type && ClassDB::can_instance(p_type)) || ScriptServer::is_global_class(p_type);
 
     TreeItem *item = search_options->create_item(parent);
     if (cpp_type) {
@@ -232,13 +232,13 @@ void CreateDialog::add_type(
 
             if (is_subsequence_of_type && !is_selected_equal) {
                 if (is_substring_of_type) {
-                    if (!is_substring_of_selected || current_type_prefered && !selected_type_prefered) {
+                    if (!is_substring_of_selected || (current_type_prefered && !selected_type_prefered)) {
                         *to_select = item;
                     }
                 } else {
                     // substring results weigh more than subsequences, so let's make sure we don't override them
                     if (!is_substring_of_selected) {
-                        if (!is_subsequence_of_selected || current_type_prefered && !selected_type_prefered) {
+                        if (!is_subsequence_of_selected || (current_type_prefered && !selected_type_prefered)) {
                             *to_select = item;
                         }
                     }

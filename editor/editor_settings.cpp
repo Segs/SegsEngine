@@ -144,7 +144,7 @@ bool EditorSettings::_get(const StringName &p_name, Variant &r_ret) const {
                 }
 
                 Ref<InputEvent> original(sc->get_meta("original"));
-                if (sc->is_shortcut(original) || not original && not sc->get_shortcut())
+                if ((not original && not sc->get_shortcut()) || sc->is_shortcut(original))
                     continue; //not changed from default, don't save
             }
 
@@ -1319,7 +1319,7 @@ bool EditorSettings::is_dark_theme() {
     int LIGHT_COLOR = 2;
     Color base_color = get("interface/theme/base_color");
     int icon_font_color_setting = get("interface/theme/icon_and_font_color");
-    return icon_font_color_setting == AUTO_COLOR && (base_color.r + base_color.g + base_color.b) / 3.0f < 0.5f ||
+    return (icon_font_color_setting == AUTO_COLOR && (base_color.r + base_color.g + base_color.b) / 3.0f < 0.5f) ||
            icon_font_color_setting == LIGHT_COLOR;
 }
 

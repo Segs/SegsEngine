@@ -1470,7 +1470,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                                 }
                             }
                         } else {
-                            if (erasing && mb->get_button_index() == BUTTON_RIGHT || !erasing && mb->get_button_index() == BUTTON_LEFT) {
+                            if ((erasing && mb->get_button_index() == BUTTON_RIGHT) || (!erasing && mb->get_button_index() == BUTTON_LEFT)) {
                                 dragging = false;
                                 erasing = false;
                                 alternative = false;
@@ -2411,7 +2411,7 @@ void TileSetEditor::_zoom_reset() {
 void TileSetEditor::draw_highlight_current_tile() {
 
     Color shadow_color = Color(0.3f, 0.3f, 0.3f, 0.3f);
-    if (workspace_mode == WORKSPACE_EDIT && get_current_tile() >= 0 || !edited_region.has_no_area()) {
+    if ((workspace_mode == WORKSPACE_EDIT && get_current_tile() >= 0) || !edited_region.has_no_area()) {
         Rect2 region;
         if (edited_region.has_no_area()) {
             region = tileset->tile_get_region(get_current_tile());

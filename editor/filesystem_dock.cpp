@@ -80,7 +80,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
     subdirectory_item->set_selectable(0, true);
     String lpath = p_dir->get_path();
     subdirectory_item->set_metadata(0, lpath);
-    if (!p_select_in_favorites && (path == lpath || display_mode == DISPLAY_MODE_SPLIT && PathUtils::get_base_dir(path) == lpath)) {
+    if (!p_select_in_favorites && (path == lpath || (display_mode == DISPLAY_MODE_SPLIT && PathUtils::get_base_dir(path) == lpath))) {
         subdirectory_item->select(0);
     }
 
@@ -873,7 +873,7 @@ void FileSystemDock::_tree_activate_file() {
         TreeItem *parent = selected->get_parent();
         bool is_favorite = parent != nullptr && parent->get_metadata(0) == "Favorites";
 
-        if (!is_favorite && StringUtils::ends_with( path,"/") || path == "Favorites") {
+        if ((!is_favorite && StringUtils::ends_with( path,"/")) || path == "Favorites") {
             bool collapsed = selected->is_collapsed();
             selected->set_collapsed(!collapsed);
         } else {

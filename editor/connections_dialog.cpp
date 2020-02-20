@@ -720,7 +720,7 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
     String midname(selectedNode->get_name());
     for (size_t i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
         char c = midname[i];
-        if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_')) {
+        if (!(isalpha(c) || isdigit(c) || c == '_')) {
             if (c == ' ') {
                 // Replace spaces with underlines.
                 c = '_';
