@@ -36,266 +36,12 @@
 #include "core/typedefs.h"
 #include "core/error_macros.h"
 
+#include "EASTL/functional.h"
+
 #include <type_traits>
 
-#define COMMA(N) _COMMA_##N
-#define _COMMA_0
-#define _COMMA_1 ,
-#define _COMMA_2 ,
-#define _COMMA_3 ,
-#define _COMMA_4 ,
-#define _COMMA_5 ,
-#define _COMMA_6 ,
-#define _COMMA_7 ,
-#define _COMMA_8 ,
-#define _COMMA_9 ,
-#define _COMMA_10 ,
-#define _COMMA_11 ,
-#define _COMMA_12 ,
-#define _COMMA_13 ,
-#define _COMMA_14 ,
-#define _COMMA_15 ,
-
-// 1-based comma separated list of ITEMs
-#define COMMA_SEP_LIST(ITEM, LENGTH) _COMMA_SEP_LIST_##LENGTH(ITEM)
-#define _COMMA_SEP_LIST_15(ITEM) \
-    _COMMA_SEP_LIST_14(ITEM)     \
-    , ITEM(15)
-#define _COMMA_SEP_LIST_14(ITEM) \
-    _COMMA_SEP_LIST_13(ITEM)     \
-    , ITEM(14)
-#define _COMMA_SEP_LIST_13(ITEM) \
-    _COMMA_SEP_LIST_12(ITEM)     \
-    , ITEM(13)
-#define _COMMA_SEP_LIST_12(ITEM) \
-    _COMMA_SEP_LIST_11(ITEM)     \
-    , ITEM(12)
-#define _COMMA_SEP_LIST_11(ITEM) \
-    _COMMA_SEP_LIST_10(ITEM)     \
-    , ITEM(11)
-#define _COMMA_SEP_LIST_10(ITEM) \
-    _COMMA_SEP_LIST_9(ITEM)      \
-    , ITEM(10)
-#define _COMMA_SEP_LIST_9(ITEM) \
-    _COMMA_SEP_LIST_8(ITEM)     \
-    , ITEM(9)
-#define _COMMA_SEP_LIST_8(ITEM) \
-    _COMMA_SEP_LIST_7(ITEM)     \
-    , ITEM(8)
-#define _COMMA_SEP_LIST_7(ITEM) \
-    _COMMA_SEP_LIST_6(ITEM)     \
-    , ITEM(7)
-#define _COMMA_SEP_LIST_6(ITEM) \
-    _COMMA_SEP_LIST_5(ITEM)     \
-    , ITEM(6)
-#define _COMMA_SEP_LIST_5(ITEM) \
-    _COMMA_SEP_LIST_4(ITEM)     \
-    , ITEM(5)
-#define _COMMA_SEP_LIST_4(ITEM) \
-    _COMMA_SEP_LIST_3(ITEM)     \
-    , ITEM(4)
-#define _COMMA_SEP_LIST_3(ITEM) \
-    _COMMA_SEP_LIST_2(ITEM)     \
-    , ITEM(3)
-#define _COMMA_SEP_LIST_2(ITEM) \
-    _COMMA_SEP_LIST_1(ITEM)     \
-    , ITEM(2)
-#define _COMMA_SEP_LIST_1(ITEM) \
-    _COMMA_SEP_LIST_0(ITEM)     \
-    ITEM(1)
-#define _COMMA_SEP_LIST_0(ITEM)
-
-// 1-based semicolon separated list of ITEMs
-#define SEMIC_SEP_LIST(ITEM, LENGTH) _SEMIC_SEP_LIST_##LENGTH(ITEM)
-#define _SEMIC_SEP_LIST_15(ITEM) \
-    _SEMIC_SEP_LIST_14(ITEM);    \
-    ITEM(15)
-#define _SEMIC_SEP_LIST_14(ITEM) \
-    _SEMIC_SEP_LIST_13(ITEM);    \
-    ITEM(14)
-#define _SEMIC_SEP_LIST_13(ITEM) \
-    _SEMIC_SEP_LIST_12(ITEM);    \
-    ITEM(13)
-#define _SEMIC_SEP_LIST_12(ITEM) \
-    _SEMIC_SEP_LIST_11(ITEM);    \
-    ITEM(12)
-#define _SEMIC_SEP_LIST_11(ITEM) \
-    _SEMIC_SEP_LIST_10(ITEM);    \
-    ITEM(11)
-#define _SEMIC_SEP_LIST_10(ITEM) \
-    _SEMIC_SEP_LIST_9(ITEM);     \
-    ITEM(10)
-#define _SEMIC_SEP_LIST_9(ITEM) \
-    _SEMIC_SEP_LIST_8(ITEM);    \
-    ITEM(9)
-#define _SEMIC_SEP_LIST_8(ITEM) \
-    _SEMIC_SEP_LIST_7(ITEM);    \
-    ITEM(8)
-#define _SEMIC_SEP_LIST_7(ITEM) \
-    _SEMIC_SEP_LIST_6(ITEM);    \
-    ITEM(7)
-#define _SEMIC_SEP_LIST_6(ITEM) \
-    _SEMIC_SEP_LIST_5(ITEM);    \
-    ITEM(6)
-#define _SEMIC_SEP_LIST_5(ITEM) \
-    _SEMIC_SEP_LIST_4(ITEM);    \
-    ITEM(5)
-#define _SEMIC_SEP_LIST_4(ITEM) \
-    _SEMIC_SEP_LIST_3(ITEM);    \
-    ITEM(4)
-#define _SEMIC_SEP_LIST_3(ITEM) \
-    _SEMIC_SEP_LIST_2(ITEM);    \
-    ITEM(3)
-#define _SEMIC_SEP_LIST_2(ITEM) \
-    _SEMIC_SEP_LIST_1(ITEM);    \
-    ITEM(2)
-#define _SEMIC_SEP_LIST_1(ITEM) \
-    _SEMIC_SEP_LIST_0(ITEM)     \
-    ITEM(1)
-#define _SEMIC_SEP_LIST_0(ITEM)
-
-// 1-based space separated list of ITEMs
-#define SPACE_SEP_LIST(ITEM, LENGTH) _SPACE_SEP_LIST_##LENGTH(ITEM)
-#define _SPACE_SEP_LIST_15(ITEM) \
-    _SPACE_SEP_LIST_14(ITEM)     \
-    ITEM(15)
-#define _SPACE_SEP_LIST_14(ITEM) \
-    _SPACE_SEP_LIST_13(ITEM)     \
-    ITEM(14)
-#define _SPACE_SEP_LIST_13(ITEM) \
-    _SPACE_SEP_LIST_12(ITEM)     \
-    ITEM(13)
-#define _SPACE_SEP_LIST_12(ITEM) \
-    _SPACE_SEP_LIST_11(ITEM)     \
-    ITEM(12)
-#define _SPACE_SEP_LIST_11(ITEM) \
-    _SPACE_SEP_LIST_10(ITEM)     \
-    ITEM(11)
-#define _SPACE_SEP_LIST_10(ITEM) \
-    _SPACE_SEP_LIST_9(ITEM)      \
-    ITEM(10)
-#define _SPACE_SEP_LIST_9(ITEM) \
-    _SPACE_SEP_LIST_8(ITEM)     \
-    ITEM(9)
-#define _SPACE_SEP_LIST_8(ITEM) \
-    _SPACE_SEP_LIST_7(ITEM)     \
-    ITEM(8)
-#define _SPACE_SEP_LIST_7(ITEM) \
-    _SPACE_SEP_LIST_6(ITEM)     \
-    ITEM(7)
-#define _SPACE_SEP_LIST_6(ITEM) \
-    _SPACE_SEP_LIST_5(ITEM)     \
-    ITEM(6)
-#define _SPACE_SEP_LIST_5(ITEM) \
-    _SPACE_SEP_LIST_4(ITEM)     \
-    ITEM(5)
-#define _SPACE_SEP_LIST_4(ITEM) \
-    _SPACE_SEP_LIST_3(ITEM)     \
-    ITEM(4)
-#define _SPACE_SEP_LIST_3(ITEM) \
-    _SPACE_SEP_LIST_2(ITEM)     \
-    ITEM(3)
-#define _SPACE_SEP_LIST_2(ITEM) \
-    _SPACE_SEP_LIST_1(ITEM)     \
-    ITEM(2)
-#define _SPACE_SEP_LIST_1(ITEM) \
-    _SPACE_SEP_LIST_0(ITEM)     \
-    ITEM(1)
-#define _SPACE_SEP_LIST_0(ITEM)
-
-#define ARG(N) p##N
-#define PARAM(N) P##N p##N
-#define TYPE_PARAM(N) class P##N
 template<typename T>
 using base_type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
-#define PARAM_DECL(N) base_type<P##N> p##N
-
-#define DECL_CMD(N)                                                    \
-    template <class T, class M COMMA(N) COMMA_SEP_LIST(TYPE_PARAM, N)> \
-    struct Command##N : public CommandBase {                           \
-        T *instance;                                                   \
-        M method;                                                      \
-        SEMIC_SEP_LIST(PARAM_DECL, N);                                 \
-        void call() override {                                         \
-            (instance->*method)(COMMA_SEP_LIST(ARG, N));               \
-        }                                                              \
-    };
-
-#define DECL_CMD_RET(N)                                                         \
-    template <class T, class M, COMMA_SEP_LIST(TYPE_PARAM, N) COMMA(N) class R> \
-    struct CommandRet##N : public SyncCommand {                                 \
-        R *ret;                                                                 \
-        T *instance;                                                            \
-        M method;                                                               \
-        SEMIC_SEP_LIST(PARAM_DECL, N);                                          \
-        void call() override {                                                  \
-            *ret = (instance->*method)(COMMA_SEP_LIST(ARG, N));                 \
-        }                                                                       \
-    };
-
-#define DECL_CMD_SYNC(N)                                               \
-    template <class T, class M COMMA(N) COMMA_SEP_LIST(TYPE_PARAM, N)> \
-    struct CommandSync##N : public SyncCommand {                       \
-        T *instance;                                                   \
-        M method;                                                      \
-        SEMIC_SEP_LIST(PARAM_DECL, N);                                 \
-        void call() override {                                         \
-            (instance->*method)(COMMA_SEP_LIST(ARG, N));               \
-        }                                                              \
-    };
-
-#define TYPE_ARG(N) P##N
-#define CMD_TYPE(N) Command##N<T, M COMMA(N) COMMA_SEP_LIST(TYPE_ARG, N)>
-#define CMD_ASSIGN_PARAM(N) cmd->p##N = p##N
-
-#define DECL_PUSH(N)                                                         \
-    template <class T, class M COMMA(N) COMMA_SEP_LIST(TYPE_PARAM, N)>       \
-    void push(T *p_instance, M p_method COMMA(N) COMMA_SEP_LIST(PARAM, N)) { \
-        CMD_TYPE(N) *cmd = allocate_and_lock<CMD_TYPE(N)>();                 \
-        cmd->instance = p_instance;                                          \
-        cmd->method = p_method;                                              \
-        SEMIC_SEP_LIST(CMD_ASSIGN_PARAM, N);                                 \
-        unlock();                                                            \
-        if (sync) sync->post();                                              \
-    }
-
-#define CMD_RET_TYPE(N) CommandRet##N<T, M, COMMA_SEP_LIST(TYPE_ARG, N) COMMA(N) R>
-
-#define DECL_PUSH_AND_RET(N)                                                                   \
-    template <class T, class M, COMMA_SEP_LIST(TYPE_PARAM, N) COMMA(N) class R>                \
-    void push_and_ret(T *p_instance, M p_method, COMMA_SEP_LIST(PARAM, N) COMMA(N) R *r_ret) { \
-        SyncSemaphore *ss = _alloc_sync_sem();                                                 \
-        CMD_RET_TYPE(N) *cmd = allocate_and_lock<CMD_RET_TYPE(N)>();                           \
-        cmd->instance = p_instance;                                                            \
-        cmd->method = p_method;                                                                \
-        SEMIC_SEP_LIST(CMD_ASSIGN_PARAM, N);                                                   \
-        cmd->ret = r_ret;                                                                      \
-        cmd->sync_sem = ss;                                                                    \
-        unlock();                                                                              \
-        if (sync) sync->post();                                                                \
-        ss->sem->wait();                                                                       \
-        ss->in_use = false;                                                                    \
-    }
-
-#define CMD_SYNC_TYPE(N) CommandSync##N<T, M COMMA(N) COMMA_SEP_LIST(TYPE_ARG, N)>
-
-#define DECL_PUSH_AND_SYNC(N)                                                         \
-    template <class T, class M COMMA(N) COMMA_SEP_LIST(TYPE_PARAM, N)>                \
-    void push_and_sync(T *p_instance, M p_method COMMA(N) COMMA_SEP_LIST(PARAM, N)) { \
-        SyncSemaphore *ss = _alloc_sync_sem();                                        \
-        CMD_SYNC_TYPE(N) *cmd = allocate_and_lock<CMD_SYNC_TYPE(N)>();                \
-        cmd->instance = p_instance;                                                   \
-        cmd->method = p_method;                                                       \
-        SEMIC_SEP_LIST(CMD_ASSIGN_PARAM, N);                                          \
-        cmd->sync_sem = ss;                                                           \
-        unlock();                                                                     \
-        if (sync) sync->post();                                                       \
-        ss->sem->wait();                                                              \
-        ss->in_use = false;                                                           \
-    }
-
-#define MAX_CMD_PARAMS 15
 
 class GODOT_EXPORT CommandQueueMT {
 
@@ -306,33 +52,16 @@ class GODOT_EXPORT CommandQueueMT {
     };
 
     struct CommandBase {
-
-        virtual void call() = 0;
-        virtual void post(){}
-        virtual ~CommandBase()= default;
-    };
-
-    struct SyncCommand : public CommandBase {
-
-        SyncSemaphore *sync_sem;
-
-        void post() override {
-            sync_sem->sem->post();
+        eastl::function<void()> callable;
+        SyncSemaphore *sync_sem = nullptr;
+        void call() {
+            callable();
+        }
+        void post() {
+            if(sync_sem)
+                sync_sem->sem->post();
         }
     };
-
-    DECL_CMD(0)
-    SPACE_SEP_LIST(DECL_CMD, 15)
-
-    /* comands that return */
-    DECL_CMD_RET(0)
-    SPACE_SEP_LIST(DECL_CMD_RET, 15)
-
-    /* commands that don't return but sync */
-    DECL_CMD_SYNC(0)
-    SPACE_SEP_LIST(DECL_CMD_SYNC, 15)
-
-    /***** BASE *******/
 
     enum {
         COMMAND_MEM_SIZE_KB = 256,
@@ -465,17 +194,36 @@ class GODOT_EXPORT CommandQueueMT {
     bool dealloc_one();
 
 public:
-    /* NORMAL PUSH COMMANDS */
-    DECL_PUSH(0)
-    SPACE_SEP_LIST(DECL_PUSH, 15)
 
-    /* PUSH AND RET COMMANDS */
-    DECL_PUSH_AND_RET(0)
-    SPACE_SEP_LIST(DECL_PUSH_AND_RET, 15)
+    void push(eastl::function<void()> func) {
+        auto cmd = allocate_and_lock<CommandBase>();
+        cmd->callable = eastl::move(func);
+        unlock();
+        if (sync)
+            sync->post();
+    }
+    void push_and_ret(eastl::function<void()> func) {
+        SyncSemaphore *ss = _alloc_sync_sem();
+        auto cmd = allocate_and_lock<CommandBase>();
+        cmd->callable = eastl::move(func);
+        cmd->sync_sem = ss;
+        unlock();
+        if (sync)
+            sync->post();
+        ss->sem->wait();
+        ss->in_use = false;
+    }
+    void push_and_sync(eastl::function<void()> func) {
+        SyncSemaphore *ss = _alloc_sync_sem();
+        auto cmd = allocate_and_lock<CommandBase>();
+        cmd->callable = eastl::move(func);
+        cmd->sync_sem = ss;
+        unlock();
+        if (sync) sync->post();
+        ss->sem->wait();
+        ss->in_use = false;
 
-    /* PUSH AND RET SYNC COMMANDS*/
-    DECL_PUSH_AND_SYNC(0)
-    SPACE_SEP_LIST(DECL_PUSH_AND_SYNC, 15)
+    }
 
     void wait_and_flush_one() {
         ERR_FAIL_COND(!sync);
@@ -495,19 +243,3 @@ public:
     CommandQueueMT(bool p_sync);
     ~CommandQueueMT();
 };
-
-#undef ARG
-#undef PARAM
-#undef TYPE_PARAM
-#undef PARAM_DECL
-#undef DECL_CMD
-#undef DECL_CMD_RET
-#undef DECL_CMD_SYNC
-#undef TYPE_ARG
-#undef CMD_TYPE
-#undef CMD_ASSIGN_PARAM
-#undef DECL_PUSH
-#undef CMD_RET_TYPE
-#undef DECL_PUSH_AND_RET
-#undef CMD_SYNC_TYPE
-#undef DECL_CMD_SYNC

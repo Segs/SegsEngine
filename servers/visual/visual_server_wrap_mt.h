@@ -100,7 +100,8 @@ public:
 
     void texture_set_path(RID p1, se_string_view p2) override {
         if (Thread::get_caller_id() != server_thread) {
-            command_queue.push(server_name, &ServerName::texture_set_path, p1, String(p2));
+            String by_val(p2);
+            command_queue.push( [this,p1,by_val]() { server_name->texture_set_path(p1, by_val);});
         } else {
             server_name->texture_set_path(p1, p2);
         }
@@ -109,7 +110,7 @@ public:
     const String &texture_get_path(RID p1) const override {
         if (Thread::get_caller_id() != server_thread) {
             thread_local String ret;
-            command_queue.push_and_ret(server_name, &ServerName::texture_get_path, p1, &ret);
+            command_queue.push_and_ret( [this,p1,&ret]() { ret = server_name->texture_get_path(p1);});
             SYNC_DEBUG
             return ret;
         } else {
@@ -189,8 +190,8 @@ public:
         if (Thread::get_caller_id() != server_thread) {
             using RetType = const Vector<AABB> *;
 
-            RetType ret;
-            command_queue.push_and_ret(server_name, (RetType(ServerName::*)(RID, int))&ServerName::mesh_surface_get_skeleton_aabb, p1, p2, &ret);
+            thread_local RetType ret;
+            command_queue.push_and_ret( [this,p1,p2,&ret]() { ret = &server_name->mesh_surface_get_skeleton_aabb(p1, p2);});
             SYNC_DEBUG
             return *ret;
         }
