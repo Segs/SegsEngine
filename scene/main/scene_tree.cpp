@@ -137,7 +137,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             if (!n->has_node(np)) continue;
             Node *n2 = n->get_node(np);
 
-            n2->call(p_method, VARIANT_ARG_PASS);
+            n2->call_va(p_method, VARIANT_ARG_PASS);
         }
     }
     void _live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
@@ -170,7 +170,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         RES r(ResourceCache::get(resp));
         if (not r) return;
 
-        r->call(p_method, VARIANT_ARG_PASS);
+        r->call_va(p_method, VARIANT_ARG_PASS);
     }
 
     void _live_edit_root_func(const NodePath &p_scene_path, se_string_view p_scene_from) {
@@ -626,7 +626,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
                 if (p_call_flags & GROUP_CALL_MULTILEVEL)
                     nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
                 else
-                    nodes[i]->call(p_function, VARIANT_ARG_PASS);
+                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
             } else
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
         }
@@ -642,7 +642,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
                 if (p_call_flags & GROUP_CALL_MULTILEVEL)
                     nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
                 else
-                    nodes[i]->call(p_function, VARIANT_ARG_PASS);
+                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
             } else
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
         }

@@ -163,7 +163,7 @@ void EditorAssetLibraryItemDescription::set_image(int p_type, int p_index, const
 
         case EditorAssetLibrary::IMAGE_QUEUE_ICON: {
 
-            item->call("set_image", p_type, p_index, p_image);
+            item->call_va("set_image", p_type, p_index, p_image);
             icon = p_image;
         } break;
         case EditorAssetLibrary::IMAGE_QUEUE_THUMBNAIL: {
@@ -778,12 +778,12 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
             Ref<ImageTexture> tex(make_ref_counted<ImageTexture>());
             tex->create_from_image(image);
 
-            obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, tex);
+            obj->call_va("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, tex);
             image_set = true;
         }
 
         if (!image_set && final) {
-            obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
+            obj->call_va("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
         }
     }
 }
@@ -832,7 +832,7 @@ void EditorAssetLibrary::_image_request_completed(
         WARN_PRINT("Error getting image file from URL: " + image_queue[p_queue_id].image_url);
         Object *obj = ObjectDB::get_instance(image_queue[p_queue_id].target);
         if (obj) {
-            obj->call("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
+            obj->call_va("set_image", image_queue[p_queue_id].image_type, image_queue[p_queue_id].image_index, get_icon("FileBrokenBigThumb", "EditorIcons"));
         }
     }
 

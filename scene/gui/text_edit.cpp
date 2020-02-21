@@ -6931,7 +6931,7 @@ StringName TextEdit::get_tooltip(const Point2 &p_pos) const {
         return Control::get_tooltip(p_pos);
     int beg, end;
     if (select_word(s, col, beg, end)) {
-        return tooltip_obj->call(tooltip_func, StringUtils::to_utf8(StringUtils::substr(s,beg, end - beg)), tooltip_ud);
+        return tooltip_obj->call_va(tooltip_func, StringUtils::to_utf8(StringUtils::substr(s,beg, end - beg)), tooltip_ud);
     }
 
     return Control::get_tooltip(p_pos);

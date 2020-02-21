@@ -226,7 +226,7 @@ void AnimationTreePlayerEditor::_edit_dialog_edit_animation() {
 
     if (Engine::get_singleton()->is_editor_hint()) {
         //TODO: SEGS: the amount of conversion operator calls below looks pretty strange.
-        get_tree()->get_root()->get_child(0)->call("_resource_selected", Variant(property_editor->get_variant().operator RefPtr()));
+        get_tree()->get_root()->get_child(0)->call_va("_resource_selected", Variant(property_editor->get_variant().as<RefPtr>()));
     }
 };
 

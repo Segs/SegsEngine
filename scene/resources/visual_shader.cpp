@@ -118,9 +118,9 @@ namespace {
                 if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
                     VisualShaderNode *ptr = const_cast<VisualShaderNode *>(vs->graph[type].nodes.at(from_node).node.get());
                     if (ptr->has_method("get_input_real_name")) {
-                        inputs[i] = ptr->call("get_input_real_name").as<String>();
+                        inputs[i] = ptr->call_va("get_input_real_name").as<String>();
                     } else if (ptr->has_method("get_uniform_name")) {
-                        inputs[i] = ptr->call("get_uniform_name").as<String>();
+                        inputs[i] = ptr->call_va("get_uniform_name").as<String>();
                     } else {
                         inputs[i] = "";
                     }

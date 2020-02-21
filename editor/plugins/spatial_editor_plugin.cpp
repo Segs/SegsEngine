@@ -314,7 +314,7 @@ void SpatialEditorViewport::_select(Node *p_node, bool p_append, bool p_single) 
 
     if (p_single) {
         if (Engine::get_singleton()->is_editor_hint())
-            editor->call("edit_node", Variant(p_node));
+            editor->call_va("edit_node", Variant(p_node));
     }
 }
 

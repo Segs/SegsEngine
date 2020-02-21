@@ -314,7 +314,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     ERR_BREAK(!res);
                     if (owner && hint == PropertyHint::ResourceType && hint_text == "Script") {
                         //make visual script the right type
-                        res->call("set_instance_base_type", owner->get_class());
+                        res->call_va("set_instance_base_type", owner->get_class());
                     }
 
                     v = Variant(Ref<Resource>(res));

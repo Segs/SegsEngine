@@ -1999,7 +1999,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
     }
 
     if (!base_node && get_edited_object()->has_method("get_root_path")) {
-        base_node = get_edited_object()->call("get_root_path");
+        base_node = get_edited_object()->call_va("get_root_path");
     }
 
     if (!base_node && object_cast<RefCounted>(get_edited_object())) {
@@ -2138,7 +2138,7 @@ void EditorPropertyResource::_file_selected(se_string_view p_path) {
 
     RES res(ResourceLoader::load(p_path));
 
-    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'."); 
+    ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'.");
 
     Vector<PropertyInfo> prop_list;
     get_edited_object()->get_property_list(&prop_list);
@@ -2372,7 +2372,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             ERR_BREAK(!resp);
             if (get_edited_object() && !base_type.empty() && base_type == "Script") {
                 //make visual script the right type
-                resp->call("set_instance_base_type", get_edited_object()->get_class());
+                resp->call_va("set_instance_base_type", get_edited_object()->get_class());
             }
 
             res = Ref<Resource>(resp);

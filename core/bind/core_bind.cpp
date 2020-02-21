@@ -988,8 +988,8 @@ void _OS::print_all_textures_by_size() {
             if (!E->is_class("ImageTexture"))
                 continue;
 
-            Size2 size = E->call("get_size");
-            int fmt = E->call("get_format");
+            Size2 size = E->call_va("get_size");
+            int fmt = E->call_va("get_format");
 
             _OSCoreBindImg img;
             img.size = size;
@@ -1508,7 +1508,7 @@ Variant _Geometry::segment_intersects_segment_2d(const Vector2 &p_from_a, const 
         return result;
     } else {
         return Variant();
-    };
+    }
 };
 
 Variant _Geometry::line_intersects_line_2d(const Vector2 &p_from_a, const Vector2 &p_dir_a, const Vector2 &p_from_b, const Vector2 &p_dir_b) {

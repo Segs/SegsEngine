@@ -139,7 +139,7 @@ void InspectorDock::_menu_option(int p_option) {
                 ERR_FAIL_INDEX(idx, methods.size());
                 StringName name = methods[idx].name;
 
-                current->call(name);
+                current->call_va(name);
             }
         }
     }
@@ -257,7 +257,7 @@ void InspectorDock::_prepare_history() {
         } else if (object_cast<Node>(obj)) {
             text = object_cast<Node>(obj)->get_name();
         } else if (obj->is_class("ScriptEditorDebuggerInspectedObject")) {
-            text = obj->call("get_title").as<String>();
+            text = obj->call_va("get_title").as<String>();
         } else {
             text = obj->get_class();
         }

@@ -184,7 +184,7 @@ void ScriptEditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
                                 k->get_scancode() == KEY_PAGEUP ||
                                 k->get_scancode() == KEY_PAGEDOWN)) {
 
-        search_options->call("_gui_input", k);
+        search_options->call_va("_gui_input", k);
         search_box->accept_event();
     }
 }

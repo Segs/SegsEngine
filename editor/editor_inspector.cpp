@@ -476,7 +476,7 @@ bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringNam
         }
     }
 
-    if (p_object->call("property_can_revert", p_property).operator bool()) {
+    if (p_object->call_va("property_can_revert", p_property).as<bool>()) {
 
         has_revert = true;
     }
@@ -684,8 +684,8 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
                 return;
             }
 
-            if (object->call("property_can_revert", property).operator bool()) {
-                Variant rev = object->call("property_get_revert", property);
+            if (object->call_va("property_can_revert", property).operator bool()) {
+                Variant rev = object->call_va("property_get_revert", property);
                 emit_changed(property, rev);
                 update_property();
                 return;
@@ -1549,7 +1549,7 @@ void EditorInspector::update_tree() {
         if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && VisualServer::get_singleton()->is_low_end())
             continue; //do not show this property in low end gfx
 
-        if (p.name == "script" && (hide_script || bool(object->call("_hide_script_from_inspector")))) {
+        if (p.name == "script" && (hide_script || bool(object->call_va("_hide_script_from_inspector")))) {
             continue;
         }
 
@@ -1974,7 +1974,7 @@ void EditorInspector::_edit_set(se_string_view p_name, const Variant &p_value, b
         }
     }
 
-    if (!undo_redo || bool(object->call("_dont_undo_redo"))) {
+    if (!undo_redo || bool(object->call_va("_dont_undo_redo"))) {
 
         object->set(StringName(p_name), p_value);
         if (p_refresh_all)

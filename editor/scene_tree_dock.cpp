@@ -1554,7 +1554,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     Node *validate = new_parent;
     while (validate) {
 
-        ERR_FAIL_COND_MSG(p_nodes.contains(validate), "Selection changed at some point. Can't reparent."); 
+        ERR_FAIL_COND_MSG(p_nodes.contains(validate), "Selection changed at some point. Can't reparent.");
         validate = validate->get_parent();
     }
     //TODO: SEGS: is the sorting below actually needed ?
@@ -1868,7 +1868,7 @@ void SceneTreeDock::_delete_confirm() {
     // Fixes the EditorHistory from still offering deleted notes
     EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
     editor_history->cleanup_history();
-    EditorNode::get_singleton()->get_inspector_dock()->call("_prepare_history");
+    EditorNode::get_singleton()->get_inspector_dock()->call_va("_prepare_history");
 }
 
 void SceneTreeDock::_update_script_button() {
@@ -2133,11 +2133,11 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
         editor->set_edited_scene(newnode);
         newnode->set_editable_instances(n->get_editable_instances());
     }
-
+    //TODO: SEGS: un-hack this?
     //small hack to make collisionshapes and other kind of nodes to work
     for (int i = 0; i < newnode->get_child_count(); i++) {
         Node *c = newnode->get_child(i);
-        c->call("set_transform", c->call("get_transform"));
+        c->call_va("set_transform", c->call_va("get_transform"));
     }
     //p_remove_old was added to support undo
     if (p_remove_old)

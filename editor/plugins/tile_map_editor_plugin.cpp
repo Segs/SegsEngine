@@ -374,7 +374,7 @@ void TileMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
                                 k->get_scancode() == KEY_PAGEUP ||
                                 k->get_scancode() == KEY_PAGEDOWN)) {
 
-        palette->call("_gui_input", k);
+        palette->call_va("_gui_input", k);
         search_box->accept_event();
     }
 }

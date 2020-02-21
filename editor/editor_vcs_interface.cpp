@@ -112,25 +112,25 @@ String EditorVCSInterface::_get_vcs_name() {
 
 bool EditorVCSInterface::initialize(se_string_view p_project_root_path) {
 
-    is_initialized = call("_initialize", p_project_root_path);
+    is_initialized = call_va("_initialize", p_project_root_path);
     return is_initialized;
 }
 
 bool EditorVCSInterface::is_vcs_initialized() {
 
-    return call("_is_vcs_initialized");
+    return call_va("_is_vcs_initialized");
 }
 
 Dictionary EditorVCSInterface::get_modified_files_data() {
 
-    return call("_get_modified_files_data");
+    return call_va("_get_modified_files_data");
 }
 
 void EditorVCSInterface::stage_file(se_string_view p_file_path) {
 
     if (is_addon_ready()) {
 
-        call("_stage_file", p_file_path);
+        call_va("_stage_file", p_file_path);
     }
 }
 
@@ -138,7 +138,7 @@ void EditorVCSInterface::unstage_file(se_string_view p_file_path) {
 
     if (is_addon_ready()) {
 
-        call("_unstage_file", p_file_path);
+        call_va("_unstage_file", p_file_path);
     }
 }
 
@@ -151,7 +151,7 @@ void EditorVCSInterface::commit(se_string_view p_msg) {
 
     if (is_addon_ready()) {
 
-        call("_commit", p_msg);
+        call_va("_commit", p_msg);
     }
 }
 
@@ -159,24 +159,24 @@ Array EditorVCSInterface::get_file_diff(se_string_view p_file_path) {
 
     if (is_addon_ready()) {
 
-        return call("_get_file_diff", p_file_path);
+        return call_va("_get_file_diff", p_file_path);
     }
     return Array();
 }
 
 bool EditorVCSInterface::shut_down() {
 
-    return call("_shut_down");
+    return call_va("_shut_down");
 }
 
 String EditorVCSInterface::get_project_name() {
 
-    return call("_get_project_name");
+    return call_va("_get_project_name");
 }
 
 String EditorVCSInterface::get_vcs_name() {
 
-    return call("_get_vcs_name");
+    return call_va("_get_vcs_name");
 }
 
 EditorVCSInterface::EditorVCSInterface() {

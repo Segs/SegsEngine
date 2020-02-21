@@ -13,12 +13,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
-      add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class 
+      add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
     if (NOT (MSVC_VERSION LESS 1910))
       add_compile_options (/MP)
       add_compile_options (/permissive-)
       #add_compile_options (/d2cgsummary)
-	  #add_compile_options (/d1reportTime)
+      #add_compile_options (/d1reportTime)
       add_compile_options (/diagnostics:caret)
       #add_compile_options (/sdl)
       #add_compile_options (/arch:AVX2)
@@ -150,29 +150,6 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     include(platform/windows/options.cmake)
 endif()
 
-file(GLOB platform_exporters RELATIVE ${PROJECT_SOURCE_DIR} "platform/*/export/export.cpp" )
-file(GLOB platform_detectors RELATIVE ${PROJECT_SOURCE_DIR}/platform "platform/*/detect.cmake" )
-
-foreach(detector ${platform_detectors})
-    set(can_build FALSE)
-    string(REPLACE "/detect.cmake" "" detector2 ${detector} )
-    include("platform/${detector}")
-    list(APPEND active_platforms ${name})
-    list(APPEND active_platform_ids platform/${detector2})
-    if(can_build)
-        message("Can build for platform ${name}")
-    endif()
-endforeach()
-
-save_active_platforms(active_platforms active_platform_ids)
-
-# # Target build options
-
-LIST(GET platform_list 0 first_platform)
-message(${platform_list})
-SET(OPTION_PLATFORM ${first_platform} CACHE STRING "Target platform")
-SET_PROPERTY(CACHE OPTION_PLATFORM PROPERTY STRINGS ${platform_list})
-
 OPTION(OPTION_TOOLS "Build the tools a.k.a. the Godot editor" ON)
 OPTION(OPTION_USE_LTO "Use linking time optimization" OFF)
 IF(OPTION_USE_LTO)
@@ -219,6 +196,30 @@ OPTION(OPTION_BUILTIN_ZLIB "Use the built-in zlib library" ON)
 OPTION(OPTION_BUILTIN_ZSTD "Use the built-in zstd library" ON)
 OPTION(OPTION_NO_EDITOR_SPLASH "Don't use the custom splash screen for the editor" OFF)
 OPTION(OPTION_PRECISE_MATH_CHECKS "Math checks use very precise epsilon (useful to debug the engine)" OFF)
+
+
+file(GLOB platform_exporters RELATIVE ${PROJECT_SOURCE_DIR} "platform/*/export/export.cpp" )
+file(GLOB platform_detectors RELATIVE ${PROJECT_SOURCE_DIR}/platform "platform/*/detect.cmake" )
+
+foreach(detector ${platform_detectors})
+    set(can_build FALSE)
+    string(REPLACE "/detect.cmake" "" detector2 ${detector} )
+    include("platform/${detector}")
+    list(APPEND active_platforms ${name})
+    list(APPEND active_platform_ids platform/${detector2})
+    if(can_build)
+        message("Can build for platform ${name}")
+    endif()
+endforeach()
+
+save_active_platforms(active_platforms active_platform_ids)
+
+# # Target build options
+
+LIST(GET platform_list 0 first_platform)
+message(${platform_list})
+SET(OPTION_PLATFORM ${first_platform} CACHE STRING "Target platform")
+SET_PROPERTY(CACHE OPTION_PLATFORM PROPERTY STRINGS ${platform_list})
 
 # # add default include paths
 include_directories(

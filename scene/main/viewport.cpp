@@ -82,11 +82,11 @@ void ViewportTexture::setup_local_to_scene() {
     }
 
     Node *vpn = local_scene->get_node(path);
-    ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid."); 
+    ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid.");
 
     vp = object_cast<Viewport>(vpn);
 
-    ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport."); 
+    ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport.");
 
     vp->viewport_textures.insert(this);
 
@@ -1421,7 +1421,7 @@ Transform2D Viewport::_get_input_pre_xform() const {
 Vector2 Viewport::_get_window_offset() const {
 
     if (get_parent() && get_parent()->has_method("get_global_position")) {
-        return get_parent()->call("get_global_position");
+        return get_parent()->call_va("get_global_position");
     }
     return Vector2();
 }
@@ -1437,7 +1437,7 @@ Ref<InputEvent> Viewport::_make_input_local(const Ref<InputEvent> &ev) {
 void Viewport::_vp_input_text(se_string_view p_text) {
 
     if (gui.key_focus) {
-        gui.key_focus->call("set_text", p_text);
+        gui.key_focus->call_va("set_text", p_text);
     }
 }
 
@@ -2234,7 +2234,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                         if (tooltip == gui.tooltip_label->get_text()) {
                             is_tooltip_shown = true;
                         }
-                    } else if (tooltip == StringName(gui.tooltip_popup->call("get_tooltip_text"))) {
+                    } else if (tooltip == StringName(gui.tooltip_popup->call_va("get_tooltip_text"))) {
                         is_tooltip_shown = true;
                     }
                 } else
@@ -2554,7 +2554,7 @@ void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, Obj
 
 void Viewport::_gui_force_drag(Control *p_base, const Variant &p_data, Control *p_control) {
 
-    ERR_FAIL_COND_MSG(p_data.get_type() == VariantType::NIL, "Drag data must be a value."); 
+    ERR_FAIL_COND_MSG(p_data.get_type() == VariantType::NIL, "Drag data must be a value.");
 
     gui.dragging = true;
     gui.drag_data = p_data;

@@ -516,7 +516,7 @@ void AnimationTree::set_active(bool p_active) {
         for (TrackCache * E : playing_caches) {
 
             if (ObjectDB::get_instance(E->object_id)) {
-                E->object->call("stop");
+                E->object->call_va("stop");
             }
         }
 
@@ -1076,7 +1076,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
                             Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(a->audio_track_get_key_stream(i, idx));
                             if (not stream) {
-                                t->object->call("stop");
+                                t->object->call_va("stop");
                                 t->playing = false;
                                 playing_caches.erase(t);
                             } else {
@@ -1086,14 +1086,14 @@ void AnimationTree::_process_graph(float p_delta) {
                                 float len = stream->get_length();
 
                                 if (start_ofs > len - end_ofs) {
-                                    t->object->call("stop");
+                                    t->object->call_va("stop");
                                     t->playing = false;
                                     playing_caches.erase(t);
                                     continue;
                                 }
 
-                                t->object->call("set_stream", stream);
-                                t->object->call("play", start_ofs);
+                                t->object->call_va("set_stream", stream);
+                                t->object->call_va("play", start_ofs);
 
                                 t->playing = true;
                                 playing_caches.insert(t);
@@ -1115,7 +1115,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
                                 Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(a->audio_track_get_key_stream(i, idx));
                                 if (not stream) {
-                                    t->object->call("stop");
+                                    t->object->call_va("stop");
                                     t->playing = false;
                                     playing_caches.erase(t);
                                 } else {
@@ -1123,8 +1123,8 @@ void AnimationTree::_process_graph(float p_delta) {
                                     float end_ofs = a->audio_track_get_key_end_offset(i, idx);
                                     float len = stream->get_length();
 
-                                    t->object->call("set_stream", stream);
-                                    t->object->call("play", start_ofs);
+                                    t->object->call_va("set_stream", stream);
+                                    t->object->call_va("play", start_ofs);
 
                                     t->playing = true;
                                     playing_caches.insert(t);
@@ -1154,7 +1154,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
                                 if (stop) {
                                     //time to stop
-                                    t->object->call("stop");
+                                    t->object->call_va("stop");
                                     t->playing = false;
                                     playing_caches.erase(t);
                                 }
@@ -1163,9 +1163,9 @@ void AnimationTree::_process_graph(float p_delta) {
 
                         float db = Math::linear2db(MAX(blend, 0.00001));
                         if (t->object->has_method("set_unit_db")) {
-                            t->object->call("set_unit_db", db);
+                            t->object->call_va("set_unit_db", db);
                         } else {
-                            t->object->call("set_volume_db", db);
+                            t->object->call_va("set_volume_db", db);
                         }
                     } break;
                     case Animation::TYPE_ANIMATION: {

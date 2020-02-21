@@ -932,7 +932,7 @@ void ScriptDebuggerRemote::idle_poll() {
             Array arr;
             arr.resize(max);
             for (int i = 0; i < max; i++) {
-                arr[i] = performance->call(StaticCString("get_monitor"), i);
+                arr[i] = performance->call_va(StaticCString("get_monitor"), i);
             }
             packet_peer_stream->put_var("performance");
             packet_peer_stream->put_var(1);

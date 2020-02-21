@@ -286,7 +286,7 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
     Spatial *s = object_cast<Spatial>(p_at_node);
 
     if (!mi && s) {
-        Array meshes = p_at_node->call("get_bake_meshes");
+        Array meshes = p_at_node->call_va("get_bake_meshes");
         if (!meshes.empty() && (meshes.size() & 1) == 0) {
             Transform xf = get_global_transform().affine_inverse() * s->get_global_transform();
             for (int i = 0; i < meshes.size(); i += 2) {
@@ -698,7 +698,7 @@ void BakedLightmap::_assign_lightmaps() {
         Node *node = get_node(light_data->get_user_path(i));
         int instance_idx = light_data->get_user_instance(i);
         if (instance_idx >= 0) {
-            RID instance = node->call("get_bake_mesh_instance", instance_idx);
+            RID instance = node->call_va("get_bake_mesh_instance", instance_idx);
             if (instance.is_valid()) {
                 VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
             }
@@ -716,7 +716,7 @@ void BakedLightmap::_clear_lightmaps() {
         Node *node = get_node(light_data->get_user_path(i));
         int instance_idx = light_data->get_user_instance(i);
         if (instance_idx >= 0) {
-            RID instance = node->call("get_bake_mesh_instance", instance_idx);
+            RID instance = node->call_va("get_bake_mesh_instance", instance_idx);
             if (instance.is_valid()) {
                 VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
             }

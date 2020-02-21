@@ -63,8 +63,7 @@ void VisualScriptPropertySelector::_sbox_input(const Ref<InputEvent> &p_ie) {
             case KEY_DOWN:
             case KEY_PAGEUP:
             case KEY_PAGEDOWN: {
-
-                search_options->call("_gui_input", k);
+                search_options->call_va("_gui_input", k);
                 search_box->accept_event();
 
                 TreeItem *root = search_options->get_root();

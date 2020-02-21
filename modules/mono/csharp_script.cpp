@@ -82,7 +82,7 @@ static bool _create_project_solution_if_needed() {
         // A solution does not yet exist, create a new one
 
         CRASH_COND(CSharpLanguage::get_singleton()->get_godotsharp_editor() == NULL);
-        return CSharpLanguage::get_singleton()->get_godotsharp_editor()->call("CreateProjectSolution");
+        return CSharpLanguage::get_singleton()->get_godotsharp_editor()->call_va("CreateProjectSolution");
     }
 
     return true;
@@ -709,7 +709,7 @@ void CSharpLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_soft
     CRASH_COND(!Engine::get_singleton()->is_editor_hint());
 
 #ifdef TOOLS_ENABLED
-    get_godotsharp_editor()->get_node(NodePath("HotReloadAssemblyWatcher"))->call("RestartTimer");
+    get_godotsharp_editor()->get_node(NodePath("HotReloadAssemblyWatcher"))->call_va("RestartTimer");
 #endif
 
 #ifdef GD_MONO_HOT_RELOAD
@@ -1096,12 +1096,12 @@ void CSharpLanguage::get_recognized_extensions(Vector<String> *p_extensions) con
 #ifdef TOOLS_ENABLED
 Error CSharpLanguage::open_in_external_editor(const Ref<Script> &p_script, int p_line, int p_col) {
 
-    return (Error)(int)get_godotsharp_editor()->call("OpenInExternalEditor", p_script, p_line, p_col);
+    return (Error)(int)get_godotsharp_editor()->call_va("OpenInExternalEditor", p_script, p_line, p_col);
 }
 
 bool CSharpLanguage::overrides_external_editor() {
 
-    return get_godotsharp_editor()->call("OverridesExternalEditor");
+    return get_godotsharp_editor()->call_va("OverridesExternalEditor");
 }
 #endif
 

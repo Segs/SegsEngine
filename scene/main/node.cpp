@@ -2521,37 +2521,37 @@ void Node::_replace_connections_target(Node *p_new_target) {
     }
 }
 
-Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
+//Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
 
-    Vector<Variant> ret;
+//    Vector<Variant> ret;
 
-    if (p_arg1.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg1.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg1);
+//    ret.emplace_back(p_arg1);
 
-    if (p_arg2.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg2.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg2);
+//    ret.emplace_back(p_arg2);
 
-    if (p_arg3.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg3.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg3);
+//    ret.emplace_back(p_arg3);
 
-    if (p_arg4.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg4.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg4);
+//    ret.emplace_back(p_arg4);
 
-    if (p_arg5.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg5.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg5);
+//    ret.emplace_back(p_arg5);
 
-    return ret;
-}
+//    return ret;
+//}
 
 bool Node::has_node_and_resource(const NodePath &p_path) const {
 

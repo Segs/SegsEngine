@@ -368,7 +368,7 @@ void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p
     if (cache.contains(path_id) && cache[path_id].last_hash == p_res->hash_edited_version()) {
 
         cache[path_id].order = order++;
-        p_receiver->call(p_receiver_func, path_id, cache[path_id].preview, cache[path_id].small_preview, p_userdata);
+        p_receiver->call_va(p_receiver_func, path_id, cache[path_id].preview, cache[path_id].small_preview, p_userdata);
         preview_mutex->unlock();
         return;
     }
@@ -394,7 +394,7 @@ void EditorResourcePreview::queue_resource_preview(se_string_view p_path, Object
     if (cache.contains_as(p_path)) {
         auto & entry(cache[String(p_path)]);
         entry.order = order++;
-        p_receiver->call(p_receiver_func, p_path, entry.preview, entry.small_preview, p_userdata);
+        p_receiver->call_va(p_receiver_func, p_path, entry.preview, entry.small_preview, p_userdata);
         preview_mutex->unlock();
         return;
     }

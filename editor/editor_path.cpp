@@ -112,7 +112,7 @@ void EditorPath::update_path() {
             if (name.empty())
                 name = r->get_class();
         } else if (obj->is_class("ScriptEditorDebuggerInspectedObject"))
-            name = obj->call("get_title").as<String>();
+            name = obj->call_va("get_title").as<String>();
         else if (object_cast<Node>(obj))
             name = object_cast<Node>(obj)->get_name();
         else if (object_cast<Resource>(obj) && !object_cast<Resource>(obj)->get_name().empty())

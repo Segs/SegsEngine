@@ -142,7 +142,7 @@ void CreateDialog::_sbox_input(const Ref<InputEvent> &p_ie) {
     if (k && (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_PAGEUP ||
                      k->get_scancode() == KEY_PAGEDOWN)) {
 
-        search_options->call("_gui_input", k);
+        search_options->call_va("_gui_input", k);
         search_box->accept_event();
     }
 }

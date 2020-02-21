@@ -547,7 +547,7 @@ void SpriteFramesEditor::_animation_name_edited() {
 
     for (Node * E : nodes) {
 
-        UIString current = E->call("get_animation");
+        UIString current = E->call_va("get_animation");
         undo_redo->add_do_method(E, "set_animation", name);
         undo_redo->add_undo_method(E, "set_animation", edited_anim);
     }
@@ -579,7 +579,7 @@ void SpriteFramesEditor::_animation_add() {
 
     for (Node *E : nodes) {
 
-        String current = E->call("get_animation");
+        String current = E->call_va("get_animation");
         undo_redo->add_do_method(E, "set_animation", name);
         undo_redo->add_undo_method(E, "set_animation", current);
     }

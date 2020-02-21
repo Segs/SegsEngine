@@ -35,29 +35,7 @@ if(UNIX)
         endif()
     endif()
 
-    if(NOT OPTION_BUILTIN_MBEDTLS)
-        find_package(MBEDTLS)
-        # mbedTLS does not provide a pkgconfig config yet. See https://github.com/ARMmbed/mbedtls/issues/228
-        #env.Append(LIBS=['mbedtls', 'mbedcrypto', 'mbedx509'])
-    endif()
-    if(NOT OPTION_BUILTIN_LIBWEBP)
-        find_package(LIBWEBP)
-    endif()
 
-    # freetype depends on libpng and zlib, so bundling one of them while keeping others
-    # as shared libraries leads to weird issues
-    if(NOT OPTION_BUILTIN_BULLET)
-        find_package(Bullet 2.88)
-    endif()
-    if(NOT OPTION_BUILTIN_ENET)
-        find_package(ENet)
-    endif()
-    if(NOT OPTION_BUILTIN_SQUISH AND OPTION_TOOLS)
-        find_package(Squish)
-    endif()
-    if(NOT OPTION_BUILTIN_ZSTD)
-        find_package(ZStd)
-    endif()
     # Sound and video libraries
     # Keep the order as it triggers chained dependencies (ogg needed by others, etc.)
     if(NOT OPTION_BUILTIN_LIBTHEORA)

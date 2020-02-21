@@ -1778,7 +1778,7 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
             Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(edited_collision_shape);
             Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(edited_collision_shape);
             Ref<Shape2D> previous_shape = dynamic_ref_cast<Shape2D>(edited_collision_shape);
-            Array sd = tileset->call("tile_get_shapes", get_current_tile());
+            Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
 
             if (convex) {
                 // Make concave
@@ -1849,7 +1849,7 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
                 case EDITMODE_COLLISION: {
                     if (edited_collision_shape) {
                         // Necessary to get the version that returns a Array instead of a Vector.
-                        Array sd = tileset->call("tile_get_shapes", get_current_tile());
+                        Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
                         for (int i = 0; i < sd.size(); i++) {
                             if (sd[i].get("shape") == edited_collision_shape) {
                                 undo_redo->create_action_ui(TTR("Remove Collision Polygon"));
@@ -2351,7 +2351,7 @@ void TileSetEditor::_undo_tile_removal(int p_id) {
     undo_redo->add_undo_method(tileset.get(), "tile_set_texture", p_id, tileset->tile_get_texture(p_id));
     undo_redo->add_undo_method(tileset.get(), "tile_set_region", p_id, tileset->tile_get_region(p_id));
     // Necessary to get the version that returns a Array instead of a Vector.
-    undo_redo->add_undo_method(tileset.get(), "tile_set_shapes", p_id, tileset->call("tile_get_shapes", p_id));
+    undo_redo->add_undo_method(tileset.get(), "tile_set_shapes", p_id, tileset->call_va("tile_get_shapes", p_id));
     if (tileset->tile_get_tile_mode(p_id) == TileSet::SINGLE_TILE) {
         undo_redo->add_undo_method(tileset.get(), "tile_set_light_occluder", p_id, tileset->tile_get_light_occluder(p_id));
         undo_redo->add_undo_method(tileset.get(), "tile_set_navigation_polygon", p_id, tileset->tile_get_navigation_polygon(p_id));
@@ -2880,7 +2880,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
 
             undo_redo->create_action_ui(TTR("Create Collision Polygon"));
             // Necessary to get the version that returns a Array instead of a Vector.
-            Array sd = tileset->call("tile_get_shapes", get_current_tile());
+            Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
             undo_redo->add_undo_method(tileset.get(), "tile_set_shapes", get_current_tile(), sd.duplicate());
             for (int i = 0; i < sd.size(); i++) {
                 if (sd[i].get("shape") == edited_collision_shape) {

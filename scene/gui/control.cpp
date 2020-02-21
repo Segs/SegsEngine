@@ -709,7 +709,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            return c->call("get_drag_data_fw", p_point, Variant(this));
+            return c->call_va("get_drag_data_fw", p_point, Variant(this));
         }
     }
 
@@ -731,7 +731,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            return c->call("can_drop_data_fw", p_point, p_data, Variant(this));
+            return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this));
         }
     }
 
@@ -752,7 +752,7 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            c->call("drop_data_fw", p_point, p_data, Variant(this));
+            c->call_va("drop_data_fw", p_point, p_data, Variant(this));
             return;
         }
     }
@@ -2294,7 +2294,7 @@ StringName Control::get_tooltip(const Point2 &p_pos) const {
 }
 Control *Control::make_custom_tooltip(se_string_view p_text) const {
     if (get_script_instance()) {
-        return const_cast<Control *>(this)->call("_make_custom_tooltip", p_text);
+        return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text);
     }
     return nullptr;
 }

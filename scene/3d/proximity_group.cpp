@@ -147,7 +147,7 @@ void ProximityGroup::_proximity_group_broadcast(const StringName& p_name, const 
 
     if (dispatch_mode == MODE_PROXY) {
 
-        get_parent()->call(p_name, p_params);
+        get_parent()->call_va(p_name, p_params);
     } else {
 
         emit_signal("broadcast", p_name, p_params);

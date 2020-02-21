@@ -725,7 +725,7 @@ Variant Object::callv(const StringName &p_method, const Array &p_args) {
     return ret;
 }
 
-Variant Object::call(const StringName &p_name, VARIANT_ARG_DECLARE) {
+Variant Object::call_va(const StringName &p_name, VARIANT_ARG_DECLARE) {
     VARIANT_ARGPTRS
 
     int argc = 0;
@@ -1887,13 +1887,13 @@ void ObjectDB::cleanup() {
         WARN_PRINT("ObjectDB Instances still exist!");
         if (OS::get_singleton()->is_stdout_verbose()) {
             for (const auto &e : instances) {
-
+                //TODO: SEGS: use object_cast and direct calls here??
                 String node_name;
                 if (e.second->is_class("Node"))
-                    node_name = " - Node name: " + e.second->call("get_name").as<String>();
+                    node_name = " - Node name: " + e.second->call_va("get_name").as<String>();
                 if (e.second->is_class("Resource"))
-                    node_name = " - Resource name: " + e.second->call("get_name").as<String>() +
-                                " Path: " + e.second->call("get_path").as<String>();
+                    node_name = " - Resource name: " + e.second->call_va("get_name").as<String>() +
+                                " Path: " + e.second->call_va("get_path").as<String>();
                 print_line(FormatVE("Leaked instance: %s:%zu%s", e.second->get_class(), e.second,node_name.c_str()));
             }
         }

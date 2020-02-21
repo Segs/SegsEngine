@@ -337,7 +337,11 @@ public:
     void set_scene_instance_load_placeholder(bool p_enable);
     bool get_scene_instance_load_placeholder() const;
 
-    static Vector<Variant> make_binds(VARIANT_ARG_LIST);
+    //static Vector<Variant> make_binds(VARIANT_ARG_LIST);
+    template<typename ...Args>
+    static Vector<Variant> make_binds(Args... args) {
+        return Vector<Variant> {args...};
+    }
 
     void replace_by(Node *p_node, bool p_keep_data = false);
 

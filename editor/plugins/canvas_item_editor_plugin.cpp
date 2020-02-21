@@ -810,7 +810,7 @@ bool CanvasItemEditor::_select_click_on_item(CanvasItem *item, Point2 p_click_po
             // Reselect
             if (Engine::get_singleton()->is_editor_hint()) {
                 selected_from_canvas = true;
-                editor->call("edit_node", Variant(item));
+                editor->call_va("edit_node", Variant(item));
             }
         }
     }
@@ -1942,7 +1942,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
             Point2 drag_to_local = simple_xform.xform(drag_to);
             Point2 offset = drag_to_local - drag_from_local;
 
-            Size2 scale = canvas_item->call("get_scale");
+            Size2 scale = canvas_item->call_va("get_scale");
             float ratio = scale.y / scale.x;
             if (drag_type == DRAG_SCALE_BOTH) {
                 Size2 scale_factor = drag_to_local / drag_from_local;
@@ -1971,7 +1971,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
                 scale.x = roundf(scale.x / snap_scale_step) * snap_scale_step;
                 scale.y = roundf(scale.y / snap_scale_step) * snap_scale_step;
             }
-            canvas_item->call("set_scale", scale);
+            canvas_item->call_va("set_scale", scale);
             return true;
         }
 
@@ -5373,8 +5373,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     editor_selection->connect("selection_changed", this, "update");
     editor_selection->connect("selection_changed", this, "_selection_changed");
 
-    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::fromVector(Span<const Variant>(make_binds(true))));
-    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::fromVector(Span<const Variant>(make_binds(false))));
+    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(true)));
+    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(false)));
 
     hb = memnew(HBoxContainer);
     add_child(hb);

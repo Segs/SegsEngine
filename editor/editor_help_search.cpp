@@ -145,7 +145,7 @@ void EditorHelpSearch::_search_box_gui_input(const Ref<InputEvent> &p_event) {
             case KEY_DOWN:
             case KEY_PAGEUP:
             case KEY_PAGEDOWN: {
-                results_tree->call("_gui_input", key);
+                results_tree->call_va("_gui_input", key);
                 search_box->accept_event();
             } break;
         }
