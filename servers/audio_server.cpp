@@ -40,6 +40,7 @@
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "scene/resources/audio_stream_sample.h"
+
 #include "servers/audio/audio_driver_dummy.h"
 #include "servers/audio/effects/audio_effect_compressor.h"
 

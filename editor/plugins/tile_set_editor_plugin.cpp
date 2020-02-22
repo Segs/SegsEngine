@@ -1781,13 +1781,13 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
             Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
 
             if (convex) {
-                // Make concave
+                // Make concave.
                 undo_redo->create_action_ui(TTR("Make Polygon Concave"));
                 Ref<ConcavePolygonShape2D> _concave(make_ref_counted<ConcavePolygonShape2D>());
                 edited_collision_shape = _concave;
                 _set_edited_shape_points(_get_collision_shape_points(convex));
             } else if (concave) {
-                // Make convex
+                // Make convex.
                 undo_redo->create_action_ui(TTR("Make Polygon Convex"));
                 Ref<ConvexPolygonShape2D> _convex(make_ref_counted<ConvexPolygonShape2D>());
                 edited_collision_shape = _convex;
@@ -1797,14 +1797,19 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
                 if (sd[i].get("shape") == previous_shape) {
                     undo_redo->add_undo_method(tileset.get(), "tile_set_shapes", get_current_tile(), sd.duplicate());
                     sd.remove(i);
-                    sd.insert(i, edited_collision_shape);
-                    undo_redo->add_do_method(tileset.get(), "tile_set_shapes", get_current_tile(), sd);
-                    undo_redo->add_do_method(this, "_select_edited_shape_coord");
-                    undo_redo->add_undo_method(this, "_select_edited_shape_coord");
-                    undo_redo->commit_action();
                     break;
                 }
             }
+
+            undo_redo->add_do_method(tileset.get(), "tile_set_shapes", get_current_tile(), sd);
+            if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::AUTO_TILE || tileset->tile_get_tile_mode(get_current_tile()) == TileSet::ATLAS_TILE) {
+                undo_redo->add_do_method(tileset.get(), "tile_add_shape", get_current_tile(), edited_collision_shape, Transform2D(), false, edited_shape_coord);
+            } else {
+                undo_redo->add_do_method(tileset.get(), "tile_add_shape", get_current_tile(), edited_collision_shape, Transform2D());
+            }
+            undo_redo->add_do_method(this, "_select_edited_shape_coord");
+            undo_redo->add_undo_method(this, "_select_edited_shape_coord");
+            undo_redo->commit_action();
             _update_toggle_shape_button();
             workspace->update();
             workspace_container->update();
@@ -1973,11 +1978,8 @@ void TileSetEditor::_set_edited_shape_points(const Vector<Vector2> &points) {
         }
         segments.push_back(points[points.size() - 1]);
         segments.push_back(points[0]);
-        concave->set_segments(segments);
         undo_redo->add_do_method(concave.get(), "set_segments", Variant(segments));
         undo_redo->add_undo_method(concave.get(), "set_segments", Variant(concave->get_segments()));
-    } else {
-        // Invalid shape
     }
 }
 

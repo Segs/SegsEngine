@@ -243,8 +243,11 @@ void FindInFiles::_scan_dir(se_string_view path, PoolVector<String> &out_folders
         if (file.empty())
             break;
 
-        // Ignore special dirs and hidden dirs (such as .git and .import)
+        // Ignore special dirs (such as .git and .import)
         if (file == "." || file == ".." || StringUtils::begins_with(file,"."))
+            continue;
+
+        if (dir->current_is_hidden())
             continue;
 
         if (dir->current_is_dir())
@@ -837,7 +840,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // however that means either losing changes or losing replaces.
 
     FileAccessRef f = FileAccess::open(fpath, FileAccess::READ);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + fpath + "'."); 
+    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + fpath + "'.");
 
     String buffer;
     int current_line = 1;
@@ -884,7 +887,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // Now the modified contents are in the buffer, rewrite the file with our changes
 
     Error err = f->reopen(fpath, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'."); 
+    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'.");
 
     f->store_string(buffer);
 

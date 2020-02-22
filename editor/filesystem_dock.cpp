@@ -1785,7 +1785,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
         } break;
 
         case FILE_REIMPORT: {
-            ERR_FAIL_COND_MSG(p_selected.empty(), "You need to select files to reimport them."); 
+            ERR_FAIL_COND_MSG(p_selected.empty(), "You need to select files to reimport them.");
             // TODO: SEGS: Reimport all selected files. ????
         } break;
 
@@ -1832,6 +1832,13 @@ void FileSystemDock::_resource_created() const {
     Resource *r = object_cast<Resource>(c);
     ERR_FAIL_COND(!r);
 
+    PackedScene *scene = object_cast<PackedScene>(r);
+    if (scene) {
+        Node *node = memnew(Node);
+        node->set_name("Node");
+        scene->pack(node);
+        memdelete(node);
+    }
     REF res(r);
     editor->push_item(c);
 
@@ -2123,7 +2130,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
 }
 
 void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const {
-    target = String();
+    target.clear();
     target_favorites = false;
 
     // In the file list.
@@ -2184,7 +2191,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
 void FileSystemDock::_file_and_folders_fill_popup(
         PopupMenu *p_popup, const Vector<String> &p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
-    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty."); 
+    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty.");
 
     Vector<String> filenames;
     Vector<String> foldernames;

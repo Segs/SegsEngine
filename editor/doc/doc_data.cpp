@@ -1017,7 +1017,7 @@ Error DocData::save_classes(se_string_view p_default_path, const HashMap<StringN
         if (!c.inherits.empty())
             header += String(" inherits=\"") + c.inherits + "\"";
 
-        header += String(" version=\"") + VERSION_NUMBER + "\"";
+        header += String(" version=\"") + VERSION_BRANCH + "\"";
         header += '>';
         _write_string(f, 0, header);
         _write_string(f, 1, "<brief_description>");

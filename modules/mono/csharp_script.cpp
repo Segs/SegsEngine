@@ -169,11 +169,11 @@ void CSharpLanguage::finish() {
     script_bindings.clear();
 #ifdef DEBUG_ENABLED
     for (auto &E : unsafe_object_references) {
-        const ObjectID &id = E.second;
+        const ObjectID &id = E.first;
         Object *obj = ObjectDB::get_instance(id);
 
         if (obj) {
-            ERR_PRINT(String("Leaked unsafe reference to object: ") + obj->get_class() + ":" + itos(id));
+            ERR_PRINT(String("Leaked unsafe reference to object: ") + obj->to_string());
         } else {
             ERR_PRINT("Leaked unsafe reference to deleted object: " + itos(id));
         }

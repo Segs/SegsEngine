@@ -85,7 +85,7 @@ void ConnectionInfoDialog::popup_connections(se_string_view p_method, const Vect
         }
     }
 
-    popup_centered(Size2(400, 300) * EDSCALE);
+    popup_centered(Size2(600, 300) * EDSCALE);
 }
 
 ConnectionInfoDialog::ConnectionInfoDialog() {

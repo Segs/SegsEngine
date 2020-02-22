@@ -326,13 +326,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                         deselect();
                         m_priv->text = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
 
-                        Ref<Font> font = get_font("font");
-
-                        m_priv->cached_width = 0;
-                        if (font != nullptr) {
-                            for (int i = 0; i < m_priv->text.length(); i++)
-                                m_priv->cached_width += font->get_char_size(m_priv->text[i]).width;
-                        }
+                        update_cached_width();
 
                         set_cursor_position(0);
                         _text_changed();
@@ -1436,17 +1430,10 @@ void LineEdit::append_at_cursor(se_string_view _text) {
     UIString p_text(StringUtils::from_utf8(_text));
     if ((max_length <= 0) || (m_priv->text.length() + p_text.length() <= max_length)) {
 
-        Ref<Font> font = get_font("font");
-        if (font != nullptr) {
-            for (int i = 0; i < p_text.length(); i++)
-                m_priv->cached_width += font->get_char_size(p_text[i]).width;
-        } else {
-            m_priv->cached_width = 0;
-        }
-
         UIString pre = StringUtils::substr(m_priv->text,0, cursor_pos);
         UIString post = StringUtils::substr(m_priv->text,cursor_pos, m_priv->text.length() - cursor_pos);
         m_priv->text = pre + p_text + post;
+        update_cached_width();
         set_cursor_position(cursor_pos + p_text.length());
     } else {
         emit_signal("text_change_rejected");
@@ -1577,6 +1564,7 @@ bool LineEdit::is_editable() const {
 void LineEdit::set_secret(bool p_secret) {
 
     pass = p_secret;
+    update_cached_width();
     update();
 }
 
@@ -1589,9 +1577,10 @@ void LineEdit::set_secret_character(const String &p_string) {
 
     // An empty string as the secret character would crash the engine
     // It also wouldn't make sense to use multiple characters as the secret character
-    ERR_FAIL_COND_MSG(p_string.length() != 1, "Secret character must be exactly one character long (" + itos(p_string.length()) + " characters given)."); 
+    ERR_FAIL_COND_MSG(p_string.length() != 1, "Secret character must be exactly one character long (" + itos(p_string.length()) + " characters given).");
 
     secret_character = p_string;
+    update_cached_width();
     update();
 }
 
@@ -1763,7 +1752,16 @@ void LineEdit::_emit_text_change() {
     Object_change_notify(this,"text");
     text_changed_dirty = false;
 }
-
+void LineEdit::update_cached_width() {
+    Ref<Font> font = get_font("font");
+    m_priv->cached_width = 0;
+    if (font != NULL) {
+        String text = get_text();
+        for (int i = 0; i < text.length(); i++) {
+            m_priv->cached_width += font->get_char_size(pass ? secret_character[0] : text[i]).width;
+        }
+    }
+}
 void LineEdit::update_placeholder_width() {
     if ((max_length <= 0) || (se_string_view(placeholder_translated).length() <= max_length)) {
         Ref<Font> font = get_font("font");

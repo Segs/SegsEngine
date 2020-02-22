@@ -184,19 +184,20 @@ void CPUParticles2D::_update_mesh_texture() {
     };
 
     Vector<Vector2> uvs;
+    uvs.reserve(4);
     AtlasTexture *atlas_texure = object_cast<AtlasTexture>(texture.get());
     if (atlas_texure && atlas_texure->get_atlas()) {
         Rect2 region_rect = atlas_texure->get_region();
         Size2 atlas_size = atlas_texure->get_atlas()->get_size();
-        uvs.push_back(Vector2(region_rect.position.x / atlas_size.x, region_rect.position.y / atlas_size.y));
-        uvs.push_back(Vector2((region_rect.position.x + region_rect.size.x) / atlas_size.x, region_rect.position.y / atlas_size.y));
-        uvs.push_back(Vector2((region_rect.position.x + region_rect.size.x) / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y));
-        uvs.push_back(Vector2(region_rect.position.x / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y));
+        uvs.emplace_back(region_rect.position.x / atlas_size.x, region_rect.position.y / atlas_size.y);
+        uvs.emplace_back((region_rect.position.x + region_rect.size.x) / atlas_size.x, region_rect.position.y / atlas_size.y);
+        uvs.emplace_back((region_rect.position.x + region_rect.size.x) / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y);
+        uvs.emplace_back(region_rect.position.x / atlas_size.x, (region_rect.position.y + region_rect.size.y) / atlas_size.y);
     } else {
-        uvs.push_back(Vector2(0, 0));
-        uvs.push_back(Vector2(1, 0));
-        uvs.push_back(Vector2(1, 1));
-        uvs.push_back(Vector2(0, 1));
+        uvs.emplace_back(0, 0);
+        uvs.emplace_back(1, 0);
+        uvs.emplace_back(1, 1);
+        uvs.emplace_back(0, 1);
     }
     Vector<Color> colors {
         Color(1, 1, 1, 1),
