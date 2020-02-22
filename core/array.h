@@ -69,6 +69,7 @@ public:
     Array &operator=(const Array &p_array);
 
     void push_back(const Variant &p_value);
+    void emplace_back(Variant &&p_value);
     void push_back(const Variant *entries,int count);
     _FORCE_INLINE_ void append(const Variant &p_value) { push_back(p_value); } // for python compatibility
     Error resize(int p_new_size);

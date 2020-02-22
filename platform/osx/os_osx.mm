@@ -2876,17 +2876,6 @@ StringName OS_OSX::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
 }
 
-OS::PowerState OS_OSX::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_OSX::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_OSX::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
-}
 
 Error OS_OSX::move_to_trash(const String &p_path) {
     NSFileManager *fm = [NSFileManager defaultManager];

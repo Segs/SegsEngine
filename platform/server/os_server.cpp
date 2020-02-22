@@ -200,18 +200,6 @@ String OS_Server::get_name() const {
 void OS_Server::move_window_to_foreground() {
 }
 
-OS::PowerState OS_Server::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_Server::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_Server::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
-}
-
 bool OS_Server::_check_internal_feature_support(const String &p_feature) {
     return p_feature == "pc";
 }

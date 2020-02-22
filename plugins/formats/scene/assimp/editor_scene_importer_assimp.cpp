@@ -221,12 +221,12 @@ struct EditorSceneImporterAssetImportInterpolate {
         float t2 = t * t;
         float t3 = t2 * t;
 
-        return 0.5f * ((2.0f * p1) + (-p0 + p2) * t + (2.0f * p0 - 5.0f * p1 + 4 * p2 - p3) * t2 + (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
+        return 0.5f * ((2.0f * p1) + (-p0 + p2) * t + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 + (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
     }
 
     T bezier(T start, T control_1, T control_2, T end, float t) {
         /* Formula from Wikipedia article on Bezier curves. */
-        real_t omt = (1.0 - t);
+        real_t omt = (1.0f - t);
         real_t omt2 = omt * omt;
         real_t omt3 = omt2 * omt;
         real_t t2 = t * t;
@@ -1274,16 +1274,16 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
             }
 
             if (ai_mesh->mAnimMeshes[j]->HasTangentsAndBitangents()) {
-                PoolColorArray tangents;
+                FixedVector<Color,1024,true> tangents;
                 tangents.resize(num_vertices);
-                PoolColorArray::Write w = tangents.write();
-                for (size_t l = 0; l < num_vertices; l++) {
-                    AssimpUtils::calc_tangent_from_mesh(ai_mesh, j, l, l, w);
+
+                for (uint32_t l = 0; l < num_vertices; l++) {
+                    AssimpUtils::calc_tangent_from_mesh(ai_mesh, j, l, l, tangents.data());
                 }
                 Vector<float> new_tangents;
                 ERR_CONTINUE(array_copy.m_tangents.size() != tangents.size() * 4);
                 new_tangents.reserve(tangents.size()*4);
-                for (int32_t l = 0; l < tangents.size(); l++) {
+                for (size_t l = 0; l < tangents.size(); l++) {
                     new_tangents.emplace_back(tangents[l].r);
                     new_tangents.emplace_back(tangents[l].g);
                     new_tangents.emplace_back(tangents[l].b);
@@ -1326,7 +1326,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
 
     //surface_indices.sort();
     String mesh_key;
-    for (int i = 0; i < surface_indices.size(); i++) {
+    for (size_t i = 0; i < surface_indices.size(); i++) {
         if (i > 0) {
             mesh_key += ":";
         }

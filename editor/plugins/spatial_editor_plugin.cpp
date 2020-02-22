@@ -275,7 +275,7 @@ void SpatialEditorViewport::_clear_selected() {
     editor_selection->clear();
 }
 
-void SpatialEditorViewport::_select_clicked(bool p_append, bool p_single) {
+void SpatialEditorViewport::_select_clicked(bool p_append, bool p_single, bool p_allow_locked) {
 
     if (!clicked)
         return;
@@ -378,7 +378,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     }
 
     if (!item)
-        return 0;
+        return ObjectID();
 
     if (!editor_selection->is_selected(item) || (r_gizmo_handle && selected_handle >= 0)) {
 

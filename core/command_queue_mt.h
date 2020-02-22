@@ -38,11 +38,6 @@
 
 #include "EASTL/functional.h"
 
-#include <type_traits>
-
-template<typename T>
-using base_type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
 class GODOT_EXPORT CommandQueueMT {
 
     struct SyncSemaphore {
@@ -77,11 +72,10 @@ class GODOT_EXPORT CommandQueueMT {
     Mutex *mutex;
     SemaphoreOld *sync;
 
-    template <class T>
-    T *allocate() {
+    CommandBase *allocate() {
 
         // alloc size is size+T+safeguard
-        uint32_t alloc_size = ((sizeof(T) + 8 - 1) & ~(8 - 1)) + 8;
+        uint32_t alloc_size = ((sizeof(CommandBase) + 8 - 1) & ~(8 - 1)) + 8;
 
     tryagain:
 
@@ -123,23 +117,22 @@ class GODOT_EXPORT CommandQueueMT {
         // Allocate the size and the 'in use' bit.
         // First bit used to mark if command is still in use (1)
         // or if it has been destroyed and can be deallocated (0).
-        uint32_t size = (sizeof(T) + 8 - 1) & ~(8 - 1);
+        uint32_t size = (sizeof(CommandBase) + 8 - 1) & ~(8 - 1);
         uint32_t *p = (uint32_t *)&command_mem[write_ptr];
         *p = (size << 1) | 1;
         write_ptr += 8;
         // allocate the command
-        T *cmd = memnew_placement(&command_mem[write_ptr], T);
+        CommandBase *cmd = memnew_placement(&command_mem[write_ptr], CommandBase);
         write_ptr += size;
         return cmd;
     }
 
-    template <class T>
-    T *allocate_and_lock() {
+    CommandBase *allocate_and_lock() {
 
         lock();
-        T *ret;
+        CommandBase *ret;
 
-        while ((ret = allocate<T>()) == nullptr) {
+        while ((ret = allocate()) == nullptr) {
 
             unlock();
             // sleep a little until fetch happened and some room is made
@@ -196,33 +189,23 @@ class GODOT_EXPORT CommandQueueMT {
 public:
 
     void push(eastl::function<void()> func) {
-        auto cmd = allocate_and_lock<CommandBase>();
+        auto cmd = allocate_and_lock();
         cmd->callable = eastl::move(func);
         unlock();
         if (sync)
             sync->post();
     }
-    void push_and_ret(eastl::function<void()> func) {
-        SyncSemaphore *ss = _alloc_sync_sem();
-        auto cmd = allocate_and_lock<CommandBase>();
-        cmd->callable = eastl::move(func);
-        cmd->sync_sem = ss;
-        unlock();
-        if (sync)
-            sync->post();
-        ss->sem->wait();
-        ss->in_use = false;
-    }
+
     void push_and_sync(eastl::function<void()> func) {
         SyncSemaphore *ss = _alloc_sync_sem();
-        auto cmd = allocate_and_lock<CommandBase>();
+        auto cmd = allocate_and_lock();
         cmd->callable = eastl::move(func);
         cmd->sync_sem = ss;
         unlock();
-        if (sync) sync->post();
+        if (sync)
+            sync->post();
         ss->sem->wait();
         ss->in_use = false;
-
     }
 
     void wait_and_flush_one() {

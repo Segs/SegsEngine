@@ -174,7 +174,10 @@ void Array::push_back(const Variant &p_value) {
 
     _p->array.push_back(p_value);
 }
+void Array::emplace_back(Variant &&p_value) {
 
+    _p->array.emplace_back(eastl::move(p_value));
+}
 void Array::push_back(const Variant *entries,int count)
 {
     _p->array.insert(_p->array.end(),entries,entries+count);

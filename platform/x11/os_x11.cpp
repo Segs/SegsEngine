@@ -32,10 +32,12 @@
 #include "detect_prime.h"
 
 #include "core/os/dir_access.h"
+#include "core/os/file_access.h"
+#include "core/print_string.h"
+#include "core/string_formatter.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
-#include "core/string_formatter.h"
-#include "core/print_string.h"
+
 #include "drivers/gles3/rasterizer_gles3.h"
 #include <cerrno>
 #include "key_mapping_x11.h"
@@ -562,8 +564,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 #endif
     _ensure_user_data_dir();
 
-    power_manager = memnew(PowerX11);
-
     if (p_desired.layered) {
         set_window_per_pixel_transparency_enabled(true);
     }
@@ -775,8 +775,6 @@ void OS_X11::finalize() {
     visual_server->finish();
     memdelete(visual_server);
     //memdelete(rasterizer);
-
-    memdelete(power_manager);
 
     if (xrandr_handle)
         dlclose(xrandr_handle);
@@ -3174,18 +3172,6 @@ void OS_X11::set_context(int p_context) {
         XSetClassHint(x11_display, x11_window, classHint);
         XFree(classHint);
     }
-}
-
-OS::PowerState OS_X11::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_X11::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_X11::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
 }
 
 void OS_X11::disable_crash_handler() {

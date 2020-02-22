@@ -42,8 +42,8 @@ protected:
     bool big_endian;
 public:
     //bind helpers
-    Error _put_data(const PoolVector<uint8_t> &p_data);
-    Array _put_partial_data(const PoolVector<uint8_t> &p_data);
+    Error _put_data(Span<const uint8_t> p_data);
+    Array _put_partial_data(Span<const uint8_t> p_data);
 
     Array _get_data(int p_bytes);
     Array _get_partial_data(int p_bytes);
@@ -95,7 +95,7 @@ class StreamPeerBuffer : public StreamPeer {
 
     GDCLASS(StreamPeerBuffer, StreamPeer)
 
-    PoolVector<uint8_t> data;
+    Vector<uint8_t> data;
     int pointer;
 
 protected:
@@ -115,8 +115,8 @@ public:
     int get_position() const;
     void resize(int p_size);
 
-    void set_data_array(const PoolVector<uint8_t> &p_data);
-    const PoolVector<uint8_t> &get_data_array() const { return data; }
+    void set_data_array(Vector<uint8_t> &&p_data);
+    const Vector<uint8_t> &get_data_array() const { return data; }
 
     void clear();
 

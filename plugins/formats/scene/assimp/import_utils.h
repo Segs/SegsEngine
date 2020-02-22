@@ -99,7 +99,7 @@ public:
     /**
      * calculate tangents for mesh data from assimp data
      */
-    static void calc_tangent_from_mesh(const aiMesh *ai_mesh, int i, int tri_index, int index, PoolColorArray::Write &w) {
+    static void calc_tangent_from_mesh(const aiMesh *ai_mesh, uint32_t i, uint32_t tri_index, uint32_t index, Color *w) {
         const aiVector3D normals = ai_mesh->mAnimMeshes[i]->mNormals[tri_index];
         const Vector3 godot_normal = Vector3(normals.x, normals.y, normals.z);
         const aiVector3D tangent = ai_mesh->mAnimMeshes[i]->mTangents[tri_index];

@@ -595,16 +595,6 @@ bool OS::is_vsync_via_compositor_enabled() const {
     return _vsync_via_compositor;
 }
 
-OS::PowerState OS::get_power_state() {
-    return POWERSTATE_UNKNOWN;
-}
-int OS::get_power_seconds_left() {
-    return -1;
-}
-int OS::get_power_percent_left() {
-    return -1;
-}
-
 void OS::set_has_server_feature_callback(HasServerFeatureCallback p_callback) {
 
     has_server_feature_callback = p_callback;
@@ -773,5 +763,3 @@ OS::~OS() {
     memdelete(_logger);
     singleton = nullptr;
 }
-
-VARIANT_ENUM_CAST(OS::PowerState);

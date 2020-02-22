@@ -72,7 +72,7 @@ class  VisualServerWrapMT : public VisualServer {
 #endif
 
 public:
-#define ServerName VisualServer
+//#define ServerName VisualServer
 #define ServerNameWrapMT VisualServerWrapMT
 #define server_name visual_server
 #include "servers/server_wrap_mt_common.h"
@@ -109,10 +109,10 @@ public:
 
     const String &texture_get_path(RID p1) const override {
         if (Thread::get_caller_id() != server_thread) {
-            thread_local String ret;
-            command_queue.push_and_ret( [this,p1,&ret]() { ret = server_name->texture_get_path(p1);});
+            const String *ret;
+            command_queue.push_and_sync( [this,p1,&ret]() { ret = &server_name->texture_get_path(p1);});
             SYNC_DEBUG
-            return ret;
+            return *ret;
         } else {
             return server_name->texture_get_path(p1);
         }
@@ -190,8 +190,8 @@ public:
         if (Thread::get_caller_id() != server_thread) {
             using RetType = const Vector<AABB> *;
 
-            thread_local RetType ret;
-            command_queue.push_and_ret( [this,p1,p2,&ret]() { ret = &server_name->mesh_surface_get_skeleton_aabb(p1, p2);});
+            RetType ret;
+            command_queue.push_and_sync( [this,p1,p2,&ret]() { ret = &server_name->mesh_surface_get_skeleton_aabb(p1, p2);});
             SYNC_DEBUG
             return *ret;
         }
@@ -658,7 +658,7 @@ public:
     GODOT_EXPORT VisualServerWrapMT(VisualServer *p_contained, bool p_create_thread);
     ~VisualServerWrapMT() override;
 
-#undef ServerName
+//#undef ServerName
 #undef ServerNameWrapMT
 #undef server_name
 };

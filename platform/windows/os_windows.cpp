@@ -3169,18 +3169,6 @@ bool OS_Windows::is_vsync_enabled() const {
     return true;
 }*/
 
-OS::PowerState OS_Windows::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_Windows::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_Windows::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
-}
-
 bool OS_Windows::_check_internal_feature_support(se_string_view p_feature) {
 
     return se_string_view("pc") == p_feature;

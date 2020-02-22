@@ -428,21 +428,7 @@ public:
     BIND2(particles_set_emission_transform, RID, const Transform &)
 
 #undef BINDBASE
-//from now on, calls forwarded to this singleton
-#define BINDBASE VSG::scene
 
-    /* CAMERA API */
-
-    BIND0R(RID, camera_create)
-    BIND4(camera_set_perspective, RID, float, float, float)
-    BIND4(camera_set_orthogonal, RID, float, float, float)
-    BIND5(camera_set_frustum, RID, float, Vector2, float, float)
-    BIND2(camera_set_transform, RID, const Transform &)
-    BIND2(camera_set_cull_mask, RID, uint32_t)
-    BIND2(camera_set_environment, RID, RID)
-    BIND2(camera_set_use_vertical_aspect, RID, bool)
-
-#undef BINDBASE
 //from now on, calls forwarded to this singleton
 #define BINDBASE VSG::viewport
 
@@ -524,11 +510,24 @@ public:
     BIND7(environment_set_fog_depth, RID, bool, float, float, float, bool, float)
     BIND5(environment_set_fog_height, RID, bool, float, float, float)
 
-    /* SCENARIO API */
 
 #undef BINDBASE
+//from now on, calls forwarded to this singleton
 #define BINDBASE VSG::scene
 
+    /* CAMERA API */
+
+    BIND0R(RID, camera_create)
+    BIND4(camera_set_perspective, RID, float, float, float)
+    BIND4(camera_set_orthogonal, RID, float, float, float)
+    BIND5(camera_set_frustum, RID, float, Vector2, float, float)
+    BIND2(camera_set_transform, RID, const Transform &)
+    BIND2(camera_set_cull_mask, RID, uint32_t)
+    BIND2(camera_set_environment, RID, RID)
+    BIND2(camera_set_use_vertical_aspect, RID, bool)
+
+
+    /* SCENARIO API */
     BIND0R(RID, scenario_create)
 
     BIND2(scenario_set_debug, RID, VS::ScenarioDebugMode)

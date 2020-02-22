@@ -146,7 +146,7 @@ RID BulletPhysicsServer::shape_create(ShapeType p_shape) {
 }
 
 void BulletPhysicsServer::shape_set_data(RID p_shape, const Variant &p_data) {
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND(!shape);
     shape->set_data(p_data);
 }
@@ -156,25 +156,25 @@ void BulletPhysicsServer::shape_set_custom_solver_bias(RID p_shape, real_t p_bia
 }
 
 PhysicsServer::ShapeType BulletPhysicsServer::shape_get_type(RID p_shape) const {
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND_V(!shape, PhysicsServer::SHAPE_CUSTOM);
     return shape->get_type();
 }
 
 Variant BulletPhysicsServer::shape_get_data(RID p_shape) const {
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND_V(!shape, Variant());
     return shape->get_data();
 }
 
 void BulletPhysicsServer::shape_set_margin(RID p_shape, real_t p_margin) {
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND(!shape);
     shape->set_margin(p_margin);
 }
 
 real_t BulletPhysicsServer::shape_get_margin(RID p_shape) const {
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND_V(!shape, 0.0);
     return shape->get_margin();
 }
@@ -191,7 +191,7 @@ RID BulletPhysicsServer::space_create() {
 
 void BulletPhysicsServer::space_set_active(RID p_space, bool p_active) {
 
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND(!space);
 
     if (space_is_active(p_space) == p_active) {
@@ -208,47 +208,47 @@ void BulletPhysicsServer::space_set_active(RID p_space, bool p_active) {
 }
 
 bool BulletPhysicsServer::space_is_active(RID p_space) const {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, false);
 
     return active_spaces.contains(space);
 }
 
 void BulletPhysicsServer::space_set_param(RID p_space, SpaceParameter p_param, real_t p_value) {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND(!space);
     space->set_param(p_param, p_value);
 }
 
 real_t BulletPhysicsServer::space_get_param(RID p_space, SpaceParameter p_param) const {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, 0);
     return space->get_param(p_param);
 }
 
 PhysicsDirectSpaceState *BulletPhysicsServer::space_get_direct_state(RID p_space) {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, nullptr);
 
     return space->get_direct_state();
 }
 
 void BulletPhysicsServer::space_set_debug_contacts(RID p_space, int p_max_contacts) {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND(!space);
 
     space->set_debug_contacts(p_max_contacts);
 }
 
 const Vector<Vector3> &BulletPhysicsServer::space_get_contacts(RID p_space) const {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, null_vec3_pvec);
 
     return space->get_debug_contacts();
 }
 
 int BulletPhysicsServer::space_get_contact_count(RID p_space) const {
-    SpaceBullet *space = space_owner.get(p_space);
+    SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, 0);
 
     return space->get_debug_contact_count();
@@ -262,91 +262,91 @@ RID BulletPhysicsServer::area_create() {
 }
 
 void BulletPhysicsServer::area_set_space(RID p_area, RID p_space) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
     SpaceBullet *space = nullptr;
     if (p_space.is_valid()) {
-        space = space_owner.get(p_space);
+        space = space_owner.getornull(p_space);
         ERR_FAIL_COND(!space);
     }
     area->set_space(space);
 }
 
 RID BulletPhysicsServer::area_get_space(RID p_area) const {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     return area->get_space()->get_self();
 }
 
 void BulletPhysicsServer::area_set_space_override_mode(RID p_area, AreaSpaceOverrideMode p_mode) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
 
     area->set_spOv_mode(p_mode);
 }
 
 PhysicsServer::AreaSpaceOverrideMode BulletPhysicsServer::area_get_space_override_mode(RID p_area) const {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND_V(!area, PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED);
 
     return area->get_spOv_mode();
 }
 
 void BulletPhysicsServer::area_add_shape(RID p_area, RID p_shape, const Transform &p_transform, bool p_disabled) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
 
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND(!shape);
 
     area->add_shape(shape, p_transform, p_disabled);
 }
 
 void BulletPhysicsServer::area_set_shape(RID p_area, int p_shape_idx, RID p_shape) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
 
-    ShapeBullet *shape = shape_owner.get(p_shape);
+    ShapeBullet *shape = shape_owner.getornull(p_shape);
     ERR_FAIL_COND(!shape);
 
     area->set_shape(p_shape_idx, shape);
 }
 
 void BulletPhysicsServer::area_set_shape_transform(RID p_area, int p_shape_idx, const Transform &p_transform) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
 
     area->set_shape_transform(p_shape_idx, p_transform);
 }
 
 int BulletPhysicsServer::area_get_shape_count(RID p_area) const {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND_V(!area, 0);
 
     return area->get_shape_count();
 }
 
 RID BulletPhysicsServer::area_get_shape(RID p_area, int p_shape_idx) const {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND_V(!area, RID());
 
     return area->get_shape(p_shape_idx)->get_self();
 }
 
 Transform BulletPhysicsServer::area_get_shape_transform(RID p_area, int p_shape_idx) const {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND_V(!area, Transform());
 
     return area->get_shape_transform(p_shape_idx);
 }
 
 void BulletPhysicsServer::area_remove_shape(RID p_area, int p_shape_idx) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
     return area->remove_shape_full(p_shape_idx);
 }
 
 void BulletPhysicsServer::area_clear_shapes(RID p_area) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
 
     for (int i = area->get_shape_count(); 0 < i; --i)
@@ -354,7 +354,7 @@ void BulletPhysicsServer::area_clear_shapes(RID p_area) {
 }
 
 void BulletPhysicsServer::area_set_shape_disabled(RID p_area, int p_shape_idx, bool p_disabled) {
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
 
     area->set_shape_disabled(p_shape_idx, p_disabled);
@@ -364,29 +364,29 @@ void BulletPhysicsServer::area_attach_object_instance_id(RID p_area, ObjectID p_
     if (space_owner.owns(p_area)) {
         return;
     }
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND(!area);
     area->set_instance_id(p_id);
 }
 
 ObjectID BulletPhysicsServer::area_get_object_instance_id(RID p_area) const {
     if (space_owner.owns(p_area)) {
-        return 0;
+        return ObjectID();
     }
-    AreaBullet *area = area_owner.get(p_area);
+    AreaBullet *area = area_owner.getornull(p_area);
     ERR_FAIL_COND_V(!area, ObjectID());
     return area->get_instance_id();
 }
 
 void BulletPhysicsServer::area_set_param(RID p_area, AreaParameter p_param, const Variant &p_value) {
     if (space_owner.owns(p_area)) {
-        SpaceBullet *space = space_owner.get(p_area);
+        SpaceBullet *space = space_owner.getornull(p_area);
         if (space) {
             space->set_param(p_param, p_value);
         }
     } else {
 
-        AreaBullet *area = area_owner.get(p_area);
+        AreaBullet *area = area_owner.getornull(p_area);
         ERR_FAIL_COND(!area);
 
         area->set_param(p_param, p_value);
@@ -581,16 +581,16 @@ void BulletPhysicsServer::body_clear_shapes(RID p_body) {
     body->remove_all_shapes();
 }
 
-void BulletPhysicsServer::body_attach_object_instance_id(RID p_body, uint32_t p_id) {
+void BulletPhysicsServer::body_attach_object_instance_id(RID p_body, ObjectID p_id) {
     CollisionObjectBullet *body = get_collisin_object(p_body);
     ERR_FAIL_COND(!body);
 
     body->set_instance_id(p_id);
 }
 
-uint32_t BulletPhysicsServer::body_get_object_instance_id(RID p_body) const {
+ObjectID BulletPhysicsServer::body_get_object_instance_id(RID p_body) const {
     CollisionObjectBullet *body = get_collisin_object(p_body);
-    ERR_FAIL_COND_V(!body, 0);
+    ERR_FAIL_COND_V(!body, ObjectID());
 
     return body->get_instance_id();
 }

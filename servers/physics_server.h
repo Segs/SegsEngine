@@ -389,8 +389,8 @@ public:
 
     virtual void body_set_shape_disabled(RID p_body, int p_shape_idx, bool p_disabled) = 0;
 
-    virtual void body_attach_object_instance_id(RID p_body, uint32_t p_id) = 0;
-    virtual uint32_t body_get_object_instance_id(RID p_body) const = 0;
+    virtual void body_attach_object_instance_id(RID p_body, ObjectID p_id) = 0;
+    virtual ObjectID body_get_object_instance_id(RID p_body) const = 0;
 
     virtual void body_set_enable_continuous_collision_detection(RID p_body, bool p_enable) = 0;
     virtual bool body_is_continuous_collision_detection_enabled(RID p_body) const = 0;

@@ -33,33 +33,33 @@
 #include "core/io/marshalls.h"
 #include "core/method_bind.h"
 #include "core/string_utils.inl"
+#include "EASTL/unique_ptr.h"
 
 IMPL_GDCLASS(StreamPeer);
 IMPL_GDCLASS(StreamPeerBuffer);
 
-Error StreamPeer::_put_data(const PoolVector<uint8_t> &p_data) {
+Error StreamPeer::_put_data(Span<const uint8_t> p_data) {
 
     int len = p_data.size();
     if (len == 0)
         return OK;
-    PoolVector<uint8_t>::Read r = p_data.read();
-    return put_data(&r[0], len);
+
+    return put_data(p_data.data(), p_data.size());
 }
 
-Array StreamPeer::_put_partial_data(const PoolVector<uint8_t> &p_data) {
+Array StreamPeer::_put_partial_data(Span<const uint8_t> p_data) {
 
     Array ret;
 
-    int len = p_data.size();
+    size_t len = p_data.size();
     if (len == 0) {
         ret.push_back(OK);
         ret.push_back(0);
         return ret;
     }
 
-    PoolVector<uint8_t>::Read r = p_data.read();
     int sent;
-    Error err = put_partial_data(&r[0], len, sent);
+    Error err = put_partial_data(p_data.data(), len, sent);
 
     if (err != OK) {
         sent = 0;
@@ -73,20 +73,17 @@ Array StreamPeer::_get_data(int p_bytes) {
 
     Array ret;
 
-    PoolVector<uint8_t> data;
-    data.resize(p_bytes);
-    if (data.size() != p_bytes) {
+    if (p_bytes>= (1U<<25)) { // if request is for more than 512MB something went wrong somewhere
 
         ret.push_back(ERR_OUT_OF_MEMORY);
         ret.push_back(PoolVector<uint8_t>());
         return ret;
     }
+    auto holder = Vector<uint8_t>(p_bytes);
 
-    PoolVector<uint8_t>::Write w = data.write();
-    Error err = get_data(&w[0], p_bytes);
-    w.release();
-    ret.push_back(err);
-    ret.push_back(data);
+    Error err = get_data(holder.data(), p_bytes);
+    ret.emplace_back(err);
+    ret.emplace_back(eastl::move(holder));
     return ret;
 }
 
@@ -429,8 +426,7 @@ Error StreamPeerBuffer::put_data(const uint8_t *p_data, int p_bytes) {
         data.resize(pointer + p_bytes);
     }
 
-    PoolVector<uint8_t>::Write w = data.write();
-    memcpy(&w[pointer], p_data, p_bytes);
+    memcpy(data.data()+pointer, p_data, p_bytes);
 
     pointer += p_bytes;
     return OK;
@@ -464,8 +460,7 @@ Error StreamPeerBuffer::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r_
         r_received = p_bytes;
     }
 
-    PoolVector<uint8_t>::Read r = data.read();
-    memcpy(p_buffer, r.ptr() + pointer, r_received);
+    memcpy(p_buffer, data.data() + pointer, r_received);
 
     pointer += r_received;
     // FIXME: return what? OK or ERR_*
@@ -499,9 +494,9 @@ void StreamPeerBuffer::resize(int p_size) {
     data.resize(p_size);
 }
 
-void StreamPeerBuffer::set_data_array(const PoolVector<uint8_t> &p_data) {
+void StreamPeerBuffer::set_data_array(Vector<uint8_t> &&p_data) {
 
-    data = p_data;
+    data = eastl::move(p_data);
     pointer = 0;
 }
 
