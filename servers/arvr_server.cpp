@@ -116,7 +116,7 @@ void ARVRServer::center_on_hmd(RotationMode p_rotation_mode, bool p_keep_height)
         reference_frame = Transform();
 
         // requesting our EYE_MONO transform should return our current HMD position
-        Transform new_reference_frame = primary_interface->get_transform_for_eye(ARVRInterface::EYE_MONO, Transform());
+        Transform new_reference_frame = primary_interface->get_transform_for_eye(ARVREyes::EYE_MONO, Transform());
 
         // remove our tilt
         if (p_rotation_mode == 1) {
@@ -145,7 +145,7 @@ void ARVRServer::center_on_hmd(RotationMode p_rotation_mode, bool p_keep_height)
 Transform ARVRServer::get_hmd_transform() {
     Transform hmd_transform;
     if (primary_interface != nullptr) {
-        hmd_transform = primary_interface->get_transform_for_eye(ARVRInterface::EYE_MONO, hmd_transform);
+        hmd_transform = primary_interface->get_transform_for_eye(ARVREyes::EYE_MONO, hmd_transform);
     };
     return hmd_transform;
 };

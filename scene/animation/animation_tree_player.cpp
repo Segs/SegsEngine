@@ -477,8 +477,8 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                     node["animation"] = an->animation;
                 }
                 Array k;
-                List<NodePath> keys;
-                an->filter.get_key_list(keys);
+                Vector<NodePath> keys;
+                an->filter.keys_into(keys);
                 k.resize(keys.size());
                 int i = 0;
                 for (const NodePath &F : keys) {
@@ -496,8 +496,8 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                 node["autorestart_random_delay"] = osn->autorestart_random_delay;
 
                 Array k;
-                List<NodePath> keys;
-                osn->filter.get_key_list(keys);
+                Vector<NodePath> keys;
+                osn->filter.keys_into(keys);
                 k.resize(keys.size());
                 int i = 0;
                 for (const NodePath &F : keys) {
@@ -514,8 +514,8 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
                 Blend2Node *bn = static_cast<Blend2Node *>(n);
                 node["blend"] = bn->value;
                 Array k;
-                List<NodePath> keys;
-                bn->filter.get_key_list(keys);
+                Vector<NodePath> keys;
+                bn->filter.keys_into(keys);
                 k.resize(keys.size());
                 int i = 0;
                 for (const NodePath &F : keys) {
@@ -644,17 +644,17 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
 
     if (p_filter != nullptr) {
 
-        List<NodePath> key_list;
-        p_filter->get_key_list(key_list);
+        FixedVector<NodePath,32,true> key_list;
+        p_filter->keys_into(key_list);
 
         for (const NodePath &E : key_list) {
 
-            if ((*p_filter)[E]) {
+            if ((*p_filter).at(E,false)) {
 
                 if (p_weights->contains(E)) {
                     (*p_weights)[E] *= p_filtered_coeff;
                 } else {
-                    p_weights->set(E, *p_fallback_weight * p_filtered_coeff);
+                    (*p_weights)[E] = *p_fallback_weight * p_filtered_coeff;
                 }
 
             } else if (p_weights->contains(E)) {
@@ -663,8 +663,8 @@ void AnimationTreePlayer::_compute_weights(float *p_fallback_weight, HashMap<Nod
         }
     }
 
-    List<NodePath> key_list;
-    p_weights->get_key_list(key_list);
+    FixedVector<NodePath,32,true> key_list;
+    p_weights->keys_into(key_list);
 
     for (const NodePath &E : key_list) {
         if (p_filter == nullptr || !p_filter->contains(E)) {
@@ -1078,7 +1078,7 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
                             StringName method = a->method_track_get_name(tr.local_track, F->deref());
                             Vector<Variant> args = a->method_track_get_params(tr.local_track, F->deref());
                             args.resize(VARIANT_ARG_MAX);
-                            tr.track->object->call(method, args[0], args[1], args[2], args[3], args[4]);
+                            tr.track->object->call_va(method, args[0], args[1], args[2], args[3], args[4]);
                         }
                     } break;
                     default: {
@@ -1220,11 +1220,11 @@ void AnimationTreePlayer::animation_node_set_filter_path(const StringName &p_nod
         n->filter.erase(p_track_path);
 }
 
-void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
+void AnimationTreePlayer::animation_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const {
 
     GET_NODE(NODE_ANIMATION, AnimationTreeNode)
 
-    n->filter.get_key_list(*r_paths);
+    n->filter.keys_into(*r_paths);
 }
 
 void AnimationTreePlayer::oneshot_node_set_fadein_time(const StringName &p_node, float p_time) {
@@ -1285,11 +1285,11 @@ void AnimationTreePlayer::oneshot_node_set_filter_path(const StringName &p_node,
         n->filter.erase(p_filter);
 }
 
-void AnimationTreePlayer::oneshot_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
+void AnimationTreePlayer::oneshot_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const {
 
     GET_NODE(NODE_ONESHOT, OneShotNode)
 
-    n->filter.get_key_list(*r_paths);
+    n->filter.keys_into(*r_paths);
 }
 
 void AnimationTreePlayer::mix_node_set_amount(const StringName &p_node, float p_amount) {
@@ -1314,11 +1314,11 @@ void AnimationTreePlayer::blend2_node_set_filter_path(const StringName &p_node, 
         n->filter.erase(p_filter);
 }
 
-void AnimationTreePlayer::blend2_node_set_get_filtered_paths(const StringName &p_node, List<NodePath> *r_paths) const {
+void AnimationTreePlayer::blend2_node_set_get_filtered_paths(const StringName &p_node, Vector<NodePath> *r_paths) const {
 
     GET_NODE(NODE_BLEND2, Blend2Node)
 
-    n->filter.get_key_list(*r_paths);
+    n->filter.keys_into(*r_paths);
 }
 
 void AnimationTreePlayer::blend3_node_set_amount(const StringName &p_node, float p_amount) {

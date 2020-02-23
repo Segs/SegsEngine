@@ -309,7 +309,7 @@ bool GDScript::get_property_default_value(const StringName &p_property, Variant 
 
 #ifdef TOOLS_ENABLED
 
-    const Map<StringName, Variant>::const_iterator E = member_default_values_cache.find(p_property);
+    const HashMap<StringName, Variant>::const_iterator E = member_default_values_cache.find(p_property);
     if (E!=member_default_values_cache.end()) {
         r_value = E->second;
         return true;
@@ -386,7 +386,7 @@ void GDScript::set_source_code(String p_code) {
 }
 
 #ifdef TOOLS_ENABLED
-void GDScript::_update_exports_values(Map<StringName, Variant> &values, Vector<PropertyInfo> &propnames) {
+void GDScript::_update_exports_values(HashMap<StringName, Variant> &values, Vector<PropertyInfo> &propnames) {
 
     if (base_cache) {
         base_cache->_update_exports_values(values, propnames);
@@ -504,7 +504,7 @@ bool GDScript::_update_exports() {
     if (!placeholders.empty()) { //hm :(
 
         // update placeholders if any
-        Map<StringName, Variant> values;
+        HashMap<StringName, Variant> values;
         Vector<PropertyInfo> propnames;
         _update_exports_values(values, propnames);
 
@@ -526,7 +526,7 @@ void GDScript::update_exports() {
 
     _update_exports();
 
-    Set<ObjectID> copy = inheriters_cache; //might get modified
+    HashSet<ObjectID> copy = inheriters_cache; //might get modified
 
     for (ObjectID E : copy) {
         Object *id = ObjectDB::get_instance(E);
@@ -628,7 +628,7 @@ ScriptLanguage *GDScript::get_language() const {
     return GDScriptLanguage::get_singleton();
 }
 
-void GDScript::get_constants(Map<StringName, Variant> *p_constants) {
+void GDScript::get_constants(HashMap<StringName, Variant> *p_constants) {
 
     if (p_constants) {
         for (eastl::pair<const StringName,Variant> &E : constants) {
@@ -637,7 +637,7 @@ void GDScript::get_constants(Map<StringName, Variant> *p_constants) {
     }
 }
 
-void GDScript::get_members(Set<StringName> *p_members) {
+void GDScript::get_members(HashSet<StringName> *p_members) {
     if (p_members) {
         for (const StringName &E : members) {
             p_members->insert(E);
@@ -673,7 +673,7 @@ bool GDScript::_get(const StringName &p_name, Variant &r_ret) const {
         while (top) {
 
             {
-                const Map<StringName, Variant>::const_iterator E = top->constants.find(p_name);
+                const HashMap<StringName, Variant>::const_iterator E = top->constants.find(p_name);
                 if (E!=top->constants.end()) {
 
                     r_ret = E->second;
@@ -1054,7 +1054,7 @@ bool GDScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
 
             const GDScript *sl = sptr;
             while (sl) {
-                const Map<StringName, Variant>::const_iterator E = sl->constants.find(p_name);
+                const HashMap<StringName, Variant>::const_iterator E = sl->constants.find(p_name);
                 if (E!=sl->constants.end()) {
                     r_ret = E->second;
                     return true; //index found

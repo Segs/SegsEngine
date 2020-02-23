@@ -146,7 +146,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
 
         set_selected(n);
 
-        NodeDock::singleton->get_parent()->call("set_current_tab", NodeDock::singleton->get_index());
+        NodeDock::singleton->get_parent()->call_va("set_current_tab", NodeDock::singleton->get_index());
         NodeDock::singleton->show_connections();
 
     } else if (p_id == BUTTON_GROUPS) {
@@ -156,13 +156,13 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
 
         set_selected(n);
 
-        NodeDock::singleton->get_parent()->call("set_current_tab", NodeDock::singleton->get_index());
+        NodeDock::singleton->get_parent()->call_va("set_current_tab", NodeDock::singleton->get_index());
         NodeDock::singleton->show_groups();
     }
 }
 void SceneTreeEditor::_toggle_visible(Node *p_node) {
     if (p_node->has_method("is_visible") && p_node->has_method("set_visible")) {
-        bool v = bool(p_node->call("is_visible"));
+        bool v = bool(p_node->call_va("is_visible"));
         undo_redo->add_do_method(p_node, "set_visible", !v);
         undo_redo->add_undo_method(p_node, "set_visible", v);
     }
@@ -351,7 +351,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             if (is_grouped)
                 item->add_button(0, get_icon("Group", "EditorIcons"), BUTTON_GROUP, false, TTR("Children are not selectable.\nClick to make selectable."));
 
-            bool v = p_node->call("is_visible");
+            bool v = p_node->call_va("is_visible");
             if (v)
                 item->add_button(0, get_icon("GuiVisibilityVisible", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
             else
@@ -371,7 +371,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             if (is_grouped)
                 item->add_button(0, get_icon("Group", "EditorIcons"), BUTTON_GROUP, false, TTR("Children are not selectable.\nClick to make selectable."));
 
-            bool v = p_node->call("is_visible");
+            bool v = p_node->call_va("is_visible");
             if (v)
                 item->add_button(0, get_icon("GuiVisibilityVisible", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
             else
@@ -462,10 +462,10 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
     bool visible = false;
 
     if (p_node->is_class("CanvasItem")) {
-        visible = p_node->call("is_visible");
+        visible = p_node->call_va("is_visible");
         CanvasItemEditor::get_singleton()->get_viewport_control()->update();
     } else if (p_node->is_class("Spatial")) {
-        visible = p_node->call("is_visible");
+        visible = p_node->call_va("is_visible");
     }
 
     if (visible)
@@ -479,7 +479,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
 void SceneTreeEditor::_update_visibility_color(Node *p_node, TreeItem *p_item) {
     if (p_node->is_class("CanvasItem") || p_node->is_class("Spatial")) {
         Color color(1, 1, 1, 1);
-        bool visible_on_screen = p_node->call("is_visible_in_tree");
+        bool visible_on_screen = p_node->call_va("is_visible_in_tree");
         if (!visible_on_screen) {
             color.a = 0.6f;
         }
@@ -810,7 +810,7 @@ Node *SceneTreeEditor::get_selected() {
     return selected;
 }
 
-void SceneTreeEditor::set_marked(const Set<Node *> &p_marked, bool p_selectable, bool p_children_selectable) {
+void SceneTreeEditor::set_marked(const HashSet<Node *> &p_marked, bool p_selectable, bool p_children_selectable) {
 
     if (tree_dirty)
         _update_tree();
@@ -822,7 +822,7 @@ void SceneTreeEditor::set_marked(const Set<Node *> &p_marked, bool p_selectable,
 
 void SceneTreeEditor::set_marked(Node *p_marked, bool p_selectable, bool p_children_selectable) {
 
-    Set<Node *> s;
+    HashSet<Node *> s;
     if (p_marked)
         s.insert(p_marked);
     set_marked(s, p_selectable, p_children_selectable);

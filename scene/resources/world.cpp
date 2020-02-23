@@ -51,13 +51,13 @@ struct SpatialIndexer {
         OctreeElementID id;
     };
 
-    Map<VisibilityNotifier *, NotifierData> notifiers;
+    HashMap<VisibilityNotifier *, NotifierData> notifiers;
     struct CameraData {
 
-        Map<VisibilityNotifier *, uint64_t> notifiers;
+        HashMap<VisibilityNotifier *, uint64_t> notifiers;
     };
 
-    Map<Camera *, CameraData> cameras;
+    HashMap<Camera *, CameraData> cameras;
 
     enum {
         VISIBILITY_CULL_MAX = 32768
@@ -79,7 +79,7 @@ struct SpatialIndexer {
 
     void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
 
-        Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E==notifiers.end());
         if (E->second.aabb == p_rect)
             return;
@@ -91,7 +91,7 @@ struct SpatialIndexer {
 
     void _notifier_remove(VisibilityNotifier *p_notifier) {
 
-        Map<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E!=notifiers.end());
 
         octree.erase(E->second.id);
@@ -100,7 +100,7 @@ struct SpatialIndexer {
         Vector<Camera *> removed;
         for (eastl::pair< Camera *const,CameraData> &F : cameras) {
 
-            Map<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
+            HashMap<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
 
             if (G!=F.second.notifiers.end()) {
                 F.second.notifiers.erase(G);
@@ -125,7 +125,7 @@ struct SpatialIndexer {
 
     void _update_camera(Camera *p_camera) {
 
-        Map<Camera *, CameraData>::iterator E = cameras.find(p_camera);
+        HashMap<Camera *, CameraData>::iterator E = cameras.find(p_camera);
         ERR_FAIL_COND(E==cameras.end());
         changed = true;
     }
@@ -173,7 +173,7 @@ struct SpatialIndexer {
 
                 //notifiers in frustum
 
-                Map<VisibilityNotifier *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
+                HashMap<VisibilityNotifier *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
                 if (H==E.second.notifiers.end()) {
 
                     E.second.notifiers.emplace(ptr[i], pass);
@@ -260,11 +260,11 @@ void World::_update(uint64_t p_frame) {
 
 RID World::get_space() const {
 
-    return space;
+    return physics_space;
 }
 RID World::get_scenario() const {
 
-    return scenario;
+    return renderer_scene;
 }
 
 void World::set_environment(const Ref<Environment> &p_environment) {
@@ -272,7 +272,7 @@ void World::set_environment(const Ref<Environment> &p_environment) {
         return;
     }
     environment = p_environment;
-    VisualServer::get_singleton()->scenario_set_environment(scenario, environment ? environment->get_rid() : RID());
+    VisualServer::get_singleton()->scenario_set_environment(renderer_scene, environment ? environment->get_rid() : RID());
 
     emit_changed();
 }
@@ -288,7 +288,7 @@ void World::set_fallback_environment(const Ref<Environment> &p_environment) {
     }
 
     fallback_environment = p_environment;
-    VisualServer::get_singleton()->scenario_set_fallback_environment(scenario, fallback_environment ? fallback_environment->get_rid() : RID());
+    VisualServer::get_singleton()->scenario_set_fallback_environment(renderer_scene, fallback_environment ? fallback_environment->get_rid() : RID());
 
     emit_changed();
 }
@@ -300,7 +300,7 @@ Ref<Environment> World::get_fallback_environment() const {
 
 PhysicsDirectSpaceState *World::get_direct_space_state() {
 
-    return PhysicsServer::get_singleton()->space_get_direct_state(space);
+    return PhysicsServer::get_singleton()->space_get_direct_state(physics_space);
 }
 
 void World::get_camera_list(Vector<Camera *> *r_cameras) {
@@ -328,15 +328,15 @@ void World::_bind_methods() {
 
 World::World() {
 
-    space = PhysicsServer::get_singleton()->space_create();
-    scenario = VisualServer::get_singleton()->scenario_create();
+    physics_space = PhysicsServer::get_singleton()->space_create();
+    renderer_scene = VisualServer::get_singleton()->scenario_create();
 
-    PhysicsServer::get_singleton()->space_set_active(space, true);
-    PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_GRAVITY, GLOBAL_DEF("physics/3d/default_gravity", 9.8));
-    PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_GRAVITY_VECTOR, GLOBAL_DEF("physics/3d/default_gravity_vector", Vector3(0, -1, 0)));
-    PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_LINEAR_DAMP, GLOBAL_DEF("physics/3d/default_linear_damp", 0.1));
+    PhysicsServer::get_singleton()->space_set_active(physics_space, true);
+    PhysicsServer::get_singleton()->area_set_param(physics_space, PhysicsServer::AREA_PARAM_GRAVITY, GLOBAL_DEF("physics/3d/default_gravity", 9.8));
+    PhysicsServer::get_singleton()->area_set_param(physics_space, PhysicsServer::AREA_PARAM_GRAVITY_VECTOR, GLOBAL_DEF("physics/3d/default_gravity_vector", Vector3(0, -1, 0)));
+    PhysicsServer::get_singleton()->area_set_param(physics_space, PhysicsServer::AREA_PARAM_LINEAR_DAMP, GLOBAL_DEF("physics/3d/default_linear_damp", 0.1));
     ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_linear_damp", PropertyInfo(VariantType::REAL, "physics/3d/default_linear_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
-    PhysicsServer::get_singleton()->area_set_param(space, PhysicsServer::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/3d/default_angular_damp", 0.1));
+    PhysicsServer::get_singleton()->area_set_param(physics_space, PhysicsServer::AREA_PARAM_ANGULAR_DAMP, GLOBAL_DEF("physics/3d/default_angular_damp", 0.1));
     ProjectSettings::get_singleton()->set_custom_property_info("physics/3d/default_angular_damp", PropertyInfo(VariantType::REAL, "physics/3d/default_angular_damp", PropertyHint::Range, "-1,100,0.001,or_greater"));
 
 #ifdef _3D_DISABLED
@@ -348,8 +348,8 @@ World::World() {
 
 World::~World() {
 
-    PhysicsServer::get_singleton()->free_rid(space);
-    VisualServer::get_singleton()->free_rid(scenario);
+    PhysicsServer::get_singleton()->free_rid(physics_space);
+    VisualServer::get_singleton()->free_rid(renderer_scene);
 
 #ifndef _3D_DISABLED
     memdelete(indexer);

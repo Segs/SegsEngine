@@ -90,11 +90,9 @@ struct Object::ObjectPrivate {
         m_tooling = create_tooling_for(self);
     }
     ~ObjectPrivate() {
-        const StringName *S = nullptr;
-
-        while ((S = signal_map.next(nullptr))) {
-
-            Signal *s = &signal_map[*S];
+        //TODO: use range-based-for + signal_map.clear() afterwards ?
+        while(!signal_map.empty()) {
+            Signal *s = &signal_map.begin()->second;
 
             //brute force disconnect for performance
             const VMap<Signal::Target, Signal::Slot>::Pair *slot_list = s->slot_map.get_array();
@@ -105,9 +103,9 @@ struct Object::ObjectPrivate {
                     entry.value.conn.target->private_data->connections.erase(entry.value.cE);
                 }
             }
-
-            signal_map.erase(*S);
+            signal_map.erase(signal_map.begin());
         }
+
         //signals from nodes that connect to this node
         while (!connections.empty()) {
             Connection c = connections.front();
@@ -727,7 +725,7 @@ Variant Object::callv(const StringName &p_method, const Array &p_args) {
     return ret;
 }
 
-Variant Object::call(const StringName &p_name, VARIANT_ARG_DECLARE) {
+Variant Object::call_va(const StringName &p_name, VARIANT_ARG_DECLARE) {
     VARIANT_ARGPTRS
 
     int argc = 0;
@@ -1044,8 +1042,8 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
     if (_block_signals)
         return ERR_CANT_ACQUIRE_RESOURCE; //no emit, signals blocked
 
-    Signal *s = private_data->signal_map.getptr(p_name);
-    if (!s) {
+    auto s = private_data->signal_map.find(p_name);
+    if (s== private_data->signal_map.end()) {
 #ifdef DEBUG_ENABLED
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_name);
         //check in script
@@ -1061,7 +1059,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
     //copy on write will ensure that disconnecting the signal or even deleting the object will not affect the signal calling.
     //this happens automatically and will not change the performance of calling.
     //awesome, isn't it?
-    VMap<Signal::Target, Signal::Slot> slot_map = s->slot_map;
+    VMap<Signal::Target, Signal::Slot> slot_map = s->second.slot_map;
 
     int ssize = slot_map.size();
 
@@ -1249,24 +1247,21 @@ void Object::get_signal_list(Vector<MethodInfo> *p_signals) const {
 
     ClassDB::get_signal_list(get_class_name(), p_signals);
     //find maybe usersignals?
-    const StringName *S = nullptr;
 
-    while ((S = private_data->signal_map.next(S))) {
+    for(auto & signal :  private_data->signal_map) {
 
-        if (not private_data->signal_map[*S].user.name.empty()) {
+        if (not signal.second.user.name.empty()) {
             //user signal
-            p_signals->push_back(private_data->signal_map[*S].user);
+            p_signals->push_back(signal.second.user);
         }
     }
 }
 
 void Object::get_all_signal_connections(List<Connection> *p_connections) const {
 
-    const StringName *S = nullptr;
+    for (const auto & signal : private_data->signal_map) {
 
-    while ((S = private_data->signal_map.next(S))) {
-
-        const Signal *s = &private_data->signal_map[*S];
+        const Signal *s = &signal.second;
 
         for (int i = 0; i < s->slot_map.size(); i++) {
 
@@ -1277,22 +1272,21 @@ void Object::get_all_signal_connections(List<Connection> *p_connections) const {
 
 void Object::get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const {
 
-    const Signal *s = private_data->signal_map.getptr(p_signal);
-    if (!s)
+    const auto s = private_data->signal_map.find(p_signal);
+    if (s== private_data->signal_map.end())
         return; //nothing
 
-    for (int i = 0; i < s->slot_map.size(); i++)
-        p_connections->push_back(s->slot_map.getv(i).conn);
+    for (int i = 0; i < s->second.slot_map.size(); i++)
+        p_connections->push_back(s->second.slot_map.getv(i).conn);
 }
 
 int Object::get_persistent_signal_connection_count() const {
 
     int count = 0;
-    const StringName *S = nullptr;
 
-    while ((S = private_data->signal_map.next(S))) {
+    for (const auto & signal : private_data->signal_map) {
 
-        const Signal *s = &private_data->signal_map[*S];
+        const Signal *s = &signal.second;
 
         for (int i = 0; i < s->slot_map.size(); i++) {
 
@@ -1307,17 +1301,17 @@ int Object::get_persistent_signal_connection_count() const {
 
 void Object::get_signals_connected_to_this(List<Connection> *p_connections) const {
 
-    for (const Connection &E : private_data->connections) {
-        p_connections->emplace_back(E);
-    }
+    p_connections->insert(p_connections->end(), private_data->connections.begin(), private_data->connections.end());
 }
 
 Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds, uint32_t p_flags) {
 
     ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER);
 
-    Signal *s = private_data->signal_map.getptr(p_signal);
-    if (!s) {
+    auto s = private_data->signal_map.find(p_signal);
+
+    if (s == private_data->signal_map.end()) {
+
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
         //check in script
         if (!signal_is_valid && !script.is_null()) {
@@ -1336,14 +1330,13 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
             }
         }
 
-        private_data->signal_map[p_signal] = Signal();
-        s = &private_data->signal_map[p_signal];
+        s = private_data->signal_map.emplace(eastl::make_pair(p_signal, Signal())).first;
     }
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
-    if (s->slot_map.has(target)) {
+    if (s->second.slot_map.has(target)) {
         if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {
-            s->slot_map[target].reference_count++;
+            s->second.slot_map[target].reference_count++;
             return OK;
         } else {
             ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER,
@@ -1369,7 +1362,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
         slot.reference_count = 1;
     }
 
-    s->slot_map[target] = slot;
+    s->second.slot_map[target] = slot;
 
     return OK;
 }
@@ -1377,8 +1370,8 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
 bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const {
 
     ERR_FAIL_NULL_V(p_to_object, false);
-    const Signal *s = private_data->signal_map.getptr(p_signal);
-    if (!s) {
+    auto s = private_data->signal_map.find(p_signal);
+    if (s== private_data->signal_map.end()) {
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
         if (signal_is_valid)
             return false;
@@ -1391,7 +1384,7 @@ bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
-    return s->slot_map.has(target);
+    return s->second.slot_map.has(target);
     //const Map<Signal::Target,Signal::Slot>::Element *E = s->slot_map.find(target);
     //return (E!=NULL);
 }
@@ -1403,15 +1396,15 @@ void Object::disconnect(const StringName &p_signal, Object *p_to_object, const S
 void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, bool p_force) {
 
     ERR_FAIL_NULL(p_to_object);
-    Signal *s = private_data->signal_map.getptr(p_signal);
-    ERR_FAIL_COND_MSG(!s, FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()));
+    auto s = private_data->signal_map.find(p_signal);
+    ERR_FAIL_COND_MSG(s== private_data->signal_map.end(), FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()));
 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
-    ERR_FAIL_COND_MSG(!s->slot_map.has(target),
+    ERR_FAIL_COND_MSG(!s->second.slot_map.has(target),
             "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".");
 
-    Signal::Slot *slot = &s->slot_map[target];
+    Signal::Slot *slot = &s->second.slot_map[target];
 
     if (!p_force) {
         slot->reference_count--; // by default is zero, if it was not referenced it will go below it
@@ -1421,9 +1414,9 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
     }
 
     p_to_object->private_data->connections.erase(slot->cE);
-    s->slot_map.erase(target);
+    s->second.slot_map.erase(target);
 
-    if (s->slot_map.empty() && ClassDB::has_signal(get_class_name(), p_signal)) {
+    if (s->second.slot_map.empty() && ClassDB::has_signal(get_class_name(), p_signal)) {
         //not user signal, delete
         private_data->signal_map.erase(p_signal);
     }
@@ -1819,7 +1812,7 @@ void postinitialize_handler(Object *p_object) {
 
 HashMap<ObjectID, Object *> ObjectDB::instances;
 ObjectID ObjectDB::instance_counter = 1;
-HashMap<Object *, ObjectID> ObjectDB::instance_checks;
+HashMap<Object *, ObjectID, Hasher<Object *>> ObjectDB::instance_checks;
 ObjectID ObjectDB::add_instance(Object *p_object) {
 
     ERR_FAIL_COND_V(p_object->get_instance_id() != 0, 0);
@@ -1846,22 +1839,20 @@ void ObjectDB::remove_instance(Object *p_object) {
 Object *ObjectDB::get_instance(ObjectID p_instance_id) {
 
     rw_lock->read_lock();
-    Object **obj = instances.getptr(p_instance_id);
+    auto iter= instances.find(p_instance_id);
+    Object *obj = iter!=instances.end() ? iter->second : nullptr;
     rw_lock->read_unlock();
 
-    if (!obj)
-        return nullptr;
-    return *obj;
+    return obj;
 }
 
 void ObjectDB::debug_objects(DebugFunc p_func) {
 
     rw_lock->read_lock();
 
-    const ObjectID *K = nullptr;
-    while ((K = instances.next(K))) {
+    for(const auto &e : instances) {
 
-        p_func(instances[*K]);
+        p_func(e.second);
     }
 
     rw_lock->read_unlock();
@@ -1889,20 +1880,19 @@ void ObjectDB::setup() {
 void ObjectDB::cleanup() {
 
     rw_lock->write_lock();
-    if (instances.size()) {
+    if (!instances.empty()) {
 
         WARN_PRINT("ObjectDB Instances still exist!");
         if (OS::get_singleton()->is_stdout_verbose()) {
-            const ObjectID *K = nullptr;
-            while ((K = instances.next(K))) {
-
+            for (const auto &e : instances) {
+                //TODO: SEGS: use object_cast and direct calls here??
                 String node_name;
-                if (instances[*K]->is_class("Node"))
-                    node_name = " - Node name: " + instances[*K]->call("get_name").as<String>();
-                if (instances[*K]->is_class("Resource"))
-                    node_name = " - Resource name: " + instances[*K]->call("get_name").as<String>() +
-                                " Path: " + instances[*K]->call("get_path").as<String>();
-                print_line(FormatVE("Leaked instance: %s:%zu%s",instances[*K]->get_class(),*K,node_name.c_str()));
+                if (e.second->is_class("Node"))
+                    node_name = " - Node name: " + e.second->call_va("get_name").as<String>();
+                if (e.second->is_class("Resource"))
+                    node_name = " - Resource name: " + e.second->call_va("get_name").as<String>() +
+                                " Path: " + e.second->call_va("get_path").as<String>();
+                print_line(FormatVE("Leaked instance: %s:%zu%s", e.second->get_class(), e.second,node_name.c_str()));
             }
         }
     }

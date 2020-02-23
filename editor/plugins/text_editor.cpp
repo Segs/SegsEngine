@@ -66,7 +66,7 @@ void TextEditor::set_syntax_highlighter(SyntaxHighlighter *p_highlighter) {
 }
 
 void TextEditor::_change_syntax_highlighter(int p_idx) {
-    Map<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
+    HashMap<String, SyntaxHighlighter *>::iterator el = highlighters.begin();
     for (;el != highlighters.end(); ++el) {
         highlighter_menu->set_item_checked(highlighter_menu->get_item_idx_from_text_utf8(el->first), false);
     }
@@ -569,7 +569,7 @@ void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
                     int from_column = tx->get_selection_from_column();
                     int to_column = tx->get_selection_to_column();
 
-                    if (row < from_line || row > to_line || row == from_line && col < from_column || row == to_line && col > to_column) {
+                    if (row < from_line || row > to_line || (row == from_line && col < from_column) || (row == to_line && col > to_column)) {
                         // Right click is outside the selected text.
                         tx->deselect();
                     }

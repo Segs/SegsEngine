@@ -1,17 +1,10 @@
 
-set(common_x11
-    context_gl_x11.cpp
-    crash_handler_x11.cpp
-    os_x11.cpp
-)
-
 find_package(OpenGL REQUIRED)
 
 foreach(tgt ${global_targets})
     set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/key_mapping_x11.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/joypad_linux.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/power_x11.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/detect_prime.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/context_gl_x11.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/crash_handler_x11.cpp

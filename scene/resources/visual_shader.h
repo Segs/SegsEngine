@@ -32,6 +32,7 @@
 
 #include "core/string_builder.h"
 #include "core/se_string.h"
+#include "core/map.h"
 
 #include "scene/gui/control.h"
 #include "scene/resources/shader.h"
@@ -94,8 +95,8 @@ public:
         const char *string;
     };
 
-    DefHashMap<String, int> modes;
-    Set<StringName> flags;
+    HashMap<String, int> modes;
+    HashSet<StringName> flags;
     volatile mutable bool dirty;
 
     static RenderModeEnums render_mode_enums[];

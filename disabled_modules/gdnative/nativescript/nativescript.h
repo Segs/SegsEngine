@@ -39,6 +39,7 @@
 #include "core/resource.h"
 #include "core/script_language.h"
 #include "core/self_list.h"
+#include "core/hash_set.h"
 #include "scene/main/node.h"
 
 #include "modules/gdnative/gdnative.h"
@@ -102,7 +103,7 @@ class NativeScript : public Script {
     GDCLASS(NativeScript,Script)
 
 #ifdef TOOLS_ENABLED
-    Set<PlaceHolderScriptInstance *> placeholders;
+    HashSet<PlaceHolderScriptInstance *> placeholders;
     void _update_placeholder(PlaceHolderScriptInstance *p_placeholder);
     void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
 #endif
@@ -124,7 +125,7 @@ class NativeScript : public Script {
 #ifndef NO_THREADS
     Mutex *owners_lock;
 #endif
-    Set<Object *> instance_owners;
+    HashSet<Object *> instance_owners;
 
 protected:
     static void _bind_methods();
@@ -240,8 +241,8 @@ private:
 #ifndef NO_THREADS
     Mutex *mutex;
 
-    Set<Ref<GDNativeLibrary> > libs_to_init;
-    Set<NativeScript *> scripts_to_register;
+    HashSet<Ref<GDNativeLibrary> > libs_to_init;
+    HashSet<NativeScript *> scripts_to_register;
     volatile bool has_objects_to_register; // so that we don't lock mutex every frame - it's rarely needed
     void defer_init_library(Ref<GDNativeLibrary> lib, NativeScript *script);
 #endif
@@ -275,10 +276,10 @@ private:
 
 public:
     // These two maps must only be touched on the main thread
-    Map<String, Map<StringName, NativeScriptDesc> > library_classes;
+    Map<String, HashMap<StringName, NativeScriptDesc> > library_classes;
     Map<String, Ref<GDNative> > library_gdnatives;
 
-    Map<String, Set<NativeScript *> > library_script_users;
+    Map<String, HashSet<NativeScript *> > library_script_users;
 
     StringName _init_call_type;
     StringName _init_call_name;

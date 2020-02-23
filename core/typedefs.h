@@ -34,7 +34,7 @@
 
 #ifdef _MSC_VER
 #include <sal.h>
-#include <iso646.h>
+
 #endif
 #include <cstddef>
 
@@ -60,7 +60,17 @@
  * Basic definitions and simple functions to be used everywhere.
  */
 
-#include "platform_config.h"
+#ifdef _WIN32
+#include <malloc.h>
+#elif defined(__linux__)
+#include <alloca.h>
+#endif
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#include <stdlib.h>
+#define PTHREAD_BSD_SET_NAME
+#endif
+
 
 #ifndef _STR
 #define _STR(m_x) #m_x
@@ -191,7 +201,7 @@ inline void __swap_tmpl(T &x, T &y) {
 
 /** Function to find the next power of 2 to an integer */
 
-static _FORCE_INLINE_ unsigned int next_power_of_2(unsigned int x) {
+constexpr static _FORCE_INLINE_ unsigned int next_power_of_2(unsigned int x) {
     if (x == 0)
         return 0;
     --x;
@@ -204,7 +214,7 @@ static _FORCE_INLINE_ unsigned int next_power_of_2(unsigned int x) {
     return ++x;
 }
 
-static _FORCE_INLINE_ unsigned int previous_power_of_2(unsigned int x) {
+constexpr static _FORCE_INLINE_ unsigned int previous_power_of_2(unsigned int x) {
 
     x |= x >> 1;
     x |= x >> 2;
@@ -214,7 +224,7 @@ static _FORCE_INLINE_ unsigned int previous_power_of_2(unsigned int x) {
     return x - (x >> 1);
 }
 
-static _FORCE_INLINE_ unsigned int closest_power_of_2(unsigned int x) {
+constexpr static _FORCE_INLINE_ unsigned int closest_power_of_2(unsigned int x) {
 
     unsigned int nx = next_power_of_2(x);
     unsigned int px = previous_power_of_2(x);
@@ -332,7 +342,9 @@ struct _GlobalLock {
 #define __STR(m_index) __STRX(m_index)
 
 #ifdef __GNUC__
+#undef likely
 #define likely(x) __builtin_expect(!!(x), 1)
+#undef unlikely
 #define unlikely(x) __builtin_expect(!!(x), 0)
 #else
 #define likely(x) x
@@ -352,24 +364,3 @@ struct _GlobalLock {
  */
 #define CAST_INT_TO_UCHAR_PTR(ptr) ((uint8_t *)(uintptr_t)(ptr))
 
-/** Hint for compilers that this fallthrough in a switch is intentional.
- *  Can be replaced by [[fallthrough]] annotation if we move to C++17.
- *  Including conditional support for it for people who set -std=c++17
- *  themselves.
- *  Requires a trailing semicolon when used.
- */
-#if __cplusplus >= 201703L
-#define FALLTHROUGH [[fallthrough]]
-#elif defined(__GNUC__) && __GNUC__ >= 7
-#define FALLTHROUGH __attribute__((fallthrough))
-#elif defined(__llvm__) && __cplusplus >= 201103L && defined(__has_feature)
-#if __has_feature(cxx_attributes) && defined(__has_warning)
-#if __has_warning("-Wimplicit-fallthrough")
-#define FALLTHROUGH [[clang::fallthrough]]
-#endif
-#endif
-#endif
-
-#ifndef FALLTHROUGH
-#define FALLTHROUGH
-#endif

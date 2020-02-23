@@ -80,7 +80,7 @@ void DocDump::dump(se_string_view p_file) {
     FileAccess *f = FileAccess::open(p_file, FileAccess::WRITE);
 
     _write_string(f, 0, R"(<?xml version="1.0" encoding="UTF-8" ?>)");
-    _write_string(f, 0, String("<doc version=\"") + VERSION_NUMBER + "\" name=\"Engine Types\">");
+    _write_string(f, 0, String("<doc version=\"") + VERSION_BRANCH + "\" name=\"Engine Types\">");
 
     for(int i=0,fin=class_list.size(); i<fin; ++i) {
 

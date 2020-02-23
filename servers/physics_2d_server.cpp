@@ -318,9 +318,9 @@ Physics2DShapeQueryParameters::Physics2DShapeQueryParameters() {
 Dictionary Physics2DDirectSpaceState::_intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
-    Set<RID> exclude;
-    for (RID i : p_exclude)
-        exclude.emplace(i);
+    HashSet<RID> exclude;
+
+    exclude.insert(p_exclude.begin(),p_exclude.end());
 
     bool res = intersect_ray(p_from, p_to, inters, exclude, p_layers, p_collide_with_bodies, p_collide_with_areas);
 
@@ -379,9 +379,9 @@ Array Physics2DDirectSpaceState::_cast_motion(const Ref<Physics2DShapeQueryParam
 
 Array Physics2DDirectSpaceState::_intersect_point_impl(const Vector2 &p_point, int p_max_results, const Vector<RID> &p_exclude, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_filter_by_canvas, ObjectID p_canvas_instance_id) {
 
-    Set<RID> exclude;
-    for (int i = 0; i < p_exclude.size(); i++)
-        exclude.insert(p_exclude[i]);
+    HashSet<RID> exclude;
+
+    exclude.insert(p_exclude.begin(),p_exclude.end());
 
     Vector<ShapeResult> ret;
     ret.resize(p_max_results);

@@ -141,7 +141,7 @@ void ThemeEditor::_save_template_cbk(se_string_view fname) {
 
     String filename = file_dialog->get_current_path();
 
-    Map<StringName, _TECategory> categories;
+    HashMap<StringName, _TECategory> categories;
 
     // Fill types.
     Vector<StringName> type_list;

@@ -1047,7 +1047,7 @@ public:
     void select_project(int p_index);
     void erase_selected_projects();
     Vector<Item> get_selected_projects() const;
-    const Set<StringName> &get_selected_project_keys() const;
+    const HashSet<StringName> &get_selected_project_keys() const;
     void ensure_project_visible(int p_index);
     int get_single_selected_index() const;
     bool is_any_project_missing() const;
@@ -1074,7 +1074,7 @@ private:
 
     String _search_term;
     ProjectListFilter::FilterOption _order_option;
-    Set<StringName> _selected_project_keys;
+    HashSet<StringName> _selected_project_keys;
     StringName _last_clicked; // Project key
     VBoxContainer *_scroll_children;
     int _icon_load_index;
@@ -1439,7 +1439,7 @@ void ProjectList::sort_projects() {
     update_dock_menu();
 }
 
-const Set<StringName> &ProjectList::get_selected_project_keys() const {
+const HashSet<StringName> &ProjectList::get_selected_project_keys() const {
     // Faster if that's all you need
     return _selected_project_keys;
 }
@@ -2020,7 +2020,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
 
 void ProjectManager::_open_selected_projects() {
 
-    const Set<StringName> &selected_list = _project_list->get_selected_project_keys();
+    const HashSet<StringName> &selected_list = _project_list->get_selected_project_keys();
 
     for (const StringName &selected : selected_list) {
         String path = EditorSettings::get_singleton()->get(StringName(String("projects/") + selected));
@@ -2058,7 +2058,7 @@ void ProjectManager::_open_selected_projects() {
 
 void ProjectManager::_open_selected_projects_ask() {
 
-    const Set<StringName> &selected_list = _project_list->get_selected_project_keys();
+    const HashSet<StringName> &selected_list = _project_list->get_selected_project_keys();
 
     if (selected_list.empty()) {
         return;
@@ -2158,7 +2158,7 @@ void ProjectManager::_run_project_confirm() {
 // When you press the "Run" button
 void ProjectManager::_run_project() {
 
-    const Set<StringName> &selected_list = _project_list->get_selected_project_keys();
+    const HashSet<StringName> &selected_list = _project_list->get_selected_project_keys();
 
     if (selected_list.empty()) {
         return;
@@ -2223,7 +2223,7 @@ void ProjectManager::_import_project() {
 
 void ProjectManager::_rename_project() {
 
-    const Set<StringName> &selected_list = _project_list->get_selected_project_keys();
+    const HashSet<StringName> &selected_list = _project_list->get_selected_project_keys();
 
     if (selected_list.empty()) {
         return;
@@ -2249,7 +2249,7 @@ void ProjectManager::_erase_missing_projects_confirm() {
 
 void ProjectManager::_erase_project() {
 
-    const Set<StringName> &selected_list = _project_list->get_selected_project_keys();
+    const HashSet<StringName> &selected_list = _project_list->get_selected_project_keys();
 
     if (selected_list.empty())
         return;

@@ -40,7 +40,10 @@ VARIANT_ENUM_CAST(TileSet::AutotileBindings);
 VARIANT_ENUM_CAST(TileSet::BitmaskMode);
 VARIANT_ENUM_CAST(TileSet::TileMode);
 
+//Static values returned by reference from functions, hopefully compiler will put those in non-writeable memory :)
 static const Vector<TileSet::ShapeData> null_shape_vec;
+static const HashMap<Vector2, int> s_null_map_vec2_int;
+static const HashMap<Vector2, uint32_t> s_null_map_vec2_uint;
 
 bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
@@ -561,10 +564,10 @@ int TileSet::autotile_get_subtile_priority(int p_id, const Vector2 &p_coord) {
     return 1;
 }
 
-const Map<Vector2, int> &TileSet::autotile_get_priority_map(int p_id) const {
 
-    static Map<Vector2, int> dummy;
-    ERR_FAIL_COND_V(!tile_map.contains(p_id), dummy);
+const HashMap<Vector2, int> &TileSet::autotile_get_priority_map(int p_id) const {
+
+    ERR_FAIL_COND_V(!tile_map.contains(p_id), s_null_map_vec2_int);
     return tile_map.at(p_id).autotile_data.priority_map;
 }
 
@@ -585,10 +588,9 @@ int TileSet::autotile_get_z_index(int p_id, const Vector2 &p_coord) {
     return 0;
 }
 
-const Map<Vector2, int> &TileSet::autotile_get_z_index_map(int p_id) const {
+const HashMap<Vector2, int> &TileSet::autotile_get_z_index_map(int p_id) const {
 
-    static Map<Vector2, int> dummy;
-    ERR_FAIL_COND_V(!tile_map.contains(p_id), dummy);
+    ERR_FAIL_COND_V(!tile_map.contains(p_id), s_null_map_vec2_int);
     return tile_map.at(p_id).autotile_data.z_index_map;
 }
 
@@ -612,13 +614,12 @@ uint32_t TileSet::autotile_get_bitmask(int p_id, Vector2 p_coord) {
     return tile_map[p_id].autotile_data.flags[p_coord];
 }
 
-const Map<Vector2, uint32_t> &TileSet::autotile_get_bitmask_map(int p_id) {
+const HashMap<Vector2, uint32_t> &TileSet::autotile_get_bitmask_map(int p_id) {
 
-    static Map<Vector2, uint32_t> dummy;
-    static Map<Vector2, uint32_t> dummy_atlas;
-    ERR_FAIL_COND_V(!tile_map.contains(p_id), dummy);
+    static HashMap<Vector2, uint32_t> dummy_atlas;
+    ERR_FAIL_COND_V(!tile_map.contains(p_id), s_null_map_vec2_uint);
     if (tile_get_tile_mode(p_id) == ATLAS_TILE) {
-        dummy_atlas = Map<Vector2, uint32_t>();
+        dummy_atlas.clear();
         Rect2 region = tile_get_region(p_id);
         Size2 size = autotile_get_size(p_id);
         float spacing = autotile_get_spacing(p_id);
@@ -916,9 +917,9 @@ Ref<NavigationPolygon> TileSet::tile_get_navigation_polygon(int p_id) const {
     return tile_map.at(p_id).navigation_polygon;
 }
 
-const Map<Vector2, Ref<OccluderPolygon2D> > &TileSet::autotile_get_light_oclusion_map(int p_id) const {
+const HashMap<Vector2, Ref<OccluderPolygon2D> > &TileSet::autotile_get_light_oclusion_map(int p_id) const {
 
-    static Map<Vector2, Ref<OccluderPolygon2D> > dummy;
+    static HashMap<Vector2, Ref<OccluderPolygon2D> > dummy;
     ERR_FAIL_COND_V(!tile_map.contains(p_id), dummy);
     return tile_map.at(p_id).autotile_data.occluder_map;
 }
@@ -945,9 +946,9 @@ Ref<NavigationPolygon> TileSet::autotile_get_navigation_polygon(int p_id, const 
     }
 }
 
-const Map<Vector2, Ref<NavigationPolygon> > &TileSet::autotile_get_navigation_map(int p_id) const {
+const HashMap<Vector2, Ref<NavigationPolygon> > &TileSet::autotile_get_navigation_map(int p_id) const {
 
-    static Map<Vector2, Ref<NavigationPolygon> > dummy;
+    static HashMap<Vector2, Ref<NavigationPolygon> > dummy;
     ERR_FAIL_COND_V(!tile_map.contains(p_id), dummy);
     return tile_map.at(p_id).autotile_data.navpoly_map;
 }

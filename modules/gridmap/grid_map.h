@@ -57,12 +57,16 @@ class GridMap : public Spatial {
         };
         uint64_t key;
 
-        _FORCE_INLINE_ bool operator<(const IndexKey &p_key) const {
+        bool operator==(IndexKey p_key) const {
 
             return key < p_key.key;
         }
-
-        IndexKey() { key = 0; }
+        constexpr IndexKey() : key(0) { }
+    private:
+        friend eastl::hash<IndexKey>;
+        explicit operator size_t() const {
+            return size_t(key);
+        }
     };
 
     /**
@@ -108,13 +112,13 @@ class GridMap : public Spatial {
         };
 
         Vector<MultimeshInstance> multimesh_instances;
-        Set<IndexKey> cells;
+        HashSet<IndexKey> cells;
         RID collision_debug;
         RID collision_debug_instance;
 
         bool dirty;
         RID static_body;
-        Map<IndexKey, NavMesh> navmesh_ids;
+        HashMap<IndexKey, NavMesh> navmesh_ids;
     };
 
     union OctantKey {
@@ -159,7 +163,7 @@ class GridMap : public Spatial {
     Ref<MeshLibrary> mesh_library;
 
     Map<OctantKey, Octant *> octant_map;
-    Map<IndexKey, Cell> cell_map;
+    HashMap<IndexKey, Cell> cell_map;
 
     void _recreate_octant_data();
 

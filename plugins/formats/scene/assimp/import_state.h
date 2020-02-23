@@ -61,27 +61,27 @@ struct ImportState {
     const aiScene *assimp_scene;
     uint32_t max_bone_weights;
 
-    Map<String, Ref<Mesh> > mesh_cache;
-    Map<int, Ref<Material> > material_cache;
-    Map<String, int> light_cache;
-    Map<String, int> camera_cache;
+    HashMap<String, Ref<Mesh> > mesh_cache;
+    HashMap<int, Ref<Material> > material_cache;
+    HashMap<String, int> light_cache;
+    HashMap<String, int> camera_cache;
     // very useful for when you need to ask assimp for the bone mesh
 
-    Map<const aiNode *, Node *> assimp_node_map;
+    HashMap<const aiNode *, Node *> assimp_node_map;
     Map<String, Ref<Image> > path_to_image_cache;
 
     // Generation 3 - determinisitic iteration
     // to lower potential recursion errors
     Vector<const aiNode *> nodes;
-    Map<const aiNode *, Spatial *> flat_node_map;
+    HashMap<const aiNode *, Spatial *> flat_node_map;
     AnimationPlayer *animation_player;
 
     // Generation 3 - deterministic armatures
     // list of armature nodes - flat and simple to parse
     // assimp node, node in godot
     Vector<aiNode *> armature_nodes;
-    Map<const aiNode *, Skeleton *> armature_skeletons;
-    Map<aiBone *, Skeleton *> skeleton_bone_map;
+    HashMap<const aiNode *, Skeleton *> armature_skeletons;
+    HashMap<aiBone *, Skeleton *> skeleton_bone_map;
     // Generation 3 - deterministic bone handling
     // bones from the stack are popped when found
     // this means we can detect

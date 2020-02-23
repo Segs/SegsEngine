@@ -31,7 +31,6 @@
 #pragma once
 
 #include "core/typedefs.h"
-#include "platform_config.h"
 
 // Atomic functions, these are used for multithread safe reference counters!
 

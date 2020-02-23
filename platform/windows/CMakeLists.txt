@@ -8,7 +8,6 @@ foreach(tgt ${global_targets})
         crash_handler_windows.cpp
         key_mapping_windows.cpp
         joypad_windows.cpp
-        power_windows.cpp
         windows_terminal_logger.cpp
         os_windows.cpp
     )

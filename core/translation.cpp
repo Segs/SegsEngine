@@ -870,7 +870,7 @@ void Translation::add_message(const StringName &p_src_text, const StringName &p_
 }
 StringName Translation::get_message(const StringName &p_src_text) const {
 
-    const Map<StringName, StringName>::const_iterator E = translation_map.find(p_src_text);
+    auto E = translation_map.find(p_src_text);
     if (E==translation_map.end())
         return StringName();
 

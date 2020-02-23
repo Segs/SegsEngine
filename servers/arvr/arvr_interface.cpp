@@ -34,7 +34,7 @@
 
 IMPL_GDCLASS(ARVRInterface)
 VARIANT_ENUM_CAST(ARVRInterface::Capabilities);
-VARIANT_ENUM_CAST(ARVRInterface::Eyes);
+VARIANT_ENUM_CAST(ARVREyes);
 VARIANT_ENUM_CAST(ARVRInterface::Tracking_status);
 
 void ARVRInterface::_bind_methods() {
@@ -133,7 +133,7 @@ ARVRInterface::ARVRInterface() {
 ARVRInterface::~ARVRInterface(){}
 
 // optional render to external texture which enhances performance on those platforms that require us to submit our end result into special textures.
-unsigned int ARVRInterface::get_external_texture_for_eye(ARVRInterface::Eyes p_eye) {
+unsigned int ARVRInterface::get_external_texture_for_eye(ARVREyes p_eye) {
     return 0;
 };
 

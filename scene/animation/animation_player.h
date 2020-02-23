@@ -127,7 +127,7 @@ private:
                     accum_pass(0) {}
         };
 
-        Map<StringName, PropertyAnim> property_anim;
+        HashMap<StringName, PropertyAnim> property_anim;
 
         struct BezierAnim {
 
@@ -184,7 +184,7 @@ private:
     int cache_update_prop_size;
     TrackNodeCache::BezierAnim *cache_update_bezier[NODE_CACHE_UPDATE_MAX];
     int cache_update_bezier_size;
-    Set<TrackNodeCache *> playing_caches;
+    HashSet<TrackNodeCache *> playing_caches;
 
     uint64_t accum_pass;
     float speed_scale;

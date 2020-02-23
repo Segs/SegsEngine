@@ -93,11 +93,16 @@ bool StreamFile::is_eof() const {
 }
 
 char StreamString::get_char() {
-
-    if (pos >= s.length())
+    if (pos > s.length()) {
         return 0;
-    else
+    } else if (pos == s.length()) {
+        // You need to try to read again when you have reached the end for EOF to be reported,
+        // so this works the same as files (like StreamFile does)
+        pos++;
+        return 0;
+    } else {
         return s[pos++];
+    }
 }
 
 bool StreamString::is_utf8() const {

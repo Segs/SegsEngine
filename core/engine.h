@@ -30,10 +30,9 @@
 
 #pragma once
 
-#include "core/list.h"
+#include "core/hash_map.h"
 #include "core/vector.h"
 #include "core/string_name.h"
-#include "core/map.h"
 #include "core/dictionary.h"
 
 class GODOT_EXPORT Engine {
@@ -52,7 +51,7 @@ private:
     friend class Main;
 
     Vector<Singleton> singletons;
-    Map<StringName, Object *> singleton_ptrs;
+    HashMap<StringName, Object *> singleton_ptrs;
     uint64_t frames_drawn=0;
     uint64_t _frame_ticks=0;
     uint32_t _frame_delay=0;

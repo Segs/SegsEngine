@@ -316,7 +316,7 @@ ShaderMaterial::~ShaderMaterial() {
 
 Mutex *SpatialMaterial::material_mutex = nullptr;
 SelfList<SpatialMaterial>::List *SpatialMaterial::dirty_materials = nullptr;
-Map<SpatialMaterial::MaterialKey, SpatialMaterial::ShaderData> SpatialMaterial::shader_map;
+HashMap<SpatialMaterial::MaterialKey, SpatialMaterial::ShaderData> SpatialMaterial::shader_map;
 SpatialMaterial::ShaderNames *SpatialMaterial::shader_names = nullptr;
 
 void SpatialMaterial::init_shaders() {

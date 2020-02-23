@@ -402,7 +402,7 @@ void TileMap::update_dirty_quadrants() {
 
         for (const PosKey &pk : q.cells) {
 
-            Map<PosKey, Cell>::iterator E = tile_map.find(pk);
+            HashMap<PosKey, Cell>::iterator E = tile_map.find(pk);
             Cell &c = E->second;
             //moment of truth
             if (!tile_set->has_tile(c.id))
@@ -750,7 +750,7 @@ void TileMap::_recompute_rect_cache() {
 #endif
 }
 
-Map<TileMap::PosKey, TileMap::Quadrant>::iterator TileMap::_create_quadrant(const PosKey &p_qk) {
+HashMap<TileMap::PosKey, TileMap::Quadrant>::iterator TileMap::_create_quadrant(const PosKey &p_qk) {
 
     Transform2D xform;
     //xform.set_origin(Point2(p_qk.x,p_qk.y)*cell_size*quadrant_size);
@@ -793,7 +793,7 @@ Map<TileMap::PosKey, TileMap::Quadrant>::iterator TileMap::_create_quadrant(cons
     return quadrant_map.emplace(p_qk, q).first;
 }
 
-void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
+void TileMap::_erase_quadrant(HashMap<PosKey, Quadrant>::iterator Q) {
 
     Quadrant &q = Q->second;
     if (!use_parent) {
@@ -827,7 +827,7 @@ void TileMap::_erase_quadrant(Map<PosKey, Quadrant>::iterator Q) {
     rect_cache_dirty = true;
 }
 
-void TileMap::_make_quadrant_dirty(Map<PosKey, Quadrant>::iterator Q, bool update) {
+void TileMap::_make_quadrant_dirty(HashMap<PosKey, Quadrant>::iterator Q, bool update) {
 
     Quadrant &q = Q->second;
     if (!q.dirty_list.in_list())
@@ -861,7 +861,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
 
     PosKey pk(p_x, p_y);
 
-    Map<PosKey, Cell>::iterator E = tile_map.find(pk);
+    HashMap<PosKey, Cell>::iterator E = tile_map.find(pk);
     if (E==tile_map.end() && p_tile == INVALID_CELL)
         return; //nothing to do
 
@@ -869,7 +869,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
     if (p_tile == INVALID_CELL) {
         //erase existing
         tile_map.erase(pk);
-        Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+        HashMap<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
         ERR_FAIL_COND(Q==quadrant_map.end());
         Quadrant &q = Q->second;
         q.cells.erase(pk);
@@ -882,7 +882,7 @@ void TileMap::set_cell(int p_x, int p_y, int p_tile, bool p_flip_x, bool p_flip_
         return;
     }
 
-    Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+    HashMap<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
 
     if (E==tile_map.end()) {
         E = tile_map.emplace(pk, Cell()).first;
@@ -964,7 +964,7 @@ void TileMap::update_cell_bitmask(int p_x, int p_y) {
     ERR_FAIL_COND_MSG(not tile_set, "Cannot update cell bitmask if Tileset is not open.");
 
     PosKey p(p_x, p_y);
-    Map<PosKey, Cell>::iterator E = tile_map.find(p);
+    HashMap<PosKey, Cell>::iterator E = tile_map.find(p);
     if (E != tile_map.end()) {
         int id = get_cell(p_x, p_y);
         if (tile_set->tile_get_tile_mode(id) == TileSet::AUTO_TILE) {
@@ -1029,7 +1029,7 @@ void TileMap::update_cell_bitmask(int p_x, int p_y) {
             E->second.autotile_coord_y = (int)coord.y;
 
             PosKey qk = p.to_quadrant(_get_quadrant_size());
-            Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+            HashMap<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
             _make_quadrant_dirty(Q);
 
         } else if (tile_set->tile_get_tile_mode(id) == TileSet::SINGLE_TILE) {
@@ -1071,7 +1071,7 @@ int TileMap::get_cell(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
+    const HashMap<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
     if (E==tile_map.end())
         return INVALID_CELL;
@@ -1082,7 +1082,7 @@ bool TileMap::is_cell_x_flipped(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
+    const HashMap<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
     if (E==tile_map.end())
         return false;
@@ -1093,7 +1093,7 @@ bool TileMap::is_cell_y_flipped(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
+    const HashMap<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
     if (E==tile_map.end())
         return false;
@@ -1104,7 +1104,7 @@ bool TileMap::is_cell_transposed(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
+    const HashMap<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
     if (E==tile_map.end())
         return false;
@@ -1116,7 +1116,7 @@ void TileMap::set_cell_autotile_coord(int p_x, int p_y, const Vector2 &p_coord) 
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::iterator E = tile_map.find(pk);
+    const HashMap<PosKey, Cell>::iterator E = tile_map.find(pk);
 
     if (E==tile_map.end())
         return;
@@ -1127,7 +1127,7 @@ void TileMap::set_cell_autotile_coord(int p_x, int p_y, const Vector2 &p_coord) 
     tile_map[pk] = c;
 
     PosKey qk = pk.to_quadrant(_get_quadrant_size());
-    Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+    HashMap<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
 
     if (Q==quadrant_map.end())
         return;
@@ -1139,7 +1139,7 @@ Vector2 TileMap::get_cell_autotile_coord(int p_x, int p_y) const {
 
     PosKey pk(p_x, p_y);
 
-    const Map<PosKey, Cell>::const_iterator E = tile_map.find(pk);
+    const HashMap<PosKey, Cell>::const_iterator E = tile_map.find(pk);
 
     if (E==tile_map.end())
         return Vector2();
@@ -1155,7 +1155,7 @@ void TileMap::_recreate_quadrants() {
 
         PosKey qk = PosKey(E.first.x, E.first.y).to_quadrant(_get_quadrant_size());
 
-        Map<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
+        HashMap<PosKey, Quadrant>::iterator Q = quadrant_map.find(qk);
         if (Q==quadrant_map.end()) {
             Q = _create_quadrant(qk);
             dirty_quadrant_list.add(&Q->second.dirty_list);

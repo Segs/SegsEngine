@@ -47,12 +47,12 @@ class Theme : public Resource {
 
     void _emit_theme_changed();
 
-    DefHashMap<StringName, DefHashMap<StringName, Ref<Texture> > > icon_map;
-    DefHashMap<StringName, DefHashMap<StringName, Ref<StyleBox> > > style_map;
-    DefHashMap<StringName, DefHashMap<StringName, Ref<Font> > > font_map;
-    DefHashMap<StringName, DefHashMap<StringName, Ref<Shader> > > shader_map;
-    DefHashMap<StringName, DefHashMap<StringName, Color> > color_map;
-    DefHashMap<StringName, DefHashMap<StringName, int> > constant_map;
+    HashMap<StringName, HashMap<StringName, Ref<Texture> > > icon_map;
+    HashMap<StringName, HashMap<StringName, Ref<StyleBox> > > style_map;
+    HashMap<StringName, HashMap<StringName, Ref<Font> > > font_map;
+    HashMap<StringName, HashMap<StringName, Ref<Shader> > > shader_map;
+    HashMap<StringName, HashMap<StringName, Color> > color_map;
+    HashMap<StringName, HashMap<StringName, int> > constant_map;
 
     Ref<Font> default_theme_font;
 

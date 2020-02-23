@@ -839,12 +839,15 @@ void ShaderLanguage::clear() {
     }
 }
 
-bool ShaderLanguage::_find_identifier(const BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, const StringName &p_identifier, DataType *r_data_type, IdentifierType *r_type, bool *r_is_const, int *r_array_size) {
+bool ShaderLanguage::_find_identifier(const BlockNode *p_block, const HashMap<StringName, BuiltInInfo> &p_builtin_types, const StringName &p_identifier, DataType *r_data_type, IdentifierType *r_type, bool *r_is_const, int *r_array_size) {
 
     if (p_builtin_types.contains(p_identifier)) {
 
         if (r_data_type) {
             *r_data_type = p_builtin_types.at(p_identifier).type;
+        }
+        if (r_is_const) {
+            *r_is_const = p_builtin_types.at(p_identifier).constant;
         }
         if (r_type) {
             *r_type = IDENTIFIER_BUILTIN_VAR;
@@ -2244,7 +2247,7 @@ bool ShaderLanguage::_validate_function_call(BlockNode *p_block, OperatorNode *p
     return false;
 }
 
-bool ShaderLanguage::_parse_function_arguments(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, OperatorNode *p_func, int *r_complete_arg) {
+bool ShaderLanguage::_parse_function_arguments(BlockNode *p_block, const HashMap<StringName, BuiltInInfo> &p_builtin_types, OperatorNode *p_func, int *r_complete_arg) {
 
     TkPos pos = _get_tkpos();
     Token tk = _get_token();
@@ -2678,7 +2681,7 @@ bool ShaderLanguage::_is_operator_assign(Operator p_op) const {
     return false;
 }
 
-bool ShaderLanguage::_validate_assign(Node *p_node, const Map<StringName, BuiltInInfo> &p_builtin_types, String *r_message) {
+bool ShaderLanguage::_validate_assign(Node *p_node, const HashMap<StringName, BuiltInInfo> &p_builtin_types, String *r_message) {
 
     if (p_node->type == Node::TYPE_OPERATOR) {
 
@@ -2760,7 +2763,7 @@ static String join_args(const Vector<ShaderLanguage::Node *> &arguments) {
     }
     return at;
 }
-ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types) {
+ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, const HashMap<StringName, BuiltInInfo> &p_builtin_types) {
 
     Vector<Expression> expression;
 
@@ -2772,6 +2775,8 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
         TkPos prepos = _get_tkpos();
         Token tk = _get_token();
         TkPos pos = _get_tkpos();
+
+        bool is_const = false;
 
         if (tk.type == TK_PARENTHESIS_OPEN) {
             //handle subexpression
@@ -2961,7 +2966,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     }
                     if (!found) {
                         _set_error("Unknown identifier in expression: " + String(identifier));
-                        return NULL;
+                        return nullptr;
                     }
                 } else {
                     if (!_find_identifier(p_block, p_builtin_types, identifier, &data_type, &ident_type, &is_const, &array_size)) {
@@ -3752,7 +3757,7 @@ ShaderLanguage::Node *ShaderLanguage::_reduce_expression(BlockNode *p_block, Sha
     return p_node;
 }
 
-ShaderLanguage::Node *ShaderLanguage::_parse_and_reduce_expression(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types) {
+ShaderLanguage::Node *ShaderLanguage::_parse_and_reduce_expression(BlockNode *p_block, const HashMap<StringName, BuiltInInfo> &p_builtin_types) {
 
     ShaderLanguage::Node *expr = _parse_expression(p_block, p_builtin_types);
     if (!expr) //errored
@@ -3763,7 +3768,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_and_reduce_expression(BlockNode *p_
     return expr;
 }
 
-Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one, bool p_can_break, bool p_can_continue) {
+Error ShaderLanguage::_parse_block(BlockNode *p_block, const HashMap<StringName, BuiltInInfo> &p_builtin_types, bool p_just_one, bool p_can_break, bool p_can_continue) {
 
     while (true) {
 
@@ -4601,7 +4606,7 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const Map<StringName, Bui
 
     return OK;
 }
-String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_types) const {
+String ShaderLanguage::_get_shader_type_list(const HashSet<StringName> &p_shader_types) const {
 
     // Return a list of shader types as an human-readable string
     String valid_types;
@@ -4655,7 +4660,7 @@ String ShaderLanguage::_get_shader_type_list(const Set<StringName> &p_shader_typ
 //	}
 //	return OK;
 //}
-Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types) {
 
     Token tk = _get_token();
 
@@ -4775,7 +4780,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
                 name = tk.text;
 
-                if (_find_identifier(nullptr, Map<StringName, BuiltInInfo>(), name)) {
+                if (_find_identifier(nullptr, HashMap<StringName, BuiltInInfo>(), name)) {
                     _set_error("Redefinition of '" + String(name) + "'");
                     return ERR_PARSE_ERROR;
                 }
@@ -4917,7 +4922,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
                     if (tk.type == TK_OP_ASSIGN) {
 
-                        Node *expr = _parse_and_reduce_expression(nullptr, Map<StringName, BuiltInInfo>());
+                        Node *expr = _parse_and_reduce_expression(nullptr, HashMap<StringName, BuiltInInfo>());
                         if (!expr)
                             return ERR_PARSE_ERROR;
                         if (expr->type != Node::TYPE_CONSTANT) {
@@ -5028,7 +5033,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                     return ERR_PARSE_ERROR;
                 }
 
-                if (_find_identifier(nullptr, Map<StringName, BuiltInInfo>(), name)) {
+                if (_find_identifier(nullptr, HashMap<StringName, BuiltInInfo>(), name)) {
                     _set_error("Redefinition of '" + String(name) + "'");
                     return ERR_PARSE_ERROR;
                 }
@@ -5061,7 +5066,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                             }
 
                             //variable created with assignment! must parse an expression
-                            Node *expr = _parse_and_reduce_expression(nullptr, Map<StringName, BuiltInInfo>());
+                            Node *expr = _parse_and_reduce_expression(nullptr, HashMap<StringName, BuiltInInfo>());
                             if (!expr)
                                 return ERR_PARSE_ERROR;
 
@@ -5091,7 +5096,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                             }
 
                             name = tk.text;
-                            if (_find_identifier(nullptr, Map<StringName, BuiltInInfo>(), name)) {
+                            if (_find_identifier(nullptr, HashMap<StringName, BuiltInInfo>(), name)) {
                                 _set_error("Redefinition of '" + String(name) + "'");
                                 return ERR_PARSE_ERROR;
                             }
@@ -5112,7 +5117,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
                     break;
                 }
 
-                Map<StringName, BuiltInInfo> builtin_types;
+                HashMap<StringName, BuiltInInfo> builtin_types;
                 if (p_functions.contains(name)) {
                     builtin_types = p_functions.at(name).built_ins;
                 }
@@ -5270,7 +5275,7 @@ Error ShaderLanguage::_parse_shader(const Map<StringName, FunctionInfo> &p_funct
 
     return OK;
 }
-bool ShaderLanguage::has_builtin(const Map<StringName, ShaderLanguage::FunctionInfo> &p_functions, const StringName &p_name) {
+bool ShaderLanguage::has_builtin(const HashMap<StringName, FunctionInfo> &p_functions, const StringName &p_name) {
 
     if (p_functions.contains("vertex")) {
         if (p_functions.at("vertex").built_ins.contains(p_name)) {
@@ -5419,7 +5424,7 @@ String ShaderLanguage::get_shader_type(const String &p_code) {
     return String();
 }
 
-Error ShaderLanguage::compile(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types) {
+Error ShaderLanguage::compile(const String &p_code, const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types) {
 
     clear();
 
@@ -5436,7 +5441,7 @@ Error ShaderLanguage::compile(const String &p_code, const Map<StringName, Functi
     return OK;
 }
 
-Error ShaderLanguage::complete(const String &p_code, const Map<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const Set<StringName> &p_shader_types, Vector
+Error ShaderLanguage::complete(const String &p_code, const HashMap<StringName, FunctionInfo> &p_functions, const Vector<StringName> &p_render_modes, const HashSet<StringName> &p_shader_types, Vector
         <ScriptCodeCompletionOption> *r_options, String &r_call_hint) {
 
     clear();
@@ -5475,7 +5480,7 @@ Error ShaderLanguage::complete(const String &p_code, const Map<StringName, Funct
         case COMPLETION_FUNCTION_CALL: {
 
             bool comp_ident = completion_type == COMPLETION_IDENTIFIER;
-            Map<StringName, ScriptCodeCompletionOption::Kind> matches;
+            HashMap<StringName, ScriptCodeCompletionOption::Kind> matches;
             StringName skip_function;
             BlockNode *block = completion_block;
 

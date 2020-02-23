@@ -254,7 +254,7 @@ private:
     };
 
     HashMap<NodePath, TrackCache *> track_cache;
-    Set<TrackCache *> playing_caches;
+    HashSet<TrackCache *> playing_caches;
 
     Ref<AnimationNode> root;
 
@@ -284,16 +284,16 @@ private:
     void _tree_changed();
     void _update_properties();
     Vector<PropertyInfo> properties;
-    DefHashMap<StringName, DefHashMap<StringName, StringName> > property_parent_map;
-    DefHashMap<StringName, Variant> property_map;
+    HashMap<StringName, HashMap<StringName, StringName> > property_parent_map;
+    HashMap<StringName, Variant> property_map;
 
     struct Activity {
         uint64_t last_pass;
         float activity;
     };
 
-    DefHashMap<StringName, Vector<Activity> > input_activity_map;
-    DefHashMap<StringName, Vector<Activity> *> input_activity_map_get;
+    HashMap<StringName, Vector<Activity> > input_activity_map;
+    HashMap<StringName, Vector<Activity> *> input_activity_map_get;
 
     void _update_properties_for_node(const StringName &p_base_path, Ref<AnimationNode> node);
 

@@ -558,7 +558,7 @@ void GDScriptTokenizerText::_advance() {
                     ignore_warnings = true;
                 }
 #endif // DEBUG_ENABLED
-                FALLTHROUGH;
+                [[fallthrough]];
             }
         case '\n': {
             line++;
@@ -775,7 +775,7 @@ void GDScriptTokenizerText::_advance() {
                 }
                 INCPOS(1);
                 is_node_path = true;
-                FALLTHROUGH;
+                [[fallthrough]];
             case '\'':
             case '"': {
 
@@ -1318,7 +1318,7 @@ Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code
 
     Vector<uint8_t> buf;
 
-    Map<StringName, int> identifier_map;
+    HashMap<StringName, int> identifier_map;
     HashMap<Variant, int, Hasher<Variant>, VariantComparator> constant_map;
     Map<uint32_t, int> line_map;
     Vector<uint32_t> token_array;
@@ -1391,9 +1391,8 @@ Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code
     }
 
     Map<int, Variant> rev_constant_map;
-    const Variant *K = nullptr;
-    while ((K = constant_map.next(K))) {
-        rev_constant_map[constant_map[*K]] = *K;
+    for (eastl::pair<const Variant,int> &E : constant_map) {
+        rev_constant_map[E.second] = E.first;
     }
 
     Map<int, uint32_t> rev_line_map;

@@ -57,7 +57,6 @@
 
 VARIANT_ENUM_CAST(_ResourceSaver::SaverFlags);
 VARIANT_ENUM_CAST(_OS::VideoDriver);
-VARIANT_ENUM_CAST(_OS::PowerState);
 VARIANT_ENUM_CAST(_OS::Weekday);
 VARIANT_ENUM_CAST(_OS::Month);
 VARIANT_ENUM_CAST(_OS::SystemDir);
@@ -606,18 +605,6 @@ bool _OS::is_vsync_via_compositor_enabled() const {
     return OS::get_singleton()->is_vsync_via_compositor_enabled();
 }
 
-_OS::PowerState _OS::get_power_state() {
-    return _OS::PowerState(OS::get_singleton()->get_power_state());
-}
-
-int _OS::get_power_seconds_left() {
-    return OS::get_singleton()->get_power_seconds_left();
-}
-
-int _OS::get_power_percent_left() {
-    return OS::get_singleton()->get_power_percent_left();
-}
-
 bool _OS::has_feature(se_string_view p_feature) const {
 
     return OS::get_singleton()->has_feature(p_feature);
@@ -675,11 +662,6 @@ uint64_t _OS::get_static_memory_usage() const {
 uint64_t _OS::get_static_memory_peak_usage() const {
 
     return OS::get_singleton()->get_static_memory_peak_usage();
-}
-
-uint64_t _OS::get_dynamic_memory_usage() const {
-
-    return OS::get_singleton()->get_dynamic_memory_usage();
 }
 
 void _OS::set_native_icon(const String &p_filename) {
@@ -988,8 +970,8 @@ void _OS::print_all_textures_by_size() {
             if (!E->is_class("ImageTexture"))
                 continue;
 
-            Size2 size = E->call("get_size");
-            int fmt = E->call("get_format");
+            Size2 size = E->call_va("get_size");
+            int fmt = E->call_va("get_format");
 
             _OSCoreBindImg img;
             img.size = size;
@@ -1011,7 +993,7 @@ void _OS::print_all_textures_by_size() {
 
 void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
-    DefHashMap<String, int> type_count;
+    HashMap<String, int> type_count;
 
     List<Ref<Resource> > rsrc;
     ResourceCache::get_cached_resources(&rsrc);
@@ -1328,7 +1310,6 @@ void _OS::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_static_memory_usage"), &_OS::get_static_memory_usage);
     MethodBinder::bind_method(D_METHOD("get_static_memory_peak_usage"), &_OS::get_static_memory_peak_usage);
-    MethodBinder::bind_method(D_METHOD("get_dynamic_memory_usage"), &_OS::get_dynamic_memory_usage);
 
     MethodBinder::bind_method(D_METHOD("get_user_data_dir"), &_OS::get_user_data_dir);
     MethodBinder::bind_method(D_METHOD("get_system_dir", {"dir"}), &_OS::get_system_dir);
@@ -1362,10 +1343,6 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_vsync_via_compositor_enabled"), &_OS::is_vsync_via_compositor_enabled);
 
     MethodBinder::bind_method(D_METHOD("has_feature", {"tag_name"}), &_OS::has_feature);
-
-    MethodBinder::bind_method(D_METHOD("get_power_state"), &_OS::get_power_state);
-    MethodBinder::bind_method(D_METHOD("get_power_seconds_left"), &_OS::get_power_seconds_left);
-    MethodBinder::bind_method(D_METHOD("get_power_percent_left"), &_OS::get_power_percent_left);
 
     MethodBinder::bind_method(D_METHOD("request_permission", {"name"}), &_OS::request_permission);
     MethodBinder::bind_method(D_METHOD("request_permissions"), &_OS::request_permissions);
@@ -1455,11 +1432,6 @@ void _OS::_bind_methods() {
     BIND_ENUM_CONSTANT(SYSTEM_DIR_PICTURES)
     BIND_ENUM_CONSTANT(SYSTEM_DIR_RINGTONES)
 
-    BIND_ENUM_CONSTANT(POWERSTATE_UNKNOWN)
-    BIND_ENUM_CONSTANT(POWERSTATE_ON_BATTERY)
-    BIND_ENUM_CONSTANT(POWERSTATE_NO_BATTERY)
-    BIND_ENUM_CONSTANT(POWERSTATE_CHARGING)
-    BIND_ENUM_CONSTANT(POWERSTATE_CHARGED)
 }
 
 _OS::_OS() {
@@ -1508,7 +1480,7 @@ Variant _Geometry::segment_intersects_segment_2d(const Vector2 &p_from_a, const 
         return result;
     } else {
         return Variant();
-    };
+    }
 };
 
 Variant _Geometry::line_intersects_line_2d(const Vector2 &p_from_a, const Vector2 &p_dir_a, const Vector2 &p_from_b, const Vector2 &p_dir_b) {

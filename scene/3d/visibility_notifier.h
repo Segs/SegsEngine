@@ -28,11 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISIBILITY_NOTIFIER_H
-#define VISIBILITY_NOTIFIER_H
+#pragma once
 
-#include "core/set.h"
-#include "core/map.h"
+#include "core/hash_set.h"
+#include "core/hash_map.h"
 #include "scene/3d/spatial.h"
 
 class Camera;
@@ -40,7 +39,7 @@ class VisibilityNotifier : public Spatial {
 
 	GDCLASS(VisibilityNotifier,Spatial)
 
-	Set<Camera *> cameras;
+    HashSet<Camera *> cameras;
 
 	AABB aabb;
 
@@ -82,7 +81,7 @@ protected:
 
 	void _find_nodes(Node *p_node);
 
-	Map<Node *, Variant> nodes;
+    HashMap<Node *, Variant> nodes;
 	void _node_removed(Node *p_node);
 	bool enabler[ENABLER_MAX];
 
@@ -98,5 +97,3 @@ public:
 	VisibilityEnabler();
 };
 
-
-#endif // VISIBILITY_NOTIFIER_H

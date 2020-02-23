@@ -39,7 +39,7 @@ class ShaderTypes {
 
     struct Type {
 
-        Map<StringName, ShaderLanguage::FunctionInfo> functions;
+        HashMap<StringName, ShaderLanguage::FunctionInfo> functions;
         Vector<StringName> modes;
     };
 
@@ -47,14 +47,14 @@ class ShaderTypes {
 
     static ShaderTypes *singleton;
 
-    Set<StringName> shader_types;
+    HashSet<StringName> shader_types;
 
 public:
     static ShaderTypes *get_singleton() { return singleton; }
 
-    const Map<StringName, ShaderLanguage::FunctionInfo> &get_functions(VS::ShaderMode p_mode);
+    const HashMap<StringName, ShaderLanguage::FunctionInfo> &get_functions(VS::ShaderMode p_mode);
     const Vector<StringName> &get_modes(VS::ShaderMode p_mode);
-    const Set<StringName> &get_types();
+    const HashSet<StringName> &get_types();
 
     ShaderTypes();
 };

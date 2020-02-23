@@ -35,6 +35,7 @@
 #include "servers/navigation_2d_server.h"
 #include "core/translation_helpers.h"
 #include "core/method_bind_interface.h"
+#include "core/method_bind.h"
 
 IMPL_GDCLASS(NavigationAgent2D)
 

@@ -58,7 +58,7 @@ StringName ResourceImporterBitMap::get_resource_type() const {
     return "BitMap";
 }
 
-bool ResourceImporterBitMap::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterBitMap::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     return true;
 }
@@ -78,7 +78,7 @@ void ResourceImporterBitMap::get_import_options(List<ImportOption> *r_options, i
 }
 
 Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
+        const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {
 

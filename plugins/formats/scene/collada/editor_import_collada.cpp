@@ -70,25 +70,25 @@ struct ColladaImport {
     bool use_mesh_builtin_materials;
     float bake_fps;
 
-    DefHashMap<String, NodeMap,Hasher<String>> node_map; //map from collada node to engine node
-    Map<String, String> node_name_map; //map from collada node to engine node
-    Map<String, Ref<ArrayMesh> > mesh_cache;
-    Map<String, Ref<Curve3D> > curve_cache;
-    Map<String, Ref<Material> > material_cache;
-    Map<Collada::Node *, Skeleton *> skeleton_map;
+    HashMap<String, NodeMap,Hasher<String>> node_map; //map from collada node to engine node
+    HashMap<String, String> node_name_map; //map from collada node to engine node
+    HashMap<String, Ref<ArrayMesh> > mesh_cache;
+    HashMap<String, Ref<Curve3D> > curve_cache;
+    HashMap<String, Ref<Material> > material_cache;
+    HashMap<Collada::Node *, Skeleton *> skeleton_map;
 
-    Map<Skeleton *, Map<String, int> > skeleton_bone_map;
+    HashMap<Skeleton *, HashMap<String, int> > skeleton_bone_map;
 
     Set<String> valid_animated_nodes;
     Vector<int> valid_animated_properties;
-    Map<String, bool> bones_with_animation;
+    HashMap<String, bool> bones_with_animation;
 
     Error _populate_skeleton(Skeleton *p_skeleton, Collada::Node *p_node, int &r_bone, int p_parent);
     Error _create_scene_skeletons(Collada::Node *p_node);
     Error _create_scene(Collada::Node *p_node, Spatial *p_parent);
     Error _create_resources(Collada::Node *p_node, bool p_use_compression);
     Error _create_material(const String &p_target);
-    Error _create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_mesh, const Map<String, Collada::NodeGeometry::Material> &p_material_map, const Collada::MeshData &meshdata, const Transform &p_local_xform, const
+    Error _create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_mesh, const HashMap<String, Collada::NodeGeometry::Material> &p_material_map, const Collada::MeshData &meshdata, const Transform &p_local_xform, const
             Vector<int> &bone_remap, const Collada::SkinControllerData *p_skin_controller, const Collada::MorphControllerData *p_morph_data, Vector
             <Ref<ArrayMesh>> p_morph_meshes = Vector<Ref<ArrayMesh>>(), bool p_use_compression = false, bool p_use_mesh_material = false);
     Error load(se_string_view p_path, int p_flags, bool p_force_make_tangents = false, bool p_use_compression = false);
@@ -488,7 +488,7 @@ Error ColladaImport::_create_material(const String &p_target) {
     return OK;
 }
 
-Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_mesh, const Map<String, Collada::NodeGeometry::Material> &p_material_map, const Collada::MeshData &meshdata, const Transform &p_local_xform, const
+Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_mesh, const HashMap<String, Collada::NodeGeometry::Material> &p_material_map, const Collada::MeshData &meshdata, const Transform &p_local_xform, const
         Vector<int> &bone_remap, const Collada::SkinControllerData *p_skin_controller, const Collada::MorphControllerData *p_morph_data, Vector
         <Ref<ArrayMesh>> p_morph_meshes, bool p_use_compression, bool p_use_mesh_material) {
 
@@ -609,7 +609,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         /* ADD WEIGHTS IF EXIST */
         /************************/
 
-        Map<int, Vector<Collada::Vertex::Weight> > pre_weights;
+        HashMap<int, Vector<Collada::Vertex::Weight> > pre_weights;
 
         bool has_weights = false;
 
@@ -1112,7 +1112,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                     Skeleton *sk = object_cast<Skeleton>(nmsk.node);
                     ERR_FAIL_COND_V(!sk, ERR_INVALID_DATA);
                     ERR_FAIL_COND_V(!skeleton_bone_map.contains(sk), ERR_INVALID_DATA);
-                    Map<String, int> &bone_remap_map = skeleton_bone_map[sk];
+                    HashMap<String, int> &bone_remap_map = skeleton_bone_map[sk];
 
                     meshid = skin->base;
 
@@ -1122,7 +1122,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
                         ngsource = meshid;
                         meshid = morph->mesh;
                     } else {
-                        ngsource = "";
+                        ngsource.clear();
                     }
 
                     if (apply_mesh_xform_to_vertices) {
@@ -1141,7 +1141,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 
                     bone_remap.resize(joint_src->sarray.size());
 
-                    for (int i = 0; i < bone_remap.size(); i++) {
+                    for (size_t i = 0; i < bone_remap.size(); i++) {
 
                         String str = joint_src->sarray[i];
                         ERR_FAIL_COND_V(!bone_remap_map.contains(str), ERR_INVALID_DATA);

@@ -393,7 +393,7 @@ public:
     const T & operator[](int p_index) const;
 
     eastl::span<const T> toSpan() const {
-        return { read().ptr(),size()};
+        return { read().ptr(),size_t(size())};
     }
 
     Error resize(int p_size);

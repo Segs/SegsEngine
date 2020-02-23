@@ -34,6 +34,7 @@
 #include "core/object.h"
 #include "core/os/os.h"
 #include "core/pool_vector.h"
+#include "core/hash_map.h"
 #include "core/set.h"
 #include "core/variant.h"
 #include "servers/audio/audio_effect.h"
@@ -186,7 +187,7 @@ private:
 
     Vector<Vector<AudioFrame> > temp_buffer; //temp_buffer for each level
     Vector<AudioServerBus *> buses;
-    Map<StringName, AudioServerBus *> bus_map;
+    HashMap<StringName, AudioServerBus *> bus_map;
 
     void _update_bus_effects(int p_bus);
 
@@ -194,7 +195,7 @@ private:
 
     // TODO create an audiodata pool to optimize memory
 
-    Map<void *, uint32_t> audio_data;
+    HashMap<void *, uint32_t> audio_data;
     size_t audio_data_total_mem;
     size_t audio_data_max_mem;
 

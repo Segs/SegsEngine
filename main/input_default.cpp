@@ -108,7 +108,7 @@ bool InputDefault::is_action_pressed(const StringName &p_action) const {
 
 bool InputDefault::is_action_just_pressed(const StringName &p_action) const {
 
-    const Map<StringName, Action>::const_iterator E = action_state.find(p_action);
+    const HashMap<StringName, Action>::const_iterator E = action_state.find(p_action);
     if (E==action_state.end())
         return false;
 
@@ -121,7 +121,7 @@ bool InputDefault::is_action_just_pressed(const StringName &p_action) const {
 
 bool InputDefault::is_action_just_released(const StringName &p_action) const {
 
-    const Map<StringName, Action>::const_iterator E = action_state.find(p_action);
+    const HashMap<StringName, Action>::const_iterator E = action_state.find(p_action);
     if (E==action_state.end())
         return false;
 
@@ -133,7 +133,7 @@ bool InputDefault::is_action_just_released(const StringName &p_action) const {
 }
 
 float InputDefault::get_action_strength(const StringName &p_action) const {
-    const Map<StringName, Action>::const_iterator E = action_state.find(p_action);
+    const HashMap<StringName, Action>::const_iterator E = action_state.find(p_action);
     if (E==action_state.end())
         return 0.0f;
 

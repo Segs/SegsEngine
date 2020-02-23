@@ -31,6 +31,7 @@
 #include "navigation_obstacle.h"
 
 #include "core/method_bind_interface.h"
+#include "core/method_bind.h"
 #include "scene/3d/collision_shape.h"
 #include "scene/3d/navigation.h"
 #include "scene/3d/physics_body.h"
@@ -53,12 +54,12 @@ void NavigationObstacle::_notification(int p_what) {
 
             // Search the navigation node and set it
             {
-                Navigation *nav = NULL;
+                Navigation *nav = nullptr;
                 Node *p = get_parent();
-                while (p != NULL) {
+                while (p != nullptr) {
                     nav = object_cast<Navigation>(p);
-                    if (nav != NULL)
-                        p = NULL;
+                    if (nav != nullptr)
+                        p = nullptr;
                     else
                         p = p->get_parent();
                 }
@@ -69,7 +70,7 @@ void NavigationObstacle::_notification(int p_what) {
             set_physics_process_internal(true);
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            set_navigation(NULL);
+            set_navigation(nullptr);
             set_physics_process_internal(false);
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
@@ -91,7 +92,7 @@ void NavigationObstacle::_notification(int p_what) {
 }
 
 NavigationObstacle::NavigationObstacle() :
-        navigation(NULL),
+        navigation(nullptr),
         agent(RID()) {
     agent = NavigationServer::get_singleton()->agent_create();
 }
@@ -106,12 +107,12 @@ void NavigationObstacle::set_navigation(Navigation *p_nav) {
         return; // Pointless
 
     navigation = p_nav;
-    NavigationServer::get_singleton()->agent_set_map(agent, navigation == NULL ? RID() : navigation->get_rid());
+    NavigationServer::get_singleton()->agent_set_map(agent, navigation == nullptr ? RID() : navigation->get_rid());
 }
 
 void NavigationObstacle::set_navigation_node(Node *p_nav) {
     Navigation *nav = object_cast<Navigation>(p_nav);
-    ERR_FAIL_COND(nav == NULL);
+    ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }
 
@@ -155,7 +156,7 @@ void NavigationObstacle::update_agent_shape() {
         radius *= MAX(s.x, MAX(s.y, s.z));
     }
 
-    if (radius == 0.0)
+    if (radius == 0.0f)
         radius = 1.0; // Never a 0 radius
 
     // Initialize the Agent as an object

@@ -79,11 +79,11 @@ using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
 namespace eastl {
-template <typename T, ptrdiff_t Extent>
+template <typename T, size_t Extent>
 class span;
 }
 template <typename T>
-using Span = eastl::span<T,ptrdiff_t(-1)>;
+using Span = eastl::span<T,size_t(-1)>;
 
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__
@@ -483,6 +483,15 @@ inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2) { re
 inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3) { return varray({ p_arg1,p_arg2,p_arg3 }); }
 inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4 }); }
 inline Vector<Variant> varray(const Variant &p_arg1, const Variant &p_arg2, const Variant &p_arg3, const Variant &p_arg4, const Variant &p_arg5) { return varray({ p_arg1,p_arg2,p_arg3,p_arg4,p_arg5 }); }
+
+namespace eastl {
+    template<>
+    struct hash<Variant> {
+        size_t operator()(const Variant &p_variant) const {
+            return p_variant.hash();
+        }
+    };
+}
 
 template<>
 struct Hasher<Variant> {

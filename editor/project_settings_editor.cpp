@@ -1004,7 +1004,7 @@ void ProjectSettingsEditor::queue_save() {
 
 void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
 
-    Set<StringName> presets;
+    HashSet<StringName> presets;
 
     presets.insert("bptc");
     presets.insert("s3tc");
@@ -1037,7 +1037,7 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
         for (int j = 0; j < custom_list.size(); j++) {
             String f(StringUtils::strip_edges( custom_list[j]));
             if (!f.empty()) {
-                presets.insert(f);
+                presets.emplace(f);
             }
         }
     }

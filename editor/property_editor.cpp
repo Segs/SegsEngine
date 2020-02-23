@@ -314,7 +314,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     ERR_BREAK(!res);
                     if (owner && hint == PropertyHint::ResourceType && hint_text == "Script") {
                         //make visual script the right type
-                        res->call("set_instance_base_type", owner->get_class());
+                        res->call_va("set_instance_base_type", owner->get_class());
                     }
 
                     v = Variant(Ref<Resource>(res));
@@ -926,7 +926,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
                     StringName base(StringUtils::get_slice(hint_text,',', i));
 
-                    Set<StringName> valid_inheritors;
+                    HashSet<StringName> valid_inheritors;
                     valid_inheritors.insert(base);
                     Vector<StringName> inheritors;
                     ClassDB::get_inheriters_from_class(StringName(StringUtils::strip_edges(base)), &inheritors);

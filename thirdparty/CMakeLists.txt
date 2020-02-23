@@ -472,3 +472,20 @@ target_include_directories(rvo2 PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/rvo2)
 target_include_directories(rvo2 INTERFACE ${PROJECT_SOURCE_DIR}/thirdparty)  # allow using rvo2 headers externally by rvo2/Header.h
 set_property(TARGET rvo2 PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_common_target_properties(rvo2)
+
+
+set(concurrent_queue_SRC
+    ${PROJECT_SOURCE_DIR}/thirdparty/concurrentqueue/blockingconcurrentqueue.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/concurrentqueue/concurrentqueue.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/concurrentqueue/lightweightsemaphore.h
+)
+add_library(concurrent_queue INTERFACE)
+
+target_include_directories(concurrent_queue INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+install(FILES ${concurrent_queue_SRC} DESTINATION include/concurrentqueue)
+install(TARGETS concurrent_queue EXPORT SegsEngine
+    INCLUDES DESTINATION include/concurrentqueue
+)

@@ -91,7 +91,7 @@ private:
 		VSet<ShapePair> shapes;
 	};
 
-	Map<ObjectID, BodyState> body_map;
+	HashMap<ObjectID, BodyState> body_map;
 
 	void _area_inout(int p_status, const RID &p_area, int p_instance, int p_area_shape, int p_self_shape);
 
@@ -123,7 +123,7 @@ private:
 		VSet<AreaShapePair> shapes;
 	};
 
-	Map<ObjectID, AreaState> area_map;
+	HashMap<ObjectID, AreaState> area_map;
 	void _clear_monitoring();
 
 	bool audio_bus_override;

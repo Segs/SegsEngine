@@ -34,7 +34,7 @@
 #include "core/resource.h"
 #include "servers/audio/audio_filter_sw.h"
 #include "servers/audio_server.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 
 class AudioStreamPlayback : public RefCounted {
 
@@ -105,7 +105,7 @@ class AudioStreamMicrophone : public AudioStream {
 
     friend class AudioStreamPlaybackMicrophone;
 
-    Set<AudioStreamPlaybackMicrophone *> playbacks;
+    HashSet<AudioStreamPlaybackMicrophone *> playbacks;
 
 protected:
     static void _bind_methods();
@@ -160,7 +160,7 @@ class AudioStreamRandomPitch : public AudioStream {
 
     friend class AudioStreamPlaybackRandomPitch;
 
-    Set<AudioStreamPlaybackRandomPitch *> playbacks;
+    HashSet<AudioStreamPlaybackRandomPitch *> playbacks;
     Ref<AudioStream> audio_stream;
     float random_pitch;
 

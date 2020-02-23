@@ -120,7 +120,7 @@ bool MultiNodeEdit::_get(const StringName &p_name, Variant &r_ret) const {
 }
 
 void MultiNodeEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
-
+    // TODO: consider using fixed hash map here.
     HashMap<StringName, PLData> usage;
 
     Node *es = EditorNode::get_singleton()->get_edited_scene();
@@ -152,7 +152,7 @@ void MultiNodeEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
                 pld.uses = 0;
                 pld.info = F;
                 usage[F.name] = pld;
-                data_list.push_back(usage.getptr(F.name));
+                data_list.push_back(&usage.find(F.name)->second);
             }
 
             // Make sure only properties with the same exact PropertyInfo data will appear

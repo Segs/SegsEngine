@@ -80,7 +80,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
     subdirectory_item->set_selectable(0, true);
     String lpath = p_dir->get_path();
     subdirectory_item->set_metadata(0, lpath);
-    if (!p_select_in_favorites && (path == lpath || display_mode == DISPLAY_MODE_SPLIT && PathUtils::get_base_dir(path) == lpath)) {
+    if (!p_select_in_favorites && (path == lpath || (display_mode == DISPLAY_MODE_SPLIT && PathUtils::get_base_dir(path) == lpath))) {
         subdirectory_item->select(0);
     }
 
@@ -873,7 +873,7 @@ void FileSystemDock::_tree_activate_file() {
         TreeItem *parent = selected->get_parent();
         bool is_favorite = parent != nullptr && parent->get_metadata(0) == "Favorites";
 
-        if (!is_favorite && StringUtils::ends_with( path,"/") || path == "Favorites") {
+        if ((!is_favorite && StringUtils::ends_with( path,"/")) || path == "Favorites") {
             bool collapsed = selected->is_collapsed();
             selected->set_collapsed(!collapsed);
         } else {
@@ -999,7 +999,7 @@ void FileSystemDock::_get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vect
     }
 }
 
-void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<String, String> &renames, Vector<String> &to_remaps) const {
+void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const HashMap<String, String> &renames, Vector<String> &to_remaps) const {
     for (int i = 0; i < efsd->get_subdir_count(); i++) {
         _find_remaps(efsd->get_subdir(i), renames, to_remaps);
     }
@@ -1015,7 +1015,7 @@ void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const Map<Str
 }
 
 void FileSystemDock::_try_move_item(const FileOrFolder &p_item, se_string_view p_new_path,
-        Map<String, String> &p_file_renames, Map<String, String> &p_folder_renames) {
+        HashMap<String, String> &p_file_renames, HashMap<String, String> &p_folder_renames) {
     // Ensure folder paths end with "/".
     String old_path = p_item.is_file || StringUtils::ends_with(p_item.path,"/") ? p_item.path : p_item.path + "/";
     String new_path(p_item.is_file || StringUtils::ends_with(p_new_path,"/") ? p_new_path : String(p_new_path) + "/");
@@ -1118,7 +1118,7 @@ void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const Strin
     memdelete(da);
 }
 
-void FileSystemDock::_update_resource_paths_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_update_resource_paths_after_move(const HashMap<String, String> &p_renames) const {
 
     // Rename all resources loaded, be it subresources or actual resources.
     List<Ref<Resource> > cached;
@@ -1168,7 +1168,7 @@ void FileSystemDock::_update_resource_paths_after_move(const Map<String, String>
     }
 }
 
-void FileSystemDock::_update_dependencies_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_update_dependencies_after_move(const HashMap<String, String> &p_renames) const {
     //The following code assumes that the following holds:
     // 1) EditorFileSystem contains the old paths/folder structure from before the rename/move.
     // 2) ResourceLoader can use the new paths without needing to call rescan.
@@ -1188,10 +1188,10 @@ void FileSystemDock::_update_dependencies_after_move(const Map<String, String> &
     }
 }
 
-void FileSystemDock::_update_project_settings_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_update_project_settings_after_move(const HashMap<String, String> &p_renames) const {
 
     // Find all project settings of type FILE and replace them if needed.
-    const Map<StringName, PropertyInfo> prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
+    const HashMap<StringName, PropertyInfo> &prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
     for (const eastl::pair<const StringName,PropertyInfo> &E : prop_info) {
         if (E.second.hint == PropertyHint::File) {
             String old_path = GLOBAL_GET(E.first);
@@ -1220,12 +1220,12 @@ void FileSystemDock::_update_project_settings_after_move(const Map<String, Strin
     ProjectSettings::get_singleton()->save();
 }
 
-void FileSystemDock::_update_favorites_list_after_move(const Map<String, String> &p_files_renames, const Map<String, String> &p_folders_renames) const {
+void FileSystemDock::_update_favorites_list_after_move(const HashMap<String, String> &p_files_renames, const HashMap<String, String> &p_folders_renames) const {
 
     Vector<String> favorites = EditorSettings::get_singleton()->get_favorites();
     Vector<String> new_favorites;
 
-    for (int i = 0; i < favorites.size(); i++) {
+    for (size_t i = 0; i < favorites.size(); i++) {
         String old_path = favorites[i];
         if (p_folders_renames.contains(old_path)) {
             new_favorites.push_back(p_folders_renames.at(old_path));
@@ -1239,12 +1239,12 @@ void FileSystemDock::_update_favorites_list_after_move(const Map<String, String>
     EditorSettings::get_singleton()->set_favorites(new_favorites);
 }
 
-void FileSystemDock::_save_scenes_after_move(const Map<String, String> &p_renames) const {
+void FileSystemDock::_save_scenes_after_move(const HashMap<String, String> &p_renames) const {
     Vector<String> remaps;
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
     Vector<String> new_filenames;
 
-    for (int i = 0; i < remaps.size(); ++i) {
+    for (size_t i = 0; i < remaps.size(); ++i) {
         const String &file = p_renames.contains(remaps[i]) ? p_renames.at(remaps[i]) : remaps[i];
         if (ResourceLoader::get_resource_type(file) == "PackedScene") {
             new_filenames.emplace_back(file);
@@ -1377,8 +1377,8 @@ void FileSystemDock::_rename_operation_confirm() {
     }
     memdelete(da);
 
-    Map<String, String> file_renames;
-    Map<String, String> folder_renames;
+    HashMap<String, String> file_renames;
+    HashMap<String, String> folder_renames;
     _try_move_item(to_rename, new_path, file_renames, folder_renames);
 
     int current_tab = editor->get_current_tab();
@@ -1438,7 +1438,7 @@ void FileSystemDock::_move_with_overwrite() {
 
 bool FileSystemDock::_check_existing() {
     String &p_to_path = to_move_path;
-    for (int i = 0; i < to_move.size(); i++) {
+    for (size_t i = 0; i < to_move.size(); i++) {
         String ol_pth(StringUtils::ends_with(to_move[i].path, "/") ?
                                  StringUtils::substr(to_move[i].path, 0, to_move[i].path.length() - 1) :
                                  to_move[i].path);
@@ -1476,8 +1476,8 @@ void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool over
         }
     }
 
-    Map<String, String> file_renames;
-    Map<String, String> folder_renames;
+    HashMap<String, String> file_renames;
+    HashMap<String, String> folder_renames;
     bool is_moved = false;
     for (int i = 0; i < to_move.size(); i++) {
         String old_path(StringUtils::ends_with(to_move[i].path, "/") ?
@@ -1785,7 +1785,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
         } break;
 
         case FILE_REIMPORT: {
-            ERR_FAIL_COND_MSG(p_selected.empty(), "You need to select files to reimport them."); 
+            ERR_FAIL_COND_MSG(p_selected.empty(), "You need to select files to reimport them.");
             // TODO: SEGS: Reimport all selected files. ????
         } break;
 
@@ -1832,6 +1832,13 @@ void FileSystemDock::_resource_created() const {
     Resource *r = object_cast<Resource>(c);
     ERR_FAIL_COND(!r);
 
+    PackedScene *scene = object_cast<PackedScene>(r);
+    if (scene) {
+        Node *node = memnew(Node);
+        node->set_name("Node");
+        scene->pack(node);
+        memdelete(node);
+    }
     REF res(r);
     editor->push_item(c);
 
@@ -2123,7 +2130,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
 }
 
 void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const {
-    target = String();
+    target.clear();
     target_favorites = false;
 
     // In the file list.
@@ -2184,7 +2191,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
 void FileSystemDock::_file_and_folders_fill_popup(
         PopupMenu *p_popup, const Vector<String> &p_paths, bool p_display_path_dependent_options) {
     // Add options for files and folders.
-    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty."); 
+    ERR_FAIL_COND_MSG(p_paths.empty(), "Path cannot be empty.");
 
     Vector<String> filenames;
     Vector<String> foldernames;

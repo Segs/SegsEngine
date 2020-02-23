@@ -31,6 +31,7 @@
 #include "resource_loader.h"
 
 #include "core/pool_vector.h"
+#include "core/hash_map.h"
 #include "core/os/mutex.h"
 #include "core/io/resource_importer.h"
 #include "core/os/file_access.h"
@@ -257,7 +258,7 @@ void ResourceFormatLoader::get_dependencies(se_string_view p_path, Vector<String
     }
 }
 
-Error ResourceFormatLoader::rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) {
+Error ResourceFormatLoader::rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) {
 
     if (get_script_instance() && get_script_instance()->has_method("rename_dependencies")) {
 
@@ -765,7 +766,7 @@ void ResourceLoader::get_dependencies(se_string_view p_path, Vector<String> &p_d
     }
 }
 
-Error ResourceLoader::rename_dependencies(se_string_view p_path, const Map<String, String> &p_map) {
+Error ResourceLoader::rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) {
 
     String path = _path_remap(p_path);
 
@@ -1082,9 +1083,8 @@ void ResourceLoader::initialize() {
 
 void ResourceLoader::finalize() {
 #ifndef NO_THREADS
-    const LoadingMapKey *K = nullptr;
-    while ((K = loading_map.next(K))) {
-        ERR_PRINT("Exited while resource is being loaded: " + K->path);
+    for(const auto &e : loading_map) {
+        ERR_PRINT("Exited while resource is being loaded: " + e.first.path);
     }
     loading_map.clear();
     memdelete(loading_map_mutex);
@@ -1104,8 +1104,8 @@ bool ResourceLoader::abort_on_missing_resource = true;
 bool ResourceLoader::timestamp_on_load = false;
 
 SelfList<Resource>::List ResourceLoader::remapped_list;
-DefHashMap<String, Vector<String> > ResourceLoader::translation_remaps;
-DefHashMap<String, String> ResourceLoader::path_remaps;
+HashMap<String, Vector<String> > ResourceLoader::translation_remaps;
+HashMap<String, String> ResourceLoader::path_remaps;
 
 ResourceLoaderImport ResourceLoader::import = nullptr;
 

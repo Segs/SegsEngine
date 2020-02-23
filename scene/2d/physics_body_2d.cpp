@@ -268,7 +268,7 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
     ERR_FAIL_COND(!node);
 
     ERR_FAIL_COND(!contact_monitor);
-    Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
+    HashMap<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
     ERR_FAIL_COND(E==contact_monitor->body_map.end());
     ERR_FAIL_COND(E->second.in_scene);
 
@@ -291,7 +291,7 @@ void RigidBody2D::_body_exit_tree(ObjectID p_id) {
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     ERR_FAIL_COND(!contact_monitor);
-    Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
+    HashMap<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(p_id);
     ERR_FAIL_COND(E==contact_monitor->body_map.end());
     ERR_FAIL_COND(!E->second.in_scene);
     E->second.in_scene = false;
@@ -317,7 +317,7 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
     Node *node = object_cast<Node>(obj);
 
     ERR_FAIL_COND(!contact_monitor);
-    Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(objid);
+    HashMap<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(objid);
 
     ERR_FAIL_COND(!body_in && E==contact_monitor->body_map.end());
 
@@ -437,7 +437,7 @@ void RigidBody2D::_direct_state_changed(Object *p_state) {
 
             //bool found=false;
 
-            Map<ObjectID, BodyState>::iterator E = contact_monitor->body_map.find(obj);
+            auto E = contact_monitor->body_map.find(obj);
             if (E==contact_monitor->body_map.end()) {
                 toadd[toadd_count].local_shape = local_shape;
                 toadd[toadd_count].id = obj;

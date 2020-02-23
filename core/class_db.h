@@ -34,7 +34,7 @@
 #include "core/string_name.h"
 #include "core/hashfuncs.h"
 #include "core/variant.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 #include "core/list.h"
 #include "core/method_info.h"
 
@@ -122,26 +122,26 @@ public:
         APIType api = API_NONE;
         ClassInfo *inherits_ptr=nullptr;
         const void *class_ptr=nullptr;
-        DefHashMap<StringName, MethodBind *> method_map;
-        DefHashMap<StringName, int> constant_map;
-        DefHashMap<StringName, List<StringName> > enum_map;
-        DefHashMap<StringName, MethodInfo> signal_map;
+        HashMap<StringName, MethodBind *> method_map;
+        HashMap<StringName, int> constant_map;
+        HashMap<StringName, List<StringName> > enum_map;
+        HashMap<StringName, MethodInfo> signal_map;
         Vector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
         Vector<StringName> constant_order;
         Vector<StringName> method_order;
-        Set<StringName> methods_in_properties;
+        HashSet<StringName> methods_in_properties;
         Vector<MethodInfo> virtual_methods;
         StringName category;
         String usage_header;
 #endif
-        DefHashMap<StringName, PropertySetGet> property_setget;
+        HashMap<StringName, PropertySetGet> property_setget;
 
         StringName inherits;
         StringName name;
         bool disabled=false;
         bool exposed=false;
-        DefHashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
+        HashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
         Object *(*creation_func)() = nullptr;
 
         ClassInfo();
@@ -154,8 +154,8 @@ public:
     }
 
     static RWLock *lock;
-    static DefHashMap<StringName, ClassInfo> classes;
-    static DefHashMap<StringName, StringName> resource_base_extensions;
+    static HashMap<StringName, ClassInfo> classes;
+    static HashMap<StringName, StringName> resource_base_extensions;
     static HashMap<StringName, StringName> compat_classes;
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -171,7 +171,7 @@ public:
     static void _add_class2(const StringName &p_class, const StringName &p_inherits);
 
     static HashMap<StringName, HashMap<StringName, Variant> > default_values;
-    static Set<StringName> default_values_cached;
+    static HashSet<StringName> default_values_cached;
 
 public:
     // DO NOT USE THIS!!!!!! NEEDS TO BE PUBLIC BUT DO NOT USE NO MATTER WHAT!!!

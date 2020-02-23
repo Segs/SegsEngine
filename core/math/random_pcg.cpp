@@ -30,6 +30,7 @@
 
 #include "random_pcg.h"
 
+#include "thirdparty/misc/pcg.h"
 #include "core/os/os.h"
 
 RandomPCG::RandomPCG(uint64_t p_seed, uint64_t p_inc) :
@@ -38,8 +39,45 @@ RandomPCG::RandomPCG(uint64_t p_seed, uint64_t p_inc) :
 	seed(p_seed);
 }
 
+void RandomPCG::seed(uint64_t p_seed) {
+    current_seed = p_seed;
+    pcg32_srandom_r((pcg32_random_t*)&pcg, current_seed, current_inc);
+}
+
 void RandomPCG::randomize() {
 	seed(OS::get_singleton()->get_ticks_usec() * pcg.state + PCG_DEFAULT_INC_64);
+}
+
+uint32_t RandomPCG::rand() {
+    current_seed = pcg.state;
+    return pcg32_random_r((pcg32_random_t*)&pcg);
+}
+
+double RandomPCG::randd() {
+#if defined(CLZ32)
+    uint32_t proto_exp_offset = rand();
+    if (unlikely(proto_exp_offset == 0)) {
+        return 0;
+    }
+    uint64_t significand = (((uint64_t)rand()) << 32) | rand() | 0x8000000000000001U;
+    return LDEXP((double)significand, -64 - CLZ32(proto_exp_offset));
+#else
+#pragma message("RandomPCG::randd - intrinsic clz is not available, falling back to bit truncation")
+        return (double)(((((uint64_t)rand()) << 32) | rand()) & 0x1FFFFFFFFFFFFFU) / (double)0x1FFFFFFFFFFFFFU;
+#endif
+}
+
+float RandomPCG::randf() {
+#if defined(CLZ32)
+    uint32_t proto_exp_offset = rand();
+    if (unlikely(proto_exp_offset == 0)) {
+        return 0;
+    }
+    return LDEXPF((float)(rand() | 0x80000001), -32 - CLZ32(proto_exp_offset));
+#else
+#pragma message("RandomPCG::randf - intrinsic clz is not available, falling back to bit truncation")
+        return (float)(rand() & 0xFFFFFF) / (float)0xFFFFFF;
+#endif
 }
 
 double RandomPCG::random(double p_from, double p_to) {

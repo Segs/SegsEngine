@@ -178,8 +178,7 @@ struct _VariantCall {
     };
 
     struct TypeFunc {
-
-        Map<StringName, FuncData> functions;
+        HashMap<StringName, FuncData> functions;
     };
 
     static TypeFunc *type_funcs;
@@ -1227,11 +1226,11 @@ struct _VariantCall {
 
     struct ConstantData {
 
-        Map<StringName, int> value;
+        HashMap<StringName, int> value;
 #ifdef DEBUG_ENABLED
         List<StringName> value_ordered;
 #endif
-        Map<StringName, Variant> variant_value;
+        HashMap<StringName, Variant> variant_value;
     };
 
     static ConstantData *constant_data;
@@ -1289,7 +1288,7 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
 
         r_error.error = Variant::CallError::CALL_OK;
 
-        Map<StringName, _VariantCall::FuncData>::iterator E = _VariantCall::type_funcs[(int)type].functions.find(p_method);
+        auto E = _VariantCall::type_funcs[(int)type].functions.find(p_method);
 #ifdef DEBUG_ENABLED
         if (E==_VariantCall::type_funcs[(int)type].functions.end()) {
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
@@ -1467,7 +1466,7 @@ Span<const VariantType> Variant::get_method_argument_types(VariantType p_type, c
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
-    const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
+    auto E = tf.functions.find(p_method);
     if (E==tf.functions.end())
         return {};
 
@@ -1478,7 +1477,7 @@ bool Variant::is_method_const(VariantType p_type, const StringName &p_method) {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
-    const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
+    auto E = tf.functions.find(p_method);
     if (E==tf.functions.end())
         return false;
 
@@ -1489,7 +1488,7 @@ Span<const se_string_view> Variant::get_method_argument_names(VariantType p_type
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
-    const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
+    auto E = tf.functions.find(p_method);
     if (E==tf.functions.end())
         return {};
 
@@ -1500,7 +1499,7 @@ VariantType Variant::get_method_return_type(VariantType p_type, const StringName
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
-    const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
+    auto E = tf.functions.find(p_method);
     if (E==tf.functions.end())
         return VariantType::NIL;
 
@@ -1514,7 +1513,7 @@ static const Vector<Variant> s_empty;
 Span<const Variant> Variant::get_method_default_arguments(VariantType p_type, const StringName &p_method) {
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
-    const Map<StringName, _VariantCall::FuncData>::const_iterator E = tf.functions.find(p_method);
+    auto E = tf.functions.find(p_method);
     if (E==tf.functions.end())
         return {};
 
@@ -1632,9 +1631,9 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
     ERR_FAIL_INDEX_V((int)p_type, (int)VariantType::VARIANT_MAX, 0);
     _VariantCall::ConstantData &cd = _VariantCall::constant_data[(int)p_type];
 
-    Map<StringName, int>::iterator E = cd.value.find(p_value);
+    auto E = cd.value.find(p_value);
     if (E==cd.value.end()) {
-        Map<StringName, Variant>::iterator F = cd.variant_value.find(p_value);
+        HashMap<StringName, Variant>::iterator F = cd.variant_value.find(p_value);
         if (F!=cd.variant_value.end()) {
             if (r_valid)
                 *r_valid = true;

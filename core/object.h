@@ -428,7 +428,8 @@ public:
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
-    Variant call(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
+
+    Variant call_va(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
     void call_multilevel(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);

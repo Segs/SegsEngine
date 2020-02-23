@@ -102,7 +102,7 @@ class PopupMenu : public Popup {
     Vector2 moved;
 
 
-    Map<Ref<ShortCut>, int> shortcut_refcount;
+    HashMap<Ref<ShortCut>, int> shortcut_refcount;
     bool allow_search;
     uint64_t search_time_msec;
     String search_string;

@@ -38,8 +38,8 @@
 class GDScriptCompiler {
 
     const GDScriptParser *parser;
-    Set<GDScript *> parsed_classes;
-    Set<GDScript *> parsing_classes;
+    HashSet<GDScript *> parsed_classes;
+    HashSet<GDScript *> parsing_classes;
     GDScript *main_script;
     struct CodeGen {
 

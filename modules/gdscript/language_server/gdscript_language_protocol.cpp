@@ -53,7 +53,7 @@ void GDScriptLanguageProtocol::on_data_received(int p_id) {
 }
 
 void GDScriptLanguageProtocol::on_client_connected(int p_id, se_string_view p_protocal) {
-    clients.set(p_id, server->get_peer(p_id));
+    clients[p_id] = server->get_peer(p_id);
 }
 
 void GDScriptLanguageProtocol::on_client_disconnected(int p_id, bool p_was_clean_close) {
@@ -115,10 +115,11 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
         Dictionary params;
         params["path"] = workspace->root;
         Dictionary request = make_notification("gdscrip_client/changeWorkspace", params);
-        if (Ref<WebSocketPeer> *peer = clients.getptr(lastest_client_id)) {
+        auto peer = clients.find(lastest_client_id);
+        if (peer!=clients.end()) {
             String msg = JSON::print(request);
             msg = format_output(msg);
-            (*peer)->put_packet((const uint8_t *)msg.data(), msg.length());
+            peer->second->put_packet((const uint8_t *)msg.data(), msg.length());
         }
     }
 
@@ -167,10 +168,9 @@ Error GDScriptLanguageProtocol::start(int p_port, const IP_Address &p_bind_ip) {
 }
 
 void GDScriptLanguageProtocol::stop() {
-    const int *ptr = clients.next(nullptr);
-    while (ptr) {
-        clients.get(*ptr)->close();
-        ptr = clients.next(ptr);
+
+    for(const auto &cl : clients) {
+        cl.second->close();
     }
     server->stop();
     clients.clear();
@@ -182,11 +182,9 @@ void GDScriptLanguageProtocol::notify_all_clients(se_string_view p_method, const
     String msg = JSON::print(message);
     msg = format_output(msg);
 
-    const int *p_id = clients.next(nullptr);
-    while (p_id != nullptr) {
-        Ref<WebSocketPeer> peer = clients.get(*p_id);
+    for(const auto &cl : clients) {
+        Ref<WebSocketPeer> peer = cl.second;
         peer->put_packet((const uint8_t *)msg.data(), msg.length());
-        p_id = clients.next(p_id);
     }
 }
 
@@ -196,14 +194,14 @@ void GDScriptLanguageProtocol::notify_client(se_string_view p_method, const Vari
         p_client = lastest_client_id;
     }
 
-    Ref<WebSocketPeer> *peer = clients.getptr(p_client);
-    ERR_FAIL_COND(peer == nullptr);
+    auto peer_iter = clients.find(p_client);
+    ERR_FAIL_COND(peer_iter == clients.end());
 
     Dictionary message = make_notification(p_method, p_params);
     String msg = JSON::print(message);
     msg = format_output(msg);
 
-    (*peer)->put_packet((const uint8_t *)msg.data(), msg.length());
+    peer_iter->second->put_packet((const uint8_t *)msg.data(), msg.length());
 }
 
 bool GDScriptLanguageProtocol::is_smart_resolve_enabled() const {

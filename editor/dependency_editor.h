@@ -34,6 +34,8 @@
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tab_container.h"
 #include "scene/gui/tree.h"
+#include "servers/physics_2d/area_2d_sw.h"
+#include "servers/physics_2d/area_2d_sw.h"
 
 class EditorFileDialog;
 class EditorFileSystemDirectory;

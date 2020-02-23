@@ -76,10 +76,9 @@ class SceneTreeEditor : public Control {
     bool updating_tree;
     bool show_enabled_subscene;
 
-    void _renamed();
     UndoRedo *undo_redo;
-    //TODO: SEGS: consider using unordered_set here, since this is only used for belongs-to queries.
-    Set<Node *> marked;
+
+    HashSet<Node *> marked;
     bool marked_selectable;
     bool marked_children_selectable;
     bool display_foreign;
@@ -90,6 +89,7 @@ class SceneTreeEditor : public Control {
     Vector<StringName> *script_types;
     Vector<StringName> valid_types;
 
+    void _renamed();
     void _compute_hash(Node *p_node, uint64_t &hash);
 
     bool _add_nodes(Node *p_node, TreeItem *p_parent);
@@ -140,7 +140,7 @@ public:
     void set_display_foreign_nodes(bool p_display);
     bool get_display_foreign_nodes() const;
 
-    void set_marked(const Set<Node *> &p_marked, bool p_selectable = false, bool p_children_selectable = true);
+    void set_marked(const HashSet<Node *> &p_marked, bool p_selectable = false, bool p_children_selectable = true);
     void set_marked(Node *p_marked, bool p_selectable = false, bool p_children_selectable = true);
     void set_selected(Node *p_node, bool p_emit_selected = true);
     Node *get_selected();

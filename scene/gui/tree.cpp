@@ -1048,7 +1048,7 @@ int Tree::compute_item_height(TreeItem *p_item) const {
                 int check_icon_h = cache.checked->get_height();
                 if (height < check_icon_h)
                     height = check_icon_h;
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case TreeItem::CELL_MODE_STRING:
             case TreeItem::CELL_MODE_CUSTOM:
@@ -1434,7 +1434,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
                         Object *cdo = ObjectDB::get_instance(p_item->cells[i].custom_draw_obj);
                         if (cdo)
-                            cdo->call(p_item->cells[i].custom_draw_callback, Variant(p_item), Rect2(item_rect));
+                            cdo->call_va(p_item->cells[i].custom_draw_callback, Variant(p_item), Rect2(item_rect));
                     }
 
                     if (!p_item->cells[i].editable) {
@@ -3662,7 +3662,16 @@ TreeItem *Tree::search_item_text(se_string_view p_find, int *r_col, bool p_selec
 
     return _search_item_text(from->get_next_visible(true), p_find, r_col, p_selectable);
 }
-
+TreeItem *Tree::get_item_with_text(const String &p_find) const {
+    for (TreeItem *current = root; current; current = current->get_next_visible()) {
+        for (int i = 0; i < columns.size(); i++) {
+            if (current->get_text(i) == p_find) {
+                return current;
+            }
+        }
+    }
+    return nullptr;
+}
 void Tree::_do_incr_search(const String &p_add) {
 
     uint64_t time = OS::get_singleton()->get_ticks_usec() / 1000; // convert to msec

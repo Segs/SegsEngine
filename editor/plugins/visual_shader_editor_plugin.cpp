@@ -244,24 +244,24 @@ void VisualShaderEditor::update_custom_nodes() {
 
             StringName name;
             if (ref->has_method("_get_name")) {
-                name = ref->call("_get_name");
+                name = ref->call_va("_get_name");
             } else {
                 name = "Unnamed";
             }
 
             StringName description;
             if (ref->has_method("_get_description")) {
-                description = ref->call("_get_description");
+                description = ref->call_va("_get_description");
             }
 
             int return_icon_type = -1;
             if (ref->has_method("_get_return_icon_type")) {
-                return_icon_type = (int)ref->call("_get_return_icon_type");
+                return_icon_type = (int)ref->call_va("_get_return_icon_type");
             }
 
             StringName category;
             if (ref->has_method("_get_category")) {
-                category = ref->call("_get_category");
+                category = ref->call_va("_get_category");
             }
             if (category.empty()) {
                 category = "Custom";
@@ -269,7 +269,7 @@ void VisualShaderEditor::update_custom_nodes() {
 
             StringName subcategory;
             if (ref->has_method("_get_subcategory")) {
-                subcategory = ref->call("_get_subcategory");
+                subcategory = ref->call_va("_get_subcategory");
             }
 
             AddInfo dict{ name, script, description, return_icon_type, category, subcategory };
@@ -349,7 +349,7 @@ void VisualShaderEditor::_update_options_menu() {
 
         if (!use_filter || StringUtils::findn(add_options[i].name.asString(),filter) != -1) {
 
-            if (add_options[i].func != current_func && add_options[i].func != -1 || !_is_available(add_options[i].mode))
+            if ((add_options[i].func != current_func && add_options[i].func != -1) || !_is_available(add_options[i].mode))
                 continue;
 
             if (prev_category != add_options[i].category) {
@@ -1652,7 +1652,7 @@ void VisualShaderEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
                                  ie->get_scancode() == KEY_ENTER ||
                                  ie->get_scancode() == KEY_KP_ENTER)) {
 
-        members->call("_gui_input", ie);
+        members->call_va("_gui_input", ie);
         node_filter->accept_event();
     }
 }
@@ -1742,7 +1742,7 @@ void VisualShaderEditor::_node_changed(int p_id) {
     }
 }
 
-void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) {
+void VisualShaderEditor::_dup_update_excluded(int p_type, HashSet<int> &r_excluded) {
     r_excluded.clear();
     VisualShader::Type type = (VisualShader::Type)p_type;
 
@@ -1762,7 +1762,7 @@ void VisualShaderEditor::_dup_update_excluded(int p_type, Set<int> &r_excluded) 
     }
 }
 
-void VisualShaderEditor::_dup_copy_nodes(int p_type, Vector<int> &r_nodes, Set<int> &r_excluded) {
+void VisualShaderEditor::_dup_copy_nodes(int p_type, Vector<int> &r_nodes, HashSet<int> &r_excluded) {
 
     VisualShader::Type type = (VisualShader::Type)p_type;
 
@@ -1792,15 +1792,15 @@ void VisualShaderEditor::_dup_copy_nodes(int p_type, Vector<int> &r_nodes, Set<i
     selection_center /= (float)r_nodes.size();
 }
 
-void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select) {
+void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, HashSet<int> &r_excluded, const Vector2 &p_offset, bool p_select) {
 
     VisualShader::Type type = (VisualShader::Type)p_type;
     VisualShader::Type pasted_type = (VisualShader::Type)p_pasted_type;
 
     int base_id = visual_shader->get_valid_node_id(type);
     int id_from = base_id;
-    Map<int, int> connection_remap;
-    Set<int> unsupported_set;
+    HashMap<int, int> connection_remap;
+    HashSet<int> unsupported_set;
 
     for (int E : r_nodes) {
 
@@ -1886,7 +1886,7 @@ void VisualShaderEditor::_duplicate_nodes() {
     int type = edit_type->get_selected();
 
     Vector<int> nodes;
-    Set<int> excluded;
+    HashSet<int> excluded;
 
     _dup_copy_nodes(type, nodes, excluded);
 

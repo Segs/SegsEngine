@@ -172,11 +172,7 @@ private:
         String data_mono_root_dir = plus_file(data_dir_root,"Mono");
         data_mono_etc_dir = plus_file(data_mono_root_dir,"etc");
 
-#ifdef ANDROID_ENABLED
-        data_mono_lib_dir = GDMonoAndroid::get_app_native_lib_dir();
-#else
         data_mono_lib_dir = plus_file(data_mono_root_dir,"lib");
-#endif
 
 #ifdef WINDOWS_ENABLED
         data_mono_bin_dir = plus_file(data_mono_root_dir,"bin");

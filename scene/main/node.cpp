@@ -39,7 +39,7 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/print_string.h"
-#include "core/map.h"
+//#include "core/map.h"
 #include "core/node_path.h"
 #include "core/hash_map.h"
 #include "core/script_language.h"
@@ -48,7 +48,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
-
+#include "scene/2d/animated_sprite.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -91,7 +91,7 @@ struct Node::PrivData {
 #endif
 
 
-    Map<StringName, GroupData> grouped;
+    HashMap<StringName, GroupData> grouped;
     List<Node *>::iterator OW; // owned element
     List<Node *> owned;
 
@@ -99,8 +99,8 @@ struct Node::PrivData {
     Node *pause_owner;
 
     int network_master;
-    Map<StringName, MultiplayerAPI_RPCMode> rpc_methods;
-    Map<StringName, MultiplayerAPI_RPCMode> rpc_properties;
+    HashMap<StringName, MultiplayerAPI_RPCMode> rpc_methods;
+    HashMap<StringName, MultiplayerAPI_RPCMode> rpc_properties;
 
 
     bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
@@ -349,7 +349,7 @@ void Node::_propagate_exit_tree() {
 
     if (ScriptDebugger::get_singleton() && data->filename && !data->filename->empty()) {
         //used for live edit
-        Map<String, Set<Node *> >::iterator E = tree->get_live_scene_edit_cache().find(*data->filename);
+        auto E = tree->get_live_scene_edit_cache().find(*data->filename);
         if (E!=tree->get_live_scene_edit_cache().end()) {
             E->second.erase(this);
             if (E->second.empty()) {
@@ -357,7 +357,7 @@ void Node::_propagate_exit_tree() {
             }
         }
 
-        Map<Node *, Map<ObjectID, Node *> >::iterator F = tree->get_live_edit_remove_list().find(this);
+        auto F = tree->get_live_edit_remove_list().find(this);
         if (F!=tree->get_live_edit_remove_list().end()) {
             for (eastl::pair<const ObjectID, Node *> &G : F->second) {
 
@@ -1787,7 +1787,7 @@ void Node::remove_from_group(const StringName &p_identifier) {
 
     ERR_FAIL_COND(!data->grouped.contains(p_identifier));
 
-    Map<StringName, GroupData>::iterator E = data->grouped.find(p_identifier);
+    HashMap<StringName, GroupData>::iterator E = data->grouped.find(p_identifier);
 
     ERR_FAIL_COND(E==data->grouped.end());
 
@@ -1909,7 +1909,7 @@ void Node::_propagate_replace_owner(Node *p_owner, Node *p_by_owner) {
         set_owner(p_by_owner);
 
     blocked++;
-    for (int i = 0; i < data->children.size(); i++)
+    for (size_t i = 0; i < data->children.size(); i++)
         data->children[i]->_propagate_replace_owner(p_owner, p_by_owner);
     blocked--;
 }
@@ -1929,7 +1929,7 @@ void Node::remove_and_skip() {
     while (true) {
 
         bool clear = true;
-        for (int i = 0; i < data->children.size(); i++) {
+        for (size_t i = 0; i < data->children.size(); i++) {
             Node *c_node = data->children[i];
             if (!c_node->get_owner())
                 continue;
@@ -2011,7 +2011,7 @@ void Node::set_editable_instances(const HashMap<NodePath, int> &p_editable_insta
     data->editable_instances = p_editable_instances;
 }
 
-HashMap<NodePath, int> Node::get_editable_instances() const {
+const HashMap<NodePath, int> &Node::get_editable_instances() const {
 
     return data->editable_instances;
 }
@@ -2051,7 +2051,7 @@ int Node::get_position_in_parent() const {
     return data->pos;
 }
 
-Node *Node::_duplicate(int p_flags, Map<const Node *, Node *> *r_duplimap) const {
+Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) const {
 
     Node *node = nullptr;
 
@@ -2242,7 +2242,7 @@ Node *Node::duplicate(int p_flags) const {
 }
 
 #ifdef TOOLS_ENABLED
-Node *Node::duplicate_from_editor(Map<const Node *, Node *> &r_duplimap) const {
+Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) const {
 
     Node *dupe = _duplicate(DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS | DUPLICATE_USE_INSTANCING | DUPLICATE_FROM_EDITOR, &r_duplimap);
 
@@ -2255,7 +2255,7 @@ Node *Node::duplicate_from_editor(Map<const Node *, Node *> &r_duplimap) const {
 }
 #endif
 
-void Node::_duplicate_and_reown(Node *p_new_parent, const Map<Node *, Node *> &p_reown_map) const {
+void Node::_duplicate_and_reown(Node *p_new_parent, const HashMap<Node *, Node *> &p_reown_map) const {
 
     if (get_owner() != get_parent()->get_owner())
         return;
@@ -2368,7 +2368,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
     }
 }
 
-Node *Node::duplicate_and_reown(const Map<Node *, Node *> &p_reown_map) const {
+Node *Node::duplicate_and_reown(const HashMap<Node *, Node *> &p_reown_map) const {
 
     ERR_FAIL_COND_V(!get_filename().empty(), nullptr);
 
@@ -2521,37 +2521,37 @@ void Node::_replace_connections_target(Node *p_new_target) {
     }
 }
 
-Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
+//Vector<Variant> Node::make_binds(VARIANT_ARG_DECLARE) {
 
-    Vector<Variant> ret;
+//    Vector<Variant> ret;
 
-    if (p_arg1.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg1.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg1);
+//    ret.emplace_back(p_arg1);
 
-    if (p_arg2.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg2.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg2);
+//    ret.emplace_back(p_arg2);
 
-    if (p_arg3.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg3.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg3);
+//    ret.emplace_back(p_arg3);
 
-    if (p_arg4.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg4.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg4);
+//    ret.emplace_back(p_arg4);
 
-    if (p_arg5.get_type() == VariantType::NIL)
-        return ret;
+//    if (p_arg5.get_type() == VariantType::NIL)
+//        return ret;
 
-    ret.emplace_back(p_arg5);
+//    ret.emplace_back(p_arg5);
 
-    return ret;
-}
+//    return ret;
+//}
 
 bool Node::has_node_and_resource(const NodePath &p_path) const {
 
@@ -2755,7 +2755,7 @@ void Node::get_argument_options(const StringName &p_function, int p_idx, List<St
 void Node::clear_internal_tree_resource_paths() {
 
     clear_internal_resource_paths();
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
         data->children[i]->clear_internal_tree_resource_paths();
     }
 }

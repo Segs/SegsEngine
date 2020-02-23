@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TILE_MAP_H
-#define TILE_MAP_H
+#pragma once
 
 #include "core/self_list.h"
 #include "core/vset.h"
@@ -105,10 +104,10 @@ private:
             x = p_x;
             y = p_y;
         }
-        PosKey() {
-            x = 0;
-            y = 0;
-        }
+        constexpr PosKey() : x(0),y(0) {}
+    private:
+        friend eastl::hash<PosKey>;
+        explicit operator size_t() const { return key; }
     };
 
     union Cell {
@@ -126,7 +125,7 @@ private:
         Cell() { _u64t = 0; }
     };
 
-    Map<PosKey, Cell> tile_map;
+    HashMap<PosKey, Cell> tile_map;
     Vector<PosKey> dirty_bitmask;
 
     struct Quadrant {
@@ -148,8 +147,8 @@ private:
             Transform2D xform;
         };
 
-        Map<PosKey, NavPoly> navpoly_ids;
-        Map<PosKey, Occluder> occluder_instances;
+        HashMap<PosKey, NavPoly> navpoly_ids;
+        HashMap<PosKey, Occluder> occluder_instances;
 
         VSet<PosKey> cells;
 
@@ -176,7 +175,7 @@ private:
                 dirty_list(this) {}
     };
 
-    Map<PosKey, Quadrant> quadrant_map;
+    HashMap<PosKey, Quadrant> quadrant_map;
 
     SelfList<Quadrant>::List dirty_quadrant_list;
 
@@ -206,9 +205,9 @@ private:
 
     void _add_shape(int &shape_idx, const Quadrant &p_q, const Ref<Shape2D> &p_shape, const TileSet::ShapeData &p_shape_data, const Transform2D &p_xform, const Vector2 &p_metadata);
 
-    Map<PosKey, Quadrant>::iterator _create_quadrant(const PosKey &p_qk);
-    void _erase_quadrant(Map<PosKey, Quadrant>::iterator Q);
-    void _make_quadrant_dirty(Map<PosKey, Quadrant>::iterator Q, bool update = true);
+    HashMap<PosKey, Quadrant>::iterator _create_quadrant(const PosKey &p_qk);
+    void _erase_quadrant(HashMap<PosKey, Quadrant>::iterator Q);
+    void _make_quadrant_dirty(HashMap<PosKey, Quadrant>::iterator Q, bool update = true);
     void _recreate_quadrants();
     void _clear_quadrants();
     void _update_quadrant_space(const RID &p_space);
@@ -352,4 +351,4 @@ public:
     TileMap();
     ~TileMap() override;
 };
-#endif // TILE_MAP_H
+

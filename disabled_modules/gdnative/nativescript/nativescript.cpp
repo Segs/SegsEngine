@@ -98,7 +98,7 @@ void NativeScript::_update_placeholder(PlaceHolderScriptInstance *p_placeholder)
 
     List<PropertyInfo> info;
     get_script_property_list(&info);
-    Map<StringName, Variant> values;
+    HashMap<StringName, Variant> values;
     for(const PropertyInfo & E : info) {
         Variant value;
         get_property_default_value(E.name, value);
@@ -392,7 +392,7 @@ void NativeScript::get_script_method_list(Vector<MethodInfo> *p_list) const {
 void NativeScript::get_script_property_list(List<PropertyInfo> *p_list) const {
     NativeScriptDesc *script_data = get_script_desc();
 
-    Set<StringName> existing_properties;
+    HashSet<StringName> existing_properties;
     //auto original_back = p_list->rbegin();
     while (script_data) {
         //List<PropertyInfo>::Element *insert_position = original_back;
@@ -1497,10 +1497,10 @@ void NativeScriptLanguage::init_library(const Ref<GDNativeLibrary> &lib) {
 
         library_gdnatives.emplace(lib_path, gdn);
 
-        library_classes.emplace(lib_path, Map<StringName, NativeScriptDesc>());
+        library_classes.emplace(lib_path, HashMap<StringName, NativeScriptDesc>());
 
         if (!library_script_users.contains(lib_path))
-            library_script_users.emplace(lib_path, Set<NativeScript *>());
+            library_script_users.emplace(lib_path, HashSet<NativeScript *>());
 
         void *proc_ptr;
 
@@ -1527,7 +1527,7 @@ void NativeScriptLanguage::unregister_script(NativeScript *script) {
 #ifndef NO_THREADS
     MutexLock lock(*mutex);
 #endif
-    Map<String, Set<NativeScript *> >::iterator S = library_script_users.find(script->lib_path);
+    Map<String, HashSet<NativeScript *> >::iterator S = library_script_users.find(script->lib_path);
     if (S!=library_script_users.end()) {
         S->second.erase(script);
         if (S->second.empty()) {
@@ -1681,7 +1681,7 @@ void NativeReloadNode::_notification(int p_what) {
 #ifndef NO_THREADS
             MutexLock lock(*NSL->mutex);
 #endif
-            Set<StringName> libs_to_remove;
+            HashSet<StringName> libs_to_remove;
             for (eastl::pair<const String,Ref<GDNative> > &L : NSL->library_gdnatives) {
 
                 Ref<GDNative> &gdn(L.second);
@@ -1717,7 +1717,7 @@ void NativeReloadNode::_notification(int p_what) {
                     ((void (*)(void *))proc_ptr)((void *)&L.first);
                 }
 
-                for (eastl::pair<const String,Set<NativeScript *> > &U : NSL->library_script_users) {
+                for (eastl::pair<const String,HashSet<NativeScript *> > &U : NSL->library_script_users) {
                     for (NativeScript *script : U.second) {
                         if (script->placeholders.size() == 0)
                             continue;

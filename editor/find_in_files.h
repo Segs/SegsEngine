@@ -31,6 +31,8 @@
 #pragma once
 
 #include "core/hash_map.h"
+#include "core/map.h"
+#include "core/set.h"
 #include "scene/gui/dialogs.h"
 
 // Performs the actual search
@@ -192,7 +194,7 @@ private:
     Button *_cancel_button;
     ProgressBar *_progress_bar;
     Map<String, TreeItem *> _file_items;
-    Map<TreeItem *, Result> _result_items;
+    HashMap<TreeItem *, Result> _result_items;
     bool _with_replace;
 
     HBoxContainer *_replace_container;

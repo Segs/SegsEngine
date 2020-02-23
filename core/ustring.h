@@ -35,6 +35,7 @@
 
 #include <QtCore/QString>
 
+
 class Array;
 class Variant;
 using CharString = QByteArray;
@@ -57,6 +58,28 @@ struct StrRange {
         len = p_len;
     }
 };
+
+//  Replicated from qhashfunctions to prevent including the whole thing
+QT_BEGIN_NAMESPACE
+Q_CORE_EXPORT Q_DECL_PURE_FUNCTION uint qHash(const QString &key, uint seed0) noexcept;
+QT_END_NAMESPACE
+
+namespace eastl {
+    template<>
+    struct hash<CharType> {
+        size_t operator()(CharType np) const {
+            return eastl::hash<uint16_t>()(np.unicode());
+        }
+
+    };
+    template<>
+    struct hash<UIString> {
+        size_t operator()(const UIString &np) const {
+            return qHash(np,0);
+        }
+
+    };
+}
 
 #include "core/string_utils.h"
 

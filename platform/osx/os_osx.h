@@ -39,7 +39,6 @@
 #include "drivers/unix/os_unix.h"
 #include "joypad_osx.h"
 #include "main/input_default.h"
-#include "power_osx.h"
 #include "servers/audio_server.h"
 #include "servers/visual/rasterizer.h"
 #include "servers/visual/visual_server_wrap_mt.h"
@@ -137,8 +136,6 @@ public:
 
     Size2 min_size;
     Size2 max_size;
-
-    PowerOSX *power_manager;
 
     CrashHandler crash_handler;
 
@@ -285,10 +282,6 @@ public:
     void set_ime_position(const Point2 &p_pos) override;
     Point2 get_ime_selection() const override;
     String get_ime_text() const override;
-
-    OS::PowerState get_power_state() override;
-    int get_power_seconds_left() override;
-    int get_power_percent_left() override;
 
     bool _check_internal_feature_support(se_string_view p_feature) override;
 

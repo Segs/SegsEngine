@@ -904,7 +904,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(se_string_view p_text, const Re
 }
 
 void AnimationNodeBlendTreeEditor::_node_renamed_focus_out(Node *le, const Ref<AnimationNode>& p_node) {
-    _node_renamed(le->call("get_text").as<String>(), p_node);
+    _node_renamed(le->call_va("get_text").as<String>(), p_node);
 }
 
 bool AnimationNodeBlendTreeEditor::can_edit(const Ref<AnimationNode> &p_node) {

@@ -268,7 +268,7 @@ static String get_constant_text(SL::DataType p_type, const Vector<SL::ConstantNo
     }
 }
 
-void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const StringName &p_for_func, const Map<StringName, String> &p_func_code, String &r_to_add, Set<StringName> &added) {
+void ShaderCompilerGLES3::_dump_function_deps(SL::ShaderNode *p_node, const StringName &p_for_func, const HashMap<StringName, String> &p_func_code, String &r_to_add, HashSet<StringName> &added) {
 
     int fidx = -1;
 
@@ -447,7 +447,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 r_gen_code.fragment_global += gcode;
             }
 
-            Map<StringName, String> function_code;
+            HashMap<StringName, String> function_code;
 
             //code for functions
             for (auto & function : pnode->functions) {
@@ -458,8 +458,8 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
 
             //place functions in actual code
 
-            Set<StringName> added_vtx;
-            Set<StringName> added_fragment; //share for light
+            HashSet<StringName> added_vtx;
+            HashSet<StringName> added_fragment; //share for light
 
             for (size_t i = 0; i < pnode->functions.size(); i++) {
 
@@ -1061,6 +1061,6 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
     ShaderLanguage::get_builtin_funcs(&func_list);
 
     for (const String &E : func_list) {
-        internal_functions.insert(E.c_str());
+        internal_functions.emplace(E);
     }
 }

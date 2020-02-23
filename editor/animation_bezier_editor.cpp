@@ -690,7 +690,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             }
         }
 
-        for (int i = 0; i < edit_points.size(); i++) {
+        for (size_t i = 0; i < edit_points.size(); i++) {
 
             //first check point
             //command makes it ignore the main point, so control point editors can be force-edited

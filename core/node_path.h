@@ -35,17 +35,18 @@
 
 class StringName;
 
+
 class GODOT_EXPORT NodePath {
 
-
-    mutable struct Data *data=nullptr;
+private:
+    mutable struct NodePathData *data=nullptr;
     mutable bool hash_cache_valid=false;
     mutable uint32_t hash_cache;
 
     void unref();
 
     void _update_hash_cache() const;
-
+    friend struct eastl::hash<NodePath>;
 public:
     StringName get_sname() const;
     String asString() const;
@@ -100,3 +101,18 @@ public:
     NodePath();
     ~NodePath();
 };
+
+namespace eastl {
+template<>
+struct hash<NodePath> {
+    size_t operator()(const NodePath &np) const {
+        if (!np.data)
+            return 0;
+        if (!np.hash_cache_valid) {
+            np._update_hash_cache();
+        }
+        return np.hash_cache;
+    }
+
+};
+}

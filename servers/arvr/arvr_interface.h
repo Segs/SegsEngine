@@ -47,7 +47,11 @@
 
 	Note that we may make this into a fully instantiable class for GDNative support.
 */
-
+enum ARVREyes : int8_t {
+    EYE_MONO, /* my son says we should call this EYE_CYCLOPS */
+    EYE_LEFT,
+    EYE_RIGHT
+};
 class ARVRInterface : public RefCounted {
 	GDCLASS(ARVRInterface,RefCounted)
 
@@ -59,12 +63,6 @@ public:
 		ARVR_STEREO = 2, /* can be used with stereo output */
 		ARVR_AR = 4, /* offers a camera feed for AR */
 		ARVR_EXTERNAL = 8 /* renders to external device */
-	};
-
-	enum Eyes {
-		EYE_MONO, /* my son says we should call this EYE_CYCLOPS */
-		EYE_LEFT,
-		EYE_RIGHT
 	};
 
 	enum Tracking_status { /* tracking status currently based on AR but we can start doing more with this for VR as well */
@@ -108,10 +106,10 @@ public:
 
 	virtual Size2 get_render_targetsize() = 0; /* returns the recommended render target size per eye for this device */
 	virtual bool is_stereo() = 0; /* returns true if this interface requires stereo rendering (for VR HMDs) or mono rendering (for mobile AR) */
-	virtual Transform get_transform_for_eye(ARVRInterface::Eyes p_eye, const Transform &p_cam_transform) = 0; /* get each eyes camera transform, also implement EYE_MONO */
-	virtual CameraMatrix get_projection_for_eye(ARVRInterface::Eyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) = 0; /* get each eyes projection matrix */
-	virtual unsigned int get_external_texture_for_eye(ARVRInterface::Eyes p_eye); /* if applicable return external texture to render to */
-	virtual void commit_for_eye(ARVRInterface::Eyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) = 0; /* output the left or right eye */
+    virtual Transform get_transform_for_eye(ARVREyes p_eye, const Transform &p_cam_transform) = 0; /* get each eyes camera transform, also implement EYE_MONO */
+    virtual CameraMatrix get_projection_for_eye(ARVREyes p_eye, real_t p_aspect, real_t p_z_near, real_t p_z_far) = 0; /* get each eyes projection matrix */
+    virtual unsigned int get_external_texture_for_eye(ARVREyes p_eye); /* if applicable return external texture to render to */
+    virtual void commit_for_eye(ARVREyes p_eye, RID p_render_target, const Rect2 &p_screen_rect) = 0; /* output the left or right eye */
 
 	virtual void process() = 0;
 	virtual void notification(int p_what) = 0;

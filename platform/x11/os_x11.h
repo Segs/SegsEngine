@@ -39,7 +39,7 @@
 #include "drivers/unix/os_unix.h"
 #include "joypad_linux.h"
 #include "main/input_default.h"
-#include "power_x11.h"
+
 #include "servers/audio_server.h"
 #include "servers/visual/rasterizer.h"
 #include "servers/visual_server.h"
@@ -188,8 +188,6 @@ class OS_X11 : public OS_Unix {
     AudioDriverPulseAudio driver_pulseaudio;
 #endif
 
-    PowerX11 *power_manager;
-
     bool layered_window;
 
     CrashHandler crash_handler;
@@ -301,10 +299,6 @@ public:
 
     void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;
-
-    OS::PowerState get_power_state() override;
-    int get_power_seconds_left() override;
-    int get_power_percent_left() override;
 
     bool _check_internal_feature_support(se_string_view p_feature) override;
 

@@ -86,8 +86,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_VERSION
-    #define EASTL_VERSION   "3.14.02"
-    #define EASTL_VERSION_N  31402
+    #define EASTL_VERSION   "3.16.01"
+    #define EASTL_VERSION_N  31601
 #endif
 
 
@@ -245,6 +245,18 @@ namespace eastl
     #endif
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+// EASTL_IF_NOT_DLL
+//
+// Utility to include expressions only for static builds. 
+//
+#ifndef EASTL_IF_NOT_DLL
+#if EASTL_DLL
+#define EASTL_IF_NOT_DLL(x) 
+#else
+#define EASTL_IF_NOT_DLL(x) x
+#endif
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // EASTL_API

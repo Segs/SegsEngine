@@ -691,7 +691,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
                 }
             }
-            FALLTHROUGH;
+            [[fallthrough]];
         case WM_MBUTTONDOWN:
         case WM_MBUTTONUP:
         case WM_RBUTTONDOWN:
@@ -960,7 +960,7 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             if (wParam==VK_WIN) TODO wtf is this?
                 meta_mem=uMsg==WM_KEYDOWN;
             */
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case WM_CHAR: {
 
@@ -1449,8 +1449,6 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 
     input = memnew(InputDefault);
     joypad = memnew(JoypadWindows(input, &hWnd));
-
-    power_manager = memnew(PowerWindows);
 
     AudioDriverManager::initialize(p_audio_driver);
 
@@ -3168,18 +3166,6 @@ bool OS_Windows::is_vsync_enabled() const {
 
     return true;
 }*/
-
-OS::PowerState OS_Windows::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_Windows::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_Windows::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
-}
 
 bool OS_Windows::_check_internal_feature_support(se_string_view p_feature) {
 

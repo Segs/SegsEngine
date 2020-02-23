@@ -38,12 +38,7 @@
 
 IMPL_GDCLASS(SpringArm)
 
-SpringArm::SpringArm() :
-        spring_length(1),
-        current_spring_length(0),
-        keep_child_basis(false),
-        mask(1),
-        margin(0.01) {}
+SpringArm::SpringArm() = default;
 
 void SpringArm::_notification(int p_what) {
     switch (p_what) {
@@ -112,14 +107,6 @@ void SpringArm::set_mask(uint32_t p_mask) {
     mask = p_mask;
 }
 
-uint32_t SpringArm::get_mask() {
-    return mask;
-}
-
-float SpringArm::get_margin() {
-    return margin;
-}
-
 void SpringArm::set_margin(float p_margin) {
     margin = p_margin;
 }
@@ -134,10 +121,6 @@ bool SpringArm::remove_excluded_object(RID p_rid) {
 
 void SpringArm::clear_excluded_objects() {
     excluded_objects.clear();
-}
-
-float SpringArm::get_hit_length() {
-    return current_spring_length;
 }
 
 void SpringArm::process_spring() {

@@ -115,7 +115,7 @@ private:
         Vector<Color> emission;
     };
 
-    Map<Ref<Material>, MaterialCache> material_cache;
+    HashMap<Ref<Material>, MaterialCache> material_cache;
     int leaf_voxel_count;
     bool direct_lights_baked;
 

@@ -857,15 +857,32 @@ void GridMapEditor::_text_changed(se_string_view p_text) {
 
 void GridMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
 
-    Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
+    const Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
 
     if (k && (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_PAGEUP || k->get_scancode() == KEY_PAGEDOWN)) {
-
-        mesh_library_palette->call("_gui_input", k);
+        // Forward the key input to the ItemList so it can be scrolled
+        mesh_library_palette->call_va("_gui_input", k);
+        mesh_library_palette->_gui_input(k);
         search_box->accept_event();
     }
 }
 
+void GridMapEditor::_mesh_library_palette_input(const Ref<InputEvent> &p_ie) {
+
+    const Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ie);
+
+    // Zoom in/out using Ctrl + mouse wheel
+    if (mb && mb->is_pressed() && mb->get_command()) {
+
+        if (mb->is_pressed() && mb->get_button_index() == BUTTON_WHEEL_UP) {
+            size_slider->set_value(size_slider->get_value() + 0.2);
+        }
+
+        if (mb->is_pressed() && mb->get_button_index() == BUTTON_WHEEL_DOWN) {
+            size_slider->set_value(size_slider->get_value() - 0.2);
+        }
+    }
+}
 void GridMapEditor::_icon_size_changed(float p_value) {
     mesh_library_palette->set_icon_scale(p_value);
     update_palette();
@@ -1199,6 +1216,7 @@ void GridMapEditor::_bind_methods() {
 
     MethodBinder::bind_method("_text_changed", &GridMapEditor::_text_changed);
     MethodBinder::bind_method("_sbox_input", &GridMapEditor::_sbox_input);
+    MethodBinder::bind_method("_mesh_library_palette_input", &GridMapEditor::_mesh_library_palette_input);
     MethodBinder::bind_method("_icon_size_changed", &GridMapEditor::_icon_size_changed);
     MethodBinder::bind_method("_menu_option", &GridMapEditor::_menu_option);
     MethodBinder::bind_method("_configure", &GridMapEditor::_configure);
@@ -1327,7 +1345,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
 
     size_slider = memnew(HSlider);
     size_slider->set_h_size_flags(SIZE_EXPAND_FILL);
-    size_slider->set_min(0.1f);
+    size_slider->set_min(0.2f);
     size_slider->set_max(4.0f);
     size_slider->set_step(0.1f);
     size_slider->set_value(1.0f);
@@ -1341,6 +1359,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     mesh_library_palette = memnew(ItemList);
     add_child(mesh_library_palette);
     mesh_library_palette->set_v_size_flags(SIZE_EXPAND_FILL);
+    mesh_library_palette->connect("gui_input", this, "_mesh_library_palette_input");
 
     info_message = memnew(Label);
     info_message->set_text(TTR("Give a MeshLibrary resource to this GridMap to use its meshes."));

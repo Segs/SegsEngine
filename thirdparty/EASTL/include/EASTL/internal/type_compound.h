@@ -760,7 +760,7 @@ namespace eastl
     //     * no default member initializers
     //
     ///////////////////////////////////////////////////////////////////////
-    #if EA_COMPILER_HAS_FEATURE(is_aggregate) || defined(_MSC_VER) && (_MSC_VER >= 1916)  // VS2017 15.9+
+    #if EA_COMPILER_HAS_FEATURE(is_aggregate) || defined(_MSC_VER) && (_MSC_VER >= 1916) || _GLIBCXX_HAVE_BUILTIN_IS_AGGREGATE  // VS2017 15.9+
         #define EASTL_TYPE_TRAIT_is_aggregate_CONFORMANCE 1
 
         template <typename T>

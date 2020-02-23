@@ -149,7 +149,7 @@ StringName ResourceImporterTexture::get_resource_type() const {
     return "StreamTexture";
 }
 
-bool ResourceImporterTexture::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterTexture::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     if (p_option == "compress/lossy_quality") {
         int compress_mode = int(p_options.at("compress/mode"));
@@ -368,7 +368,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_vi
     memdelete(f);
 }
 
-Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     int compress_mode = p_options.at("compress/mode");

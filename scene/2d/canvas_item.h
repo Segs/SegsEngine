@@ -76,9 +76,15 @@ private:
 
         uint32_t key;
 
-        bool operator<(const MaterialKey &p_key) const {
-            return key < p_key.key;
+        bool operator==(const MaterialKey &p_key) const {
+            return key == p_key.key;
         }
+    private:
+        friend eastl::hash<MaterialKey>;
+        explicit operator size_t() const {
+            return key;
+        }
+
     };
 
     struct ShaderNames {
@@ -94,7 +100,7 @@ private:
         int users;
     };
 
-    static Map<MaterialKey, ShaderData> shader_map;
+    static HashMap<MaterialKey, ShaderData> shader_map;
 
     MaterialKey current_key;
 

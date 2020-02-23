@@ -64,6 +64,7 @@
 
 #include "animation_track_editor.h"
 
+#include "EASTL/sort.h"
 
 #define MIN_ZOOM 0.01
 #define MAX_ZOOM 100
@@ -460,7 +461,7 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
         _snap_if_closer_point(p_target, output, snap_target, grid_output, SNAP_TARGET_GRID, 0.0, -1.0);
     }
 
-    if (((snap_pixel && (p_modes & SNAP_PIXEL)) || (p_forced_modes & SNAP_PIXEL)) && rotation == 0.0) {
+    if (((snap_pixel && (p_modes & SNAP_PIXEL)) || (p_forced_modes & SNAP_PIXEL)) && rotation == 0.0f) {
         // Pixel
         output = output.snapped(Size2(1, 1));
     }
@@ -470,7 +471,10 @@ Point2 CanvasItemEditor::snap_point(Point2 p_target, unsigned int p_modes, unsig
 }
 
 float CanvasItemEditor::snap_angle(float p_target, float p_start) const {
-    return (((smart_snap_active || snap_rotation) ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL)) && snap_rotation_step != 0) ? Math::stepify(p_target - snap_rotation_offset, snap_rotation_step) + snap_rotation_offset : p_target;
+    return (((smart_snap_active || snap_rotation) ^ Input::get_singleton()->is_key_pressed(KEY_CONTROL)) &&
+                   snap_rotation_step != 0.0f) ?
+                   Math::stepify(p_target - snap_rotation_offset, snap_rotation_step) + snap_rotation_offset :
+                   p_target;
 }
 
 void CanvasItemEditor::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
@@ -491,8 +495,8 @@ void CanvasItemEditor::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
             viewport->update();
         } else if ((grid_snap_active || show_grid) && divide_grid_step_shortcut && divide_grid_step_shortcut->is_shortcut(p_ev)) {
             // Divide the grid size
-            Point2 new_grid_step = grid_step * Math::pow(2.0, grid_step_multiplier - 1);
-            if (new_grid_step.x >= 1.0 && new_grid_step.y >= 1.0)
+            Point2 new_grid_step = grid_step * Math::pow(2.0f, grid_step_multiplier - 1);
+            if (new_grid_step.x >= 1.0f && new_grid_step.y >= 1.0f)
                 grid_step_multiplier--;
             viewport->update();
         }
@@ -620,7 +624,7 @@ void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, Vector<Canv
     _find_canvas_items_at_pos(p_pos, scene, r_items);
 
     //Remove invalid results
-    for (int i = 0; i < r_items.size(); i++) {
+    for (size_t i = 0; i < r_items.size(); i++) {
         Node *node = r_items[i].item;
 
         // Make sure the selected node is in the current scene, or editable
@@ -640,7 +644,7 @@ void CanvasItemEditor::_get_canvas_items_at_pos(const Point2 &p_pos, Vector<Canv
 
         // Check if the canvas item is already in the list (for groups or scenes)
         bool duplicate = false;
-        for (int j = 0; j < i; j++) {
+        for (size_t j = 0; j < i; j++) {
             if (r_items[j].item == canvas_item) {
                 duplicate = true;
                 break;
@@ -673,7 +677,7 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<CanvasItemE
 
         // Check if the item is already in the list
         bool duplicate = false;
-        for (int i = 0; i < r_items.size(); i++) {
+        for (size_t i = 0; i < r_items.size(); i++) {
             if (r_items[i].item == from_node) {
                 duplicate = true;
                 break;
@@ -806,7 +810,7 @@ bool CanvasItemEditor::_select_click_on_item(CanvasItem *item, Point2 p_click_po
             // Reselect
             if (Engine::get_singleton()->is_editor_hint()) {
                 selected_from_canvas = true;
-                editor->call("edit_node", Variant(item));
+                editor->call_va("edit_node", Variant(item));
             }
         }
     }
@@ -1938,7 +1942,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
             Point2 drag_to_local = simple_xform.xform(drag_to);
             Point2 offset = drag_to_local - drag_from_local;
 
-            Size2 scale = canvas_item->call("get_scale");
+            Size2 scale = canvas_item->call_va("get_scale");
             float ratio = scale.y / scale.x;
             if (drag_type == DRAG_SCALE_BOTH) {
                 Size2 scale_factor = drag_to_local / drag_from_local;
@@ -1967,7 +1971,7 @@ bool CanvasItemEditor::_gui_input_scale(const Ref<InputEvent> &p_event) {
                 scale.x = roundf(scale.x / snap_scale_step) * snap_scale_step;
                 scale.y = roundf(scale.y / snap_scale_step) * snap_scale_step;
             }
-            canvas_item->call("set_scale", scale);
+            canvas_item->call_va("set_scale", scale);
             return true;
         }
 
@@ -2110,7 +2114,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
     }
 
     // Move the canvas items with the arrow keys
-    if (k && k->is_pressed() && tool == TOOL_SELECT &&
+    if (k && k->is_pressed() && (tool == TOOL_SELECT || tool == TOOL_MOVE) &&
             (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_LEFT || k->get_scancode() == KEY_RIGHT)) {
         if (!k->is_echo()) {
             // Start moving the canvas items with the keyboard
@@ -3091,7 +3095,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_TOP_LEFT:
             case DRAG_BOTTOM_LEFT:
                 _draw_margin_at_position(control->get_size().width, parent_transform.xform(Vector2((node_pos_in_parent[0] + node_pos_in_parent[2]) / 2, node_pos_in_parent[3])) + Vector2(0, 5), Margin::Bottom);
-                FALLTHROUGH;
+                [[fallthrough]];
             case DRAG_MOVE:
                 start = Vector2(node_pos_in_parent[0], Math::lerp(node_pos_in_parent[1], node_pos_in_parent[3], ratio));
                 end = start - Vector2(control->get_margin(Margin::Left), 0);
@@ -3106,7 +3110,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_TOP_RIGHT:
             case DRAG_BOTTOM_RIGHT:
                 _draw_margin_at_position(control->get_size().width, parent_transform.xform(Vector2((node_pos_in_parent[0] + node_pos_in_parent[2]) / 2, node_pos_in_parent[3])) + Vector2(0, 5), Margin::Bottom);
-                FALLTHROUGH;
+                [[fallthrough]];
             case DRAG_MOVE:
                 start = Vector2(node_pos_in_parent[2], Math::lerp(node_pos_in_parent[3], node_pos_in_parent[1], ratio));
                 end = start - Vector2(control->get_margin(Margin::Right), 0);
@@ -3121,7 +3125,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_TOP_LEFT:
             case DRAG_TOP_RIGHT:
                 _draw_margin_at_position(control->get_size().height, parent_transform.xform(Vector2(node_pos_in_parent[2], (node_pos_in_parent[1] + node_pos_in_parent[3]) / 2)) + Vector2(5, 0), Margin::Right);
-                FALLTHROUGH;
+                [[fallthrough]];
             case DRAG_MOVE:
                 start = Vector2(Math::lerp(node_pos_in_parent[0], node_pos_in_parent[2], ratio), node_pos_in_parent[1]);
                 end = start - Vector2(0, control->get_margin(Margin::Top));
@@ -3136,7 +3140,7 @@ void CanvasItemEditor::_draw_control_helpers(Control *control) {
             case DRAG_BOTTOM_LEFT:
             case DRAG_BOTTOM_RIGHT:
                 _draw_margin_at_position(control->get_size().height, parent_transform.xform(Vector2(node_pos_in_parent[2], (node_pos_in_parent[1] + node_pos_in_parent[3]) / 2) + Vector2(5, 0)), Margin::Right);
-                FALLTHROUGH;
+                [[fallthrough]];
             case DRAG_MOVE:
                 start = Vector2(Math::lerp(node_pos_in_parent[2], node_pos_in_parent[0], ratio), node_pos_in_parent[3]);
                 end = start - Vector2(0, control->get_margin(Margin::Bottom));
@@ -4335,7 +4339,7 @@ void CanvasItemEditor::_button_tool_select(int p_index) {
 
 void CanvasItemEditor::_insert_animation_keys(bool p_location, bool p_rotation, bool p_scale, bool p_on_existing) {
 
-    Map<Node *, Object *> &selection = editor_selection->get_selection();
+    HashMap<Node *, Object *> &selection = editor_selection->get_selection();
     AnimationPlayerEditor *ed=AnimationPlayerEditor::singleton;
     for (const eastl::pair<Node *,Object *> E : selection) {
 
@@ -4743,7 +4747,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
 
             pose_clipboard.clear();
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             for (const eastl::pair<Node *,Object *> E : selection) {
 
@@ -4790,7 +4794,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case ANIM_CLEAR_POSE: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             for (const eastl::pair<Node *,Object *> E : selection) {
 
@@ -4863,7 +4867,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_MAKE_BONES: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             undo_redo->create_action_ui(TTR("Create Custom Bone(s) from Node(s)"));
             for (const eastl::pair<Node *,Object *> E : selection) {
@@ -4890,7 +4894,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_CLEAR_BONES: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             undo_redo->create_action_ui(TTR("Clear Bones"));
             for (const eastl::pair<Node *,Object *> E : selection) {
@@ -4938,7 +4942,7 @@ void CanvasItemEditor::_popup_callback(int p_op) {
         } break;
         case SKELETON_CLEAR_IK_CHAIN: {
 
-            Map<Node *, Object *> &selection = editor_selection->get_selection();
+            HashMap<Node *, Object *> &selection = editor_selection->get_selection();
 
             undo_redo->create_action_ui(TTR("Clear IK Chain"));
             for (const eastl::pair<Node *,Object *> E : selection) {
@@ -4967,7 +4971,7 @@ void CanvasItemEditor::_focus_selection(int p_op) {
     Rect2 rect;
     int count = 0;
 
-    Map<Node *, Object *> &selection = editor_selection->get_selection();
+    HashMap<Node *, Object *> &selection = editor_selection->get_selection();
     for (const eastl::pair<Node *,Object *> E : selection) {
         CanvasItem *canvas_item = object_cast<CanvasItem>(E.first);
         if (!canvas_item) continue;
@@ -5016,6 +5020,7 @@ void CanvasItemEditor::_focus_selection(int p_op) {
             zoom = scale_x < scale_y ? scale_x : scale_y;
             zoom *= 0.9f;
             viewport->update();
+            _update_zoom_label();
             call_deferred("_popup_callback", VIEW_CENTER_TO_SELECTION);
         }
     }
@@ -5369,8 +5374,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     editor_selection->connect("selection_changed", this, "update");
     editor_selection->connect("selection_changed", this, "_selection_changed");
 
-    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::fromVector(Span<const Variant>(make_binds(true))));
-    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::fromVector(Span<const Variant>(make_binds(false))));
+    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(true)));
+    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(false)));
 
     hb = memnew(HBoxContainer);
     add_child(hb);

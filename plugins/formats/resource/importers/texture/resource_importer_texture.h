@@ -79,14 +79,14 @@ public:
     StringName get_preset_name(int p_idx) const override;
 
     void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
-    bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
+    bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
 
     void _save_stex(const Ref<Image> &p_image, se_string_view p_to_path, int p_compress_mode, float p_lossy_quality,
             ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags, bool p_streamable,
             bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal, bool p_force_normal,
             bool p_force_po2_for_compressed);
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 
@@ -101,7 +101,7 @@ public:
     int get_import_order() const override { return 0; }
     StringName get_option_group_file() const override { return StringName(); }
     Error import_group_file(se_string_view /*p_group_file*/,
-            const Map<String, Map<StringName, Variant>> & /*p_source_file_options*/,
+            const Map<String, HashMap<StringName, Variant>> & /*p_source_file_options*/,
             const Map<String, String> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }

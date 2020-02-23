@@ -187,7 +187,7 @@ void AnimationTrackEditAudio::_preview_changed(ObjectID p_which) {
     if (!object)
         return;
 
-    Ref<AudioStream> stream(object->call("get_stream"));
+    Ref<AudioStream> stream(object->call_va("get_stream"));
 
     if (stream && stream->get_instance_id() == p_which) {
         update();
@@ -211,7 +211,7 @@ Rect2 AnimationTrackEditAudio::get_key_rect(int p_index, float p_pixels_sec) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
     }
 
-    Ref<AudioStream> stream(object->call("get_stream"));
+    Ref<AudioStream> stream(object->call_va("get_stream"));
 
     if (!stream) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -252,7 +252,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         return;
     }
 
-    Ref<AudioStream> stream(object->call("get_stream"));
+    Ref<AudioStream> stream(object->call_va("get_stream"));
 
     if (not stream) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -374,19 +374,19 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 
     if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
 
-        Ref<Texture> texture(object->call("get_texture"));
+        Ref<Texture> texture(object->call_va("get_texture"));
         if (not texture) {
             return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
         }
 
         size = texture->get_size();
 
-        if (bool(object->call("is_region"))) {
-            size = Rect2(object->call("get_region_rect")).size;
+        if (bool(object->call_va("is_region"))) {
+            size = Rect2(object->call_va("get_region_rect")).size;
         }
 
-        int hframes = object->call("get_hframes");
-        int vframes = object->call("get_vframes");
+        int hframes = object->call_va("get_hframes");
+        int vframes = object->call_va("get_vframes");
 
         if (hframes > 1) {
             size.x /= hframes;
@@ -396,7 +396,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         }
     } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
 
-        Ref<SpriteFrames> sf(object->call("get_sprite_frames"));
+        Ref<SpriteFrames> sf(object->call_va("get_sprite_frames"));
         if (not sf) {
             return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
         }
@@ -453,14 +453,14 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 
     if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
 
-        texture = refFromVariant<Texture>(object->call("get_texture"));
+        texture = refFromVariant<Texture>(object->call_va("get_texture"));
         if (not texture) {
             AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
             return;
         }
 
-        int hframes = object->call("get_hframes");
-        int vframes = object->call("get_vframes");
+        int hframes = object->call_va("get_hframes");
+        int vframes = object->call_va("get_vframes");
 
         Vector2 coords;
         if (is_coords) {
@@ -473,9 +473,9 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 
         region.size = texture->get_size();
 
-        if (bool(object->call("is_region"))) {
+        if (bool(object->call_va("is_region"))) {
 
-            region = Rect2(object->call("get_region_rect"));
+            region = Rect2(object->call_va("get_region_rect"));
         }
 
         if (hframes > 1) {
@@ -490,7 +490,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 
     } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
 
-        Ref<SpriteFrames> sf(object->call("get_sprite_frames"));
+        Ref<SpriteFrames> sf(object->call_va("get_sprite_frames"));
         if (not sf) {
             AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
             return;

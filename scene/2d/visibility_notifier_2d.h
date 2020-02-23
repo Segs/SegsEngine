@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISIBILITY_NOTIFIER_2D_H
-#define VISIBILITY_NOTIFIER_2D_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 
@@ -38,7 +37,7 @@ class VisibilityNotifier2D : public Node2D {
 
     GDCLASS(VisibilityNotifier2D,Node2D)
 
-    Set<Viewport *> viewports;
+    HashSet<Viewport *> viewports;
 
     Rect2 rect;
 
@@ -90,7 +89,7 @@ protected:
 
     void _find_nodes(Node *p_node);
 
-    Map<Node *, Variant> nodes;
+    HashMap<Node *, Variant> nodes;
     void _node_removed(Node *p_node);
     bool enabler[ENABLER_MAX];
 
@@ -107,6 +106,3 @@ public:
 
     VisibilityEnabler2D();
 };
-
-
-#endif // VISIBILITY_NOTIFIER_2D_H

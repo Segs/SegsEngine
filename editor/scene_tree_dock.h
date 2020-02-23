@@ -33,6 +33,7 @@
 #include "scene/gui/box_container.h"
 #include "core/pair.h"
 #include "core/se_string.h"
+#include "core/map.h"
 
 
 class EditorNode;

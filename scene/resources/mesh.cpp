@@ -30,17 +30,19 @@
 
 #include "mesh.h"
 
+#include "core/map.h"
+#include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/pair.h"
-#include "core/map.h"
+#include "core/print_string.h"
+#include "core/set.h"
 #include "scene/resources/concave_polygon_shape.h"
 #include "scene/resources/convex_polygon_shape.h"
 #include "scene/resources/material.h"
-#include "core/print_string.h"
+#include "scene/resources/mesh_enum_casters.h"
 #include "servers/visual_server.h"
 #include "surface_tool.h"
-#include "core/method_bind.h"
-#include "scene/resources/mesh_enum_casters.h"
+
 #include <cstdlib>
 
 IMPL_GDCLASS(Mesh)

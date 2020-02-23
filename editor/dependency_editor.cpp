@@ -50,7 +50,7 @@ IMPL_GDCLASS(OrphanResourcesDialog)
 
 void DependencyEditor::_searched(se_string_view p_path) {
 
-    Map<String, String> dep_rename;
+    HashMap<String, String> dep_rename;
     dep_rename[replacing] = p_path;
 
     ResourceLoader::rename_dependencies(editing, dep_rename);
@@ -146,7 +146,7 @@ void DependencyEditor::_fix_all() {
 
     _fix_and_find(EditorFileSystem::get_singleton()->get_filesystem(), candidates);
 
-    Map<String, String> remaps;
+    HashMap<String, String> remaps;
 
     for (eastl::pair<const se_string_view, Map<String, String> > &E : candidates) {
 

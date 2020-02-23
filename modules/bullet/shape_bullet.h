@@ -33,10 +33,10 @@
 
 #include "core/math/geometry.h"
 #include "core/pool_vector.h"
+#include "core/hash_map.h"
 #include "core/variant.h"
 #include "servers/physics_server.h"
 
-#include "EASTL/unordered_map.h"
 #include <LinearMath/btAlignedObjectArray.h>
 #include <LinearMath/btScalar.h>
 #include <LinearMath/btVector3.h>
@@ -51,12 +51,9 @@ class ShapeOwnerBullet;
 class btBvhTriangleMeshShape;
 class btVector3;
 
-template<class TKey, class TData>
-using EUnorderdMap = eastl::unordered_map<TKey,TData,eastl::hash<TKey>,eastl::equal_to<TKey>,wrap_allocator>;
-
 class ShapeBullet : public RIDBullet {
 
-    using OwnerStorage = EUnorderdMap<ShapeOwnerBullet *, int>;
+    using OwnerStorage = HashMap<ShapeOwnerBullet *, int>;
     OwnerStorage owners;
     real_t margin;
 

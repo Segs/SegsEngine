@@ -64,9 +64,9 @@
 
 #endif
 struct ClassInfoImpl {
-    DefHashMap<StringName, MethodInfo> signal_map;
+    HashMap<StringName, MethodInfo> signal_map;
 };
-static DefHashMap<StringName, MethodInfo> &class_signal_map(ClassDB::ClassInfo &ci) {
+static HashMap<StringName, MethodInfo> &class_signal_map(ClassDB::ClassInfo &ci) {
     return ci.class_signal_map();
 }
 ClassDB::APIType ClassDB::current_api = API_CORE;
@@ -81,8 +81,8 @@ ClassDB::APIType ClassDB::get_current_api() {
     return current_api;
 }
 
-DefHashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
-DefHashMap<StringName, StringName> ClassDB::resource_base_extensions;
+HashMap<StringName, ClassDB::ClassInfo> ClassDB::classes;
+HashMap<StringName, StringName> ClassDB::resource_base_extensions;
 HashMap<StringName, StringName> ClassDB::compat_classes;
 
 ClassDB::ClassInfo::ClassInfo() = default;
@@ -189,7 +189,7 @@ ClassDB::APIType ClassDB::get_api_type(const StringName &p_class) {
 
 uint64_t ClassDB::get_api_hash(APIType p_api) {
 
-    using class_iter = DefHashMap<StringName, ClassInfo>::iterator;
+    using class_iter = HashMap<StringName, ClassInfo>::iterator;
     RWLockRead _rw_lockr_(lock);
 #ifdef DEBUG_METHODS_ENABLED
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
@@ -802,9 +802,6 @@ void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, cons
 }
 
 void ClassDB::set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default) {
-    if (!default_values.contains(p_class)) {
-        default_values[p_class] = HashMap<StringName, Variant>();
-    }
     default_values[p_class][p_name] = p_default;
 }
 
@@ -1211,16 +1208,12 @@ void ClassDB::get_extensions_for_type(const StringName &p_class, Vector<String> 
 }
 
 HashMap<StringName, HashMap<StringName, Variant>> ClassDB::default_values;
-Set<StringName> ClassDB::default_values_cached;
+HashSet<StringName> ClassDB::default_values_cached;
 
 Variant ClassDB::class_get_default_property_value(
         const StringName &p_class, const StringName &p_property, bool *r_valid) {
 
     if (!default_values_cached.contains(p_class)) {
-
-        if (!default_values.contains(p_class)) {
-            default_values[p_class] = HashMap<StringName, Variant>();
-        }
 
         Object *c = nullptr;
         bool cleanup_c = false;

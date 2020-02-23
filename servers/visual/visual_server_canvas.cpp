@@ -1333,7 +1333,7 @@ bool VisualServerCanvas::free(RID p_rid) {
             VisualServerViewport::Viewport *vp = VSG::viewport->viewport_owner.get(*canvas->viewports.begin());
             ERR_FAIL_COND_V(!vp, true);
 
-            Map<RID, VisualServerViewport::Viewport::CanvasData>::iterator E = vp->canvas_map.find(p_rid);
+            auto E = vp->canvas_map.find(p_rid);
             ERR_FAIL_COND_V(E==vp->canvas_map.end(), true);
             vp->canvas_map.erase(p_rid);
 

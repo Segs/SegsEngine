@@ -74,7 +74,7 @@ void Physics2DServerWrapMT::step(real_t p_step) {
 
     if (create_thread) {
 
-        command_queue.push(this, &Physics2DServerWrapMT::thread_step, p_step);
+        command_queue.push([this,p_step]() { thread_step(p_step); });
     } else {
 
         command_queue.flush_all(); //flush all pending from other threads
@@ -125,7 +125,7 @@ void Physics2DServerWrapMT::finish() {
 
     if (thread) {
 
-        command_queue.push(this, &Physics2DServerWrapMT::thread_exit);
+        command_queue.push([this]() {thread_exit(); });
         Thread::wait_to_finish(thread);
         memdelete(thread);
 

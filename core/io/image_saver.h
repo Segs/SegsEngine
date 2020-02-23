@@ -1,6 +1,8 @@
 #pragma once
 
-#include "core/vector.h"
+#include "core/forward_decls.h"
+
+enum Error : int;
 
 class ImageLoader;
 class ImageFormatSaver;

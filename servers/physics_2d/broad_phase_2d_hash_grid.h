@@ -32,7 +32,7 @@
 #define BROAD_PHASE_2D_HASH_GRID_H
 
 #include "broad_phase_2d_sw.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 
 class BroadPhase2DHashGrid : public BroadPhase2DSW {
 
@@ -56,7 +56,7 @@ class BroadPhase2DHashGrid : public BroadPhase2DSW {
 		Rect2 aabb;
 		int subindex;
 		uint64_t pass;
-		Map<Element *, PairData *> paired;
+        HashMap<Element *, PairData *> paired;
 	};
 
 	struct RC {
@@ -77,8 +77,8 @@ class BroadPhase2DHashGrid : public BroadPhase2DSW {
 		}
 	};
 
-	Map<ID, Element> element_map;
-	Map<Element *, RC> large_elements;
+    HashMap<ID, Element> element_map;
+    HashMap<Element *, RC> large_elements;
 
 	ID current;
 
@@ -94,11 +94,14 @@ class BroadPhase2DHashGrid : public BroadPhase2DSW {
 			uint64_t key;
 		};
 
-		_FORCE_INLINE_ bool operator<(const PairKey &p_key) const {
-			return key < p_key.key;
-		}
+        bool operator==(PairKey p_key) const {
+            return key == p_key.key;
+        }
+        // for default eastl::hash impl
+        operator size_t() const { return eastl::hash<uint64_t>()(key); }
 
-		PairKey() { key = 0; }
+        constexpr PairKey() : key(0) { }
+
 		PairKey(ID p_a, ID p_b) {
 			if (p_a > p_b) {
 				a = p_b;
@@ -110,7 +113,7 @@ class BroadPhase2DHashGrid : public BroadPhase2DSW {
 		}
 	};
 
-	Map<PairKey, PairData> pair_map;
+    HashMap<PairKey, PairData> pair_map;
 
 	int cell_size;
 	int large_object_min_surface;
@@ -155,8 +158,8 @@ class BroadPhase2DHashGrid : public BroadPhase2DSW {
 	struct PosBin {
 
 		PosKey key;
-		Map<Element *, RC> object_set;
-		Map<Element *, RC> static_object_set;
+        HashMap<Element *, RC> object_set;
+        HashMap<Element *, RC> static_object_set;
 		PosBin *next;
 	};
 

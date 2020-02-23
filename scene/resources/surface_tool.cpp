@@ -447,20 +447,23 @@ void SurfaceTool::index() {
 
     if (!index_array.empty())
         return; //already indexed
-
-    HashMap<Vertex, int> indices;
+    // hash by raw bytes.
+    auto hashfunc = [](const Vertex &v) -> size_t {
+        return hash_djb2_buffer((const uint8_t *)&v,sizeof(v));
+    };
+    HashMap<Vertex, int, decltype(hashfunc)> indices(64, hashfunc);
     Vector<Vertex> new_vertices;
 
     for (const Vertex &E : vertex_array) {
 
-        int *idxptr = indices.getptr(E);
+        auto idxptr = indices.find(E);
         int idx;
-        if (!idxptr) {
+        if (idxptr==indices.end()) {
             idx = indices.size();
             new_vertices.push_back(E);
             indices[E] = idx;
         } else {
-            idx = *idxptr;
+            idx = idxptr->second;
         }
 
         index_array.push_back(idx);
@@ -841,8 +844,10 @@ void SurfaceTool::generate_normals(bool p_flip) {
     bool was_indexed = !index_array.empty();
 
     deindex();
-
-    HashMap<Vertex, Vector3> vertex_hash;
+    auto hashfunc = [](const Vertex &v) -> size_t {
+        return hash_djb2_buffer((const uint8_t *)&v, sizeof(v));
+    };
+    HashMap<Vertex, Vector3, decltype(hashfunc)> vertex_hash(64, hashfunc);
 
     int count = 0;
     bool smooth = false;
@@ -867,13 +872,13 @@ void SurfaceTool::generate_normals(bool p_flip) {
 
         if (smooth) {
 
-            for (int i = 0; i < 3; i++) {
+            for (auto & i : v) {
 
-                Vector3 *lv = vertex_hash.getptr(*v[i]);
-                if (!lv) {
-                    vertex_hash.set(*v[i], normal);
+                auto lv = vertex_hash.find(*i);
+                if (lv==vertex_hash.end()) {
+                    vertex_hash.emplace(eastl::make_pair(*i, normal));
                 } else {
-                    (*lv) += normal;
+                    lv->second += normal;
                 }
             }
         } else {
@@ -891,9 +896,9 @@ void SurfaceTool::generate_normals(bool p_flip) {
 
                 while (B != E) {
 
-                    Vector3 *lv = vertex_hash.getptr(*B);
-                    if (lv) {
-                        B->normal = lv->normalized();
+                    auto lv = vertex_hash.find(*B);
+                    if (lv!=vertex_hash.end()) {
+                        B->normal = lv->second.normalized();
                     }
 
                     ++B;

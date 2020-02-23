@@ -528,7 +528,7 @@ void ShaderEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
                     int from_column = tx->get_selection_from_column();
                     int to_column = tx->get_selection_to_column();
 
-                    if (row < from_line || row > to_line || row == from_line && col < from_column || row == to_line && col > to_column) {
+                    if (row < from_line || row > to_line || (row == from_line && col < from_column) || (row == to_line && col > to_column)) {
                         // Right click is outside the selected text
                         tx->deselect();
                     }

@@ -65,7 +65,7 @@ namespace {
             Vector<VisualShader::DefaultTextureParam> &def_tex_params,
             const VMap<VisualShader::ConnectionKey, const ListOld<VisualShader::Connection>::Element *> &input_connections,
             const VMap<VisualShader::ConnectionKey, const ListOld<VisualShader::Connection>::Element *> &output_connections, int node, Set<int> &processed,
-            bool for_preview, Set<StringName> &r_classes) {
+            bool for_preview, HashSet<StringName> &r_classes) {
 
         using Type = VisualShader::Type;
 
@@ -118,9 +118,9 @@ namespace {
                 if (in_type == VisualShaderNode::PORT_TYPE_SAMPLER && out_type == VisualShaderNode::PORT_TYPE_SAMPLER) {
                     VisualShaderNode *ptr = const_cast<VisualShaderNode *>(vs->graph[type].nodes.at(from_node).node.get());
                     if (ptr->has_method("get_input_real_name")) {
-                        inputs[i] = ptr->call("get_input_real_name").as<String>();
+                        inputs[i] = ptr->call_va("get_input_real_name").as<String>();
                     } else if (ptr->has_method("get_uniform_name")) {
-                        inputs[i] = ptr->call("get_uniform_name").as<String>();
+                        inputs[i] = ptr->call_va("get_uniform_name").as<String>();
                     } else {
                         inputs[i] = "";
                     }
@@ -852,7 +852,7 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
     StringBuilder global_code_per_node;
     Map<Type, StringBuilder> global_code_per_func;
     StringBuilder code;
-    Set<StringName> classes;
+    HashSet<StringName> classes;
 
     global_code += String() + "shader_type canvas_item;\n";
 
@@ -1266,7 +1266,7 @@ void VisualShader::_update_shader() const {
     Map<Type, StringBuilder> global_code_per_func;
     StringBuilder code;
     Vector<DefaultTextureParam> default_tex_params;
-    Set<StringName> classes;
+    HashSet<StringName> classes;
     Vector<int> insertion_pos;
     static constexpr const char *shader_mode_str[] = { "spatial", "canvas_item", "particles" };
 

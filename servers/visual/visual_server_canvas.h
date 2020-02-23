@@ -123,9 +123,9 @@ public:
             }
         };
 
-        Set<RID> viewports;
-        Set<RasterizerCanvas::Light *> lights;
-        Set<RasterizerCanvas::LightOccluderInstance *> occluders;
+        HashSet<RID> viewports;
+        HashSet<RasterizerCanvas::Light *> lights;
+        HashSet<RasterizerCanvas::LightOccluderInstance *> occluders;
         Vector<ChildItem> child_items;
         Color modulate;
         RID parent;

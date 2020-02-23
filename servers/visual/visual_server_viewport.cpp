@@ -34,14 +34,14 @@
 #include "visual_server_canvas.h"
 #include "visual_server_globals.h"
 #include "visual_server_scene.h"
-
+#include "core/map.h"
 #include "EASTL/sort.h"
 
 static Transform2D _canvas_get_transform(VisualServerViewport::Viewport *p_viewport, VisualServerCanvas::Canvas *p_canvas, VisualServerViewport::Viewport::CanvasData *p_canvas_data, const Vector2 &p_vp_size) {
 
     Transform2D xf = p_viewport->global_transform;
 
-    float scale = 1.0;
+    float scale = 1.0f;
     if (p_viewport->canvas_map.contains(p_canvas->parent)) {
         xf = xf * p_viewport->canvas_map[p_canvas->parent].transform;
         scale = p_canvas->parent_scale;
@@ -64,7 +64,7 @@ static Transform2D _canvas_get_transform(VisualServerViewport::Viewport *p_viewp
     return xf;
 }
 
-void VisualServerViewport::_draw_3d(Viewport *p_viewport, ARVRInterface::Eyes p_eye) {
+void VisualServerViewport::_draw_3d(Viewport *p_viewport, ARVREyes p_eye) {
     Ref<ARVRInterface> arvr_interface;
     if (ARVRServer::get_singleton() != nullptr) {
         arvr_interface = ARVRServer::get_singleton()->get_primary_interface();
@@ -77,7 +77,7 @@ void VisualServerViewport::_draw_3d(Viewport *p_viewport, ARVRInterface::Eyes p_
     }
 }
 
-void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVRInterface::Eyes p_eye) {
+void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) {
 
     /* Camera should always be BEFORE any other 3D */
 
@@ -95,7 +95,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVRInterface::E
         }
     }
 
-    bool can_draw_3d = !p_viewport->disable_3d && !p_viewport->disable_3d_by_usage && VSG::scene->camera_owner.owns(p_viewport->camera);
+    bool can_draw_3d = !p_viewport->disable_3d && !p_viewport->disable_3d_by_usage && VisualServerScene::owns_camera(p_viewport->camera);
 
     if (p_viewport->clear_mode != VS::VIEWPORT_CLEAR_NEVER) {
         VSG::rasterizer->clear_render_target(p_viewport->transparent_bg ? Color(0, 0, 0, 0) : clear_color);
@@ -306,7 +306,7 @@ void VisualServerViewport::draw_viewports() {
             VSG::storage->render_target_set_size(vp->render_target, vp->size.x, vp->size.y);
 
             // render mono or left eye first
-            ARVRInterface::Eyes leftOrMono = arvr_interface->is_stereo() ? ARVRInterface::EYE_LEFT : ARVRInterface::EYE_MONO;
+            ARVREyes leftOrMono = arvr_interface->is_stereo() ? ARVREyes::EYE_LEFT : ARVREyes::EYE_MONO;
 
             // check for an external texture destination for our left eye/mono
             VSG::storage->render_target_set_external_texture(vp->render_target, arvr_interface->get_external_texture_for_eye(leftOrMono));
@@ -319,15 +319,15 @@ void VisualServerViewport::draw_viewports() {
             arvr_interface->commit_for_eye(leftOrMono, vp->render_target, vp->viewport_to_screen_rect);
 
             // render right eye
-            if (leftOrMono == ARVRInterface::EYE_LEFT) {
+            if (leftOrMono == ARVREyes::EYE_LEFT) {
                 // check for an external texture destination for our right eye
-                VSG::storage->render_target_set_external_texture(vp->render_target, arvr_interface->get_external_texture_for_eye(ARVRInterface::EYE_RIGHT));
+                VSG::storage->render_target_set_external_texture(vp->render_target, arvr_interface->get_external_texture_for_eye(ARVREyes::EYE_RIGHT));
 
                 // commit for eye may have changed the render target
                 VSG::rasterizer->set_current_render_target(vp->render_target);
 
-                _draw_viewport(vp, ARVRInterface::EYE_RIGHT);
-                arvr_interface->commit_for_eye(ARVRInterface::EYE_RIGHT, vp->render_target, vp->viewport_to_screen_rect);
+                _draw_viewport(vp, ARVREyes::EYE_RIGHT);
+                arvr_interface->commit_for_eye(ARVREyes::EYE_RIGHT, vp->render_target, vp->viewport_to_screen_rect);
             }
 
             // and for our frame timing, mark when we've finished committing our eyes
@@ -573,10 +573,7 @@ void VisualServerViewport::viewport_attach_canvas(RID p_viewport, RID p_canvas) 
     ERR_FAIL_COND(!canvas);
 
     canvas->viewports.insert(p_viewport);
-    viewport->canvas_map[p_canvas] = Viewport::CanvasData();
-    viewport->canvas_map[p_canvas].layer = 0;
-    viewport->canvas_map[p_canvas].sublayer = 0;
-    viewport->canvas_map[p_canvas].canvas = canvas;
+    viewport->canvas_map[p_canvas] = {canvas,{},0,0};
 }
 
 void VisualServerViewport::viewport_remove_canvas(RID p_viewport, RID p_canvas) {
@@ -620,8 +617,9 @@ void VisualServerViewport::viewport_set_canvas_stacking(RID p_viewport, RID p_ca
     ERR_FAIL_COND(!viewport);
 
     ERR_FAIL_COND(!viewport->canvas_map.contains(p_canvas));
-    viewport->canvas_map[p_canvas].layer = p_layer;
-    viewport->canvas_map[p_canvas].sublayer = p_sublayer;
+    auto &entry(viewport->canvas_map[p_canvas]);
+    entry.layer = p_layer;
+    entry.sublayer = p_sublayer;
 }
 
 void VisualServerViewport::viewport_set_shadow_atlas_size(RID p_viewport, int p_size) {

@@ -39,6 +39,7 @@
 #include "navigation_2d.h"
 #include "servers/navigation_2d_server.h"
 #include "scene/main/scene_tree.h"
+#include "core/map.h"
 
 #include "thirdparty/misc/triangulator.h"
 
@@ -81,7 +82,7 @@ bool NavigationPolygon::_edit_is_selected_on_click(const Point2 &p_point, float 
         const int outline_size = outline.size();
         if (outline_size < 3)
             continue;
-        if (Geometry::is_point_in_polygon(p_point, {outline.read().ptr(),outline.size()}))
+        if (Geometry::is_point_in_polygon(p_point, outline.toSpan()))
             return true;
     }
     return false;
@@ -301,7 +302,7 @@ void NavigationPolygon::make_polygons_from_outlines() {
 
     polygons.clear();
     vertices.resize(0);
-
+    //TODO: SEGS: consider faster data structure here.
     Map<Vector2, int> points;
     for (TriangulatorPoly &tp : out_poly) {
         struct Polygon p;

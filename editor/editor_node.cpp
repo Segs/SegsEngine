@@ -1082,8 +1082,8 @@ void EditorNode::_save_edited_subresources(Node *scene, Map<RES, bool> &processe
 
 void EditorNode::_find_node_types(Node *p_node, int &count_2d, int &count_3d) {
 
-    if (p_node->is_class("Viewport") || p_node != editor_data.get_edited_scene_root() &&
-        p_node->get_owner() != editor_data.get_edited_scene_root())
+    if (p_node->is_class("Viewport") || (p_node != editor_data.get_edited_scene_root() &&
+        p_node->get_owner() != editor_data.get_edited_scene_root()))
         return;
 
     if (p_node->is_class("CanvasItem"))
@@ -1661,7 +1661,7 @@ void EditorNode::edit_item(Object *p_object) {
     }
     bool same = true;
     if (sub_plugins.size() == editor_plugins_over->get_plugins_list().size()) {
-        for (int i = 0; i < sub_plugins.size(); i++) {
+        for (size_t i = 0; i < sub_plugins.size(); i++) {
             if (sub_plugins[i] != editor_plugins_over->get_plugins_list()[i]) {
                 same = false;
             }
@@ -1971,7 +1971,7 @@ void EditorNode::_run(bool p_current, se_string_view p_custom) {
     bool skip_breakpoints;
 
     if (p_current ||
-            editor_data.get_edited_scene_root() && p_custom == editor_data.get_edited_scene_root()->get_filename()) {
+            (editor_data.get_edited_scene_root() && p_custom == editor_data.get_edited_scene_root()->get_filename())) {
 
         Node *scene = editor_data.get_edited_scene_root();
 
@@ -2160,7 +2160,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
             break;
         }
 
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case SCENE_TAB_CLOSE:
         case FILE_SAVE_SCENE: {
@@ -2180,7 +2180,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
                 break;
             }
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case FILE_SAVE_AS_SCENE: {
             int scene_idx = p_option == FILE_SAVE_SCENE || p_option == FILE_SAVE_AS_SCENE ? -1 : tab_closing;
@@ -2831,8 +2831,8 @@ void EditorNode::_discard_changes(se_string_view p_str) {
                 }
             } else if (current_option == FILE_CLOSE_OTHERS || current_option == FILE_CLOSE_RIGHT) {
                 if (editor_data.get_edited_scene_count() == 1 ||
-                        current_option == FILE_CLOSE_RIGHT &&
-                        editor_data.get_edited_scene_count() <= editor_data.get_edited_scene() + 1) {
+                        (current_option == FILE_CLOSE_RIGHT &&
+                        editor_data.get_edited_scene_count() <= editor_data.get_edited_scene() + 1)) {
                     current_option = -1;
                     save_confirmation->hide();
                 } else {
@@ -3413,11 +3413,8 @@ Error EditorNode::load_scene(se_string_view p_scene, bool p_ignore_broken_deps, 
     if (!p_ignore_broken_deps && dependency_errors.contains(lpath)) {
 
         current_option = -1;
-        Vector<String> errors;
-        for (const String &E : dependency_errors[lpath]) {
+        Vector<String> errors(dependency_errors[lpath].begin(),dependency_errors[lpath].end());
 
-            errors.emplace_back(E);
-        }
         dependency_error->show(DependencyErrorDialog::MODE_SCENE, lpath, errors);
         opening_prev = false;
 
@@ -4128,10 +4125,10 @@ Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringN
         return dynamic_ref_cast<Texture>(icon);
     }
 
-    const Map<StringName, Vector<EditorData::CustomType>> &p_map = EditorNode::get_editor_data().get_custom_types();
+    auto &p_map = EditorNode::get_editor_data().get_custom_types();
     for (const eastl::pair<const StringName, Vector<EditorData::CustomType>> &E : p_map) {
         const Vector<EditorData::CustomType> &ct = E.second;
-        for (int i = 0; i < ct.size(); ++i) {
+        for (size_t i = 0; i < ct.size(); ++i) {
             if (ct[i].name == p_class) {
                 if (ct[i].icon) {
                     return ct[i].icon;
@@ -4974,8 +4971,8 @@ void EditorNode::_scene_tab_input(const Ref<InputEvent> &p_input) {
             _scene_tab_closed(scene_tabs->get_hovered_tab());
         }
     } else {
-        if (mb->get_button_index() == BUTTON_LEFT && mb->is_doubleclick() ||
-                mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed()) {
+        if ((mb->get_button_index() == BUTTON_LEFT && mb->is_doubleclick()) ||
+            (mb->get_button_index() == BUTTON_MIDDLE && mb->is_pressed())) {
             _menu_option_confirm(FILE_NEW_SCENE, true);
         }
     }
@@ -5697,13 +5694,13 @@ void EditorNode::_feature_profile_changed() {
         if (StreamPeerSSL::is_available())
             main_editor_buttons[EDITOR_ASSETLIB]->set_visible(
                     !profile->is_feature_disabled(EditorFeatureProfile::FEATURE_ASSET_LIB));
-        if (profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D) &&
-            singleton->main_editor_buttons[EDITOR_3D]->is_pressed() ||
-                profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT) &&
-                singleton->main_editor_buttons[EDITOR_SCRIPT]->is_pressed() ||
-                StreamPeerSSL::is_available() &&
+        if ((profile->is_feature_disabled(EditorFeatureProfile::FEATURE_3D) &&
+            singleton->main_editor_buttons[EDITOR_3D]->is_pressed()) ||
+                (profile->is_feature_disabled(EditorFeatureProfile::FEATURE_SCRIPT) &&
+                singleton->main_editor_buttons[EDITOR_SCRIPT]->is_pressed()) ||
+                (StreamPeerSSL::is_available() &&
                 profile->is_feature_disabled(EditorFeatureProfile::FEATURE_ASSET_LIB) &&
-                singleton->main_editor_buttons[EDITOR_ASSETLIB]->is_pressed()) {
+                singleton->main_editor_buttons[EDITOR_ASSETLIB]->is_pressed())) {
             _editor_select(EDITOR_2D);
         }
     } else {
@@ -6122,9 +6119,9 @@ EditorNode::EditorNode() {
     EDITOR_DEF_RST("interface/scene_tabs/restore_scenes_on_load", false);
     EDITOR_DEF_RST("interface/scene_tabs/show_thumbnail_on_hover", true);
     EDITOR_DEF_RST("interface/inspector/capitalize_properties", true);
-    EDITOR_DEF_RST("interface/inspector/default_float_step", 0.001);
+    EDITOR_DEF_RST("interface/inspector/default_float_step", 0.001f);
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(
-            VariantType::REAL, "interface/inspector/default_float_step", PropertyHint::ExpRange, "0,1,0"));
+            VariantType::REAL, "interface/inspector/default_float_step", PropertyHint::Range, "0,1,0"));
     EDITOR_DEF_RST("interface/inspector/disable_folding", false);
     EDITOR_DEF_RST("interface/inspector/auto_unfold_foreign_scenes", true);
     EDITOR_DEF("interface/inspector/horizontal_vector2_editing", false);

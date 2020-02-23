@@ -114,11 +114,11 @@ public:
     int get_preset_count() const override { return 0; }
     StringName get_preset_name(int /*p_idx*/) const override { return {}; }
     StringName get_option_group_file() const override { return {}; }
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options,
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override = 0;
     Error import_group_file(se_string_view  /*p_group_file*/,
-            const Map<String, Map<StringName, Variant>> & /*p_source_file_options*/,
+            const Map<String, HashMap<StringName, Variant>> & /*p_source_file_options*/,
             const Map<String, String> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }

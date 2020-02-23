@@ -32,6 +32,7 @@
 
 #include "scene/2d/node_2d.h"
 #include "scene/resources/shape_2d.h"
+#include "core/map.h"
 
 class CollisionObject2D : public Node2D {
 

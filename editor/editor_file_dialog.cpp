@@ -684,11 +684,11 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
     if (items.empty())
         return mode != MODE_OPEN_DIR; // In "Open folder" mode, having nothing selected picks the current folder.
 
-    for (int i = 0; i < items.size(); i++) {
+    for (size_t i = 0; i < items.size(); i++) {
 
         Dictionary d = item_list->get_item_metadata(items[i]);
 
-        if ((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"] || mode == MODE_OPEN_DIR && !d["dir"])
+        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"]) || (mode == MODE_OPEN_DIR && !d["dir"]))
             return true;
     }
 
@@ -697,8 +697,10 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
 void EditorFileDialog::update_file_name() {
     int idx = filter->get_selected() - 1;
-    if (idx == -1 && filter->get_item_count() == 2 || filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2) {
-        if (idx == -1) idx += 1;
+    if ((idx == -1 && filter->get_item_count() == 2) || (filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2)) {
+        if (idx == -1)
+            idx += 1;
+
         String filter_str = filters[idx];
         String file_str = file->get_text();
         String base_name(PathUtils::get_basename(file_str));
@@ -1485,9 +1487,9 @@ void EditorFileDialog::_save_to_recent() {
     int count = 0;
     bool res = StringUtils::begins_with(dir,"res://");
 
-    for (int i = 0; i < recent.size(); i++) {
+    for (size_t i = 0; i < recent.size(); i++) {
         bool cres = StringUtils::begins_with(recent[i],"res://");
-        if (recent[i] == dir || res == cres && count > max) {
+        if (recent[i] == dir || (res == cres && count > max)) {
             recent.erase_at(i);
             i--;
         } else {

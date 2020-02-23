@@ -63,7 +63,7 @@ Array ResourcePreloader::_get_resources() const {
     arr.resize(resources.size());
     names.resize(resources.size());
 
-    Set<StringName> sorted_names;
+    HashSet<StringName> sorted_names;
 
     for (const eastl::pair<const StringName,RES> &E : resources) {
         sorted_names.insert(E.first);

@@ -452,7 +452,7 @@ namespace eastl
             inline value_type* SSOCapcityPtr() EA_NOEXCEPT               { return sso.mData + SSOLayout::SSO_CAPACITY; }
             inline const value_type* SSOCapcityPtr() const EA_NOEXCEPT   { return sso.mData + SSOLayout::SSO_CAPACITY; }
 
-            // Points to end of the buffer at the terminating '0', *ptr == '0' <- not true for SSO
+            // Points to end of the buffer at the terminating '0', *ptr == '0' <- only true when size() == capacity()
             inline value_type* CapacityPtr() EA_NOEXCEPT                 { return IsHeap() ? HeapCapacityPtr() : SSOCapcityPtr(); }
             inline const value_type* CapacityPtr() const EA_NOEXCEPT     { return IsHeap() ? HeapCapacityPtr() : SSOCapcityPtr(); }
 
@@ -742,6 +742,9 @@ namespace eastl
         void         ltrim();
         void         rtrim();
         void         trim();
+        void         ltrim(const value_type* p);
+        void         rtrim(const value_type* p);
+        void         trim(const value_type* p);
         this_type    left(size_type n) const;
         this_type    right(size_type n) const;
         this_type&   sprintf_va_list(const value_type* pFormat, va_list arguments);
@@ -1033,6 +1036,7 @@ namespace eastl
         value_type* DoAllocate(size_type n);
         void        DoFree(value_type* p, size_type n);
         size_type   GetNewCapacity(size_type currentCapacity);
+        size_type   GetNewCapacity(size_type currentCapacity, size_type minimumGrowSize);
         void        AllocateSelf() EA_NOEXCEPT;
         void        AllocateSelf(size_type n);
         void        DeallocateSelf();
@@ -1961,67 +1965,56 @@ namespace eastl
     }
 
 
-    template <typename T, typename Allocator>
-    basic_string<T, Allocator>& basic_string<T, Allocator>::append(size_type n, value_type c)
-    {
-        const size_type nSize = internalLayout().GetSize();
+	template <typename T, typename Allocator>
+	basic_string<T, Allocator>& basic_string<T, Allocator>::append(size_type n, value_type c)
+	{
+		if (n > 0)
+		{
+			const size_type nSize = internalLayout().GetSize();
+			const size_type nCapacity = capacity();
 
-        #if EASTL_STRING_OPT_LENGTH_ERRORS
-            if(EASTL_UNLIKELY((n > max_size()) || (nSize > (max_size() - n))))
-                ThrowLengthException();
-        #endif
+			if((nSize + n) > nCapacity)
+				reserve(GetNewCapacity(nCapacity, (nSize + n) - nCapacity));
 
-        const size_type nCapacity = capacity();
+			pointer pNewEnd = CharStringUninitializedFillN(internalLayout().EndPtr(), n, c);
+			*pNewEnd = 0;
+			internalLayout().SetSize(nSize + n);
+		}
 
-        if((nSize + n) > nCapacity)
-            reserve(eastl::max_alt(GetNewCapacity(nCapacity), (nSize + n)));
-
-        if(n > 0)
-        {
-            pointer pNewEnd = CharStringUninitializedFillN(internalLayout().EndPtr(), n, c);
-            *pNewEnd = 0;
-            internalLayout().SetSize(nSize + n);
-        }
-
-        return *this;
-    }
+		return *this;
+	}
 
 
     template <typename T, typename Allocator>
     basic_string<T, Allocator>& basic_string<T, Allocator>::append(const value_type* pBegin, const value_type* pEnd)
     {
-        if(pBegin != pEnd)
+        if (pBegin != pEnd)
         {
             const size_type nOldSize = internalLayout().GetSize();
-            const size_type n        = (size_type)(pEnd - pBegin);
-
-            #if EASTL_STRING_OPT_LENGTH_ERRORS
-                if(EASTL_UNLIKELY((n > max_size()) || (nOldSize > (max_size() - n))))
-                    ThrowLengthException();
-            #endif
-
+            const size_type n = (size_type)(pEnd - pBegin);
             const size_type nCapacity = capacity();
+            const size_type nNewSize = nOldSize + n;
 
-            if((nOldSize + n) > nCapacity)
+            if (nNewSize > nCapacity)
             {
-                const size_type nLength = eastl::max_alt(GetNewCapacity(nCapacity), (nOldSize + n));
+                const size_type nLength = GetNewCapacity(nCapacity, nNewSize - nCapacity);
 
                 pointer pNewBegin = DoAllocate(nLength + 1);
 
                 pointer pNewEnd = CharStringUninitializedCopy(internalLayout().BeginPtr(), internalLayout().EndPtr(), pNewBegin);
-                pNewEnd         = CharStringUninitializedCopy(pBegin,  pEnd,  pNewEnd);
-               *pNewEnd         = 0;
+                pNewEnd = CharStringUninitializedCopy(pBegin, pEnd, pNewEnd);
+                *pNewEnd = 0;
 
                 DeallocateSelf();
                 internalLayout().SetHeapBeginPtr(pNewBegin);
                 internalLayout().SetHeapCapacity(nLength);
-                internalLayout().SetHeapSize(nOldSize + n);
+                internalLayout().SetHeapSize(nNewSize);
             }
             else
             {
                 pointer pNewEnd = CharStringUninitializedCopy(pBegin, pEnd, internalLayout().EndPtr());
                 *pNewEnd = 0;
-                internalLayout().SetSize(nOldSize + n);
+                internalLayout().SetSize(nNewSize);
             }
         }
 
@@ -2471,7 +2464,7 @@ namespace eastl
             {
                 const size_type nOldSize = internalLayout().GetSize();
                 const size_type nOldCap  = capacity();
-                const size_type nLength  = eastl::max_alt(GetNewCapacity(nOldCap), nOldSize + n);
+                const size_type nLength = GetNewCapacity(nOldCap, (nOldSize + n) - nOldCap);
 
                 iterator pNewBegin = DoAllocate(nLength + 1);
 
@@ -2579,7 +2572,7 @@ namespace eastl
                 if(bCapacityIsSufficient) // If bCapacityIsSufficient is true, then bSourceIsFromSelf must be true.
                     nLength = nOldSize + n;
                 else
-                    nLength = eastl::max_alt(GetNewCapacity(nOldCap), (nOldSize + n));
+                    nLength = GetNewCapacity(nOldCap, (nOldSize + n) - nOldCap);
 
                 pointer pNewBegin = DoAllocate(nLength + 1);
 
@@ -2858,7 +2851,7 @@ namespace eastl
                 // I can't think of any easy way of doing this without allocating temporary memory.
                 const size_type nOldSize     = internalLayout().GetSize();
                 const size_type nOldCap      = capacity();
-                const size_type nNewCapacity = eastl::max_alt(GetNewCapacity(nOldCap), (nOldSize + (nLength2 - nLength1)));
+                const size_type nNewCapacity = GetNewCapacity(nOldCap, (nOldSize + (nLength2 - nLength1)) - nOldCap);
 
                 pointer pNewBegin = DoAllocate(nNewCapacity + 1);
 
@@ -3366,7 +3359,27 @@ namespace eastl
         ltrim();
         rtrim();
     }
+    	
+    template <typename T, typename Allocator>
+    inline void basic_string<T, Allocator>::ltrim(const value_type* p)
+    {
+        erase(0, find_first_not_of(p));
+    }
 
+
+    template <typename T, typename Allocator>
+    inline void basic_string<T, Allocator>::rtrim(const value_type* p)
+    {
+        erase(find_last_not_of(p) + 1);
+    }
+
+
+    template <typename T, typename Allocator>
+    inline void basic_string<T, Allocator>::trim(const value_type* p)
+    {
+        ltrim(p);
+        rtrim(p);
+    }
 
     template <typename T, typename Allocator>
     inline basic_string<T, Allocator> basic_string<T, Allocator>::left(size_type n) const
@@ -3472,7 +3485,7 @@ namespace eastl
         {
             const size_type nOldSize = internalLayout().GetSize();
             const size_type nOldCap  = capacity();
-            const size_type nLength  = eastl::max_alt(GetNewCapacity(nOldCap), (nOldSize + 1));
+            const size_type nLength  = GetNewCapacity(nOldCap, 1);
 
             iterator pNewBegin = DoAllocate(nLength + 1);
 
@@ -3551,11 +3564,29 @@ namespace eastl
 
     template <typename T, typename Allocator>
     inline typename basic_string<T, Allocator>::size_type
-    basic_string<T, Allocator>::GetNewCapacity(size_type currentCapacity) // This needs to return a value of at least currentCapacity and at least 1.
+        basic_string<T, Allocator>::GetNewCapacity(size_type currentCapacity)
     {
-        return (currentCapacity <= SSOLayout::SSO_CAPACITY) ? SSOLayout::SSO_CAPACITY : (2 * currentCapacity);
+        return GetNewCapacity(currentCapacity, 1);
     }
 
+
+    template <typename T, typename Allocator>
+    inline typename basic_string<T, Allocator>::size_type
+        basic_string<T, Allocator>::GetNewCapacity(size_type currentCapacity, size_type minimumGrowSize)
+    {
+#if EASTL_STRING_OPT_LENGTH_ERRORS
+        const size_type nRemainingSize = max_size() - currentCapacity;
+        if (EASTL_UNLIKELY((minimumGrowSize > nRemainingSize)))
+        {
+            ThrowLengthException();
+        }
+#endif
+
+        const size_type nNewCapacity = eastl::max_alt(currentCapacity + minimumGrowSize, currentCapacity * 2);
+
+        return nNewCapacity;
+    }
+    	
 
     template <typename T, typename Allocator>
     inline void basic_string<T, Allocator>::AllocateSelf() EA_NOEXCEPT
@@ -4343,6 +4374,23 @@ namespace eastl
         EA_RESTORE_VC_WARNING()  // warning: 4455
     #endif
 
+    /// erase / erase_if
+    ///
+    /// https://en.cppreference.com/w/cpp/string/basic_string/erase2
+    template <class CharT, class Allocator, class U>
+	void erase(basic_string<CharT, Allocator>& c, const U& value)
+	{
+	    // Erases all elements that compare equal to value from the container.
+	    c.erase(eastl::remove(c.begin(), c.end(), value), c.end());
+	}
+
+	template <class CharT, class Allocator, class Predicate>
+	void erase_if(basic_string<CharT, Allocator>& c, Predicate predicate)
+	{
+	    // Erases all elements that satisfy the predicate pred from the container.
+	    c.erase(eastl::remove_if(c.begin(), c.end(), predicate), c.end());
+	}
+    	
 } // namespace eastl
 
 

@@ -61,7 +61,7 @@ public:
 
     Map<String, ExtendGDScriptParser *> scripts;
     Map<String, ExtendGDScriptParser *> parse_results;
-    DefHashMap<StringName, ClassMembers> native_members;
+    HashMap<StringName, ClassMembers> native_members;
 
 public:
     Array symbol(const Dictionary &p_params);

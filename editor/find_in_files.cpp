@@ -63,7 +63,7 @@ inline void pop_back(T &container) {
 
 // TODO Copied from TextEdit private, would be nice to extract it in a single place
 static bool is_text_char(CharType c) {
-    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
+    return c.isLetter() || c.isDigit() || c == '_';
 }
 
 static bool find_next(const String &line, const String& pattern, int from, bool match_case, bool whole_words, int &out_begin, int &out_end) {
@@ -243,8 +243,11 @@ void FindInFiles::_scan_dir(se_string_view path, PoolVector<String> &out_folders
         if (file.empty())
             break;
 
-        // Ignore special dirs and hidden dirs (such as .git and .import)
+        // Ignore special dirs (such as .git and .import)
         if (file == "." || file == ".." || StringUtils::begins_with(file,"."))
+            continue;
+
+        if (dir->current_is_hidden())
             continue;
 
         if (dir->current_is_dir())
@@ -699,7 +702,7 @@ void FindInFilesPanel::draw_result_text(Object *item_obj, Rect2 rect) {
     if (!item)
         return;
 
-    Map<TreeItem *, Result>::iterator E = _result_items.find(item);
+    HashMap<TreeItem *, Result>::iterator E = _result_items.find(item);
     if (E==_result_items.end())
         return;
     Result r = E->second;
@@ -744,7 +747,7 @@ void FindInFilesPanel::_on_cancel_button_clicked() {
 void FindInFilesPanel::_on_result_selected() {
 
     TreeItem *item = _results_display->get_selected();
-    Map<TreeItem *, Result>::iterator E = _result_items.find(item);
+    HashMap<TreeItem *, Result>::iterator E = _result_items.find(item);
 
     if (E == _result_items.end())
         return;
@@ -777,7 +780,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
             if (!item->is_checked(0))
                 continue;
 
-            Map<TreeItem *, Result>::iterator F = _result_items.find(item);
+            HashMap<TreeItem *, Result>::iterator F = _result_items.find(item);
             ERR_FAIL_COND(F == _result_items.end());
             locations.push_back(F->second);
         }
@@ -837,7 +840,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // however that means either losing changes or losing replaces.
 
     FileAccessRef f = FileAccess::open(fpath, FileAccess::READ);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + fpath + "'."); 
+    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + fpath + "'.");
 
     String buffer;
     int current_line = 1;
@@ -849,9 +852,9 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
 
     int offset = 0;
 
-    for (int i = 0; i < locations.size(); ++i) {
+    for (const FindInFilesPanel::Result &r : locations) {
 
-        int repl_line_number = locations[i].line_number;
+        int repl_line_number = r.line_number;
 
         while (current_line < repl_line_number) {
             buffer += line;
@@ -860,8 +863,8 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
             offset = 0;
         }
 
-        int repl_begin = locations[i].begin + offset;
-        int repl_end = locations[i].end + offset;
+        int repl_begin = r.begin + offset;
+        int repl_end = r.end + offset;
 
         int _;
         if (!find_next(line, search_text, repl_begin, _finder->is_match_case(), _finder->is_whole_words(), _, _)) {
@@ -884,7 +887,7 @@ void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector
     // Now the modified contents are in the buffer, rewrite the file with our changes
 
     Error err = f->reopen(fpath, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'."); 
+    ERR_FAIL_COND_MSG(err != OK, "Cannot create file in path '" + String(fpath) + "'.");
 
     f->store_string(buffer);
 

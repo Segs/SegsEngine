@@ -129,7 +129,8 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                 }
 
                 // Check for point deletion.
-                if (mb->get_button_index() == BUTTON_RIGHT && mode == MODE_EDIT || mb->get_button_index() == BUTTON_LEFT && mode == MODE_DELETE) {
+                if ((mb->get_button_index() == BUTTON_RIGHT && mode == MODE_EDIT) ||
+                    (mb->get_button_index() == BUTTON_LEFT && mode == MODE_DELETE)) {
                     if (dist_to_p < grab_threshold) {
 
                         undo_redo->create_action_ui(TTR("Remove Point from Curve"));
@@ -163,7 +164,8 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
         }
 
         // Check for point creation.
-        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT && (mb->get_command() && mode == MODE_EDIT || mode == MODE_CREATE)) {
+        if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT &&
+           ((mb->get_command() && mode == MODE_EDIT) || mode == MODE_CREATE)) {
 
             Ref<Curve2D> curve = node->get_curve();
 

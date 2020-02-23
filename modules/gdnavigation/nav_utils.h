@@ -60,10 +60,6 @@ struct EdgeKey {
 	PointKey a;
 	PointKey b;
 
-	bool operator<(const EdgeKey &p_key) const {
-		return (a.key == p_key.a.key) ? (b.key < p_key.b.key) : (a.key < p_key.a.key);
-	}
-
 	EdgeKey(const PointKey &p_a = PointKey(), const PointKey &p_b = PointKey()) :
 			a(p_a),
 			b(p_b) {
@@ -71,6 +67,13 @@ struct EdgeKey {
 			SWAP(a, b);
 		}
 	}
+    bool operator==(const EdgeKey &other) const {
+        return a.key==other.a.key && b.key==other.b.key;
+    }
+    // For default eastl::hash operator
+    explicit operator size_t() const noexcept {
+        return hash_djb2_buffer64((const uint8_t *)this,next_power_of_2(sizeof(EdgeKey)));
+    }
 };
 
 struct Point {

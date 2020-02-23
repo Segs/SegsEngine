@@ -109,7 +109,7 @@ private:
     };
 
 
-    Set<SkinReference *> skin_bindings;
+    HashSet<SkinReference *> skin_bindings;
     Vector<Bone> bones;
     Vector<int> process_order;
     bool process_order_dirty;

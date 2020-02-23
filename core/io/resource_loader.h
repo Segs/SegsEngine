@@ -56,7 +56,7 @@ struct LoadingMapKey {
 };
 template<>
 struct Hasher<LoadingMapKey> {
-    uint32_t operator()(const LoadingMapKey &p_key) { return StringUtils::hash(p_key.path) + Hasher<Thread::ID>()(p_key.thread); }
+    uint32_t operator()(const LoadingMapKey &p_key) const { return StringUtils::hash(p_key.path) + Hasher<Thread::ID>()(p_key.thread); }
 };
 
 
@@ -81,8 +81,8 @@ class GODOT_EXPORT ResourceLoader {
     static void *dep_err_notify_ud;
     static DependencyErrorNotify dep_err_notify;
     static bool abort_on_missing_resource;
-    static DefHashMap<String, Vector<String> > translation_remaps;
-    static DefHashMap<String, String> path_remaps;
+    static HashMap<String, Vector<String> > translation_remaps;
+    static HashMap<String, String> path_remaps;
 
     static String _path_remap(se_string_view p_path, bool *r_translation_remapped = nullptr);
     friend class Resource;
@@ -117,7 +117,7 @@ public:
     static void remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader);
     static String get_resource_type(se_string_view p_path);
     static void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false);
-    static Error rename_dependencies(se_string_view p_path, const DefMap<String, String> &p_map);
+    static Error rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map);
     static bool is_import_valid(se_string_view p_path);
     static String get_import_group_file(se_string_view p_path);
     static bool is_imported(se_string_view p_path);

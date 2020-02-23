@@ -242,7 +242,7 @@ private:
     ToolButton *zoom_reset;
     ToolButton *zoom_plus;
 
-    Map<Control *, Timer *> popup_temporarily_timers;
+    HashMap<Control *, Timer *> popup_temporarily_timers;
 
     Label *warning_child_of_container;
     VBoxContainer *info_overlay;

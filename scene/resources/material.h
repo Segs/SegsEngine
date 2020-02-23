@@ -36,7 +36,7 @@
 #include "core/color.h"
 #include "core/rid.h"
 #include "core/math/vector3.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 
 #include "servers/visual_server_enums.h"
 
@@ -254,6 +254,10 @@ public:
     };
 
 private:
+    struct ShaderData {
+        RID shader;
+        int users;
+    };
     union MaterialKey {
 
         struct {
@@ -279,17 +283,16 @@ private:
 
         uint64_t key;
 
-        bool operator<(const MaterialKey &p_key) const {
-            return key < p_key.key;
+        bool operator==(const MaterialKey &p_key) const {
+            return key == p_key.key;
         }
+    private:
+        friend eastl::hash<MaterialKey>;
+        explicit operator size_t() const { return eastl::hash<uint64_t>()(key);}
     };
 
-    struct ShaderData {
-        RID shader;
-        int users;
-    };
 
-    static Map<MaterialKey, ShaderData> shader_map;
+    static HashMap<MaterialKey, ShaderData> shader_map;
 
     MaterialKey current_key;
 

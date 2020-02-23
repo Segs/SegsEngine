@@ -255,21 +255,27 @@ namespace eastl
 		{
 		}
 
-		optional(const optional& other)
-		{
-			engaged = other.engaged;
+        optional(const optional& other)
+        {
+            engaged = other.engaged;
 
-			auto* pOtherValue = reinterpret_cast<const T*>(eastl::addressof(other.val));
-			::new (eastl::addressof(val)) value_type(*pOtherValue);
-		}
+            if (engaged)
+            {
+                auto* pOtherValue = reinterpret_cast<const T*>(eastl::addressof(other.val));
+                ::new (eastl::addressof(val)) value_type(*pOtherValue);
+            }
+        }
 
-		optional(optional&& other)
-		{
-			engaged = other.engaged;
+        optional(optional&& other)
+        {
+            engaged = other.engaged;
 
-			auto* pOtherValue = reinterpret_cast<T*>(eastl::addressof(other.val));
-			::new (eastl::addressof(val)) value_type(eastl::move(*pOtherValue));
-		}
+            if (engaged)
+            {
+                auto* pOtherValue = reinterpret_cast<T*>(eastl::addressof(other.val));
+                ::new (eastl::addressof(val)) value_type(eastl::move(*pOtherValue));
+            }
+        }
 
 		template <typename... Args>
 		inline EA_CONSTEXPR explicit optional(in_place_t, Args&&... args)
@@ -415,7 +421,6 @@ namespace eastl
 		    }
 		    else
 		    {
-			    swap(engaged, other.engaged);
 			    if (engaged)
 			    {
 					other.construct_value(eastl::move(*(value_type*)eastl::addressof(val)));
@@ -426,7 +431,8 @@ namespace eastl
 					construct_value(eastl::move(*((value_type*)eastl::addressof(other.val))));
 				    other.destruct_value();
 			    }
-		    }
+                swap(engaged, other.engaged);
+            }
 	    }
 
 		inline void reset()

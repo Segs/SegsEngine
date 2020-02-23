@@ -42,7 +42,7 @@ float AudioStreamPreview::get_length() const {
 }
 float AudioStreamPreview::get_max(float p_time, float p_time_next) const {
 
-    if (length == 0)
+    if (length == 0.0f)
         return 0;
 
     int max = preview.size() / 2;
@@ -69,7 +69,7 @@ float AudioStreamPreview::get_max(float p_time, float p_time_next) const {
 }
 float AudioStreamPreview::get_min(float p_time, float p_time_next) const {
 
-    if (length == 0)
+    if (length == 0.0f)
         return 0;
 
     int max = preview.size() / 2;
@@ -150,8 +150,8 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
                 min = MIN(min, mix_chunk[j].r);
             }
 
-            uint8_t pfrom = CLAMP((min * 0.5 + 0.5) * 255, 0, 255);
-            uint8_t pto = CLAMP((max * 0.5 + 0.5) * 255, 0, 255);
+            uint8_t pfrom = CLAMP((min * 0.5f + 0.5f) * 255, 0, 255);
+            uint8_t pto = CLAMP((max * 0.5f + 0.5f) * 255, 0, 255);
 
             preview->preview->preview[(ofs_write + i) * 2 + 0] = pfrom;
             preview->preview->preview[(ofs_write + i) * 2 + 1] = pto;
@@ -184,7 +184,7 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
     preview->id = p_stream->get_instance_id();
 
     float len_s = preview->base_stream->get_length();
-    if (len_s == 0) {
+    if (len_s == 0.0f) {
         len_s = 60 * 5; //five minutes
     }
 

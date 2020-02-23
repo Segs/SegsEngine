@@ -49,18 +49,18 @@
 #include <cstdio>
 
 namespace {
-    DefHashMap<String, Resource *> cached_resources;
+    HashMap<String, Resource *> cached_resources;
 
 } // end of anonymous namespace
 
 struct Resource::Data {
     Data(Resource *own) : remapped_list(own) {}
 #ifdef TOOLS_ENABLED
-    static DefHashMap<String, DefHashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
+    static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
     static RWLock *path_cache_lock;
     String import_path;
 #endif
-    Set<ObjectID> owners;
+    HashSet<ObjectID> owners;
     SelfList<Resource> remapped_list;
     String name;
     String path_cache;
@@ -69,7 +69,7 @@ struct Resource::Data {
     bool local_to_scene=false;
 
 };
-DefHashMap<String, DefHashMap<String, int> > Resource::Data::resource_path_cache;
+HashMap<String, HashMap<String, int> > Resource::Data::resource_path_cache;
 RWLock *Resource::Data::path_cache_lock;
 
 
@@ -320,7 +320,7 @@ void Resource::notify_change_to_owners() {
         Object *obj = ObjectDB::get_instance(E);
         ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
         //TODO store string
-        obj->call("resource_changed", RES(this));
+        obj->call_va("resource_changed", RES(this));
     }
 }
 

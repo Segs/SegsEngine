@@ -311,6 +311,7 @@ set(generic_core_sources
     typesystem_decls.h
 
     hash_map.h
+    hash_set.h
     list.h
     map.h
     ordered_hash_map.h
@@ -370,7 +371,7 @@ if(USE_PRECOMPILED_HEADERS)
     set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/se_core.dir/cmake_pch.cxx PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 endif()
 #zstd_internal is in public part of target_link_libraries to propagate it's flags to all users of se_core
-target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_internal)
+target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_internal EnTT::EnTT)
 target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
 set_common_target_properties(se_core)
@@ -394,7 +395,7 @@ endif()
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
     target_link_libraries(${tgt}_core PUBLIC se_core)
-    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface)
+    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface concurrent_queue)
 
 
 

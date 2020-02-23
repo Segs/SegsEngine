@@ -71,7 +71,7 @@ StringName ResourceImporterTextureAtlas::get_resource_type() const {
     return "Texture";
 }
 
-bool ResourceImporterTextureAtlas::get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const {
+bool ResourceImporterTextureAtlas::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     return true;
 }
@@ -94,7 +94,7 @@ StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
@@ -203,7 +203,7 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
     }
 }
 
-Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<String, Map<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
+Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<String, HashMap<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
 
     ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG); //should never happen
 
@@ -213,11 +213,11 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
     pack_data_files.resize(p_source_file_options.size());
 
     int idx = -1;
-    for (const eastl::pair<const String, Map<StringName, Variant> > &E : p_source_file_options) {
+    for (const eastl::pair<const String, HashMap<StringName, Variant> > &E : p_source_file_options) {
         ++idx;
         PackData &pack_data = pack_data_files[idx];
         const String &source(E.first);
-        const Map<StringName, Variant> &options(E.second);
+        const HashMap<StringName, Variant> &options(E.second);
 
         Ref<Image> image(make_ref_counted<Image>());
 
@@ -337,7 +337,7 @@ Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_fil
 
     //save the images
     idx = -1;
-    for (const eastl::pair<const String, Map<StringName, Variant> > &E : p_source_file_options) {
+    for (const eastl::pair<const String, HashMap<StringName, Variant> > &E : p_source_file_options) {
         ++idx;
         PackData &pack_data = pack_data_files[idx];
 

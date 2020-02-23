@@ -86,14 +86,6 @@ public:
     using ImeCallback = void (*)(void *, UIString, Point2);
     using HasServerFeatureCallback = bool (*)(se_string_view);
 
-    enum PowerState {
-        POWERSTATE_UNKNOWN, /**< cannot determine power status */
-        POWERSTATE_ON_BATTERY, /**< Not plugged in, running on the battery */
-        POWERSTATE_NO_BATTERY, /**< Plugged in, no battery available */
-        POWERSTATE_CHARGING, /**< Plugged in, charging battery */
-        POWERSTATE_CHARGED /**< Plugged in, battery charged */
-    };
-
     enum RenderThreadMode {
 
         RENDER_THREAD_UNSAFE,
@@ -525,10 +517,6 @@ public:
 
     void set_vsync_via_compositor(bool p_enable);
     bool is_vsync_via_compositor_enabled() const;
-
-    virtual OS::PowerState get_power_state();
-    virtual int get_power_seconds_left();
-    virtual int get_power_percent_left();
 
     virtual void force_process_input() {}
     bool has_feature(se_string_view p_feature);

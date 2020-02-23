@@ -88,7 +88,7 @@ private:
     Vector<ConnCache> conn_input_cache;
     Vector<ConnCache> conn_output_cache;
 
-    Map<int, Slot> slot_info;
+    HashMap<int, Slot> slot_info;
 
     bool connpos_dirty;
 

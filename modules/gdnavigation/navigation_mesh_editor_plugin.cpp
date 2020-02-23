@@ -33,6 +33,7 @@
 
 #include "core/io/marshalls.h"
 #include "core/io/resource_saver.h"
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 #include "navigation_mesh_generator.h"
 #include "scene/3d/mesh_instance.h"
@@ -90,7 +91,7 @@ void NavigationMeshEditor::_clear_pressed() {
 
 void NavigationMeshEditor::edit(NavigationMeshInstance *p_nav_mesh_instance) {
 
-    if (p_nav_mesh_instance == NULL || node == p_nav_mesh_instance) {
+    if (p_nav_mesh_instance == nullptr || node == p_nav_mesh_instance) {
         return;
     }
 

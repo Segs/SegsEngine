@@ -70,7 +70,7 @@ class ScriptEditorDebuggerVariables : public Object {
     GDCLASS(ScriptEditorDebuggerVariables,Object)
 
     ListOld<PropertyInfo> props;
-    Map<StringName, Variant> values;
+    HashMap<StringName, Variant> values;
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value) {
@@ -174,7 +174,7 @@ public:
     UIString type_name;
     ObjectID remote_object_id;
     ListOld<PropertyInfo> prop_list;
-    Map<StringName, Variant> prop_values;
+    HashMap<StringName, Variant> prop_values;
 
     ObjectID get_remote_object_id() {
         return remote_object_id;
@@ -591,7 +591,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         debugObj->prop_list.clear();
         int new_props_added = 0;
-        Set<StringName> changed;
+        HashSet<StringName> changed;
         for (int i = 0; i < properties.size(); i++) {
 
             Array prop = properties[i];
@@ -1645,13 +1645,13 @@ String ScriptEditorDebugger::get_var_value(se_string_view p_var) const {
 
 int ScriptEditorDebugger::_get_node_path_cache(const NodePath &p_path) {
 
-    const int *r = node_path_cache.getptr(p_path);
-    if (r)
-        return *r;
+    auto r = node_path_cache.find(p_path);
+    if (r!=node_path_cache.end())
+        return r->second;
 
     last_path_id++;
 
-    node_path_cache[p_path] = last_path_id;
+    node_path_cache.emplace(p_path,last_path_id);
     Array msg;
     msg.push_back("live_node_path");
     msg.push_back(p_path);

@@ -48,7 +48,7 @@ class VersionControlEditorPlugin : public EditorPlugin {
     GDCLASS(VersionControlEditorPlugin, EditorPlugin)
 
 public:
-    enum ChangeType {
+    enum ChangeType : int8_t {
 
         CHANGE_TYPE_NEW = 0,
         CHANGE_TYPE_MODIFIED = 1,

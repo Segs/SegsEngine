@@ -197,7 +197,7 @@ namespace eastl
             const ptrdiff_t n1   = pEnd1 - pBegin1;
             const ptrdiff_t n2   = pEnd2 - pBegin2;
             const ptrdiff_t nMin = eastl::min_alt(n1, n2);
-            const int       cmp  = Compare(pBegin1, pBegin2, (size_t)nMin);
+            const int       cmp  = Compare(pBegin1, pBegin2, (size_type)nMin);
 
             return (cmp != 0 ? cmp : (n1 < n2 ? -1 : (n1 > n2 ? 1 : 0)));
         }
@@ -475,37 +475,58 @@ namespace eastl
 
     // global operators
     template <class CharT>
-    inline EA_CONSTEXPR bool operator==(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs)
+    inline EA_CONSTEXPR bool operator==(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
         return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
     }
 
     template <class CharT>
-    inline EA_CONSTEXPR bool operator!=(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs)
+    inline EA_CONSTEXPR bool operator==(decay_t<basic_string_view<CharT>> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
+    {
+        return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
+    }
+
+    template <class CharT>
+    inline EA_CONSTEXPR bool operator==(basic_string_view<CharT> lhs, decay_t<basic_string_view<CharT>> rhs) EA_NOEXCEPT
+    {
+        return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
+    }
+
+    template <class CharT>
+    inline EA_CONSTEXPR bool operator==(decay_t<basic_string_view<CharT>> lhs, decay_t<basic_string_view<CharT>> rhs) EA_NOEXCEPT
+    {
+        return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
+    }
+
+
+
+
+    template <class CharT>
+    inline EA_CONSTEXPR bool operator!=(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
         return !(lhs == rhs);
     }
 
     template <class CharT>
-    inline EA_CONSTEXPR bool operator<(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs)
+    inline EA_CONSTEXPR bool operator<(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
         return lhs.compare(rhs) < 0;
     }
 
     template <class CharT>
-    inline EA_CONSTEXPR bool operator<=(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs)
+    inline EA_CONSTEXPR bool operator<=(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
         return !(rhs < lhs);
     }
 
     template <class CharT>
-    inline EA_CONSTEXPR bool operator>(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs)
+    inline EA_CONSTEXPR bool operator>(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
         return rhs < lhs;
     }
 
     template <class CharT>
-    inline EA_CONSTEXPR bool operator>=(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs)
+    inline EA_CONSTEXPR bool operator>=(basic_string_view<CharT> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
         return !(lhs < rhs);
     }

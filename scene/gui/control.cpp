@@ -312,17 +312,17 @@ bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
     StringName name(StringUtils::get_slice(sname,'/', 1));
     if (StringUtils::begins_with(sname,"custom_icons/")) {
-        r_ret = data.icon_override.contains(name) ? Variant(data.icon_override[name]) : Variant();
+        r_ret = data.icon_override.contains(name) ? Variant(data.icon_override.at(name)) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_shaders/")) {
-        r_ret = data.shader_override.contains(name) ? Variant(data.shader_override[name]) : Variant();
+        r_ret = data.shader_override.contains(name) ? Variant(data.shader_override.at(name)) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_styles/")) {
-        r_ret = data.style_override.contains(name) ? Variant(data.style_override[name]) : Variant();
+        r_ret = data.style_override.contains(name) ? Variant(data.style_override.at(name)) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_fonts/")) {
-        r_ret = data.font_override.contains(name) ? Variant(data.font_override[name]) : Variant();
+        r_ret = data.font_override.contains(name) ? Variant(data.font_override.at(name)) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_colors/")) {
-        r_ret = data.color_override.contains(name) ? Variant(data.color_override[name]) : Variant();
+        r_ret = data.color_override.contains(name) ? Variant(data.color_override.at(name)) : Variant();
     } else if (StringUtils::begins_with(sname,"custom_constants/")) {
-        r_ret = data.constant_override.contains(name) ? Variant(data.constant_override[name]) : Variant();
+        r_ret = data.constant_override.contains(name) ? Variant(data.constant_override.at(name)) : Variant();
     } else
         return false;
 
@@ -709,7 +709,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            return c->call("get_drag_data_fw", p_point, Variant(this));
+            return c->call_va("get_drag_data_fw", p_point, Variant(this));
         }
     }
 
@@ -731,7 +731,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            return c->call("can_drop_data_fw", p_point, p_data, Variant(this));
+            return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this));
         }
     }
 
@@ -752,7 +752,7 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
         Object *obj = ObjectDB::get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            c->call("drop_data_fw", p_point, p_data, Variant(this));
+            c->call_va("drop_data_fw", p_point, p_data, Variant(this));
             return;
         }
     }
@@ -810,11 +810,11 @@ Size2 Control::get_minimum_size() const {
 
 Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_type) const {
 
-    if (p_type == StringName() || p_type == get_class_name()) {
+    if (p_type.empty() || p_type == get_class_name()) {
 
-        const Ref<Texture> *tex = data.icon_override.getptr(p_name);
-        if (tex)
-            return *tex;
+        auto tex = data.icon_override.find(p_name);
+        if (tex!=data.icon_override.end())
+            return tex->second;
     }
 
     StringName type = p_type ? p_type : get_class_name();
@@ -852,11 +852,11 @@ Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_typ
 }
 
 Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_type) const {
-    if (p_type == StringName() || p_type == get_class_name()) {
+    if (p_type.empty() || p_type == get_class_name()) {
 
-        const Ref<Shader> *sdr = data.shader_override.getptr(p_name);
-        if (sdr)
-            return *sdr;
+        auto sdr = data.shader_override.find(p_name);
+        if (sdr!=data.shader_override.end())
+            return sdr->second;
     }
 
     StringName type = p_type ? p_type : get_class_name();
@@ -895,10 +895,11 @@ Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_ty
 
 Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &p_type) const {
 
-    if (p_type == StringName() || p_type == get_class_name()) {
-        const Ref<StyleBox> *style = data.style_override.getptr(p_name);
-        if (style)
-            return *style;
+    if (p_type.empty() || p_type == get_class_name()) {
+
+        auto style = data.style_override.find(p_name);
+        if (style!=data.style_override.end())
+            return style->second;
     }
 
     StringName type = p_type ? p_type : get_class_name();
@@ -941,10 +942,10 @@ Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &
 }
 Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) const {
 
-    if (p_type == StringName() || p_type == get_class_name()) {
-        const Ref<Font> *font = data.font_override.getptr(p_name);
-        if (font)
-            return *font;
+    if (p_type.empty() || p_type == get_class_name()) {
+        auto font = data.font_override.find(p_name);
+        if (font!=data.font_override.end())
+            return font->second;
     }
 
     StringName type = p_type ? p_type : get_class_name();
@@ -978,10 +979,10 @@ Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) 
 }
 Color Control::get_color(const StringName &p_name, const StringName &p_type) const {
 
-    if (p_type == StringName() || p_type == get_class_name()) {
-        const Color *color = data.color_override.getptr(p_name);
-        if (color)
-            return *color;
+    if (p_type.empty() || p_type == get_class_name()) {
+        auto color = data.color_override.find(p_name);
+        if (color!=data.color_override.end())
+            return color->second;
     }
 
     StringName type = p_type ? p_type : get_class_name();
@@ -1018,10 +1019,10 @@ Color Control::get_color(const StringName &p_name, const StringName &p_type) con
 
 int Control::get_constant(const StringName &p_name, const StringName &p_type) const {
 
-    if (p_type == StringName() || p_type == get_class_name()) {
-        const int *constant = data.constant_override.getptr(p_name);
-        if (constant)
-            return *constant;
+    if (p_type.empty() || p_type == get_class_name()) {
+        auto constant = data.constant_override.find(p_name);
+        if (constant!=data.constant_override.end())
+            return constant->second;
     }
 
     StringName type = p_type ? p_type : get_class_name();
@@ -1058,38 +1059,36 @@ int Control::get_constant(const StringName &p_name, const StringName &p_type) co
 
 bool Control::has_icon_override(const StringName &p_name) const {
 
-    const Ref<Texture> *tex = data.icon_override.getptr(p_name);
-    return tex != nullptr;
+    auto tex = data.icon_override.find(p_name);
+    return tex != data.icon_override.end() && tex->second;
 }
 
 bool Control::has_shader_override(const StringName &p_name) const {
 
-    const Ref<Shader> *sdr = data.shader_override.getptr(p_name);
-    return sdr != nullptr;
+    auto sdr = data.shader_override.find(p_name);
+    return sdr != data.shader_override.end() && sdr->second;
 }
 
 bool Control::has_stylebox_override(const StringName &p_name) const {
 
-    const Ref<StyleBox> *style = data.style_override.getptr(p_name);
-    return style != nullptr;
+    auto style = data.style_override.find(p_name);
+    return style != data.style_override.end() && style->second;
 }
 
 bool Control::has_font_override(const StringName &p_name) const {
 
-    const Ref<Font> *font = data.font_override.getptr(p_name);
-    return font != nullptr;
+    auto font = data.font_override.find(p_name);
+    return font != data.font_override.end() && font->second;
 }
 
 bool Control::has_color_override(const StringName &p_name) const {
 
-    const Color *color = data.color_override.getptr(p_name);
-    return color != nullptr;
+    return data.color_override.contains(p_name);
 }
 
 bool Control::has_constant_override(const StringName &p_name) const {
 
-    const int *constant = data.constant_override.getptr(p_name);
-    return constant != nullptr;
+    return data.constant_override.contains(p_name);
 }
 
 bool Control::has_icon(const StringName &p_name, const StringName &p_type) const {
@@ -2295,7 +2294,7 @@ StringName Control::get_tooltip(const Point2 &p_pos) const {
 }
 Control *Control::make_custom_tooltip(se_string_view p_text) const {
     if (get_script_instance()) {
-        return const_cast<Control *>(this)->call("_make_custom_tooltip", p_text);
+        return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text);
     }
     return nullptr;
 }

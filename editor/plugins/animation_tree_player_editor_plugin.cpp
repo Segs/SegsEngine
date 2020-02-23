@@ -226,7 +226,7 @@ void AnimationTreePlayerEditor::_edit_dialog_edit_animation() {
 
     if (Engine::get_singleton()->is_editor_hint()) {
         //TODO: SEGS: the amount of conversion operator calls below looks pretty strange.
-        get_tree()->get_root()->get_child(0)->call("_resource_selected", Variant(property_editor->get_variant().operator RefPtr()));
+        get_tree()->get_root()->get_child(0)->call_va("_resource_selected", Variant(property_editor->get_variant().as<RefPtr>()));
     }
 };
 
@@ -652,7 +652,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
         int inputs = anim_tree->node_get_input_count(node);
         int count = MAX(inputs, 1);
 
-        if (inputs == 0 || pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT) {
+        if (inputs == 0 || (pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT)) {
 
             if (y < count * h) {
 

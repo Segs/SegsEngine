@@ -35,7 +35,7 @@
 #include "core/io/tcp_server.h"
 #include "core/object.h"
 #include "core/os/thread.h"
-#include "core/set.h"
+#include "core/hash_set.h"
 
 class EditorFileServer : public Object {
 
@@ -57,7 +57,7 @@ class EditorFileServer : public Object {
 	};
 
 	Ref<TCP_Server> server;
-	Set<Thread *> to_wait;
+    HashSet<Thread *> to_wait;
 
 	static void _close_client(ClientData *cd);
 	static void _subthread_start(void *s);

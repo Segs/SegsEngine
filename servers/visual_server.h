@@ -171,6 +171,9 @@ public:
         if (!m_weights.empty()) {
             lformat |= VS::ARRAY_FORMAT_WEIGHTS;
         }
+        if(!m_indices.empty()) {
+            lformat |= VS::ARRAY_FORMAT_INDEX;
+        }
         return lformat;
     }
     SurfaceArrays clone() const {
@@ -208,7 +211,7 @@ class VisualServer : public Object {
 
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
     void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
-    SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, int p_vertex_len,
+    SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, uint32_t p_vertex_len,
             Span<const uint8_t> p_index_data, int p_index_len) const;
 
 protected:
@@ -671,7 +674,6 @@ public:
     virtual void instance_set_custom_aabb(RID p_instance, AABB aabb) = 0;
 
     virtual void instance_attach_skeleton(RID p_instance, RID p_skeleton) = 0;
-    virtual void instance_set_exterior(RID p_instance, bool p_enabled) = 0;
 
     virtual void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin) = 0;
 

@@ -58,7 +58,6 @@ void ScriptCreateDialog::_notification(int p_what) {
                 }
             }
             String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
-            Ref<Texture> last_lang_icon;
             if (!last_lang.empty()) {
                 for (int i = 0; i < language_menu->get_item_count(); i++) {
                     if (language_menu->get_item_text_utf8(i) == last_lang) {
@@ -67,13 +66,10 @@ void ScriptCreateDialog::_notification(int p_what) {
                         break;
                     }
                 }
-                last_lang_icon = get_icon(StringName(last_lang), "EditorIcons");
             } else {
-                last_lang_icon = language_menu->get_item_icon(default_language);
+                language_menu->select(default_language);
             }
-            if (last_lang_icon) {
-                language_menu->set_button_icon(last_lang_icon);
-            }
+
             path_button->set_button_icon(get_icon("Folder", "EditorIcons"));
             parent_browse_button->set_button_icon(get_icon("Folder", "EditorIcons"));
             parent_search_button->set_button_icon(get_icon("ClassList", "EditorIcons"));
@@ -160,7 +156,8 @@ bool ScriptCreateDialog::_validate_class(const UIString &p_string) {
                 return false; // no start with number plz
         }
 
-        bool valid_char = p_string[i] >= '0' && p_string[i] <= '9' || p_string[i] >= 'a' && p_string[i] <= 'z' || p_string[i] >= 'A' && p_string[i] <= 'Z' || p_string[i] == '_' || p_string[i] == '.';
+        bool valid_char = p_string[i].isDigit() || p_string[i].isLetter() ||
+                          p_string[i] == '_' || p_string[i] == '.';
 
         if (!valid_char)
             return false;
@@ -480,7 +477,7 @@ void ScriptCreateDialog::_update_script_templates(const String &p_extension) {
     dirs.emplace_back(EditorSettings::get_singleton()->get_project_script_templates_dir());
     dirs.emplace_back(EditorSettings::get_singleton()->get_script_templates_dir());
 
-    for (int i = 0; i < dirs.size(); i++) {
+    for (size_t i = 0; i < dirs.size(); i++) {
 
         Vector<String> list(EditorSettings::get_singleton()->get_script_templates(p_extension, dirs[i]));
 
@@ -555,7 +552,7 @@ void ScriptCreateDialog::_file_selected(const String &p_file) {
         _path_changed(p);
 
         String filename(PathUtils::get_basename(PathUtils::get_file(p)));
-        int select_start = StringUtils::find_last(p,filename);
+        auto select_start = StringUtils::find_last(p,filename);
         file_path->select(select_start, select_start + filename.length());
         file_path->set_cursor_position(select_start + filename.length());
         file_path->grab_focus();

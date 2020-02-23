@@ -99,7 +99,7 @@ int AudioEffectEQ::get_band_count() const {
 
 bool AudioEffectEQ::_set(const StringName &p_name, const Variant &p_value) {
 
-    const Map<StringName, int>::iterator E = prop_band_map.find(p_name);
+    const HashMap<StringName, int>::iterator E = prop_band_map.find(p_name);
     if (E!=prop_band_map.end()) {
         set_band_gain_db(E->second, p_value);
         return true;
@@ -110,7 +110,7 @@ bool AudioEffectEQ::_set(const StringName &p_name, const Variant &p_value) {
 
 bool AudioEffectEQ::_get(const StringName &p_name, Variant &r_ret) const {
 
-    const Map<StringName, int>::const_iterator E = prop_band_map.find(p_name);
+    const HashMap<StringName, int>::const_iterator E = prop_band_map.find(p_name);
     if (E!=prop_band_map.end()) {
         r_ret = get_band_gain_db(E->second);
         return true;

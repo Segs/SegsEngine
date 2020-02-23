@@ -111,7 +111,7 @@ Rect2 AnimatedSprite::_get_rect() const {
 
 void SpriteFrames::add_frame(const StringName &p_anim, const Ref<Texture> &p_frame, int p_at_pos) {
 
-    Map<StringName, Anim>::iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
     ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
 
     if (p_at_pos >= 0 && p_at_pos < E->second.frames.size())
@@ -123,7 +123,7 @@ void SpriteFrames::add_frame(const StringName &p_anim, const Ref<Texture> &p_fra
 }
 
 int SpriteFrames::get_frame_count(const StringName &p_anim) const {
-    const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+    const HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
     ERR_FAIL_COND_V_MSG(E==animations.end(), 0, "Animation '" + String(p_anim) + "' doesn't exist.");
 
     return E->second.frames.size();
@@ -131,7 +131,7 @@ int SpriteFrames::get_frame_count(const StringName &p_anim) const {
 
 void SpriteFrames::remove_frame(const StringName &p_anim, int p_idx) {
 
-    Map<StringName, Anim>::iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
     ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist.");
 
     E->second.frames.remove(p_idx);
@@ -139,7 +139,7 @@ void SpriteFrames::remove_frame(const StringName &p_anim, int p_idx) {
 }
 void SpriteFrames::clear(const StringName &p_anim) {
 
-    Map<StringName, Anim>::iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
     ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
 
     E->second.frames.clear();
@@ -209,7 +209,8 @@ void SpriteFrames::get_animation_list(List<StringName> *r_animations) const {
 PoolVector<String> SpriteFrames::get_animation_names() const {
 
     PoolVector<String> names;
-    Vector<StringName> name_keys  = animations.keys();
+    Vector<StringName> name_keys;
+    animations.keys_into(name_keys);
     //TODO: SEGS: returned keys should be sorted already ??
     eastl::sort(name_keys.begin(),name_keys.end());
     for (const StringName &k : name_keys) {
@@ -221,24 +222,24 @@ PoolVector<String> SpriteFrames::get_animation_names() const {
 void SpriteFrames::set_animation_speed(const StringName &p_anim, float p_fps) {
 
     ERR_FAIL_COND_MSG(p_fps < 0, "Animation speed cannot be negative (" + itos(p_fps) + ")."); 
-    Map<StringName, Anim>::iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
     ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
     E->second.speed = p_fps;
 }
 float SpriteFrames::get_animation_speed(const StringName &p_anim) const {
 
-    Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
     ERR_FAIL_COND_V_MSG(E==animations.end(),0, "Animation '" + String(p_anim) + "' doesn't exist.");
     return E->second.speed;
 }
 
 void SpriteFrames::set_animation_loop(const StringName &p_anim, bool p_loop) {
-    Map<StringName, Anim>::iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
     ERR_FAIL_COND_MSG(E==animations.end(), "Animation '" + String(p_anim) + "' doesn't exist."); 
     E->second.loop = p_loop;
 }
 bool SpriteFrames::get_animation_loop(const StringName &p_anim) const {
-    Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+    HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
     ERR_FAIL_COND_V_MSG(E==animations.end(),false, "Animation '" + String(p_anim) + "' doesn't exist.");
     return E->second.loop;
 }
@@ -246,7 +247,7 @@ bool SpriteFrames::get_animation_loop(const StringName &p_anim) const {
 void SpriteFrames::_set_frames(const Array &p_frames) {
 
     clear_all();
-    Map<StringName, Anim>::iterator E = animations.find(SceneStringNames::get_singleton()->_default);
+    HashMap<StringName, Anim>::iterator E = animations.find(SceneStringNames::get_singleton()->_default);
     ERR_FAIL_COND(E==animations.end());
 
     E->second.frames.resize(p_frames.size());

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/io/xml_parser.h"
-#include "core/map.h"
+#include "core/hash_map.h"
 #include "core/se_string.h"
 
 class DocData {
@@ -96,7 +96,7 @@ public:
 
     String version;
 
-    Map<StringName, ClassDoc> class_list;
+    HashMap<StringName, ClassDoc> class_list;
     Error _load(Ref<XMLParser> parser);
 
 public:
@@ -105,7 +105,7 @@ public:
     void generate(bool p_basic_types = false);
     Error load_classes(se_string_view p_dir);
     static Error erase_classes(se_string_view p_dir);
-    Error save_classes(se_string_view p_default_path, const Map<StringName, String> &p_class_path);
+    Error save_classes(se_string_view p_default_path, const HashMap<StringName, String> &p_class_path);
 
     Error load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size);
 };

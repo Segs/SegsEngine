@@ -72,7 +72,7 @@ class  VisualServerWrapMT : public VisualServer {
 #endif
 
 public:
-#define ServerName VisualServer
+//#define ServerName VisualServer
 #define ServerNameWrapMT VisualServerWrapMT
 #define server_name visual_server
 #include "servers/server_wrap_mt_common.h"
@@ -100,7 +100,8 @@ public:
 
     void texture_set_path(RID p1, se_string_view p2) override {
         if (Thread::get_caller_id() != server_thread) {
-            command_queue.push(server_name, &ServerName::texture_set_path, p1, String(p2));
+            String by_val(p2);
+            command_queue.push( [this,p1,by_val]() { server_name->texture_set_path(p1, by_val);});
         } else {
             server_name->texture_set_path(p1, p2);
         }
@@ -108,10 +109,10 @@ public:
 
     const String &texture_get_path(RID p1) const override {
         if (Thread::get_caller_id() != server_thread) {
-            thread_local String ret;
-            command_queue.push_and_ret(server_name, &ServerName::texture_get_path, p1, &ret);
+            const String *ret;
+            command_queue.push_and_sync( [this,p1,&ret]() { ret = &server_name->texture_get_path(p1);});
             SYNC_DEBUG
-            return ret;
+            return *ret;
         } else {
             return server_name->texture_get_path(p1);
         }
@@ -190,7 +191,7 @@ public:
             using RetType = const Vector<AABB> *;
 
             RetType ret;
-            command_queue.push_and_ret(server_name, (RetType(ServerName::*)(RID, int))&ServerName::mesh_surface_get_skeleton_aabb, p1, p2, &ret);
+            command_queue.push_and_sync( [this,p1,p2,&ret]() { ret = &server_name->mesh_surface_get_skeleton_aabb(p1, p2);});
             SYNC_DEBUG
             return *ret;
         }
@@ -497,7 +498,6 @@ public:
     FUNC2(instance_set_custom_aabb, RID, AABB)
 
     FUNC2(instance_attach_skeleton, RID, RID)
-    FUNC2(instance_set_exterior, RID, bool)
 
     FUNC2(instance_set_extra_visibility_margin, RID, real_t)
 
@@ -658,7 +658,7 @@ public:
     GODOT_EXPORT VisualServerWrapMT(VisualServer *p_contained, bool p_create_thread);
     ~VisualServerWrapMT() override;
 
-#undef ServerName
+//#undef ServerName
 #undef ServerNameWrapMT
 #undef server_name
 };

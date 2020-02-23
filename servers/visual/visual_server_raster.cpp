@@ -34,6 +34,7 @@
 #include "core/io/marshalls.h"
 #include "core/object_db.h"
 #include "core/os/os.h"
+#include "core/ecs_registry.h"
 #include "core/project_settings.h"
 #include "core/sort_array.h"
 #include "visual_server_canvas.h"
@@ -214,6 +215,7 @@ VisualServerRaster::VisualServerRaster() {
     VSG::storage = VSG::rasterizer->get_storage();
     VSG::canvas_render = VSG::rasterizer->get_canvas();
     VSG::scene_render = VSG::rasterizer->get_scene();
+    VSG::ecs = memnew(ECS_Registry);
 
     for (int i = 0; i < 4; i++) {
         black_margin[i] = 0;
@@ -227,4 +229,5 @@ VisualServerRaster::~VisualServerRaster() {
     memdelete(VSG::viewport);
     memdelete(VSG::rasterizer);
     memdelete(VSG::scene);
+    memdelete(VSG::ecs);
 }

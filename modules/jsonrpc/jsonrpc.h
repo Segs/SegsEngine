@@ -32,12 +32,13 @@
 
 #include "core/object.h"
 #include "core/variant.h"
-#include "core/map.h"
+#include "core/hash_map.h"
+#include "core/se_string.h"
 
 class JSONRPC : public Object {
     GDCLASS(JSONRPC,Object)
 
-    Map<String, Object *> method_scopes;
+    HashMap<String, Object *> method_scopes;
 
 protected:
     static void _bind_methods();

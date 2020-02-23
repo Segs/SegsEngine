@@ -166,9 +166,9 @@ Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const V
 
 void MessageQueue::statistics() {
 
-    Map<StringName, int> set_count;
-    Map<int, int> notify_count;
-    Map<StringName, int> call_count;
+    HashMap<StringName, int> set_count;
+    HashMap<int, int> notify_count;
+    HashMap<StringName, int> call_count;
     int null_count = 0;
 
     uint32_t read_pos = 0;

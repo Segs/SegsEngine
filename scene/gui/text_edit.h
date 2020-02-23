@@ -36,6 +36,7 @@
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/scroll_bar.h"
 #include "scene/main/timer.h"
+#include "core/hash_set.h"
 #include "core/ustring.h"
 #include <utility>
 
@@ -138,7 +139,7 @@ private:
     void _do_text_op(const TextOperation &p_op, bool p_reverse);
 
 
-    Set<UIString> completion_prefixes;
+    HashSet<UIString> completion_prefixes;
     bool completion_enabled;
     Vector<ScriptCodeCompletionOption> completion_sources;
     Vector<ScriptCodeCompletionOption> completion_options;

@@ -51,7 +51,7 @@ class SpriteFrames : public Resource {
         StringName normal_name;
     };
 
-    Map<StringName, Anim> animations;
+    HashMap<StringName, Anim> animations;
 
     static void report_missing_animation(const char *name);
 public:
@@ -74,7 +74,7 @@ public:
     void get_animation_list(List<StringName> *r_animations) const;
     PoolVector<String> get_animation_names() const;
 
-    const Map<StringName, Anim> & animation_name_map() const { return animations; }
+    const HashMap<StringName, Anim> & animation_name_map() const { return animations; }
 
     void set_animation_speed(const StringName &p_anim, float p_fps);
     float get_animation_speed(const StringName &p_anim) const;
@@ -86,7 +86,7 @@ public:
     int get_frame_count(const StringName &p_anim) const;
     _FORCE_INLINE_ Ref<Texture> get_frame(const StringName &p_anim, int p_idx) const {
 
-        const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+        const HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
         if (unlikely(E==animations.end())) {
             report_missing_animation(p_anim.asCString());
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
@@ -101,7 +101,7 @@ public:
 
     _FORCE_INLINE_ Ref<Texture> get_normal_frame(const StringName &p_anim, int p_idx) const {
 
-        const Map<StringName, Anim>::const_iterator E = animations.find(p_anim);
+        const HashMap<StringName, Anim>::const_iterator E = animations.find(p_anim);
         if (unlikely(E==animations.end())) {
             report_missing_animation(p_anim.asCString());
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));
@@ -109,7 +109,7 @@ public:
         }
         ERR_FAIL_COND_V(p_idx < 0, Ref<Texture>());
 
-        const Map<StringName, Anim>::const_iterator EN = animations.find(E->second.normal_name);
+        const HashMap<StringName, Anim>::const_iterator EN = animations.find(E->second.normal_name);
 
         if (EN==animations.end() || p_idx >= EN->second.frames.size())
             return Ref<Texture>();
@@ -118,7 +118,7 @@ public:
     }
 
     void set_frame(const StringName &p_anim, int p_idx, const Ref<Texture> &p_frame) {
-        Map<StringName, Anim>::iterator E = animations.find(p_anim);
+        HashMap<StringName, Anim>::iterator E = animations.find(p_anim);
         if (unlikely(E==animations.end())) {
             report_missing_animation(p_anim.asCString());
             _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Animation missing: " _STR(Ref<Texture>()));

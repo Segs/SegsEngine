@@ -80,7 +80,7 @@ static inline uint32_t hash_djb2_buffer(const uint8_t *p_buff, int p_len, uint32
 
     return hash;
 }
-static inline uint64_t hash_djb2_buffer64(const uint8_t *p_buff, int p_len, uint32_t p_prev = 5381) {
+static inline uint64_t hash_djb2_buffer64(const uint8_t *p_buff, int p_len, uint32_t p_prev = 5381) noexcept  {
 
     uint64_t hash = p_prev;
 
@@ -89,7 +89,7 @@ static inline uint64_t hash_djb2_buffer64(const uint8_t *p_buff, int p_len, uint
 
     return hash;
 }
-static inline uint32_t hash_djb2_buffer(const uint16_t *p_buff, int p_len, uint32_t p_prev = 5381) {
+static inline uint32_t hash_djb2_buffer(const uint16_t *p_buff, int p_len, uint32_t p_prev = 5381) noexcept {
 
     uint32_t hash = p_prev;
 
@@ -233,20 +233,4 @@ template <> struct Hasher<StringName> {
 };
 template <> struct Hasher<NodePath> {
     uint32_t operator()(const NodePath &p_path) const { return p_path.hash(); }
-};
-
-template <typename T>
-struct HashMapComparatorDefault {
-    static bool compare(const T &p_lhs, const T &p_rhs) {
-        return p_lhs == p_rhs;
-    }
-
-    static bool compare(float p_lhs, float p_rhs) {
-        return (p_lhs == p_rhs) || (Math::is_nan(p_lhs) && Math::is_nan(p_rhs));
-    }
-
-    static bool compare(double p_lhs, double p_rhs) {
-        return (p_lhs == p_rhs) || (Math::is_nan(p_lhs) && Math::is_nan(p_rhs));
-    }
-    constexpr bool operator()(const T &p_lhs, const T &p_rhs) const { return p_lhs==p_rhs; }
 };

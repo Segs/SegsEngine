@@ -70,14 +70,14 @@ VARIANT_ENUM_CAST(SceneTree::GroupCallFlags);
 #ifdef DEBUG_ENABLED
 struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
     SceneTree *m_parent;
-    Map<int, NodePath> live_edit_node_path_cache;
-    Map<int, String> live_edit_resource_cache;
+    HashMap<int, NodePath> live_edit_node_path_cache;
+    HashMap<int, String> live_edit_resource_cache;
 
     NodePath live_edit_root;
     String live_edit_scene;
 
-    Map<String, Set<Node *>> live_scene_edit_cache;
-    Map<Node *, Map<ObjectID, Node *>> live_edit_remove_list;
+    HashMap<String, HashSet<Node *>> live_scene_edit_cache;
+    HashMap<Node *, HashMap<ObjectID, Node *>> live_edit_remove_list;
 
     SceneTreeDebugAccessor(SceneTree *p) : m_parent(p) {
 
@@ -97,8 +97,9 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
-        if (E == live_scene_edit_cache.end()) return; // scene not editable
+        auto E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end())
+            return; // scene not editable
 
         for (Node *n : E->second) {
 
@@ -125,8 +126,9 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
-        if (E == live_scene_edit_cache.end()) return; // scene not editable
+        HashMap<String, HashSet<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end())
+            return; // scene not editable
 
         for (Node *n : E->second) {
 
@@ -135,7 +137,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             if (!n->has_node(np)) continue;
             Node *n2 = n->get_node(np);
 
-            n2->call(p_method, VARIANT_ARG_PASS);
+            n2->call_va(p_method, VARIANT_ARG_PASS);
         }
     }
     void _live_edit_res_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
@@ -168,7 +170,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         RES r(ResourceCache::get(resp));
         if (not r) return;
 
-        r->call(p_method, VARIANT_ARG_PASS);
+        r->call_va(p_method, VARIANT_ARG_PASS);
     }
 
     void _live_edit_root_func(const NodePath &p_scene_path, se_string_view p_scene_from) {
@@ -182,8 +184,9 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
-        if (E == live_scene_edit_cache.end()) return; // scene not editable
+        HashMap<String, HashSet<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end())
+            return; // scene not editable
 
         for (Node *n : E->second) {
 
@@ -210,8 +213,9 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
-        if (E == live_scene_edit_cache.end()) return; // scene not editable
+        auto E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end())
+            return; // scene not editable
 
         for (Node *n : E->second) {
 
@@ -232,21 +236,26 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
     void _live_edit_remove_node_func(const NodePath &p_at) {
 
         Node *base = nullptr;
-        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+        if (m_parent->get_root()->has_node(live_edit_root))
+            base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
-        if (E == live_scene_edit_cache.end()) return; // scene not editable
+        auto E = live_scene_edit_cache.find(live_edit_scene);
+        if (E == live_scene_edit_cache.end())
+            return; // scene not editable
 
-        for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
+        //BUG: SEGS: will loop forever if any continue stance is triggered
+        for (auto F = E->second.begin(); F != E->second.end();) {
 
-            Set<Node *>::iterator N = F;
+            auto N = F;
             ++N;
 
             Node *n = *F;
 
-            if (base && !base->is_a_parent_of(n)) continue;
+            if (base && !base->is_a_parent_of(n))
+                continue;
 
-            if (!n->has_node(p_at)) continue;
+            if (!n->has_node(p_at))
+                continue;
             Node *n2 = n->get_node(p_at);
 
             memdelete(n2);
@@ -257,20 +266,24 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
     void _live_edit_remove_and_keep_node_func(const NodePath &p_at, ObjectID p_keep_id) {
 
         Node *base = nullptr;
-        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+        if (m_parent->get_root()->has_node(live_edit_root))
+            base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        auto E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
-        for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
+        //BUG: SEGS: will loop forever if any continue stance is triggered
+        for (auto F = E->second.begin(); F != E->second.end();) {
 
-            Set<Node *>::iterator N = F;
+            auto N = F;
             N++;
             Node *n = *F;
 
-            if (base && !base->is_a_parent_of(n)) continue;
+            if (base && !base->is_a_parent_of(n))
+                continue;
 
-            if (!n->has_node(p_at)) continue;
+            if (!n->has_node(p_at))
+                continue;
 
             Node *n2 = n->get_node(p_at);
 
@@ -286,26 +299,29 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        auto E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
-        for (Set<Node *>::iterator F = E->second.begin(); F != E->second.end();) {
+        for (auto F = E->second.begin(); F != E->second.end();) {
 
-            Set<Node *>::iterator N = F;
+            auto N = F;
             N++;
 
             Node *n = *F;
 
-            if (base && !base->is_a_parent_of(n)) continue;
+            if (base && !base->is_a_parent_of(n))
+                continue;
 
-            if (!n->has_node(p_at)) continue;
+            if (!n->has_node(p_at))
+                continue;
+
             Node *n2 = n->get_node(p_at);
 
-            Map<Node *, Map<ObjectID, Node *>>::iterator EN = live_edit_remove_list.find(n);
+            HashMap<Node *, HashMap<ObjectID, Node *>>::iterator EN = live_edit_remove_list.find(n);
 
             if (EN == live_edit_remove_list.end()) continue;
 
-            Map<ObjectID, Node *>::iterator FN = EN->second.find(p_id);
+            HashMap<ObjectID, Node *>::iterator FN = EN->second.find(p_id);
 
             if (FN == EN->second.end()) continue;
             n2->add_child(FN->second);
@@ -322,16 +338,19 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
     void _live_edit_duplicate_node_func(const NodePath &p_at, const String &p_new_name) {
 
         Node *base = nullptr;
-        if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
+        if (m_parent->get_root()->has_node(live_edit_root))
+            base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        auto E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
 
-            if (base && !base->is_a_parent_of(n)) continue;
+            if (base && !base->is_a_parent_of(n))
+                continue;
 
-            if (!n->has_node(p_at)) continue;
+            if (!n->has_node(p_at))
+                continue;
             Node *n2 = n->get_node(p_at);
 
             Node *dup = n2->duplicate(Node::DUPLICATE_SIGNALS | Node::DUPLICATE_GROUPS | Node::DUPLICATE_SCRIPTS);
@@ -348,7 +367,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         Node *base = nullptr;
         if (m_parent->get_root()->has_node(live_edit_root)) base = m_parent->get_root()->get_node(live_edit_root);
 
-        Map<String, Set<Node *>>::iterator E = live_scene_edit_cache.find(live_edit_scene);
+        auto E = live_scene_edit_cache.find(live_edit_scene);
         if (E == live_scene_edit_cache.end()) return; // scene not editable
 
         for (Node *n : E->second) {
@@ -368,10 +387,10 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             if (p_at_pos >= 0) nto->move_child(nfrom, p_at_pos);
         }
     }
-    Map<String, Set<Node *>> &get_live_scene_edit_cache() {
+    HashMap<String, HashSet<Node *>> &get_live_scene_edit_cache() {
         return live_scene_edit_cache;
     }
-    Map<Node *, Map<ObjectID, Node *>> &get_live_edit_remove_list() {
+    HashMap<Node *, HashMap<ObjectID, Node *>> &get_live_edit_remove_list() {
         return live_edit_remove_list;
     }
 
@@ -444,11 +463,11 @@ void SceneTree::tree_changed() {
     emit_signal(tree_changed_name);
 }
 #ifdef DEBUG_ENABLED
-Map<String, Set<Node *>> &SceneTree::get_live_scene_edit_cache()
+HashMap<String, HashSet<Node *> > &SceneTree::get_live_scene_edit_cache()
 {
     return m_debug_data->get_live_scene_edit_cache();
 }
-Map<Node *, Map<ObjectID, Node *>> &SceneTree::get_live_edit_remove_list() {
+HashMap<Node *, HashMap<ObjectID, Node *> > &SceneTree::get_live_edit_remove_list() {
     return m_debug_data->get_live_edit_remove_list();
 }
 #endif
@@ -474,7 +493,7 @@ void SceneTree::node_renamed(Node *p_node) {
 
 SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end()) {
         E = group_map.emplace(p_group, SceneTreeGroup()).first;
     }
@@ -488,7 +507,7 @@ SceneTreeGroup *SceneTree::add_to_group(const StringName &p_group, Node *p_node)
 
 void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     ERR_FAIL_COND(E==group_map.end());
 
     E->second.nodes.erase_first(p_node);
@@ -497,7 +516,7 @@ void SceneTree::remove_from_group(const StringName &p_group, Node *p_node) {
 }
 
 void SceneTree::make_group_changed(const StringName &p_group) {
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E!=group_map.end())
         E->second.changed = true;
 }
@@ -524,7 +543,7 @@ void SceneTree::_flush_ugc() {
         auto E = unique_group_calls.begin();
 
         Variant v[VARIANT_ARG_MAX];
-        for (int i = 0; i < E->second.size(); i++)
+        for (size_t i = 0; i < E->second.size(); i++)
             v[i] = E->second[i];
 
         call_group_flags(GROUP_CALL_REALTIME, E->first.group, E->first.call, v[0], v[1], v[2], v[3], v[4]);
@@ -557,7 +576,7 @@ void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
 
 void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -607,7 +626,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
                 if (p_call_flags & GROUP_CALL_MULTILEVEL)
                     nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
                 else
-                    nodes[i]->call(p_function, VARIANT_ARG_PASS);
+                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
             } else
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
         }
@@ -623,7 +642,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
                 if (p_call_flags & GROUP_CALL_MULTILEVEL)
                     nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
                 else
-                    nodes[i]->call(p_function, VARIANT_ARG_PASS);
+                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
             } else
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
         }
@@ -636,7 +655,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
 void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_group, int p_notification) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -685,7 +704,7 @@ void SceneTree::notify_group_flags(uint32_t p_call_flags, const StringName &p_gr
 
 void SceneTree::set_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_name, const Variant &p_value) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -1248,7 +1267,7 @@ bool SceneTree::is_paused() const {
 
 void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -1292,7 +1311,7 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
 
 void SceneTree::_notify_group_pause(const StringName &p_group, int p_notification) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
     SceneTreeGroup &g = E->second;
@@ -1397,7 +1416,7 @@ int64_t SceneTree::get_event_count() const {
 Array SceneTree::_get_nodes_in_group(const StringName &p_group) {
 
     Array ret;
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return ret;
 
@@ -1423,7 +1442,7 @@ bool SceneTree::has_group(const StringName &p_identifier) const {
 }
 void SceneTree::get_nodes_in_group(const StringName &p_group, Deque<Node *> *p_list) {
 
-    Map<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
     if (E==group_map.end())
         return;
 

@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RAY_CAST_H
-#define RAY_CAST_H
+#pragma once
 
 #include "scene/3d/spatial.h"
-#include "core/set.h"
+#include "core/hash_set.h"
+#include "core/rid.h"
 
 class Material;
 
@@ -40,28 +40,27 @@ class RayCast : public Spatial {
 
 	GDCLASS(RayCast,Spatial)
 
-	bool enabled;
-	bool collided;
+    HashSet<RID> exclude;
+    Vector3 collision_point;
+    Vector3 collision_normal;
+    Vector3 cast_to;
+    Ref<Material> debug_material;
+    Node *debug_shape;
+
 	ObjectID against;
 	int against_shape;
-	Vector3 collision_point;
-	Vector3 collision_normal;
-
-	Vector3 cast_to;
-	Set<RID> exclude;
-
 	uint32_t collision_mask;
-	bool exclude_parent_body;
+    bool exclude_parent_body;
+    bool collide_with_areas;
+    bool collide_with_bodies;
+    bool enabled;
+    bool collided;
 
-	Node *debug_shape;
-	Ref<Material> debug_material;
 
-	void _create_debug_shape();
-	void _update_debug_shape();
-	void _clear_debug_shape();
 
-	bool collide_with_areas;
-	bool collide_with_bodies;
+    void _create_debug_shape();
+    void _update_debug_shape();
+    void _clear_debug_shape();
 
 protected:
 	void _notification(int p_what);
@@ -105,5 +104,3 @@ public:
 
 	RayCast();
 };
-
-#endif // RAY_CAST_H

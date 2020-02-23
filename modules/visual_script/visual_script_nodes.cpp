@@ -2001,6 +2001,22 @@ StringName VisualScriptClassConstant::get_class_constant() {
 void VisualScriptClassConstant::set_base_type(const StringName &p_which) {
 
     base_type = p_which;
+    List<String> constants;
+    ClassDB::get_integer_constant_list(base_type, &constants, true);
+    if (constants.size() > 0) {
+        bool found_name = false;
+        for (const String &E : constants) {
+            if (E == name) {
+                found_name = true;
+                break;
+            }
+        }
+        if (!found_name) {
+            name = StringName(constants.front());
+        }
+    } else {
+        name = "";
+    }
     Object_change_notify(this);
     ports_changed_notify();
 }

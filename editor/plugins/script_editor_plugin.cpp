@@ -184,7 +184,7 @@ void ScriptEditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
                                 k->get_scancode() == KEY_PAGEUP ||
                                 k->get_scancode() == KEY_PAGEDOWN)) {
 
-        search_options->call("_gui_input", k);
+        search_options->call_va("_gui_input", k);
         search_box->accept_event();
     }
 }
@@ -227,7 +227,7 @@ void ScriptEditorQuickOpen::_notification(int p_what) {
             connect("confirmed", this, "_confirmed");
 
             search_box->set_clear_button_enabled(true);
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case NOTIFICATION_THEME_CHANGED: {
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
@@ -348,7 +348,7 @@ void ScriptEditor::_set_execution(REF p_script, int p_line) {
             if (!se)
                 continue;
 
-            if (script != nullptr && se->get_edited_resource() == script || se->get_edited_resource()->get_path() == script->get_path()) {
+            if ((script != nullptr && se->get_edited_resource() == script) || se->get_edited_resource()->get_path() == script->get_path()) {
                 se->set_executing_line(p_line);
             }
         }
@@ -364,7 +364,7 @@ void ScriptEditor::_clear_execution(REF p_script) {
             if (!se)
                 continue;
 
-            if (script != nullptr && se->get_edited_resource() == script || se->get_edited_resource()->get_path() == script->get_path()) {
+            if ((script != nullptr && se->get_edited_resource() == script) || se->get_edited_resource()->get_path() == script->get_path()) {
                 se->clear_executing_line();
             }
         }
@@ -924,7 +924,7 @@ void ScriptEditor::_file_dialog_action(se_string_view p_file) {
             }
             file->close();
             memdelete(file);
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case ACT_FILE_OPEN: {
 
@@ -1462,7 +1462,7 @@ void ScriptEditor::_notification(int p_what) {
             script_split->connect("dragged", this, "_script_split_dragged");
 
             EditorSettings::get_singleton()->connect("settings_changed", this, "_editor_settings_changed");
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case NOTIFICATION_THEME_CHANGED: {
 
@@ -2107,7 +2107,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
                     }
                     inside_quotes = !inside_quotes;
 
-                } else if (flags[i] == '\0' || !inside_quotes && flags[i] == ' ') {
+                } else if (flags[i] == '\0' || (!inside_quotes && flags[i] == ' ')) {
 
                     se_string_view arg = StringUtils::substr(flags,from, num_chars);
                     if (StringUtils::contains(arg,"{file}")) {
@@ -2144,7 +2144,8 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         if (!se)
             continue;
 
-        if (script != nullptr && se->get_edited_resource() == p_resource || se->get_edited_resource()->get_path() == p_resource->get_path()) {
+        if ((script != nullptr && se->get_edited_resource() == p_resource) ||
+                se->get_edited_resource()->get_path() == p_resource->get_path()) {
 
             if (should_open) {
                 if (tab_container->get_current_tab() != i) {

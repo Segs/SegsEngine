@@ -4,6 +4,11 @@
 #include <stddef.h>
 
 namespace eastl {
+    template<typename T>
+    struct hash;
+    template <typename T>
+    struct equal_to;
+
     template <typename T, typename Allocator>
     class vector;
     template <typename T, typename Allocator, unsigned kDequeSubarraySize>
@@ -18,11 +23,14 @@ namespace eastl {
     class basic_string;
     template<class T>
     class basic_string_view;
-    template <typename T, ptrdiff_t Extent>
+    template <typename T, size_t Extent>
     class span;
     template <typename Allocator, typename Element,
         typename Container >
     class bitvector;
+    template <class TKey, class TData, class HashFunc, class CompareFunc,typename Allocator, bool bCacheHashCode>
+    class hash_map;
+
 }
 
 template <class T>
@@ -64,15 +72,6 @@ using String = eastl::basic_string<char, wrap_allocator>;
 using se_string_view = eastl::basic_string_view<char>;
 
 template <class T> struct Hasher;
-template <typename T>
-struct HashMapComparatorDefault;
-
-template <class TKey, class TData, class Hasher,
-        class Comparator, uint8_t MIN_HASH_TABLE_POWER, uint8_t RELATIONSHIP>
-class HashMap;
-template <class TKey, class TData, class Hasher = Hasher<TKey>,
-        class Comparator = HashMapComparatorDefault<TKey> >
-using BaseHashMap = HashMap<TKey,TData,Hasher,Comparator,3,8>;
 
 using UIString = class QString;
 

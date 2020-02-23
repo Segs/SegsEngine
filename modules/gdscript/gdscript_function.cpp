@@ -85,7 +85,7 @@ Variant *GDScriptFunction::_get_variant(int p_address, GDScriptInstance *p_insta
                 GDScript *o = s;
                 while (o) {
 
-                    Map<StringName, Variant>::iterator E = o->constants.find(*sn);
+                    HashMap<StringName, Variant>::iterator E = o->constants.find(*sn);
                     if (E!=o->constants.end()) {
                         return &E->second;
                     }

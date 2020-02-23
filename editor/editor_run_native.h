@@ -33,6 +33,7 @@
 
 #include "scene/gui/box_container.h"
 #include "scene/gui/menu_button.h"
+#include "core/map.h"
 
 class EditorRunNative : public HBoxContainer {
 

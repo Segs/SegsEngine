@@ -78,7 +78,7 @@ public:
 class ResourceImporterScene : public ResourceImporter {
     GDCLASS(ResourceImporterScene,ResourceImporter)
 
-    Set<EditorSceneImporterInterface *> importers;
+    HashSet<EditorSceneImporterInterface *> importers;
 
     static ResourceImporterScene *singleton;
 
@@ -110,7 +110,7 @@ class ResourceImporterScene : public ResourceImporter {
 public:
     static ResourceImporterScene *get_singleton() { return singleton; }
 
-    const Set<EditorSceneImporterInterface *> &get_importers() const { return importers; }
+    const HashSet<EditorSceneImporterInterface *> &get_importers() const { return importers; }
 
     void add_importer(EditorSceneImporterInterface *p_importer) { importers.insert(p_importer); }
     void remove_importer(EditorSceneImporterInterface *p_importer) { importers.erase(p_importer); }
@@ -125,7 +125,7 @@ public:
     StringName get_preset_name(int p_idx) const override;
 
     void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
-    bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const override;
+    bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
     int get_import_order() const override { return 100; } //after everything
 
     void _find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes);
@@ -139,7 +139,7 @@ public:
     void _filter_tracks(Node *scene, se_string_view p_text);
     void _optimize_animations(Node *scene, float p_max_lin_error, float p_max_ang_error, float p_max_angle);
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const Map<StringName, Variant> &p_options, Vector<String>
+    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
             *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, se_string_view p_path, uint32_t p_flags, int p_bake_fps);

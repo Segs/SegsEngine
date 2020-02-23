@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/list.h"
+#include "core/set.h"
 #include "core/map.h"
 #include "core/os/dir_access.h"
 #include "core/resource.h"
@@ -38,7 +39,6 @@
 #include "scene/main/node.h"
 #include "scene/main/timer.h"
 #include "scene/resources/texture.h"
-
 class FileAccess;
 class EditorExportPlatform;
 class EditorFileSystemDirectory;
@@ -75,7 +75,7 @@ private:
     Set<String> selected_files;
     Vector<String> patches;
     Vector<PropertyInfo> properties;
-    Map<StringName, Variant> values;
+    HashMap<StringName, Variant> values;
 
     int script_mode;
     bool runnable;
@@ -203,7 +203,7 @@ public:
     virtual Ref<EditorExportPreset> create_preset();
 
     virtual void get_export_options(Vector<ExportOption> *r_options) = 0;
-    virtual bool get_option_visibility(const StringName &p_option, const Map<StringName, Variant> &p_options) const { return true; }
+    virtual bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const { return true; }
 
     virtual const String & get_os_name() const = 0;
     virtual const String & get_name() const = 0;

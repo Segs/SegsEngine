@@ -58,7 +58,7 @@ public:
     struct Effect {
 
         String name;
-        Map<String, Variant> params;
+        HashMap<String, Variant> params;
 
         struct Channel {
 
@@ -159,14 +159,14 @@ public:
             int stride;
         };
 
-        Map<String, Source> sources;
+        HashMap<String, Source> sources;
 
         struct Vertices {
 
-            Map<String, String> sources;
+            HashMap<String, String> sources;
         };
 
-        Map<String, Vertices> vertices;
+        HashMap<String, Vertices> vertices;
 
         struct Primitives {
 
@@ -177,7 +177,7 @@ public:
             };
 
             String material;
-            Map<String, SourceRef> sources;
+            HashMap<String, SourceRef> sources;
             Vector<float> polygons;
             Vector<float> indices;
             int count;
@@ -207,9 +207,9 @@ public:
             int stride;
         };
 
-        Map<String, Source> sources;
+        HashMap<String, Source> sources;
 
-        Map<String, String> control_vertices;
+        HashMap<String, String> control_vertices;
 
         CurveData() {
 
@@ -230,11 +230,11 @@ public:
             int stride = 1;
         };
 
-        Map<String, Source> sources;
+        HashMap<String, Source> sources;
 
         struct Joints {
 
-            Map<String, String> sources;
+            HashMap<String, String> sources;
         } joints;
 
         struct Weights {
@@ -246,13 +246,13 @@ public:
             };
 
             String material;
-            Map<String, SourceRef> sources;
+            HashMap<String, SourceRef> sources;
             Vector<float> sets;
             Vector<float> indices;
             int count;
         } weights;
 
-        Map<String, Transform> bone_rest_map;
+        HashMap<String, Transform> bone_rest_map;
 
         SkinControllerData() { use_idrefs = false; }
     };
@@ -270,9 +270,9 @@ public:
             Source() { stride = 1; }
         };
 
-        Map<String, Source> sources;
+        HashMap<String, Source> sources;
 
-        Map<String, String> targets;
+        HashMap<String, String> targets;
         MorphControllerData() {}
     };
 
@@ -422,7 +422,7 @@ public:
             String target;
         };
 
-        Map<String, Material> material_map;
+        HashMap<String, Material> material_map;
         Vector<String> skeletons;
 
         NodeGeometry() { type = TYPE_GEOMETRY; }
@@ -524,28 +524,28 @@ public:
             }
         } version;
 
-        Map<String, CameraData> camera_data_map;
-        Map<String, MeshData> mesh_data_map;
-        Map<String, LightData> light_data_map;
-        Map<String, CurveData> curve_data_map;
+        HashMap<String, CameraData> camera_data_map;
+        HashMap<String, MeshData> mesh_data_map;
+        HashMap<String, LightData> light_data_map;
+        HashMap<String, CurveData> curve_data_map;
 
-        Map<String, String> mesh_name_map;
-        Map<String, String> morph_name_map;
-        Map<String, String> morph_ownership_map;
-        Map<String, SkinControllerData> skin_controller_data_map;
-        Map<String, MorphControllerData> morph_controller_data_map;
+        HashMap<String, String> mesh_name_map;
+        HashMap<String, String> morph_name_map;
+        HashMap<String, String> morph_ownership_map;
+        HashMap<String, SkinControllerData> skin_controller_data_map;
+        HashMap<String, MorphControllerData> morph_controller_data_map;
 
-        Map<String, Image> image_map;
-        Map<String, Material> material_map;
-        Map<String, Effect> effect_map;
+        HashMap<String, Image> image_map;
+        HashMap<String, Material> material_map;
+        HashMap<String, Effect> effect_map;
 
-        Map<String, VisualScene> visual_scene_map;
-        Map<String, Node *> scene_map;
+        HashMap<String, VisualScene> visual_scene_map;
+        HashMap<String, Node *> scene_map;
         Set<String> idref_joints;
-        Map<String, String> sid_to_node_map;
+        HashMap<String, String> sid_to_node_map;
         //Map<String,NodeJoint*> bone_map;
 
-        Map<String, Transform> bone_rest_map;
+        HashMap<String, Transform> bone_rest_map;
 
         String local_path;
         String root_visual_scene;
@@ -553,8 +553,8 @@ public:
 
         Vector<AnimationClip> animation_clips;
         Vector<AnimationTrack> animation_tracks;
-        Map<String, Vector<int> > referenced_tracks;
-        Map<String, Vector<int> > by_id_tracks;
+        HashMap<String, Vector<int> > referenced_tracks;
+        HashMap<String, Vector<int> > by_id_tracks;
 
         float animation_length;
 
@@ -577,7 +577,7 @@ public:
     int get_uv_channel(String p_name);
 
 private: // private stuff
-    Map<String, int> channel_map;
+    HashMap<String, int> channel_map;
 
     void _parse_asset(XMLParser &parser);
     void _parse_image(XMLParser &parser);

@@ -31,6 +31,7 @@
 #include "navigation.h"
 
 #include "servers/navigation_server.h"
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 
 IMPL_GDCLASS(Navigation)
@@ -97,7 +98,7 @@ Navigation::Navigation() {
 
     map = NavigationServer::get_singleton()->map_create();
 
-    set_cell_size(0.3);
+    set_cell_size(0.3f);
     set_edge_connection_margin(5.0); // Five meters, depends alot on the agents radius
 
     up = Vector3(0, 1, 0);

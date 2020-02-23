@@ -32,6 +32,7 @@
 
 #include "core/os/threaded_array_processor.h"
 #include "nav_region.h"
+#include "core/map.h"
 #include "rvo_agent.h"
 #include <algorithm>
 
@@ -476,7 +477,7 @@ void NavMap::sync() {
         }
 
         // Connects the `Edges` of all the `Polygons` of all `Regions` each other.
-        Map<gd::EdgeKey, gd::Connection> connections;
+        HashMap<gd::EdgeKey, gd::Connection> connections;
 
         for (size_t poly_id(0); poly_id < polygons.size(); poly_id++) {
             gd::Polygon &poly(polygons[poly_id]);
@@ -491,11 +492,11 @@ void NavMap::sync() {
                     gd::Connection c;
                     c.A = &poly;
                     c.A_edge = p;
-                    c.B = NULL;
+                    c.B = nullptr;
                     c.B_edge = -1;
                     connections[ek] = c;
 
-                } else if (connection->second.B == NULL) {
+                } else if (connection->second.B == nullptr) {
                     CRASH_COND(connection->second.A == NULL); // Unreachable
                     gd::Connection &conn(connection->second);
                     // Connect the two Polygons by this edge
@@ -520,8 +521,8 @@ void NavMap::sync() {
         free_edges.reserve(connections.size());
 
         for (const auto & connection_element : connections) {
-            if (connection_element.second.B == NULL) {
-                CRASH_COND(connection_element.second.A == NULL); // Unreachable
+            if (connection_element.second.B == nullptr) {
+                CRASH_COND(connection_element.second.A == nullptr); // Unreachable
                 CRASH_COND(connection_element.second.A_edge < 0); // Unreachable
 
                 // This is a free edge
@@ -535,17 +536,17 @@ void NavMap::sync() {
                 Vector3 pos_0 = free_edges[id].poly->points[point_0].pos;
                 Vector3 pos_1 = free_edges[id].poly->points[point_1].pos;
                 Vector3 relative = pos_1 - pos_0;
-                free_edges[id].edge_center = (pos_0 + pos_1) / 2.0;
+                free_edges[id].edge_center = (pos_0 + pos_1) / 2.0f;
                 free_edges[id].edge_dir = relative.normalized();
                 free_edges[id].edge_len_squared = relative.length_squared();
             }
         }
 
         const float ecm_squared(edge_connection_margin * edge_connection_margin);
-#define LEN_TOLLERANCE 0.1
-#define DIR_TOLLERANCE 0.9
+#define LEN_TOLLERANCE 0.1f
+#define DIR_TOLLERANCE 0.9f
         // In front of tollerance
-#define IFO_TOLLERANCE 0.5
+#define IFO_TOLLERANCE 0.5f
 
         // Find the compatible near edges.
         //

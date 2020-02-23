@@ -199,7 +199,7 @@ StringName ResourceImporterScene::get_resource_type() const {
 }
 
 bool ResourceImporterScene::get_option_visibility(
-        const StringName &p_option, const Map<StringName, Variant> &p_options) const {
+        const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     if (StringUtils::begins_with(p_option, "animation/")) {
         if (p_option != se_string_view("animation/import") && !bool(p_options.at("animation/import"))) return false;
@@ -283,7 +283,7 @@ static se_string_view _fixstr(se_string_view p_what, se_string_view p_str) {
 
     // remove trailing spaces and numbers, some apps like blender add ".number" to duplicates so also compensate for
     // this
-    while (what.length() && (what.back() >= '0' && what.back() <= '9' || what.back() <= 32 || what.back() == '.')) {
+    while (!what.empty() && (isdigit(what.back()) || what.back() <= 32 || what.back() == '.')) {
 
         what = StringUtils::substr(what, 0, what.length() - 1);
     }
@@ -1316,7 +1316,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
 }
 
 Error ResourceImporterScene::import(se_string_view p_source_file, se_string_view p_save_path,
-        const Map<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
+        const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {
 

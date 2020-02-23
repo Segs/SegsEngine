@@ -30,13 +30,13 @@
 
 #include "navigation_obstacle_2d.h"
 
+#include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 #include "core/translation_helpers.h"
 #include "scene/2d/collision_shape_2d.h"
 #include "scene/2d/navigation_2d.h"
 #include "scene/2d/physics_body_2d.h"
 #include "servers/navigation_2d_server.h"
-
 
 IMPL_GDCLASS(NavigationObstacle2D)
 void NavigationObstacle2D::_bind_methods() {
@@ -53,12 +53,12 @@ void NavigationObstacle2D::_notification(int p_what) {
 
             // Search the navigation node and set it
             {
-                Navigation2D *nav = NULL;
+                Navigation2D *nav = nullptr;
                 Node *p = get_parent();
-                while (p != NULL) {
+                while (p != nullptr) {
                     nav = object_cast<Navigation2D>(p);
-                    if (nav != NULL)
-                        p = NULL;
+                    if (nav != nullptr)
+                        p = nullptr;
                     else
                         p = p->get_parent();
                 }
@@ -69,7 +69,7 @@ void NavigationObstacle2D::_notification(int p_what) {
             set_physics_process_internal(true);
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            set_navigation(NULL);
+            set_navigation(nullptr);
             set_physics_process_internal(false);
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
@@ -83,7 +83,7 @@ void NavigationObstacle2D::_notification(int p_what) {
 }
 
 NavigationObstacle2D::NavigationObstacle2D() :
-        navigation(NULL),
+        navigation(nullptr),
         agent(RID()) {
     agent = Navigation2DServer::get_singleton()->agent_create();
 }
@@ -98,7 +98,7 @@ void NavigationObstacle2D::set_navigation(Navigation2D *p_nav) {
         return; // Pointless
 
     navigation = p_nav;
-    Navigation2DServer::get_singleton()->agent_set_map(agent, navigation == NULL ? RID() : navigation->get_rid());
+    Navigation2DServer::get_singleton()->agent_set_map(agent, navigation == nullptr ? RID() : navigation->get_rid());
 }
 
 void NavigationObstacle2D::set_navigation_node(Node *p_nav) {
@@ -146,7 +146,7 @@ void NavigationObstacle2D::update_agent_shape() {
         radius *= MAX(s.x, s.y);
     }
 
-    if (radius == 0.0)
+    if (radius == 0.0f)
         radius = 1.0; // Never a 0 radius
 
     // Initialize the Agent as an object

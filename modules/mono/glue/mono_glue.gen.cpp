@@ -11191,6 +11191,7 @@ int32_t godot_icall_ConfigFile_parse_73262d91(Object * ptr, MonoString* arg1) {
     auto ret = static_cast<ConfigFile *>(ptr)->parse(eastl::move(arg1_in));
     return (int32_t)ret;
 }
+
 int32_t godot_icall_ConfigFile_save_cb25197e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
@@ -18052,6 +18053,7 @@ int32_t godot_icall_Image_detect_used_channels_cbc886f4(Object * ptr, int32_t ar
     auto ret = static_cast<Image *>(ptr)->detect_used_channels((ImageCompressSource)arg1_in);
     return static_cast<int32_t>(ret);
 }
+
 int32_t godot_icall_Image_compress_d8dd7e0e(Object * ptr, int32_t arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
@@ -18060,6 +18062,7 @@ int32_t godot_icall_Image_compress_d8dd7e0e(Object * ptr, int32_t arg1, int32_t 
     auto ret = static_cast<Image *>(ptr)->compress((ImageCompressMode)arg1_in, (ImageCompressSource)arg2_in, arg3_in);
     return (int32_t)ret;
 }
+
 int32_t godot_icall_Image_compress_from_channels_d8dd7e0e(Object * ptr, int32_t arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
@@ -18068,6 +18071,7 @@ int32_t godot_icall_Image_compress_from_channels_d8dd7e0e(Object * ptr, int32_t 
     auto ret = static_cast<Image *>(ptr)->compress_from_channels((ImageCompressMode)arg1_in, (ImageUsedChannels)arg2_in, arg3_in);
     return (int32_t)ret;
 }
+
 int32_t godot_icall_Image_decompress_f04570f5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     auto ret = static_cast<Image *>(ptr)->decompress();
@@ -23556,6 +23560,7 @@ Object* godot_icall_NavigationObstacle2D_Ctor(MonoObject* obj) {
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
+
 void godot_icall_NavigationPolygon_set_vertices_b8a866ba(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector2(arg1);
@@ -28899,16 +28904,16 @@ void godot_icall_PhysicsServer_body_clear_shapes_a7039b4e(Object * ptr, RID* arg
     static_cast<PhysicsServer *>(ptr)->body_clear_shapes(*arg1);
 }
 
-void godot_icall_PhysicsServer_body_attach_object_instance_id_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
+void godot_icall_PhysicsServer_body_attach_object_instance_id_73956c1a(Object * ptr, RID* arg1, uint64_t* arg2) {
     ERR_FAIL_NULL(ptr);
-    uint32_t arg2_in = static_cast<uint32_t>(arg2);
+	int64_t arg2_in = static_cast<int64_t>(*arg2);
     static_cast<PhysicsServer *>(ptr)->body_attach_object_instance_id(*arg1, arg2_in);
 }
 
-uint32_t godot_icall_PhysicsServer_body_get_object_instance_id_1867c419(Object * ptr, RID* arg1) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
+void godot_icall_PhysicsServer_body_get_object_instance_id_4e8e61e1(Object * ptr, RID* arg1, uint64_t* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     auto ret = static_cast<PhysicsServer *>(ptr)->body_get_object_instance_id(*arg1);
-    return static_cast<uint32_t>(ret);
+	*arg_ret = (uint64_t)ret;
 }
 
 void godot_icall_PhysicsServer_body_set_enable_continuous_collision_detection_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
@@ -36596,16 +36601,16 @@ Object* godot_icall_StaticBody2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_StreamPeer_put_data_4d7ce2f(Object * ptr, MonoArray* arg1) {
+int32_t godot_icall_StreamPeer_put_data_7c32072c(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    PoolByteArray arg1_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg1);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg1);
     auto ret = static_cast<StreamPeer *>(ptr)->_put_data(arg1_in);
     return (int32_t)ret;
 }
 
-Array* godot_icall_StreamPeer_put_partial_data_60539c6(Object * ptr, MonoArray* arg1) {
+Array* godot_icall_StreamPeer_put_partial_data_ade8f6c5(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    PoolByteArray arg1_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg1);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg1);
     auto ret = static_cast<StreamPeer *>(ptr)->_put_partial_data(arg1_in);
     return memnew(Array(Variant::from(ret)));
 }
@@ -36819,10 +36824,10 @@ void godot_icall_StreamPeerBuffer_resize_e1ae93bc(Object * ptr, int32_t arg1) {
     static_cast<StreamPeerBuffer *>(ptr)->resize(arg1_in);
 }
 
-void godot_icall_StreamPeerBuffer_set_data_array_da545cc0(Object * ptr, MonoArray* arg1) {
+void godot_icall_StreamPeerBuffer_set_data_array_627085c1(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
-    PoolByteArray arg1_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg1);
-    static_cast<StreamPeerBuffer *>(ptr)->set_data_array(arg1_in);
+    auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg1);
+    static_cast<StreamPeerBuffer *>(ptr)->set_data_array(eastl::move(arg1_in));
 }
 
 MonoArray* godot_icall_StreamPeerBuffer_get_data_array_8edaba4(Object * ptr) {
@@ -46036,12 +46041,6 @@ void godot_icall_VisualServer_instance_attach_skeleton_48010164(Object * ptr, RI
     static_cast<VisualServer *>(ptr)->instance_attach_skeleton(*arg1, *arg2);
 }
 
-void godot_icall_VisualServer_instance_set_exterior_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_exterior(*arg1, arg2_in);
-}
-
 void godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
@@ -46529,13 +46528,13 @@ void godot_icall_VisualServer_canvas_occluder_polygon_set_shape_f698a253(Object 
     bool arg3_in = static_cast<bool>(arg3);
     auto val = Variant(*arg2).as<PoolVector<Vector2>>();
 
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape(*arg1, {val.read().ptr(),val.size()}, arg3_in);
+    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape(*arg1, val.toSpan(), arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_occluder_polygon_set_shape_as_lines_c7e12dae(Object * ptr, RID* arg1, Array* arg2) {
     ERR_FAIL_NULL(ptr);
     auto val = Variant(*arg2).as<PoolVector<Vector2>>();
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape_as_lines(*arg1, {val.read().ptr(),val.size()});
+    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape_as_lines(*arg1, val.toSpan());
 }
 
 void godot_icall_VisualServer_canvas_occluder_polygon_set_cull_mode_1096e63d(Object * ptr, RID* arg1, int32_t arg2) {
@@ -50290,12 +50289,6 @@ void godot_icall__OS_get_static_memory_peak_usage_4bb7c348(Object * ptr, uint64_
     *arg_ret = (uint64_t)ret;
 }
 
-void godot_icall__OS_get_dynamic_memory_usage_4bb7c348(Object * ptr, uint64_t* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<_OS *>(ptr)->get_dynamic_memory_usage();
-    *arg_ret = (uint64_t)ret;
-}
-
 MonoString* godot_icall__OS_get_user_data_dir_97be4a2e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<_OS *>(ptr)->get_user_data_dir();
@@ -50433,24 +50426,6 @@ MonoBoolean godot_icall__OS_has_feature_2f34617d(Object * ptr, MonoString* arg1)
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_OS *>(ptr)->has_feature(arg1_in);
     return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall__OS_get_power_state_e03f5b22(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<_OS *>(ptr)->get_power_state();
-    return (int32_t)ret;
-}
-
-int32_t godot_icall__OS_get_power_seconds_left_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<_OS *>(ptr)->get_power_seconds_left();
-    return static_cast<int32_t>(ret);
-}
-
-int32_t godot_icall__OS_get_power_percent_left_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<_OS *>(ptr)->get_power_percent_left();
-    return static_cast<int32_t>(ret);
 }
 
 MonoBoolean godot_icall__OS_request_permission_2f34617d(Object * ptr, MonoString* arg1) {
@@ -50626,12 +50601,12 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 7982866888582804672U; }
+uint64_t get_core_api_hash() { return 14795385792687354923U; }
 #ifdef TOOLS_ENABLED
-uint64_t get_editor_api_hash() { return 12653219099717887913U; }
+uint64_t get_editor_api_hash() { return 4719693846311282490U; }
 #endif // TOOLS_ENABLED
 uint32_t get_bindings_version() { return 11; }
-uint32_t get_cs_glue_version() { return 1580668175; }
+uint32_t get_cs_glue_version() { return 1582053245; }
 
 void register_generated_icalls() {
     godot_register_glue_header_icalls();
@@ -55397,8 +55372,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_get_shape_transform_5be89b94", (void*)godot_icall_PhysicsServer_body_get_shape_transform_5be89b94);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_remove_shape_f6439f2", (void*)godot_icall_PhysicsServer_body_remove_shape_f6439f2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_clear_shapes_a7039b4e", (void*)godot_icall_PhysicsServer_body_clear_shapes_a7039b4e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_attach_object_instance_id_7aa831af", (void*)godot_icall_PhysicsServer_body_attach_object_instance_id_7aa831af);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_get_object_instance_id_1867c419", (void*)godot_icall_PhysicsServer_body_get_object_instance_id_1867c419);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_attach_object_instance_id_73956c1a", (void*)godot_icall_PhysicsServer_body_attach_object_instance_id_73956c1a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_get_object_instance_id_4e8e61e1", (void*)godot_icall_PhysicsServer_body_get_object_instance_id_4e8e61e1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_set_enable_continuous_collision_detection_56de082b", (void*)godot_icall_PhysicsServer_body_set_enable_continuous_collision_detection_56de082b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_is_continuous_collision_detection_enabled_36cc12b4", (void*)godot_icall_PhysicsServer_body_is_continuous_collision_detection_enabled_36cc12b4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_set_param_4dfe98a5", (void*)godot_icall_PhysicsServer_body_set_param_4dfe98a5);
@@ -56573,8 +56548,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StaticBody2D_get_constant_angular_velocity_4edcd7a9", (void*)godot_icall_StaticBody2D_get_constant_angular_velocity_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StaticBody2D_set_physics_material_override_e4d5a435", (void*)godot_icall_StaticBody2D_set_physics_material_override_e4d5a435);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StaticBody2D_get_physics_material_override_226d8337", (void*)godot_icall_StaticBody2D_get_physics_material_override_226d8337);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_data_4d7ce2f", (void*)godot_icall_StreamPeer_put_data_4d7ce2f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_partial_data_60539c6", (void*)godot_icall_StreamPeer_put_partial_data_60539c6);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_data_7c32072c", (void*)godot_icall_StreamPeer_put_data_7c32072c);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_partial_data_ade8f6c5", (void*)godot_icall_StreamPeer_put_partial_data_ade8f6c5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_data_2ca2fcca", (void*)godot_icall_StreamPeer_get_data_2ca2fcca);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_partial_data_2ca2fcca", (void*)godot_icall_StreamPeer_get_partial_data_2ca2fcca);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_available_bytes_1f886eb0", (void*)godot_icall_StreamPeer_get_available_bytes_1f886eb0);
@@ -56609,7 +56584,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_get_size_1f886eb0", (void*)godot_icall_StreamPeerBuffer_get_size_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_get_position_1f886eb0", (void*)godot_icall_StreamPeerBuffer_get_position_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_resize_e1ae93bc", (void*)godot_icall_StreamPeerBuffer_resize_e1ae93bc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_set_data_array_da545cc0", (void*)godot_icall_StreamPeerBuffer_set_data_array_da545cc0);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_set_data_array_627085c1", (void*)godot_icall_StreamPeerBuffer_set_data_array_627085c1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_get_data_array_8edaba4", (void*)godot_icall_StreamPeerBuffer_get_data_array_8edaba4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_clear_c8e54a7b", (void*)godot_icall_StreamPeerBuffer_clear_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_duplicate_42e72ff7", (void*)godot_icall_StreamPeerBuffer_duplicate_42e72ff7);
@@ -57967,7 +57942,6 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_use_lightmap_5e9a7854", (void*)godot_icall_VisualServer_instance_set_use_lightmap_5e9a7854);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_custom_aabb_119d5c29", (void*)godot_icall_VisualServer_instance_set_custom_aabb_119d5c29);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_attach_skeleton_48010164", (void*)godot_icall_VisualServer_instance_attach_skeleton_48010164);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_exterior_56de082b", (void*)godot_icall_VisualServer_instance_set_exterior_56de082b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb", (void*)godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_geometry_set_flag_5bd5be2", (void*)godot_icall_VisualServer_instance_geometry_set_flag_5bd5be2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_instance_geometry_set_cast_shadows_setting_4480f47e", (void*)godot_icall_VisualServer_instance_geometry_set_cast_shadows_setting_4480f47e);
@@ -58547,7 +58521,6 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_print_all_resources_919b8b17", (void*)godot_icall__OS_print_all_resources_919b8b17);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_static_memory_usage_4bb7c348", (void*)godot_icall__OS_get_static_memory_usage_4bb7c348);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_static_memory_peak_usage_4bb7c348", (void*)godot_icall__OS_get_static_memory_peak_usage_4bb7c348);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_dynamic_memory_usage_4bb7c348", (void*)godot_icall__OS_get_dynamic_memory_usage_4bb7c348);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_user_data_dir_97be4a2e", (void*)godot_icall__OS_get_user_data_dir_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_system_dir_cafb1d6e", (void*)godot_icall__OS_get_system_dir_cafb1d6e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_unique_id_97be4a2e", (void*)godot_icall__OS_get_unique_id_97be4a2e);
@@ -58570,9 +58543,6 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_vsync_via_compositor_ba24800b", (void*)godot_icall__OS_set_vsync_via_compositor_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_is_vsync_via_compositor_enabled_68fe5f59", (void*)godot_icall__OS_is_vsync_via_compositor_enabled_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_has_feature_2f34617d", (void*)godot_icall__OS_has_feature_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_power_state_e03f5b22", (void*)godot_icall__OS_get_power_state_e03f5b22);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_power_seconds_left_1f886eb0", (void*)godot_icall__OS_get_power_seconds_left_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_power_percent_left_1f886eb0", (void*)godot_icall__OS_get_power_percent_left_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_request_permission_2f34617d", (void*)godot_icall__OS_request_permission_2f34617d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_request_permissions_68fe5f59", (void*)godot_icall__OS_request_permissions_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_granted_permissions_4cc8f2a7", (void*)godot_icall__OS_get_granted_permissions_4cc8f2a7);

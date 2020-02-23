@@ -143,41 +143,6 @@ class VisualShaderEditor : public VBoxContainer {
             highend = p_highend;
             is_custom = false;
         }
-//        AddOption(se_string_view p_name, se_string_view p_category = se_string_view(),
-//                se_string_view p_sub_category = se_string_view(), se_string_view p_type = se_string_view(),
-//                const String &p_description = String(), int p_sub_func = -1, int p_return_type = -1, int p_mode = -1,
-//                int p_func = -1, float p_value = -1, bool p_highend = false) {
-//            name = StringUtils::from_utf8(p_name);
-//            type = StringName(p_type);
-//            category = StringUtils::from_utf8(p_category);
-//            sub_category = StringUtils::from_utf8(p_sub_category);
-//            description = p_description;
-//            sub_func = p_sub_func;
-//            return_type = p_return_type;
-//            mode = p_mode;
-//            func = p_func;
-//            value = p_value;
-//            highend = p_highend;
-//            is_custom = false;
-//        }
-//        AddOption(se_string_view p_name, se_string_view p_category,
-//                se_string_view p_sub_category, se_string_view p_type,
-//                const String &p_description, se_string_view p_sub_func, int p_return_type = -1, int p_mode = -1,
-//                int p_func = -1, float p_value = -1, bool p_highend = false) {
-//            name = StringUtils::from_utf8(p_name);
-//            type = StringName(p_type);
-//            category = StringUtils::from_utf8(p_category);
-//            sub_category = StringUtils::from_utf8(p_sub_category);
-//            description = p_description;
-//            sub_func = 0;
-//            sub_func_str= StringUtils::from_utf8(p_sub_func);
-//            return_type = p_return_type;
-//            mode = p_mode;
-//            func = p_func;
-//            value = p_value;
-//            highend = p_highend;
-//            is_custom = false;
-//        }
     };
 
     Vector<AddOption> add_options;
@@ -230,16 +195,16 @@ class VisualShaderEditor : public VBoxContainer {
 
     void _port_name_focus_out(Object *line_edit, int p_node_id, int p_port_id, bool p_output);
 
-    void _dup_copy_nodes(int p_type, Vector<int> &r_nodes, Set<int> &r_excluded);
-    void _dup_update_excluded(int p_type, Set<int> &r_excluded);
-    void _dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, Set<int> &r_excluded, const Vector2 &p_offset, bool p_select);
+    void _dup_copy_nodes(int p_type, Vector<int> &r_nodes, HashSet<int> &r_excluded);
+    void _dup_update_excluded(int p_type, HashSet<int> &r_excluded);
+    void _dup_paste_nodes(int p_type, int p_pasted_type, Vector<int> &r_nodes, HashSet<int> &r_excluded, const Vector2 &p_offset, bool p_select);
 
     void _duplicate_nodes();
 
     Vector2 selection_center;
     int copy_type; // shader type
     Vector<int> copy_nodes_buffer;
-    Set<int> copy_nodes_excluded_buffer;
+    HashSet<int> copy_nodes_excluded_buffer;
 
     void _clear_buffer();
     void _copy_nodes();

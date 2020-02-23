@@ -788,13 +788,19 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     if (header[0] == 'R' && header[1] == 'S' && header[2] == 'C' && header[3] == 'C') {
         //compressed
         FileAccessCompressed *fac = memnew(FileAccessCompressed);
-        fac->open_after_magic(f);
+        error = fac->open_after_magic(f);
+        if (error != OK) {
+            memdelete(fac);
+            f->close();
+            ERR_FAIL_MSG("Failed to open binary resource file: " + local_path + ".");
+        }
         f = fac;
 
     } else if (header[0] != 'R' || header[1] != 'S' || header[2] != 'R' || header[3] != 'C') {
-        //not normal
+        // Not normal.
 
         error = ERR_FILE_UNRECOGNIZED;
+        f->close();
         ERR_FAIL_MSG("Unrecognized binary resource file: " + local_path + ".");
     }
 
@@ -870,6 +876,7 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     if (f->eof_reached()) {
 
         error = ERR_FILE_CORRUPT;
+        f->close();
         ERR_FAIL_MSG("Premature end of file (EOF): " + local_path + ".");
     }
 }
@@ -884,12 +891,18 @@ String ResourceInteractiveLoaderBinary::recognize(FileAccess *p_f) {
     if (header[0] == 'R' && header[1] == 'S' && header[2] == 'C' && header[3] == 'C') {
         //compressed
         FileAccessCompressed *fac = memnew(FileAccessCompressed);
-        fac->open_after_magic(f);
+        error = fac->open_after_magic(f);
+        if (error != OK) {
+            memdelete(fac);
+            f->close();
+            return "";
+        }
         f = fac;
 
     } else if (header[0] != 'R' || header[1] != 'S' || header[2] != 'R' || header[3] != 'C') {
-        //not normal
+        // Not normal.
         error = ERR_FILE_UNRECOGNIZED;
+        f->close();
         return String();
     }
 
@@ -986,7 +999,7 @@ void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, Vector<
     ria->get_dependencies(f, p_dependencies, p_add_types);
 }
 
-Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, const Map<String, String> &p_map) {
+Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, const HashMap<String, String> &p_map) {
 
     //Error error=OK;
     String p_path(_path);
@@ -1002,12 +1015,17 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
     if (header[0] == 'R' && header[1] == 'S' && header[2] == 'C' && header[3] == 'C') {
         //compressed
         FileAccessCompressed *fac = memnew(FileAccessCompressed);
-        fac->open_after_magic(f);
+        Error err = fac->open_after_magic(f);
+        if (err != OK) {
+            memdelete(fac);
+            memdelete(f);
+            ERR_FAIL_V_MSG(err, "Cannot open file '" + p_path + "'.");
+        }
         f = fac;
 
         FileAccessCompressed *facw = memnew(FileAccessCompressed);
         facw->configure("RSCC");
-        Error err = facw->_open(String(p_path) + ".depren", FileAccess::WRITE);
+        err = facw->_open(p_path + ".depren", FileAccess::WRITE);
         if (err) {
             memdelete(fac);
             memdelete(facw);
@@ -1017,7 +1035,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
         fw = facw;
 
     } else if (header[0] != 'R' || header[1] != 'S' || header[2] != 'R' || header[3] != 'C') {
-        //not normal
+        // Not normal.
 
         //error=ERR_FILE_UNRECOGNIZED;
         memdelete(f);
@@ -1221,7 +1239,7 @@ void ResourceFormatSaverBinaryInstance::_write_variant(const Variant &p_property
     write_variant(f, p_property, resource_set, external_resources, string_map);
 }
 
-void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, Map<RES, int> &external_resources, Map<StringName, int> &string_map) {
+void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, HashMap<RES, int> &external_resources, HashMap<StringName, int> &string_map) {
 
     switch (p_property.get_type()) {
 

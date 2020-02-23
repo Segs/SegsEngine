@@ -115,6 +115,20 @@ static Vector2 get_mouse_pos(NSPoint locationInWindow, CGFloat backingScaleFacto
     return Vector2(mouse_x, mouse_y);
 }
 
+static NSCursor *cursorFromSelector(SEL selector, SEL fallback = nil) {
+    if ([NSCursor respondsToSelector:selector]) {
+        id object = [NSCursor performSelector:selector];
+        if ([object isKindOfClass:[NSCursor class]]) {
+            return object;
+        }
+    }
+    if (fallback) {
+        // Fallback should be a reasonable default, no need to check.
+        return [NSCursor performSelector:fallback];
+    }
+    return [NSCursor arrowCursor];
+}
+
 // DisplayLinkCallback is called from our DisplayLink OS thread informing us right before
 // a screen update is required. We can use it to work around the broken vsync.
 static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *now, const CVTimeStamp *outputTime, CVOptionFlags flagsIn, CVOptionFlags *flagsOut, void *displayLinkContext) {
@@ -1814,15 +1828,15 @@ void OS_OSX::set_cursor_shape(CursorShape p_shape) {
             case CURSOR_BUSY: [[NSCursor arrowCursor] set]; break;
             case CURSOR_DRAG: [[NSCursor closedHandCursor] set]; break;
             case CURSOR_CAN_DROP: [[NSCursor openHandCursor] set]; break;
-            case CURSOR_FORBIDDEN: [[NSCursor arrowCursor] set]; break;
-            case CURSOR_VSIZE: [[NSCursor resizeUpDownCursor] set]; break;
-            case CURSOR_HSIZE: [[NSCursor resizeLeftRightCursor] set]; break;
-            case CURSOR_BDIAGSIZE: [[NSCursor arrowCursor] set]; break;
-            case CURSOR_FDIAGSIZE: [[NSCursor arrowCursor] set]; break;
+            case CURSOR_FORBIDDEN: [[NSCursor operationNotAllowedCursor] set]; break;
+            case CURSOR_VSIZE: [cursorFromSelector(@selector(_windowResizeNorthSouthCursor), @selector(resizeUpDownCursor)) set]; break;
+            case CURSOR_HSIZE: [cursorFromSelector(@selector(_windowResizeEastWestCursor), @selector(resizeLeftRightCursor)) set]; break;
+            case CURSOR_BDIAGSIZE: [cursorFromSelector(@selector(_windowResizeNorthEastSouthWestCursor)) set]; break;
+            case CURSOR_FDIAGSIZE: [cursorFromSelector(@selector(_windowResizeNorthWestSouthEastCursor)) set]; break;
             case CURSOR_MOVE: [[NSCursor arrowCursor] set]; break;
             case CURSOR_VSPLIT: [[NSCursor resizeUpDownCursor] set]; break;
             case CURSOR_HSPLIT: [[NSCursor resizeLeftRightCursor] set]; break;
-            case CURSOR_HELP: [[NSCursor arrowCursor] set]; break;
+            case CURSOR_HELP: [cursorFromSelector(@selector(_helpCursor)) set]; break;
             default: {
             };
         }
@@ -2876,17 +2890,6 @@ StringName OS_OSX::get_joy_guid(int p_device) const {
     return input->get_joy_guid_remapped(p_device);
 }
 
-OS::PowerState OS_OSX::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_OSX::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_OSX::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
-}
 
 Error OS_OSX::move_to_trash(const String &p_path) {
     NSFileManager *fm = [NSFileManager defaultManager];

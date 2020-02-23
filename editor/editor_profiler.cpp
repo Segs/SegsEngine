@@ -208,12 +208,12 @@ void EditorProfiler::_update_plot() {
 
         for (const StringName &E : plot_sigs) {
 
-            const Map<StringName, Metric::Category *>::const_iterator F = m.category_ptrs.find(E);
+            auto F = m.category_ptrs.find(E);
             if (F!=m.category_ptrs.end()) {
                 highest = MAX(F->second->total_time, highest);
             }
 
-            const Map<StringName, Metric::Category::Item *>::const_iterator G = m.item_ptrs.find(E);
+            auto G = m.item_ptrs.find(E);
             if (G!=m.item_ptrs.end()) {
                 if (use_self) {
                     highest = MAX(G->second->self, highest);
@@ -270,7 +270,7 @@ void EditorProfiler::_update_plot() {
 
                     float value = 0;
 
-                    const Map<StringName, Metric::Category *>::const_iterator F = m.category_ptrs.find(E);
+                    auto F = m.category_ptrs.find(E);
                     if (F!=m.category_ptrs.end()) {
                         value = F->second->total_time;
                     }
@@ -505,9 +505,7 @@ void EditorProfiler::_graph_tex_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
     Ref<InputEventMouseMotion> mm = dynamic_ref_cast<InputEventMouseMotion>(p_ev);
 
-    if (
-            mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed() ||
-            mm) {
+    if ( (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) || mm) {
 
         int x = me->get_position().x;
         x = x * frame_metrics.size() / graph->get_size().width;

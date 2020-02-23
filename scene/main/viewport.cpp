@@ -82,11 +82,11 @@ void ViewportTexture::setup_local_to_scene() {
     }
 
     Node *vpn = local_scene->get_node(path);
-    ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid."); 
+    ERR_FAIL_COND_MSG(!vpn, "ViewportTexture: Path to node is invalid.");
 
     vp = object_cast<Viewport>(vpn);
 
-    ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport."); 
+    ERR_FAIL_COND_MSG(!vp, "ViewportTexture: Path to node does not point to a viewport.");
 
     vp->viewport_textures.insert(this);
 
@@ -560,7 +560,7 @@ void Viewport::_notification(int p_what) {
 
                             Vector2 point = canvas_transform.affine_inverse().xform(pos);
 
-                            int rc = ss2d->intersect_point_on_canvas(point, canvas_layer_id, res, 64, Set<RID>(), 0xFFFFFFFF, true, true, true);
+                            int rc = ss2d->intersect_point_on_canvas(point, canvas_layer_id, res, 64, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                             for (int i = 0; i < rc; i++) {
 
                                 if (res[i].collider_id && res[i].collider) {
@@ -568,7 +568,7 @@ void Viewport::_notification(int p_what) {
                                     if (co) {
                                         bool send_event = true;
                                         if (is_mouse) {
-                                            Map<ObjectID, uint64_t>::iterator F = physics_2d_mouseover.find(res[i].collider_id);
+                                            HashMap<ObjectID, uint64_t>::iterator F = physics_2d_mouseover.find(res[i].collider_id);
 
                                             if (F==physics_2d_mouseover.end()) {
                                                 physics_2d_mouseover.emplace(res[i].collider_id, frame);
@@ -591,9 +591,9 @@ void Viewport::_notification(int p_what) {
                         }
 
                         if (is_mouse) {
-                            ListOld<Map<ObjectID, uint64_t>::iterator > to_erase;
+                            ListOld<HashMap<ObjectID, uint64_t>::iterator > to_erase;
 
-                            for (Map<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
+                            for (HashMap<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
                                 if (iter->second != frame) {
                                     Object *o = ObjectDB::get_instance(iter->first);
                                     if (o) {
@@ -655,7 +655,7 @@ void Viewport::_notification(int p_what) {
                             PhysicsDirectSpaceState *space = PhysicsServer::get_singleton()->space_get_direct_state(find_world()->get_space());
                             if (space) {
 
-                                bool col = space->intersect_ray(from, from + dir * 10000, result, Set<RID>(), 0xFFFFFFFF, true, true, true);
+                                bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                                 ObjectID new_collider = 0;
                                 if (col) {
 
@@ -1421,7 +1421,7 @@ Transform2D Viewport::_get_input_pre_xform() const {
 Vector2 Viewport::_get_window_offset() const {
 
     if (get_parent() && get_parent()->has_method("get_global_position")) {
-        return get_parent()->call("get_global_position");
+        return get_parent()->call_va("get_global_position");
     }
     return Vector2();
 }
@@ -1437,7 +1437,7 @@ Ref<InputEvent> Viewport::_make_input_local(const Ref<InputEvent> &ev) {
 void Viewport::_vp_input_text(se_string_view p_text) {
 
     if (gui.key_focus) {
-        gui.key_focus->call("set_text", p_text);
+        gui.key_focus->call_va("set_text", p_text);
     }
 }
 
@@ -2234,7 +2234,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                         if (tooltip == gui.tooltip_label->get_text()) {
                             is_tooltip_shown = true;
                         }
-                    } else if (tooltip == StringName(gui.tooltip_popup->call("get_tooltip_text"))) {
+                    } else if (tooltip == StringName(gui.tooltip_popup->call_va("get_tooltip_text"))) {
                         is_tooltip_shown = true;
                     }
                 } else
@@ -2554,7 +2554,7 @@ void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, Obj
 
 void Viewport::_gui_force_drag(Control *p_base, const Variant &p_data, Control *p_control) {
 
-    ERR_FAIL_COND_MSG(p_data.get_type() == VariantType::NIL, "Drag data must be a value."); 
+    ERR_FAIL_COND_MSG(p_data.get_type() == VariantType::NIL, "Drag data must be a value.");
 
     gui.dragging = true;
     gui.drag_data = p_data;

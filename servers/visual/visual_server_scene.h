@@ -37,7 +37,10 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/self_list.h"
-#include "servers/arvr/arvr_interface.h"
+
+struct NewOctree {};
+enum ARVREyes : int8_t;
+class ARVRInterface;
 
 class VisualServerScene {
 public:
@@ -78,17 +81,15 @@ public:
         Transform transform;
     };
 
-    mutable RID_Owner<Camera> camera_owner;
-
-    virtual RID camera_create();
-    virtual void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
-    virtual void camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
-    virtual void camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far);
-    virtual void camera_set_transform(RID p_camera, const Transform &p_transform);
-    virtual void camera_set_cull_mask(RID p_camera, uint32_t p_layers);
-    virtual void camera_set_environment(RID p_camera, RID p_env);
-    virtual void camera_set_use_vertical_aspect(RID p_camera, bool p_enable);
-
+    RID camera_create();
+    void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
+    void camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
+    void camera_set_frustum(RID p_camera, float p_size, Vector2 p_offset, float p_z_near, float p_z_far);
+    void camera_set_transform(RID p_camera, const Transform &p_transform);
+    void camera_set_cull_mask(RID p_camera, uint32_t p_layers);
+    void camera_set_environment(RID p_camera, RID p_env);
+    void camera_set_use_vertical_aspect(RID p_camera, bool p_enable);
+    static bool owns_camera(RID p_camera);
     /* SCENARIO API */
 
     struct Instance;
@@ -116,18 +117,18 @@ public:
     static void *_instance_pair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int);
     static void _instance_unpair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int, void *);
 
-    virtual RID scenario_create();
+    RID scenario_create();
 
-    virtual void scenario_set_debug(RID p_scenario, VS::ScenarioDebugMode p_debug_mode);
-    virtual void scenario_set_environment(RID p_scenario, RID p_environment);
-    virtual void scenario_set_fallback_environment(RID p_scenario, RID p_environment);
-    virtual void scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv);
+    void scenario_set_debug(RID p_scenario, VS::ScenarioDebugMode p_debug_mode);
+    void scenario_set_environment(RID p_scenario, RID p_environment);
+    void scenario_set_fallback_environment(RID p_scenario, RID p_environment);
+    void scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv);
 
     /* INSTANCING API */
 
     struct InstanceBaseData {
 
-        virtual ~InstanceBaseData() {}
+        virtual ~InstanceBaseData() = default;
     };
 
     struct Instance : RasterizerScene::InstanceBase {
@@ -139,15 +140,7 @@ public:
         OctreeElementID octree_id = 0;
 
         //aabb stuff
-        bool update_aabb=false;
-        bool update_materials=false;
 
-        SelfList<Instance> update_item;
-
-        AABB aabb;
-        AABB transformed_aabb;
-        AABB *custom_aabb; // <Zylann> would using aabb directly with a bool be better?
-        float extra_margin=0.0f;
         uint32_t object_id=0;
 
         float lod_begin;
@@ -174,8 +167,7 @@ public:
         }
 
         Instance() :
-                scenario_item(this),
-                update_item(this) {
+                scenario_item(this) {
 
             visible = true;
 
@@ -189,45 +181,17 @@ public:
             version = 1;
             base_data = nullptr;
 
-            custom_aabb = nullptr;
         }
 
         ~Instance() override {
 
             if (base_data)
                 memdelete(base_data);
-            if (custom_aabb)
-                memdelete(custom_aabb);
         }
     };
 
-    SelfList<Instance>::List _instance_update_list;
+    //SelfList<Instance>::List _instance_update_list;
     void _instance_queue_update(Instance *p_instance, bool p_update_aabb, bool p_update_materials = false);
-
-    struct InstanceGeometryData : public InstanceBaseData {
-
-        ListOld<Instance *> lighting;
-        bool lighting_dirty;
-        bool can_cast_shadows;
-        bool material_is_animated;
-
-        ListOld<Instance *> reflection_probes;
-        bool reflection_dirty;
-
-        ListOld<Instance *> gi_probes;
-        bool gi_probes_dirty;
-
-        ListOld<Instance *> lightmap_captures;
-
-        InstanceGeometryData() {
-
-            lighting_dirty = false;
-            reflection_dirty = true;
-            can_cast_shadows = true;
-            material_is_animated = true;
-            gi_probes_dirty = true;
-        }
-    };
 
     struct InstanceReflectionProbeData : public InstanceBaseData {
 
@@ -291,21 +255,21 @@ public:
 
         ListOld<PairInfo> geometries;
 
-        Set<Instance *> lights;
+        HashSet<Instance *> lights;
 
         struct LightCache {
 
-            VS::LightType type;
+            VS::LightType type= VS::LIGHT_DIRECTIONAL;
             Transform transform;
             Color color;
-            float energy;
-            float radius;
-            float attenuation;
-            float spot_angle;
-            float spot_attenuation;
-            bool visible;
+            float energy=1.0f;
+            float radius = 1.0f;
+            float attenuation = 1.0f;
+            float spot_angle = 1.0f;
+            float spot_attenuation = 1.0f;
+            bool visible=true;
 
-            bool operator==(const LightCache &p_cache) {
+            bool operator==(const LightCache &p_cache) const noexcept {
 
                 return (type == p_cache.type &&
                         transform == p_cache.transform &&
@@ -318,21 +282,12 @@ public:
                         visible == p_cache.visible);
             }
 
-            bool operator!=(const LightCache &p_cache) {
+            bool operator!=(const LightCache &p_cache) const noexcept {
 
                 return !operator==(p_cache);
             }
 
-            LightCache() {
-
-                type = VS::LIGHT_DIRECTIONAL;
-                energy = 1.0;
-                radius = 1.0;
-                attenuation = 1.0;
-                spot_angle = 1.0;
-                spot_attenuation = 1.0;
-                visible = true;
-            }
+            LightCache() = default;
         };
 
         struct LocalData {
@@ -349,17 +304,17 @@ public:
 
         struct Dynamic {
 
-            Map<RID, LightCache> light_cache;
-            Map<RID, LightCache> light_cache_changes;
+            HashMap<RID, LightCache> light_cache;
+            HashMap<RID, LightCache> light_cache_changes;
             PoolVector<int> light_data;
-            PoolVector<LocalData> local_data;
+            Vector<LocalData> local_data;
             Vector<Vector<uint32_t> > level_cell_lists;
             RID probe_data;
-            bool enabled;
             int bake_dynamic_range;
+            bool enabled;
             RasterizerStorage::GIProbeCompression compression;
 
-            Vector<PoolVector<uint8_t> > mipmaps_3d;
+            Vector<Vector<uint8_t> > mipmaps_3d;
             Vector<PoolVector<CompBlockS3TC> > mipmaps_s3tc; //for s3tc
 
             int updating_stage;
@@ -396,7 +351,7 @@ public:
         };
         ListOld<PairInfo> geometries;
 
-        Set<Instance *> users;
+        HashSet<Instance *> users;
 
         InstanceLightmapCaptureData() {}
     };
@@ -413,50 +368,56 @@ public:
 
     RID_Owner<Instance> instance_owner;
 
-    virtual RID instance_create();
+    RID instance_create();
 
-    virtual void instance_set_base(RID p_instance, RID p_base); // from can be mesh, light, poly, area and portal so far.
-    virtual void instance_set_scenario(RID p_instance, RID p_scenario); // from can be mesh, light, poly, area and portal so far.
-    virtual void instance_set_layer_mask(RID p_instance, uint32_t p_mask);
-    virtual void instance_set_transform(RID p_instance, const Transform &p_transform);
-    virtual void instance_attach_object_instance_id(RID p_instance, ObjectID p_id);
-    virtual void instance_set_blend_shape_weight(RID p_instance, int p_shape, float p_weight);
-    virtual void instance_set_surface_material(RID p_instance, int p_surface, RID p_material);
-    virtual void instance_set_visible(RID p_instance, bool p_visible);
-    virtual void instance_set_use_lightmap(RID p_instance, RID p_lightmap_instance, RID p_lightmap);
+    void instance_set_base(RID p_instance, RID p_base); // from can be mesh, light, poly, area and portal so far.
+    void instance_set_scenario(RID p_instance, RID p_scenario); // from can be mesh, light, poly, area and portal so far.
+    void instance_set_layer_mask(RID p_instance, uint32_t p_mask);
+    void instance_set_transform(RID p_instance, const Transform &p_transform);
+    void instance_attach_object_instance_id(RID p_instance, ObjectID p_id);
+    void instance_set_blend_shape_weight(RID p_instance, int p_shape, float p_weight);
+    void instance_set_surface_material(RID p_instance, int p_surface, RID p_material);
+    void instance_set_visible(RID p_instance, bool p_visible);
+    void instance_set_use_lightmap(RID p_instance, RID p_lightmap_instance, RID p_lightmap);
 
-    virtual void instance_set_custom_aabb(RID p_instance, AABB p_aabb);
+    void instance_set_custom_aabb(RID p_instance, AABB p_aabb);
 
-    virtual void instance_attach_skeleton(RID p_instance, RID p_skeleton);
-    virtual void instance_set_exterior(RID p_instance, bool p_enabled);
+    void instance_attach_skeleton(RID p_instance, RID p_skeleton);
 
-    virtual void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin);
+    void instance_set_extra_visibility_margin(RID p_instance, real_t p_margin);
 
     // don't use these in a game!
-    virtual Vector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const;
-    virtual Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
-    virtual Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
+    Vector<ObjectID> instances_cull_aabb(const AABB &p_aabb, RID p_scenario = RID()) const;
+    Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
+    Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
 
-    virtual void instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled);
-    virtual void instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting);
-    virtual void instance_geometry_set_material_override(RID p_instance, RID p_material);
+    void instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled);
+    void instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting);
+    void instance_geometry_set_material_override(RID p_instance, RID p_material);
 
-    virtual void instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin);
-    virtual void instance_geometry_set_as_instance_lod(RID p_instance, RID p_as_lod_of_instance);
+    void instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin);
+    void instance_geometry_set_as_instance_lod(RID p_instance, RID p_as_lod_of_instance);
 
     _FORCE_INLINE_ void _update_instance(Instance *p_instance);
     _FORCE_INLINE_ void _update_instance_aabb(Instance *p_instance);
     _FORCE_INLINE_ void _update_dirty_instance(Instance *p_instance);
+    void _update_instance_material(Instance *p_instance);
     _FORCE_INLINE_ void _update_instance_lightmap_captures(Instance *p_instance);
 
-    _FORCE_INLINE_ bool _light_instance_update_shadow(Instance *p_instance, const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_shadow_atlas, Scenario *p_scenario);
+    _FORCE_INLINE_ bool _light_instance_update_shadow(Instance *p_instance, const Transform p_cam_transform,
+            const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_shadow_atlas, Scenario *p_scenario);
 
-    void _prepare_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe);
-    void _render_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe, int p_reflection_probe_pass);
+    void _prepare_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal,
+            RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas,
+            RID p_reflection_probe);
+    void _render_scene(const Transform p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal,
+            RID p_force_environment, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe,
+            int p_reflection_probe_pass);
     void render_empty_scene(RID p_scenario, RID p_shadow_atlas);
 
     void render_camera(RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas);
-    void render_camera(Ref<ARVRInterface> &p_interface, ARVRInterface::Eyes p_eye, RID p_camera, RID p_scenario, Size2 p_viewport_size, RID p_shadow_atlas);
+    void render_camera(Ref<ARVRInterface> &p_interface, ARVREyes p_eye, RID p_camera, RID p_scenario,
+            Size2 p_viewport_size, RID p_shadow_atlas);
     void update_dirty_instances();
 
     //probes
@@ -496,11 +457,16 @@ public:
     ListOld<Instance *> probe_bake_list;
 
     bool _render_reflection_probe_step(Instance *p_instance, int p_step);
-    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, Vector<uint32_t> *prev_cell);
+    void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell,
+            const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data,
+            Vector<uint32_t> *prev_cell);
 
     _FORCE_INLINE_ uint32_t _gi_bake_find_cell(const GIProbeDataCell *cells, int x, int y, int z, int p_cell_subdiv);
-    void _bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells, const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate);
-    void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells, InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count, const InstanceGIProbeData::LightCache &light_cache, int p_sign);
+    void _bake_gi_downscale_light(int p_idx, int p_level, const GIProbeDataCell *p_cells,
+            const GIProbeDataHeader *p_header, InstanceGIProbeData::LocalData *p_local_data, float p_propagate);
+    void _bake_gi_probe_light(const GIProbeDataHeader *header, const GIProbeDataCell *cells,
+            InstanceGIProbeData::LocalData *local_data, const uint32_t *leaves, int p_leaf_count,
+            const InstanceGIProbeData::LightCache &light_cache, int p_sign);
     void _bake_gi_probe(Instance *p_gi_probe);
     bool _check_gi_probe(Instance *p_gi_probe);
     void _setup_gi_probe(Instance *p_instance);

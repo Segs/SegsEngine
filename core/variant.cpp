@@ -2276,7 +2276,7 @@ Variant Variant::from(const Frustum &p_array) {
 }
 template<>
 Variant Variant::from(const PoolVector<RID> &p_array) {
-    return fromVector<RID>({p_array.read().ptr(),p_array.size()});
+    return fromVector<RID>({p_array.read().ptr(),size_t(p_array.size())});
 }
 
 template<>

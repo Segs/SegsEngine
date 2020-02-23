@@ -102,7 +102,7 @@ void Polygon3DEditor::_menu_option(int p_option) {
 void Polygon3DEditor::_wip_close() {
 
     undo_redo->create_action_ui(TTR("Create Polygon3D"));
-    undo_redo->add_undo_method(node, "set_polygon", node->call("get_polygon"));
+    undo_redo->add_undo_method(node, "set_polygon", node->call_va("get_polygon"));
     undo_redo->add_do_method(node, "set_polygon", Variant::from(wip));
     undo_redo->add_do_method(this, "_polygon_draw");
     undo_redo->add_undo_method(this, "_polygon_draw");
@@ -147,7 +147,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
         //Let the snap happen when the point is being moved, instead.
         //cpoint = CanvasItemEditor::get_singleton()->snap_point(cpoint);
 
-        Vector<Vector2> poly = node->call("get_polygon").as<Vector<Vector2>>();
+        Vector<Vector2> poly = node->call_va("get_polygon").as<Vector<Vector2>>();
 
         //first check if a point is to be added (segment split)
         real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
@@ -238,7 +238,7 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
                                 poly.insert_at(closest_idx + 1, cpoint);
                                 edited_point = closest_idx + 1;
                                 edited_point_pos = cpoint;
-                                node->call("set_polygon", Variant::from(poly));
+                                node->call_va("set_polygon", Variant::from(poly));
                                 _polygon_draw();
                                 snap_ignore = true;
 
@@ -368,10 +368,10 @@ bool Polygon3DEditor::forward_spatial_gui_input(Camera *p_camera, const Ref<Inpu
 
 float Polygon3DEditor::_get_depth() {
 
-    if (bool(node->call("_has_editable_3d_polygon_no_depth")))
+    if (bool(node->call_va("_has_editable_3d_polygon_no_depth")))
         return 0;
 
-    return float(node->call("get_depth"));
+    return float(node->call_va("get_depth"));
 }
 
 void Polygon3DEditor::_polygon_draw() {
@@ -384,7 +384,7 @@ void Polygon3DEditor::_polygon_draw() {
     if (wip_active)
         poly = wip;
     else
-        poly = node->call("get_polygon").as<Vector<Vector2>>();
+        poly = node->call_va("get_polygon").as<Vector<Vector2>>();
 
     float depth = _get_depth() * 0.5f;
 
@@ -499,7 +499,7 @@ void Polygon3DEditor::edit(Node *p_collision_polygon) {
 
         node = object_cast<Spatial>(p_collision_polygon);
         //Enable the pencil tool if the polygon is empty
-        if (node->call("get_polygon").as<PoolVector<Vector2>>().empty()) {
+        if (node->call_va("get_polygon").as<PoolVector<Vector2>>().empty()) {
             _menu_option(MODE_CREATE);
         }
         wip.clear();
@@ -588,7 +588,7 @@ void Polygon3DEditorPlugin::edit(Object *p_object) {
 
 bool Polygon3DEditorPlugin::handles(Object *p_object) const {
 
-    return object_cast<Spatial>(p_object) && bool(p_object->call("_is_editable_3d_polygon"));
+    return object_cast<Spatial>(p_object) && bool(p_object->call_va("_is_editable_3d_polygon"));
 }
 
 void Polygon3DEditorPlugin::make_visible(bool p_visible) {

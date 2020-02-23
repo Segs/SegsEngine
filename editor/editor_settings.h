@@ -37,6 +37,8 @@
 #include "core/resource.h"
 #include "core/translation.h"
 #include "scene/gui/shortcut.h"
+#include "core/hash_map.h"
+#include "core/property_info.h"
 
 class EditorPlugin;
 

@@ -63,8 +63,7 @@ void VisualScriptPropertySelector::_sbox_input(const Ref<InputEvent> &p_ie) {
             case KEY_DOWN:
             case KEY_PAGEUP:
             case KEY_PAGEDOWN: {
-
-                search_options->call("_gui_input", k);
+                search_options->call_va("_gui_input", k);
                 search_box->accept_event();
 
                 TreeItem *root = search_options->get_root();
@@ -397,7 +396,7 @@ void VisualScriptPropertySelector::get_visual_node_names(se_string_view root_fil
         auto desc = StringUtils::split(StringUtils::replace(StringUtils::replace(StringUtils::replace(mod_path,"(", "( "),")", " )"),",", ", "),' ');
         FixedVector<String,32,true> tmp_vec;
         tmp_vec.reserve(desc.size());
-        for (int i = 0; i < desc.size(); i++) {
+        for (size_t i = 0; i < desc.size(); i++) {
             tmp_vec.emplace_back(StringUtils::capitalize(desc[i]));
             if (StringUtils::ends_with(tmp_vec.back(),',')) {
                 tmp_vec.back().replace(",", ", ");
@@ -449,9 +448,9 @@ void VisualScriptPropertySelector::_item_selected() {
 
     while (not at_class.empty()) {
 
-        Map<StringName, DocData::ClassDoc>::iterator E = dd->class_list.find(at_class);
+        auto E = dd->class_list.find(at_class);
         if (E!=dd->class_list.end()) {
-            for (int i = 0; i < E->second.properties.size(); i++) {
+            for (size_t i = 0; i < E->second.properties.size(); i++) {
                 if (E->second.properties[i].name == name) {
                     text = E->second.properties[i].description;
                 }
@@ -464,9 +463,9 @@ void VisualScriptPropertySelector::_item_selected() {
 
     while (!at_class.empty()) {
 
-        Map<StringName, DocData::ClassDoc>::iterator C = dd->class_list.find(at_class);
+        auto C = dd->class_list.find(at_class);
         if (C!=dd->class_list.end()) {
-            for (int i = 0; i < C->second.methods.size(); i++) {
+            for (size_t i = 0; i < C->second.methods.size(); i++) {
                 if (C->second.methods[i].name == name) {
                     text = C->second.methods[i].description;
                 }
@@ -475,9 +474,9 @@ void VisualScriptPropertySelector::_item_selected() {
 
         at_class = ClassDB::get_parent_class_nocheck(at_class);
     }
-    Map<StringName, DocData::ClassDoc>::iterator T = dd->class_list.find(class_type);
+    auto T = dd->class_list.find(class_type);
     if (T!=dd->class_list.end()) {
-        for (int i = 0; i < T->second.methods.size(); i++) {
+        for (size_t i = 0; i < T->second.methods.size(); i++) {
             Vector<se_string_view> functions = StringUtils::rsplit(name,"/", false, 1);
             if (T->second.methods[i].name == functions[functions.size() - 1]) {
                 text = T->second.methods[i].description;
@@ -490,14 +489,14 @@ void VisualScriptPropertySelector::_item_selected() {
     if (names.find(name) != nullptr) {
         Ref<VisualScriptOperator> operator_node(dynamic_ref_cast<VisualScriptOperator>(VisualScriptLanguage::singleton->create_node_from_name(name)));
         if (operator_node) {
-            Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(operator_node->get_class_name());
+            auto F = dd->class_list.find(operator_node->get_class_name());
             if (F!=dd->class_list.end()) { // TODO: SEGS: result of `find` is unused
                 text = Variant::get_operator_name(operator_node->get_operator());
             }
         }
         Ref<VisualScriptTypeCast> typecast_node = dynamic_ref_cast<VisualScriptTypeCast>(VisualScriptLanguage::singleton->create_node_from_name(name));
         if (typecast_node) {
-            Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(typecast_node->get_class_name());
+            auto F = dd->class_list.find(typecast_node->get_class_name());
             if (F!=dd->class_list.end()) {
                 text = F->second.description;
             }
@@ -505,9 +504,9 @@ void VisualScriptPropertySelector::_item_selected() {
 
         Ref<VisualScriptBuiltinFunc> builtin_node = dynamic_ref_cast<VisualScriptBuiltinFunc>(VisualScriptLanguage::singleton->create_node_from_name(name));
         if (builtin_node) {
-            Map<StringName, DocData::ClassDoc>::iterator F = dd->class_list.find(builtin_node->get_class_name());
+            auto F = dd->class_list.find(builtin_node->get_class_name());
             if (F!=dd->class_list.end()) {
-                for (int i = 0; i < F->second.constants.size(); i++) {
+                for (size_t i = 0; i < F->second.constants.size(); i++) {
                     if (StringUtils::to_int(F->second.constants[i].value) == int(builtin_node->get_func())) {
                         text = F->second.constants[i].description;
                     }

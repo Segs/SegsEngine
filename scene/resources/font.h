@@ -33,10 +33,16 @@
 #include "core/map.h"
 #include "core/hash_map.h"
 #include "core/resource.h"
-#include "scene/resources/texture.h"
+#include "core/math/vector2.h"
+#include "core/math/rect2.h"
+#include "core/rid.h"
+#include "core/color.h"
 #include "core/forward_decls.h"
 #include "core/hashfuncs.h"
+
 #include <QChar>
+
+class Texture;
 
 class Font : public Resource {
 
@@ -120,16 +126,12 @@ class BitmapFont : public Font {
 public:
     struct Character {
 
-        int texture_idx;
+        int texture_idx=0;
         Rect2 rect;
-        float v_align;
+        float v_align = 0;
         float h_align;
         float advance;
 
-        Character() {
-            texture_idx = 0;
-            v_align = 0;
-        }
     };
 
     struct KerningPairKey {
@@ -146,7 +148,7 @@ public:
     };
 
 private:
-    DefHashMap<uint16_t, Character> char_map;
+    HashMap<uint16_t, Character> char_map;
     Map<KerningPairKey, int> kerning_map;
 
     Ref<BitmapFont> fallback;

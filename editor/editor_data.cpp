@@ -509,7 +509,7 @@ Object *EditorData::instance_custom_type(const StringName &p_type, const StringN
             Object *ob = ClassDB::instance(p_inherits);
             ERR_FAIL_COND_V(!ob, nullptr);
             if (ob->is_class("Node")) {
-                ob->call("set_name", p_type);
+                ob->call_va("set_name", p_type);
             }
             ob->set_script(script.get_ref_ptr());
             return ob;
@@ -1010,7 +1010,7 @@ void EditorSelection::add_node(Node *p_node) {
     Object *meta = nullptr;
     for (Object * E :editor_plugins) {
 
-        meta = E->call("_get_editor_data", Variant(p_node));
+        meta = E->call_va("_get_editor_data", Variant(p_node));
         if (meta) {
             break;
         }

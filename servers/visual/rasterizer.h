@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RASTERIZER_H
-#define RASTERIZER_H
+#pragma once
 
 #include "core/math/camera_matrix.h"
 #include "servers/visual_server.h"
@@ -470,7 +469,7 @@ public:
 
     virtual uint32_t gi_probe_get_version(RID p_probe) = 0;
 
-    enum GIProbeCompression {
+    enum GIProbeCompression : uint8_t {
         GI_PROBE_UNCOMPRESSED,
         GI_PROBE_S3TC,
         GI_PROBE_ETC2
@@ -1126,5 +1125,3 @@ public:
 
     virtual ~Rasterizer() {}
 };
-
-#endif // RASTERIZER_H

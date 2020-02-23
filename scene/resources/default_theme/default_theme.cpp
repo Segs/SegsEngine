@@ -39,7 +39,7 @@
 #include "font_hidpi.inc"
 #include "font_lodpi.inc"
 
-using TexCacheMap = Map<const void *, Ref<ImageTexture> >;
+using TexCacheMap = HashMap<const void *, Ref<ImageTexture> >;
 
 static TexCacheMap *tex_cache;
 static float scale = 1;

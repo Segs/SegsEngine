@@ -473,7 +473,7 @@ void GDScriptWorkspace::resolve_related_symbols(const lsp::TextDocumentPositionP
                 r_list.push_back(symbol->second);
             }
 
-            const DefHashMap<String, ClassMembers> &inner_classes = script->get_inner_classes();
+            const HashMap<String, ClassMembers> &inner_classes = script->get_inner_classes();
             for(const auto &_class : inner_classes) {
 
                 const ClassMembers &inner_class = _class.second;

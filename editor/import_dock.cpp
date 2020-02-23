@@ -43,11 +43,11 @@ class ImportDockParameters : public Object {
     GDCLASS(ImportDockParameters,Object)
 
 public:
-    Map<StringName, Variant> values;
+    HashMap<StringName, Variant> values;
     Vector<PropertyInfo> properties;
     ResourceImporterInterface *importer;
     Vector<String> paths;
-    Set<StringName> checked;
+    HashSet<StringName> checked;
     bool checking;
 
     bool _set(const StringName &p_name, const Variant &p_value) {
@@ -171,24 +171,7 @@ void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
     }
 
     params->update();
-
-    preset->get_popup()->clear();
-
-    if (params->importer->get_preset_count() == 0) {
-        preset->get_popup()->add_item(TTR("Default"));
-    } else {
-        for (int i = 0; i < params->importer->get_preset_count(); i++) {
-            preset->get_popup()->add_item(params->importer->get_preset_name(i));
-        }
-    }
-
-    preset->get_popup()->add_separator();
-    preset->get_popup()->add_item(FormatSN(TTR("Set as Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_SET_AS_DEFAULT);
-    if (ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + params->importer->get_importer_name()))) {
-        preset->get_popup()->add_item(TTR("Load Default"), ITEM_LOAD_DEFAULT);
-        preset->get_popup()->add_separator();
-        preset->get_popup()->add_item(FormatSN(TTR("Clear Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_CLEAR_DEFAULT);
-    }
+    _update_preset_menu();
 }
 
 void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
@@ -196,9 +179,9 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
     clear();
 
     // Use the value that is repeated the most.
-    Map<se_string_view, Dictionary> value_frequency;
+    HashMap<se_string_view, Dictionary> value_frequency;
 
-    for (int i = 0; i < p_paths.size(); i++) {
+    for (size_t i = 0; i < p_paths.size(); i++) {
 
         Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
         Error err = config->load(p_paths[i] + ".import");
@@ -285,6 +268,17 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
         }
     }
 
+    _update_preset_menu();
+
+    params->paths = p_paths;
+    import->set_disabled(false);
+    import_as->set_disabled(false);
+    preset->set_disabled(false);
+
+    imported->set_text(FormatSN(TTR("%d Files").asCString(), p_paths.size()));
+}
+
+void ImportDock::_update_preset_menu() {
     preset->get_popup()->clear();
 
     if (params->importer->get_preset_count() == 0) {
@@ -295,14 +289,14 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
         }
     }
 
-    params->paths = p_paths;
-    import->set_disabled(false);
-    import_as->set_disabled(false);
-    preset->set_disabled(false);
-
-    imported->set_text(StringName(itos(p_paths.size()) + TTR(" Files")));
+    preset->get_popup()->add_separator();
+    preset->get_popup()->add_item(FormatSN(TTR("Set as Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_SET_AS_DEFAULT);
+    if (ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + params->importer->get_importer_name()))) {
+        preset->get_popup()->add_item(TTR("Load Default"), ITEM_LOAD_DEFAULT);
+        preset->get_popup()->add_separator();
+        preset->get_popup()->add_item(FormatSN(TTR("Clear Default for '%s'").asCString(), params->importer->get_visible_name().asCString()), ITEM_CLEAR_DEFAULT);
+    }
 }
-
 void ImportDock::_importer_selected(int i_idx) {
     String name = import_as->get_selected_metadata();
     ResourceImporterInterface * importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
@@ -335,7 +329,7 @@ void ImportDock::_preset_selected(int p_idx) {
 
             ProjectSettings::get_singleton()->set(importer_defaults, d);
             ProjectSettings::get_singleton()->save();
-
+            _update_preset_menu();
         } break;
         case ITEM_LOAD_DEFAULT: {
 
@@ -343,9 +337,14 @@ void ImportDock::_preset_selected(int p_idx) {
 
             Dictionary d = ProjectSettings::get_singleton()->get(importer_defaults);
             Vector<Variant> v(d.get_key_list());
-
+            if (params->checking) {
+                params->checked.clear();
+            }
             for (const Variant &E : v) {
                 params->values[E] = d[E];
+                if (params->checking) {
+                    params->checked.insert(E);
+                }
             }
             params->update();
 
@@ -354,6 +353,7 @@ void ImportDock::_preset_selected(int p_idx) {
 
             ProjectSettings::get_singleton()->set(StringName(importer_defaults), Variant());
             ProjectSettings::get_singleton()->save();
+            _update_preset_menu();
 
         } break;
         default: {
@@ -361,10 +361,15 @@ void ImportDock::_preset_selected(int p_idx) {
             List<ResourceImporter::ImportOption> options;
 
             params->importer->get_import_options(&options, p_idx);
-
+            if (params->checking) {
+                params->checked.clear();
+            }
             for (const ResourceImporter::ImportOption &E : options) {
 
                 params->values[E.option.name] = E.default_value;
+                if (params->checking) {
+                    params->checked.insert(E.option.name);
+                }
             }
 
             params->update();

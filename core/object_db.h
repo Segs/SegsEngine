@@ -10,7 +10,7 @@ using ObjectID = uint64_t;
 template<>
 struct Hasher<Object *> {
 
-    uint32_t operator()(const Object *p_obj) {
+    uint32_t operator()(const Object *p_obj) const {
         union {
             const Object *p;
             unsigned long i;

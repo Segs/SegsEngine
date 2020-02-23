@@ -190,8 +190,8 @@ public:
     void body_clear_shapes(RID p_body) override;
 
     // Used for Rigid and Soft Bodies
-    void body_attach_object_instance_id(RID p_body, uint32_t p_id) override;
-    uint32_t body_get_object_instance_id(RID p_body) const override;
+    void body_attach_object_instance_id(RID p_body, ObjectID p_id) override;
+    ObjectID body_get_object_instance_id(RID p_body) const override;
 
     void body_set_enable_continuous_collision_detection(RID p_body, bool p_enable) override;
     bool body_is_continuous_collision_detection_enabled(RID p_body) const override;

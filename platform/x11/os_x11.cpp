@@ -32,10 +32,12 @@
 #include "detect_prime.h"
 
 #include "core/os/dir_access.h"
+#include "core/os/file_access.h"
+#include "core/print_string.h"
+#include "core/string_formatter.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
-#include "core/string_formatter.h"
-#include "core/print_string.h"
+
 #include "drivers/gles3/rasterizer_gles3.h"
 #include <cerrno>
 #include "key_mapping_x11.h"
@@ -562,8 +564,6 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 #endif
     _ensure_user_data_dir();
 
-    power_manager = memnew(PowerX11);
-
     if (p_desired.layered) {
         set_window_per_pixel_transparency_enabled(true);
     }
@@ -627,14 +627,8 @@ bool OS_X11::refresh_device_info() {
         int range_max_x = 0;
         int range_max_y = 0;
         int pressure_resolution = 0;
-        int pressure_min = 0;
-        int pressure_max = 0;
         int tilt_resolution_x = 0;
         int tilt_resolution_y = 0;
-        int tilt_range_min_x = 0;
-        int tilt_range_min_y = 0;
-        int tilt_range_max_x = 0;
-        int tilt_range_max_y = 0;
         for (int j = 0; j < dev->num_classes; j++) {
 #ifdef TOUCH_ENABLED
             if (dev->classes[j]->type == XITouchClass && ((XITouchClassInfo *)dev->classes[j])->mode == XIDirectTouch) {
@@ -655,17 +649,14 @@ bool OS_X11::refresh_device_info() {
                     range_max_y = class_info->max;
                     absolute_mode = true;
                 } else if (class_info->number == VALUATOR_PRESSURE && class_info->mode == XIModeAbsolute) {
-                    pressure_resolution = class_info->resolution;
-                    pressure_min = class_info->min;
-                    pressure_max = class_info->max;
+                    pressure_resolution = (class_info->max - class_info->min);
+                    if (pressure_resolution == 0) pressure_resolution = 1;
                 } else if (class_info->number == VALUATOR_TILTX && class_info->mode == XIModeAbsolute) {
-                    tilt_resolution_x = class_info->resolution;
-                    tilt_range_min_x = class_info->min;
-                    tilt_range_max_x = class_info->max;
+                    tilt_resolution_x = (class_info->max - class_info->min);
+                    if (tilt_resolution_x == 0) tilt_resolution_x = 1;
                 } else if (class_info->number == VALUATOR_TILTY && class_info->mode == XIModeAbsolute) {
-                    tilt_resolution_y = class_info->resolution;
-                    tilt_range_min_y = class_info->min;
-                    tilt_range_max_y = class_info->max;
+                    tilt_resolution_y = (class_info->max - class_info->min);
+                    if (tilt_resolution_y == 0) tilt_resolution_y = 1;
                 }
             }
         }
@@ -685,15 +676,7 @@ bool OS_X11::refresh_device_info() {
             xi.absolute_devices[dev->deviceid] = Vector2(abs_resolution_mult / resolution_x, abs_resolution_mult / resolution_y);
             print_verbose("XInput: Absolute pointing device: " + String(dev->name));
         }
-        if (pressure_resolution <= 0) {
-            pressure_resolution = (pressure_max - pressure_min);
-        }
-        if (tilt_resolution_x <= 0) {
-            tilt_resolution_x = (tilt_range_max_x - tilt_range_min_x);
-        }
-        if (tilt_resolution_y <= 0) {
-            tilt_resolution_y = (tilt_range_max_y - tilt_range_min_y);
-        }
+
         xi.pressure = 0;
         xi.pen_devices[dev->deviceid] = Vector3(pressure_resolution, tilt_resolution_x, tilt_resolution_y);
     }
@@ -775,8 +758,6 @@ void OS_X11::finalize() {
     visual_server->finish();
     memdelete(visual_server);
     //memdelete(rasterizer);
-
-    memdelete(power_manager);
 
     if (xrandr_handle)
         dlclose(xrandr_handle);
@@ -1379,11 +1360,9 @@ void OS_X11::set_window_fullscreen(bool p_enabled) {
     }
     if (!p_enabled) {
         set_window_position(last_position_before_fs);
-    }
-    else {
+    } else {
         last_position_before_fs = get_window_position();
     }
-
     current_videomode.fullscreen = p_enabled;
 }
 
@@ -3176,18 +3155,6 @@ void OS_X11::set_context(int p_context) {
     }
 }
 
-OS::PowerState OS_X11::get_power_state() {
-    return power_manager->get_power_state();
-}
-
-int OS_X11::get_power_seconds_left() {
-    return power_manager->get_power_seconds_left();
-}
-
-int OS_X11::get_power_percent_left() {
-    return power_manager->get_power_percent_left();
-}
-
 void OS_X11::disable_crash_handler() {
     crash_handler.disable();
 }
@@ -3357,6 +3324,7 @@ OS_X11::OS_X11(void *) {
     mouse_mode = MOUSE_MODE_VISIBLE;
     last_position_before_fs = Vector2();
 }
+
 OS *instantiateOS(void *v) {
     return new OS_X11(v);
 }

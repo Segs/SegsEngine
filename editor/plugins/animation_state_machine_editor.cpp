@@ -86,7 +86,9 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
 
     //Add new node
-    if (mb && mb->is_pressed() && (tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT || tool_create->is_pressed() && mb->get_button_index() == BUTTON_LEFT)) {
+    if (mb && mb->is_pressed() &&
+            ((tool_select->is_pressed() && mb->get_button_index() == BUTTON_RIGHT) ||
+             (tool_create->is_pressed() && mb->get_button_index() == BUTTON_LEFT))) {
         menu->clear();
         animations_menu->clear();
         animations_to_add.clear();
@@ -251,7 +253,8 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
     }
 
     //connect nodes
-    if (mb && (tool_select->is_pressed() && mb->get_shift() || tool_connect->is_pressed()) && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
+    if (mb && ((tool_select->is_pressed() && mb->get_shift()) || tool_connect->is_pressed()) &&
+              (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT)) {
 
         for (int i = node_rects.size() - 1; i >= 0; i--) { //inverse to draw order
             if (node_rects[i].node.has_point(mb->get_position())) { //select node since nothing else was selected

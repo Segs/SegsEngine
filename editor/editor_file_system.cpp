@@ -701,9 +701,12 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
         if (f.empty())
             break;
 
+        if (da->current_is_hidden())
+            continue;
+
         if (da->current_is_dir()) {
 
-            if (StringUtils::begins_with(f,".")) //ignore hidden and . / ..
+            if (StringUtils::begins_with(f,".")) // Ignore special and . / ..
                 continue;
 
             if (FileAccess::exists(PathUtils::plus_file(PathUtils::plus_file(cd,f),"project.godot"))) // skip if another project inside this
@@ -779,7 +782,8 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
 
         String path = PathUtils::plus_file(cd,fi->file);
 
-        FileCache *fc = file_cache.getptr(path);
+        auto fc_iter = file_cache.find(path);
+        FileCache *fc = file_cache.end()==fc_iter ? nullptr : &fc_iter->second;
         uint64_t mt = FileAccess::get_modified_time(path);
 
         if (import_extensions.contains(ext)) {
@@ -896,9 +900,12 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
             if (f.empty())
                 break;
 
+            if (da->current_is_hidden())
+                continue;
+
             if (da->current_is_dir()) {
 
-                if (StringUtils::begins_with(f,".")) //ignore hidden and . / ..
+                if (StringUtils::begins_with(f,".")) // Ignore special and . / ..
                     continue;
 
                 int idx = p_dir->find_dir_index(f);
@@ -1084,8 +1091,12 @@ void EditorFileSystem::get_changed_sources(List<UIString> *r_changed) {
 
 void EditorFileSystem::scan_changes() {
 
-    if (scanning || scanning_changes || thread)
+    if (first_scan || // Prevent a premature changes scan from inhibiting the first full scan
+            scanning || scanning_changes || thread) {
+        scan_changes_pending = true;
+        set_process(true);
         return;
+    }
 
     _update_extensions();
     sources_changed.clear();
@@ -1130,15 +1141,17 @@ void EditorFileSystem::_notification(int p_what) {
 
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            if (use_threads && thread) {
+            Thread *active_thread = thread ? thread : thread_sources;
+            if (use_threads && active_thread) {
                 //abort thread if in progress
                 abort_scan = true;
                 while (scanning) {
                     OS::get_singleton()->delay_usec(1000);
                 }
-                Thread::wait_to_finish(thread);
-                memdelete(thread);
-                thread = nullptr;
+                Thread::wait_to_finish(active_thread);
+                memdelete(active_thread);
+                thread = NULL;
+                thread_sources = NULL;
                 WARN_PRINT("Scan thread aborted...");
                 set_process(false);
             }
@@ -1188,6 +1201,10 @@ void EditorFileSystem::_notification(int p_what) {
                     emit_signal("sources_changed", !sources_changed.empty());
                     _queue_update_script_classes();
                     first_scan = false;
+                }
+                if (!is_processing() && scan_changes_pending) {
+                    scan_changes_pending = false;
+                    scan_changes();
                 }
             }
         } break;
@@ -1563,7 +1580,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
 
     String importer_name;
 
-    Map<String, Map<StringName, Variant> > source_file_options;
+    Map<String, HashMap<StringName, Variant> > source_file_options;
     Map<String, String> base_paths;
     for (int i = 0; i < p_files.size(); i++) {
 
@@ -1580,7 +1597,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
             ERR_FAIL_V(ERR_FILE_CORRUPT);
         }
 
-        source_file_options[p_files[i]] = Map<StringName, Variant>();
+        source_file_options[p_files[i]] = HashMap<StringName, Variant>();
         importer_name = file_importer_name;
 
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
@@ -1612,7 +1629,7 @@ Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vecto
     Error err = importer->import_group_file(p_group_file, source_file_options, base_paths);
 
     //all went well, overwrite config files with proper remaps and md5s
-    for (eastl::pair<const String, Map<StringName, Variant> > &E : source_file_options) {
+    for (eastl::pair<const String, HashMap<StringName, Variant> > &E : source_file_options) {
 
         const String &file = E.first;
         String base_path = ResourceFormatImporter::get_singleton()->get_import_base_path(file);
@@ -1727,7 +1744,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     //try to obtain existing params
 
-    Map<StringName, Variant> params;
+    HashMap<StringName, Variant> params;
     String importer_name;
 
     if (FileAccess::exists(p_file + ".import")) {
@@ -2144,6 +2161,7 @@ EditorFileSystem::EditorFileSystem() {
     scan_total = 0;
     update_script_classes_queued = false;
     first_scan = true;
+    scan_changes_pending = false;
     revalidate_import_files = false;
 }
 

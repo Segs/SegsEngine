@@ -195,7 +195,7 @@ void AudioStreamPlayer2D::_notification(int p_what) {
 
             Physics2DDirectSpaceState::ShapeResult sr[MAX_INTERSECT_AREAS];
 
-            int areas = space_state->intersect_point(global_pos, sr, MAX_INTERSECT_AREAS, Set<RID>(), area_mask, false, true);
+            int areas = space_state->intersect_point(global_pos, sr, MAX_INTERSECT_AREAS, HashSet<RID>(), area_mask, false, true);
 
             for (int i = 0; i < areas; i++) {
 
@@ -519,7 +519,7 @@ void AudioStreamPlayer2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"), "set_stream", "get_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_db", PropertyHint::Range, "-80,24"), "set_volume_db", "get_volume_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PropertyHint::Range, "0.01,32,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PropertyHint::Range, "0.01,4,0.01,or_greater"), "set_pitch_scale", "get_pitch_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PropertyHint::None, ""), "set_stream_paused", "get_stream_paused");

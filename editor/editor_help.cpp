@@ -65,7 +65,7 @@ void EditorHelp::_init_colors() {
     text_color = get_color("default_color", "RichTextLabel");
     headline_color = get_color("headline_color", "EditorHelp");
     base_type_color = title_color.linear_interpolate(text_color, 0.5);
-    comment_color = text_color * Color(1, 1, 1, 0.4f);
+    comment_color = text_color * Color(1, 1, 1, 0.6f);
     symbol_color = comment_color;
     value_color = text_color * Color(1, 1, 1, 0.6f);
     qualifier_color = text_color * Color(1, 1, 1, 0.8f);
@@ -328,7 +328,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
 }
 Error EditorHelp::_goto_desc(se_string_view p_class, int p_vscr) {
 
-    if (!doc->class_list.contains_as(p_class,SNSVComparer()))
+    if (!doc->class_list.contains_as(p_class,eastl::hash<se_string_view>(),SNSVComparer()))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -638,10 +638,10 @@ void EditorHelp::_update_doc() {
         for (int pass = 0; pass < 2; pass++) {
             Vector<DocData::MethodDoc> m;
 
-            for (int i = 0; i < methods.size(); i++) {
-                se_string_view q = methods[i].qualifiers;
-                if (pass == 0 && StringUtils::find(q,"virtual") != String::npos || pass == 1 && StringUtils::find(q,"virtual") == String::npos) {
-                    m.push_back(methods[i]);
+            for (const DocData::MethodDoc &dm : methods) {
+                se_string_view q = dm.qualifiers;
+                if ((pass == 0 && StringUtils::find(q,"virtual") != String::npos) || (pass == 1 && StringUtils::find(q,"virtual") == String::npos)) {
+                    m.push_back(dm);
                 }
             }
 
@@ -653,7 +653,7 @@ void EditorHelp::_update_doc() {
             }
 
             se_string_view group_prefix;
-            for (int i = 0; i < m.size(); i++) {
+            for (size_t i = 0; i < m.size(); i++) {
                 const se_string_view new_prefix = StringUtils::substr(m[i].name,0, 3);
                 bool is_new_group = false;
 
@@ -703,7 +703,7 @@ void EditorHelp::_update_doc() {
         class_desc->push_table(2);
         class_desc->set_table_column_expand(1, true);
 
-        for (int i = 0; i < cd.theme_properties.size(); i++) {
+        for (size_t i = 0; i < cd.theme_properties.size(); i++) {
 
             theme_property_line[cd.theme_properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
 
@@ -771,7 +771,7 @@ void EditorHelp::_update_doc() {
 
         class_desc->push_indent(1);
 
-        for (int i = 0; i < cd.defined_signals.size(); i++) {
+        for (size_t i = 0; i < cd.defined_signals.size(); i++) {
 
             signal_line[cd.defined_signals[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
             class_desc->push_font(doc_code_font); // monofont
@@ -781,7 +781,7 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(symbol_color);
             class_desc->add_text("(");
             class_desc->pop();
-            for (int j = 0; j < cd.defined_signals[i].arguments.size(); j++) {
+            for (size_t j = 0; j < cd.defined_signals[i].arguments.size(); j++) {
                 class_desc->push_color(text_color);
                 if (j > 0)
                     class_desc->add_text(", ");
@@ -827,7 +827,7 @@ void EditorHelp::_update_doc() {
         Map<String, Vector<DocData::ConstantDoc> > enums;
         Vector<DocData::ConstantDoc> constants;
 
-        for (int i = 0; i < cd.constants.size(); i++) {
+        for (size_t i = 0; i < cd.constants.size(); i++) {
 
             if (not cd.constants[i].enumeration.empty()) {
                 enums[cd.constants[i].enumeration].push_back(cd.constants[i]);
@@ -878,7 +878,7 @@ void EditorHelp::_update_doc() {
                 Map<String, int> enumValuesContainer;
                 int enumStartingLine = enum_line[E.first];
 
-                for (int i = 0; i < enum_list.size(); i++) {
+                for (size_t i = 0; i < enum_list.size(); i++) {
                     if (cd.name == "@GlobalScope")
                         enumValuesContainer[enum_list[i].name] = enumStartingLine;
 
@@ -1113,14 +1113,14 @@ void EditorHelp::_update_doc() {
         for (int pass = 0; pass < 2; pass++) {
             Vector<DocData::MethodDoc> methods_filtered;
 
-            for (int i = 0; i < methods.size(); i++) {
+            for (size_t i = 0; i < methods.size(); i++) {
                 se_string_view q = methods[i].qualifiers;
-                if (pass == 0 && contains(q, "virtual") || pass == 1 && not contains(q, "virtual")) {
+                if ((pass == 0 && contains(q, "virtual")) || (pass == 1 && not contains(q, "virtual"))) {
                     methods_filtered.push_back(methods[i]);
                 }
             }
 
-            for (int i = 0; i < methods_filtered.size(); i++) {
+            for (size_t i = 0; i < methods_filtered.size(); i++) {
                 class_desc->push_font(doc_code_font);
                 _add_method(methods_filtered[i], false);
                 class_desc->pop();
@@ -1305,7 +1305,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.contains_as(tag,SNSVComparer())) {
+        } else if (doc->class_list.contains_as(tag,eastl::hash<se_string_view>(),SNSVComparer())) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("#") + tag);

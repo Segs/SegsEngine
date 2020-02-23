@@ -134,7 +134,7 @@ private:
         StringName name;
         Variant value;
     };
-    Map<StringName, Vector<CustomType> > custom_types;
+    HashMap<StringName, Vector<CustomType> > custom_types;
 
     Vector<PropertyData> clipboard;
     UndoRedo undo_redo;
@@ -146,8 +146,8 @@ private:
 
     bool _find_updated_instances(Node *p_root, Node *p_node, Set<String> &checked_paths);
 
-    DefHashMap<StringName, String> _script_class_icon_paths;
-    DefHashMap<String, StringName> _script_class_file_to_path;
+    HashMap<StringName, String> _script_class_icon_paths;
+    HashMap<String, StringName> _script_class_file_to_path;
 
 public:
     EditorPlugin *get_editor(Object *p_object);
@@ -180,7 +180,7 @@ public:
     void add_custom_type(const StringName &p_type, const StringName &p_inherits, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
     Object *instance_custom_type(const StringName &p_type, const StringName &p_inherits);
     void remove_custom_type(const StringName &p_type);
-    const Map<StringName, Vector<CustomType>> &get_custom_types() const { return custom_types; }
+    const HashMap<StringName, Vector<CustomType>> &get_custom_types() const { return custom_types; }
 
     int add_edited_scene(int p_at_pos);
     void move_edited_scene_index(int p_idx, int p_to_idx);
@@ -236,7 +236,7 @@ class EditorSelection : public Object {
     GDCLASS(EditorSelection,Object)
 
 private:
-    Map<Node *, Object *> selection;
+    HashMap<Node *, Object *> selection;
 
     bool emitted;
     bool changed;
@@ -275,7 +275,7 @@ public:
 
     const Vector<Node *> &get_selected_node_list();
     Vector<Node *> get_full_selected_node_list();
-    Map<Node *, Object *> &get_selection() { return selection; }
+    HashMap<Node *, Object *> &get_selection() { return selection; }
 
     EditorSelection();
     ~EditorSelection() override;

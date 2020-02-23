@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/list.h"
+#include "core/hash_map.h"
 #include "core/map.h"
 #include "core/os/input.h"
 #include "core/os/input_event.h"
@@ -65,7 +66,7 @@ class InputDefault : public Input {
         float strength;
     };
 
-    Map<StringName, Action> action_state;
+    HashMap<StringName, Action> action_state;
 
     bool emulate_touch_from_mouse;
     bool emulate_mouse_from_touch;

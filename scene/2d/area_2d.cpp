@@ -125,7 +125,7 @@ void Area2D::_body_enter_tree(ObjectID p_id) {
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
-    Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
+    auto E = body_map.find(p_id);
     ERR_FAIL_COND(E==body_map.end());
     ERR_FAIL_COND(E->second.in_tree);
 
@@ -142,7 +142,7 @@ void Area2D::_body_exit_tree(ObjectID p_id) {
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
-    Map<ObjectID, BodyState>::iterator E = body_map.find(p_id);
+    auto E = body_map.find(p_id);
     ERR_FAIL_COND(E==body_map.end());
     ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
@@ -161,7 +161,7 @@ void Area2D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
     Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
-    Map<ObjectID, BodyState>::iterator E = body_map.find(objid);
+    auto E = body_map.find(objid);
 
     if (!body_in && E==body_map.end()) {
         return; //does not exist because it was likely removed from the tree
@@ -228,7 +228,7 @@ void Area2D::_area_enter_tree(ObjectID p_id) {
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
-    Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
+    auto E = area_map.find(p_id);
     ERR_FAIL_COND(E==area_map.end());
     ERR_FAIL_COND(E->second.in_tree);
 
@@ -245,7 +245,7 @@ void Area2D::_area_exit_tree(ObjectID p_id) {
     Object *obj = ObjectDB::get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
-    Map<ObjectID, AreaState>::iterator E = area_map.find(p_id);
+    auto E = area_map.find(p_id);
     ERR_FAIL_COND(E==area_map.end());
     ERR_FAIL_COND(!E->second.in_tree);
     E->second.in_tree = false;
@@ -264,7 +264,7 @@ void Area2D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
     Object *obj = ObjectDB::get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
-    Map<ObjectID, AreaState>::iterator E = area_map.find(objid);
+    auto E = area_map.find(objid);
 
     if (!area_in && E==area_map.end()) {
         return; //likely removed from the tree
@@ -329,7 +329,7 @@ void Area2D::_clear_monitoring() {
     ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal."); 
 
     {
-        Map<ObjectID, BodyState> bmcopy = body_map;
+        HashMap<ObjectID, BodyState> bmcopy = body_map;
         body_map.clear();
         //disconnect all monitored stuff
 
@@ -359,7 +359,7 @@ void Area2D::_clear_monitoring() {
 
     {
 
-        Map<ObjectID, AreaState> bmcopy = area_map;
+        HashMap<ObjectID, AreaState> bmcopy = area_map;
         area_map.clear();
         //disconnect all monitored stuff
 
@@ -480,7 +480,7 @@ Array Area2D::get_overlapping_areas() const {
 bool Area2D::overlaps_area(Node *p_area) const {
 
     ERR_FAIL_NULL_V(p_area, false);
-    const Map<ObjectID, AreaState>::const_iterator E = area_map.find(p_area->get_instance_id());
+    auto E = area_map.find(p_area->get_instance_id());
     if (E==area_map.end())
         return false;
     return E->second.in_tree;
@@ -489,7 +489,7 @@ bool Area2D::overlaps_area(Node *p_area) const {
 bool Area2D::overlaps_body(Node *p_body) const {
 
     ERR_FAIL_NULL_V(p_body, false);
-    const Map<ObjectID, BodyState>::const_iterator E = body_map.find(p_body->get_instance_id());
+    auto E = body_map.find(p_body->get_instance_id());
     if (E==body_map.end())
         return false;
     return E->second.in_tree;

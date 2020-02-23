@@ -182,14 +182,14 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
 
             if (StringUtils::get_slice_count(line,' ') <= 1) {
 
-                const Map<int, Set<StringName> > &breakpoints = get_breakpoints();
+                const Map<int, HashSet<StringName> > &breakpoints = get_breakpoints();
                 if (breakpoints.empty()) {
                     print_line("No Breakpoints.");
                     continue;
                 }
 
                 print_line("Breakpoint(s): " + itos(breakpoints.size()));
-                for (const eastl::pair<const int,Set<StringName> > &E : breakpoints) {
+                for (const eastl::pair<const int,HashSet<StringName> > &E : breakpoints) {
                     print_line("\t" + String(*E.second.begin()) + ":" + itos(E.first));
                 }
 
