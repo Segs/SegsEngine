@@ -316,6 +316,8 @@ void GDMono::initialize() {
     String config_dir;
     determine_mono_dirs(assembly_rootdir, config_dir);
 
+    String path="Setting assembly root dir to:"+assembly_rootdir;
+    print_line(path);
     // Leak if we call mono_set_dirs more than once
     mono_set_dirs(assembly_rootdir.length() ? assembly_rootdir.data() : nullptr,
             config_dir.length() ? config_dir.data() : nullptr);

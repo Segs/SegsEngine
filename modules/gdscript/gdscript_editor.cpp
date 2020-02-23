@@ -2570,7 +2570,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
         } break;
         case GDScriptParser::COMPLETION_FUNCTION: {
             is_function = true;
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case GDScriptParser::COMPLETION_IDENTIFIER: {
             _find_identifiers(context, is_function, options);
@@ -2613,7 +2613,7 @@ Error GDScriptLanguage::complete_code(const String &p_code, se_string_view p_pat
         } break;
         case GDScriptParser::COMPLETION_METHOD: {
             is_function = true;
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case GDScriptParser::COMPLETION_INDEX: {
             const GDScriptParser::Node *node = parser.get_completion_node();
@@ -3330,7 +3330,7 @@ Error GDScriptLanguage::lookup_code(se_string_view p_code, se_string_view p_symb
         case GDScriptParser::COMPLETION_PARENT_FUNCTION:
         case GDScriptParser::COMPLETION_FUNCTION: {
             is_function = true;
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case GDScriptParser::COMPLETION_IDENTIFIER: {
 
@@ -3462,7 +3462,7 @@ Error GDScriptLanguage::lookup_code(se_string_view p_code, se_string_view p_symb
         } break;
         case GDScriptParser::COMPLETION_METHOD: {
             is_function = true;
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case GDScriptParser::COMPLETION_INDEX: {
             const GDScriptParser::Node *node = parser.get_completion_node();

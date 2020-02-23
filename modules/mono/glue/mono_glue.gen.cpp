@@ -28904,16 +28904,16 @@ void godot_icall_PhysicsServer_body_clear_shapes_a7039b4e(Object * ptr, RID* arg
     static_cast<PhysicsServer *>(ptr)->body_clear_shapes(*arg1);
 }
 
-void godot_icall_PhysicsServer_body_attach_object_instance_id_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
+void godot_icall_PhysicsServer_body_attach_object_instance_id_73956c1a(Object * ptr, RID* arg1, uint64_t* arg2) {
     ERR_FAIL_NULL(ptr);
-    uint32_t arg2_in = static_cast<uint32_t>(arg2);
+	int64_t arg2_in = static_cast<int64_t>(*arg2);
     static_cast<PhysicsServer *>(ptr)->body_attach_object_instance_id(*arg1, arg2_in);
 }
 
-uint32_t godot_icall_PhysicsServer_body_get_object_instance_id_1867c419(Object * ptr, RID* arg1) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
+void godot_icall_PhysicsServer_body_get_object_instance_id_4e8e61e1(Object * ptr, RID* arg1, uint64_t* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     auto ret = static_cast<PhysicsServer *>(ptr)->body_get_object_instance_id(*arg1);
-    return static_cast<uint32_t>(ret);
+	*arg_ret = (uint64_t)ret;
 }
 
 void godot_icall_PhysicsServer_body_set_enable_continuous_collision_detection_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
@@ -36601,14 +36601,14 @@ Object* godot_icall_StaticBody2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_StreamPeer_put_data_4d7ce2f(Object * ptr, MonoArray* arg1) {
+int32_t godot_icall_StreamPeer_put_data_7c32072c(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg1);
     auto ret = static_cast<StreamPeer *>(ptr)->_put_data(arg1_in);
     return (int32_t)ret;
 }
 
-Array* godot_icall_StreamPeer_put_partial_data_60539c6(Object * ptr, MonoArray* arg1) {
+Array* godot_icall_StreamPeer_put_partial_data_ade8f6c5(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg1);
     auto ret = static_cast<StreamPeer *>(ptr)->_put_partial_data(arg1_in);
@@ -36824,7 +36824,7 @@ void godot_icall_StreamPeerBuffer_resize_e1ae93bc(Object * ptr, int32_t arg1) {
     static_cast<StreamPeerBuffer *>(ptr)->resize(arg1_in);
 }
 
-void godot_icall_StreamPeerBuffer_set_data_array_da545cc0(Object * ptr, MonoArray* arg1) {
+void godot_icall_StreamPeerBuffer_set_data_array_627085c1(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg1);
     static_cast<StreamPeerBuffer *>(ptr)->set_data_array(eastl::move(arg1_in));
@@ -50601,7 +50601,7 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 16429463360525151867U; }
+uint64_t get_core_api_hash() { return 14795385792687354923U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 4719693846311282490U; }
 #endif // TOOLS_ENABLED
@@ -55372,8 +55372,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_get_shape_transform_5be89b94", (void*)godot_icall_PhysicsServer_body_get_shape_transform_5be89b94);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_remove_shape_f6439f2", (void*)godot_icall_PhysicsServer_body_remove_shape_f6439f2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_clear_shapes_a7039b4e", (void*)godot_icall_PhysicsServer_body_clear_shapes_a7039b4e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_attach_object_instance_id_7aa831af", (void*)godot_icall_PhysicsServer_body_attach_object_instance_id_7aa831af);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_get_object_instance_id_1867c419", (void*)godot_icall_PhysicsServer_body_get_object_instance_id_1867c419);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_attach_object_instance_id_73956c1a", (void*)godot_icall_PhysicsServer_body_attach_object_instance_id_73956c1a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_get_object_instance_id_4e8e61e1", (void*)godot_icall_PhysicsServer_body_get_object_instance_id_4e8e61e1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_set_enable_continuous_collision_detection_56de082b", (void*)godot_icall_PhysicsServer_body_set_enable_continuous_collision_detection_56de082b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_is_continuous_collision_detection_enabled_36cc12b4", (void*)godot_icall_PhysicsServer_body_is_continuous_collision_detection_enabled_36cc12b4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PhysicsServer_body_set_param_4dfe98a5", (void*)godot_icall_PhysicsServer_body_set_param_4dfe98a5);
@@ -56548,8 +56548,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StaticBody2D_get_constant_angular_velocity_4edcd7a9", (void*)godot_icall_StaticBody2D_get_constant_angular_velocity_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StaticBody2D_set_physics_material_override_e4d5a435", (void*)godot_icall_StaticBody2D_set_physics_material_override_e4d5a435);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StaticBody2D_get_physics_material_override_226d8337", (void*)godot_icall_StaticBody2D_get_physics_material_override_226d8337);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_data_4d7ce2f", (void*)godot_icall_StreamPeer_put_data_4d7ce2f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_partial_data_60539c6", (void*)godot_icall_StreamPeer_put_partial_data_60539c6);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_data_7c32072c", (void*)godot_icall_StreamPeer_put_data_7c32072c);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_partial_data_ade8f6c5", (void*)godot_icall_StreamPeer_put_partial_data_ade8f6c5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_data_2ca2fcca", (void*)godot_icall_StreamPeer_get_data_2ca2fcca);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_partial_data_2ca2fcca", (void*)godot_icall_StreamPeer_get_partial_data_2ca2fcca);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_available_bytes_1f886eb0", (void*)godot_icall_StreamPeer_get_available_bytes_1f886eb0);
@@ -56584,7 +56584,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_get_size_1f886eb0", (void*)godot_icall_StreamPeerBuffer_get_size_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_get_position_1f886eb0", (void*)godot_icall_StreamPeerBuffer_get_position_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_resize_e1ae93bc", (void*)godot_icall_StreamPeerBuffer_resize_e1ae93bc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_set_data_array_da545cc0", (void*)godot_icall_StreamPeerBuffer_set_data_array_da545cc0);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_set_data_array_627085c1", (void*)godot_icall_StreamPeerBuffer_set_data_array_627085c1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_get_data_array_8edaba4", (void*)godot_icall_StreamPeerBuffer_get_data_array_8edaba4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_clear_c8e54a7b", (void*)godot_icall_StreamPeerBuffer_clear_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_duplicate_42e72ff7", (void*)godot_icall_StreamPeerBuffer_duplicate_42e72ff7);

@@ -263,7 +263,7 @@ void EditorQuickOpen::_notification(int p_what) {
             connect("confirmed", this, "_confirmed");
 
             search_box->set_clear_button_enabled(true);
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case NOTIFICATION_THEME_CHANGED: {
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));

@@ -558,7 +558,7 @@ void GDScriptTokenizerText::_advance() {
                     ignore_warnings = true;
                 }
 #endif // DEBUG_ENABLED
-                FALLTHROUGH;
+                [[fallthrough]];
             }
         case '\n': {
             line++;
@@ -775,7 +775,7 @@ void GDScriptTokenizerText::_advance() {
                 }
                 INCPOS(1);
                 is_node_path = true;
-                FALLTHROUGH;
+                [[fallthrough]];
             case '\'':
             case '"': {
 

@@ -435,7 +435,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                         handled = false;
                         break;
                     }
-                    FALLTHROUGH;
+                    [[fallthrough]];
                 }
                 case KEY_LEFT: {
 
@@ -482,7 +482,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                         handled = false;
                         break;
                     }
-                    FALLTHROUGH;
+                    [[fallthrough]];
                 }
                 case KEY_RIGHT: {
 
@@ -589,7 +589,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                         handled = false;
                         break;
                     }
-                    FALLTHROUGH;
+                    [[fallthrough]];
                 }
                 case KEY_HOME: {
 
@@ -602,7 +602,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                         handled = false;
                         break;
                     }
-                    FALLTHROUGH;
+                    [[fallthrough]];
                 }
                 case KEY_END: {
 

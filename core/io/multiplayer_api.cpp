@@ -214,7 +214,7 @@ _FORCE_INLINE_ bool _should_call_local(MultiplayerAPI_RPCMode mode, bool is_mast
         case MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC: {
             if (is_master)
                 r_skip_rpc = true; // I am the master, so skip remote call.
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC:
         case MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC: {

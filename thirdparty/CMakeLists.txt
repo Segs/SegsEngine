@@ -475,9 +475,9 @@ set_common_target_properties(rvo2)
 
 
 set(concurrent_queue_SRC
-    ${PROJECT_SOURCE_DIR}/concurrentqueue/blockingconcurrentqueue.h
-    ${PROJECT_SOURCE_DIR}/concurrentqueue/concurrentqueue.h
-    ${PROJECT_SOURCE_DIR}/concurrentqueue/lightweightsemaphore.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/concurrentqueue/blockingconcurrentqueue.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/concurrentqueue/concurrentqueue.h
+    ${PROJECT_SOURCE_DIR}/thirdparty/concurrentqueue/lightweightsemaphore.h
 )
 add_library(concurrent_queue INTERFACE)
 

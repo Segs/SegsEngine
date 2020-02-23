@@ -404,10 +404,6 @@ public:
     void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;
 
-    OS::PowerState get_power_state() override;
-    int get_power_seconds_left() override;
-    int get_power_percent_left() override;
-
     bool _check_internal_feature_support(se_string_view p_feature) override;
 
     void disable_crash_handler() override;

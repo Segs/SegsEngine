@@ -811,7 +811,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                                 }
                                 _add_warning(GDScriptWarning::UNASSIGNED_VARIABLE_OP_ASSIGN, -1, {identifier});
                             }
-                            FALLTHROUGH;
+                            [[fallthrough]];
                         }
                         case GDScriptTokenizer::TK_OP_ASSIGN: {
                             lv->assignments += 1;
@@ -3735,7 +3735,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                     return;
                 }
 
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case GDScriptTokenizer::TK_PR_FUNCTION: {
 
@@ -4239,7 +4239,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                         break;
                                     }
 
-                                    FALLTHROUGH;
+                                    [[fallthrough]];
                                 }
                                 case VariantType::REAL: {
 
@@ -4665,7 +4665,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 #ifdef DEBUG_ENABLED
             _add_warning(GDScriptWarning::DEPRECATED_KEYWORD, tokenizer->get_token_line(), {("slave"), ("puppet")});
 #endif
-                FALLTHROUGH;
+                [[fallthrough]];
             case GDScriptTokenizer::TK_PR_PUPPET: {
 
                 //may be fallthrough from export, ignore if so
@@ -5514,7 +5514,7 @@ String GDScriptParser::DataType::to_string() const {
             if (!gds_class.empty()) {
                 return gds_class.asCString();
             }
-            FALLTHROUGH;
+            [[fallthrough]];
         }
         case SCRIPT: {
             if (is_meta_type) {
@@ -8357,7 +8357,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
                 if (cn->value.get_type() == VariantType::STRING) {
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             default: {
                 _mark_line_as_safe(statement->line);

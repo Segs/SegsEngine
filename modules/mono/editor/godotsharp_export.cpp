@@ -63,7 +63,7 @@ Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<String>
         String path;
         bool has_extension = ref_name.ends_with(".dll") || ref_name.ends_with(".exe");
 
-        for (int j = 0; j < p_search_dirs.size(); j++) {
+        for (size_t j = 0; j < p_search_dirs.size(); j++) {
             const String &search_dir = p_search_dirs[j];
 
             if (has_extension) {

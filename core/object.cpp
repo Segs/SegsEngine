@@ -1301,9 +1301,7 @@ int Object::get_persistent_signal_connection_count() const {
 
 void Object::get_signals_connected_to_this(List<Connection> *p_connections) const {
 
-    for (const Connection &E : private_data->connections) {
-        p_connections->emplace_back(E);
-    }
+    p_connections->insert(p_connections->end(), private_data->connections.begin(), private_data->connections.end());
 }
 
 Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds, uint32_t p_flags) {

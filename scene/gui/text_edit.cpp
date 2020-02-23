@@ -3293,7 +3293,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_LEFT: {
 
@@ -3369,7 +3369,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_RIGHT: {
 
@@ -3430,7 +3430,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_UP: {
 
@@ -3483,7 +3483,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_DOWN: {
 
@@ -3606,7 +3606,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_HOME: {
 #ifdef APPLE_STYLE_KEYS
@@ -3667,7 +3667,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_END: {
 #ifdef APPLE_STYLE_KEYS
@@ -3714,7 +3714,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_PAGEUP: {
 
@@ -3737,7 +3737,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     scancode_handled = false;
                     break;
                 }
-                FALLTHROUGH;
+                [[fallthrough]];
             }
             case KEY_PAGEDOWN: {
 
