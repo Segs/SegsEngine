@@ -53,13 +53,14 @@ public:
     Vector<int> m_bones;
     Vector<int> m_indices;
     bool m_vertices_2d;
-    explicit SurfaceArrays(Vector<Vector3> && positions) :
+
+    explicit SurfaceArrays(Vector<Vector3> && positions) noexcept :
         m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
         m_vertices_2d(false)
     {
 
     }
-    explicit SurfaceArrays(Vector<Vector2> && positions) :
+    explicit SurfaceArrays(Vector<Vector2> && positions) noexcept :
         m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
         m_vertices_2d(true)
     {
@@ -191,8 +192,8 @@ public:
         return res;
     }
     SurfaceArrays() noexcept = default;
-    SurfaceArrays(SurfaceArrays &&) = default;
-    SurfaceArrays &operator=(SurfaceArrays &&) = default;
+    SurfaceArrays(SurfaceArrays &&) noexcept = default;
+    SurfaceArrays &operator=(SurfaceArrays &&) noexcept = default;
     // Move only type!
     SurfaceArrays(const SurfaceArrays &) = delete;
     SurfaceArrays & operator=(const SurfaceArrays &) = delete;

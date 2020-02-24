@@ -114,7 +114,7 @@ public:
         return _data != p_name._data;
     }
 
-    StringName& operator=(StringName &&p_name)
+    StringName& operator=(StringName &&p_name) noexcept
     {
         if(this==&p_name)
             return *this;

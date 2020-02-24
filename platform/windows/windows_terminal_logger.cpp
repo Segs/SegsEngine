@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "windows_terminal_logger.h"
-#include "string_formatter.h"
+#include "core/string_formatter.h"
 
 #ifdef WINDOWS_ENABLED
 
