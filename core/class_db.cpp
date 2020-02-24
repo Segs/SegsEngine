@@ -193,7 +193,7 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
     RWLockRead _rw_lockr_(lock);
 #ifdef DEBUG_METHODS_ENABLED
     uint64_t hash = hash_djb2_one_64(Hasher<const char *>()(VERSION_FULL_CONFIG));
-    // TODO: bunch of copiers are made here, the containers should just hold pointers/const references to objects ?
+    // TODO: bunch of copies are made here, the containers should just hold pointers/const references to objects ?
     Vector<class_iter> entries;
     entries.reserve(classes.size());
 

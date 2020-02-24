@@ -903,6 +903,7 @@ public:
         rs_button->set_button_group(rasterizer_button_group);
         rs_button->set_text(TTR("OpenGL ES 2.0"));
         rs_button->set_meta("driver_name", "GLES2");
+        rs_button->set_disabled(true);
         rvb->add_child(rs_button);
         l = memnew(Label);
         l->set_text(TTR("Lower visual quality\nSome features not available\nWorks on most hardware\nRecommended for web games"));

@@ -306,37 +306,39 @@ if(USE_PRECOMPILED_HEADERS)
     endforeach()
 endif()
 
-foreach(tgt ${global_targets})
-if(WIN32)
-    install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION bin
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-    )
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(CUSTOM_INSTALL_CONFIGDIR cmake)
 else()
-    install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION bin
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-    )
+    set(CUSTOM_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SegsEngine)
 endif()
+
+foreach(tgt ${global_targets})
+    if(WIN32)
+        install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION bin
+            RUNTIME DESTINATION bin
+            INCLUDES DESTINATION include
+        )
+    else()
+        install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION bin
+            RUNTIME DESTINATION bin
+            INCLUDES DESTINATION include
+        )
+    endif()
     install(EXPORT SegsEngine
         FILE ${tgt}_engine_Targets.cmake
         NAMESPACE SegsEngine::
-        DESTINATION cmake
+        DESTINATION ${CUSTOM_INSTALL_CONFIGDIR}
     )
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
     target_link_libraries(${tgt}_engine PUBLIC EnTT::EnTT)
 endforeach()
 
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    set(CUSTOM_INSTALL_CONFIGDIR cmake)
-else()
-    set(CUSTOM_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SegsEngine)
-endif()
+
 
 #
 # Install tree package config file

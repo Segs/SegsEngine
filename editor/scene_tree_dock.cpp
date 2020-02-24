@@ -1115,7 +1115,7 @@ void SceneTreeDock::_notification(int p_what) {
             Button *button_2d = memnew(Button);
             beginner_node_shortcuts->add_child(button_2d);
             button_2d->set_text(TTR("2D Scene"));
-            button_2d->set_button_icon(get_icon("Node2D", "EditorIcons"));
+            button_2d->set_button_icon(get_icon("Node2d", "EditorIcons"));
             button_2d->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_2D_SCENE, false));
 
             button_3d = memnew(Button);
