@@ -32,7 +32,7 @@
 
 #include "core/node_path.h"
 #include "core/variant.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/os/memory.h"
 
 #ifdef __cplusplus

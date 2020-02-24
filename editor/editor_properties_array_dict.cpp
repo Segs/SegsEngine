@@ -216,7 +216,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
     update_property();
 }
 
-void EditorPropertyArray::_object_id_selected(se_string_view p_property, ObjectID p_id) {
+void EditorPropertyArray::_object_id_selected(StringView p_property, ObjectID p_id) {
     emit_signal("object_id_selected", p_property, p_id);
 }
 
@@ -473,14 +473,14 @@ void EditorPropertyArray::_length_changed(double p_page) {
     update_property();
 }
 
-void EditorPropertyArray::setup(VariantType p_array_type, se_string_view p_hint_string) {
+void EditorPropertyArray::setup(VariantType p_array_type, StringView p_hint_string) {
 
     array_type = p_array_type;
 
     if (array_type == VariantType::ARRAY && !p_hint_string.empty()) {
         auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
         if (hint_subtype_separator != String::npos) {
-            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
+            StringView subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
             auto slash_pos = StringUtils::find(subtype_string,"/");
             if (slash_pos != String::npos) {
                 subtype_hint = PropertyHint(StringUtils::to_int(StringUtils::substr(subtype_string,slash_pos + 1, subtype_string.size() - slash_pos - 1)));
@@ -497,7 +497,7 @@ void EditorPropertyArray::_bind_methods() {
     MethodBinder::bind_method("_edit_pressed", &EditorPropertyArray::_edit_pressed);
     MethodBinder::bind_method("_page_changed", &EditorPropertyArray::_page_changed);
     MethodBinder::bind_method("_length_changed", &EditorPropertyArray::_length_changed);
-    MethodBinder::bind_method("_property_changed", &EditorPropertyArray::_property_changed, {DEFVAL(se_string_view()), DEFVAL(false)});
+    MethodBinder::bind_method("_property_changed", &EditorPropertyArray::_property_changed, {DEFVAL(StringView()), DEFVAL(false)});
     MethodBinder::bind_method("_change_type", &EditorPropertyArray::_change_type);
     MethodBinder::bind_method("_change_type_menu", &EditorPropertyArray::_change_type_menu);
     MethodBinder::bind_method("_object_id_selected", &EditorPropertyArray::_object_id_selected);
@@ -962,7 +962,7 @@ void EditorPropertyDictionary::update_property() {
     }
 }
 
-void EditorPropertyDictionary::_object_id_selected(se_string_view p_property, ObjectID p_id) {
+void EditorPropertyDictionary::_object_id_selected(StringView p_property, ObjectID p_id) {
     emit_signal("object_id_selected", p_property, p_id);
 }
 
@@ -992,7 +992,7 @@ void EditorPropertyDictionary::_page_changed(double p_page) {
 void EditorPropertyDictionary::_bind_methods() {
     MethodBinder::bind_method("_edit_pressed", &EditorPropertyDictionary::_edit_pressed);
     MethodBinder::bind_method("_page_changed", &EditorPropertyDictionary::_page_changed);
-    MethodBinder::bind_method("_property_changed", &EditorPropertyDictionary::_property_changed, {DEFVAL(se_string_view()), DEFVAL(false)});
+    MethodBinder::bind_method("_property_changed", &EditorPropertyDictionary::_property_changed, {DEFVAL(StringView()), DEFVAL(false)});
     MethodBinder::bind_method("_change_type", &EditorPropertyDictionary::_change_type);
     MethodBinder::bind_method("_change_type_menu", &EditorPropertyDictionary::_change_type_menu);
     MethodBinder::bind_method("_add_key_value", &EditorPropertyDictionary::_add_key_value);

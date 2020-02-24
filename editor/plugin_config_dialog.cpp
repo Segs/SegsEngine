@@ -99,13 +99,13 @@ void PluginConfigDialog::_on_confirmed() {
             script = gdscript;
         } else {
             String script_path(PathUtils::plus_file(path,script_edit->get_text()));
-            se_string_view class_name(PathUtils::get_basename(PathUtils::get_file(script_path)));
+            StringView class_name(PathUtils::get_basename(PathUtils::get_file(script_path)));
             script = ScriptServer::get_language(lang_idx)->get_template(class_name, "EditorPlugin");
             script->set_path(script_path);
             ResourceSaver::save(script_path, script);
         }
 
-        emit_signal("plugin_ready", Variant(script), active_edit->is_pressed() ? subfolder_edit->get_text() : se_string_view());
+        emit_signal("plugin_ready", Variant(script), active_edit->is_pressed() ? subfolder_edit->get_text() : StringView());
     } else {
         EditorNode::get_singleton()->get_project_settings()->update_plugins();
     }
@@ -116,11 +116,11 @@ void PluginConfigDialog::_on_cancelled() {
     _clear_fields();
 }
 
-void PluginConfigDialog::_on_required_text_changed(se_string_view ) {
+void PluginConfigDialog::_on_required_text_changed(StringView ) {
     int lang_idx = script_option_edit->get_selected();
     String ext(ScriptServer::get_language(lang_idx)->get_extension());
     get_ok()->set_disabled(PathUtils::get_basename(script_edit->get_text()).empty() ||
-                           PathUtils::get_extension(script_edit->get_text()) != se_string_view(ext) ||
+                           PathUtils::get_extension(script_edit->get_text()) != StringView(ext) ||
                            name_edit->get_text().empty());
 }
 
@@ -137,7 +137,7 @@ void PluginConfigDialog::_notification(int p_what) {
     }
 }
 
-void PluginConfigDialog::config(se_string_view p_config_path) {
+void PluginConfigDialog::config(StringView p_config_path) {
     if (p_config_path.length()) {
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
         Error err = cf->load(p_config_path);

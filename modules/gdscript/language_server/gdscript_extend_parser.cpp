@@ -104,7 +104,7 @@ void ExtendGDScriptParser::update_symbols() {
     }
 }
 
-void ExtendGDScriptParser::update_document_links(se_string_view p_code) {
+void ExtendGDScriptParser::update_document_links(StringView p_code) {
     document_links.clear();
 
     GDScriptTokenizerText tokenizer;
@@ -367,10 +367,10 @@ void ExtendGDScriptParser::parse_function_symbol(const GDScriptParser::FunctionN
 String ExtendGDScriptParser::parse_documentation(int p_line, bool p_docs_down) {
     ERR_FAIL_INDEX_V(p_line, lines.size(), String());
 
-    Dequeue<se_string_view> doc_lines;
+    Dequeue<StringView> doc_lines;
 
     if (!p_docs_down) { // inline comment
-        se_string_view inline_comment = lines[p_line];
+        StringView inline_comment = lines[p_line];
         auto comment_start = StringUtils::find(inline_comment,"#");
         if (comment_start != String::npos) {
             inline_comment = StringUtils::strip_edges(StringUtils::substr(inline_comment,comment_start, inline_comment.length()));
@@ -386,7 +386,7 @@ String ExtendGDScriptParser::parse_documentation(int p_line, bool p_docs_down) {
 
         if (i < 0 || i >= lines.size()) break;
 
-        se_string_view line_comment = StringUtils::strip_edges(lines[i],true, false);
+        StringView line_comment = StringUtils::strip_edges(lines[i],true, false);
         if (StringUtils::begins_with(line_comment,"#")) {
             line_comment = StringUtils::substr(line_comment,1, line_comment.length());
             if (p_docs_down) {
@@ -400,7 +400,7 @@ String ExtendGDScriptParser::parse_documentation(int p_line, bool p_docs_down) {
     }
 
     String doc;
-    for (se_string_view E : doc_lines) {
+    for (StringView E : doc_lines) {
         doc.append(E);
         doc.push_back('\n');
     }
@@ -429,17 +429,17 @@ String ExtendGDScriptParser::get_text_for_completion(const lsp::Position &p_curs
     return longthing;
 }
 
-String ExtendGDScriptParser::get_text_for_lookup_symbol(const lsp::Position &p_cursor, se_string_view p_symbol, bool p_func_requred) const {
+String ExtendGDScriptParser::get_text_for_lookup_symbol(const lsp::Position &p_cursor, StringView p_symbol, bool p_func_requred) const {
     String longthing;
     int len = lines.size();
     for (int i = 0; i < len; i++) {
 
         if (i == p_cursor.line) {
-            se_string_view line = lines[i];
+            StringView line = lines[i];
             String first_part(StringUtils::substr(line,0, p_cursor.character));
             String last_part(StringUtils::substr(line,p_cursor.character + 1));
             if (!p_symbol.empty()) {
-                se_string_view left_cursor_text;
+                StringView left_cursor_text;
                 for (int c = p_cursor.character - 1; c >= 0; c--) {
                     left_cursor_text = StringUtils::substr(line,c, p_cursor.character - c);
                     if (StringUtils::begins_with(p_symbol,left_cursor_text)) {
@@ -471,7 +471,7 @@ String ExtendGDScriptParser::get_text_for_lookup_symbol(const lsp::Position &p_c
 String ExtendGDScriptParser::get_identifier_under_position(const lsp::Position &p_position, Vector2i &p_offset) const {
 
     ERR_FAIL_INDEX_V(p_position.line, lines.size(), {});
-    se_string_view line = lines[p_position.line];
+    StringView line = lines[p_position.line];
     ERR_FAIL_INDEX_V(p_position.character, line.size(), {});
 
     int start_pos = p_position.character;
@@ -499,7 +499,7 @@ String ExtendGDScriptParser::get_identifier_under_position(const lsp::Position &
         return String(StringUtils::substr(line,start_pos + 1, end_pos - start_pos));
     }
 
-    return null_se_string;
+    return null_string;
 }
 
 String  ExtendGDScriptParser::get_uri() const {
@@ -573,7 +573,7 @@ const lsp::DocumentSymbol *ExtendGDScriptParser::get_symbol_defined_at_line(int 
     return search_symbol_defined_at_line(p_line, class_symbol);
 }
 
-const lsp::DocumentSymbol *ExtendGDScriptParser::get_member_symbol(se_string_view p_name, se_string_view p_subclass) const {
+const lsp::DocumentSymbol *ExtendGDScriptParser::get_member_symbol(StringView p_name, StringView p_subclass) const {
 
     if (p_subclass.empty()) {
         auto ptr = members.find_as(p_name);
@@ -764,7 +764,7 @@ Dictionary ExtendGDScriptParser::generate_api() const {
     return api;
 }
 
-Error ExtendGDScriptParser::parse(se_string_view p_code, se_string_view p_path) {
+Error ExtendGDScriptParser::parse(StringView p_code, StringView p_path) {
     path = p_path;
     String::split_ref(lines,p_code,'\n');
 

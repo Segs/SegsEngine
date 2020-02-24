@@ -248,7 +248,7 @@ bool NetSocketPosix::_can_use_ip(const IP_Address &p_ip, const bool p_for_bind) 
     return !(_ip_type != IP::TYPE_ANY && !p_ip.is_wildcard() && _ip_type != type);
 }
 
-_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, se_string_view p_if_name, bool p_add) {
+_FORCE_INLINE_ Error NetSocketPosix::_change_multicast_group(IP_Address p_ip, StringView p_if_name, bool p_add) {
 
     ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
     ERR_FAIL_COND_V(!_can_use_ip(p_ip, false), ERR_INVALID_PARAMETER);
@@ -758,10 +758,10 @@ Ref<NetSocket> NetSocketPosix::accept(IP_Address &r_ip, uint16_t &r_port) {
     return Ref<NetSocket>(ns);
 }
 
-Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) {
+Error NetSocketPosix::join_multicast_group(const IP_Address &p_multi_address, StringView p_if_name) {
     return _change_multicast_group(p_multi_address, p_if_name, true);
 }
 
-Error NetSocketPosix::leave_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) {
+Error NetSocketPosix::leave_multicast_group(const IP_Address &p_multi_address, StringView p_if_name) {
     return _change_multicast_group(p_multi_address, p_if_name, false);
 }

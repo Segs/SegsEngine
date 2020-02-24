@@ -47,7 +47,7 @@ class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
         Variant metadata;
     };
 
-    Error _get_path_and_type(se_string_view p_path, PathAndType &r_path_and_type, bool *r_valid = nullptr) const;
+    Error _get_path_and_type(StringView p_path, PathAndType &r_path_and_type, bool *r_valid = nullptr) const;
 
     static ResourceFormatImporter *singleton;
 
@@ -60,26 +60,26 @@ class GODOT_EXPORT ResourceFormatImporter : public ResourceFormatLoader {
     Vector<Ref<ResourceImporter>> owned_importers; // Importers provided by scripts, co-owned by this class
 public:
     static ResourceFormatImporter *get_singleton() { return singleton; }
-    RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
-    void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const override;
-    bool recognize_path(se_string_view p_path, se_string_view p_for_type = se_string_view()) const override;
-    bool handles_type(se_string_view p_type) const override;
-    String get_resource_type(se_string_view p_path) const override;
-    virtual Variant get_resource_metadata(se_string_view p_path) const;
-    bool is_import_valid(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
-    bool is_imported(se_string_view p_path) const override {
+    void get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const override;
+    bool recognize_path(StringView p_path, StringView p_for_type = StringView()) const override;
+    bool handles_type(StringView p_type) const override;
+    String get_resource_type(StringView p_path) const override;
+    virtual Variant get_resource_metadata(StringView p_path) const;
+    bool is_import_valid(StringView p_path) const override;
+    void get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
+    bool is_imported(StringView p_path) const override {
         return recognize_path(p_path);
     }
-    String get_import_group_file(se_string_view p_path) const override;
-    bool exists(se_string_view p_path) const override;
+    String get_import_group_file(StringView p_path) const override;
+    bool exists(StringView p_path) const override;
 
-    virtual bool can_be_imported(se_string_view p_path) const;
-    int get_import_order(se_string_view p_path) const override;
+    virtual bool can_be_imported(StringView p_path) const;
+    int get_import_order(StringView p_path) const override;
 
-    String get_internal_resource_path(se_string_view p_path) const;
-    void get_internal_resource_path_list(se_string_view p_path, Vector<String> *r_paths);
+    String get_internal_resource_path(StringView p_path) const;
+    void get_internal_resource_path_list(StringView p_path, Vector<String> *r_paths);
 
     void add_importer(ResourceImporterInterface *p_importer) {
         importers.push_back(p_importer);
@@ -90,15 +90,15 @@ public:
     void remove_importer(const Ref<ResourceImporter> &p_importer) { owned_importers.erase_first(p_importer); }
     void remove_importer(ResourceImporterInterface *p_importer) { importers.erase_first(p_importer); }
 
-    ResourceImporterInterface * get_importer_by_name(se_string_view p_name) const;
-    ResourceImporterInterface * get_importer_by_extension(se_string_view p_extension) const;
+    ResourceImporterInterface * get_importer_by_name(StringView p_name) const;
+    ResourceImporterInterface * get_importer_by_extension(StringView p_extension) const;
 
-    void get_importers_for_extension(se_string_view p_extension, Vector<ResourceImporterInterface *> *r_importers);
+    void get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers);
 
-    bool are_import_settings_valid(se_string_view p_path) const;
+    bool are_import_settings_valid(StringView p_path) const;
     String get_import_settings_hash() const;
 
-    String get_import_base_path(se_string_view p_for_file) const;
+    String get_import_base_path(StringView p_for_file) const;
     ResourceFormatImporter();
 };
 
@@ -114,14 +114,14 @@ public:
     int get_preset_count() const override { return 0; }
     StringName get_preset_name(int /*p_idx*/) const override { return {}; }
     StringName get_option_group_file() const override { return {}; }
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options,
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override = 0;
-    Error import_group_file(se_string_view  /*p_group_file*/,
+    Error import_group_file(StringView  /*p_group_file*/,
             const Map<String, HashMap<StringName, Variant>> & /*p_source_file_options*/,
             const Map<String, String> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }
-    bool are_import_settings_valid(se_string_view /*p_path*/) const override { return true; }
+    bool are_import_settings_valid(StringView /*p_path*/) const override { return true; }
     String get_import_settings_string() const override { return String(); }
 };

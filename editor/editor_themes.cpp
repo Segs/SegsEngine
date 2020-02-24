@@ -134,7 +134,7 @@ static void editor_register_and_generate_icons(
         Vector<eastl::pair<Color,Color>> dark_icon_color_dictionary;
         // The names of the icons to never convert, even if one of their colors
         // are contained in the dictionary above.
-        HashSet<se_string_view> exceptions;
+        HashSet<StringView> exceptions;
 
         if (!p_dark_theme) {
             dark_icon_color_dictionary.reserve(100);

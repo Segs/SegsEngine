@@ -266,7 +266,7 @@ void TileMapEditor::_create_set_cell_undo_redo(const Vector2 &p_vec, const CellO
     undo_redo->add_do_method(node, "_set_celld", p_vec, cell_new);
 }
 
-void TileMapEditor::_start_undo(se_string_view p_action) {
+void TileMapEditor::_start_undo(StringView p_action) {
 
     undo_data.clear();
     undo_redo->create_action(p_action);
@@ -356,12 +356,12 @@ void TileMapEditor::_priority_toggled(bool p_enabled) {
     _update_palette();
 }
 
-void TileMapEditor::_text_entered(se_string_view p_text) {
+void TileMapEditor::_text_entered(StringView p_text) {
 
     canvas_item_editor_viewport->grab_focus();
 }
 
-void TileMapEditor::_text_changed(se_string_view p_text) {
+void TileMapEditor::_text_changed(StringView p_text) {
     _update_palette();
 }
 
@@ -440,7 +440,7 @@ void TileMapEditor::_update_palette() {
     manual_palette->set_same_column_width(true);
 
     String filter_text=search_box->get_text();
-    se_string_view filter = StringUtils::strip_edges(filter_text);
+    StringView filter = StringUtils::strip_edges(filter_text);
 
     Vector<_PaletteEntry> entries;
 

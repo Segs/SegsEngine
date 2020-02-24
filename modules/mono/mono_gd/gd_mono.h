@@ -119,11 +119,11 @@ private:
     typedef bool (*CoreApiAssemblyLoadedCallback)();
 
     bool _are_api_assemblies_out_of_sync();
-    bool _temp_domain_load_are_assemblies_out_of_sync(se_string_view p_config);
+    bool _temp_domain_load_are_assemblies_out_of_sync(StringView p_config);
 
-    bool _load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, se_string_view p_config, bool p_refonly);
+    bool _load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly);
 #ifdef TOOLS_ENABLED
-    bool _load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, se_string_view p_config, bool p_refonly);
+    bool _load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly);
 #endif
 
     static bool _on_core_api_assembly_loaded();
@@ -135,7 +135,7 @@ private:
     bool _load_project_assembly();
 
     bool _try_load_api_assemblies(LoadedApiAssembly &r_core_api_assembly, LoadedApiAssembly &r_editor_api_assembly,
-            se_string_view p_config, bool p_refonly, CoreApiAssemblyLoadedCallback p_callback);
+            StringView p_config, bool p_refonly, CoreApiAssemblyLoadedCallback p_callback);
     bool _try_load_api_assemblies_preset();
     void _load_api_assemblies();
 
@@ -175,7 +175,7 @@ public:
 #endif // TOOLS_ENABLED
 #endif // DEBUG_METHODS_ENABLED
 
-    static se_string_view get_expected_api_build_config() {
+    static StringView get_expected_api_build_config() {
 #ifdef TOOLS_ENABLED
         return "Debug";
 #else
@@ -188,8 +188,8 @@ public:
     }
 
 #ifdef TOOLS_ENABLED
-    bool copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, se_string_view p_config);
-    String update_api_assemblies_from_prebuilt(se_string_view p_config, const bool *p_core_api_out_of_sync = NULL, const bool *p_editor_api_out_of_sync = NULL);
+    bool copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, StringView p_config);
+    String update_api_assemblies_from_prebuilt(StringView p_config, const bool *p_core_api_out_of_sync = NULL, const bool *p_editor_api_out_of_sync = NULL);
 #endif
 
     static GDMono *get_singleton() { return singleton; }
@@ -200,7 +200,7 @@ public:
 
     // Do not use these, unless you know what you're doing
     void add_assembly(uint32_t p_domain_id, GDMonoAssembly *p_assembly);
-    GDMonoAssembly **get_loaded_assembly(se_string_view p_name);
+    GDMonoAssembly **get_loaded_assembly(StringView p_name);
 
     bool is_runtime_initialized() const { return runtime_initialized && !mono_runtime_is_shutting_down() /* stays true after shutdown finished */; }
 
@@ -230,7 +230,7 @@ public:
 
     bool load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bool p_refonly = false);
     bool load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly = false);
-    bool load_assembly_from(se_string_view p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
+    bool load_assembly_from(StringView p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
 
     Error finalize_and_unload_domain(MonoDomain *p_domain);
 

@@ -77,7 +77,7 @@ void ResourceImporterBitMap::get_import_options(List<ImportOption> *r_options, i
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "threshold", PropertyHint::Range, "0,1,0.01"), 0.5));
 }
 
-Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_view p_save_path,
+Error ResourceImporterBitMap::import(StringView p_source_file, StringView p_save_path,
         const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {

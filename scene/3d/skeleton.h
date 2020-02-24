@@ -33,7 +33,7 @@
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/skin.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #ifndef _3D_DISABLED
 using BoneId = int;
@@ -147,8 +147,8 @@ public:
 
 
     // skeleton creation api
-    void add_bone(se_string_view p_name);
-    int find_bone(se_string_view p_name) const;
+    void add_bone(StringView p_name);
+    int find_bone(StringView p_name) const;
     const String &get_bone_name(int p_bone) const;
 
     bool is_bone_parent_of(int p_bone_id, int p_parent_bone_id) const;

@@ -36,7 +36,7 @@
 
 #include "core/print_string.h"
 #include "core/string_formatter.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "scene/gui/control.h"
 #include "scene/gui/text_edit.h"
 #include "servers/visual/shader_language.h"
@@ -55,7 +55,7 @@ static String _mktab(int p_level) {
     return tb;
 }
 
-static se_string_view _typestr(SL::DataType p_type) {
+static StringView _typestr(SL::DataType p_type) {
 
     return ShaderLanguage::get_datatype_name(p_type);
 }
@@ -71,7 +71,7 @@ static String _prestr(SL::DataPrecision p_pres) {
     return "";
 }
 
-static se_string_view _opstr(SL::Operator p_op) {
+static StringView _opstr(SL::Operator p_op) {
 
     return ShaderLanguage::get_operator_text(p_op);
 }

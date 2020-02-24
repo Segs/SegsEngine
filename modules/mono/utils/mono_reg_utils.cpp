@@ -187,10 +187,10 @@ String find_msbuild_tools_path() {
 	OS::get_singleton()->execute(vswhere_path, vswhere_args, true, nullptr, &output, &exit_code);
 
 	if (exit_code == 0) {
-		Vector<se_string_view> lines = StringUtils::split(output,'\n');
+		Vector<StringView> lines = StringUtils::split(output,'\n');
 
 		for (int i = 0; i < lines.size(); i++) {
-			se_string_view line = lines[i];
+			StringView line = lines[i];
 			int sep_idx = line.find(":");
 
 			if (sep_idx > 0) {

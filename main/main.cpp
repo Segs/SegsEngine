@@ -167,7 +167,7 @@ bool Main::is_project_manager() {
     return project_manager;
 }
 
-static String unescape_cmdline(se_string_view p_str) {
+static String unescape_cmdline(StringView p_str) {
     return String(p_str).replaced("%20", " ");
 }
 
@@ -481,7 +481,7 @@ Error Main::setup(bool p_second_phase) {
     String remotefs;
     String remotefs_pass;
 
-    Vector<se_string_view> breakpoints;
+    Vector<StringView> breakpoints;
     bool use_custom_res = true;
     bool force_res = false;
     bool saw_vsync_via_compositor_override = false;
@@ -970,7 +970,7 @@ Error Main::setup(bool p_second_phase) {
     if (script_debugger) {
         //there is a debugger, parse breakpoints
 
-        for (se_string_view bp : breakpoints) {
+        for (StringView bp : breakpoints) {
 
             auto sp = StringUtils::find_last(bp,':');
             ERR_CONTINUE_MSG(sp == String::npos, "Invalid breakpoint: '" + bp + "', expected file:line format.");

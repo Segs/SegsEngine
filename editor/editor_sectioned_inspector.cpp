@@ -260,7 +260,7 @@ void SectionedInspector::update_category_list() {
         if (sp == String::npos)
             p_name = "global/" + p_name;
 
-        Vector<se_string_view> sectionarr = StringUtils::split(p_name,'/');
+        Vector<StringView> sectionarr = StringUtils::split(p_name,'/');
         String metasection;
 
 

@@ -41,7 +41,7 @@
 
 IMPL_GDCLASS(ConfigFile)
 
-PoolStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
+PoolStringArray ConfigFile::_get_section_keys(StringView p_section) const {
 
     Vector<String> s = get_section_keys(p_section);
     PoolStringArray arr;
@@ -55,7 +55,7 @@ PoolStringArray ConfigFile::_get_section_keys(se_string_view p_section) const {
     return arr;
 }
 
-void ConfigFile::set_value(se_string_view _section, se_string_view _key, const Variant &p_value) {
+void ConfigFile::set_value(StringView _section, StringView _key, const Variant &p_value) {
     String p_section(_section);
     String p_key(_key);
     if (p_value.get_type() == VariantType::NIL) {
@@ -75,7 +75,7 @@ void ConfigFile::set_value(se_string_view _section, se_string_view _key, const V
         values[p_section][p_key] = p_value;
     }
 }
-Variant ConfigFile::get_value(se_string_view _section, se_string_view _key, const Variant& p_default) const {
+Variant ConfigFile::get_value(StringView _section, StringView _key, const Variant& p_default) const {
     String p_section(_section);
     String p_key(_key);
     auto iter_section = values.find(p_section);
@@ -91,11 +91,11 @@ Variant ConfigFile::get_value(se_string_view _section, se_string_view _key, cons
     return iter_key->second;
 }
 
-bool ConfigFile::has_section(se_string_view _section) const {
+bool ConfigFile::has_section(StringView _section) const {
 
     return values.contains_as(_section);
 }
-bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key) const {
+bool ConfigFile::has_section_key(StringView p_section, StringView p_key) const {
     auto iter=values.find_as(p_section);
     if (iter==values.end())
         return false;
@@ -105,18 +105,18 @@ bool ConfigFile::has_section_key(se_string_view p_section, se_string_view p_key)
 Vector<String> ConfigFile::get_sections() const {
     return values.keys();
 }
-Vector<String> ConfigFile::get_section_keys(se_string_view _section) const {
+Vector<String> ConfigFile::get_section_keys(StringView _section) const {
     const String p_section(_section);
     auto iter = values.find_as(_section);
 
     ERR_FAIL_COND_V_MSG(iter==values.end(), {},"Cannont get keys from nonexistent section '" + p_section + "'.");
     return iter->second.keys();
 }
-void ConfigFile::erase_section(se_string_view p_section) {
+void ConfigFile::erase_section(StringView p_section) {
 
     values.erase(String(p_section));
 }
-void ConfigFile::erase_section_key(se_string_view p_section, se_string_view p_key) {
+void ConfigFile::erase_section_key(StringView p_section, StringView p_key) {
 
     auto iter=values.find_as(p_section);
     ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + String(p_section) + "'.");
@@ -124,7 +124,7 @@ void ConfigFile::erase_section_key(se_string_view p_section, se_string_view p_ke
     iter->second.erase_as(p_key);
 }
 
-Error ConfigFile::save(se_string_view p_path) {
+Error ConfigFile::save(StringView p_path) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -138,7 +138,7 @@ Error ConfigFile::save(se_string_view p_path) {
     return _internal_save(file);
 }
 
-Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
+Error ConfigFile::save_encrypted(StringView p_path, const Vector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -156,7 +156,7 @@ Error ConfigFile::save_encrypted(se_string_view p_path, const Vector<uint8_t> &p
     return _internal_save(fae);
 }
 
-Error ConfigFile::save_encrypted_pass(se_string_view p_path, se_string_view p_pass) {
+Error ConfigFile::save_encrypted_pass(StringView p_path, StringView p_pass) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE, &err);
@@ -198,7 +198,7 @@ Error ConfigFile::_internal_save(FileAccess *file) {
     return OK;
 }
 
-Error ConfigFile::load(se_string_view p_path) {
+Error ConfigFile::load(StringView p_path) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -209,7 +209,7 @@ Error ConfigFile::load(se_string_view p_path) {
     return _internal_load(p_path, f);
 }
 
-Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p_key) {
+Error ConfigFile::load_encrypted(StringView p_path, const Vector<uint8_t> &p_key) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -227,7 +227,7 @@ Error ConfigFile::load_encrypted(se_string_view p_path, const Vector<uint8_t> &p
     return _internal_load(p_path, fae);
 }
 
-Error ConfigFile::load_encrypted_pass(se_string_view p_path, se_string_view p_pass) {
+Error ConfigFile::load_encrypted_pass(StringView p_path, StringView p_pass) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -246,7 +246,7 @@ Error ConfigFile::load_encrypted_pass(se_string_view p_path, se_string_view p_pa
     return _internal_load(p_path, fae);
 }
 
-Error ConfigFile::_internal_load(se_string_view p_path, FileAccess *f) {
+Error ConfigFile::_internal_load(StringView p_path, FileAccess *f) {
 
     eastl::unique_ptr<VariantParserStream,wrap_deleter> vps(VariantParser::get_file_stream(f));
     Error err = _parse(p_path, vps.get());
@@ -262,7 +262,7 @@ Error ConfigFile::parse(const String &p_data) {
     return _parse("<string>", vps.get());
 }
 
-Error ConfigFile::_parse(se_string_view p_path, VariantParserStream *p_stream) {
+Error ConfigFile::_parse(StringView p_path, VariantParserStream *p_stream) {
 
     String assign;
     Variant value;

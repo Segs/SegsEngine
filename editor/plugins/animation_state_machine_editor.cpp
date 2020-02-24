@@ -115,7 +115,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
         for (const StringName &E : classes) {
 
             String name = StringUtils::replace_first(E,"AnimationNode", "");
-            if (name == se_string_view("Animation"))
+            if (name == StringView("Animation"))
                 continue; // nope
             int idx = menu->get_item_count();
             menu->add_item(StringName(FormatVE("Add %s", name.c_str())), idx);
@@ -413,7 +413,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
     }
 }
 
-void AnimationNodeStateMachineEditor::_file_opened(se_string_view p_file) {
+void AnimationNodeStateMachineEditor::_file_opened(StringView p_file) {
 
     file_loaded =dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
     if (file_loaded) {
@@ -462,7 +462,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
     if (base_name.empty()) {
 
-        base_name = StringUtils::replace_first(se_string_view(node->get_class()),"AnimationNode", "");
+        base_name = StringUtils::replace_first(StringView(node->get_class()),"AnimationNode", "");
     }
 
     int base = 1;
@@ -1098,7 +1098,7 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
     }
 }
 
-void AnimationNodeStateMachineEditor::_open_editor(se_string_view p_name) {
+void AnimationNodeStateMachineEditor::_open_editor(StringView p_name) {
 
     AnimationTreeEditor::get_singleton()->enter_editor(p_name);
 }
@@ -1108,7 +1108,7 @@ void AnimationNodeStateMachineEditor::_removed_from_graph() {
     EditorNode::get_singleton()->edit_item(nullptr);
 }
 
-void AnimationNodeStateMachineEditor::_name_edited(se_string_view p_text) {
+void AnimationNodeStateMachineEditor::_name_edited(StringView p_text) {
 
     String new_name(p_text);
 

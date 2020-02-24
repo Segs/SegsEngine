@@ -53,7 +53,7 @@
 #include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.h"
 #include "core/translation_helpers.h"

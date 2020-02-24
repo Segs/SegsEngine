@@ -10,7 +10,7 @@ namespace StringUtils {
 #ifdef TOOLS_ENABLED
 
 //gets parsed
-StringName TTR(se_string_view);
+StringName TTR(StringView);
 #define TTR_utf8(v) StringUtils::to_utf8(TTR(v))
 
 //use for C strings
@@ -28,4 +28,4 @@ StringName TTR(se_string_view);
 
 //tool or regular translate
 StringName RTR(const char *);
-String RTR_utf8(se_string_view sv);
+String RTR_utf8(StringView sv);

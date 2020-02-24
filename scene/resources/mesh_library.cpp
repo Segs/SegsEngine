@@ -39,11 +39,11 @@ RES_BASE_EXTENSION_IMPL(MeshLibrary,"meshlib")
 
 bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
-    se_string_view name = p_name;
+    StringView name = p_name;
     if (StringUtils::begins_with(name,"item/")) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        se_string_view what = StringUtils::get_slice(name,'/', 2);
+        StringView what = StringUtils::get_slice(name,'/', 2);
         if (!item_map.contains(idx))
             create_item(idx);
 
@@ -77,10 +77,10 @@ bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
 bool MeshLibrary::_get(const StringName &p_name, Variant &r_ret) const {
     using namespace eastl;
 
-    se_string_view name(p_name);
+    StringView name(p_name);
     int idx = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
     ERR_FAIL_COND_V(!item_map.contains(idx), false);
-    se_string_view what = StringUtils::get_slice(name,'/', 2);
+    StringView what = StringUtils::get_slice(name,'/', 2);
 
     if (what == "name"_sv)
         r_ret = get_item_name(idx);
@@ -123,7 +123,7 @@ void MeshLibrary::create_item(int p_item) {
     Object_change_notify(this);
 }
 
-void MeshLibrary::set_item_name(int p_item, se_string_view p_name) {
+void MeshLibrary::set_item_name(int p_item, StringView p_name) {
 
     ERR_FAIL_COND(!item_map.contains(p_item));
     item_map[p_item].name = p_name;
@@ -179,7 +179,7 @@ void MeshLibrary::set_item_preview(int p_item, const Ref<Texture> &p_preview) {
 
 const String &MeshLibrary::get_item_name(int p_item) const {
 
-    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), null_se_string, "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.");
+    ERR_FAIL_COND_V_MSG(!item_map.contains(p_item), null_string, "Requested for nonexistent MeshLibrary item '" + itos(p_item) + "'.");
     return item_map.at(p_item).name;
 }
 
@@ -252,7 +252,7 @@ Vector<int> MeshLibrary::get_item_list() const {
     return ret;
 }
 
-int MeshLibrary::find_item_by_name(se_string_view p_name) const {
+int MeshLibrary::find_item_by_name(StringView p_name) const {
 
     for (const eastl::pair<const int,Item> &E : item_map) {
 

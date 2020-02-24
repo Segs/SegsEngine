@@ -104,11 +104,11 @@ void WSLClient::_do_handshake() {
 
 bool WSLClient::_verify_headers(String &r_protocol) {
     String s((char *)_resp_buf);
-    Vector<se_string_view> psa = StringUtils::split(s,"\r\n");
+    Vector<StringView> psa = StringUtils::split(s,"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
-    Vector<se_string_view> req = StringUtils::split(psa[0],' ', false);
+    Vector<StringView> req = StringUtils::split(psa[0],' ', false);
     ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
@@ -116,10 +116,10 @@ bool WSLClient::_verify_headers(String &r_protocol) {
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
-        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        Vector<StringView> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i] + ".");
         String name = StringUtils::to_lower(header[0]);
-        se_string_view value = StringUtils::strip_edges( header[1]);
+        StringView value = StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
             headers[name].append(",").append(value);
         else
@@ -156,7 +156,7 @@ bool WSLClient::_verify_headers(String &r_protocol) {
     return true;
 }
 
-Error WSLClient::connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl,
+Error WSLClient::connect_to_host(StringView p_host, StringView p_path, uint16_t p_port, bool p_ssl,
         const PoolVector<String> &p_protocols, const PoolVector<String> &p_custom_headers) {
 
     ERR_FAIL_COND_V(_connection, ERR_ALREADY_IN_USE);
@@ -300,7 +300,7 @@ NetworkedMultiplayerPeer::ConnectionStatus WSLClient::get_connection_status() co
     return CONNECTION_DISCONNECTED;
 }
 
-void WSLClient::disconnect_from_host(int p_code, se_string_view p_reason) {
+void WSLClient::disconnect_from_host(int p_code, StringView p_reason) {
 
     _peer->close(p_code, p_reason);
     _connection = Ref<StreamPeer>();

@@ -34,7 +34,7 @@
 #include "core/dictionary.h"
 #include "core/variant.h"
 #include "core/ustring.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "authors.gen.h"
 #include "donors.gen.h"
 #include "license.gen.h"
@@ -234,7 +234,7 @@ public:
     {
         delete d;
     }
-    void reportError(se_string_view msg, const char *retval, const char *funcstr,const char *file, int line) override
+    void reportError(StringView msg, const char *retval, const char *funcstr,const char *file, int line) override
     {
         _err_print_error(funcstr, file, line, String("Method/Function Failed, returning: ")+ retval,msg);
     }

@@ -31,7 +31,7 @@
 #include "area_bullet.h"
 
 #include "core/object_db.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "bullet_physics_server.h"
 #include "bullet_types_converter.h"

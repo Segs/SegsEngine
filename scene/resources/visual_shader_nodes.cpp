@@ -112,7 +112,7 @@ VARIANT_ENUM_CAST(VisualShaderNodeCompare::Condition)
 VARIANT_ENUM_CAST(VisualShaderNodeScalarUniform::Hint)
 ////////////// Scalar
 
-se_string_view VisualShaderNodeScalarConstant::get_caption() const {
+StringView VisualShaderNodeScalarConstant::get_caption() const {
     return ("Scalar");
 }
 
@@ -172,7 +172,7 @@ VisualShaderNodeScalarConstant::VisualShaderNodeScalarConstant() {
 
 ////////////// Boolean
 
-se_string_view VisualShaderNodeBooleanConstant::get_caption() const {
+StringView VisualShaderNodeBooleanConstant::get_caption() const {
     return ("Boolean");
 }
 
@@ -234,7 +234,7 @@ VisualShaderNodeBooleanConstant::VisualShaderNodeBooleanConstant() {
 
 ////////////// Color
 
-se_string_view VisualShaderNodeColorConstant::get_caption() const {
+StringView VisualShaderNodeColorConstant::get_caption() const {
     return ("Color");
 }
 
@@ -299,7 +299,7 @@ VisualShaderNodeColorConstant::VisualShaderNodeColorConstant() {
 
 ////////////// Vector
 
-se_string_view VisualShaderNodeVec3Constant::get_caption() const {
+StringView VisualShaderNodeVec3Constant::get_caption() const {
     return "Vector";
 }
 
@@ -358,7 +358,7 @@ VisualShaderNodeVec3Constant::VisualShaderNodeVec3Constant() {
 
 ////////////// Transform
 
-se_string_view VisualShaderNodeTransformConstant::get_caption() const {
+StringView VisualShaderNodeTransformConstant::get_caption() const {
     return "Transform";
 }
 
@@ -425,7 +425,7 @@ VisualShaderNodeTransformConstant::VisualShaderNodeTransformConstant() {
 
 ////////////// Texture
 
-se_string_view VisualShaderNodeTexture::get_caption() const {
+StringView VisualShaderNodeTexture::get_caption() const {
     return ("Texture");
 }
 
@@ -810,7 +810,7 @@ VisualShaderNodeTexture::VisualShaderNodeTexture() {
 
 ////////////// CubeMap
 
-se_string_view VisualShaderNodeCubeMap::get_caption() const {
+StringView VisualShaderNodeCubeMap::get_caption() const {
     return ("CubeMap");
 }
 
@@ -985,7 +985,7 @@ VisualShaderNodeCubeMap::VisualShaderNodeCubeMap() {
 }
 ////////////// Scalar Op
 
-se_string_view VisualShaderNodeScalarOp::get_caption() const {
+StringView VisualShaderNodeScalarOp::get_caption() const {
     return ("ScalarOp");
 }
 
@@ -1074,7 +1074,7 @@ VisualShaderNodeScalarOp::VisualShaderNodeScalarOp() {
 
 ////////////// Vector Op
 
-se_string_view VisualShaderNodeVectorOp::get_caption() const {
+StringView VisualShaderNodeVectorOp::get_caption() const {
     return ("VectorOp");
 }
 
@@ -1167,7 +1167,7 @@ VisualShaderNodeVectorOp::VisualShaderNodeVectorOp() {
 
 ////////////// Color Op
 
-se_string_view VisualShaderNodeColorOp::get_caption() const {
+StringView VisualShaderNodeColorOp::get_caption() const {
     return ("ColorOp");
 }
 
@@ -1345,7 +1345,7 @@ VisualShaderNodeColorOp::VisualShaderNodeColorOp() {
 
 ////////////// Transform Mult
 
-se_string_view VisualShaderNodeTransformMult::get_caption() const {
+StringView VisualShaderNodeTransformMult::get_caption() const {
     return ("TransformMult");
 }
 
@@ -1421,7 +1421,7 @@ VisualShaderNodeTransformMult::VisualShaderNodeTransformMult() {
 
 ////////////// TransformVec Mult
 
-se_string_view VisualShaderNodeTransformVecMult::get_caption() const {
+StringView VisualShaderNodeTransformVecMult::get_caption() const {
     return ("TransformVectorMult");
 }
 
@@ -1496,7 +1496,7 @@ VisualShaderNodeTransformVecMult::VisualShaderNodeTransformVecMult() {
 
 ////////////// Scalar Func
 
-se_string_view VisualShaderNodeScalarFunc::get_caption() const {
+StringView VisualShaderNodeScalarFunc::get_caption() const {
     return ("ScalarFunc");
 }
 
@@ -1626,7 +1626,7 @@ VisualShaderNodeScalarFunc::VisualShaderNodeScalarFunc() {
 
 ////////////// Vector Func
 
-se_string_view VisualShaderNodeVectorFunc::get_caption() const {
+StringView VisualShaderNodeVectorFunc::get_caption() const {
     return ("VectorFunc");
 }
 
@@ -1793,7 +1793,7 @@ VisualShaderNodeVectorFunc::VisualShaderNodeVectorFunc() {
 
 ////////////// ColorFunc
 
-se_string_view VisualShaderNodeColorFunc::get_caption() const {
+StringView VisualShaderNodeColorFunc::get_caption() const {
     return ("ColorFunc");
 }
 
@@ -1886,7 +1886,7 @@ VisualShaderNodeColorFunc::VisualShaderNodeColorFunc() {
 
 ////////////// Transform Func
 
-se_string_view VisualShaderNodeTransformFunc::get_caption() const {
+StringView VisualShaderNodeTransformFunc::get_caption() const {
     return ("TransformFunc");
 }
 
@@ -1962,7 +1962,7 @@ VisualShaderNodeTransformFunc::VisualShaderNodeTransformFunc() {
 
 ////////////// Dot Product
 
-se_string_view VisualShaderNodeDotProduct::get_caption() const {
+StringView VisualShaderNodeDotProduct::get_caption() const {
     return ("DotProduct");
 }
 
@@ -1997,7 +1997,7 @@ VisualShaderNodeDotProduct::VisualShaderNodeDotProduct() {
 
 ////////////// Vector Len
 
-se_string_view VisualShaderNodeVectorLen::get_caption() const {
+StringView VisualShaderNodeVectorLen::get_caption() const {
     return ("VectorLen");
 }
 
@@ -2031,7 +2031,7 @@ VisualShaderNodeVectorLen::VisualShaderNodeVectorLen() {
 
 ////////////// Determinant
 
-se_string_view VisualShaderNodeDeterminant::get_caption() const {
+StringView VisualShaderNodeDeterminant::get_caption() const {
     return ("Determinant");
 }
 
@@ -2069,7 +2069,7 @@ VisualShaderNodeDeterminant::VisualShaderNodeDeterminant() {
 
 ////////////// Scalar Derivative Function
 
-se_string_view VisualShaderNodeScalarDerivativeFunc::get_caption() const {
+StringView VisualShaderNodeScalarDerivativeFunc::get_caption() const {
     return ("ScalarDerivativeFunc");
 }
 
@@ -2147,7 +2147,7 @@ VisualShaderNodeScalarDerivativeFunc::VisualShaderNodeScalarDerivativeFunc() {
 
 ////////////// Vector Derivative Function
 
-se_string_view VisualShaderNodeVectorDerivativeFunc::get_caption() const {
+StringView VisualShaderNodeVectorDerivativeFunc::get_caption() const {
     return ("VectorDerivativeFunc");
 }
 
@@ -2225,7 +2225,7 @@ VisualShaderNodeVectorDerivativeFunc::VisualShaderNodeVectorDerivativeFunc() {
 
 ////////////// Scalar Clamp
 
-se_string_view VisualShaderNodeScalarClamp::get_caption() const {
+StringView VisualShaderNodeScalarClamp::get_caption() const {
     return "ScalarClamp";
 }
 
@@ -2271,7 +2271,7 @@ VisualShaderNodeScalarClamp::VisualShaderNodeScalarClamp() {
 
 ////////////// Vector Clamp
 
-se_string_view VisualShaderNodeVectorClamp::get_caption() const {
+StringView VisualShaderNodeVectorClamp::get_caption() const {
     return ("VectorClamp");
 }
 
@@ -2317,7 +2317,7 @@ VisualShaderNodeVectorClamp::VisualShaderNodeVectorClamp() {
 
 ////////////// FaceForward
 
-se_string_view VisualShaderNodeFaceForward::get_caption() const {
+StringView VisualShaderNodeFaceForward::get_caption() const {
     return ("FaceForward");
 }
 
@@ -2366,7 +2366,7 @@ VisualShaderNodeFaceForward::VisualShaderNodeFaceForward() {
 
 ////////////// Outer Product
 
-se_string_view VisualShaderNodeOuterProduct::get_caption() const {
+StringView VisualShaderNodeOuterProduct::get_caption() const {
     return ("OuterProduct");
 }
 
@@ -2412,7 +2412,7 @@ VisualShaderNodeOuterProduct::VisualShaderNodeOuterProduct() {
 
 ////////////// Vector-Scalar Step
 
-se_string_view VisualShaderNodeVectorScalarStep::get_caption() const {
+StringView VisualShaderNodeVectorScalarStep::get_caption() const {
     return ("VectorScalarStep");
 }
 
@@ -2458,7 +2458,7 @@ VisualShaderNodeVectorScalarStep::VisualShaderNodeVectorScalarStep() {
 
 ////////////// Scalar SmoothStep
 
-se_string_view VisualShaderNodeScalarSmoothStep::get_caption() const {
+StringView VisualShaderNodeScalarSmoothStep::get_caption() const {
     return ("ScalarSmoothStep");
 }
 
@@ -2504,7 +2504,7 @@ VisualShaderNodeScalarSmoothStep::VisualShaderNodeScalarSmoothStep() {
 
 ////////////// Vector SmoothStep
 
-se_string_view VisualShaderNodeVectorSmoothStep::get_caption() const {
+StringView VisualShaderNodeVectorSmoothStep::get_caption() const {
     return ("VectorSmoothStep");
 }
 
@@ -2550,7 +2550,7 @@ VisualShaderNodeVectorSmoothStep::VisualShaderNodeVectorSmoothStep() {
 
 ////////////// Vector-Scalar SmoothStep
 
-se_string_view VisualShaderNodeVectorScalarSmoothStep::get_caption() const {
+StringView VisualShaderNodeVectorScalarSmoothStep::get_caption() const {
     return "VectorScalarSmoothStep";
 }
 
@@ -2601,7 +2601,7 @@ VisualShaderNodeVectorScalarSmoothStep::VisualShaderNodeVectorScalarSmoothStep()
 
 ////////////// Distance
 
-se_string_view VisualShaderNodeVectorDistance::get_caption() const {
+StringView VisualShaderNodeVectorDistance::get_caption() const {
     return ("Distance");
 }
 
@@ -2645,7 +2645,7 @@ VisualShaderNodeVectorDistance::VisualShaderNodeVectorDistance() {
 
 ////////////// Refract Vector
 
-se_string_view VisualShaderNodeVectorRefract::get_caption() const {
+StringView VisualShaderNodeVectorRefract::get_caption() const {
     return ("Refract");
 }
 
@@ -2697,7 +2697,7 @@ VisualShaderNodeVectorRefract::VisualShaderNodeVectorRefract() {
 
 ////////////// Scalar Mix
 
-se_string_view VisualShaderNodeScalarInterp::get_caption() const {
+StringView VisualShaderNodeScalarInterp::get_caption() const {
     return ("ScalarMix");
 }
 
@@ -2743,7 +2743,7 @@ VisualShaderNodeScalarInterp::VisualShaderNodeScalarInterp() {
 
 ////////////// Vector Mix
 
-se_string_view VisualShaderNodeVectorInterp::get_caption() const {
+StringView VisualShaderNodeVectorInterp::get_caption() const {
     return ("VectorMix");
 }
 
@@ -2789,7 +2789,7 @@ VisualShaderNodeVectorInterp::VisualShaderNodeVectorInterp() {
 
 ////////////// Vector Mix (by scalar)
 
-se_string_view VisualShaderNodeVectorScalarMix::get_caption() const {
+StringView VisualShaderNodeVectorScalarMix::get_caption() const {
     return ("VectorScalarMix");
 }
 
@@ -2836,7 +2836,7 @@ VisualShaderNodeVectorScalarMix::VisualShaderNodeVectorScalarMix() {
 }
 
 ////////////// Vector Compose
-se_string_view VisualShaderNodeVectorCompose::get_caption() const {
+StringView VisualShaderNodeVectorCompose::get_caption() const {
     return ("VectorCompose");
 }
 
@@ -2879,7 +2879,7 @@ VisualShaderNodeVectorCompose::VisualShaderNodeVectorCompose() {
 
 ////////////// Transform Compose
 
-se_string_view VisualShaderNodeTransformCompose::get_caption() const {
+StringView VisualShaderNodeTransformCompose::get_caption() const {
     return ("TransformCompose");
 }
 
@@ -2924,7 +2924,7 @@ VisualShaderNodeTransformCompose::VisualShaderNodeTransformCompose() {
 }
 
 ////////////// Vector Decompose
-se_string_view VisualShaderNodeVectorDecompose::get_caption() const {
+StringView VisualShaderNodeVectorDecompose::get_caption() const {
     return ("VectorDecompose");
 }
 
@@ -2968,7 +2968,7 @@ VisualShaderNodeVectorDecompose::VisualShaderNodeVectorDecompose() {
 
 ////////////// Transform Decompose
 
-se_string_view VisualShaderNodeTransformDecompose::get_caption() const {
+StringView VisualShaderNodeTransformDecompose::get_caption() const {
     return ("TransformDecompose");
 }
 
@@ -3015,7 +3015,7 @@ VisualShaderNodeTransformDecompose::VisualShaderNodeTransformDecompose() {
 
 ////////////// Scalar Uniform
 
-se_string_view VisualShaderNodeScalarUniform::get_caption() const {
+StringView VisualShaderNodeScalarUniform::get_caption() const {
     return ("ScalarUniform");
 }
 
@@ -3129,7 +3129,7 @@ VisualShaderNodeScalarUniform::VisualShaderNodeScalarUniform() {
 
 ////////////// Boolean Uniform
 
-se_string_view VisualShaderNodeBooleanUniform::get_caption() const {
+StringView VisualShaderNodeBooleanUniform::get_caption() const {
     return ("BooleanUniform");
 }
 
@@ -3170,7 +3170,7 @@ VisualShaderNodeBooleanUniform::VisualShaderNodeBooleanUniform() {
 
 ////////////// Color Uniform
 
-se_string_view VisualShaderNodeColorUniform::get_caption() const {
+StringView VisualShaderNodeColorUniform::get_caption() const {
     return ("ColorUniform");
 }
 
@@ -3210,7 +3210,7 @@ VisualShaderNodeColorUniform::VisualShaderNodeColorUniform() {
 
 ////////////// Vector Uniform
 
-se_string_view VisualShaderNodeVec3Uniform::get_caption() const {
+StringView VisualShaderNodeVec3Uniform::get_caption() const {
     return ("VectorUniform");
 }
 
@@ -3246,7 +3246,7 @@ VisualShaderNodeVec3Uniform::VisualShaderNodeVec3Uniform() {
 
 ////////////// Transform Uniform
 
-se_string_view VisualShaderNodeTransformUniform::get_caption() const {
+StringView VisualShaderNodeTransformUniform::get_caption() const {
     return ("TransformUniform");
 }
 
@@ -3282,7 +3282,7 @@ VisualShaderNodeTransformUniform::VisualShaderNodeTransformUniform() {
 
 ////////////// Texture Uniform
 
-se_string_view VisualShaderNodeTextureUniform::get_caption() const {
+StringView VisualShaderNodeTextureUniform::get_caption() const {
     return ("TextureUniform");
 }
 
@@ -3428,7 +3428,7 @@ VisualShaderNodeTextureUniform::VisualShaderNodeTextureUniform() {
 
 ////////////// Texture Uniform (Triplanar)
 
-se_string_view VisualShaderNodeTextureUniformTriplanar::get_caption() const {
+StringView VisualShaderNodeTextureUniformTriplanar::get_caption() const {
     return ("TextureUniformTriplanar");
 }
 
@@ -3528,7 +3528,7 @@ VisualShaderNodeTextureUniformTriplanar::VisualShaderNodeTextureUniformTriplanar
 
 ////////////// CubeMap Uniform
 
-se_string_view VisualShaderNodeCubeMapUniform::get_caption() const {
+StringView VisualShaderNodeCubeMapUniform::get_caption() const {
     return ("CubeMapUniform");
 }
 int VisualShaderNodeCubeMapUniform::get_output_port_count() const {
@@ -3589,7 +3589,7 @@ VisualShaderNodeCubeMapUniform::VisualShaderNodeCubeMapUniform() {
 
 ////////////// If
 
-se_string_view VisualShaderNodeIf::get_caption() const {
+StringView VisualShaderNodeIf::get_caption() const {
     return ("If");
 }
 
@@ -3665,7 +3665,7 @@ VisualShaderNodeIf::VisualShaderNodeIf() {
 
 ////////////// Switch
 
-se_string_view VisualShaderNodeSwitch::get_caption() const {
+StringView VisualShaderNodeSwitch::get_caption() const {
     return ("VectorSwitch");
 }
 
@@ -3728,7 +3728,7 @@ VisualShaderNodeSwitch::VisualShaderNodeSwitch() {
 
 ////////////// Switch(scalar)
 
-se_string_view VisualShaderNodeScalarSwitch::get_caption() const {
+StringView VisualShaderNodeScalarSwitch::get_caption() const {
     return ("ScalarSwitch");
 }
 
@@ -3751,7 +3751,7 @@ VisualShaderNodeScalarSwitch::VisualShaderNodeScalarSwitch() {
 
 ////////////// Fresnel
 
-se_string_view VisualShaderNodeFresnel::get_caption() const {
+StringView VisualShaderNodeFresnel::get_caption() const {
     return ("Fresnel");
 }
 
@@ -3835,7 +3835,7 @@ VisualShaderNodeFresnel::VisualShaderNodeFresnel() {
 
 ////////////// Is
 
-se_string_view VisualShaderNodeIs::get_caption() const {
+StringView VisualShaderNodeIs::get_caption() const {
 
     return ("Is");
 }
@@ -3921,7 +3921,7 @@ VisualShaderNodeIs::VisualShaderNodeIs() {
 
 ////////////// Compare
 
-se_string_view VisualShaderNodeCompare::get_caption() const {
+StringView VisualShaderNodeCompare::get_caption() const {
 
     return ("Compare");
 }

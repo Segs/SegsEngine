@@ -266,14 +266,14 @@ Vector2 AnimationNodeBlendSpace2D::get_snap() const {
     return snap;
 }
 
-void AnimationNodeBlendSpace2D::set_x_label(se_string_view p_label) {
+void AnimationNodeBlendSpace2D::set_x_label(StringView p_label) {
     x_label = p_label;
 }
 const String &AnimationNodeBlendSpace2D::get_x_label() const {
     return x_label;
 }
 
-void AnimationNodeBlendSpace2D::set_y_label(se_string_view p_label) {
+void AnimationNodeBlendSpace2D::set_y_label(StringView p_label) {
     y_label = p_label;
 }
 const String &AnimationNodeBlendSpace2D::get_y_label() const {
@@ -557,7 +557,7 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
     return mind;
 }
 
-se_string_view AnimationNodeBlendSpace2D::get_caption() const {
+StringView AnimationNodeBlendSpace2D::get_caption() const {
     return ("BlendSpace2D");
 }
 
@@ -567,7 +567,7 @@ void AnimationNodeBlendSpace2D::_validate_property(PropertyInfo &property) const
         property.usage = 0;
     }
     if (StringUtils::begins_with(property.name,"blend_point_")) {
-        se_string_view left = StringUtils::get_slice(property.name,'/', 0);
+        StringView left = StringUtils::get_slice(property.name,'/', 0);
         int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
         if (idx >= blend_points_used) {
             property.usage = 0;

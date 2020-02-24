@@ -34,7 +34,7 @@
 #include "core/map.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/vector.h"
 #include "core/plugin_interfaces/PackSourceInterface.h"
@@ -116,23 +116,23 @@ private:
 public:
     void add_pack_source(PackSourceInterface *p_source);
     void remove_pack_source(PackSourceInterface *p_source);
-    void add_path(se_string_view pkg_path, se_string_view path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files); // for PackSource
+    void add_path(StringView pkg_path, StringView path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files); // for PackSource
 
     void set_disabled(bool p_disabled) { disabled = p_disabled; }
     _FORCE_INLINE_ bool is_disabled() const { return disabled; }
 
     static PackedData *get_singleton() { return singleton; }
-    Error add_pack(se_string_view p_path, bool p_replace_files);
+    Error add_pack(StringView p_path, bool p_replace_files);
 
-    _FORCE_INLINE_ FileAccess *try_open_path(se_string_view p_path);
-    _FORCE_INLINE_ bool has_path(se_string_view p_path);
+    _FORCE_INLINE_ FileAccess *try_open_path(StringView p_path);
+    _FORCE_INLINE_ bool has_path(StringView p_path);
 
     PackedData();
     ~PackedData();
 };
 
 
-FileAccess *PackedData::try_open_path(se_string_view p_path) {
+FileAccess *PackedData::try_open_path(StringView p_path) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(p_path));
     auto E = files.find(pmd5);
@@ -144,7 +144,7 @@ FileAccess *PackedData::try_open_path(se_string_view p_path) {
     return E->second.src->get_file(p_path, &E->second);
 }
 
-bool PackedData::has_path(se_string_view p_path) {
+bool PackedData::has_path(StringView p_path) {
 
     return files.contains(PathMD5(StringUtils::md5_buffer(p_path)));
 }
@@ -169,16 +169,16 @@ public:
     int get_drive_count() override;
     String get_drive(int p_drive) override;
 
-    Error change_dir(se_string_view p_dir) override;
+    Error change_dir(StringView p_dir) override;
     String get_current_dir() override;
 
-    bool file_exists(se_string_view p_file) override;
-    bool dir_exists(se_string_view p_dir) override;
+    bool file_exists(StringView p_file) override;
+    bool dir_exists(StringView p_dir) override;
 
-    Error make_dir(se_string_view p_dir) override;
+    Error make_dir(StringView p_dir) override;
 
-    Error rename(se_string_view p_from, se_string_view p_to) override;
-    Error remove(se_string_view p_name) override;
+    Error rename(StringView p_from, StringView p_to) override;
+    Error remove(StringView p_name) override;
 
     size_t get_space_left() override;
 

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/string_builder.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/map.h"
 
 #include "scene/gui/control.h"
@@ -153,8 +153,8 @@ public:
 
     String generate_preview_shader(Type p_type, int p_node, int p_port, Vector<DefaultTextureParam> &r_default_tex_params) const;
 
-    String validate_port_name(se_string_view p_name, const Vector<StringName> &p_input_ports, const Vector<StringName> &p_output_ports) const;
-    String validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
+    String validate_port_name(StringView p_name, const Vector<StringName> &p_input_ports, const Vector<StringName> &p_output_ports) const;
+    String validate_uniform_name(StringView p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const;
 
     VisualShader();
 };
@@ -186,7 +186,7 @@ public:
 
     bool is_simple_decl() const { return simple_decl; }
 
-    virtual se_string_view get_caption() const = 0;
+    virtual StringView get_caption() const = 0;
 
     virtual int get_input_port_count() const = 0;
     virtual PortType get_input_port_type(int p_port) const = 0;
@@ -236,7 +236,7 @@ class VisualShaderNodeCustom : public VisualShaderNode {
     friend class VisualShaderEditor;
 
 protected:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -292,7 +292,7 @@ public:
     PortType get_output_port_type(int p_port) const override;
     StringName get_output_port_name(int p_port) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
@@ -343,7 +343,7 @@ public:
 
     bool is_port_separator(int p_index) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
@@ -390,7 +390,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_size(const Vector2 &p_size);
     Vector2 get_size() const;
@@ -448,7 +448,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_expression(const String &p_expression);
     String get_expression() const;
@@ -462,7 +462,7 @@ class VisualShaderNodeGlobalExpression : public VisualShaderNodeExpression {
     GDCLASS(VisualShaderNodeGlobalExpression,VisualShaderNodeExpression)
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
 

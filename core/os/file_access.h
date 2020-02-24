@@ -50,19 +50,19 @@ public:
         ACCESS_MAX
     };
 
-    using FileCloseFailNotify = void (*)(se_string_view);
+    using FileCloseFailNotify = void (*)(StringView);
 
     using CreateFunc = FileAccess *(*)();
     bool endian_swap;
     bool real_is_double;
 
-    virtual uint32_t _get_unix_permissions(se_string_view p_file) = 0;
-    virtual Error _set_unix_permissions(se_string_view p_file, uint32_t p_permissions) = 0;
+    virtual uint32_t _get_unix_permissions(StringView p_file) = 0;
+    virtual Error _set_unix_permissions(StringView p_file, uint32_t p_permissions) = 0;
 
 protected:
-    String fix_path(se_string_view p_path) const;
-    virtual Error _open(se_string_view p_path, int p_mode_flags) = 0; ///< open a file
-    virtual uint64_t _get_modified_time(se_string_view p_file) = 0;
+    String fix_path(StringView p_path) const;
+    virtual Error _open(StringView p_path, int p_mode_flags) = 0; ///< open a file
+    virtual uint64_t _get_modified_time(StringView p_file) = 0;
 
     static FileCloseFailNotify close_fail_notify;
 
@@ -138,38 +138,38 @@ public:
     virtual void store_double(double p_dest);
     virtual void store_real(real_t p_real);
 
-    virtual void store_string(se_string_view p_string);
-    virtual void store_line(se_string_view p_line);
+    virtual void store_string(StringView p_string);
+    virtual void store_line(StringView p_line);
     virtual void store_csv_line(const Vector<String> &p_values, char p_delim = ',');
 
-    virtual void store_pascal_string(se_string_view p_string);
+    virtual void store_pascal_string(StringView p_string);
     virtual String get_pascal_string();
 
     virtual void store_buffer(const uint8_t *p_src, int p_length); ///< store an array of bytes
 
-    virtual bool file_exists(se_string_view p_name) = 0; ///< return true if a file exists
+    virtual bool file_exists(StringView p_name) = 0; ///< return true if a file exists
 
-    virtual Error reopen(se_string_view p_path, int p_mode_flags); ///< does not change the AccessType
+    virtual Error reopen(StringView p_path, int p_mode_flags); ///< does not change the AccessType
 
     static FileAccess *create(AccessType p_access); /// Create a file access (for the current platform) this is the only portable way of accessing files.
-    static FileAccess *create_for_path(se_string_view p_path);
+    static FileAccess *create_for_path(StringView p_path);
     /// Create a file access (for the current platform) this is the only portable way of accessing files.
-    static FileAccess *open(se_string_view p_path, int p_mode_flags, Error *r_error = nullptr);
+    static FileAccess *open(StringView p_path, int p_mode_flags, Error *r_error = nullptr);
     static CreateFunc get_create_func(AccessType p_access);
-    static bool exists(se_string_view p_name); ///< return true if a file exists
-    static uint64_t get_modified_time(se_string_view p_file);
-    static uint32_t get_unix_permissions(se_string_view p_file);
-    static Error set_unix_permissions(se_string_view p_file, uint32_t p_permissions);
+    static bool exists(StringView p_name); ///< return true if a file exists
+    static uint64_t get_modified_time(StringView p_file);
+    static uint32_t get_unix_permissions(StringView p_file);
+    static Error set_unix_permissions(StringView p_file, uint32_t p_permissions);
 
     static void set_backup_save(bool p_enable) { backup_save = p_enable; }
     static bool is_backup_save_enabled() { return backup_save; }
 
-    static String get_md5(se_string_view p_file);
-    static String get_sha256(se_string_view p_file);
+    static String get_md5(StringView p_file);
+    static String get_sha256(StringView p_file);
     static String get_multiple_md5(const Vector<String> &p_file);
 
-    static Vector<uint8_t> get_file_as_array(se_string_view p_path, Error *r_error = nullptr);
-    static String get_file_as_string(se_string_view p_path, Error *r_error = nullptr);
+    static Vector<uint8_t> get_file_as_array(StringView p_path, Error *r_error = nullptr);
+    static String get_file_as_string(StringView p_path, Error *r_error = nullptr);
 
     template <class T>
     static void make_default(AccessType p_access) {

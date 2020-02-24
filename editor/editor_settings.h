@@ -113,8 +113,8 @@ public:
 
     void _load_defaults(const Ref<ConfigFile> &p_extra_config = Ref<ConfigFile>());
     void _load_default_text_editor_theme();
-    bool _save_text_editor_theme(se_string_view p_file);
-    bool _is_default_text_editor_theme(se_string_view p_theme_name);
+    bool _save_text_editor_theme(StringView p_file);
+    bool _is_default_text_editor_theme(StringView p_theme_name);
 
 protected:
     static void _bind_methods();
@@ -164,8 +164,8 @@ public:
     const String &get_cache_dir() const;
     String get_feature_profiles_dir() const;
 
-    void set_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_data);
-    Variant get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const;
+    void set_project_metadata(StringView p_section, StringView p_key, const Variant& p_data);
+    Variant get_project_metadata(StringView p_section, StringView p_key, const Variant& p_default) const;
 
     void set_favorites(const Vector<String> &p_favorites);
     const Vector<String> &get_favorites() const;
@@ -177,17 +177,17 @@ public:
 
     void list_text_editor_themes();
     void load_text_editor_theme();
-    bool import_text_editor_theme(se_string_view p_file);
+    bool import_text_editor_theme(StringView p_file);
     bool save_text_editor_theme();
-    bool save_text_editor_theme_as(se_string_view p_file);
+    bool save_text_editor_theme_as(StringView p_file);
     bool is_default_text_editor_theme();
 
-    Vector<String> get_script_templates(se_string_view p_extension, se_string_view p_custom_path = {});
+    Vector<String> get_script_templates(StringView p_extension, StringView p_custom_path = {});
     String get_editor_layouts_config() const;
 
-    void add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortcut);
-    bool is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const;
-    Ref<ShortCut> get_shortcut(se_string_view p_name) const;
+    void add_shortcut(StringView p_name, Ref<ShortCut> &p_shortcut);
+    bool is_shortcut(StringView p_name, const Ref<InputEvent> &p_event) const;
+    Ref<ShortCut> get_shortcut(StringView p_name) const;
     void get_shortcut_list(Vector<String> *r_shortcuts);
 
     void notify_changes();
@@ -209,5 +209,5 @@ inline T EditorGet(const StringName &p_setting) {
 }
 
 #define ED_IS_SHORTCUT(p_name, p_ev) (EditorSettings::get_singleton()->is_shortcut(p_name, p_ev))
-Ref<ShortCut> ED_SHORTCUT(se_string_view p_path, const StringName &p_name, uint32_t p_keycode = 0);
-Ref<ShortCut> ED_GET_SHORTCUT(se_string_view p_path);
+Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t p_keycode = 0);
+Ref<ShortCut> ED_GET_SHORTCUT(StringView p_path);

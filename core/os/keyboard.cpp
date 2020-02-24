@@ -35,7 +35,7 @@
 
 struct _KeyCodeText {
     int code;
-    se_string_view text;
+    StringView text;
 };
 
 static const _KeyCodeText _keycodes[] = {
@@ -429,7 +429,7 @@ String keycode_get_string(uint32_t p_code) {
     return codestr;
 }
 
-int find_keycode(se_string_view p_code) {
+int find_keycode(StringView p_code) {
 
     const _KeyCodeText *kct = &_keycodes[0];
 

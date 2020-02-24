@@ -50,7 +50,7 @@ uint32_t ResourceImporterOBJ::get_import_flags() const {
     return IMPORT_SCENE;
 }
 
-static Error _parse_material_library(se_string_view p_path, Map<String, Ref<SpatialMaterial> > &material_map, Vector<String> *r_missing_deps) {
+static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialMaterial> > &material_map, Vector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, vformat("Couldn't open MTL file '%s', it may not exist or not be readable.", p_path));
@@ -76,7 +76,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
         } else if (StringUtils::begins_with(l,"Kd ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA);
             Color c = current->get_albedo();
             c.r = StringUtils::to_float(v[1]);
@@ -86,7 +86,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
         } else if (StringUtils::begins_with(l,"Ks ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_INVALID_DATA);
             float r = StringUtils::to_float(v[1]);
             float g = StringUtils::to_float(v[2]);
@@ -96,14 +96,14 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
         } else if (StringUtils::begins_with(l,"Ns ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA);
             float s = StringUtils::to_float(v[1]);
             current->set_metallic((1000.0f - s) / 1000.0f);
         } else if (StringUtils::begins_with(l,"d ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA);
             float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
@@ -115,7 +115,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
         } else if (StringUtils::begins_with(l,"Tr ")) {
             //normal
             ERR_FAIL_COND_V(not current, ERR_FILE_CORRUPT);
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() != 2, ERR_INVALID_DATA);
             float d = StringUtils::to_float(v[1]);
             Color c = current->get_albedo();
@@ -211,7 +211,7 @@ static Error _parse_material_library(se_string_view p_path, Map<String, Ref<Spat
     return OK;
 }
 
-static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
+static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_single_mesh, bool p_generate_tangents,
         bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, Vector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
@@ -252,7 +252,7 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
 
         if (StringUtils::begins_with(l,"v ")) {
             //vertex
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
             Vector3 vtx;
             vtx.x = StringUtils::to_float(v[1]) * scale_mesh.x + offset_mesh.x;
@@ -261,7 +261,7 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
             vertices.push_back(vtx);
         } else if (StringUtils::begins_with(l,"vt ")) {
             //uv
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 3, ERR_FILE_CORRUPT);
             Vector2 uv;
             uv.x = StringUtils::to_float(v[1]);
@@ -270,7 +270,7 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
 
         } else if (StringUtils::begins_with(l,"vn ")) {
             //normal
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
             Vector3 nrm;
             nrm.x = StringUtils::to_float(v[1]);
@@ -280,12 +280,12 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
         } else if (StringUtils::begins_with(l,"f ")) {
             //vertex
 
-            Vector<se_string_view> v = StringUtils::split(l," ", false);
+            Vector<StringView> v = StringUtils::split(l," ", false);
             ERR_FAIL_COND_V(v.size() < 4, ERR_FILE_CORRUPT);
 
             //not very fast, could be sped up
 
-            Vector<se_string_view> face[3];
+            Vector<StringView> face[3];
             face[0] = StringUtils::split(v[1],"/");
             face[1] = StringUtils::split(v[2],"/");
             ERR_FAIL_COND_V(face[0].empty(), ERR_FILE_CORRUPT);
@@ -334,8 +334,8 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
                 face[1] = face[2];
             }
         } else if (StringUtils::begins_with(l,"s ")) { //smoothing
-            se_string_view what = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
-            if (what == se_string_view("off"))
+            StringView what = StringUtils::strip_edges(StringUtils::substr(l,2, l.length()));
+            if (what == StringView("off"))
                 surf_tool->add_smooth_group(false);
             else
                 surf_tool->add_smooth_group(true);
@@ -409,7 +409,7 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
                 Map<String, Ref<SpatialMaterial> > lib;
                 Error err = _parse_material_library(current_material_library, lib, r_missing_deps);
                 if (err == ERR_CANT_OPEN) {
-                    se_string_view dir = PathUtils::get_base_dir(p_path);
+                    StringView dir = PathUtils::get_base_dir(p_path);
                     err = _parse_material_library(PathUtils::plus_file(dir,current_material_library), lib, r_missing_deps);
                 }
                 if (err == OK) {
@@ -427,7 +427,7 @@ static Error _parse_obj(se_string_view p_path, Vector<Ref<Mesh>> &r_meshes, bool
     return OK;
 }
 
-Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *ResourceImporterOBJ::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     Vector<Ref<Mesh> > meshes;
 
@@ -458,7 +458,7 @@ Node *ResourceImporterOBJ::import_scene(se_string_view p_path, uint32_t p_flags,
 
     return scene;
 }
-Ref<Animation> ResourceImporterOBJ::import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
+Ref<Animation> ResourceImporterOBJ::import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) {
 
     return Ref<Animation>();
 }
@@ -508,7 +508,7 @@ bool ResourceImporterOBJ::get_option_visibility(const StringName &p_option, cons
     return true;
 }
 
-Error ResourceImporterOBJ::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterOBJ::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     Vector<Ref<Mesh> > meshes;

@@ -132,7 +132,7 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
     Ref<MultiplayerAPI> multiplayer;
 
     ErrorHandlerList eh;
-    static void _err_handler(void *, se_string_view, se_string_view, int p_line, se_string_view, se_string_view, ErrorHandlerType p_type);
+    static void _err_handler(void *, StringView, StringView, int p_line, StringView, StringView, ErrorHandlerType p_type);
 
     void _send_profiling_data(bool p_for_frame);
     void _send_network_profiling_data();
@@ -146,9 +146,9 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     Vector<FrameData> profile_frame_data;
 
-    void _put_variable(se_string_view p_name, const Variant &p_variable);
+    void _put_variable(StringView p_name, const Variant &p_variable);
 
-    void _save_node(ObjectID id, se_string_view p_path);
+    void _save_node(ObjectID id, StringView p_path);
 
     bool skip_breakpoints;
 public:
@@ -166,7 +166,7 @@ public:
 
     static ResourceUsageFunc resource_usage_func;
 
-    Error connect_to_host(se_string_view p_host, uint16_t p_port);
+    Error connect_to_host(StringView p_host, uint16_t p_port);
     void debug(ScriptLanguage *p_script, bool p_can_continue = true, bool p_is_error_breakpoint = false) override;
     void idle_poll() override;
     void line_poll() override;
@@ -175,7 +175,7 @@ public:
     void request_quit() override;
 
     void send_message(const String &p_message, const Array &p_args) override;
-    void send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
+    void send_error(StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
 
     void set_multiplayer(const Ref<MultiplayerAPI> &p_multiplayer) override;
 

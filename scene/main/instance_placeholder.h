@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/list.h"
 
 class PackedScene;
@@ -56,7 +56,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_instance_path(se_string_view p_name);
+    void set_instance_path(StringView p_name);
     const String &get_instance_path() const;
 
     Dictionary get_stored_values(bool p_with_order = false);

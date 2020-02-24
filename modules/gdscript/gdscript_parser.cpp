@@ -50,7 +50,7 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.h"
@@ -3591,7 +3591,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 p_class->name = tokenizer->get_token_identifier(1);
 
-                if (!self_path.empty() && ScriptServer::is_global_class(p_class->name) && se_string_view(self_path) != ScriptServer::get_global_class_path(p_class->name)) {
+                if (!self_path.empty() && ScriptServer::is_global_class(p_class->name) && StringView(self_path) != ScriptServer::get_global_class_path(p_class->name)) {
                     _set_error("Unique global class \"" + String(p_class->name.asCString()) + "\" already exists at path: " + ScriptServer::get_global_class_path(p_class->name));
                     return;
                 }
@@ -4479,10 +4479,10 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                                         return;
                                     }
 
-                                    se_string_view identifier(tokenizer->get_token_identifier().asCString());
-                                    if (identifier == se_string_view("RGB")) {
+                                    StringView identifier(tokenizer->get_token_identifier().asCString());
+                                    if (identifier == StringView("RGB")) {
                                         current_export.hint = PropertyHint::ColorNoAlpha;
-                                    } else if (identifier == se_string_view("RGBA")) {
+                                    } else if (identifier == StringView("RGBA")) {
                                         //none
                                     } else {
                                         current_export = PropertyInfo();
@@ -5339,7 +5339,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                     if (!StringUtils::begins_with(s,"autoload/")) {
                         continue;
                     }
-                    se_string_view name = StringUtils::get_slice(s,'/', 1);
+                    StringView name = StringUtils::get_slice(s,'/', 1);
                     if (base == name) {
                         String singleton_path = ProjectSettings::get_singleton()->get(s);
                         if (StringUtils::begins_with(singleton_path,"*")) {
@@ -5664,7 +5664,7 @@ bool GDScriptParser::_parse_type(DataType &r_type, bool p_can_be_void) {
 GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source, int p_line) {
     if (!p_source.has_type) return p_source;
     if (p_source.kind != DataType::UNRESOLVED) return p_source;
-    FixedVector<se_string_view,16,true> full_name;
+    FixedVector<StringView,16,true> full_name;
     String::split_ref(full_name,p_source.native_type,'.');
 
     int name_part = 0;
@@ -5681,8 +5681,8 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
         ClassNode *p = nullptr;
         if (name_part == 0) {
             if (ScriptServer::is_global_class(id)) {
-                se_string_view script_path = ScriptServer::get_global_class_path(id);
-                if (script_path == se_string_view(self_path)) {
+                StringView script_path = ScriptServer::get_global_class_path(id);
+                if (script_path == StringView(self_path)) {
                     result.kind = DataType::CLASS;
                     result.class_type = static_cast<ClassNode *>(head);
                 } else {
@@ -5714,7 +5714,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
                 if (!StringUtils::begins_with(s,"autoload/")) {
                     continue;
                 }
-                se_string_view name = StringUtils::get_slice(s,'/', 1);
+                StringView name = StringUtils::get_slice(s,'/', 1);
                 if (id == name) {
                     singleton_path = ProjectSettings::get_singleton()->get(s).as<String>();
                     if (StringUtils::begins_with(singleton_path,"*")) {
@@ -7598,11 +7598,11 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
 
         for(const PropertyInfo & E : props) {
             StringName s = E.name;
-            se_string_view prop_sv(s);
+            StringView prop_sv(s);
             if (!StringUtils::begins_with(prop_sv,"autoload/")) {
                 continue;
             }
-            se_string_view name = StringUtils::get_slice(prop_sv,'/', 1);
+            StringView name = StringUtils::get_slice(prop_sv,'/', 1);
             if (p_identifier == name) {
                 String script = ProjectSettings::get_singleton()->get(s);
                 if (StringUtils::begins_with(script,"*")) {
@@ -7882,7 +7882,7 @@ void GDScriptParser::_check_function_types(FunctionNode *p_function) {
                 p_function->argument_types[i] = _resolve_type(p_function->argument_types[i], p_function->line);
 
                 if (!_is_type_compatible(p_function->argument_types[i], def_type, true)) {
-                    se_string_view arg_name(p_function->arguments[i]);
+                    StringView arg_name(p_function->arguments[i]);
                     _set_error("Value type (" + def_type.to_string() + ") doesn't match the type of argument '" +
                                        arg_name + "' (" + p_function->argument_types[i].to_string() + ").",
                             p_function->line);
@@ -8392,7 +8392,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
 #endif // DEBUG_ENABLED
 }
 
-void GDScriptParser::_set_error(se_string_view p_error, int p_line, int p_column) {
+void GDScriptParser::_set_error(StringView p_error, int p_line, int p_column) {
 
     if (error_set)
         return; //allow no further errors
@@ -8404,7 +8404,7 @@ void GDScriptParser::_set_error(se_string_view p_error, int p_line, int p_column
 }
 #ifdef DEBUG_ENABLED
 
-void GDScriptParser::_add_warning(int p_code, int p_line, const std::initializer_list<se_string_view> &p_symbols) {
+void GDScriptParser::_add_warning(int p_code, int p_line, const std::initializer_list<StringView> &p_symbols) {
     if (StringUtils::begins_with(base_path,"res://addons/") && GLOBAL_GET("debug/gdscript/warnings/exclude_addons").booleanize()) {
         return;
     }
@@ -8421,7 +8421,7 @@ void GDScriptParser::_add_warning(int p_code, int p_line, const std::initializer
 
     GDScriptWarning warn;
     warn.code = (GDScriptWarning::Code)p_code;
-    for(se_string_view s : p_symbols)
+    for(StringView s : p_symbols)
         warn.symbols.push_back(String(s));
     warn.line = p_line == -1 ? tokenizer->get_token_line() : p_line;
 
@@ -8446,7 +8446,7 @@ int GDScriptParser::get_error_column() const {
 bool GDScriptParser::has_error() const {
     return error_set;
 }
-Error GDScriptParser::_parse(se_string_view p_base_path) {
+Error GDScriptParser::_parse(StringView p_base_path) {
 
     base_path = p_base_path;
 
@@ -8534,7 +8534,7 @@ Error GDScriptParser::_parse(se_string_view p_base_path) {
     return OK;
 }
 
-Error GDScriptParser::parse_bytecode(const Vector<uint8_t> &p_bytecode, se_string_view p_base_path, se_string_view p_self_path) {
+Error GDScriptParser::parse_bytecode(const Vector<uint8_t> &p_bytecode, StringView p_base_path, StringView p_self_path) {
 
     clear();
 
@@ -8548,7 +8548,7 @@ Error GDScriptParser::parse_bytecode(const Vector<uint8_t> &p_bytecode, se_strin
     return ret;
 }
 
-Error GDScriptParser::parse(se_string_view p_code, se_string_view p_base_path, bool p_just_validate, se_string_view p_self_path, bool p_for_completion, Set<int> *r_safe_lines, bool p_dependencies_only) {
+Error GDScriptParser::parse(StringView p_code, StringView p_base_path, bool p_just_validate, StringView p_self_path, bool p_for_completion, Set<int> *r_safe_lines, bool p_dependencies_only) {
 
     clear();
 

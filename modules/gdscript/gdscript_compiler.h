@@ -137,7 +137,7 @@ class GDScriptCompiler {
     bool _is_class_member_property(CodeGen &codegen, const StringName &p_name);
     bool _is_class_member_property(GDScript *owner, const StringName &p_name);
 
-    void _set_error(se_string_view p_error, const GDScriptParser::Node *p_node);
+    void _set_error(StringView p_error, const GDScriptParser::Node *p_node);
     void _set_error(const char *p_error, const GDScriptParser::Node *p_node);
 
     bool _create_unary_operator(CodeGen &codegen, const GDScriptParser::OperatorNode *on, Variant::Operator op, int p_stack_level);

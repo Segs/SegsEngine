@@ -395,7 +395,7 @@ void RenameDialog::_update_preview_int(int new_value) {
     _update_preview();
 }
 
-void RenameDialog::_update_preview(se_string_view new_text) {
+void RenameDialog::_update_preview(StringView new_text) {
 
     if (lock_preview_update || preview_node == nullptr)
         return;
@@ -487,10 +487,10 @@ String RenameDialog::_substitute(const String &subject, const Node *node, int co
     return result;
 }
 
-void RenameDialog::_error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type) {
+void RenameDialog::_error_handler(void *p_self, StringView p_func, StringView p_file, int p_line, StringView p_error, StringView p_errorexp, ErrorHandlerType p_type) {
 
     RenameDialog *self = (RenameDialog *)p_self;
-    se_string_view source_file(p_file);
+    StringView source_file(p_file);
 
     // Only show first error that is related to "regex"
     if (self->has_errors || StringUtils::contains(source_file,"regex"))
@@ -665,7 +665,7 @@ bool RenameDialog::_is_main_field(LineEdit *line_edit) {
            (line_edit == lne_search || line_edit == lne_replace || line_edit == lne_prefix || line_edit == lne_suffix);
 }
 
-void RenameDialog::_insert_text(se_string_view text) {
+void RenameDialog::_insert_text(StringView text) {
 
     LineEdit *focus_owner = object_cast<LineEdit>(get_focus_owner());
 

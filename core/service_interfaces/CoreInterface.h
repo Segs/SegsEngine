@@ -16,7 +16,7 @@ public:
     virtual FileAccess * wrapMemoryAsFileAccess(const uint8_t *data,int sz) = 0;
     virtual void  releaseFileAccess(FileAccess *) = 0;
 
-    virtual void reportError(se_string_view msg,const char *retval,const char *funcstr, const char *file,int line) = 0;
+    virtual void reportError(StringView msg,const char *retval,const char *funcstr, const char *file,int line) = 0;
     virtual void clearLastError() = 0;
     virtual void fillVersion(uint32_t &major,uint32_t &minor,uint32_t &patch) = 0;
 

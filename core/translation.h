@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/resource.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/hash_map.h"
 #include "core/hash_set.h"
 
@@ -52,7 +52,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_locale(se_string_view p_locale);
+    void set_locale(StringView p_locale);
     _FORCE_INLINE_ const String &get_locale() const { return locale; }
 
     void add_message(const StringName &p_src_text, const StringName &p_xlated_text);
@@ -90,10 +90,10 @@ public:
     void set_enabled(bool p_enabled) { enabled = p_enabled; }
     _FORCE_INLINE_ bool is_enabled() const { return enabled; }
 
-    void set_locale(se_string_view p_locale);
+    void set_locale(StringView p_locale);
     const String &get_locale() const;
 
-    String get_locale_name(se_string_view p_locale) const;
+    String get_locale_name(StringView p_locale) const;
 
     Array get_loaded_locales() const;
 
@@ -104,9 +104,9 @@ public:
 
     static Vector<String> get_all_locales();
     static Vector<String> get_all_locale_names();
-    static bool is_locale_valid(se_string_view p_locale);
-    static String standardize_locale(se_string_view p_locale);
-    static se_string_view get_language_code(se_string_view p_locale);
+    static bool is_locale_valid(StringView p_locale);
+    static String standardize_locale(StringView p_locale);
+    static StringView get_language_code(StringView p_locale);
     void set_tool_translation(const Ref<Translation> &p_translation);
     StringName tool_translate(const StringName &p_message) const;
 

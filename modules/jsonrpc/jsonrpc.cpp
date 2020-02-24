@@ -59,7 +59,7 @@ void JSONRPC::_bind_methods() {
     BIND_ENUM_CONSTANT(INTERNAL_ERROR)
 }
 
-Dictionary JSONRPC::make_response_error(int p_code, se_string_view p_message, const Variant &p_id) const {
+Dictionary JSONRPC::make_response_error(int p_code, StringView p_message, const Variant &p_id) const {
     Dictionary dict;
     dict["jsonrpc"] = "2.0";
 
@@ -81,7 +81,7 @@ Dictionary JSONRPC::make_response(const Variant &p_value, const Variant &p_id) {
     return dict;
 }
 
-Dictionary JSONRPC::make_notification(se_string_view p_method, const Variant &p_params) {
+Dictionary JSONRPC::make_notification(StringView p_method, const Variant &p_params) {
     Dictionary dict;
     dict["jsonrpc"] = "2.0";
     dict["method"] = p_method;
@@ -89,7 +89,7 @@ Dictionary JSONRPC::make_notification(se_string_view p_method, const Variant &p_
     return dict;
 }
 
-Dictionary JSONRPC::make_request(se_string_view p_method, const Variant &p_params, const Variant &p_id) {
+Dictionary JSONRPC::make_request(StringView p_method, const Variant &p_params, const Variant &p_id) {
     Dictionary dict;
     dict["jsonrpc"] = "2.0";
     dict["method"] = p_method;
@@ -153,7 +153,7 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
 
 String JSONRPC::process_string(const String &p_input) {
 
-    if (p_input.empty()) return null_se_string;
+    if (p_input.empty()) return null_string;
 
     Variant ret;
     Variant input;
@@ -166,7 +166,7 @@ String JSONRPC::process_string(const String &p_input) {
     }
 
     if (ret.get_type() == VariantType::NIL) {
-        return null_se_string;
+        return null_string;
     }
     return JSON::print(ret);
 }

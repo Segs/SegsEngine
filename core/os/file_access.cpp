@@ -36,7 +36,7 @@
 #include "core/os/os.h"
 #include "core/pool_vector.h"
 #include "core/project_settings.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 
@@ -55,7 +55,7 @@ FileAccess *FileAccess::create(AccessType p_access) {
     return ret;
 }
 
-bool FileAccess::exists(se_string_view p_name) {
+bool FileAccess::exists(StringView p_name) {
 
     if (PackedData::get_singleton() && PackedData::get_singleton()->has_path(p_name))
         return true;
@@ -72,11 +72,11 @@ void FileAccess::_set_access_type(AccessType p_access) {
     _access_type = p_access;
 }
 
-const String &FileAccess::get_path() const { return null_se_string; }
+const String &FileAccess::get_path() const { return null_string; }
 
-const String &FileAccess::get_path_absolute() const { return null_se_string; };
+const String &FileAccess::get_path_absolute() const { return null_string; };
 
-FileAccess *FileAccess::create_for_path(se_string_view p_path) {
+FileAccess *FileAccess::create_for_path(StringView p_path) {
 
     FileAccess *ret = nullptr;
     if (StringUtils::begins_with(p_path,"res://")) {
@@ -94,12 +94,12 @@ FileAccess *FileAccess::create_for_path(se_string_view p_path) {
     return ret;
 }
 
-Error FileAccess::reopen(se_string_view p_path, int p_mode_flags) {
+Error FileAccess::reopen(StringView p_path, int p_mode_flags) {
 
     return _open(p_path, p_mode_flags);
 };
 
-FileAccess *FileAccess::open(se_string_view p_path, int p_mode_flags, Error *r_error) {
+FileAccess *FileAccess::open(StringView p_path, int p_mode_flags, Error *r_error) {
 
     //try packed data first
 
@@ -132,7 +132,7 @@ FileAccess::CreateFunc FileAccess::get_create_func(AccessType p_access) {
     return create_func[p_access];
 };
 
-String FileAccess::fix_path(se_string_view p_path) const {
+String FileAccess::fix_path(StringView p_path) const {
     //helper used by file accesses that use a single filesystem
 
     String r_path(PathUtils::from_native_path(p_path));
@@ -433,7 +433,7 @@ void FileAccess::store_double(double p_dest) {
     store_64(m.l);
 };
 
-uint64_t FileAccess::get_modified_time(se_string_view p_file) {
+uint64_t FileAccess::get_modified_time(StringView p_file) {
 
     if (PackedData::get_singleton() && !PackedData::get_singleton()->is_disabled() && PackedData::get_singleton()->has_path(p_file))
         return 0;
@@ -446,7 +446,7 @@ uint64_t FileAccess::get_modified_time(se_string_view p_file) {
     return mt;
 }
 
-uint32_t FileAccess::get_unix_permissions(se_string_view p_file) {
+uint32_t FileAccess::get_unix_permissions(StringView p_file) {
 
     if (PackedData::get_singleton() && !PackedData::get_singleton()->is_disabled() && PackedData::get_singleton()->has_path(p_file))
         return 0;
@@ -459,7 +459,7 @@ uint32_t FileAccess::get_unix_permissions(se_string_view p_file) {
     return mt;
 }
 
-Error FileAccess::set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+Error FileAccess::set_unix_permissions(StringView p_file, uint32_t p_permissions) {
 
     FileAccess *fa = create_for_path(p_file);
     ERR_FAIL_COND_V_MSG(!fa, ERR_CANT_CREATE, "Cannot create FileAccess for path '" + String(p_file) + "'.");
@@ -469,7 +469,7 @@ Error FileAccess::set_unix_permissions(se_string_view p_file, uint32_t p_permiss
     return err;
 }
 
-void FileAccess::store_string(se_string_view p_string) {
+void FileAccess::store_string(StringView p_string) {
 
     if (p_string.empty())
         return;
@@ -477,7 +477,7 @@ void FileAccess::store_string(se_string_view p_string) {
     store_buffer((const uint8_t *)p_string.data(), p_string.length());
 }
 
-void FileAccess::store_pascal_string(se_string_view p_string) {
+void FileAccess::store_pascal_string(StringView p_string) {
 
     store_32(p_string.length());
     store_buffer((const uint8_t *)p_string.data(), p_string.length());
@@ -492,7 +492,7 @@ String FileAccess::get_pascal_string() {
     return cs;
 };
 
-void FileAccess::store_line(se_string_view p_line) {
+void FileAccess::store_line(StringView p_line) {
 
     store_string(p_line);
     store_8('\n');
@@ -524,7 +524,7 @@ void FileAccess::store_buffer(const uint8_t *p_src, int p_length) {
         store_8(p_src[i]);
 }
 
-Vector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_error) {
+Vector<uint8_t> FileAccess::get_file_as_array(StringView p_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, READ, r_error);
     if (!f) {
@@ -540,7 +540,7 @@ Vector<uint8_t> FileAccess::get_file_as_array(se_string_view p_path, Error *r_er
     return data;
 }
 
-String FileAccess::get_file_as_string(se_string_view p_path, Error *r_error) {
+String FileAccess::get_file_as_string(StringView p_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, READ, r_error);
     if (!f) {
@@ -556,7 +556,7 @@ String FileAccess::get_file_as_string(se_string_view p_path, Error *r_error) {
     return data;
 }
 
-String FileAccess::get_md5(se_string_view p_file) {
+String FileAccess::get_md5(StringView p_file) {
 
     FileAccess *f = FileAccess::open(p_file, READ);
     if (!f)
@@ -616,7 +616,7 @@ String FileAccess::get_multiple_md5(const Vector<String> &p_file) {
     return StringUtils::md5(hash);
 }
 
-String FileAccess::get_sha256(se_string_view p_file) {
+String FileAccess::get_sha256(StringView p_file) {
 
     FileAccess *f = FileAccess::open(p_file, READ);
     if (!f)

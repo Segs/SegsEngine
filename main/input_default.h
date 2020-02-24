@@ -256,20 +256,20 @@ public:
     CursorShape get_current_cursor_shape() const override;
     void set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape = Input::CURSOR_ARROW, const Vector2 &p_hotspot = Vector2()) override;
 
-    void parse_mapping(se_string_view p_mapping);
+    void parse_mapping(StringView p_mapping);
     void joy_button(int p_device, int p_button, bool p_pressed);
     void joy_axis(int p_device, int p_axis, const JoyAxis &p_value);
     void joy_hat(int p_device, int p_val);
 
-    void add_joy_mapping(se_string_view p_mapping, bool p_update_existing = false) override;
+    void add_joy_mapping(StringView p_mapping, bool p_update_existing = false) override;
     void remove_joy_mapping(StringName p_guid) override;
     bool is_joy_known(int p_device) override;
     StringName get_joy_guid(int p_device) const override;
 
     StringName get_joy_button_string(int p_button) override;
     StringName get_joy_axis_string(int p_axis) override;
-    int get_joy_axis_index_from_string(se_string_view p_axis) override;
-    int get_joy_button_index_from_string(se_string_view p_button) override;
+    int get_joy_axis_index_from_string(StringView p_axis) override;
+    int get_joy_button_index_from_string(StringView p_button) override;
 
     int get_unused_joy_id();
 

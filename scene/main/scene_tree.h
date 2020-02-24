@@ -53,17 +53,17 @@ class ISceneTreeDebugAccessor {
     friend class ScriptDebuggerRemote;
 
     virtual void _live_edit_node_path_func( const NodePath &p_path, int p_id)=0;
-    virtual void _live_edit_res_path_func( se_string_view p_path, int p_id)=0;
+    virtual void _live_edit_res_path_func( StringView p_path, int p_id)=0;
 
     virtual void _live_edit_node_set_func( int p_id, const StringName &p_prop, const Variant &p_value)=0;
-    virtual  void _live_edit_node_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
+    virtual  void _live_edit_node_set_res_func( int p_id, const StringName &p_prop, StringView p_value)=0;
     virtual  void _live_edit_node_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
     virtual  void _live_edit_res_set_func( int p_id, const StringName &p_prop, const Variant &p_value)=0;
-    virtual  void _live_edit_res_set_res_func( int p_id, const StringName &p_prop, se_string_view p_value)=0;
+    virtual  void _live_edit_res_set_res_func( int p_id, const StringName &p_prop, StringView p_value)=0;
     virtual  void _live_edit_res_call_func( int p_id, const StringName &p_method, VARIANT_ARG_DECLARE)=0;
-    virtual  void _live_edit_root_func( const NodePath &p_scene_path, se_string_view p_scene_from)=0;
+    virtual  void _live_edit_root_func( const NodePath &p_scene_path, StringView p_scene_from)=0;
     virtual  void _live_edit_create_node_func( const NodePath &p_parent, const String &p_type, const String &p_name)=0;
-    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,se_string_view p_path, const String &p_name)=0;
+    virtual  void _live_edit_instance_node_func(const NodePath &p_parent,StringView p_path, const String &p_name)=0;
     virtual  void _live_edit_remove_node_func( const NodePath &p_at)=0;
     virtual  void _live_edit_remove_and_keep_node_func( const NodePath &p_at, ObjectID p_keep_id)=0;
     virtual  void _live_edit_restore_node_func( ObjectID p_id, const NodePath &p_at, int p_at_pos)=0;
@@ -295,7 +295,7 @@ public:
 
     void flush_transform_notifications();
 
-    void input_text(se_string_view p_text) override;
+    void input_text(StringView p_text) override;
     void input_event(const Ref<InputEvent> &p_event) override;
     void init() override;
 
@@ -385,7 +385,7 @@ public:
 
     void set_current_scene(Node *p_scene);
     Node *get_current_scene() const;
-    Error change_scene(se_string_view p_path);
+    Error change_scene(StringView p_path);
     Error change_scene_to(const Ref<PackedScene> &p_scene);
     Error reload_current_scene();
 

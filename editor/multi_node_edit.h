@@ -45,7 +45,7 @@ class MultiNodeEdit : public RefCounted {
         PropertyInfo info;
     };
 
-    bool _set_impl(const StringName &p_name, const Variant &p_value, se_string_view p_field);
+    bool _set_impl(const StringName &p_name, const Variant &p_value, StringView p_field);
 
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
@@ -59,7 +59,7 @@ public:
     int get_node_count() const;
     const NodePath &get_node(int p_index) const;
 
-    void set_property_field(const StringName &p_property, const Variant &p_value, se_string_view p_field);
+    void set_property_field(const StringName &p_property, const Variant &p_value, StringView p_field);
 
     MultiNodeEdit();
 };

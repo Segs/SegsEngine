@@ -38,10 +38,10 @@ IMPL_GDCLASS(MultiNodeEdit)
 
 bool MultiNodeEdit::_set(const StringName &p_name, const Variant &p_value) {
 
-    return _set_impl(p_name, p_value, se_string_view());
+    return _set_impl(p_name, p_value, StringView());
 }
 
-bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, se_string_view p_field) {
+bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, StringView p_field) {
 
     Node *es = EditorNode::get_singleton()->get_edited_scene();
     if (!es)
@@ -192,7 +192,7 @@ const NodePath &MultiNodeEdit::get_node(int p_index) const {
     return nodes[p_index];
 }
 
-void MultiNodeEdit::set_property_field(const StringName &p_property, const Variant &p_value, se_string_view p_field) {
+void MultiNodeEdit::set_property_field(const StringName &p_property, const Variant &p_value, StringView p_field) {
 
     _set_impl(p_property, p_value, p_field);
 }

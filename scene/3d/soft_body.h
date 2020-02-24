@@ -105,8 +105,8 @@ protected:
     void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
     bool _set_property_pinned_points_indices(const Array &p_indices);
-    bool _set_property_pinned_points_attachment(int p_item, se_string_view p_what, const Variant &p_value);
-    bool _get_property_pinned_points(int p_item, se_string_view p_what, Variant &r_ret) const;
+    bool _set_property_pinned_points_attachment(int p_item, StringView p_what, const Variant &p_value);
+    bool _get_property_pinned_points(int p_item, StringView p_what, Variant &r_ret) const;
 
     void _changed_callback(Object *p_changed, StringName p_prop) override;
 

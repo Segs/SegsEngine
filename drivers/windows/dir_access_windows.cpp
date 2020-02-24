@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "string_utils.inl"
+#include "core/string_utils.inl"
 #if defined(WINDOWS_ENABLED)
 
 #include "dir_access_windows.h"
@@ -124,7 +124,7 @@ String DirAccessWindows::get_drive(int p_drive) {
     return String(&drives[p_drive],1) + ":";
 }
 #include <QDebug>
-Error DirAccessWindows::change_dir(se_string_view _dir)
+Error DirAccessWindows::change_dir(StringView _dir)
 {
     String p_dir = fix_path(_dir);
 
@@ -154,7 +154,7 @@ Error DirAccessWindows::change_dir(se_string_view _dir)
     return worked ? OK : ERR_INVALID_PARAMETER;
 }
 
-Error DirAccessWindows::make_dir(se_string_view _dir) {
+Error DirAccessWindows::make_dir(StringView _dir) {
 
     GLOBAL_LOCK_FUNCTION
 
@@ -178,7 +178,7 @@ String DirAccessWindows::get_current_dir() {
     return _get_root_string() + bd;
 }
 
-bool DirAccessWindows::file_exists(se_string_view _file) {
+bool DirAccessWindows::file_exists(StringView _file) {
 
     GLOBAL_LOCK_FUNCTION
     String p_file(_file);
@@ -192,7 +192,7 @@ bool DirAccessWindows::file_exists(se_string_view _file) {
     return fi.exists() && fi.isFile();
 }
 
-bool DirAccessWindows::dir_exists(se_string_view _dir) {
+bool DirAccessWindows::dir_exists(StringView _dir) {
 
     GLOBAL_LOCK_FUNCTION
 
@@ -206,7 +206,7 @@ bool DirAccessWindows::dir_exists(se_string_view _dir) {
     return fi.exists() && fi.isDir();
 }
 
-Error DirAccessWindows::rename(se_string_view _path, se_string_view _new_path) {
+Error DirAccessWindows::rename(StringView _path, StringView _new_path) {
 
     String p_path(_path);
     String p_new_path(_new_path);
@@ -221,7 +221,7 @@ Error DirAccessWindows::rename(se_string_view _path, se_string_view _new_path) {
     return QFile::rename(StringUtils::from_utf8(p_path), StringUtils::from_utf8(p_new_path)) ? OK : FAILED;
 }
 
-Error DirAccessWindows::remove(se_string_view _path) {
+Error DirAccessWindows::remove(StringView _path) {
 
     String p_path(_path);
 

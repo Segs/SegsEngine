@@ -30,7 +30,7 @@
 
 #include "ip_address.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 /*
 IP_Address::operator Variant() const {
@@ -63,7 +63,7 @@ IP_Address::operator String() const {
     return ret;
 }
 
-static void _parse_hex(se_string_view p_string, int p_start, uint8_t *p_dst) {
+static void _parse_hex(StringView p_string, int p_start, uint8_t *p_dst) {
 
     uint16_t ret = 0;
     for (size_t i = p_start; i < p_start + 4; i++) {
@@ -94,7 +94,7 @@ static void _parse_hex(se_string_view p_string, int p_start, uint8_t *p_dst) {
     p_dst[1] = ret & 0xff;
 };
 
-void IP_Address::_parse_ipv6(se_string_view p_string) {
+void IP_Address::_parse_ipv6(StringView p_string) {
 
     static const int parts_total = 8;
     int parts[parts_total] = { 0 };
@@ -156,9 +156,9 @@ void IP_Address::_parse_ipv6(se_string_view p_string) {
     }
 };
 
-void IP_Address::_parse_ipv4(se_string_view p_string, int p_start, uint8_t *p_ret) {
+void IP_Address::_parse_ipv4(StringView p_string, int p_start, uint8_t *p_ret) {
 
-    se_string_view ip;
+    StringView ip;
     if (p_start != 0) {
         ip = StringUtils::substr(p_string,p_start, p_string.length() - p_start);
     } else {
@@ -207,8 +207,8 @@ void IP_Address::set_ipv6(const uint8_t *p_buf) {
         field8[i] = p_buf[i];
 }
 
-IP_Address::IP_Address(se_string_view _string) {
-    se_string_view p_string(_string);
+IP_Address::IP_Address(StringView _string) {
+    StringView p_string(_string);
     clear();
 
     if (0==p_string.compare("*")) {

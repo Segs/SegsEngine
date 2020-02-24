@@ -40,7 +40,7 @@
 
 IMPL_GDCLASS(EditorLog)
 
-void EditorLog::_error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type) {
+void EditorLog::_error_handler(void *p_self, StringView p_func, StringView p_file, int p_line, StringView p_error, StringView p_errorexp, ErrorHandlerType p_type) {
 
     EditorLog *self = (EditorLog *)p_self;
     if (self->current != Thread::get_caller_id())
@@ -92,7 +92,7 @@ void EditorLog::clear() {
 void EditorLog::copy() {
     _copy_request();
 }
-void EditorLog::add_message_utf8(se_string_view p_msg, MessageType p_type) {
+void EditorLog::add_message_utf8(StringView p_msg, MessageType p_type) {
     log->add_newline();
 
     bool restore = p_type != MSG_TYPE_STD;
@@ -162,7 +162,7 @@ void EditorLog::set_tool_button(ToolButton *p_tool_button) {
     tool_button = p_tool_button;
 }
 
-void EditorLog::_undo_redo_cbk(void *p_self, se_string_view p_name) {
+void EditorLog::_undo_redo_cbk(void *p_self, StringView p_name) {
 
     EditorLog *self = (EditorLog *)p_self;
     self->add_message(StringUtils::from_utf8(p_name), EditorLog::MSG_TYPE_EDITOR);

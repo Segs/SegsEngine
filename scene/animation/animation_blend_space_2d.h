@@ -117,14 +117,14 @@ public:
     void set_snap(const Vector2 &p_snap);
     Vector2 get_snap() const;
 
-    void set_x_label(se_string_view p_label);
+    void set_x_label(StringView p_label);
     const String &get_x_label() const;
 
-    void set_y_label(se_string_view p_label);
+    void set_y_label(StringView p_label);
     const String &get_y_label() const;
 
     float process(float p_time, bool p_seek) override;
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     Vector2 get_closest_point(const Vector2 &p_point);
 

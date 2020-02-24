@@ -38,7 +38,7 @@
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/script_language.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/translation.h"
 #include "core/hash_map.h"
@@ -322,7 +322,7 @@ String Object::wrap_get_class() const {
     return String(get_class());
 }
 
-bool Object::wrap_is_class(se_string_view p_class) const {
+bool Object::wrap_is_class(StringView p_class) const {
     return is_class(String(p_class).c_str());
 }
 
@@ -910,12 +910,12 @@ RefPtr Object::get_script() const {
     return script;
 }
 
-bool Object::has_meta(se_string_view p_name) const {
+bool Object::has_meta(StringView p_name) const {
 
     return metadata.has(Variant(p_name));
 }
 
-void Object::set_meta(se_string_view p_name, const Variant &p_value) {
+void Object::set_meta(StringView p_name, const Variant &p_value) {
     Variant key(p_name);
     if (p_value.get_type() == VariantType::NIL) {
         metadata.erase(key);
@@ -925,14 +925,14 @@ void Object::set_meta(se_string_view p_name, const Variant &p_value) {
     metadata[key] = p_value;
 }
 
-Variant Object::get_meta(se_string_view p_name) const {
+Variant Object::get_meta(StringView p_name) const {
 
     Variant key(p_name);
     ERR_FAIL_COND_V(!metadata.has(key), Variant());
     return metadata[key];
 }
 
-void Object::remove_meta(se_string_view p_name) {
+void Object::remove_meta(StringView p_name) {
     metadata.erase(Variant(p_name));
 }
 
@@ -1345,7 +1345,7 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
     }
 
     Signal::Slot slot;
-    if(p_signal==se_string_view("play_pressed")) {
+    if(p_signal==StringView("play_pressed")) {
         printf("");
     }
     Connection conn;

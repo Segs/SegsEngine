@@ -145,7 +145,7 @@ public:
     bool show_members_overview() override;
     bool can_lose_focus_on_node_selection() override { return true; }
     void set_debugger_active(bool p_active) override;
-    void set_tooltip_request_func(se_string_view p_method, Object *p_obj) override;
+    void set_tooltip_request_func(StringView p_method, Object *p_obj) override;
     void add_callback(const StringName &p_function, const PoolVector<String> &p_args) override;
 
     Control *get_edit_menu() override;

@@ -109,9 +109,9 @@ const char *BindingsGenerator::TypeInterface::DEFAULT_VARARG_C_IN("\t%0 %1_in = 
 
 static StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
-static Error _save_file(se_string_view p_path, const StringBuilder& p_content);
+static Error _save_file(StringView p_path, const StringBuilder& p_content);
 
-static String fix_doc_description(se_string_view p_bbcode) {
+static String fix_doc_description(StringView p_bbcode) {
 
     // This seems to be the correct way to do this. It's the same EditorHelp does.
 
@@ -119,10 +119,10 @@ static String fix_doc_description(se_string_view p_bbcode) {
             .replaced("\r", "")));
 }
 
-static String snake_to_pascal_case(se_string_view p_identifier, bool p_input_is_upper = false) {
+static String snake_to_pascal_case(StringView p_identifier, bool p_input_is_upper = false) {
 
     String ret;
-    Vector<se_string_view> parts = StringUtils::split(p_identifier,"_", true);
+    Vector<StringView> parts = StringUtils::split(p_identifier,"_", true);
 
     for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
@@ -152,7 +152,7 @@ static String snake_to_pascal_case(se_string_view p_identifier, bool p_input_is_
     return ret;
 }
 
-static String snake_to_camel_case(se_string_view p_identifier, bool p_input_is_upper = false) {
+static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper = false) {
 
     String ret;
     auto parts = StringUtils::split(p_identifier,'_', true);
@@ -187,7 +187,7 @@ static String snake_to_camel_case(se_string_view p_identifier, bool p_input_is_u
     return ret;
 }
 
-String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInterface *p_itype) {
+String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface *p_itype) {
 
     // Based on the version in EditorHelp
     using namespace eastl;
@@ -214,11 +214,11 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             brk_pos = bbcode.length();
 
         if (brk_pos > pos) {
-            se_string_view text = StringUtils::substr(bbcode,pos, brk_pos - pos);
+            StringView text = StringUtils::substr(bbcode,pos, brk_pos - pos);
             if (code_tag || tag_stack.size() > 0) {
                 xml_output.append(StringUtils::xml_escape(text));
             } else {
-                Vector<se_string_view> lines = StringUtils::split(text,'\n');
+                Vector<StringView> lines = StringUtils::split(text,'\n');
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
                         xml_output.append("<para>");
@@ -237,11 +237,11 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
         size_t brk_end = bbcode.find("]", brk_pos + 1);
 
         if (brk_end == String::npos) {
-            se_string_view text = StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos);
+            StringView text = StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos);
             if (code_tag || tag_stack.size() > 0) {
                 xml_output.append(StringUtils::xml_escape(text));
             } else {
-                Vector<se_string_view> lines = StringUtils::split(text,'\n');
+                Vector<StringView> lines = StringUtils::split(text,'\n');
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
                         xml_output.append("<para>");
@@ -256,7 +256,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             break;
         }
 
-        se_string_view tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
+        StringView tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
         if (tag.starts_with('/')) {
             bool tag_ok = tag_stack.size() && tag_stack.front() == tag.substr(1, tag.length());
@@ -282,10 +282,10 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             xml_output.append("[");
             pos = brk_pos + 1;
         } else if (tag.starts_with("method ") || tag.starts_with("member ") || tag.starts_with("signal ") || tag.starts_with("enum ") || tag.starts_with("constant ")) {
-            se_string_view link_target = tag.substr(tag.find(" ") + 1, tag.length());
-            se_string_view link_tag = tag.substr(0, tag.find(" "));
+            StringView link_target = tag.substr(tag.find(" ") + 1, tag.length());
+            StringView link_tag = tag.substr(0, tag.find(" "));
 
-            Vector<se_string_view> link_target_parts = StringUtils::split(link_target,".");
+            Vector<StringView> link_target_parts = StringUtils::split(link_target,".");
 
             if (link_target_parts.size() <= 0 || link_target_parts.size() > 2) {
                 ERR_PRINT("Invalid reference format: '" + tag + "'.");
@@ -589,7 +589,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             size_t end = bbcode.find("[", brk_end);
             if (end == String::npos)
                 end = bbcode.length();
-            se_string_view url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
+            StringView url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
             xml_output.append("<a href=\"");
             xml_output.append(url);
             xml_output.append("\">");
@@ -598,7 +598,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             pos = brk_end + 1;
             tag_stack.push_front(String(tag));
         } else if (tag.starts_with("url=")) {
-            se_string_view url = tag.substr(4, tag.length());
+            StringView url = tag.substr(4, tag.length());
             xml_output.append("<a href=\"");
             xml_output.append(url);
             xml_output.append("\">");
@@ -609,7 +609,7 @@ String BindingsGenerator::bbcode_to_xml(se_string_view p_bbcode, const TypeInter
             auto end = bbcode.find("[", brk_end);
             if (end == String::npos)
                 end = bbcode.length();
-            se_string_view image(StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1));
+            StringView image(StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1));
 
             // Not supported. Just append the bbcode.
             xml_output.append("[img]");
@@ -822,16 +822,16 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
 
         CRASH_COND(ienum.constants.empty());
 
-        se_string_view enum_proxy_name(ienum.cname);
+        StringView enum_proxy_name(ienum.cname);
 
         bool enum_in_static_class = false;
 
         if (enum_proxy_name.contains(".")) {
             enum_in_static_class = true;
-            se_string_view enum_class_name = StringUtils::get_slice(enum_proxy_name,'.', 0);
+            StringView enum_class_name = StringUtils::get_slice(enum_proxy_name,'.', 0);
             enum_proxy_name = StringUtils::get_slice(enum_proxy_name,'.', 1);
 
-            CRASH_COND(enum_class_name != se_string_view("Variant")); // Hard-coded...
+            CRASH_COND(enum_class_name != StringView("Variant")); // Hard-coded...
 
             _log("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_proxy_name.size()),enum_proxy_name.data(),
                  int(enum_class_name.size()),enum_class_name.data());
@@ -882,7 +882,7 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output) {
     p_output.append("\n#pragma warning restore CS1591\n");
 }
 
-Error BindingsGenerator::generate_cs_core_project(se_string_view p_proj_dir) {
+Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir) {
 
     ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
@@ -1099,7 +1099,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
     return OK;
 }
 
-Error BindingsGenerator::generate_cs_api(se_string_view p_output_dir) {
+Error BindingsGenerator::generate_cs_api(StringView p_output_dir) {
 
     ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
@@ -1147,7 +1147,7 @@ Error BindingsGenerator::generate_cs_api(se_string_view p_output_dir) {
 // be renamed to avoid the name collision (and we must print a warning about it).
 // - Csc warning e.g.:
 // ObjectType/LineEdit.cs(140,38): warning CS0108: 'LineEdit.FocusMode' hides inherited member 'Control.FocusMode'. Use the new keyword if hiding was intended.
-Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string_view p_output_file) {
+Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringView p_output_file) {
 
     CRASH_COND(!itype.is_object_type);
 
@@ -1390,12 +1390,12 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, se_string
 
     return _save_file(p_output_file, output);
 }
-static bool covariantSetterGetterTypes(se_string_view getter,se_string_view setter) {
+static bool covariantSetterGetterTypes(StringView getter,StringView setter) {
     using namespace eastl;
     if(getter==setter)
         return true;
-    bool getter_stringy_type = (getter=="String"_sv) || (getter == "StringName"_sv) || (getter == "se_string_view"_sv);
-    bool setter_stringy_type = (setter == "String"_sv) || (setter == "StringName"_sv) || (setter == "se_string_view"_sv);
+    bool getter_stringy_type = (getter=="String"_sv) || (getter == "StringName"_sv) || (getter == "StringView"_sv);
+    bool setter_stringy_type = (setter == "String"_sv) || (setter == "StringName"_sv) || (setter == "StringView"_sv);
     return getter_stringy_type== setter_stringy_type;
 }
 Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output) {
@@ -1731,7 +1731,7 @@ Error BindingsGenerator::_generate_cs_method(const BindingsGenerator::TypeInterf
     return OK;
 }
 
-Error BindingsGenerator::generate_glue(se_string_view p_output_dir) {
+Error BindingsGenerator::generate_glue(StringView p_output_dir) {
 
     ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
 
@@ -1922,7 +1922,7 @@ uint32_t BindingsGenerator::get_version() {
     return BINDINGS_GENERATOR_VERSION;
 }
 
-static Error _save_file(se_string_view p_path, const StringBuilder &p_content) {
+static Error _save_file(StringView p_path, const StringBuilder &p_content) {
 
     FileAccessRef file = FileAccess::open(p_path, FileAccess::WRITE);
 
@@ -1944,7 +1944,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     const TypeInterface *return_type = _get_type_or_placeholder(p_imethod.return_type);
     String argc_str = itos(p_imethod.arguments.size());
-    se_string_view no_star=se_string_view(p_itype.c_type_in).substr(0,p_itype.c_type_in.size()-1);
+    StringView no_star=StringView(p_itype.c_type_in).substr(0,p_itype.c_type_in.size()-1);
     String class_type(p_itype.c_type_in.ends_with('*') ? no_star : p_itype.c_type_in);
     String c_func_sig = p_itype.c_type_in + " " CS_PARAM_INSTANCE;
     String c_in_statements;
@@ -1973,7 +1973,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 c_args_var_content += FormatVE("AutoRef(%s)",c_param_name.c_str());
             else if(arg_type->is_enum) {
                 // add enum cast
-                se_string_view enum_name(arg_type->name);
+                StringView enum_name(arg_type->name);
                 if(enum_name.ends_with("Enum"))
                     enum_name = enum_name.substr(0, enum_name.size()-4);
                 String cast_as(enum_name);
@@ -2118,9 +2118,9 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 p_output.append("auto " C_LOCAL_RET " = ");
             }
         }
-        se_string_view method_to_call(p_imethod.cname);
-        if(se_string_view("new")==method_to_call)
-            method_to_call=se_string_view("_new");
+        StringView method_to_call(p_imethod.cname);
+        if(StringView("new")==method_to_call)
+            method_to_call=StringView("_new");
         p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%.*s(", p_itype.cname.asCString(), method_to_call.length(),method_to_call.data()));
         p_output.append(!p_imethod.arguments.empty() ? C_LOCAL_PTRCALL_ARGS ".data()" : "nullptr");
         p_output.append(", total_length, vcall_error);\n");
@@ -2239,7 +2239,7 @@ static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta
     case GodotTypeInfo::METADATA_STRING_NAME:
         return "StringName";
     case GodotTypeInfo::METADATA_STRING_VIEW:
-        return "se_string_view";
+        return "StringView";
     default:
         // Assume default String type
         return StringName("String");
@@ -2919,16 +2919,16 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.im_type_out = itype.proxy_name;
     builtin_types.emplace(itype.cname, itype);
 
-    // se_string_view
+    // StringView
     itype = TypeInterface();
     itype.name = "String";
-    itype.cname = "se_string_view";
+    itype.cname = "StringView";
     itype.proxy_name = "string";
     // Use tmp string to allocate the string contents on stack, reducing allocations slightly.
     itype.c_in = "\tTmpString<512> %1_in(" C_METHOD_MONOSTR_TO_GODOT "(%1));\n";
     itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
     itype.c_arg_in = "%s_in";
-    itype.c_type = "se_string_view";
+    itype.c_type = "StringView";
     itype.c_type_in = "MonoString*";
     itype.c_type_out = "MonoString*";
     itype.cs_type = itype.proxy_name;
@@ -3119,7 +3119,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.im_type_out = itype.proxy_name;
     builtin_types.emplace(itype.cname, itype);
 }
-static bool allUpperCase(se_string_view s) {
+static bool allUpperCase(StringView s) {
     for(char c : s) {
         if(StringUtils::char_uppercase(c)!=c)
             return false;
@@ -3209,7 +3209,7 @@ void BindingsGenerator::_populate_global_constants() {
         enum_itype.cname = E;
         enum_itype.proxy_name = E;
         TypeInterface::postsetup_enum_type(enum_itype);
-        assert(!se_string_view(enum_itype.cname).contains("::"));
+        assert(!StringView(enum_itype.cname).contains("::"));
         enum_types.emplace(enum_itype.cname, enum_itype);
     }
 }

@@ -68,9 +68,9 @@ int VisualScriptYield::get_output_value_port_count() const {
     return 0;
 }
 
-se_string_view VisualScriptYield::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptYield::get_output_sequence_port_text(int p_port) const {
 
-    return se_string_view();
+    return StringView();
 }
 
 PropertyInfo VisualScriptYield::get_input_value_port_info(int p_idx) const {
@@ -83,7 +83,7 @@ PropertyInfo VisualScriptYield::get_output_value_port_info(int p_idx) const {
     return PropertyInfo();
 }
 
-se_string_view VisualScriptYield::get_caption() const {
+StringView VisualScriptYield::get_caption() const {
 
     return yield_mode == YIELD_RETURN ? "Yield" : "Wait";
 }
@@ -91,13 +91,13 @@ se_string_view VisualScriptYield::get_caption() const {
 String VisualScriptYield::get_text() const {
 
     switch (yield_mode) {
-        case YIELD_RETURN: return null_se_string;
+        case YIELD_RETURN: return null_string;
         case YIELD_FRAME: return ("Next Frame");
         case YIELD_PHYSICS_FRAME: return ("Next Physics Frame");
         case YIELD_WAIT: return rtos(wait_time) + " sec(s)";
     }
 
-    return null_se_string;
+    return null_string;
 }
 
 class VisualScriptNodeInstanceYield : public VisualScriptNodeInstance {
@@ -211,7 +211,7 @@ VisualScriptYield::VisualScriptYield() {
 }
 
 template <VisualScriptYield::YieldMode MODE>
-static Ref<VisualScriptNode> create_yield_node(se_string_view p_name) {
+static Ref<VisualScriptNode> create_yield_node(StringView p_name) {
 
     Ref<VisualScriptYield> node(make_ref_counted<VisualScriptYield>());
     node->set_yield_mode(MODE);
@@ -297,9 +297,9 @@ int VisualScriptYieldSignal::get_output_value_port_count() const {
     return sr.arguments.size();
 }
 
-se_string_view VisualScriptYieldSignal::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptYieldSignal::get_output_sequence_port_text(int p_port) const {
 
-    return se_string_view();
+    return StringView();
 }
 
 PropertyInfo VisualScriptYieldSignal::get_input_value_port_info(int p_idx) const {
@@ -320,9 +320,9 @@ PropertyInfo VisualScriptYieldSignal::get_output_value_port_info(int p_idx) cons
     return sr.arguments[p_idx];
 }
 
-se_string_view VisualScriptYieldSignal::get_caption() const {
+StringView VisualScriptYieldSignal::get_caption() const {
 
-    static se_string_view cname[3] = {
+    static StringView cname[3] = {
         "WaitSignal",
         "WaitNodeSignal",
         "WaitInstanceSigna;",
@@ -429,7 +429,7 @@ void VisualScriptYieldSignal::_validate_property(PropertyInfo &property) const {
 
         ClassDB::get_signal_list(_get_base_type(), &methods);
 
-        Vector<se_string_view> mstring;
+        Vector<StringView> mstring;
         for(const MethodInfo & E : methods) {
             if (StringUtils::begins_with(E.name,"_"))
                 continue;

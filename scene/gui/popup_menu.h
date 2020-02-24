@@ -32,7 +32,7 @@
 
 #include "scene/gui/popup.h"
 #include "scene/gui/shortcut.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class PopupMenu : public Popup {
 
@@ -123,11 +123,11 @@ protected:
 public:
     void add_item(const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_icon_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
-    void add_icon_item_utf8(const Ref<Texture> &p_icon, se_string_view _label, int p_id = -1, uint32_t p_accel = 0);
+    void add_icon_item_utf8(const Ref<Texture> &p_icon, StringView _label, int p_id = -1, uint32_t p_accel = 0);
     void add_check_item(const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
-    void add_check_item_utf8(se_string_view p_label, int p_id = -1, uint32_t p_accel = 0);
+    void add_check_item_utf8(StringView p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_icon_check_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
-    void add_radio_check_item_utf8(se_string_view p_label, int p_id = -1, uint32_t p_accel = 0);
+    void add_radio_check_item_utf8(StringView p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_radio_check_item(const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
     void add_icon_radio_check_item(const Ref<Texture> &p_icon, const StringName &p_label, int p_id = -1, uint32_t p_accel = 0);
 
@@ -165,7 +165,7 @@ public:
     String get_item_text_utf8(int p_idx) const;
     StringName get_item_text(int p_idx) const;
     int get_item_idx_from_text(const StringName &text) const;
-    int get_item_idx_from_text_utf8(se_string_view text) const;
+    int get_item_idx_from_text_utf8(StringView text) const;
     Ref<Texture> get_item_icon(int p_idx) const;
     bool is_item_checked(int p_idx) const;
     int get_item_id(int p_idx) const;

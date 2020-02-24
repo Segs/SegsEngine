@@ -29,12 +29,12 @@
 /*************************************************************************/
 
 #include "thread.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 Thread *(*Thread::create_func)(ThreadCreateCallback, void *, const Settings &) = nullptr;
 Thread::ID (*Thread::get_thread_id_func)() = nullptr;
 void (*Thread::wait_to_finish_func)(Thread *) = nullptr;
-Error (*Thread::set_name_func)(se_string_view) = nullptr;
+Error (*Thread::set_name_func)(StringView) = nullptr;
 
 Thread::ID Thread::_main_thread_id = 0;
 
@@ -60,7 +60,7 @@ void Thread::wait_to_finish(Thread *p_thread) {
         wait_to_finish_func(p_thread);
 }
 
-Error Thread::set_name(se_string_view p_name) {
+Error Thread::set_name(StringView p_name) {
 
     if (set_name_func)
         return set_name_func(p_name);

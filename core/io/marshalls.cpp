@@ -926,7 +926,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 
             for (int i = 0; i < total; i++) {
 
-                se_string_view str;
+                StringView str;
 
                 if (i < np.get_name_count())
                     str = np.get_name(i);

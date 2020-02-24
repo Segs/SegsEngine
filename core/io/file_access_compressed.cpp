@@ -30,10 +30,10 @@
 
 #include "file_access_compressed.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/vector.h"
 
-void FileAccessCompressed::configure(se_string_view p_magic, Compression::Mode p_mode, int p_block_size) {
+void FileAccessCompressed::configure(StringView p_magic, Compression::Mode p_mode, int p_block_size) {
 
     if (p_magic.length() > 4)
         magic = p_magic.substr(0, 4);
@@ -98,7 +98,7 @@ Error FileAccessCompressed::open_after_magic(FileAccess *p_base) {
     return OK;
 }
 
-Error FileAccessCompressed::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessCompressed::_open(StringView p_path, int p_mode_flags) {
 
     ERR_FAIL_COND_V(p_mode_flags == READ_WRITE, ERR_UNAVAILABLE);
 
@@ -359,7 +359,7 @@ void FileAccessCompressed::store_8(uint8_t p_dest) {
     write_ptr[write_pos++] = p_dest;
 }
 
-bool FileAccessCompressed::file_exists(se_string_view p_name) {
+bool FileAccessCompressed::file_exists(StringView p_name) {
 
     FileAccess *fa = FileAccess::open(p_name, FileAccess::READ);
     if (!fa)
@@ -368,7 +368,7 @@ bool FileAccessCompressed::file_exists(se_string_view p_name) {
     return true;
 }
 
-uint64_t FileAccessCompressed::_get_modified_time(se_string_view p_file) {
+uint64_t FileAccessCompressed::_get_modified_time(StringView p_file) {
 
     if (f)
         return f->get_modified_time(p_file);
@@ -376,13 +376,13 @@ uint64_t FileAccessCompressed::_get_modified_time(se_string_view p_file) {
         return 0;
 }
 
-uint32_t FileAccessCompressed::_get_unix_permissions(se_string_view p_file) {
+uint32_t FileAccessCompressed::_get_unix_permissions(StringView p_file) {
     if (f)
         return f->_get_unix_permissions(p_file);
     return 0;
 }
 
-Error FileAccessCompressed::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+Error FileAccessCompressed::_set_unix_permissions(StringView p_file, uint32_t p_permissions) {
     if (f) {
         return f->_set_unix_permissions(p_file, p_permissions);
     }

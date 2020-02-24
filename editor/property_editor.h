@@ -99,7 +99,7 @@ class CustomPropertyEditor : public Popup {
     UIString name;
     VariantType type;
     Variant v;
-    Vector<se_string_view> field_names;
+    Vector<StringView> field_names;
     PropertyHint hint;
     String hint_text;
     LineEdit *value_editor[MAX_VALUE_EDITORS];
@@ -130,10 +130,10 @@ class CustomPropertyEditor : public Popup {
     PropertyValueEvaluator *evaluator;
 
     void _text_edit_changed();
-    void _file_selected(se_string_view p_file);
-    void _modified(se_string_view p_string);
+    void _file_selected(StringView p_file);
+    void _modified(StringView p_string);
 
-    real_t _parse_real_expression(se_string_view text);
+    real_t _parse_real_expression(StringView text);
 
     void _range_modified(double p_value);
     void _focus_enter();
@@ -141,7 +141,7 @@ class CustomPropertyEditor : public Popup {
     void _action_pressed(int p_which);
     void _type_create_selected(int p_idx);
     void _create_dialog_callback();
-    void _create_selected_property(se_string_view p_prop);
+    void _create_selected_property(StringView p_prop);
 
     void _color_changed(const Color &p_color);
     void _draw_easing();
@@ -152,7 +152,7 @@ class CustomPropertyEditor : public Popup {
     void _node_path_selected(NodePath p_path);
     void show_value_editors(int p_amount);
     void config_value_editors(int p_amount, int p_columns, int p_label_w, const Vector<StringName> &p_strings);
-    void config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<se_string_view> &p_strings);
+    void config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<StringView> &p_strings);
     void config_action_buttons(Span<const StringName> p_strings);
 
     void _emit_changed_whole_or_field();
@@ -169,7 +169,7 @@ public:
 
     void set_read_only(bool p_read_only) { read_only = p_read_only; }
 
-    bool edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, se_string_view p_hint_text);
+    bool edit(Object *p_owner, StringView p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, StringView p_hint_text);
 
     CustomPropertyEditor();
 };

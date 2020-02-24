@@ -851,7 +851,7 @@ void GridMapEditor::_set_display_mode(int p_mode) {
     update_palette();
 }
 
-void GridMapEditor::_text_changed(se_string_view p_text) {
+void GridMapEditor::_text_changed(StringView p_text) {
     update_palette();
 }
 
@@ -933,7 +933,7 @@ void GridMapEditor::update_palette() {
     }
     eastl::sort(il.begin(),il.end());
 
-    String filter(StringUtils::strip_edges(se_string_view(StringUtils::to_utf8(search_box->get_text_ui()).data())));
+    String filter(StringUtils::strip_edges(StringView(StringUtils::to_utf8(search_box->get_text_ui()).data())));
 
     int item = 0;
 

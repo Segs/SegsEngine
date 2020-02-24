@@ -1093,7 +1093,7 @@ MonoBoolean godot_icall_AcceptDialog_get_hide_on_ok_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoObject* godot_icall_AcceptDialog_add_button_ad746f10(Object * ptr, MonoString* arg1, MonoBoolean arg2, MonoString* arg3) {
+MonoObject* godot_icall_AcceptDialog_add_button_bb9add4(Object * ptr, MonoString* arg1, MonoBoolean arg2, MonoString* arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -2172,7 +2172,7 @@ void godot_icall_AnimationNodeBlendSpace1D_get_snap_4edcd7a9(Object * ptr, float
     *arg_ret = (float)ret;
 }
 
-void godot_icall_AnimationNodeBlendSpace1D_set_value_label_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_AnimationNodeBlendSpace1D_set_value_label_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<AnimationNodeBlendSpace1D *>(ptr)->set_value_label(arg1_in);
@@ -2307,7 +2307,7 @@ void godot_icall_AnimationNodeBlendSpace2D_get_snap_9b4ea24e(Object * ptr, GDMon
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_AnimationNodeBlendSpace2D_set_x_label_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_AnimationNodeBlendSpace2D_set_x_label_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<AnimationNodeBlendSpace2D *>(ptr)->set_x_label(arg1_in);
@@ -2319,7 +2319,7 @@ MonoString* godot_icall_AnimationNodeBlendSpace2D_get_x_label_97be4a2e(Object * 
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_AnimationNodeBlendSpace2D_set_y_label_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_AnimationNodeBlendSpace2D_set_y_label_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<AnimationNodeBlendSpace2D *>(ptr)->set_y_label(arg1_in);
@@ -2864,7 +2864,7 @@ MonoBoolean godot_icall_AnimationNodeTransition_is_input_set_as_auto_advance_7f6
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_AnimationNodeTransition_set_input_caption_73adf041(Object * ptr, int32_t arg1, MonoString* arg2) {
+void godot_icall_AnimationNodeTransition_set_input_caption_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -3077,7 +3077,7 @@ void godot_icall_AnimationPlayer_get_playing_speed_4edcd7a9(Object * ptr, float*
     *arg_ret = (float)ret;
 }
 
-void godot_icall_AnimationPlayer_set_autoplay_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_AnimationPlayer_set_autoplay_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<AnimationPlayer *>(ptr)->set_autoplay(arg1_in);
@@ -3241,7 +3241,7 @@ void godot_icall_AnimationTree_get_root_motion_transform_a3fb649b(Object * ptr, 
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
-void godot_icall_AnimationTree_rename_parameter_e8a7f384(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall_AnimationTree_rename_parameter_fc93f18d(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -3317,7 +3317,7 @@ MonoObject* godot_icall_AnimationTreePlayer_animation_node_get_animation_e39805e
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_AnimationTreePlayer_animation_node_set_master_animation_eb1eb84d(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall_AnimationTreePlayer_animation_node_set_master_animation_71d57a09(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -4301,7 +4301,7 @@ int32_t godot_icall_ArrayMesh_surface_find_by_name_7be523(Object * ptr, MonoStri
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_ArrayMesh_surface_set_name_73adf041(Object * ptr, int32_t arg1, MonoString* arg2) {
+void godot_icall_ArrayMesh_surface_set_name_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -5671,7 +5671,7 @@ MonoString* godot_icall_AudioServer_get_device_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_AudioServer_set_device_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_AudioServer_set_device_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<AudioServer *>(ptr)->set_device(arg1_in);
@@ -5707,7 +5707,7 @@ MonoString* godot_icall_AudioServer_capture_get_device_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_AudioServer_capture_set_device_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_AudioServer_capture_set_device_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<AudioServer *>(ptr)->capture_set_device(arg1_in);
@@ -6509,7 +6509,7 @@ MonoBoolean godot_icall_AudioStreamSample_is_stereo_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-int32_t godot_icall_AudioStreamSample_save_to_wav_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_AudioStreamSample_save_to_wav_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<AudioStreamSample *>(ptr)->save_to_wav(arg1_in);
@@ -6671,7 +6671,7 @@ MonoBoolean godot_icall_BakedLightmap_is_hdr_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_BakedLightmap_set_image_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_BakedLightmap_set_image_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<BakedLightmap *>(ptr)->set_image_path(arg1_in);
@@ -7016,7 +7016,7 @@ Object* godot_icall_BitMap_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_BitmapFont_create_from_fnt_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_BitmapFont_create_from_fnt_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<BitmapFont *>(ptr)->create_from_fnt(arg1_in);
@@ -9633,7 +9633,7 @@ void godot_icall_CanvasItem_draw_colored_polygon_e53fc01c(Object * ptr, Array* a
     static_cast<CanvasItem *>(ptr)->draw_colored_polygon(Variant(*arg1).as<Vector<Vector2>>(), arg2_in, arg3_in, AutoRef(arg4), AutoRef(arg5), arg6_in);
 }
 
-void godot_icall_CanvasItem_draw_string_c722fa14(Object * ptr, Object * arg1, GDMonoMarshal::M_Vector2* arg2, MonoString* arg3, GDMonoMarshal::M_Color* arg4, int32_t arg5) {
+void godot_icall_CanvasItem_draw_string_fc035fd4(Object * ptr, Object * arg1, GDMonoMarshal::M_Vector2* arg2, MonoString* arg3, GDMonoMarshal::M_Color* arg4, int32_t arg5) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
     TmpString<512> arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
@@ -11120,7 +11120,7 @@ Object* godot_icall_ConeTwistJoint_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_ConfigFile_set_value_4a4c352e(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
+void godot_icall_ConfigFile_set_value_5e75b9e1(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -11128,7 +11128,7 @@ void godot_icall_ConfigFile_set_value_4a4c352e(Object * ptr, MonoString* arg1, M
     static_cast<ConfigFile *>(ptr)->set_value(arg1_in, arg2_in, arg3_in);
 }
 
-MonoObject* godot_icall_ConfigFile_get_value_d7660f94(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
+MonoObject* godot_icall_ConfigFile_get_value_373d864b(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -11137,14 +11137,14 @@ MonoObject* godot_icall_ConfigFile_get_value_d7660f94(Object * ptr, MonoString* 
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
-MonoBoolean godot_icall_ConfigFile_has_section_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_ConfigFile_has_section_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ConfigFile *>(ptr)->has_section(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall_ConfigFile_has_section_key_e9ec26d0(Object * ptr, MonoString* arg1, MonoString* arg2) {
+MonoBoolean godot_icall_ConfigFile_has_section_key_cdeda881(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -11158,27 +11158,27 @@ MonoArray* godot_icall_ConfigFile_get_sections_4cc8f2a7(Object * ptr) {
     return GDMonoMarshal::PoolStringArray_to_mono_array(ret);
 }
 
-MonoArray* godot_icall_ConfigFile_get_section_keys_7fa944d0(Object * ptr, MonoString* arg1) {
+MonoArray* godot_icall_ConfigFile_get_section_keys_82ee0a94(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ConfigFile *>(ptr)->get_section_keys(arg1_in);
     return GDMonoMarshal::PoolStringArray_to_mono_array(ret);
 }
 
-void godot_icall_ConfigFile_erase_section_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_ConfigFile_erase_section_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<ConfigFile *>(ptr)->erase_section(arg1_in);
 }
 
-void godot_icall_ConfigFile_erase_section_key_e8a7f384(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall_ConfigFile_erase_section_key_fc93f18d(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     static_cast<ConfigFile *>(ptr)->erase_section_key(arg1_in, arg2_in);
 }
 
-int32_t godot_icall_ConfigFile_load_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_ConfigFile_load_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ConfigFile *>(ptr)->load(arg1_in);
@@ -11192,14 +11192,14 @@ int32_t godot_icall_ConfigFile_parse_73262d91(Object * ptr, MonoString* arg1) {
     return (int32_t)ret;
 }
 
-int32_t godot_icall_ConfigFile_save_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_ConfigFile_save_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ConfigFile *>(ptr)->save(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall_ConfigFile_load_encrypted_f03c9d45(Object * ptr, MonoString* arg1, MonoArray* arg2) {
+int32_t godot_icall_ConfigFile_load_encrypted_c6b9da7a(Object * ptr, MonoString* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg2);
@@ -11207,7 +11207,7 @@ int32_t godot_icall_ConfigFile_load_encrypted_f03c9d45(Object * ptr, MonoString*
     return (int32_t)ret;
 }
 
-int32_t godot_icall_ConfigFile_load_encrypted_pass_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_ConfigFile_load_encrypted_pass_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -11215,7 +11215,7 @@ int32_t godot_icall_ConfigFile_load_encrypted_pass_21276c93(Object * ptr, MonoSt
     return (int32_t)ret;
 }
 
-int32_t godot_icall_ConfigFile_save_encrypted_f03c9d45(Object * ptr, MonoString* arg1, MonoArray* arg2) {
+int32_t godot_icall_ConfigFile_save_encrypted_c6b9da7a(Object * ptr, MonoString* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg2);
@@ -11223,7 +11223,7 @@ int32_t godot_icall_ConfigFile_save_encrypted_f03c9d45(Object * ptr, MonoString*
     return (int32_t)ret;
 }
 
-int32_t godot_icall_ConfigFile_save_encrypted_pass_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_ConfigFile_save_encrypted_pass_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -11977,7 +11977,7 @@ MonoObject* godot_icall_Crypto_generate_rsa_928cbf6d(Object * ptr, int32_t arg1)
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-MonoObject* godot_icall_Crypto_generate_self_signed_certificate_a6e42a76(Object * ptr, Object * arg1, MonoString* arg2, MonoString* arg3, MonoString* arg4) {
+MonoObject* godot_icall_Crypto_generate_self_signed_certificate_e5785379(Object * ptr, Object * arg1, MonoString* arg2, MonoString* arg3, MonoString* arg4) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     TmpString<512> arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
@@ -11992,14 +11992,14 @@ Object* godot_icall_Crypto_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_CryptoKey_save_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_CryptoKey_save_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<CryptoKey *>(ptr)->save(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall_CryptoKey_load_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_CryptoKey_load_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<CryptoKey *>(ptr)->load(arg1_in);
@@ -13018,7 +13018,7 @@ MonoBoolean godot_icall_DynamicFontData_is_antialiased_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_DynamicFontData_set_font_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_DynamicFontData_set_font_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<DynamicFontData *>(ptr)->set_font_path(arg1_in);
@@ -13049,7 +13049,7 @@ Object* godot_icall_DynamicFontData_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorExportPlugin_add_shared_object_1a7dcd8f(Object * ptr, MonoString* arg1, MonoArray* arg2) {
+void godot_icall_EditorExportPlugin_add_shared_object_4b60c74(Object * ptr, MonoString* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecString(arg2);
@@ -13058,7 +13058,7 @@ void godot_icall_EditorExportPlugin_add_shared_object_1a7dcd8f(Object * ptr, Mon
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorExportPlugin_add_file_4be357f9(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3) {
+void godot_icall_EditorExportPlugin_add_file_e91798f9(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecByte(arg2);
@@ -13164,7 +13164,7 @@ MonoString* godot_icall_EditorFeatureProfile_get_feature_name_f57803d5(Object * 
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-int32_t godot_icall_EditorFeatureProfile_save_to_file_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_EditorFeatureProfile_save_to_file_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorFeatureProfile *>(ptr)->save_to_file(arg1_in);
@@ -13173,7 +13173,7 @@ int32_t godot_icall_EditorFeatureProfile_save_to_file_cb25197e(Object * ptr, Mon
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-int32_t godot_icall_EditorFeatureProfile_load_from_file_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_EditorFeatureProfile_load_from_file_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorFeatureProfile *>(ptr)->load_from_file(arg1_in);
@@ -13195,7 +13195,7 @@ void godot_icall_EditorFileDialog_clear_filters_c8e54a7b(Object * ptr) {
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorFileDialog_add_filter_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorFileDialog_add_filter_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorFileDialog *>(ptr)->add_filter(arg1_in);
@@ -13227,7 +13227,7 @@ MonoString* godot_icall_EditorFileDialog_get_current_path_97be4a2e(Object * ptr)
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorFileDialog_set_current_dir_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorFileDialog_set_current_dir_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorFileDialog *>(ptr)->set_current_dir(arg1_in);
@@ -13235,7 +13235,7 @@ void godot_icall_EditorFileDialog_set_current_dir_919b8b17(Object * ptr, MonoStr
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorFileDialog_set_current_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorFileDialog_set_current_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorFileDialog *>(ptr)->set_current_file(arg1_in);
@@ -13243,7 +13243,7 @@ void godot_icall_EditorFileDialog_set_current_file_919b8b17(Object * ptr, MonoSt
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorFileDialog_set_current_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorFileDialog_set_current_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorFileDialog *>(ptr)->set_current_path(arg1_in);
@@ -13390,7 +13390,7 @@ void godot_icall_EditorFileSystem_scan_changes_c8e54a7b(Object * ptr) {
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorFileSystem_update_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorFileSystem_update_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorFileSystem *>(ptr)->update_file(arg1_in);
@@ -13398,7 +13398,7 @@ void godot_icall_EditorFileSystem_update_file_919b8b17(Object * ptr, MonoString*
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-MonoObject* godot_icall_EditorFileSystem_get_filesystem_path_ee0151f2(Object * ptr, MonoString* arg1) {
+MonoObject* godot_icall_EditorFileSystem_get_filesystem_path_733cef0e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorFileSystem *>(ptr)->get_filesystem_path(arg1_in);
@@ -13407,7 +13407,7 @@ MonoObject* godot_icall_EditorFileSystem_get_filesystem_path_ee0151f2(Object * p
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-MonoString* godot_icall_EditorFileSystem_get_file_type_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall_EditorFileSystem_get_file_type_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorFileSystem *>(ptr)->get_file_type(arg1_in);
@@ -13526,7 +13526,7 @@ MonoObject* godot_icall_EditorFileSystemDirectory_get_parent_fbf6e50(Object * pt
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-int32_t godot_icall_EditorFileSystemDirectory_find_file_index_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_EditorFileSystemDirectory_find_file_index_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorFileSystemDirectory *>(ptr)->find_file_index(arg1_in);
@@ -13535,7 +13535,7 @@ int32_t godot_icall_EditorFileSystemDirectory_find_file_index_c878f90a(Object * 
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-int32_t godot_icall_EditorFileSystemDirectory_find_dir_index_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_EditorFileSystemDirectory_find_dir_index_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorFileSystemDirectory *>(ptr)->find_dir_index(arg1_in);
@@ -13576,7 +13576,7 @@ void godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c(Object * ptr,
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInspectorPlugin_add_property_editor_856dce99(Object * ptr, MonoString* arg1, Object * arg2) {
+void godot_icall_EditorInspectorPlugin_add_property_editor_fd860d4e(Object * ptr, MonoString* arg1, Object * arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorInspectorPlugin *>(ptr)->add_property_editor(arg1_in, (Control*)arg2);
@@ -13584,7 +13584,7 @@ void godot_icall_EditorInspectorPlugin_add_property_editor_856dce99(Object * ptr
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3(Object * ptr, MonoString* arg1, MonoArray* arg2, Object * arg3) {
+void godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_bceb3152(Object * ptr, MonoString* arg1, MonoArray* arg2, Object * arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecString(arg2);
@@ -13599,7 +13599,7 @@ Object* godot_icall_EditorInspectorPlugin_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInterface_inspect_object_daca0f32(Object * ptr, Object * arg1, MonoString* arg2) {
+void godot_icall_EditorInterface_inspect_object_bf01414e(Object * ptr, Object * arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     static_cast<EditorInterface *>(ptr)->inspect_object((Object*)arg1, arg2_in);
@@ -13646,7 +13646,7 @@ void godot_icall_EditorInterface_edit_resource_7ce53eb(Object * ptr, Object * ar
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInterface_open_scene_from_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorInterface_open_scene_from_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorInterface *>(ptr)->open_scene_from_path(arg1_in);
@@ -13654,7 +13654,7 @@ void godot_icall_EditorInterface_open_scene_from_path_919b8b17(Object * ptr, Mon
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInterface_reload_scene_from_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorInterface_reload_scene_from_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorInterface *>(ptr)->reload_scene_from_path(arg1_in);
@@ -13711,7 +13711,7 @@ Array* godot_icall_EditorInterface_make_mesh_previews_57d4c298(Object * ptr, Arr
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInterface_select_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorInterface_select_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorInterface *>(ptr)->select_file(arg1_in);
@@ -13769,7 +13769,7 @@ int32_t godot_icall_EditorInterface_save_scene_f04570f5(Object * ptr) {
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorInterface_save_scene_as_3e40a80(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
+void godot_icall_EditorInterface_save_scene_as_211c975(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -13841,7 +13841,7 @@ void godot_icall_EditorPlugin_remove_control_from_container_8f04cd94(Object * pt
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorPlugin_add_tool_menu_item_e80e8515(Object * ptr, MonoString* arg1, Object * arg2, MonoString* arg3, MonoObject* arg4) {
+void godot_icall_EditorPlugin_add_tool_menu_item_dbe800bc(Object * ptr, MonoString* arg1, Object * arg2, MonoString* arg3, MonoObject* arg4) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
@@ -13884,7 +13884,7 @@ void godot_icall_EditorPlugin_remove_custom_type_2f29e819(Object * ptr, MonoStri
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorPlugin_add_autoload_singleton_eb1eb84d(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall_EditorPlugin_add_autoload_singleton_71d57a09(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -14044,7 +14044,7 @@ Object* godot_icall_EditorPlugin_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorProperty_set_label_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorProperty_set_label_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorProperty *>(ptr)->set_label(arg1_in);
@@ -14201,7 +14201,7 @@ Object* godot_icall_EditorResourceConversionPlugin_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorResourcePreview_queue_resource_preview_16188f6d(Object * ptr, MonoString* arg1, Object * arg2, MonoString* arg3, MonoObject* arg4) {
+void godot_icall_EditorResourcePreview_queue_resource_preview_f8c7c71b(Object * ptr, MonoString* arg1, Object * arg2, MonoString* arg3, MonoObject* arg4) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     StringName arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
@@ -14234,7 +14234,7 @@ void godot_icall_EditorResourcePreview_remove_preview_generator_49d15f9b(Object 
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorResourcePreview_check_for_invalidation_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorResourcePreview_check_for_invalidation_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorResourcePreview *>(ptr)->check_for_invalidation(arg1_in);
@@ -14248,7 +14248,7 @@ Object* godot_icall_EditorResourcePreviewGenerator_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-MonoObject* godot_icall_EditorSceneImporter_import_scene_from_other_importer_7a2c50c0(Object * ptr, MonoString* arg1, uint32_t arg2, int32_t arg3) {
+MonoObject* godot_icall_EditorSceneImporter_import_scene_from_other_importer_465afea2(Object * ptr, MonoString* arg1, uint32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
@@ -14259,7 +14259,7 @@ MonoObject* godot_icall_EditorSceneImporter_import_scene_from_other_importer_7a2
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-MonoObject* godot_icall_EditorSceneImporter_import_animation_from_other_importer_55967b84(Object * ptr, MonoString* arg1, uint32_t arg2, int32_t arg3) {
+MonoObject* godot_icall_EditorSceneImporter_import_animation_from_other_importer_e5807398(Object * ptr, MonoString* arg1, uint32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
@@ -14456,7 +14456,7 @@ MonoString* godot_icall_EditorSettings_get_project_settings_dir_97be4a2e(Object 
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorSettings_set_project_metadata_4a4c352e(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
+void godot_icall_EditorSettings_set_project_metadata_5e75b9e1(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -14466,7 +14466,7 @@ void godot_icall_EditorSettings_set_project_metadata_4a4c352e(Object * ptr, Mono
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-MonoObject* godot_icall_EditorSettings_get_project_metadata_d7660f94(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
+MonoObject* godot_icall_EditorSettings_get_project_metadata_373d864b(Object * ptr, MonoString* arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -14605,7 +14605,7 @@ Object* godot_icall_EditorSpatialGizmo_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorSpatialGizmoPlugin_create_material_f38ff8f0(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Color* arg2, MonoBoolean arg3, MonoBoolean arg4, MonoBoolean arg5) {
+void godot_icall_EditorSpatialGizmoPlugin_create_material_6175c29e(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Color* arg2, MonoBoolean arg3, MonoBoolean arg4, MonoBoolean arg5) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Color arg2_in = MARSHALLED_IN(Color, arg2);
@@ -14659,7 +14659,7 @@ Object* godot_icall_EditorSpatialGizmoPlugin_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorSpinSlider_set_label_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorSpinSlider_set_label_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorSpinSlider *>(ptr)->set_label(arg1_in);
@@ -14721,7 +14721,7 @@ MonoBoolean godot_icall_EditorVCSInterface_is_addon_ready_68fe5f59(Object * ptr)
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-MonoBoolean godot_icall_EditorVCSInterface_initialize_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_EditorVCSInterface_initialize_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorVCSInterface *>(ptr)->initialize(arg1_in);
@@ -14746,7 +14746,7 @@ Dictionary* godot_icall_EditorVCSInterface_get_modified_files_data_22d47c9d(Obje
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorVCSInterface_stage_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorVCSInterface_stage_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorVCSInterface *>(ptr)->stage_file(arg1_in);
@@ -14754,7 +14754,7 @@ void godot_icall_EditorVCSInterface_stage_file_919b8b17(Object * ptr, MonoString
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorVCSInterface_unstage_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorVCSInterface_unstage_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorVCSInterface *>(ptr)->unstage_file(arg1_in);
@@ -14762,7 +14762,7 @@ void godot_icall_EditorVCSInterface_unstage_file_919b8b17(Object * ptr, MonoStri
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_EditorVCSInterface_commit_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_EditorVCSInterface_commit_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<EditorVCSInterface *>(ptr)->commit(arg1_in);
@@ -14770,7 +14770,7 @@ void godot_icall_EditorVCSInterface_commit_919b8b17(Object * ptr, MonoString* ar
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-Array* godot_icall_EditorVCSInterface_get_file_diff_fcd7e717(Object * ptr, MonoString* arg1) {
+Array* godot_icall_EditorVCSInterface_get_file_diff_679a25ab(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<EditorVCSInterface *>(ptr)->get_file_diff(arg1_in);
@@ -15768,7 +15768,7 @@ Object* godot_icall_Environment_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_Expression_parse_37895a8c(Object * ptr, MonoString* arg1, MonoArray* arg2) {
+int32_t godot_icall_Expression_parse_840b1acd(Object * ptr, MonoString* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecString(arg2);
@@ -15806,7 +15806,7 @@ void godot_icall_FileDialog_clear_filters_c8e54a7b(Object * ptr) {
     static_cast<FileDialog *>(ptr)->clear_filters();
 }
 
-void godot_icall_FileDialog_add_filter_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_FileDialog_add_filter_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<FileDialog *>(ptr)->add_filter(arg1_in);
@@ -15842,19 +15842,19 @@ MonoString* godot_icall_FileDialog_get_current_path_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_FileDialog_set_current_dir_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_FileDialog_set_current_dir_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<FileDialog *>(ptr)->set_current_dir(arg1_in);
 }
 
-void godot_icall_FileDialog_set_current_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_FileDialog_set_current_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<FileDialog *>(ptr)->set_current_file(arg1_in);
 }
 
-void godot_icall_FileDialog_set_current_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_FileDialog_set_current_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<FileDialog *>(ptr)->set_current_path(arg1_in);
@@ -15936,7 +15936,7 @@ Object* godot_icall_FileDialog_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Font_draw_6be51683(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2, MonoString* arg3, GDMonoMarshal::M_Color* arg4, int32_t arg5, GDMonoMarshal::M_Color* arg6) {
+void godot_icall_Font_draw_67a9f450(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2, MonoString* arg3, GDMonoMarshal::M_Color* arg4, int32_t arg5, GDMonoMarshal::M_Color* arg6) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
     TmpString<512> arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
@@ -15970,14 +15970,14 @@ MonoBoolean godot_icall_Font_is_distance_field_hint_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_Font_get_string_size_7321ae6f(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Font_get_string_size_187aef93(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Font *>(ptr)->get_string_size(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_Font_get_wordwrap_string_size_a169f6d2(Object * ptr, MonoString* arg1, float* arg2, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Font_get_wordwrap_string_size_9941d95(Object * ptr, MonoString* arg1, float* arg2, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     float arg2_in = static_cast<float>(*arg2);
@@ -16925,7 +16925,7 @@ Object* godot_icall_GraphEdit_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_GraphNode_set_title_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_GraphNode_set_title_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<GraphNode *>(ptr)->set_title(arg1_in);
@@ -17474,7 +17474,7 @@ MonoObject* godot_icall_HTTPClient_get_connection_b6f76265(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-int32_t godot_icall_HTTPClient_request_raw_e02d49ea(Object * ptr, int32_t arg1, MonoString* arg2, MonoArray* arg3, MonoArray* arg4) {
+int32_t godot_icall_HTTPClient_request_raw_e7f84acd(Object * ptr, int32_t arg1, MonoString* arg2, MonoArray* arg3, MonoArray* arg4) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int64_t arg1_in = (int64_t)arg1;
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -17484,7 +17484,7 @@ int32_t godot_icall_HTTPClient_request_raw_e02d49ea(Object * ptr, int32_t arg1, 
     return (int32_t)ret;
 }
 
-int32_t godot_icall_HTTPClient_request_eb01527f(Object * ptr, int32_t arg1, MonoString* arg2, MonoArray* arg3, MonoString* arg4) {
+int32_t godot_icall_HTTPClient_request_dee5b030(Object * ptr, int32_t arg1, MonoString* arg2, MonoArray* arg3, MonoString* arg4) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int64_t arg1_in = (int64_t)arg1;
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -17589,7 +17589,7 @@ Object* godot_icall_HTTPClient_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_HTTPRequest_request_9e3d764c(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3, int32_t arg4, MonoString* arg5) {
+int32_t godot_icall_HTTPRequest_request_5706dd2e(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3, int32_t arg4, MonoString* arg5) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecString(arg2);
@@ -17647,7 +17647,7 @@ int32_t godot_icall_HTTPRequest_get_max_redirects_1f886eb0(Object * ptr) {
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_HTTPRequest_set_download_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_HTTPRequest_set_download_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<HTTPRequest *>(ptr)->set_download_file(arg1_in);
@@ -17827,7 +17827,7 @@ Object* godot_icall_HingeJoint_Ctor(MonoObject* obj) {
     return instance;
 }
 
-MonoString* godot_icall_IP_resolve_hostname_1195f271(Object * ptr, MonoString* arg1, int32_t arg2) {
+MonoString* godot_icall_IP_resolve_hostname_997a524c(Object * ptr, MonoString* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg2_in = (int64_t)arg2;
@@ -18013,21 +18013,21 @@ MonoBoolean godot_icall_Image_is_empty_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-int32_t godot_icall_Image_load_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_Image_load_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Image *>(ptr)->load(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall_Image_save_png_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_Image_save_png_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Image *>(ptr)->save_png(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall_Image_save_exr_c860678f(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
+int32_t godot_icall_Image_save_exr_8f6427cc(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -18425,7 +18425,7 @@ void godot_icall_Input_get_action_strength_9f10687(Object * ptr, MonoString* arg
     *arg_ret = (float)ret;
 }
 
-void godot_icall_Input_add_joy_mapping_3e40a80(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
+void godot_icall_Input_add_joy_mapping_211c975(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -18503,7 +18503,7 @@ MonoString* godot_icall_Input_get_joy_button_string_44fc4c5a(Object * ptr, int32
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-int32_t godot_icall_Input_get_joy_button_index_from_string_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_Input_get_joy_button_index_from_string_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Input *>(ptr)->get_joy_button_index_from_string(arg1_in);
@@ -18517,7 +18517,7 @@ MonoString* godot_icall_Input_get_joy_axis_string_44fc4c5a(Object * ptr, int32_t
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-int32_t godot_icall_Input_get_joy_axis_index_from_string_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_Input_get_joy_axis_index_from_string_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Input *>(ptr)->get_joy_axis_index_from_string(arg1_in);
@@ -19915,7 +19915,7 @@ void godot_icall_JSONParseResult_set_error_32ed9677(Object * ptr, int32_t arg1) 
     static_cast<JSONParseResult *>(ptr)->set_error((Error)arg1_in);
 }
 
-void godot_icall_JSONParseResult_set_error_string_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_JSONParseResult_set_error_string_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<JSONParseResult *>(ptr)->set_error_string(arg1_in);
@@ -19960,7 +19960,7 @@ MonoString* godot_icall_JSONRPC_process_string_dcc9abdc(Object * ptr, MonoString
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-Dictionary* godot_icall_JSONRPC_make_request_ab3f9e08(Object * ptr, MonoString* arg1, MonoObject* arg2, MonoObject* arg3) {
+Dictionary* godot_icall_JSONRPC_make_request_b9fe3487(Object * ptr, MonoString* arg1, MonoObject* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Variant arg2_in = GDMonoMarshal::mono_object_to_variant(arg2);
@@ -19977,7 +19977,7 @@ Dictionary* godot_icall_JSONRPC_make_response_d7e07b59(Object * ptr, MonoObject*
     return memnew(Dictionary(ret));
 }
 
-Dictionary* godot_icall_JSONRPC_make_notification_2cf7176b(Object * ptr, MonoString* arg1, MonoObject* arg2) {
+Dictionary* godot_icall_JSONRPC_make_notification_9bc3858(Object * ptr, MonoString* arg1, MonoObject* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Variant arg2_in = GDMonoMarshal::mono_object_to_variant(arg2);
@@ -19985,7 +19985,7 @@ Dictionary* godot_icall_JSONRPC_make_notification_2cf7176b(Object * ptr, MonoStr
     return memnew(Dictionary(ret));
 }
 
-Dictionary* godot_icall_JSONRPC_make_response_error_8ac33898(Object * ptr, int32_t arg1, MonoString* arg2, MonoObject* arg3) {
+Dictionary* godot_icall_JSONRPC_make_response_error_b5cbfc6d(Object * ptr, int32_t arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -21317,7 +21317,7 @@ void godot_icall_LineEdit_deselect_c8e54a7b(Object * ptr) {
     static_cast<LineEdit *>(ptr)->deselect();
 }
 
-void godot_icall_LineEdit_set_text_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_LineEdit_set_text_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<LineEdit *>(ptr)->set_text(arg1_in);
@@ -21413,7 +21413,7 @@ int32_t godot_icall_LineEdit_get_max_length_1f886eb0(Object * ptr) {
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_LineEdit_append_at_cursor_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_LineEdit_append_at_cursor_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<LineEdit *>(ptr)->append_at_cursor(arg1_in);
@@ -21562,7 +21562,7 @@ Object* godot_icall_LineShape2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_LinkButton_set_text_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_LinkButton_set_text_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<LinkButton *>(ptr)->set_text(arg1_in);
@@ -21625,7 +21625,7 @@ void godot_icall_MainLoop_input_event_7ac4986f(Object * ptr, Object * arg1) {
     static_cast<MainLoop *>(ptr)->input_event(AutoRef(arg1));
 }
 
-void godot_icall_MainLoop_input_text_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_MainLoop_input_text_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<MainLoop *>(ptr)->input_text(arg1_in);
@@ -22196,7 +22196,7 @@ void godot_icall_MeshLibrary_create_item_e1ae93bc(Object * ptr, int32_t arg1) {
     static_cast<MeshLibrary *>(ptr)->create_item(arg1_in);
 }
 
-void godot_icall_MeshLibrary_set_item_name_73adf041(Object * ptr, int32_t arg1, MonoString* arg2) {
+void godot_icall_MeshLibrary_set_item_name_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -22282,7 +22282,7 @@ void godot_icall_MeshLibrary_remove_item_e1ae93bc(Object * ptr, int32_t arg1) {
     static_cast<MeshLibrary *>(ptr)->remove_item(arg1_in);
 }
 
-int32_t godot_icall_MeshLibrary_find_item_by_name_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_MeshLibrary_find_item_by_name_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<MeshLibrary *>(ptr)->find_item_by_name(arg1_in);
@@ -23713,7 +23713,7 @@ int32_t godot_icall_NetworkedMultiplayerENet_create_server_88365f0(Object * ptr,
     return (int32_t)ret;
 }
 
-int32_t godot_icall_NetworkedMultiplayerENet_create_client_20a6ff62(Object * ptr, MonoString* arg1, int32_t arg2, int32_t arg3, int32_t arg4, int32_t arg5) {
+int32_t godot_icall_NetworkedMultiplayerENet_create_client_d5ecd879(Object * ptr, MonoString* arg1, int32_t arg2, int32_t arg3, int32_t arg4, int32_t arg5) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int32_t arg2_in = static_cast<int32_t>(arg2);
@@ -23973,7 +23973,7 @@ void godot_icall_Node_add_child_below_node_ea228bc2(Object * ptr, Object * arg1,
     static_cast<Node *>(ptr)->add_child_below_node((Node*)arg1, (Node*)arg2, arg3_in);
 }
 
-void godot_icall_Node_set_name_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Node_set_name_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Node *>(ptr)->set_name(arg1_in);
@@ -24039,7 +24039,7 @@ MonoObject* godot_icall_Node_get_parent_87a9bfc5(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
-MonoObject* godot_icall_Node_find_node_2f66e556(Object * ptr, MonoString* arg1, MonoBoolean arg2, MonoBoolean arg3) {
+MonoObject* godot_icall_Node_find_node_e2275056(Object * ptr, MonoString* arg1, MonoBoolean arg2, MonoBoolean arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -24048,7 +24048,7 @@ MonoObject* godot_icall_Node_find_node_2f66e556(Object * ptr, MonoString* arg1, 
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
-MonoObject* godot_icall_Node_find_parent_7de48efa(Object * ptr, MonoString* arg1) {
+MonoObject* godot_icall_Node_find_parent_12bbcd3e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Node *>(ptr)->find_parent(arg1_in);
@@ -24161,7 +24161,7 @@ void godot_icall_Node_print_tree_c8e54a7b(Object * ptr) {
     static_cast<Node *>(ptr)->print_tree();
 }
 
-void godot_icall_Node_set_filename_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Node_set_filename_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Node *>(ptr)->set_filename(arg1_in);
@@ -24844,10 +24844,10 @@ void godot_icall_Object_free_c8e54a7b(Object * ptr) {
 MonoString* godot_icall_Object_get_class_97be4a2e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<Object *>(ptr)->get_class();
-    return GDMonoMarshal::mono_string_from_godot(se_string_view(ret));
+    return GDMonoMarshal::mono_string_from_godot(StringView(ret));
 }
 
-MonoBoolean godot_icall_Object_is_class_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_Object_is_class_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Object *>(ptr)->is_class(arg1_in.c_str());
@@ -24916,27 +24916,27 @@ MonoObject* godot_icall_Object_get_script_66da672a(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get_data());
 }
 
-void godot_icall_Object_set_meta_5b951a59(Object * ptr, MonoString* arg1, MonoObject* arg2) {
+void godot_icall_Object_set_meta_4a9ec68e(Object * ptr, MonoString* arg1, MonoObject* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Variant arg2_in = GDMonoMarshal::mono_object_to_variant(arg2);
     static_cast<Object *>(ptr)->set_meta(arg1_in, arg2_in);
 }
 
-void godot_icall_Object_remove_meta_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Object_remove_meta_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Object *>(ptr)->remove_meta(arg1_in);
 }
 
-MonoObject* godot_icall_Object_get_meta_99fc80c2(Object * ptr, MonoString* arg1) {
+MonoObject* godot_icall_Object_get_meta_74ba5e9e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Object *>(ptr)->get_meta(arg1_in);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
-MonoBoolean godot_icall_Object_has_meta_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_Object_has_meta_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Object *>(ptr)->has_meta(arg1_in);
@@ -25486,7 +25486,7 @@ Object* godot_icall_OptionButton_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_PCKPacker_pck_start_72ea9736(Object * ptr, MonoString* arg1, int32_t arg2) {
+int32_t godot_icall_PCKPacker_pck_start_79efd067(Object * ptr, MonoString* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int32_t arg2_in = static_cast<int32_t>(arg2);
@@ -25494,7 +25494,7 @@ int32_t godot_icall_PCKPacker_pck_start_72ea9736(Object * ptr, MonoString* arg1,
     return (int32_t)ret;
 }
 
-int32_t godot_icall_PCKPacker_add_file_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_PCKPacker_add_file_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -25762,7 +25762,7 @@ void godot_icall_PacketPeerUDP_set_broadcast_enabled_ba24800b(Object * ptr, Mono
     static_cast<PacketPeerUDP *>(ptr)->set_broadcast_enabled(arg1_in);
 }
 
-int32_t godot_icall_PacketPeerUDP_join_multicast_group_a7619223(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_PacketPeerUDP_join_multicast_group_1c2b2cff(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     String arg1_in = GDMonoMarshal::mono_string_to_godot(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -25770,7 +25770,7 @@ int32_t godot_icall_PacketPeerUDP_join_multicast_group_a7619223(Object * ptr, Mo
     return (int32_t)ret;
 }
 
-int32_t godot_icall_PacketPeerUDP_leave_multicast_group_a7619223(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_PacketPeerUDP_leave_multicast_group_1c2b2cff(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     String arg1_in = GDMonoMarshal::mono_string_to_godot(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -30759,14 +30759,14 @@ void godot_icall_ProjectSettings_clear_2f29e819(Object * ptr, MonoString* arg1) 
     static_cast<ProjectSettings *>(ptr)->clear(arg1_in);
 }
 
-MonoString* godot_icall_ProjectSettings_localize_path_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall_ProjectSettings_localize_path_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ProjectSettings *>(ptr)->localize_path(arg1_in);
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoString* godot_icall_ProjectSettings_globalize_path_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall_ProjectSettings_globalize_path_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ProjectSettings *>(ptr)->globalize_path(arg1_in);
@@ -30779,7 +30779,7 @@ int32_t godot_icall_ProjectSettings_save_f04570f5(Object * ptr) {
     return (int32_t)ret;
 }
 
-MonoBoolean godot_icall_ProjectSettings_load_resource_pack_cf2f31cc(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
+MonoBoolean godot_icall_ProjectSettings_load_resource_pack_4c6b6f39(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -30787,21 +30787,21 @@ MonoBoolean godot_icall_ProjectSettings_load_resource_pack_cf2f31cc(Object * ptr
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall_ProjectSettings_property_can_revert_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_ProjectSettings_property_can_revert_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ProjectSettings *>(ptr)->property_can_revert(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoObject* godot_icall_ProjectSettings_property_get_revert_99fc80c2(Object * ptr, MonoString* arg1) {
+MonoObject* godot_icall_ProjectSettings_property_get_revert_74ba5e9e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ProjectSettings *>(ptr)->property_get_revert(arg1_in);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
-int32_t godot_icall_ProjectSettings_save_custom_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_ProjectSettings_save_custom_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<ProjectSettings *>(ptr)->save_custom(arg1_in);
@@ -30848,7 +30848,7 @@ void godot_icall_ProximityGroup_get_grid_radius_9b4ea24f(Object * ptr, GDMonoMar
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_ProximityGroup_broadcast_5b951a59(Object * ptr, MonoString* arg1, MonoObject* arg2) {
+void godot_icall_ProximityGroup_broadcast_4a9ec68e(Object * ptr, MonoString* arg1, MonoObject* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Variant arg2_in = GDMonoMarshal::mono_object_to_variant(arg2);
@@ -31933,13 +31933,13 @@ Object* godot_icall_RemoteTransform2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Resource_set_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Resource_set_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Resource *>(ptr)->set_path(arg1_in);
 }
 
-void godot_icall_Resource_take_over_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Resource_take_over_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Resource *>(ptr)->set_path(arg1_in,true);
@@ -31951,7 +31951,7 @@ MonoString* godot_icall_Resource_get_path_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_Resource_set_name_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Resource_set_name_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Resource *>(ptr)->set_name(arg1_in);
@@ -32115,13 +32115,13 @@ MonoString* godot_icall_RichTextLabel_get_text_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_RichTextLabel_add_text_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_RichTextLabel_add_text_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<RichTextLabel *>(ptr)->add_text(arg1_in);
 }
 
-void godot_icall_RichTextLabel_set_text_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_RichTextLabel_set_text_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<RichTextLabel *>(ptr)->set_text_utf8(arg1_in);
@@ -32329,21 +32329,21 @@ MonoBoolean godot_icall_RichTextLabel_is_selection_enabled_68fe5f59(Object * ptr
     return static_cast<MonoBoolean>(ret);
 }
 
-int32_t godot_icall_RichTextLabel_parse_bbcode_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_RichTextLabel_parse_bbcode_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<RichTextLabel *>(ptr)->parse_bbcode(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall_RichTextLabel_append_bbcode_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_RichTextLabel_append_bbcode_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<RichTextLabel *>(ptr)->append_bbcode(arg1_in);
     return (int32_t)ret;
 }
 
-void godot_icall_RichTextLabel_set_bbcode_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_RichTextLabel_set_bbcode_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<RichTextLabel *>(ptr)->set_bbcode(arg1_in);
@@ -33330,7 +33330,7 @@ MonoObject* godot_icall_SceneTree_get_current_scene_87a9bfc5(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
-int32_t godot_icall_SceneTree_change_scene_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_SceneTree_change_scene_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<SceneTree *>(ptr)->change_scene(arg1_in);
@@ -33549,7 +33549,7 @@ MonoBoolean godot_icall_Script_is_tool_68fe5f59(Object * ptr) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall_ScriptCreateDialog_config_a4fd4d58(Object * ptr, MonoString* arg1, MonoString* arg2, MonoBoolean arg3, MonoBoolean arg4) {
+void godot_icall_ScriptCreateDialog_config_899d9058(Object * ptr, MonoString* arg1, MonoString* arg2, MonoBoolean arg3, MonoBoolean arg4) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -33618,7 +33618,7 @@ Array* godot_icall_ScriptEditor_get_open_scripts_d80382d4(Object * ptr) {
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall_ScriptEditor_open_script_create_dialog_e8a7f384(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall_ScriptEditor_open_script_create_dialog_fc93f18d(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -33942,13 +33942,13 @@ Object* godot_icall_ShortCut_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Skeleton_add_bone_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Skeleton_add_bone_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Skeleton *>(ptr)->add_bone(arg1_in);
 }
 
-int32_t godot_icall_Skeleton_find_bone_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_Skeleton_find_bone_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Skeleton *>(ptr)->find_bone(arg1_in);
@@ -35813,7 +35813,7 @@ MonoString* godot_icall_SpinBox_get_suffix_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_SpinBox_set_prefix_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_SpinBox_set_prefix_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<SpinBox *>(ptr)->set_prefix(arg1_in);
@@ -36707,13 +36707,13 @@ void godot_icall_StreamPeer_put_double_f96f5126(Object * ptr, double* arg1) {
     static_cast<StreamPeer *>(ptr)->put_double(arg1_in);
 }
 
-void godot_icall_StreamPeer_put_string_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_StreamPeer_put_string_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<StreamPeer *>(ptr)->put_string(arg1_in);
 }
 
-void godot_icall_StreamPeer_put_utf8_string_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_StreamPeer_put_utf8_string_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<StreamPeer *>(ptr)->put_utf8_string(arg1_in);
@@ -36864,7 +36864,7 @@ int32_t godot_icall_StreamPeerSSL_accept_stream_372072(Object * ptr, Object * ar
     return (int32_t)ret;
 }
 
-int32_t godot_icall_StreamPeerSSL_connect_to_stream_e7020a0f(Object * ptr, Object * arg1, MonoBoolean arg2, MonoString* arg3, Object * arg4) {
+int32_t godot_icall_StreamPeerSSL_connect_to_stream_b8532bf8(Object * ptr, Object * arg1, MonoBoolean arg2, MonoString* arg3, Object * arg4) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     bool arg2_in = static_cast<bool>(arg2);
     TmpString<512> arg3_in(GDMonoMarshal::mono_string_to_godot(arg3));
@@ -36901,7 +36901,7 @@ Object* godot_icall_StreamPeerSSL_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_StreamPeerTCP_connect_to_host_72ea9736(Object * ptr, MonoString* arg1, int32_t arg2) {
+int32_t godot_icall_StreamPeerTCP_connect_to_host_79efd067(Object * ptr, MonoString* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int32_t arg2_in = static_cast<int32_t>(arg2);
@@ -36950,7 +36950,7 @@ Object* godot_icall_StreamPeerTCP_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_StreamTexture_load_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_StreamTexture_load_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<StreamTexture *>(ptr)->load(arg1_in);
@@ -37960,13 +37960,13 @@ Object* godot_icall_Tabs_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_TextEdit_set_text_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_TextEdit_set_text_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<TextEdit *>(ptr)->set_text_utf8(arg1_in);
 }
 
-void godot_icall_TextEdit_insert_text_at_cursor_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_TextEdit_insert_text_at_cursor_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<TextEdit *>(ptr)->insert_text_at_cursor_utf8(arg1_in);
@@ -38208,7 +38208,7 @@ MonoString* godot_icall_TextEdit_get_word_under_cursor_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoArray* godot_icall_TextEdit_search_4d24b70(Object * ptr, MonoString* arg1, uint32_t arg2, int32_t arg3, int32_t arg4) {
+MonoArray* godot_icall_TextEdit_search_828871db(Object * ptr, MonoString* arg1, uint32_t arg2, int32_t arg3, int32_t arg4) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
@@ -38457,28 +38457,28 @@ int32_t godot_icall_TextEdit_get_h_scroll_1f886eb0(Object * ptr) {
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_TextEdit_add_keyword_color_c85f3def(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Color* arg2) {
+void godot_icall_TextEdit_add_keyword_color_3954fcd4(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Color arg2_in = MARSHALLED_IN(Color, arg2);
     static_cast<TextEdit *>(ptr)->add_keyword_color(arg1_in, arg2_in);
 }
 
-MonoBoolean godot_icall_TextEdit_has_keyword_color_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_TextEdit_has_keyword_color_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<TextEdit *>(ptr)->has_keyword_color(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_TextEdit_get_keyword_color_3aab7706(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Color* arg_ret) {
+void godot_icall_TextEdit_get_keyword_color_95edb1c2(Object * ptr, MonoString* arg1, GDMonoMarshal::M_Color* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<TextEdit *>(ptr)->get_keyword_color(arg1_in);
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
-void godot_icall_TextEdit_add_color_region_65394ad6(Object * ptr, MonoString* arg1, MonoString* arg2, GDMonoMarshal::M_Color* arg3, MonoBoolean arg4) {
+void godot_icall_TextEdit_add_color_region_70ae3823(Object * ptr, MonoString* arg1, MonoString* arg2, GDMonoMarshal::M_Color* arg3, MonoBoolean arg4) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -39230,7 +39230,7 @@ MonoObject* godot_icall_Theme_get_default_font_18b7a982(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-MonoArray* godot_icall_Theme_get_type_list_7fa944d0(Object * ptr, MonoString* arg1) {
+MonoArray* godot_icall_Theme_get_type_list_82ee0a94(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<Theme *>(ptr)->_get_type_list(arg1_in);
@@ -39779,7 +39779,7 @@ void godot_icall_TileSet_autotile_get_size_23728632(Object * ptr, int32_t arg1, 
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_TileSet_tile_set_name_73adf041(Object * ptr, int32_t arg1, MonoString* arg2) {
+void godot_icall_TileSet_tile_set_name_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -40081,7 +40081,7 @@ int32_t godot_icall_TileSet_get_last_unused_tile_id_1f886eb0(Object * ptr) {
     return static_cast<int32_t>(ret);
 }
 
-int32_t godot_icall_TileSet_find_tile_by_name_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_TileSet_find_tile_by_name_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<TileSet *>(ptr)->find_tile_by_name(arg1_in);
@@ -40311,7 +40311,7 @@ Object* godot_icall_TouchScreenButton_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Translation_set_locale_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_Translation_set_locale_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<Translation *>(ptr)->set_locale(arg1_in);
@@ -40373,7 +40373,7 @@ Object* godot_icall_Translation_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_TranslationServer_set_locale_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_TranslationServer_set_locale_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<TranslationServer *>(ptr)->set_locale(arg1_in);
@@ -40385,7 +40385,7 @@ MonoString* godot_icall_TranslationServer_get_locale_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoString* godot_icall_TranslationServer_get_locale_name_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall_TranslationServer_get_locale_name_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<TranslationServer *>(ptr)->get_locale_name(arg1_in);
@@ -41399,7 +41399,7 @@ MonoObject* godot_icall_UPNP_get_gateway_3640e9aa(Object * ptr) {
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-int32_t godot_icall_UPNP_discover_1bf5d43c(Object * ptr, int32_t arg1, int32_t arg2, MonoString* arg3) {
+int32_t godot_icall_UPNP_discover_b43a9270(Object * ptr, int32_t arg1, int32_t arg2, MonoString* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
@@ -41425,7 +41425,7 @@ int32_t godot_icall_UPNP_add_port_mapping_3bffc24b(Object * ptr, int32_t arg1, i
     return static_cast<int32_t>(ret);
 }
 
-int32_t godot_icall_UPNP_delete_port_mapping_91422e52(Object * ptr, int32_t arg1, MonoString* arg2) {
+int32_t godot_icall_UPNP_delete_port_mapping_7c08ec16(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -41433,7 +41433,7 @@ int32_t godot_icall_UPNP_delete_port_mapping_91422e52(Object * ptr, int32_t arg1
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_UPNP_set_discover_multicast_if_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_UPNP_set_discover_multicast_if_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<UPNP *>(ptr)->set_discover_multicast_if(arg1_in);
@@ -41498,7 +41498,7 @@ int32_t godot_icall_UPNPDevice_add_port_mapping_3bffc24b(Object * ptr, int32_t a
     return static_cast<int32_t>(ret);
 }
 
-int32_t godot_icall_UPNPDevice_delete_port_mapping_91422e52(Object * ptr, int32_t arg1, MonoString* arg2) {
+int32_t godot_icall_UPNPDevice_delete_port_mapping_7c08ec16(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -41584,7 +41584,7 @@ Object* godot_icall_UPNPDevice_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_UndoRedo_create_action_fbeeea5d(Object * ptr, MonoString* arg1, int32_t arg2) {
+void godot_icall_UndoRedo_create_action_2a07168a(Object * ptr, MonoString* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg2_in = (int64_t)arg2;
@@ -41640,14 +41640,14 @@ void godot_icall_UndoRedo_add_undo_method_a0841b08(Object * ptr, Object * arg1, 
     static_cast<UndoRedo *>(ptr)->_add_undo_method(call_args.data(), total_length, vcall_error);
 }
 
-void godot_icall_UndoRedo_add_do_property_fd313627(Object * ptr, Object * arg1, MonoString* arg2, MonoObject* arg3) {
+void godot_icall_UndoRedo_add_do_property_91d4cdd2(Object * ptr, Object * arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     Variant arg3_in = GDMonoMarshal::mono_object_to_variant(arg3);
     static_cast<UndoRedo *>(ptr)->add_do_property((Object*)arg1, arg2_in, arg3_in);
 }
 
-void godot_icall_UndoRedo_add_undo_property_fd313627(Object * ptr, Object * arg1, MonoString* arg2, MonoObject* arg3) {
+void godot_icall_UndoRedo_add_undo_property_91d4cdd2(Object * ptr, Object * arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     Variant arg3_in = GDMonoMarshal::mono_object_to_variant(arg3);
@@ -43406,7 +43406,7 @@ MonoString* godot_icall_VisualScriptFunctionCall_get_base_type_97be4a2e(Object *
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_VisualScriptFunctionCall_set_base_script_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_VisualScriptFunctionCall_set_base_script_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<VisualScriptFunctionCall *>(ptr)->set_base_script(arg1_in);
@@ -43530,7 +43530,7 @@ Object* godot_icall_VisualScriptFunctionCall_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_VisualScriptFunctionState_connect_to_signal_85bb43eb(Object * ptr, Object * arg1, MonoString* arg2, Array* arg3) {
+void godot_icall_VisualScriptFunctionState_connect_to_signal_d94ae12e(Object * ptr, Object * arg1, MonoString* arg2, Array* arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     static_cast<VisualScriptFunctionState *>(ptr)->connect_to_signal((Object*)arg1, arg2_in, *arg3);
@@ -43849,7 +43849,7 @@ MonoString* godot_icall_VisualScriptPropertyGet_get_base_type_97be4a2e(Object * 
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_VisualScriptPropertyGet_set_base_script_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_VisualScriptPropertyGet_set_base_script_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<VisualScriptPropertyGet *>(ptr)->set_base_script(arg1_in);
@@ -43950,7 +43950,7 @@ MonoString* godot_icall_VisualScriptPropertySet_get_base_type_97be4a2e(Object * 
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_VisualScriptPropertySet_set_base_script_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_VisualScriptPropertySet_set_base_script_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<VisualScriptPropertySet *>(ptr)->set_base_script(arg1_in);
@@ -44050,7 +44050,7 @@ Object* godot_icall_VisualScriptPropertySet_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_VisualScriptResourcePath_set_resource_path_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_VisualScriptResourcePath_set_resource_path_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<VisualScriptResourcePath *>(ptr)->set_resource_path(arg1_in);
@@ -44187,7 +44187,7 @@ MonoString* godot_icall_VisualScriptTypeCast_get_base_type_97be4a2e(Object * ptr
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_VisualScriptTypeCast_set_base_script_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall_VisualScriptTypeCast_set_base_script_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<VisualScriptTypeCast *>(ptr)->set_base_script(arg1_in);
@@ -44460,7 +44460,7 @@ void godot_icall_VisualServer_texture_set_size_override_c1c02a59(Object * ptr, R
     static_cast<VisualServer *>(ptr)->texture_set_size_override(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
-void godot_icall_VisualServer_texture_set_path_7f99112f(Object * ptr, RID* arg1, MonoString* arg2) {
+void godot_icall_VisualServer_texture_set_path_d45c5753(Object * ptr, RID* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     static_cast<VisualServer *>(ptr)->texture_set_path(*arg1, arg2_in);
@@ -47892,7 +47892,7 @@ int32_t godot_icall_WebRTCPeerConnection_initialize_fe3cff26(Object * ptr, Dicti
     return (int32_t)ret;
 }
 
-MonoObject* godot_icall_WebRTCPeerConnection_create_data_channel_a82dcd2a(Object * ptr, MonoString* arg1, Dictionary* arg2) {
+MonoObject* godot_icall_WebRTCPeerConnection_create_data_channel_fbff6dff(Object * ptr, MonoString* arg1, Dictionary* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<WebRTCPeerConnection *>(ptr)->create_data_channel(arg1_in, *arg2);
@@ -47905,7 +47905,7 @@ int32_t godot_icall_WebRTCPeerConnection_create_offer_f04570f5(Object * ptr) {
     return (int32_t)ret;
 }
 
-int32_t godot_icall_WebRTCPeerConnection_set_local_description_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_WebRTCPeerConnection_set_local_description_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -47913,7 +47913,7 @@ int32_t godot_icall_WebRTCPeerConnection_set_local_description_21276c93(Object *
     return (int32_t)ret;
 }
 
-int32_t godot_icall_WebRTCPeerConnection_set_remote_description_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall_WebRTCPeerConnection_set_remote_description_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -47921,7 +47921,7 @@ int32_t godot_icall_WebRTCPeerConnection_set_remote_description_21276c93(Object 
     return (int32_t)ret;
 }
 
-int32_t godot_icall_WebRTCPeerConnection_add_ice_candidate_b7b9d46d(Object * ptr, MonoString* arg1, int32_t arg2, MonoString* arg3) {
+int32_t godot_icall_WebRTCPeerConnection_add_ice_candidate_5ac7cfc4(Object * ptr, MonoString* arg1, int32_t arg2, MonoString* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int32_t arg2_in = static_cast<int32_t>(arg2);
@@ -47953,7 +47953,7 @@ Object* godot_icall_WebRTCPeerConnection_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_WebSocketClient_connect_to_url_d796999b(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3, MonoArray* arg4) {
+int32_t godot_icall_WebSocketClient_connect_to_url_b834df5c(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3, MonoArray* arg4) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     PoolStringArray arg2_in = GDMonoMarshal::mono_array_to_PoolStringArray(arg2);
@@ -47963,7 +47963,7 @@ int32_t godot_icall_WebSocketClient_connect_to_url_d796999b(Object * ptr, MonoSt
     return (int32_t)ret;
 }
 
-void godot_icall_WebSocketClient_disconnect_from_host_73adf041(Object * ptr, int32_t arg1, MonoString* arg2) {
+void godot_icall_WebSocketClient_disconnect_from_host_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -48041,7 +48041,7 @@ MonoBoolean godot_icall_WebSocketPeer_was_string_packet_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_WebSocketPeer_close_73adf041(Object * ptr, int32_t arg1, MonoString* arg2) {
+void godot_icall_WebSocketPeer_close_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -48113,7 +48113,7 @@ int32_t godot_icall_WebSocketServer_get_peer_port_b835dea5(Object * ptr, int32_t
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_WebSocketServer_disconnect_peer_adb06ae3(Object * ptr, int32_t arg1, int32_t arg2, MonoString* arg3) {
+void godot_icall_WebSocketServer_disconnect_peer_48ed2927(Object * ptr, int32_t arg1, int32_t arg2, MonoString* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
@@ -48295,14 +48295,14 @@ Object* godot_icall_WorldEnvironment_Ctor(MonoObject* obj) {
     return instance;
 }
 
-int32_t godot_icall_X509Certificate_save_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_X509Certificate_save_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<X509Certificate *>(ptr)->save(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall_X509Certificate_load_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_X509Certificate_load_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<X509Certificate *>(ptr)->load(arg1_in);
@@ -48365,21 +48365,21 @@ MonoString* godot_icall_XMLParser_get_attribute_value_44fc4c5a(Object * ptr, int
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoBoolean godot_icall_XMLParser_has_attribute_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall_XMLParser_has_attribute_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<XMLParser *>(ptr)->has_attribute(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoString* godot_icall_XMLParser_get_named_attribute_value_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall_XMLParser_get_named_attribute_value_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<XMLParser *>(ptr)->get_attribute_value(arg1_in);
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoString* godot_icall_XMLParser_get_named_attribute_value_safe_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall_XMLParser_get_named_attribute_value_safe_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<XMLParser *>(ptr)->get_attribute_value_safe(arg1_in);
@@ -48410,7 +48410,7 @@ int32_t godot_icall_XMLParser_seek_c719a68b(Object * ptr, uint64_t* arg1) {
     return (int32_t)ret;
 }
 
-int32_t godot_icall_XMLParser_open_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall_XMLParser_open_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<XMLParser *>(ptr)->open(arg1_in);
@@ -48603,7 +48603,7 @@ Object* godot_icall__ClassDB_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("ClassDB");
 }
 
-int32_t godot_icall__Directory_open_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__Directory_open_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->open(arg1_in);
@@ -48654,7 +48654,7 @@ int32_t godot_icall__Directory_get_current_drive_1f886eb0(Object * ptr) {
     return static_cast<int32_t>(ret);
 }
 
-int32_t godot_icall__Directory_change_dir_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__Directory_change_dir_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->change_dir(arg1_in);
@@ -48667,28 +48667,28 @@ MonoString* godot_icall__Directory_get_current_dir_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-int32_t godot_icall__Directory_make_dir_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__Directory_make_dir_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->make_dir(arg1_in);
     return (int32_t)ret;
 }
 
-int32_t godot_icall__Directory_make_dir_recursive_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__Directory_make_dir_recursive_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->make_dir_recursive(arg1_in);
     return (int32_t)ret;
 }
 
-MonoBoolean godot_icall__Directory_file_exists_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__Directory_file_exists_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->file_exists(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall__Directory_dir_exists_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__Directory_dir_exists_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->dir_exists(arg1_in);
@@ -48701,7 +48701,7 @@ int32_t godot_icall__Directory_get_space_left_1f886eb0(Object * ptr) {
     return static_cast<int32_t>(ret);
 }
 
-int32_t godot_icall__Directory_copy_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall__Directory_copy_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -48709,7 +48709,7 @@ int32_t godot_icall__Directory_copy_21276c93(Object * ptr, MonoString* arg1, Mon
     return (int32_t)ret;
 }
 
-int32_t godot_icall__Directory_rename_21276c93(Object * ptr, MonoString* arg1, MonoString* arg2) {
+int32_t godot_icall__Directory_rename_ce7ee84(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -48717,7 +48717,7 @@ int32_t godot_icall__Directory_rename_21276c93(Object * ptr, MonoString* arg1, M
     return (int32_t)ret;
 }
 
-int32_t godot_icall__Directory_remove_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__Directory_remove_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Directory *>(ptr)->remove(arg1_in);
@@ -48856,7 +48856,7 @@ MonoBoolean godot_icall__Engine_is_in_physics_frame_68fe5f59(Object * ptr) {
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall__Engine_has_singleton_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__Engine_has_singleton_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Engine *>(ptr)->has_singleton(arg1_in);
@@ -48886,7 +48886,7 @@ Object* godot_icall__Engine_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("Engine");
 }
 
-int32_t godot_icall__File_open_encrypted_ffafe9e4(Object * ptr, MonoString* arg1, int32_t arg2, MonoArray* arg3) {
+int32_t godot_icall__File_open_encrypted_35d48b4b(Object * ptr, MonoString* arg1, int32_t arg2, MonoArray* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg2_in = (int64_t)arg2;
@@ -48895,7 +48895,7 @@ int32_t godot_icall__File_open_encrypted_ffafe9e4(Object * ptr, MonoString* arg1
     return (int32_t)ret;
 }
 
-int32_t godot_icall__File_open_encrypted_with_pass_2eb8f856(Object * ptr, MonoString* arg1, int32_t arg2, MonoString* arg3) {
+int32_t godot_icall__File_open_encrypted_with_pass_cc2b57d9(Object * ptr, MonoString* arg1, int32_t arg2, MonoString* arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg2_in = (int64_t)arg2;
@@ -48904,7 +48904,7 @@ int32_t godot_icall__File_open_encrypted_with_pass_2eb8f856(Object * ptr, MonoSt
     return (int32_t)ret;
 }
 
-int32_t godot_icall__File_open_compressed_be317824(Object * ptr, MonoString* arg1, int32_t arg2, int32_t arg3) {
+int32_t godot_icall__File_open_compressed_f6661a0b(Object * ptr, MonoString* arg1, int32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg2_in = (int64_t)arg2;
@@ -48913,7 +48913,7 @@ int32_t godot_icall__File_open_compressed_be317824(Object * ptr, MonoString* arg
     return (int32_t)ret;
 }
 
-int32_t godot_icall__File_open_68f83fa0(Object * ptr, MonoString* arg1, int32_t arg2) {
+int32_t godot_icall__File_open_6ffc7fd9(Object * ptr, MonoString* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg2_in = (int64_t)arg2;
@@ -49042,14 +49042,14 @@ MonoString* godot_icall__File_get_as_text_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoString* godot_icall__File_get_md5_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall__File_get_md5_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_File *>(ptr)->get_md5(arg1_in);
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoString* godot_icall__File_get_sha256_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall__File_get_sha256_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_File *>(ptr)->get_sha256(arg1_in);
@@ -49129,7 +49129,7 @@ void godot_icall__File_store_buffer_da545cc0(Object * ptr, MonoArray* arg1) {
     static_cast<_File *>(ptr)->store_buffer(arg1_in);
 }
 
-void godot_icall__File_store_line_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall__File_store_line_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<_File *>(ptr)->store_line(arg1_in);
@@ -49142,7 +49142,7 @@ void godot_icall__File_store_csv_line_f0cd17e1(Object * ptr, MonoArray* arg1, in
     static_cast<_File *>(ptr)->store_csv_line(arg1_in, arg2_in);
 }
 
-void godot_icall__File_store_string_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall__File_store_string_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<_File *>(ptr)->store_string(arg1_in);
@@ -49155,7 +49155,7 @@ void godot_icall__File_store_var_aff2c475(Object * ptr, MonoObject* arg1, MonoBo
     static_cast<_File *>(ptr)->store_var(arg1_in, arg2_in);
 }
 
-void godot_icall__File_store_pascal_string_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall__File_store_pascal_string_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<_File *>(ptr)->store_pascal_string(arg1_in);
@@ -49167,14 +49167,14 @@ MonoString* godot_icall__File_get_pascal_string_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoBoolean godot_icall__File_file_exists_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__File_file_exists_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_File *>(ptr)->file_exists(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall__File_get_modified_time_a56651a8(Object * ptr, MonoString* arg1, uint64_t* arg_ret) {
+void godot_icall__File_get_modified_time_c22117d4(Object * ptr, MonoString* arg1, uint64_t* arg_ret) {
     if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_File *>(ptr)->get_modified_time(arg1_in);
@@ -49537,7 +49537,7 @@ Object* godot_icall__GodotSharp_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("GodotSharp");
 }
 
-MonoString* godot_icall__JSON_print_308d5ce9(Object * ptr, MonoObject* arg1, MonoString* arg2, MonoBoolean arg3) {
+MonoString* godot_icall__JSON_print_599d1e1c(Object * ptr, MonoObject* arg1, MonoString* arg2, MonoBoolean arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     Variant arg1_in = GDMonoMarshal::mono_object_to_variant(arg1);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -49565,7 +49565,7 @@ MonoString* godot_icall__Marshalls_variant_to_base64_f57e262a(Object * ptr, Mono
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoObject* godot_icall__Marshalls_base64_to_variant_3529a900(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
+MonoObject* godot_icall__Marshalls_base64_to_variant_264646a7(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
@@ -49580,21 +49580,21 @@ MonoString* godot_icall__Marshalls_raw_to_base64_2b190946(Object * ptr, MonoArra
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoArray* godot_icall__Marshalls_base64_to_raw_23748853(Object * ptr, MonoString* arg1) {
+MonoArray* godot_icall__Marshalls_base64_to_raw_ceb3ce17(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Marshalls *>(ptr)->base64_to_raw(arg1_in);
     return GDMonoMarshal::PoolByteArray_to_mono_array(ret);
 }
 
-MonoString* godot_icall__Marshalls_utf8_to_base64_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall__Marshalls_utf8_to_base64_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Marshalls *>(ptr)->utf8_to_base64(arg1_in);
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-MonoString* godot_icall__Marshalls_base64_to_utf8_94caa437(Object * ptr, MonoString* arg1) {
+MonoString* godot_icall__Marshalls_base64_to_utf8_98465fb(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_Marshalls *>(ptr)->base64_to_utf8(arg1_in);
@@ -49627,7 +49627,7 @@ Object* godot_icall_Mutex_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall__OS_set_clipboard_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall__OS_set_clipboard_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<_OS *>(ptr)->set_clipboard(arg1_in);
@@ -50015,7 +50015,7 @@ MonoString* godot_icall__OS_get_executable_path_97be4a2e(Object * ptr) {
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-int32_t godot_icall__OS_execute_960baa67(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3, Array* arg4, MonoBoolean arg5) {
+int32_t godot_icall__OS_execute_eacacb26(Object * ptr, MonoString* arg1, MonoArray* arg2, MonoBoolean arg3, Array* arg4, MonoBoolean arg5) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto arg2_in = GDMonoMarshal::mono_array_to_NC_VecString(arg2);
@@ -50236,7 +50236,7 @@ void godot_icall__OS_dump_memory_to_file_6964ff3e(Object * ptr, MonoString* arg1
     static_cast<_OS *>(ptr)->dump_memory_to_file(arg1_in);
 }
 
-void godot_icall__OS_dump_resources_to_file_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall__OS_dump_resources_to_file_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<_OS *>(ptr)->dump_resources_to_file(arg1_in);
@@ -50271,7 +50271,7 @@ void godot_icall__OS_print_resources_in_use_ba24800b(Object * ptr, MonoBoolean a
     static_cast<_OS *>(ptr)->print_resources_in_use(arg1_in);
 }
 
-void godot_icall__OS_print_all_resources_919b8b17(Object * ptr, MonoString* arg1) {
+void godot_icall__OS_print_all_resources_3ca14953(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     static_cast<_OS *>(ptr)->print_all_resources(arg1_in);
@@ -50325,7 +50325,7 @@ void godot_icall__OS_print_resources_by_type_a4cdc50a(Object * ptr, MonoArray* a
     static_cast<_OS *>(ptr)->print_resources_by_type(arg1_in);
 }
 
-int32_t godot_icall__OS_native_video_play_c80b1084(Object * ptr, MonoString* arg1, float* arg2, MonoString* arg3, MonoString* arg4) {
+int32_t godot_icall__OS_native_video_play_221902a(Object * ptr, MonoString* arg1, float* arg2, MonoString* arg3, MonoString* arg4) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     float arg2_in = static_cast<float>(*arg2);
@@ -50370,7 +50370,7 @@ MonoBoolean godot_icall__OS_is_scancode_unicode_242501fd(Object * ptr, uint32_t 
     return static_cast<MonoBoolean>(ret);
 }
 
-int32_t godot_icall__OS_find_scancode_from_string_c878f90a(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__OS_find_scancode_from_string_6d3db7c6(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_OS *>(ptr)->find_scancode_from_string(arg1_in);
@@ -50383,14 +50383,14 @@ void godot_icall__OS_set_use_file_access_save_and_swap_ba24800b(Object * ptr, Mo
     static_cast<_OS *>(ptr)->set_use_file_access_save_and_swap(arg1_in);
 }
 
-void godot_icall__OS_alert_e8a7f384(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall__OS_alert_fc93f18d(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     static_cast<_OS *>(ptr)->alert(arg1_in, arg2_in);
 }
 
-int32_t godot_icall__OS_set_thread_name_cb25197e(Object * ptr, MonoString* arg1) {
+int32_t godot_icall__OS_set_thread_name_2660dbb2(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_OS *>(ptr)->set_thread_name(arg1_in);
@@ -50421,14 +50421,14 @@ MonoBoolean godot_icall__OS_is_vsync_via_compositor_enabled_68fe5f59(Object * pt
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall__OS_has_feature_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__OS_has_feature_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_OS *>(ptr)->has_feature(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall__OS_request_permission_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__OS_request_permission_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_OS *>(ptr)->request_permission(arg1_in);
@@ -50451,7 +50451,7 @@ Object* godot_icall__OS_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("OS");
 }
 
-MonoObject* godot_icall__ResourceLoader_load_interactive_9ec9baf8(Object * ptr, MonoString* arg1, MonoString* arg2) {
+MonoObject* godot_icall__ResourceLoader_load_interactive_ef466547(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -50459,7 +50459,7 @@ MonoObject* godot_icall__ResourceLoader_load_interactive_9ec9baf8(Object * ptr, 
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-MonoObject* godot_icall__ResourceLoader_load_f60b971d(Object * ptr, MonoString* arg1, MonoString* arg2, MonoBoolean arg3) {
+MonoObject* godot_icall__ResourceLoader_load_632b28d2(Object * ptr, MonoString* arg1, MonoString* arg2, MonoBoolean arg3) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -50468,7 +50468,7 @@ MonoObject* godot_icall__ResourceLoader_load_f60b971d(Object * ptr, MonoString* 
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-MonoArray* godot_icall__ResourceLoader_get_recognized_extensions_for_type_7fa944d0(Object * ptr, MonoString* arg1) {
+MonoArray* godot_icall__ResourceLoader_get_recognized_extensions_for_type_82ee0a94(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_ResourceLoader *>(ptr)->get_recognized_extensions_for_type(arg1_in);
@@ -50481,21 +50481,21 @@ void godot_icall__ResourceLoader_set_abort_on_missing_resources_ba24800b(Object 
     static_cast<_ResourceLoader *>(ptr)->set_abort_on_missing_resources(arg1_in);
 }
 
-MonoArray* godot_icall__ResourceLoader_get_dependencies_7fa944d0(Object * ptr, MonoString* arg1) {
+MonoArray* godot_icall__ResourceLoader_get_dependencies_82ee0a94(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_ResourceLoader *>(ptr)->get_dependencies(arg1_in);
     return GDMonoMarshal::PoolStringArray_to_mono_array(ret);
 }
 
-MonoBoolean godot_icall__ResourceLoader_has_cached_2f34617d(Object * ptr, MonoString* arg1) {
+MonoBoolean godot_icall__ResourceLoader_has_cached_8a7120b9(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     auto ret = static_cast<_ResourceLoader *>(ptr)->has_cached(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-MonoBoolean godot_icall__ResourceLoader_exists_e9ec26d0(Object * ptr, MonoString* arg1, MonoString* arg2) {
+MonoBoolean godot_icall__ResourceLoader_exists_cdeda881(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -50507,7 +50507,7 @@ Object* godot_icall__ResourceLoader_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("ResourceLoader");
 }
 
-int32_t godot_icall__ResourceSaver_save_4592bd78(Object * ptr, MonoString* arg1, Object * arg2, int32_t arg3) {
+int32_t godot_icall__ResourceSaver_save_7666d7ab(Object * ptr, MonoString* arg1, Object * arg2, int32_t arg3) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     int64_t arg3_in = (int64_t)arg3;
@@ -50577,7 +50577,7 @@ Object* godot_icall_Thread_Ctor(MonoObject* obj) {
 }
 
 #ifdef TOOLS_ENABLED
-void godot_icall__VisualScriptEditor_add_custom_node_250c5416(Object * ptr, MonoString* arg1, MonoString* arg2, Object * arg3) {
+void godot_icall__VisualScriptEditor_add_custom_node_3135d8d9(Object * ptr, MonoString* arg1, MonoString* arg2, Object * arg3) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -50586,7 +50586,7 @@ void godot_icall__VisualScriptEditor_add_custom_node_250c5416(Object * ptr, Mono
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-void godot_icall__VisualScriptEditor_remove_custom_node_e8a7f384(Object * ptr, MonoString* arg1, MonoString* arg2) {
+void godot_icall__VisualScriptEditor_remove_custom_node_fc93f18d(Object * ptr, MonoString* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
@@ -51248,7 +51248,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_get_label_61b2c65d", (void*)godot_icall_AcceptDialog_get_label_61b2c65d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_set_hide_on_ok_ba24800b", (void*)godot_icall_AcceptDialog_set_hide_on_ok_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_get_hide_on_ok_68fe5f59", (void*)godot_icall_AcceptDialog_get_hide_on_ok_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_add_button_ad746f10", (void*)godot_icall_AcceptDialog_add_button_ad746f10);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_add_button_bb9add4", (void*)godot_icall_AcceptDialog_add_button_bb9add4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_add_cancel_b17e1b44", (void*)godot_icall_AcceptDialog_add_cancel_b17e1b44);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_register_text_enter_598860a7", (void*)godot_icall_AcceptDialog_register_text_enter_598860a7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AcceptDialog_set_text_2f29e819", (void*)godot_icall_AcceptDialog_set_text_2f29e819);
@@ -51397,7 +51397,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D_get_max_space_4edcd7a9", (void*)godot_icall_AnimationNodeBlendSpace1D_get_max_space_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D_set_snap_904508bb", (void*)godot_icall_AnimationNodeBlendSpace1D_set_snap_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D_get_snap_4edcd7a9", (void*)godot_icall_AnimationNodeBlendSpace1D_get_snap_4edcd7a9);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D_set_value_label_919b8b17", (void*)godot_icall_AnimationNodeBlendSpace1D_set_value_label_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D_set_value_label_3ca14953", (void*)godot_icall_AnimationNodeBlendSpace1D_set_value_label_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D_get_value_label_97be4a2e", (void*)godot_icall_AnimationNodeBlendSpace1D_get_value_label_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace1D__add_blend_point_3c4e944d", (void*)godot_icall_AnimationNodeBlendSpace1D__add_blend_point_3c4e944d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_add_blend_point_9edf5fd8", (void*)godot_icall_AnimationNodeBlendSpace2D_add_blend_point_9edf5fd8);
@@ -51417,9 +51417,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_get_max_space_9b4ea24e", (void*)godot_icall_AnimationNodeBlendSpace2D_get_max_space_9b4ea24e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_set_snap_6df7471e", (void*)godot_icall_AnimationNodeBlendSpace2D_set_snap_6df7471e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_get_snap_9b4ea24e", (void*)godot_icall_AnimationNodeBlendSpace2D_get_snap_9b4ea24e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_set_x_label_919b8b17", (void*)godot_icall_AnimationNodeBlendSpace2D_set_x_label_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_set_x_label_3ca14953", (void*)godot_icall_AnimationNodeBlendSpace2D_set_x_label_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_get_x_label_97be4a2e", (void*)godot_icall_AnimationNodeBlendSpace2D_get_x_label_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_set_y_label_919b8b17", (void*)godot_icall_AnimationNodeBlendSpace2D_set_y_label_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_set_y_label_3ca14953", (void*)godot_icall_AnimationNodeBlendSpace2D_set_y_label_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D_get_y_label_97be4a2e", (void*)godot_icall_AnimationNodeBlendSpace2D_get_y_label_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D__add_blend_point_3c4e944d", (void*)godot_icall_AnimationNodeBlendSpace2D__add_blend_point_3c4e944d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeBlendSpace2D__set_triangles_6b64efb8", (void*)godot_icall_AnimationNodeBlendSpace2D__set_triangles_6b64efb8);
@@ -51497,7 +51497,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_get_enabled_inputs_1f886eb0", (void*)godot_icall_AnimationNodeTransition_get_enabled_inputs_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_set_input_as_auto_advance_4ae8febd", (void*)godot_icall_AnimationNodeTransition_set_input_as_auto_advance_4ae8febd);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_is_input_set_as_auto_advance_7f690926", (void*)godot_icall_AnimationNodeTransition_is_input_set_as_auto_advance_7f690926);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_set_input_caption_73adf041", (void*)godot_icall_AnimationNodeTransition_set_input_caption_73adf041);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_set_input_caption_cd663605", (void*)godot_icall_AnimationNodeTransition_set_input_caption_cd663605);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_get_input_caption_44fc4c5a", (void*)godot_icall_AnimationNodeTransition_get_input_caption_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_set_cross_fade_time_904508bb", (void*)godot_icall_AnimationNodeTransition_set_cross_fade_time_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationNodeTransition_get_cross_fade_time_4edcd7a9", (void*)godot_icall_AnimationNodeTransition_get_cross_fade_time_4edcd7a9);
@@ -51529,7 +51529,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_set_speed_scale_904508bb", (void*)godot_icall_AnimationPlayer_set_speed_scale_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_get_speed_scale_4edcd7a9", (void*)godot_icall_AnimationPlayer_get_speed_scale_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_get_playing_speed_4edcd7a9", (void*)godot_icall_AnimationPlayer_get_playing_speed_4edcd7a9);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_set_autoplay_919b8b17", (void*)godot_icall_AnimationPlayer_set_autoplay_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_set_autoplay_3ca14953", (void*)godot_icall_AnimationPlayer_set_autoplay_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_get_autoplay_97be4a2e", (void*)godot_icall_AnimationPlayer_get_autoplay_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_set_root_1e08804", (void*)godot_icall_AnimationPlayer_set_root_1e08804);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationPlayer_get_root_bf425768", (void*)godot_icall_AnimationPlayer_get_root_bf425768);
@@ -51554,7 +51554,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTree_set_root_motion_track_1e08804", (void*)godot_icall_AnimationTree_set_root_motion_track_1e08804);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTree_get_root_motion_track_bf425768", (void*)godot_icall_AnimationTree_get_root_motion_track_bf425768);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTree_get_root_motion_transform_a3fb649b", (void*)godot_icall_AnimationTree_get_root_motion_transform_a3fb649b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTree_rename_parameter_e8a7f384", (void*)godot_icall_AnimationTree_rename_parameter_e8a7f384);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTree_rename_parameter_fc93f18d", (void*)godot_icall_AnimationTree_rename_parameter_fc93f18d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTree_advance_904508bb", (void*)godot_icall_AnimationTree_advance_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_add_node_f7ea0eb3", (void*)godot_icall_AnimationTreePlayer_add_node_f7ea0eb3);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_node_exists_bee64043", (void*)godot_icall_AnimationTreePlayer_node_exists_bee64043);
@@ -51564,7 +51564,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_node_get_input_source_58fcd4d0", (void*)godot_icall_AnimationTreePlayer_node_get_input_source_58fcd4d0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_set_animation_2c878695", (void*)godot_icall_AnimationTreePlayer_animation_node_set_animation_2c878695);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_get_animation_e39805ea", (void*)godot_icall_AnimationTreePlayer_animation_node_get_animation_e39805ea);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_set_master_animation_eb1eb84d", (void*)godot_icall_AnimationTreePlayer_animation_node_set_master_animation_eb1eb84d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_set_master_animation_71d57a09", (void*)godot_icall_AnimationTreePlayer_animation_node_set_master_animation_71d57a09);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_get_master_animation_67c8521", (void*)godot_icall_AnimationTreePlayer_animation_node_get_master_animation_67c8521);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_get_position_9f10687", (void*)godot_icall_AnimationTreePlayer_animation_node_get_position_9f10687);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AnimationTreePlayer_animation_node_set_filter_path_28dd9f8f", (void*)godot_icall_AnimationTreePlayer_animation_node_set_filter_path_28dd9f8f);
@@ -51715,7 +51715,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_surface_get_format_52dccd8b", (void*)godot_icall_ArrayMesh_surface_get_format_52dccd8b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_surface_get_primitive_type_e7759a5", (void*)godot_icall_ArrayMesh_surface_get_primitive_type_e7759a5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_surface_find_by_name_7be523", (void*)godot_icall_ArrayMesh_surface_find_by_name_7be523);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_surface_set_name_73adf041", (void*)godot_icall_ArrayMesh_surface_set_name_73adf041);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_surface_set_name_cd663605", (void*)godot_icall_ArrayMesh_surface_set_name_cd663605);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_surface_get_name_44fc4c5a", (void*)godot_icall_ArrayMesh_surface_get_name_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_regen_normalmaps_c8e54a7b", (void*)godot_icall_ArrayMesh_regen_normalmaps_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ArrayMesh_lightmap_unwrap_79aa5b0f", (void*)godot_icall_ArrayMesh_lightmap_unwrap_79aa5b0f);
@@ -51907,13 +51907,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_get_mix_rate_4edcd7a9", (void*)godot_icall_AudioServer_get_mix_rate_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_get_device_list_d80382d4", (void*)godot_icall_AudioServer_get_device_list_d80382d4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_get_device_97be4a2e", (void*)godot_icall_AudioServer_get_device_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_set_device_919b8b17", (void*)godot_icall_AudioServer_set_device_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_set_device_3ca14953", (void*)godot_icall_AudioServer_set_device_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_get_time_to_next_mix_27c6b046", (void*)godot_icall_AudioServer_get_time_to_next_mix_27c6b046);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_get_time_since_last_mix_27c6b046", (void*)godot_icall_AudioServer_get_time_since_last_mix_27c6b046);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_get_output_latency_27c6b046", (void*)godot_icall_AudioServer_get_output_latency_27c6b046);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_capture_get_device_list_d80382d4", (void*)godot_icall_AudioServer_capture_get_device_list_d80382d4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_capture_get_device_97be4a2e", (void*)godot_icall_AudioServer_capture_get_device_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_capture_set_device_919b8b17", (void*)godot_icall_AudioServer_capture_set_device_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_capture_set_device_3ca14953", (void*)godot_icall_AudioServer_capture_set_device_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_set_bus_layout_b0d80c79", (void*)godot_icall_AudioServer_set_bus_layout_b0d80c79);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioServer_generate_bus_layout_6e79daeb", (void*)godot_icall_AudioServer_generate_bus_layout_6e79daeb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioStream_get_length_4edcd7a9", (void*)godot_icall_AudioStream_get_length_4edcd7a9);
@@ -52040,7 +52040,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioStreamSample_get_mix_rate_1f886eb0", (void*)godot_icall_AudioStreamSample_get_mix_rate_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioStreamSample_set_stereo_ba24800b", (void*)godot_icall_AudioStreamSample_set_stereo_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioStreamSample_is_stereo_68fe5f59", (void*)godot_icall_AudioStreamSample_is_stereo_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioStreamSample_save_to_wav_cb25197e", (void*)godot_icall_AudioStreamSample_save_to_wav_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_AudioStreamSample_save_to_wav_2660dbb2", (void*)godot_icall_AudioStreamSample_save_to_wav_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BackBufferCopy_set_rect_a5ed61f1", (void*)godot_icall_BackBufferCopy_set_rect_a5ed61f1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BackBufferCopy_get_rect_6344c073", (void*)godot_icall_BackBufferCopy_get_rect_6344c073);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BackBufferCopy_set_copy_mode_e241b099", (void*)godot_icall_BackBufferCopy_set_copy_mode_e241b099);
@@ -52065,7 +52065,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_get_energy_4edcd7a9", (void*)godot_icall_BakedLightmap_get_energy_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_set_hdr_ba24800b", (void*)godot_icall_BakedLightmap_set_hdr_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_is_hdr_68fe5f59", (void*)godot_icall_BakedLightmap_is_hdr_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_set_image_path_919b8b17", (void*)godot_icall_BakedLightmap_set_image_path_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_set_image_path_3ca14953", (void*)godot_icall_BakedLightmap_set_image_path_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_get_image_path_97be4a2e", (void*)godot_icall_BakedLightmap_get_image_path_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_bake_82641f9a", (void*)godot_icall_BakedLightmap_bake_82641f9a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BakedLightmap_debug_bake_c8e54a7b", (void*)godot_icall_BakedLightmap_debug_bake_c8e54a7b);
@@ -52119,7 +52119,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BitMap__get_data_22d47c9d", (void*)godot_icall_BitMap__get_data_22d47c9d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BitMap_grow_mask_44225da7", (void*)godot_icall_BitMap_grow_mask_44225da7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BitMap_opaque_to_polygons_dce17cda", (void*)godot_icall_BitMap_opaque_to_polygons_dce17cda);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_BitmapFont_create_from_fnt_cb25197e", (void*)godot_icall_BitmapFont_create_from_fnt_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_BitmapFont_create_from_fnt_2660dbb2", (void*)godot_icall_BitmapFont_create_from_fnt_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BitmapFont_set_height_904508bb", (void*)godot_icall_BitmapFont_set_height_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BitmapFont_set_ascent_904508bb", (void*)godot_icall_BitmapFont_set_ascent_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_BitmapFont_add_kerning_pair_6f53a9ee", (void*)godot_icall_BitmapFont_add_kerning_pair_6f53a9ee);
@@ -52523,7 +52523,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_primitive_79ff6de2", (void*)godot_icall_CanvasItem_draw_primitive_79ff6de2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_polygon_7e2c1116", (void*)godot_icall_CanvasItem_draw_polygon_7e2c1116);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_colored_polygon_e53fc01c", (void*)godot_icall_CanvasItem_draw_colored_polygon_e53fc01c);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_string_c722fa14", (void*)godot_icall_CanvasItem_draw_string_c722fa14);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_string_fc035fd4", (void*)godot_icall_CanvasItem_draw_string_fc035fd4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_char_85ef288e", (void*)godot_icall_CanvasItem_draw_char_85ef288e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_mesh_93491e15", (void*)godot_icall_CanvasItem_draw_mesh_93491e15);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CanvasItem_draw_multimesh_11e9bc6a", (void*)godot_icall_CanvasItem_draw_multimesh_11e9bc6a);
@@ -52744,21 +52744,21 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConeTwistJoint__get_swing_span_4edcd7a9", (void*)godot_icall_ConeTwistJoint__get_swing_span_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConeTwistJoint__set_twist_span_904508bb", (void*)godot_icall_ConeTwistJoint__set_twist_span_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConeTwistJoint__get_twist_span_4edcd7a9", (void*)godot_icall_ConeTwistJoint__get_twist_span_4edcd7a9);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_set_value_4a4c352e", (void*)godot_icall_ConfigFile_set_value_4a4c352e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_get_value_d7660f94", (void*)godot_icall_ConfigFile_get_value_d7660f94);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_has_section_2f34617d", (void*)godot_icall_ConfigFile_has_section_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_has_section_key_e9ec26d0", (void*)godot_icall_ConfigFile_has_section_key_e9ec26d0);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_set_value_5e75b9e1", (void*)godot_icall_ConfigFile_set_value_5e75b9e1);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_get_value_373d864b", (void*)godot_icall_ConfigFile_get_value_373d864b);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_has_section_8a7120b9", (void*)godot_icall_ConfigFile_has_section_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_has_section_key_cdeda881", (void*)godot_icall_ConfigFile_has_section_key_cdeda881);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_get_sections_4cc8f2a7", (void*)godot_icall_ConfigFile_get_sections_4cc8f2a7);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_get_section_keys_7fa944d0", (void*)godot_icall_ConfigFile_get_section_keys_7fa944d0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_erase_section_919b8b17", (void*)godot_icall_ConfigFile_erase_section_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_erase_section_key_e8a7f384", (void*)godot_icall_ConfigFile_erase_section_key_e8a7f384);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_cb25197e", (void*)godot_icall_ConfigFile_load_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_get_section_keys_82ee0a94", (void*)godot_icall_ConfigFile_get_section_keys_82ee0a94);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_erase_section_3ca14953", (void*)godot_icall_ConfigFile_erase_section_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_erase_section_key_fc93f18d", (void*)godot_icall_ConfigFile_erase_section_key_fc93f18d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_2660dbb2", (void*)godot_icall_ConfigFile_load_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_parse_73262d91", (void*)godot_icall_ConfigFile_parse_73262d91);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_cb25197e", (void*)godot_icall_ConfigFile_save_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_encrypted_f03c9d45", (void*)godot_icall_ConfigFile_load_encrypted_f03c9d45);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_encrypted_pass_21276c93", (void*)godot_icall_ConfigFile_load_encrypted_pass_21276c93);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_encrypted_f03c9d45", (void*)godot_icall_ConfigFile_save_encrypted_f03c9d45);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_encrypted_pass_21276c93", (void*)godot_icall_ConfigFile_save_encrypted_pass_21276c93);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_2660dbb2", (void*)godot_icall_ConfigFile_save_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_encrypted_c6b9da7a", (void*)godot_icall_ConfigFile_load_encrypted_c6b9da7a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_load_encrypted_pass_ce7ee84", (void*)godot_icall_ConfigFile_load_encrypted_pass_ce7ee84);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_encrypted_c6b9da7a", (void*)godot_icall_ConfigFile_save_encrypted_c6b9da7a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfigFile_save_encrypted_pass_ce7ee84", (void*)godot_icall_ConfigFile_save_encrypted_pass_ce7ee84);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConfirmationDialog_get_cancel_e2789eb5", (void*)godot_icall_ConfirmationDialog_get_cancel_e2789eb5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Container_queue_sort_c8e54a7b", (void*)godot_icall_Container_queue_sort_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Container_fit_child_in_rect_b5b9762f", (void*)godot_icall_Container_fit_child_in_rect_b5b9762f);
@@ -52871,9 +52871,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ConvexPolygonShape2D_get_points_d80382d4", (void*)godot_icall_ConvexPolygonShape2D_get_points_d80382d4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Crypto_generate_random_bytes_f38b97f6", (void*)godot_icall_Crypto_generate_random_bytes_f38b97f6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Crypto_generate_rsa_928cbf6d", (void*)godot_icall_Crypto_generate_rsa_928cbf6d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Crypto_generate_self_signed_certificate_a6e42a76", (void*)godot_icall_Crypto_generate_self_signed_certificate_a6e42a76);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_CryptoKey_save_cb25197e", (void*)godot_icall_CryptoKey_save_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_CryptoKey_load_cb25197e", (void*)godot_icall_CryptoKey_load_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Crypto_generate_self_signed_certificate_e5785379", (void*)godot_icall_Crypto_generate_self_signed_certificate_e5785379);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_CryptoKey_save_2660dbb2", (void*)godot_icall_CryptoKey_save_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_CryptoKey_load_2660dbb2", (void*)godot_icall_CryptoKey_load_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CubeMap_get_width_1f886eb0", (void*)godot_icall_CubeMap_get_width_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CubeMap_get_height_1f886eb0", (void*)godot_icall_CubeMap_get_height_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_CubeMap_set_flags_966aab97", (void*)godot_icall_CubeMap_set_flags_966aab97);
@@ -53022,13 +53022,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFont_get_fallback_count_1f886eb0", (void*)godot_icall_DynamicFont_get_fallback_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_set_antialiased_ba24800b", (void*)godot_icall_DynamicFontData_set_antialiased_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_is_antialiased_68fe5f59", (void*)godot_icall_DynamicFontData_is_antialiased_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_set_font_path_919b8b17", (void*)godot_icall_DynamicFontData_set_font_path_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_set_font_path_3ca14953", (void*)godot_icall_DynamicFontData_set_font_path_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_get_font_path_97be4a2e", (void*)godot_icall_DynamicFontData_get_font_path_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_set_hinting_353c5c44", (void*)godot_icall_DynamicFontData_set_hinting_353c5c44);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_DynamicFontData_get_hinting_7636ab77", (void*)godot_icall_DynamicFontData_get_hinting_7636ab77);
 #ifdef TOOLS_ENABLED
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorExportPlugin_add_shared_object_1a7dcd8f", (void*)godot_icall_EditorExportPlugin_add_shared_object_1a7dcd8f);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorExportPlugin_add_file_4be357f9", (void*)godot_icall_EditorExportPlugin_add_file_4be357f9);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorExportPlugin_add_shared_object_4b60c74", (void*)godot_icall_EditorExportPlugin_add_shared_object_4b60c74);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorExportPlugin_add_file_e91798f9", (void*)godot_icall_EditorExportPlugin_add_file_e91798f9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorExportPlugin_skip_c8e54a7b", (void*)godot_icall_EditorExportPlugin_skip_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_set_disable_class_f253b141", (void*)godot_icall_EditorFeatureProfile_set_disable_class_f253b141);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_is_class_disabled_bee64043", (void*)godot_icall_EditorFeatureProfile_is_class_disabled_bee64043);
@@ -53039,16 +53039,16 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_set_disable_feature_40adab2a", (void*)godot_icall_EditorFeatureProfile_set_disable_feature_40adab2a);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_is_feature_disabled_cfe5c55f", (void*)godot_icall_EditorFeatureProfile_is_feature_disabled_cfe5c55f);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_get_feature_name_f57803d5", (void*)godot_icall_EditorFeatureProfile_get_feature_name_f57803d5);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_save_to_file_cb25197e", (void*)godot_icall_EditorFeatureProfile_save_to_file_cb25197e);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_load_from_file_cb25197e", (void*)godot_icall_EditorFeatureProfile_load_from_file_cb25197e);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_save_to_file_2660dbb2", (void*)godot_icall_EditorFeatureProfile_save_to_file_2660dbb2);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFeatureProfile_load_from_file_2660dbb2", (void*)godot_icall_EditorFeatureProfile_load_from_file_2660dbb2);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_clear_filters_c8e54a7b", (void*)godot_icall_EditorFileDialog_clear_filters_c8e54a7b);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_add_filter_919b8b17", (void*)godot_icall_EditorFileDialog_add_filter_919b8b17);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_add_filter_3ca14953", (void*)godot_icall_EditorFileDialog_add_filter_3ca14953);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_get_current_dir_97be4a2e", (void*)godot_icall_EditorFileDialog_get_current_dir_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_get_current_file_97be4a2e", (void*)godot_icall_EditorFileDialog_get_current_file_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_get_current_path_97be4a2e", (void*)godot_icall_EditorFileDialog_get_current_path_97be4a2e);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_current_dir_919b8b17", (void*)godot_icall_EditorFileDialog_set_current_dir_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_current_file_919b8b17", (void*)godot_icall_EditorFileDialog_set_current_file_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_current_path_919b8b17", (void*)godot_icall_EditorFileDialog_set_current_path_919b8b17);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_current_dir_3ca14953", (void*)godot_icall_EditorFileDialog_set_current_dir_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_current_file_3ca14953", (void*)godot_icall_EditorFileDialog_set_current_file_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_current_path_3ca14953", (void*)godot_icall_EditorFileDialog_set_current_path_3ca14953);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_set_mode_a82b4f65", (void*)godot_icall_EditorFileDialog_set_mode_a82b4f65);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_get_mode_94ce3420", (void*)godot_icall_EditorFileDialog_get_mode_94ce3420);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileDialog_get_vbox_eb5679a1", (void*)godot_icall_EditorFileDialog_get_vbox_eb5679a1);
@@ -53066,9 +53066,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_scanning_progress_4edcd7a9", (void*)godot_icall_EditorFileSystem_get_scanning_progress_4edcd7a9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_scan_c8e54a7b", (void*)godot_icall_EditorFileSystem_scan_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_scan_changes_c8e54a7b", (void*)godot_icall_EditorFileSystem_scan_changes_c8e54a7b);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_update_file_919b8b17", (void*)godot_icall_EditorFileSystem_update_file_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_filesystem_path_ee0151f2", (void*)godot_icall_EditorFileSystem_get_filesystem_path_ee0151f2);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_file_type_94caa437", (void*)godot_icall_EditorFileSystem_get_file_type_94caa437);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_update_file_3ca14953", (void*)godot_icall_EditorFileSystem_update_file_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_filesystem_path_733cef0e", (void*)godot_icall_EditorFileSystem_get_filesystem_path_733cef0e);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_get_file_type_98465fb", (void*)godot_icall_EditorFileSystem_get_file_type_98465fb);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystem_update_script_classes_c8e54a7b", (void*)godot_icall_EditorFileSystem_update_script_classes_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_get_subdir_count_1f886eb0", (void*)godot_icall_EditorFileSystemDirectory_get_subdir_count_1f886eb0);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_get_subdir_be3439ad", (void*)godot_icall_EditorFileSystemDirectory_get_subdir_be3439ad);
@@ -53082,34 +53082,34 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_get_name_97be4a2e", (void*)godot_icall_EditorFileSystemDirectory_get_name_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_get_path_97be4a2e", (void*)godot_icall_EditorFileSystemDirectory_get_path_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_get_parent_fbf6e50", (void*)godot_icall_EditorFileSystemDirectory_get_parent_fbf6e50);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_find_file_index_c878f90a", (void*)godot_icall_EditorFileSystemDirectory_find_file_index_c878f90a);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_find_dir_index_c878f90a", (void*)godot_icall_EditorFileSystemDirectory_find_dir_index_c878f90a);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_find_file_index_6d3db7c6", (void*)godot_icall_EditorFileSystemDirectory_find_file_index_6d3db7c6);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorFileSystemDirectory_find_dir_index_6d3db7c6", (void*)godot_icall_EditorFileSystemDirectory_find_dir_index_6d3db7c6);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspector_refresh_c8e54a7b", (void*)godot_icall_EditorInspector_refresh_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c", (void*)godot_icall_EditorInspectorPlugin_add_custom_control_3dddc41c);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_856dce99", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_856dce99);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_35c2b9a3);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_inspect_object_daca0f32", (void*)godot_icall_EditorInterface_inspect_object_daca0f32);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_fd860d4e", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_fd860d4e);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_bceb3152", (void*)godot_icall_EditorInspectorPlugin_add_property_editor_for_multiple_properties_bceb3152);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_inspect_object_bf01414e", (void*)godot_icall_EditorInterface_inspect_object_bf01414e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_selection_780b36ac", (void*)godot_icall_EditorInterface_get_selection_780b36ac);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_editor_settings_99bdc54d", (void*)godot_icall_EditorInterface_get_editor_settings_99bdc54d);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_script_editor_b03cf41b", (void*)godot_icall_EditorInterface_get_script_editor_b03cf41b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_base_control_eb752350", (void*)godot_icall_EditorInterface_get_base_control_eb752350);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_edit_resource_7ce53eb", (void*)godot_icall_EditorInterface_edit_resource_7ce53eb);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_open_scene_from_path_919b8b17", (void*)godot_icall_EditorInterface_open_scene_from_path_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_reload_scene_from_path_919b8b17", (void*)godot_icall_EditorInterface_reload_scene_from_path_919b8b17);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_open_scene_from_path_3ca14953", (void*)godot_icall_EditorInterface_open_scene_from_path_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_reload_scene_from_path_3ca14953", (void*)godot_icall_EditorInterface_reload_scene_from_path_3ca14953);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_open_scenes_d80382d4", (void*)godot_icall_EditorInterface_get_open_scenes_d80382d4);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_edited_scene_root_87a9bfc5", (void*)godot_icall_EditorInterface_get_edited_scene_root_87a9bfc5);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_resource_previewer_9f79bd12", (void*)godot_icall_EditorInterface_get_resource_previewer_9f79bd12);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_resource_filesystem_85c6acdf", (void*)godot_icall_EditorInterface_get_resource_filesystem_85c6acdf);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_editor_viewport_eb752350", (void*)godot_icall_EditorInterface_get_editor_viewport_eb752350);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_make_mesh_previews_57d4c298", (void*)godot_icall_EditorInterface_make_mesh_previews_57d4c298);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_select_file_919b8b17", (void*)godot_icall_EditorInterface_select_file_919b8b17);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_select_file_3ca14953", (void*)godot_icall_EditorInterface_select_file_3ca14953);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_selected_path_97be4a2e", (void*)godot_icall_EditorInterface_get_selected_path_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_current_path_97be4a2e", (void*)godot_icall_EditorInterface_get_current_path_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_set_plugin_enabled_f253b141", (void*)godot_icall_EditorInterface_set_plugin_enabled_f253b141);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_is_plugin_enabled_bee64043", (void*)godot_icall_EditorInterface_is_plugin_enabled_bee64043);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_get_inspector_771c0899", (void*)godot_icall_EditorInterface_get_inspector_771c0899);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_save_scene_f04570f5", (void*)godot_icall_EditorInterface_save_scene_f04570f5);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_save_scene_as_3e40a80", (void*)godot_icall_EditorInterface_save_scene_as_3e40a80);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_save_scene_as_211c975", (void*)godot_icall_EditorInterface_save_scene_as_211c975);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_set_main_screen_editor_2f29e819", (void*)godot_icall_EditorInterface_set_main_screen_editor_2f29e819);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorInterface_set_distraction_free_mode_ba24800b", (void*)godot_icall_EditorInterface_set_distraction_free_mode_ba24800b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_control_to_container_8f04cd94", (void*)godot_icall_EditorPlugin_add_control_to_container_8f04cd94);
@@ -53118,12 +53118,12 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_remove_control_from_docks_3dddc41c", (void*)godot_icall_EditorPlugin_remove_control_from_docks_3dddc41c);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_remove_control_from_bottom_panel_3dddc41c", (void*)godot_icall_EditorPlugin_remove_control_from_bottom_panel_3dddc41c);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_remove_control_from_container_8f04cd94", (void*)godot_icall_EditorPlugin_remove_control_from_container_8f04cd94);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_tool_menu_item_e80e8515", (void*)godot_icall_EditorPlugin_add_tool_menu_item_e80e8515);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_tool_menu_item_dbe800bc", (void*)godot_icall_EditorPlugin_add_tool_menu_item_dbe800bc);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_tool_submenu_item_ff7cba0a", (void*)godot_icall_EditorPlugin_add_tool_submenu_item_ff7cba0a);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_remove_tool_menu_item_2f29e819", (void*)godot_icall_EditorPlugin_remove_tool_menu_item_2f29e819);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_custom_type_46093d7e", (void*)godot_icall_EditorPlugin_add_custom_type_46093d7e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_remove_custom_type_2f29e819", (void*)godot_icall_EditorPlugin_remove_custom_type_2f29e819);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_autoload_singleton_eb1eb84d", (void*)godot_icall_EditorPlugin_add_autoload_singleton_eb1eb84d);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_add_autoload_singleton_71d57a09", (void*)godot_icall_EditorPlugin_add_autoload_singleton_71d57a09);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_remove_autoload_singleton_2f29e819", (void*)godot_icall_EditorPlugin_remove_autoload_singleton_2f29e819);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_update_overlays_1f886eb0", (void*)godot_icall_EditorPlugin_update_overlays_1f886eb0);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_make_bottom_panel_item_visible_3dddc41c", (void*)godot_icall_EditorPlugin_make_bottom_panel_item_visible_3dddc41c);
@@ -53144,7 +53144,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_set_force_draw_over_forwarding_enabled_c8e54a7b", (void*)godot_icall_EditorPlugin_set_force_draw_over_forwarding_enabled_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_get_editor_interface_2949c0d3", (void*)godot_icall_EditorPlugin_get_editor_interface_2949c0d3);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorPlugin_get_script_create_dialog_bb0f1784", (void*)godot_icall_EditorPlugin_get_script_create_dialog_bb0f1784);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_set_label_919b8b17", (void*)godot_icall_EditorProperty_set_label_919b8b17);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_set_label_3ca14953", (void*)godot_icall_EditorProperty_set_label_3ca14953);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_get_label_97be4a2e", (void*)godot_icall_EditorProperty_get_label_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_set_read_only_ba24800b", (void*)godot_icall_EditorProperty_set_read_only_ba24800b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_is_read_only_68fe5f59", (void*)godot_icall_EditorProperty_is_read_only_68fe5f59);
@@ -53162,13 +53162,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_add_focusable_3dddc41c", (void*)godot_icall_EditorProperty_add_focusable_3dddc41c);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_set_bottom_editor_3dddc41c", (void*)godot_icall_EditorProperty_set_bottom_editor_3dddc41c);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorProperty_emit_changed_6b07a116", (void*)godot_icall_EditorProperty_emit_changed_6b07a116);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_queue_resource_preview_16188f6d", (void*)godot_icall_EditorResourcePreview_queue_resource_preview_16188f6d);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_queue_resource_preview_f8c7c71b", (void*)godot_icall_EditorResourcePreview_queue_resource_preview_f8c7c71b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_queue_edited_resource_preview_40989ab6", (void*)godot_icall_EditorResourcePreview_queue_edited_resource_preview_40989ab6);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_add_preview_generator_49d15f9b", (void*)godot_icall_EditorResourcePreview_add_preview_generator_49d15f9b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_remove_preview_generator_49d15f9b", (void*)godot_icall_EditorResourcePreview_remove_preview_generator_49d15f9b);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_check_for_invalidation_919b8b17", (void*)godot_icall_EditorResourcePreview_check_for_invalidation_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSceneImporter_import_scene_from_other_importer_7a2c50c0", (void*)godot_icall_EditorSceneImporter_import_scene_from_other_importer_7a2c50c0);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSceneImporter_import_animation_from_other_importer_55967b84", (void*)godot_icall_EditorSceneImporter_import_animation_from_other_importer_55967b84);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorResourcePreview_check_for_invalidation_3ca14953", (void*)godot_icall_EditorResourcePreview_check_for_invalidation_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSceneImporter_import_scene_from_other_importer_465afea2", (void*)godot_icall_EditorSceneImporter_import_scene_from_other_importer_465afea2);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSceneImporter_import_animation_from_other_importer_e5807398", (void*)godot_icall_EditorSceneImporter_import_animation_from_other_importer_e5807398);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorScenePostImport_get_source_folder_97be4a2e", (void*)godot_icall_EditorScenePostImport_get_source_folder_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorScenePostImport_get_source_file_97be4a2e", (void*)godot_icall_EditorScenePostImport_get_source_file_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorScript_add_root_node_598860a7", (void*)godot_icall_EditorScript_add_root_node_598860a7);
@@ -53189,8 +53189,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_add_property_info_e472adcf", (void*)godot_icall_EditorSettings_add_property_info_e472adcf);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_get_settings_dir_97be4a2e", (void*)godot_icall_EditorSettings_get_settings_dir_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_get_project_settings_dir_97be4a2e", (void*)godot_icall_EditorSettings_get_project_settings_dir_97be4a2e);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_set_project_metadata_4a4c352e", (void*)godot_icall_EditorSettings_set_project_metadata_4a4c352e);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_get_project_metadata_d7660f94", (void*)godot_icall_EditorSettings_get_project_metadata_d7660f94);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_set_project_metadata_5e75b9e1", (void*)godot_icall_EditorSettings_set_project_metadata_5e75b9e1);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_get_project_metadata_373d864b", (void*)godot_icall_EditorSettings_get_project_metadata_373d864b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_set_favorites_a4cdc50a", (void*)godot_icall_EditorSettings_set_favorites_a4cdc50a);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_get_favorites_4cc8f2a7", (void*)godot_icall_EditorSettings_get_favorites_4cc8f2a7);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSettings_set_recent_dirs_a4cdc50a", (void*)godot_icall_EditorSettings_set_recent_dirs_a4cdc50a);
@@ -53206,25 +53206,25 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_get_plugin_a8b6fbf9", (void*)godot_icall_EditorSpatialGizmo_get_plugin_a8b6fbf9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_clear_c8e54a7b", (void*)godot_icall_EditorSpatialGizmo_clear_c8e54a7b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmo_set_hidden_ba24800b", (void*)godot_icall_EditorSpatialGizmo_set_hidden_ba24800b);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmoPlugin_create_material_f38ff8f0", (void*)godot_icall_EditorSpatialGizmoPlugin_create_material_f38ff8f0);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmoPlugin_create_material_6175c29e", (void*)godot_icall_EditorSpatialGizmoPlugin_create_material_6175c29e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmoPlugin_create_icon_material_79329c02", (void*)godot_icall_EditorSpatialGizmoPlugin_create_icon_material_79329c02);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmoPlugin_create_handle_material_13aa175f", (void*)godot_icall_EditorSpatialGizmoPlugin_create_handle_material_13aa175f);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmoPlugin_add_material_1ba33d2e", (void*)godot_icall_EditorSpatialGizmoPlugin_add_material_1ba33d2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpatialGizmoPlugin_get_material_2887cae8", (void*)godot_icall_EditorSpatialGizmoPlugin_get_material_2887cae8);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_set_label_919b8b17", (void*)godot_icall_EditorSpinSlider_set_label_919b8b17);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_set_label_3ca14953", (void*)godot_icall_EditorSpinSlider_set_label_3ca14953);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_get_label_97be4a2e", (void*)godot_icall_EditorSpinSlider_get_label_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_set_read_only_ba24800b", (void*)godot_icall_EditorSpinSlider_set_read_only_ba24800b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_is_read_only_68fe5f59", (void*)godot_icall_EditorSpinSlider_is_read_only_68fe5f59);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_set_flat_ba24800b", (void*)godot_icall_EditorSpinSlider_set_flat_ba24800b);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorSpinSlider_is_flat_68fe5f59", (void*)godot_icall_EditorSpinSlider_is_flat_68fe5f59);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_is_addon_ready_68fe5f59", (void*)godot_icall_EditorVCSInterface_is_addon_ready_68fe5f59);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_initialize_2f34617d", (void*)godot_icall_EditorVCSInterface_initialize_2f34617d);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_initialize_8a7120b9", (void*)godot_icall_EditorVCSInterface_initialize_8a7120b9);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_is_vcs_initialized_68fe5f59", (void*)godot_icall_EditorVCSInterface_is_vcs_initialized_68fe5f59);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_get_modified_files_data_22d47c9d", (void*)godot_icall_EditorVCSInterface_get_modified_files_data_22d47c9d);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_stage_file_919b8b17", (void*)godot_icall_EditorVCSInterface_stage_file_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_unstage_file_919b8b17", (void*)godot_icall_EditorVCSInterface_unstage_file_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_commit_919b8b17", (void*)godot_icall_EditorVCSInterface_commit_919b8b17);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_get_file_diff_fcd7e717", (void*)godot_icall_EditorVCSInterface_get_file_diff_fcd7e717);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_stage_file_3ca14953", (void*)godot_icall_EditorVCSInterface_stage_file_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_unstage_file_3ca14953", (void*)godot_icall_EditorVCSInterface_unstage_file_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_commit_3ca14953", (void*)godot_icall_EditorVCSInterface_commit_3ca14953);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_get_file_diff_679a25ab", (void*)godot_icall_EditorVCSInterface_get_file_diff_679a25ab);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_shut_down_68fe5f59", (void*)godot_icall_EditorVCSInterface_shut_down_68fe5f59);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_get_project_name_97be4a2e", (void*)godot_icall_EditorVCSInterface_get_project_name_97be4a2e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_EditorVCSInterface_get_vcs_name_97be4a2e", (void*)godot_icall_EditorVCSInterface_get_vcs_name_97be4a2e);
@@ -53387,20 +53387,20 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Environment_get_adjustment_saturation_4edcd7a9", (void*)godot_icall_Environment_get_adjustment_saturation_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Environment_set_adjustment_color_correction_7eecd31a", (void*)godot_icall_Environment_set_adjustment_color_correction_7eecd31a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Environment_get_adjustment_color_correction_ac462e4a", (void*)godot_icall_Environment_get_adjustment_color_correction_ac462e4a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Expression_parse_37895a8c", (void*)godot_icall_Expression_parse_37895a8c);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Expression_parse_840b1acd", (void*)godot_icall_Expression_parse_840b1acd);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Expression_execute_4b704ee5", (void*)godot_icall_Expression_execute_4b704ee5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Expression_has_execute_failed_68fe5f59", (void*)godot_icall_Expression_has_execute_failed_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Expression_get_error_text_97be4a2e", (void*)godot_icall_Expression_get_error_text_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_clear_filters_c8e54a7b", (void*)godot_icall_FileDialog_clear_filters_c8e54a7b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_add_filter_919b8b17", (void*)godot_icall_FileDialog_add_filter_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_add_filter_3ca14953", (void*)godot_icall_FileDialog_add_filter_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_filters_a4cdc50a", (void*)godot_icall_FileDialog_set_filters_a4cdc50a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_get_filters_4cc8f2a7", (void*)godot_icall_FileDialog_get_filters_4cc8f2a7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_get_current_dir_97be4a2e", (void*)godot_icall_FileDialog_get_current_dir_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_get_current_file_97be4a2e", (void*)godot_icall_FileDialog_get_current_file_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_get_current_path_97be4a2e", (void*)godot_icall_FileDialog_get_current_path_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_current_dir_919b8b17", (void*)godot_icall_FileDialog_set_current_dir_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_current_file_919b8b17", (void*)godot_icall_FileDialog_set_current_file_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_current_path_919b8b17", (void*)godot_icall_FileDialog_set_current_path_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_current_dir_3ca14953", (void*)godot_icall_FileDialog_set_current_dir_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_current_file_3ca14953", (void*)godot_icall_FileDialog_set_current_file_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_current_path_3ca14953", (void*)godot_icall_FileDialog_set_current_path_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_mode_overrides_title_ba24800b", (void*)godot_icall_FileDialog_set_mode_overrides_title_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_is_mode_overriding_title_68fe5f59", (void*)godot_icall_FileDialog_is_mode_overriding_title_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_set_mode_f90d15da", (void*)godot_icall_FileDialog_set_mode_f90d15da);
@@ -53413,13 +53413,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_is_showing_hidden_files_68fe5f59", (void*)godot_icall_FileDialog_is_showing_hidden_files_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_deselect_items_c8e54a7b", (void*)godot_icall_FileDialog_deselect_items_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_FileDialog_invalidate_c8e54a7b", (void*)godot_icall_FileDialog_invalidate_c8e54a7b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_draw_6be51683", (void*)godot_icall_Font_draw_6be51683);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_draw_67a9f450", (void*)godot_icall_Font_draw_67a9f450);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_ascent_4edcd7a9", (void*)godot_icall_Font_get_ascent_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_descent_4edcd7a9", (void*)godot_icall_Font_get_descent_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_height_4edcd7a9", (void*)godot_icall_Font_get_height_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_is_distance_field_hint_68fe5f59", (void*)godot_icall_Font_is_distance_field_hint_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_string_size_7321ae6f", (void*)godot_icall_Font_get_string_size_7321ae6f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_wordwrap_string_size_a169f6d2", (void*)godot_icall_Font_get_wordwrap_string_size_a169f6d2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_string_size_187aef93", (void*)godot_icall_Font_get_string_size_187aef93);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_get_wordwrap_string_size_9941d95", (void*)godot_icall_Font_get_wordwrap_string_size_9941d95);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_has_outline_68fe5f59", (void*)godot_icall_Font_has_outline_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_draw_char_24a8008b", (void*)godot_icall_Font_draw_char_24a8008b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Font_update_changes_c8e54a7b", (void*)godot_icall_Font_update_changes_c8e54a7b);
@@ -53559,7 +53559,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphEdit_is_right_disconnects_enabled_68fe5f59", (void*)godot_icall_GraphEdit_is_right_disconnects_enabled_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphEdit_get_zoom_hbox_333097db", (void*)godot_icall_GraphEdit_get_zoom_hbox_333097db);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphEdit_set_selected_598860a7", (void*)godot_icall_GraphEdit_set_selected_598860a7);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphNode_set_title_919b8b17", (void*)godot_icall_GraphNode_set_title_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphNode_set_title_3ca14953", (void*)godot_icall_GraphNode_set_title_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphNode_get_title_97be4a2e", (void*)godot_icall_GraphNode_get_title_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphNode_set_slot_c3f5dca5", (void*)godot_icall_GraphNode_set_slot_c3f5dca5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_GraphNode_clear_slot_e1ae93bc", (void*)godot_icall_GraphNode_clear_slot_e1ae93bc);
@@ -53635,8 +53635,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_connect_to_host_3c965c6e", (void*)godot_icall_HTTPClient_connect_to_host_3c965c6e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_set_connection_85f8707", (void*)godot_icall_HTTPClient_set_connection_85f8707);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_get_connection_b6f76265", (void*)godot_icall_HTTPClient_get_connection_b6f76265);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_raw_e02d49ea", (void*)godot_icall_HTTPClient_request_raw_e02d49ea);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_eb01527f", (void*)godot_icall_HTTPClient_request_eb01527f);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_raw_e7f84acd", (void*)godot_icall_HTTPClient_request_raw_e7f84acd);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_request_dee5b030", (void*)godot_icall_HTTPClient_request_dee5b030);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_close_c8e54a7b", (void*)godot_icall_HTTPClient_close_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_has_response_68fe5f59", (void*)godot_icall_HTTPClient_has_response_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_is_response_chunked_68fe5f59", (void*)godot_icall_HTTPClient_is_response_chunked_68fe5f59);
@@ -53652,7 +53652,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_get_status_e2cdce5c", (void*)godot_icall_HTTPClient_get_status_e2cdce5c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_poll_f04570f5", (void*)godot_icall_HTTPClient_poll_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPClient_query_string_from_dict_41305e4f", (void*)godot_icall_HTTPClient_query_string_from_dict_41305e4f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_request_9e3d764c", (void*)godot_icall_HTTPRequest_request_9e3d764c);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_request_5706dd2e", (void*)godot_icall_HTTPRequest_request_5706dd2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_cancel_request_c8e54a7b", (void*)godot_icall_HTTPRequest_cancel_request_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_get_http_client_status_e2cdce5c", (void*)godot_icall_HTTPRequest_get_http_client_status_e2cdce5c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_set_use_threads_ba24800b", (void*)godot_icall_HTTPRequest_set_use_threads_ba24800b);
@@ -53661,7 +53661,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_get_body_size_limit_1f886eb0", (void*)godot_icall_HTTPRequest_get_body_size_limit_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_set_max_redirects_e1ae93bc", (void*)godot_icall_HTTPRequest_set_max_redirects_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_get_max_redirects_1f886eb0", (void*)godot_icall_HTTPRequest_get_max_redirects_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_set_download_file_919b8b17", (void*)godot_icall_HTTPRequest_set_download_file_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_set_download_file_3ca14953", (void*)godot_icall_HTTPRequest_set_download_file_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_get_download_file_97be4a2e", (void*)godot_icall_HTTPRequest_get_download_file_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_get_downloaded_bytes_1f886eb0", (void*)godot_icall_HTTPRequest_get_downloaded_bytes_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HTTPRequest_get_body_size_1f886eb0", (void*)godot_icall_HTTPRequest_get_body_size_1f886eb0);
@@ -53686,7 +53686,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HingeJoint__get_upper_limit_4edcd7a9", (void*)godot_icall_HingeJoint__get_upper_limit_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HingeJoint__set_lower_limit_904508bb", (void*)godot_icall_HingeJoint__set_lower_limit_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_HingeJoint__get_lower_limit_4edcd7a9", (void*)godot_icall_HingeJoint__get_lower_limit_4edcd7a9);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_IP_resolve_hostname_1195f271", (void*)godot_icall_IP_resolve_hostname_1195f271);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_IP_resolve_hostname_997a524c", (void*)godot_icall_IP_resolve_hostname_997a524c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_IP_resolve_hostname_queue_item_4ce004a2", (void*)godot_icall_IP_resolve_hostname_queue_item_4ce004a2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_IP_get_resolve_item_status_e7569df6", (void*)godot_icall_IP_get_resolve_item_status_e7569df6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_IP_get_resolve_item_address_44fc4c5a", (void*)godot_icall_IP_get_resolve_item_address_44fc4c5a);
@@ -53714,9 +53714,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_create_d715e7fc", (void*)godot_icall_Image_create_d715e7fc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_create_from_data_757179a0", (void*)godot_icall_Image_create_from_data_757179a0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_is_empty_68fe5f59", (void*)godot_icall_Image_is_empty_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_load_cb25197e", (void*)godot_icall_Image_load_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_save_png_cb25197e", (void*)godot_icall_Image_save_png_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_save_exr_c860678f", (void*)godot_icall_Image_save_exr_c860678f);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_load_2660dbb2", (void*)godot_icall_Image_load_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_save_png_2660dbb2", (void*)godot_icall_Image_save_png_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_save_exr_8f6427cc", (void*)godot_icall_Image_save_exr_8f6427cc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_detect_alpha_cf33925f", (void*)godot_icall_Image_detect_alpha_cf33925f);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_is_invisible_68fe5f59", (void*)godot_icall_Image_is_invisible_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Image_detect_used_channels_cbc886f4", (void*)godot_icall_Image_detect_used_channels_cbc886f4);
@@ -53775,7 +53775,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_is_action_just_pressed_bee64043", (void*)godot_icall_Input_is_action_just_pressed_bee64043);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_is_action_just_released_bee64043", (void*)godot_icall_Input_is_action_just_released_bee64043);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_action_strength_9f10687", (void*)godot_icall_Input_get_action_strength_9f10687);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_add_joy_mapping_3e40a80", (void*)godot_icall_Input_add_joy_mapping_3e40a80);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_add_joy_mapping_211c975", (void*)godot_icall_Input_add_joy_mapping_211c975);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_remove_joy_mapping_2f29e819", (void*)godot_icall_Input_remove_joy_mapping_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_joy_connection_changed_721ffd99", (void*)godot_icall_Input_joy_connection_changed_721ffd99);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_is_joy_known_7f690926", (void*)godot_icall_Input_is_joy_known_7f690926);
@@ -53786,9 +53786,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_vibration_strength_23728632", (void*)godot_icall_Input_get_joy_vibration_strength_23728632);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_vibration_duration_c671df3a", (void*)godot_icall_Input_get_joy_vibration_duration_c671df3a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_button_string_44fc4c5a", (void*)godot_icall_Input_get_joy_button_string_44fc4c5a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_button_index_from_string_c878f90a", (void*)godot_icall_Input_get_joy_button_index_from_string_c878f90a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_button_index_from_string_6d3db7c6", (void*)godot_icall_Input_get_joy_button_index_from_string_6d3db7c6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_axis_string_44fc4c5a", (void*)godot_icall_Input_get_joy_axis_string_44fc4c5a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_axis_index_from_string_c878f90a", (void*)godot_icall_Input_get_joy_axis_index_from_string_c878f90a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_get_joy_axis_index_from_string_6d3db7c6", (void*)godot_icall_Input_get_joy_axis_index_from_string_6d3db7c6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_start_joy_vibration_80fde83e", (void*)godot_icall_Input_start_joy_vibration_80fde83e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_stop_joy_vibration_e1ae93bc", (void*)godot_icall_Input_stop_joy_vibration_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Input_vibrate_handheld_e1ae93bc", (void*)godot_icall_Input_vibrate_handheld_e1ae93bc);
@@ -54000,16 +54000,16 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_get_error_line_1f886eb0", (void*)godot_icall_JSONParseResult_get_error_line_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_get_result_a08d6f10", (void*)godot_icall_JSONParseResult_get_result_a08d6f10);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_set_error_32ed9677", (void*)godot_icall_JSONParseResult_set_error_32ed9677);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_set_error_string_919b8b17", (void*)godot_icall_JSONParseResult_set_error_string_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_set_error_string_3ca14953", (void*)godot_icall_JSONParseResult_set_error_string_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_set_error_line_e1ae93bc", (void*)godot_icall_JSONParseResult_set_error_line_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONParseResult_set_result_62b5905c", (void*)godot_icall_JSONParseResult_set_result_62b5905c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_set_scope_4cd1e22", (void*)godot_icall_JSONRPC_set_scope_4cd1e22);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_process_action_ee8b7da4", (void*)godot_icall_JSONRPC_process_action_ee8b7da4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_process_string_dcc9abdc", (void*)godot_icall_JSONRPC_process_string_dcc9abdc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_request_ab3f9e08", (void*)godot_icall_JSONRPC_make_request_ab3f9e08);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_request_b9fe3487", (void*)godot_icall_JSONRPC_make_request_b9fe3487);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_response_d7e07b59", (void*)godot_icall_JSONRPC_make_response_d7e07b59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_notification_2cf7176b", (void*)godot_icall_JSONRPC_make_notification_2cf7176b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_response_error_8ac33898", (void*)godot_icall_JSONRPC_make_response_error_8ac33898);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_notification_9bc3858", (void*)godot_icall_JSONRPC_make_notification_9bc3858);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_JSONRPC_make_response_error_b5cbfc6d", (void*)godot_icall_JSONRPC_make_response_error_b5cbfc6d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Joint_set_node_a_1e08804", (void*)godot_icall_Joint_set_node_a_1e08804);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Joint_get_node_a_bf425768", (void*)godot_icall_Joint_get_node_a_bf425768);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Joint_set_node_b_1e08804", (void*)godot_icall_Joint_set_node_b_1e08804);
@@ -54214,7 +54214,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_select_807eefe4", (void*)godot_icall_LineEdit_select_807eefe4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_select_all_c8e54a7b", (void*)godot_icall_LineEdit_select_all_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_deselect_c8e54a7b", (void*)godot_icall_LineEdit_deselect_c8e54a7b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_set_text_919b8b17", (void*)godot_icall_LineEdit_set_text_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_set_text_3ca14953", (void*)godot_icall_LineEdit_set_text_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_get_text_97be4a2e", (void*)godot_icall_LineEdit_get_text_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_set_placeholder_2f29e819", (void*)godot_icall_LineEdit_set_placeholder_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_get_placeholder_97be4a2e", (void*)godot_icall_LineEdit_get_placeholder_97be4a2e);
@@ -54230,7 +54230,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_cursor_get_blink_speed_4edcd7a9", (void*)godot_icall_LineEdit_cursor_get_blink_speed_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_set_max_length_e1ae93bc", (void*)godot_icall_LineEdit_set_max_length_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_get_max_length_1f886eb0", (void*)godot_icall_LineEdit_get_max_length_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_append_at_cursor_919b8b17", (void*)godot_icall_LineEdit_append_at_cursor_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_append_at_cursor_3ca14953", (void*)godot_icall_LineEdit_append_at_cursor_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_set_editable_ba24800b", (void*)godot_icall_LineEdit_set_editable_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_is_editable_68fe5f59", (void*)godot_icall_LineEdit_is_editable_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineEdit_set_secret_ba24800b", (void*)godot_icall_LineEdit_set_secret_ba24800b);
@@ -54253,7 +54253,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineShape2D_get_normal_9b4ea24e", (void*)godot_icall_LineShape2D_get_normal_9b4ea24e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineShape2D_set_d_904508bb", (void*)godot_icall_LineShape2D_set_d_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LineShape2D_get_d_4edcd7a9", (void*)godot_icall_LineShape2D_get_d_4edcd7a9);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_LinkButton_set_text_919b8b17", (void*)godot_icall_LinkButton_set_text_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_LinkButton_set_text_3ca14953", (void*)godot_icall_LinkButton_set_text_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LinkButton_get_text_97be4a2e", (void*)godot_icall_LinkButton_get_text_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LinkButton_set_underline_mode_2dc424aa", (void*)godot_icall_LinkButton_set_underline_mode_2dc424aa);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_LinkButton_get_underline_mode_db5e03ba", (void*)godot_icall_LinkButton_get_underline_mode_db5e03ba);
@@ -54262,7 +54262,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Listener_is_current_68fe5f59", (void*)godot_icall_Listener_is_current_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Listener_get_listener_transform_a3fb649b", (void*)godot_icall_Listener_get_listener_transform_a3fb649b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MainLoop_input_event_7ac4986f", (void*)godot_icall_MainLoop_input_event_7ac4986f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_MainLoop_input_text_919b8b17", (void*)godot_icall_MainLoop_input_text_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_MainLoop_input_text_3ca14953", (void*)godot_icall_MainLoop_input_text_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MainLoop_init_c8e54a7b", (void*)godot_icall_MainLoop_init_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MainLoop_iteration_2e15e021", (void*)godot_icall_MainLoop_iteration_2e15e021);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MainLoop_idle_2e15e021", (void*)godot_icall_MainLoop_idle_2e15e021);
@@ -54347,7 +54347,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshInstance2D_set_normal_map_7eecd31a", (void*)godot_icall_MeshInstance2D_set_normal_map_7eecd31a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshInstance2D_get_normal_map_ac462e4a", (void*)godot_icall_MeshInstance2D_get_normal_map_ac462e4a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_create_item_e1ae93bc", (void*)godot_icall_MeshLibrary_create_item_e1ae93bc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_set_item_name_73adf041", (void*)godot_icall_MeshLibrary_set_item_name_73adf041);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_set_item_name_cd663605", (void*)godot_icall_MeshLibrary_set_item_name_cd663605);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_set_item_mesh_b41476b2", (void*)godot_icall_MeshLibrary_set_item_mesh_b41476b2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_set_item_navmesh_af6e76cc", (void*)godot_icall_MeshLibrary_set_item_navmesh_af6e76cc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_set_item_navmesh_transform_7ede1ff", (void*)godot_icall_MeshLibrary_set_item_navmesh_transform_7ede1ff);
@@ -54360,7 +54360,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_get_item_shapes_2ca2fcca", (void*)godot_icall_MeshLibrary_get_item_shapes_2ca2fcca);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_get_item_preview_561b2831", (void*)godot_icall_MeshLibrary_get_item_preview_561b2831);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_remove_item_e1ae93bc", (void*)godot_icall_MeshLibrary_remove_item_e1ae93bc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_find_item_by_name_c878f90a", (void*)godot_icall_MeshLibrary_find_item_by_name_c878f90a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_find_item_by_name_6d3db7c6", (void*)godot_icall_MeshLibrary_find_item_by_name_6d3db7c6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_clear_c8e54a7b", (void*)godot_icall_MeshLibrary_clear_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_get_item_list_2a166acd", (void*)godot_icall_MeshLibrary_get_item_list_2a166acd);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_MeshLibrary_get_last_unused_item_id_1f886eb0", (void*)godot_icall_MeshLibrary_get_last_unused_item_id_1f886eb0);
@@ -54582,7 +54582,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygonInstance_set_enabled_ba24800b", (void*)godot_icall_NavigationPolygonInstance_set_enabled_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NavigationPolygonInstance_is_enabled_68fe5f59", (void*)godot_icall_NavigationPolygonInstance_is_enabled_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_create_server_88365f0", (void*)godot_icall_NetworkedMultiplayerENet_create_server_88365f0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_create_client_20a6ff62", (void*)godot_icall_NetworkedMultiplayerENet_create_client_20a6ff62);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_create_client_d5ecd879", (void*)godot_icall_NetworkedMultiplayerENet_create_client_d5ecd879);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_close_connection_966aab97", (void*)godot_icall_NetworkedMultiplayerENet_close_connection_966aab97);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_disconnect_peer_4ae8febd", (void*)godot_icall_NetworkedMultiplayerENet_disconnect_peer_4ae8febd);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NetworkedMultiplayerENet_set_compression_mode_2f36d35b", (void*)godot_icall_NetworkedMultiplayerENet_set_compression_mode_2f36d35b);
@@ -54622,7 +54622,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NinePatchRect_set_v_axis_stretch_mode_8bcc0b0e", (void*)godot_icall_NinePatchRect_set_v_axis_stretch_mode_8bcc0b0e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NinePatchRect_get_v_axis_stretch_mode_3965d65e", (void*)godot_icall_NinePatchRect_get_v_axis_stretch_mode_3965d65e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_add_child_below_node_ea228bc2", (void*)godot_icall_Node_add_child_below_node_ea228bc2);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_set_name_919b8b17", (void*)godot_icall_Node_set_name_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_set_name_3ca14953", (void*)godot_icall_Node_set_name_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_name_97be4a2e", (void*)godot_icall_Node_get_name_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_add_child_26387a5c", (void*)godot_icall_Node_add_child_26387a5c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_remove_child_598860a7", (void*)godot_icall_Node_remove_child_598860a7);
@@ -54633,8 +54633,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_node_ee7d8d97", (void*)godot_icall_Node_get_node_ee7d8d97);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_node_or_null_ee7d8d97", (void*)godot_icall_Node_get_node_or_null_ee7d8d97);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_parent_87a9bfc5", (void*)godot_icall_Node_get_parent_87a9bfc5);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_find_node_2f66e556", (void*)godot_icall_Node_find_node_2f66e556);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_find_parent_7de48efa", (void*)godot_icall_Node_find_parent_7de48efa);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_find_node_e2275056", (void*)godot_icall_Node_find_node_e2275056);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_find_parent_12bbcd3e", (void*)godot_icall_Node_find_parent_12bbcd3e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_has_node_and_resource_dfaf606e", (void*)godot_icall_Node_has_node_and_resource_dfaf606e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_node_and_resource_4c58e402", (void*)godot_icall_Node_get_node_and_resource_4c58e402);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_is_inside_tree_68fe5f59", (void*)godot_icall_Node_is_inside_tree_68fe5f59);
@@ -54653,7 +54653,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_remove_and_skip_c8e54a7b", (void*)godot_icall_Node_remove_and_skip_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_index_1f886eb0", (void*)godot_icall_Node_get_index_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_print_tree_c8e54a7b", (void*)godot_icall_Node_print_tree_c8e54a7b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_set_filename_919b8b17", (void*)godot_icall_Node_set_filename_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_set_filename_3ca14953", (void*)godot_icall_Node_set_filename_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_get_filename_97be4a2e", (void*)godot_icall_Node_get_filename_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_propagate_notification_e1ae93bc", (void*)godot_icall_Node_propagate_notification_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Node_propagate_call_96e6240e", (void*)godot_icall_Node_propagate_call_96e6240e);
@@ -54754,7 +54754,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_NoiseTexture_get_bump_strength_4edcd7a9", (void*)godot_icall_NoiseTexture_get_bump_strength_4edcd7a9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_free_c8e54a7b", (void*)godot_icall_Object_free_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_class_97be4a2e", (void*)godot_icall_Object_get_class_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_is_class_2f34617d", (void*)godot_icall_Object_is_class_2f34617d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_is_class_8a7120b9", (void*)godot_icall_Object_is_class_8a7120b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_set_3a208116", (void*)godot_icall_Object_set_3a208116);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_6732bfd8", (void*)godot_icall_Object_get_6732bfd8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_set_indexed_b6bf83ce", (void*)godot_icall_Object_set_indexed_b6bf83ce);
@@ -54765,10 +54765,10 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_instance_id_4bb7c348", (void*)godot_icall_Object_get_instance_id_4bb7c348);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_set_script_b878983a", (void*)godot_icall_Object_set_script_b878983a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_script_66da672a", (void*)godot_icall_Object_get_script_66da672a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_set_meta_5b951a59", (void*)godot_icall_Object_set_meta_5b951a59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_remove_meta_919b8b17", (void*)godot_icall_Object_remove_meta_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_meta_99fc80c2", (void*)godot_icall_Object_get_meta_99fc80c2);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_has_meta_2f34617d", (void*)godot_icall_Object_has_meta_2f34617d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_set_meta_4a9ec68e", (void*)godot_icall_Object_set_meta_4a9ec68e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_remove_meta_3ca14953", (void*)godot_icall_Object_remove_meta_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_meta_74ba5e9e", (void*)godot_icall_Object_get_meta_74ba5e9e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_has_meta_8a7120b9", (void*)godot_icall_Object_has_meta_8a7120b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_get_meta_list_4cc8f2a7", (void*)godot_icall_Object_get_meta_list_4cc8f2a7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_add_user_signal_635694ca", (void*)godot_icall_Object_add_user_signal_635694ca);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Object_has_user_signal_bee64043", (void*)godot_icall_Object_has_user_signal_bee64043);
@@ -54844,8 +54844,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_OptionButton_get_popup_d0a780e0", (void*)godot_icall_OptionButton_get_popup_d0a780e0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_OptionButton__set_items_2923a790", (void*)godot_icall_OptionButton__set_items_2923a790);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_OptionButton__get_items_d80382d4", (void*)godot_icall_OptionButton__get_items_d80382d4);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PCKPacker_pck_start_72ea9736", (void*)godot_icall_PCKPacker_pck_start_72ea9736);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PCKPacker_add_file_21276c93", (void*)godot_icall_PCKPacker_add_file_21276c93);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PCKPacker_pck_start_79efd067", (void*)godot_icall_PCKPacker_pck_start_79efd067);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PCKPacker_add_file_ce7ee84", (void*)godot_icall_PCKPacker_add_file_ce7ee84);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PCKPacker_flush_a4e6027a", (void*)godot_icall_PCKPacker_flush_a4e6027a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PHashTranslation_generate_96eab132", (void*)godot_icall_PHashTranslation_generate_96eab132);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PackedDataContainer__set_data_da545cc0", (void*)godot_icall_PackedDataContainer__set_data_da545cc0);
@@ -54883,8 +54883,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_get_packet_port_1f886eb0", (void*)godot_icall_PacketPeerUDP_get_packet_port_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_set_dest_address_d732f59c", (void*)godot_icall_PacketPeerUDP_set_dest_address_d732f59c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_set_broadcast_enabled_ba24800b", (void*)godot_icall_PacketPeerUDP_set_broadcast_enabled_ba24800b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_join_multicast_group_a7619223", (void*)godot_icall_PacketPeerUDP_join_multicast_group_a7619223);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_leave_multicast_group_a7619223", (void*)godot_icall_PacketPeerUDP_leave_multicast_group_a7619223);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_join_multicast_group_1c2b2cff", (void*)godot_icall_PacketPeerUDP_join_multicast_group_1c2b2cff);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_PacketPeerUDP_leave_multicast_group_1c2b2cff", (void*)godot_icall_PacketPeerUDP_leave_multicast_group_1c2b2cff);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PanoramaSky_set_panorama_7eecd31a", (void*)godot_icall_PanoramaSky_set_panorama_7eecd31a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_PanoramaSky_get_panorama_ac462e4a", (void*)godot_icall_PanoramaSky_get_panorama_ac462e4a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ParallaxBackground_set_scroll_offset_6df7471e", (void*)godot_icall_ParallaxBackground_set_scroll_offset_6df7471e);
@@ -55647,20 +55647,20 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_set_initial_value_3a208116", (void*)godot_icall_ProjectSettings_set_initial_value_3a208116);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_add_property_info_e472adcf", (void*)godot_icall_ProjectSettings_add_property_info_e472adcf);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_clear_2f29e819", (void*)godot_icall_ProjectSettings_clear_2f29e819);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_localize_path_94caa437", (void*)godot_icall_ProjectSettings_localize_path_94caa437);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_globalize_path_94caa437", (void*)godot_icall_ProjectSettings_globalize_path_94caa437);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_localize_path_98465fb", (void*)godot_icall_ProjectSettings_localize_path_98465fb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_globalize_path_98465fb", (void*)godot_icall_ProjectSettings_globalize_path_98465fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_save_f04570f5", (void*)godot_icall_ProjectSettings_save_f04570f5);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_load_resource_pack_cf2f31cc", (void*)godot_icall_ProjectSettings_load_resource_pack_cf2f31cc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_property_can_revert_2f34617d", (void*)godot_icall_ProjectSettings_property_can_revert_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_property_get_revert_99fc80c2", (void*)godot_icall_ProjectSettings_property_get_revert_99fc80c2);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_save_custom_cb25197e", (void*)godot_icall_ProjectSettings_save_custom_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_load_resource_pack_4c6b6f39", (void*)godot_icall_ProjectSettings_load_resource_pack_4c6b6f39);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_property_can_revert_8a7120b9", (void*)godot_icall_ProjectSettings_property_can_revert_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_property_get_revert_74ba5e9e", (void*)godot_icall_ProjectSettings_property_get_revert_74ba5e9e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProjectSettings_save_custom_2660dbb2", (void*)godot_icall_ProjectSettings_save_custom_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_set_group_name_2f29e819", (void*)godot_icall_ProximityGroup_set_group_name_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_get_group_name_97be4a2e", (void*)godot_icall_ProximityGroup_get_group_name_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_set_dispatch_mode_93c07036", (void*)godot_icall_ProximityGroup_set_dispatch_mode_93c07036);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_get_dispatch_mode_21b30f61", (void*)godot_icall_ProximityGroup_get_dispatch_mode_21b30f61);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_set_grid_radius_6df7471d", (void*)godot_icall_ProximityGroup_set_grid_radius_6df7471d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_get_grid_radius_9b4ea24f", (void*)godot_icall_ProximityGroup_get_grid_radius_9b4ea24f);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_broadcast_5b951a59", (void*)godot_icall_ProximityGroup_broadcast_5b951a59);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_ProximityGroup_broadcast_4a9ec68e", (void*)godot_icall_ProximityGroup_broadcast_4a9ec68e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProxyTexture_set_base_7eecd31a", (void*)godot_icall_ProxyTexture_set_base_7eecd31a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ProxyTexture_get_base_ac462e4a", (void*)godot_icall_ProxyTexture_get_base_ac462e4a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_QuadMesh_set_size_6df7471e", (void*)godot_icall_QuadMesh_set_size_6df7471e);
@@ -55824,10 +55824,10 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RemoteTransform2D_get_update_rotation_68fe5f59", (void*)godot_icall_RemoteTransform2D_get_update_rotation_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RemoteTransform2D_set_update_scale_ba24800b", (void*)godot_icall_RemoteTransform2D_set_update_scale_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RemoteTransform2D_get_update_scale_68fe5f59", (void*)godot_icall_RemoteTransform2D_get_update_scale_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_set_path_919b8b17", (void*)godot_icall_Resource_set_path_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_take_over_path_919b8b17", (void*)godot_icall_Resource_take_over_path_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_set_path_3ca14953", (void*)godot_icall_Resource_set_path_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_take_over_path_3ca14953", (void*)godot_icall_Resource_take_over_path_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_get_path_97be4a2e", (void*)godot_icall_Resource_get_path_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_set_name_919b8b17", (void*)godot_icall_Resource_set_name_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_set_name_3ca14953", (void*)godot_icall_Resource_set_name_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_get_name_97be4a2e", (void*)godot_icall_Resource_get_name_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_get_rid_6623661e", (void*)godot_icall_Resource_get_rid_6623661e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Resource_set_local_to_scene_ba24800b", (void*)godot_icall_Resource_set_local_to_scene_ba24800b);
@@ -55849,8 +55849,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ResourcePreloader_get_resource_c2e1949b", (void*)godot_icall_ResourcePreloader_get_resource_c2e1949b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ResourcePreloader_get_resource_list_4cc8f2a7", (void*)godot_icall_ResourcePreloader_get_resource_list_4cc8f2a7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_get_text_97be4a2e", (void*)godot_icall_RichTextLabel_get_text_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_add_text_919b8b17", (void*)godot_icall_RichTextLabel_add_text_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_set_text_919b8b17", (void*)godot_icall_RichTextLabel_set_text_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_add_text_3ca14953", (void*)godot_icall_RichTextLabel_add_text_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_set_text_3ca14953", (void*)godot_icall_RichTextLabel_set_text_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_add_image_6e5fd163", (void*)godot_icall_RichTextLabel_add_image_6e5fd163);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_newline_c8e54a7b", (void*)godot_icall_RichTextLabel_newline_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_remove_line_7f690926", (void*)godot_icall_RichTextLabel_remove_line_7f690926);
@@ -55886,9 +55886,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_get_tab_size_1f886eb0", (void*)godot_icall_RichTextLabel_get_tab_size_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_set_selection_enabled_ba24800b", (void*)godot_icall_RichTextLabel_set_selection_enabled_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_is_selection_enabled_68fe5f59", (void*)godot_icall_RichTextLabel_is_selection_enabled_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_parse_bbcode_cb25197e", (void*)godot_icall_RichTextLabel_parse_bbcode_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_append_bbcode_cb25197e", (void*)godot_icall_RichTextLabel_append_bbcode_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_set_bbcode_919b8b17", (void*)godot_icall_RichTextLabel_set_bbcode_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_parse_bbcode_2660dbb2", (void*)godot_icall_RichTextLabel_parse_bbcode_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_append_bbcode_2660dbb2", (void*)godot_icall_RichTextLabel_append_bbcode_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_set_bbcode_3ca14953", (void*)godot_icall_RichTextLabel_set_bbcode_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_get_bbcode_97be4a2e", (void*)godot_icall_RichTextLabel_get_bbcode_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_set_visible_characters_e1ae93bc", (void*)godot_icall_RichTextLabel_set_visible_characters_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_RichTextLabel_get_visible_characters_1f886eb0", (void*)godot_icall_RichTextLabel_get_visible_characters_1f886eb0);
@@ -56038,7 +56038,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_get_nodes_in_group_6b21c46d", (void*)godot_icall_SceneTree_get_nodes_in_group_6b21c46d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_set_current_scene_598860a7", (void*)godot_icall_SceneTree_set_current_scene_598860a7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_get_current_scene_87a9bfc5", (void*)godot_icall_SceneTree_get_current_scene_87a9bfc5);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_change_scene_cb25197e", (void*)godot_icall_SceneTree_change_scene_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_change_scene_2660dbb2", (void*)godot_icall_SceneTree_change_scene_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_change_scene_to_19e77c9c", (void*)godot_icall_SceneTree_change_scene_to_19e77c9c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_reload_current_scene_f04570f5", (void*)godot_icall_SceneTree_reload_current_scene_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SceneTree_set_multiplayer_ca78cf97", (void*)godot_icall_SceneTree_set_multiplayer_ca78cf97);
@@ -56074,14 +56074,14 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Script_get_property_default_value_6732bfd8", (void*)godot_icall_Script_get_property_default_value_6732bfd8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Script_is_tool_68fe5f59", (void*)godot_icall_Script_is_tool_68fe5f59);
 #ifdef TOOLS_ENABLED
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptCreateDialog_config_a4fd4d58", (void*)godot_icall_ScriptCreateDialog_config_a4fd4d58);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptCreateDialog_config_899d9058", (void*)godot_icall_ScriptCreateDialog_config_899d9058);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_get_drag_data_fw_d0abbc24", (void*)godot_icall_ScriptEditor_get_drag_data_fw_d0abbc24);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_can_drop_data_fw_6c2b897e", (void*)godot_icall_ScriptEditor_can_drop_data_fw_6c2b897e);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_drop_data_fw_85f514c2", (void*)godot_icall_ScriptEditor_drop_data_fw_85f514c2);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_goto_line_e1ae93bc", (void*)godot_icall_ScriptEditor_goto_line_e1ae93bc);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_get_current_script_cb4d4ff8", (void*)godot_icall_ScriptEditor_get_current_script_cb4d4ff8);
     mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_get_open_scripts_d80382d4", (void*)godot_icall_ScriptEditor_get_open_scripts_d80382d4);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_open_script_create_dialog_e8a7f384", (void*)godot_icall_ScriptEditor_open_script_create_dialog_e8a7f384);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall_ScriptEditor_open_script_create_dialog_fc93f18d", (void*)godot_icall_ScriptEditor_open_script_create_dialog_fc93f18d);
 #endif
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ScrollBar_set_custom_step_904508bb", (void*)godot_icall_ScrollBar_set_custom_step_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ScrollBar_get_custom_step_4edcd7a9", (void*)godot_icall_ScrollBar_get_custom_step_4edcd7a9);
@@ -56128,8 +56128,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ShortCut_is_valid_68fe5f59", (void*)godot_icall_ShortCut_is_valid_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ShortCut_is_shortcut_c8931195", (void*)godot_icall_ShortCut_is_shortcut_c8931195);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_ShortCut_get_as_text_97be4a2e", (void*)godot_icall_ShortCut_get_as_text_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_add_bone_919b8b17", (void*)godot_icall_Skeleton_add_bone_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_find_bone_c878f90a", (void*)godot_icall_Skeleton_find_bone_c878f90a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_add_bone_3ca14953", (void*)godot_icall_Skeleton_add_bone_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_find_bone_6d3db7c6", (void*)godot_icall_Skeleton_find_bone_6d3db7c6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_get_bone_name_44fc4c5a", (void*)godot_icall_Skeleton_get_bone_name_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_get_bone_parent_b835dea5", (void*)godot_icall_Skeleton_get_bone_parent_b835dea5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Skeleton_set_bone_parent_807eefe4", (void*)godot_icall_Skeleton_set_bone_parent_807eefe4);
@@ -56425,7 +56425,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_get_align_3e41aa45", (void*)godot_icall_SpinBox_get_align_3e41aa45);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_set_suffix_6964ff3e", (void*)godot_icall_SpinBox_set_suffix_6964ff3e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_get_suffix_97be4a2e", (void*)godot_icall_SpinBox_get_suffix_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_set_prefix_919b8b17", (void*)godot_icall_SpinBox_set_prefix_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_set_prefix_3ca14953", (void*)godot_icall_SpinBox_set_prefix_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_get_prefix_97be4a2e", (void*)godot_icall_SpinBox_get_prefix_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_set_editable_ba24800b", (void*)godot_icall_SpinBox_set_editable_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_SpinBox_is_editable_68fe5f59", (void*)godot_icall_SpinBox_is_editable_68fe5f59);
@@ -56565,8 +56565,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_u64_9d9e6424", (void*)godot_icall_StreamPeer_put_u64_9d9e6424);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_float_904508bb", (void*)godot_icall_StreamPeer_put_float_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_double_f96f5126", (void*)godot_icall_StreamPeer_put_double_f96f5126);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_string_919b8b17", (void*)godot_icall_StreamPeer_put_string_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_utf8_string_919b8b17", (void*)godot_icall_StreamPeer_put_utf8_string_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_string_3ca14953", (void*)godot_icall_StreamPeer_put_string_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_utf8_string_3ca14953", (void*)godot_icall_StreamPeer_put_utf8_string_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_put_var_aff2c475", (void*)godot_icall_StreamPeer_put_var_aff2c475);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_8_e8c4f3a", (void*)godot_icall_StreamPeer_get_8_e8c4f3a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeer_get_u8_6236014f", (void*)godot_icall_StreamPeer_get_u8_6236014f);
@@ -56590,19 +56590,19 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerBuffer_duplicate_42e72ff7", (void*)godot_icall_StreamPeerBuffer_duplicate_42e72ff7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_poll_c8e54a7b", (void*)godot_icall_StreamPeerSSL_poll_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_accept_stream_372072", (void*)godot_icall_StreamPeerSSL_accept_stream_372072);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_connect_to_stream_e7020a0f", (void*)godot_icall_StreamPeerSSL_connect_to_stream_e7020a0f);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_connect_to_stream_b8532bf8", (void*)godot_icall_StreamPeerSSL_connect_to_stream_b8532bf8);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_get_status_56023443", (void*)godot_icall_StreamPeerSSL_get_status_56023443);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_disconnect_from_stream_c8e54a7b", (void*)godot_icall_StreamPeerSSL_disconnect_from_stream_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_set_blocking_handshake_enabled_ba24800b", (void*)godot_icall_StreamPeerSSL_set_blocking_handshake_enabled_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerSSL_is_blocking_handshake_enabled_68fe5f59", (void*)godot_icall_StreamPeerSSL_is_blocking_handshake_enabled_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_connect_to_host_72ea9736", (void*)godot_icall_StreamPeerTCP_connect_to_host_72ea9736);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_connect_to_host_79efd067", (void*)godot_icall_StreamPeerTCP_connect_to_host_79efd067);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_is_connected_to_host_68fe5f59", (void*)godot_icall_StreamPeerTCP_is_connected_to_host_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_get_status_3d4e458a", (void*)godot_icall_StreamPeerTCP_get_status_3d4e458a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_get_connected_host_97be4a2e", (void*)godot_icall_StreamPeerTCP_get_connected_host_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_get_connected_port_c0943588", (void*)godot_icall_StreamPeerTCP_get_connected_port_c0943588);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_disconnect_from_host_c8e54a7b", (void*)godot_icall_StreamPeerTCP_disconnect_from_host_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamPeerTCP_set_no_delay_ba24800b", (void*)godot_icall_StreamPeerTCP_set_no_delay_ba24800b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamTexture_load_cb25197e", (void*)godot_icall_StreamTexture_load_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamTexture_load_2660dbb2", (void*)godot_icall_StreamTexture_load_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StreamTexture_get_load_path_97be4a2e", (void*)godot_icall_StreamTexture_get_load_path_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StyleBox_test_mask_d2f95539", (void*)godot_icall_StyleBox_test_mask_d2f95539);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_StyleBox_set_default_margin_86b3589f", (void*)godot_icall_StyleBox_set_default_margin_86b3589f);
@@ -56755,8 +56755,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Tabs_get_tabs_rearrange_group_1f886eb0", (void*)godot_icall_Tabs_get_tabs_rearrange_group_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Tabs_set_select_with_rmb_ba24800b", (void*)godot_icall_Tabs_set_select_with_rmb_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Tabs_get_select_with_rmb_68fe5f59", (void*)godot_icall_Tabs_get_select_with_rmb_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_set_text_919b8b17", (void*)godot_icall_TextEdit_set_text_919b8b17);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_insert_text_at_cursor_919b8b17", (void*)godot_icall_TextEdit_insert_text_at_cursor_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_set_text_3ca14953", (void*)godot_icall_TextEdit_set_text_3ca14953);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_insert_text_at_cursor_3ca14953", (void*)godot_icall_TextEdit_insert_text_at_cursor_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_line_count_1f886eb0", (void*)godot_icall_TextEdit_get_line_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_text_97be4a2e", (void*)godot_icall_TextEdit_get_text_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_line_44fc4c5a", (void*)godot_icall_TextEdit_get_line_44fc4c5a);
@@ -56796,7 +56796,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_selection_to_column_1f886eb0", (void*)godot_icall_TextEdit_get_selection_to_column_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_selection_text_97be4a2e", (void*)godot_icall_TextEdit_get_selection_text_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_word_under_cursor_97be4a2e", (void*)godot_icall_TextEdit_get_word_under_cursor_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_search_4d24b70", (void*)godot_icall_TextEdit_search_4d24b70);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_search_828871db", (void*)godot_icall_TextEdit_search_828871db);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_undo_c8e54a7b", (void*)godot_icall_TextEdit_undo_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_redo_c8e54a7b", (void*)godot_icall_TextEdit_redo_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_clear_undo_history_c8e54a7b", (void*)godot_icall_TextEdit_clear_undo_history_c8e54a7b);
@@ -56837,10 +56837,10 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_v_scroll_27c6b046", (void*)godot_icall_TextEdit_get_v_scroll_27c6b046);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_set_h_scroll_e1ae93bc", (void*)godot_icall_TextEdit_set_h_scroll_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_h_scroll_1f886eb0", (void*)godot_icall_TextEdit_get_h_scroll_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_add_keyword_color_c85f3def", (void*)godot_icall_TextEdit_add_keyword_color_c85f3def);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_has_keyword_color_2f34617d", (void*)godot_icall_TextEdit_has_keyword_color_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_keyword_color_3aab7706", (void*)godot_icall_TextEdit_get_keyword_color_3aab7706);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_add_color_region_65394ad6", (void*)godot_icall_TextEdit_add_color_region_65394ad6);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_add_keyword_color_3954fcd4", (void*)godot_icall_TextEdit_add_keyword_color_3954fcd4);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_has_keyword_color_8a7120b9", (void*)godot_icall_TextEdit_has_keyword_color_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_keyword_color_95edb1c2", (void*)godot_icall_TextEdit_get_keyword_color_95edb1c2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_add_color_region_70ae3823", (void*)godot_icall_TextEdit_add_color_region_70ae3823);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_clear_colors_c8e54a7b", (void*)godot_icall_TextEdit_clear_colors_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_menu_option_e1ae93bc", (void*)godot_icall_TextEdit_menu_option_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TextEdit_get_menu_d0a780e0", (void*)godot_icall_TextEdit_get_menu_d0a780e0);
@@ -56951,7 +56951,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_clear_c8e54a7b", (void*)godot_icall_Theme_clear_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_set_default_font_ea9e5ee2", (void*)godot_icall_Theme_set_default_font_ea9e5ee2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_get_default_font_18b7a982", (void*)godot_icall_Theme_get_default_font_18b7a982);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_get_type_list_7fa944d0", (void*)godot_icall_Theme_get_type_list_7fa944d0);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_get_type_list_82ee0a94", (void*)godot_icall_Theme_get_type_list_82ee0a94);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_copy_default_theme_c8e54a7b", (void*)godot_icall_Theme_copy_default_theme_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Theme_copy_theme_77a4d7dc", (void*)godot_icall_Theme_copy_theme_77a4d7dc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileMap_set_tileset_cc0bfa01", (void*)godot_icall_TileMap_set_tileset_cc0bfa01);
@@ -57032,7 +57032,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_autotile_get_spacing_b835dea5", (void*)godot_icall_TileSet_autotile_get_spacing_b835dea5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_autotile_set_size_3c383c4a", (void*)godot_icall_TileSet_autotile_set_size_3c383c4a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_autotile_get_size_23728632", (void*)godot_icall_TileSet_autotile_get_size_23728632);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_tile_set_name_73adf041", (void*)godot_icall_TileSet_tile_set_name_73adf041);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_tile_set_name_cd663605", (void*)godot_icall_TileSet_tile_set_name_cd663605);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_tile_get_name_44fc4c5a", (void*)godot_icall_TileSet_tile_get_name_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_tile_set_texture_f20a84e", (void*)godot_icall_TileSet_tile_set_texture_f20a84e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_tile_get_texture_561b2831", (void*)godot_icall_TileSet_tile_get_texture_561b2831);
@@ -57075,7 +57075,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_remove_tile_e1ae93bc", (void*)godot_icall_TileSet_remove_tile_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_clear_c8e54a7b", (void*)godot_icall_TileSet_clear_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_get_last_unused_tile_id_1f886eb0", (void*)godot_icall_TileSet_get_last_unused_tile_id_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_find_tile_by_name_c878f90a", (void*)godot_icall_TileSet_find_tile_by_name_c878f90a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_find_tile_by_name_6d3db7c6", (void*)godot_icall_TileSet_find_tile_by_name_6d3db7c6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TileSet_get_tiles_ids_d80382d4", (void*)godot_icall_TileSet_get_tiles_ids_d80382d4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Timer_set_wait_time_904508bb", (void*)godot_icall_Timer_set_wait_time_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Timer_get_wait_time_4edcd7a9", (void*)godot_icall_Timer_get_wait_time_4edcd7a9);
@@ -57110,7 +57110,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TouchScreenButton_set_passby_press_ba24800b", (void*)godot_icall_TouchScreenButton_set_passby_press_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TouchScreenButton_is_passby_press_enabled_68fe5f59", (void*)godot_icall_TouchScreenButton_is_passby_press_enabled_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TouchScreenButton_is_pressed_68fe5f59", (void*)godot_icall_TouchScreenButton_is_pressed_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation_set_locale_919b8b17", (void*)godot_icall_Translation_set_locale_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation_set_locale_3ca14953", (void*)godot_icall_Translation_set_locale_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation_get_locale_97be4a2e", (void*)godot_icall_Translation_get_locale_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation_add_message_7dacd953", (void*)godot_icall_Translation_add_message_7dacd953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation_get_message_67c8521", (void*)godot_icall_Translation_get_message_67c8521);
@@ -57119,9 +57119,9 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation_get_message_count_1f886eb0", (void*)godot_icall_Translation_get_message_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation__set_messages_9e6917c5", (void*)godot_icall_Translation__set_messages_9e6917c5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_Translation__get_messages_4cc8f2a7", (void*)godot_icall_Translation__get_messages_4cc8f2a7);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_set_locale_919b8b17", (void*)godot_icall_TranslationServer_set_locale_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_set_locale_3ca14953", (void*)godot_icall_TranslationServer_set_locale_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_get_locale_97be4a2e", (void*)godot_icall_TranslationServer_get_locale_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_get_locale_name_94caa437", (void*)godot_icall_TranslationServer_get_locale_name_94caa437);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_get_locale_name_98465fb", (void*)godot_icall_TranslationServer_get_locale_name_98465fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_translate_67c8521", (void*)godot_icall_TranslationServer_translate_67c8521);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_add_translation_96eab132", (void*)godot_icall_TranslationServer_add_translation_96eab132);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_TranslationServer_remove_translation_96eab132", (void*)godot_icall_TranslationServer_remove_translation_96eab132);
@@ -57265,11 +57265,11 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_remove_device_e1ae93bc", (void*)godot_icall_UPNP_remove_device_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_clear_devices_c8e54a7b", (void*)godot_icall_UPNP_clear_devices_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_get_gateway_3640e9aa", (void*)godot_icall_UPNP_get_gateway_3640e9aa);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_discover_1bf5d43c", (void*)godot_icall_UPNP_discover_1bf5d43c);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_discover_b43a9270", (void*)godot_icall_UPNP_discover_b43a9270);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_query_external_address_97be4a2e", (void*)godot_icall_UPNP_query_external_address_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_add_port_mapping_3bffc24b", (void*)godot_icall_UPNP_add_port_mapping_3bffc24b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_delete_port_mapping_91422e52", (void*)godot_icall_UPNP_delete_port_mapping_91422e52);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_set_discover_multicast_if_919b8b17", (void*)godot_icall_UPNP_set_discover_multicast_if_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_delete_port_mapping_7c08ec16", (void*)godot_icall_UPNP_delete_port_mapping_7c08ec16);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_set_discover_multicast_if_3ca14953", (void*)godot_icall_UPNP_set_discover_multicast_if_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_get_discover_multicast_if_97be4a2e", (void*)godot_icall_UPNP_get_discover_multicast_if_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_set_discover_local_port_e1ae93bc", (void*)godot_icall_UPNP_set_discover_local_port_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNP_get_discover_local_port_1f886eb0", (void*)godot_icall_UPNP_get_discover_local_port_1f886eb0);
@@ -57278,7 +57278,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_is_valid_gateway_68fe5f59", (void*)godot_icall_UPNPDevice_is_valid_gateway_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_query_external_address_97be4a2e", (void*)godot_icall_UPNPDevice_query_external_address_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_add_port_mapping_3bffc24b", (void*)godot_icall_UPNPDevice_add_port_mapping_3bffc24b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_delete_port_mapping_91422e52", (void*)godot_icall_UPNPDevice_delete_port_mapping_91422e52);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_delete_port_mapping_7c08ec16", (void*)godot_icall_UPNPDevice_delete_port_mapping_7c08ec16);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_set_description_url_6964ff3e", (void*)godot_icall_UPNPDevice_set_description_url_6964ff3e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_get_description_url_97be4a2e", (void*)godot_icall_UPNPDevice_get_description_url_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_set_service_type_6964ff3e", (void*)godot_icall_UPNPDevice_set_service_type_6964ff3e);
@@ -57291,13 +57291,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_get_igd_our_addr_97be4a2e", (void*)godot_icall_UPNPDevice_get_igd_our_addr_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_set_igd_status_49809a86", (void*)godot_icall_UPNPDevice_set_igd_status_49809a86);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UPNPDevice_get_igd_status_77a265e6", (void*)godot_icall_UPNPDevice_get_igd_status_77a265e6);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_create_action_fbeeea5d", (void*)godot_icall_UndoRedo_create_action_fbeeea5d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_create_action_2a07168a", (void*)godot_icall_UndoRedo_create_action_2a07168a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_commit_action_c8e54a7b", (void*)godot_icall_UndoRedo_commit_action_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_is_commiting_action_68fe5f59", (void*)godot_icall_UndoRedo_is_commiting_action_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_do_method_a0841b08", (void*)godot_icall_UndoRedo_add_do_method_a0841b08);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_undo_method_a0841b08", (void*)godot_icall_UndoRedo_add_undo_method_a0841b08);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_do_property_fd313627", (void*)godot_icall_UndoRedo_add_do_property_fd313627);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_undo_property_fd313627", (void*)godot_icall_UndoRedo_add_undo_property_fd313627);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_do_property_91d4cdd2", (void*)godot_icall_UndoRedo_add_do_property_91d4cdd2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_undo_property_91d4cdd2", (void*)godot_icall_UndoRedo_add_undo_property_91d4cdd2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_do_reference_ad798950", (void*)godot_icall_UndoRedo_add_do_reference_ad798950);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_add_undo_reference_ad798950", (void*)godot_icall_UndoRedo_add_undo_reference_ad798950);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_UndoRedo_clear_history_ba24800b", (void*)godot_icall_UndoRedo_clear_history_ba24800b);
@@ -57549,7 +57549,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptEngineSingleton_get_singleton_97be4a2e", (void*)godot_icall_VisualScriptEngineSingleton_get_singleton_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_set_base_type_2f29e819", (void*)godot_icall_VisualScriptFunctionCall_set_base_type_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_get_base_type_97be4a2e", (void*)godot_icall_VisualScriptFunctionCall_get_base_type_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_set_base_script_919b8b17", (void*)godot_icall_VisualScriptFunctionCall_set_base_script_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_set_base_script_3ca14953", (void*)godot_icall_VisualScriptFunctionCall_set_base_script_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_get_base_script_97be4a2e", (void*)godot_icall_VisualScriptFunctionCall_get_base_script_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_set_basic_type_2ca776e4", (void*)godot_icall_VisualScriptFunctionCall_set_basic_type_2ca776e4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_get_basic_type_da7ed188", (void*)godot_icall_VisualScriptFunctionCall_get_basic_type_da7ed188);
@@ -57569,7 +57569,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_get_rpc_call_mode_37b7b8a2", (void*)godot_icall_VisualScriptFunctionCall_get_rpc_call_mode_37b7b8a2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_set_validate_ba24800b", (void*)godot_icall_VisualScriptFunctionCall_set_validate_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionCall_get_validate_68fe5f59", (void*)godot_icall_VisualScriptFunctionCall_get_validate_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionState_connect_to_signal_85bb43eb", (void*)godot_icall_VisualScriptFunctionState_connect_to_signal_85bb43eb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionState_connect_to_signal_d94ae12e", (void*)godot_icall_VisualScriptFunctionState_connect_to_signal_d94ae12e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionState_resume_61377341", (void*)godot_icall_VisualScriptFunctionState_resume_61377341);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptFunctionState_is_valid_68fe5f59", (void*)godot_icall_VisualScriptFunctionState_is_valid_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptGlobalConstant_set_global_constant_e1ae93bc", (void*)godot_icall_VisualScriptGlobalConstant_set_global_constant_e1ae93bc);
@@ -57610,7 +57610,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPreload_get_preload_c567ae79", (void*)godot_icall_VisualScriptPreload_get_preload_c567ae79);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_set_base_type_2f29e819", (void*)godot_icall_VisualScriptPropertyGet_set_base_type_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_get_base_type_97be4a2e", (void*)godot_icall_VisualScriptPropertyGet_get_base_type_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_set_base_script_919b8b17", (void*)godot_icall_VisualScriptPropertyGet_set_base_script_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_set_base_script_3ca14953", (void*)godot_icall_VisualScriptPropertyGet_set_base_script_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_get_base_script_97be4a2e", (void*)godot_icall_VisualScriptPropertyGet_get_base_script_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_set_basic_type_2ca776e4", (void*)godot_icall_VisualScriptPropertyGet_set_basic_type_2ca776e4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_get_basic_type_da7ed188", (void*)godot_icall_VisualScriptPropertyGet_get_basic_type_da7ed188);
@@ -57626,7 +57626,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertyGet_get_index_97be4a2e", (void*)godot_icall_VisualScriptPropertyGet_get_index_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_set_base_type_2f29e819", (void*)godot_icall_VisualScriptPropertySet_set_base_type_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_get_base_type_97be4a2e", (void*)godot_icall_VisualScriptPropertySet_get_base_type_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_set_base_script_919b8b17", (void*)godot_icall_VisualScriptPropertySet_set_base_script_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_set_base_script_3ca14953", (void*)godot_icall_VisualScriptPropertySet_set_base_script_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_get_base_script_97be4a2e", (void*)godot_icall_VisualScriptPropertySet_get_base_script_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_set_basic_type_2ca776e4", (void*)godot_icall_VisualScriptPropertySet_set_basic_type_2ca776e4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_get_basic_type_da7ed188", (void*)godot_icall_VisualScriptPropertySet_get_basic_type_da7ed188);
@@ -57642,7 +57642,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_get_index_97be4a2e", (void*)godot_icall_VisualScriptPropertySet_get_index_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_set_assign_op_e894e9b1", (void*)godot_icall_VisualScriptPropertySet_set_assign_op_e894e9b1);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptPropertySet_get_assign_op_c37223fc", (void*)godot_icall_VisualScriptPropertySet_get_assign_op_c37223fc);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptResourcePath_set_resource_path_919b8b17", (void*)godot_icall_VisualScriptResourcePath_set_resource_path_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptResourcePath_set_resource_path_3ca14953", (void*)godot_icall_VisualScriptResourcePath_set_resource_path_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptResourcePath_get_resource_path_97be4a2e", (void*)godot_icall_VisualScriptResourcePath_get_resource_path_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptReturn_set_return_type_2ca776e4", (void*)godot_icall_VisualScriptReturn_set_return_type_2ca776e4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptReturn_get_return_type_da7ed188", (void*)godot_icall_VisualScriptReturn_get_return_type_da7ed188);
@@ -57656,7 +57656,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptSequence_get_steps_1f886eb0", (void*)godot_icall_VisualScriptSequence_get_steps_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptTypeCast_set_base_type_2f29e819", (void*)godot_icall_VisualScriptTypeCast_set_base_type_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptTypeCast_get_base_type_97be4a2e", (void*)godot_icall_VisualScriptTypeCast_get_base_type_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptTypeCast_set_base_script_919b8b17", (void*)godot_icall_VisualScriptTypeCast_set_base_script_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptTypeCast_set_base_script_3ca14953", (void*)godot_icall_VisualScriptTypeCast_set_base_script_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptTypeCast_get_base_script_97be4a2e", (void*)godot_icall_VisualScriptTypeCast_get_base_script_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptVariableGet_set_variable_2f29e819", (void*)godot_icall_VisualScriptVariableGet_set_variable_2f29e819);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualScriptVariableGet_get_variable_97be4a2e", (void*)godot_icall_VisualScriptVariableGet_get_variable_97be4a2e);
@@ -57693,7 +57693,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_get_height_1867c419", (void*)godot_icall_VisualServer_texture_get_height_1867c419);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_get_depth_1867c419", (void*)godot_icall_VisualServer_texture_get_depth_1867c419);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_set_size_override_c1c02a59", (void*)godot_icall_VisualServer_texture_set_size_override_c1c02a59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_set_path_7f99112f", (void*)godot_icall_VisualServer_texture_set_path_7f99112f);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_set_path_d45c5753", (void*)godot_icall_VisualServer_texture_set_path_d45c5753);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_get_path_8e62b7cc", (void*)godot_icall_VisualServer_texture_get_path_8e62b7cc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_set_shrink_all_x2_on_set_data_ba24800b", (void*)godot_icall_VisualServer_texture_set_shrink_all_x2_on_set_data_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_VisualServer_texture_bind_7aa831af", (void*)godot_icall_VisualServer_texture_bind_7aa831af);
@@ -58174,16 +58174,16 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCMultiplayer_get_peers_22d47c9d", (void*)godot_icall_WebRTCMultiplayer_get_peers_22d47c9d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCMultiplayer_close_c8e54a7b", (void*)godot_icall_WebRTCMultiplayer_close_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_initialize_fe3cff26", (void*)godot_icall_WebRTCPeerConnection_initialize_fe3cff26);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_create_data_channel_a82dcd2a", (void*)godot_icall_WebRTCPeerConnection_create_data_channel_a82dcd2a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_create_data_channel_fbff6dff", (void*)godot_icall_WebRTCPeerConnection_create_data_channel_fbff6dff);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_create_offer_f04570f5", (void*)godot_icall_WebRTCPeerConnection_create_offer_f04570f5);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_set_local_description_21276c93", (void*)godot_icall_WebRTCPeerConnection_set_local_description_21276c93);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_set_remote_description_21276c93", (void*)godot_icall_WebRTCPeerConnection_set_remote_description_21276c93);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_add_ice_candidate_b7b9d46d", (void*)godot_icall_WebRTCPeerConnection_add_ice_candidate_b7b9d46d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_set_local_description_ce7ee84", (void*)godot_icall_WebRTCPeerConnection_set_local_description_ce7ee84);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_set_remote_description_ce7ee84", (void*)godot_icall_WebRTCPeerConnection_set_remote_description_ce7ee84);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_add_ice_candidate_5ac7cfc4", (void*)godot_icall_WebRTCPeerConnection_add_ice_candidate_5ac7cfc4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_poll_f04570f5", (void*)godot_icall_WebRTCPeerConnection_poll_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_close_c8e54a7b", (void*)godot_icall_WebRTCPeerConnection_close_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebRTCPeerConnection_get_connection_state_b9c7176b", (void*)godot_icall_WebRTCPeerConnection_get_connection_state_b9c7176b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_connect_to_url_d796999b", (void*)godot_icall_WebSocketClient_connect_to_url_d796999b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_disconnect_from_host_73adf041", (void*)godot_icall_WebSocketClient_disconnect_from_host_73adf041);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_connect_to_url_b834df5c", (void*)godot_icall_WebSocketClient_connect_to_url_b834df5c);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_disconnect_from_host_cd663605", (void*)godot_icall_WebSocketClient_disconnect_from_host_cd663605);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_get_connected_host_97be4a2e", (void*)godot_icall_WebSocketClient_get_connected_host_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_get_connected_port_c0943588", (void*)godot_icall_WebSocketClient_get_connected_port_c0943588);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketClient_set_verify_ssl_enabled_ba24800b", (void*)godot_icall_WebSocketClient_set_verify_ssl_enabled_ba24800b);
@@ -58194,7 +58194,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_set_write_mode_18a1618c", (void*)godot_icall_WebSocketPeer_set_write_mode_18a1618c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_is_connected_to_host_68fe5f59", (void*)godot_icall_WebSocketPeer_is_connected_to_host_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_was_string_packet_68fe5f59", (void*)godot_icall_WebSocketPeer_was_string_packet_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_close_73adf041", (void*)godot_icall_WebSocketPeer_close_73adf041);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_close_cd663605", (void*)godot_icall_WebSocketPeer_close_cd663605);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_get_connected_host_97be4a2e", (void*)godot_icall_WebSocketPeer_get_connected_host_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_get_connected_port_c0943588", (void*)godot_icall_WebSocketPeer_get_connected_port_c0943588);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketPeer_set_no_delay_ba24800b", (void*)godot_icall_WebSocketPeer_set_no_delay_ba24800b);
@@ -58204,7 +58204,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_has_peer_7f690926", (void*)godot_icall_WebSocketServer_has_peer_7f690926);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_get_peer_address_44fc4c5a", (void*)godot_icall_WebSocketServer_get_peer_address_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_get_peer_port_b835dea5", (void*)godot_icall_WebSocketServer_get_peer_port_b835dea5);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_disconnect_peer_adb06ae3", (void*)godot_icall_WebSocketServer_disconnect_peer_adb06ae3);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_disconnect_peer_48ed2927", (void*)godot_icall_WebSocketServer_disconnect_peer_48ed2927);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_get_bind_ip_97be4a2e", (void*)godot_icall_WebSocketServer_get_bind_ip_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_set_bind_ip_6964ff3e", (void*)godot_icall_WebSocketServer_set_bind_ip_6964ff3e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WebSocketServer_get_private_key_bd0a1107", (void*)godot_icall_WebSocketServer_get_private_key_bd0a1107);
@@ -58230,8 +58230,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_World2D_get_direct_space_state_f8934848", (void*)godot_icall_World2D_get_direct_space_state_f8934848);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WorldEnvironment_set_environment_5a081814", (void*)godot_icall_WorldEnvironment_set_environment_5a081814);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_WorldEnvironment_get_environment_8929e758", (void*)godot_icall_WorldEnvironment_get_environment_8929e758);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_X509Certificate_save_cb25197e", (void*)godot_icall_X509Certificate_save_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_X509Certificate_load_cb25197e", (void*)godot_icall_X509Certificate_load_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_X509Certificate_save_2660dbb2", (void*)godot_icall_X509Certificate_save_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_X509Certificate_load_2660dbb2", (void*)godot_icall_X509Certificate_load_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_read_f04570f5", (void*)godot_icall_XMLParser_read_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_node_type_622cc76d", (void*)godot_icall_XMLParser_get_node_type_622cc76d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_node_name_97be4a2e", (void*)godot_icall_XMLParser_get_node_name_97be4a2e);
@@ -58240,14 +58240,14 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_attribute_count_1f886eb0", (void*)godot_icall_XMLParser_get_attribute_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_attribute_name_44fc4c5a", (void*)godot_icall_XMLParser_get_attribute_name_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_attribute_value_44fc4c5a", (void*)godot_icall_XMLParser_get_attribute_value_44fc4c5a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_has_attribute_2f34617d", (void*)godot_icall_XMLParser_has_attribute_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_named_attribute_value_94caa437", (void*)godot_icall_XMLParser_get_named_attribute_value_94caa437);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_named_attribute_value_safe_94caa437", (void*)godot_icall_XMLParser_get_named_attribute_value_safe_94caa437);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_has_attribute_8a7120b9", (void*)godot_icall_XMLParser_has_attribute_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_named_attribute_value_98465fb", (void*)godot_icall_XMLParser_get_named_attribute_value_98465fb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_named_attribute_value_safe_98465fb", (void*)godot_icall_XMLParser_get_named_attribute_value_safe_98465fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_is_empty_68fe5f59", (void*)godot_icall_XMLParser_is_empty_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_get_current_line_1f886eb0", (void*)godot_icall_XMLParser_get_current_line_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_skip_section_c8e54a7b", (void*)godot_icall_XMLParser_skip_section_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_seek_c719a68b", (void*)godot_icall_XMLParser_seek_c719a68b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_open_cb25197e", (void*)godot_icall_XMLParser_open_cb25197e);
+    mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_open_2660dbb2", (void*)godot_icall_XMLParser_open_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_XMLParser_open_buffer_4d7ce2f", (void*)godot_icall_XMLParser_open_buffer_4d7ce2f);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_YSort_set_sort_enabled_ba24800b", (void*)godot_icall_YSort_set_sort_enabled_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall_YSort_is_sort_enabled_68fe5f59", (void*)godot_icall_YSort_is_sort_enabled_68fe5f59);
@@ -58271,7 +58271,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__ClassDB_class_get_integer_constant_7185a084", (void*)godot_icall__ClassDB_class_get_integer_constant_7185a084);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__ClassDB_class_get_category_67c8521", (void*)godot_icall__ClassDB_class_get_category_67c8521);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__ClassDB_is_class_enabled_bee64043", (void*)godot_icall__ClassDB_is_class_enabled_bee64043);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_open_cb25197e", (void*)godot_icall__Directory_open_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_open_2660dbb2", (void*)godot_icall__Directory_open_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_list_dir_begin_cd09fa4a", (void*)godot_icall__Directory_list_dir_begin_cd09fa4a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_get_next_97be4a2e", (void*)godot_icall__Directory_get_next_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_current_is_dir_68fe5f59", (void*)godot_icall__Directory_current_is_dir_68fe5f59);
@@ -58279,16 +58279,16 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_get_drive_count_1f886eb0", (void*)godot_icall__Directory_get_drive_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_get_drive_44fc4c5a", (void*)godot_icall__Directory_get_drive_44fc4c5a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_get_current_drive_1f886eb0", (void*)godot_icall__Directory_get_current_drive_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_change_dir_cb25197e", (void*)godot_icall__Directory_change_dir_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_change_dir_2660dbb2", (void*)godot_icall__Directory_change_dir_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_get_current_dir_97be4a2e", (void*)godot_icall__Directory_get_current_dir_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_make_dir_cb25197e", (void*)godot_icall__Directory_make_dir_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_make_dir_recursive_cb25197e", (void*)godot_icall__Directory_make_dir_recursive_cb25197e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_file_exists_2f34617d", (void*)godot_icall__Directory_file_exists_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_dir_exists_2f34617d", (void*)godot_icall__Directory_dir_exists_2f34617d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_make_dir_2660dbb2", (void*)godot_icall__Directory_make_dir_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_make_dir_recursive_2660dbb2", (void*)godot_icall__Directory_make_dir_recursive_2660dbb2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_file_exists_8a7120b9", (void*)godot_icall__Directory_file_exists_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_dir_exists_8a7120b9", (void*)godot_icall__Directory_dir_exists_8a7120b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_get_space_left_1f886eb0", (void*)godot_icall__Directory_get_space_left_1f886eb0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_copy_21276c93", (void*)godot_icall__Directory_copy_21276c93);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_rename_21276c93", (void*)godot_icall__Directory_rename_21276c93);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_remove_cb25197e", (void*)godot_icall__Directory_remove_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_copy_ce7ee84", (void*)godot_icall__Directory_copy_ce7ee84);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_rename_ce7ee84", (void*)godot_icall__Directory_rename_ce7ee84);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Directory_remove_2660dbb2", (void*)godot_icall__Directory_remove_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_set_iterations_per_second_e1ae93bc", (void*)godot_icall__Engine_set_iterations_per_second_e1ae93bc);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_get_iterations_per_second_1f886eb0", (void*)godot_icall__Engine_get_iterations_per_second_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_set_physics_jitter_fix_904508bb", (void*)godot_icall__Engine_set_physics_jitter_fix_904508bb);
@@ -58310,14 +58310,14 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_get_license_info_22d47c9d", (void*)godot_icall__Engine_get_license_info_22d47c9d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_get_license_text_97be4a2e", (void*)godot_icall__Engine_get_license_text_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_is_in_physics_frame_68fe5f59", (void*)godot_icall__Engine_is_in_physics_frame_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_has_singleton_2f34617d", (void*)godot_icall__Engine_has_singleton_2f34617d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_has_singleton_8a7120b9", (void*)godot_icall__Engine_has_singleton_8a7120b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_get_singleton_d254541d", (void*)godot_icall__Engine_get_singleton_d254541d);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_set_editor_hint_ba24800b", (void*)godot_icall__Engine_set_editor_hint_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Engine_is_editor_hint_68fe5f59", (void*)godot_icall__Engine_is_editor_hint_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_encrypted_ffafe9e4", (void*)godot_icall__File_open_encrypted_ffafe9e4);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_encrypted_with_pass_2eb8f856", (void*)godot_icall__File_open_encrypted_with_pass_2eb8f856);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_compressed_be317824", (void*)godot_icall__File_open_compressed_be317824);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_68f83fa0", (void*)godot_icall__File_open_68f83fa0);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_encrypted_35d48b4b", (void*)godot_icall__File_open_encrypted_35d48b4b);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_encrypted_with_pass_cc2b57d9", (void*)godot_icall__File_open_encrypted_with_pass_cc2b57d9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_compressed_f6661a0b", (void*)godot_icall__File_open_compressed_f6661a0b);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_open_6ffc7fd9", (void*)godot_icall__File_open_6ffc7fd9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_close_c8e54a7b", (void*)godot_icall__File_close_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_path_97be4a2e", (void*)godot_icall__File_get_path_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_path_absolute_97be4a2e", (void*)godot_icall__File_get_path_absolute_97be4a2e);
@@ -58338,8 +58338,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_line_97be4a2e", (void*)godot_icall__File_get_line_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_csv_line_befa5dfb", (void*)godot_icall__File_get_csv_line_befa5dfb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_as_text_97be4a2e", (void*)godot_icall__File_get_as_text_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_md5_94caa437", (void*)godot_icall__File_get_md5_94caa437);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_sha256_94caa437", (void*)godot_icall__File_get_sha256_94caa437);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_md5_98465fb", (void*)godot_icall__File_get_md5_98465fb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_sha256_98465fb", (void*)godot_icall__File_get_sha256_98465fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_endian_swap_68fe5f59", (void*)godot_icall__File_get_endian_swap_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_set_endian_swap_ba24800b", (void*)godot_icall__File_set_endian_swap_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_error_f04570f5", (void*)godot_icall__File_get_error_f04570f5);
@@ -58352,14 +58352,14 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_double_f96f5126", (void*)godot_icall__File_store_double_f96f5126);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_real_904508bb", (void*)godot_icall__File_store_real_904508bb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_buffer_da545cc0", (void*)godot_icall__File_store_buffer_da545cc0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_line_919b8b17", (void*)godot_icall__File_store_line_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_line_3ca14953", (void*)godot_icall__File_store_line_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_csv_line_f0cd17e1", (void*)godot_icall__File_store_csv_line_f0cd17e1);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_string_919b8b17", (void*)godot_icall__File_store_string_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_string_3ca14953", (void*)godot_icall__File_store_string_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_var_aff2c475", (void*)godot_icall__File_store_var_aff2c475);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_pascal_string_919b8b17", (void*)godot_icall__File_store_pascal_string_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_store_pascal_string_3ca14953", (void*)godot_icall__File_store_pascal_string_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_pascal_string_97be4a2e", (void*)godot_icall__File_get_pascal_string_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_file_exists_2f34617d", (void*)godot_icall__File_file_exists_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_modified_time_a56651a8", (void*)godot_icall__File_get_modified_time_a56651a8);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_file_exists_8a7120b9", (void*)godot_icall__File_file_exists_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__File_get_modified_time_c22117d4", (void*)godot_icall__File_get_modified_time_c22117d4);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Geometry_build_box_planes_a8643369", (void*)godot_icall__Geometry_build_box_planes_a8643369);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Geometry_build_cylinder_planes_595625c0", (void*)godot_icall__Geometry_build_cylinder_planes_595625c0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Geometry_build_capsule_planes_969e84c3", (void*)godot_icall__Geometry_build_capsule_planes_969e84c3);
@@ -58402,18 +58402,18 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__GodotSharp_is_domain_finalizing_for_unload_7f690926", (void*)godot_icall__GodotSharp_is_domain_finalizing_for_unload_7f690926);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__GodotSharp_is_runtime_shutting_down_68fe5f59", (void*)godot_icall__GodotSharp_is_runtime_shutting_down_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__GodotSharp_is_runtime_initialized_68fe5f59", (void*)godot_icall__GodotSharp_is_runtime_initialized_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__JSON_print_308d5ce9", (void*)godot_icall__JSON_print_308d5ce9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__JSON_print_599d1e1c", (void*)godot_icall__JSON_print_599d1e1c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__JSON_parse_eaebb7e9", (void*)godot_icall__JSON_parse_eaebb7e9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_variant_to_base64_f57e262a", (void*)godot_icall__Marshalls_variant_to_base64_f57e262a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_base64_to_variant_3529a900", (void*)godot_icall__Marshalls_base64_to_variant_3529a900);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_base64_to_variant_264646a7", (void*)godot_icall__Marshalls_base64_to_variant_264646a7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_raw_to_base64_2b190946", (void*)godot_icall__Marshalls_raw_to_base64_2b190946);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_base64_to_raw_23748853", (void*)godot_icall__Marshalls_base64_to_raw_23748853);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_utf8_to_base64_94caa437", (void*)godot_icall__Marshalls_utf8_to_base64_94caa437);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_base64_to_utf8_94caa437", (void*)godot_icall__Marshalls_base64_to_utf8_94caa437);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_base64_to_raw_ceb3ce17", (void*)godot_icall__Marshalls_base64_to_raw_ceb3ce17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_utf8_to_base64_98465fb", (void*)godot_icall__Marshalls_utf8_to_base64_98465fb);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__Marshalls_base64_to_utf8_98465fb", (void*)godot_icall__Marshalls_base64_to_utf8_98465fb);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Mutex_lock_c8e54a7b", (void*)godot_icall__Mutex_lock_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Mutex_try_lock_f04570f5", (void*)godot_icall__Mutex_try_lock_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Mutex_unlock_c8e54a7b", (void*)godot_icall__Mutex_unlock_c8e54a7b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_clipboard_919b8b17", (void*)godot_icall__OS_set_clipboard_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_clipboard_3ca14953", (void*)godot_icall__OS_set_clipboard_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_clipboard_97be4a2e", (void*)godot_icall__OS_get_clipboard_97be4a2e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_global_menu_add_item_2a689c62", (void*)godot_icall__OS_global_menu_add_item_2a689c62);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_global_menu_add_separator_2f29e819", (void*)godot_icall__OS_global_menu_add_separator_2f29e819);
@@ -58477,7 +58477,7 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_low_processor_usage_mode_sleep_usec_1f886eb0", (void*)godot_icall__OS_get_low_processor_usage_mode_sleep_usec_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_processor_count_1f886eb0", (void*)godot_icall__OS_get_processor_count_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_executable_path_97be4a2e", (void*)godot_icall__OS_get_executable_path_97be4a2e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_execute_960baa67", (void*)godot_icall__OS_execute_960baa67);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_execute_eacacb26", (void*)godot_icall__OS_execute_eacacb26);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_kill_fb68f113", (void*)godot_icall__OS_kill_fb68f113);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_shell_open_73262d91", (void*)godot_icall__OS_shell_open_73262d91);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_process_id_1f886eb0", (void*)godot_icall__OS_get_process_id_1f886eb0);
@@ -58512,13 +58512,13 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_can_use_threads_68fe5f59", (void*)godot_icall__OS_can_use_threads_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_is_debug_build_68fe5f59", (void*)godot_icall__OS_is_debug_build_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_dump_memory_to_file_6964ff3e", (void*)godot_icall__OS_dump_memory_to_file_6964ff3e);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_dump_resources_to_file_919b8b17", (void*)godot_icall__OS_dump_resources_to_file_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_dump_resources_to_file_3ca14953", (void*)godot_icall__OS_dump_resources_to_file_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_has_virtual_keyboard_68fe5f59", (void*)godot_icall__OS_has_virtual_keyboard_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_show_virtual_keyboard_6964ff3e", (void*)godot_icall__OS_show_virtual_keyboard_6964ff3e);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_hide_virtual_keyboard_c8e54a7b", (void*)godot_icall__OS_hide_virtual_keyboard_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_virtual_keyboard_height_1f886eb0", (void*)godot_icall__OS_get_virtual_keyboard_height_1f886eb0);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_print_resources_in_use_ba24800b", (void*)godot_icall__OS_print_resources_in_use_ba24800b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_print_all_resources_919b8b17", (void*)godot_icall__OS_print_all_resources_919b8b17);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_print_all_resources_3ca14953", (void*)godot_icall__OS_print_all_resources_3ca14953);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_static_memory_usage_4bb7c348", (void*)godot_icall__OS_get_static_memory_usage_4bb7c348);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_static_memory_peak_usage_4bb7c348", (void*)godot_icall__OS_get_static_memory_peak_usage_4bb7c348);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_user_data_dir_97be4a2e", (void*)godot_icall__OS_get_user_data_dir_97be4a2e);
@@ -58527,33 +58527,33 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_is_ok_left_and_cancel_right_68fe5f59", (void*)godot_icall__OS_is_ok_left_and_cancel_right_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_print_all_textures_by_size_c8e54a7b", (void*)godot_icall__OS_print_all_textures_by_size_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_print_resources_by_type_a4cdc50a", (void*)godot_icall__OS_print_resources_by_type_a4cdc50a);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_native_video_play_c80b1084", (void*)godot_icall__OS_native_video_play_c80b1084);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_native_video_play_221902a", (void*)godot_icall__OS_native_video_play_221902a);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_native_video_is_playing_68fe5f59", (void*)godot_icall__OS_native_video_is_playing_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_native_video_stop_c8e54a7b", (void*)godot_icall__OS_native_video_stop_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_native_video_pause_c8e54a7b", (void*)godot_icall__OS_native_video_pause_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_native_video_unpause_c8e54a7b", (void*)godot_icall__OS_native_video_unpause_c8e54a7b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_scancode_string_9f3844b7", (void*)godot_icall__OS_get_scancode_string_9f3844b7);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_is_scancode_unicode_242501fd", (void*)godot_icall__OS_is_scancode_unicode_242501fd);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_find_scancode_from_string_c878f90a", (void*)godot_icall__OS_find_scancode_from_string_c878f90a);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_find_scancode_from_string_6d3db7c6", (void*)godot_icall__OS_find_scancode_from_string_6d3db7c6);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_use_file_access_save_and_swap_ba24800b", (void*)godot_icall__OS_set_use_file_access_save_and_swap_ba24800b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_alert_e8a7f384", (void*)godot_icall__OS_alert_e8a7f384);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_thread_name_cb25197e", (void*)godot_icall__OS_set_thread_name_cb25197e);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_alert_fc93f18d", (void*)godot_icall__OS_alert_fc93f18d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_thread_name_2660dbb2", (void*)godot_icall__OS_set_thread_name_2660dbb2);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_use_vsync_ba24800b", (void*)godot_icall__OS_set_use_vsync_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_is_vsync_enabled_68fe5f59", (void*)godot_icall__OS_is_vsync_enabled_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_set_vsync_via_compositor_ba24800b", (void*)godot_icall__OS_set_vsync_via_compositor_ba24800b);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_is_vsync_via_compositor_enabled_68fe5f59", (void*)godot_icall__OS_is_vsync_via_compositor_enabled_68fe5f59);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_has_feature_2f34617d", (void*)godot_icall__OS_has_feature_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_request_permission_2f34617d", (void*)godot_icall__OS_request_permission_2f34617d);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_has_feature_8a7120b9", (void*)godot_icall__OS_has_feature_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_request_permission_8a7120b9", (void*)godot_icall__OS_request_permission_8a7120b9);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_request_permissions_68fe5f59", (void*)godot_icall__OS_request_permissions_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__OS_get_granted_permissions_4cc8f2a7", (void*)godot_icall__OS_get_granted_permissions_4cc8f2a7);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_load_interactive_9ec9baf8", (void*)godot_icall__ResourceLoader_load_interactive_9ec9baf8);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_load_f60b971d", (void*)godot_icall__ResourceLoader_load_f60b971d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_get_recognized_extensions_for_type_7fa944d0", (void*)godot_icall__ResourceLoader_get_recognized_extensions_for_type_7fa944d0);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_load_interactive_ef466547", (void*)godot_icall__ResourceLoader_load_interactive_ef466547);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_load_632b28d2", (void*)godot_icall__ResourceLoader_load_632b28d2);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_get_recognized_extensions_for_type_82ee0a94", (void*)godot_icall__ResourceLoader_get_recognized_extensions_for_type_82ee0a94);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_set_abort_on_missing_resources_ba24800b", (void*)godot_icall__ResourceLoader_set_abort_on_missing_resources_ba24800b);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_get_dependencies_7fa944d0", (void*)godot_icall__ResourceLoader_get_dependencies_7fa944d0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_has_cached_2f34617d", (void*)godot_icall__ResourceLoader_has_cached_2f34617d);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_exists_e9ec26d0", (void*)godot_icall__ResourceLoader_exists_e9ec26d0);
-    mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceSaver_save_4592bd78", (void*)godot_icall__ResourceSaver_save_4592bd78);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_get_dependencies_82ee0a94", (void*)godot_icall__ResourceLoader_get_dependencies_82ee0a94);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_has_cached_8a7120b9", (void*)godot_icall__ResourceLoader_has_cached_8a7120b9);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceLoader_exists_cdeda881", (void*)godot_icall__ResourceLoader_exists_cdeda881);
+	mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceSaver_save_7666d7ab", (void*)godot_icall__ResourceSaver_save_7666d7ab);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__ResourceSaver_get_recognized_extensions_e5c6fc3c", (void*)godot_icall__ResourceSaver_get_recognized_extensions_e5c6fc3c);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Semaphore_wait_f04570f5", (void*)godot_icall__Semaphore_wait_f04570f5);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Semaphore_post_f04570f5", (void*)godot_icall__Semaphore_post_f04570f5);
@@ -58562,8 +58562,8 @@ void register_generated_icalls() {
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Thread_is_active_68fe5f59", (void*)godot_icall__Thread_is_active_68fe5f59);
     mono_add_internal_call("Godot.NativeCalls::godot_icall__Thread_wait_to_finish_a08d6f10", (void*)godot_icall__Thread_wait_to_finish_a08d6f10);
 #ifdef TOOLS_ENABLED
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall__VisualScriptEditor_add_custom_node_250c5416", (void*)godot_icall__VisualScriptEditor_add_custom_node_250c5416);
-    mono_add_internal_call("Godot.EditorNativeCalls::godot_icall__VisualScriptEditor_remove_custom_node_e8a7f384", (void*)godot_icall__VisualScriptEditor_remove_custom_node_e8a7f384);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall__VisualScriptEditor_add_custom_node_3135d8d9", (void*)godot_icall__VisualScriptEditor_add_custom_node_3135d8d9);
+	mono_add_internal_call("Godot.EditorNativeCalls::godot_icall__VisualScriptEditor_remove_custom_node_fc93f18d", (void*)godot_icall__VisualScriptEditor_remove_custom_node_fc93f18d);
 #endif
 }
 

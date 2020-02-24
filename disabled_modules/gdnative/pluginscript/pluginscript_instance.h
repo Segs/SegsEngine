@@ -74,7 +74,7 @@ public:
 
 	ScriptLanguage *get_language() override;
 
-	void set_path(se_string_view p_path);
+	void set_path(StringView p_path);
 
 	MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override;
 	MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override;

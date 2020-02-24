@@ -64,7 +64,7 @@ void PCKPacker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush, {DEFVAL(false)});
 };
 
-Error PCKPacker::pck_start(se_string_view p_file, int p_alignment) {
+Error PCKPacker::pck_start(StringView p_file, int p_alignment) {
 
     if (file != nullptr) {
         memdelete(file);
@@ -92,7 +92,7 @@ Error PCKPacker::pck_start(se_string_view p_file, int p_alignment) {
     return OK;
 };
 
-Error PCKPacker::add_file(se_string_view p_file, se_string_view p_src) {
+Error PCKPacker::add_file(StringView p_file, StringView p_src) {
 
     FileAccess *f = FileAccess::open(p_src, FileAccess::READ);
     if (!f) {

@@ -35,7 +35,7 @@
 #include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "core/property_info.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/variant_parser.h"
@@ -44,10 +44,10 @@
 IMPL_GDCLASS(ResourceImporter)
 
 bool ResourceFormatImporter::SortImporterByName::operator()(const ResourceImporterInterface *p_a, const ResourceImporterInterface *p_b) const {
-    return se_string_view(p_a->get_importer_name()) < se_string_view(p_b->get_importer_name());
+    return StringView(p_a->get_importer_name()) < StringView(p_b->get_importer_name());
 }
 
-Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndType &r_path_and_type, bool *r_valid) const {
+Error ResourceFormatImporter::_get_path_and_type(StringView p_path, PathAndType &r_path_and_type, bool *r_valid) const {
     ConfigFile import_info;
     bool path_found = false; //first match must have priority
 
@@ -61,15 +61,15 @@ Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndT
     if (r_valid) {
         *r_valid = true;
     }
-    auto iter = import_info.all_values().find_as(se_string_view("remap"));
+    auto iter = import_info.all_values().find_as(StringView("remap"));
     if(iter== import_info.all_values().end())
         return ERR_FILE_CORRUPT;
 
-    Vector<String> keys = import_info.get_section_keys(se_string_view("remap"));
+    Vector<String> keys = import_info.get_section_keys(StringView("remap"));
 
     for(const auto &remap_kv : iter->second) {
         if (!path_found && StringUtils::begins_with(remap_kv.first, "path.") && r_path_and_type.path.empty()) {
-            se_string_view feature(StringUtils::get_slice(remap_kv.first, '.', 1));
+            StringView feature(StringUtils::get_slice(remap_kv.first, '.', 1));
             if (OS::get_singleton()->has_feature(feature)) {
                 r_path_and_type.path = remap_kv.second.as<String>();
                 path_found = true; //first match must have priority
@@ -106,7 +106,7 @@ Error ResourceFormatImporter::_get_path_and_type(se_string_view p_path, PathAndT
     return OK;
 }
 
-RES ResourceFormatImporter::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatImporter::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
@@ -157,7 +157,7 @@ void ResourceFormatImporter::get_recognized_extensions(Vector<String> &p_extensi
     }
 }
 
-void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const {
+void ResourceFormatImporter::get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const {
 
     if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
@@ -202,22 +202,22 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(se_string_view p
     }
 }
 
-bool ResourceFormatImporter::exists(se_string_view p_path) const {
+bool ResourceFormatImporter::exists(StringView p_path) const {
 
     return FileAccess::exists(String(p_path) + ".import");
 }
 
-bool ResourceFormatImporter::recognize_path(se_string_view p_path, se_string_view /*p_for_type*/) const {
+bool ResourceFormatImporter::recognize_path(StringView p_path, StringView /*p_for_type*/) const {
 
     return FileAccess::exists(String(p_path) + ".import");
 }
 
-bool ResourceFormatImporter::can_be_imported(se_string_view p_path) const {
+bool ResourceFormatImporter::can_be_imported(StringView p_path) const {
 
     return ResourceFormatLoader::recognize_path(p_path);
 }
 
-int ResourceFormatImporter::get_import_order(se_string_view p_path) const {
+int ResourceFormatImporter::get_import_order(StringView p_path) const {
 
     ResourceImporterInterface *importer = nullptr;
 
@@ -240,7 +240,7 @@ int ResourceFormatImporter::get_import_order(se_string_view p_path) const {
     return 0;
 }
 
-bool ResourceFormatImporter::handles_type(se_string_view p_type) const {
+bool ResourceFormatImporter::handles_type(StringView p_type) const {
 
     for (size_t i = 0; i < importers.size(); i++) {
 
@@ -262,7 +262,7 @@ bool ResourceFormatImporter::handles_type(se_string_view p_type) const {
     return true;
 }
 
-String ResourceFormatImporter::get_internal_resource_path(se_string_view p_path) const {
+String ResourceFormatImporter::get_internal_resource_path(StringView p_path) const {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
@@ -275,7 +275,7 @@ String ResourceFormatImporter::get_internal_resource_path(se_string_view p_path)
     return pat.path;
 }
 
-void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_path, Vector<String> *r_paths) {
+void ResourceFormatImporter::get_internal_resource_path_list(StringView p_path, Vector<String> *r_paths) {
 
     Error err;
     FileAccess *f = FileAccess::open(String(p_path) + ".import", FileAccess::READ, &err);
@@ -324,7 +324,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(se_string_view p_pa
     memdelete(f);
 }
 
-String ResourceFormatImporter::get_import_group_file(se_string_view p_path) const {
+String ResourceFormatImporter::get_import_group_file(StringView p_path) const {
 
     bool valid = true;
     PathAndType pat;
@@ -332,7 +332,7 @@ String ResourceFormatImporter::get_import_group_file(se_string_view p_path) cons
     return valid ? pat.group_file : String();
 }
 
-bool ResourceFormatImporter::is_import_valid(se_string_view p_path) const {
+bool ResourceFormatImporter::is_import_valid(StringView p_path) const {
 
     bool valid = true;
     PathAndType pat;
@@ -340,7 +340,7 @@ bool ResourceFormatImporter::is_import_valid(se_string_view p_path) const {
     return valid;
 }
 
-String ResourceFormatImporter::get_resource_type(se_string_view p_path) const {
+String ResourceFormatImporter::get_resource_type(StringView p_path) const {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
@@ -353,7 +353,7 @@ String ResourceFormatImporter::get_resource_type(se_string_view p_path) const {
     return pat.type;
 }
 
-Variant ResourceFormatImporter::get_resource_metadata(se_string_view p_path) const {
+Variant ResourceFormatImporter::get_resource_metadata(StringView p_path) const {
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
 
@@ -365,7 +365,7 @@ Variant ResourceFormatImporter::get_resource_metadata(se_string_view p_path) con
     return pat.metadata;
 }
 
-void ResourceFormatImporter::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
+void ResourceFormatImporter::get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     PathAndType pat;
     Error err = _get_path_and_type(p_path, pat);
@@ -378,7 +378,7 @@ void ResourceFormatImporter::get_dependencies(se_string_view p_path, Vector<Stri
     ResourceLoader::get_dependencies(pat.path, p_dependencies, p_add_types);
 }
 
-ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(se_string_view p_name) const {
+ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(StringView p_name) const {
 
     for (size_t i = 0; i < importers.size(); i++) {
         if (importers[i]->get_importer_name() == p_name) {
@@ -393,7 +393,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(se_strin
     return nullptr;
 }
 
-void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extension, Vector<ResourceImporterInterface *> *r_importers) {
+void ResourceFormatImporter::get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers) {
 
     for (size_t i = 0; i < importers.size(); i++) {
         Vector<String> local_exts;
@@ -415,7 +415,7 @@ void ResourceFormatImporter::get_importers_for_extension(se_string_view p_extens
     }
 }
 
-ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_string_view p_extension) const {
+ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(StringView p_extension) const {
 
     ResourceImporterInterface *importer = nullptr;
     float priority = 0;
@@ -444,12 +444,12 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(se_
     return importer;
 }
 
-String ResourceFormatImporter::get_import_base_path(se_string_view p_for_file) const {
+String ResourceFormatImporter::get_import_base_path(StringView p_for_file) const {
 
     return "res://.import/" + String(PathUtils::get_file(p_for_file)) + "-" + StringUtils::md5_text(p_for_file);
 }
 
-bool ResourceFormatImporter::are_import_settings_valid(se_string_view p_path) const {
+bool ResourceFormatImporter::are_import_settings_valid(StringView p_path) const {
 
     bool valid = true;
     PathAndType pat;
@@ -458,7 +458,7 @@ bool ResourceFormatImporter::are_import_settings_valid(se_string_view p_path) co
     if (!valid) {
         return false;
     }
-    se_string_view pat_importer(pat.importer);
+    StringView pat_importer(pat.importer);
     for (size_t i = 0; i < importers.size(); i++) {
         if (importers[i]->get_importer_name() == pat_importer) {
             if (!importers[i]->are_import_settings_valid(p_path)) { //importer thinks this is not valid

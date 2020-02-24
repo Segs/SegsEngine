@@ -33,7 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "editor/editor_scale.h"
 #include "gdnative.h"
 IMPL_GDCLASS(GDNativeLibraryEditor)

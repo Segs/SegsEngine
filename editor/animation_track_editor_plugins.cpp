@@ -1305,7 +1305,7 @@ AnimationTrackEditTypeAnimation::AnimationTrackEditTypeAnimation() {
 }
 
 /////////
-AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Object *p_object, VariantType p_type, const StringName &p_property, PropertyHint p_hint, se_string_view p_hint_string, int p_usage) {
+AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Object *p_object, VariantType p_type, const StringName &p_property, PropertyHint p_hint, StringView p_hint_string, int p_usage) {
 
     if (p_property == "playing" && (p_object->is_class("AudioStreamPlayer") || p_object->is_class("AudioStreamPlayer2D") || p_object->is_class("AudioStreamPlayer3D"))) {
 

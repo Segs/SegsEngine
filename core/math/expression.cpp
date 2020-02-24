@@ -41,7 +41,7 @@
 #include "core/reference.h"
 #include "core/variant_parser.h"
 #include "core/translation_helpers.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/color.h"
 
@@ -49,7 +49,7 @@ using namespace eastl;
 
 IMPL_GDCLASS(Expression)
 namespace {
-const se_string_view func_name[Expression::FUNC_MAX] = {
+const StringView func_name[Expression::FUNC_MAX] = {
     "sin",
     "cos",
     "tan",
@@ -120,7 +120,7 @@ const se_string_view func_name[Expression::FUNC_MAX] = {
     "color_named",
 };
 } // end of anonymous namespace
-Expression::BuiltinFunc Expression::find_function(se_string_view p_string) {
+Expression::BuiltinFunc Expression::find_function(StringView p_string) {
 
     for (int i = 0; i < FUNC_MAX; i++) {
         if (func_name[i] == p_string)
@@ -130,9 +130,9 @@ Expression::BuiltinFunc Expression::find_function(se_string_view p_string) {
     return FUNC_MAX;
 }
 
-se_string_view Expression::get_func_name(BuiltinFunc p_func) {
+StringView Expression::get_func_name(BuiltinFunc p_func) {
 
-    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, se_string_view());
+    ERR_FAIL_INDEX_V(p_func, FUNC_MAX, StringView());
     return func_name[p_func];
 }
 
@@ -2164,7 +2164,7 @@ bool Expression::_execute(const Array &p_inputs, Object *p_instance, Expression:
     return false;
 }
 
-Error Expression::parse(se_string_view p_expression, const Vector<String> &p_input_names) {
+Error Expression::parse(StringView p_expression, const Vector<String> &p_input_names) {
 
     if (nodes) {
         memdelete(nodes);

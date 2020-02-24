@@ -38,7 +38,7 @@
 #include "scene/gui/split_container.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tree.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class EditorProfiler : public VBoxContainer {
 

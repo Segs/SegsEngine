@@ -149,7 +149,7 @@ void InspectorDock::_new_resource() {
     new_resource_dialog->popup_create(true);
 }
 
-void InspectorDock::_load_resource(se_string_view p_type) {
+void InspectorDock::_load_resource(StringView p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
     Vector<String> extensions;
@@ -163,7 +163,7 @@ void InspectorDock::_load_resource(se_string_view p_type) {
     load_resource_dialog->popup_centered_ratio();
 }
 
-void InspectorDock::_resource_file_selected(se_string_view p_file) {
+void InspectorDock::_resource_file_selected(StringView p_file) {
     RES res(ResourceLoader::load(p_file));
 
     if (not res) {
@@ -195,7 +195,7 @@ void InspectorDock::_unref_resource() const {
 
     ERR_FAIL_COND(not current_res);
 
-    current_res->set_path(se_string_view());
+    current_res->set_path(StringView());
     editor->edit_current();
 }
 
@@ -213,7 +213,7 @@ void InspectorDock::_copy_resource() const {
 void InspectorDock::_paste_resource() const {
     RES r(EditorSettings::get_singleton()->get_resource_clipboard());
     if (r) {
-        editor->push_item(EditorSettings::get_singleton()->get_resource_clipboard().get(), se_string_view());
+        editor->push_item(EditorSettings::get_singleton()->get_resource_clipboard().get(), StringView());
     }
 }
 
@@ -314,11 +314,11 @@ void InspectorDock::_menu_expandall() {
     inspector->expand_all_folding();
 }
 
-void InspectorDock::_property_keyed(se_string_view p_keyed, const Variant &p_value, bool p_advance) {
+void InspectorDock::_property_keyed(StringView p_keyed, const Variant &p_value, bool p_advance) {
     AnimationPlayerEditor::singleton->get_track_editor()->insert_value_key(p_keyed, p_value, p_advance);
 }
 
-void InspectorDock::_transform_keyed(Object *sp, se_string_view p_sub, const Transform &p_key) {
+void InspectorDock::_transform_keyed(Object *sp, StringView p_sub, const Transform &p_key) {
     Spatial *s = object_cast<Spatial>(sp);
     if (!s)
         return;
@@ -380,7 +380,7 @@ void InspectorDock::edit_resource(const Ref<Resource> &p_resource) {
     _resource_selected(p_resource, StringName());
 }
 
-void InspectorDock::open_resource(se_string_view p_type) {
+void InspectorDock::open_resource(StringView p_type) {
     _load_resource(p_type);
 }
 

@@ -233,7 +233,7 @@ void VisualShaderEditor::update_custom_nodes() {
     for (size_t i = 0; i < class_list.size(); i++) {
         if (ScriptServer::get_global_class_native_base(class_list[i]) == "VisualShaderNodeCustom") {
 
-            se_string_view script_path = ScriptServer::get_global_class_path(class_list[i]);
+            StringView script_path = ScriptServer::get_global_class_path(class_list[i]);
             Ref<Resource> res = ResourceLoader::load(script_path);
             ERR_FAIL_COND(not res);
             ERR_FAIL_COND(!res->is_class("Script"));
@@ -302,7 +302,7 @@ StringName VisualShaderEditor::_get_description(int p_idx) {
 
 void VisualShaderEditor::_update_options_menu() {
 
-    node_desc->set_text_utf8(se_string_view());
+    node_desc->set_text_utf8(StringView());
     members_dialog->get_ok()->set_disabled(true);
 
     StringName prev_category;
@@ -854,7 +854,7 @@ void VisualShaderEditor::_update_graph() {
             expression_box->set_syntax_coloring(true);
             expression_box->add_color_override("background_color", background_color);
 
-            for (se_string_view E : keyword_list) {
+            for (StringView E : keyword_list) {
 
                 expression_box->add_keyword_color(E, keyword_color);
             }
@@ -891,7 +891,7 @@ void VisualShaderEditor::_update_graph() {
     }
 }
 
-void VisualShaderEditor::_add_input_port(int p_node, int p_port, int p_port_type, se_string_view p_name) {
+void VisualShaderEditor::_add_input_port(int p_node, int p_port, int p_port_type, StringView p_name) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
     Ref<VisualShaderNodeExpression> node = dynamic_ref_cast<VisualShaderNodeExpression>(visual_shader->get_node(type, p_node));
@@ -909,7 +909,7 @@ void VisualShaderEditor::_add_input_port(int p_node, int p_port, int p_port_type
     undo_redo->commit_action();
 }
 
-void VisualShaderEditor::_add_output_port(int p_node, int p_port, int p_port_type, se_string_view p_name) {
+void VisualShaderEditor::_add_output_port(int p_node, int p_port, int p_port_type, StringView p_name) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
     Ref<VisualShaderNodeGroupBase> node = dynamic_ref_cast<VisualShaderNodeGroupBase>(visual_shader->get_node(type, p_node));
@@ -963,7 +963,7 @@ void VisualShaderEditor::_change_output_port_type(int p_type, int p_node, int p_
     undo_redo->commit_action();
 }
 
-void VisualShaderEditor::_change_input_port_name(se_string_view p_text, Object *line_edit, int p_node_id, int p_port_id) {
+void VisualShaderEditor::_change_input_port_name(StringView p_text, Object *line_edit, int p_node_id, int p_port_id) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
@@ -978,7 +978,7 @@ void VisualShaderEditor::_change_input_port_name(se_string_view p_text, Object *
     undo_redo->commit_action();
 }
 
-void VisualShaderEditor::_change_output_port_name(se_string_view p_text, Object *line_edit, int p_node_id, int p_port_id) {
+void VisualShaderEditor::_change_output_port_name(StringView p_text, Object *line_edit, int p_node_id, int p_port_id) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
@@ -1191,7 +1191,7 @@ void VisualShaderEditor::_preview_select_port(int p_node, int p_port) {
     undo_redo->commit_action();
 }
 
-void VisualShaderEditor::_line_edit_changed(se_string_view p_text, Object *line_edit, int p_node_id) {
+void VisualShaderEditor::_line_edit_changed(StringView p_text, Object *line_edit, int p_node_id) {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
 
@@ -1297,7 +1297,7 @@ void VisualShaderEditor::_edit_port_default_input(Object *p_button, int p_node, 
     editing_node = p_node;
     editing_port = p_port;
 }
-void VisualShaderEditor::_add_custom_node(se_string_view p_path) {
+void VisualShaderEditor::_add_custom_node(StringView p_path) {
 
     int idx = -1;
 
@@ -1314,7 +1314,7 @@ void VisualShaderEditor::_add_custom_node(se_string_view p_path) {
     }
 }
 
-void VisualShaderEditor::_add_texture_node(se_string_view p_path) {
+void VisualShaderEditor::_add_texture_node(StringView p_path) {
     VisualShaderNodeTexture *texture = (VisualShaderNodeTexture *)_add_node(texture_node_option_idx, -1);
     texture->set_texture(dynamic_ref_cast<Texture>(ResourceLoader::load(p_path)));
 }
@@ -1703,7 +1703,7 @@ void VisualShaderEditor::_notification(int p_what) {
 
             preview_text->add_color_override("background_color", background_color);
 
-            for (se_string_view E : keyword_list) {
+            for (StringView E : keyword_list) {
 
                 preview_text->add_keyword_color(E, keyword_color);
             }
@@ -2035,7 +2035,7 @@ void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, co
     undo_redo->commit_action();
 }
 
-void VisualShaderEditor::_member_filter_changed(se_string_view p_text) {
+void VisualShaderEditor::_member_filter_changed(StringView p_text) {
     _update_options_menu();
 }
 
@@ -2047,7 +2047,7 @@ void VisualShaderEditor::_member_selected() {
         node_desc->set_text_utf8(_get_description(item->get_meta("id")));
     } else {
         members_dialog->get_ok()->set_disabled(true);
-        node_desc->set_text_utf8(se_string_view());
+        node_desc->set_text_utf8(StringView());
     }
 }
 
@@ -2935,7 +2935,7 @@ class VisualShaderNodePluginDefaultEditor : public VBoxContainer {
     Ref<Resource> parent_resource;
 
 public:
-    void _property_changed(const StringName &prop, const Variant &p_value, se_string_view p_field, bool p_changing = false) {
+    void _property_changed(const StringName &prop, const Variant &p_value, StringView p_field, bool p_changing = false) {
 
         if (p_changing)
             return;
@@ -2982,7 +2982,7 @@ public:
         VisualShaderEditor::get_singleton()->call_deferred("_update_graph");
     }
 
-    void _resource_selected(se_string_view p_path, const RES& p_resource) {
+    void _resource_selected(StringView p_path, const RES& p_resource) {
         _open_inspector(p_resource);
     }
 
@@ -3185,7 +3185,7 @@ void EditorPropertyShaderMode::update_property() {
     options->select(which);
 }
 
-void EditorPropertyShaderMode::setup(const Vector<se_string_view> &p_options) {
+void EditorPropertyShaderMode::setup(const Vector<StringView> &p_options) {
     for (int i = 0; i < p_options.size(); i++) {
         options->add_item(StringName(p_options[i]), i);
     }
@@ -3216,12 +3216,12 @@ void EditorInspectorShaderModePlugin::parse_begin(Object *p_object) {
     //do none
 }
 
-bool EditorInspectorShaderModePlugin::parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) {
+bool EditorInspectorShaderModePlugin::parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) {
 
-    if (p_path == se_string_view("mode") && p_object->is_class("VisualShader") && p_type == VariantType::INT) {
+    if (p_path == StringView("mode") && p_object->is_class("VisualShader") && p_type == VariantType::INT) {
 
         EditorPropertyShaderMode *editor = memnew(EditorPropertyShaderMode);
-        Vector<se_string_view> options = StringUtils::split(p_hint_text,',');
+        Vector<StringView> options = StringUtils::split(p_hint_text,',');
         editor->setup(options);
         add_property_editor(p_path, editor);
 

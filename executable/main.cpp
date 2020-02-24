@@ -32,7 +32,7 @@
 #include <QCoreApplication>
 #include <qlogging.h>
 
-#include "version.h"
+#include "core/version.h"
 #include "main/main.h"
 #include "core/os/os.h"
 #include "EASTL/unique_ptr.h"

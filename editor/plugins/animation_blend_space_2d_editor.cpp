@@ -300,7 +300,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
     }
 }
 
-void AnimationNodeBlendSpace2DEditor::_file_opened(se_string_view p_file) {
+void AnimationNodeBlendSpace2DEditor::_file_opened(StringView p_file) {
 
     file_loaded = dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
     if (file_loaded) {
@@ -667,7 +667,7 @@ void AnimationNodeBlendSpace2DEditor::_config_changed(double) {
     blend_space_draw->update();
 }
 
-void AnimationNodeBlendSpace2DEditor::_labels_changed(se_string_view) {
+void AnimationNodeBlendSpace2DEditor::_labels_changed(StringView) {
     if (updating)
         return;
 

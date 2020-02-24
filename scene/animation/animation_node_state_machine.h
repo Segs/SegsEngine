@@ -209,7 +209,7 @@ public:
     Vector2 get_graph_offset() const;
 
     float process(float p_time, bool p_seek) override;
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     Ref<AnimationNode> get_child_by_name(const StringName &p_name) override;
 

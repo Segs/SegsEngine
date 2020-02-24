@@ -41,7 +41,7 @@ class Variant;
 using CharString = QByteArray;
 using CharProxy = QCharRef;
 using CharType = QChar;
-using StringView = QStringView;
+using UIStringView = QStringView;
 using UIString = QString;
 extern const UIString s_null_ui_string; // used to return 'null' string reference
 

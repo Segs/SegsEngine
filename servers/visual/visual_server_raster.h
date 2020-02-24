@@ -161,7 +161,7 @@ public:
     BIND3(texture_set_detect_srgb_callback, RID, TextureDetectCallback, void *)
     BIND3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
-    BIND2(texture_set_path, RID, se_string_view)
+    BIND2(texture_set_path, RID, StringView)
     BIND1RC(const String &, texture_get_path, RID)
     BIND1(texture_set_shrink_all_x2_on_set_data, bool)
     BIND1(texture_debug_usage, Vector<TextureInfo> *)

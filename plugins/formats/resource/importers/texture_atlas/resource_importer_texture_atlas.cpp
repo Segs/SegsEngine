@@ -94,7 +94,7 @@ StringName ResourceImporterTextureAtlas::get_option_group_file() const {
     return "atlas_file";
 }
 
-Error ResourceImporterTextureAtlas::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterTextureAtlas::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     /* If this happens, it's because the atlas_file field was not filled, so just import a broken texture */
@@ -203,7 +203,7 @@ static void _plot_triangle(Vector2 *vertices, const Vector2 &p_offset, bool p_tr
     }
 }
 
-Error ResourceImporterTextureAtlas::import_group_file(se_string_view p_group_file, const Map<String, HashMap<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
+Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, const Map<String, HashMap<StringName, Variant> > &p_source_file_options, const Map<String, String> &p_base_paths) {
 
     ERR_FAIL_COND_V(p_source_file_options.empty(), ERR_BUG); //should never happen
 

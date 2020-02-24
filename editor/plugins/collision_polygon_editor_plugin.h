@@ -106,7 +106,7 @@ class Polygon3DEditorPlugin : public EditorPlugin {
 public:
     bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) override { return collision_polygon_editor->forward_spatial_gui_input(p_camera, p_event); }
 
-    se_string_view get_name() const override { return "Polygon3DEditor"; }
+    StringView get_name() const override { return "Polygon3DEditor"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

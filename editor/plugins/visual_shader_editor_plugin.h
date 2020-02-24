@@ -148,12 +148,12 @@ class VisualShaderEditor : public VBoxContainer {
     Vector<AddOption> add_options;
     int texture_node_option_idx;
     int custom_node_option_idx;
-    Vector<se_string_view> keyword_list;
+    Vector<StringView> keyword_list;
 
     void _draw_color_over_button(Object *obj, Color p_color);
 
-    void _add_custom_node(se_string_view p_path);
-    void _add_texture_node(se_string_view p_path);
+    void _add_custom_node(StringView p_path);
+    void _add_texture_node(StringView p_path);
     VisualShaderNode *_add_node(int p_idx, int p_op_idx = -1);
     void _update_options_menu();
 
@@ -190,7 +190,7 @@ class VisualShaderEditor : public VBoxContainer {
     void _connection_to_empty(const StringName &p_from, int p_from_slot, const Vector2 &p_release_position);
     void _connection_from_empty(const StringName &p_to, int p_to_slot, const Vector2 &p_release_position);
 
-    void _line_edit_changed(se_string_view p_text, Object *line_edit, int p_node_id);
+    void _line_edit_changed(StringView p_text, Object *line_edit, int p_node_id);
     void _line_edit_focus_out(Object *line_edit, int p_node_id);
 
     void _port_name_focus_out(Object *line_edit, int p_node_id, int p_port_id, bool p_output);
@@ -217,15 +217,15 @@ class VisualShaderEditor : public VBoxContainer {
 
     void _input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name);
 
-    void _add_input_port(int p_node, int p_port, int p_port_type, se_string_view p_name);
+    void _add_input_port(int p_node, int p_port, int p_port_type, StringView p_name);
     void _remove_input_port(int p_node, int p_port);
     void _change_input_port_type(int p_type, int p_node, int p_port);
-    void _change_input_port_name(se_string_view p_text, Object *line_edit, int p_node, int p_port);
+    void _change_input_port_name(StringView p_text, Object *line_edit, int p_node, int p_port);
 
-    void _add_output_port(int p_node, int p_port, int p_port_type, se_string_view p_name);
+    void _add_output_port(int p_node, int p_port, int p_port_type, StringView p_name);
     void _remove_output_port(int p_node, int p_port);
     void _change_output_port_type(int p_type, int p_node, int p_port);
-    void _change_output_port_name(se_string_view p_text, Object *line_edit, int p_node, int p_port);
+    void _change_output_port_name(StringView p_text, Object *line_edit, int p_node, int p_port);
 
     void _expression_focus_out(Object *text_edit, int p_node);
 
@@ -235,7 +235,7 @@ class VisualShaderEditor : public VBoxContainer {
     void _preview_select_port(int p_node, int p_port);
     void _graph_gui_input(const Ref<InputEvent> &p_event);
 
-    void _member_filter_changed(se_string_view p_text);
+    void _member_filter_changed(StringView p_text);
     void _sbox_input(const Ref<InputEvent> &p_ie);
     void _member_selected();
     void _member_unselected();
@@ -277,7 +277,7 @@ class VisualShaderEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return "VisualShader"; }
+    StringView get_name() const override { return "VisualShader"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -305,7 +305,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const Vector<StringView> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyShaderMode();
@@ -317,7 +317,7 @@ class EditorInspectorShaderModePlugin : public EditorInspectorPlugin {
 public:
     bool can_handle(Object *p_object) override;
     void parse_begin(Object *p_object) override;
-    bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) override;
     void parse_end() override;
 };
 

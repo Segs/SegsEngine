@@ -254,11 +254,11 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         }
 
         if (getenv("LD_LIBRARY_PATH")) {
-            se_string_view ld_library_path(getenv("LD_LIBRARY_PATH"));
-            FixedVector<se_string_view,32,true> libraries;
+            StringView ld_library_path(getenv("LD_LIBRARY_PATH"));
+            FixedVector<StringView,32,true> libraries;
             String::split_ref(libraries,ld_library_path,':');
 
-            for (se_string_view path : libraries) {
+            for (StringView path : libraries) {
                 String libpath(path);
                 if (FileAccess::exists(libpath + "/libGL.so.1") ||
                         FileAccess::exists(libpath + "/libGL.so")) {
@@ -909,7 +909,7 @@ void OS_X11::set_window_per_pixel_transparency_enabled(bool p_enabled) {
     }
 }
 
-void OS_X11::set_window_title(se_string_view p_title) {
+void OS_X11::set_window_title(StringView p_title) {
     TmpString<64,true> title(p_title);
     XStoreName(x11_display, x11_window, title.c_str());
 
@@ -2631,7 +2631,7 @@ bool OS_X11::can_draw() const {
     return !minimized;
 };
 
-void OS_X11::set_clipboard(se_string_view p_text) {
+void OS_X11::set_clipboard(StringView p_text) {
 
     OS::set_clipboard(p_text);
 
@@ -2639,7 +2639,7 @@ void OS_X11::set_clipboard(se_string_view p_text) {
     XSetSelectionOwner(x11_display, XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, CurrentTime);
 };
 
-static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard, Atom target) {
+static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x11_display, StringView p_internal_clipboard, Atom target) {
 
     String ret;
 
@@ -2696,7 +2696,7 @@ static String _get_clipboard_impl(Atom p_source, Window x11_window, ::Display *x
     return ret;
 }
 
-static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, se_string_view p_internal_clipboard) {
+static String _get_clipboard(Atom p_source, Window x11_window, ::Display *x11_display, StringView p_internal_clipboard) {
     String ret;
     Atom utf8_atom = XInternAtom(x11_display, "UTF8_STRING", True);
     if (utf8_atom != 0) {
@@ -2725,7 +2725,7 @@ String OS_X11::get_name() const {
     return ("X11");
 }
 
-Error OS_X11::shell_open(se_string_view p_uri) {
+Error OS_X11::shell_open(StringView p_uri) {
 
     Error ok;
     List<String> args;
@@ -2740,9 +2740,9 @@ Error OS_X11::shell_open(se_string_view p_uri) {
     return ok;
 }
 
-bool OS_X11::_check_internal_feature_support(se_string_view p_feature) {
+bool OS_X11::_check_internal_feature_support(StringView p_feature) {
 
-    return p_feature == se_string_view("pc");
+    return p_feature == StringView("pc");
 }
 
 void OS_X11::move_window_to_foreground() {
@@ -2917,12 +2917,12 @@ void OS_X11::swap_buffers() {
 #endif
 }
 
-void OS_X11::alert(se_string_view _alert, se_string_view _title) {
+void OS_X11::alert(StringView _alert, StringView _title) {
     const char *message_programs[] = { "zenity", "kdialog", "Xdialog", "xmessage" };
     const String p_alert(_alert);
     const String p_title(_title);
     String path = get_environment("PATH");
-    Vector<se_string_view> path_elems = StringUtils::split(path,':', false);
+    Vector<StringView> path_elems = StringUtils::split(path,':', false);
     String program;
 
     for (int i = 0; i < path_elems.size(); i++) {
@@ -3163,10 +3163,10 @@ bool OS_X11::is_disable_crash_handler() const {
     return crash_handler.is_disabled();
 }
 
-static String get_mountpoint(se_string_view p_path) {
+static String get_mountpoint(StringView p_path) {
     struct stat s;
     if (stat(String(p_path).c_str(), &s)) {
-        return null_se_string;
+        return null_string;
     }
 
 #ifdef HAVE_MNTENT
@@ -3188,10 +3188,10 @@ static String get_mountpoint(se_string_view p_path) {
 
     endmntent(fd);
 #endif
-    return null_se_string;
+    return null_string;
 }
 
-Error OS_X11::move_to_trash(se_string_view p_path) {
+Error OS_X11::move_to_trash(StringView p_path) {
     String  trash_can;
     String  mnt = get_mountpoint(p_path);
 
@@ -3266,7 +3266,7 @@ OS::LatinKeyboardVariant OS_X11::get_latin_keyboard_variant() const {
     char *layout = XGetAtomName(x11_display, xkbdesc->names->symbols);
     ERR_FAIL_COND_V(!layout, LATIN_KEYBOARD_QWERTY);
 
-    Vector<se_string_view> info = StringUtils::split(layout,'+');
+    Vector<StringView> info = StringUtils::split(layout,'+');
     ERR_FAIL_INDEX_V(1, info.size(), LATIN_KEYBOARD_QWERTY);
 
     if (StringUtils::contains(info[1],"colemak")) {

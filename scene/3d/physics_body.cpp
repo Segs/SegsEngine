@@ -1453,17 +1453,17 @@ bool PhysicalBone::PinJointData::_set(const StringName &p_name, const Variant &p
         return true;
     }
 
-    if ("joint_constraints/bias"_sv == se_string_view(p_name)) {
+    if ("joint_constraints/bias"_sv == StringView(p_name)) {
         bias = p_value;
         if (j.is_valid())
             PhysicsServer::get_singleton()->pin_joint_set_param(j, PhysicsServer::PIN_JOINT_BIAS, bias);
 
-    } else if ("joint_constraints/damping"_sv == se_string_view(p_name)) {
+    } else if ("joint_constraints/damping"_sv == StringView(p_name)) {
         damping = p_value;
         if (j.is_valid())
             PhysicsServer::get_singleton()->pin_joint_set_param(j, PhysicsServer::PIN_JOINT_DAMPING, damping);
 
-    } else if ("joint_constraints/impulse_clamp"_sv == se_string_view(p_name)) {
+    } else if ("joint_constraints/impulse_clamp"_sv == StringView(p_name)) {
         impulse_clamp = p_value;
         if (j.is_valid())
             PhysicsServer::get_singleton()->pin_joint_set_param(j, PhysicsServer::PIN_JOINT_IMPULSE_CLAMP, impulse_clamp);
@@ -1481,11 +1481,11 @@ bool PhysicalBone::PinJointData::_get(const StringName &p_name, Variant &r_ret) 
         return true;
     }
 
-    if ("joint_constraints/bias"_sv == se_string_view(p_name)) {
+    if ("joint_constraints/bias"_sv == StringView(p_name)) {
         r_ret = bias;
-    } else if ("joint_constraints/damping"_sv == se_string_view(p_name)) {
+    } else if ("joint_constraints/damping"_sv == StringView(p_name)) {
         r_ret = damping;
-    } else if ("joint_constraints/impulse_clamp"_sv == se_string_view(p_name)) {
+    } else if ("joint_constraints/impulse_clamp"_sv == StringView(p_name)) {
         r_ret = impulse_clamp;
     } else {
         return false;
@@ -1768,19 +1768,19 @@ bool PhysicalBone::SixDOFJointData::_set(const StringName &p_name, const Variant
 
     Vector3::Axis axis;
     {
-        const se_string_view axis_s = StringUtils::get_slice(path,'/', 1);
-        if (se_string_view("x") == axis_s) {
+        const StringView axis_s = StringUtils::get_slice(path,'/', 1);
+        if (StringView("x") == axis_s) {
             axis = Vector3::AXIS_X;
-        } else if (se_string_view("y") == axis_s) {
+        } else if (StringView("y") == axis_s) {
             axis = Vector3::AXIS_Y;
-        } else if (se_string_view("z") == axis_s) {
+        } else if (StringView("z") == axis_s) {
             axis = Vector3::AXIS_Z;
         } else {
             return false;
         }
     }
 
-    se_string_view var_name = StringUtils::get_slice(path,'/', 2);
+    StringView var_name = StringUtils::get_slice(path,'/', 2);
 
     if ("linear_limit_enabled"_sv == var_name) {
         axis_data[axis].linear_limit_enabled = p_value;
@@ -1902,11 +1902,11 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
         return true;
     }
 
-    se_string_view path(p_name);
+    StringView path(p_name);
 
     int axis;
     {
-        const se_string_view axis_s = StringUtils::get_slice(path,'/', 1);
+        const StringView axis_s = StringUtils::get_slice(path,'/', 1);
         if ("x"_sv == axis_s) {
             axis = 0;
         } else if ("y"_sv == axis_s) {
@@ -1918,7 +1918,7 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
         }
     }
 
-    se_string_view var_name = StringUtils::get_slice(path,'/', 2);
+    StringView var_name = StringUtils::get_slice(path,'/', 2);
 
     if ("linear_limit_enabled"_sv == var_name) {
         r_ret = axis_data[axis].linear_limit_enabled;
@@ -2430,7 +2430,7 @@ bool PhysicalBone::is_simulating_physics() {
     return _internal_simulate_physics && !_internal_static_body;
 }
 
-void PhysicalBone::set_bone_name(se_string_view p_name) {
+void PhysicalBone::set_bone_name(StringView p_name) {
 
     bone_name = StringName(p_name);
     bone_id = -1;

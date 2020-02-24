@@ -137,7 +137,7 @@ struct _TECategory {
     Set<Item<int> > constant_items;
 };
 
-void ThemeEditor::_save_template_cbk(se_string_view fname) {
+void ThemeEditor::_save_template_cbk(StringView fname) {
 
     String filename = file_dialog->get_current_path();
 

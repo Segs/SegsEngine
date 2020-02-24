@@ -49,7 +49,7 @@
 
 IMPL_GDCLASS(AnimationNodeBlendTreeEditor)
 
-void AnimationNodeBlendTreeEditor::add_custom_type(se_string_view p_name, const Ref<Script> &p_script) {
+void AnimationNodeBlendTreeEditor::add_custom_type(StringView p_name, const Ref<Script> &p_script) {
 
     for (int i = 0; i < add_options.size(); i++) {
         ERR_FAIL_COND(add_options[i].script == p_script);
@@ -96,7 +96,7 @@ Size2 AnimationNodeBlendTreeEditor::get_minimum_size() const {
     return Size2(10, 200);
 }
 
-void AnimationNodeBlendTreeEditor::_property_changed(const StringName &p_property, const Variant &p_value, se_string_view p_field, bool p_changing) {
+void AnimationNodeBlendTreeEditor::_property_changed(const StringName &p_property, const Variant &p_value, StringView p_field, bool p_changing) {
 
     AnimationTree *tree = AnimationTreeEditor::get_singleton()->get_tree();
     updating = true;
@@ -146,7 +146,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
         node->set_name(E);
 
         int base = 0;
-        if (E != se_string_view("output")) {
+        if (E != StringView("output")) {
             LineEdit *name = memnew(LineEdit);
             name->set_text(E);
             name->set_expand_to_text_length(true);
@@ -273,7 +273,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
     }
 }
 
-void AnimationNodeBlendTreeEditor::_file_opened(se_string_view p_file) {
+void AnimationNodeBlendTreeEditor::_file_opened(StringView p_file) {
 
     file_loaded = dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
     if (file_loaded) {
@@ -363,7 +363,7 @@ void AnimationNodeBlendTreeEditor::_node_dragged(const Vector2 &p_from, const Ve
     updating = false;
 }
 
-void AnimationNodeBlendTreeEditor::_connection_request(se_string_view p_from, int p_from_index, se_string_view p_to, int p_to_index) {
+void AnimationNodeBlendTreeEditor::_connection_request(StringView p_from, int p_from_index, StringView p_to, int p_to_index) {
 
     AnimationNodeBlendTree::ConnectionError err = blend_tree->can_connect_node(StringName(p_to), p_to_index, StringName(p_from));
 
@@ -380,7 +380,7 @@ void AnimationNodeBlendTreeEditor::_connection_request(se_string_view p_from, in
     undo_redo->commit_action();
 }
 
-void AnimationNodeBlendTreeEditor::_disconnection_request(se_string_view p_from, int p_from_index, se_string_view p_to, int p_to_index) {
+void AnimationNodeBlendTreeEditor::_disconnection_request(StringView p_from, int p_from_index, StringView p_to, int p_to_index) {
 
     graph->disconnect_node(StringName(p_from), p_from_index, StringName(p_to), p_to_index);
 
@@ -831,7 +831,7 @@ void AnimationNodeBlendTreeEditor::_bind_methods() {
 
 AnimationNodeBlendTreeEditor *AnimationNodeBlendTreeEditor::singleton = nullptr;
 
-void AnimationNodeBlendTreeEditor::_node_renamed(se_string_view p_text, const Ref<AnimationNode>& p_node) {
+void AnimationNodeBlendTreeEditor::_node_renamed(StringView p_text, const Ref<AnimationNode>& p_node) {
 
     StringName prev_name = blend_tree->get_node_name(p_node);
     ERR_FAIL_COND(prev_name.empty());
@@ -844,7 +844,7 @@ void AnimationNodeBlendTreeEditor::_node_renamed(se_string_view p_text, const Re
         return; //nothing to do
     }
 
-    const se_string_view base_name(p_text);
+    const StringView base_name(p_text);
     int base = 1;
     String name(p_text);
     while (blend_tree->has_node(StringName(name))) {

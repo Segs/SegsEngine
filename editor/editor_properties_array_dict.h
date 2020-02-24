@@ -104,7 +104,7 @@ class EditorPropertyArray : public EditorProperty {
     void _change_type(Object *p_button, int p_index);
     void _change_type_menu(int p_index);
 
-    void _object_id_selected(se_string_view p_property, ObjectID p_id);
+    void _object_id_selected(StringView p_property, ObjectID p_id);
     void _remove_pressed(int p_index);
 
 protected:
@@ -112,7 +112,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    void setup(VariantType p_array_type, se_string_view p_hint_string = {});
+    void setup(VariantType p_array_type, StringView p_hint_string = {});
     void update_property() override;
     EditorPropertyArray();
 };
@@ -140,7 +140,7 @@ class EditorPropertyDictionary : public EditorProperty {
     void _change_type_menu(int p_index);
 
     void _add_key_value();
-    void _object_id_selected(se_string_view p_property, ObjectID p_id);
+    void _object_id_selected(StringView p_property, ObjectID p_id);
 
 protected:
     static void _bind_methods();

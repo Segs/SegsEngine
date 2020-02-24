@@ -225,7 +225,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
     name->set_text(current->get_name());
 
     Vector<String> extension_list = current->get_platform()->get_binary_extensions(current);
-    Vector<se_string_view> extension_vector;
+    Vector<StringView> extension_vector;
     for (int i = 0; i < extension_list.size(); i++) {
         extension_vector.push_back("*." + extension_list[i]);
     }
@@ -275,7 +275,7 @@ void ProjectExportDialog::_edit_preset(int p_index) {
 
         if (!error.empty()) {
 
-            Vector<se_string_view> items = StringUtils::split(error,'\n', false);
+            Vector<StringView> items = StringUtils::split(error,'\n', false);
             error = "";
             for (size_t i = 0; i < items.size(); i++) {
                 if (i > 0)
@@ -344,9 +344,9 @@ void ProjectExportDialog::_update_feature_list() {
     current->get_platform()->get_preset_features(current, &features);
 
     String custom = current->get_custom_features();
-    Vector<se_string_view> custom_list = StringUtils::split(custom,',');
+    Vector<StringView> custom_list = StringUtils::split(custom,',');
     for (size_t i = 0; i < custom_list.size(); i++) {
-        se_string_view f =StringUtils::strip_edges( custom_list[i]);
+        StringView f =StringUtils::strip_edges( custom_list[i]);
         if (!f.empty()) {
             features.push_back(String(f));
         }
@@ -363,7 +363,7 @@ void ProjectExportDialog::_update_feature_list() {
     }
 }
 
-void ProjectExportDialog::_custom_features_changed(se_string_view p_text) {
+void ProjectExportDialog::_custom_features_changed(StringView p_text) {
 
     if (updating)
         return;
@@ -391,7 +391,7 @@ void ProjectExportDialog::_patch_button_pressed(Object *p_item, int p_column, in
     if (p_id == 0) {
         const Vector<String> &patches = current->get_patches();
         ERR_FAIL_INDEX(patch_index, patches.size());
-        se_string_view file_name(PathUtils::get_file(patches[patch_index]));
+        StringView file_name(PathUtils::get_file(patches[patch_index]));
         patch_erase->set_text(FormatSN(TTR("Delete patch '%.*s' from list?").asCString(), file_name.length(),file_name.data() ));
         patch_erase->popup_centered_minsize();
     } else {
@@ -423,7 +423,7 @@ void ProjectExportDialog::_patch_edited() {
     current->set_patch(index, patch);
 }
 
-void ProjectExportDialog::_patch_selected(se_string_view p_path) {
+void ProjectExportDialog::_patch_selected(StringView p_path) {
 
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current);
@@ -454,7 +454,7 @@ void ProjectExportDialog::_patch_deleted() {
     }
 }
 
-void ProjectExportDialog::_update_parameters(se_string_view p_edited_property) {
+void ProjectExportDialog::_update_parameters(StringView p_edited_property) {
 
     _update_current_preset();
 }
@@ -483,7 +483,7 @@ void ProjectExportDialog::_runnable_pressed() {
     _update_presets();
 }
 
-void ProjectExportDialog::_name_changed(se_string_view p_string) {
+void ProjectExportDialog::_name_changed(StringView p_string) {
 
     if (updating)
         return;
@@ -495,7 +495,7 @@ void ProjectExportDialog::_name_changed(se_string_view p_string) {
     _update_presets();
 }
 
-void ProjectExportDialog::set_export_path(se_string_view p_value) {
+void ProjectExportDialog::set_export_path(StringView p_value) {
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current);
 
@@ -514,7 +514,7 @@ Ref<EditorExportPreset> ProjectExportDialog::get_current_preset() const {
     return EditorExport::get_singleton()->get_export_preset(presets->get_current());
 }
 
-void ProjectExportDialog::_export_path_changed(const StringName &p_property, const Variant &p_value, se_string_view p_field, bool p_changing) {
+void ProjectExportDialog::_export_path_changed(const StringName &p_property, const Variant &p_value, StringView p_field, bool p_changing) {
 
     if (updating)
         return;
@@ -554,7 +554,7 @@ void ProjectExportDialog::_script_encryption_key_changed(const String &p_key) {
     updating_script_key = false;
 }
 
-bool ProjectExportDialog::_validate_script_encryption_key(se_string_view p_key) {
+bool ProjectExportDialog::_validate_script_encryption_key(StringView p_key) {
 
     bool is_valid = false;
 
@@ -783,7 +783,7 @@ void ProjectExportDialog::_export_type_changed(int p_which) {
     updating = false;
 }
 
-void ProjectExportDialog::_filter_changed(se_string_view p_filter) {
+void ProjectExportDialog::_filter_changed(StringView p_filter) {
 
     if (updating)
         return;
@@ -839,7 +839,7 @@ bool ProjectExportDialog::_fill_tree(EditorFileSystemDirectory *p_dir, TreeItem 
     for (int i = 0; i < p_dir->get_file_count(); i++) {
 
         StringName type = p_dir->get_file_type(i);
-        if (p_only_scenes && type != se_string_view("PackedScene"))
+        if (p_only_scenes && type != StringView("PackedScene"))
             continue;
 
         TreeItem *file = include_files->create_item(p_item);
@@ -887,7 +887,7 @@ void ProjectExportDialog::_export_pck_zip() {
     export_pck_zip->popup_centered_ratio();
 }
 
-void ProjectExportDialog::_export_pck_zip_selected(se_string_view p_path) {
+void ProjectExportDialog::_export_pck_zip_selected(StringView p_path) {
 
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current);
@@ -907,7 +907,7 @@ void ProjectExportDialog::_open_export_template_manager() {
     hide();
 }
 
-void ProjectExportDialog::_validate_export_path(se_string_view p_path) {
+void ProjectExportDialog::_validate_export_path(StringView p_path) {
     // Disable export via OK button or Enter key if LineEdit has an empty filename
     bool invalid_path = (PathUtils::get_basename(PathUtils::get_file(p_path)).empty());
 
@@ -961,7 +961,7 @@ void ProjectExportDialog::_export_project() {
     export_project->popup_centered_ratio();
 }
 
-void ProjectExportDialog::_export_project_to_path(se_string_view p_path) {
+void ProjectExportDialog::_export_project_to_path(StringView p_path) {
     // Save this name for use in future exports (but drop the file extension)
     default_filename = PathUtils::get_basename(PathUtils::get_file(p_path));
     EditorSettings::get_singleton()->set_project_metadata("export_options", "default_filename", default_filename);
@@ -997,11 +997,11 @@ void ProjectExportDialog::_export_all_dialog() {
     export_all_dialog->popup_centered_minsize(Size2(300, 80));
 }
 
-void ProjectExportDialog::_export_all_dialog_action(se_string_view p_str) {
+void ProjectExportDialog::_export_all_dialog_action(StringView p_str) {
 
     export_all_dialog->hide();
 
-    _export_all(p_str != se_string_view("release"));
+    _export_all(p_str != StringView("release"));
 }
 
 void ProjectExportDialog::_export_all(bool p_debug) {

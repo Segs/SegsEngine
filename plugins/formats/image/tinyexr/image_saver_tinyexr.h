@@ -35,5 +35,5 @@
 #include "core/error_list.h"
 struct ImageData;
 
-Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale);
+Error save_exr(StringView p_path, const ImageData &p_img, bool p_grayscale);
 Error save_exr(Vector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale);

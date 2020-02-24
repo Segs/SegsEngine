@@ -95,7 +95,7 @@ PoolVector<String> Theme::_get_constant_list(const String &p_type) const {
     return ilret;
 }
 
-PoolVector<String> Theme::_get_type_list(se_string_view p_type) const {
+PoolVector<String> Theme::_get_type_list(StringView p_type) const {
     PoolVector<String> ilret;
     Vector<StringName> il;
     get_type_list(&il);
@@ -109,7 +109,7 @@ bool Theme::_set(const StringName &p_name, const Variant &p_value) {
 
     if (StringUtils::contains(p_name,'/') ) {
 
-        se_string_view type = StringUtils::get_slice(p_name,'/', 1);
+        StringView type = StringUtils::get_slice(p_name,'/', 1);
         StringName node_type(StringUtils::get_slice(p_name,'/', 0));
         StringName name(StringUtils::get_slice(p_name,'/', 2));
 
@@ -142,7 +142,7 @@ bool Theme::_get(const StringName &p_name, Variant &r_ret) const {
 
     if (StringUtils::contains(p_name,'/') ) {
 
-        se_string_view type = StringUtils::get_slice(p_name,'/', 1);
+        StringView type = StringUtils::get_slice(p_name,'/', 1);
         StringName node_type(StringUtils::get_slice(p_name,'/', 0));
         StringName name(StringUtils::get_slice(p_name,'/', 2));
 

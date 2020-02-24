@@ -69,7 +69,7 @@ int VisualScriptReturn::get_output_value_port_count() const {
     return 0;
 }
 
-se_string_view VisualScriptReturn::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptReturn::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -85,7 +85,7 @@ PropertyInfo VisualScriptReturn::get_output_value_port_info(int p_idx) const {
     return PropertyInfo();
 }
 
-se_string_view VisualScriptReturn::get_caption() const {
+StringView VisualScriptReturn::get_caption() const {
 
     return "Return";
 }
@@ -172,7 +172,7 @@ VisualScriptReturn::VisualScriptReturn() {
 }
 
 template <bool with_value>
-static Ref<VisualScriptNode> create_return_node(se_string_view p_name) {
+static Ref<VisualScriptNode> create_return_node(StringView p_name) {
 
     Ref<VisualScriptReturn> node(make_ref_counted<VisualScriptReturn>());
     node->set_enable_return_value(with_value);
@@ -202,7 +202,7 @@ int VisualScriptCondition::get_output_value_port_count() const {
     return 0;
 }
 
-se_string_view VisualScriptCondition::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptCondition::get_output_sequence_port_text(int p_port) const {
 
     if (p_port == 0)
         return "true";
@@ -223,7 +223,7 @@ PropertyInfo VisualScriptCondition::get_output_value_port_info(int p_idx) const 
     return PropertyInfo();
 }
 
-se_string_view VisualScriptCondition::get_caption() const {
+StringView VisualScriptCondition::get_caption() const {
 
     return "Condition";
 }
@@ -290,7 +290,7 @@ int VisualScriptWhile::get_output_value_port_count() const {
     return 0;
 }
 
-se_string_view VisualScriptWhile::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptWhile::get_output_sequence_port_text(int p_port) const {
 
     if (p_port == 0)
         return "repeat";
@@ -309,7 +309,7 @@ PropertyInfo VisualScriptWhile::get_output_value_port_info(int p_idx) const {
     return PropertyInfo();
 }
 
-se_string_view VisualScriptWhile::get_caption() const {
+StringView VisualScriptWhile::get_caption() const {
 
     return "While";
 }
@@ -375,7 +375,7 @@ int VisualScriptIterator::get_output_value_port_count() const {
     return 1;
 }
 
-se_string_view VisualScriptIterator::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptIterator::get_output_sequence_port_text(int p_port) const {
 
     if (p_port == 0)
         return "each";
@@ -396,7 +396,7 @@ PropertyInfo VisualScriptIterator::get_output_value_port_info(int p_idx) const {
     pinfo.type = VariantType::NIL;
     return pinfo;
 }
-se_string_view VisualScriptIterator::get_caption() const {
+StringView VisualScriptIterator::get_caption() const {
 
     return "Iterator";
 }
@@ -503,7 +503,7 @@ int VisualScriptSequence::get_output_value_port_count() const {
     return 1;
 }
 
-se_string_view VisualScriptSequence::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptSequence::get_output_sequence_port_text(int p_port) const {
     static String v(::to_string(p_port+1));
     return v;
 }
@@ -514,7 +514,7 @@ PropertyInfo VisualScriptSequence::get_input_value_port_info(int p_idx) const {
 PropertyInfo VisualScriptSequence::get_output_value_port_info(int p_idx) const {
     return PropertyInfo(VariantType::INT, "current");
 }
-se_string_view VisualScriptSequence::get_caption() const {
+StringView VisualScriptSequence::get_caption() const {
 
     return ("Sequence");
 }
@@ -613,7 +613,7 @@ int VisualScriptSwitch::get_output_value_port_count() const {
     return 0;
 }
 
-se_string_view VisualScriptSwitch::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptSwitch::get_output_sequence_port_text(int p_port) const {
 
     if (p_port == case_values.size())
         return "done";
@@ -634,7 +634,7 @@ PropertyInfo VisualScriptSwitch::get_output_value_port_info(int p_idx) const {
     return PropertyInfo();
 }
 
-se_string_view VisualScriptSwitch::get_caption() const {
+StringView VisualScriptSwitch::get_caption() const {
 
     return ("Switch");
 }
@@ -761,7 +761,7 @@ int VisualScriptTypeCast::get_output_value_port_count() const {
     return 1;
 }
 
-se_string_view VisualScriptTypeCast::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptTypeCast::get_output_sequence_port_text(int p_port) const {
 
     return p_port == 0 ? "yes" : "no";
 }
@@ -776,14 +776,14 @@ PropertyInfo VisualScriptTypeCast::get_output_value_port_info(int p_idx) const {
     return PropertyInfo(VariantType::OBJECT, "", PropertyHint::TypeString, get_base_type());
 }
 
-se_string_view VisualScriptTypeCast::get_caption() const {
+StringView VisualScriptTypeCast::get_caption() const {
 
     return "Type Cast";
 }
 
 String VisualScriptTypeCast::get_text() const {
 
-    se_string_view sc(base_type);
+    StringView sc(base_type);
     if (!script.empty())
         sc = PathUtils::get_file(script);
     return FormatVE("Is %.*s?",sc.size(),sc.data());
@@ -804,7 +804,7 @@ StringName VisualScriptTypeCast::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptTypeCast::set_base_script(se_string_view p_path) {
+void VisualScriptTypeCast::set_base_script(StringView p_path) {
 
     if (script == p_path)
         return;

@@ -39,7 +39,7 @@
 
 #include "core/ustring.h"
 
-void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api);
+void class_db_api_to_json(StringView p_output_file, ClassDB::APIType p_api);
 
 #endif // DEBUG_METHODS_ENABLED
 

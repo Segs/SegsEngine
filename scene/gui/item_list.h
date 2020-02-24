@@ -73,7 +73,7 @@ private:
 
         Size2 get_icon_size() const;
 
-        bool operator<(const Item &p_another) const { return se_string_view(text) < se_string_view(p_another.text); }
+        bool operator<(const Item &p_another) const { return StringView(text) < StringView(p_another.text); }
     };
 
     int current;
@@ -159,7 +159,7 @@ public:
     void set_item_tooltip_enabled(int p_idx, const bool p_enabled);
     bool is_item_tooltip_enabled(int p_idx) const;
 
-    void set_item_tooltip_utf8(int p_idx, se_string_view p_tooltip);
+    void set_item_tooltip_utf8(int p_idx, StringView p_tooltip);
     void set_item_tooltip(int p_idx, StringName p_tooltip);
     StringName get_item_tooltip(int p_idx) const;
 

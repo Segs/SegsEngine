@@ -34,7 +34,7 @@
 #include "core/dictionary.h"
 #include "core/map.h"
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/vector.h"
 
 class RegExMatch : public RefCounted {

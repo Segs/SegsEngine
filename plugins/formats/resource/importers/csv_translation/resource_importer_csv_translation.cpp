@@ -79,7 +79,7 @@ void ResourceImporterCSVTranslation::get_import_options(List<ImportOption> *r_op
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
 }
 
-Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     bool compress = p_options.at("compress").as<bool>();
@@ -103,7 +103,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
 
     for (int i = 1; i < line.size(); i++) {
 
-        se_string_view  locale = line[i];
+        StringView  locale = line[i];
         ERR_FAIL_COND_V_MSG(!TranslationServer::is_locale_valid(locale), ERR_PARSE_ERROR, "Error importing CSV translation: '" + locale + "' is not a valid locale.");
 
         locales.push_back(String(locale));
@@ -116,7 +116,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
 
     while (line.size() == locales.size() + 1) {
 
-        se_string_view  key = line[0];
+        StringView  key = line[0];
         if (!key.empty()) {
 
             for (int i = 1; i < line.size(); i++) {

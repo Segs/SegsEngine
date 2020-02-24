@@ -66,7 +66,7 @@ class EditorSpinSlider : public Range {
 
     void _grabber_gui_input(const Ref<InputEvent> &p_event);
     void _value_input_closed();
-    void _value_input_entered(se_string_view);
+    void _value_input_entered(StringView);
     void _value_focus_exited();
     bool hide_slider;
     bool flat;
@@ -88,7 +88,7 @@ public:
     StringName get_tooltip(const Point2 &p_pos) const override;
 
     UIString get_text_value() const;
-    void set_label(se_string_view p_label);
+    void set_label(StringView p_label);
     const String & get_label() const;
 
     void set_hide_slider(bool p_hide);

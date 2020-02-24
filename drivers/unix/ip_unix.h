@@ -38,7 +38,7 @@
 class IP_Unix : public IP {
     GDCLASS(IP_Unix,IP)
 
-    IP_Address _resolve_hostname(se_string_view p_hostname, IP::Type p_type) override;
+    IP_Address _resolve_hostname(StringView p_hostname, IP::Type p_type) override;
 
     static IP *_create_unix();
 

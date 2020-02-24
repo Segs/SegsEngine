@@ -30,7 +30,7 @@
 
 #include "crypto_core.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include <mbedtls/aes.h>
 #include <mbedtls/base64.h>

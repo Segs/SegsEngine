@@ -789,8 +789,8 @@ CurveEditorPlugin::CurveEditorPlugin(EditorNode *p_node) {
 //-----------------------------------
 // Preview generator
 
-bool CurvePreviewGenerator::handles(se_string_view p_type) const {
-    return p_type == se_string_view("Curve");
+bool CurvePreviewGenerator::handles(StringView p_type) const {
+    return p_type == StringView("Curve");
 }
 
 Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const Size2 &p_size) const {

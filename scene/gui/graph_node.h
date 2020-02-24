@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/gui/container.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class GraphNode : public Container {
 
@@ -122,7 +122,7 @@ public:
     int get_slot_type_right(int p_idx) const;
     Color get_slot_color_right(int p_idx) const;
 
-    void set_title(se_string_view p_title);
+    void set_title(StringView p_title);
     String get_title() const;
 
     void set_offset(const Vector2 &p_offset);

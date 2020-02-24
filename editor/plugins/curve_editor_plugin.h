@@ -133,13 +133,13 @@ class CurveEditorPlugin : public EditorPlugin {
 public:
     CurveEditorPlugin(EditorNode *p_node);
 
-    se_string_view get_name() const override { return "Curve"; }
+    StringView get_name() const override { return "Curve"; }
 };
 
 class CurvePreviewGenerator : public EditorResourcePreviewGenerator {
     GDCLASS(CurvePreviewGenerator,EditorResourcePreviewGenerator)
 
 public:
-    bool handles(se_string_view p_type) const override;
+    bool handles(StringView p_type) const override;
     Ref<Texture> generate(const Ref<Resource> &p_from, const Size2 &p_size) const override;
 };

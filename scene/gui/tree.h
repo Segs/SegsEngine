@@ -183,7 +183,7 @@ public:
     void set_checked(int p_column, bool p_checked);
     bool is_checked(int p_column) const;
 
-    void set_text_utf8(int p_column, se_string_view p_text);
+    void set_text_utf8(int p_column, StringView p_text);
     void set_text(int p_column, const StringName &p_text);
     String get_text_ui(int p_column) const;
     String get_text(int p_column) const;
@@ -480,7 +480,7 @@ private:
     bool cursor_can_exit_tree;
     void _do_incr_search(const String &p_add);
 
-    TreeItem *_search_item_text(TreeItem *p_at, se_string_view p_find, int *r_col, bool p_selectable, bool p_backwards = false);
+    TreeItem *_search_item_text(TreeItem *p_at, StringView p_find, int *r_col, bool p_selectable, bool p_backwards = false);
 
     TreeItem *_find_item_at_pos(TreeItem *p_item, const Point2 &p_pos, int &r_column, int &h, int &section) const;
 
@@ -579,7 +579,7 @@ public:
     bool edit_selected();
 
     // First item that starts with the text, from the current focused item down and wraps around.
-    TreeItem *search_item_text(se_string_view p_find, int *r_col = nullptr, bool p_selectable = false);
+    TreeItem *search_item_text(StringView p_find, int *r_col = nullptr, bool p_selectable = false);
     // First item that matches the whole text, from the first item down.
     TreeItem *get_item_with_text(const String &p_find) const;
 

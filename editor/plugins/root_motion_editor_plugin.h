@@ -65,7 +65,7 @@ class EditorInspectorRootMotionPlugin : public EditorInspectorPlugin {
 public:
 	bool can_handle(Object *p_object) override;
 	void parse_begin(Object *p_object) override;
-    bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) override;
 	void parse_end() override;
 };
 

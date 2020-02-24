@@ -57,6 +57,6 @@ GODOT_EXPORT void remove_print_handler(PrintHandlerList *p_handler);
 
 GODOT_EXPORT extern bool _print_line_enabled;
 GODOT_EXPORT extern bool _print_error_enabled;
-GODOT_EXPORT extern void print_line(se_string_view p_string);
-GODOT_EXPORT extern void print_error(se_string_view p_string);
-GODOT_EXPORT extern void print_verbose(se_string_view p_string);
+GODOT_EXPORT extern void print_line(StringView p_string);
+GODOT_EXPORT extern void print_error(StringView p_string);
+GODOT_EXPORT extern void print_verbose(StringView p_string);

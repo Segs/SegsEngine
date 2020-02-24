@@ -33,7 +33,7 @@
 #include "core/pair.h"
 #include "core/string_name.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/variant.h"
 #include "core/vector.h"
 #include "core/set.h"
@@ -213,7 +213,7 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     void _make_built_in_func(GDScriptFunctions::Function p_func);
     void _make_constant(const Variant &p_constant);
     void _make_type(const VariantType &p_type);
-    void _make_error(se_string_view p_error);
+    void _make_error(StringView p_error);
 
     String code;
     int len;
@@ -235,7 +235,7 @@ class GDScriptTokenizerText : public GDScriptTokenizer {
     void _advance();
 
 public:
-    void set_code(se_string_view p_code);
+    void set_code(StringView p_code);
     Token get_token(int p_offset = 0) const override;
     StringName get_token_identifier(int p_offset = 0) const override;
     GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const override;
@@ -268,7 +268,7 @@ class GDScriptTokenizerBuffer : public GDScriptTokenizer {
 
 public:
     Error set_code_buffer(const Vector<uint8_t> &p_buffer);
-    static Vector<uint8_t> parse_code_string(se_string_view p_code);
+    static Vector<uint8_t> parse_code_string(StringView p_code);
     Token get_token(int p_offset = 0) const override;
     StringName get_token_identifier(int p_offset = 0) const override;
     GDScriptFunctions::Function get_token_built_in_func(int p_offset = 0) const override;

@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "math_fieldwise.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "vector3.h"
 #include "vector2.h"
 #include "quat.h"
@@ -41,11 +41,11 @@
     m_type source = p_source; \
     m_type target = p_target;
 #define TRY_TRANSFER_FIELD(m_name, m_member) \
-    if (p_field == se_string_view(m_name)) {                 \
+    if (p_field == StringView(m_name)) {                 \
         target.m_member = source.m_member;   \
     }
 
-Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, se_string_view p_field) {
+Variant fieldwise_assign(const Variant &p_target, const Variant &p_source, StringView p_field) {
 
     ERR_FAIL_COND_V(p_target.get_type() != p_source.get_type(), p_target);
 

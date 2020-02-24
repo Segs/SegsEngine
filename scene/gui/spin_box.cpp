@@ -54,7 +54,7 @@ void SpinBox::_value_changed(double) {
     line_edit->set_text(value);
 }
 
-void SpinBox::_text_entered(se_string_view p_string) {
+void SpinBox::_text_entered(StringView p_string) {
     using namespace StringUtils;
     Ref<Expression> expr(make_ref_counted<Expression>());
     // Ignore the prefix and suffix in the expression
@@ -242,7 +242,7 @@ String SpinBox::get_suffix() const {
     return suffix;
 }
 
-void SpinBox::set_prefix(se_string_view p_prefix) {
+void SpinBox::set_prefix(StringView p_prefix) {
 
     prefix = p_prefix;
     _value_changed(0);

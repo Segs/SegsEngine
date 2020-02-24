@@ -36,7 +36,7 @@
 
 class SyslogLogger : public Logger {
 public:
-    void logv(se_string_view p_format, bool p_err) override;
+    void logv(StringView p_format, bool p_err) override;
     virtual void print_error(const char *p_function, const char *p_file, int p_line, const char *p_code, const char *p_rationale, ErrorType p_type);
 
     ~SyslogLogger() override;

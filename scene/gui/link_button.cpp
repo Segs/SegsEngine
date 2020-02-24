@@ -36,7 +36,7 @@
 IMPL_GDCLASS(LinkButton)
 VARIANT_ENUM_CAST(LinkButton::UnderlineMode);
 
-void LinkButton::set_text(se_string_view p_text)
+void LinkButton::set_text(StringView p_text)
 {
     text = p_text;
     update();

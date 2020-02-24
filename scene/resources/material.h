@@ -454,7 +454,7 @@ private:
 
     Ref<Texture> textures[TEXTURE_MAX];
 
-    _FORCE_INLINE_ void _validate_feature(se_string_view text, Feature feature, PropertyInfo &property) const;
+    _FORCE_INLINE_ void _validate_feature(StringView text, Feature feature, PropertyInfo &property) const;
 
     enum {
         MAX_MATERIALS_FOR_2D = 128
@@ -462,7 +462,7 @@ private:
 
     static Ref<SpatialMaterial> materials_for_2d[MAX_MATERIALS_FOR_2D]; //used by Sprite3D and other stuff
 
-    void _validate_high_end(se_string_view text, PropertyInfo &property) const;
+    void _validate_high_end(StringView text, PropertyInfo &property) const;
 
 protected:
     static void _bind_methods();

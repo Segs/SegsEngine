@@ -33,7 +33,7 @@
 #include "core/io/image_loader.h"
 #include "editor/editor_file_system.h"
 #include "editor/import/resource_importer_scene.h"
-#include "editor_settings.h"
+#include "editor/editor_settings.h"
 #include "import_utils.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/light.h"
@@ -86,7 +86,7 @@ public:
     ~AssimpStream() override {}
     // Write something using your own functionality
     void write(const char *message) override {
-        print_verbose(String("Open Asset Import: ") + StringUtils::strip_edges(se_string_view(message)));
+        print_verbose(String("Open Asset Import: ") + StringUtils::strip_edges(StringView(message)));
     }
 };
 static String decaptialize(String a)
@@ -107,7 +107,7 @@ static String decaptialize(String a)
 }
 void EditorSceneImporterAssimp::get_extensions(Vector<String> &r_extensions) const {
 
-    const se_string_view import_setting_string("filesystem/import/open_asset_import/");
+    const StringView import_setting_string("filesystem/import/open_asset_import/");
     Assimp::Importer importer;
     size_t imp_count = importer.GetImporterCount();
     Map<String, ImportFormat> import_format;
@@ -126,7 +126,7 @@ void EditorSceneImporterAssimp::get_extensions(Vector<String> &r_extensions) con
     }
 }
 
-void EditorSceneImporterAssimp::_register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const {
+void EditorSceneImporterAssimp::_register_project_setting_import(StringView generic, StringView import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const {
     String use_generic = String("use_") + generic;
     StringName valname(String(import_setting_string) + use_generic);
     _GLOBAL_DEF(valname, p_enabled, true);
@@ -154,7 +154,7 @@ EditorSceneImporterAssimp::~EditorSceneImporterAssimp() {
     Assimp::DefaultLogger::kill();
 }
 
-Node *EditorSceneImporterAssimp::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterAssimp::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
     Assimp::Importer importer;
     String s_path(ProjectSettings::get_singleton()->globalize_path(p_path));
     importer.SetPropertyBool(AI_CONFIG_PP_FD_REMOVE, true);
@@ -202,7 +202,7 @@ Node *EditorSceneImporterAssimp::import_scene(se_string_view p_path, uint32_t p_
     return _generate_scene(p_path, scene, p_flags, p_bake_fps, max_bone_weights);
 }
 
-Ref<Animation> EditorSceneImporterAssimp::import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps)
+Ref<Animation> EditorSceneImporterAssimp::import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps)
 {
     //TODO: SEGS allow importing animation-only files ?
     return Ref<Animation>();
@@ -347,7 +347,7 @@ aiBone *EditorSceneImporterAssimp::get_bone_from_stack(ImportState &state, aiStr
     return nullptr;
 }
 
-Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiScene *scene, const uint32_t p_flags,
+Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *scene, const uint32_t p_flags,
                                                     int p_bake_fps, const int32_t p_max_bone_weights) {
     ERR_FAIL_COND_V(scene == nullptr, nullptr);
 
@@ -601,7 +601,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(se_string_view p_path, aiSce
     return state.root;
 }
 // I really do not like this but need to figure out a better way of removing it later.
-Node *EditorSceneImporterAssimp::get_node_by_name(ImportState &state, se_string_view name) {
+Node *EditorSceneImporterAssimp::get_node_by_name(ImportState &state, StringView name) {
     for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
         const aiNode *assimp_node = key_value_pair.first;
         Spatial *node = key_value_pair.second;

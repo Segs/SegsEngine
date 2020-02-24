@@ -75,7 +75,7 @@ StringName ResourceImporterImage::get_preset_name(int p_idx) const {
 void ResourceImporterImage::get_import_options(List<ImportOption> *r_options, int p_preset) const {
 }
 
-Error ResourceImporterImage::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterImage::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);

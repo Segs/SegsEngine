@@ -45,7 +45,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -76,7 +76,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -107,7 +107,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -138,7 +138,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -169,7 +169,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -222,7 +222,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -281,7 +281,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -340,7 +340,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -387,7 +387,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -433,7 +433,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -476,7 +476,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -518,7 +518,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -588,7 +588,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -661,7 +661,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -700,7 +700,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -740,7 +740,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -770,7 +770,7 @@ class VisualShaderNodeDotProduct : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -794,7 +794,7 @@ class VisualShaderNodeVectorLen : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -818,7 +818,7 @@ class VisualShaderNodeDeterminant : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -842,7 +842,7 @@ class VisualShaderNodeScalarClamp : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -864,7 +864,7 @@ class VisualShaderNodeVectorClamp : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -900,7 +900,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -939,7 +939,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -969,7 +969,7 @@ class VisualShaderNodeFaceForward : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -993,7 +993,7 @@ class VisualShaderNodeOuterProduct : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1017,7 +1017,7 @@ class VisualShaderNodeVectorScalarStep : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1041,7 +1041,7 @@ class VisualShaderNodeScalarSmoothStep : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1063,7 +1063,7 @@ class VisualShaderNodeVectorSmoothStep : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1085,7 +1085,7 @@ class VisualShaderNodeVectorScalarSmoothStep : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1109,7 +1109,7 @@ class VisualShaderNodeVectorDistance : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1133,7 +1133,7 @@ class VisualShaderNodeVectorRefract : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1157,7 +1157,7 @@ class VisualShaderNodeScalarInterp : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1179,7 +1179,7 @@ class VisualShaderNodeVectorInterp : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1201,7 +1201,7 @@ class VisualShaderNodeVectorScalarMix : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1225,7 +1225,7 @@ class VisualShaderNodeVectorCompose : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1247,7 +1247,7 @@ class VisualShaderNodeTransformCompose : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1271,7 +1271,7 @@ class VisualShaderNodeVectorDecompose : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1293,7 +1293,7 @@ class VisualShaderNodeTransformDecompose : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1332,7 +1332,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1369,7 +1369,7 @@ class VisualShaderNodeBooleanUniform : public VisualShaderNodeUniform {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1392,7 +1392,7 @@ class VisualShaderNodeColorUniform : public VisualShaderNodeUniform {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1415,7 +1415,7 @@ class VisualShaderNodeVec3Uniform : public VisualShaderNodeUniform {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1438,7 +1438,7 @@ class VisualShaderNodeTransformUniform : public VisualShaderNodeUniform {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1481,7 +1481,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1514,7 +1514,7 @@ class VisualShaderNodeTextureUniformTriplanar : public VisualShaderNodeTextureUn
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1536,7 +1536,7 @@ class VisualShaderNodeCubeMapUniform : public VisualShaderNodeTextureUniform {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1562,7 +1562,7 @@ class VisualShaderNodeIf : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1586,7 +1586,7 @@ class VisualShaderNodeSwitch : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1605,7 +1605,7 @@ class VisualShaderNodeScalarSwitch : public VisualShaderNodeSwitch {
     GDCLASS(VisualShaderNodeScalarSwitch, VisualShaderNodeSwitch);
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     PortType get_input_port_type(int p_port) const override;
     PortType get_output_port_type(int p_port) const override;
@@ -1621,7 +1621,7 @@ class VisualShaderNodeFresnel : public VisualShaderNode {
 
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1658,7 +1658,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;
@@ -1717,7 +1717,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     int get_input_port_count() const override;
     PortType get_input_port_type(int p_port) const override;

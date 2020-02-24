@@ -93,7 +93,7 @@ Physics2DServer *_createGodotPhysics2DCallback() {
     return Physics2DServerWrapMT::init_server<Physics2DServerSW>();
 }
 
-static bool has_server_feature_callback(se_string_view p_feature) {
+static bool has_server_feature_callback(StringView p_feature) {
 
     if (VisualServer::get_singleton()) {
         if (VisualServer::get_singleton()->has_os_feature(StringName(p_feature))) {

@@ -57,10 +57,10 @@ class GODOT_EXPORT ImageLoader {
 protected:
 public:
     static void register_plugin_resolver();
-    static Error load_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
-    static ImageData load_image(se_string_view ext, const uint8_t *data, int sz, const LoadParams &params={});
+    static Error load_image(StringView p_file, const Ref<Image> &p_image, FileAccess *p_custom = nullptr, const LoadParams &params={});
+    static ImageData load_image(StringView ext, const uint8_t *data, int sz, const LoadParams &params={});
     static void get_recognized_extensions(Vector<String> &p_extensions);
-    static ImageFormatLoader *recognize(se_string_view p_extension);
+    static ImageFormatLoader *recognize(StringView p_extension);
 
     static void add_image_format_loader(ImageFormatLoader *p_loader);
     static void remove_image_format_loader(ImageFormatLoader *p_loader);
@@ -72,8 +72,8 @@ public:
 
 class ResourceFormatLoaderImage : public ResourceFormatLoader {
 public:
-    RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
-    bool handles_type(se_string_view p_type) const override;
-    String get_resource_type(se_string_view p_path) const override;
+    bool handles_type(StringView p_type) const override;
+    String get_resource_type(StringView p_path) const override;
 };

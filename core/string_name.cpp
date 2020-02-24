@@ -80,7 +80,7 @@ struct StringName::_Data {
         mark = 0;
         cname = s;
     }
-    void set_dynamic_name(se_string_view s) {
+    void set_dynamic_name(StringView s) {
 
         char *data = (char *)Memory::alloc_static(s.size()+1);
         memcpy(data,s.data(),s.size());
@@ -320,7 +320,7 @@ void StringName::setupFromCString(const StaticCString &p_static_string) {
 
 }
 
-StringName::StringName(se_string_view p_name) {
+StringName::StringName(StringView p_name) {
 
     _data = nullptr;
 
@@ -343,7 +343,7 @@ StringName::StringName(se_string_view p_name) {
 
     while (_data) {
 
-        if (_data->hash == hash && p_name == se_string_view(_data->get_name()))
+        if (_data->hash == hash && p_name == StringView(_data->get_name()))
             break;
         _data = _data->next;
     }
@@ -437,6 +437,6 @@ bool StringName::AlphCompare(const StringName &l, const StringName &r) {
     return is_str_less(l_cname, r_cname);
 }
 
-StringName operator+(StringName v, se_string_view sv) {
+StringName operator+(StringName v, StringView sv) {
     return StringName(String(v)+sv);
 }

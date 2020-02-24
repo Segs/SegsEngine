@@ -30,7 +30,7 @@
 
 #include "ustring.h"
 
-#include "se_string.h"
+#include "string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/color.h"
@@ -67,10 +67,10 @@ const UIString s_null_ui_string;
 #define snprintf _snprintf_s
 #endif
 
-int grapheme_count(se_string_view str) {
+int grapheme_count(StringView str) {
     return 0;
 }
-int bytes_in_next_grapheme(se_string_view str,int offset=0) {
+int bytes_in_next_grapheme(StringView str,int offset=0) {
     return 0;
 }
 
@@ -81,14 +81,14 @@ namespace
 int find_char(const UIString &s, CharType p_char) {
     return s.indexOf(p_char);
 }
-size_t find_char(se_string_view s, char p_char) {
+size_t find_char(StringView s, char p_char) {
     return s.find(p_char);
 }
 bool is_enclosed_in(const UIString &str,const CharType p_char) {
 
     return StringUtils::begins_with(str,p_char) && StringUtils::ends_with(str,p_char);
 }
-bool is_enclosed_in(se_string_view str,char p_char) {
+bool is_enclosed_in(StringView str,char p_char) {
 
     return str.starts_with(p_char) && str.ends_with(p_char);
 }
@@ -162,13 +162,13 @@ UIString StringUtils::capitalize(const UIString &s) {
 
     return cap;
 }
-String StringUtils::capitalize(se_string_view s) {
+String StringUtils::capitalize(StringView s) {
 
     String aux(strip_edges(camelcase_to_underscore(s,true).replaced("_", " ")));
     String cap;
     for (int i = 0; i < get_slice_count(aux,' '); i++) {
 
-        se_string_view slice = get_slice(aux,' ', i);
+        StringView slice = get_slice(aux,' ', i);
         if (!slice.empty()) {
 
             //slice.set(0,StringUtils::char_uppercase(slice[0]));
@@ -222,7 +222,7 @@ UIString StringUtils::camelcase_to_underscore(const UIString &s,bool lowercase) 
     new_string += substr(s,start_index);
     return lowercase ? new_string.toLower() : new_string;
 }
-String StringUtils::camelcase_to_underscore(se_string_view s,bool lowercase) {
+String StringUtils::camelcase_to_underscore(StringView s,bool lowercase) {
     const char *cstr = s.data();
     String new_string;
     const char A = 'A', Z = 'Z';
@@ -274,7 +274,7 @@ int StringUtils::get_slice_count(const UIString &str,CharType p_splitter) {
     auto parts = str.splitRef(p_splitter);
     return parts.size();
 }
-int StringUtils::get_slice_count(se_string_view str,char p_splitter) {
+int StringUtils::get_slice_count(StringView str,char p_splitter) {
     if(str.empty())
         return 0;
     int count=1;
@@ -286,7 +286,7 @@ int StringUtils::get_slice_count(se_string_view str,char p_splitter) {
     }
     return count;
 }
-int StringUtils::get_slice_count(se_string_view str,se_string_view p_splitter) {
+int StringUtils::get_slice_count(StringView str,StringView p_splitter) {
     if(str.empty() || p_splitter.empty())
         return 0;
     int count=1;
@@ -333,13 +333,13 @@ int StringUtils::get_slice_count(se_string_view str,se_string_view p_splitter) {
 
 //    return String(); //no find!
 //}
-//String StringUtils::get_slice(const String &str,se_string_view p_splitter, int p_slice) {
+//String StringUtils::get_slice(const String &str,StringView p_splitter, int p_slice) {
 //    return get_slice(str,String::fromUtf8(p_splitter.data(),p_splitter.size()),p_slice);
 //}
-se_string_view StringUtils::get_slice(se_string_view str,se_string_view p_splitter, int p_slice) {
+StringView StringUtils::get_slice(StringView str,StringView p_splitter, int p_slice) {
 
     if (p_slice<0 || str.empty() || p_splitter.empty())
-        return se_string_view();
+        return StringView();
 
     size_t pos = 0;
     size_t prev_pos = 0;
@@ -351,7 +351,7 @@ se_string_view StringUtils::get_slice(se_string_view str,se_string_view p_splitt
     while (true) {
 
         pos = StringUtils::find(str,p_splitter, pos);
-        if (pos == se_string_view::npos)
+        if (pos == StringView::npos)
             pos = str.length(); //reached end
 
         int from = prev_pos;
@@ -369,7 +369,7 @@ se_string_view StringUtils::get_slice(se_string_view str,se_string_view p_splitt
         i++;
     }
 
-    return se_string_view(); //no find!
+    return StringView(); //no find!
 }
 //String StringUtils::get_slice(const String &str,CharType p_splitter, int p_slice) {
 
@@ -399,13 +399,13 @@ se_string_view StringUtils::get_slice(se_string_view str,se_string_view p_splitt
 //       return StringUtils::substr(str,prev);
 //    return String();
 //}
-se_string_view StringUtils::get_slice(se_string_view str,char p_splitter, int p_slice) {
+StringView StringUtils::get_slice(StringView str,char p_splitter, int p_slice) {
 
     if (str.empty())
-        return se_string_view();
+        return StringView();
 
     if (p_slice < 0)
-        return se_string_view();
+        return StringView();
 
     const char *c = str.data();
     int i = 0;
@@ -425,7 +425,7 @@ se_string_view StringUtils::get_slice(se_string_view str,char p_splitter, int p_
     }
     if (p_slice == count)
        return substr(str,prev);
-    return se_string_view();
+    return StringView();
 }
 Vector<UIString> StringUtils::split_spaces(const UIString &str) {
 
@@ -460,9 +460,9 @@ Vector<UIString> StringUtils::split_spaces(const UIString &str) {
 
     return ret;
 }
-Vector<se_string_view> StringUtils::split_spaces(se_string_view str) {
+Vector<StringView> StringUtils::split_spaces(StringView str) {
 
-    Vector<se_string_view> ret;
+    Vector<StringView> ret;
     int from = 0;
     int i = 0;
     int len = str.length();
@@ -536,13 +536,13 @@ Vector<UIString> StringUtils::split(const UIString &str,const CharType p_splitte
         ret[i] = val[i].toString();
     return ret;
 }
-Vector<se_string_view> StringUtils::split(se_string_view str,char p_splitter, bool p_allow_empty) {
-    Vector<se_string_view> ret;
+Vector<StringView> StringUtils::split(StringView str,char p_splitter, bool p_allow_empty) {
+    Vector<StringView> ret;
     String::split_ref(ret,str,p_splitter,p_allow_empty);
     return ret;
 }
-Vector<se_string_view> StringUtils::split(se_string_view str,se_string_view p_splitter, bool p_allow_empty,int p_maxsplit) {
-    Vector<se_string_view> ret;
+Vector<StringView> StringUtils::split(StringView str,StringView p_splitter, bool p_allow_empty,int p_maxsplit) {
+    Vector<StringView> ret;
     size_t from = 0;
     size_t len = str.length();
 
@@ -609,9 +609,9 @@ Vector<UIString> StringUtils::rsplit(const UIString &str,const UIString &p_split
     reverse(ret.begin(),ret.end());
     return ret;
 }
-Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_splitter, bool p_allow_empty, int p_maxsplit) {
+Vector<StringView> StringUtils::rsplit(StringView str,StringView p_splitter, bool p_allow_empty, int p_maxsplit) {
 
-    Vector<se_string_view> ret;
+    Vector<StringView> ret;
     const size_t len = str.length();
     const size_t split_len = p_splitter.size();
     size_t remaining_len = len;
@@ -668,7 +668,7 @@ Vector<se_string_view> StringUtils::rsplit(se_string_view str,se_string_view p_s
 
 //    return ret;
 //}
-Vector<float> StringUtils::split_floats(se_string_view str,se_string_view p_splitter, bool p_allow_empty) {
+Vector<float> StringUtils::split_floats(StringView str,StringView p_splitter, bool p_allow_empty) {
 
     Vector<float> ret;
     int from = 0;
@@ -719,7 +719,7 @@ Vector<float> StringUtils::split_floats(se_string_view str,se_string_view p_spli
 
 //    return ret;
 //}
-Vector<float> StringUtils::split_floats_mk(se_string_view str,se_string_view p_splitters, bool p_allow_empty) {
+Vector<float> StringUtils::split_floats_mk(StringView str,StringView p_splitters, bool p_allow_empty) {
 
     Vector<float> ret;
     size_t from = 0;
@@ -772,12 +772,12 @@ char StringUtils::char_uppercase(char p_char) {
     return CharToUpper(p_char);
 }
 
-String StringUtils::to_upper(se_string_view str){
+String StringUtils::to_upper(StringView str){
     String res(str);
     res.make_upper();
     return res;
 }
-String StringUtils::to_lower(se_string_view str){
+String StringUtils::to_lower(StringView str){
     String res(str);
     res.make_lower();
     return res;
@@ -1059,11 +1059,11 @@ int StringUtils::hex_to_int(const UIString &s,bool p_with_prefix) {
         to_convert = s.midRef(0);
     return to_convert.toInt(nullptr,16);
 }
-int StringUtils::hex_to_int(se_string_view s,bool p_with_prefix) {
+int StringUtils::hex_to_int(StringView s,bool p_with_prefix) {
 
     if (p_with_prefix && s.length() < 3)
         return 0;
-    se_string_view to_convert;
+    StringView to_convert;
     if (p_with_prefix) {
         if (!begins_with(s,"0x"))
             return 0;
@@ -1094,11 +1094,11 @@ int64_t StringUtils::hex_to_int64(const UIString &s,bool p_with_prefix) {
         to_convert = s.midRef(0);
     return to_convert.toLongLong(nullptr,16);
 }
-int64_t StringUtils::hex_to_int64(se_string_view s,bool p_with_prefix) {
+int64_t StringUtils::hex_to_int64(StringView s,bool p_with_prefix) {
 
     if (p_with_prefix && s.length() < 3)
         return 0;
-    se_string_view to_convert;
+    StringView to_convert;
     if (p_with_prefix) {
         if (!s.starts_with("0x"))
             return 0;
@@ -1129,11 +1129,11 @@ int64_t StringUtils::bin_to_int64(const UIString &s,bool p_with_prefix) {
         to_convert = s.midRef(0);
     return to_convert.toLongLong(nullptr,2);
 }
-int64_t StringUtils::bin_to_int64(se_string_view s,bool p_with_prefix) {
+int64_t StringUtils::bin_to_int64(StringView s,bool p_with_prefix) {
 
     if (p_with_prefix && s.length() < 3)
         return 0;
-    se_string_view to_convert;
+    StringView to_convert;
     if (p_with_prefix) {
         if (!s.starts_with("0b"))
             return 0;
@@ -1153,14 +1153,14 @@ int64_t StringUtils::bin_to_int64(se_string_view s,bool p_with_prefix) {
 int64_t StringUtils::to_int64(const UIString &s) {
     return s.toLongLong();
 }
-int64_t StringUtils::to_int64(se_string_view s) {
+int64_t StringUtils::to_int64(StringView s) {
     String tmp(s);
     return strtoll(tmp.c_str(),nullptr,0);
 }
 int StringUtils::to_int(const char *p_str, int p_len) {
     return QByteArray::fromRawData(p_str,p_len).toInt();
 }
-int StringUtils::to_int(se_string_view p_str) {
+int StringUtils::to_int(StringView p_str) {
     return QByteArray::fromRawData(p_str.data(),p_str.length()).toInt();
 }
 
@@ -1400,7 +1400,7 @@ done:
     return fraction;
 }
 
-double StringUtils::to_double(se_string_view p_str) {
+double StringUtils::to_double(StringView p_str) {
     return QByteArray::fromRawData(p_str.data(),p_str.size()).toDouble();
 }
 double StringUtils::to_double(const char *p_str, char ** r_end) {
@@ -1426,7 +1426,7 @@ String StringUtils::md5_text(const UIString &str) {
     CryptoCore::md5((unsigned char *)cs.data(), cs.length(), hash);
     return hex_encode_buffer(hash, 16);
 }
-String StringUtils::md5_text(se_string_view str) {
+String StringUtils::md5_text(StringView str) {
     unsigned char hash[16];
     CryptoCore::md5((unsigned char *)str.data(), str.length(), hash);
     return hex_encode_buffer(hash, 16);
@@ -1437,7 +1437,7 @@ String StringUtils::sha1_text(const UIString &str) {
     CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), hash);
     return hex_encode_buffer(hash, 20);
 }
-String StringUtils::sha1_text(se_string_view str) {
+String StringUtils::sha1_text(StringView str) {
     unsigned char hash[20];
     CryptoCore::sha1((unsigned char *)str.data(), str.length(), hash);
     return hex_encode_buffer(hash, 20);
@@ -1449,7 +1449,7 @@ String StringUtils::sha1_text(se_string_view str) {
 //    CryptoCore::sha256((unsigned char *)cs.data(), cs.length(), hash);
 //    return StringUtils::hex_encode_buffer(hash, 32);
 //}
-String StringUtils::sha256_text(se_string_view cs) {
+String StringUtils::sha256_text(StringView cs) {
     unsigned char hash[32];
     CryptoCore::sha256((unsigned char *)cs.data(), cs.length(), hash);
     return hex_encode_buffer(hash, 32);
@@ -1468,7 +1468,7 @@ String StringUtils::sha256_text(se_string_view cs) {
 //    }
 //    return ret;
 //};
-Vector<uint8_t> StringUtils::md5_buffer(se_string_view cs) {
+Vector<uint8_t> StringUtils::md5_buffer(StringView cs) {
 
     unsigned char hash[16];
     CryptoCore::md5((unsigned char *)cs.data(), cs.length(), hash);
@@ -1487,7 +1487,7 @@ Vector<uint8_t> StringUtils::sha1_buffer(const UIString &str) {
     CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-Vector<uint8_t> StringUtils::sha1_buffer(se_string_view cs) {
+Vector<uint8_t> StringUtils::sha1_buffer(StringView cs) {
     Vector<uint8_t> ret(20,0);
     CryptoCore::sha1((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
@@ -1498,7 +1498,7 @@ Vector<uint8_t> StringUtils::sha256_buffer(const UIString &str)  {
     CryptoCore::sha256((unsigned char *)cs.data(), cs.length(), ret.data());
     return ret;
 }
-Vector<uint8_t> StringUtils::sha256_buffer(se_string_view str)  {
+Vector<uint8_t> StringUtils::sha256_buffer(StringView str)  {
     Vector<uint8_t> ret(32,0);
     CryptoCore::sha256((unsigned char *)str.data(), str.length(), ret.data());
     return ret;
@@ -1508,7 +1508,7 @@ UIString StringUtils::insert(const UIString &s,int p_at_pos, const UIString &p_s
     res.insert(p_at_pos,p_string);
     return res;
 }
-String StringUtils::insert(se_string_view s,int p_at_pos, se_string_view p_string) {
+String StringUtils::insert(StringView s,int p_at_pos, StringView p_string) {
     String res(s);
     res.insert(p_at_pos,String(p_string));
     return res;
@@ -1523,8 +1523,8 @@ UIString StringUtils::substr(const UIString &s,int p_from, int p_chars) {
     }
     return s.mid(p_from,p_chars);
 }
-se_string_view StringUtils::substr(se_string_view s,int p_from, size_t p_chars) {
-    se_string_view res(s);
+StringView StringUtils::substr(StringView s,int p_from, size_t p_chars) {
+    StringView res(s);
     if(s.empty())
         return res;
     ssize_t count = static_cast<ssize_t>(p_chars);
@@ -1542,10 +1542,10 @@ int StringUtils::find_last(const UIString &s,const UIString &p_str) {
 int StringUtils::find_last(const UIString &s,const CharType c) {
     return s.lastIndexOf(c);
 }
-size_t StringUtils::find_last(se_string_view s,char c) {
+size_t StringUtils::find_last(StringView s,char c) {
     return s.rfind(c);
 }
-size_t StringUtils::find_last(se_string_view s,se_string_view oth) {
+size_t StringUtils::find_last(StringView s,StringView oth) {
     return s.rfind(oth);
 }
 int StringUtils::find(const UIString &s,const UIString &p_str, int p_from) {
@@ -1560,11 +1560,11 @@ int StringUtils::find(const UIString &s,const char *p_str, int p_from) {
         return -1;
     return s.indexOf(QLatin1String(p_str),p_from);
 }
-size_t StringUtils::find(se_string_view s,se_string_view p_str, size_t p_from) {
+size_t StringUtils::find(StringView s,StringView p_str, size_t p_from) {
 
     return s.find(p_str,p_from);
 }
-size_t StringUtils::find(se_string_view s,char c, size_t p_from) {
+size_t StringUtils::find(StringView s,char c, size_t p_from) {
     return s.find(c,p_from);
 }
 
@@ -1574,7 +1574,7 @@ int StringUtils::findn(const UIString &s,const UIString &p_str, int p_from) {
         return -1;
     return s.indexOf(p_str,p_from,Qt::CaseInsensitive);
 }
-size_t StringUtils::findn(se_string_view s,se_string_view p_str, int p_from) {
+size_t StringUtils::findn(StringView s,StringView p_str, int p_from) {
 
     if (p_from < 0)
         return String::npos;
@@ -1617,16 +1617,16 @@ size_t StringUtils::findn(se_string_view s,se_string_view p_str, int p_from) {
 int StringUtils::rfind(const UIString &s,const UIString &p_str, int p_from) {
     return s.lastIndexOf(p_str,p_from);
 }
-size_t StringUtils::rfind(se_string_view s,se_string_view p_str, int p_from) {
+size_t StringUtils::rfind(StringView s,StringView p_str, int p_from) {
     return s.rfind(p_str,p_from);
 }
-size_t StringUtils::rfind(se_string_view s,char c, int p_from) {
+size_t StringUtils::rfind(StringView s,char c, int p_from) {
     return s.rfind(c,p_from);
 }
 int StringUtils::rfindn(const UIString &s,const UIString &p_str, int p_from) {
     return s.lastIndexOf(p_str,p_from,Qt::CaseInsensitive);
 }
-size_t StringUtils::rfindn(se_string_view s,se_string_view p_str, int p_from) {
+size_t StringUtils::rfindn(StringView s,StringView p_str, int p_from) {
     QByteArray a(s.data(),s.size());
     QByteArray b(p_str.data(),p_str.size());
     int res = a.toLower().lastIndexOf(b.toLower());
@@ -1646,10 +1646,10 @@ bool StringUtils::ends_with(const UIString &s,const char *p_string) {
 bool StringUtils::ends_with(const UIString &s,CharType p_char) {
     return s.endsWith(p_char);
 }
-bool StringUtils::ends_with(se_string_view s,se_string_view p_string) {
+bool StringUtils::ends_with(StringView s,StringView p_string) {
     return s.ends_with(p_string);
 }
-bool StringUtils::ends_with(se_string_view s,char c) {
+bool StringUtils::ends_with(StringView s,char c) {
     return s.ends_with(c);
 }
 
@@ -1662,7 +1662,7 @@ bool StringUtils::begins_with(const UIString &s,const UIString &p_string) {
 bool StringUtils::begins_with(const UIString &s,const char *p_string) {
     return s.startsWith(UIString::fromUtf8(p_string));
 }
-bool StringUtils::begins_with(se_string_view s,se_string_view p_string) {
+bool StringUtils::begins_with(StringView s,StringView p_string) {
     if(s.size()<p_string.size())
         return false;
     return String::compare(s.begin(),s.begin()+p_string.size(),p_string.begin(),p_string.end())==0;
@@ -1673,7 +1673,7 @@ bool StringUtils::is_subsequence_of(const UIString &str,const UIString &p_string
         return true;
     return str.contains(p_string,mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 }
-bool StringUtils::is_subsequence_of(se_string_view str,se_string_view p_string, Compare mode) {
+bool StringUtils::is_subsequence_of(StringView str,StringView p_string, Compare mode) {
     if(str.empty())
         return true;
     if(str.length()>p_string.length())
@@ -1684,7 +1684,7 @@ bool StringUtils::is_quoted(const UIString &str) {
 
     return is_enclosed_in(str,'"') || is_enclosed_in(str,'\'');
 }
-bool StringUtils::is_quoted(se_string_view str) {
+bool StringUtils::is_quoted(StringView str) {
 
     return is_enclosed_in(str,'"') || is_enclosed_in(str,'\'');
 }
@@ -1723,7 +1723,7 @@ static int str_count(const UIString &s,const UIString &p_string, int p_from, int
     } while (idx != -1);
     return c;
 }
-static int str_count(se_string_view s,se_string_view p_string, int p_from, int p_to, bool p_case_insensitive)  {
+static int str_count(StringView s,StringView p_string, int p_from, int p_to, bool p_case_insensitive)  {
     if (p_string.empty()) {
         return 0;
     }
@@ -1732,7 +1732,7 @@ static int str_count(se_string_view s,se_string_view p_string, int p_from, int p
     if (len < slen) {
         return 0;
     }
-    se_string_view str;
+    StringView str;
     if (p_from >= 0 && p_to >= 0) {
         if (p_to == 0) {
             p_to = len;
@@ -1767,18 +1767,18 @@ int StringUtils::countn(const UIString &s,const UIString &p_string, int p_from, 
 
     return str_count(s,p_string, p_from, p_to, true);
 }
-int StringUtils::count(se_string_view s,se_string_view p_string, int p_from, int p_to) {
+int StringUtils::count(StringView s,StringView p_string, int p_from, int p_to) {
     return str_count(s,p_string, p_from, p_to, false);
 }
 
-int StringUtils::countn(se_string_view s,se_string_view p_string, int p_from, int p_to) {
+int StringUtils::countn(StringView s,StringView p_string, int p_from, int p_to) {
 
     return str_count(s,p_string, p_from, p_to, true);
 }
 
-Vector<se_string_view> StringUtils::bigrams(se_string_view str) {
+Vector<StringView> StringUtils::bigrams(StringView str) {
     int n_pairs = str.length() - 1;
-    Vector<se_string_view> b;
+    Vector<StringView> b;
     if (n_pairs <= 0) {
         return b;
     }
@@ -1790,7 +1790,7 @@ Vector<se_string_view> StringUtils::bigrams(se_string_view str) {
 }
 
 // Similarity according to Sorensen-Dice coefficient
-float StringUtils::similarity(se_string_view lhs,se_string_view p_string) {
+float StringUtils::similarity(StringView lhs,StringView p_string) {
     if (lhs==p_string) {
         // Equal strings are totally similar
         return 1.0f;
@@ -1800,8 +1800,8 @@ float StringUtils::similarity(se_string_view lhs,se_string_view p_string) {
         return 0.0f;
     }
 
-    Vector<se_string_view> src_bigrams = bigrams(lhs);
-    Vector<se_string_view> tgt_bigrams = bigrams(p_string);
+    Vector<StringView> src_bigrams = bigrams(lhs);
+    Vector<StringView> tgt_bigrams = bigrams(p_string);
 
     int src_size = src_bigrams.size();
     int tgt_size = tgt_bigrams.size();
@@ -1833,7 +1833,7 @@ static bool _wildcard_match(const CharType *p_pattern, const CharType *p_string,
     }
 }
 
-static bool _wildcard_match(se_string_view p_pattern, se_string_view p_string, bool p_case_sensitive) {
+static bool _wildcard_match(StringView p_pattern, StringView p_string, bool p_case_sensitive) {
     if(p_pattern.empty() && p_string.empty())
         return true;
     switch (p_pattern[0]) {
@@ -1854,7 +1854,7 @@ bool StringUtils::match(const UIString &s, const UIString &p_wildcard, Compare s
     assert(sensitivity!=CaseNatural);
     return _wildcard_match(p_wildcard.constData(), s.constData(), sensitivity==CaseSensitive);
 }
-bool StringUtils::match(se_string_view s, se_string_view p_wildcard, Compare sensitivity)  {
+bool StringUtils::match(StringView s, StringView p_wildcard, Compare sensitivity)  {
 
     if (p_wildcard.empty() || s.empty())
         return false;
@@ -1864,10 +1864,10 @@ bool StringUtils::match(se_string_view s, se_string_view p_wildcard, Compare sen
 bool StringUtils::matchn(const UIString &s,const UIString &p_wildcard)  {
     return match(s,p_wildcard,CaseInsensitive);
 }
-bool StringUtils::matchn(se_string_view s,se_string_view p_wildcard)  {
+bool StringUtils::matchn(StringView s,StringView p_wildcard)  {
     return match(s,p_wildcard,CaseInsensitive);
 }
-String StringUtils::format(se_string_view fmt, const Variant &values) {
+String StringUtils::format(StringView fmt, const Variant &values) {
 
     static const String quote_char("\"");
     static const String underscore("_");
@@ -1941,7 +1941,7 @@ UIString StringUtils::replace_first(const UIString &s,const UIString &p_key, con
         return res;
     return res.replace(pos,p_key.length(),p_with);
 }
-String StringUtils::replace_first(se_string_view s,se_string_view p_key, se_string_view p_with)  {
+String StringUtils::replace_first(StringView s,StringView p_key, StringView p_with)  {
 
     auto pos = find(s,p_key);
     String res(s);
@@ -1954,14 +1954,14 @@ UIString StringUtils::replacen(const UIString &s,const UIString &p_key, const UI
     QString new_string=s;
     return new_string.replace(p_key,p_with,Qt::CaseInsensitive);
 }
-String StringUtils::replacen(se_string_view s,se_string_view p_key, se_string_view p_with) {
+String StringUtils::replacen(StringView s,StringView p_key, StringView p_with) {
     QString new_string=from_utf8(s);
     return to_utf8(new_string.replace(from_utf8(p_key),from_utf8(p_with),Qt::CaseInsensitive));
 }
-String StringUtils::replace(se_string_view str,se_string_view p_key, se_string_view p_with) {
+String StringUtils::replace(StringView str,StringView p_key, StringView p_with) {
     return String(str).replaced(p_key,p_with);
 }
-String StringUtils::replace(se_string_view str,char p_key, char p_with) {
+String StringUtils::replace(StringView str,char p_key, char p_with) {
     return String(str).replaced(p_key,p_with);
 }
 
@@ -1983,7 +1983,7 @@ UIString StringUtils::repeat(const UIString &str,int p_count) {
 
     return new_string;
 }
-String StringUtils::repeat(se_string_view str,int p_count) {
+String StringUtils::repeat(StringView str,int p_count) {
 
     ERR_FAIL_COND_V_MSG(p_count < 0, String(), "Parameter count should be a positive number.");
 
@@ -1998,15 +1998,15 @@ String StringUtils::repeat(se_string_view str,int p_count) {
 UIString StringUtils::left(const UIString &s,int p_pos) {
     return s.mid(0, p_pos);
 }
-se_string_view StringUtils::left(se_string_view s,int p_pos) {
-    return se_string_view(s).substr(0, p_pos);
+StringView StringUtils::left(StringView s,int p_pos) {
+    return StringView(s).substr(0, p_pos);
 }
 
 UIString StringUtils::right(const UIString &s,int p_pos){
 
     return s.mid(p_pos);
 }
-se_string_view StringUtils::right(se_string_view s,int p_pos){
+StringView StringUtils::right(StringView s,int p_pos){
 
     return s.substr(p_pos);
 }
@@ -2057,7 +2057,7 @@ CharType StringUtils::ord_at(const UIString &str,int p_idx) {
 
 //    return String(new_string);
 //}
-String StringUtils::dedent(se_string_view str) {
+String StringUtils::dedent(StringView str) {
 
     String new_string;
     String indent;
@@ -2128,7 +2128,7 @@ UIString StringUtils::strip_edges(const UIString &str,bool left, bool right)  {
 
     return substr(str,beg, end - beg);
 }
-se_string_view StringUtils::strip_edges(se_string_view str,bool left, bool right)  {
+StringView StringUtils::strip_edges(StringView str,bool left, bool right)  {
 
     int len = str.length();
     int beg = 0, end = len;
@@ -2172,7 +2172,7 @@ UIString StringUtils::strip_escapes(const UIString &str)  {
 
     return UIString(new_string);
 }
-String StringUtils::strip_escapes(se_string_view str)  {
+String StringUtils::strip_escapes(StringView str)  {
 
     String new_string;
     for (size_t i = 0; i < str.length(); i++) {
@@ -2202,7 +2202,7 @@ UIString StringUtils::lstrip(const UIString &str,const UIString &p_chars)  {
 
     return substr(str,beg, len - beg);
 }
-se_string_view StringUtils::lstrip(se_string_view str,se_string_view p_chars)  {
+StringView StringUtils::lstrip(StringView str,StringView p_chars)  {
 
     size_t len = str.length();
     size_t beg;
@@ -2235,14 +2235,14 @@ UIString StringUtils::rstrip(const UIString &str,const UIString &p_chars)  {
 
     return substr(str,0, end + 1);
 }
-se_string_view StringUtils::rstrip(se_string_view str,se_string_view p_chars)  {
+StringView StringUtils::rstrip(StringView str,StringView p_chars)  {
 
     int len = str.length();
     int end;
 
     for (end = len - 1; end >= 0; end--) {
 
-        if (find_char(p_chars,str[end]) == se_string_view::npos)
+        if (find_char(p_chars,str[end]) == StringView::npos)
             break;
     }
 
@@ -2251,7 +2251,7 @@ se_string_view StringUtils::rstrip(se_string_view str,se_string_view p_chars)  {
 
     return substr(str,0, end + 1);
 }
-String PathUtils::simplify_path(se_string_view str) {
+String PathUtils::simplify_path(StringView str) {
 
     String s(str);
     String drive;
@@ -2290,11 +2290,11 @@ String PathUtils::simplify_path(se_string_view str) {
         else
             s = compare;
     }
-    FixedVector<se_string_view,16,true> dirs;
-    FixedVector<se_string_view,16,true> filtered;
+    FixedVector<StringView,16,true> dirs;
+    FixedVector<StringView,16,true> filtered;
     String::split_ref(dirs,s,'/');
 
-    for (se_string_view d : dirs) {
+    for (StringView d : dirs) {
         if (d == "."_sv) {
             continue;
         } else if (d == ".."_sv) {
@@ -2360,7 +2360,7 @@ bool PathUtils::is_abs_path(const UIString &str) {
     else
         return false;
 }
-bool PathUtils::is_abs_path(se_string_view str) {
+bool PathUtils::is_abs_path(StringView str) {
 
     if (str.length() > 1)
         return (str[0] == '/' || str[0] == '\\' || str.contains(":/") || str.contains(":\\"));
@@ -2391,7 +2391,7 @@ bool StringUtils::is_valid_identifier(const UIString &str) {
 
     return true;
 }
-bool StringUtils::is_valid_identifier(se_string_view str) {
+bool StringUtils::is_valid_identifier(StringView str) {
 
     int len =str.length();
 
@@ -2468,7 +2468,7 @@ UIString StringUtils::word_wrap(const UIString &str,int p_chars_per_line) {
 //    }
 //    return String(res);
 //}
-String StringUtils::http_escape(se_string_view temp) {
+String StringUtils::http_escape(StringView temp) {
     String res;
     for (char ord : temp) {
         if (ord == '.' || ord == '-' || ord == '_' || ord == '~' ||
@@ -2510,7 +2510,7 @@ String StringUtils::http_escape(se_string_view temp) {
 //    }
 //    return StringUtils::from_utf8(StringUtils::ascii(res));
 //}
-String StringUtils::http_unescape(se_string_view str) {
+String StringUtils::http_unescape(StringView str) {
     String res;
     for (size_t i = 0; i < str.length(); ++i) {
         if (str.at(i) == '%' && i + 2 < str.length()) {
@@ -2548,7 +2548,7 @@ String StringUtils::http_unescape(se_string_view str) {
 
 //    return escaped;
 //}
-String StringUtils::c_unescape(se_string_view str) {
+String StringUtils::c_unescape(StringView str) {
 
     String escaped(str);
     escaped = StringUtils::replace(escaped,"\\a", "\a");
@@ -2582,7 +2582,7 @@ String StringUtils::c_unescape(se_string_view str) {
 
 //    return escaped;
 //}
-String StringUtils::c_escape(se_string_view e) {
+String StringUtils::c_escape(StringView e) {
 
     String escaped(e);
     escaped = StringUtils::replace(escaped,"\\", "\\\\");
@@ -2608,7 +2608,7 @@ String StringUtils::c_escape(se_string_view e) {
 
 //    return escaped;
 //}
-String StringUtils::c_escape_multiline(se_string_view str) {
+String StringUtils::c_escape_multiline(StringView str) {
 
     String escaped(str);
     escaped.replace("\\", "\\\\");
@@ -2630,7 +2630,7 @@ String StringUtils::c_escape_multiline(se_string_view str) {
 
 //    return escaped;
 //}
-String StringUtils::json_escape(se_string_view str) {
+String StringUtils::json_escape(StringView str) {
 
     String escaped(str);
     escaped.replace("\\", "\\\\");
@@ -2656,7 +2656,7 @@ UIString StringUtils::xml_escape(const UIString &arg,bool p_escape_quotes)  {
     }
     return str;
 }
-String StringUtils::xml_escape(se_string_view arg,bool p_escape_quotes)  {
+String StringUtils::xml_escape(StringView arg,bool p_escape_quotes)  {
 
     String str(arg);
     str = StringUtils::replace(str,"&", "&amp;");
@@ -2856,7 +2856,7 @@ UIString StringUtils::xml_unescape(const UIString &arg) {
 
     return str;
 }
-String StringUtils::xml_unescape(se_string_view arg) {
+String StringUtils::xml_unescape(StringView arg) {
 
     String str;
     int l = arg.length();
@@ -2894,7 +2894,7 @@ String StringUtils::xml_unescape(se_string_view arg) {
 //    }
 //    return s;
 //}
-String StringUtils::pad_decimals(se_string_view str,int p_digits) {
+String StringUtils::pad_decimals(StringView str,int p_digits) {
 
     String s(str);
     auto c = s.find('.');
@@ -2950,7 +2950,7 @@ UIString StringUtils::pad_zeros(const UIString &src,int p_digits) {
 
     return s;
 }
-String StringUtils::pad_zeros(se_string_view src,int p_digits) {
+String StringUtils::pad_zeros(StringView src,int p_digits) {
 
     String s(src);
     auto end = s.find('.');
@@ -2988,9 +2988,9 @@ UIString StringUtils::trim_prefix(const UIString &src,const UIString &p_prefix) 
     }
     return s;
 }
-se_string_view StringUtils::trim_prefix(se_string_view src,se_string_view p_prefix) {
+StringView StringUtils::trim_prefix(StringView src,StringView p_prefix) {
 
-    se_string_view s = src;
+    StringView s = src;
     if (begins_with(s,p_prefix)) {
         return substr(s,p_prefix.length(), s.length() - p_prefix.length());
     }
@@ -3004,9 +3004,9 @@ UIString StringUtils::trim_suffix(const UIString &src,const UIString &p_suffix) 
     }
     return s;
 }
-se_string_view StringUtils::trim_suffix(se_string_view src,se_string_view p_suffix) {
+StringView StringUtils::trim_suffix(StringView src,StringView p_suffix) {
 
-    se_string_view s = src;
+    StringView s = src;
     if (ends_with(s,p_suffix)) {
         return substr(s,0, s.length() - p_suffix.length());
     }
@@ -3032,7 +3032,7 @@ bool StringUtils::is_valid_integer(const UIString &str) {
 
     return true;
 }
-bool StringUtils::is_valid_integer(se_string_view str) {
+bool StringUtils::is_valid_integer(StringView str) {
 
     int len = str.length();
 
@@ -3050,11 +3050,11 @@ bool StringUtils::is_valid_integer(se_string_view str) {
 
     return true;
 }
-bool StringUtils::is_valid_html_color(se_string_view clr) {
+bool StringUtils::is_valid_html_color(StringView clr) {
 
     return Color::html_is_valid(clr);
 }
-bool StringUtils::is_valid_hex_number(se_string_view str,bool p_with_prefix) {
+bool StringUtils::is_valid_hex_number(StringView str,bool p_with_prefix) {
 
     size_t len = str.length();
 
@@ -3124,7 +3124,7 @@ bool StringUtils::is_valid_hex_number(se_string_view str,bool p_with_prefix) {
 
 //    return numbers_found;
 //}
-bool StringUtils::is_valid_float(se_string_view str) {
+bool StringUtils::is_valid_float(StringView str) {
 
     size_t len = str.length();
 
@@ -3162,7 +3162,7 @@ bool StringUtils::is_valid_float(se_string_view str) {
 
     return numbers_found;
 }
-String PathUtils::path_to_file(se_string_view base,se_string_view p_path) {
+String PathUtils::path_to_file(StringView base,StringView p_path) {
 
     // Don't get base dir for src, this is expected to be a dir already.
     String src = from_native_path(base);
@@ -3247,7 +3247,7 @@ String PathUtils::path_to_file(se_string_view base,se_string_view p_path) {
 //        dir = "./";
 //    return String(dir);
 //}
-String PathUtils::path_to(se_string_view str,se_string_view p_path) {
+String PathUtils::path_to(StringView str,StringView p_path) {
 
     String src = from_native_path(str);
     String dst = from_native_path(p_path);
@@ -3275,8 +3275,8 @@ String PathUtils::path_to(se_string_view str,se_string_view p_path) {
         //nothing
     } else {
         //dos style
-        se_string_view src_begin(StringUtils::get_slice(src,'/', 0));
-        se_string_view dst_begin(StringUtils::get_slice(dst,'/', 0));
+        StringView src_begin(StringUtils::get_slice(src,'/', 0));
+        StringView dst_begin(StringUtils::get_slice(dst,'/', 0));
 
         if (src_begin != dst_begin)
             return String(p_path); //impossible to do this
@@ -3337,9 +3337,9 @@ bool StringUtils::is_valid_filename(const UIString &str) {
              str.contains('*') || str.contains('\"') || str.contains('|') || str.contains('%') || str.contains('<') ||
              str.contains('>'));
 }
-bool StringUtils::is_valid_filename(se_string_view str) {
+bool StringUtils::is_valid_filename(StringView str) {
 
-    se_string_view stripped = strip_edges( str);
+    StringView stripped = strip_edges( str);
     if (str != stripped) {
         return false;
     }
@@ -3349,14 +3349,14 @@ bool StringUtils::is_valid_filename(se_string_view str) {
     }
     return str.find_first_of(":/\\?*\"|%<>")==String::npos;
 }
-bool StringUtils::is_valid_ip_address(se_string_view str) {
+bool StringUtils::is_valid_ip_address(StringView str) {
 
     if (contains(str,':')) {
-        FixedVector<se_string_view,8,true> ip;
+        FixedVector<StringView,8,true> ip;
         String::split_ref(ip,str,':');
         for (size_t i = 0; i < ip.size(); i++) {
 
-            se_string_view n = ip[i];
+            StringView n = ip[i];
             if (n.empty())
                 continue;
             if (is_valid_hex_number(n,false)) {
@@ -3370,13 +3370,13 @@ bool StringUtils::is_valid_ip_address(se_string_view str) {
         }
 
     } else {
-        FixedVector<se_string_view,4,false> ip;
+        FixedVector<StringView,4,false> ip;
         String::split_ref(ip,str,'.');
         if (ip.size() != 4)
             return false;
         for (size_t i = 0; i < ip.size(); i++) {
 
-            se_string_view n = ip[i];
+            StringView n = ip[i];
             if (!is_valid_integer(n))
                 return false;
             int val = to_int(n);
@@ -3392,7 +3392,7 @@ bool PathUtils::is_resource_file(const UIString &str) {
 
     return StringUtils::begins_with(str,"res://") && !str.contains("::");
 }
-bool PathUtils::is_resource_file(se_string_view str) {
+bool PathUtils::is_resource_file(StringView str) {
 
     return StringUtils::begins_with(str,"res://") && !str.contains("::");
 }
@@ -3400,22 +3400,22 @@ bool PathUtils::is_rel_path(const UIString &str) {
 
     return !is_abs_path(str);
 }
-bool PathUtils::is_rel_path(se_string_view str) {
+bool PathUtils::is_rel_path(StringView str) {
 
     return !is_abs_path(str);
 }
 
-se_string_view PathUtils::trim_trailing_slash(se_string_view path) {
+StringView PathUtils::trim_trailing_slash(StringView path) {
     CharType last_char = path.back();
     if(last_char=='/' || last_char=='\\')
         return StringUtils::substr(path,0,path.size()-1);
     return path;
 }
-String PathUtils::get_base_dir(se_string_view path) {
+String PathUtils::get_base_dir(StringView path) {
 
     auto basepos = StringUtils::find(path,"://");
-    se_string_view rs;
-    se_string_view base;
+    StringView rs;
+    StringView base;
     if (basepos != String::npos) {
         int end = basepos + 3;
         rs = StringUtils::substr(path,end);
@@ -3431,11 +3431,11 @@ String PathUtils::get_base_dir(se_string_view path) {
     }
 
     auto parent_path = PathUtils::path(rs);
-    if(parent_path==se_string_view("."))
+    if(parent_path==StringView("."))
         return String(base);
     return String(base) + parent_path;
 }
-se_string_view PathUtils::get_file(se_string_view path) {
+StringView PathUtils::get_file(StringView path) {
     auto pos = path.find_last_of("/\\");
     if (pos == String::npos)
         return path;
@@ -3449,13 +3449,13 @@ UIString PathUtils::get_extension(const UIString &path) {
 
     return StringUtils::substr(path,pos + 1);
 }
-se_string_view PathUtils::get_extension(se_string_view path) {
+StringView PathUtils::get_extension(StringView path) {
     auto pos = path.rfind(".");
     if(pos == String::npos)
-        return se_string_view();
+        return StringView();
     auto sep = path.find_last_of("/\\");
     if(sep!=String::npos && pos<sep)
-        return se_string_view();
+        return StringView();
 
     return StringUtils::substr(path,pos + 1);
 }
@@ -3466,7 +3466,7 @@ se_string_view PathUtils::get_extension(se_string_view path) {
 //        return bp + p_file;
 //    return bp + "/" + p_file;
 //}
-//String PathUtils::plus_file_utf8(const String &bp,se_string_view p_file) {
+//String PathUtils::plus_file_utf8(const String &bp,StringView p_file) {
 //    String fl(String::fromUtf8(p_file.data(),p_file.size()));
 //    if (bp.isEmpty())
 //        return fl;
@@ -3474,14 +3474,14 @@ se_string_view PathUtils::get_extension(se_string_view path) {
 //        return bp + fl;
 //    return bp + "/" + fl;
 //}
-//String PathUtils::plus_file_utf8(se_string_view bp,se_string_view p_file) {
+//String PathUtils::plus_file_utf8(StringView bp,StringView p_file) {
 //    if (bp.empty())
 //        return String(p_file);
 //    if (bp.back() == '/' || StringUtils::begins_with(p_file,"/"))
 //        return String(bp) + p_file;
 //    return String(bp) + "/" + p_file;
 //}
-String PathUtils::plus_file(se_string_view bp,se_string_view p_file) {
+String PathUtils::plus_file(StringView bp,StringView p_file) {
     if (bp.empty())
         return String(p_file);
     if (p_file.empty())
@@ -3511,7 +3511,7 @@ UIString StringUtils::percent_encode(const UIString &str) {
 
     return encoded;
 }
-String StringUtils::percent_encode(se_string_view cs) {
+String StringUtils::percent_encode(StringView cs) {
 
     String encoded;
     for (size_t i = 0; i < cs.length(); i++) {
@@ -3532,10 +3532,10 @@ String StringUtils::percent_encode(se_string_view cs) {
 }
 UIString StringUtils::percent_decode(const UIString &str) {
     String cs = to_utf8(str);
-    String s=percent_decode(se_string_view(cs.data(),cs.size()));
+    String s=percent_decode(StringView(cs.data(),cs.size()));
     return QString::fromUtf8(s.data(),s.size());
 }
-String StringUtils::percent_decode(se_string_view str) {
+String StringUtils::percent_decode(StringView str) {
 
     String pe;
 
@@ -3578,7 +3578,7 @@ UIString PathUtils::get_basename(const UIString &path) {
 
     return StringUtils::substr(path,0, pos);
 }
-se_string_view PathUtils::get_basename(se_string_view path) {
+StringView PathUtils::get_basename(StringView path) {
 
     auto pos = path.rfind('.');
     if(pos==String::npos)
@@ -3586,7 +3586,7 @@ se_string_view PathUtils::get_basename(se_string_view path) {
     auto file = get_file(path);
     return file.substr(0,file.rfind('.'));
 }
-se_string_view PathUtils::path(se_string_view path) {
+StringView PathUtils::path(StringView path) {
 
     auto last_slash_pos = path.find_last_of("/\\");
     if(last_slash_pos==String::npos)
@@ -3655,7 +3655,7 @@ String StringUtils::lpad(const String &src,int min_length, char character)  {
 //   "fish %s pie" % "frog"
 //   "fish %s %d pie" % ["frog", 12]
 // In case of an error, the string returned is the error description and "error" is true.
-String StringUtils::sprintf(se_string_view str,const Array &values, bool *error) {
+String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
     String formatted;
     const char *self = str.data();
     bool in_format = false;
@@ -3914,7 +3914,7 @@ String StringUtils::sprintf(se_string_view str,const Array &values, bool *error)
 UIString StringUtils::quote(const UIString &str,char character) {
     return character + str + character;
 }
-String StringUtils::quote(se_string_view str,char character) {
+String StringUtils::quote(StringView str,char character) {
     return character+String(str)+character;
 }
 UIString StringUtils::unquote(const UIString &str) {
@@ -3924,7 +3924,7 @@ UIString StringUtils::unquote(const UIString &str) {
 
     return substr(str,1, str.length() - 2);
 }
-se_string_view StringUtils::unquote(se_string_view str) {
+StringView StringUtils::unquote(StringView str) {
     if (!is_quoted(str)) {
         return str;
     }
@@ -3932,7 +3932,7 @@ se_string_view StringUtils::unquote(se_string_view str) {
     return str.substr(1, str.length() - 2);
 }
 #ifdef TOOLS_ENABLED
-StringName TTR(se_string_view p_text) {
+StringName TTR(StringView p_text) {
 
     if (TranslationServer::get_singleton()) {
         return TranslationServer::get_singleton()->tool_translate(StringName(p_text));
@@ -3956,7 +3956,7 @@ StringName RTR(const char *p_text) {
 
     return StringName(p_text);
 }
-String RTR_utf8(se_string_view sv) {
+String RTR_utf8(StringView sv) {
     return String(RTR(String(sv).c_str())).data();
 }
 
@@ -3973,7 +3973,7 @@ int StringUtils::compare(const UIString &lhs, const UIString &rhs, Compare case_
     col.setNumericMode(true);
     return col.compare(lhs,rhs);
 }
-int StringUtils::compare(se_string_view lhs, se_string_view rhs, Compare case_sensitive)
+int StringUtils::compare(StringView lhs, StringView rhs, Compare case_sensitive)
 {
     return compare(from_utf8(lhs),from_utf8(rhs),case_sensitive);
 }
@@ -3988,7 +3988,7 @@ bool StringUtils::contains(const UIString &heystack, const UIString &needle,Comp
     assert(mode!=Compare::CaseNatural);
     return heystack.contains(needle,mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 }
-bool StringUtils::contains(const UIString &heystack, se_string_view needle,Compare mode)
+bool StringUtils::contains(const UIString &heystack, StringView needle,Compare mode)
 {
     assert(mode!=Compare::CaseNatural);
     return heystack.contains(needle.data(),mode==CaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
@@ -3997,11 +3997,11 @@ bool StringUtils::contains(const UIString &heystack, CharType c, Compare)
 {
     return heystack.contains(c);
 }
-bool StringUtils::contains(se_string_view heystack, char c)
+bool StringUtils::contains(StringView heystack, char c)
 {
     return heystack.find(c)!=heystack.npos;
 }
-bool StringUtils::contains(se_string_view heystack, se_string_view c)
+bool StringUtils::contains(StringView heystack, StringView c)
 {
     return heystack.find(c)!=heystack.npos;
 }
@@ -4010,7 +4010,7 @@ bool PathUtils::is_internal_path(const UIString &path)
 {
     return StringUtils::contains(path,UIString("local://")) || StringUtils::contains(path,UIString("::"));
 }
-bool PathUtils::is_internal_path(se_string_view path)
+bool PathUtils::is_internal_path(StringView path)
 {
     return StringUtils::contains(path,("local://")) || StringUtils::contains(path,("::"));
 }
@@ -4020,7 +4020,7 @@ UIString StringUtils::from_utf8(const char *p_utf8, int p_len)
     UIString res(QString::fromUtf8(p_utf8,p_len));
     return res;
 }
-UIString StringUtils::from_utf8(se_string_view p_utf8)
+UIString StringUtils::from_utf8(StringView p_utf8)
 {
     UIString res(QString::fromUtf8(p_utf8.data(),p_utf8.length()));
     return res;
@@ -4048,7 +4048,7 @@ void StringUtils::Inplace::replace(UIString &str, const UIString &p_key, const U
 int StringUtils::char_length(const UIString &str) {
     return str.size();
 }
-String StringUtils::property_name_encode(se_string_view str) {
+String StringUtils::property_name_encode(StringView str) {
     // Escape and quote strings with extended ASCII or further Unicode characters
     // as well as '"', '=' or ' ' (32)
     for (char c : str) {
@@ -4063,7 +4063,7 @@ namespace PathUtils {
 UIString from_native_path(const UIString &p) {
     return UIString(p).replace('\\', '/');
 }
-String from_native_path(se_string_view p) {
+String from_native_path(StringView p) {
     return StringUtils::replace(p,'\\', '/');
 }
 
@@ -4071,7 +4071,7 @@ UIString to_win_path(const UIString &v)
 {
     return UIString(v).replace("/", "\\");
 }
-String to_win_path(se_string_view v)
+String to_win_path(StringView v)
 {
     return StringUtils::replace(v,"/", "\\");
 }

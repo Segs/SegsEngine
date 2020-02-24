@@ -132,7 +132,7 @@ void ProximityGroup::_notification(int p_what) {
     }
 };
 
-void ProximityGroup::broadcast(se_string_view p_name, const Variant& p_params) {
+void ProximityGroup::broadcast(StringView p_name, const Variant& p_params) {
 
     HashMap<StringName, uint32_t>::iterator E;
     E = groups.begin();

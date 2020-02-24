@@ -34,7 +34,7 @@
 #include "core/resource.h"
 #include "core/map.h"
 #include "core/variant.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 struct VariantParserStream {
 

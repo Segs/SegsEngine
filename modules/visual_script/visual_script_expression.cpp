@@ -32,7 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/object_tooling.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.inl"
 
@@ -82,12 +82,12 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
         ERR_FAIL_INDEX_V(idx, inputs.size(), false);
 
-        se_string_view what = StringUtils::get_slice(p_name,'/', 1);
+        StringView what = StringUtils::get_slice(p_name,'/', 1);
 
-        if (what == se_string_view("type")) {
+        if (what == StringView("type")) {
 
             inputs[idx].type = VariantType(int(p_value));
-        } else if (what == se_string_view("name")) {
+        } else if (what == StringView("name")) {
 
             inputs[idx].name = String(p_value);
         } else {
@@ -129,12 +129,12 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
         int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
         ERR_FAIL_INDEX_V(idx, inputs.size(), false);
 
-        se_string_view what = StringUtils::get_slice(p_name,'/', 1);
+        StringView what = StringUtils::get_slice(p_name,'/', 1);
 
-        if (what == se_string_view("type")) {
+        if (what == StringView("type")) {
 
             r_ret = inputs[idx].type;
-        } else if (what == se_string_view("name")) {
+        } else if (what == StringView("name")) {
 
             r_ret = inputs[idx].name;
         } else {
@@ -171,7 +171,7 @@ bool VisualScriptExpression::has_input_sequence_port() const {
     return sequenced;
 }
 
-se_string_view VisualScriptExpression::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptExpression::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -194,7 +194,7 @@ PropertyInfo VisualScriptExpression::get_output_value_port_info(int p_idx) const
     return PropertyInfo(output_type, "result");
 }
 
-se_string_view VisualScriptExpression::get_caption() const {
+StringView VisualScriptExpression::get_caption() const {
 
     return "Expression";
 }

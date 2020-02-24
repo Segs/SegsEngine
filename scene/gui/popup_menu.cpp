@@ -667,7 +667,7 @@ void PopupMenu::add_icon_item(const Ref<Texture> &p_icon, const StringName &p_la
     update();
     minimum_size_changed();
 }
-void PopupMenu::add_icon_item_utf8(const Ref<Texture> &p_icon, se_string_view _label, int p_id, uint32_t p_accel) {
+void PopupMenu::add_icon_item_utf8(const Ref<Texture> &p_icon, StringView _label, int p_id, uint32_t p_accel) {
 
     Item item;
     item.text = StringName(_label);
@@ -688,7 +688,7 @@ void PopupMenu::add_check_item(const StringName &p_label, int p_id, uint32_t p_a
     update();
     minimum_size_changed();
 }
-void PopupMenu::add_check_item_utf8(se_string_view p_label, int p_id, uint32_t p_accel) {
+void PopupMenu::add_check_item_utf8(StringView p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     item.text = StringName(p_label);
@@ -721,7 +721,7 @@ void PopupMenu::add_radio_check_item(const StringName &p_label, int p_id, uint32
     update();
     minimum_size_changed();
 }
-void PopupMenu::add_radio_check_item_utf8(se_string_view p_label, int p_id, uint32_t p_accel) {
+void PopupMenu::add_radio_check_item_utf8(StringView p_label, int p_id, uint32_t p_accel) {
 
     Item item;
     item.text = StringName(p_label);
@@ -930,7 +930,7 @@ String PopupMenu::get_item_text_utf8(int p_idx) const {
     ERR_FAIL_INDEX_V(p_idx, items.size(), {});
     return String(items[p_idx].text);
 }
-int PopupMenu::get_item_idx_from_text_utf8(se_string_view text) const {
+int PopupMenu::get_item_idx_from_text_utf8(StringView text) const {
 
     for (int idx = 0; idx < items.size(); idx++) {
         if (items[idx].text == text)
@@ -1502,7 +1502,7 @@ void PopupMenu::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("remove_item", {"idx"}), &PopupMenu::remove_item);
 
-    MethodBinder::bind_method(D_METHOD("add_separator", {"label"}), &PopupMenu::add_separator, {DEFVAL(se_string_view())});
+    MethodBinder::bind_method(D_METHOD("add_separator", {"label"}), &PopupMenu::add_separator, {DEFVAL(StringView())});
     MethodBinder::bind_method(D_METHOD("clear"), &PopupMenu::clear);
 
     MethodBinder::bind_method(D_METHOD("_set_items"), &PopupMenu::_set_items);

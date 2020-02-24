@@ -71,7 +71,7 @@ public:
     virtual int get_output_sequence_port_count() const = 0;
     virtual bool has_input_sequence_port() const = 0;
 
-    virtual se_string_view get_output_sequence_port_text(int p_port) const = 0;
+    virtual StringView get_output_sequence_port_text(int p_port) const = 0;
 
     virtual bool has_mixed_input_and_sequence_ports() const { return false; }
 
@@ -84,7 +84,7 @@ public:
     void set_default_input_value(int p_port, const Variant &p_value);
     Variant get_default_input_value(int p_port) const;
 
-    virtual se_string_view get_caption() const = 0;
+    virtual StringView get_caption() const = 0;
     virtual String get_text() const;
     virtual const char *get_category() const = 0;
 
@@ -334,13 +334,13 @@ public:
     void custom_signal_set_argument_type(const StringName &p_func, int p_argidx, VariantType p_type);
     VariantType custom_signal_get_argument_type(const StringName &p_func, int p_argidx) const;
     void custom_signal_set_argument_name(const StringName &p_func, int p_argidx, const StringName &p_name);
-    se_string_view custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const;
+    StringView custom_signal_get_argument_name(const StringName &p_func, int p_argidx) const;
     void custom_signal_remove_argument(const StringName &p_func, int p_argidx);
     int custom_signal_get_argument_count(const StringName &p_func) const;
     void custom_signal_swap_argument(const StringName &p_func, int p_argidx, int p_with_argidx);
     void remove_custom_signal(const StringName &p_name);
     void rename_custom_signal(const StringName &p_name, const StringName &p_new_name);
-    Set<int> get_output_sequence_ports_connected(se_string_view edited_func, int from_node);
+    Set<int> get_output_sequence_ports_connected(StringView edited_func, int from_node);
 
     void get_custom_signal_list(Vector<StringName> *r_custom_signals) const;
 
@@ -356,7 +356,7 @@ public:
     bool instance_has(const Object *p_this) const override;
 
     bool has_source_code() const override;
-    se_string_view get_source_code() const override;
+    StringView get_source_code() const override;
     void set_source_code(String p_code) override;
     Error reload(bool p_keep_state = false) override;
 
@@ -487,15 +487,15 @@ protected:
     static void _bind_methods();
 
 public:
-    void connect_to_signal(Object *p_obj, se_string_view p_signal, Array p_binds);
-    void connect_to_signal_sv(Object *p_obj, se_string_view p_signal, Array p_binds);
+    void connect_to_signal(Object *p_obj, StringView p_signal, Array p_binds);
+    void connect_to_signal_sv(Object *p_obj, StringView p_signal, Array p_binds);
     bool is_valid() const;
     Variant resume(Array p_args);
     VisualScriptFunctionState();
     ~VisualScriptFunctionState() override;
 };
 
-using VisualScriptNodeRegisterFunc = Ref<VisualScriptNode> (*)(se_string_view);
+using VisualScriptNodeRegisterFunc = Ref<VisualScriptNode> (*)(StringView);
 
 class VisualScriptLanguage : public ScriptLanguage {
 
@@ -527,8 +527,8 @@ public:
 
     Mutex *lock;
 
-    bool debug_break(se_string_view p_error, bool p_allow_continue = true);
-    bool debug_break_parse(se_string_view p_file, int p_node, se_string_view p_error);
+    bool debug_break(StringView p_error, bool p_allow_continue = true);
+    bool debug_break_parse(StringView p_file, int p_node, StringView p_error);
 
     _FORCE_INLINE_ void enter_function(VisualScriptInstance *p_instance, const StringName *p_function, Variant *p_stack, Variant **p_work_mem, int *current_id) {
 
@@ -579,23 +579,23 @@ public:
     void init() override;
     String get_type() const override;
     String get_extension() const override;
-    Error execute_file(se_string_view p_path) override;
+    Error execute_file(StringView p_path) override;
     void finish() override;
 
     /* EDITOR FUNCTIONS */
     void get_reserved_words(Vector<String> *p_words) const override;
     void get_comment_delimiters(Vector<String> *p_delimiters) const override;
     void get_string_delimiters(Vector<String> *p_delimiters) const override;
-    Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
+    Ref<Script> get_template(StringView p_class_name, StringView p_base_class_name) const override;
     bool is_using_templates() override;
-    void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
-    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-            se_string_view p_path = {}, Vector<String> *r_functions = nullptr,
+    void make_template(StringView p_class_name, StringView p_base_class_name, const Ref<Script> &p_script) override;
+    bool validate(StringView p_script, int &r_line_error, int &r_col_error, String &r_test_error,
+            StringView p_path = {}, Vector<String> *r_functions = nullptr,
             Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
-    int find_function(se_string_view p_function, se_string_view p_code) const override;
+    int find_function(StringView p_function, StringView p_code) const override;
     String make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const override;
     void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
     void add_global_constant(const StringName &p_variable, const Variant &p_value) override;
@@ -610,7 +610,7 @@ public:
     void debug_get_stack_level_locals(int p_level, Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     void debug_get_stack_level_members(int p_level, Vector<String> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     void debug_get_globals(Vector<String> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
+    String debug_parse_stack_level_expression(int p_level, StringView p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
@@ -618,7 +618,7 @@ public:
 
     void get_recognized_extensions(Vector<String> *p_extensions) const override;
     void get_public_functions(Vector<MethodInfo> *p_functions) const override;
-    void get_public_constants(Vector<Pair<se_string_view, Variant>> *p_constants) const override;
+    void get_public_constants(Vector<Pair<StringView, Variant>> *p_constants) const override;
 
     void profiling_start() override;
     void profiling_stop() override;
@@ -626,8 +626,8 @@ public:
     int profiling_get_accumulated_data(ProfilingInfo *p_info_arr, int p_info_max) override;
     int profiling_get_frame_data(ProfilingInfo *p_info_arr, int p_info_max) override;
 
-    void add_register_func(se_string_view p_name, VisualScriptNodeRegisterFunc p_func);
-    void remove_register_func(se_string_view p_name);
+    void add_register_func(StringView p_name, VisualScriptNodeRegisterFunc p_func);
+    void remove_register_func(StringView p_name);
     Ref<VisualScriptNode> create_node_from_name(const String &p_name);
     void get_registered_node_names(ListOld<String> *r_names);
 
@@ -637,7 +637,7 @@ public:
 
 //aid for registering
 template <class T>
-static Ref<VisualScriptNode> create_node_generic(se_string_view p_name) {
+static Ref<VisualScriptNode> create_node_generic(StringView p_name) {
 
     Ref<T> node(make_ref_counted<T>());
     return node;

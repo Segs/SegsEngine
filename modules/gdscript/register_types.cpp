@@ -60,7 +60,7 @@ class EditorExportGDScript : public EditorExportPlugin {
     GDCLASS(EditorExportGDScript,EditorExportPlugin)
 
 public:
-    void _export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features) override {
+    void _export_file(StringView p_path, StringView p_type, const Set<String> &p_features) override {
 
         int script_mode = EditorExportPreset::MODE_SCRIPT_COMPILED;
         String script_key;

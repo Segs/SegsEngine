@@ -76,7 +76,7 @@ Vector<String> EditorQuickOpen::get_selected_files() const {
     return files;
 }
 
-void EditorQuickOpen::_text_changed(se_string_view p_newtext) {
+void EditorQuickOpen::_text_changed(StringView p_newtext) {
 
     _update_search();
 }
@@ -114,7 +114,7 @@ void EditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
     }
 }
 
-float EditorQuickOpen::_path_cmp(se_string_view search, se_string_view path) const {
+float EditorQuickOpen::_path_cmp(StringView search, StringView path) const {
 
     if (search == path) {
         return 1.2f;

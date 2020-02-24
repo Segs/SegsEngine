@@ -36,7 +36,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.inl"
 
 #ifdef GDSCRIPT_ENABLED
@@ -428,7 +428,7 @@ static void _parser_show_function(const GDScriptParser::FunctionNode *p_func, in
     _parser_show_block(p_func->body, p_indent + 1);
 }
 
-static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const Vector<se_string_view> &p_code) {
+static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_indent, const Vector<StringView> &p_code) {
 
     if (p_indent == 0 && (!p_class->extends_file.empty() || !p_class->extends_class.empty())) {
 
@@ -469,7 +469,7 @@ static void _parser_show_class(const GDScriptParser::ClassNode *p_class, int p_i
 
     for (int i = 0; i < p_class->functions.size(); i++) {
 
-        if (se_string_view(p_class->functions[i]->name) == se_string_view("_init")) {
+        if (StringView(p_class->functions[i]->name) == StringView("_init")) {
             _parser_show_function(p_class->functions[i], p_indent, p_class->initializer);
         } else
             _parser_show_function(p_class->functions[i], p_indent);
@@ -528,7 +528,7 @@ static String _disassemble_addr(const Ref<GDScript> &p_script, const GDScriptFun
     return "<err>";
 }
 
-static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<se_string_view> &p_code) {
+static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<StringView> &p_code) {
 
     const Map<StringName, GDScriptFunction *> &mf = p_class->debug_get_member_functions();
 
@@ -954,9 +954,9 @@ MainLoop *test(TestType p_type) {
     fa->get_buffer(buf.data(), flen);
     buf[flen] = 0;
 
-    se_string_view code((const char *)&buf[0]);
+    StringView code((const char *)&buf[0]);
 
-    Vector<se_string_view> lines;
+    Vector<StringView> lines;
     int last = 0;
 
     for (size_t i = 0; i <= code.length(); i++) {

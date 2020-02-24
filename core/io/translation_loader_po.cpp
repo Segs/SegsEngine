@@ -37,7 +37,7 @@
 
 using namespace eastl;
 
-RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_string_view p_path) {
+RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringView p_path) {
 
     enum Status {
 
@@ -159,15 +159,15 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
 
     ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + String(p_path) + ".");
 
-    Vector<se_string_view> configs = StringUtils::split(config,'\n');
+    Vector<StringView> configs = StringUtils::split(config,'\n');
     for (size_t i = 0; i < configs.size(); i++) {
 
-        se_string_view c =StringUtils::strip_edges( configs[i]);
+        StringView c =StringUtils::strip_edges( configs[i]);
         auto p = StringUtils::find(c,":");
         if (p == String::npos)
             continue;
-        se_string_view prop = StringUtils::strip_edges(StringUtils::substr(c,0, p));
-        se_string_view value = StringUtils::strip_edges(StringUtils::substr(c,p + 1, c.length()));
+        StringView prop = StringUtils::strip_edges(StringUtils::substr(c,0, p));
+        StringView value = StringUtils::strip_edges(StringUtils::substr(c,p + 1, c.length()));
 
         if (prop == "X-Language"_sv || prop == "Language"_sv) {
             translation->set_locale(value);
@@ -180,7 +180,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, se_stri
     return translation;
 }
 
-RES TranslationLoaderPO::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES TranslationLoaderPO::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -196,12 +196,12 @@ void TranslationLoaderPO::get_recognized_extensions(Vector<String> &p_extensions
     p_extensions.push_back("po");
     //p_extensions->push_back("mo"); //mo in the future...
 }
-bool TranslationLoaderPO::handles_type(se_string_view p_type) const {
+bool TranslationLoaderPO::handles_type(StringView p_type) const {
 
-    return (p_type == se_string_view("Translation"));
+    return (p_type == StringView("Translation"));
 }
 
-String TranslationLoaderPO::get_resource_type(se_string_view p_path) const {
+String TranslationLoaderPO::get_resource_type(StringView p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "po")
         return "Translation";

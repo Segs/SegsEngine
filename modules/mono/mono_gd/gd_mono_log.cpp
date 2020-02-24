@@ -97,7 +97,7 @@ void GDMonoLog::mono_log_callback(const char *log_domain, const char *log_level,
 	}
 }
 
-bool GDMonoLog::_try_create_logs_dir(se_string_view p_logs_dir) {
+bool GDMonoLog::_try_create_logs_dir(StringView p_logs_dir) {
 
 	if (!DirAccess::exists(p_logs_dir)) {
 		DirAccessRef diraccess = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
@@ -109,7 +109,7 @@ bool GDMonoLog::_try_create_logs_dir(se_string_view p_logs_dir) {
 	return true;
 }
 
-void GDMonoLog::_delete_old_log_files(se_string_view p_logs_dir) {
+void GDMonoLog::_delete_old_log_files(StringView p_logs_dir) {
 
 	static const uint64_t MAX_SECS = 5 * 86400; // 5 days
 

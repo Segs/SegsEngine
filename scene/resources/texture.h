@@ -153,7 +153,7 @@ public:
 
     void set_size_override(const Size2 &p_size);
 
-    void set_path(se_string_view p_path, bool p_take_over = false) override;
+    void set_path(StringView p_path, bool p_take_over = false) override;
 
     ImageTexture();
     ~ImageTexture() override;
@@ -182,7 +182,7 @@ public:
     };
 
 private:
-    Error _load_data(se_string_view p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit = 0);
+    Error _load_data(StringView p_path, int &tw, int &th, int &tw_custom, int &th_custom, int &flags, Ref<Image> &image, int p_size_limit = 0);
     struct StreamTextureData;
     StreamTextureData *m_impl_data;
 
@@ -205,14 +205,14 @@ public:
 
     uint32_t get_flags() const override;
     Image::Format get_format() const;
-    Error load(se_string_view p_path);
+    Error load(StringView p_path);
     String get_load_path() const;
 
     int get_width() const override;
     int get_height() const override;
     RID get_rid() const override;
 
-    void set_path(se_string_view p_path, bool p_take_over) override;
+    void set_path(StringView p_path, bool p_take_over) override;
 
     void draw(RID p_canvas_item, const Point2 &p_pos, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
     void draw_rect(RID p_canvas_item, const Rect2 &p_rect, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, const Ref<Texture> &p_normal_map = Ref<Texture>()) const override;
@@ -443,7 +443,7 @@ public:
     void set_lossy_storage_quality(float p_lossy_storage_quality);
     float get_lossy_storage_quality() const;
 
-    void set_path(se_string_view p_path, bool p_take_over = false) override;
+    void set_path(StringView p_path, bool p_take_over = false) override;
 
     CubeMap();
     ~CubeMap() override;
@@ -494,7 +494,7 @@ public:
     void set_data_partial(const Ref<Image> &p_image, int p_x_ofs, int p_y_ofs, int p_z, int p_mipmap = 0);
 
     RID get_rid() const override;
-    void set_path(se_string_view p_path, bool p_take_over = false) override;
+    void set_path(StringView p_path, bool p_take_over = false) override;
 
     TextureLayered(bool p_3d = false);
     ~TextureLayered() override;

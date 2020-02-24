@@ -36,8 +36,8 @@
 
 class GODOT_EXPORT WindowsTerminalLogger : public StdLogger {
 public:
-	void logv(se_string_view p_format, bool p_err) override;
-	void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR) override;
+	void logv(StringView p_format, bool p_err) override;
+	void log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type = ERR_ERROR) override;
 	~WindowsTerminalLogger() override;
 };
 

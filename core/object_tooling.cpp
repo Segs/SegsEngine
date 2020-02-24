@@ -8,7 +8,7 @@
 #include "core/os/memory.h"
 #include "core/property_info.h"
 #include "core/script_language.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/set.h"
 #include "core/hash_set.h"
 
@@ -33,7 +33,7 @@ public:
     uint32_t get_edited_version() const final {
         return _edited_version;
     }
-    void editor_set_section_unfold(se_string_view p_section, bool p_unfolded) final {
+    void editor_set_section_unfold(StringView p_section, bool p_unfolded) final {
         set_edited(true);
         if (p_unfolded)
             editor_section_folding.insert(p_section);
@@ -43,7 +43,7 @@ public:
                 editor_section_folding.erase(iter);
         }
     }
-    [[nodiscard]] bool editor_is_section_unfolded(se_string_view p_section) const final {
+    [[nodiscard]] bool editor_is_section_unfolded(StringView p_section) const final {
         return editor_section_folding.contains_as(p_section);
     }
     [[nodiscard]] const Set<String> &editor_get_section_folding() const final {

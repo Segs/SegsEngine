@@ -50,7 +50,7 @@ private:
 
 public:
     Status get_status() const;
-    Error run(se_string_view p_scene, se_string_view p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints = false);
+    Error run(StringView p_scene, StringView p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints = false);
     void run_native_notify() { status = STATUS_PLAY; }
     void stop();
 

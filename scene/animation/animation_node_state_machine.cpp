@@ -812,7 +812,7 @@ float AnimationNodeStateMachine::process(float p_time, bool p_seek) {
     return playback->process(this, p_time, p_seek);
 }
 
-se_string_view AnimationNodeStateMachine::get_caption() const {
+StringView AnimationNodeStateMachine::get_caption() const {
     return ("StateMachine");
 }
 
@@ -827,9 +827,9 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
 
     if (StringUtils::begins_with(p_name,"states/")) {
         StringName node_name(StringUtils::get_slice(p_name,'/', 1));
-        se_string_view what(StringUtils::get_slice(p_name,'/', 2));
+        StringView what(StringUtils::get_slice(p_name,'/', 2));
 
-        if (what == se_string_view("node")) {
+        if (what == StringView("node")) {
             Ref<AnimationNode> anode = refFromRefPtr<AnimationNode>(p_value);
             if (anode) {
                 add_node(node_name, anode);
@@ -837,7 +837,7 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
             return true;
         }
 
-        if (what == se_string_view("position")) {
+        if (what == StringView("position")) {
 
             if (states.contains(node_name)) {
                 states[node_name].position = p_value;
@@ -871,16 +871,16 @@ bool AnimationNodeStateMachine::_get(const StringName &p_name, Variant &r_ret) c
 
     if (StringUtils::begins_with(p_name,"states/")) {
         StringName node_name(StringUtils::get_slice(p_name,'/', 1));
-        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
+        StringView what = StringUtils::get_slice(p_name,'/', 2);
 
-        if (what == se_string_view("node")) {
+        if (what == StringView("node")) {
             if (states.contains(node_name)) {
                 r_ret = states.at(node_name).node;
                 return true;
             }
         }
 
-        if (what == se_string_view("position")) {
+        if (what == StringView("position")) {
 
             if (states.contains(node_name)) {
                 r_ret = states.at(node_name).position;

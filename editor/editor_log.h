@@ -55,7 +55,7 @@ class EditorLog : public VBoxContainer {
     //PaneDrag *pd;
     ToolButton *tool_button;
 
-    static void _error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type);
+    static void _error_handler(void *p_self, StringView p_func, StringView p_file, int p_line, StringView p_error, StringView p_errorexp, ErrorHandlerType p_type);
 
     ErrorHandlerList eh;
 
@@ -64,7 +64,7 @@ class EditorLog : public VBoxContainer {
     //void _dragged(const Point2& p_ofs);
     void _clear_request();
     void _copy_request();
-    static void _undo_redo_cbk(void *p_self, se_string_view p_name);
+    static void _undo_redo_cbk(void *p_self, StringView p_name);
 
 protected:
     static void _bind_methods();
@@ -78,7 +78,7 @@ public:
         MSG_TYPE_EDITOR
     };
 
-    void add_message_utf8(se_string_view p_msg, MessageType p_type = MSG_TYPE_STD);
+    void add_message_utf8(StringView p_msg, MessageType p_type = MSG_TYPE_STD);
     void add_message(const UIString &p_msg, MessageType p_type = MSG_TYPE_STD);
     void set_tool_button(ToolButton *p_tool_button);
     void deinit();

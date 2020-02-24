@@ -25,7 +25,7 @@ class RefPtr;
     bool Object_allow_disconnect(uint32_t f);
     void Object_add_tooling_methods();
 #else
-    inline constexpr void Object_change_notify(Object * /*self*/,se_string_view /*p_what*/ = {}) {}
+    inline constexpr void Object_change_notify(Object * /*self*/,StringView /*p_what*/ = {}) {}
     inline constexpr IObjectTooling * GODOT_EXPORT create_tooling_for(Object * /*self*/) { return nullptr; }
     inline constexpr void GODOT_EXPORT relase_tooling(IObjectTooling *) {}
     inline constexpr void Object_add_change_receptor(Object * /*self*/,Object * /*p_receptor*/) {}
@@ -46,8 +46,8 @@ public:
     //! this function is used to check when something changed beyond a point, it's used mainly for generating previews
     virtual uint32_t get_edited_version() const =0;
 
-    virtual void editor_set_section_unfold(se_string_view p_section, bool p_unfolded)=0;
-    virtual bool editor_is_section_unfolded(se_string_view p_section) const = 0;
+    virtual void editor_set_section_unfold(StringView p_section, bool p_unfolded)=0;
+    virtual bool editor_is_section_unfolded(StringView p_section) const = 0;
     virtual const Set<String> &editor_get_section_folding() const =0;
     virtual void editor_clear_section_folding()=0;
     virtual ~IObjectTooling() = default;

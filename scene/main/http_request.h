@@ -58,7 +58,7 @@ public:
 
 private:
 
-    void _redirect_request(se_string_view p_new_url);
+    void _redirect_request(StringView p_new_url);
     void _request_done(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
 protected:
@@ -67,14 +67,14 @@ protected:
 
 public:
     //! connects to a full url and perform request
-    Error request(se_string_view p_url, const Vector<String> &p_custom_headers = {}, bool p_ssl_validate_domain = true, HTTPClient::Method p_method = HTTPClient::METHOD_GET, se_string_view p_request_data = {});
+    Error request(StringView p_url, const Vector<String> &p_custom_headers = {}, bool p_ssl_validate_domain = true, HTTPClient::Method p_method = HTTPClient::METHOD_GET, StringView p_request_data = {});
     void cancel_request();
     HTTPClient::Status get_http_client_status() const;
 
     void set_use_threads(bool p_use);
     bool is_using_threads() const;
 
-    void set_download_file(se_string_view p_file);
+    void set_download_file(StringView p_file);
     const String &get_download_file() const;
 
     void set_download_chunk_size(int p_chunk_size);

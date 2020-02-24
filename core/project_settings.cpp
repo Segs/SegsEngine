@@ -64,7 +64,7 @@ const String & ProjectSettings::get_resource_path() const {
     return resource_path;
 };
 
-String ProjectSettings::localize_path(se_string_view p_path) const {
+String ProjectSettings::localize_path(StringView p_path) const {
 
     if (resource_path.empty())
         return String(p_path); //not initialized yet
@@ -110,7 +110,7 @@ String ProjectSettings::localize_path(se_string_view p_path) const {
             return "res://" + path;
         }
 
-        se_string_view parent = StringUtils::substr(path,0, sep);
+        StringView parent = StringUtils::substr(path,0, sep);
 
         String plocal = localize_path(parent);
         if (plocal.empty()) {
@@ -136,7 +136,7 @@ void ProjectSettings::set_restart_if_changed(const StringName &p_name, bool p_re
     props[p_name].restart_if_changed = p_restart;
 }
 
-String ProjectSettings::globalize_path(se_string_view p_path) const {
+String ProjectSettings::globalize_path(StringView p_path) const {
 
     if (StringUtils::begins_with(p_path,"res://")) {
 
@@ -168,7 +168,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
         if (p_name == CoreStringNames::get_singleton()->_custom_features) {
             String val_str(p_value);
-            Vector<se_string_view> custom_feature_array = StringUtils::split(val_str,',');
+            Vector<StringView> custom_feature_array = StringUtils::split(val_str,',');
             for (int i = 0; i < custom_feature_array.size(); i++) {
 
                 custom_features.insert(custom_feature_array[i]);
@@ -179,11 +179,11 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
         if (!disable_feature_overrides) {
             auto dot = StringUtils::find(p_name,".");
             if (dot != String::npos) {
-                Vector<se_string_view> s = StringUtils::split(p_name,'.');
+                Vector<StringView> s = StringUtils::split(p_name,'.');
 
                 bool override_valid = false;
                 for (size_t i = 1; i < s.size(); i++) {
-                    se_string_view feature =StringUtils::strip_edges( s[i]);
+                    StringView feature =StringUtils::strip_edges( s[i]);
                     if (OS::get_singleton()->has_feature(feature) || custom_features.contains_as(feature)) {
                         override_valid = true;
                         break;
@@ -268,7 +268,7 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         StringName prop_info_name = E.name;
         size_t dot = StringUtils::find(prop_info_name,".");
         if (dot != String::npos)
-            prop_info_name = StringName(se_string_view(prop_info_name).substr(0, dot));
+            prop_info_name = StringName(StringView(prop_info_name).substr(0, dot));
 
         if (custom_prop_info.contains(prop_info_name)) {
             PropertyInfo pi = custom_prop_info.at(prop_info_name);
@@ -280,7 +280,7 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
     }
 }
 
-bool ProjectSettings::_load_resource_pack(se_string_view p_pack, bool p_replace_files) {
+bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_files) {
 
     if (PackedData::get_singleton()->is_disabled())
         return false;
@@ -333,7 +333,7 @@ void ProjectSettings::_convert_to_last_version(int p_from_version) {
  *    If a project file is found, load it or fail.
  *    If nothing was found, error out.
  */
-Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards) {
+Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_upwards) {
 
     // If looking for files in a network client, use it directly
 
@@ -487,7 +487,7 @@ Error ProjectSettings::_setup(se_string_view p_path, se_string_view p_main_pack,
     return OK;
 }
 
-Error ProjectSettings::setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards) {
+Error ProjectSettings::setup(StringView p_path, StringView p_main_pack, bool p_upwards) {
     Error err = _setup(p_path, p_main_pack, p_upwards);
     if (err == OK) {
         String custom_settings = GLOBAL_DEF("application/config/project_settings_override", "");
@@ -511,7 +511,7 @@ void ProjectSettings::set_registering_order(bool p_enable) {
     registering_order = p_enable;
 }
 
-Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
+Error ProjectSettings::_load_settings_binary(StringView p_path) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -553,7 +553,7 @@ Error ProjectSettings::_load_settings_binary(se_string_view p_path) {
     return OK;
 }
 
-Error ProjectSettings::_load_settings_text(se_string_view p_path) {
+Error ProjectSettings::_load_settings_text(StringView p_path) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -620,7 +620,7 @@ Error ProjectSettings::_load_settings_text(se_string_view p_path) {
     }
 }
 
-Error ProjectSettings::_load_settings_text_or_binary(se_string_view p_text_path, se_string_view p_bin_path) {
+Error ProjectSettings::_load_settings_text_or_binary(StringView p_text_path, StringView p_bin_path) {
 
     // Attempt first to load the text-based project.godot file
     Error err_text = _load_settings_text(p_text_path);
@@ -667,7 +667,7 @@ Error ProjectSettings::save() {
     return save_custom(PathUtils::plus_file(get_resource_path(),"project.godot"));
 }
 
-Error ProjectSettings::_save_settings_binary(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_binary(StringView p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -751,7 +751,7 @@ Error ProjectSettings::_save_settings_binary(se_string_view p_file, const HashMa
     return OK;
 }
 
-Error ProjectSettings::_save_settings_text(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
+Error ProjectSettings::_save_settings_text(StringView p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom, const String &p_custom_features) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_file, FileAccess::WRITE, &err);
@@ -803,12 +803,12 @@ Error ProjectSettings::_save_settings_text(se_string_view p_file, const HashMap<
     return OK;
 }
 
-Error ProjectSettings::_save_custom_bnd(se_string_view p_file) { // add other params as dictionary and array?
+Error ProjectSettings::_save_custom_bnd(StringView p_file) { // add other params as dictionary and array?
 
     return save_custom(p_file);
 };
 
-Error ProjectSettings::save_custom(se_string_view p_path, const CustomMap &p_custom, const Vector<String> &p_custom_features, bool p_merge_with_current) {
+Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom, const Vector<String> &p_custom_features, bool p_merge_with_current) {
 
     ERR_FAIL_COND_V_MSG(p_path.empty(), ERR_INVALID_PARAMETER, "Project settings save path cannot be empty.");
 
@@ -959,25 +959,25 @@ bool ProjectSettings::is_using_datapack() const {
     return using_datapack;
 }
 struct CompareStringAndStringName {
-    bool operator()(const StringName &a,se_string_view b) const {
-        return se_string_view(a) < b;
+    bool operator()(const StringName &a,StringView b) const {
+        return StringView(a) < b;
     }
-    bool operator()(se_string_view a,const StringName &b) const {
-        return a < se_string_view(b);
+    bool operator()(StringView a,const StringName &b) const {
+        return a < StringView(b);
     }
 };
 
-bool ProjectSettings::property_can_revert(se_string_view p_name) {
+bool ProjectSettings::property_can_revert(StringView p_name) {
 
-    auto iter = props.find_as(p_name,eastl::hash<se_string_view>(),CompareStringAndStringName());
+    auto iter = props.find_as(p_name,eastl::hash<StringView>(),CompareStringAndStringName());
     if (iter==props.end())
         return false;
 
     return iter->second.initial != iter->second.variant;
 }
 
-Variant ProjectSettings::property_get_revert(se_string_view p_name) {
-    auto iter = props.find_as(p_name,eastl::hash<se_string_view>(),CompareStringAndStringName());
+Variant ProjectSettings::property_get_revert(StringView p_name) {
+    auto iter = props.find_as(p_name,eastl::hash<StringView>(),CompareStringAndStringName());
     if (iter==props.end())
         return Variant();
 
@@ -991,7 +991,7 @@ void ProjectSettings::set_setting(const StringName &p_setting, const Variant &p_
 Variant ProjectSettings::get_setting(const StringName &p_setting) const {
     return get(StringName(p_setting));
 }
-bool ProjectSettings::has_custom_feature(se_string_view p_feature) const {
+bool ProjectSettings::has_custom_feature(StringView p_feature) const {
     return custom_features.find_as(p_feature)!=custom_features.end();
 }
 

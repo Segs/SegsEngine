@@ -50,13 +50,13 @@
 
 namespace path {
 
-String find_executable(se_string_view p_name) {
+String find_executable(StringView p_name) {
 #ifdef WINDOWS_ENABLED
     String path_ext= OS::get_singleton()->get_environment("PATHEXT");
-	Vector<se_string_view> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
+	Vector<StringView> exts = StringUtils::split(path_ext,ENV_PATH_SEP, false);
 #endif
     String path=OS::get_singleton()->get_environment("PATH");
-    Vector<se_string_view> env_path = StringUtils::split(path,ENV_PATH_SEP, false);
+    Vector<StringView> env_path = StringUtils::split(path,ENV_PATH_SEP, false);
 
 	if (env_path.empty())
         return String();
@@ -101,7 +101,7 @@ String cwd() {
 #endif
 }
 
-String abspath(se_string_view p_path) {
+String abspath(StringView p_path) {
     if (PathUtils::is_abs_path(p_path)) {
         return PathUtils::simplify_path(p_path);
 	} else {
@@ -109,7 +109,7 @@ String abspath(se_string_view p_path) {
 	}
 }
 
-String realpath(se_string_view p_path) {
+String realpath(StringView p_path) {
 #ifdef WINDOWS_ENABLED
 	// Open file without read/write access
     UIString str(StringUtils::from_utf8(p_path));
@@ -148,7 +148,7 @@ String realpath(se_string_view p_path) {
 #endif
 }
 
-String join(se_string_view p_a, se_string_view p_b) {
+String join(StringView p_a, StringView p_b) {
 	if (p_a.empty())
         return String(p_b);
 
@@ -161,21 +161,21 @@ String join(se_string_view p_a, se_string_view p_b) {
     return String(p_a) + "/" + p_b;
 }
 
-String join(se_string_view p_a, se_string_view p_b, se_string_view p_c) {
+String join(StringView p_a, StringView p_b, StringView p_c) {
 	return path::join(path::join(p_a, p_b), p_c);
 }
 
-String join(se_string_view p_a, se_string_view p_b, se_string_view p_c, se_string_view p_d) {
+String join(StringView p_a, StringView p_b, StringView p_c, StringView p_d) {
 	return path::join(path::join(path::join(p_a, p_b), p_c), p_d);
 }
 
-String relative_to_impl(se_string_view p_path, se_string_view p_relative_to) {
+String relative_to_impl(StringView p_path, StringView p_relative_to) {
 	// This function assumes arguments are normalized and absolute paths
 
     if (p_path.starts_with(p_relative_to)) {
         return String(p_path.substr(p_relative_to.length() + 1));
 	} else {
-        se_string_view base_dir = PathUtils::get_base_dir(p_relative_to);
+        StringView base_dir = PathUtils::get_base_dir(p_relative_to);
 
 		if (base_dir.length() <= 2 && (base_dir.empty() || base_dir.ends_with(":")))
             return String(p_path);
@@ -185,7 +185,7 @@ String relative_to_impl(se_string_view p_path, se_string_view p_relative_to) {
 }
 
 #ifdef WINDOWS_ENABLED
-String get_drive_letter(se_string_view p_norm_path) {
+String get_drive_letter(StringView p_norm_path) {
 	auto idx = p_norm_path.find(":/");
 	if (idx != String::npos && idx < p_norm_path.find("/"))
 		return String(p_norm_path.substr(0, idx + 1));
@@ -193,7 +193,7 @@ String get_drive_letter(se_string_view p_norm_path) {
 }
 #endif
 
-String relative_to(se_string_view p_path, se_string_view p_relative_to) {
+String relative_to(StringView p_path, StringView p_relative_to) {
     String relative_to_abs_norm = abspath(p_relative_to);
     String path_abs_norm = abspath(p_path);
 

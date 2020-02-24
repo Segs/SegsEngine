@@ -370,7 +370,7 @@ void XMLParser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_attribute_name", {"idx"}), &XMLParser::get_attribute_name);
     MethodBinder::bind_method(D_METHOD("get_attribute_value", {"idx"}), (const String &(XMLParser::*)(int) const) & XMLParser::get_attribute_value);
     MethodBinder::bind_method(D_METHOD("has_attribute", {"name"}), &XMLParser::has_attribute);
-    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", {"name"}), (const String &(XMLParser::*)(se_string_view) const) & XMLParser::get_attribute_value);
+    MethodBinder::bind_method(D_METHOD("get_named_attribute_value", {"name"}), (const String &(XMLParser::*)(StringView) const) & XMLParser::get_attribute_value);
     MethodBinder::bind_method(D_METHOD("get_named_attribute_value_safe", {"name"}), &XMLParser::get_attribute_value_safe);
     MethodBinder::bind_method(D_METHOD("is_empty"), &XMLParser::is_empty);
     MethodBinder::bind_method(D_METHOD("get_current_line"), &XMLParser::get_current_line);
@@ -405,12 +405,12 @@ XMLParser::NodeType XMLParser::get_node_type() {
 }
 const String &XMLParser::get_node_data() const {
 
-    ERR_FAIL_COND_V(node_type != NODE_TEXT, null_se_string);
+    ERR_FAIL_COND_V(node_type != NODE_TEXT, null_string);
     return node_name;
 }
 
 const String &XMLParser::get_node_name() const {
-    ERR_FAIL_COND_V(node_type == NODE_TEXT, null_se_string);
+    ERR_FAIL_COND_V(node_type == NODE_TEXT, null_string);
     return node_name;
 }
 int XMLParser::get_attribute_count() const {
@@ -419,15 +419,15 @@ int XMLParser::get_attribute_count() const {
 }
 const String &XMLParser::get_attribute_name(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string);
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_string);
     return attributes[p_idx].name;
 }
 const String &XMLParser::get_attribute_value(int p_idx) const {
 
-    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_se_string);
+    ERR_FAIL_INDEX_V(p_idx, attributes.size(), null_string);
     return attributes[p_idx].value;
 }
-bool XMLParser::has_attribute(se_string_view p_name) const {
+bool XMLParser::has_attribute(StringView p_name) const {
 
     for (const Attribute &attr: attributes) {
         if (attr.name == p_name)
@@ -437,7 +437,7 @@ bool XMLParser::has_attribute(se_string_view p_name) const {
     return false;
 }
 
-const String & XMLParser::get_attribute_value(se_string_view p_name) const {
+const String & XMLParser::get_attribute_value(StringView p_name) const {
 
     int idx = -1;
     for (int i = 0; i < attributes.size(); i++) {
@@ -447,12 +447,12 @@ const String & XMLParser::get_attribute_value(se_string_view p_name) const {
         }
     }
 
-    ERR_FAIL_COND_V_MSG(idx < 0, null_se_string, "Attribute not found: " + String(p_name) + ".");
+    ERR_FAIL_COND_V_MSG(idx < 0, null_string, "Attribute not found: " + String(p_name) + ".");
 
     return attributes[idx].value;
 }
 
-String XMLParser::get_attribute_value_safe(se_string_view p_name) const {
+String XMLParser::get_attribute_value_safe(StringView p_name) const {
 
     int idx = -1;
     for (int i = 0; i < attributes.size(); i++) {
@@ -487,7 +487,7 @@ Error XMLParser::open_buffer(const PoolVector<uint8_t> &p_buffer) {
     return OK;
 }
 
-Error XMLParser::open(se_string_view p_path) {
+Error XMLParser::open(StringView p_path) {
 
     Error err;
     FileAccess *file = FileAccess::open(p_path, FileAccess::READ, &err);

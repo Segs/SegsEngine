@@ -194,7 +194,7 @@ Array AudioDriver::get_device_list() {
     return list;
 }
 
-se_string_view AudioDriver::get_device() {
+StringView AudioDriver::get_device() {
     return "Default";
 }
 
@@ -265,7 +265,7 @@ void AudioDriverManager::initialize(int p_driver) {
         }
     }
 
-    if (driver_count > 1 && se_string_view(AudioDriver::get_singleton()->get_name()) == se_string_view("Dummy")) {
+    if (driver_count > 1 && StringView(AudioDriver::get_singleton()->get_name()) == StringView("Dummy")) {
         WARN_PRINT("All audio drivers failed, falling back to the dummy driver.");
     }
 }
@@ -732,7 +732,7 @@ int AudioServer::get_bus_count() const {
 void AudioServer::set_bus_name(int p_bus, const StringName &p_name) {
 
     ERR_FAIL_INDEX(p_bus, buses.size());
-    if (p_bus == 0 && p_name != se_string_view("Master"))
+    if (p_bus == 0 && p_name != StringView("Master"))
         return; //bus 0 is always master
 
     Object_set_edited(this,true);
@@ -1302,12 +1302,12 @@ Array AudioServer::get_device_list() {
     return AudioDriver::get_singleton()->get_device_list();
 }
 
-se_string_view AudioServer::get_device() {
+StringView AudioServer::get_device() {
 
     return AudioDriver::get_singleton()->get_device();
 }
 
-void AudioServer::set_device(se_string_view device) {
+void AudioServer::set_device(StringView device) {
 
     AudioDriver::get_singleton()->set_device(device);
 }
@@ -1322,7 +1322,7 @@ String AudioServer::capture_get_device() {
     return AudioDriver::get_singleton()->capture_get_device();
 }
 
-void AudioServer::capture_set_device(se_string_view p_name) {
+void AudioServer::capture_set_device(StringView p_name) {
 
     AudioDriver::get_singleton()->capture_set_device(p_name);
 }
@@ -1522,7 +1522,7 @@ void AudioBusLayout::fill_bus_info(int i, AudioServerBus *bus) {
 
 bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
-    se_string_view s(p_name);
+    StringView s(p_name);
     if (!StringUtils::begins_with(s,"bus/"))
         return false;
 
@@ -1533,7 +1533,7 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
     auto &bus = D()->buses[index];
 
-    se_string_view what = StringUtils::get_slice(s,"/", 2);
+    StringView what = StringUtils::get_slice(s,"/", 2);
 
     if (what == "name"_sv) {
         bus.name = p_value;
@@ -1555,7 +1555,7 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
         auto &fx = bus.effects[which];
 
-        se_string_view fxwhat = StringUtils::get_slice(s,"/", 4);
+        StringView fxwhat = StringUtils::get_slice(s,"/", 4);
         if (fxwhat == "effect"_sv) {
             fx.effect = refFromRefPtr<AudioEffect>(p_value);
         } else if (fxwhat == "enabled"_sv) {
@@ -1575,7 +1575,7 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
 bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
-    se_string_view s = p_name;
+    StringView s = p_name;
     if (StringUtils::begins_with(s,"bus/")) {
 
         int index = StringUtils::to_int(StringUtils::get_slice(s,"/", 1));
@@ -1584,7 +1584,7 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
         auto &bus = D()->buses[index];
 
-        se_string_view what = StringUtils::get_slice(s,"/", 2);
+        StringView what = StringUtils::get_slice(s,"/", 2);
 
         if (what == "name"_sv) {
             r_ret = bus.name;
@@ -1606,7 +1606,7 @@ bool AudioBusLayout::_get(const StringName &p_name, Variant &r_ret) const {
 
             const auto &fx = bus.effects[which];
 
-            se_string_view fxwhat = StringUtils::get_slice(s,"/", 4);
+            StringView fxwhat = StringUtils::get_slice(s,"/", 4);
             if (fxwhat == "effect"_sv) {
                 r_ret = fx.effect;
             } else if (fxwhat == "enabled"_sv) {

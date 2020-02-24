@@ -111,9 +111,9 @@ public:
     };
 
     static int get_func_argument_count(BuiltinFunc p_func);
-    static se_string_view get_func_name(BuiltinFunc p_func);
+    static StringView get_func_name(BuiltinFunc p_func);
     static void exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str);
-    static BuiltinFunc find_function(se_string_view p_string);
+    static BuiltinFunc find_function(StringView p_string);
 
 private:
     static const char *func_name[FUNC_MAX];
@@ -126,7 +126,7 @@ public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
 
-    se_string_view get_output_sequence_port_text(int p_port) const override;
+    StringView get_output_sequence_port_text(int p_port) const override;
 
     int get_input_value_port_count() const override;
     int get_output_value_port_count() const override;
@@ -134,7 +134,7 @@ public:
     PropertyInfo get_input_value_port_info(int p_idx) const override;
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     //virtual String get_text() const;
     const char *get_category() const override { return "functions"; }
 

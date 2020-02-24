@@ -79,7 +79,7 @@ class ThemeEditor : public VBoxContainer {
 
     Tree *test_tree;
 
-    void _save_template_cbk(se_string_view fname);
+    void _save_template_cbk(StringView fname);
     void _dialog_cbk();
     void _type_menu_cbk(int p_option);
     void _name_menu_about_to_show();
@@ -107,7 +107,7 @@ class ThemeEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return "Theme"; }
+    StringView get_name() const override { return "Theme"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

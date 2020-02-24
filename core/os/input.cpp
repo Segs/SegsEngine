@@ -142,7 +142,7 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, List<S
 
     const String quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
 
-    se_string_view pf(p_function);
+    StringView pf(p_function);
     if (p_idx == 0 && (pf == "is_action_pressed"_sv || pf == "action_press"_sv || pf == "action_release"_sv || pf == "is_action_just_pressed"_sv || pf == "is_action_just_released"_sv || pf == "get_action_strength"_sv)) {
 
         Vector<PropertyInfo> pinfo;
@@ -153,7 +153,7 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, List<S
             if (!StringUtils::begins_with(pi.name,"input/"))
                 continue;
 
-            se_string_view name = pi.name.asCString();
+            StringView name = pi.name.asCString();
             name = StringUtils::substr(name,StringUtils::find(name,"/") + 1, name.length());
             r_options->push_back(quote_style + name + quote_style);
         }

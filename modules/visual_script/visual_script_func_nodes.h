@@ -84,7 +84,7 @@ public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
 
-    se_string_view get_output_sequence_port_text(int p_port) const override;
+    StringView get_output_sequence_port_text(int p_port) const override;
 
     int get_input_value_port_count() const override;
     int get_output_value_port_count() const override;
@@ -92,7 +92,7 @@ public:
     PropertyInfo get_input_value_port_info(int p_idx) const override;
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
@@ -102,7 +102,7 @@ public:
     void set_base_type(const StringName &p_type);
     StringName get_base_type() const;
 
-    void set_base_script(se_string_view p_path);
+    void set_base_script(StringView p_path);
     const String &get_base_script() const;
 
     void set_singleton(const StringName &p_type);
@@ -194,7 +194,7 @@ public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
 
-    se_string_view get_output_sequence_port_text(int p_port) const override;
+    StringView get_output_sequence_port_text(int p_port) const override;
 
     int get_input_value_port_count() const override;
     int get_output_value_port_count() const override;
@@ -202,14 +202,14 @@ public:
     PropertyInfo get_input_value_port_info(int p_idx) const override;
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     void set_base_type(const StringName &p_type);
     StringName get_base_type() const;
 
-    void set_base_script(se_string_view p_path);
+    void set_base_script(StringView p_path);
     const String &get_base_script() const;
 
     void set_basic_type(VariantType p_type);
@@ -280,7 +280,7 @@ public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
 
-    se_string_view get_output_sequence_port_text(int p_port) const override;
+    StringView get_output_sequence_port_text(int p_port) const override;
 
     int get_input_value_port_count() const override;
     int get_output_value_port_count() const override;
@@ -288,14 +288,14 @@ public:
     PropertyInfo get_input_value_port_info(int p_idx) const override;
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     String get_text() const override;
     const char *get_category() const override { return "functions"; }
 
     void set_base_type(const StringName &p_type);
     StringName get_base_type() const;
 
-    void set_base_script(se_string_view p_path);
+    void set_base_script(StringView p_path);
     const String &get_base_script() const { return base_script; }
 
     void set_basic_type(VariantType p_type);
@@ -335,7 +335,7 @@ public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
 
-    se_string_view get_output_sequence_port_text(int p_port) const override;
+    StringView get_output_sequence_port_text(int p_port) const override;
 
     int get_input_value_port_count() const override;
     int get_output_value_port_count() const override;
@@ -343,7 +343,7 @@ public:
     PropertyInfo get_input_value_port_info(int p_idx) const override;
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     //virtual String get_text() const;
     const char *get_category() const override { return "functions"; }
 

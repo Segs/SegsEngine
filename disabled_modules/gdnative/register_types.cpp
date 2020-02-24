@@ -42,7 +42,7 @@
 
 #include "core/class_db.h"
 #include "core/engine.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/os.h"

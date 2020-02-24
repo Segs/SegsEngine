@@ -840,7 +840,7 @@ bool LightSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Light>(p_spatial) != nullptr;
 }
 
-se_string_view LightSpatialGizmoPlugin::get_name() const {
+StringView LightSpatialGizmoPlugin::get_name() const {
     return "Lights";
 }
 
@@ -1130,7 +1130,7 @@ bool AudioStreamPlayer3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<AudioStreamPlayer3D>(p_spatial) != nullptr;
 }
 
-se_string_view AudioStreamPlayer3DSpatialGizmoPlugin::get_name() const {
+StringView AudioStreamPlayer3DSpatialGizmoPlugin::get_name() const {
     return "AudioStreamPlayer3D";
 }
 
@@ -1278,7 +1278,7 @@ bool CameraSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Camera>(p_spatial) != nullptr;
 }
 
-se_string_view CameraSpatialGizmoPlugin::get_name() const {
+StringView CameraSpatialGizmoPlugin::get_name() const {
     return "Camera";
 }
 
@@ -1529,7 +1529,7 @@ bool MeshInstanceSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<MeshInstance>(p_spatial) != nullptr && object_cast<SoftBody>(p_spatial) == nullptr;
 }
 
-se_string_view MeshInstanceSpatialGizmoPlugin::get_name() const {
+StringView MeshInstanceSpatialGizmoPlugin::get_name() const {
     return "MeshInstance";
 }
 
@@ -1565,7 +1565,7 @@ bool Sprite3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Sprite3D>(p_spatial) != nullptr;
 }
 
-se_string_view Sprite3DSpatialGizmoPlugin::get_name() const {
+StringView Sprite3DSpatialGizmoPlugin::get_name() const {
     return "Sprite3D";
 }
 
@@ -1630,7 +1630,7 @@ bool Position3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Position3D>(p_spatial) != nullptr;
 }
 
-se_string_view Position3DSpatialGizmoPlugin::get_name() const {
+StringView Position3DSpatialGizmoPlugin::get_name() const {
     return "Position3D";
 }
 
@@ -1657,7 +1657,7 @@ bool SkeletonSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Skeleton>(p_spatial) != nullptr;
 }
 
-se_string_view SkeletonSpatialGizmoPlugin::get_name() const {
+StringView SkeletonSpatialGizmoPlugin::get_name() const {
     return "Skeleton";
 }
 
@@ -1862,7 +1862,7 @@ bool PhysicalBoneSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<PhysicalBone>(p_spatial) != nullptr;
 }
 
-se_string_view PhysicalBoneSpatialGizmoPlugin::get_name() const {
+StringView PhysicalBoneSpatialGizmoPlugin::get_name() const {
     return "PhysicalBones";
 }
 
@@ -2108,7 +2108,7 @@ bool RayCastSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<RayCast>(p_spatial) != nullptr;
 }
 
-se_string_view RayCastSpatialGizmoPlugin::get_name() const {
+StringView RayCastSpatialGizmoPlugin::get_name() const {
     return "RayCast";
 }
 
@@ -2156,7 +2156,7 @@ bool SpringArmSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<SpringArm>(p_spatial) != nullptr;
 }
 
-se_string_view SpringArmSpatialGizmoPlugin::get_name() const {
+StringView SpringArmSpatialGizmoPlugin::get_name() const {
     return "SpringArm";
 }
 
@@ -2176,7 +2176,7 @@ bool VehicleWheelSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<VehicleWheel>(p_spatial) != nullptr;
 }
 
-se_string_view VehicleWheelSpatialGizmoPlugin::get_name() const {
+StringView VehicleWheelSpatialGizmoPlugin::get_name() const {
     return "VehicleWheel";
 }
 
@@ -2253,7 +2253,7 @@ bool SoftBodySpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<SoftBody>(p_spatial) != nullptr;
 }
 
-se_string_view SoftBodySpatialGizmoPlugin::get_name() const {
+StringView SoftBodySpatialGizmoPlugin::get_name() const {
     return "SoftBody";
 }
 
@@ -2329,7 +2329,7 @@ bool VisibilityNotifierGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<VisibilityNotifier>(p_spatial) != nullptr;
 }
 
-se_string_view VisibilityNotifierGizmoPlugin::get_name() const {
+StringView VisibilityNotifierGizmoPlugin::get_name() const {
     return "VisibilityNotifier";
 }
 
@@ -2486,7 +2486,7 @@ bool CPUParticlesGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CPUParticles>(p_spatial) != nullptr;
 }
 
-se_string_view CPUParticlesGizmoPlugin::get_name() const {
+StringView CPUParticlesGizmoPlugin::get_name() const {
     return "CPUParticles";
 }
 
@@ -2518,7 +2518,7 @@ bool ParticlesGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Particles>(p_spatial) != nullptr;
 }
 
-se_string_view ParticlesGizmoPlugin::get_name() const {
+StringView ParticlesGizmoPlugin::get_name() const {
     return "Particles";
 }
 
@@ -2690,7 +2690,7 @@ bool ReflectionProbeGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<ReflectionProbe>(p_spatial) != nullptr;
 }
 
-se_string_view ReflectionProbeGizmoPlugin::get_name() const {
+StringView ReflectionProbeGizmoPlugin::get_name() const {
     return "ReflectionProbe";
 }
 
@@ -2877,7 +2877,7 @@ bool GIProbeGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<GIProbe>(p_spatial) != nullptr;
 }
 
-se_string_view GIProbeGizmoPlugin::get_name() const {
+StringView GIProbeGizmoPlugin::get_name() const {
     return "GIProbe";
 }
 
@@ -3123,7 +3123,7 @@ bool BakedIndirectLightGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<BakedLightmap>(p_spatial) != nullptr;
 }
 
-se_string_view BakedIndirectLightGizmoPlugin::get_name() const {
+StringView BakedIndirectLightGizmoPlugin::get_name() const {
     return "BakedLightmap";
 }
 
@@ -3188,7 +3188,7 @@ bool CollisionShapeSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CollisionShape>(p_spatial) != nullptr;
 }
 
-se_string_view CollisionShapeSpatialGizmoPlugin::get_name() const {
+StringView CollisionShapeSpatialGizmoPlugin::get_name() const {
     return "CollisionShape";
 }
 
@@ -3823,7 +3823,7 @@ bool CollisionPolygonSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CollisionPolygon>(p_spatial) != nullptr;
 }
 
-se_string_view CollisionPolygonSpatialGizmoPlugin::get_name() const {
+StringView CollisionPolygonSpatialGizmoPlugin::get_name() const {
     return "CollisionPolygon";
 }
 
@@ -3873,7 +3873,7 @@ bool NavigationMeshSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<NavigationMeshInstance>(p_spatial) != nullptr;
 }
 
-se_string_view NavigationMeshSpatialGizmoPlugin::get_name() const {
+StringView NavigationMeshSpatialGizmoPlugin::get_name() const {
     return "NavigationMeshInstance";
 }
 
@@ -4238,7 +4238,7 @@ bool JointSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<Joint>(p_spatial) != nullptr;
 }
 
-se_string_view JointSpatialGizmoPlugin::get_name() const {
+StringView JointSpatialGizmoPlugin::get_name() const {
     return "Joints";
 }
 

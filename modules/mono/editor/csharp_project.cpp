@@ -44,7 +44,7 @@
 
 namespace CSharpProject {
 
-void add_item(se_string_view p_project_path, const StringName &p_item_type, se_string_view p_include) {
+void add_item(StringView p_project_path, const StringName &p_item_type, StringView p_include) {
 
     if (!GLOBAL_DEF("mono/project/auto_update_project", true))
         return;

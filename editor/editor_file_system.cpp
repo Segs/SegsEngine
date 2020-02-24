@@ -34,7 +34,7 @@
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.inl"
 #include "core/method_bind.h"
@@ -60,7 +60,7 @@ void EditorFileSystemDirectory::sort_files() {
     eastl::sort(files.begin(),files.end());
 }
 
-int EditorFileSystemDirectory::find_file_index(se_string_view p_file) const {
+int EditorFileSystemDirectory::find_file_index(StringView p_file) const {
 
     for (size_t i = 0; i < files.size(); i++) {
         if (files[i]->file == p_file)
@@ -68,7 +68,7 @@ int EditorFileSystemDirectory::find_file_index(se_string_view p_file) const {
     }
     return -1;
 }
-int EditorFileSystemDirectory::find_dir_index(se_string_view p_dir) const {
+int EditorFileSystemDirectory::find_dir_index(StringView p_dir) const {
 
     for (size_t i = 0; i < subdirs.size(); i++) {
         if (subdirs[i]->name == p_dir)
@@ -125,7 +125,7 @@ String EditorFileSystemDirectory::get_file_path(int p_idx) const {
     return "res://" + file;
 }
 
-String EditorFileSystemDirectory::get_named_file_path(se_string_view named_file) const
+String EditorFileSystemDirectory::get_named_file_path(StringView named_file) const
 {
     String file(named_file);
     const EditorFileSystemDirectory *d = this;
@@ -247,14 +247,14 @@ void EditorFileSystem::_scan_from_cache()
         if (l.empty()) continue;
 
         if (StringUtils::begins_with(l, "::")) {
-            Vector<se_string_view> split = StringUtils::split(l, "::");
+            Vector<StringView> split = StringUtils::split(l, "::");
             ERR_CONTINUE(split.size() != 3);
-            se_string_view name = split[1];
+            StringView name = split[1];
 
             cpath = name;
 
         } else {
-            Vector<se_string_view> split = StringUtils::split(l, "::");
+            Vector<StringView> split = StringUtils::split(l, "::");
             ERR_CONTINUE(split.size() != 8);
             String name = PathUtils::plus_file(cpath, split[0]);
 
@@ -268,11 +268,11 @@ void EditorFileSystem::_scan_from_cache()
             fc.script_class_extends = StringName(StringUtils::get_slice(split[6], "<>", 1));
             fc.script_class_icon_path = StringUtils::get_slice(split[6], "<>", 2);
 
-            se_string_view deps = StringUtils::strip_edges(split[7]);
+            StringView deps = StringUtils::strip_edges(split[7]);
             if (deps.length()) {
-                Vector<se_string_view> dp = StringUtils::split(deps, "<>");
+                Vector<StringView> dp = StringUtils::split(deps, "<>");
                 for (int i = 0; i < dp.size(); i++) {
-                    se_string_view path = dp[i];
+                    StringView path = dp[i];
                     fc.deps.emplace_back(path);
                 }
             }
@@ -366,7 +366,7 @@ void EditorFileSystem::_thread_func(void *_userdata) {
     sd->_scan_filesystem();
 }
 
-bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imported_files) {
+bool EditorFileSystem::_test_for_reimport(StringView p_path, bool p_only_imported_files) {
 
     if (!reimport_on_missing_imported_files && p_only_imported_files)
         return false;
@@ -489,7 +489,7 @@ bool EditorFileSystem::_test_for_reimport(se_string_view p_path, bool p_only_imp
     //check source md5 matching
     if (!p_only_imported_files) {
 
-        if (!source_file.empty() && se_string_view(source_file) != p_path) {
+        if (!source_file.empty() && StringView(source_file) != p_path) {
             return true; //file was moved, reimport
         }
 
@@ -1057,7 +1057,7 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
     }
 }
 
-void EditorFileSystem::_delete_internal_files(se_string_view p_file) {
+void EditorFileSystem::_delete_internal_files(StringView p_file) {
     if (FileAccess::exists(String(p_file) + ".import")) {
         Vector<String> paths;
         ResourceFormatImporter::get_singleton()->get_internal_resource_path_list(p_file, &paths);
@@ -1257,7 +1257,7 @@ void EditorFileSystem::_save_filesystem_cache(EditorFileSystemDirectory *p_dir, 
     }
 }
 
-bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirectory **r_d, int &r_file_pos) const {
+bool EditorFileSystem::_find_file(StringView p_file, EditorFileSystemDirectory **r_d, int &r_file_pos) const {
     //todo make faster
 
     if (!filesystem || scanning)
@@ -1270,7 +1270,7 @@ bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirecto
     f = StringUtils::substr(f,6, f.length());
     f = PathUtils::from_native_path(f);
 
-    Vector<se_string_view> path = StringUtils::split(f,'/');
+    Vector<StringView> path = StringUtils::split(f,'/');
 
     if (path.empty())
         return false;
@@ -1334,7 +1334,7 @@ bool EditorFileSystem::_find_file(se_string_view p_file, EditorFileSystemDirecto
     return cpos != -1;
 }
 //TODO: SEGS: this could return either a naked pointer or a string view.
-String EditorFileSystem::get_file_type(se_string_view p_file) const {
+String EditorFileSystem::get_file_type(StringView p_file) const {
 
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
@@ -1347,7 +1347,7 @@ String EditorFileSystem::get_file_type(se_string_view p_file) const {
     return fs->files[cpos]->type.asCString();
 }
 
-EditorFileSystemDirectory *EditorFileSystem::find_file(se_string_view p_file, int *r_index) const {
+EditorFileSystemDirectory *EditorFileSystem::find_file(StringView p_file, int *r_index) const {
 
     if (!filesystem || scanning)
         return nullptr;
@@ -1365,7 +1365,7 @@ EditorFileSystemDirectory *EditorFileSystem::find_file(se_string_view p_file, in
     return fs;
 }
 
-EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(se_string_view p_path) {
+EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(StringView p_path) {
 
     if (!filesystem || scanning)
         return nullptr;
@@ -1383,7 +1383,7 @@ EditorFileSystemDirectory *EditorFileSystem::get_filesystem_path(se_string_view 
     if (StringUtils::ends_with(f,"/"))
         f = StringUtils::substr(f,0, f.length() - 1);
 
-    Vector<se_string_view> path = StringUtils::split(f,'/');
+    Vector<StringView> path = StringUtils::split(f,'/');
 
     if (path.empty())
         return nullptr;
@@ -1422,7 +1422,7 @@ void EditorFileSystem::_save_late_updated_files() {
     }
 }
 
-Vector<String> EditorFileSystem::_get_dependencies(se_string_view p_path) {
+Vector<String> EditorFileSystem::_get_dependencies(StringView p_path) {
 
     Vector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
@@ -1431,7 +1431,7 @@ Vector<String> EditorFileSystem::_get_dependencies(se_string_view p_path) {
 }
 
 StringName EditorFileSystem::_get_global_script_class(
-        se_string_view p_type, se_string_view p_path, StringName *r_extends, String *r_icon_path) const {
+        StringView p_type, StringView p_path, StringName *r_extends, String *r_icon_path) const {
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
         if (ScriptServer::get_language(i)->handles_global_class_type(p_type)) {
@@ -1503,7 +1503,7 @@ void EditorFileSystem::_queue_update_script_classes() {
     call_deferred("update_script_classes");
 }
 
-void EditorFileSystem::update_file(se_string_view p_file) {
+void EditorFileSystem::update_file(StringView p_file) {
 
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
@@ -1576,7 +1576,7 @@ void EditorFileSystem::update_file(se_string_view p_file) {
     _queue_update_script_classes();
 }
 
-Error EditorFileSystem::_reimport_group(se_string_view p_group_file, const Vector<String> &p_files) {
+Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<String> &p_files) {
 
     String importer_name;
 
@@ -2028,7 +2028,7 @@ void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
     emit_signal("resources_reimported", Variant::from(p_files));
 }
 
-Error EditorFileSystem::_resource_import(se_string_view p_path) {
+Error EditorFileSystem::_resource_import(StringView p_path) {
 
     Vector<String> files { String(p_path) };
 
@@ -2038,11 +2038,11 @@ Error EditorFileSystem::_resource_import(se_string_view p_path) {
     return OK;
 }
 
-bool EditorFileSystem::is_group_file(se_string_view p_path) const {
+bool EditorFileSystem::is_group_file(StringView p_path) const {
     return group_file_cache.contains_as(p_path);
 }
 
-void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, se_string_view p_group_file, se_string_view p_new_location) {
+void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, StringView p_group_file, StringView p_new_location) {
 
     for (EditorFileSystemDirectory::FileInfo * fi : efd->files) {
 
@@ -2079,7 +2079,7 @@ void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, se_stri
     }
 }
 
-void EditorFileSystem::move_group_file(se_string_view p_path, se_string_view p_new_path) {
+void EditorFileSystem::move_group_file(StringView p_path, StringView p_new_path) {
 
     if (get_filesystem()) {
         _move_group_files(get_filesystem(), p_path, p_new_path);

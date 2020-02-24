@@ -463,16 +463,16 @@ const String &FileSystemDock::get_current_path() const {
     return path;
 }
 
-void FileSystemDock::_set_current_path_text(se_string_view p_path) {
-    if (p_path == se_string_view("Favorites")) {
+void FileSystemDock::_set_current_path_text(StringView p_path) {
+    if (p_path == StringView("Favorites")) {
         current_path->set_text_uistring(TTR("Favorites").asString());
     } else {
         current_path->set_text(path);
     }
 }
 
-void FileSystemDock::_navigate_to_path(se_string_view p_path, bool p_select_in_favorites) {
-    if (p_path == se_string_view("Favorites")) {
+void FileSystemDock::_navigate_to_path(StringView p_path, bool p_select_in_favorites) {
+    if (p_path == StringView("Favorites")) {
         path = p_path;
     } else {
         String target_path(p_path);
@@ -513,12 +513,12 @@ void FileSystemDock::_navigate_to_path(se_string_view p_path, bool p_select_in_f
     }
 }
 
-void FileSystemDock::navigate_to_path(se_string_view p_path) {
+void FileSystemDock::navigate_to_path(StringView p_path) {
     file_list_search_box->clear();
     _navigate_to_path(p_path);
 }
 
-void FileSystemDock::_file_list_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
+void FileSystemDock::_file_list_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
     if ((file_list_vb->is_visible_in_tree() || path == PathUtils::get_base_dir(p_path)) && p_preview) {
         Array uarr = p_udata;
@@ -535,7 +535,7 @@ void FileSystemDock::_file_list_thumbnail_done(se_string_view p_path, const Ref<
     }
 }
 
-void FileSystemDock::_tree_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
+void FileSystemDock::_tree_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
     if (p_small_preview) {
         Array uarr = p_udata;
         if (tree_update_id == (int)uarr[0]) {
@@ -850,7 +850,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     }
 }
 
-void FileSystemDock::_select_file(se_string_view p_path, bool p_select_in_favorites) {
+void FileSystemDock::_select_file(StringView p_path, bool p_select_in_favorites) {
     String fpath(p_path);
     if (StringUtils::ends_with(fpath,"/")) {
         if (fpath != "res://") {
@@ -886,7 +886,7 @@ void FileSystemDock::_file_list_activate_file(int p_idx) {
     _select_file(files->get_item_metadata(p_idx).as<String>());
 }
 
-void FileSystemDock::_preview_invalidated(se_string_view p_path) {
+void FileSystemDock::_preview_invalidated(StringView p_path) {
 
     if (file_list_display_mode == FILE_LIST_DISPLAY_THUMBNAILS && PathUtils::get_base_dir(p_path) == path && searched_string.length() == 0 && file_list_vb->is_visible_in_tree()) {
 
@@ -1014,7 +1014,7 @@ void FileSystemDock::_find_remaps(EditorFileSystemDirectory *efsd, const HashMap
     }
 }
 
-void FileSystemDock::_try_move_item(const FileOrFolder &p_item, se_string_view p_new_path,
+void FileSystemDock::_try_move_item(const FileOrFolder &p_item, StringView p_new_path,
         HashMap<String, String> &p_file_renames, HashMap<String, String> &p_folder_renames) {
     // Ensure folder paths end with "/".
     String old_path = p_item.is_file || StringUtils::ends_with(p_item.path,"/") ? p_item.path : p_item.path + "/";
@@ -1303,7 +1303,7 @@ void FileSystemDock::_make_scene_confirm() {
         directory = PathUtils::get_base_dir(directory);
     }
 
-    se_string_view extension(PathUtils::get_extension(scene_name));
+    StringView extension(PathUtils::get_extension(scene_name));
     Vector<String> extensions;
     Ref<PackedScene> sd(make_ref_counted<PackedScene>());
     ResourceSaver::get_recognized_extensions(sd, extensions);
@@ -1457,7 +1457,7 @@ bool FileSystemDock::_check_existing() {
     return true;
 }
 
-void FileSystemDock::_move_operation_confirm(se_string_view p_to_path, bool overwrite) {
+void FileSystemDock::_move_operation_confirm(StringView p_to_path, bool overwrite) {
     if (!overwrite) {
         to_move_path = p_to_path;
         bool can_move = _check_existing();
@@ -2380,7 +2380,7 @@ void FileSystemDock::_file_list_rmb_pressed(const Vector2 &p_pos) {
     file_list_popup->popup();
 }
 
-void FileSystemDock::select_file(se_string_view p_file) {
+void FileSystemDock::select_file(StringView p_file) {
 
     _navigate_to_path(p_file);
 }

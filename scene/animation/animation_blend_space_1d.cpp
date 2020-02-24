@@ -46,7 +46,7 @@ Ref<AnimationNode> AnimationNodeBlendSpace1D::get_child_by_name(const StringName
 
 void AnimationNodeBlendSpace1D::_validate_property(PropertyInfo &property) const {
     if (StringUtils::begins_with(property.name,"blend_point_")) {
-        se_string_view left = StringUtils::get_slice(property.name,'/', 0);
+        StringView left = StringUtils::get_slice(property.name,'/', 0);
         int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
         if (idx >= blend_points_used) {
             property.usage = 0;
@@ -209,7 +209,7 @@ float AnimationNodeBlendSpace1D::get_snap() const {
     return snap;
 }
 
-void AnimationNodeBlendSpace1D::set_value_label(se_string_view p_label) {
+void AnimationNodeBlendSpace1D::set_value_label(StringView p_label) {
     value_label = p_label;
 }
 
@@ -312,7 +312,7 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
     return max_time_remaining;
 }
 
-se_string_view AnimationNodeBlendSpace1D::get_caption() const {
+StringView AnimationNodeBlendSpace1D::get_caption() const {
     return ("BlendSpace1D");
 }
 

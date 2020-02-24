@@ -55,7 +55,7 @@ String WSLPeer::generate_key() {
     return CryptoCore::b64_encode_str(&w[0], len);
 }
 
-String WSLPeer::compute_key_response(se_string_view p_key) {
+String WSLPeer::compute_key_response(StringView p_key) {
     String key = String(p_key) + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // Magic UUID as per RFC
     Vector<uint8_t> sha = StringUtils::sha1_buffer(key);
     return CryptoCore::b64_encode_str(sha.data(), sha.size());
@@ -294,7 +294,7 @@ void WSLPeer::close_now() {
     _wsl_destroy(&_data);
 }
 
-void WSLPeer::close(int p_code, se_string_view p_reason) {
+void WSLPeer::close(int p_code, StringView p_reason) {
     if (_data && !wslay_event_get_close_sent(_data->ctx)) {
         wslay_event_queue_close(_data->ctx, p_code, (const uint8_t *)p_reason.data(), p_reason.size());
         wslay_event_send(_data->ctx);

@@ -43,8 +43,8 @@ class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterf
 public:
     uint32_t get_import_flags() const override;
     void get_extensions(Vector<String> &r_extensions) const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps = nullptr, Error *r_err = nullptr) override;
-    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps = nullptr, Error *r_err = nullptr) override;
+    Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
 
     EditorSceneImporterGLTF();
 };

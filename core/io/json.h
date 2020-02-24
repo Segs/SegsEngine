@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/variant.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/error_list.h"
 
 class GODOT_EXPORT JSON {
@@ -66,7 +66,7 @@ class GODOT_EXPORT JSON {
 
     static const char *tk_name[TK_MAX];
 
-    static String _print_var(const Variant &p_var, se_string_view p_indent, int p_cur_indent, bool p_sort_keys);
+    static String _print_var(const Variant &p_var, StringView p_indent, int p_cur_indent, bool p_sort_keys);
 
     static Error _get_token(const CharType *p_str, int &index, int p_len, Token &r_token, int &line, String &r_err_str);
     static Error _parse_value(Variant &value, Token &token, const CharType *p_str, int &index, int p_len, int &line, String &r_err_str);
@@ -74,6 +74,6 @@ class GODOT_EXPORT JSON {
     static Error _parse_object(Dictionary &object, const CharType *p_str, int &index, int p_len, int &line, String &r_err_str);
 
 public:
-    static String print(const Variant &p_var, se_string_view p_indent = {}, bool p_sort_keys = true);
+    static String print(const Variant &p_var, StringView p_indent = {}, bool p_sort_keys = true);
     static Error parse(const String &p_json, Variant &r_ret, String &r_err_str, int &r_err_line);
 };

@@ -183,7 +183,7 @@ public:
     /* ANIMATION NODE */
     void animation_node_set_animation(const StringName &p_node, const Ref<Animation> &p_animation);
     Ref<Animation> animation_node_get_animation(const StringName &p_node) const;
-    void animation_node_set_master_animation(const StringName &p_node, se_string_view p_master_animation);
+    void animation_node_set_master_animation(const StringName &p_node, StringView p_master_animation);
     const String &animation_node_get_master_animation(const StringName &p_node) const;
     float animation_node_get_position(const StringName &p_node) const;
 

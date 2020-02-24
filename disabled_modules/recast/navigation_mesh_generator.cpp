@@ -33,7 +33,7 @@
 #include "core/math/quick_hull.h"
 #include "core/method_bind.h"
 #include "core/deque.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/os/thread.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"

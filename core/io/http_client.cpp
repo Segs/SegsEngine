@@ -120,7 +120,7 @@ Ref<StreamPeer> HTTPClient::get_connection() const {
     return connection;
 }
 
-Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body) {
+Error HTTPClient::request_raw(Method p_method, StringView p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
@@ -183,7 +183,7 @@ Error HTTPClient::request_raw(Method p_method, se_string_view p_url, const Vecto
     return OK;
 }
 
-Error HTTPClient::request(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const String &p_body) {
+Error HTTPClient::request(Method p_method, StringView p_url, const Vector<String> &p_headers, const String &p_body) {
 
     ERR_FAIL_INDEX_V(p_method, METHOD_MAX, ERR_INVALID_PARAMETER);
     ERR_FAIL_COND_V(!StringUtils::begins_with(p_url,"/"), ERR_INVALID_PARAMETER);
@@ -431,7 +431,7 @@ Error HTTPClient::poll() {
                     // End of response, parse.
                     response_str.push_back(0);
                     String response((const char *)response_str.data(),response_str.size());
-                    Vector<se_string_view> responses = StringUtils::split(response,'\n');
+                    Vector<StringView> responses = StringUtils::split(response,'\n');
                     body_size = -1;
                     chunked = false;
                     body_left = 0;
@@ -449,7 +449,7 @@ Error HTTPClient::poll() {
 
                     for (int i = 0; i < responses.size(); i++) {
 
-                        se_string_view header =StringUtils::strip_edges( responses[i]);
+                        StringView header =StringUtils::strip_edges( responses[i]);
                         String s = StringUtils::to_lower(header);
                         if (s.empty())
                             continue;
@@ -458,8 +458,8 @@ Error HTTPClient::poll() {
                             body_left = body_size;
 
                         } else if (StringUtils::begins_with(s,"transfer-encoding:")) {
-                            se_string_view encoding = StringUtils::strip_edges(StringUtils::substr(header,StringUtils::find(header,":") + 1));
-                            if (encoding == se_string_view("chunked")) {
+                            StringView encoding = StringUtils::strip_edges(StringUtils::substr(header,StringUtils::find(header,":") + 1));
+                            if (encoding == StringView("chunked")) {
                                 chunked = true;
                             }
                         } else if (StringUtils::begins_with(s,"connection: close")) {
@@ -468,7 +468,7 @@ Error HTTPClient::poll() {
 
                         if (i == 0 && StringUtils::begins_with(responses[i],"HTTP")) {
 
-                            se_string_view num = StringUtils::get_slice(responses[i],' ', 1);
+                            StringView num = StringUtils::get_slice(responses[i],' ', 1);
                             response_num = StringUtils::to_int(num);
                         } else {
 
@@ -791,8 +791,8 @@ Dictionary HTTPClient::get_response_headers_as_dictionary() {
         size_t sp = StringUtils::find(s,":");
         if (sp == String::npos)
             continue;
-        se_string_view key = StringUtils::strip_edges(StringUtils::substr(s,0, sp));
-        se_string_view value = StringUtils::strip_edges(StringUtils::substr(s,sp + 1, s.length()));
+        StringView key = StringUtils::strip_edges(StringUtils::substr(s,0, sp));
+        StringView value = StringUtils::strip_edges(StringUtils::substr(s,sp + 1, s.length()));
         ret[key] = value;
     }
 

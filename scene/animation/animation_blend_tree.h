@@ -53,7 +53,7 @@ public:
 
     static Vector<String> (*get_editable_animation_list)();
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     float process(float p_time, bool p_seek) override;
 
     void set_animation(const StringName &p_name);
@@ -100,7 +100,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_fadein_time(float p_time);
     void set_fadeout_time(float p_time);
@@ -142,7 +142,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_use_sync(bool p_sync);
     bool is_using_sync() const;
@@ -166,7 +166,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_use_sync(bool p_sync);
     bool is_using_sync() const;
@@ -190,7 +190,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     float process(float p_time, bool p_seek) override;
 
     void set_use_sync(bool p_sync);
@@ -213,7 +213,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_use_sync(bool p_sync);
     bool is_using_sync() const;
@@ -234,7 +234,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     float process(float p_time, bool p_seek) override;
 
@@ -253,7 +253,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     float process(float p_time, bool p_seek) override;
 
@@ -301,7 +301,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
 
     void set_enabled_inputs(int p_inputs);
     int get_enabled_inputs();
@@ -309,7 +309,7 @@ public:
     void set_input_as_auto_advance(int p_input, bool p_enable);
     bool is_input_set_as_auto_advance(int p_input) const;
 
-    void set_input_caption(int p_input, se_string_view p_name);
+    void set_input_caption(int p_input, StringView p_name);
     const String &get_input_caption(int p_input) const;
 
     void set_cross_fade_time(float p_fade);
@@ -324,7 +324,7 @@ class AnimationNodeOutput : public AnimationNode {
     GDCLASS(AnimationNodeOutput,AnimationNode)
 
 public:
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     float process(float p_time, bool p_seek) override;
     AnimationNodeOutput();
 };
@@ -389,7 +389,7 @@ public:
     ConnectionError can_connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) const;
     void get_node_connections(ListOld<NodeConnection> *r_connections) const;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     float process(float p_time, bool p_seek) override;
 
     void get_node_list(List<StringName> *r_list);

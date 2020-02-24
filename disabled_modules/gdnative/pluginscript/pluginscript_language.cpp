@@ -101,7 +101,7 @@ void PluginScriptLanguage::get_string_delimiters(List<String> *p_delimiters) con
     }
 }
 
-Ref<Script> PluginScriptLanguage::get_template(se_string_view p_class_name, const String &p_base_class_name) const {
+Ref<Script> PluginScriptLanguage::get_template(StringView p_class_name, const String &p_base_class_name) const {
     Script *ns = create_script();
     Ref<Script> script = Ref<Script>(ns);
     if (_desc.get_template_source_code) {
@@ -340,7 +340,7 @@ String PluginScriptLanguage::debug_get_stack_level_source(int p_level) const {
     return String("Nothing");
 }
 
-void PluginScriptLanguage::debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void PluginScriptLanguage::debug_get_stack_level_locals(int p_level, Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
     if (_desc.debug_get_stack_level_locals) {
         PoolStringArray locals;
         Array values;
@@ -354,7 +354,7 @@ void PluginScriptLanguage::debug_get_stack_level_locals(int p_level, Vector<se_s
     }
 }
 
-void PluginScriptLanguage::debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void PluginScriptLanguage::debug_get_stack_level_members(int p_level, Vector<StringView> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
     if (_desc.debug_get_stack_level_members) {
         PoolStringArray members;
         Array values;
@@ -368,7 +368,7 @@ void PluginScriptLanguage::debug_get_stack_level_members(int p_level, Vector<se_
     }
 }
 
-void PluginScriptLanguage::debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void PluginScriptLanguage::debug_get_globals(Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
     if (_desc.debug_get_globals) {
         PoolStringArray locals;
         Array values;

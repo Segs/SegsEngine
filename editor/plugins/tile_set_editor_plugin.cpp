@@ -417,7 +417,7 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     HBoxContainer *tool_hb = memnew(HBoxContainer);
     Ref<ButtonGroup> g(make_ref_counted<ButtonGroup>());
 
-    se_string_view workspace_label[WORKSPACE_MODE_MAX] = { "Edit", "New Single Tile", "New Autotile", "New Atlas" };
+    StringView workspace_label[WORKSPACE_MODE_MAX] = { "Edit", "New Single Tile", "New Autotile", "New Atlas" };
     for (int i = 0; i < (int)WORKSPACE_MODE_MAX; i++) {
         tool_workspacemode[i] = memnew(Button);
         tool_workspacemode[i]->set_text(TTR(workspace_label[i]));
@@ -3332,7 +3332,7 @@ void TilesetEditorContext::set_snap_options_visible(bool p_visible) {
 
 bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value) {
     using namespace eastl;
-    se_string_view name(p_name);
+    StringView name(p_name);
 
     if (name == "options_offset"_sv) {
         Vector2 snap = p_value;
@@ -3347,7 +3347,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         tileset_editor->_set_snap_sep(snap);
         return true;
     } else if (StringUtils::begins_with(p_name,"tile_")) {
-        se_string_view name2 = StringUtils::right(p_name,5);
+        StringView name2 = StringUtils::right(p_name,5);
         bool v = false;
 
         if (tileset_editor->get_current_tile() < 0 || not tileset)
@@ -3398,7 +3398,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
 
 bool TilesetEditorContext::_get(const StringName &p_name, Variant &r_ret) const {
     using namespace eastl;
-    se_string_view name(p_name);
+    StringView name(p_name);
     bool v = false;
 
     if (name == "options_offset"_sv) {

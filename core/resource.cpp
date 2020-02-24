@@ -84,7 +84,7 @@ void Resource::emit_changed() {
 void Resource::_resource_path_changed() {
 }
 
-void Resource::set_path(se_string_view p_path, bool p_take_over) {
+void Resource::set_path(StringView p_path, bool p_take_over) {
 
     if (impl_data->path_cache == p_path)
         return;
@@ -148,7 +148,7 @@ int Resource::get_subindex() const {
     return impl_data->subindex;
 }
 
-void Resource::set_name(se_string_view p_name) {
+void Resource::set_name(StringView p_name) {
 
     impl_data->name = p_name;
     Object_change_notify(this,"resource_name");
@@ -181,7 +181,7 @@ void Resource::reload_from_file() {
 
         if (!(E.usage & PROPERTY_USAGE_STORAGE))
             continue;
-        if (E.name == se_string_view("resource_path"))
+        if (E.name == StringView("resource_path"))
             continue; //do not change path
 
         set(E.name, s->get(E.name));
@@ -288,12 +288,12 @@ Ref<Resource> Resource::duplicate(bool p_subresources) const {
     return Ref<Resource>(r);
 }
 
-void Resource::_set_path(se_string_view p_path) {
+void Resource::_set_path(StringView p_path) {
 
     set_path(p_path, false);
 }
 
-void Resource::_take_over_path(se_string_view p_path) {
+void Resource::_take_over_path(StringView p_path) {
 
     set_path(p_path, true);
 }
@@ -346,7 +346,7 @@ uint32_t Resource::hash_edited_version() const {
     return hash;
 }
 
-void Resource::set_import_path(se_string_view p_path) { impl_data->import_path = p_path; }
+void Resource::set_import_path(StringView p_path) { impl_data->import_path = p_path; }
 
 const String &Resource::get_import_path() const { return impl_data->import_path; }
 
@@ -409,7 +409,7 @@ bool Resource::is_translation_remapped() const {
 
 #ifdef TOOLS_ENABLED
 //helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
-void Resource::set_id_for_path(se_string_view p_path, int p_id) {
+void Resource::set_id_for_path(StringView p_path, int p_id) {
     if (p_id == -1) {
         if (Resource::Data::path_cache_lock) {
             Resource::Data::path_cache_lock->write_lock();
@@ -429,7 +429,7 @@ void Resource::set_id_for_path(se_string_view p_path, int p_id) {
     }
 }
 
-int Resource::get_id_for_path(se_string_view p_path) const {
+int Resource::get_id_for_path(StringView p_path) const {
     if (Resource::Data::path_cache_lock) {
         Resource::Data::path_cache_lock->read_lock();
     }
@@ -565,7 +565,7 @@ void ResourceCache::reload_externals() {
     */
 }
 
-bool ResourceCache::has(se_string_view p_path) {
+bool ResourceCache::has(StringView p_path) {
 
     lock->read_lock();
     bool b = cached_resources.find_as(p_path)!=cached_resources.end();
@@ -574,11 +574,11 @@ bool ResourceCache::has(se_string_view p_path) {
     return b;
 }
 
-Resource * ResourceCache::get_unguarded(se_string_view p_path) {
+Resource * ResourceCache::get_unguarded(StringView p_path) {
     return cached_resources.at(String(p_path),nullptr);
 }
 
-Resource *ResourceCache::get(se_string_view p_path) {
+Resource *ResourceCache::get(StringView p_path) {
 
     lock->read_lock();
 
@@ -607,7 +607,7 @@ int ResourceCache::get_cached_resource_count() {
     return rc;
 }
 
-void ResourceCache::dump(se_string_view p_file, bool p_short) {
+void ResourceCache::dump(StringView p_file, bool p_short) {
 #ifdef DEBUG_ENABLED
     lock->read_lock();
 

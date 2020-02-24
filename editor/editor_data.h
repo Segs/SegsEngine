@@ -70,7 +70,7 @@ class EditorHistory {
         Variant value;
     };
 
-    void _add_object(ObjectID p_object, se_string_view p_property, int p_level_change, bool p_inspector_only = false);
+    void _add_object(ObjectID p_object, StringView p_property, int p_level_change, bool p_inspector_only = false);
 
 public:
     void cleanup_history();
@@ -80,7 +80,7 @@ public:
 
     void add_object_inspector_only(ObjectID p_object);
     void add_object(ObjectID p_object);
-    void add_object(ObjectID p_object, se_string_view p_subprop);
+    void add_object(ObjectID p_object, StringView p_subprop);
     void add_object(ObjectID p_object, int p_relevel);
 
     int get_history_len();
@@ -153,7 +153,7 @@ public:
     EditorPlugin *get_editor(Object *p_object);
     EditorPlugin *get_subeditor(Object *p_object);
     Vector<EditorPlugin *> get_subeditors(Object *p_object);
-    EditorPlugin *get_editor(se_string_view p_name);
+    EditorPlugin *get_editor(StringView p_name);
 
     void copy_object_params(Object *p_object);
     void paste_object_params(Object *p_object);
@@ -194,7 +194,7 @@ public:
     StringName get_scene_title(int p_idx) const;
     String get_scene_path(int p_idx) const;
     UIString get_scene_type(int p_idx) const;
-    void set_scene_path(int p_idx, se_string_view p_path);
+    void set_scene_path(int p_idx, StringView p_path);
     Ref<Script> get_scene_root_script(int p_idx) const;
     void set_edited_scene_version(uint64_t version, int p_scene_idx = -1);
     uint64_t get_edited_scene_version() const;
@@ -219,11 +219,11 @@ public:
     Object *script_class_instance(const StringName &p_class);
     Ref<Script> script_class_load_script(StringName p_class) const;
 
-    StringName script_class_get_name(se_string_view p_path) const;
-    void script_class_set_name(se_string_view p_path, const StringName &p_class);
+    StringName script_class_get_name(StringView p_path) const;
+    void script_class_set_name(StringView p_path, const StringName &p_class);
 
     String script_class_get_icon_path(const StringName &p_class) const;
-    void script_class_set_icon_path(const StringName &p_class, se_string_view p_icon_path);
+    void script_class_set_icon_path(const StringName &p_class, StringView p_icon_path);
     void script_class_clear_icon_paths() { _script_class_icon_paths.clear(); }
     void script_class_save_icon_paths();
     void script_class_load_icon_paths();

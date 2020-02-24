@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "logger.h"
-#include "rotated_file_loger.h"
+#include "core/rotated_file_loger.h"
 
 #include "core/os/file_access.h"
 #include "core/os/dir_access.h"
@@ -49,7 +49,7 @@ bool Logger::should_log(bool p_err) {
     return (!p_err || _print_error_enabled) && (p_err || _print_line_enabled);
 }
 
-void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
+void Logger::log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }
@@ -63,7 +63,7 @@ void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_l
         default: ERR_PRINT("Unknown error type"); break;
     }
 
-    se_string_view err_details;
+    StringView err_details;
     if (!p_rationale.empty())
         err_details = p_rationale;
     else
@@ -77,7 +77,7 @@ void Logger::log_error(se_string_view p_function, se_string_view p_file, int p_l
                );
 }
 
-void Logger::logf(se_string_view p_msg) {
+void Logger::logf(StringView p_msg) {
     if (!should_log(false)) {
         return;
     }
@@ -85,7 +85,7 @@ void Logger::logf(se_string_view p_msg) {
     logv(p_msg, false);
 }
 
-void Logger::logf_error(se_string_view p_msg) {
+void Logger::logf_error(StringView p_msg) {
     if (!should_log(true)) {
         return;
     }
@@ -104,8 +104,8 @@ void RotatedFileLogger::close_file() {
 void RotatedFileLogger::clear_old_backups() const {
     int max_backups = max_files - 1; // -1 for the current file
 
-    se_string_view basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
-    se_string_view extension = PathUtils::get_extension(base_path);
+    StringView basename =  PathUtils::get_basename(PathUtils::get_file(base_path));
+    StringView extension = PathUtils::get_extension(base_path);
 
     DirAccess *da = DirAccess::open(PathUtils::get_base_dir(base_path));
     if (!da) {
@@ -117,7 +117,7 @@ void RotatedFileLogger::clear_old_backups() const {
     Set<String> backups;
     while (!f.empty()) {
         if (!da->current_is_dir() && StringUtils::begins_with(f, basename) && PathUtils::get_extension(f) == extension &&
-                se_string_view(f) != PathUtils::get_file(base_path)) {
+                StringView(f) != PathUtils::get_file(base_path)) {
             backups.insert(f);
         }
         f = da->get_next();
@@ -179,7 +179,7 @@ RotatedFileLogger::RotatedFileLogger(const String &p_base_path, int p_max_files)
     rotate_file();
 }
 
-void RotatedFileLogger::logv(se_string_view p_format, bool p_err) {
+void RotatedFileLogger::logv(StringView p_format, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
@@ -202,7 +202,7 @@ RotatedFileLogger::~RotatedFileLogger() {
     close_file();
 }
 
-void StdLogger::logv(se_string_view p_format, bool p_err) {
+void StdLogger::logv(StringView p_format, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
@@ -223,7 +223,7 @@ CompositeLogger::CompositeLogger(Vector<Logger *> && p_loggers) :
         loggers(p_loggers) {
 }
 
-void CompositeLogger::logv(se_string_view p_msg, bool p_err) {
+void CompositeLogger::logv(StringView p_msg, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }
@@ -232,7 +232,7 @@ void CompositeLogger::logv(se_string_view p_msg, bool p_err) {
         l->logv(p_msg, p_err);
     }
 }
-void CompositeLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
+void CompositeLogger::log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }

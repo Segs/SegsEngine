@@ -36,7 +36,7 @@
 
 static Map<String, Vector<uint8_t> > *files = nullptr;
 
-void FileAccessMemory::register_file(se_string_view p_name, const Vector<uint8_t>& p_data) {
+void FileAccessMemory::register_file(StringView p_name, const Vector<uint8_t>& p_data) {
 
     if (!files) {
         files = memnew((Map<String, Vector<uint8_t> >));
@@ -65,7 +65,7 @@ FileAccess *FileAccessMemory::create() {
     return memnew(FileAccessMemory);
 }
 
-bool FileAccessMemory::file_exists(se_string_view p_name) {
+bool FileAccessMemory::file_exists(StringView p_name) {
 
     String name = fix_path(p_name);
     //name = DirAccess::normalize_path(name);
@@ -81,7 +81,7 @@ Error FileAccessMemory::open_custom(const uint8_t *p_data, int p_len) {
     return OK;
 }
 
-Error FileAccessMemory::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessMemory::_open(StringView p_path, int p_mode_flags) {
 
     ERR_FAIL_COND_V(!files, ERR_FILE_NOT_FOUND);
 

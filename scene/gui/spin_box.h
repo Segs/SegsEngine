@@ -44,7 +44,7 @@ class SpinBox : public Range {
     Timer *range_click_timer;
     void _range_click_timeout();
 
-    void _text_entered(se_string_view p_string);
+    void _text_entered(StringView p_string);
     void _value_changed(double) override;
     String prefix;
     String suffix;
@@ -84,7 +84,7 @@ public:
     void set_suffix(String p_suffix);
     String get_suffix() const;
 
-    void set_prefix(se_string_view p_prefix);
+    void set_prefix(StringView p_prefix);
     String get_prefix() const;
 
     void apply();

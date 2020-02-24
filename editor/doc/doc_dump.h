@@ -34,5 +34,5 @@
 
 class DocDump {
 public:
-    static void dump(se_string_view p_file);
+    static void dump(StringView p_file);
 };

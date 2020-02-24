@@ -67,7 +67,7 @@ void AnimatedValuesBackup::update_skeletons() {
 
 bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
 
-    const se_string_view name(p_name);
+    const StringView name(p_name);
 
     if (StringUtils::begins_with(name,"playback/play")) { // bw compatibility
 
@@ -75,12 +75,12 @@ bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
 
     } else if (StringUtils::begins_with(name,"anims/")) {
 
-        se_string_view which = StringUtils::get_slice(name,'/', 1);
+        StringView which = StringUtils::get_slice(name,'/', 1);
         add_animation(StringName(which), refFromRefPtr<Animation>(p_value));
 
     } else if (StringUtils::begins_with(name,"next/")) {
 
-        se_string_view which = StringUtils::get_slice(name,'/', 1);
+        StringView which = StringUtils::get_slice(name,'/', 1);
         animation_set_next(StringName(which), p_value);
 
     } else if (p_name == SceneStringNames::get_singleton()->blend_times) {
@@ -106,24 +106,24 @@ bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
 
 bool AnimationPlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
-    const se_string_view name(p_name);
+    const StringView name(p_name);
 
-    if (name == se_string_view("playback/play")) { // bw compatibility
+    if (name == StringView("playback/play")) { // bw compatibility
 
         r_ret = get_current_animation();
 
     } else if (StringUtils::begins_with(name,"anims/")) {
 
-        se_string_view which = StringUtils::get_slice(name,'/', 1);
+        StringView which = StringUtils::get_slice(name,'/', 1);
         r_ret = Variant(get_animation(StringName(which)).get_ref_ptr());
 
     } else if (StringUtils::begins_with(name,"next/")) {
 
-        se_string_view which = StringUtils::get_slice(name,'/', 1);
+        StringView which = StringUtils::get_slice(name,'/', 1);
 
         r_ret = animation_get_next(StringName(which));
 
-    } else if (name == se_string_view("blend_times")) {
+    } else if (name == StringView("blend_times")) {
 
         eastl::vector_set<BlendKey,eastl::less<BlendKey>,wrap_allocator> keys;
         for (const eastl::pair<const BlendKey,float> &E : blend_times) {
@@ -147,10 +147,10 @@ bool AnimationPlayer::_get(const StringName &p_name, Variant &r_ret) const {
 
 void AnimationPlayer::_validate_property(PropertyInfo &property) const {
 
-    if (se_string_view(property.name) != se_string_view("current_animation"))
+    if (StringView(property.name) != StringView("current_animation"))
         return;
 
-    Vector<se_string_view> names;
+    Vector<StringView> names;
     names.push_back("[stop]");
 
     for (const eastl::pair<const StringName,AnimationData> &E : animation_set) {
@@ -1438,7 +1438,7 @@ StringName AnimationPlayer::find_animation(const Ref<Animation> &p_animation) co
     return "";
 }
 
-void AnimationPlayer::set_autoplay(se_string_view p_name) {
+void AnimationPlayer::set_autoplay(StringView p_name) {
     if (is_inside_tree() && !Engine::get_singleton()->is_editor_hint()) {
         WARN_PRINT("Setting autoplay after the node has been added to the scene has no effect.");
     }

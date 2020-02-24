@@ -40,7 +40,7 @@ public:
     Vector<Variant> default_arguments;
 
     bool operator==(const MethodInfo &p_method) const { return id == p_method.id; }
-    bool operator<(const MethodInfo &p_method) const { return id == p_method.id ? (se_string_view(name).compare(p_method.name)<0) : (id < p_method.id); }
+    bool operator<(const MethodInfo &p_method) const { return id == p_method.id ? (StringView(name).compare(p_method.name)<0) : (id < p_method.id); }
 
     operator Dictionary() const;
 

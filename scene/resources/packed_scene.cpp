@@ -47,11 +47,11 @@
 
 struct SVCompare
 {
-    bool operator()(const StringName &a,se_string_view b) const {
-        return se_string_view(a.asCString())<b;
+    bool operator()(const StringName &a,StringView b) const {
+        return StringView(a.asCString())<b;
     }
-    bool operator()(se_string_view a,const StringName &b) const {
-        return a<se_string_view(b.asCString());
+    bool operator()(StringView a,const StringName &b) const {
+        return a<StringView(b.asCString());
     }
 };
 
@@ -381,7 +381,7 @@ static int _nm_get_string(const StringName &p_string, Map<StringName, int> &name
     name_map[p_string] = idx;
     return idx;
 }
-static int _nm_get_string(se_string_view p_string, Map<StringName, int> &name_map) {
+static int _nm_get_string(StringView p_string, Map<StringName, int> &name_map) {
     //FIXME: this allocates strings, but name_map.find_as does not work here since StringName comparisons are done using data pointer
     auto iter = name_map.find(StringName(p_string));
     if (iter!=name_map.end())
@@ -936,7 +936,7 @@ Error SceneState::pack(Node *p_scene) {
     return OK;
 }
 
-void SceneState::set_path(se_string_view p_path) {
+void SceneState::set_path(StringView p_path) {
 
     path = p_path;
 }
@@ -1757,7 +1757,7 @@ Ref<SceneState> PackedScene::get_state() {
     return state;
 }
 
-void PackedScene::set_path(se_string_view p_path, bool p_take_over) {
+void PackedScene::set_path(StringView p_path, bool p_take_over) {
 
     state->set_path(p_path);
     Resource::set_path(p_path, p_take_over);

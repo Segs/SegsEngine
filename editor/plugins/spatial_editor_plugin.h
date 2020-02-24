@@ -37,7 +37,7 @@
 #include "scene/gui/panel_container.h"
 #include "scene/gui/spin_box.h"
 #include "scene/3d/skeleton.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 
 class Camera;
@@ -400,8 +400,8 @@ private:
     static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
     void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
-    bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
-    bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
+    bool _cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node);
+    bool _create_instance(Node *parent, StringView path, const Point2 &p_point);
     void _perform_drop_data();
 
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
@@ -769,7 +769,7 @@ public:
     void snap_cursor_to_plane(const Plane &p_plane);
 
     SpatialEditor *get_spatial_editor() { return spatial_editor; }
-    se_string_view get_name() const override { return "3D"; }
+    StringView get_name() const override { return "3D"; }
     bool has_main_screen() const override { return true; }
     void make_visible(bool p_visible) override;
     void edit(Object *p_object) override;
@@ -805,14 +805,14 @@ protected:
     virtual Ref<EditorSpatialGizmo> create_gizmo(Spatial *p_spatial);
 
 public:
-    void create_material(se_string_view p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
+    void create_material(StringView p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
     void create_icon_material(const String &p_name, const Ref<Texture> &p_texture, bool p_on_top = false, const Color &p_albedo = Color(1, 1, 1, 1));
     void create_handle_material(const String &p_name, bool p_billboard = false);
     void add_material(const String &p_name, const Ref<SpatialMaterial>& p_material);
 
     Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
 
-    virtual se_string_view get_name() const;
+    virtual StringView get_name() const;
     virtual int get_priority() const;
     virtual bool can_be_hidden() const;
     virtual bool is_selectable_when_hidden() const;

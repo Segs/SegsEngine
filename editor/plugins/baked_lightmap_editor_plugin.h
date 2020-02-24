@@ -47,7 +47,7 @@ class BakedLightmapEditorPlugin : public EditorPlugin {
 
     static EditorProgress *tmp_progress;
     static void bake_func_begin(int p_steps);
-    static bool bake_func_step(int p_step, se_string_view p_description);
+    static bool bake_func_step(int p_step, StringView p_description);
     static void bake_func_end();
 
     void _bake();
@@ -56,7 +56,7 @@ protected:
     static void _bind_methods();
 
 public:
-    se_string_view get_name() const override { return "BakedLightmap"; }
+    StringView get_name() const override { return "BakedLightmap"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

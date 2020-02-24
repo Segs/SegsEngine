@@ -1114,7 +1114,7 @@ void NativeScriptLanguage::get_comment_delimiters(List<String> *p_delimiters) co
 void NativeScriptLanguage::get_string_delimiters(List<String> *p_delimiters) const {
 }
 
-Ref<Script> NativeScriptLanguage::get_template(se_string_view p_class_name, const String &p_base_class_name) const {
+Ref<Script> NativeScriptLanguage::get_template(StringView p_class_name, const String &p_base_class_name) const {
     NativeScript *s = memnew(NativeScript);
     s->set_class_name(p_class_name);
     return Ref<NativeScript>(s);
@@ -1160,11 +1160,11 @@ String NativeScriptLanguage::debug_get_stack_level_function(int p_level) const {
 String NativeScriptLanguage::debug_get_stack_level_source(int p_level) const {
     return String();
 }
-void NativeScriptLanguage::debug_get_stack_level_locals(int p_level, List<se_string_view> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_stack_level_locals(int p_level, List<StringView> *p_locals, List<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
-void NativeScriptLanguage::debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_stack_level_members(int p_level, Vector<StringView> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
-void NativeScriptLanguage::debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
+void NativeScriptLanguage::debug_get_globals(Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) {
 }
 String NativeScriptLanguage::debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) {
     return String();
@@ -1607,7 +1607,7 @@ void NativeScriptLanguage::thread_exit() {
 
 #endif // NO_THREADS
 
-bool NativeScriptLanguage::handles_global_class_type(se_string_view p_type) const {
+bool NativeScriptLanguage::handles_global_class_type(StringView p_type) const {
     return p_type.compare("NativeScript")==0;
 }
 

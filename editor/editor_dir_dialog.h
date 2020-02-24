@@ -50,7 +50,7 @@ class EditorDirDialog : public ConfirmationDialog {
     bool updating;
 
     void _item_collapsed(Object *p_item);
-    void _update_dir(TreeItem *p_item, EditorFileSystemDirectory *p_dir, se_string_view p_select_path = {});
+    void _update_dir(TreeItem *p_item, EditorFileSystemDirectory *p_dir, StringView p_select_path = {});
 
     void _make_dir();
     void _make_dir_confirm();
@@ -64,7 +64,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void reload(se_string_view p_path = {});
+    void reload(StringView p_path = {});
     EditorDirDialog();
 };
 

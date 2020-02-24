@@ -390,8 +390,8 @@ void VisualShaderNodeCustom::update_ports() {
     }
 }
 
-se_string_view VisualShaderNodeCustom::get_caption() const {
-    ERR_FAIL_COND_V(!get_script_instance(), null_se_string);
+StringView VisualShaderNodeCustom::get_caption() const {
+    ERR_FAIL_COND_V(!get_script_instance(), null_string);
     if (get_script_instance()->has_method("_get_name")) {
         return get_script_instance()->call("_get_name").as<String>();
     }
@@ -920,7 +920,7 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
 
 #define IS_SYMBOL_CHAR(m_d) (((m_d) >= 'a' && (m_d) <= 'z') || ((m_d) >= 'A' && (m_d) <= 'Z') || ((m_d) >= '0' && (m_d) <= '9') || (m_d) == '_')
 
-String VisualShader::validate_port_name(se_string_view p_name, const Vector<StringName> &p_input_ports, const Vector<StringName> &p_output_ports) const {
+String VisualShader::validate_port_name(StringView p_name, const Vector<StringName> &p_input_ports, const Vector<StringName> &p_output_ports) const {
     String name(p_name);
 
     while (name.length() && !IS_INITIAL_CHAR(name[0])) {
@@ -968,7 +968,7 @@ String VisualShader::validate_port_name(se_string_view p_name, const Vector<Stri
     return name;
 }
 
-String VisualShader::validate_uniform_name(se_string_view p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const {
+String VisualShader::validate_uniform_name(StringView p_name, const Ref<VisualShaderNodeUniform> &p_uniform) const {
 
     String name(p_name); //validate name first
     while (name.length() && !IS_INITIAL_CHAR(name[0])) {
@@ -1047,7 +1047,7 @@ static const char *type_string[VisualShader::TYPE_MAX] = {
 };
 bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
 
-    se_string_view name = p_name.asCString();
+    StringView name = p_name.asCString();
     if (name == "mode"_sv) {
         set_mode(ShaderMode(int(p_value)));
         return true;
@@ -1094,7 +1094,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         }
 
         int id = StringUtils::to_int(index);
-        se_string_view what(StringUtils::get_slice(name,'/', 3));
+        StringView what(StringUtils::get_slice(name,'/', 3));
 
         if (what == "node"_sv) {
             add_node(type, refFromRefPtr<VisualShaderNode>(p_value), Vector2(), id);
@@ -1121,7 +1121,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
 
 bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
 
-    se_string_view name = p_name.asCString();
+    StringView name = p_name.asCString();
     if (name == "mode"_sv) {
         r_ret = get_mode();
         return true;
@@ -1130,7 +1130,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
         r_ret = flags.contains(flag);
         return true;
     } else if (StringUtils::begins_with(name,"modes/")) {
-        se_string_view mode(StringUtils::get_slice(name,'/', 1));
+        StringView mode(StringUtils::get_slice(name,'/', 1));
         auto iter = modes.find_as(mode);
         if (modes.end()!=iter) {
             r_ret = iter->second;
@@ -1164,7 +1164,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
         }
 
         int id = StringUtils::to_int(index);
-        se_string_view what(StringUtils::get_slice(name,'/', 3));
+        StringView what(StringUtils::get_slice(name,'/', 3));
 
         if (what == "node"_sv) {
             r_ret = get_node(type, id);
@@ -1688,7 +1688,7 @@ StringName VisualShaderNodeInput::get_output_port_name(int p_port) const {
     return StringName();
 }
 
-se_string_view VisualShaderNodeInput::get_caption() const {
+StringView VisualShaderNodeInput::get_caption() const {
     return "Input";
 }
 
@@ -2026,7 +2026,7 @@ bool VisualShaderNodeOutput::is_port_separator(int p_index) const {
     return false;
 }
 
-se_string_view VisualShaderNodeOutput::get_caption() const {
+StringView VisualShaderNodeOutput::get_caption() const {
     return "Output";
 }
 
@@ -2083,7 +2083,7 @@ VisualShaderNodeUniform::VisualShaderNodeUniform() {
 
 ////////////// GroupBase
 
-se_string_view VisualShaderNodeGroupBase::get_caption() const {
+StringView VisualShaderNodeGroupBase::get_caption() const {
     return "Group";
 }
 
@@ -2104,18 +2104,18 @@ void VisualShaderNodeGroupBase::set_inputs(const String &p_inputs) {
 
     inputs = p_inputs;
 
-    Vector<se_string_view> input_strings = StringUtils::split(inputs,';', false);
+    Vector<StringView> input_strings = StringUtils::split(inputs,';', false);
 
     int input_port_count = input_strings.size();
 
     for (int i = 0; i < input_port_count; i++) {
 
-        Vector<se_string_view> arr = StringUtils::split(input_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(input_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
 
         int port_idx = StringUtils::to_int(arr[0]);
         int port_type = StringUtils::to_int(arr[1]);
-        se_string_view port_name(arr[2]);
+        StringView port_name(arr[2]);
 
         Port port;
         port.type = (PortType)port_type;
@@ -2137,18 +2137,18 @@ void VisualShaderNodeGroupBase::set_outputs(const String &p_outputs) {
 
     outputs = p_outputs;
 
-    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    Vector<StringView> output_strings = StringUtils::split(outputs,';', false);
 
     int output_port_count = output_strings.size();
 
     for (int i = 0; i < output_port_count; i++) {
 
-        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(output_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
 
         int port_idx = StringUtils::to_int(arr[0]);
         int port_type = StringUtils::to_int(arr[1]);
-        se_string_view port_name = arr[2];
+        StringView port_name = arr[2];
 
         Port port;
         port.type = (PortType)port_type;
@@ -2181,7 +2181,7 @@ bool VisualShaderNodeGroupBase::is_valid_port_name(const String &p_name) const {
 void VisualShaderNodeGroupBase::add_input_port(int p_id, int p_type, const String &p_name) {
 
     String str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<StringView> inputs_strings = StringUtils::split(inputs,';', false);
     int index = 0;
     if (p_id < inputs_strings.size()) {
         for (size_t i = 0; i < inputs_strings.size(); i++) {
@@ -2219,11 +2219,11 @@ void VisualShaderNodeGroupBase::remove_input_port(int p_id) {
 
     ERR_FAIL_COND(!has_input_port(p_id));
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<StringView> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(inputs_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             count = inputs_strings[i].size();
             break;
@@ -2250,7 +2250,7 @@ bool VisualShaderNodeGroupBase::has_input_port(int p_id) const {
 
 void VisualShaderNodeGroupBase::add_output_port(int p_id, int p_type, const String &p_name) {
 
-    FixedVector<se_string_view,16,true> outputs_strings;
+    FixedVector<StringView,16,true> outputs_strings;
     String str = itos(p_id) + "," + itos(p_type) + "," + p_name + ";";
     String::split_ref(outputs_strings,outputs,';');
     int index = 0;
@@ -2290,11 +2290,11 @@ void VisualShaderNodeGroupBase::remove_output_port(int p_id) {
 
     ERR_FAIL_COND(!has_output_port(p_id));
 
-    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    Vector<StringView> outputs_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
-    for (se_string_view output : outputs_strings) {
-        Vector<se_string_view> arr = StringUtils::split(output,',');
+    for (StringView output : outputs_strings) {
+        Vector<StringView> arr = StringUtils::split(output,',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             count = output.size();
             break;
@@ -2335,11 +2335,11 @@ void VisualShaderNodeGroupBase::set_input_port_type(int p_id, int p_type) {
     if (input_ports[p_id].type == p_type)
         return;
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<StringView> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
@@ -2369,11 +2369,11 @@ void VisualShaderNodeGroupBase::set_input_port_name(int p_id, const String &p_na
     if (input_ports[p_id].name == p_name)
         return;
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<StringView> inputs_strings = StringUtils::split(inputs,';', false);
     int count = 0;
     int index = 0;
     for (int i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(inputs_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
             count = arr[2].size() - 1;
@@ -2402,11 +2402,11 @@ void VisualShaderNodeGroupBase::set_output_port_type(int p_id, int p_type) {
     if (output_ports[p_id].type == p_type)
         return;
 
-    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    Vector<StringView> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (size_t i = 0; i < output_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size();
             count = arr[1].size() - 1;
@@ -2435,11 +2435,11 @@ void VisualShaderNodeGroupBase::set_output_port_name(int p_id, const String &p_n
     if (output_ports[p_id].name == p_name)
         return;
 
-    Vector<se_string_view> output_strings = StringUtils::split(outputs,';', false);
+    Vector<StringView> output_strings = StringUtils::split(outputs,';', false);
     int count = 0;
     int index = 0;
     for (size_t i = 0; i < output_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(output_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(output_strings[i],',');
         if (StringUtils::to_int(arr[0]) == p_id) {
             index += arr[0].size() + arr[1].size();
             count = arr[2].size() - 1;
@@ -2479,14 +2479,14 @@ Control *VisualShaderNodeGroupBase::get_control(int p_index) {
 
 void VisualShaderNodeGroupBase::_apply_port_changes() {
 
-    Vector<se_string_view> inputs_strings = StringUtils::split(inputs,';', false);
-    Vector<se_string_view> outputs_strings = StringUtils::split(outputs,';', false);
+    Vector<StringView> inputs_strings = StringUtils::split(inputs,';', false);
+    Vector<StringView> outputs_strings = StringUtils::split(outputs,';', false);
 
     clear_input_ports();
     clear_output_ports();
 
     for (size_t i = 0; i < inputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(inputs_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(inputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);
@@ -2494,7 +2494,7 @@ void VisualShaderNodeGroupBase::_apply_port_changes() {
         input_ports[i] = port;
     }
     for (size_t i = 0; i < outputs_strings.size(); i++) {
-        Vector<se_string_view> arr = StringUtils::split(outputs_strings[i],',');
+        Vector<StringView> arr = StringUtils::split(outputs_strings[i],',');
         ERR_FAIL_COND(arr.size() != 3);
         Port port;
         port.type = (PortType)StringUtils::to_int(arr[1]);
@@ -2561,7 +2561,7 @@ VisualShaderNodeGroupBase::VisualShaderNodeGroupBase() {
 
 ////////////// Expression
 
-se_string_view VisualShaderNodeExpression::get_caption() const {
+StringView VisualShaderNodeExpression::get_caption() const {
     return String("Expression");
 }
 
@@ -2650,7 +2650,7 @@ VisualShaderNodeExpression::VisualShaderNodeExpression() {
 
 ////////////// Global Expression
 
-se_string_view VisualShaderNodeGlobalExpression::get_caption() const {
+StringView VisualShaderNodeGlobalExpression::get_caption() const {
     return String("GlobalExpression");
 }
 

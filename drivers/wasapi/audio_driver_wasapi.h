@@ -102,8 +102,8 @@ public:
     int get_mix_rate() const override;
     SpeakerMode get_speaker_mode() const override;
     Array get_device_list() override;
-    se_string_view get_device() override;
-    void set_device(se_string_view device) override;
+    StringView get_device() override;
+    void set_device(StringView device) override;
     void lock() override;
     void unlock() override;
     void finish() override;
@@ -111,7 +111,7 @@ public:
     Error capture_start() override;
     Error capture_stop() override;
     Array capture_get_device_list() override;
-    void capture_set_device(se_string_view p_name) override;
+    void capture_set_device(StringView p_name) override;
     String capture_get_device() override;
 
     AudioDriverWASAPI();

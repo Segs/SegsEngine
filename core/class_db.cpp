@@ -517,7 +517,7 @@ void ClassDB::bind_integer_constant(
 
     type->constant_map[p_name] = p_constant;
 
-    se_string_view enum_name(p_enum);
+    StringView enum_name(p_enum);
     if (!p_enum.empty()) {
         if (StringUtils::contains(p_enum, '.') ) {
             enum_name = StringUtils::get_slice(enum_name, '.', 1);
@@ -666,7 +666,7 @@ void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
 #ifdef DEBUG_METHODS_ENABLED
     ClassInfo *check = type;
     while (check) {
-        ERR_FAIL_COND_MSG(class_signal_map(*check).contains(sname), "Class '" + String(p_class) + "' already has signal '" + se_string_view(sname) + "'.");
+        ERR_FAIL_COND_MSG(class_signal_map(*check).contains(sname), "Class '" + String(p_class) + "' already has signal '" + StringView(sname) + "'.");
         check = check->inherits_ptr;
     }
 #endif
@@ -1099,7 +1099,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
     return p_bind;
 }
 
-void ClassDB::_set_class_header(const StringName &p_class, se_string_view header_file) {
+void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
     //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
     int idx  = header_file.find("SegsEngine");
     String hdr(header_file.substr(idx+11));

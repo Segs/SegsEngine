@@ -131,7 +131,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
     }
 }
 
-void CreateDialog::_text_changed(se_string_view p_newtext) {
+void CreateDialog::_text_changed(StringView p_newtext) {
 
     _update_search();
 }
@@ -165,7 +165,7 @@ void CreateDialog::add_type(
         }
         if (!ScriptServer::is_global_class(p_type) || !ed.script_class_is_parent(p_type, base_type)) return;
 
-        se_string_view script_path = ScriptServer::get_global_class_path(p_type);
+        StringView script_path = ScriptServer::get_global_class_path(p_type);
         if (StringUtils::contains(script_path, "res://addons/")) {
             if (!EditorNode::get_singleton()->is_addon_plugin_enabled(
                         StringName(StringUtils::get_slice(script_path, '/', 3))))

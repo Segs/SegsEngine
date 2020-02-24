@@ -68,18 +68,18 @@ public:
 
     Control *get_editor_viewport();
     void edit_resource(const Ref<Resource> &p_resource);
-    void open_scene_from_path(se_string_view scene_path);
-    void reload_scene_from_path(se_string_view scene_path);
+    void open_scene_from_path(StringView scene_path);
+    void reload_scene_from_path(StringView scene_path);
 
     Node *get_edited_scene_root();
     Array get_open_scenes() const;
     ScriptEditor *get_script_editor();
 
-    void select_file(se_string_view p_file);
+    void select_file(StringView p_file);
     String get_selected_path() const;
     const String &get_current_path() const;
 
-    void inspect_object(Object *p_obj, se_string_view p_for_property = se_string_view());
+    void inspect_object(Object *p_obj, StringView p_for_property = StringView());
 
     EditorSelection *get_selection();
     //EditorImportExport *get_import_export();
@@ -95,7 +95,7 @@ public:
     EditorInspector *get_inspector() const;
 
     Error save_scene();
-    void save_scene_as(se_string_view p_scene, bool p_with_preview = true);
+    void save_scene_as(StringView p_scene, bool p_with_preview = true);
 
     Vector<Ref<Texture>> make_mesh_previews(const Vector<Ref<Mesh>> &p_meshes, Vector<Transform> *p_transforms,
             int p_preview_size);
@@ -164,7 +164,7 @@ public:
     void remove_control_from_docks(Control *p_control);
     void remove_control_from_bottom_panel(Control *p_control);
 
-    void add_tool_menu_item(const StringName &p_name, Object *p_handler, se_string_view p_callback, const Variant &p_ud = Variant());
+    void add_tool_menu_item(const StringName &p_name, Object *p_handler, StringView p_callback, const Variant &p_ud = Variant());
     void add_tool_submenu_item(const StringName &p_name, Object *p_submenu);
     void remove_tool_menu_item(const StringName &p_name);
 
@@ -174,9 +174,9 @@ public:
     void set_force_draw_over_forwarding_enabled();
     bool is_force_draw_over_forwarding_enabled() const { return force_draw_over_forwarding_enabled; }
 
-    void notify_main_screen_changed(se_string_view screen_name);
+    void notify_main_screen_changed(StringView screen_name);
     void notify_scene_changed(const Node *scn_root);
-    void notify_scene_closed(se_string_view scene_filepath);
+    void notify_scene_closed(StringView scene_filepath);
     void notify_resource_saved(const Ref<Resource> &p_resource);
 
     virtual bool forward_canvas_gui_input(const Ref<InputEvent> &p_event);
@@ -187,7 +187,7 @@ public:
     virtual void forward_spatial_draw_over_viewport(Control *p_overlay);
     virtual void forward_spatial_force_draw_over_viewport(Control *p_overlay);
 
-    virtual se_string_view get_name() const;
+    virtual StringView get_name() const;
     virtual const Ref<Texture> get_icon() const;
     virtual bool has_main_screen() const;
     virtual void make_visible(bool p_visible);
@@ -234,7 +234,7 @@ public:
     void add_scene_import_plugin(const Ref<EditorSceneImporter> &p_importer);
     void remove_scene_import_plugin(const Ref<EditorSceneImporter> &p_importer);
 
-    void add_autoload_singleton(const StringName &p_name, se_string_view p_path);
+    void add_autoload_singleton(const StringName &p_name, StringView p_path);
     void remove_autoload_singleton(const StringName &p_name);
 
     void enable_plugin();

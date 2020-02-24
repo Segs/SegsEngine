@@ -50,7 +50,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void open(se_string_view p_path, int p_depth = 0);
+    void open(StringView p_path, int p_depth = 0);
     EditorAssetInstaller();
 };
 

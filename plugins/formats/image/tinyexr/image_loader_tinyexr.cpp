@@ -257,9 +257,9 @@ void ImageLoaderTinyEXR::get_recognized_extensions(Vector<String> &p_extensions)
 ImageLoaderTinyEXR::ImageLoaderTinyEXR() {
 }
 
-bool ImageLoaderTinyEXR::can_save(se_string_view extension)
+bool ImageLoaderTinyEXR::can_save(StringView extension)
 {
-    return se_string_view("exr")==extension;
+    return StringView("exr")==extension;
 }
 
 Error ImageLoaderTinyEXR::save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params)

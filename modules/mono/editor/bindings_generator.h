@@ -559,7 +559,7 @@ class BindingsGenerator {
         return false;
     }
 
-    const ConstantInterface *find_constant_by_name(se_string_view p_name, const List<ConstantInterface> &p_constants) const {
+    const ConstantInterface *find_constant_by_name(StringView p_name, const List<ConstantInterface> &p_constants) const {
         for (const ConstantInterface &E : p_constants) {
             if (E.name == p_name)
                 return &E;
@@ -579,7 +579,7 @@ class BindingsGenerator {
         return p_type.name;
     }
 
-    String bbcode_to_xml(se_string_view p_bbcode, const TypeInterface *p_itype);
+    String bbcode_to_xml(StringView p_bbcode, const TypeInterface *p_itype);
 
     int _determine_enum_prefix(const EnumInterface &p_ienum);
     void _apply_prefix_to_enum_constants(EnumInterface &p_ienum, int p_prefix_length);
@@ -598,7 +598,7 @@ class BindingsGenerator {
 
     void _populate_global_constants();
 
-    Error _generate_cs_type(const TypeInterface &itype, se_string_view p_output_file);
+    Error _generate_cs_type(const TypeInterface &itype, StringView p_output_file);
 
     Error _generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output);
     Error _generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, int &p_method_bind_count, StringBuilder &p_output);
@@ -612,10 +612,10 @@ class BindingsGenerator {
     void _initialize();
 
 public:
-    Error generate_cs_core_project(se_string_view p_proj_dir);
+    Error generate_cs_core_project(StringView p_proj_dir);
     Error generate_cs_editor_project(const String &p_proj_dir);
-    Error generate_cs_api(se_string_view p_output_dir);
-    Error generate_glue(se_string_view p_output_dir);
+    Error generate_cs_api(StringView p_output_dir);
+    Error generate_glue(StringView p_output_dir);
 
     bool is_log_print_enabled() const { return log_print_enabled; }
     void set_log_print_enabled(bool p_enabled) { log_print_enabled = p_enabled; }

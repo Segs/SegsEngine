@@ -56,11 +56,11 @@ class GDScriptLanguageProtocol : public JSONRPC {
     Ref<GDScriptWorkspace> workspace;
 
     void on_data_received(int p_id);
-    void on_client_connected(int p_id, se_string_view p_protocal);
+    void on_client_connected(int p_id, StringView p_protocal);
     void on_client_disconnected(int p_id, bool p_was_clean_close);
 
     String process_message(const String &p_text);
-    String format_output(se_string_view p_text);
+    String format_output(StringView p_text);
 
     bool _initialized;
 
@@ -80,8 +80,8 @@ public:
     Error start(int p_port, const IP_Address &p_bind_ip);
     void stop();
 
-    void notify_all_clients(se_string_view p_method, const Variant &p_params = Variant());
-    void notify_client(se_string_view p_method, const Variant &p_params = Variant(), int p_client = -1);
+    void notify_all_clients(StringView p_method, const Variant &p_params = Variant());
+    void notify_client(StringView p_method, const Variant &p_params = Variant(), int p_client = -1);
 
     bool is_smart_resolve_enabled() const;
     bool is_goto_native_symbols_enabled() const;

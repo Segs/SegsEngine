@@ -87,7 +87,7 @@ public:
     void edit_path(const Vector<String> &p_path);
     const Vector<String> &get_edited_path() const;
 
-    void enter_editor(se_string_view p_path = {});
+    void enter_editor(StringView p_path = {});
     static AnimationTreeEditor *get_singleton() { return singleton; }
     void edit(AnimationTree *p_tree);
     AnimationTreeEditor();
@@ -102,7 +102,7 @@ class AnimationTreeEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return "AnimationTree"; }
+    StringView get_name() const override { return "AnimationTree"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

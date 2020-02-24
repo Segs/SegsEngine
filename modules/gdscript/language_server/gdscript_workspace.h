@@ -41,19 +41,19 @@ class GDScriptWorkspace : public RefCounted {
 
 protected:
     static void _bind_methods();
-    void remove_cache_parser(se_string_view p_path);
+    void remove_cache_parser(StringView p_path);
     bool initialized = false;
     Map<StringName, lsp::DocumentSymbol> native_symbols;
 
-    const lsp::DocumentSymbol *get_native_symbol(se_string_view p_class, se_string_view p_member = {}) const;
-    const lsp::DocumentSymbol *get_script_symbol(se_string_view p_path) const;
+    const lsp::DocumentSymbol *get_native_symbol(StringView p_class, StringView p_member = {}) const;
+    const lsp::DocumentSymbol *get_script_symbol(StringView p_path) const;
 
     void reload_all_workspace_scripts();
 
-    ExtendGDScriptParser *get_parse_successed_script(se_string_view p_path);
-    ExtendGDScriptParser *get_parse_result(se_string_view p_path);
+    ExtendGDScriptParser *get_parse_successed_script(StringView p_path);
+    ExtendGDScriptParser *get_parse_result(StringView p_path);
 
-    void list_script_files(se_string_view p_root_dir, List<String> &r_files);
+    void list_script_files(StringView p_root_dir, List<String> &r_files);
 
 public:
     String root;
@@ -69,21 +69,21 @@ public:
 public:
     Error initialize();
 
-    Error parse_script(se_string_view p_path, se_string_view p_content);
-    Error parse_local_script(se_string_view p_path);
+    Error parse_script(StringView p_path, StringView p_content);
+    Error parse_local_script(StringView p_path);
 
-    String get_file_path(se_string_view p_uri) const;
-    String get_file_uri(se_string_view p_path) const;
+    String get_file_path(StringView p_uri) const;
+    String get_file_uri(StringView p_path) const;
 
-    void publish_diagnostics(se_string_view p_path);
+    void publish_diagnostics(StringView p_path);
     void completion(const lsp::CompletionParams &p_params, Vector<ScriptCodeCompletionOption> *r_options);
 
-    const lsp::DocumentSymbol *resolve_symbol(const lsp::TextDocumentPositionParams &p_doc_pos, se_string_view p_symbol_name = {}, bool p_func_requred = false);
+    const lsp::DocumentSymbol *resolve_symbol(const lsp::TextDocumentPositionParams &p_doc_pos, StringView p_symbol_name = {}, bool p_func_requred = false);
     void resolve_related_symbols(const lsp::TextDocumentPositionParams &p_doc_pos, List<const lsp::DocumentSymbol *> &r_list);
 
     const lsp::DocumentSymbol *resolve_native_symbol(const lsp::NativeSymbolInspectParams &p_params);
-    void resolve_document_links(se_string_view p_uri, Vector<lsp::DocumentLink> &r_list);
-    Dictionary generate_script_api(se_string_view p_path);
+    void resolve_document_links(StringView p_uri, Vector<lsp::DocumentLink> &r_list);
+    Dictionary generate_script_api(StringView p_path);
     Error resolve_signature(const lsp::TextDocumentPositionParams &p_doc_pos, lsp::SignatureHelp &r_signature);
 
     GDScriptWorkspace();

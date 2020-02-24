@@ -405,7 +405,7 @@ void AcceptDialog::_notification(int p_what) {
     }
 }
 
-void AcceptDialog::_builtin_text_entered(se_string_view p_text) {
+void AcceptDialog::_builtin_text_entered(StringView p_text) {
 
     _ok_pressed();
 }
@@ -436,7 +436,7 @@ void AcceptDialog::set_text(const StringName & p_text) {
     minimum_size_changed();
     _update_child_rects();
 }
-void AcceptDialog::set_text_utf8(se_string_view p_text) {
+void AcceptDialog::set_text_utf8(StringView p_text) {
 
     label->set_text(StringName(p_text));
     minimum_size_changed();
@@ -529,13 +529,13 @@ Size2 AcceptDialog::get_minimum_size() const {
     return minsize;
 }
 
-void AcceptDialog::_custom_action(se_string_view p_action) {
+void AcceptDialog::_custom_action(StringView p_action) {
 
     emit_signal("custom_action", p_action);
     custom_action(p_action);
 }
 
-Button *AcceptDialog::add_button(const StringName &p_text, bool p_right, se_string_view p_action) {
+Button *AcceptDialog::add_button(const StringName &p_text, bool p_right, StringView p_action) {
 
     Button *button = memnew(Button);
     button->set_text(p_text);

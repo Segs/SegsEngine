@@ -63,7 +63,7 @@ void Particles2DEditorPlugin::make_visible(bool p_visible) {
     }
 }
 
-void Particles2DEditorPlugin::_file_selected(se_string_view p_file) {
+void Particles2DEditorPlugin::_file_selected(StringView p_file) {
 
     source_emission_file = p_file;
     emission_mask->popup_centered_minsize();

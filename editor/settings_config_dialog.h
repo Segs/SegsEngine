@@ -85,12 +85,12 @@ class EditorSettingsDialog : public AcceptDialog {
     void _clear_shortcut_search_box();
     void _clear_search_box();
 
-    void _filter_shortcuts(se_string_view p_filter);
+    void _filter_shortcuts(StringView p_filter);
 
     void _update_shortcuts();
     void _shortcut_button_pressed(Object *p_item, int p_column, int p_idx);
 
-    static void _undo_redo_callback(void *p_self, se_string_view p_name);
+    static void _undo_redo_callback(void *p_self, StringView p_name);
 
     Label *restart_label;
     TextureRect *restart_icon;

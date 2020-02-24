@@ -580,7 +580,7 @@ public:
     bool get_simulate_physics();
     bool is_simulating_physics();
 
-    void set_bone_name(se_string_view p_name);
+    void set_bone_name(StringView p_name);
     const StringName &get_bone_name() const;
 
     void set_mass(real_t p_mass);

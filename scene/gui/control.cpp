@@ -304,7 +304,7 @@ void Control::_update_minimum_size() {
 
 bool Control::_get(const StringName &p_name, Variant &r_ret) const {
 
-    se_string_view sname = p_name;
+    StringView sname = p_name;
 
     if (!StringUtils::begins_with(sname,"custom")) {
         return false;
@@ -1323,7 +1323,7 @@ bool Control::has_constant(const StringName &p_name, const StringName &p_type) c
     return Theme::get_default()->has_constant(p_name, type);
 }
 
-void Control::set_tooltip_utf8(se_string_view p_tooltip)
+void Control::set_tooltip_utf8(StringView p_tooltip)
 {
     data.tooltip = StringName(p_tooltip);
     update_configuration_warning();
@@ -2292,7 +2292,7 @@ StringName Control::get_tooltip(const Point2 &p_pos) const {
 
     return data.tooltip;
 }
-Control *Control::make_custom_tooltip(se_string_view p_text) const {
+Control *Control::make_custom_tooltip(StringView p_text) const {
     if (get_script_instance()) {
         return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text);
     }
@@ -2726,7 +2726,7 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
 
     if (p_idx == 0) {
         Vector<StringName> sn;
-        se_string_view pf = p_function;
+        StringView pf = p_function;
         if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
         } else if (pf == "add_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_style"_sv) {

@@ -33,7 +33,7 @@
 #include "core/io/ip.h"
 #include "core/reference.h"
 #include "core/method_enum_caster.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class StreamPeer;
 class StreamPeerTCP;
@@ -204,8 +204,8 @@ public:
     void set_connection(const Ref<StreamPeer> &p_connection);
     Ref<StreamPeer> get_connection() const;
 
-    Error request_raw(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body);
-    Error request(Method p_method, se_string_view p_url, const Vector<String> &p_headers, const String &p_body = {});
+    Error request_raw(Method p_method, StringView p_url, const Vector<String> &p_headers, const Vector<uint8_t> &p_body);
+    Error request(Method p_method, StringView p_url, const Vector<String> &p_headers, const String &p_body = {});
 
     void close();
 

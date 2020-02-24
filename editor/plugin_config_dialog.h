@@ -54,14 +54,14 @@ class PluginConfigDialog : public ConfirmationDialog {
 	void _clear_fields();
 	void _on_confirmed();
 	void _on_cancelled();
-	void _on_required_text_changed(se_string_view p_text);
+	void _on_required_text_changed(StringView p_text);
 
 protected:
 	virtual void _notification(int p_what);
 	static void _bind_methods();
 
 public:
-	void config(se_string_view p_config_path);
+	void config(StringView p_config_path);
 
 	PluginConfigDialog();
 	~PluginConfigDialog() override;

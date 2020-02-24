@@ -150,7 +150,7 @@ void EditorAutoloadSettings::_autoload_edited() {
 
     if (column == 0) {
         String name = ti->get_text(0);
-        se_string_view old_name = StringUtils::get_slice(selected_autoload,"/", 1);
+        StringView old_name = StringUtils::get_slice(selected_autoload,"/", 1);
 
         if (name == old_name)
             return;
@@ -307,7 +307,7 @@ void EditorAutoloadSettings::_autoload_activated() {
     _autoload_open(ti->get_text(1));
 }
 
-void EditorAutoloadSettings::_autoload_open(se_string_view fpath) {
+void EditorAutoloadSettings::_autoload_open(StringView fpath) {
     if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
         EditorNode::get_singleton()->open_request(fpath);
     } else {
@@ -316,7 +316,7 @@ void EditorAutoloadSettings::_autoload_open(se_string_view fpath) {
     ProjectSettingsEditor::get_singleton()->hide();
 }
 
-void EditorAutoloadSettings::_autoload_file_callback(se_string_view p_path) {
+void EditorAutoloadSettings::_autoload_file_callback(StringView p_path) {
     using namespace PathUtils;
     using namespace StringUtils;
     // Convert the file name to PascalCase, which is the convention for classes in GDScript.
@@ -330,26 +330,26 @@ void EditorAutoloadSettings::_autoload_file_callback(se_string_view p_path) {
     add_autoload->set_disabled(false);
 }
 
-void EditorAutoloadSettings::_autoload_text_entered(se_string_view p_name) {
+void EditorAutoloadSettings::_autoload_text_entered(StringView p_name) {
 
     if (!autoload_add_path->get_line_edit()->get_text().empty() && _autoload_name_is_valid(StringName(p_name), NULL)) {
         _autoload_add();
     }
 }
 
-void EditorAutoloadSettings::_autoload_path_text_changed(se_string_view p_path) {
+void EditorAutoloadSettings::_autoload_path_text_changed(StringView p_path) {
 
     add_autoload->set_disabled(
             p_path.empty() || !_autoload_name_is_valid(StringName(autoload_add_name->get_text()), NULL));
 }
 
-void EditorAutoloadSettings::_autoload_text_changed(se_string_view p_name) {
+void EditorAutoloadSettings::_autoload_text_changed(StringView p_name) {
 
     add_autoload->set_disabled(
             autoload_add_path->get_line_edit()->get_text().empty() || !_autoload_name_is_valid(StringName(p_name), NULL));
 }
 
-Node *EditorAutoloadSettings::_create_autoload(se_string_view p_path) {
+Node *EditorAutoloadSettings::_create_autoload(StringView p_path) {
     RES res(ResourceLoader::load(p_path));
     ERR_FAIL_COND_V_MSG(not res, nullptr, String("Can't autoload: ") + p_path + ".");
     Node *n = nullptr;
@@ -382,7 +382,7 @@ void EditorAutoloadSettings::update_autoload() {
 
     updating_autoload = true;
 
-    Map<se_string_view, AutoLoadInfo> to_remove;
+    Map<StringView, AutoLoadInfo> to_remove;
     Vector<AutoLoadInfo *> to_add;
 
     for (AutoLoadInfo &info : autoload_cache) {
@@ -463,7 +463,7 @@ void EditorAutoloadSettings::update_autoload() {
     }
 
     // Remove deleted/changed autoloads
-    for (eastl::pair<const se_string_view,AutoLoadInfo> &E : to_remove) {
+    for (eastl::pair<const StringView,AutoLoadInfo> &E : to_remove) {
         AutoLoadInfo &info = E.second;
         if (info.is_singleton) {
             for (int i = 0; i < ScriptServer::get_language_count(); i++) {
@@ -676,7 +676,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
     undo_redo->commit_action();
 }
 
-bool EditorAutoloadSettings::autoload_add(const StringName &p_name, se_string_view p_path) {
+bool EditorAutoloadSettings::autoload_add(const StringName &p_name, StringView p_path) {
 
     String name(p_name);
 
@@ -686,7 +686,7 @@ bool EditorAutoloadSettings::autoload_add(const StringName &p_name, se_string_vi
         return false;
     }
 
-    const se_string_view path = p_path;
+    const StringView path = p_path;
     if (!FileAccess::exists(path)) {
         EditorNode::get_singleton()->show_warning(TTR("Invalid path.") + "\n" + TTR("File does not exist."));
         return false;

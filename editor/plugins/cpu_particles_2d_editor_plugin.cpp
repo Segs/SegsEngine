@@ -61,7 +61,7 @@ void CPUParticles2DEditorPlugin::make_visible(bool p_visible) {
     }
 }
 
-void CPUParticles2DEditorPlugin::_file_selected(se_string_view p_file) {
+void CPUParticles2DEditorPlugin::_file_selected(StringView p_file) {
 
     source_emission_file = p_file;
     emission_mask->popup_centered_minsize();

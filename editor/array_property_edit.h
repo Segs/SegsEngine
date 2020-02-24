@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/main/node.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class ArrayPropertyEdit : public RefCounted {
 
@@ -61,7 +61,7 @@ protected:
     void _get_property_list(Vector<PropertyInfo> *p_list) const;
 
 public:
-    void edit(Object *p_obj, const StringName &p_prop, se_string_view p_hint_string, VariantType p_deftype);
+    void edit(Object *p_obj, const StringName &p_prop, StringView p_hint_string, VariantType p_deftype);
 
     Node *get_node();
 

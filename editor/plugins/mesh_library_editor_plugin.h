@@ -55,7 +55,7 @@ class MeshLibraryEditor : public Control {
     };
 
     int option;
-    void _import_scene_cbk(se_string_view p_str);
+    void _import_scene_cbk(StringView p_str);
     void _menu_cbk(int p_option);
     void _menu_confirm();
 
@@ -81,7 +81,7 @@ class MeshLibraryEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    se_string_view get_name() const override { return "MeshLibrary"; }
+    StringView get_name() const override { return "MeshLibrary"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

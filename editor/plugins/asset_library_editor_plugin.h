@@ -28,10 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ASSET_LIBRARY_EDITOR_PLUGIN_H
-#define ASSET_LIBRARY_EDITOR_PLUGIN_H
+#pragma once
 
-#include "editor_plugin.h"
+#include "editor/editor_plugin.h"
+#include "editor/editor_plugin_settings.h"
+#include "editor/editor_asset_installer.h"
+
 #include "scene/gui/box_container.h"
 #include "scene/gui/check_box.h"
 #include "scene/gui/line_edit.h"
@@ -41,14 +43,10 @@
 #include "scene/gui/progress_bar.h"
 #include "scene/gui/separator.h"
 #include "scene/gui/tab_container.h"
-
-#include "editor_plugin_settings.h"
 #include "scene/gui/grid_container.h"
 #include "scene/gui/rich_text_label.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/gui/texture_button.h"
-
-#include "editor_asset_installer.h"
 #include "scene/main/http_request.h"
 
 class EditorAssetLibraryItem : public PanelContainer {
@@ -77,7 +75,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void configure(const StringName &p_title, int p_asset_id, se_string_view p_category, int p_category_id, se_string_view p_author, int p_author_id, se_string_view p_cost);
+    void configure(const StringName &p_title, int p_asset_id, StringView p_category, int p_category_id, StringView p_author, int p_author_id, StringView p_cost);
 
     EditorAssetLibraryItem();
 };
@@ -111,7 +109,7 @@ class EditorAssetLibraryItemDescription : public ConfirmationDialog {
     String sha256;
     Ref<Texture> icon;
 
-    void _link_click(se_string_view p_url);
+    void _link_click(StringView p_url);
     void _preview_click(int p_id);
 
 protected:
@@ -119,8 +117,8 @@ protected:
     static void _bind_methods();
 
 public:
-    void configure(const StringName &p_title, int p_asset_id, se_string_view p_category, int p_category_id, se_string_view p_author, int p_author_id, se_string_view p_cost, int p_version, se_string_view p_version_string, se_string_view p_description, se_string_view p_download_url, se_string_view p_browse_url, se_string_view p_sha256_hash);
-    void add_preview(int p_id, bool p_video, se_string_view p_url);
+    void configure(const StringName &p_title, int p_asset_id, StringView p_category, int p_category_id, StringView p_author, int p_author_id, StringView p_cost, int p_version, StringView p_version_string, StringView p_description, StringView p_download_url, StringView p_browse_url, StringView p_sha256_hash);
+    void add_preview(int p_id, bool p_video, StringView p_url);
 
     StringName get_title() { return title; }
     Ref<Texture> get_preview_icon() { return icon; }
@@ -167,7 +165,7 @@ protected:
 public:
     void set_external_install(bool p_enable) { external_install = p_enable; }
     int get_asset_id() { return asset_id; }
-    void configure(const StringName &p_title, int p_asset_id, const Ref<Texture> &p_preview, se_string_view p_download_url, se_string_view p_sha256_hash);
+    void configure(const StringName &p_title, int p_asset_id, const Ref<Texture> &p_preview, StringView p_download_url, StringView p_sha256_hash);
     EditorAssetLibraryItemDownload();
 };
 
@@ -180,7 +178,7 @@ class EditorAssetLibrary : public PanelContainer {
     EditorAssetInstaller *asset_installer;
 
     void _asset_open();
-    void _asset_file_selected(se_string_view p_file);
+    void _asset_file_selected(StringView p_file);
 
     PanelContainer *library_scroll_bg;
     ScrollContainer *library_scroll;
@@ -286,15 +284,15 @@ class EditorAssetLibrary : public PanelContainer {
 
     void _search(int p_page = 0);
     void _rerun_search(int p_ignore);
-    void _search_text_entered(se_string_view p_text = se_string_view());
-    void _api_request(se_string_view p_request, RequestType p_request_type, se_string_view p_arguments = {});
+    void _search_text_entered(StringView p_text = StringView());
+    void _api_request(StringView p_request, RequestType p_request_type, StringView p_arguments = {});
     void _http_request_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
     void _http_download_completed(int p_status, int p_code, const PoolStringArray &headers, const PoolByteArray &p_data);
 
     void _repository_changed(int p_repository_id);
     void _support_toggled(int p_support);
 
-    void _install_external_asset(se_string_view p_zip_path, se_string_view p_title);
+    void _install_external_asset(StringView p_zip_path, StringView p_title);
 
     friend class EditorAssetLibraryItemDescription;
     friend class EditorAssetLibraryItem;
@@ -317,7 +315,7 @@ class AssetLibraryEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    se_string_view get_name() const override { return "AssetLib"; }
+    StringView get_name() const override { return "AssetLib"; }
     bool has_main_screen() const override { return true; }
     void edit(Object *p_object) override {}
     bool handles(Object *p_object) const override { return false; }
@@ -329,5 +327,3 @@ public:
     AssetLibraryEditorPlugin(EditorNode *p_node);
     ~AssetLibraryEditorPlugin() override;
 };
-
-#endif // EDITORASSETLIBRARY_H

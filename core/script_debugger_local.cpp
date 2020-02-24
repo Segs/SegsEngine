@@ -99,14 +99,14 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
                 }
 
             } else {
-                se_string_view key_value = StringUtils::get_slice(line,' ', 1);
+                StringView key_value = StringUtils::get_slice(line,' ', 1);
                 int value_pos = StringUtils::find(key_value,"=");
 
                 if (value_pos < 0) {
                     print_line("Error: Invalid set format. Use: set key=value");
                 } else {
 
-                    se_string_view key = StringUtils::left(key_value,value_pos);
+                    StringView key = StringUtils::left(key_value,value_pos);
 
                     if (!options.contains_as(key)) {
                         print_line("Error: Unknown option " + String(key));
@@ -147,7 +147,7 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
                 print_line("Usage: print <expre>");
             } else {
 
-                se_string_view expr = StringUtils::get_slice(line,' ', 2);
+                StringView expr = StringUtils::get_slice(line,' ', 2);
                 String res = p_script->debug_parse_stack_level_expression(current_frame, expr);
                 print_line(res);
             }
@@ -259,11 +259,11 @@ void ScriptDebuggerLocal::debug(ScriptLanguage *p_script, bool p_can_continue, b
     }
 }
 
-void ScriptDebuggerLocal::print_variables(const Vector<String> &names, const Vector<Variant> &values, se_string_view variable_prefix) {
+void ScriptDebuggerLocal::print_variables(const Vector<String> &names, const Vector<Variant> &values, StringView variable_prefix) {
 
     //ERR_FAIL_COND(names.size()!=values.size());
 
-    Vector<se_string_view> value_lines;
+    Vector<StringView> value_lines;
 
     for(size_t idx=0,fin=values.size(); idx<fin; ++idx) {
         const String &E(names[idx]);
@@ -283,7 +283,7 @@ void ScriptDebuggerLocal::print_variables(const Vector<String> &names, const Vec
 
 Pair<String, int> ScriptDebuggerLocal::to_breakpoint(const String &p_line) {
 
-    se_string_view breakpoint_part = StringUtils::get_slice(p_line,' ', 1);
+    StringView breakpoint_part = StringUtils::get_slice(p_line,' ', 1);
     Pair<String, int> breakpoint;
 
     auto last_colon = StringUtils::rfind(breakpoint_part,":");
@@ -412,7 +412,7 @@ void ScriptDebuggerLocal::send_message(const String &p_message, const Array &p_a
     // print_line("MESSAGE: '" + p_message + "' - " + String(Variant(p_args)));
 }
 
-void ScriptDebuggerLocal::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerLocal::send_error(StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
 
     print_line(String("ERROR: '") + (p_descr.empty() ? p_err : p_descr) + "'");
 }

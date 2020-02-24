@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/variant.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/ustring.h"
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
@@ -90,7 +90,7 @@ _FORCE_INLINE_ String mono_string_to_godot(MonoString *p_mono_string) {
     return mono_string_to_godot_not_null(p_mono_string);
 }
 
-_FORCE_INLINE_ MonoString *mono_from_utf8_string(se_string_view p_string) {
+_FORCE_INLINE_ MonoString *mono_from_utf8_string(StringView p_string) {
     return mono_string_new_len(mono_domain_get(), p_string.data(),p_string.size());
 }
 
@@ -101,7 +101,7 @@ _FORCE_INLINE_ MonoString *mono_from_utf16_string(const UIString &p_string) {
 _FORCE_INLINE_ MonoString *mono_string_from_godot(const UIString &p_string) {
     return mono_from_utf16_string(p_string);
 }
-_FORCE_INLINE_ MonoString *mono_string_from_godot(se_string_view p_string) {
+_FORCE_INLINE_ MonoString *mono_string_from_godot(StringView p_string) {
     return mono_from_utf8_string(p_string);
 }
 

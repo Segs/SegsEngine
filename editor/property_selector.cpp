@@ -38,7 +38,7 @@
 
 IMPL_GDCLASS(PropertySelector)
 
-void PropertySelector::_text_changed(se_string_view p_newtext) {
+void PropertySelector::_text_changed(StringView p_newtext) {
 
     _update_search();
 }
@@ -252,7 +252,7 @@ void PropertySelector::_update_search() {
                 continue;
             }
 
-            se_string_view name = StringUtils::get_slice(E.name,":", 0);
+            StringView name = StringUtils::get_slice(E.name,":", 0);
             if (!script_methods && StringUtils::begins_with(name,"_") && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue;
 

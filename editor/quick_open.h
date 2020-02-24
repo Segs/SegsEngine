@@ -51,10 +51,10 @@ class EditorQuickOpen : public ConfirmationDialog {
     void _sbox_input(const Ref<InputEvent> &p_ie);
     void _parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<String, Ref<Texture> > > &list);
     Vector<Pair<String, Ref<Texture> > > _sort_fs(Vector<Pair<String, Ref<Texture> > > &list);
-    float _path_cmp(se_string_view search, se_string_view path) const;
+    float _path_cmp(StringView search, StringView path) const;
 
     void _confirmed();
-    void _text_changed(se_string_view p_newtext);
+    void _text_changed(StringView p_newtext);
 
 protected:
     void _notification(int p_what);

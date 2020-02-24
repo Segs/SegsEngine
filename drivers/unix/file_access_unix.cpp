@@ -70,7 +70,7 @@ void FileAccessUnix::check_errors() const {
     }
 }
 
-Error FileAccessUnix::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessUnix::_open(StringView p_path, int p_mode_flags) {
 
     if (f)
         fclose(f);
@@ -275,7 +275,7 @@ void FileAccessUnix::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL_COND(!written_size_matched);
 }
 
-bool FileAccessUnix::file_exists(se_string_view p_path) {
+bool FileAccessUnix::file_exists(StringView p_path) {
 
     int err;
     struct stat st;
@@ -305,7 +305,7 @@ bool FileAccessUnix::file_exists(se_string_view p_path) {
     }
 }
 
-uint64_t FileAccessUnix::_get_modified_time(se_string_view p_file) {
+uint64_t FileAccessUnix::_get_modified_time(StringView p_file) {
 
     String file(fix_path(p_file));
     struct stat flags;
@@ -318,7 +318,7 @@ uint64_t FileAccessUnix::_get_modified_time(se_string_view p_file) {
     }
 }
 
-uint32_t FileAccessUnix::_get_unix_permissions(se_string_view p_file) {
+uint32_t FileAccessUnix::_get_unix_permissions(StringView p_file) {
 
     String file(fix_path(p_file));
     struct stat flags;
@@ -331,7 +331,7 @@ uint32_t FileAccessUnix::_get_unix_permissions(se_string_view p_file) {
     }
 }
 
-Error FileAccessUnix::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+Error FileAccessUnix::_set_unix_permissions(StringView p_file, uint32_t p_permissions) {
 
     String file(fix_path(p_file));
 

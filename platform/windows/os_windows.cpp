@@ -1503,7 +1503,7 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     return OK;
 }
 
-void OS_Windows::set_clipboard(se_string_view p_text) {
+void OS_Windows::set_clipboard(StringView p_text) {
 
     // Convert LF line endings to CRLF in clipboard content
     // Otherwise, line endings won't be visible when pasted in other software
@@ -1625,7 +1625,7 @@ void OS_Windows::finalize_core() {
     NetSocketPosix::cleanup();
 }
 
-void OS_Windows::alert(se_string_view p_alert, se_string_view p_title) {
+void OS_Windows::alert(StringView p_alert, StringView p_title) {
 
     if (!is_no_window_mode_enabled())
         MessageBoxW(nullptr, qUtf16Printable(StringUtils::from_utf8(p_alert)), qUtf16Printable(StringUtils::from_utf8(p_title)),
@@ -1717,7 +1717,7 @@ int OS_Windows::get_mouse_button_state() const {
     return last_button_state;
 }
 
-void OS_Windows::set_window_title(se_string_view p_title) {
+void OS_Windows::set_window_title(StringView p_title) {
 
     SetWindowTextW(hWnd, qUtf16Printable(StringUtils::from_utf8(p_title)));
 }
@@ -2187,7 +2187,7 @@ void OS_Windows::_update_window_style(bool p_repaint, bool p_maximized) {
     }
 }
 
-Error OS_Windows::open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path) {
+Error OS_Windows::open_dynamic_library(StringView p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
     String path(p_path);
 
@@ -2228,7 +2228,7 @@ Error OS_Windows::close_dynamic_library(void *p_library_handle) {
     return OK;
 }
 
-Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional) {
+Error OS_Windows::get_dynamic_library_symbol_handle(void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional) {
     p_symbol_handle = (void *)GetProcAddress((HMODULE)p_library_handle, String(p_name).c_str());
     if (!p_symbol_handle) {
         if (!p_optional) {
@@ -2624,7 +2624,7 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
     DeleteDC(hMainDC);
 }
 
-Error OS_Windows::execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Windows::execute(StringView p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
     if (p_blocking && r_pipe) {
 
@@ -2718,7 +2718,7 @@ int OS_Windows::get_process_id() const {
     return _getpid();
 }
 
-Error OS_Windows::set_cwd(se_string_view p_cwd) {
+Error OS_Windows::set_cwd(StringView p_cwd) {
 
     if (_wchdir(qUtf16Printable(StringUtils::from_utf8(p_cwd))) != 0)
         return ERR_CANT_OPEN;
@@ -2878,7 +2878,7 @@ void OS_Windows::set_icon(const Ref<Image> &p_icon) {
     SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hicon);
 }
 
-bool OS_Windows::has_environment(se_string_view p_var) const {
+bool OS_Windows::has_environment(StringView p_var) const {
 
 #ifdef MINGW_ENABLED
     return _wgetenv(qUtf16Printable(StringUtils::from_utf8(p_var))) != nullptr;
@@ -2892,7 +2892,7 @@ bool OS_Windows::has_environment(se_string_view p_var) const {
 #endif
 };
 
-String OS_Windows::get_environment(se_string_view p_var) const {
+String OS_Windows::get_environment(StringView p_var) const {
 
     wchar_t wval[0x7fff]; // MSDN says 32767 char is the maximum
     int wlen = GetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), wval, 0x7fff);
@@ -2902,7 +2902,7 @@ String OS_Windows::get_environment(se_string_view p_var) const {
     return "";
 }
 
-bool OS_Windows::set_environment(se_string_view p_var, se_string_view p_value) const {
+bool OS_Windows::set_environment(StringView p_var, StringView p_value) const {
 
     return (bool)SetEnvironmentVariableW(qUtf16Printable(StringUtils::from_utf8(p_var)), qUtf16Printable(StringUtils::from_utf8(p_value)));
 }
@@ -2927,7 +2927,7 @@ void OS_Windows::move_window_to_foreground() {
     SetForegroundWindow(hWnd);
 }
 
-Error OS_Windows::shell_open(se_string_view p_uri) {
+Error OS_Windows::shell_open(StringView p_uri) {
 
     ShellExecuteW(nullptr, nullptr, qUtf16Printable(StringUtils::from_utf8(p_uri)), nullptr, nullptr, SW_SHOWNORMAL);
     return OK;
@@ -3095,7 +3095,7 @@ MainLoop *OS_Windows::get_main_loop() const {
 // Get properly capitalized engine name for system paths
 String OS_Windows::get_godot_dir_name() const {
 
-    return StringUtils::capitalize(se_string_view(VERSION_SHORT_NAME));
+    return StringUtils::capitalize(StringView(VERSION_SHORT_NAME));
 }
 
 String OS_Windows::get_user_data_dir() const {
@@ -3167,9 +3167,9 @@ bool OS_Windows::is_vsync_enabled() const {
     return true;
 }*/
 
-bool OS_Windows::_check_internal_feature_support(se_string_view p_feature) {
+bool OS_Windows::_check_internal_feature_support(StringView p_feature) {
 
-    return se_string_view("pc") == p_feature;
+    return StringView("pc") == p_feature;
 }
 
 void OS_Windows::disable_crash_handler() {
@@ -3187,7 +3187,7 @@ void OS_Windows::process_and_drop_events() {
     drop_events = false;
 }
 
-Error OS_Windows::move_to_trash(se_string_view p_path) {
+Error OS_Windows::move_to_trash(StringView p_path) {
     SHFILEOPSTRUCTW sf;
     WCHAR *from = new WCHAR[p_path.length() + 2];
     wcscpy_s(from, p_path.length() + 1, qUtf16Printable(StringUtils::from_utf8(p_path)));

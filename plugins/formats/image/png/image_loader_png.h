@@ -50,7 +50,7 @@ public:
     }
     Error save_image(const ImageData &p_image, Vector<uint8_t> &tgt, SaveParams params) override;
     Error save_image(const ImageData &p_image, FileAccess *p_fileaccess, SaveParams params) override;
-    bool can_save(se_string_view extension) override;
+    bool can_save(StringView extension) override;
 
 
     ImageLoaderPNG() = default;

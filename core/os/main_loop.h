@@ -66,7 +66,7 @@ public:
 	};
 
 	virtual void input_event(const Ref<InputEvent> &p_event);
-	virtual void input_text(se_string_view p_text);
+	virtual void input_text(StringView p_text);
 
 	virtual void init();
 	virtual bool iteration(float p_time);

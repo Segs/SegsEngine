@@ -112,7 +112,7 @@ private:
     void _stage_selected();
     void _stage_all();
     void _view_file_diff();
-    void _display_file_diff(se_string_view p_file_path);
+    void _display_file_diff(StringView p_file_path);
     void _refresh_file_diff();
     void _clear_file_diff();
     void _update_stage_status();

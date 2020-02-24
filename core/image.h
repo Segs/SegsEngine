@@ -72,8 +72,8 @@ class GODOT_EXPORT Image : public Resource, public ImageData {
     GDCLASS(Image, Resource)
 
 public:
-    static Error save_png_func(se_string_view p_path, const Ref<Image> &p_img);
-    static Error save_exr_func(se_string_view p_path, const Ref<Image> &p_img, bool p_grayscale);
+    static Error save_png_func(StringView p_path, const Ref<Image> &p_img);
+    static Error save_exr_func(StringView p_path, const Ref<Image> &p_img, bool p_grayscale);
 
     using Format = ImageData::Format;
 
@@ -209,9 +209,9 @@ public:
 
     const PoolVector<uint8_t> &get_data() const { return data; }
 
-    Error load(se_string_view p_path);
-    Error save_png(se_string_view p_path) const;
-    Error save_exr(se_string_view p_path, bool p_grayscale) const;
+    Error load(StringView p_path);
+    Error save_png(StringView p_path) const;
+    Error save_exr(StringView p_path, bool p_grayscale) const;
 
     /**
      * create an empty image
@@ -266,7 +266,7 @@ public:
     Rect2 get_used_rect() const;
     Ref<Image> get_rect(const Rect2 &p_area) const;
 
-    static se_string_view get_format_name(Format p_format);
+    static StringView get_format_name(Format p_format);
 
     Error load_png_from_buffer(const PoolVector<uint8_t> &p_array);
     Error load_jpg_from_buffer(const PoolVector<uint8_t> &p_array);

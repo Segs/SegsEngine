@@ -42,7 +42,7 @@ EditorRun::Status EditorRun::get_status() const {
 
     return status;
 }
-Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
+Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
 
     Vector<String> args;
 

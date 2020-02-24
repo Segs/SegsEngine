@@ -30,7 +30,7 @@
 
 #include "face3.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/math/geometry.h"
 

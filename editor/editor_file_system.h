@@ -37,7 +37,7 @@
 #include "core/set.h"
 #include "core/hash_map.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/translation_helpers.h"
 #include "scene/main/node.h"
 class FileAccess;
@@ -91,7 +91,7 @@ public:
     int get_file_count() const;
     String get_file(int p_idx) const;
     String get_file_path(int p_idx) const;
-    String get_named_file_path(se_string_view file) const;
+    String get_named_file_path(StringView file) const;
     StringName get_file_type(int p_idx) const;
     const Vector<String> &get_file_deps(int p_idx) const;
     bool get_file_import_is_valid(int p_idx) const;
@@ -101,8 +101,8 @@ public:
 
     EditorFileSystemDirectory *get_parent();
 
-    int find_file_index(se_string_view p_file) const;
-    int find_dir_index(se_string_view p_dir) const;
+    int find_file_index(StringView p_file) const;
+    int find_dir_index(StringView p_dir) const;
 
     EditorFileSystemDirectory();
     ~EditorFileSystemDirectory() override;
@@ -194,11 +194,11 @@ class EditorFileSystem : public Node {
     void _save_filesystem_cache();
     void _save_filesystem_cache(EditorFileSystemDirectory *p_dir, FileAccess *p_file);
 
-    bool _find_file(se_string_view p_file, EditorFileSystemDirectory **r_d, int &r_file_pos) const;
+    bool _find_file(StringView p_file, EditorFileSystemDirectory **r_d, int &r_file_pos) const;
 
     void _scan_fs_changes(EditorFileSystemDirectory *p_dir, const ScanProgress &p_progress);
 
-    void _delete_internal_files(se_string_view p_file);
+    void _delete_internal_files(StringView p_file);
 
     Set<String> valid_extensions;
     Set<String> import_extensions;
@@ -219,13 +219,13 @@ class EditorFileSystem : public Node {
     void _update_extensions();
 
     void _reimport_file(const String &p_file);
-    Error _reimport_group(se_string_view p_group_file, const Vector<String> &p_files);
+    Error _reimport_group(StringView p_group_file, const Vector<String> &p_files);
 
-    bool _test_for_reimport(se_string_view p_path, bool p_only_imported_files);
+    bool _test_for_reimport(StringView p_path, bool p_only_imported_files);
 
     bool reimport_on_missing_imported_files;
 
-    Vector<String> _get_dependencies(se_string_view p_path);
+    Vector<String> _get_dependencies(StringView p_path);
 
     struct ImportFile {
         String path;
@@ -239,15 +239,15 @@ class EditorFileSystem : public Node {
     volatile bool update_script_classes_queued;
     void _queue_update_script_classes();
 
-    StringName _get_global_script_class(se_string_view p_type, se_string_view p_path, StringName *r_extends, String *r_icon_path) const;
+    StringName _get_global_script_class(StringView p_type, StringView p_path, StringName *r_extends, String *r_icon_path) const;
 
-    static Error _resource_import(se_string_view p_path);
+    static Error _resource_import(StringView p_path);
 
     bool using_fat32_or_exfat; // Workaround for projects in FAT32 or exFAT filesystem (pendrives, most of the time)
 
     void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
 
-    void _move_group_files(EditorFileSystemDirectory *efd, se_string_view p_group_file, se_string_view p_new_location);
+    void _move_group_files(EditorFileSystemDirectory *efd, StringView p_group_file, StringView p_new_location);
 
     Set<String> group_file_cache;
 
@@ -268,18 +268,18 @@ public:
     void scan();
     void scan_changes();
     void get_changed_sources(List<UIString> *r_changed);
-    void update_file(se_string_view p_file);
+    void update_file(StringView p_file);
 
-    EditorFileSystemDirectory *get_filesystem_path(se_string_view p_path);
-    String get_file_type(se_string_view p_file) const;
-    EditorFileSystemDirectory *find_file(se_string_view p_file, int *r_index) const;
+    EditorFileSystemDirectory *get_filesystem_path(StringView p_path);
+    String get_file_type(StringView p_file) const;
+    EditorFileSystemDirectory *find_file(StringView p_file, int *r_index) const;
 
     void reimport_files(const Vector<String> &p_files);
 
     void update_script_classes();
 
-    bool is_group_file(se_string_view p_path) const;
-    void move_group_file(se_string_view p_path, se_string_view p_new_path);
+    bool is_group_file(StringView p_path) const;
+    void move_group_file(StringView p_path, StringView p_new_path);
 
     EditorFileSystem();
     ~EditorFileSystem() override;

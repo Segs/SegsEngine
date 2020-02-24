@@ -54,10 +54,10 @@ public:
     bool get_option_visibility(const StringName & p_option, const HashMap<StringName, Variant> &p_options) const override;
     StringName get_option_group_file() const override;
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options,
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
-    Error import_group_file(se_string_view p_group_file,
+    Error import_group_file(StringView p_group_file,
             const Map<String, HashMap<StringName, Variant>> &p_source_file_options,
             const Map<String, String> &p_base_paths) override;
 
@@ -68,6 +68,6 @@ public:
 public:
     float get_priority() const override {return 10.0f;}
     int get_import_order() const override {return 0;}
-    bool are_import_settings_valid(se_string_view /*p_path*/) const override { return true; }
+    bool are_import_settings_valid(StringView /*p_path*/) const override { return true; }
     String get_import_settings_string() const override { return String(); }
 };

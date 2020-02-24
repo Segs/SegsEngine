@@ -55,11 +55,11 @@ class EditorExportPlatformOSX final : public EditorExportPlatform {
 
     Ref<ImageTexture> logo;
 
-    void _fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, se_string_view p_binary);
+    void _fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, StringView p_binary);
     void _make_icon(const Ref<Image> &p_icon, Vector<uint8_t> &p_data);
 
-    Error _code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path);
-    Error _create_dmg(se_string_view p_dmg_path, se_string_view p_pkg_name, se_string_view p_app_path_name);
+    Error _code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path);
+    Error _create_dmg(StringView p_dmg_path, StringView p_pkg_name, StringView p_app_path_name);
 
 #ifdef OSX_ENABLED
     bool use_codesign() const { return true; }
@@ -86,7 +86,7 @@ public:
         list.push_back("zip");
         return list;
     }
-    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
+    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0) override;
 
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
 
@@ -323,11 +323,11 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
     p_data = data;
 }
 
-void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, se_string_view p_binary) {
+void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset, Vector<uint8_t> &plist, StringView p_binary) {
 
     String strnew;
     String str((const char *)plist.data(), plist.size());
-    Vector<se_string_view> lines = StringUtils::split(str,'\n');
+    Vector<StringView> lines = StringUtils::split(str,'\n');
     const std::pair<const char*,String> replacements[] = {
         {"$binary", String(p_binary)},
         {"$name", String(p_binary)},
@@ -363,7 +363,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
     - and then wrap it up in a DMG
 **/
 
-Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
+Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
     List<String> args;
 
     if (p_preset->get("codesign/timestamp")) {
@@ -381,7 +381,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
     }
     PoolVector<String> user_args = p_preset->get("codesign/custom_options").as<PoolVector<String>>();
     for (int i = 0; i < user_args.size(); i++) {
-        se_string_view user_arg = StringUtils::strip_edges(user_args[i]);
+        StringView user_arg = StringUtils::strip_edges(user_args[i]);
         if (!user_arg.empty()) {
             args.emplace_back(user_arg);
         }
@@ -408,7 +408,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
     return OK;
 }
 
-Error EditorExportPlatformOSX::_create_dmg(se_string_view p_dmg_path, se_string_view p_pkg_name, se_string_view p_app_path_name) {
+Error EditorExportPlatformOSX::_create_dmg(StringView p_dmg_path, StringView p_pkg_name, StringView p_app_path_name) {
     List<String> args;
 
     if (FileAccess::exists(p_dmg_path)) {
@@ -441,7 +441,7 @@ Error EditorExportPlatformOSX::_create_dmg(se_string_view p_dmg_path, se_string_
     return OK;
 }
 
-Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
+Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
     ExportNotifier notifier(*this, p_preset, p_debug, p_path, p_flags);
 
     String src_pkg_name;
@@ -584,7 +584,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 iconpath = String(ProjectSettings::get_singleton()->get("application/config/icon"));
 
             if (!iconpath.empty()) {
-                if (PathUtils::get_extension(iconpath) == se_string_view("icns")) {
+                if (PathUtils::get_extension(iconpath) == StringView("icns")) {
                     FileAccess *icon = FileAccess::open(iconpath, FileAccess::READ);
                     if (icon) {
                         data.resize(icon->get_len());

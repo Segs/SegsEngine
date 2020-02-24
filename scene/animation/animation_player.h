@@ -203,8 +203,8 @@ private:
         StringName from;
         StringName to;
         bool operator<(const BlendKey &bk) const {
-            return from == bk.from ? se_string_view(to) < se_string_view(bk.to) :
-                                     se_string_view(from) < se_string_view(bk.from);
+            return from == bk.from ? StringView(to) < StringView(bk.to) :
+                                     StringView(from) < StringView(bk.from);
         }
     };
 
@@ -328,7 +328,7 @@ public:
     float get_speed_scale() const;
     float get_playing_speed() const;
 
-    void set_autoplay(se_string_view p_name);
+    void set_autoplay(StringView p_name);
     StringName get_autoplay() const;
 
     void set_animation_process_mode(AnimationProcessMode p_mode);

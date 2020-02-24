@@ -77,8 +77,8 @@ public:
     int get_available_packet_count() const override;
     int get_max_packet_size() const override;
     void set_broadcast_enabled(bool p_enabled);
-    Error join_multicast_group(IP_Address p_multi_address, se_string_view p_if_name);
-    Error leave_multicast_group(IP_Address p_multi_address, se_string_view p_if_name);
+    Error join_multicast_group(IP_Address p_multi_address, StringView p_if_name);
+    Error leave_multicast_group(IP_Address p_multi_address, StringView p_if_name);
 
     PacketPeerUDP();
     ~PacketPeerUDP() override;

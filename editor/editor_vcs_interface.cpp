@@ -65,7 +65,7 @@ void EditorVCSInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_vcs_name"), &EditorVCSInterface::get_vcs_name);
 }
 
-bool EditorVCSInterface::_initialize(se_string_view p_project_root_path) {
+bool EditorVCSInterface::_initialize(StringView p_project_root_path) {
 
     WARN_PRINT("Selected VCS addon does not implement an initialization function. This warning will be suppressed.");
     return true;
@@ -81,16 +81,16 @@ Dictionary EditorVCSInterface::_get_modified_files_data() {
     return Dictionary();
 }
 
-void EditorVCSInterface::_stage_file(se_string_view p_file_path) {
+void EditorVCSInterface::_stage_file(StringView p_file_path) {
 }
 
-void EditorVCSInterface::_unstage_file(se_string_view p_file_path) {
+void EditorVCSInterface::_unstage_file(StringView p_file_path) {
 }
 
-void EditorVCSInterface::_commit(se_string_view p_msg) {
+void EditorVCSInterface::_commit(StringView p_msg) {
 }
 
-Array EditorVCSInterface::_get_file_diff(se_string_view p_file_path) {
+Array EditorVCSInterface::_get_file_diff(StringView p_file_path) {
 
     return Array();
 }
@@ -110,7 +110,7 @@ String EditorVCSInterface::_get_vcs_name() {
     return String();
 }
 
-bool EditorVCSInterface::initialize(se_string_view p_project_root_path) {
+bool EditorVCSInterface::initialize(StringView p_project_root_path) {
 
     is_initialized = call_va("_initialize", p_project_root_path);
     return is_initialized;
@@ -126,7 +126,7 @@ Dictionary EditorVCSInterface::get_modified_files_data() {
     return call_va("_get_modified_files_data");
 }
 
-void EditorVCSInterface::stage_file(se_string_view p_file_path) {
+void EditorVCSInterface::stage_file(StringView p_file_path) {
 
     if (is_addon_ready()) {
 
@@ -134,7 +134,7 @@ void EditorVCSInterface::stage_file(se_string_view p_file_path) {
     }
 }
 
-void EditorVCSInterface::unstage_file(se_string_view p_file_path) {
+void EditorVCSInterface::unstage_file(StringView p_file_path) {
 
     if (is_addon_ready()) {
 
@@ -147,7 +147,7 @@ bool EditorVCSInterface::is_addon_ready() {
     return is_initialized;
 }
 
-void EditorVCSInterface::commit(se_string_view p_msg) {
+void EditorVCSInterface::commit(StringView p_msg) {
 
     if (is_addon_ready()) {
 
@@ -155,7 +155,7 @@ void EditorVCSInterface::commit(se_string_view p_msg) {
     }
 }
 
-Array EditorVCSInterface::get_file_diff(se_string_view p_file_path) {
+Array EditorVCSInterface::get_file_diff(StringView p_file_path) {
 
     if (is_addon_ready()) {
 

@@ -39,7 +39,7 @@
 
 IMPL_GDCLASS(EditorDirDialog)
 
-void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p_dir, se_string_view p_select_path) {
+void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p_dir, StringView p_select_path) {
 
     updating = true;
 
@@ -69,7 +69,7 @@ void EditorDirDialog::_update_dir(TreeItem *p_item, EditorFileSystemDirectory *p
     }
 }
 
-void EditorDirDialog::reload(se_string_view p_path) {
+void EditorDirDialog::reload(StringView p_path) {
 
     if (!is_visible_in_tree()) {
         must_reload = true;

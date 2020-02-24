@@ -575,7 +575,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
     return OK; //never reach anyway
 }
 
-void ResourceInteractiveLoaderBinary::set_local_path(se_string_view p_local_path) {
+void ResourceInteractiveLoaderBinary::set_local_path(StringView p_local_path) {
 
     res_path = p_local_path;
 }
@@ -732,7 +732,7 @@ void ResourceInteractiveLoaderBinary::set_translation_remapped(bool p_remapped) 
     translation_remapped = p_remapped;
 }
 
-static void save_ustring(FileAccess *f, se_string_view p_string) {
+static void save_ustring(FileAccess *f, StringView p_string) {
 
     f->store_32(p_string.length() + 1);
     f->store_buffer((const uint8_t *)p_string.data(), p_string.length());
@@ -932,7 +932,7 @@ ResourceInteractiveLoaderBinary::~ResourceInteractiveLoaderBinary() {
         memdelete(f);
 }
 
-Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -943,7 +943,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(se_s
     ERR_FAIL_COND_V_MSG(err != OK, Ref<ResourceInteractiveLoader>(), "Cannot open file '" + String(p_path) + "'.");
 
     Ref<ResourceInteractiveLoaderBinary> ria(make_ref_counted<ResourceInteractiveLoaderBinary>());
-    se_string_view path = !p_original_path.empty() ? p_original_path : p_path;
+    StringView path = !p_original_path.empty() ? p_original_path : p_path;
     ria->local_path = ProjectSettings::get_singleton()->localize_path(path);
     ria->res_path = ria->local_path;
     //ria->set_local_path( Globals::get_singleton()->localize_path(p_path) );
@@ -952,7 +952,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(se_s
     return ria;
 }
 
-void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const {
+void ResourceFormatLoaderBinary::get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const {
 
     if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
@@ -982,12 +982,12 @@ void ResourceFormatLoaderBinary::get_recognized_extensions(Vector<String> &p_ext
     }
 }
 
-bool ResourceFormatLoaderBinary::handles_type(se_string_view /*p_type*/) const {
+bool ResourceFormatLoaderBinary::handles_type(StringView /*p_type*/) const {
 
     return true; //handles all
 }
 
-void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderBinary::get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     ERR_FAIL_COND_MSG(!f, "Cannot open file '" + String(p_path) + "'.");
@@ -999,7 +999,7 @@ void ResourceFormatLoaderBinary::get_dependencies(se_string_view p_path, Vector<
     ria->get_dependencies(f, p_dependencies, p_add_types);
 }
 
-Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, const HashMap<String, String> &p_map) {
+Error ResourceFormatLoaderBinary::rename_dependencies(StringView _path, const HashMap<String, String> &p_map) {
 
     //Error error=OK;
     String p_path(_path);
@@ -1206,7 +1206,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(se_string_view _path, cons
     return OK;
 }
 
-String ResourceFormatLoaderBinary::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderBinary::get_resource_type(StringView p_path) const {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
@@ -1676,7 +1676,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
     }
 }
 
-void ResourceFormatSaverBinaryInstance::save_unicode_string(FileAccess *f, se_string_view p_string, bool p_bit_on_len) {
+void ResourceFormatSaverBinaryInstance::save_unicode_string(FileAccess *f, StringView p_string, bool p_bit_on_len) {
 
     if (p_bit_on_len) {
         f->store_32((p_string.length() + 1) | 0x80000000);
@@ -1699,7 +1699,7 @@ int ResourceFormatSaverBinaryInstance::get_string_index(const StringName &p_stri
     return strings.size() - 1;
 }
 
-Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverBinaryInstance::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     Error err;
     if (p_flags & ResourceSaver::FLAG_COMPRESS) {
@@ -1908,7 +1908,7 @@ Error ResourceFormatSaverBinaryInstance::save(se_string_view p_path, const RES &
     return OK;
 }
 
-Error ResourceFormatSaverBinary::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverBinary::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
     ResourceFormatSaverBinaryInstance saver;

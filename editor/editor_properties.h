@@ -61,8 +61,8 @@ class EditorPropertyText : public EditorProperty {
     LineEdit *text;
 
     bool updating;
-    void _text_changed(se_string_view p_string);
-    void _text_entered(se_string_view p_string);
+    void _text_changed(StringView p_string);
+    void _text_entered(StringView p_string);
 
 protected:
     static void _bind_methods();
@@ -106,7 +106,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const Vector<StringView> &p_options);
     void update_property() override;
     EditorPropertyTextEnum();
 };
@@ -122,7 +122,7 @@ class EditorPropertyPath : public EditorProperty {
     LineEdit *path;
     Button *path_edit;
 
-    void _path_selected(se_string_view p_path);
+    void _path_selected(StringView p_path);
     void _path_pressed();
     void _path_focus_exited();
 
@@ -131,7 +131,7 @@ protected:
     void _notification(int p_what);
 
 public:
-    void setup(const Vector<se_string_view> &p_extensions, bool p_folder, bool p_global);
+    void setup(const Vector<StringView> &p_extensions, bool p_folder, bool p_global);
     void set_save_mode();
     void update_property() override;
     EditorPropertyPath();
@@ -179,14 +179,14 @@ private:
     Button *property;
     String hint_text;
 
-    void _property_selected(se_string_view p_selected);
+    void _property_selected(StringView p_selected);
     void _property_select();
 
 protected:
     static void _bind_methods();
 
 public:
-    void setup(Type p_hint, se_string_view p_hint_text);
+    void setup(Type p_hint, StringView p_hint_text);
     void update_property() override;
     EditorPropertyMember();
 };
@@ -217,7 +217,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const Vector<StringView> &p_options);
     void update_property() override;
     void set_option_button_clip(bool p_enable);
     EditorPropertyEnum();
@@ -236,7 +236,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<se_string_view> &p_options);
+    void setup(const Vector<StringView> &p_options);
     void update_property() override;
     EditorPropertyFlags();
 };
@@ -602,9 +602,9 @@ class EditorPropertyResource : public EditorProperty {
 
     SceneTreeDialog *scene_tree;
 
-    void _file_selected(se_string_view p_path);
+    void _file_selected(StringView p_path);
     void _menu_option(int p_which);
-    void _resource_preview(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, ObjectID p_obj);
+    void _resource_preview(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, ObjectID p_obj);
     void _resource_selected();
     void _viewport_selected(const NodePath &p_path);
 
@@ -612,8 +612,8 @@ class EditorPropertyResource : public EditorProperty {
 
     void _update_menu();
 
-    void _sub_inspector_property_keyed(se_string_view p_property, const Variant &p_value, bool);
-    void _sub_inspector_resource_selected(const RES &p_resource, se_string_view p_property);
+    void _sub_inspector_property_keyed(StringView p_property, const Variant &p_value, bool);
+    void _sub_inspector_resource_selected(const RES &p_resource, StringView p_property);
     void _sub_inspector_object_id_selected(int p_id);
 
     void _button_draw();
@@ -653,7 +653,7 @@ class EditorInspectorDefaultPlugin : public EditorInspectorPlugin {
 public:
     bool can_handle(Object *p_object) override;
     void parse_begin(Object *p_object) override;
-    bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) override;
+    bool parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) override;
     void parse_end() override;
 };
 

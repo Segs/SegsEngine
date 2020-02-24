@@ -106,7 +106,7 @@ bool ItemList::is_item_tooltip_enabled(int p_idx) const {
     return items[p_idx].tooltip_enabled;
 }
 
-void ItemList::set_item_tooltip_utf8(int p_idx, se_string_view p_tooltip) {
+void ItemList::set_item_tooltip_utf8(int p_idx, StringView p_tooltip) {
 
     ERR_FAIL_INDEX(p_idx, items.size());
 

@@ -92,7 +92,7 @@ void LayeredTextureImpl::get_import_options(List<ResourceImporterInterface::Impo
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "slices/vertical", PropertyHint::Range, "1,256,1"), p_preset == PRESET_COLOR_CORRECT ? 1 : 8));
 }
 
-void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
+void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, StringView p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags) {
 
     FileAccess *f = FileAccess::open(p_to_path, FileAccess::WRITE);
     f->store_8('G');
@@ -190,7 +190,7 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, se_string
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(se_string_view p_source_file, se_string_view _save_path, const HashMap<StringName, Variant> &p_options, Vector<String> *
+Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path, const HashMap<StringName, Variant> &p_options, Vector<String> *
         r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     String p_save_path(_save_path);
@@ -356,7 +356,7 @@ String LayeredTextureImpl::get_import_settings_string() const {
     return s;
 }
 
-bool LayeredTextureImpl::are_import_settings_valid(se_string_view p_path) const {
+bool LayeredTextureImpl::are_import_settings_valid(StringView p_path) const {
 
     //will become invalid if formats are missing to import
     Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);

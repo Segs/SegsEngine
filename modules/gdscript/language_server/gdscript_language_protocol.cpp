@@ -52,7 +52,7 @@ void GDScriptLanguageProtocol::on_data_received(int p_id) {
     }
 }
 
-void GDScriptLanguageProtocol::on_client_connected(int p_id, se_string_view p_protocal) {
+void GDScriptLanguageProtocol::on_client_connected(int p_id, StringView p_protocal) {
     clients[p_id] = server->get_peer(p_id);
 }
 
@@ -69,7 +69,7 @@ String GDScriptLanguageProtocol::process_message(const String &p_text) {
     }
 }
 
-String GDScriptLanguageProtocol::format_output(se_string_view p_text) {
+String GDScriptLanguageProtocol::format_output(StringView p_text) {
 
     String header("Content-Length: ");
     size_t len = p_text.length();
@@ -176,7 +176,7 @@ void GDScriptLanguageProtocol::stop() {
     clients.clear();
 }
 
-void GDScriptLanguageProtocol::notify_all_clients(se_string_view p_method, const Variant &p_params) {
+void GDScriptLanguageProtocol::notify_all_clients(StringView p_method, const Variant &p_params) {
 
     Dictionary message = make_notification(p_method, p_params);
     String msg = JSON::print(message);
@@ -188,7 +188,7 @@ void GDScriptLanguageProtocol::notify_all_clients(se_string_view p_method, const
     }
 }
 
-void GDScriptLanguageProtocol::notify_client(se_string_view p_method, const Variant &p_params, int p_client) {
+void GDScriptLanguageProtocol::notify_client(StringView p_method, const Variant &p_params, int p_client) {
 
     if (p_client == -1) {
         p_client = lastest_client_id;

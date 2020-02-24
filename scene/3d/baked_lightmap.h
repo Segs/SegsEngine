@@ -112,7 +112,7 @@ public:
     };
 
     using BakeBeginFunc = void (*)(int);
-    using BakeStepFunc = bool (*)(int, se_string_view);
+    using BakeStepFunc = bool (*)(int, StringView);
     using BakeEndFunc = void (*)();
 
 private:
@@ -197,7 +197,7 @@ public:
     void set_hdr(bool p_enable);
     bool is_hdr() const;
 
-    void set_image_path(se_string_view p_path);
+    void set_image_path(StringView p_path);
     const String &get_image_path() const;
 
     AABB get_aabb() const override;

@@ -64,7 +64,7 @@ VARIANT_ENUM_CAST(Node::PauseMode);
 VARIANT_ENUM_CAST(Node::DuplicateFlags);
 
 int Node::orphan_node_count = 0;
-se_string_view _get_name_num_separator() {
+StringView _get_name_num_separator() {
     switch (ProjectSettings::get_singleton()->get("node/name_num_separator").as<int>()) {
         case 0: return "";
         case 1: return " ";
@@ -1017,7 +1017,7 @@ const char *Node::invalid_character(". : @ / \"");
 //TODO: SEGS: validate_node_name should do what it's named after, not modify the passed name
 bool Node::_validate_node_name(String &p_name) {
     String name = p_name;
-    Vector<se_string_view> chars = StringUtils::split(Node::invalid_character,' ');
+    Vector<StringView> chars = StringUtils::split(Node::invalid_character,' ');
     for (size_t i = 0; i < chars.size(); i++) {
         name = StringUtils::replace(name,chars[i], String());
     }
@@ -1026,7 +1026,7 @@ bool Node::_validate_node_name(String &p_name) {
     return is_valid;
 }
 
-void Node::set_name(se_string_view p_name) {
+void Node::set_name(StringView p_name) {
 
     String name(p_name);
     _validate_node_name(name);
@@ -1089,7 +1089,7 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
 
         bool unique = true;
 
-        if (p_child->data->name.empty() || se_string_view(p_child->data->name)[0] == '@') {
+        if (p_child->data->name.empty() || StringView(p_child->data->name)[0] == '@') {
             //new unique name must be assigned
             unique = false;
         } else {
@@ -1117,7 +1117,7 @@ void Node::_validate_child_name(Node *p_child, bool p_force_human_readable) {
 }
 
 // Return s + 1 as if it were an integer
-String increase_numeric_string(se_string_view s) {
+String increase_numeric_string(StringView s) {
 
     String res(s);
     bool carry = res.length() > 0;
@@ -1198,7 +1198,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
         }
     }
 
-    se_string_view nnsep(_get_name_num_separator());
+    StringView nnsep(_get_name_num_separator());
     int name_last_index = name_string.length() - nnsep.length() - nums.length();
 
     // Assign the base name + separator to name if we have numbers preceded by a separator
@@ -1476,7 +1476,7 @@ bool Node::has_node(const NodePath &p_path) const {
     return get_node_or_null(p_path) != nullptr;
 }
 
-Node *Node::find_node(se_string_view p_mask, bool p_recursive, bool p_owned) const {
+Node *Node::find_node(StringView p_mask, bool p_recursive, bool p_owned) const {
 
     Node *const *cptr = data->children.data();
     int ccount = data->children.size();
@@ -1501,7 +1501,7 @@ Node *Node::get_parent() const {
     return data->parent;
 }
 
-Node *Node::find_parent(se_string_view p_mask) const {
+Node *Node::find_parent(StringView p_mask) const {
 
     Node *p = data->parent;
     while (p) {
@@ -1956,19 +1956,19 @@ void Node::remove_and_skip() {
     data->parent->remove_child(this);
 }
 
-void Node::set_filename(se_string_view p_filename) {
+void Node::set_filename(StringView p_filename) {
     if(!data->filename)
         data->filename = new String;
     *data->filename = p_filename;
 }
-se_string_view Node::get_filename() const {
+StringView Node::get_filename() const {
 
     if(data->filename)
         return *data->filename;
     return {};
 }
 
-void Node::set_editor_description(se_string_view p_editor_description) {
+void Node::set_editor_description(StringView p_editor_description) {
 
     set_meta("_editor_description_", p_editor_description);
 }

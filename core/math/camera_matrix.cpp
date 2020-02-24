@@ -32,7 +32,7 @@
 
 #include "core/math/math_funcs.h"
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/vector.h"
 

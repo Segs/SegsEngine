@@ -37,7 +37,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/os.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/color.h"
 #include "core/pool_vector.h"
 #include "core/ustring.h"
@@ -121,17 +121,17 @@ const char *VisualScriptBuiltinFunc::func_name[VisualScriptBuiltinFunc::FUNC_MAX
     "ord",
 };
 
-VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(se_string_view p_string) {
+VisualScriptBuiltinFunc::BuiltinFunc VisualScriptBuiltinFunc::find_function(StringView p_string) {
 
     for (int i = 0; i < FUNC_MAX; i++) {
-        if (p_string == se_string_view(func_name[i]))
+        if (p_string == StringView(func_name[i]))
             return BuiltinFunc(i);
     }
 
     return FUNC_MAX;
 }
 
-se_string_view VisualScriptBuiltinFunc::get_func_name(BuiltinFunc p_func) {
+StringView VisualScriptBuiltinFunc::get_func_name(BuiltinFunc p_func) {
 
     ERR_FAIL_INDEX_V(p_func, FUNC_MAX, {});
     return func_name[p_func];
@@ -261,7 +261,7 @@ int VisualScriptBuiltinFunc::get_output_value_port_count() const {
     return 1;
 }
 
-se_string_view VisualScriptBuiltinFunc::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptBuiltinFunc::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -664,13 +664,13 @@ PropertyInfo VisualScriptBuiltinFunc::get_output_value_port_info(int p_idx) cons
 }
 
 /*
-se_string_view VisualScriptBuiltinFunc::get_caption() const {
+StringView VisualScriptBuiltinFunc::get_caption() const {
 
     return "BuiltinFunc";
 }
 */
 
-se_string_view VisualScriptBuiltinFunc::get_caption() const {
+StringView VisualScriptBuiltinFunc::get_caption() const {
 
     return func_name[func];
 }
@@ -1428,7 +1428,7 @@ VisualScriptBuiltinFunc::VisualScriptBuiltinFunc() {
 }
 
 template <VisualScriptBuiltinFunc::BuiltinFunc func>
-static Ref<VisualScriptNode> create_builtin_func_node(se_string_view p_name) {
+static Ref<VisualScriptNode> create_builtin_func_node(StringView p_name) {
 
     Ref<VisualScriptBuiltinFunc> node(make_ref_counted<VisualScriptBuiltinFunc>(func));
     return node;

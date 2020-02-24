@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/gui/base_button.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class Button : public BaseButton {
 
@@ -66,7 +66,7 @@ public:
 
     void set_text(const StringName &p_text);
     StringName get_text() const;
-    void set_text_utf8(se_string_view p_text);
+    void set_text_utf8(StringView p_text);
 
     void set_button_icon(const Ref<Texture> &p_icon);
     Ref<Texture> get_button_icon() const;

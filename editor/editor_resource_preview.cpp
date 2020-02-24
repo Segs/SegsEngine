@@ -47,7 +47,7 @@
 IMPL_GDCLASS(EditorResourcePreviewGenerator)
 IMPL_GDCLASS(EditorResourcePreview)
 
-bool EditorResourcePreviewGenerator::handles(se_string_view p_type) const {
+bool EditorResourcePreviewGenerator::handles(StringView p_type) const {
 
     if (get_script_instance() && get_script_instance()->has_method("handles")) {
         return get_script_instance()->call("handles", p_type);
@@ -63,7 +63,7 @@ Ref<Texture> EditorResourcePreviewGenerator::generate(const RES &p_from, const S
     ERR_FAIL_V_MSG(Ref<Texture>(), "EditorResourcePreviewGenerator::generate needs to be overridden.");
 }
 
-Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(se_string_view p_path, const Size2 &p_size) const {
+Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(StringView p_path, const Size2 &p_size) const {
 
     if (get_script_instance() && get_script_instance()->has_method("generate_from_path")) {
         return refFromRefPtr<Texture>(get_script_instance()->call("generate_from_path", p_path, p_size));
@@ -113,7 +113,7 @@ void EditorResourcePreview::_thread_func(void *ud) {
     erp->_thread();
 }
 
-void EditorResourcePreview::_preview_ready(se_string_view p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, ObjectID id, const StringName &p_func, const Variant &p_ud) {
+void EditorResourcePreview::_preview_ready(StringView p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, ObjectID id, const StringName &p_func, const Variant &p_ud) {
 
     preview_mutex->lock();
 
@@ -142,7 +142,7 @@ void EditorResourcePreview::_preview_ready(se_string_view p_str, const Ref<Textu
     MessageQueue::get_singleton()->push_call(id, p_func, path, p_texture, p_small_texture, p_ud);
 }
 
-void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, se_string_view cache_base) {
+void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, StringView cache_base) {
     String type;
 
     if (p_item.resource)
@@ -387,7 +387,7 @@ void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p
     preview_sem->post();
 }
 
-void EditorResourcePreview::queue_resource_preview(se_string_view p_path, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata) {
+void EditorResourcePreview::queue_resource_preview(StringView p_path, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata) {
 
     ERR_FAIL_NULL(p_receiver);
     preview_mutex->lock();
@@ -439,7 +439,7 @@ void EditorResourcePreview::_bind_methods() {
     ADD_SIGNAL(MethodInfo("preview_invalidated", PropertyInfo(VariantType::STRING, "path")));
 }
 
-void EditorResourcePreview::check_for_invalidation(se_string_view p_path) {
+void EditorResourcePreview::check_for_invalidation(StringView p_path) {
 
     preview_mutex->lock();
 

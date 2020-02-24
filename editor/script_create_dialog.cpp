@@ -100,7 +100,7 @@ bool ScriptCreateDialog::_can_be_built_in() {
     return supports_built_in && built_in_enabled;
 }
 
-void ScriptCreateDialog::config(se_string_view p_base_name, se_string_view p_base_path, bool p_built_in_enabled, bool p_load_enabled) {
+void ScriptCreateDialog::config(StringView p_base_name, StringView p_base_path, bool p_built_in_enabled, bool p_load_enabled) {
 
     class_name->set_text("");
     class_name->deselect();
@@ -121,7 +121,7 @@ void ScriptCreateDialog::config(se_string_view p_base_name, se_string_view p_bas
     load_enabled = p_load_enabled;
 
     _lang_changed(current_language);
-    _class_name_changed(se_string_view());
+    _class_name_changed(StringView());
     _path_changed(file_path->get_text());
 }
 
@@ -130,13 +130,13 @@ void ScriptCreateDialog::set_inheritance_base_type(const StringName &p_base) {
     base_type = p_base;
 }
 
-bool ScriptCreateDialog::_validate_parent(se_string_view p_string) {
+bool ScriptCreateDialog::_validate_parent(StringView p_string) {
 
     if (p_string.length() == 0)
         return false;
 
     if (can_inherit_from_file && StringUtils::is_quoted(p_string)) {
-        se_string_view p = StringUtils::substr(p_string,1, p_string.length() - 2);
+        StringView p = StringUtils::substr(p_string,1, p_string.length() - 2);
         if (_validate_path(p, true).empty())
             return true;
     }
@@ -166,7 +166,7 @@ bool ScriptCreateDialog::_validate_class(const UIString &p_string) {
     return true;
 }
 
-StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file_must_exist) {
+StringName ScriptCreateDialog::_validate_path(StringView p_path, bool p_file_must_exist) {
 
     String p(StringUtils::strip_edges( p_path));
 
@@ -195,7 +195,7 @@ StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file
     memdelete(f);
 
     /* Check file extension */
-    se_string_view extension = PathUtils::get_extension(p);
+    StringView extension = PathUtils::get_extension(p);
     Vector<String> extensions;
 
     // get all possible extensions for script
@@ -230,13 +230,13 @@ StringName ScriptCreateDialog::_validate_path(se_string_view p_path, bool p_file
     return StringName();
 }
 
-void ScriptCreateDialog::_class_name_changed(se_string_view p_name) {
+void ScriptCreateDialog::_class_name_changed(StringView p_name) {
 
     is_class_name_valid = _validate_class(class_name->get_text_ui());
     _update_dialog();
 }
 
-void ScriptCreateDialog::_parent_name_changed(se_string_view p_parent) {
+void ScriptCreateDialog::_parent_name_changed(StringView p_parent) {
 
     if (_validate_parent(parent_name->get_text())) {
         is_parent_name_valid = true;
@@ -571,7 +571,7 @@ void ScriptCreateDialog::_browse_class_in_tree() {
     select_class->popup_create(true);
 }
 
-void ScriptCreateDialog::_path_changed(se_string_view p_path) {
+void ScriptCreateDialog::_path_changed(StringView p_path) {
     if (is_built_in) {
         return;
     }
@@ -599,7 +599,7 @@ void ScriptCreateDialog::_path_changed(se_string_view p_path) {
     _update_dialog();
 }
 
-void ScriptCreateDialog::_path_entered(se_string_view p_path) {
+void ScriptCreateDialog::_path_entered(StringView p_path) {
     ok_pressed();
 }
 

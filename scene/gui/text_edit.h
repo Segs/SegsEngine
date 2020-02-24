@@ -327,7 +327,7 @@ public:
 
     int _get_column_pos_of_word(const UIString &p_key, const UIString &p_search, uint32_t p_search_flags, int p_from_column);
 
-    PoolVector<int> _search_bind(se_string_view p_key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
+    PoolVector<int> _search_bind(StringView p_key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
 
     PopupMenu *menu;
 
@@ -398,9 +398,9 @@ public:
 
     bool is_insert_text_operation();
 
-    void set_text_utf8(se_string_view p_text);
+    void set_text_utf8(StringView p_text);
     void set_text(const UIString& p_text);
-    void insert_text_at_cursor_utf8(se_string_view p_text);
+    void insert_text_at_cursor_utf8(StringView p_text);
     void insert_text_at_cursor(const UIString &p_text);
     void insert_at(const UIString &p_text, int at);
     int get_line_count() const;
@@ -441,7 +441,7 @@ public:
     String get_text();
     //String get_line(int line) const;
     String get_line(int line) const;
-    void set_line(int line, se_string_view new_text);
+    void set_line(int line, StringView new_text);
     void backspace_at_cursor();
 
     void indent_left();
@@ -545,16 +545,16 @@ public:
     void set_insert_mode(bool p_enabled);
     bool is_insert_mode() const;
 
-    void add_keyword_color(se_string_view p_keyword, const Color &p_color);
+    void add_keyword_color(StringView p_keyword, const Color &p_color);
     bool has_keyword_color_uistr(const UIString& p_keyword) const;
-    bool has_keyword_color(se_string_view p_keyword) const;
+    bool has_keyword_color(StringView p_keyword) const;
     Color get_keyword_color_uistr(const UIString& p_keyword) const;
-    Color get_keyword_color(se_string_view p_keyword) const;
+    Color get_keyword_color(StringView p_keyword) const;
 
-    void add_color_region(se_string_view p_begin_key = {}, se_string_view p_end_key = {}, const Color &p_color = Color(), bool p_line_only = false);
+    void add_color_region(StringView p_begin_key = {}, StringView p_end_key = {}, const Color &p_color = Color(), bool p_line_only = false);
     void clear_colors();
 
-    void add_member_keyword(se_string_view p_keyword, const Color &p_color);
+    void add_member_keyword(StringView p_keyword, const Color &p_color);
     bool has_member_color(const UIString& p_member) const;
     Color get_member_color(const UIString& p_member) const;
     void clear_member_keywords();

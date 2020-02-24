@@ -152,7 +152,7 @@ private:
 
         FileOrFolder() :
                 path("") {}
-        FileOrFolder(se_string_view p_path, bool p_is_file) :
+        FileOrFolder(StringView p_path, bool p_is_file) :
                 path(p_path),
                 is_file(p_is_file) {}
     };
@@ -179,7 +179,7 @@ private:
     bool _create_tree(TreeItem *p_parent, EditorFileSystemDirectory *p_dir, Vector<String> &uncollapsed_paths, bool p_select_in_favorites, bool p_unfold_path=false);
     Vector<String> _compute_uncollapsed_paths();
     void _update_tree(const Vector<String> &p_uncollapsed_paths = null_string_pvec, bool p_uncollapse_root = false, bool p_select_in_favorites = false, bool p_unfold_path=false);
-    void _navigate_to_path(se_string_view p_path, bool p_select_in_favorites = false);
+    void _navigate_to_path(StringView p_path, bool p_select_in_favorites = false);
 
     void _file_list_gui_input(const Ref<InputEvent>& p_event);
     void _tree_gui_input(const Ref<InputEvent>& p_event);
@@ -191,7 +191,7 @@ private:
 
     void _tree_toggle_collapsed();
 
-    void _select_file(se_string_view p_path, bool p_select_in_favorites = false);
+    void _select_file(StringView p_path, bool p_select_in_favorites = false);
     void _tree_activate_file();
     void _file_list_activate_file(int p_idx);
     void _file_multi_selected(int p_index, bool p_selected);
@@ -201,7 +201,7 @@ private:
 
     void _get_all_items_in_dir(EditorFileSystemDirectory *efsd, Vector<String> &files, Vector<String> &folders) const;
     void _find_remaps(EditorFileSystemDirectory *efsd, const HashMap<String, String> &renames, Vector<String> &to_remaps) const;
-    void _try_move_item(const FileOrFolder &p_item, se_string_view p_new_path, HashMap<String, String> &p_file_renames, HashMap<String, String> &p_folder_renames);
+    void _try_move_item(const FileOrFolder &p_item, StringView p_new_path, HashMap<String, String> &p_file_renames, HashMap<String, String> &p_folder_renames);
     void _try_duplicate_item(const FileOrFolder &p_item, const String &p_new_path) const;
     void _update_dependencies_after_move(const HashMap<String, String> &p_renames) const;
     void _update_resource_paths_after_move(const HashMap<String, String> &p_renames) const;
@@ -221,7 +221,7 @@ private:
     void _duplicate_operation_confirm();
     void _move_with_overwrite();
     bool _check_existing();
-    void _move_operation_confirm(se_string_view p_to_path, bool overwrite = false);
+    void _move_operation_confirm(StringView p_to_path, bool overwrite = false);
 
     void _tree_rmb_option(int p_option);
     void _file_list_rmb_option(int p_option);
@@ -260,16 +260,16 @@ private:
 
     void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);
 
-    void _set_current_path_text(se_string_view p_path);
+    void _set_current_path_text(StringView p_path);
 
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
     void _get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const;
 
-    void _preview_invalidated(se_string_view p_path);
-    void _file_list_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _tree_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _preview_invalidated(StringView p_path);
+    void _file_list_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _tree_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
 
     void _update_display_mode(bool p_force = false);
 
@@ -288,14 +288,14 @@ public:
     String get_selected_path() const;
 
     const String &get_current_path() const;
-    void navigate_to_path(se_string_view p_path);
+    void navigate_to_path(StringView p_path);
     void focus_on_filter();
 
     void fix_dependencies(const String &p_for_file);
 
     int get_split_offset() { return split_box->get_split_offset(); }
     void set_split_offset(int p_offset) { split_box->set_split_offset(p_offset); }
-    void select_file(se_string_view p_file);
+    void select_file(StringView p_file);
 
     void set_display_mode(DisplayMode p_display_mode);
     DisplayMode get_display_mode() { return display_mode; }

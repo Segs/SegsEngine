@@ -106,7 +106,7 @@ String CSharpLanguage::get_extension() const {
     return "cs";
 }
 
-Error CSharpLanguage::execute_file(se_string_view p_path) {
+Error CSharpLanguage::execute_file(StringView p_path) {
 
     // ??
     return OK;
@@ -311,16 +311,16 @@ void CSharpLanguage::get_string_delimiters(Vector<String> *p_delimiters) const {
     p_delimiters->push_back("@\" \""); // verbatim string literal
 }
 
-static String get_base_class_name(se_string_view p_base_class_name, se_string_view p_class_name) {
+static String get_base_class_name(StringView p_base_class_name, StringView p_class_name) {
 
     String base_class(p_base_class_name);
-    if (p_class_name == se_string_view(base_class)) {
+    if (p_class_name == StringView(base_class)) {
         base_class = "Godot." + base_class;
     }
     return base_class;
 }
 
-Ref<Script> CSharpLanguage::get_template(se_string_view p_class_name, se_string_view p_base_class_name) const {
+Ref<Script> CSharpLanguage::get_template(StringView p_class_name, StringView p_base_class_name) const {
 
     String script_template = "using " BINDINGS_NAMESPACE ";\n"
                              "using System;\n"
@@ -360,7 +360,7 @@ bool CSharpLanguage::is_using_templates() {
     return true;
 }
 
-void CSharpLanguage::make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) {
+void CSharpLanguage::make_template(StringView p_class_name, StringView p_base_class_name, const Ref<Script> &p_script) {
 
     String src(p_script->get_source_code());
     String base_class_name = get_base_class_name(p_base_class_name, p_class_name);
@@ -370,13 +370,13 @@ void CSharpLanguage::make_template(se_string_view p_class_name, se_string_view p
     p_script->set_source_code(src);
 }
 /* TODO */
-bool CSharpLanguage::validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-        se_string_view p_path, Vector<String> *r_functions, Vector<ScriptLanguage::Warning> *r_warnings,
+bool CSharpLanguage::validate(StringView p_script, int &r_line_error, int &r_col_error, String &r_test_error,
+        StringView p_path, Vector<String> *r_functions, Vector<ScriptLanguage::Warning> *r_warnings,
         Set<int> *r_safe_lines) const {
     return true;
 }
 
-String CSharpLanguage::validate_path(se_string_view p_path) const {
+String CSharpLanguage::validate_path(StringView p_path) const {
 
     String class_name(PathUtils::get_basename(PathUtils::get_file(p_path)));
     Vector<String> keywords;
@@ -1123,7 +1123,7 @@ void CSharpLanguage::thread_exit() {
 #endif
 }
 
-bool CSharpLanguage::debug_break_parse(se_string_view p_file, int p_line, const String &p_error) {
+bool CSharpLanguage::debug_break_parse(StringView p_file, int p_line, const String &p_error) {
 
     // Not a parser error in our case, but it's still used for other type of errors
     if (ScriptDebugger::get_singleton() && Thread::get_caller_id() == Thread::get_main_id()) {
@@ -3083,7 +3083,7 @@ bool CSharpScript::has_source_code() const {
     return !source.empty();
 }
 
-se_string_view CSharpScript::get_source_code() const {
+StringView CSharpScript::get_source_code() const {
 
     return source;
 }
@@ -3309,7 +3309,7 @@ int CSharpScript::get_member_line(const StringName &p_member) const {
     return -1;
 }
 
-Error CSharpScript::load_source_code(se_string_view p_path) {
+Error CSharpScript::load_source_code(StringView p_path) {
 
     Error ferr = read_all_file_utf8(p_path, source);
 
@@ -3364,7 +3364,7 @@ CSharpScript::~CSharpScript() {
 
 /*************** RESOURCE ***************/
 
-RES ResourceFormatLoaderCSharpScript::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatLoaderCSharpScript::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -3395,22 +3395,22 @@ void ResourceFormatLoaderCSharpScript::get_recognized_extensions(Vector<String> 
     p_extensions.push_back("cs");
 }
 
-bool ResourceFormatLoaderCSharpScript::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderCSharpScript::handles_type(StringView p_type) const {
 
-    return p_type == se_string_view("Script") || p_type == se_string_view(CSharpLanguage::get_singleton()->get_type());
+    return p_type == StringView("Script") || p_type == StringView(CSharpLanguage::get_singleton()->get_type());
 }
 
-String ResourceFormatLoaderCSharpScript::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderCSharpScript::get_resource_type(StringView p_path) const {
 
     return StringUtils::to_lower(PathUtils::get_extension(p_path)) == "cs" ? CSharpLanguage::get_singleton()->get_type() : "";
 }
 
-Error ResourceFormatSaverCSharpScript::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverCSharpScript::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<CSharpScript> sqscr = dynamic_ref_cast<CSharpScript>(p_resource);
     ERR_FAIL_COND_V(!sqscr, ERR_INVALID_PARAMETER);
 
-    se_string_view source = sqscr->get_source_code();
+    StringView source = sqscr->get_source_code();
 
 #ifdef TOOLS_ENABLED
     if (!FileAccess::exists(p_path)) {

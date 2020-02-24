@@ -348,7 +348,7 @@ void AnimationNodeBlendSpace1DEditor::_config_changed(double) {
     blend_space_draw->update();
 }
 
-void AnimationNodeBlendSpace1DEditor::_labels_changed(se_string_view) {
+void AnimationNodeBlendSpace1DEditor::_labels_changed(StringView) {
     if (updating)
         return;
 
@@ -366,7 +366,7 @@ void AnimationNodeBlendSpace1DEditor::_snap_toggled() {
     blend_space_draw->update();
 }
 
-void AnimationNodeBlendSpace1DEditor::_file_opened(se_string_view p_file) {
+void AnimationNodeBlendSpace1DEditor::_file_opened(StringView p_file) {
 
     file_loaded = dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
     if (file_loaded) {

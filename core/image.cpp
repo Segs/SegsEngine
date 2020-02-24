@@ -226,7 +226,7 @@ namespace {
     };
 }
 
-Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
+Error Image::save_png_func(StringView p_path, const Ref<Image> &p_img)
 {
     Vector<uint8_t> buffer;
     Ref<Image> source_image = prepareForPngStorage(p_img);
@@ -247,7 +247,7 @@ Error Image::save_png_func(se_string_view p_path, const Ref<Image> &p_img)
     return OK;
 }
 
-Error Image::save_exr_func(se_string_view p_path, const Ref<Image> &source_image, bool greyscale)
+Error Image::save_exr_func(StringView p_path, const Ref<Image> &source_image, bool greyscale)
 {
     Vector<uint8_t> buffer;
     ERR_FAIL_COND_V(source_image==nullptr, FAILED);
@@ -1998,7 +1998,7 @@ void Image::create(const char **p_xpm) {
     Status status = READING_HEADER;
     int line = 0;
 
-    HashMap<se_string_view, Color,eastl::hash<se_string_view>> colormap;
+    HashMap<StringView, Color,eastl::hash<StringView>> colormap;
     int colormap_size = 0;
     uint32_t pixel_size = 0;
     PoolVector<uint8_t>::Write w;
@@ -2011,7 +2011,7 @@ void Image::create(const char **p_xpm) {
 
             case READING_HEADER: {
 
-                se_string_view line_str = StringUtils::replace(line_ptr,'\t', ' ');
+                StringView line_str = StringUtils::replace(line_ptr,'\t', ' ');
 
                 size_width = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 0));
                 size_height = StringUtils::to_int(StringUtils::get_slice(line_str,' ', 1));
@@ -2025,7 +2025,7 @@ void Image::create(const char **p_xpm) {
             } break;
             case READING_COLORS: {
 
-                se_string_view colorstring(line_ptr,pixelchars);
+                StringView colorstring(line_ptr,pixelchars);
                 line_ptr+=pixelchars;
                 //skip spaces
                 while (*line_ptr == ' ' || *line_ptr == '\t' || *line_ptr == 0) {
@@ -2096,7 +2096,7 @@ void Image::create(const char **p_xpm) {
                 int y = line - colormap_size - 1;
                 for (int x = 0; x < size_width; x++) {
 
-                    se_string_view pixelstr(line_ptr+x * pixelchars,pixelchars);
+                    StringView pixelstr(line_ptr+x * pixelchars,pixelchars);
 
                     auto colorptr = colormap.find(pixelstr);
                     ERR_FAIL_COND(colorptr!=colormap.end());
@@ -2241,7 +2241,7 @@ Image::AlphaMode Image::detect_alpha() const {
         return ALPHA_NONE;
 }
 
-Error Image::load(se_string_view p_path) {
+Error Image::load(StringView p_path) {
 #ifdef DEBUG_ENABLED
     if (StringUtils::begins_with(p_path,"res://") && ResourceLoader::exists(p_path)) {
         WARN_PRINT("Loaded resource as image file, this will not work on export: '" + String(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
@@ -2250,11 +2250,11 @@ Error Image::load(se_string_view p_path) {
     return ImageLoader::load_image(p_path, Ref<Image>(this));
 }
 
-Error Image::save_png(se_string_view p_path) const {
+Error Image::save_png(StringView p_path) const {
     return save_png_func(p_path, Ref<Image>((Image *)this));
 }
 
-Error Image::save_exr(se_string_view p_path, bool p_grayscale) const {
+Error Image::save_exr(StringView p_path, bool p_grayscale) const {
 
     return save_exr_func(p_path, Ref<Image>((Image *)this), p_grayscale);
 }
@@ -3484,9 +3484,9 @@ void Image::fix_alpha_edges() {
     }
 }
 
-se_string_view Image::get_format_name(Format p_format) {
+StringView Image::get_format_name(Format p_format) {
 
-    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, se_string_view());
+    ERR_FAIL_INDEX_V(p_format, FORMAT_MAX, StringView());
     return format_names[p_format];
 }
 

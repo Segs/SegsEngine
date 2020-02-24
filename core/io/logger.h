@@ -48,12 +48,12 @@ public:
         ERR_SHADER
     };
 
-    virtual void logv(se_string_view p_msg, bool p_err) = 0;
+    virtual void logv(StringView p_msg, bool p_err) = 0;
 
-    virtual void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR);
+    virtual void log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type = ERR_ERROR);
 
-    void logf(se_string_view p_msg);
-    void logf_error(se_string_view p_msg);
+    void logf(StringView p_msg);
+    void logf_error(StringView p_msg);
 
     virtual ~Logger();
 };
@@ -64,7 +64,7 @@ public:
 class GODOT_EXPORT StdLogger : public Logger {
 
 public:
-    void logv(se_string_view p_msg, bool p_err) override;
+    void logv(StringView p_msg, bool p_err) override;
 
     ~StdLogger() override;
 };
@@ -75,8 +75,8 @@ class CompositeLogger : public Logger {
 public:
     GODOT_EXPORT CompositeLogger(Vector<Logger *> && p_loggers);
 
-    GODOT_EXPORT void logv(se_string_view p_msg, bool p_err) override;
-    GODOT_EXPORT void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR) override;
+    GODOT_EXPORT void logv(StringView p_msg, bool p_err) override;
+    GODOT_EXPORT void log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type = ERR_ERROR) override;
 
     GODOT_EXPORT void add_logger(Logger *p_logger);
 

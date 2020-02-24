@@ -63,7 +63,7 @@ private:
     static const char *feature_names[FEATURE_MAX];
     static const char *feature_identifiers[FEATURE_MAX];
 
-    se_string_view _get_feature_name(Feature p_feature) { return get_feature_name(p_feature); }
+    StringView _get_feature_name(Feature p_feature) { return get_feature_name(p_feature); }
 
 protected:
     static void _bind_methods();
@@ -82,10 +82,10 @@ public:
     void set_disable_feature(Feature p_feature, bool p_disable);
     bool is_feature_disabled(Feature p_feature) const;
 
-    Error save_to_file(se_string_view p_path);
-    Error load_from_file(se_string_view p_path);
+    Error save_to_file(StringView p_path);
+    Error load_from_file(StringView p_path);
 
-    static se_string_view get_feature_name(Feature p_feature);
+    static StringView get_feature_name(Feature p_feature);
 
     EditorFeatureProfile();
 };
@@ -128,9 +128,9 @@ class EditorFeatureProfileManager : public AcceptDialog {
     void _profile_selected(int p_what);
 
     String current_profile;
-    void _update_profile_list(se_string_view p_select_profile = {});
+    void _update_profile_list(StringView p_select_profile = {});
     void _update_selected_profile();
-    void _fill_classes_from(TreeItem *p_parent, const StringName &p_class, se_string_view p_selected);
+    void _fill_classes_from(TreeItem *p_parent, const StringName &p_class, StringView p_selected);
 
     Ref<EditorFeatureProfile> current;
     Ref<EditorFeatureProfile> edited;
@@ -140,7 +140,7 @@ class EditorFeatureProfileManager : public AcceptDialog {
     String _get_selected_profile();
 
     void _import_profiles(const Vector<String> &p_paths);
-    void _export_profile(se_string_view p_path);
+    void _export_profile(StringView p_path);
 
     bool updating_features;
 

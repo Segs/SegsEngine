@@ -92,8 +92,8 @@ void AudioDriverPulseAudio::detect_channels(bool capture) {
 
     pa_channel_map_init_stereo(capture ? &pa_rec_map : &pa_map);
 
-    se_string_view device = capture ? capture_device_name : device_name;
-    if (device == se_string_view("Default")) {
+    StringView device = capture ? capture_device_name : device_name;
+    if (device == StringView("Default")) {
         // Get the default output device name
         pa_status = 0;
         pa_operation *pa_op = pa_context_get_server_info(pa_ctx, &AudioDriverPulseAudio::pa_server_info_cb, (void *)this);
@@ -112,7 +112,7 @@ void AudioDriverPulseAudio::detect_channels(bool capture) {
     }
 
     char dev[1024];
-    if (device == se_string_view("Default")) {
+    if (device == StringView("Default")) {
         strcpy(dev, capture ? capture_default_device.c_str() : default_device.c_str());
     } else {
         strcpy(dev, device.data());
@@ -584,12 +584,12 @@ Array AudioDriverPulseAudio::get_device_list() {
     return pa_devices;
 }
 
-se_string_view AudioDriverPulseAudio::get_device() {
+StringView AudioDriverPulseAudio::get_device() {
 
     return device_name;
 }
 
-void AudioDriverPulseAudio::set_device(se_string_view device) {
+void AudioDriverPulseAudio::set_device(StringView device) {
 
     lock();
     new_device = device;
@@ -736,7 +736,7 @@ Error AudioDriverPulseAudio::capture_stop() {
     return OK;
 }
 
-void AudioDriverPulseAudio::capture_set_device(se_string_view p_name) {
+void AudioDriverPulseAudio::capture_set_device(StringView p_name) {
 
     lock();
     capture_new_device = p_name;

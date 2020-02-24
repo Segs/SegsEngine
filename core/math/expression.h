@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class GODOT_EXPORT Expression : public RefCounted {
     GDCLASS(Expression,RefCounted)
@@ -110,9 +110,9 @@ public:
     };
 
     static int get_func_argument_count(BuiltinFunc p_func);
-    static se_string_view get_func_name(BuiltinFunc p_func);
+    static StringView get_func_name(BuiltinFunc p_func);
     static void exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Variant::CallError &r_error, String &r_error_str);
-    static BuiltinFunc find_function(se_string_view p_string);
+    static BuiltinFunc find_function(StringView p_string);
 
 private:
 //    struct Input {
@@ -347,7 +347,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error parse(se_string_view p_expression, const Vector<String> &p_input_names = {});
+    Error parse(StringView p_expression, const Vector<String> &p_input_names = {});
     Variant execute(const Array& p_inputs, Object *p_base = nullptr, bool p_show_error = true);
     bool has_execute_failed() const;
     const String &get_error_text() const;

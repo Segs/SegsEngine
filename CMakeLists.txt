@@ -76,6 +76,11 @@ endfunction()
 
 add_library(editor_interface INTERFACE)
 target_compile_definitions(editor_interface INTERFACE TOOLS_ENABLED)
+target_include_directories(editor_interface INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include/SegsEngine>
+
+)
 
 add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
 add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
@@ -222,13 +227,6 @@ SET(OPTION_PLATFORM ${first_platform} CACHE STRING "Target platform")
 SET_PROPERTY(CACHE OPTION_PLATFORM PROPERTY STRINGS ${platform_list})
 
 # # add default include paths
-include_directories(
-    ${PROJECT_SOURCE_DIR}/core
-    ${PROJECT_SOURCE_DIR}/core/math
-    ${PROJECT_SOURCE_DIR}/editor
-    ${PROJECT_SOURCE_DIR}/drivers
-    ${PROJECT_SOURCE_DIR}
-)
 
 if (OPTION_NO_EDITOR_SPLASH)
     add_definitions(-DNO_EDITOR_SPLASH)

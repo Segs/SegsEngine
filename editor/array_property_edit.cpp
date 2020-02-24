@@ -265,7 +265,7 @@ void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
     }
 }
 
-void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_view p_hint_string, VariantType p_deftype) {
+void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, StringView p_hint_string, VariantType p_deftype) {
 
     page = 0;
     property = p_prop;
@@ -275,7 +275,7 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, se_string_
     if (!p_hint_string.empty()) {
         auto hint_subtype_separator = StringUtils::find(p_hint_string,":");
         if (hint_subtype_separator != String::npos) {
-            se_string_view subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
+            StringView subtype_string = StringUtils::substr(p_hint_string,0, hint_subtype_separator);
 
             auto slash_pos = StringUtils::find(subtype_string,"/");
             if (slash_pos != String::npos) {

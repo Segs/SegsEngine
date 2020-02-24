@@ -91,13 +91,13 @@ private:
             const String &node_name, aiBone *track_bone);
 
     void _import_animation(ImportState &state, int p_animation_index, int p_bake_fps);
-    Node *get_node_by_name(ImportState &state, se_string_view name);
+    Node *get_node_by_name(ImportState &state, StringView name);
     aiBone *get_bone_from_stack(ImportState &state, aiString name);
-    Spatial *_generate_scene(se_string_view p_path, aiScene *scene, const uint32_t p_flags, int p_bake_fps, const int32_t p_max_bone_weights);
+    Spatial *_generate_scene(StringView p_path, aiScene *scene, const uint32_t p_flags, int p_bake_fps, const int32_t p_max_bone_weights);
 
     template <class T>
     T _interpolate_track(const Vector<float> &p_times, const Vector<T> &p_values, float p_time, AssetImportAnimation::Interpolation p_interp);
-    void _register_project_setting_import(se_string_view generic, se_string_view import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const;
+    void _register_project_setting_import(StringView generic, StringView import_setting_string, const Vector<String> &exts, Vector<String> &r_extensions, const bool p_enabled) const;
 
     struct ImportFormat {
         Vector<String> extensions;
@@ -113,12 +113,12 @@ public:
 
     void get_extensions(Vector<String> &r_extensions) const override;
     uint32_t get_import_flags() const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
     Ref<Image> load_image(ImportState &state, const aiScene *p_scene, UIString p_path);
 
     // EditorSceneImporterInterface interface
 
-    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
+    Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
 
     static void RegenerateBoneStack(ImportState &state);
 

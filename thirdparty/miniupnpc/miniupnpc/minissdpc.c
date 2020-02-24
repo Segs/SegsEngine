@@ -15,33 +15,33 @@
 #include <net/if.h>
 #endif
 #if defined(_WIN32) || defined(__amigaos__) || defined(__amigaos4__)
-#ifdef _WIN32
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <io.h>
-#include <iphlpapi.h>
-#define snprintf _snprintf
-#if !defined(_MSC_VER)
-#include <stdint.h>
-#else /* !defined(_MSC_VER) */
-typedef unsigned short uint16_t;
-#endif /* !defined(_MSC_VER) */
-#ifndef strncasecmp
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#define strncasecmp _memicmp
-#else /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
-#define strncasecmp memicmp
-#endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
-#endif /* #ifndef strncasecmp */
-#endif /* _WIN32 */
-#if defined(__amigaos__) || defined(__amigaos4__)
-#include <sys/socket.h>
-#endif /* defined(__amigaos__) || defined(__amigaos4__) */
-#if defined(__amigaos__)
-#define uint16_t unsigned short
-#endif /* defined(__amigaos__) */
+#   ifdef _WIN32
+#       include <winsock2.h>
+#       include <ws2tcpip.h>
+#       include <io.h>
+#       include <iphlpapi.h>
+#       define snprintf _snprintf
+#       if !defined(_MSC_VER)
+#           include <stdint.h>
+#       else /* !defined(_MSC_VER) */
+            typedef unsigned short uint16_t;
+#       endif /* !defined(_MSC_VER) */
+#       ifndef strncasecmp
+#           if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#               define strncasecmp _memicmp
+#           else /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
+#               define strncasecmp memicmp
+#           endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
+#       endif /* #ifndef strncasecmp */
+#   endif /* _WIN32 */
+#   if defined(__amigaos__) || defined(__amigaos4__)
+#      include <sys/socket.h>
+#   endif /* defined(__amigaos__) || defined(__amigaos4__) */
+#   if defined(__amigaos__)
+#      define uint16_t unsigned short
+#   endif /* defined(__amigaos__) */
 /* Hack */
-#define UNIX_PATH_LEN   108
+#   define UNIX_PATH_LEN   108
 struct sockaddr_un {
   uint16_t sun_family;
   char     sun_path[UNIX_PATH_LEN];
@@ -53,6 +53,7 @@ struct sockaddr_un {
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/un.h>
+#include <netinet/ip.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>

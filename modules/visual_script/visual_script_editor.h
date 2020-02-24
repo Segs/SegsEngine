@@ -147,7 +147,7 @@ class VisualScriptEditor : public ScriptEditorBase {
 
     StringName selected;
 
-    String _validate_name(se_string_view p_name) const;
+    String _validate_name(StringView p_name) const;
 
     struct Clipboard {
 
@@ -179,12 +179,12 @@ class VisualScriptEditor : public ScriptEditorBase {
 
     void connect_data(Ref<VisualScriptNode> vnode_old, Ref<VisualScriptNode> vnode, int new_id);
 
-    void _selected_connect_node(const String &p_text, se_string_view p_category, const bool p_connecting = true);
+    void _selected_connect_node(const String &p_text, StringView p_category, const bool p_connecting = true);
     void connect_seq(Ref<VisualScriptNode> vnode_old, Ref<VisualScriptNode> vnode_new, int new_id);
 
     void _cancel_connect_node();
     int _create_new_node_from_name(const String &p_text, const Vector2 &p_point, const StringName &p_func = StringName());
-    void _selected_new_virtual_method(se_string_view p_text, se_string_view p_category, const bool p_connecting);
+    void _selected_new_virtual_method(StringView p_text, StringView p_category, const bool p_connecting);
 
     int error_line;
 
@@ -206,18 +206,18 @@ class VisualScriptEditor : public ScriptEditorBase {
 
     void _node_moved(Vector2 p_from, Vector2 p_to, int p_id);
     void _remove_node(int p_id);
-    void _graph_connected(se_string_view p_from, int p_from_slot, se_string_view p_to, int p_to_slot);
-    void _graph_disconnected(se_string_view p_from, int p_from_slot, se_string_view p_to, int p_to_slot);
-    void _graph_connect_to_empty(se_string_view p_from, int p_from_slot, const Vector2 &p_release_pos);
+    void _graph_connected(StringView p_from, int p_from_slot, StringView p_to, int p_to_slot);
+    void _graph_disconnected(StringView p_from, int p_from_slot, StringView p_to, int p_to_slot);
+    void _graph_connect_to_empty(StringView p_from, int p_from_slot, const Vector2 &p_release_pos);
 
-    void _node_ports_changed(se_string_view p_func, int p_id);
+    void _node_ports_changed(StringView p_func, int p_id);
     void _node_create();
 
     void _update_available_nodes();
 
     void _member_button(Object *p_item, int p_column, int p_button);
 
-    void _expression_text_changed(se_string_view p_text, int p_id);
+    void _expression_text_changed(StringView p_text, int p_id);
     void _add_input_port(int p_id);
     void _add_output_port(int p_id);
     void _remove_input_port(int p_id, int p_port);
@@ -232,7 +232,7 @@ class VisualScriptEditor : public ScriptEditorBase {
     void _move_nodes_with_rescan(const StringName &p_func_from, const StringName &p_func_to, int p_id);
     bool node_has_sequence_connections(const StringName &p_func, int p_id);
 
-    void _generic_search(se_string_view p_base_type = "", Vector2 pos = Vector2(), bool node_centered = false);
+    void _generic_search(StringView p_base_type = "", Vector2 pos = Vector2(), bool node_centered = false);
 
     void _input(const Ref<InputEvent> &p_event);
     void _graph_gui_input(const Ref<InputEvent> &p_event);
@@ -274,7 +274,7 @@ class VisualScriptEditor : public ScriptEditorBase {
     void _selected_method(const StringName &p_method, StringName p_type, const bool p_connecting);
 
     void _draw_color_over_button(Object *obj, Color p_color);
-    void _button_resource_previewed(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud);
+    void _button_resource_previewed(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud);
 
     VisualScriptNode::TypeGuess _guess_output_type(int p_port_action_node, int p_port_action_output, Set<int> &p_visited_nodes);
 
@@ -314,7 +314,7 @@ public:
     void update_settings() override;
     bool show_members_overview() override;
     void set_debugger_active(bool p_active) override;
-    void set_tooltip_request_func(se_string_view p_method, Object *p_obj) override;
+    void set_tooltip_request_func(StringView p_method, Object *p_obj) override;
     Control *get_edit_menu() override;
     void clear_edit_menu() override;
     bool can_lose_focus_on_node_selection() override { return false; }
@@ -339,13 +339,13 @@ protected:
     static _VisualScriptEditor *singleton;
 
     static Map<String, RefPtr> custom_nodes;
-    static Ref<VisualScriptNode> create_node_custom(se_string_view p_name);
+    static Ref<VisualScriptNode> create_node_custom(StringView p_name);
 
 public:
     static _VisualScriptEditor *get_singleton() { return singleton; }
 
-    void add_custom_node(se_string_view p_name, se_string_view p_category, const Ref<Script> &p_script);
-    void remove_custom_node(se_string_view p_name, se_string_view p_category);
+    void add_custom_node(StringView p_name, StringView p_category, const Ref<Script> &p_script);
+    void remove_custom_node(StringView p_name, StringView p_category);
 
     _VisualScriptEditor();
     ~_VisualScriptEditor() override;

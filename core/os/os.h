@@ -34,7 +34,7 @@
 #include "core/io/logger.h"
 #include "core/list.h"
 #include "core/math/vector2.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/vector.h"
 
 #include "core/math/rect2.h"
@@ -84,7 +84,7 @@ protected:
 
 public:
     using ImeCallback = void (*)(void *, UIString, Point2);
-    using HasServerFeatureCallback = bool (*)(se_string_view);
+    using HasServerFeatureCallback = bool (*)(StringView);
 
     enum RenderThreadMode {
 
@@ -136,10 +136,10 @@ protected:
     virtual void finalize() = 0;
     virtual void finalize_core() = 0;
 
-    virtual void set_cmdline(se_string_view p_execpath, const List<String> &p_args);
+    virtual void set_cmdline(StringView p_execpath, const List<String> &p_args);
 
     void _ensure_user_data_dir();
-    virtual bool _check_internal_feature_support(se_string_view p_feature) = 0;
+    virtual bool _check_internal_feature_support(StringView p_feature) = 0;
 
 public:
     using ProcessID = int64_t;
@@ -152,12 +152,12 @@ public:
     virtual void global_menu_remove_item(const StringName &/*p_menu*/, int /*p_idx*/){}
     virtual void global_menu_clear(const StringName &/*p_menu*/){}
 
-    void print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code,
-            se_string_view p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
-    void print(se_string_view p_msg);
-    void printerr(se_string_view p_msg);
+    void print_error(StringView p_function, StringView p_file, int p_line, StringView p_code,
+            StringView p_rationale, Logger::ErrorType p_type = Logger::ERR_ERROR);
+    void print(StringView p_msg);
+    void printerr(StringView p_msg);
 
-    virtual void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) = 0;
+    virtual void alert(StringView p_alert, StringView p_title = StringView("ALERT!")) = 0;
     virtual String get_stdin_string(bool p_block = true) = 0;
 
     enum MouseMode {
@@ -173,9 +173,9 @@ public:
     virtual void warp_mouse_position(const Point2 &/*p_to*/) {}
     virtual Point2 get_mouse_position() const = 0;
     virtual int get_mouse_button_state() const = 0;
-    virtual void set_window_title(se_string_view p_title) = 0;
+    virtual void set_window_title(StringView p_title) = 0;
 
-    virtual void set_clipboard(se_string_view p_text);
+    virtual void set_clipboard(StringView p_text);
     virtual String get_clipboard() const;
 
     virtual void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) = 0;
@@ -257,9 +257,9 @@ public:
     virtual Point2 get_ime_selection() const { return Point2(); }
     virtual String get_ime_text() const { return String(); }
 
-    virtual Error open_dynamic_library(se_string_view/*p_path*/, void *&/*p_library_handle*/, bool /*p_also_set_library_path*/ = false) { return ERR_UNAVAILABLE; }
+    virtual Error open_dynamic_library(StringView/*p_path*/, void *&/*p_library_handle*/, bool /*p_also_set_library_path*/ = false) { return ERR_UNAVAILABLE; }
     virtual Error close_dynamic_library(void * /*p_library_handle*/) { return ERR_UNAVAILABLE; }
-    virtual Error get_dynamic_library_symbol_handle(void * /*p_library_handle*/, se_string_view/*p_name*/, void *&/*p_symbol_handle*/, bool /*p_optional*/ = false) { return ERR_UNAVAILABLE; }
+    virtual Error get_dynamic_library_symbol_handle(void * /*p_library_handle*/, StringView/*p_name*/, void *&/*p_symbol_handle*/, bool /*p_optional*/ = false) { return ERR_UNAVAILABLE; }
 
     virtual void set_keep_screen_on(bool p_enabled);
     virtual bool is_keep_screen_on() const;
@@ -269,18 +269,18 @@ public:
     virtual int get_low_processor_usage_mode_sleep_usec() const;
 
     virtual String get_executable_path() const;
-    virtual Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
-    Error execute_utf8(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
+    virtual Error execute(StringView p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
+    Error execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
     virtual Error kill(const ProcessID &p_pid) = 0;
     virtual int get_process_id() const;
     virtual void vibrate_handheld(int p_duration_ms = 500);
 
-    virtual Error shell_open(se_string_view p_uri);
-    virtual Error set_cwd(se_string_view p_cwd);
+    virtual Error shell_open(StringView p_uri);
+    virtual Error set_cwd(StringView p_cwd);
 
-    virtual bool has_environment(se_string_view p_var) const = 0;
-    virtual String get_environment(se_string_view p_var) const = 0;
-    virtual bool set_environment(se_string_view p_var, se_string_view p_value) const = 0;
+    virtual bool has_environment(StringView p_var) const = 0;
+    virtual String get_environment(StringView p_var) const = 0;
+    virtual bool set_environment(StringView p_var, StringView p_value) const = 0;
 
     virtual String get_name() const = 0;
     virtual const List<String> &get_cmdline_args() const { return _cmdline; }
@@ -395,9 +395,9 @@ public:
 
     virtual bool get_swap_ok_cancel() { return false; }
     virtual void dump_memory_to_file(const char *p_file);
-    virtual void dump_resources_to_file(se_string_view p_file);
+    virtual void dump_resources_to_file(StringView p_file);
     virtual void print_resources_in_use(bool p_short = false);
-    virtual void print_all_resources(se_string_view p_to_file = se_string_view());
+    virtual void print_all_resources(StringView p_to_file = StringView());
 
     virtual uint64_t get_static_memory_usage() const;
     virtual uint64_t get_static_memory_peak_usage() const;
@@ -408,7 +408,7 @@ public:
 
     virtual const char *get_locale() const;
 
-    String get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator = false) const;
+    String get_safe_dir_name(StringView p_dir_name, bool p_allow_dir_separator = false) const;
     virtual String get_godot_dir_name() const;
 
     String get_data_path() const;
@@ -430,7 +430,7 @@ public:
 
     static String get_system_dir(SystemDir p_dir);
 
-    virtual Error move_to_trash(se_string_view /*p_path*/) { return FAILED; }
+    virtual Error move_to_trash(StringView /*p_path*/) { return FAILED; }
 
     virtual void set_no_window_mode(bool p_enable);
     virtual bool is_no_window_mode_enabled() const;
@@ -470,7 +470,7 @@ public:
 
     const String &get_unique_id() const;
 
-    virtual Error native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track);
+    virtual Error native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track);
     virtual bool native_video_is_playing() const;
     virtual void native_video_pause();
     virtual void native_video_unpause();
@@ -519,7 +519,7 @@ public:
     bool is_vsync_via_compositor_enabled() const;
 
     virtual void force_process_input() {}
-    bool has_feature(se_string_view p_feature);
+    bool has_feature(StringView p_feature);
     static void register_feature(const char *name);
     static void unregister_feature(const char *name);
 
@@ -532,7 +532,7 @@ public:
     bool is_restart_on_exit_set() const;
     List<String> get_restart_on_exit_arguments() const;
 
-    virtual bool request_permission(se_string_view /*p_name*/) { return true; }
+    virtual bool request_permission(StringView /*p_name*/) { return true; }
     virtual bool request_permissions() { return true; }
     virtual PoolVector<String> get_granted_permissions() const;
     virtual void run() = 0;

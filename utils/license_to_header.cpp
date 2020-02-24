@@ -1117,7 +1117,7 @@ bool generate_mono_glue(QStringList args) {
         "#define CS_COMPRESSED_H\n",
         "#ifdef TOOLS_ENABLED\n",
         "#include \"core/map.h\"",
-        "#include \"core/se_string.h\"",
+        "#include \"core/string.h\"",
     };
     QStringList inserted_files;
 

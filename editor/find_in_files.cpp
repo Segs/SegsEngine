@@ -112,7 +112,7 @@ void FindInFiles::set_match_case(bool p_match_case) {
     _match_case = p_match_case;
 }
 
-void FindInFiles::set_folder(se_string_view folder) {
+void FindInFiles::set_folder(StringView folder) {
     _root_dir = folder;
 }
 
@@ -227,7 +227,7 @@ float FindInFiles::get_progress() const {
     return 0;
 }
 
-void FindInFiles::_scan_dir(se_string_view path, PoolVector<String> &out_folders) {
+void FindInFiles::_scan_dir(StringView path, PoolVector<String> &out_folders) {
 
     DirAccessRef dir = DirAccess::open(path);
     if (!dir) {
@@ -254,7 +254,7 @@ void FindInFiles::_scan_dir(se_string_view path, PoolVector<String> &out_folders
             out_folders.append(file);
 
         else {
-            se_string_view file_ext = PathUtils::get_extension(file);
+            StringView file_ext = PathUtils::get_extension(file);
             if (_extension_filter.contains_as(file_ext)) {
                 _files_to_scan.push_back(PathUtils::plus_file(path,file));
             }
@@ -262,7 +262,7 @@ void FindInFiles::_scan_dir(se_string_view path, PoolVector<String> &out_folders
     }
 }
 
-void FindInFiles::_scan_file(se_string_view fpath) {
+void FindInFiles::_scan_file(StringView fpath) {
 
     FileAccessRef  f = FileAccess::open(fpath, FileAccess::READ);
     if (!f) {
@@ -394,7 +394,7 @@ FindInFilesDialog::FindInFilesDialog() {
     cancel_button->set_text(TTR("Cancel"));
 }
 
-void FindInFilesDialog::set_search_text(se_string_view text) {
+void FindInFilesDialog::set_search_text(StringView text) {
     _search_text_line_edit->set_text(text);
     _on_search_text_modified(text);
 }
@@ -457,21 +457,21 @@ void FindInFilesDialog::_on_folder_button_pressed() {
     _folder_dialog->popup_centered_ratio();
 }
 
-void FindInFilesDialog::custom_action(se_string_view p_action) {
+void FindInFilesDialog::custom_action(StringView p_action) {
     for (int i = 0; i < _filters_container->get_child_count(); ++i) {
         CheckBox *cb = (CheckBox *)_filters_container->get_child(i);
         _filters_preferences[cb->get_text()] = cb->is_pressed();
     }
-    if (p_action == se_string_view("find")) {
+    if (p_action == StringView("find")) {
         emit_signal(StaticCString(SIGNAL_FIND_REQUESTED,true));
         hide();
-    } else if (p_action == se_string_view("replace")) {
+    } else if (p_action == StringView("replace")) {
         emit_signal(StaticCString(SIGNAL_REPLACE_REQUESTED,true));
         hide();
     }
 }
 
-void FindInFilesDialog::_on_search_text_modified(se_string_view text) {
+void FindInFilesDialog::_on_search_text_modified(StringView text) {
 
     ERR_FAIL_COND(!_find_button);
     ERR_FAIL_COND(!_replace_button);
@@ -480,13 +480,13 @@ void FindInFilesDialog::_on_search_text_modified(se_string_view text) {
     _replace_button->set_disabled(get_search_text().empty());
 }
 
-void FindInFilesDialog::_on_search_text_entered(se_string_view text) {
+void FindInFilesDialog::_on_search_text_entered(StringView text) {
     // This allows to trigger a global search without leaving the keyboard
     if (!_find_button->is_disabled())
         custom_action("find");
 }
 
-void FindInFilesDialog::_on_folder_selected(se_string_view path) {
+void FindInFilesDialog::_on_folder_selected(StringView path) {
     int i = StringUtils::find(path,"://");
     if (i != -1)
         path = StringUtils::right(path,i + 3);
@@ -644,7 +644,7 @@ void FindInFilesPanel::_notification(int p_what) {
     }
 }
 
-void FindInFilesPanel::_on_result_found(se_string_view fpath, int line_number, int begin, int end, const String& text) {
+void FindInFilesPanel::_on_result_found(StringView fpath, int line_number, int begin, int end, const String& text) {
 
     TreeItem *file_item;
     Map<String, TreeItem *>::iterator E = _file_items.find_as(fpath);
@@ -759,7 +759,7 @@ void FindInFilesPanel::_on_result_selected() {
     emit_signal(StaticCString(SIGNAL_RESULT_SELECTED,true), fpath, r.line_number, r.begin, r.end);
 }
 
-void FindInFilesPanel::_on_replace_text_changed(se_string_view text) {
+void FindInFilesPanel::_on_replace_text_changed(StringView text) {
     update_replace_buttons();
 }
 
@@ -833,7 +833,7 @@ private:
     String _line_buffer;
 };
 
-void FindInFilesPanel::apply_replaces_in_file(se_string_view fpath, const Vector<FindInFilesPanel::Result> &locations, se_string_view new_text) {
+void FindInFilesPanel::apply_replaces_in_file(StringView fpath, const Vector<FindInFilesPanel::Result> &locations, StringView new_text) {
 
     // If the file is already open, I assume the editor will reload it.
     // If there are unsaved changes, the user will be asked on focus,

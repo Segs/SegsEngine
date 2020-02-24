@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "string_utils.inl"
+#include "core/string_utils.inl"
 #ifdef WINDOWS_ENABLED
 
 #include "file_access_windows.h"
@@ -60,7 +60,7 @@ void FileAccessWindows::check_errors() const {
     }
 }
 
-Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessWindows::_open(StringView p_path, int p_mode_flags) {
 
     path_src = p_path;
     path = fix_path(p_path);
@@ -103,8 +103,8 @@ Error FileAccessWindows::_open(se_string_view p_path, int p_mode_flags) {
             String fname = StringUtils::to_utf8(StringUtils::from_wchar(d.cFileName));
             if (!fname.empty()) {
 
-                se_string_view base_file = PathUtils::get_file(path);
-                if (se_string_view(fname) != base_file && StringUtils::findn(base_file,fname) == 0) {
+                StringView base_file = PathUtils::get_file(path);
+                if (StringView(fname) != base_file && StringUtils::findn(base_file,fname) == 0) {
                     WARN_PRINT("Case mismatch opening requested file '" + base_file + "', stored as '" + fname + "' in the filesystem. This file will not open when exported to other case-sensitive platforms.");
                 }
             }
@@ -317,7 +317,7 @@ void FileAccessWindows::store_buffer(const uint8_t *p_src, int p_length) {
     ERR_FAIL_COND(wr_size != (size_t)p_length);
 }
 
-bool FileAccessWindows::file_exists(se_string_view p_name) {
+bool FileAccessWindows::file_exists(StringView p_name) {
 
     FILE *g;
     //printf("opening file %s\n", p_fname.c_str());
@@ -333,7 +333,7 @@ bool FileAccessWindows::file_exists(se_string_view p_name) {
     }
 }
 
-uint64_t FileAccessWindows::_get_modified_time(se_string_view p_file) {
+uint64_t FileAccessWindows::_get_modified_time(StringView p_file) {
 
     String file = fix_path(p_file);
     if (StringUtils::ends_with(file,"/") && file != "/")
@@ -350,11 +350,11 @@ uint64_t FileAccessWindows::_get_modified_time(se_string_view p_file) {
     }
 }
 
-uint32_t FileAccessWindows::_get_unix_permissions(se_string_view p_file) {
+uint32_t FileAccessWindows::_get_unix_permissions(StringView p_file) {
     return 0;
 }
 
-Error FileAccessWindows::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+Error FileAccessWindows::_set_unix_permissions(StringView p_file, uint32_t p_permissions) {
     return ERR_UNAVAILABLE;
 }
 

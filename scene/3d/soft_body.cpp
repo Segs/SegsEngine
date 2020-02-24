@@ -130,16 +130,16 @@ void SoftBody::_update_pickable() {
 
 bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
 
-    se_string_view which = StringUtils::get_slice(p_name,'/', 0);
+    StringView which = StringUtils::get_slice(p_name,'/', 0);
 
-    if (se_string_view("pinned_points") == which) {
+    if (StringView("pinned_points") == which) {
 
         return _set_property_pinned_points_indices(p_value);
 
-    } else if (se_string_view("attachments") == which) {
+    } else if (StringView("attachments") == which) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
+        StringView what = StringUtils::get_slice(p_name,'/', 2);
 
         return _set_property_pinned_points_attachment(idx, what, p_value);
     }
@@ -148,9 +148,9 @@ bool SoftBody::_set(const StringName &p_name, const Variant &p_value) {
 }
 
 bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
-    se_string_view which = StringUtils::get_slice(p_name,'/', 0);
+    StringView which = StringUtils::get_slice(p_name,'/', 0);
 
-    if (se_string_view("pinned_points") == which) {
+    if (StringView("pinned_points") == which) {
         Array arr_ret;
         const int pinned_points_indices_size = pinned_points.size();
         PoolVector<PinnedPoint>::Read r = pinned_points.read();
@@ -163,10 +163,10 @@ bool SoftBody::_get(const StringName &p_name, Variant &r_ret) const {
         r_ret = arr_ret;
         return true;
 
-    } else if (se_string_view("attachments") == which) {
+    } else if (StringView("attachments") == which) {
 
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
+        StringView what = StringUtils::get_slice(p_name,'/', 2);
 
         return _get_property_pinned_points(idx, what, r_ret);
     }
@@ -216,16 +216,16 @@ bool SoftBody::_set_property_pinned_points_indices(const Array &p_indices) {
     return true;
 }
 
-bool SoftBody::_set_property_pinned_points_attachment(int p_item, se_string_view p_what, const Variant &p_value) {
+bool SoftBody::_set_property_pinned_points_attachment(int p_item, StringView p_what, const Variant &p_value) {
     if (pinned_points.size() <= p_item) {
         return false;
     }
 
-    if (se_string_view("spatial_attachment_path") == p_what) {
+    if (StringView("spatial_attachment_path") == p_what) {
         PoolVector<PinnedPoint>::Write w = pinned_points.write();
         pin_point(w[p_item].point_index, true, p_value);
         _make_cache_dirty();
-    } else if (se_string_view("offset") == p_what) {
+    } else if (StringView("offset") == p_what) {
         PoolVector<PinnedPoint>::Write w = pinned_points.write();
         w[p_item].offset = p_value;
     } else {
@@ -235,17 +235,17 @@ bool SoftBody::_set_property_pinned_points_attachment(int p_item, se_string_view
     return true;
 }
 
-bool SoftBody::_get_property_pinned_points(int p_item, se_string_view p_what, Variant &r_ret) const {
+bool SoftBody::_get_property_pinned_points(int p_item, StringView p_what, Variant &r_ret) const {
     if (pinned_points.size() <= p_item) {
         return false;
     }
     PoolVector<PinnedPoint>::Read r = pinned_points.read();
 
-    if (se_string_view("point_index") == p_what) {
+    if (StringView("point_index") == p_what) {
         r_ret = r[p_item].point_index;
-    } else if (se_string_view("spatial_attachment_path") == p_what) {
+    } else if (StringView("spatial_attachment_path") == p_what) {
         r_ret = r[p_item].spatial_attachment_path;
-    } else if (se_string_view("offset") == p_what) {
+    } else if (StringView("offset") == p_what) {
         r_ret = r[p_item].offset;
     } else {
         return false;

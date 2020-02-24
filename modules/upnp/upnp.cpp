@@ -40,7 +40,7 @@
 IMPL_GDCLASS(UPNP)
 VARIANT_ENUM_CAST(UPNP::UPNPResult)
 
-bool UPNP::is_common_device(se_string_view dev) const {
+bool UPNP::is_common_device(StringView dev) const {
     return dev.empty() ||
            StringUtils::contains(dev,"InternetGatewayDevice") ||
            StringUtils::contains(dev,"WANIPConnection") ||
@@ -48,7 +48,7 @@ bool UPNP::is_common_device(se_string_view dev) const {
            StringUtils::contains(dev,"rootdevice");
 }
 
-int UPNP::discover(int timeout, int ttl, se_string_view device_filter) {
+int UPNP::discover(int timeout, int ttl, StringView device_filter) {
     ERR_FAIL_COND_V(timeout < 0, UPNP_RESULT_INVALID_PARAM);
     ERR_FAIL_COND_V(ttl < 0, UPNP_RESULT_INVALID_PARAM);
     ERR_FAIL_COND_V(ttl > 255, UPNP_RESULT_INVALID_PARAM);
@@ -82,7 +82,7 @@ int UPNP::discover(int timeout, int ttl, se_string_view device_filter) {
     struct UPNPDev *dev = devlist;
 
     while (dev) {
-        if (device_filter.empty() || se_string_view(dev->st).contains(device_filter)) {
+        if (device_filter.empty() || StringView(dev->st).contains(device_filter)) {
             add_device_to_list(dev, devlist);
         }
 
@@ -281,7 +281,7 @@ Ref<UPNPDevice> UPNP::get_gateway() const {
     return Ref<UPNPDevice>();
 }
 
-void UPNP::set_discover_multicast_if(se_string_view m_if) {
+void UPNP::set_discover_multicast_if(StringView m_if) {
     discover_multicast_if = m_if;
 }
 
@@ -327,7 +327,7 @@ int UPNP::add_port_mapping(int port, int port_internal, const String & desc, con
     return dev->add_port_mapping(port, port_internal, desc, proto, duration);
 }
 
-int UPNP::delete_port_mapping(int port, se_string_view proto) const {
+int UPNP::delete_port_mapping(int port, StringView proto) const {
     Ref<UPNPDevice> dev = get_gateway();
 
     if (dev == nullptr) {

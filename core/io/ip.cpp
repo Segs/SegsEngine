@@ -115,12 +115,12 @@ struct _IP_ResolverPrivate {
 
     HashMap<String, IP_Address> cache;
 
-    static String get_cache_key(se_string_view p_hostname, IP::Type p_type) {
+    static String get_cache_key(StringView p_hostname, IP::Type p_type) {
         return ::to_string(p_type) + p_hostname;
     }
 };
 
-IP_Address IP::resolve_hostname(se_string_view p_hostname, IP::Type p_type) {
+IP_Address IP::resolve_hostname(StringView p_hostname, IP::Type p_type) {
 
     resolver->mutex->lock();
 

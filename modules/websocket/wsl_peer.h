@@ -74,7 +74,7 @@ public:
         }
     };
 
-    static String compute_key_response(se_string_view p_key);
+    static String compute_key_response(StringView p_key);
     static String generate_key();
 
 private:
@@ -101,7 +101,7 @@ public:
     int get_max_packet_size() const override { return _packet_buffer.size(); }
 
     virtual void close_now();
-    void close(int p_code = 1000, se_string_view p_reason = "") override;
+    void close(int p_code = 1000, StringView p_reason = "") override;
     bool is_connected_to_host() const override;
     IP_Address get_connected_host() const override;
     uint16_t get_connected_port() const override;

@@ -31,7 +31,7 @@
 #include "core/list.h"
 #include "core/os/main_loop.h"
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #ifdef DEBUG_ENABLED
 

@@ -146,7 +146,7 @@ const Vector<String>& AnimationTreeEditor::get_edited_path() const {
     return button_path;
 }
 
-void AnimationTreeEditor::enter_editor(se_string_view p_path) {
+void AnimationTreeEditor::enter_editor(StringView p_path) {
 
     Vector<String> path(eastl::move(edited_path));
     path.emplace_back(p_path);

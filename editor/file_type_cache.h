@@ -32,7 +32,7 @@
 
 #include "core/object.h"
 #include "core/hash_map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class FileTypeCache : Object {
 
@@ -45,9 +45,9 @@ class FileTypeCache : Object {
 public:
     static FileTypeCache *get_singleton() { return singleton; }
 
-    bool has_file(se_string_view p_path) const;
-    String get_file_type(se_string_view p_path) const;
-    void set_file_type(se_string_view p_path, se_string_view p_type);
+    bool has_file(StringView p_path) const;
+    String get_file_type(StringView p_path) const;
+    void set_file_type(StringView p_path, StringView p_type);
 
     void load();
     void save();

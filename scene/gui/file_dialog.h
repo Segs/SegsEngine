@@ -59,7 +59,7 @@ public:
         MODE_MAX
     };
 
-    using GetIconFunc = Ref<Texture> (*)(se_string_view);
+    using GetIconFunc = Ref<Texture> (*)(StringView);
     using RegisterFunc = void (*)(FileDialog *);
 
     static GetIconFunc get_icon_func;
@@ -111,8 +111,8 @@ private:
 
     void _select_drive(int p_idx);
     void _tree_item_activated();
-    void _dir_entered(se_string_view p_dir);
-    void _file_entered(se_string_view p_file);
+    void _dir_entered(StringView p_dir);
+    void _file_entered(StringView p_file);
     void _action_pressed();
     void _save_confirm_pressed();
     void _cancel_pressed();
@@ -135,7 +135,7 @@ protected:
     //bind helpers
 public:
     void clear_filters();
-    void add_filter(se_string_view p_filter);
+    void add_filter(StringView p_filter);
     void set_filters(const Vector<String> &p_filters);
     const Vector<String> &get_filters() const;
 
@@ -145,9 +145,9 @@ public:
     String get_current_dir() const;
     String get_current_file() const;
     String get_current_path() const;
-    void set_current_dir(se_string_view p_dir);
-    void set_current_file(se_string_view p_file);
-    void set_current_path(se_string_view p_path);
+    void set_current_dir(StringView p_dir);
+    void set_current_file(StringView p_file);
+    void set_current_path(StringView p_path);
 
     void set_mode_overrides_title(bool p_override);
     bool is_mode_overriding_title() const;
@@ -181,7 +181,7 @@ class LineEditFileChooser : public HBoxContainer {
     LineEdit *line_edit;
     FileDialog *dialog;
 
-    void _chosen(se_string_view p_text);
+    void _chosen(StringView p_text);
     void _browse();
 
 protected:

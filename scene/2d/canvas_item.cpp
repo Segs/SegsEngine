@@ -956,7 +956,7 @@ void CanvasItem::draw_ui_string(const Ref<Font> &p_font, const Point2 &p_pos, co
     ERR_FAIL_COND(not p_font);
     p_font->draw_ui_string(canvas_item, p_pos, p_text, p_modulate, p_clip_w);
 }
-void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w) {
+void CanvasItem::draw_string(const Ref<Font> &p_font, const Point2 &p_pos, StringView p_text, const Color &p_modulate, int p_clip_w) {
 
     ERR_FAIL_COND_MSG(!drawing, "Drawing is only allowed inside NOTIFICATION_DRAW, _draw() function or 'draw' signal.");
 

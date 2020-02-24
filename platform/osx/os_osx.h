@@ -195,7 +195,7 @@ public:
 
     virtual void alert(const String &p_alert, const String &p_title = "ALERT!");
 
-    virtual Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false);
+    virtual Error open_dynamic_library(StringView p_path, void *&p_library_handle, bool p_also_set_library_path = false);
 
     virtual void set_cursor_shape(CursorShape p_shape);
     virtual CursorShape get_cursor_shape() const;
@@ -222,7 +222,7 @@ public:
 
     bool can_draw() const override;
 
-    void set_clipboard(se_string_view p_text) override;
+    void set_clipboard(StringView p_text) override;
     String get_clipboard() const override;
 
     void release_rendering_thread() override;
@@ -283,7 +283,7 @@ public:
     Point2 get_ime_selection() const override;
     String get_ime_text() const override;
 
-    bool _check_internal_feature_support(se_string_view p_feature) override;
+    bool _check_internal_feature_support(StringView p_feature) override;
 
     void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;

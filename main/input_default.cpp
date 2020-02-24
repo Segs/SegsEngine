@@ -199,9 +199,9 @@ void InputDefault::joy_connection_changed(int p_idx, bool p_connected, StringNam
 
         String uidname(p_guid);
         if (p_guid.empty()) {
-            int uidlen = MIN(se_string_view(p_name).length(), 16);
+            int uidlen = MIN(StringView(p_name).length(), 16);
             for (int i = 0; i < uidlen; i++) {
-                uidname += _hex_str(se_string_view(p_name)[i]);
+                uidname += _hex_str(StringView(p_name)[i]);
             }
         }
         js.uid = StringName(uidname);
@@ -734,7 +734,7 @@ InputDefault::InputDefault() {
     String env_mapping(env_var);
     if (!env_mapping.empty()) {
 
-        Vector<se_string_view> entries = StringUtils::split(env_mapping,'\n');
+        Vector<StringView> entries = StringUtils::split(env_mapping,'\n');
         for (size_t i = 0; i < entries.size(); i++) {
             if (entries[i].empty())
                 continue;
@@ -989,14 +989,14 @@ InputDefault::JoyEvent InputDefault::_find_to_event(StringName p_to) {
     return ret;
 };
 
-void InputDefault::parse_mapping(se_string_view p_mapping) {
+void InputDefault::parse_mapping(StringView p_mapping) {
 
     _THREAD_SAFE_METHOD_;
     JoyDeviceMapping mapping;
     for (int i = 0; i < HAT_MAX; ++i)
         mapping.hat[i].index = 1024 + i;
 
-    Vector<se_string_view> entry = StringUtils::split(p_mapping,',');
+    Vector<StringView> entry = StringUtils::split(p_mapping,',');
     if (entry.size() < 2) {
         return;
     }
@@ -1054,7 +1054,7 @@ void InputDefault::parse_mapping(se_string_view p_mapping) {
     //printf("added mapping with uuid %ls\n", mapping.uid.c_str());
 };
 
-void InputDefault::add_joy_mapping(se_string_view p_mapping, bool p_update_existing) {
+void InputDefault::add_joy_mapping(StringView p_mapping, bool p_update_existing) {
     parse_mapping(p_mapping);
     if (!p_update_existing)
         return;
@@ -1161,9 +1161,9 @@ StringName InputDefault::get_joy_button_string(int p_button) {
     return StringName(_buttons[p_button]);
 }
 
-int InputDefault::get_joy_button_index_from_string(se_string_view p_button) {
+int InputDefault::get_joy_button_index_from_string(StringView p_button) {
     for (int i = 0; i < JOY_BUTTON_MAX; i++) {
-        if (se_string_view(_buttons[i]) == p_button) {
+        if (StringView(_buttons[i]) == p_button) {
             return i;
         }
     }
@@ -1185,9 +1185,9 @@ StringName InputDefault::get_joy_axis_string(int p_axis) {
     return StringName(_axes[p_axis]);
 }
 
-int InputDefault::get_joy_axis_index_from_string(se_string_view p_axis) {
+int InputDefault::get_joy_axis_index_from_string(StringView p_axis) {
     for (int i = 0; i < JOY_AXIS_MAX; i++) {
-        if (se_string_view(_axes[i]) == p_axis) {
+        if (StringView(_axes[i]) == p_axis) {
             return i;
         }
     }

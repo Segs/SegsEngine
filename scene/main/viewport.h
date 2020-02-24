@@ -338,7 +338,7 @@ protected:
     _FORCE_INLINE_ Transform2D _get_input_pre_xform() const;
 
     void _vp_input(const Ref<InputEvent> &p_ev);
-    void _vp_input_text(se_string_view p_text);
+    void _vp_input_text(StringView p_text);
     void _vp_unhandled_input(const Ref<InputEvent> &p_ev);
     Ref<InputEvent> _make_input_local(const Ref<InputEvent> &ev);
 

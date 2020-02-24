@@ -35,7 +35,7 @@
 
 #include "core/os/file_access.h"
 #include "core/os/memory.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include <stdio.h>
 
@@ -51,7 +51,7 @@ class FileAccessWindows : public FileAccess {
     String save_path;
 
 public:
-    Error _open(se_string_view p_path, int p_mode_flags) override; ///< open a file
+    Error _open(StringView p_path, int p_mode_flags) override; ///< open a file
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
@@ -74,11 +74,11 @@ public:
     void store_8(uint8_t p_dest) override; ///< store a byte
     void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
 
-    bool file_exists(se_string_view p_name) override; ///< return true if a file exists
+    bool file_exists(StringView p_name) override; ///< return true if a file exists
 
-    uint64_t _get_modified_time(se_string_view p_file);
-    uint32_t _get_unix_permissions(se_string_view p_file) override;
-    Error _set_unix_permissions(se_string_view p_file, uint32_t p_permissions) override;
+    uint64_t _get_modified_time(StringView p_file);
+    uint32_t _get_unix_permissions(StringView p_file) override;
+    Error _set_unix_permissions(StringView p_file, uint32_t p_permissions) override;
 
     FileAccessWindows();
     virtual ~FileAccessWindows();

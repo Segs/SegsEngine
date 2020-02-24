@@ -68,7 +68,7 @@ public:
     PoolVector<String> _get_font_list(const String &p_type) const;
     PoolVector<String> _get_color_list(const String &p_type) const;
     PoolVector<String> _get_constant_list(const String &p_type) const;
-    PoolVector<String> _get_type_list(se_string_view p_type) const;
+    PoolVector<String> _get_type_list(StringView p_type) const;
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;

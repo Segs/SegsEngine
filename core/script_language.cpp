@@ -222,7 +222,7 @@ void ScriptServer::global_classes_clear() {
     global_classes.clear();
 }
 
-void ScriptServer::add_global_class(const StringName &p_class, const StringName &p_base, const StringName &p_language, se_string_view p_path) {
+void ScriptServer::add_global_class(const StringName &p_class, const StringName &p_base, const StringName &p_language, StringView p_path) {
     ERR_FAIL_COND_MSG(p_class == p_base || (global_classes.contains(p_base) && get_global_class_native_base(p_base) == p_class), "Cyclic inheritance in script class.");
     GlobalScriptClass g;
     g.language = p_language;
@@ -240,12 +240,12 @@ StringName ScriptServer::get_global_class_language(const StringName &p_class) {
     ERR_FAIL_COND_V(!global_classes.contains(p_class), StringName());
     return global_classes[p_class].language;
 }
-se_string_view ScriptServer::get_global_class_path(const StringName & p_class) {
-    ERR_FAIL_COND_V(!global_classes.contains(p_class), se_string_view());
+StringView ScriptServer::get_global_class_path(const StringName & p_class) {
+    ERR_FAIL_COND_V(!global_classes.contains(p_class), StringView());
     return global_classes[p_class].path;
 }
 
-StringName ScriptServer::get_global_class_base(se_string_view p_class) {
+StringName ScriptServer::get_global_class_base(StringView p_class) {
     ERR_FAIL_COND_V(!global_classes.contains(StringName(p_class)), StringName());
     return global_classes[StringName(p_class)].base;
 }
@@ -406,7 +406,7 @@ bool ScriptDebugger::is_breakpoint_line(int p_line) const {
     return breakpoints.contains(p_line);
 }
 
-String ScriptDebugger::breakpoint_find_source(se_string_view p_source) const {
+String ScriptDebugger::breakpoint_find_source(StringView p_source) const {
 
     return String(p_source);
 }

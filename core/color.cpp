@@ -33,7 +33,7 @@
 #include "core/color_names.inc"
 #include "core/map.h"
 #include "core/math/math_funcs.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 
@@ -278,7 +278,7 @@ Color Color::from_rgbe9995(uint32_t p_rgbe) {
     return Color(rd, gd, bd, 1.0f);
 }
 
-static float _parse_col(se_string_view p_str, int p_ofs) {
+static float _parse_col(StringView p_str, int p_ofs) {
 
     int ig = 0;
 
@@ -349,7 +349,7 @@ Color Color::contrasted() const {
     return (uint32_t(Math::fast_ftoi(sRed)) & 0x1FF) | ((uint32_t(Math::fast_ftoi(sGreen)) & 0x1FF) << 9) | ((uint32_t(Math::fast_ftoi(sBlue)) & 0x1FF) << 18) | ((uint32_t(Math::fast_ftoi(exps)) & 0x1F) << 27);
 }
 
-Color Color::html(se_string_view p_color) {
+Color Color::html(StringView p_color) {
     const String errcode("Invalid color code: ");
     String exp_color;
     if (p_color.length() == 0)
@@ -391,9 +391,9 @@ Color Color::html(se_string_view p_color) {
 
     return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
-bool Color::html_is_valid(se_string_view p_color) {
+bool Color::html_is_valid(StringView p_color) {
 
-    se_string_view color(p_color);
+    StringView color(p_color);
 
     if (color.length() == 0)
         return false;
@@ -431,7 +431,7 @@ bool Color::html_is_valid(se_string_view p_color) {
     return b >= 0;
 }
 
-Color Color::named(se_string_view p_name) {
+Color Color::named(StringView p_name) {
     String name(p_name);
     // Normalize name
     name = StringUtils::replace(name," ", "");

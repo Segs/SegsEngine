@@ -81,10 +81,10 @@ void ExportTemplateManager::_update_template_list() {
     // Therefore, don't display download-related features when using a development version
     // (whose builds aren't numbered).
     const bool downloads_available =
-            se_string_view(VERSION_STATUS) != se_string_view("dev") &&
-            se_string_view(VERSION_STATUS) != se_string_view("alpha") &&
-            se_string_view(VERSION_STATUS) != se_string_view("beta") &&
-            se_string_view(VERSION_STATUS) != se_string_view("rc");
+            StringView(VERSION_STATUS) != StringView("dev") &&
+            StringView(VERSION_STATUS) != StringView("alpha") &&
+            StringView(VERSION_STATUS) != StringView("beta") &&
+            StringView(VERSION_STATUS) != StringView("rc");
 
     Label *current = memnew(Label);
     current->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -697,7 +697,7 @@ Error ExportTemplateManager::_extract_libs_from_apk(const String &p_target_name)
 
         String path(fpath);
         String base_dir = get_base_dir(path);
-        se_string_view file(get_file(path));
+        StringView file(get_file(path));
 
         if (!begins_with(base_dir,"lib") || ends_with(path,'/')) {
             ret = unzGoToNextFile(pkg);

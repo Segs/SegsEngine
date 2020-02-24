@@ -62,8 +62,8 @@ class FindBar : public HBoxContainer {
     void _show_search();
     void _hide_bar();
 
-    void _search_text_changed(se_string_view p_text);
-    void _search_text_entered(se_string_view p_text);
+    void _search_text_changed(StringView p_text);
+    void _search_text_entered(StringView p_text);
 
     void _update_results_count();
     void _update_matches_label();
@@ -141,25 +141,25 @@ class EditorHelp : public VBoxContainer {
     Color qualifier_color;
 
     void _init_colors();
-    void _help_callback(se_string_view p_topic);
+    void _help_callback(StringView p_topic);
 
-    void _add_text(se_string_view p_bbcode);
+    void _add_text(StringView p_bbcode);
     bool scroll_locked;
 
     //void _button_pressed(int p_idx);
-    void _add_type(se_string_view p_type, se_string_view p_enum = {});
+    void _add_type(StringView p_type, StringView p_enum = {});
     void _add_method(const DocData::MethodDoc &p_method, bool p_overview = true);
 
-    void _class_list_select(se_string_view p_select);
-    void _class_desc_select(se_string_view p_select);
+    void _class_list_select(StringView p_select);
+    void _class_desc_select(StringView p_select);
     void _class_desc_input(const Ref<InputEvent> &p_input);
     void _class_desc_resized();
 
-    Error _goto_desc(se_string_view p_class, int p_vscr = -1);
+    Error _goto_desc(StringView p_class, int p_vscr = -1);
     //void _update_history_buttons();
     void _update_doc();
 
-    void _request_help(se_string_view p_string);
+    void _request_help(StringView p_string);
     void _search(bool p_search_previous=false);
 
     void _unhandled_key_input(const Ref<InputEvent> &p_ev);
@@ -172,8 +172,8 @@ public:
     static void generate_doc();
     static DocData *get_doc_data() { return doc; }
 
-    void go_to_help(se_string_view p_help);
-    void go_to_class(se_string_view p_class, int p_scroll = 0);
+    void go_to_help(StringView p_help);
+    void go_to_class(StringView p_class, int p_scroll = 0);
 
     Vector<Pair<String, int> > get_sections();
     void scroll_to_section(int p_section_index);
@@ -198,7 +198,7 @@ class EditorHelpBit : public PanelContainer {
 
     RichTextLabel *rich_text;
     void _go_to_help(const StringName &p_what);
-    void _meta_clicked(se_string_view p_select);
+    void _meta_clicked(StringView p_select);
 
 protected:
     static void _bind_methods();
@@ -206,7 +206,7 @@ protected:
 
 public:
     RichTextLabel *get_rich_text() { return rich_text; }
-    void set_text(se_string_view p_text);
+    void set_text(StringView p_text);
     EditorHelpBit();
 };
 

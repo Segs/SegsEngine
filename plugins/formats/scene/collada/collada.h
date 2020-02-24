@@ -566,7 +566,7 @@ public:
         }
     } state;
 
-    Error load(se_string_view p_path, int p_flags = 0);
+    Error load(StringView p_path, int p_flags = 0);
 
     Collada();
 

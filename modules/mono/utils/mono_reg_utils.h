@@ -33,7 +33,7 @@
 
 #ifdef WINDOWS_ENABLED
 
-#include "core/se_string.h"
+#include "core/string.h"
 
 struct MonoRegInfo {
 

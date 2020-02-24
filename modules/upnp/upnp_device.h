@@ -74,7 +74,7 @@ public:
     bool is_valid_gateway() const;
     String query_external_address() const;
     int add_port_mapping(int port, int port_internal = 0, const String &desc = {}, const String &proto = "UDP", int duration = 0) const;
-    int delete_port_mapping(int port, se_string_view proto = "UDP") const;
+    int delete_port_mapping(int port, StringView proto = "UDP") const;
 
     UPNPDevice();
     ~UPNPDevice() override;

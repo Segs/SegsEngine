@@ -327,7 +327,7 @@ public:
     void draw_multimesh(const Ref<MultiMesh> &p_multimesh, const Ref<Texture> &p_texture, const Ref<Texture> &p_normal_map);
 
     void draw_ui_string(const Ref<Font> &p_font, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
-    void draw_string(const Ref<Font> &p_font, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
+    void draw_string(const Ref<Font> &p_font, const Point2 &p_pos, StringView p_text, const Color &p_modulate = Color(1, 1, 1), int p_clip_w = -1);
     float draw_char(const Ref<Font> &p_font, const Point2 &p_pos, QChar p_char, QChar p_next, const Color &p_modulate = Color(1, 1, 1));
 
     void draw_set_transform(const Point2 &p_offset, float p_rot, const Size2 &p_scale);

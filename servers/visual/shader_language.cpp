@@ -32,7 +32,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/color.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/math/vector3.h"
 #include "core/math/plane.h"
@@ -2500,9 +2500,9 @@ Variant ShaderLanguage::constant_value_to_variant(const Vector<ShaderLanguage::C
     return Variant();
 }
 
-void ShaderLanguage::get_keyword_list(Vector<se_string_view> *r_keywords) {
+void ShaderLanguage::get_keyword_list(Vector<StringView> *r_keywords) {
 
-    Set<se_string_view> kws;
+    Set<StringView> kws;
 
     int idx = 0;
 
@@ -2521,14 +2521,14 @@ void ShaderLanguage::get_keyword_list(Vector<se_string_view> *r_keywords) {
         idx++;
     }
 
-    for (se_string_view E : kws) {
+    for (StringView E : kws) {
         r_keywords->push_back(E);
     }
 }
 
 void ShaderLanguage::get_builtin_funcs(Vector<String> *r_keywords) {
 
-    Set<se_string_view> kws;
+    Set<StringView> kws;
 
     int idx = 0;
 
@@ -2539,7 +2539,7 @@ void ShaderLanguage::get_builtin_funcs(Vector<String> *r_keywords) {
         idx++;
     }
     r_keywords->reserve(r_keywords->size()+kws.size());
-    for (se_string_view E : kws) {
+    for (StringView E : kws) {
         r_keywords->push_back(E.data());
     }
 }
@@ -2552,7 +2552,7 @@ void ShaderLanguage::_set_error_ui(const UIString &p_str) {
     error_set = true;
     error_str = StringUtils::to_utf8(p_str);
 }
-void ShaderLanguage::_set_error(se_string_view p_str) {
+void ShaderLanguage::_set_error(StringView p_str) {
     if (error_set)
         return;
 
@@ -2715,7 +2715,7 @@ bool ShaderLanguage::_validate_assign(Node *p_node, const HashMap<StringName, Bu
             return false;
         }
 
-        if (shader->varyings.contains(var->name) && current_function != se_string_view("vertex")) {
+        if (shader->varyings.contains(var->name) && current_function != StringView("vertex")) {
             if (r_message)
                 *r_message = RTR_utf8("Varyings can only be assigned in vertex function.");
             return false;
@@ -2739,7 +2739,7 @@ bool ShaderLanguage::_validate_assign(Node *p_node, const HashMap<StringName, Bu
                 *r_message = RTR_utf8("Constants cannot be modified.");
             return false;
         }
-        if (shader->varyings.contains(arr->name) && current_function != se_string_view("vertex")) {
+        if (shader->varyings.contains(arr->name) && current_function != StringView("vertex")) {
             if (r_message)
                 *r_message = RTR_utf8("Varyings can only be assigned in vertex function.");
             return false;

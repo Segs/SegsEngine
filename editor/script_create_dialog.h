@@ -97,15 +97,15 @@ class ScriptCreateDialog : public ConfirmationDialog {
 
     void _path_hbox_sorted();
     bool _can_be_built_in();
-    void _path_changed(se_string_view p_path = {});
-    void _path_entered(se_string_view p_path = {});
+    void _path_changed(StringView p_path = {});
+    void _path_entered(StringView p_path = {});
     void _lang_changed(int l = 0);
     void _built_in_pressed();
-    bool _validate_parent(se_string_view p_string);
+    bool _validate_parent(StringView p_string);
     bool _validate_class(const UIString &p_string);
-    StringName _validate_path(se_string_view p_path, bool p_file_must_exist);
-    void _class_name_changed(se_string_view p_name);
-    void _parent_name_changed(se_string_view p_parent);
+    StringName _validate_path(StringView p_path, bool p_file_must_exist);
+    void _class_name_changed(StringView p_name);
+    void _parent_name_changed(StringView p_parent);
     void _template_changed(int p_template = 0);
     void _browse_path(bool browse_parent, bool p_save);
     void _file_selected(const String &p_file);
@@ -123,7 +123,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void config(se_string_view p_base_name, se_string_view p_base_path, bool p_built_in_enabled = true, bool p_load_enabled=true);
+    void config(StringView p_base_name, StringView p_base_path, bool p_built_in_enabled = true, bool p_load_enabled=true);
     void set_inheritance_base_type(const StringName &p_base);
     ScriptCreateDialog();
 };

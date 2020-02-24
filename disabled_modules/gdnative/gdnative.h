@@ -106,7 +106,7 @@ public:
         config_file->set_value("general", "singleton", p_singleton);
         singleton = p_singleton;
     }
-    _FORCE_INLINE_ void set_symbol_prefix(se_string_view p_symbol_prefix) {
+    _FORCE_INLINE_ void set_symbol_prefix(StringView p_symbol_prefix) {
         config_file->set_value("general", "symbol_prefix", p_symbol_prefix);
         symbol_prefix = p_symbol_prefix;
     }
@@ -166,15 +166,15 @@ public:
 
 class GDNativeLibraryResourceLoader : public ResourceFormatLoader {
 public:
-    RES load(se_string_view p_path, se_string_view p_original_path, Error *r_error) override;
+    RES load(StringView p_path, StringView p_original_path, Error *r_error) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
-    bool handles_type(se_string_view p_type) const override;
-    String get_resource_type(se_string_view p_path) const override;
+    bool handles_type(StringView p_type) const override;
+    String get_resource_type(StringView p_path) const override;
 };
 
 class GDNativeLibraryResourceSaver : public ResourceFormatSaver {
 public:
-    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) override;
+    Error save(StringView p_path, const RES &p_resource, uint32_t p_flags) override;
     bool recognize(const RES &p_resource) const override;
     void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
 };

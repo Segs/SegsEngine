@@ -96,7 +96,7 @@ static IP_Address _sockaddr2ip(struct sockaddr *p_addr) {
 
 IMPL_GDCLASS(IP_Unix)
 
-IP_Address IP_Unix::_resolve_hostname(se_string_view p_hostname, Type p_type) {
+IP_Address IP_Unix::_resolve_hostname(StringView p_hostname, Type p_type) {
 
     struct addrinfo hints;
     struct addrinfo *result;

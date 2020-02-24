@@ -50,15 +50,15 @@ class EditorFolding {
 	void _do_node_unfolds(Node *p_root, Node *p_node, Set<RES> &resources);
 
 public:
-	void save_resource_folding(const RES &p_resource, se_string_view p_path);
-	void load_resource_folding(const RES& p_resource, se_string_view p_path);
+	void save_resource_folding(const RES &p_resource, StringView p_path);
+	void load_resource_folding(const RES& p_resource, StringView p_path);
 
-	void save_scene_folding(const Node *p_scene, se_string_view p_path);
-	void load_scene_folding(Node *p_scene, se_string_view p_path);
+	void save_scene_folding(const Node *p_scene, StringView p_path);
+	void load_scene_folding(Node *p_scene, StringView p_path);
 
 	void unfold_scene(Node *p_scene);
 
-	bool has_folding_data(se_string_view p_path);
+	bool has_folding_data(StringView p_path);
 
 	EditorFolding();
 };

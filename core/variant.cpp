@@ -49,7 +49,7 @@
 #include "core/math/vector3.h"
 #include "core/math/math_funcs.h"
 #include "core/object_db.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/resource.h"
@@ -1296,7 +1296,7 @@ String Variant::as<String>() const {
     return stringify(stack);
 }
 template<>
-se_string_view Variant::as<se_string_view>() const {
+StringView Variant::as<StringView>() const {
     if(type==VariantType::NIL)
         return "";
     assert(type==VariantType::STRING);
@@ -1580,7 +1580,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
         }
     }
 
-    return null_se_string;
+    return null_string;
 }
 
 Variant::operator Vector2() const {
@@ -1996,7 +1996,7 @@ Variant::Variant(StringName p_string) {
     type = VariantType::STRING;
     memnew_placement(_data._mem, String(p_string));
 }
-Variant::Variant(se_string_view p_string) {
+Variant::Variant(StringView p_string) {
 
     type = VariantType::STRING;
     memnew_placement(_data._mem, String(p_string));
@@ -2302,7 +2302,7 @@ Variant Variant::from(const Vector<Variant> &p_array) {
     return res;
 }
 template<>
-Variant Variant::from(const Vector<se_string_view> &p_array) {
+Variant Variant::from(const Vector<StringView> &p_array) {
     Variant res;
     PoolVector<String> *plane_array = memnew_placement(res._data._mem, PoolVector<String>);
     res.type = getBulitinArrayType(*plane_array);
@@ -2310,7 +2310,7 @@ Variant Variant::from(const Vector<se_string_view> &p_array) {
     int len = p_array.size();
     plane_array->resize(len);
     typename PoolVector<String>::Write w = plane_array->write();
-    const se_string_view *r = p_array.data();
+    const StringView *r = p_array.data();
 
     for (int i = 0; i < len; i++)
         w[i] = r[i];
@@ -3127,7 +3127,7 @@ String Variant::get_call_error_text(Object *p_base, const StringName &p_method, 
     return "'" + class_name + "::" + String(p_method) + "': " + err_text;
 }
 
-String vformat(se_string_view p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
+String vformat(StringView p_text, const Variant &p1, const Variant &p2, const Variant &p3, const Variant &p4, const Variant &p5) {
 
     Array args;
     if (p1.get_type() != VariantType::NIL) {

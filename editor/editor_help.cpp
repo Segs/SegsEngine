@@ -39,7 +39,7 @@
 #include "editor_settings.h"
 #include "editor_scale.h"
 #include "core/method_bind.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "scene/gui/rich_text_label.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
@@ -96,16 +96,16 @@ void EditorHelp::_search(bool p_search_previous) {
         find_bar->search_next();
 }
 
-void EditorHelp::_class_list_select(se_string_view p_select) {
+void EditorHelp::_class_list_select(StringView p_select) {
 
     _goto_desc(p_select);
 }
 
-void EditorHelp::_class_desc_select(se_string_view p_select) {
+void EditorHelp::_class_desc_select(StringView p_select) {
 
     if (StringUtils::begins_with(p_select,"$")) { //enum
-        se_string_view select = StringUtils::substr(p_select,1, p_select.length());
-        se_string_view class_name;
+        StringView select = StringUtils::substr(p_select,1, p_select.length());
+        StringView class_name;
         if (StringUtils::find(select,".") != String::npos) {
             class_name = StringUtils::get_slice(select,".", 0);
             select = StringUtils::get_slice(select,".", 1);
@@ -120,8 +120,8 @@ void EditorHelp::_class_desc_select(se_string_view p_select) {
     } else if (StringUtils::begins_with(p_select,"@")) {
         int tag_end = StringUtils::find(p_select," ");
 
-        se_string_view tag = StringUtils::substr(p_select,1, tag_end - 1);
-        se_string_view link = StringUtils::lstrip(StringUtils::substr(p_select,tag_end + 1, p_select.length())," ");
+        StringView tag = StringUtils::substr(p_select,1, tag_end - 1);
+        StringView link = StringUtils::lstrip(StringUtils::substr(p_select,tag_end + 1, p_select.length())," ");
 
         String topic;
         Map<String, int> *table = nullptr;
@@ -198,9 +198,9 @@ void EditorHelp::_class_desc_resized() {
     class_desc->add_style_override("normal", class_desc_stylebox);
 }
 
-void EditorHelp::_add_type(se_string_view p_type, se_string_view p_enum) {
+void EditorHelp::_add_type(StringView p_type, StringView p_enum) {
 
-    se_string_view t = p_type;
+    StringView t = p_type;
     if (t.empty())
         t = "void";
     bool can_ref = (t != "void"_sv) || !p_enum.empty();
@@ -228,7 +228,7 @@ void EditorHelp::_add_type(se_string_view p_type, se_string_view p_enum) {
     class_desc->pop();
 }
 
-se_string_view _fix_constant(se_string_view p_constant) {
+StringView _fix_constant(StringView p_constant) {
 
     if (StringUtils::strip_edges(p_constant) == "4294967295"_sv) {
         return "0xFFFFFFFF";
@@ -326,9 +326,9 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
     if (p_overview)
         class_desc->pop(); //cell
 }
-Error EditorHelp::_goto_desc(se_string_view p_class, int p_vscr) {
+Error EditorHelp::_goto_desc(StringView p_class, int p_vscr) {
 
-    if (!doc->class_list.contains_as(p_class,eastl::hash<se_string_view>(),SNSVComparer()))
+    if (!doc->class_list.contains_as(p_class,eastl::hash<StringView>(),SNSVComparer()))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -639,7 +639,7 @@ void EditorHelp::_update_doc() {
             Vector<DocData::MethodDoc> m;
 
             for (const DocData::MethodDoc &dm : methods) {
-                se_string_view q = dm.qualifiers;
+                StringView q = dm.qualifiers;
                 if ((pass == 0 && StringUtils::find(q,"virtual") != String::npos) || (pass == 1 && StringUtils::find(q,"virtual") == String::npos)) {
                     m.push_back(dm);
                 }
@@ -652,9 +652,9 @@ void EditorHelp::_update_doc() {
                 class_desc->pop(); //cell
             }
 
-            se_string_view group_prefix;
+            StringView group_prefix;
             for (size_t i = 0; i < m.size(); i++) {
-                const se_string_view new_prefix = StringUtils::substr(m[i].name,0, 3);
+                const StringView new_prefix = StringUtils::substr(m[i].name,0, 3);
                 bool is_new_group = false;
 
                 if (i < m.size() - 1 && new_prefix == StringUtils::substr(m[i + 1].name,0, 3) && new_prefix != group_prefix) {
@@ -858,8 +858,8 @@ void EditorHelp::_update_doc() {
                 class_desc->add_text_uistring("enum  ");
                 class_desc->pop();
                 class_desc->push_font(doc_code_font);
-                se_string_view e = E.first;
-                if (StringUtils::get_slice_count(e,'.')>1 && se_string_view(edited_class)==StringUtils::get_slice(E.first,'.', 0)) {
+                StringView e = E.first;
+                if (StringUtils::get_slice_count(e,'.')>1 && StringView(edited_class)==StringUtils::get_slice(E.first,'.', 0)) {
                     e = StringUtils::get_slice(E.first,'.', 1);
                 }
 
@@ -940,7 +940,7 @@ void EditorHelp::_update_doc() {
 
                 constant_line[constants[i].name] = class_desc->get_line_count() - 2;
                 class_desc->push_font(doc_code_font);
-                se_string_view cval=constants[i].value;
+                StringView cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
                     String stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
                     Vector<float> color = StringUtils::split_floats(stripped,",");
@@ -1114,7 +1114,7 @@ void EditorHelp::_update_doc() {
             Vector<DocData::MethodDoc> methods_filtered;
 
             for (size_t i = 0; i < methods.size(); i++) {
-                se_string_view q = methods[i].qualifiers;
+                StringView q = methods[i].qualifiers;
                 if ((pass == 0 && contains(q, "virtual")) || (pass == 1 && not contains(q, "virtual"))) {
                     methods_filtered.push_back(methods[i]);
                 }
@@ -1156,7 +1156,7 @@ void EditorHelp::_update_doc() {
     scroll_locked = false;
 }
 
-void EditorHelp::_request_help(se_string_view p_string) {
+void EditorHelp::_request_help(StringView p_string) {
     Error err = _goto_desc(p_string);
     if (err == OK) {
         EditorNode::get_singleton()->set_visible_editor(EditorNode::EDITOR_SCRIPT);
@@ -1164,10 +1164,10 @@ void EditorHelp::_request_help(se_string_view p_string) {
     //100 palabras
 }
 
-void EditorHelp::_help_callback(se_string_view p_topic) {
+void EditorHelp::_help_callback(StringView p_topic) {
 
-    se_string_view what = StringUtils::get_slice(p_topic,":", 0);
-    se_string_view clss = StringUtils::get_slice(p_topic,":", 1);
+    StringView what = StringUtils::get_slice(p_topic,":", 0);
+    StringView clss = StringUtils::get_slice(p_topic,":", 1);
     String name;
     if (StringUtils::get_slice_count(p_topic,':') == 3)
         name = StringUtils::get_slice(p_topic,":", 2);
@@ -1212,7 +1212,7 @@ void EditorHelp::_help_callback(se_string_view p_topic) {
     class_desc->call_deferred("scroll_to_line", line);
 }
 
-static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
+static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
     using namespace StringUtils;
 
     DocData *doc = EditorHelp::get_doc_data();
@@ -1232,7 +1232,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
     bbcode = bbcode.replaced("[codeblock]\n", "[codeblock]");
     bbcode = bbcode.replaced("\n[/codeblock]", "[/codeblock]");
 
-    Dequeue<se_string_view> tag_stack;
+    Dequeue<StringView> tag_stack;
     bool code_tag = false;
 
     size_t pos = 0;
@@ -1265,7 +1265,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             break;
         }
 
-        se_string_view tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
+        StringView tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
 
         if (StringUtils::begins_with(tag,"/")) {
             bool tag_ok = !tag_stack.empty() && tag_stack.front() == StringUtils::substr(tag,1, tag.length());
@@ -1295,8 +1295,8 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
 
             auto tag_end = StringUtils::find(tag," ");
 
-            se_string_view link_tag = StringUtils::substr(tag,0, tag_end);
-            se_string_view link_target = StringUtils::lstrip(StringUtils::substr(tag,tag_end + 1, tag.length())," ");
+            StringView link_tag = StringUtils::substr(tag,0, tag_end);
+            StringView link_target = StringUtils::lstrip(StringUtils::substr(tag,tag_end + 1, tag.length())," ");
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("@") + link_tag + " " + link_target);
@@ -1305,7 +1305,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.contains_as(tag,eastl::hash<se_string_view>(),SNSVComparer())) {
+        } else if (doc->class_list.contains_as(tag,eastl::hash<StringView>(),SNSVComparer())) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("#") + tag);
@@ -1363,14 +1363,14 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             size_t end = StringUtils::find(bbcode,"[", brk_end);
             if (end == String::npos)
                 end = bbcode.length();
-            se_string_view url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
+            StringView url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
             p_rt->push_meta(url);
 
             pos = brk_end + 1;
             tag_stack.push_front(tag);
         } else if (StringUtils::begins_with(tag,"url=")) {
 
-            se_string_view url = StringUtils::substr(tag,4, tag.length());
+            StringView url = StringUtils::substr(tag,4, tag.length());
             p_rt->push_meta(url);
             pos = brk_end + 1;
             tag_stack.push_front("url");
@@ -1379,7 +1379,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             auto end = StringUtils::find(bbcode,"[", brk_end);
             if (end == String::npos)
                 end = bbcode.length();
-            se_string_view image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
+            StringView image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
 
             Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(PathUtils::plus_file(base_path,image), "Texture"));
             if (texture)
@@ -1389,7 +1389,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
             tag_stack.push_front(tag);
         } else if (StringUtils::begins_with(tag,"color=")) {
 
-            se_string_view col = StringUtils::substr(tag,6, tag.length());
+            StringView col = StringUtils::substr(tag,6, tag.length());
             Color color;
 
             if (StringUtils::begins_with(col,"#"))
@@ -1435,7 +1435,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
 
         } else if (StringUtils::begins_with(tag,"font=")) {
 
-            se_string_view fnt = StringUtils::substr(tag,5, tag.length());
+            StringView fnt = StringUtils::substr(tag,5, tag.length());
 
             Ref<Font> font = dynamic_ref_cast<Font>(ResourceLoader::load(PathUtils::plus_file(base_path,fnt), "Font"));
             if (font)
@@ -1455,7 +1455,7 @@ static void _add_text_to_rt(se_string_view p_bbcode, RichTextLabel *p_rt) {
     }
 }
 
-void EditorHelp::_add_text(se_string_view p_bbcode) {
+void EditorHelp::_add_text(StringView p_bbcode) {
 
     _add_text_to_rt(p_bbcode, class_desc);
 }
@@ -1486,12 +1486,12 @@ void EditorHelp::_notification(int p_what) {
     }
 }
 
-void EditorHelp::go_to_help(se_string_view p_help) {
+void EditorHelp::go_to_help(StringView p_help) {
 
     _help_callback(p_help);
 }
 
-void EditorHelp::go_to_class(se_string_view p_class, int p_scroll) {
+void EditorHelp::go_to_class(StringView p_class, int p_scroll) {
 
     _goto_desc(p_class, p_scroll);
 }
@@ -1588,12 +1588,12 @@ void EditorHelpBit::_go_to_help(const StringName& p_what) {
     emit_signal("request_hide");
 }
 
-void EditorHelpBit::_meta_clicked(se_string_view p_select) {
+void EditorHelpBit::_meta_clicked(StringView p_select) {
 
     if (StringUtils::begins_with(p_select,"$")) { //enum
 
-        se_string_view select = StringUtils::substr(p_select,1, p_select.length());
-        se_string_view class_name;
+        StringView select = StringUtils::substr(p_select,1, p_select.length());
+        StringView class_name;
         if (StringUtils::contains(select,".")) {
             class_name = StringUtils::get_slice(select,".", 0);
         } else {
@@ -1607,7 +1607,7 @@ void EditorHelpBit::_meta_clicked(se_string_view p_select) {
         return;
     } else if (StringUtils::begins_with(p_select,"@")) {
 
-        se_string_view m = StringUtils::substr(p_select,1, p_select.length());
+        StringView m = StringUtils::substr(p_select,1, p_select.length());
 
         if (StringUtils::contains(m,"."))
             _go_to_help(StringName(String("class_method:") + StringUtils::get_slice(m, ".", 0) + ":" +
@@ -1633,7 +1633,7 @@ void EditorHelpBit::_notification(int p_what) {
     }
 }
 
-void EditorHelpBit::set_text(se_string_view p_text) {
+void EditorHelpBit::set_text(StringView p_text) {
 
     rich_text->clear();
     _add_text_to_rt(p_text, rich_text);
@@ -1842,12 +1842,12 @@ void FindBar::_unhandled_input(const Ref<InputEvent> &p_event) {
     }
 }
 
-void FindBar::_search_text_changed(se_string_view /*p_text*/) {
+void FindBar::_search_text_changed(StringView /*p_text*/) {
 
     search_next();
 }
 
-void FindBar::_search_text_entered(se_string_view /*p_text*/) {
+void FindBar::_search_text_entered(StringView /*p_text*/) {
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
         search_prev();

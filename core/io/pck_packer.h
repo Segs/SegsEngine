@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class FileAccess;
 
@@ -54,8 +54,8 @@ class PCKPacker : public RefCounted {
     Vector<File> files;
 
 public:
-    Error pck_start(se_string_view p_file, int p_alignment = 0);
-    Error add_file(se_string_view p_file, se_string_view p_src);
+    Error pck_start(StringView p_file, int p_alignment = 0);
+    Error add_file(StringView p_file, StringView p_src);
     Error flush(bool p_verbose = false);
 
     PCKPacker();

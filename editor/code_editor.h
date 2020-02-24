@@ -98,9 +98,9 @@ class FindReplaceBar : public HBoxContainer {
 
     void _editor_text_changed();
     void _search_options_changed(bool p_pressed);
-    void _search_text_changed(se_string_view p_text);
-    void _search_text_entered(se_string_view p_text);
-    void _replace_text_entered(se_string_view p_text);
+    void _search_text_changed(StringView p_text);
+    void _search_text_entered(StringView p_text);
+    void _replace_text_entered(StringView p_text);
     void _update_size();
 
 protected:
@@ -121,7 +121,7 @@ public:
     bool is_case_sensitive() const;
     bool is_whole_words() const;
     bool is_selection_only() const;
-    void set_error(se_string_view p_label);
+    void set_error(StringView p_label);
 
     void set_text_edit(TextEdit *p_text_edit);
 
@@ -224,7 +224,7 @@ public:
 
     /// Toggle inline comment on currently selected lines, or on current line if nothing is selected,
     /// by adding or removing comment delimiter
-    void toggle_inline_comment(se_string_view delimiter);
+    void toggle_inline_comment(StringView delimiter);
 
     void goto_line(int p_line);
     void goto_line_selection(int p_line, int p_begin, int p_end);

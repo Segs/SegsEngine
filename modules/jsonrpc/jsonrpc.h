@@ -33,7 +33,7 @@
 #include "core/object.h"
 #include "core/variant.h"
 #include "core/hash_map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class JSONRPC : public Object {
     GDCLASS(JSONRPC,Object)
@@ -55,10 +55,10 @@ public:
         INTERNAL_ERROR = -32603,
     };
 
-    Dictionary make_response_error(int p_code, se_string_view p_message, const Variant &p_id = Variant()) const;
+    Dictionary make_response_error(int p_code, StringView p_message, const Variant &p_id = Variant()) const;
     Dictionary make_response(const Variant &p_value, const Variant &p_id);
-    Dictionary make_notification(se_string_view p_method, const Variant &p_params);
-    Dictionary make_request(se_string_view p_method, const Variant &p_params, const Variant &p_id);
+    Dictionary make_notification(StringView p_method, const Variant &p_params);
+    Dictionary make_request(StringView p_method, const Variant &p_params, const Variant &p_id);
 
     Variant process_action(const Variant &p_action, bool p_process_arr_elements = false);
     String process_string(const String &p_input);

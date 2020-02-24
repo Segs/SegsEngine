@@ -183,7 +183,7 @@ Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int
     connection_status = CONNECTION_CONNECTED;
     return OK;
 }
-Error NetworkedMultiplayerENet::create_client(se_string_view p_address, int p_port, int p_in_bandwidth, int p_out_bandwidth, int p_client_port) {
+Error NetworkedMultiplayerENet::create_client(StringView p_address, int p_port, int p_in_bandwidth, int p_out_bandwidth, int p_client_port) {
 
     ERR_FAIL_COND_V_MSG(active, ERR_ALREADY_IN_USE, "The multiplayer instance is already active.");
     ERR_FAIL_COND_V_MSG(p_port < 0 || p_port > 65535, ERR_INVALID_PARAMETER, "The server port number must be set between 0 and 65535 (inclusive).");

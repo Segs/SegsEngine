@@ -505,13 +505,13 @@ ConnectDialog::~ConnectDialog() {
 //////////////////////////////////////////
 
 // Originally copied and adapted from EditorProperty, try to keep style in sync.
-Control *ConnectionsDockTree::make_custom_tooltip(se_string_view p_text) const {
+Control *ConnectionsDockTree::make_custom_tooltip(StringView p_text) const {
 
     EditorHelpBit *help_bit = memnew(EditorHelpBit);
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    FixedVector<se_string_view,16,true> parts;
+    FixedVector<StringView,16,true> parts;
 
     String::split_ref(parts,p_text,"::");
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <utility>
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "typesystem_decls.h"
 
 enum class VariantType : int8_t;
@@ -44,7 +44,7 @@ public:
     PropertyInfo(const PropertyInfo &oth) = default;
 
     PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PropertyHint::None,
-            se_string_view p_hint_string=se_string_view(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
+            StringView p_hint_string=StringView(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(eastl::move(p_name)),
             hint_string(p_hint_string),
@@ -69,7 +69,7 @@ public:
         hint(rp.hint)
     {
         // Handles ClassName::NestedType -> ClassName.NestedType conversion
-        bool has_class_spec = rp.class_name && se_string_view(rp.class_name).contains(se_string_view("::"));
+        bool has_class_spec = rp.class_name && StringView(rp.class_name).contains(StringView("::"));
         if(has_class_spec) {
             class_name = StringName(String(rp.class_name).replaced("::","."));
         }
@@ -87,7 +87,7 @@ public:
     }
 
     bool operator<(const PropertyInfo &p_info) const {
-        return se_string_view(name).compare(p_info.name)<0;
+        return StringView(name).compare(p_info.name)<0;
     }
     ~PropertyInfo() = default;
 };

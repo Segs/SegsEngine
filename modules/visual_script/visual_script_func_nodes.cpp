@@ -164,7 +164,7 @@ int VisualScriptFunctionCall::get_output_value_port_count() const {
     }
 }
 
-se_string_view VisualScriptFunctionCall::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptFunctionCall::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -195,7 +195,7 @@ PropertyInfo VisualScriptFunctionCall::get_input_value_port_info(int p_idx) cons
 
     if (call_mode == CALL_MODE_BASIC_TYPE) {
 
-        Span<const se_string_view> names = Variant::get_method_argument_names(basic_type, function);
+        Span<const StringView> names = Variant::get_method_argument_names(basic_type, function);
         Span<const VariantType> types = Variant::get_method_argument_types(basic_type, function);
         return PropertyInfo(types[p_idx], StaticCString(names[p_idx].data(),true));
 
@@ -258,7 +258,7 @@ PropertyInfo VisualScriptFunctionCall::get_output_value_port_info(int p_idx) con
 #endif
 }
 
-se_string_view VisualScriptFunctionCall::get_caption() const {
+StringView VisualScriptFunctionCall::get_caption() const {
     //NOTE: calling this function twice in a row without copying the result will result in a BUG
     thread_local char buf[512];
     buf[0]=0;
@@ -322,7 +322,7 @@ StringName VisualScriptFunctionCall::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptFunctionCall::set_base_script(se_string_view p_path) {
+void VisualScriptFunctionCall::set_base_script(StringView p_path) {
 
     if (base_script == p_path)
         return;
@@ -1020,7 +1020,7 @@ int VisualScriptPropertySet::get_output_value_port_count() const {
     return (call_mode == CALL_MODE_BASIC_TYPE || call_mode == CALL_MODE_INSTANCE) ? 1 : 0;
 }
 
-se_string_view VisualScriptPropertySet::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptPropertySet::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -1074,7 +1074,7 @@ PropertyInfo VisualScriptPropertySet::get_output_value_port_info(int p_idx) cons
     }
 }
 
-se_string_view VisualScriptPropertySet::get_caption() const {
+StringView VisualScriptPropertySet::get_caption() const {
     thread_local char buf[512];
     buf[0]=0;
     static const char *opname[ASSIGN_OP_MAX] = {
@@ -1151,7 +1151,7 @@ StringName VisualScriptPropertySet::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptPropertySet::set_base_script(se_string_view p_path) {
+void VisualScriptPropertySet::set_base_script(StringView p_path) {
 
     if (base_script == p_path)
         return;
@@ -1799,7 +1799,7 @@ int VisualScriptPropertyGet::get_output_value_port_count() const {
     return 1;
 }
 
-se_string_view VisualScriptPropertyGet::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptPropertyGet::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -1829,7 +1829,7 @@ PropertyInfo VisualScriptPropertyGet::get_output_value_port_info(int p_idx) cons
     return PropertyInfo(type_cache, "value");
 }
 
-se_string_view VisualScriptPropertyGet::get_caption() const {
+StringView VisualScriptPropertyGet::get_caption() const {
     thread_local char buf[512];
     buf[0]=0;
     strncat(buf,"Get ",511);
@@ -1867,7 +1867,7 @@ StringName VisualScriptPropertyGet::get_base_type() const {
     return base_type;
 }
 
-void VisualScriptPropertyGet::set_base_script(se_string_view p_path) {
+void VisualScriptPropertyGet::set_base_script(StringView p_path) {
 
     if (base_script == p_path)
         return;
@@ -2356,7 +2356,7 @@ int VisualScriptEmitSignal::get_output_value_port_count() const {
     return 0;
 }
 
-se_string_view VisualScriptEmitSignal::get_output_sequence_port_text(int p_port) const {
+StringView VisualScriptEmitSignal::get_output_sequence_port_text(int p_port) const {
 
     return nullptr;
 }
@@ -2380,7 +2380,7 @@ PropertyInfo VisualScriptEmitSignal::get_output_value_port_info(int p_idx) const
     return PropertyInfo();
 }
 
-se_string_view VisualScriptEmitSignal::get_caption() const {
+StringView VisualScriptEmitSignal::get_caption() const {
     thread_local char buf[512];
     buf[0]=0;
     strncat(buf,"Emit ",511);
@@ -2469,12 +2469,12 @@ VisualScriptNodeInstance *VisualScriptEmitSignal::instance(VisualScriptInstance 
 VisualScriptEmitSignal::VisualScriptEmitSignal() {
 }
 
-static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) {
+static Ref<VisualScriptNode> create_basic_type_call_node(StringView p_name) {
 
-    Vector<se_string_view > path = StringUtils::split(p_name,'/');
+    Vector<StringView > path = StringUtils::split(p_name,'/');
     ERR_FAIL_COND_V(path.size() < 4, Ref<VisualScriptNode>());
-    se_string_view  base_type = path[2];
-    se_string_view  method = path[3];
+    StringView  base_type = path[2];
+    StringView  method = path[3];
 
     Ref<VisualScriptFunctionCall> node(make_ref_counted<VisualScriptFunctionCall>());
 
@@ -2482,7 +2482,7 @@ static Ref<VisualScriptNode> create_basic_type_call_node(se_string_view p_name) 
 
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
 
-        if (base_type == se_string_view(Variant::get_type_name(VariantType(i)))) {
+        if (base_type == StringView(Variant::get_type_name(VariantType(i)))) {
             type = VariantType(i);
             break;
         }

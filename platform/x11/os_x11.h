@@ -231,7 +231,7 @@ public:
     void warp_mouse_position(const Point2 &p_to) override;
     Point2 get_mouse_position() const override;
     int get_mouse_button_state() const override;
-    void set_window_title(se_string_view p_title) override;
+    void set_window_title(StringView p_title) override;
 
     void set_icon(const Ref<Image> &p_icon) override;
 
@@ -239,14 +239,14 @@ public:
 
     bool can_draw() const override;
 
-    void set_clipboard(se_string_view p_text) override;
+    void set_clipboard(StringView p_text) override;
     String get_clipboard() const override;
 
     void release_rendering_thread() override;
     void make_rendering_thread() override;
     void swap_buffers() override;
 
-    Error shell_open(se_string_view p_uri) override;
+    Error shell_open(StringView p_uri) override;
 
     void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
     VideoMode get_video_mode(int p_screen = 0) const override;
@@ -290,7 +290,7 @@ public:
     void set_ime_position(const Point2 &p_pos) override;
 
     void move_window_to_foreground() override;
-    void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) override;
+    void alert(StringView p_alert, StringView p_title = StringView("ALERT!")) override;
 
     bool is_joy_known(int p_device) override;
     StringName get_joy_guid(int p_device) const override;
@@ -300,7 +300,7 @@ public:
     void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;
 
-    bool _check_internal_feature_support(se_string_view p_feature) override;
+    bool _check_internal_feature_support(StringView p_feature) override;
 
     void force_process_input() override;
     void run() override;
@@ -308,7 +308,7 @@ public:
     void disable_crash_handler() override;
     bool is_disable_crash_handler() const override;
 
-    Error move_to_trash(se_string_view p_path) override;
+    Error move_to_trash(StringView p_path) override;
 
     LatinKeyboardVariant get_latin_keyboard_variant() const override;
 

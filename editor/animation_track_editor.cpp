@@ -130,7 +130,7 @@ public:
         int key = animation->track_find_key(track, key_ofs, true);
         ERR_FAIL_COND_V(key == -1, false);
 
-        se_string_view name(p_name);
+        StringView name(p_name);
         if (name == "time"_sv || name == "frame"_sv) {
 
             float new_time = p_value;
@@ -252,7 +252,7 @@ public:
                     int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                     ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                    se_string_view what = StringUtils::get_slice(name,"/", 2);
+                    StringView what = StringUtils::get_slice(name,"/", 2);
                     if (what == "type"_sv) {
                         VariantType t = VariantType(int(p_value));
 
@@ -436,7 +436,7 @@ public:
         int key = animation->track_find_key(track, key_ofs, true);
         ERR_FAIL_COND_V(key == -1, false);
 
-        se_string_view name(p_name);
+        StringView name(p_name);
         if (name == "time"_sv) {
             r_ret = key_ofs;
             return true;
@@ -499,7 +499,7 @@ public:
                     int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                     ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                    se_string_view what = StringUtils::get_slice(name,"/", 2);
+                    StringView what = StringUtils::get_slice(name,"/", 2);
                     if (what == "type"_sv) {
                         r_ret = args[idx].get_type();
                         return true;
@@ -803,7 +803,7 @@ public:
                 int key = animation->track_find_key(track, key_ofs, true);
                 ERR_FAIL_COND_V(key == -1, false);
 
-                se_string_view name(p_name);
+                StringView name(p_name);
                 if (name == "time"_sv || name == "frame"_sv) {
 
                     float new_time = p_value;
@@ -910,7 +910,7 @@ public:
                             int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                             ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                            se_string_view what = StringUtils::get_slice(name,"/", 2);
+                            StringView what = StringUtils::get_slice(name,"/", 2);
                             if (what == "type"_sv) {
                                 VariantType t = VariantType(int(p_value));
 
@@ -1086,7 +1086,7 @@ public:
                 int key = animation->track_find_key(track, key_ofs, true);
                 ERR_CONTINUE(key == -1);
 
-                se_string_view name(p_name);
+                StringView name(p_name);
                 if (name == "time"_sv) {
                     r_ret = key_ofs;
                     return true;
@@ -1151,7 +1151,7 @@ public:
                             int idx = StringUtils::to_int(StringUtils::get_slice(name,"/", 1));
                             ERR_FAIL_INDEX_V(idx, args.size(), false);
 
-                            se_string_view what = StringUtils::get_slice(name,"/", 2);
+                            StringView what = StringUtils::get_slice(name,"/", 2);
                             if (what == "type"_sv) {
                                 r_ret = args[idx].get_type();
                                 return true;
@@ -2481,7 +2481,7 @@ void AnimationTrackEdit::_zoom_changed() {
     play_position->update();
 }
 
-void AnimationTrackEdit::_path_entered(se_string_view p_text) {
+void AnimationTrackEdit::_path_entered(StringView p_text) {
     undo_redo->create_action_ui(TTR("Change Track Path"));
     undo_redo->add_do_method(animation.get(), "track_set_path", track, p_text);
     undo_redo->add_undo_method(animation.get(), "track_set_path", track, animation->track_get_path(track));
@@ -3128,7 +3128,7 @@ AnimationTrackEdit::AnimationTrackEdit() {
 
 //////////////////////////////////////
 
-AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_object, VariantType p_type, const StringName &p_property, PropertyHint p_hint, se_string_view p_hint_string, int p_usage) {
+AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_object, VariantType p_type, const StringName &p_property, PropertyHint p_hint, StringView p_hint_string, int p_usage) {
     if (get_script_instance()) {
         Variant args[6] = {
             Variant(p_object),
@@ -3563,7 +3563,7 @@ void AnimationTrackEditor::_insert_delay() {
     insert_queue = false;
 }
 
-void AnimationTrackEditor::insert_transform_key(Spatial *p_node, se_string_view p_sub, const Transform &p_xform) {
+void AnimationTrackEditor::insert_transform_key(Spatial *p_node, StringView p_sub, const Transform &p_xform) {
 
     if (!keying)
         return;
@@ -3641,7 +3641,7 @@ void AnimationTrackEditor::_insert_animation_key(const NodePath& p_path, const V
     _query_insert(id);
 }
 
-void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_property, const Variant &p_value, bool p_only_if_exists) {
+void AnimationTrackEditor::insert_node_value_key(Node *p_node, StringView p_property, const Variant &p_value, bool p_only_if_exists) {
 
     ERR_FAIL_COND(!root);
     //let's build a node path
@@ -3650,7 +3650,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
 
     String path(root->get_path_to(node));
 
-    if (object_cast<AnimationPlayer>(node) && p_property == se_string_view("current_animation")) {
+    if (object_cast<AnimationPlayer>(node) && p_property == StringView("current_animation")) {
         if (node == AnimationPlayerEditor::singleton->get_player()) {
             EditorNode::get_singleton()->show_warning(TTR("AnimationPlayer can't animate itself, only other players."));
             return;
@@ -3700,9 +3700,9 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
             } else {
                 auto sep = StringUtils::find_last(track_path,':');
                 if (sep != String::npos) {
-                    se_string_view base_path = StringUtils::substr(track_path,0, sep);
+                    StringView base_path = StringUtils::substr(track_path,0, sep);
                     if ((String)np == base_path) {
-                        se_string_view value_name = StringUtils::substr(track_path,sep + 1);
+                        StringView value_name = StringUtils::substr(track_path,sep + 1);
                         value = p_value.get(value_name);
                     } else
                     continue;
@@ -3736,7 +3736,7 @@ void AnimationTrackEditor::insert_node_value_key(Node *p_node, se_string_view p_
     _query_insert(id);
 }
 
-void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Variant &p_value, bool p_advance) {
+void AnimationTrackEditor::insert_value_key(StringView p_property, const Variant &p_value, bool p_advance) {
 
     EditorHistory *history = EditorNode::get_singleton()->get_editor_history();
 
@@ -3750,7 +3750,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
 
     String path(root->get_path_to(node));
 
-    if (object_cast<AnimationPlayer>(node) && p_property == se_string_view("current_animation")) {
+    if (object_cast<AnimationPlayer>(node) && p_property == StringView("current_animation")) {
         if (node == AnimationPlayerEditor::singleton->get_player()) {
             EditorNode::get_singleton()->show_warning(TTR("AnimationPlayer can't animate itself, only other players."));
             return;
@@ -3799,7 +3799,7 @@ void AnimationTrackEditor::insert_value_key(se_string_view p_property, const Var
                 String tpath(animation->track_get_path(i));
                 auto index = tpath.rfind(':');
                 if (NodePath(tpath.substr(0, index + 1)) == np) {
-                    auto subindex = se_string_view(tpath).substr(index + 1, tpath.length() - index);
+                    auto subindex = StringView(tpath).substr(index + 1, tpath.length() - index);
                     value = p_value.get(subindex);
                 } else {
                     continue;
@@ -3911,8 +3911,8 @@ PropertyInfo AnimationTrackEditor::_find_hint_for_track(int p_idx, NodePath &r_b
     return PropertyInfo();
 }
 
-static Vector<se_string_view> _get_bezier_subindices_for_type(VariantType p_type, bool *r_valid = nullptr) {
-    Vector<se_string_view> subindices;
+static Vector<StringView> _get_bezier_subindices_for_type(VariantType p_type, bool *r_valid = nullptr) {
+    Vector<StringView> subindices;
     if (r_valid) {
         *r_valid = true;
     }
@@ -3970,7 +3970,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
 
         if (p_create_beziers) {
             bool valid;
-            Vector<se_string_view> subindices = _get_bezier_subindices_for_type(p_id.value.get_type(), &valid);
+            Vector<StringView> subindices = _get_bezier_subindices_for_type(p_id.value.get_type(), &valid);
             if (valid) {
 
             for (size_t i = 0; i < subindices.size(); i++) {
@@ -4537,7 +4537,7 @@ void AnimationTrackEditor::_add_track(int p_type) {
     pick_track->popup_centered_ratio();
 }
 
-void AnimationTrackEditor::_new_track_property_selected(se_string_view p_name) {
+void AnimationTrackEditor::_new_track_property_selected(StringView p_name) {
 
     String full_path = String(adding_track_path) + ":" + p_name;
 
@@ -4577,7 +4577,7 @@ void AnimationTrackEditor::_new_track_property_selected(se_string_view p_name) {
         undo_redo->add_undo_method(animation.get(), "remove_track", animation->get_track_count());
         undo_redo->commit_action();
     } else {
-        Vector<se_string_view> subindices;
+        Vector<StringView> subindices;
         {
             //hack
             NodePath np;

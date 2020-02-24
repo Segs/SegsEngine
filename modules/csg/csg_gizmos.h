@@ -41,7 +41,7 @@ class CSGShapeSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
 
 public:
 	bool has_gizmo(Spatial *p_spatial) override;
-    se_string_view get_name() const override;
+    StringView get_name() const override;
 	int get_priority() const override;
 	bool is_selectable_when_hidden() const override;
 	void redraw(EditorSpatialGizmo *p_gizmo) override;

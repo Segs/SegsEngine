@@ -133,7 +133,7 @@ void WebSocketServer::_on_peer_packet(int32_t p_peer_id) {
     }
 }
 
-void WebSocketServer::_on_connect(int32_t p_peer_id, se_string_view p_protocol) {
+void WebSocketServer::_on_connect(int32_t p_peer_id, StringView p_protocol) {
 
     if (_is_multiplayer) {
         // Send add to clients
@@ -155,7 +155,7 @@ void WebSocketServer::_on_disconnect(int32_t p_peer_id, bool p_was_clean) {
     }
 }
 
-void WebSocketServer::_on_close_request(int32_t p_peer_id, int p_code, se_string_view p_reason) {
+void WebSocketServer::_on_close_request(int32_t p_peer_id, int p_code, StringView p_reason) {
 
     emit_signal("client_close_request", p_peer_id, p_code, p_reason);
 }

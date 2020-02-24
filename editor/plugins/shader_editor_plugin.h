@@ -136,7 +136,7 @@ public:
     void goto_line_selection(int p_line, int p_begin, int p_end);
 
     Size2 get_minimum_size() const override { return Size2(0, 200); }
-    void save_external_data(se_string_view p_str = se_string_view());
+    void save_external_data(StringView p_str = StringView());
 
     ShaderEditor(EditorNode *p_node);
 };
@@ -151,7 +151,7 @@ class ShaderEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return "Shader"; }
+    StringView get_name() const override { return "Shader"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

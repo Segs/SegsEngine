@@ -116,7 +116,7 @@ void ThreadPosix::wait_to_finish_func_posix(Thread *p_thread) {
     tp->pthread = 0;
 }
 
-Error ThreadPosix::set_name_func_posix(se_string_view p_name) {
+Error ThreadPosix::set_name_func_posix(StringView p_name) {
 
 #ifdef PTHREAD_NO_RENAME
     return ERR_UNAVAILABLE;

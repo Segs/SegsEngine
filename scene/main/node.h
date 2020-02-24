@@ -217,7 +217,7 @@ public:
     /* NODE/TREE */
 
     StringName get_name() const;
-    void set_name(se_string_view p_name);
+    void set_name(StringView p_name);
 
     void add_child(Node *p_child, bool p_legible_unique_name = false);
     void add_child_below_node(Node *p_node, Node *p_child, bool p_legible_unique_name = false);
@@ -228,12 +228,12 @@ public:
     bool has_node(const NodePath &p_path) const;
     Node *get_node(const NodePath &p_path) const;
     Node *get_node_or_null(const NodePath &p_path) const;
-    Node *find_node(se_string_view p_mask, bool p_recursive = true, bool p_owned = true) const;
+    Node *find_node(StringView p_mask, bool p_recursive = true, bool p_owned = true) const;
     bool has_node_and_resource(const NodePath &p_path) const;
     Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
 
     Node *get_parent() const;
-    Node *find_parent(se_string_view p_mask) const;
+    Node *find_parent(StringView p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
         ERR_FAIL_COND_V(!tree, nullptr);
@@ -275,10 +275,10 @@ public:
     void print_tree();
     void print_tree_pretty();
 
-    void set_filename(se_string_view p_filename);
-    se_string_view get_filename() const;
+    void set_filename(StringView p_filename);
+    StringView get_filename() const;
 
-    void set_editor_description(se_string_view p_editor_description);
+    void set_editor_description(StringView p_editor_description);
     String get_editor_description() const;
 
     void set_editable_instance(Node *p_node, bool p_editable);

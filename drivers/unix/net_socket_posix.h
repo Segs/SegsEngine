@@ -50,7 +50,7 @@ private:
 
     NetError _get_socket_error() const;
     void _set_socket(SOCKET_HOLDER *p_sock, IP::Type p_ip_type, bool p_is_stream);
-    _FORCE_INLINE_ Error _change_multicast_group(IP_Address p_ip, se_string_view p_if_name, bool p_add);
+    _FORCE_INLINE_ Error _change_multicast_group(IP_Address p_ip, StringView p_if_name, bool p_add);
     _FORCE_INLINE_ void _set_close_exec_enabled(bool p_enabled);
 protected:
     static NetSocket *_create_func();
@@ -84,8 +84,8 @@ public:
     void set_tcp_no_delay_enabled(bool p_enabled) override;
     void set_reuse_address_enabled(bool p_enabled) override;
     virtual void set_reuse_port_enabled(bool p_enabled);
-    Error join_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) override;
-    Error leave_multicast_group(const IP_Address &p_multi_address, se_string_view p_if_name) override;
+    Error join_multicast_group(const IP_Address &p_multi_address, StringView p_if_name) override;
+    Error leave_multicast_group(const IP_Address &p_multi_address, StringView p_if_name) override;
 
     GODOT_EXPORT NetSocketPosix();
     GODOT_EXPORT ~NetSocketPosix() override;

@@ -107,7 +107,7 @@ String CameraFeed::get_name() const {
     return name;
 }
 
-void CameraFeed::set_name(se_string_view p_name) {
+void CameraFeed::set_name(StringView p_name) {
     name = p_name;
 }
 
@@ -158,7 +158,7 @@ CameraFeed::CameraFeed() {
     texture[CameraServer::FEED_CBCR_IMAGE] = vs->texture_create();
 }
 
-CameraFeed::CameraFeed(se_string_view p_name, FeedPosition p_position) {
+CameraFeed::CameraFeed(StringView p_name, FeedPosition p_position) {
     // initialize our feed
     id = CameraServer::get_singleton()->get_free_id();
     base_width = 0;

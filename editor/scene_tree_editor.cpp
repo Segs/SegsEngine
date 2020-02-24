@@ -745,7 +745,7 @@ void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
     }
 }
 
-void SceneTreeEditor::_rename_node(ObjectID p_node, se_string_view p_name) {
+void SceneTreeEditor::_rename_node(ObjectID p_node, StringView p_name) {
 
     Object *o = ObjectDB::get_instance(p_node);
     ERR_FAIL_COND(!o);
@@ -1256,7 +1256,7 @@ void SceneTreeDialog::_select() {
     }
 }
 
-void SceneTreeDialog::_filter_changed(se_string_view p_filter) {
+void SceneTreeDialog::_filter_changed(StringView p_filter) {
 
     tree->set_filter(StringUtils::from_utf8(p_filter));
 }

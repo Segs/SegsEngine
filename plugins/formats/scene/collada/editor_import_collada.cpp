@@ -31,7 +31,7 @@
 #include "editor_import_collada.h"
 
 #include "core/os/os.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "collada.h"
 #include "editor/editor_node.h"
 #include "scene/3d/camera.h"
@@ -91,7 +91,7 @@ struct ColladaImport {
     Error _create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_mesh, const HashMap<String, Collada::NodeGeometry::Material> &p_material_map, const Collada::MeshData &meshdata, const Transform &p_local_xform, const
             Vector<int> &bone_remap, const Collada::SkinControllerData *p_skin_controller, const Collada::MorphControllerData *p_morph_data, Vector
             <Ref<ArrayMesh>> p_morph_meshes = Vector<Ref<ArrayMesh>>(), bool p_use_compression = false, bool p_use_mesh_material = false);
-    Error load(se_string_view p_path, int p_flags, bool p_force_make_tangents = false, bool p_use_compression = false);
+    Error load(StringView p_path, int p_flags, bool p_force_make_tangents = false, bool p_use_compression = false);
     void _fix_param_animation_tracks();
     void create_animation(int p_clip, bool p_make_tracks_in_all_bones, bool p_import_value_tracks);
     void create_animations(bool p_make_tracks_in_all_bones, bool p_import_value_tracks);
@@ -1250,7 +1250,7 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
     return OK;
 }
 
-Error ColladaImport::load(se_string_view p_path, int p_flags, bool p_force_make_tangents, bool p_use_compression) {
+Error ColladaImport::load(StringView p_path, int p_flags, bool p_force_make_tangents, bool p_use_compression) {
 
     Error err = collada.load(p_path, p_flags);
     ERR_FAIL_COND_V_MSG(err, err, "Cannot load file '" + p_path + "'.");
@@ -1759,7 +1759,7 @@ void EditorSceneImporterCollada::get_extensions(Vector<String> &r_extensions) co
 
     r_extensions.push_back("dae");
 }
-Node *EditorSceneImporterCollada::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterCollada::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     ColladaImport state;
     uint32_t flags = Collada::IMPORT_FLAG_SCENE;
@@ -1817,7 +1817,7 @@ Node *EditorSceneImporterCollada::import_scene(se_string_view p_path, uint32_t p
     return state.scene;
 }
 
-Ref<Animation> EditorSceneImporterCollada::import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
+Ref<Animation> EditorSceneImporterCollada::import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) {
 
     ColladaImport state;
 

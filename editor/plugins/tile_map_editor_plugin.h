@@ -183,8 +183,8 @@ class TileMapEditor : public VBoxContainer {
 
 	void _manual_toggled(bool p_enabled);
 	void _priority_toggled(bool p_enabled);
-	void _text_entered(se_string_view p_text);
-	void _text_changed(se_string_view p_text);
+	void _text_entered(StringView p_text);
+	void _text_changed(StringView p_text);
 	void _sbox_input(const Ref<InputEvent> &p_ie);
 	void _update_palette();
 	void _update_button_tool();
@@ -194,7 +194,7 @@ class TileMapEditor : public VBoxContainer {
 	void _palette_multi_selected(int index, bool selected);
 
 	Dictionary _create_cell_dictionary(int tile, bool flip_x, bool flip_y, bool transpose, Vector2 autotile_coord);
-	void _start_undo(se_string_view p_action);
+	void _start_undo(StringView p_action);
 	void _finish_undo();
 	void _create_set_cell_undo_redo(const Vector2 &p_vec, const CellOp &p_cell_old, const CellOp &p_cell_new);
 	void _set_cell(const Point2i &p_pos, Span<const int> p_values, bool p_flip_h = false, bool p_flip_v = false, bool p_transpose = false, const Point2i &p_autotile_coord = Point2());
@@ -241,7 +241,7 @@ public:
 	bool forward_canvas_gui_input(const Ref<InputEvent> &p_event) override { return tile_map_editor->forward_gui_input(p_event); }
 	void forward_canvas_draw_over_viewport(Control *p_overlay) override { tile_map_editor->forward_canvas_draw_over_viewport(p_overlay); }
 
-    se_string_view get_name() const override { return "TileMap"; }
+    StringView get_name() const override { return "TileMap"; }
 	bool has_main_screen() const override { return false; }
 	void edit(Object *p_object) override;
 	bool handles(Object *p_object) const override;
