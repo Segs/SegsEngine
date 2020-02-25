@@ -404,6 +404,7 @@ struct ResourcePluginResolver : public ResolverInterface
  *   start() does it own argument parsing for a subset of the command line arguments described
  *   in help, it's a bit messy and should be globalized with the setup() parsing somehow.
  */
+#include <QDir>
 Error Main::setup(bool p_second_phase) {
     RID_OwnerBase::init_rid();
 
@@ -417,7 +418,6 @@ Error Main::setup(bool p_second_phase) {
 #else
     OS::register_feature("release");
 #endif
-
     OS::get_singleton()->initialize_core();
     engine = memnew(Engine);
 
@@ -494,6 +494,7 @@ Error Main::setup(bool p_second_phase) {
         packed_data = memnew(PackedData);
 
     add_plugin_resolver(new ArchivePluginResolver(packed_data));
+    auto z = QDir::currentPath();
 
     I = args.begin();
     while (I!= args.end()) {
@@ -771,11 +772,11 @@ Error Main::setup(bool p_second_phase) {
 
             path = PathUtils::path(file);
 
-            if (OS::get_singleton()->set_cwd(path) == OK) {
+            //if (OS::get_singleton()->set_cwd(path) == OK) {
                 // path already specified, don't override
-            } else {
+            //} else {
                 project_path = path;
-            }
+            //}
 #ifdef TOOLS_ENABLED
             //editor = true;
 #endif

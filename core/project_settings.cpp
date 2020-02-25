@@ -481,7 +481,7 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
     if (!found)
         return err;
 
-    if (resource_path.length() && resource_path[resource_path.length() - 1] == '/')
+    if (resource_path.length() && resource_path.back() == '/')
         resource_path = StringUtils::substr(resource_path,0, resource_path.length() - 1); // chop end
 
     return OK;

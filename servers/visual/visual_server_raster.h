@@ -141,83 +141,83 @@ public:
 
     /* TEXTURE API */
 
-    BIND0R(RID, texture_create)
-    BIND7(texture_allocate, RID, int, int, int, Image::Format, VS::TextureType, uint32_t)
-    BIND3(texture_set_data, RID, const Ref<Image> &, int)
-    BIND10(texture_set_data_partial, RID, const Ref<Image> &, int, int, int, int, int, int, int, int)
-    BIND2RC(Ref<Image>, texture_get_data, RID, int)
-    BIND2(texture_set_flags, RID, uint32_t)
-    BIND1RC(uint32_t, texture_get_flags, RID)
-    BIND1RC(Image::Format, texture_get_format, RID)
-    BIND1RC(VS::TextureType, texture_get_type, RID)
-    BIND1RC(uint32_t, texture_get_texid, RID)
-    BIND1RC(uint32_t, texture_get_width, RID)
-    BIND1RC(uint32_t, texture_get_height, RID)
-    BIND1RC(uint32_t, texture_get_depth, RID)
-    BIND4(texture_set_size_override, RID, int, int, int)
-    BIND2(texture_bind, RID, uint32_t)
+    RID texture_create() override { return BINDBASE->texture_create(); }
+    void texture_allocate(RID arg1, int arg2, int arg3, int arg4, Image::Format arg5, VS::TextureType arg6, uint32_t arg7) override { DISPLAY_CHANGED BINDBASE->texture_allocate(arg1, arg2, arg3, arg4, arg5, arg6, arg7); }
+    void texture_set_data(RID arg1, const Ref<Image> & arg2, int arg3) override { DISPLAY_CHANGED BINDBASE->texture_set_data(arg1, arg2, arg3); }
+    void texture_set_data_partial(RID arg1, const Ref<Image> & arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10) override { DISPLAY_CHANGED BINDBASE->texture_set_data_partial(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10); }
+    Ref<Image> texture_get_data(RID arg1, int arg2) const override { return BINDBASE->texture_get_data(arg1, arg2); }
+    void texture_set_flags(RID arg1, uint32_t arg2) override { DISPLAY_CHANGED BINDBASE->texture_set_flags(arg1, arg2); }
+    uint32_t texture_get_flags(RID arg1) const override { return BINDBASE->texture_get_flags(arg1); }
+    Image::Format texture_get_format(RID arg1) const override { return BINDBASE->texture_get_format(arg1); }
+    VS::TextureType texture_get_type(RID arg1) const override { return BINDBASE->texture_get_type(arg1); }
+    uint32_t texture_get_texid(RID arg1) const override { return BINDBASE->texture_get_texid(arg1); }
+    uint32_t texture_get_width(RID arg1) const override { return BINDBASE->texture_get_width(arg1); }
+    uint32_t texture_get_height(RID arg1) const override { return BINDBASE->texture_get_height(arg1); }
+    uint32_t texture_get_depth(RID arg1) const override { return BINDBASE->texture_get_depth(arg1); }
+    void texture_set_size_override(RID arg1, int arg2, int arg3, int arg4) override { DISPLAY_CHANGED BINDBASE->texture_set_size_override(arg1, arg2, arg3, arg4); }
+    void texture_bind(RID arg1, uint32_t arg2) override { DISPLAY_CHANGED BINDBASE->texture_bind(arg1, arg2); }
 
-    BIND3(texture_set_detect_3d_callback, RID, TextureDetectCallback, void *)
-    BIND3(texture_set_detect_srgb_callback, RID, TextureDetectCallback, void *)
-    BIND3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
+    void texture_set_detect_3d_callback(RID arg1, TextureDetectCallback arg2, void * arg3) override { DISPLAY_CHANGED BINDBASE->texture_set_detect_3d_callback(arg1, arg2, arg3); }
+    void texture_set_detect_srgb_callback(RID arg1, TextureDetectCallback arg2, void * arg3) override { DISPLAY_CHANGED BINDBASE->texture_set_detect_srgb_callback(arg1, arg2, arg3); }
+    void texture_set_detect_normal_callback(RID arg1, TextureDetectCallback arg2, void * arg3) override { DISPLAY_CHANGED BINDBASE->texture_set_detect_normal_callback(arg1, arg2, arg3); }
 
-    BIND2(texture_set_path, RID, StringView)
-    BIND1RC(const String &, texture_get_path, RID)
-    BIND1(texture_set_shrink_all_x2_on_set_data, bool)
-    BIND1(texture_debug_usage, Vector<TextureInfo> *)
+    void texture_set_path(RID arg1, StringView arg2) override { DISPLAY_CHANGED BINDBASE->texture_set_path(arg1, arg2); }
+    const String & texture_get_path(RID arg1) const override { return BINDBASE->texture_get_path(arg1); }
+    void texture_set_shrink_all_x2_on_set_data(bool arg1) override { DISPLAY_CHANGED BINDBASE->texture_set_shrink_all_x2_on_set_data(arg1); }
+    void texture_debug_usage(Vector<TextureInfo> * arg1) override { DISPLAY_CHANGED BINDBASE->texture_debug_usage(arg1); }
 
-    BIND1(textures_keep_original, bool)
+    void textures_keep_original(bool arg1) override { DISPLAY_CHANGED BINDBASE->textures_keep_original(arg1); }
 
-    BIND2(texture_set_proxy, RID, RID)
+    void texture_set_proxy(RID arg1, RID arg2) override { DISPLAY_CHANGED BINDBASE->texture_set_proxy(arg1, arg2); }
 
-    BIND2(texture_set_force_redraw_if_visible, RID, bool)
+    void texture_set_force_redraw_if_visible(RID arg1, bool arg2) override { DISPLAY_CHANGED BINDBASE->texture_set_force_redraw_if_visible(arg1, arg2); }
 
     /* SKY API */
 
-    BIND0R(RID, sky_create)
-    BIND3(sky_set_texture, RID, RID, int)
+    RID sky_create() override { return BINDBASE->sky_create(); }
+    void sky_set_texture(RID arg1, RID arg2, int arg3) override { DISPLAY_CHANGED BINDBASE->sky_set_texture(arg1, arg2, arg3); }
 
     /* SHADER API */
 
-    BIND0R(RID, shader_create)
+    RID shader_create() override { return BINDBASE->shader_create(); }
 
-    BIND2(shader_set_code, RID, const String &)
-    BIND1RC(String, shader_get_code, RID)
+    void shader_set_code(RID arg1, const String & arg2) override { DISPLAY_CHANGED BINDBASE->shader_set_code(arg1, arg2); }
+    String shader_get_code(RID arg1) const override { return BINDBASE->shader_get_code(arg1); }
 
-    BIND2C(shader_get_param_list, RID, Vector<PropertyInfo> *)
+    void shader_get_param_list(RID arg1, Vector<PropertyInfo> * arg2) const override { BINDBASE->shader_get_param_list(arg1, arg2); }
 
-    BIND3(shader_set_default_texture_param, RID, const StringName &, RID)
-    BIND2RC(RID, shader_get_default_texture_param, RID, const StringName &)
+    void shader_set_default_texture_param(RID arg1, const StringName & arg2, RID arg3) override { DISPLAY_CHANGED BINDBASE->shader_set_default_texture_param(arg1, arg2, arg3); }
+    RID shader_get_default_texture_param(RID arg1, const StringName & arg2) const override { return BINDBASE->shader_get_default_texture_param(arg1, arg2); }
 
     /* COMMON MATERIAL API */
 
-    BIND0R(RID, material_create)
+    RID material_create() override { return BINDBASE->material_create(); }
 
-    BIND2(material_set_shader, RID, RID)
-    BIND1RC(RID, material_get_shader, RID)
+    void material_set_shader(RID arg1, RID arg2) override { DISPLAY_CHANGED BINDBASE->material_set_shader(arg1, arg2); }
+    RID material_get_shader(RID arg1) const override { return BINDBASE->material_get_shader(arg1); }
 
-    BIND3(material_set_param, RID, const StringName &, const Variant &)
-    BIND2RC(Variant, material_get_param, RID, const StringName &)
-    BIND2RC(Variant, material_get_param_default, RID, const StringName &)
+    void material_set_param(RID arg1, const StringName & arg2, const Variant & arg3) override { DISPLAY_CHANGED BINDBASE->material_set_param(arg1, arg2, arg3); }
+    Variant material_get_param(RID arg1, const StringName & arg2) const override { return BINDBASE->material_get_param(arg1, arg2); }
+    Variant material_get_param_default(RID arg1, const StringName & arg2) const override { return BINDBASE->material_get_param_default(arg1, arg2); }
 
-    BIND2(material_set_render_priority, RID, int)
-    BIND2(material_set_line_width, RID, float)
-    BIND2(material_set_next_pass, RID, RID)
+    void material_set_render_priority(RID arg1, int arg2) override { DISPLAY_CHANGED BINDBASE->material_set_render_priority(arg1, arg2); }
+    void material_set_line_width(RID arg1, float arg2) override { DISPLAY_CHANGED BINDBASE->material_set_line_width(arg1, arg2); }
+    void material_set_next_pass(RID arg1, RID arg2) override { DISPLAY_CHANGED BINDBASE->material_set_next_pass(arg1, arg2); }
 
     /* MESH API */
 
-    BIND0R(RID, mesh_create)
+    RID mesh_create() override { return BINDBASE->mesh_create(); }
 
     //BIND10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
     void mesh_add_surface(RID arg1, uint32_t arg2, VS::PrimitiveType arg3, const PoolVector<uint8_t> & arg4, int arg5, const PoolVector<uint8_t> & arg6, int arg7, const AABB & arg8, const Vector<PoolVector<uint8_t> > & arg9, const PoolVector<AABB> & arg10) override {
         DISPLAY_CHANGED
         BINDBASE->mesh_add_surface(arg1, arg2, arg3, arg4.toSpan(), arg5, arg6.toSpan(), arg7, arg8, arg9, arg10.toSpan());
     }
-    BIND2(mesh_set_blend_shape_count, RID, int)
-    BIND1RC(int, mesh_get_blend_shape_count, RID)
+    void mesh_set_blend_shape_count(RID arg1, int arg2) override { DISPLAY_CHANGED BINDBASE->mesh_set_blend_shape_count(arg1, arg2); }
+    int mesh_get_blend_shape_count(RID arg1) const override { return BINDBASE->mesh_get_blend_shape_count(arg1); }
 
-    BIND2(mesh_set_blend_shape_mode, RID, VS::BlendShapeMode)
-    BIND1RC(VS::BlendShapeMode, mesh_get_blend_shape_mode, RID)
+    void mesh_set_blend_shape_mode(RID arg1, VS::BlendShapeMode arg2) override { DISPLAY_CHANGED BINDBASE->mesh_set_blend_shape_mode(arg1, arg2); }
+    VS::BlendShapeMode mesh_get_blend_shape_mode(RID arg1) const override { return BINDBASE->mesh_get_blend_shape_mode(arg1); }
 
     void mesh_surface_update_region(RID arg1, int arg2, int arg3, const PoolVector<uint8_t> &arg4) override {
         DISPLAY_CHANGED
@@ -241,13 +241,13 @@ public:
     BIND2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
     BIND2RC(const Vector<AABB> &, mesh_surface_get_skeleton_aabb, RID, int)
 
-    BIND2(mesh_remove_surface, RID, int)
-    BIND1RC(int, mesh_get_surface_count, RID)
+    void mesh_remove_surface(RID arg1, int arg2) override { DISPLAY_CHANGED BINDBASE->mesh_remove_surface(arg1, arg2); }
+    int mesh_get_surface_count(RID arg1) const override { return BINDBASE->mesh_get_surface_count(arg1); }
 
-    BIND2(mesh_set_custom_aabb, RID, const AABB &)
-    BIND1RC(AABB, mesh_get_custom_aabb, RID)
+    void mesh_set_custom_aabb(RID arg1, const AABB & arg2) override { DISPLAY_CHANGED BINDBASE->mesh_set_custom_aabb(arg1, arg2); }
+    AABB mesh_get_custom_aabb(RID arg1) const override { return BINDBASE->mesh_get_custom_aabb(arg1); }
 
-    BIND1(mesh_clear, RID)
+    void mesh_clear(RID arg1) override { DISPLAY_CHANGED BINDBASE->mesh_clear(arg1); }
 
     /* MULTIMESH API */
 

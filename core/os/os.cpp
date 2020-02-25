@@ -49,6 +49,8 @@
 #include "EASTL/fixed_hash_set.h"
 #include "EASTL/string_view.h"
 #include <QtCore/QStandardPaths>
+#include <QtCore/QDir>
+
 
 #include <codecvt>
 
@@ -181,6 +183,10 @@ String OS::get_clipboard() const {
 String OS::get_executable_path() const {
 
     return _execpath;
+}
+
+String OS::working_directory() const {
+    return StringUtils::to_utf8(QDir::currentPath());
 }
 
 Error OS::execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking,

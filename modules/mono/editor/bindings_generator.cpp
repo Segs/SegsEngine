@@ -1838,20 +1838,15 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
 
     output.append("uint32_t get_cs_glue_version() { return ");
     output.append(StringUtils::num_uint64(CS_GLUE_VERSION) + "; }\n");
-
-    output.append("\nvoid register_generated_icalls() " OPEN_BLOCK);
-    output.append("\tgodot_register_glue_header_icalls();\n");
-
+    output.append("namespace {\n // anonymous namespace\n");
+    output.append("struct FuncReg { const char *name; const void *ptr; };\n");
+    output.append("static const FuncReg functions[]={\n");
 #define ADD_INTERNAL_CALL_REGISTRATION(m_icall)                                                              \
     {                                                                                                        \
-        output.append("\tmono_add_internal_call(");                                                          \
+        output.append("\t{");                                                          \
         output.append("\"" BINDINGS_NAMESPACE ".");                                                          \
         output.append(m_icall.editor_only ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS); \
-        output.append("::");                                                                                 \
-        output.append(m_icall.name);                                                                         \
-        output.append("\", (void*)");                                                                        \
-        output.append(m_icall.name);                                                                         \
-        output.append(");\n");                                                                               \
+        output.append(String("::")+m_icall.name+"\", (void*)"+m_icall.name+"},\n");\
     }
 
     bool tools_sequence = false;
@@ -1862,33 +1857,31 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
                 tools_sequence = false;
                 output.append("#endif\n");
             }
-        } else {
+        }
+        else {
             if (E.editor_only) {
                 output.append("#ifdef TOOLS_ENABLED\n");
                 tools_sequence = true;
             }
         }
-
         ADD_INTERNAL_CALL_REGISTRATION(E)
     }
-
     if (tools_sequence) {
         tools_sequence = false;
         output.append("#endif\n");
     }
-
     output.append("#ifdef TOOLS_ENABLED\n");
     for (const InternalCall &E : editor_custom_icalls)
         ADD_INTERNAL_CALL_REGISTRATION(E)
     output.append("#endif // TOOLS_ENABLED\n");
-
     for (const InternalCall &E : method_icalls) {
         if (tools_sequence) {
             if (!E.editor_only) {
                 tools_sequence = false;
                 output.append("#endif\n");
             }
-        } else {
+        }
+        else {
             if (E.editor_only) {
                 output.append("#ifdef TOOLS_ENABLED\n");
                 tools_sequence = true;
@@ -1902,10 +1895,18 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
         tools_sequence = false;
         output.append("#endif\n");
     }
-
+    output.append("};\n} // end of anonymous namespace\n");
 #undef ADD_INTERNAL_CALL_REGISTRATION
 
-    output.append(CLOSE_BLOCK "\n} // namespace GodotSharpBindings\n");
+    output.append(R"(
+void register_generated_icalls() {
+    godot_register_glue_header_icalls();
+    for(const auto & f : functions)
+        mono_add_internal_call(f.name, (void*)f.ptr);
+}
+    )");
+
+    output.append("\n} // namespace GodotSharpBindings\n");
 
     output.append("\n#endif // MONO_GLUE_ENABLED\n");
 

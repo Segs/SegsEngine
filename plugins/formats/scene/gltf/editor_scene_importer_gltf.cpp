@@ -3173,26 +3173,27 @@ namespace {
         for (GLTFNodeIndex node_i = 0; node_i < state.nodes.size(); ++node_i) {
             const GLTFNode* node = state.nodes[node_i];
 
-            if (node->skin >= 0 && node->mesh >= 0) {
-                const GLTFSkinIndex skin_i = node->skin;
+            if (node->skin < 0 || node->mesh < 0)
+                continue;
 
-                auto mi_element = state.scene_nodes.find(node_i);
-                MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
-                ERR_FAIL_COND(mi == nullptr);
+            const GLTFSkinIndex skin_i = node->skin;
 
-                    const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;
-                const GLTFSkeleton& gltf_skeleton = state.skeletons[skel_i];
-                Skeleton* skeleton = gltf_skeleton.godot_skeleton;
-                ERR_FAIL_COND(skeleton == nullptr);
+            auto mi_element = state.scene_nodes.find(node_i);
+            MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
+            ERR_FAIL_COND(mi == nullptr);
 
-                    mi->get_parent()->remove_child(mi);
-                skeleton->add_child(mi);
-                mi->set_owner(scene_root);
+            const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;
+            const GLTFSkeleton& gltf_skeleton = state.skeletons[skel_i];
+            Skeleton* skeleton = gltf_skeleton.godot_skeleton;
+            ERR_FAIL_COND(skeleton == nullptr);
 
-                mi->set_skin(state.skins[skin_i].godot_skin);
-                mi->set_skeleton_path(mi->get_path_to(skeleton));
-                mi->set_transform(Transform());
-            }
+            mi->get_parent()->remove_child(mi);
+            skeleton->add_child(mi);
+            mi->set_owner(scene_root);
+
+            mi->set_skin(state.skins[skin_i].godot_skin);
+            mi->set_skeleton_path(mi->get_path_to(skeleton));
+            mi->set_transform(Transform());
         }
     }
 

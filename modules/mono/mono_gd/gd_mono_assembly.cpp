@@ -87,6 +87,7 @@ void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,StringView p
     r_search_dirs.push_back(GodotSharpDirs::get_res_assemblies_base_dir());
     r_search_dirs.push_back(OS::get_singleton()->get_resource_dir());
     r_search_dirs.push_back(PathUtils::get_base_dir(OS::get_singleton()->get_executable_path()));
+    r_search_dirs.push_back(PathUtils::get_base_dir(OS::get_singleton()->working_directory()));
 
 #ifdef TOOLS_ENABLED
     r_search_dirs.push_back(GodotSharpDirs::get_data_editor_tools_dir());

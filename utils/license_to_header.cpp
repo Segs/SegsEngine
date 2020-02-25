@@ -1126,10 +1126,11 @@ bool generate_mono_glue(QStringList args) {
     QCryptographicHash hash(QCryptographicHash::Sha256);
     while(visitor.hasNext()) {
         QString fname = visitor.next();
-        if(fname.contains("Generated"))
+        if(fname.contains("Generated") || fname.contains("obj/"))
             continue;
         if(!fname.endsWith(".cs"))
             continue;
+        //qDebug() << "Hashing"<<fname;
         QFileInfo fi(fname);
         QFile file(fname);
         file.open(QFile::ReadOnly);

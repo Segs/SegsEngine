@@ -160,8 +160,8 @@ private:
         sln_filepath = plus_file(base_path,appname_safe + ".sln");
         csproj_filepath = plus_file(base_path,appname_safe + ".csproj");
 #endif
-
-        String exe_dir = get_base_dir(OS::get_singleton()->get_executable_path());
+        
+        String exe_dir = OS::get_singleton()->working_directory();
 
 #ifdef TOOLS_ENABLED
 

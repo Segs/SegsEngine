@@ -269,6 +269,7 @@ public:
     virtual int get_low_processor_usage_mode_sleep_usec() const;
 
     virtual String get_executable_path() const;
+    String working_directory() const; //!< returns the application's working directory, can be different than executable path
     virtual Error execute(StringView p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
     Error execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
     virtual Error kill(const ProcessID &p_pid) = 0;

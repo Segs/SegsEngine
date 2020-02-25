@@ -38,7 +38,7 @@
 
 class PackedScene;
 
-class SceneState : public RefCounted {
+class GODOT_EXPORT SceneState : public RefCounted {
 
     GDCLASS(SceneState,RefCounted)
 
@@ -197,7 +197,7 @@ public:
 };
 
 
-class PackedScene : public Resource {
+class GODOT_EXPORT PackedScene : public Resource {
 
     GDCLASS(PackedScene,Resource)
 

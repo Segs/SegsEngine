@@ -408,7 +408,7 @@ endif()
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include/SegsEngine
-        FILES_MATCHING PATTERN "*.h|inl"
+        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
     )
 
     target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})
