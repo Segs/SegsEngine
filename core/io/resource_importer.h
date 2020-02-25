@@ -79,7 +79,7 @@ public:
     int get_import_order(StringView p_path) const override;
 
     String get_internal_resource_path(StringView p_path) const;
-    void get_internal_resource_path_list(StringView p_path, Vector<String> *r_paths);
+    void get_internal_resource_path_list(StringView p_path, Vector<String> *r_paths) const;
 
     void add_importer(ResourceImporterInterface *p_importer) {
         importers.push_back(p_importer);

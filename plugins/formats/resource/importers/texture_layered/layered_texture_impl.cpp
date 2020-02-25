@@ -80,7 +80,7 @@ StringName LayeredTextureImpl::get_preset_name(int p_idx) const {
     return StaticCString(preset_names[p_idx],true);
 }
 
-void LayeredTextureImpl::get_import_options(List<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void LayeredTextureImpl::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 1 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress/no_bptc_if_rgb"), false));

@@ -466,13 +466,11 @@ bool EditorFileSystem::_test_for_reimport(StringView p_path, bool p_only_importe
             memdelete(md5s);
             return false; // parse error
         }
-        if (!assign.empty()) {
-            if (!p_only_imported_files) {
-                if (assign == "source_md5") {
-                    source_md5 = value.as<String>();
-                } else if (assign == "dest_md5") {
-                    dest_md5 = value.as<String>();
-                }
+        if (!assign.empty() && !p_only_imported_files) {
+            if (assign == "source_md5") {
+                source_md5 = value.as<String>();
+            } else if (assign == "dest_md5") {
+                dest_md5 = value.as<String>();
             }
         }
     }
@@ -1084,7 +1082,7 @@ void EditorFileSystem::_thread_func_sources(void *_userdata) {
     efs->scanning_changes_done = true;
 }
 
-void EditorFileSystem::get_changed_sources(List<UIString> *r_changed) {
+void EditorFileSystem::get_changed_sources(List<String> *r_changed) {
 
     *r_changed = sources_changed;
 }
@@ -1536,8 +1534,8 @@ void EditorFileSystem::update_file(StringView p_file) {
         late_added_files.insert(p_file); //remember that it was added. This mean it will be scanned and imported on editor restart
         int idx = 0;
 
-        for (size_t i = 0; i < fs->files.size(); i++) {
-            if (p_file < fs->files[i]->file)
+        for (const auto f : fs->files) {
+            if (p_file < f->file)
                 break;
             idx++;
         }
@@ -1602,7 +1600,7 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
 
         ResourceImporterInterface *importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(importer_name);
         ERR_FAIL_COND_V(importer==nullptr, ERR_FILE_CORRUPT);
-        List<ResourceImporter::ImportOption> options;
+        Vector<ResourceImporter::ImportOption> options;
         importer->get_import_options(&options);
         //set default values
         for (const ResourceImporter::ImportOption &E : options) {
@@ -1676,7 +1674,7 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
 
         //store options in provided order, to avoid file changing. Order is also important because first match is accepted first.
 
-        List<ResourceImporter::ImportOption> options;
+        Vector<ResourceImporter::ImportOption> options;
         importer->get_import_options(&options);
         //set default values
         for (const ResourceImporter::ImportOption &F : options) {
@@ -1786,7 +1784,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     //mix with default params, in case a parameter is missing
 
-    List<ResourceImporter::ImportOption> opts;
+    Vector<ResourceImporter::ImportOption> opts;
     importer->get_import_options(&opts);
     for (const ResourceImporter::ImportOption &E : opts) {
         if (!params.contains(E.option.name)) { //this one is not present
@@ -1814,6 +1812,9 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     if (err != OK) {
         ERR_PRINT("Error importing '" + p_file + "'.");
+        if(err==ERR_FILE_MISSING_DEPENDENCIES) {
+            
+        }
     }
 
     //as import is complete, save the .import file
@@ -1948,6 +1949,15 @@ void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<Str
         _find_group_files(efd->get_subdir(i), group_files, groups_to_reimport);
     }
 }
+// Find the order the give set of files need to be imported in, taking into account dependencies between resources.
+void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &files) {
+    eastl::sort(files.begin(),files.end());
+
+    for (int i = 0; i < files.size(); i++) {
+        pr.step(StringName(PathUtils::get_file(files[i].path)), i);
+        _reimport_file(files[i].path);
+    }
+}
 
 void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
 
@@ -1969,13 +1979,13 @@ void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
     Vector<ImportFile> files;
     Set<String> groups_to_reimport;
 
-    for (int i = 0; i < p_files.size(); i++) {
+    for (const auto &p_file : p_files) {
 
-        String group_file = ResourceFormatImporter::get_singleton()->get_import_group_file(p_files[i]);
+        String group_file = ResourceFormatImporter::get_singleton()->get_import_group_file(p_file);
 
-        if (group_file_cache.contains(p_files[i])) {
+        if (group_file_cache.contains(p_file)) {
             //maybe the file itself is a group!
-            groups_to_reimport.insert(p_files[i]);
+            groups_to_reimport.insert(p_file);
             //groups do not belong to grups
             group_file.clear();
         } else if (!group_file.empty()) {
@@ -1984,26 +1994,21 @@ void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
         } else {
             //it's a regular file
             ImportFile ifile;
-            ifile.path = p_files[i];
-            ifile.order = ResourceFormatImporter::get_singleton()->get_import_order(p_files[i]);
+            ifile.path = p_file;
+            ifile.order = ResourceFormatImporter::get_singleton()->get_import_order(p_file);
             files.push_back(ifile);
         }
 
         //group may have changed, so also update group reference
         EditorFileSystemDirectory *fs = nullptr;
         int cpos = -1;
-        if (_find_file(p_files[i], &fs, cpos)) {
+        if (_find_file(p_file, &fs, cpos)) {
 
             fs->files[cpos]->import_group_file = group_file;
         }
     }
 
-    eastl::sort(files.begin(),files.end());
-
-    for (int i = 0; i < files.size(); i++) {
-        pr.step(StringName(PathUtils::get_file(files[i].path)), i);
-        _reimport_file(files[i].path);
-    }
+    ordered_reimport(pr, files);
 
     //reimport groups
 

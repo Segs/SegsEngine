@@ -135,9 +135,9 @@ void ResourceFormatImporter::get_recognized_extensions(Vector<String> &p_extensi
 
     HashSet<String> found;
 
-    for (size_t i = 0; i < importers.size(); i++) {
+    for (auto importer : importers) {
         Vector<String> local_exts;
-        importers[i]->get_recognized_extensions(local_exts);
+        importer->get_recognized_extensions(local_exts);
         for (const auto & ext : local_exts) {
             if (!found.contains(ext)) {
                 p_extensions.emplace_back(ext);
@@ -145,9 +145,9 @@ void ResourceFormatImporter::get_recognized_extensions(Vector<String> &p_extensi
             }
         }
     }
-    for (size_t i = 0; i < owned_importers.size(); i++) {
+    for (const auto &owned_importer : owned_importers) {
         Vector<String> local_exts;
-        owned_importers[i]->get_recognized_extensions(local_exts);
+        owned_importer->get_recognized_extensions(local_exts);
         for (const auto & local_ext : local_exts) {
             if (!found.contains(local_ext)) {
                 p_extensions.emplace_back(local_ext);
@@ -166,8 +166,8 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(StringView p_typ
 
     HashSet<String> found;
 
-    for (size_t i = 0; i < importers.size(); i++) {
-        StringName res_type(importers[i]->get_resource_type());
+    for (auto importer : importers) {
+        StringName res_type(importer->get_resource_type());
         if (res_type.empty())
             continue;
 
@@ -175,16 +175,16 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(StringView p_typ
             continue;
 
         Vector<String> local_exts;
-        importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (!found.contains(local_exts[j])) {
-                p_extensions.emplace_back(local_exts[j]);
-                found.insert(local_exts[j]);
+        importer->get_recognized_extensions(local_exts);
+        for (auto &local_ext : local_exts) {
+            if (!found.contains(local_ext)) {
+                p_extensions.emplace_back(local_ext);
+                found.emplace(local_ext);
             }
         }
     }
-    for (size_t i = 0; i < owned_importers.size(); i++) {
-        StringName res_type(owned_importers[i]->get_resource_type());
+    for (const auto &owned_importer : owned_importers) {
+        StringName res_type(owned_importer->get_resource_type());
         if (res_type.empty())
             continue;
 
@@ -192,7 +192,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(StringView p_typ
             continue;
 
         Vector<String>  local_exts;
-        owned_importers[i]->get_recognized_extensions(local_exts);
+        owned_importer->get_recognized_extensions(local_exts);
         for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
             if (!found.contains(local_exts[j])) {
                 p_extensions.emplace_back(local_exts[j]);
@@ -242,17 +242,17 @@ int ResourceFormatImporter::get_import_order(StringView p_path) const {
 
 bool ResourceFormatImporter::handles_type(StringView p_type) const {
 
-    for (size_t i = 0; i < importers.size(); i++) {
+    for (auto importer : importers) {
 
-        StringName res_type(importers[i]->get_resource_type());
+        StringName res_type(importer->get_resource_type());
         if (res_type.empty())
             continue;
         if (ClassDB::is_parent_class(res_type, StringName(p_type)))
             return true;
     }
-    for (size_t i = 0; i < owned_importers.size(); i++) {
+    for (const auto &ownded_importer : owned_importers) {
 
-        StringName res_type(owned_importers[i]->get_resource_type());
+        StringName res_type(ownded_importer->get_resource_type());
         if (res_type.empty())
             continue;
         if (ClassDB::is_parent_class(res_type, StringName(p_type)))
@@ -275,7 +275,7 @@ String ResourceFormatImporter::get_internal_resource_path(StringView p_path) con
     return pat.path;
 }
 
-void ResourceFormatImporter::get_internal_resource_path_list(StringView p_path, Vector<String> *r_paths) {
+void ResourceFormatImporter::get_internal_resource_path_list(StringView p_path, Vector<String> *r_paths) const {
 
     Error err;
     FileAccess *f = FileAccess::open(String(p_path) + ".import", FileAccess::READ, &err);
@@ -285,7 +285,6 @@ void ResourceFormatImporter::get_internal_resource_path_list(StringView p_path, 
 
     VariantParserStream *stream=VariantParser::get_file_stream(f);
 
-    String assign;
     Variant value;
     VariantParser::Tag next_tag;
 
@@ -293,7 +292,7 @@ void ResourceFormatImporter::get_internal_resource_path_list(StringView p_path, 
     String error_text;
     while (true) {
 
-        assign = Variant().as<String>();
+        String assign = Variant().as<String>();
         next_tag.fields.clear();
         next_tag.name.clear();
 
@@ -312,9 +311,9 @@ void ResourceFormatImporter::get_internal_resource_path_list(StringView p_path, 
 
         if (!assign.empty()) {
             if (StringUtils::begins_with(assign,"path.")) {
-                r_paths->push_back(value.as<String>());
+                r_paths->emplace_back(value.as<String>());
             } else if (assign == "path") {
-                r_paths->push_back(value.as<String>());
+                r_paths->emplace_back(value.as<String>());
             }
         } else if (next_tag.name != "remap") {
             break;
@@ -380,14 +379,14 @@ void ResourceFormatImporter::get_dependencies(StringView p_path, Vector<String> 
 
 ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(StringView p_name) const {
 
-    for (size_t i = 0; i < importers.size(); i++) {
-        if (importers[i]->get_importer_name() == p_name) {
-            return importers[i];
+    for(auto importer : importers) {
+        if (importer->get_importer_name() == p_name) {
+            return importer;
         }
     }
-    for (size_t i = 0; i < owned_importers.size(); i++) {
-        if (owned_importers[i]->get_importer_name() == p_name) {
-            return const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importers[i].get()));
+    for (const auto& owned_importer : owned_importers) {
+        if (owned_importer->get_importer_name() == p_name) {
+            return const_cast<ResourceImporterInterface *>(static_cast<const ResourceImporterInterface *>(owned_importer.get()));
         }
     }
     return nullptr;
@@ -395,21 +394,21 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(StringVi
 
 void ResourceFormatImporter::get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers) {
 
-    for (size_t i = 0; i < importers.size(); i++) {
+    for (auto importer : importers) {
         Vector<String> local_exts;
-        importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (StringUtils::to_lower(p_extension) == local_exts[j]) {
-                r_importers->push_back(importers[i]);
+        importer->get_recognized_extensions(local_exts);
+        for (const auto &local_ext : local_exts) {
+            if (StringUtils::to_lower(p_extension) == local_ext) {
+                r_importers->push_back(importer);
             }
         }
     }
-    for (size_t i = 0; i < owned_importers.size(); i++) {
+    for (const auto& owned_importer : owned_importers) {
         Vector<String> local_exts;
-        owned_importers[i]->get_recognized_extensions(local_exts);
-        for (size_t j=0,fin=local_exts.size(); j<fin; ++j) {
-            if (StringUtils::to_lower(p_extension) == local_exts[j]) {
-                r_importers->push_back(owned_importers[i].get());
+        owned_importer->get_recognized_extensions(local_exts);
+        for (const auto &local_ext : local_exts) {
+            if (StringUtils::to_lower(p_extension) == local_ext) {
+                r_importers->push_back(owned_importer.get());
             }
         }
     }
@@ -459,16 +458,16 @@ bool ResourceFormatImporter::are_import_settings_valid(StringView p_path) const 
         return false;
     }
     StringView pat_importer(pat.importer);
-    for (size_t i = 0; i < importers.size(); i++) {
-        if (importers[i]->get_importer_name() == pat_importer) {
-            if (!importers[i]->are_import_settings_valid(p_path)) { //importer thinks this is not valid
+    for (auto importer : importers) {
+        if (importer->get_importer_name() == pat_importer) {
+            if (!importer->are_import_settings_valid(p_path)) { //importer thinks this is not valid
                 return false;
             }
         }
     }
-    for (size_t i = 0; i < owned_importers.size(); i++) {
-        if (owned_importers[i]->get_importer_name() == pat_importer) {
-            if (!owned_importers[i]->are_import_settings_valid(p_path)) { //importer thinks this is not valid
+    for (const auto &owned_importer : owned_importers) {
+        if (owned_importer->get_importer_name() == pat_importer) {
+            if (!owned_importer->are_import_settings_valid(p_path)) { //importer thinks this is not valid
                 return false;
             }
         }
@@ -479,11 +478,9 @@ bool ResourceFormatImporter::are_import_settings_valid(StringView p_path) const 
 String ResourceFormatImporter::get_import_settings_hash() const {
 
     FixedVector<const ResourceImporterInterface *,64,true> sorted_importers;
-
-    for(size_t i=0; i<importers.size(); ++i)
-        sorted_importers.push_back(importers[i]);
-    for(size_t i=0; i<owned_importers.size(); ++i)
-        sorted_importers.push_back(owned_importers[i].get());
+    sorted_importers.assign(importers.begin(), importers.end());
+    for (const auto &owned_importer : owned_importers)
+        sorted_importers.push_back(owned_importer.get());
     eastl::sort(sorted_importers.begin(),sorted_importers.end(),SortImporterByName());
 
     String hash;

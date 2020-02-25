@@ -78,7 +78,7 @@ public:
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
 
     void _save_stex(const Ref<Image> &p_image, StringView p_to_path, int p_compress_mode, float p_lossy_quality,

@@ -46,7 +46,7 @@ public:
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
 
     static void _compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t> &dst_data) {

@@ -43,6 +43,8 @@
 class FileAccess;
 
 struct EditorProgressBG;
+struct EditorProgress;
+
 class EditorFileSystemDirectory : public Object {
 
     GDCLASS(EditorFileSystemDirectory,Object)
@@ -211,7 +213,7 @@ class EditorFileSystem : public Node {
 
     static void _thread_func_sources(void *_userdata);
 
-    List<UIString> sources_changed;
+    List<String> sources_changed;
     List<ItemAction> scan_actions;
 
     bool _update_scan_actions();
@@ -246,6 +248,7 @@ class EditorFileSystem : public Node {
     bool using_fat32_or_exfat; // Workaround for projects in FAT32 or exFAT filesystem (pendrives, most of the time)
 
     void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
+    void ordered_reimport(EditorProgress &pr, Vector<ImportFile> &files);
 
     void _move_group_files(EditorFileSystemDirectory *efd, StringView p_group_file, StringView p_new_location);
 
@@ -267,7 +270,7 @@ public:
     float get_scanning_progress() const;
     void scan();
     void scan_changes();
-    void get_changed_sources(List<UIString> *r_changed);
+    void get_changed_sources(List<String> *r_changed);
     void update_file(StringView p_file);
 
     EditorFileSystemDirectory *get_filesystem_path(StringView p_path);

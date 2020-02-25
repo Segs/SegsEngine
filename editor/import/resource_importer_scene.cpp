@@ -1150,7 +1150,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
     }
 }
 
-void ResourceImporterScene::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(
             PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Spatial"));
@@ -1267,16 +1267,17 @@ Node *ResourceImporterScene::import_scene_from_other_importer(
         Vector<String> extensions;
         E->get_extensions(extensions);
 
-        for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
+        for (auto &extension : extensions) {
 
-            if (StringUtils::to_lower(extensions[i]) == ext) {
+            if (StringUtils::compare(extension,ext,StringUtils::CaseInsensitive)==0) {
 
                 importer = E;
                 break;
             }
         }
 
-        if (importer != nullptr) break;
+        if (importer != nullptr)
+            break;
     }
 
     ERR_FAIL_COND_V(importer == nullptr, nullptr);
@@ -1333,16 +1334,17 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         Vector<String> extensions;
         E->get_extensions(extensions);
 
-        for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
+        for (const auto &extension : extensions) {
 
-            if (StringUtils::to_lower(extensions[i]) == ext) {
+            if (StringUtils::compare(extension, ext,StringUtils::CaseInsensitive) == 0) {
 
                 importer = E;
                 break;
             }
         }
 
-        if (importer != nullptr) break;
+        if (importer != nullptr)
+            break;
     }
 
     ERR_FAIL_COND_V(nullptr == importer, ERR_FILE_UNRECOGNIZED);

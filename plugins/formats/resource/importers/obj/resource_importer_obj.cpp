@@ -496,7 +496,7 @@ StringName ResourceImporterOBJ::get_preset_name(int /*p_idx*/) const {
     return "";
 }
 
-void ResourceImporterOBJ::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterOBJ::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->emplace_back(PropertyInfo(VariantType::BOOL, "generate_tangents"), true);
     r_options->emplace_back(PropertyInfo(VariantType::VECTOR3, "scale_mesh"), Vector3(1, 1, 1));

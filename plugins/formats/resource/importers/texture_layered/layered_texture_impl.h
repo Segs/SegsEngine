@@ -36,7 +36,7 @@ public:
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
 
     void _save_tex(const Vector<Ref<Image>> &p_images, StringView p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags);

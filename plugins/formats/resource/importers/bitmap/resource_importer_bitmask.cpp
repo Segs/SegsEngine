@@ -71,7 +71,7 @@ StringName ResourceImporterBitMap::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterBitMap::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterBitMap::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "create_from", PropertyHint::Enum, "Black & White,Alpha"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "threshold", PropertyHint::Range, "0,1,0.01"), 0.5));

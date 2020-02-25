@@ -81,7 +81,7 @@ StringName ResourceImporterWAV::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterWAV::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterWAV::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/8_bit"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/mono"), false));

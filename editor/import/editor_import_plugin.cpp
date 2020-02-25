@@ -92,7 +92,7 @@ int EditorImportPlugin::get_import_order() const {
     return get_script_instance()->call("get_import_order");
 }
 
-void EditorImportPlugin::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void EditorImportPlugin::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_import_options")));
     Array needed;

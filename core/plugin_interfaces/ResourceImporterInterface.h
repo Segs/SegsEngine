@@ -48,7 +48,7 @@ public:
     virtual int get_import_order() const = 0;
     virtual int get_preset_count() const = 0;
     virtual StringName get_preset_name(int /*p_idx*/) const = 0;
-    virtual void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const = 0;
+    virtual void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const = 0;
     virtual bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const = 0;
     virtual StringName get_option_group_file() const = 0;
     virtual Error import(StringView p_source_file, StringView p_save_path,

@@ -152,7 +152,7 @@ void ImportDock::set_edit_path(StringView p_path) {
 
 void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
 
-    List<ResourceImporter::ImportOption> options;
+    Vector<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -215,7 +215,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
     ERR_FAIL_COND(params->importer==nullptr);
 
-    List<ResourceImporter::ImportOption> options;
+    Vector<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -358,7 +358,7 @@ void ImportDock::_preset_selected(int p_idx) {
         } break;
         default: {
 
-            List<ResourceImporter::ImportOption> options;
+            Vector<ResourceImporter::ImportOption> options;
 
             params->importer->get_import_options(&options, p_idx);
             if (params->checking) {

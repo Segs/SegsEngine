@@ -292,13 +292,14 @@ void EditorNode::_unhandled_input(const Ref<InputEvent> &p_event) {
     }
 }
 static void update_reconfigured_resources() {
-    if (!EditorFileSystem::get_singleton()->is_scanning() && !EditorFileSystem::get_singleton()->is_importing()) {
-        ResourceImporterInterface *tex = ResourceFormatImporter::get_singleton()->get_importer_by_name("texture");
-        Vector<String> to_reimport;
-        tex->build_reconfigured_list(to_reimport);
-        if (!to_reimport.empty()) {
-            EditorFileSystem::get_singleton()->reimport_files(to_reimport);
-        }
+    if (EditorFileSystem::get_singleton()->is_scanning() || EditorFileSystem::get_singleton()->is_importing())
+        return;
+
+    ResourceImporterInterface *tex = ResourceFormatImporter::get_singleton()->get_importer_by_name("texture");
+    Vector<String> to_reimport;
+    tex->build_reconfigured_list(to_reimport);
+    if (!to_reimport.empty()) {
+        EditorFileSystem::get_singleton()->reimport_files(to_reimport);
     }
 }
 void EditorNode::_notification(int p_what) {
