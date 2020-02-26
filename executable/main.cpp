@@ -41,6 +41,7 @@
 #include <clocale>
 #include <cstdlib>
 #include <QDir>
+#include <QDebug>
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -104,7 +105,7 @@ int mainT(int argc, char *argv[]) {
     setlocale(LC_CTYPE, "");
 
     QString cwd = QDir::currentPath();
-
+    qDebug() << "EXECUTABLE CWD:"<<cwd;
     Error err = Main::setup();
     if (err != OK) {
         return 255;

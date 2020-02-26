@@ -1719,6 +1719,7 @@ int OS_Windows::get_mouse_button_state() const {
 
 void OS_Windows::set_window_title(StringView p_title) {
 
+    auto st= StringUtils::from_utf8(p_title);
     SetWindowTextW(hWnd, qUtf16Printable(StringUtils::from_utf8(p_title)));
 }
 
@@ -2624,7 +2625,7 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
     DeleteDC(hMainDC);
 }
 
-Error OS_Windows::execute(StringView p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
     if (p_blocking && r_pipe) {
 

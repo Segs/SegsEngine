@@ -175,12 +175,7 @@ String find_msbuild_tools_path() {
 	String vswhere_path = OS::get_singleton()->get_environment(sizeof(size_t) == 8 ? "ProgramFiles(x86)" : "ProgramFiles");
 	vswhere_path += "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
 
-	List<String> vswhere_args;
-	vswhere_args.push_back("-latest");
-	vswhere_args.push_back("-products");
-	vswhere_args.push_back("*");
-	vswhere_args.push_back("-requires");
-	vswhere_args.push_back("Microsoft.Component.MSBuild");
+	Vector<String> vswhere_args { "-latest", "-products", "*", "-requires", "Microsoft.Component.MSBuild", };
 
 	String output;
 	int exit_code;

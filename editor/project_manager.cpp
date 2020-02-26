@@ -1999,8 +1999,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
 
     int id = (int)p_id;
     if (id == ProjectList::GLOBAL_NEW_WINDOW) {
-        List<String> args;
-        args.push_back("-p");
+        Vector<String> args {"-p"};
         String exec = OS::get_singleton()->get_executable_path();
 
         OS::ProcessID pid = 0;
@@ -2009,8 +2008,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
         String conf = (String)p_meta;
 
         if (!conf.empty()) {
-            List<String> args;
-            args.push_back(conf);
+            Vector<String> args {conf};
             String exec = OS::get_singleton()->get_executable_path();
 
             OS::ProcessID pid = 0;
@@ -2035,12 +2033,10 @@ void ProjectManager::_open_selected_projects() {
 
         print_line("Editing project: " + path + " (" + selected + ")");
 
-        List<String> args;
-
-        args.push_back(("--path"));
-        args.push_back(path);
-
-        args.push_back(("--editor"));
+        Vector<String> args {
+            "--path",path,
+            "--editor"
+        };
 
         if (OS::get_singleton()->is_disable_crash_handler()) {
             args.push_back(("--disable-crash-handler"));
@@ -2151,7 +2147,7 @@ void ProjectManager::_run_project_confirm() {
         String exec = OS::get_singleton()->get_executable_path();
 
         OS::ProcessID pid = 0;
-        Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
+        Error err = OS::get_singleton()->execute(exec, args, false, &pid);
         ERR_FAIL_COND(err);
     }
 }
@@ -2285,7 +2281,7 @@ void ProjectManager::_language_selected(int p_id) {
 
 void ProjectManager::_restart_confirm() {
 
-    const List<String> &args(OS::get_singleton()->get_cmdline_args());
+    const Vector<String> &args(OS::get_singleton()->get_cmdline_args());
     String exec(OS::get_singleton()->get_executable_path());
     OS::ProcessID pid = 0;
     Error err = OS::get_singleton()->execute(exec, args, false, &pid);
@@ -2463,6 +2459,7 @@ ProjectManager::ProjectManager() {
     vb->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 8 * EDSCALE);
 
     String cp;
+    cp.push_back(0xC2);
     cp.push_back(0xA9);
     OS::get_singleton()->set_window_title(
             (VERSION_NAME + String(" - ") + TTR("Project Manager") + " - " + cp +

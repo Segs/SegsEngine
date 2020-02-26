@@ -483,7 +483,7 @@ MainLoop *test() {
     print_line("later Mem used: " + itos(MemoryPool::total_memory));
     print_line("Mlater Ax mem used: " + itos(MemoryPool::max_memory));
 
-    const List<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const Vector<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!
@@ -589,8 +589,7 @@ MainLoop *test() {
 
     String ret;
 
-    List<String> args;
-    args.push_back("-l");
+    Vector<String> args {"-l"};
     Error err = OS::get_singleton()->execute("/bin/ls", args, true, nullptr, &ret);
     print_line("error: " + itos(err));
     print_line(ret);

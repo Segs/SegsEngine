@@ -2083,7 +2083,7 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         String path = EditorSettings::get_singleton()->get("text_editor/external/exec_path");
         String flags = EditorSettings::get_singleton()->get("text_editor/external/exec_flags");
 
-        List<String> args;
+        Vector<String> args;
         bool has_file_flag = false;
         String script_path = ProjectSettings::get_singleton()->globalize_path(p_resource->get_path());
 

@@ -108,7 +108,7 @@ public:
 
     struct ExecuteThreadArgs {
         String path;
-        List<String> args;
+        Vector<String> args;
         String output;
         Thread *execute_output_thread;
         Mutex *execute_output_mutex;
@@ -847,7 +847,7 @@ public:
     void update_keying() const;
     bool has_scenes_in_session();
 
-    int execute_and_show_output(const StringName &p_title, StringView p_path, const List<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
+    int execute_and_show_output(const StringName &p_title, StringView p_path, const Vector<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
 
     EditorNode();
     ~EditorNode() override;

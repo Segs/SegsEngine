@@ -1369,7 +1369,7 @@ void EditorNode::restart_editor() {
 
     _exit_editor();
 
-    List<String> args;
+    Vector<String> args;
     args.push_back("--path");
     args.push_back(ProjectSettings::get_singleton()->get_resource_path());
     args.push_back("-e");
@@ -2858,10 +2858,7 @@ void EditorNode::_discard_changes(StringView p_str) {
             _exit_editor();
             String exec = OS::get_singleton()->get_executable_path();
 
-            List<String> args;
-            args.push_back("--path");
-            args.push_back(PathUtils::get_base_dir(exec));
-            args.push_back("--project-manager");
+            Vector<String> args { "--path",PathUtils::get_base_dir(exec),"--project-manager" };
 
             OS::ProcessID pid = 0;
             Error err = OS::get_singleton()->execute(exec, args, false, &pid);
@@ -5398,8 +5395,7 @@ void EditorNode::_global_menu_action(const Variant &p_id, const Variant &p_meta)
     int id = (int)p_id;
     if (id == GLOBAL_NEW_WINDOW) {
         if (OS::get_singleton()->get_main_loop()) {
-            List<String> args;
-            args.push_back("-e");
+            Vector<String> args {"-e"};
             String exec = OS::get_singleton()->get_executable_path();
 
             OS::ProcessID pid = 0;
@@ -5844,7 +5840,7 @@ static void _execute_thread(void *p_ud) {
 }
 
 int EditorNode::execute_and_show_output(const StringName &p_title, StringView p_path,
-        const List<String> &p_arguments, bool p_close_on_ok, bool p_close_on_errors) {
+        const Vector<String> &p_arguments, bool p_close_on_ok, bool p_close_on_errors) {
 
     execute_output_dialog->set_title(p_title);
     execute_output_dialog->get_ok()->set_disabled(true);

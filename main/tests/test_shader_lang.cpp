@@ -304,7 +304,7 @@ static Error recreate_code(void *p_str, SL::ShaderNode *p_program) {
 
 MainLoop *test() {
 
-    const List<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const Vector<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         //try editor!

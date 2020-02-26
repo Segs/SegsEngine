@@ -207,7 +207,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
     String trademarks = p_preset->get("application/trademarks");
     String comments = p_preset->get("application/comments");
 
-    List<String> args;
+    Vector<String> args;
     args.emplace_back(p_path);
     if (!icon_path.empty()) {
         args.push_back(("--set-icon"));
@@ -257,7 +257,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
 }
 
 Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
-    List<String> args;
+    Vector<String> args;
 
 #ifdef WINDOWS_ENABLED
     String signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");

@@ -192,10 +192,8 @@ String OS::working_directory() const {
 Error OS::execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking,
         OS::ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
     //TODO: SEGS: use QProcess ?
-    List<String> converted_args;
-    for(String a : p_arguments)
-        converted_args.emplace_back(std::move(a));
-    return execute(p_path,converted_args,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
+
+    return execute(p_path, p_arguments,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
 }
 
 int OS::get_process_id() const {
@@ -501,10 +499,10 @@ String OS::get_model_name() const {
     return String("GenericDevice");
 }
 
-void OS::set_cmdline(StringView p_execpath, const List<String> &p_args) {
+void OS::set_cmdline(StringView p_execpath, Vector<String> &&p_args) {
 
     _execpath = p_execpath;
-    _cmdline = p_args;
+    _cmdline = eastl::move(p_args);
 };
 
 void OS::release_rendering_thread() {
@@ -702,17 +700,13 @@ const char *OS::get_audio_driver_name(int p_driver) const {
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 
-void OS::set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments) {
+void OS::set_restart_on_exit(bool p_restart, const Vector<String> &p_restart_arguments) {
     restart_on_exit = p_restart;
     restart_commandline = p_restart_arguments;
 }
 
 bool OS::is_restart_on_exit_set() const {
     return restart_on_exit;
-}
-
-List<String> OS::get_restart_on_exit_arguments() const {
-    return restart_commandline;
 }
 
 PoolVector<String> OS::get_granted_permissions() const { return PoolVector<String>(); }

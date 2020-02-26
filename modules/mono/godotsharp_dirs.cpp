@@ -161,7 +161,7 @@ private:
         csproj_filepath = plus_file(base_path,appname_safe + ".csproj");
 #endif
         
-        String exe_dir = OS::get_singleton()->working_directory();
+        String exe_dir(PathUtils::path(OS::get_singleton()->get_executable_path()));
 
 #ifdef TOOLS_ENABLED
 

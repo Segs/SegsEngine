@@ -364,7 +364,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
 **/
 
 Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
-    List<String> args;
+    Vector<String> args;
 
     if (p_preset->get("codesign/timestamp")) {
         args.emplace_back("--timestamp");
@@ -409,7 +409,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
 }
 
 Error EditorExportPlatformOSX::_create_dmg(StringView p_dmg_path, StringView p_pkg_name, StringView p_app_path_name) {
-    List<String> args;
+    Vector<String> args;
 
     if (FileAccess::exists(p_dmg_path)) {
         OS::get_singleton()->move_to_trash(p_dmg_path);

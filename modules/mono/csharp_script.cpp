@@ -130,7 +130,7 @@ void CSharpLanguage::init() {
     // Generate bindings here, before loading assemblies. 'initialize_load_assemblies' aborts
     // the applications if the api assemblies or the main tools assembly is missing, but this
     // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
-    const List<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
+    const Vector<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
     BindingsGenerator::handle_cmdline_args(cmdline_args);
 #endif
 

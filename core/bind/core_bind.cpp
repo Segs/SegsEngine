@@ -504,11 +504,8 @@ int _OS::execute(StringView p_path, const Vector<String> &p_arguments, bool p_bl
 
     OS::ProcessID pid = -2;
     int exitcode = 0;
-    List<String> args;
-    for (int i = 0; i < p_arguments.size(); i++)
-        args.push_back(p_arguments[i]);
     String pipe;
-    Error err = OS::get_singleton()->execute(p_path, args, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
+    Error err = OS::get_singleton()->execute(p_path, p_arguments, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
     p_output.clear();
     p_output.push_back(Variant(pipe));
     if (err != OK)
@@ -544,7 +541,7 @@ String _OS::get_name() const {
 }
 PoolVector<String> _OS::get_cmdline_args() {
 
-    List<String> cmdline = OS::get_singleton()->get_cmdline_args();
+    const Vector<String> &cmdline = OS::get_singleton()->get_cmdline_args();
     PoolVector<String> cmdlinev;
     for (const String & E : cmdline) {
 

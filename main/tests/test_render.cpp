@@ -139,7 +139,7 @@ public:
         vs->material_set_shader(tcmat,sm);
         */
 
-        const List<String> &cmdline(OS::get_singleton()->get_cmdline_args());
+        const Vector<String> &cmdline(OS::get_singleton()->get_cmdline_args());
         int object_count = OBJECT_COUNT;
         if (!cmdline.empty() && StringUtils::to_int(cmdline.back())) {
             object_count = StringUtils::to_int(cmdline.back());

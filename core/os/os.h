@@ -56,7 +56,7 @@ class GODOT_EXPORT OS {
 
     static OS *singleton;
     String _execpath;
-    List<String> _cmdline;
+    Vector<String> _cmdline;
     bool _keep_screen_on;
     bool low_processor_usage_mode;
     int low_processor_usage_mode_sleep_usec;
@@ -77,7 +77,7 @@ class GODOT_EXPORT OS {
     CompositeLogger *_logger;
 
     bool restart_on_exit;
-    List<String> restart_commandline;
+    Vector<String> restart_commandline;
 
 protected:
     void _set_logger(CompositeLogger *p_logger);
@@ -136,7 +136,7 @@ protected:
     virtual void finalize() = 0;
     virtual void finalize_core() = 0;
 
-    virtual void set_cmdline(StringView p_execpath, const List<String> &p_args);
+    virtual void set_cmdline(StringView p_execpath, Vector<String> &&p_args);
 
     void _ensure_user_data_dir();
     virtual bool _check_internal_feature_support(StringView p_feature) = 0;
@@ -270,7 +270,7 @@ public:
 
     virtual String get_executable_path() const;
     String working_directory() const; //!< returns the application's working directory, can be different than executable path
-    virtual Error execute(StringView p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
+    virtual Error execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) = 0;
     Error execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr);
     virtual Error kill(const ProcessID &p_pid) = 0;
     virtual int get_process_id() const;
@@ -284,7 +284,7 @@ public:
     virtual bool set_environment(StringView p_var, StringView p_value) const = 0;
 
     virtual String get_name() const = 0;
-    virtual const List<String> &get_cmdline_args() const { return _cmdline; }
+    virtual const Vector<String> &get_cmdline_args() const { return _cmdline; }
     virtual String get_model_name() const;
 
     virtual MainLoop *get_main_loop() const = 0;
@@ -529,9 +529,9 @@ public:
     bool is_layered_allowed() const { return _allow_layered; }
     bool is_hidpi_allowed() const { return _allow_hidpi; }
 
-    void set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments);
+    void set_restart_on_exit(bool p_restart, const Vector<String> &p_restart_arguments);
     bool is_restart_on_exit_set() const;
-    List<String> get_restart_on_exit_arguments() const;
+    const Vector<String> &get_restart_on_exit_arguments() const { return restart_commandline; }
 
     virtual bool request_permission(StringView /*p_name*/) { return true; }
     virtual bool request_permissions() { return true; }

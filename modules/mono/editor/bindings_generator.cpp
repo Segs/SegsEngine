@@ -3261,7 +3261,7 @@ void BindingsGenerator::_initialize() {
     initialized = true;
 }
 
-void BindingsGenerator::handle_cmdline_args(const List<String> &p_cmdline_args) {
+void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args) {
 
     const int NUM_OPTIONS = 2;
     const String generate_all_glue_option = "--generate-mono-glue";

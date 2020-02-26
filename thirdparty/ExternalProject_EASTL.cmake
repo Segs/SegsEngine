@@ -17,12 +17,13 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/SegsEngine_config.h
     ${INC}
 )
+
+add_library(EASTL STATIC ${SOURCE})
+
 if(MSVC)
-set(SOURCE_VIS
-    EASTL/doc/EASTL.natvis
-)
+target_sources(EASTL PUBLIC EASTL/doc/EASTL.natvis)
 endif()
-add_library(EASTL OBJECT ${SOURCE} ${SOURCE_VIS})
+
 target_compile_definitions(EASTL PRIVATE GODOT_EXPORTS)
 
 add_library(EASTL_Import INTERFACE)

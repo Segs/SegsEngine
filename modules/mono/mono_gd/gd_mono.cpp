@@ -86,7 +86,7 @@ void gd_mono_setup_runtime_main_args() {
     String execpath = OS::get_singleton()->get_executable_path();
 
     // Copy since mono_runtime_set_main_args uses arguments as char *
-    List<String> cmdline_args = OS::get_singleton()->get_cmdline_args();
+    Vector<String> cmdline_args = OS::get_singleton()->get_cmdline_args();
 
     Vector<CharString> cmdline_args_utf8;
     Vector<char *> main_args;

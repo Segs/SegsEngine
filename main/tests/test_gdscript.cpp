@@ -933,7 +933,7 @@ static void _disassemble_class(const Ref<GDScript> &p_class, const Vector<String
 
 MainLoop *test(TestType p_type) {
 
-    const List<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
+    const Vector<String> &cmdlargs(OS::get_singleton()->get_cmdline_args());
 
     if (cmdlargs.empty()) {
         return nullptr;

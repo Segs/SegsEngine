@@ -624,7 +624,7 @@ public:
 
     static uint32_t get_version();
 
-    static void handle_cmdline_args(const List<String> &p_cmdline_args);
+    static void handle_cmdline_args(const Vector<String> &p_cmdline_args);
 
     BindingsGenerator() :
             log_print_enabled(true),

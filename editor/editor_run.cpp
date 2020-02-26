@@ -194,7 +194,7 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
     }
 
     pid = 0;
-    Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
+    Error err = OS::get_singleton()->execute(exec, args, false, &pid);
     ERR_FAIL_COND_V(err, err);
 
     status = STATUS_PLAY;
