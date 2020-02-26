@@ -2728,7 +2728,7 @@ String OS_X11::get_name() const {
 Error OS_X11::shell_open(StringView p_uri) {
 
     Error ok;
-    List<String> args;
+    Vector<String> args;
     args.emplace_back(p_uri);
     ok = execute(("xdg-open"), args, false);
     if (ok == OK)
@@ -2939,7 +2939,7 @@ void OS_X11::alert(StringView _alert, StringView _title) {
             break;
     }
 
-    List<String> args;
+    Vector<String> args;
 
     if (StringUtils::ends_with(program,"zenity")) {
         args.push_back(("--error"));
@@ -3239,7 +3239,7 @@ Error OS_X11::move_to_trash(StringView p_path) {
 
     // The trash can is successfully created, now move the given resource to it.
     // Do not use DirAccess:rename() because it can't move files across multiple mountpoints.
-    List<String> mv_args;
+    Vector<String> mv_args;
     mv_args.emplace_back(p_path);
     mv_args.push_back(trash_can);
     int retval;

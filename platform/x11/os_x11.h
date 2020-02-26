@@ -96,7 +96,7 @@ class OS_X11 : public OS_Unix {
     //Rasterizer *rasterizer;
     VisualServer *visual_server;
     VideoMode current_videomode;
-    List<String> args;
+    Vector<String> args;
     Window x11_window;
     Window xdnd_source_window;
     MainLoop *main_loop;
