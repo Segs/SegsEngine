@@ -1124,21 +1124,29 @@ bool generate_mono_glue(QStringList args) {
     int cs_file_count = 0;
     QDirIterator visitor(src,QDirIterator::Subdirectories);
     QCryptographicHash hash(QCryptographicHash::Sha256);
+    QStringList files;
     while(visitor.hasNext()) {
         QString fname = visitor.next();
         if(fname.contains("Generated") || fname.contains("obj/"))
             continue;
         if(!fname.endsWith(".cs"))
             continue;
-        //qDebug() << "Hashing"<<fname;
+        files.push_back(fname);
+    }
+    files.sort();
+    for(const QString & fname : files) {
         QFileInfo fi(fname);
         QFile file(fname);
         file.open(QFile::ReadOnly);
+        QCryptographicHash hash2(QCryptographicHash::Sha256);
         QByteArray contents = file.readAll();
         // remove end of line chars to normalize hash between windows/linux files.
         contents.replace('\n',"");
         contents.replace('\r',"");
         hash.addData(contents);
+        hash2.addData(contents);
+        qDebug() << "Hashing"<<fname<<QString::number(qHash(hash.result()),16);
+
         cs_file_count += 1;
     }
     auto hashed = hash.result();
