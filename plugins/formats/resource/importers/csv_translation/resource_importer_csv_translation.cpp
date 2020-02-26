@@ -79,8 +79,8 @@ void ResourceImporterCSVTranslation::get_import_options(Vector<ResourceImporterI
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
 }
 
-Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+    Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     bool compress = p_options.at("compress").as<bool>();
 
@@ -127,8 +127,8 @@ Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringVie
         line = f->get_csv_line(delimiter);
     }
 
-    for (int i = 0; i < translations.size(); i++) {
-        Ref<Translation> xlt = translations[i];
+    for (auto & translation : translations) {
+        Ref<Translation> xlt = translation;
 
         if (compress) {
             Ref<PHashTranslation> cxl(make_ref_counted<PHashTranslation>());
@@ -136,7 +136,7 @@ Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringVie
             xlt = cxl;
         }
 
-        String save_path = String(PathUtils::get_basename(p_source_file)) + "." + translations[i]->get_locale() + ".translation";
+        String save_path = String(PathUtils::get_basename(p_source_file)) + "." + translation->get_locale() + ".translation";
 
         ResourceSaver::save(save_path, xlt);
         if (r_gen_files) {

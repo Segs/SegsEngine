@@ -93,8 +93,8 @@ void ResourceImporterWAV::get_import_options(Vector<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Disabled,RAM (Ima-ADPCM)"), 0));
 }
 
-Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+    Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     /* STEP 1, READ WAVE FILE */
 

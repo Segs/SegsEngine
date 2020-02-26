@@ -41,8 +41,8 @@ public:
 
     void _save_tex(const Vector<Ref<Image>> &p_images, StringView p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags);
 
-    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-            *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+        Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     void update_imports();
 

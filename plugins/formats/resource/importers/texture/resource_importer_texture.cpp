@@ -368,8 +368,8 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
     memdelete(f);
 }
 
-Error ResourceImporterTexture::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTexture::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+                                      Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     int compress_mode = p_options.at("compress/mode");
     float lossy = p_options.at("compress/lossy_quality");

@@ -139,8 +139,8 @@ public:
     void _filter_tracks(Node *scene, StringView p_text);
     void _optimize_animations(Node *scene, float p_max_lin_error, float p_max_ang_error, float p_max_angle);
 
-    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-            *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+                 Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps);
     Ref<Animation> import_animation_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps);

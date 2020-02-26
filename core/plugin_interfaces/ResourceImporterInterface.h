@@ -52,7 +52,7 @@ public:
     virtual bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const = 0;
     virtual StringName get_option_group_file() const = 0;
     virtual Error import(StringView p_source_file, StringView p_save_path,
-            const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants,
+            const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String> *r_platform_variants,
             Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) = 0;
     virtual Error import_group_file(StringView p_group_file,
             const Map<String, HashMap<StringName, Variant>> &p_source_file_options,

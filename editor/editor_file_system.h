@@ -220,7 +220,7 @@ class EditorFileSystem : public Node {
 
     void _update_extensions();
 
-    void _reimport_file(const String &p_file);
+    Error _reimport_file(const String &p_file, Vector<String> &r_missing_deps, bool final_try=false);
     Error _reimport_group(StringView p_group_file, const Vector<String> &p_files);
 
     bool _test_for_reimport(StringView p_path, bool p_only_imported_files);

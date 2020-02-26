@@ -11,7 +11,7 @@
 #ifdef GODOT_STATIC_DEFINE
 #  define EASTL_API
 #else
-#  ifndef GODOT_EXPORT
+#  ifndef EASTL_API
 #    ifdef GODOT_EXPORTS
 #       define EASTL_API EASTL_EXPORT_PREFIX
 #    else

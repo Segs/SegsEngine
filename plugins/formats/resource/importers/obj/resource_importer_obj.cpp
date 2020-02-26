@@ -508,13 +508,13 @@ bool ResourceImporterOBJ::get_option_visibility(const StringName &p_option, cons
     return true;
 }
 
-Error ResourceImporterOBJ::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
+Error ResourceImporterOBJ::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     Vector<Ref<Mesh> > meshes;
 
     Error err = _parse_obj(p_source_file, meshes, true, p_options.at("generate_tangents").as<bool>(),
-            p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"),p_options.at("offset_mesh"), nullptr);
+            p_options.at("optimize_mesh").as<bool>(), p_options.at("scale_mesh"),p_options.at("offset_mesh"), &r_missing_deps);
 
     ERR_FAIL_COND_V(err != OK, err);
     ERR_FAIL_COND_V(meshes.size() != 1, ERR_BUG);

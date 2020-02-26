@@ -190,8 +190,8 @@ void LayeredTextureImpl::_save_tex(const Vector<Ref<Image>> &p_images, StringVie
     memdelete(f);
 }
 
-Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path, const HashMap<StringName, Variant> &p_options, Vector<String> *
-        r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+    Vector<String> * r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     String p_save_path(_save_path);
     int compress_mode = p_options.at("compress/mode");

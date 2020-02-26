@@ -86,7 +86,7 @@ public:
             bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal, bool p_force_normal,
             bool p_force_po2_for_compressed);
 
-    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options,
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override;
 

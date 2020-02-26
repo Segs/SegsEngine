@@ -433,7 +433,6 @@ void FileDialog::update_file_list() {
     ListOld<String> files;
     ListOld<String> dirs;
 
-    bool is_hidden;
     String item;
 
     while (!(item = dir_access->get_next()).empty()) {
@@ -441,7 +440,7 @@ void FileDialog::update_file_list() {
         if (item == "." || item == "..")
             continue;
 
-        is_hidden = dir_access->current_is_hidden();
+        bool is_hidden = dir_access->current_is_hidden();
 
         if (show_hidden_files || !is_hidden) {
             if (!dir_access->current_is_dir())

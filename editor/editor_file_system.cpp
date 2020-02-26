@@ -1733,12 +1733,12 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
     return err;
 }
 
-void EditorFileSystem::_reimport_file(const String &p_file) {
+Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_missing_deps, bool final_try) {
 
     EditorFileSystemDirectory *fs = nullptr;
     int cpos = -1;
     bool found = _find_file(p_file, &fs, cpos);
-    ERR_FAIL_COND_MSG(!found, "Can't find file '" + p_file + "'.");
+    ERR_FAIL_COND_V_MSG(!found, ERR_FILE_CANT_OPEN, "Can't find file '" + p_file + "'.");
 
     //try to obtain existing params
 
@@ -1777,8 +1777,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
         importer = ResourceFormatImporter::get_singleton()->get_importer_by_extension(PathUtils::get_extension(p_file));
         load_default = true;
         if (importer==nullptr) {
-            ERR_PRINT("BUG: File queued for import, but can't be imported!");
-            ERR_FAIL();
+            ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "BUG: File queued for import, but can't be imported!");
         }
     }
 
@@ -1807,20 +1806,21 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     Vector<String> import_variants;
     Vector<String> gen_files;
+
     Variant metadata;
-    Error err = importer->import(p_file, base_path, params, &import_variants, &gen_files, &metadata);
+    Error err = importer->import(p_file, base_path, params, r_missing_deps,&import_variants, &gen_files, &metadata);
 
     if (err != OK) {
         ERR_PRINT("Error importing '" + p_file + "'.");
         if(err==ERR_FILE_MISSING_DEPENDENCIES) {
-            
+            return ERR_FILE_MISSING_DEPENDENCIES;
         }
     }
 
     //as import is complete, save the .import file
 
     FileAccess *f = FileAccess::open(p_file + ".import", FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file from path '" + p_file + ".import'.");
+    ERR_FAIL_COND_V_MSG(!f,ERR_FILE_CANT_WRITE, "Cannot open file from path '" + p_file + ".import'.");
 
     //write manually, as order matters ([remap] has to go first for performance).
     f->store_line("[remap]");
@@ -1905,7 +1905,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
 
     // Store the md5's of the various files. These are stored separately so that the .import files can be version controlled.
     FileAccess *md5s = FileAccess::open(base_path + ".md5", FileAccess::WRITE);
-    ERR_FAIL_COND(!md5s);
+    ERR_FAIL_COND_V(!md5s,ERR_FILE_CANT_WRITE);
     md5s->store_line("source_md5=\"" + FileAccess::get_md5(p_file) + "\"");
     if (!dest_paths.empty()) {
         md5s->store_line("dest_md5=\"" + FileAccess::get_multiple_md5(dest_paths) + "\"\n");
@@ -1935,6 +1935,7 @@ void EditorFileSystem::_reimport_file(const String &p_file) {
     }
 
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
+    return OK;
 }
 
 void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<String, Vector<String> > &group_files, Set<String> &groups_to_reimport) {
@@ -1952,10 +1953,92 @@ void EditorFileSystem::_find_group_files(EditorFileSystemDirectory *efd, Map<Str
 // Find the order the give set of files need to be imported in, taking into account dependencies between resources.
 void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &files) {
     eastl::sort(files.begin(),files.end());
+    //TODO: use slab allocator here, and just 'forget' all deallocations.
+    HashMap<String, HashSet<String>> missing_deps;
+    HashSet<String> correct_imports;
 
-    for (int i = 0; i < files.size(); i++) {
-        pr.step(StringName(PathUtils::get_file(files[i].path)), i);
-        _reimport_file(files[i].path);
+    correct_imports.reserve(files.size());
+
+    int idx=0;
+    // At the beginning we don't know cross-resource dependencies, so we go linearly
+    for (const auto & fi : files) {
+        pr.step(StringName(PathUtils::get_file(fi.path)), idx);
+        Vector<String> deps;
+
+        auto err = _reimport_file(fi.path, deps);
+
+        if (err == OK) {
+            idx++; // count success as progress
+            correct_imports.insert(fi.path);
+        }
+        else if(ERR_FILE_MISSING_DEPENDENCIES==err) {
+            // This path is missing those dependencies:
+            missing_deps[fi.path].insert(eastl::make_move_iterator(deps.begin()), eastl::make_move_iterator(deps.end()));
+        }
+    }
+    if(missing_deps.empty())
+        return;
+    OS::get_singleton()->print("Missing deps:");
+    Vector<String> ordered_imports;
+    //NOTE: this should probably use graph theoretic algorithms -> detect cycles + topological sort
+    // 1. Remove dependent files that were loaded after files that needed them.
+    for(auto iter=missing_deps.begin(); iter!= missing_deps.end(); ) {
+        for(auto iter2=iter->second.begin(); iter2!= iter->second.end();) {
+            OS::get_singleton()->print(FormatVE("    %s\n", iter2->c_str()));
+            if(correct_imports.contains(*iter2)) { // got it !
+                iter2 = iter->second.erase(iter2);
+            }
+            else
+                ++iter2;
+        }
+        if(iter->second.empty()) {
+            ordered_imports.push_back(iter->first);
+            iter = missing_deps.erase(iter);
+        }
+        else
+            ++iter;
+    }
+    // Loop until we have all ordered, or can't add new part to ordered_imports
+    size_t start_of_chunk=0;
+    size_t end_of_chunk= ordered_imports.size();
+    
+    while(!missing_deps.empty()) {
+        for (auto iter = missing_deps.begin(); iter != missing_deps.end(); ) {
+            Span<const String> last_chunk(ordered_imports.data() + start_of_chunk, end_of_chunk - start_of_chunk);
+            // Remove what's already on the list from deps.
+            for (auto iter2 = iter->second.begin(); iter2 != iter->second.end();) {
+                if (last_chunk.end()!=eastl::find(last_chunk.begin(), last_chunk.end(),*iter2)) { // got it !
+                    iter2 = iter->second.erase(iter2);
+                }
+                else
+                    ++iter2;
+            }
+            if (iter->second.empty()) {
+                ordered_imports.push_back(iter->first);
+                iter = missing_deps.erase(iter);
+            }
+            else
+                ++iter;
+        }
+        if(end_of_chunk==ordered_imports.size())
+            break; // can't reduce anymore ?
+        start_of_chunk = end_of_chunk;
+        end_of_chunk = ordered_imports.size();
+    }
+    for (const auto & fi : ordered_imports) {
+        pr.step(StringName(PathUtils::get_file(fi)), idx);
+        Vector<String> deps;
+
+        auto err = _reimport_file(fi, deps,true); // marked as final try, since we want those files to be marked as failed in this case.
+
+        if (err == OK) {
+            idx++; // count success as progress
+        }
+    }
+    // mark the last missing deps by calling _reimport_file with final_try set
+    for(const auto &f : missing_deps) {
+        Vector<String> deps;
+        _reimport_file(f.first,deps,true);
     }
 }
 
@@ -2019,7 +2102,8 @@ void EditorFileSystem::reimport_files(const Vector<String> &p_files) {
 
             Error err = _reimport_group(E.first, E.second);
             if (err == OK) {
-                _reimport_file(E.first);
+                Vector<String> missing_deps;
+                _reimport_file(E.first, missing_deps,true);
             }
         }
     }

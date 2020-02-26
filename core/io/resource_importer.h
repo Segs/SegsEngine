@@ -114,7 +114,7 @@ public:
     int get_preset_count() const override { return 0; }
     StringName get_preset_name(int /*p_idx*/) const override { return {}; }
     StringName get_option_group_file() const override { return {}; }
-    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options,
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
             Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr,
             Variant *r_metadata = nullptr) override = 0;
     Error import_group_file(StringView  /*p_group_file*/,

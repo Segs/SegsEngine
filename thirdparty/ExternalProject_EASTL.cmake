@@ -4,18 +4,18 @@ configure_file(EASTL/SegsEngine_config.h.cmake
 file(GLOB all_includes "${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/*.h")
 file(GLOB all_includes_2 "${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/EABase/*.h")
 set(SOURCE
-EASTL/source/allocator_eastl.cpp
-EASTL/source/assert.cpp
-EASTL/source/fixed_pool.cpp
-EASTL/source/hashtable.cpp
-EASTL/source/intrusive_list.cpp
-EASTL/source/numeric_limits.cpp
-EASTL/source/red_black_tree.cpp
-EASTL/source/string.cpp
-EASTL/source/thread_support.cpp
-${all_includes}
-${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/SegsEngine_config.h
-${INC}
+    EASTL/source/allocator_eastl.cpp
+    EASTL/source/assert.cpp
+    EASTL/source/fixed_pool.cpp
+    EASTL/source/hashtable.cpp
+    EASTL/source/intrusive_list.cpp
+    EASTL/source/numeric_limits.cpp
+    EASTL/source/red_black_tree.cpp
+    EASTL/source/string.cpp
+    EASTL/source/thread_support.cpp
+    ${all_includes}
+    ${CMAKE_CURRENT_SOURCE_DIR}/EASTL/include/EASTL/SegsEngine_config.h
+    ${INC}
 )
 if(MSVC)
 set(SOURCE_VIS
@@ -23,6 +23,8 @@ set(SOURCE_VIS
 )
 endif()
 add_library(EASTL OBJECT ${SOURCE} ${SOURCE_VIS})
+target_compile_definitions(EASTL PRIVATE GODOT_EXPORTS)
+
 add_library(EASTL_Import INTERFACE)
 
 set_property(TARGET EASTL PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -45,9 +47,6 @@ target_compile_definitions(EASTL_Import INTERFACE
     $<INSTALL_INTERFACE:EASTL_USER_CONFIG_HEADER=\"EASTL/SegsEngine_config.h\">
 )
 
-target_compile_definitions(EASTL PRIVATE
-    GODOT_EXPORTS
-)
 
 install(TARGETS EASTL_Import EXPORT SegsEngine
     ARCHIVE DESTINATION ${DEST_ARCHIVE_DIR}

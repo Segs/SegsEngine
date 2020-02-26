@@ -1317,7 +1317,7 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
 }
 
 Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_path,
-        const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
+        const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {
 
@@ -1366,8 +1366,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         import_flags |= EditorSceneImporter::IMPORT_MATERIALS_IN_INSTANCES;
 
     Error err = OK;
-    Vector<String> missing_deps; // for now, not much will be done with this
-    Node *scene = importer->import_scene(src_path, import_flags, fps, &missing_deps, &err);
+    Node *scene = importer->import_scene(src_path, import_flags, fps, &r_missing_deps, &err);
     if (!scene || err != OK) {
         return err;
     }

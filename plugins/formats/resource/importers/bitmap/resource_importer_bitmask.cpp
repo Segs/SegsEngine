@@ -78,7 +78,7 @@ void ResourceImporterBitMap::get_import_options(Vector<ResourceImporterInterface
 }
 
 Error ResourceImporterBitMap::import(StringView p_source_file, StringView p_save_path,
-        const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
+        const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {
 
