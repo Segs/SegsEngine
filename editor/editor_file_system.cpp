@@ -1812,7 +1812,7 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
 
     if (err != OK) {
         ERR_PRINT("Error importing '" + p_file + "'.");
-        if(err==ERR_FILE_MISSING_DEPENDENCIES) {
+        if(err==ERR_FILE_MISSING_DEPENDENCIES && !final_try) {
             return ERR_FILE_MISSING_DEPENDENCIES;
         }
     }
@@ -2001,7 +2001,7 @@ void EditorFileSystem::ordered_reimport(EditorProgress &pr, Vector<ImportFile> &
     // Loop until we have all ordered, or can't add new part to ordered_imports
     size_t start_of_chunk=0;
     size_t end_of_chunk= ordered_imports.size();
-    
+
     while(!missing_deps.empty()) {
         for (auto iter = missing_deps.begin(); iter != missing_deps.end(); ) {
             Span<const String> last_chunk(ordered_imports.data() + start_of_chunk, end_of_chunk - start_of_chunk);

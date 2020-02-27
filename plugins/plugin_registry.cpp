@@ -24,11 +24,11 @@ static void load_all_plugins() {
     print_line("Retrieving statically linked plugins");
     get_static_plugins(s_common_plugins);
 
-    print_line("Retrieving dynamically linked plugins");
-    
-    String exepath(qPrintable(QDir().absolutePath())); //
-    auto base_path = QFileInfo(exepath.c_str()).filePath();
-    QCoreApplication::addLibraryPath( base_path+"/plugins" );
+
+    auto base_path = QFileInfo(OS::get_singleton()->get_executable_path().c_str()).path();
+
+    QCoreApplication::addLibraryPath( base_path+"/plugins");
+    print_line(qPrintable(QString("Retrieving dynamically linked plugins from:")+base_path+"/plugins"));
 
     QDir plugins_dir(base_path+"/plugins");
     QDirIterator iter(plugins_dir,QDirIterator::Subdirectories);

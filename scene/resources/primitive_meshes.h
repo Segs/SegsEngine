@@ -99,7 +99,7 @@ public:
 /**
     Mesh for a simple capsule
 */
-class CapsuleMesh : public PrimitiveMesh {
+class GODOT_EXPORT CapsuleMesh : public PrimitiveMesh {
     GDCLASS(CapsuleMesh,PrimitiveMesh)
 
 private:
@@ -131,7 +131,7 @@ public:
 /**
     Similar to test cube but with subdivision support and different texture coordinates
 */
-class CubeMesh : public PrimitiveMesh {
+class GODOT_EXPORT CubeMesh : public PrimitiveMesh {
 
     GDCLASS(CubeMesh,PrimitiveMesh)
 
