@@ -1306,7 +1306,7 @@ void EditorNode::_save_scene(StringView p_file, int idx) {
 
     // force creation of node path cache
     // (hacky but needed for the tree to update properly)
-    Node *dummy_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+    Node *dummy_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
     if (!dummy_scene) {
         show_accept(TTR("Couldn't save scene. Likely dependencies (instances or inheritance) couldn't be satisfied."),
                 TTR("OK"));
@@ -3360,9 +3360,10 @@ Error EditorNode::load_scene(StringView p_scene, bool p_ignore_broken_deps, bool
         }
 
         if (!p_force_open_imported && FileAccess::exists(String(p_scene) + ".import")) {
-            open_imported->set_text(FormatSN(TTR("Scene '%s' was automatically imported, so it can't be modified.\nTo "
+            auto file=PathUtils::get_file(p_scene);
+            open_imported->set_text(FormatSN(TTR("Scene '%.*s' was automatically imported, so it can't be modified.\nTo "
                                                 "make changes to it, a new inherited scene can be created.").asCString(),
-                    PathUtils::get_file(p_scene)));
+                file.size(), file.data()));
             open_imported->popup_centered_minsize();
             new_inherited_button->grab_focus();
             open_import_request = p_scene;
@@ -3370,7 +3371,8 @@ Error EditorNode::load_scene(StringView p_scene, bool p_ignore_broken_deps, bool
         }
     }
 
-    if (p_clear_errors) load_errors->clear();
+    if (p_clear_errors)
+        load_errors->clear();
 
     String lpath = ProjectSettings::get_singleton()->localize_path(p_scene);
 
@@ -3447,7 +3449,7 @@ Error EditorNode::load_scene(StringView p_scene, bool p_ignore_broken_deps, bool
         sdata->set_path(lpath, true); // take over path
     }
 
-    Node *new_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_MAIN);
+    Node *new_scene = sdata->instance(GEN_EDIT_STATE_MAIN);
 
     if (!new_scene) {
 

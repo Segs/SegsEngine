@@ -2068,10 +2068,10 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 
         Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
         ERR_FAIL_COND_V(not res, nullptr);
-        PackedScene::GenEditState ges = PackedScene::GEN_EDIT_STATE_DISABLED;
+        PackedGenEditState ges = GEN_EDIT_STATE_DISABLED;
 #ifdef TOOLS_ENABLED
         if (p_flags & DUPLICATE_FROM_EDITOR)
-            ges = PackedScene::GEN_EDIT_STATE_INSTANCE;
+            ges = GEN_EDIT_STATE_INSTANCE;
 #endif
         node = res->instance(ges);
         ERR_FAIL_COND_V(!node, nullptr);

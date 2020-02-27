@@ -207,7 +207,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
             break;
         }
 
-        Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+        Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
         if (!instanced_scene) {
             current_option = -1;
             accept->set_text(FormatSN(TTR("Error instancing scene from %s").asCString(), p_files[i].c_str()));
@@ -272,7 +272,7 @@ void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
         return;
     }
 
-    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+    Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
     if (!instanced_scene) {
         accept->set_text(FormatSN(TTR("Error instancing scene from %.*s").asCString(), p_file.length(),p_file.data()));
         accept->popup_centered_minsize();
@@ -343,7 +343,7 @@ bool SceneTreeDock::_track_inherit(StringView p_target_scene_path, Node *p_desir
             String path = ss->get_path();
             Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
             if (data) {
-                p = data->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                p = data->instance(GEN_EDIT_STATE_INSTANCE);
                 if (!p)
                     continue;
                 instances.push_back(p);

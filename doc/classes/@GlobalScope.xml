@@ -1607,5 +1607,17 @@
         <constant name="OP_MAX" value="25" enum="Variant.Operator">
             Represents the size of the [enum Variant.Operator] enum.
         </constant>
+				<constant name="GEN_EDIT_STATE_DISABLED" value="0" enum="PackedGenEditState">
+			If passed to [method PackedScene.instance], blocks edits to the scene state.
+		</constant>
+		<constant name="GEN_EDIT_STATE_INSTANCE" value="1" enum="PackedGenEditState">
+			If passed to [method PackedScene.instance], provides inherited scene resources to the local scene.
+			[b]Note:[/b] Only available in editor builds.
+		</constant>
+		<constant name="GEN_EDIT_STATE_MAIN" value="2" enum="PackedGenEditState">
+			If passed to [method PackedScene.instance], provides local scene resources to the local scene. Only the main scene should receive the main edit state.
+			[b]Note:[/b] Only available in editor builds.
+		</constant>
+		
     </constants>
 </class>

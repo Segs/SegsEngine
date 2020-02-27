@@ -629,7 +629,7 @@ bool Variant::operator==(const Variant &p_variant) const {
 
     if (type != p_variant.type) //evaluation of operator== needs to be more strict
         return false;
-    bool v;
+    bool v=true;
     Variant r;
     evaluate(OP_EQUAL, *this, p_variant, r, v);
     return r.as<bool>();

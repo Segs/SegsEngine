@@ -5975,7 +5975,7 @@ bool CanvasItemEditorViewport::_create_instance(Node *parent, StringView path, c
         return false;
     }
 
-    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+    Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
     if (!instanced_scene) { // error on instancing
         return false;
     }
@@ -6101,7 +6101,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
         StringView type(res->get_class());
         if (type == "PackedScene"_sv) {
             Ref<PackedScene> sdata(dynamic_ref_cast<PackedScene>(res));
-            Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+            Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
             if (!instanced_scene) {
                 continue;
             }

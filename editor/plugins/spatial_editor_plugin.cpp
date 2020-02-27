@@ -3367,7 +3367,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, StringView path, cons
             if (not scene) { // invalid scene
                 return false;
             } else {
-                instanced_scene = scene->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                instanced_scene = scene->instance(GEN_EDIT_STATE_INSTANCE);
             }
         }
     }
@@ -3476,7 +3476,7 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
                 StringView type(res->get_class());
                 if (type == StringView("PackedScene")) {
                     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(files[i]));
-                    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                    Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
                     if (!instanced_scene) {
                         continue;
                     }

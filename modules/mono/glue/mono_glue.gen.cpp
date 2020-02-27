@@ -25572,7 +25572,7 @@ int32_t godot_icall_PackedScene_pack_830ba20e(Object * ptr, Object * arg1) {
 MonoObject* godot_icall_PackedScene_instance_353368b5(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<PackedScene *>(ptr)->instance((PackedScene::GenEditState)arg1_in);
+    auto ret = static_cast<PackedScene *>(ptr)->instance((PackedGenEditState)arg1_in);
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 

@@ -30,6 +30,8 @@
 
 #include "packed_scene.h"
 
+#include <utility>
+
 #include "core/core_string_names.h"
 #include "core/pair.h"
 #include "core/engine.h"
@@ -44,7 +46,9 @@
 #include "core/method_bind.h"
 
 #include "EASTL/sort.h"
+#include "EASTL/deque.h"
 
+namespace {
 struct SVCompare
 {
     bool operator()(const StringName &a,StringView b) const {
@@ -54,83 +58,203 @@ struct SVCompare
         return a<StringView(b.asCString());
     }
 };
+Node* nodeFromId(const Vector<NodePath>& node_paths, Span<Node*> ret_nodes, int nc, int p_id) {
 
+    Node* p_name;
+    if (p_id & SceneState::FLAG_ID_IS_PATH) {
+        NodePath np = node_paths[p_id & SceneState::FLAG_MASK];
+        p_name = ret_nodes[0]->get_node_or_null(np);
+    }
+    else {
+        ERR_FAIL_INDEX_V(p_id & SceneState::FLAG_MASK, nc, NULL);
+        p_name = ret_nodes[p_id & SceneState::FLAG_MASK];
+    }
+    return p_name;
+}
+int _nm_get_string(const StringName& p_string, Map<StringName, int>& name_map) {
 
-#define PACKED_SCENE_VERSION 2
+    if (name_map.contains(p_string))
+        return name_map[p_string];
+
+    int idx = name_map.size();
+    name_map[p_string] = idx;
+    return idx;
+}
+int _nm_get_string(StringView p_string, Map<StringName, int>& name_map) {
+    //FIXME: this allocates strings, but name_map.find_as does not work here since StringName comparisons are done using data pointer
+    auto iter = name_map.find(StringName(p_string));
+    if (iter != name_map.end())
+        return iter->second;
+
+    int idx = name_map.size();
+    name_map.emplace(StringName(p_string), idx);
+    return idx;
+}
+int _vm_get_variant(const Variant& p_variant, HashMap<Variant, int, Hasher<Variant>, VariantComparator>& variant_map) {
+
+    if (variant_map.contains(p_variant))
+        return variant_map[p_variant];
+
+    int idx = variant_map.size();
+    variant_map[p_variant] = idx;
+    return idx;
+}
+constexpr int PACKED_SCENE_VERSION = 2;
+} //end of anonymous namespace
+
 
 IMPL_GDCLASS(SceneState)
 IMPL_GDCLASS(PackedScene)
 RES_BASE_EXTENSION_IMPL(PackedScene,"scn")
-VARIANT_ENUM_CAST(SceneState::GenEditState)
-VARIANT_ENUM_CAST(PackedScene::GenEditState)
+VARIANT_ENUM_CAST(PackedGenEditState)
 
 bool SceneState::can_instance() const {
 
     return !nodes.empty();
 }
+bool SceneState::handleProperties(PackedGenEditState p_edit_state, Node *node,Span<Node *> ret_nodes, const SceneState::NodeData &n, Map<Ref<Resource>, Ref<Resource> > & resources_local_to_scene) const {
+    int nprop_count = n.properties.size();
+    if (!nprop_count)
+        return true;
 
-Node *SceneState::instance(GenEditState p_edit_state) const {
+    size_t sname_count = names.size();
+    const Variant* props = nullptr;
+    int prop_count = variants.size();
+    if (prop_count)
+        props = &variants[0];
+    int i = eastl::distance(nodes.data(),&n); // find out which not are we on
+
+    for (const auto &property : n.properties) {
+
+        bool valid;
+        ERR_FAIL_INDEX_V(property.name, sname_count, false);
+        ERR_FAIL_INDEX_V(property.value, prop_count, false);
+
+        if (names[property.name] == CoreStringNames::get_singleton()->_script) {
+            //work around to avoid old script variables from disappearing, should be the proper fix to:
+            //https://github.com/godotengine/godot/issues/2958
+
+            //store old state
+            Vector<Pair<StringName, Variant> > old_state;
+            if (node->get_script_instance()) {
+                node->get_script_instance()->get_property_state(old_state);
+            }
+
+            node->set(names[property.name], props[property.value], &valid);
+
+            //restore old state for new script, if exists
+            for (const Pair<StringName, Variant>& E : old_state) {
+                node->set(E.first, E.second);
+            }
+            continue;
+        }
+        Variant value = props[property.value];
+
+        if (value.get_type() == VariantType::OBJECT) {
+            //handle resources that are local to scene by duplicating them if needed
+            Ref<Resource> res(value);
+            if (res && res->is_local_to_scene()) {
+                Map<Ref<Resource>, Ref<Resource> >::const_iterator E = resources_local_to_scene.find(res);
+
+                if (E != resources_local_to_scene.end()) {
+                    value = E->second;
+                }
+                else {
+
+                    Node* base = i == 0 ? node : ret_nodes[0];
+
+                    if (p_edit_state == GEN_EDIT_STATE_MAIN) {
+                        //for the main scene, use the resource as is
+                        res->configure_for_local_scene(base, resources_local_to_scene);
+                        resources_local_to_scene[res] = res;
+
+                    }
+                    else {
+                        //for instances, a copy must be made
+                        Node* base2 = i == 0 ? node : ret_nodes[0];
+                        Ref<Resource> local_dupe = res->duplicate_for_local_scene(base2, resources_local_to_scene);
+                        resources_local_to_scene[res] = local_dupe;
+                        res = local_dupe;
+                        value = local_dupe;
+                    }
+                }
+                //must make a copy, because this res is local to scene
+            }
+        }
+        else if (p_edit_state == GEN_EDIT_STATE_INSTANCE) {
+            value = value.duplicate(true); // Duplicate arrays and dictionaries for the editor
+        }
+        node->set(names[property.name], value, &valid);
+    }
+    return true;
+}
+
+void SceneState::handleConnections(int nc, Span<Node*> ret_nodes) const {
+
+    for (const ConnectionData& c : connections) {
+        Node* cfrom = nodeFromId(node_paths, ret_nodes, nc, c.from);
+        Node* cto = nodeFromId(node_paths, ret_nodes, nc, c.to);
+
+        if (!cfrom || !cto)
+            continue;
+
+        Vector<Variant> binds;
+        if (!c.bind_indices.empty()) {
+            binds.reserve(c.bind_indices.size());
+            for (int b : c.bind_indices)
+                binds.emplace_back(variants[b]);
+        }
+
+        cfrom->connect(names[c.signal], cto, names[c.method], binds, ObjectNS::CONNECT_PERSIST | c.flags);
+    }
+}
+
+Node *SceneState::instance(PackedGenEditState p_edit_state) const {
 
     // nodes where instancing failed (because something is missing)
     Vector<Node *> stray_instances;
 
-#define NODE_FROM_ID(p_name, p_id)                   \
-    Node *p_name;                                    \
-    if (p_id & FLAG_ID_IS_PATH) {                    \
-        NodePath np = node_paths[p_id & FLAG_MASK];  \
-        p_name = ret_nodes[0]->get_node_or_null(np); \
-    } else {                                         \
-        ERR_FAIL_INDEX_V(p_id &FLAG_MASK, nc, NULL); \
-        p_name = ret_nodes[p_id & FLAG_MASK];        \
-    }
-
     int nc = nodes.size();
-    ERR_FAIL_COND_V(nc == 0, nullptr);
+    ERR_FAIL_COND_V(nodes.empty(), nullptr);
 
     const Vector<StringName> &snames(names);
     size_t sname_count = names.size();
 
-    const Variant *props = nullptr;
     int prop_count = variants.size();
-    if (prop_count)
-        props = &variants[0];
 
     //Vector<Variant> properties;
-
-    const NodeData *nd = &nodes[0];
-
-    Node **ret_nodes = (Node **)alloca(sizeof(Node *) * nc);
+    //TODO: SEGS: introduce stack-based allocator for temporary vectors
+    FixedVector<Node*,1024,true> ret_nodes(nodes.size());
 
     bool gen_node_path_cache = p_edit_state != GEN_EDIT_STATE_DISABLED && node_path_cache.empty();
 
     Map<Ref<Resource>, Ref<Resource> > resources_local_to_scene;
-
-    for (int i = 0; i < nc; i++) {
-
-        const NodeData &n = nd[i];
+    bool first_node=true;
+    int node_data_idx=-1;
+    for (const NodeData& n : nodes) {
+        node_data_idx++;
 
         Node *parent = nullptr;
 
-        if (i > 0) {
+        if (!first_node) {
 
             ERR_FAIL_COND_V_MSG(n.parent == -1, nullptr, FormatVE("Invalid scene: node %s does not specify its parent node.", snames[n.name].asCString()));
-            NODE_FROM_ID(nparent, n.parent)
+            parent = nodeFromId(node_paths, ret_nodes, nc, n.parent);
 #ifdef DEBUG_ENABLED
-            if (!nparent && (n.parent & FLAG_ID_IS_PATH)) {
+            if (!parent && (n.parent & FLAG_ID_IS_PATH)) {
 
                 WARN_PRINT("Parent path '" + (String)node_paths[n.parent & FLAG_MASK] + "' for node '" + snames[n.name] + "' has vanished when instancing: '" + (String)get_path() + "'.");
             }
 #endif
-            parent = nparent;
         }
 
         Node *node = nullptr;
 
-        if (i == 0 && base_scene_idx >= 0) {
+        if (first_node && base_scene_idx >= 0) {
             //scene inheritance on root node
-            Ref<PackedScene> sdata(props[base_scene_idx]);
+            Ref<PackedScene> sdata(variants[base_scene_idx]);
             ERR_FAIL_COND_V(not sdata, nullptr);
-            node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? PackedScene::GEN_EDIT_STATE_DISABLED : PackedScene::GEN_EDIT_STATE_INSTANCE); //only main gets main edit state
+            node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? GEN_EDIT_STATE_DISABLED : GEN_EDIT_STATE_INSTANCE); //only main gets main edit state
             ERR_FAIL_COND_V(!node, nullptr);
             if (p_edit_state != GEN_EDIT_STATE_DISABLED) {
                 node->set_scene_inherited_state(sdata->get_state());
@@ -140,12 +264,12 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             //instance a scene into this node
             if (n.instance & FLAG_INSTANCE_IS_PLACEHOLDER) {
 
-                String path = props[n.instance & FLAG_MASK];
+                String path = variants[n.instance & FLAG_MASK];
                 if (disable_placeholders) {
 
                     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
                     ERR_FAIL_COND_V(not sdata, nullptr);
-                    node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? PackedScene::GEN_EDIT_STATE_DISABLED : PackedScene::GEN_EDIT_STATE_INSTANCE);
+                    node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? GEN_EDIT_STATE_DISABLED : GEN_EDIT_STATE_INSTANCE);
                     ERR_FAIL_COND_V(!node, nullptr);
                 } else {
                     InstancePlaceholder *ip = memnew(InstancePlaceholder);
@@ -154,9 +278,9 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 }
                 node->set_scene_instance_load_placeholder(true);
             } else {
-                Ref<PackedScene> sdata(props[n.instance & FLAG_MASK]);
+                Ref<PackedScene> sdata(variants[n.instance & FLAG_MASK]);
                 ERR_FAIL_COND_V(not sdata, nullptr);
-                node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? PackedScene::GEN_EDIT_STATE_DISABLED : PackedScene::GEN_EDIT_STATE_INSTANCE);
+                node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? GEN_EDIT_STATE_DISABLED : GEN_EDIT_STATE_INSTANCE);
                 ERR_FAIL_COND_V(!node, nullptr);
             }
 
@@ -166,7 +290,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
                 node = parent->_get_child_by_name(snames[n.name]);
 #ifdef DEBUG_ENABLED
                 if (!node) {
-                    WARN_PRINT("Node '" + (String)ret_nodes[0]->get_path_to(parent) + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.");
+                    WARN_PRINT("Node '" + ret_nodes.front()->get_path_to(parent).asString() + "/" + snames[n.name] + "' was modified from inside an instance, but it has vanished.");
                 }
 #endif
             }
@@ -206,88 +330,21 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             // if found all is good, otherwise ignore
 
             //properties
-            int nprop_count = n.properties.size();
-            if (nprop_count) {
-
-                const NodeData::Property *nprops = &n.properties[0];
-
-                for (int j = 0; j < nprop_count; j++) {
-
-                    bool valid;
-                    ERR_FAIL_INDEX_V(nprops[j].name, sname_count, nullptr);
-                    ERR_FAIL_INDEX_V(nprops[j].value, prop_count, nullptr);
-
-                    if (snames[nprops[j].name] == CoreStringNames::get_singleton()->_script) {
-                        //work around to avoid old script variables from disappearing, should be the proper fix to:
-                        //https://github.com/godotengine/godot/issues/2958
-
-                        //store old state
-                        Vector<Pair<StringName, Variant> > old_state;
-                        if (node->get_script_instance()) {
-                            node->get_script_instance()->get_property_state(old_state);
-                        }
-
-                        node->set(snames[nprops[j].name], props[nprops[j].value], &valid);
-
-                        //restore old state for new script, if exists
-                        for (const Pair<StringName, Variant> &E : old_state) {
-                            node->set(E.first, E.second);
-                        }
-                    } else {
-
-                        Variant value = props[nprops[j].value];
-
-                        if (value.get_type() == VariantType::OBJECT) {
-                            //handle resources that are local to scene by duplicating them if needed
-                            Ref<Resource> res(value);
-                            if (res) {
-                                if (res->is_local_to_scene()) {
-
-                                    Map<Ref<Resource>, Ref<Resource> >::iterator E = resources_local_to_scene.find(res);
-
-                                    if (E!=resources_local_to_scene.end()) {
-                                        value = E->second;
-                                    } else {
-
-                                        Node *base = i == 0 ? node : ret_nodes[0];
-
-                                        if (p_edit_state == GEN_EDIT_STATE_MAIN) {
-                                            //for the main scene, use the resource as is
-                                            res->configure_for_local_scene(base, resources_local_to_scene);
-                                            resources_local_to_scene[res] = res;
-
-                                        } else {
-                                            //for instances, a copy must be made
-                                            Node *base2 = i == 0 ? node : ret_nodes[0];
-                                            Ref<Resource> local_dupe = res->duplicate_for_local_scene(base2, resources_local_to_scene);
-                                            resources_local_to_scene[res] = local_dupe;
-                                            res = local_dupe;
-                                            value = local_dupe;
-                                        }
-                                    }
-                                    //must make a copy, because this res is local to scene
-                                }
-                            }
-                        } else if (p_edit_state == GEN_EDIT_STATE_INSTANCE) {
-                            value = value.duplicate(true); // Duplicate arrays and dictionaries for the editor
-                        }
-                        node->set(snames[nprops[j].name], value, &valid);
-                    }
-                }
-            }
+            if(not handleProperties(p_edit_state,node,ret_nodes,n,resources_local_to_scene))
+                return nullptr;
 
             //name
 
             //groups
-            for (int j = 0; j < n.groups.size(); j++) {
+            for (int grp : n.groups) {
 
-                ERR_FAIL_INDEX_V(n.groups[j], sname_count, nullptr);
-                node->add_to_group(snames[n.groups[j]], true);
+                ERR_FAIL_INDEX_V(grp, sname_count, nullptr);
+                node->add_to_group(snames[grp], true);
             }
 
-            if (n.instance >= 0 || n.type != TYPE_INSTANCED || i == 0) {
+            if (n.instance >= 0 || n.type != TYPE_INSTANCED || first_node) {
                 //if node was not part of instance, must set its name, parenthood and ownership
-                if (i > 0) {
+                if (!first_node) {
                     if (parent) {
                         parent->_add_child_nocheck(node, snames[n.name]);
                         if (n.index >= 0 && n.index < parent->get_child_count() - 1)
@@ -308,18 +365,17 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
             }
 
             if (n.owner >= 0) {
-
-                NODE_FROM_ID(owner, n.owner)
+                Node* owner = nodeFromId(node_paths, ret_nodes, nc, n.owner);
                 if (owner)
                     node->_set_owner_nocheck(owner);
             }
         }
 
-        ret_nodes[i] = node;
+        ret_nodes.push_back(node);
 
         if (node && gen_node_path_cache && ret_nodes[0]) {
             NodePath n2 = ret_nodes[0]->get_path_to(node);
-            node_path_cache[n2] = i;
+            node_path_cache[n2] = node_data_idx;
         }
     }
 
@@ -330,30 +386,7 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
 
     //do connections
 
-    int cc = connections.size();
-    const ConnectionData *cdata = connections.data();
-
-    for (int i = 0; i < cc; i++) {
-
-        const ConnectionData &c = cdata[i];
-        //ERR_FAIL_INDEX_V( c.from, nc, NULL );
-        //ERR_FAIL_INDEX_V( c.to, nc, NULL );
-
-        NODE_FROM_ID(cfrom, c.from)
-        NODE_FROM_ID(cto, c.to)
-
-        if (!cfrom || !cto)
-            continue;
-
-        Vector<Variant> binds;
-        if (!c.binds.empty()) {
-            binds.resize(c.binds.size());
-            for (int j = 0; j < c.binds.size(); j++)
-                binds[j] = props[c.binds[j]];
-        }
-
-        cfrom->connect(snames[c.signal], cto, snames[c.method], binds, ObjectNS::CONNECT_PERSIST | c.flags);
-    }
+    handleConnections(nc, ret_nodes);
 
     //Node *s = ret_nodes[0];
 
@@ -362,43 +395,14 @@ Node *SceneState::instance(GenEditState p_edit_state) const {
         memdelete(n);
     }
 
-    for (int i = 0; i < editable_instances.size(); i++) {
-        Node *ei = ret_nodes[0]->get_node_or_null(editable_instances[i]);
+    for (const auto &editable_instance : editable_instances) {
+        Node *ei = ret_nodes[0]->get_node_or_null(editable_instance);
         if (ei) {
             ret_nodes[0]->set_editable_instance(ei, true);
         }
     }
 
     return ret_nodes[0];
-}
-
-static int _nm_get_string(const StringName &p_string, Map<StringName, int> &name_map) {
-
-    if (name_map.contains(p_string))
-        return name_map[p_string];
-
-    int idx = name_map.size();
-    name_map[p_string] = idx;
-    return idx;
-}
-static int _nm_get_string(StringView p_string, Map<StringName, int> &name_map) {
-    //FIXME: this allocates strings, but name_map.find_as does not work here since StringName comparisons are done using data pointer
-    auto iter = name_map.find(StringName(p_string));
-    if (iter!=name_map.end())
-        return iter->second;
-
-    int idx = name_map.size();
-    name_map.emplace(StringName(p_string),idx);
-    return idx;
-}
-static int _vm_get_variant(const Variant &p_variant, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map) {
-
-    if (variant_map.contains(p_variant))
-        return variant_map[p_variant];
-
-    int idx = variant_map.size();
-    variant_map[p_variant] = idx;
-    return idx;
 }
 
 Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map<StringName, int> &name_map, HashMap<Variant, int, Hasher<Variant>, VariantComparator> &variant_map, HashMap<Node *, int> &node_map, HashMap<Node *, int> &nodepath_map) {
@@ -421,81 +425,71 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
 
     nd.name = _nm_get_string(p_node->get_name(), name_map);
     nd.instance = -1; //not instanced by default
+    //The default -1 index is set if the node is a scene root, so its index is irrelevant or it belongs to saved scene and scene is not inherited
+    nd.index = -1;
 
     //really convoluted condition, but it basically checks that index is only saved when part of an inherited scene OR the node parent is from the edited scene
-    if (not p_owner->get_scene_inherited_state() && (p_node == p_owner || (p_node->get_owner() == p_owner && (p_node->get_parent() == p_owner || p_node->get_parent()->get_owner() == p_owner)))) {
-        //do not save index, because it belongs to saved scene and scene is not inherited
-        nd.index = -1;
-    } else if (p_node == p_owner) {
-        //This (hopefully) happens if the node is a scene root, so its index is irrelevant.
-        nd.index = -1;
-    } else {
+    if (p_owner->get_scene_inherited_state() || p_node != p_owner && (p_node->get_owner() != p_owner || p_node->get_parent() != p_owner && p_node->get_parent()->get_owner() != p_owner)) {
         //part of an inherited scene, or parent is from an instanced scene
         nd.index = p_node->get_index();
     }
-
     // if this node is part of an instanced scene or sub-instanced scene
     // we need to get the corresponding instance states.
     // with the instance states, we can query for identical properties/groups
     // and only save what has changed
 
-    ListOld<PackState> pack_state_stack;
+    Dequeue<PackState> pack_state_stack;
 
     bool instanced_by_owner = true;
 
-    {
-        Node *n = p_node;
+    for(Node* n = p_node; n; n = n->get_owner()) {
 
-        while (n) {
+        if (n == p_owner) {
 
-            if (n == p_owner) {
-
-                Ref<SceneState> state = n->get_scene_inherited_state();
-                if (state) {
-                    int node = state->find_node_by_path(n->get_path_to(p_node));
-                    if (node >= 0) {
-                        //this one has state for this node, save
-                        PackState ps;
-                        ps.node = node;
-                        ps.state = state;
-                        pack_state_stack.push_back(ps);
-                        instanced_by_owner = false;
-                    }
+            Ref<SceneState> state = n->get_scene_inherited_state();
+            if (state) {
+                int node = state->find_node_by_path(n->get_path_to(p_node));
+                if (node >= 0) {
+                    //this one has state for this node, save
+                    PackState ps;
+                    ps.node = node;
+                    ps.state = state;
+                    pack_state_stack.push_back(ps);
+                    instanced_by_owner = false;
                 }
+            }
 
-                if (!p_node->get_filename().empty() && p_node->get_owner() == p_owner && instanced_by_owner) {
+            if (!p_node->get_filename().empty() && p_node->get_owner() == p_owner && instanced_by_owner) {
 
-                    if (p_node->get_scene_instance_load_placeholder()) {
-                        //it's a placeholder, use the placeholder path
-                        nd.instance = _vm_get_variant(p_node->get_filename(), variant_map);
-                        nd.instance |= FLAG_INSTANCE_IS_PLACEHOLDER;
-                    } else {
-                        //must instance ourselves
-                        Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_node->get_filename()));
-                        if (not instance) {
-                            return ERR_CANT_OPEN;
-                        }
-
-                        nd.instance = _vm_get_variant(instance, variant_map);
+                if (p_node->get_scene_instance_load_placeholder()) {
+                    //it's a placeholder, use the placeholder path
+                    nd.instance = _vm_get_variant(p_node->get_filename(), variant_map);
+                    nd.instance |= FLAG_INSTANCE_IS_PLACEHOLDER;
+                } else {
+                    //must instance ourselves
+                    Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_node->get_filename()));
+                    if (not instance) {
+                        return ERR_CANT_OPEN;
                     }
+
+                    nd.instance = _vm_get_variant(instance, variant_map);
                 }
-                n = nullptr;
-            } else {
-                if (!n->get_filename().empty()) {
-                    //is an instance
-                    Ref<SceneState> state = n->get_scene_instance_state();
-                    if (state) {
-                        int node = state->find_node_by_path(n->get_path_to(p_node));
-                        if (node >= 0) {
-                            //this one has state for this node, save
-                            PackState ps;
-                            ps.node = node;
-                            ps.state = state;
-                            pack_state_stack.push_back(ps);
-                        }
-                    }
-                }
-                n = n->get_owner();
+            }
+            break;
+        }
+        if (n->get_filename().empty())
+            continue;
+
+        //is an instance
+        Ref<SceneState> state = n->get_scene_instance_state();
+        if (state) {
+            int node = state->find_node_by_path(n->get_path_to(p_node));
+            if (node >= 0) {
+                //this one has state for this node, save
+                PackState ps;
+                ps.node = node;
+                ps.state = state;
+                pack_state_stack.push_back(ps);
             }
         }
     }
@@ -548,9 +542,9 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
             bool exists = false;
             Variant original;
 
-            for (ListOld<PackState>::Element *F = pack_state_stack.back(); F; F = F->prev()) {
+            for (auto F = pack_state_stack.rbegin(); F!= pack_state_stack.rend(); ++F) {
                 //check all levels of pack to see if the property exists somewhere
-                const PackState &ps = F->deref();
+                const PackState &ps = *F;
 
                 original = ps.state->get_property_value(ps.node, E.name, exists);
                 if (exists) {
@@ -588,9 +582,10 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
             }
         }
 
-        NodeData::Property prop;
-        prop.name = _nm_get_string(name, name_map);
-        prop.value = _vm_get_variant(value, variant_map);
+        NodeData::Property prop {
+            _nm_get_string(name, name_map),
+            _vm_get_variant(value, variant_map)
+        };
         nd.properties.push_back(prop);
     }
 
@@ -609,9 +604,8 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
         */
 
         bool skip = false;
-        for (ListOld<PackState>::Element *F = pack_state_stack.front(); F; F = F->next()) {
+        for (const PackState& ps : pack_state_stack) {
             //check all levels of pack to see if the group was added somewhere
-            const PackState &ps = F->deref();
             if (ps.state->is_node_in_group(ps.node, gi.name)) {
                 skip = true;
                 break;
@@ -629,17 +623,11 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     // for nodes of the saved scene this is 0
     // for nodes of instanced scenes this is >0
 
-    if (p_node == p_owner) {
-        //saved scene root
-        nd.owner = -1;
-    } else if (p_node->get_owner() == p_owner) {
+    nd.owner = -1; //saved scene root or p_node->get_owner() != p_owner
+    if (p_node != p_owner && p_node->get_owner() == p_owner) {
         //part of saved scene
         nd.owner = 0;
-    } else {
-
-        nd.owner = -1;
     }
-
     // Save the right type. If this node was created by an instance
     // then flag that the node should not be created but reused
     if (pack_state_stack.empty()) {
@@ -861,9 +849,9 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
             cd.method = _nm_get_string(c.method, name_map);
             cd.signal = _nm_get_string(c.signal, name_map);
             cd.flags = c.flags;
-            for (int i = 0; i < c.binds.size(); i++) {
+            for (const auto &bind : c.binds) {
 
-                cd.binds.push_back(_vm_get_variant(c.binds[i], variant_map));
+                cd.bind_indices.push_back(_vm_get_variant(bind, variant_map));
             }
             connections.push_back(cd);
         }
@@ -928,7 +916,7 @@ Error SceneState::pack(Node *p_scene) {
     }
 
     node_paths.resize(nodepath_map.size());
-    for (const eastl::pair<const Node *,int> &E : nodepath_map) {
+    for (const eastl::pair<Node *const,int> &E : nodepath_map) {
 
         node_paths[E.second] = scene->get_path_to(E.first);
     }
@@ -1021,14 +1009,13 @@ Variant SceneState::get_property_value(int p_node, const StringName &p_property,
 
     if (p_node < nodes.size()) {
         //find in built-in nodes
-        int pc = nodes[p_node].properties.size();
+        const Vector<NodeData::Property> &props(nodes[p_node].properties);
         const StringName *namep = names.data();
 
-        const NodeData::Property *p = nodes[p_node].properties.data();
-        for (int i = 0; i < pc; i++) {
-            if (p_property == namep[p[i].name]) {
+        for (const auto &prop : props) {
+            if (p_property == namep[prop.name]) {
                 found = true;
-                return variants[p[i].value];
+                return variants[prop.value];
             }
         }
     }
@@ -1048,8 +1035,9 @@ bool SceneState::is_node_in_group(int p_node, const StringName &p_group) const {
 
     if (p_node < nodes.size()) {
         const StringName *namep = names.data();
-        for (int i = 0; i < nodes[p_node].groups.size(); i++) {
-            if (namep[nodes[p_node].groups[i]] == p_group)
+        const Vector<int> &groups(nodes[p_node].groups);
+        for (int grp : groups) {
+            if (namep[grp] == p_group)
                 return true;
         }
     }
@@ -1088,9 +1076,10 @@ bool SceneState::is_connection(int p_node, const StringName &p_signal, int p_to_
         if (signal_idx >= 0 && method_idx >= 0) {
             //signal and method strings are stored..
 
-            for (int i = 0; i < connections.size(); i++) {
+            for (const ConnectionData &connection : connections) {
 
-                if (connections[i].from == p_node && connections[i].to == p_to_node && connections[i].signal == signal_idx && connections[i].method == method_idx) {
+                if (connection.from == p_node && connection.to == p_to_node && connection.signal == signal_idx &&
+                    connection.method == method_idx) {
 
                     return true;
                 }
@@ -1130,7 +1119,7 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
     ERR_FAIL_COND(sconns.size() < conn_count);
 
     PoolVector<String> snames = p_dictionary["names"].as<PoolVector<String>>();
-    if (snames.size()) {
+    if (!snames.empty()) {
 
         int namecount = snames.size();
         names.resize(namecount);
@@ -1168,15 +1157,15 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
             nd.index--; //0 is invalid, stored as 1
             nd.instance = r[idx++];
             nd.properties.resize(r[idx++]);
-            for (int j = 0; j < nd.properties.size(); j++) {
+            for (auto &propertie : nd.properties) {
 
-                nd.properties[j].name = r[idx++];
-                nd.properties[j].value = r[idx++];
+                propertie.name = r[idx++];
+                propertie.value = r[idx++];
             }
             nd.groups.resize(r[idx++]);
-            for (int j = 0; j < nd.groups.size(); j++) {
+            for (int &group : nd.groups) {
 
-                nd.groups[j] = r[idx++];
+                group = r[idx++];
             }
         }
     }
@@ -1187,18 +1176,17 @@ void SceneState::set_bundled_scene(const Dictionary &p_dictionary) {
         PoolVector<int> sconns = p_dictionary["conns"];
         PoolVector<int>::Read r = sconns.read();
         int idx = 0;
-        for (int i = 0; i < conn_count; i++) {
-            ConnectionData &cd = connections[i];
+        for (ConnectionData& cd : connections) {
             cd.from = r[idx++];
             cd.to = r[idx++];
             cd.signal = r[idx++];
             cd.method = r[idx++];
             cd.flags = r[idx++];
-            cd.binds.resize(r[idx++]);
+            cd.bind_indices.resize(r[idx++]);
 
-            for (int j = 0; j < cd.binds.size(); j++) {
+            for (int &bind_idx : cd.bind_indices) {
 
-                cd.binds[j] = r[idx++];
+                bind_idx = r[idx++];
             }
         }
     }
@@ -1249,29 +1237,25 @@ Dictionary SceneState::get_bundled_scene() const {
     Vector<int> rnodes;
     d["node_count"] = nodes.size();
     rnodes.reserve(nodes.size()*15);
-    for (size_t i = 0; i < nodes.size(); i++) {
+    for (const NodeData& nd : nodes) {
 
-        const NodeData &nd = nodes[i];
-        rnodes.push_back(nd.parent);
-        rnodes.push_back(nd.owner);
-        rnodes.push_back(nd.type);
+        rnodes.emplace_back(nd.parent);
+        rnodes.emplace_back(nd.owner);
+        rnodes.emplace_back(nd.type);
         uint32_t name_index = nd.name;
         if (nd.index < (1 << (32 - NAME_INDEX_BITS)) - 1) { //save if less than 16k children
             name_index |= uint32_t(nd.index + 1) << NAME_INDEX_BITS; //for backwards compatibility, index 0 is no index
         }
-        rnodes.push_back(name_index);
-        rnodes.push_back(nd.instance);
-        rnodes.push_back(nd.properties.size());
-        for (int j = 0; j < nd.properties.size(); j++) {
+        rnodes.emplace_back(name_index);
+        rnodes.emplace_back(nd.instance);
+        rnodes.emplace_back(nd.properties.size());
+        for (auto propertie : nd.properties) {
 
-            rnodes.push_back(nd.properties[j].name);
-            rnodes.push_back(nd.properties[j].value);
+            rnodes.emplace_back(propertie.name);
+            rnodes.emplace_back(propertie.value);
         }
-        rnodes.push_back(nd.groups.size());
-        for (int j = 0; j < nd.groups.size(); j++) {
-
-            rnodes.push_back(nd.groups[j]);
-        }
+        rnodes.emplace_back(nd.groups.size());
+        rnodes.insert(rnodes.end(), nd.groups.begin(), nd.groups.end());
     }
 
     d["nodes"] = rnodes;
@@ -1279,25 +1263,24 @@ Dictionary SceneState::get_bundled_scene() const {
     Vector<int> rconns;
     d["conn_count"] = connections.size();
     rconns.reserve(connections.size()*12);
-    for (int i = 0; i < connections.size(); i++) {
+    for (const ConnectionData &cd : connections) {
 
-        const ConnectionData &cd = connections[i];
         rconns.push_back(cd.from);
         rconns.push_back(cd.to);
         rconns.push_back(cd.signal);
         rconns.push_back(cd.method);
         rconns.push_back(cd.flags);
-        rconns.push_back(cd.binds.size());
-        for (int j = 0; j < cd.binds.size(); j++)
-            rconns.push_back(cd.binds[j]);
+        rconns.push_back(cd.bind_indices.size());
+        for (int bind : cd.bind_indices)
+            rconns.push_back(bind);
     }
 
     d["conns"] = rconns;
 
     Array rnode_paths;
     rnode_paths.resize(node_paths.size());
-    for (int i = 0; i < node_paths.size(); i++) {
-        rnode_paths[i] = node_paths[i];
+    for (const NodePath &np :  node_paths) {
+        rnode_paths.emplace_back(np);
     }
     d["node_paths"] = rnode_paths;
 
@@ -1353,9 +1336,10 @@ Ref<PackedScene> SceneState::get_node_instance(int p_idx) const {
     if (nodes[p_idx].instance >= 0) {
         if (nodes[p_idx].instance & FLAG_INSTANCE_IS_PLACEHOLDER)
             return Ref<PackedScene>();
-        else
-            return refFromRefPtr<PackedScene>(variants[nodes[p_idx].instance & FLAG_MASK]);
-    } else if (nodes[p_idx].parent < 0 || nodes[p_idx].parent == NO_PARENT_SAVED) {
+
+        return refFromRefPtr<PackedScene>(variants[nodes[p_idx].instance & FLAG_MASK]);
+    }
+    if (nodes[p_idx].parent < 0 || nodes[p_idx].parent == NO_PARENT_SAVED) {
 
         if (base_scene_idx >= 0) {
             return refFromRefPtr<PackedScene>(variants[base_scene_idx]);
@@ -1379,8 +1363,10 @@ String SceneState::get_node_instance_placeholder(int p_idx) const {
 Vector<StringName> SceneState::get_node_groups(int p_idx) const {
     ERR_FAIL_INDEX_V(p_idx, nodes.size(), {});
     Vector<StringName> groups;
-    for (int i = 0; i < nodes[p_idx].groups.size(); i++) {
-        groups.emplace_back(names[nodes[p_idx].groups[i]]);
+    groups.reserve(nodes[p_idx].groups.size());
+
+    for (int group : nodes[p_idx].groups) {
+        groups.emplace_back(names[group]);
     }
     return groups;
 }
@@ -1392,9 +1378,8 @@ NodePath SceneState::get_node_path(int p_idx, bool p_for_parent) const {
     if (nodes[p_idx].parent < 0 || nodes[p_idx].parent == NO_PARENT_SAVED) {
         if (p_for_parent) {
             return NodePath();
-        } else {
-            return NodePath(".");
         }
+        return NodePath(".");
     }
 
     Vector<StringName> sub_path;
@@ -1420,7 +1405,7 @@ NodePath SceneState::get_node_path(int p_idx, bool p_for_parent) const {
     }
 
     for (int i = base_path.get_name_count() - 1; i >= 0; i--) {
-        sub_path.insert(0, base_path.get_name(i));
+        sub_path.push_front(base_path.get_name(i));
     }
 
     if (sub_path.empty()) {
@@ -1454,9 +1439,8 @@ NodePath SceneState::get_node_owner_path(int p_idx) const {
         return NodePath(); //root likely
     if (nodes[p_idx].owner & FLAG_ID_IS_PATH) {
         return node_paths[nodes[p_idx].owner & FLAG_MASK];
-    } else {
-        return get_node_path(nodes[p_idx].owner & FLAG_MASK);
     }
+    return get_node_path(nodes[p_idx].owner & FLAG_MASK);
 }
 
 int SceneState::get_connection_count() const {
@@ -1503,8 +1487,8 @@ Array SceneState::get_connection_binds(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, connections.size(), Array());
     Array binds;
-    for (int i = 0; i < connections[p_idx].binds.size(); i++) {
-        binds.push_back(variants[connections[p_idx].binds[i]]);
+    for (int bind : connections[p_idx].bind_indices) {
+        binds.push_back(variants[bind]);
     }
     return binds;
 }
@@ -1515,8 +1499,7 @@ bool SceneState::has_connection(const NodePath &p_node_from, const StringName &p
     Ref<SceneState> ss(this);
 
     do {
-        for (int i = 0; i < ss->connections.size(); i++) {
-            const ConnectionData &c = ss->connections[i];
+        for (const ConnectionData& c : ss->connections) {
 
             NodePath np_from;
 
@@ -1600,10 +1583,8 @@ void SceneState::add_node_property(int p_node, int p_name, int p_value) {
     ERR_FAIL_INDEX(p_name, names.size());
     ERR_FAIL_INDEX(p_value, variants.size());
 
-    NodeData::Property prop;
-    prop.name = p_name;
-    prop.value = p_value;
-    nodes[p_node].properties.push_back(prop);
+    NodeData::Property prop { p_name,p_value };
+    nodes[p_node].properties.emplace_back(prop);
 }
 void SceneState::add_node_group(int p_node, int p_group) {
 
@@ -1621,8 +1602,8 @@ void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method
     ERR_FAIL_INDEX(p_signal, names.size());
     ERR_FAIL_INDEX(p_method, names.size());
 
-    for (int i = 0; i < p_binds.size(); i++) {
-        ERR_FAIL_INDEX(p_binds[i], variants.size());
+    for (int p_bind : p_binds) {
+        ERR_FAIL_INDEX(p_bind, variants.size());
     }
     ConnectionData c;
     c.from = p_from;
@@ -1630,12 +1611,12 @@ void SceneState::add_connection(int p_from, int p_to, int p_signal, int p_method
     c.signal = p_signal;
     c.method = p_method;
     c.flags = p_flags;
-    c.binds = eastl::move(p_binds);
+    c.bind_indices = eastl::move(p_binds);
     connections.emplace_back(c);
 }
 void SceneState::add_editable_instance(const NodePath &p_path) {
 
-    editable_instances.push_back(p_path);
+    editable_instances.emplace_back(p_path);
 }
 
 PoolVector<String> SceneState::_get_node_groups(int p_idx) const {
@@ -1643,8 +1624,8 @@ PoolVector<String> SceneState::_get_node_groups(int p_idx) const {
     Vector<StringName> groups = get_node_groups(p_idx);
     PoolVector<String> ret;
 
-    for (int i = 0; i < groups.size(); i++)
-        ret.push_back(groups[i].asCString());
+    for (const auto &group : groups)
+        ret.push_back(group.asCString());
 
     return ret;
 }
@@ -1712,13 +1693,13 @@ bool PackedScene::can_instance() const {
     return state->can_instance();
 }
 
-Node *PackedScene::instance(GenEditState p_edit_state) const {
+Node *PackedScene::instance(PackedGenEditState p_edit_state) const {
 
 #ifndef TOOLS_ENABLED
     ERR_FAIL_COND_V_MSG(p_edit_state != GEN_EDIT_STATE_DISABLED, NULL, "Edit state is only for editors, does not work without tools compiled.");
 #endif
 
-    Node *s = state->instance((SceneState::GenEditState)p_edit_state);
+    Node *s = state->instance(p_edit_state);
     if (!s)
         return nullptr;
 
@@ -1736,7 +1717,7 @@ Node *PackedScene::instance(GenEditState p_edit_state) const {
 
 void PackedScene::replace_state(Ref<SceneState> p_by) {
 
-    state = p_by;
+    state = std::move(p_by);
     state->set_path(get_path());
 #ifdef TOOLS_ENABLED
     state->set_last_modified_time(get_last_modified_time());
@@ -1750,11 +1731,6 @@ void PackedScene::recreate_state() {
 #ifdef TOOLS_ENABLED
     state->set_last_modified_time(get_last_modified_time());
 #endif
-}
-
-Ref<SceneState> PackedScene::get_state() {
-
-    return state;
 }
 
 void PackedScene::set_path(StringView p_path, bool p_take_over) {

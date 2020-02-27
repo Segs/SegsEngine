@@ -37,7 +37,11 @@
 #include "scene/main/node.h"
 
 class PackedScene;
-
+enum PackedGenEditState : uint8_t {
+    GEN_EDIT_STATE_DISABLED,
+    GEN_EDIT_STATE_INSTANCE,
+    GEN_EDIT_STATE_MAIN,
+};
 class GODOT_EXPORT SceneState : public RefCounted {
 
     GDCLASS(SceneState,RefCounted)
@@ -78,8 +82,7 @@ class GODOT_EXPORT SceneState : public RefCounted {
 
     struct PackState {
         Ref<SceneState> state;
-        int node;
-        PackState() { node = -1; }
+        int node=-1;
     };
 
     Vector<NodeData> nodes;
@@ -91,7 +94,7 @@ class GODOT_EXPORT SceneState : public RefCounted {
         int signal;
         int method;
         int flags;
-        Vector<int> binds;
+        Vector<int> bind_indices;
     };
 
     Vector<ConnectionData> connections;
@@ -107,14 +110,6 @@ class GODOT_EXPORT SceneState : public RefCounted {
 
     static bool disable_placeholders;
 public:
-    PoolVector<String> _get_node_groups(int p_idx) const;
-
-    int _find_base_scene_node_remap_key(int p_idx) const;
-
-protected:
-    static void _bind_methods();
-
-public:
     enum {
         FLAG_ID_IS_PATH = (1 << 30),
         TYPE_INSTANCED = 0x7FFFFFFF,
@@ -122,11 +117,17 @@ public:
         FLAG_MASK = (1 << 24) - 1,
     };
 
-    enum GenEditState {
-        GEN_EDIT_STATE_DISABLED,
-        GEN_EDIT_STATE_INSTANCE,
-        GEN_EDIT_STATE_MAIN,
-    };
+    PoolVector<String> _get_node_groups(int p_idx) const;
+
+    int _find_base_scene_node_remap_key(int p_idx) const;
+
+protected:
+    static void _bind_methods();
+    bool handleProperties(PackedGenEditState p_edit_state, Node* node, Span<Node*> ret_nodes,const NodeData& n, Map<Ref<Resource>, Ref<Resource> >& resources_local_to_scene) const;
+    void handleConnections(int nc, Span<Node*> ret_nodes) const;
+
+public:
+
 
     static void set_disable_placeholders(bool p_disable);
 
@@ -146,7 +147,7 @@ public:
     void clear();
 
     bool can_instance() const;
-    Node *instance(GenEditState p_edit_state) const;
+    Node *instance(PackedGenEditState p_edit_state) const;
 
     //unbuild API
 
@@ -213,18 +214,14 @@ protected:
     static void _bind_methods();
 
 public:
-    enum GenEditState {
-        GEN_EDIT_STATE_DISABLED,
-        GEN_EDIT_STATE_INSTANCE,
-        GEN_EDIT_STATE_MAIN,
-    };
+
 
     Error pack(Node *p_scene);
 
     void clear();
 
     bool can_instance() const;
-    Node *instance(GenEditState p_edit_state = GEN_EDIT_STATE_DISABLED) const;
+    Node *instance(PackedGenEditState p_edit_state = GEN_EDIT_STATE_DISABLED) const;
 
     void recreate_state();
     void replace_state(Ref<SceneState> p_by);
@@ -234,7 +231,7 @@ public:
     void set_last_modified_time(uint64_t p_time) override { state->set_last_modified_time(p_time); }
 
 #endif
-    Ref<SceneState> get_state();
+    const Ref<SceneState> &get_state() const { return state; }
 
     PackedScene();
 };

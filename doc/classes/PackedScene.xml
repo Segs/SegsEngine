@@ -70,17 +70,4 @@
 			Available keys include "rnames" and "variants" for resources, "node_count", "nodes", "node_paths" for nodes, "editable_instances" for base scene children overrides, "conn_count" and "conns" for signal connections, and "version" for the format style of the PackedScene.
 		</member>
 	</members>
-	<constants>
-		<constant name="GEN_EDIT_STATE_DISABLED" value="0" enum="GenEditState">
-			If passed to [method instance], blocks edits to the scene state.
-		</constant>
-		<constant name="GEN_EDIT_STATE_INSTANCE" value="1" enum="GenEditState">
-			If passed to [method instance], provides local scene resources to the local scene.
-			[b]Note:[/b] Only available in editor builds.
-		</constant>
-		<constant name="GEN_EDIT_STATE_MAIN" value="2" enum="GenEditState">
-			If passed to [method instance], provides local scene resources to the local scene. Only the main scene should receive the main edit state.
-			[b]Note:[/b] Only available in editor builds.
-		</constant>
-	</constants>
 </class>
