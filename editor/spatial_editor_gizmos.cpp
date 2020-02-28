@@ -821,8 +821,6 @@ Vector3 EditorSpatialGizmo::get_handle_pos(int p_idx) const {
 
 LightSpatialGizmoPlugin::LightSpatialGizmoPlugin() {
 
-    Color gizmo_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/light", Color(1, 1, 0.7f));
-
     // Enable vertex colors for the materials below as the gizmo color depends on the light color.
     create_material("lines_primary", Color(1, 1, 1), false, false, true);
     create_material("lines_secondary", Color(1, 1, 1, 0.35f), false, false, true);
