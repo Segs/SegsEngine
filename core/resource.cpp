@@ -46,7 +46,6 @@
 #include "scene/main/node.h" //only so casting works
 #include "core/method_bind.h"
 #include <QMetaProperty>
-#include <cstdio>
 
 namespace {
     HashMap<String, Resource *> cached_resources;
@@ -54,20 +53,18 @@ namespace {
 } // end of anonymous namespace
 
 struct Resource::Data {
-    Data(Resource *own) : remapped_list(own) {}
+    Data() {}
 #ifdef TOOLS_ENABLED
     static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
-    static RWLock *path_cache_lock;
     String import_path;
 #endif
     HashSet<ObjectID> owners;
-    SelfList<Resource> remapped_list;
     String name;
     String path_cache;
     Node *local_scene = nullptr;
     int subindex=0;
     bool local_to_scene=false;
-
+    static RWLock* path_cache_lock;
 };
 HashMap<String, HashMap<String, int> > Resource::Data::resource_path_cache;
 RWLock *Resource::Data::path_cache_lock;
@@ -90,32 +87,29 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
         return;
 
     if (!impl_data->path_cache.empty()) {
-
-        ResourceCache::lock->write_lock();
+        RWLockWrite write_guard(ResourceCache::lock);
         cached_resources.erase(impl_data->path_cache);
-        ResourceCache::lock->write_unlock();
     }
-
+    HashMap<String, Resource*>::iterator lociter;
+    bool has_path=false;
     impl_data->path_cache.clear();
-
-    ResourceCache::lock->read_lock();
-    auto lociter = cached_resources.find_as(p_path);
-    bool has_path = cached_resources.end()!=lociter;
-    ResourceCache::lock->read_unlock();
+    {
+        RWLockRead read_guard(ResourceCache::lock);
+        lociter = cached_resources.find_as(p_path);
+        has_path = cached_resources.end() != lociter;
+    }
 
     if (has_path) {
         if (p_take_over) {
 
-            ResourceCache::lock->write_lock();
+            RWLockWrite write_guard(ResourceCache::lock);
             //TODO: can `lociter` really change between this and previous call ?
             lociter = cached_resources.find_as(p_path);
             if(lociter!=cached_resources.end())
                 lociter->second->set_name("");
-            ResourceCache::lock->write_unlock();
         } else {
-            ResourceCache::lock->read_lock();
+            RWLockRead read_guard(ResourceCache::lock);
             bool exists = cached_resources.find_as(p_path)!=cached_resources.end();
-            ResourceCache::lock->read_unlock();
 
             ERR_FAIL_COND_MSG(exists, "Another resource is loaded from path '" + String(p_path) + "' (possible cyclic resource inclusion).");
         }
@@ -245,15 +239,11 @@ void Resource::configure_for_local_scene(Node *p_for_scene, Map<Ref<Resource>, R
             continue;
 
         RES sr(refFromVariant<Resource>(p));
-        if (sr) {
+        if (!sr || !sr->is_local_to_scene() || remap_cache.contains(sr))
+            continue;
 
-            if (sr->is_local_to_scene()) {
-                if (!remap_cache.contains(sr)) {
-                    sr->configure_for_local_scene(p_for_scene, remap_cache);
-                    remap_cache[sr] = sr;
-                }
-            }
-        }
+        sr->configure_for_local_scene(p_for_scene, remap_cache);
+        remap_cache[sr] = sr;
     }
 }
 
@@ -384,7 +374,7 @@ Node *(*Resource::_get_local_scene_func)() = nullptr;
 
 void Resource::set_as_translation_remapped(bool p_remapped) {
 
-    if (impl_data->remapped_list.in_list() == p_remapped)
+    if (ResourceLoader::remapped_list.contains(this) == p_remapped)
         return;
 
     if (ResourceCache::lock) {
@@ -392,9 +382,9 @@ void Resource::set_as_translation_remapped(bool p_remapped) {
     }
 
     if (p_remapped) {
-        ResourceLoader::remapped_list.add(&impl_data->remapped_list);
+        ResourceLoader::remapped_list.insert(this);
     } else {
-        ResourceLoader::remapped_list.remove(&impl_data->remapped_list);
+        ResourceLoader::remapped_list.erase(this);
     }
 
     if (ResourceCache::lock) {
@@ -404,49 +394,31 @@ void Resource::set_as_translation_remapped(bool p_remapped) {
 
 bool Resource::is_translation_remapped() const {
 
-    return impl_data->remapped_list.in_list();
+    return ResourceLoader::remapped_list.contains(const_cast<Resource *>(this));
 }
 
 #ifdef TOOLS_ENABLED
+
 //helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
 void Resource::set_id_for_path(StringView p_path, int p_id) {
+    RWLockWrite wr(Data::path_cache_lock);
     if (p_id == -1) {
-        if (Resource::Data::path_cache_lock) {
-            Resource::Data::path_cache_lock->write_lock();
-        }
-        Resource::Data::resource_path_cache[String(p_path)].erase(get_path());
-        if (Resource::Data::path_cache_lock) {
-            Resource::Data::path_cache_lock->write_unlock();
-        }
+        Data::resource_path_cache[String(p_path)].erase(get_path());
     } else {
-        if (Resource::Data::path_cache_lock) {
-            Resource::Data::path_cache_lock->write_lock();
-        }
-        Resource::Data::resource_path_cache[String(p_path)][get_path()] = p_id;
-        if (Resource::Data::path_cache_lock) {
-            Resource::Data::path_cache_lock->write_unlock();
-        }
+        Data::resource_path_cache[String(p_path)][get_path()] = p_id;
     }
 }
 
 int Resource::get_id_for_path(StringView p_path) const {
-    if (Resource::Data::path_cache_lock) {
-        Resource::Data::path_cache_lock->read_lock();
-    }
-    auto & res_path_cache(Resource::Data::resource_path_cache[String(p_path)]);
+    RWLockRead rd_lock(Data::path_cache_lock);
+
+    auto & res_path_cache(Data::resource_path_cache[String(p_path)]);
     auto iter = res_path_cache.find(get_path());
     if (iter!=res_path_cache.end()) {
         int result = iter->second;
-        if (Resource::Data::path_cache_lock) {
-            Resource::Data::path_cache_lock->read_unlock();
-        }
         return result;
-    } else {
-        if (Resource::Data::path_cache_lock) {
-            Resource::Data::path_cache_lock->read_unlock();
-        }
-        return -1;
     }
+    return -1;
 }
 #endif
 VariantType fromQVariantType(QVariant::Type t) {
@@ -456,11 +428,8 @@ VariantType fromQVariantType(QVariant::Type t) {
     case QVariant::Bool:
         return VariantType::BOOL;
     case QVariant::Int:
-        return VariantType::INT;
     case QVariant::UInt:
-        return VariantType::INT;
     case QVariant::LongLong:
-        return VariantType::INT;
     case QVariant::ULongLong:
         return VariantType::INT;
     case QVariant::Double:
@@ -473,6 +442,7 @@ VariantType fromQVariantType(QVariant::Type t) {
 }
 //TODO: this is here only because Object is not an QObject yet
 void Resource::changed() {}
+
 void Resource::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_path", {"path"}), &Resource::_set_path);
     MethodBinder::bind_method(D_METHOD("take_over_path", {"path"}), &Resource::_take_over_path);
@@ -516,7 +486,7 @@ void Resource::_bind_methods() {
 }
 
 Resource::Resource() :
-        impl_data(memnew_args_basic(Resource::Data,this)) {
+        impl_data(memnew(Resource::Data)) {
 
 #ifdef TOOLS_ENABLED
     last_modified_time = 0;
@@ -528,10 +498,10 @@ Resource::Resource() :
 Resource::~Resource() {
 
     if (!impl_data->path_cache.empty()) {
-        ResourceCache::lock->write_lock();
+        RWLockWrite wr_guard(ResourceCache::lock);
         cached_resources.erase(impl_data->path_cache);
-        ResourceCache::lock->write_unlock();
     }
+    ResourceLoader::remapped_list.erase(this);
     if (!impl_data->owners.empty()) {
         WARN_PRINT("Resource is still owned.");
     }

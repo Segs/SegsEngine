@@ -34,9 +34,8 @@
 #include "core/resource.h"
 #include "core/hashfuncs.h"
 #include "core/hash_map.h"
-#include "core/self_list.h"
+#include "core/hash_set.h"
 #include "core/string.h"
-//#include "core/string_utils.inl"
 
 namespace std {
 class recursive_mutex;
@@ -87,7 +86,7 @@ class GODOT_EXPORT ResourceLoader {
     static String _path_remap(StringView p_path, bool *r_translation_remapped = nullptr);
     friend class Resource;
 
-    static SelfList<Resource>::List remapped_list;
+    static HashSet<Resource *> remapped_list;
 
     friend class ResourceFormatImporter;
     friend class ResourceInteractiveLoader;

@@ -922,22 +922,12 @@ String ResourceLoader::path_remap(StringView p_path) {
 }
 
 void ResourceLoader::reload_translation_remaps() {
-
-    if (ResourceCache::lock) {
-        ResourceCache::lock->read_lock();
+    Vector<Resource*> to_reload;
+    {
+        RWLockRead read_lock(ResourceCache::lock);
+        to_reload.assign(remapped_list.begin(), remapped_list.end());
     }
 
-    Vector<Resource *> to_reload;
-    SelfList<Resource> *E = remapped_list.first();
-
-    while (E) {
-        to_reload.emplace_back(E->self());
-        E = E->next();
-    }
-
-    if (ResourceCache::lock) {
-        ResourceCache::lock->read_unlock();
-    }
 
     //now just make sure to not delete any of these resources while changing locale..
     for(Resource * r: to_reload) {
@@ -1103,7 +1093,7 @@ void *ResourceLoader::dep_err_notify_ud = nullptr;
 bool ResourceLoader::abort_on_missing_resource = true;
 bool ResourceLoader::timestamp_on_load = false;
 
-SelfList<Resource>::List ResourceLoader::remapped_list;
+HashSet<Resource *> ResourceLoader::remapped_list;
 HashMap<String, Vector<String> > ResourceLoader::translation_remaps;
 HashMap<String, String> ResourceLoader::path_remaps;
 

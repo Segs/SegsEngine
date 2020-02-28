@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(SegsEngine)
 
-set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
+#set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 # NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
 # respectively
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
