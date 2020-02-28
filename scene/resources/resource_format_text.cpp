@@ -1445,7 +1445,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
             if (not res || external_resources.contains(res))
                 return;
 
-            if (!p_main && (!bundle_resources) && res->get_path().length() && !StringUtils::contains(res->get_path(),"::") ) {
+            if (!p_main && (!bundle_resources) && !res->get_path().empty() && !StringUtils::contains(res->get_path(),"::") ) {
                 if (res->get_path() == local_path) {
                     ERR_PRINT("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.");
                     return;

@@ -220,8 +220,6 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
     const Vector<StringName> &snames(names);
     size_t sname_count = names.size();
 
-    int prop_count = variants.size();
-
     //Vector<Variant> properties;
     //TODO: SEGS: introduce stack-based allocator for temporary vectors
     FixedVector<Node*,1024,true> ret_nodes(nodes.size());
@@ -233,6 +231,7 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
     int node_data_idx=-1;
     for (const NodeData& n : nodes) {
         node_data_idx++;
+        first_node = node_data_idx==0;
 
         Node *parent = nullptr;
 
@@ -371,7 +370,7 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
             }
         }
 
-        ret_nodes.push_back(node);
+        ret_nodes[node_data_idx] = node;
 
         if (node && gen_node_path_cache && ret_nodes[0]) {
             NodePath n2 = ret_nodes[0]->get_path_to(node);
@@ -429,7 +428,10 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
     nd.index = -1;
 
     //really convoluted condition, but it basically checks that index is only saved when part of an inherited scene OR the node parent is from the edited scene
-    if (p_owner->get_scene_inherited_state() || p_node != p_owner && (p_node->get_owner() != p_owner || p_node->get_parent() != p_owner && p_node->get_parent()->get_owner() != p_owner)) {
+    if (p_owner->get_scene_inherited_state() ||
+            (p_node != p_owner &&
+                    (p_node->get_owner() != p_owner ||
+                            (p_node->get_parent() != p_owner && p_node->get_parent()->get_owner() != p_owner)))) {
         //part of an inherited scene, or parent is from an instanced scene
         nd.index = p_node->get_index();
     }
@@ -697,7 +699,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
     Vector<MethodInfo> _signals;
     p_node->get_signal_list(&_signals);
     eastl::sort(_signals.begin(), _signals.end());
-    
+
 
     //ERR_FAIL_COND_V( !node_map.has(p_node), ERR_BUG);
     //NodeData &nd = nodes[node_map[p_node]];

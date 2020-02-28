@@ -221,6 +221,7 @@
 #include "scene/animation/skeleton_ik.h"
 #include "scene/resources/environment.h"
 #include "scene/resources/mesh_library.h"
+#include "scene/resources/scene_library.h"
 
 #include "scene/resources/font_serializers.h"
 #include "scene/resources/texture_serializers.h"
@@ -364,6 +365,7 @@ void register_scene_types() {
     TextFile::initialize_class();
     World::initialize_class();
     MeshLibrary::initialize_class();
+    SceneLibrary::initialize_class();
     Space2D::initialize_class();
     CapsuleMesh::initialize_class();
     CubeMesh::initialize_class();
@@ -992,6 +994,7 @@ void register_scene_types() {
     SpatialMaterial::init_shaders();
 
     ClassDB::register_class<MeshLibrary>();
+    ClassDB::register_class<SceneLibrary>();
 
     OS::get_singleton()->yield(); //may take time to init
 

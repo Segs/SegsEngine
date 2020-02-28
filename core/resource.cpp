@@ -96,7 +96,7 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
         ResourceCache::lock->write_unlock();
     }
 
-    impl_data->path_cache = "";
+    impl_data->path_cache.clear();
 
     ResourceCache::lock->read_lock();
     auto lociter = cached_resources.find_as(p_path);

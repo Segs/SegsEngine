@@ -844,7 +844,6 @@ void AnimationNodeBlendTreeEditor::_node_renamed(StringView p_text, const Ref<An
         return; //nothing to do
     }
 
-    const StringView base_name(p_text);
     int base = 1;
     String name(p_text);
     while (blend_tree->has_node(StringName(name))) {

@@ -715,7 +715,6 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 
     FixedVector<NodePath,16,true> to_delete;
 
-    const NodePath *K = nullptr;
     for(const auto & e : track_cache) {
         TrackCache *tc = e.second;
         if (tc->setup_pass != setup_pass) {
@@ -748,7 +747,6 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 
 void AnimationTree::_clear_caches() {
 
-    const NodePath *K = nullptr;
     for(const auto &e : track_cache) {
         memdelete(e.second);
     }

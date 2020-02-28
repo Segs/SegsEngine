@@ -540,6 +540,7 @@
         <file alias="Ruler.svg">icons/icon_ruler.svg</file>
         <file alias="SampleLibrary.svg">icons/icon_sample_library.svg</file>
         <file alias="Save.svg">icons/icon_save.svg</file>
+        <file alias="SceneLibrary.svg">icons/icon_scene_library.svg</file>
         <file alias="ScriptCreateDialog.svg">icons/icon_script_create_dialog.svg</file>
         <file alias="ScriptCreate.svg">icons/icon_script_create.svg</file>
         <file alias="ScriptExtend.svg">icons/icon_script_extend.svg</file>

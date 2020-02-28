@@ -116,6 +116,7 @@
 #include "editor/plugins/mesh_editor_plugin.h"
 #include "editor/plugins/mesh_instance_editor_plugin.h"
 #include "editor/plugins/mesh_library_editor_plugin.h"
+#include "editor/plugins/scene_library_editor_plugin.h"
 #include "editor/plugins/multimesh_editor_plugin.h"
 #include "editor/plugins/navigation_polygon_editor_plugin.h"
 #include "editor/plugins/particles_2d_editor_plugin.h"
@@ -3792,6 +3793,8 @@ void EditorNode::register_editor_types() {
     TextEditor::initialize_class();
     MeshLibraryEditor::initialize_class();
     MeshLibraryEditorPlugin::initialize_class();
+    SceneLibraryEditor::initialize_class();
+    SceneLibraryEditorPlugin::initialize_class();
     CurveEditor::initialize_class();
     EditorInspectorPluginCurve::initialize_class();
     CurveEditorPlugin::initialize_class();
@@ -7034,6 +7037,7 @@ EditorNode::EditorNode() {
     add_editor_plugin(memnew(AnimationTreeEditorPlugin(this)));
     add_editor_plugin(memnew(AnimationTreePlayerEditorPlugin(this)));
     add_editor_plugin(memnew(MeshLibraryEditorPlugin(this)));
+    add_editor_plugin(memnew(SceneLibraryEditorPlugin(this)));
     add_editor_plugin(memnew(StyleBoxEditorPlugin(this)));
     add_editor_plugin(memnew(SpriteEditorPlugin(this)));
     add_editor_plugin(memnew(Skeleton2DEditorPlugin(this)));
