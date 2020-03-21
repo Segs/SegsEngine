@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PRIMITIVE_MESHES_H
-#define PRIMITIVE_MESHES_H
+#pragma once
 
 #include "scene/resources/mesh.h"
 
@@ -41,7 +40,7 @@
     Base class for all the classes in this file, handles a number of code functions that are shared among all meshes.
     This class is set apart that it assumes a single surface is always generated for our mesh.
 */
-class PrimitiveMesh : public Mesh {
+class GODOT_EXPORT PrimitiveMesh : public Mesh {
 
     GDCLASS(PrimitiveMesh,Mesh)
 
@@ -338,5 +337,3 @@ protected:
 public:
     PointMesh();
 };
-
-#endif
