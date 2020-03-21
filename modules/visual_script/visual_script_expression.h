@@ -269,7 +269,7 @@ public:
     int get_output_sequence_port_count() const override;
     bool has_input_sequence_port() const override;
 
-    se_string_view get_output_sequence_port_text(int p_port) const override;
+    StringView get_output_sequence_port_text(int p_port) const override;
 
     int get_input_value_port_count() const override;
     int get_output_value_port_count() const override;
@@ -277,7 +277,7 @@ public:
     PropertyInfo get_input_value_port_info(int p_idx) const override;
     PropertyInfo get_output_value_port_info(int p_idx) const override;
 
-    se_string_view get_caption() const override;
+    StringView get_caption() const override;
     String get_text() const override;
     const char *get_category() const override { return "operators"; }
 

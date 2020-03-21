@@ -75,7 +75,7 @@ void GIProbeEditorPlugin::bake_func_begin(int p_steps) {
     tmp_progress = memnew(EditorProgress(("bake_gi"), TTR("Bake GI Probe"), p_steps));
 }
 
-void GIProbeEditorPlugin::bake_func_step(int p_step, se_string_view p_description) {
+void GIProbeEditorPlugin::bake_func_step(int p_step, StringView p_description) {
 
     ERR_FAIL_COND(tmp_progress == nullptr);
     tmp_progress->step(StringName(p_description), p_step, false);

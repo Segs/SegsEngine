@@ -31,7 +31,7 @@
 #include "string_utils.h"
 
 #include "core/os/file_access.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/array.h"
 
 #include "EASTL/vector_set.h"
@@ -135,9 +135,9 @@ String sformat(const String &p_text, const Variant &p1, const Variant &p2, const
 
 #ifdef TOOLS_ENABLED
 
-bool is_csharp_keyword(se_string_view p_name) {
+bool is_csharp_keyword(StringView p_name) {
     using namespace eastl;
-    static eastl::vector_set<se_string_view,eastl::less<se_string_view>,EASTLAllocatorType,eastl::fixed_vector<se_string_view,79,false>>
+    static eastl::vector_set<StringView,eastl::less<StringView>,EASTLAllocatorType,eastl::fixed_vector<StringView,79,false>>
     keywords;
     static bool initialized=false;
     if(!initialized){
@@ -169,12 +169,12 @@ bool is_csharp_keyword(se_string_view p_name) {
     return keywords.contains(p_name);
 }
 
-String escape_csharp_keyword(se_string_view p_name) {
+String escape_csharp_keyword(StringView p_name) {
     return is_csharp_keyword(p_name) ? String("@") + p_name : String(p_name);
 }
 #endif
 
-Error read_all_file_utf8(se_string_view p_path, String &r_content) {
+Error read_all_file_utf8(StringView p_path, String &r_content) {
 
     Error err;
     String res = FileAccess::get_file_as_string(p_path,&err);

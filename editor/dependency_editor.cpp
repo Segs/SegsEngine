@@ -48,7 +48,7 @@ IMPL_GDCLASS(DependencyRemoveDialog)
 IMPL_GDCLASS(DependencyErrorDialog)
 IMPL_GDCLASS(OrphanResourcesDialog)
 
-void DependencyEditor::_searched(se_string_view p_path) {
+void DependencyEditor::_searched(StringView p_path) {
 
     HashMap<String, String> dep_rename;
     dep_rename[replacing] = p_path;
@@ -75,7 +75,7 @@ void DependencyEditor::_load_pressed(Object *p_item, int p_cell, int p_button) {
     search->popup_centered_ratio(0.65f); // So it doesn't completely cover the dialog below it.
 }
 
-void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<String, String> > &candidates) {
+void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<StringView, Map<String, String> > &candidates) {
 
     for (int i = 0; i < efsd->get_subdir_count(); i++) {
         _fix_and_find(efsd->get_subdir(i), candidates);
@@ -101,9 +101,9 @@ void DependencyEditor::_fix_and_find(EditorFileSystemDirectory *efsd, Map<se_str
             String current = StringUtils::replace_first(path,"res://", String());
             String lost = StringUtils::replace_first(E.first,"res://", String());
 
-            Vector<se_string_view> existingv = StringUtils::split(existing,'/');
-            Vector<se_string_view> currentv = StringUtils::split(current,'/');
-            Vector<se_string_view> lostv = StringUtils::split(lost,'/');
+            Vector<StringView> existingv = StringUtils::split(existing,'/');
+            Vector<StringView> currentv = StringUtils::split(current,'/');
+            Vector<StringView> lostv = StringUtils::split(lost,'/');
             eastl::reverse(existingv.begin(),existingv.end());
             eastl::reverse(currentv.begin(),currentv.end());
             eastl::reverse(lostv.begin(),lostv.end());
@@ -136,11 +136,11 @@ void DependencyEditor::_fix_all() {
     if (!EditorFileSystem::get_singleton()->get_filesystem())
         return;
 
-    Map<se_string_view, Map<String, String> > candidates;
+    Map<StringView, Map<String, String> > candidates;
 
     for (const String &E : missing) {
 
-        se_string_view base = PathUtils::get_file(E);
+        StringView base = PathUtils::get_file(E);
         candidates[base][E] = "";
     }
 
@@ -148,7 +148,7 @@ void DependencyEditor::_fix_all() {
 
     HashMap<String, String> remaps;
 
-    for (eastl::pair<const se_string_view, Map<String, String> > &E : candidates) {
+    for (eastl::pair<const StringView, Map<String, String> > &E : candidates) {
 
         for (eastl::pair<const String, String> &F : E.second) {
 
@@ -190,8 +190,8 @@ void DependencyEditor::_update_list() {
 
         TreeItem *item = tree->create_item(root);
 
-        se_string_view path;
-        se_string_view type;
+        StringView path;
+        StringView type;
 
         if (StringUtils::contains(n,"::") ) {
             path = StringUtils::get_slice(n,"::", 0);
@@ -200,7 +200,7 @@ void DependencyEditor::_update_list() {
             path = n;
             type = "Resource";
         }
-        se_string_view name = PathUtils::get_file(path);
+        StringView name = PathUtils::get_file(path);
 
         Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(StringName(type));
         item->set_text_utf8(0, name);
@@ -220,14 +220,14 @@ void DependencyEditor::_update_list() {
     fixdeps->set_disabled(!broken);
 }
 
-void DependencyEditor::edit(se_string_view p_path) {
+void DependencyEditor::edit(StringView p_path) {
 
     editing = p_path;
     set_title(TTR("Dependencies For:") + " " + PathUtils::get_file(p_path));
 
     _update_list();
     popup_centered_ratio(0.7f); // So it doesn't completely cover the dialog below it.
-    se_string_view filepath = PathUtils::get_file(p_path);
+    StringView filepath = PathUtils::get_file(p_path);
     if (EditorNode::get_singleton()->is_scene_open(p_path)) {
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("Scene '%.*s' is currently being edited.\nChanges will only take effect when reloaded.").asCString(), filepath.length(),filepath.data()));
     } else if (ResourceCache::has(p_path)) {
@@ -351,7 +351,7 @@ void DependencyEditorOwners::_fill_owners(EditorFileSystemDirectory *efsd) {
     }
 }
 
-void DependencyEditorOwners::show(se_string_view p_path) {
+void DependencyEditorOwners::show(StringView p_path) {
 
     editing = p_path;
     owners->clear();
@@ -379,7 +379,7 @@ DependencyEditorOwners::DependencyEditorOwners(EditorNode *p_editor) {
 
 ///////////////////////
 
-void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirectory *efsd, se_string_view p_folder) {
+void DependencyRemoveDialog::_find_files_in_removed_folder(EditorFileSystemDirectory *efsd, StringView p_folder) {
     if (!efsd)
         return;
 
@@ -600,7 +600,7 @@ DependencyRemoveDialog::DependencyRemoveDialog() {
 
 //////////////
 
-void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const Vector<String> &report) {
+void DependencyErrorDialog::show(Mode p_mode, StringView p_for_file, const Vector<String> &report) {
 
     mode = p_mode;
     for_file = p_for_file;
@@ -613,7 +613,7 @@ void DependencyErrorDialog::show(Mode p_mode, se_string_view p_for_file, const V
         String dep;
         String type("Object");
         dep = StringUtils::get_slice(report[i],"::", 0);
-        FixedVector<se_string_view,32,true> report_parts;
+        FixedVector<StringView,32,true> report_parts;
         if (StringUtils::get_slice_count(report[i],"::") > 0)
             type = StringUtils::get_slice(report[i],"::", 1);
 
@@ -639,7 +639,7 @@ void DependencyErrorDialog::ok_pressed() {
     }
 }
 
-void DependencyErrorDialog::custom_action(se_string_view) {
+void DependencyErrorDialog::custom_action(StringView) {
 
     EditorNode::get_singleton()->fix_dependencies(for_file);
 }

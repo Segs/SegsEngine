@@ -789,7 +789,7 @@ BakedLightmap::BakeMode BakedLightmap::get_bake_mode() const {
     return bake_mode;
 }
 
-void BakedLightmap::set_image_path(se_string_view p_path) {
+void BakedLightmap::set_image_path(StringView p_path) {
     image_path = p_path;
 }
 

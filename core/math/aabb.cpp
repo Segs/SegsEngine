@@ -31,7 +31,7 @@
 #include "aabb.h"
 
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 real_t AABB::get_area() const {
 

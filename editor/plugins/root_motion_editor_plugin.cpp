@@ -299,9 +299,9 @@ void EditorInspectorRootMotionPlugin::parse_begin(Object *p_object) {
     //do none
 }
 
-bool EditorInspectorRootMotionPlugin::parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) {
+bool EditorInspectorRootMotionPlugin::parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) {
 
-    if (p_path == se_string_view("root_motion_track") && p_object->is_class("AnimationTree") &&
+    if (p_path == StringView("root_motion_track") && p_object->is_class("AnimationTree") &&
             p_type == VariantType::NODE_PATH) {
         EditorPropertyRootMotion *editor = memnew(EditorPropertyRootMotion);
         if (p_hint == PropertyHint::NodePathToEditedNode && !p_hint_text.empty()) {

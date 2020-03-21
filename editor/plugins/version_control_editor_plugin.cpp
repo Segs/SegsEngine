@@ -117,7 +117,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     const int id = set_up_choice->get_selected_id();
     StringName selected_addon(set_up_choice->get_item_text_utf8(id));
 
-    se_string_view path = ScriptServer::get_global_class_path(selected_addon);
+    StringView path = ScriptServer::get_global_class_path(selected_addon);
     Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
     ERR_FAIL_COND_MSG(not script,"VCS Addon path is invalid"); 
 
@@ -276,7 +276,7 @@ void VersionControlEditorPlugin::_view_file_diff() {
     _display_file_diff(file_path);
 }
 
-void VersionControlEditorPlugin::_display_file_diff(se_string_view p_file_path) {
+void VersionControlEditorPlugin::_display_file_diff(StringView p_file_path) {
 
     Array diff_content = EditorVCSInterface::get_singleton()->get_file_diff(p_file_path);
 
@@ -369,7 +369,7 @@ void VersionControlEditorPlugin::fetch_available_vcs_addon_names() {
 
     for (int i = 0; i != global_classes.size(); i++) {
 
-        se_string_view path = ScriptServer::get_global_class_path(global_classes[i]);
+        StringView path = ScriptServer::get_global_class_path(global_classes[i]);
         Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
         ERR_FAIL_COND(not script);
         if (script->get_instance_base_type() == "EditorVCSInterface") {

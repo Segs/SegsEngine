@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(SegsEngine)
 
-set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
+#set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
 # NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
 # respectively
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
@@ -15,7 +15,7 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
       add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
     if (NOT (MSVC_VERSION LESS 1910))
-      add_compile_options (/MP)
+      #add_compile_options (/MP)
       add_compile_options (/permissive-)
       #add_compile_options (/d2cgsummary)
       #add_compile_options (/d1reportTime)
@@ -76,6 +76,11 @@ endfunction()
 
 add_library(editor_interface INTERFACE)
 target_compile_definitions(editor_interface INTERFACE TOOLS_ENABLED)
+target_include_directories(editor_interface INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include/SegsEngine>
+
+)
 
 add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
 add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
@@ -222,13 +227,6 @@ SET(OPTION_PLATFORM ${first_platform} CACHE STRING "Target platform")
 SET_PROPERTY(CACHE OPTION_PLATFORM PROPERTY STRINGS ${platform_list})
 
 # # add default include paths
-include_directories(
-    ${PROJECT_SOURCE_DIR}/core
-    ${PROJECT_SOURCE_DIR}/core/math
-    ${PROJECT_SOURCE_DIR}/editor
-    ${PROJECT_SOURCE_DIR}/drivers
-    ${PROJECT_SOURCE_DIR}
-)
 
 if (OPTION_NO_EDITOR_SPLASH)
     add_definitions(-DNO_EDITOR_SPLASH)
@@ -306,37 +304,39 @@ if(USE_PRECOMPILED_HEADERS)
     endforeach()
 endif()
 
-foreach(tgt ${global_targets})
-if(WIN32)
-    install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION bin
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-    )
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(CUSTOM_INSTALL_CONFIGDIR cmake)
 else()
-    install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION bin
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-    )
+    set(CUSTOM_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SegsEngine)
 endif()
+
+foreach(tgt ${global_targets})
+    if(WIN32)
+        install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION bin
+            RUNTIME DESTINATION bin
+            INCLUDES DESTINATION include
+        )
+    else()
+        install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
+            ARCHIVE DESTINATION lib
+            LIBRARY DESTINATION bin
+            RUNTIME DESTINATION bin
+            INCLUDES DESTINATION include
+        )
+    endif()
     install(EXPORT SegsEngine
         FILE ${tgt}_engine_Targets.cmake
         NAMESPACE SegsEngine::
-        DESTINATION cmake
+        DESTINATION ${CUSTOM_INSTALL_CONFIGDIR}
     )
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
     target_link_libraries(${tgt}_engine PUBLIC EnTT::EnTT)
 endforeach()
 
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    set(CUSTOM_INSTALL_CONFIGDIR cmake)
-else()
-    set(CUSTOM_INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/SegsEngine)
-endif()
+
 
 #
 # Install tree package config file

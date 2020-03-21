@@ -87,7 +87,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
     void _live_edit_node_path_func(const NodePath &p_path, int p_id) { live_edit_node_path_cache[p_id] = p_path; }
 
-    void _live_edit_res_path_func(se_string_view p_path, int p_id) { live_edit_resource_cache[p_id] = p_path; }
+    void _live_edit_res_path_func(StringView p_path, int p_id) { live_edit_resource_cache[p_id] = p_path; }
 
     void _live_edit_node_set_func(int p_id, const StringName &p_prop, const Variant &p_value) {
 
@@ -112,7 +112,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         }
     }
 
-    void _live_edit_node_set_res_func(int p_id, const StringName &p_prop, se_string_view p_value) {
+    void _live_edit_node_set_res_func(int p_id, const StringName &p_prop, StringView p_value) {
 
         RES r(ResourceLoader::load(p_value));
         if (not r) return;
@@ -144,7 +144,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
         if (!live_edit_resource_cache.contains(p_id)) return;
 
-        se_string_view resp = live_edit_resource_cache[p_id];
+        StringView resp = live_edit_resource_cache[p_id];
 
         if (!ResourceCache::has(resp)) return;
 
@@ -153,7 +153,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
 
         r->set(p_prop, p_value);
     }
-    void _live_edit_res_set_res_func(int p_id, const StringName &p_prop, se_string_view p_value) {
+    void _live_edit_res_set_res_func(int p_id, const StringName &p_prop, StringView p_value) {
 
         RES r(ResourceLoader::load(p_value));
         if (not r) return;
@@ -173,7 +173,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
         r->call_va(p_method, VARIANT_ARG_PASS);
     }
 
-    void _live_edit_root_func(const NodePath &p_scene_path, se_string_view p_scene_from) {
+    void _live_edit_root_func(const NodePath &p_scene_path, StringView p_scene_from) {
 
         live_edit_root = p_scene_path;
         live_edit_scene = p_scene_from;
@@ -204,7 +204,7 @@ struct SceneTreeDebugAccessor final : public ISceneTreeDebugAccessor{
             n2->add_child(no);
         }
     }
-    void _live_edit_instance_node_func(const NodePath &p_parent, se_string_view p_path, const String &p_name) {
+    void _live_edit_instance_node_func(const NodePath &p_parent, StringView p_path, const String &p_name) {
 
         Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path));
 
@@ -770,7 +770,7 @@ void SceneTree::set_input_as_handled() {
     input_handled = true;
 }
 
-void SceneTree::input_text(se_string_view p_text) {
+void SceneTree::input_text(StringView p_text) {
 
     root_lock++;
 
@@ -945,12 +945,12 @@ bool SceneTree::idle(float p_time) {
         //simple hack to reload fallback environment if it changed from editor
         String env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
         env_path =StringUtils::strip_edges( env_path); //user may have added a space or two
-        se_string_view cpath;
+        StringView cpath;
         Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
         if (fallback) {
             cpath = fallback->get_path();
         }
-        if (se_string_view(env_path) != cpath) {
+        if (StringView(env_path) != cpath) {
 
             if (!env_path.empty()) {
                 fallback = dynamic_ref_cast<Environment>(ResourceLoader::load(env_path));
@@ -1652,7 +1652,7 @@ void SceneTree::_change_scene(Node *p_to) {
     }
 }
 
-Error SceneTree::change_scene(se_string_view p_path) {
+Error SceneTree::change_scene(StringView p_path) {
 
     Ref<PackedScene> new_scene = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path));
     if (not new_scene)
@@ -1674,7 +1674,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
 Error SceneTree::reload_current_scene() {
 
     ERR_FAIL_COND_V(!current_scene, ERR_UNCONFIGURED);
-    se_string_view fname = current_scene->get_filename();
+    StringView fname = current_scene->get_filename();
     return change_scene(fname);
 }
 

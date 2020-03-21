@@ -67,7 +67,7 @@ public:
     virtual void set_import_last_modified_time(uint64_t p_time) = 0;
     virtual uint64_t get_import_last_modified_time() const = 0;
 
-    virtual void set_import_path(se_string_view p_path) = 0;
+    virtual void set_import_path(StringView p_path) = 0;
     virtual UIString get_import_path() const = 0;
     virtual ~IResourceTooling() = default;
 };
@@ -100,8 +100,8 @@ protected:
     virtual void _resource_path_changed();
     static void _bind_methods();
 public:
-    void _set_path(se_string_view p_path);
-    void _take_over_path(se_string_view p_path);
+    void _set_path(StringView p_path);
+    void _take_over_path(StringView p_path);
 //Q_SIGNALS:
     void changed();
 public:
@@ -116,10 +116,10 @@ public:
     void register_owner(Object *p_owner);
     void unregister_owner(Object *p_owner);
 
-    void set_name(se_string_view p_name);
+    void set_name(StringView p_name);
     const String &get_name() const;
 
-    virtual void set_path(se_string_view p_path, bool p_take_over = false);
+    virtual void set_path(StringView p_path, bool p_take_over = false);
     const String &get_path() const;
 
     void set_subindex(int p_sub_index);
@@ -147,7 +147,7 @@ public:
     virtual void set_import_last_modified_time(uint64_t p_time) { import_last_modified_time = p_time; }
     uint64_t get_import_last_modified_time() const { return import_last_modified_time; }
 
-    void set_import_path(se_string_view p_path);
+    void set_import_path(StringView p_path);
     const String &get_import_path() const;
 
 #endif
@@ -159,8 +159,8 @@ public:
 
 #ifdef TOOLS_ENABLED
     //helps keep IDs same number when loading/saving scenes. -1 clears ID and it Returns -1 when no id stored
-    void set_id_for_path(se_string_view p_path, int p_id);
-    int get_id_for_path(se_string_view p_path) const;
+    void set_id_for_path(StringView p_path, int p_id);
+    int get_id_for_path(StringView p_path) const;
 #endif
 
     Resource();
@@ -177,12 +177,12 @@ class GODOT_EXPORT ResourceCache {
     static void clear();
     friend void register_core_types();
     static void setup();
-    static Resource *get_unguarded(se_string_view p_path);
+    static Resource *get_unguarded(StringView p_path);
 public:
     static void reload_externals();
-    static bool has(se_string_view p_path);
-    static Resource *get(se_string_view p_path);
-    static void dump(se_string_view p_file = nullptr, bool p_short = false);
+    static bool has(StringView p_path);
+    static Resource *get(StringView p_path);
+    static void dump(StringView p_file = nullptr, bool p_short = false);
     static void get_cached_resources(List<Ref<Resource>> *p_resources);
     static int get_cached_resource_count();
 };

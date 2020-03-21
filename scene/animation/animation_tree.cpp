@@ -320,7 +320,7 @@ String AnimationNode::get_input_name(int p_input) {
     return inputs[p_input].name;
 }
 
-se_string_view AnimationNode::get_caption() const {
+StringView AnimationNode::get_caption() const {
     thread_local char buf[512];
     if (get_script_instance()) {
         buf[0]=0;
@@ -341,7 +341,7 @@ void AnimationNode::add_input(const String &p_name) {
     emit_changed();
 }
 
-void AnimationNode::set_input_name(int p_input, se_string_view p_name) {
+void AnimationNode::set_input_name(int p_input, StringView p_name) {
     ERR_FAIL_INDEX(p_input, inputs.size());
     ERR_FAIL_COND(StringUtils::contains(p_name,".") || StringUtils::contains(p_name,"/"));
     inputs[p_input].name = p_name;
@@ -715,7 +715,6 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 
     FixedVector<NodePath,16,true> to_delete;
 
-    const NodePath *K = nullptr;
     for(const auto & e : track_cache) {
         TrackCache *tc = e.second;
         if (tc->setup_pass != setup_pass) {
@@ -748,7 +747,6 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
 
 void AnimationTree::_clear_caches() {
 
-    const NodePath *K = nullptr;
     for(const auto &e : track_cache) {
         memdelete(e.second);
     }
@@ -1429,7 +1427,7 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
         }
         input_activity_map[p_base_path] = eastl::move(activity);
         //TODO: why is the last character trimmed below, document this or remove the trimming.
-        input_activity_map_get[StringName(StringUtils::substr(p_base_path, 0, se_string_view(p_base_path).length() - 1))] =
+        input_activity_map_get[StringName(StringUtils::substr(p_base_path, 0, StringView(p_base_path).length() - 1))] =
                 &input_activity_map[p_base_path];
     }
 
@@ -1509,7 +1507,7 @@ void AnimationTree::_get_property_list(Vector<PropertyInfo> *p_list) const {
     p_list->push_back(properties);
 }
 
-void AnimationTree::rename_parameter(se_string_view p_base, se_string_view p_new_base) {
+void AnimationTree::rename_parameter(StringView p_base, StringView p_new_base) {
 
     //rename values first
     for (const PropertyInfo &E : properties) {

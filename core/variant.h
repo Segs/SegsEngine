@@ -276,7 +276,7 @@ public:
     Variant(QChar p_char);
     //explicit Variant(const String &p_string);
     Variant(const char *p_string);
-    Variant(se_string_view p_string);
+    Variant(StringView p_string);
     Variant(const String &p_string);
     Variant(StringName p_string);
     Variant(const CharType *p_wstring);
@@ -423,7 +423,7 @@ public:
     static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
     static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
     static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
-    static Span<const se_string_view> get_method_argument_names(VariantType p_type, const StringName &p_method);
+    static Span<const StringView> get_method_argument_names(VariantType p_type, const StringName &p_method);
     static bool is_method_const(VariantType p_type, const StringName &p_method);
 
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
@@ -515,11 +515,11 @@ const Variant::ObjData &Variant::_get_obj() const {
     return *reinterpret_cast<const ObjData *>(&_data._mem[0]);
 }
 
-GODOT_EXPORT String vformat(se_string_view p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
+GODOT_EXPORT String vformat(StringView p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
 
 template <> GODOT_EXPORT UIString Variant::as<UIString>() const;
 template <> GODOT_EXPORT String Variant::as<String>() const;
-template <> GODOT_EXPORT se_string_view Variant::as<se_string_view>() const;
+template <> GODOT_EXPORT StringView Variant::as<StringView>() const;
 template <> GODOT_EXPORT StringName Variant::as<StringName>() const;
 template <> GODOT_EXPORT float Variant::as<float>() const;
 template <> GODOT_EXPORT double Variant::as<double>() const;
@@ -548,7 +548,7 @@ template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
-template <> GODOT_EXPORT Variant Variant::from(const Vector<se_string_view> &);
+template <> GODOT_EXPORT Variant Variant::from(const Vector<StringView> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<StringName> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<Variant> &);
 template <> GODOT_EXPORT Variant Variant::from(const Frustum &p_array);

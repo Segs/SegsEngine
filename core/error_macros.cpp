@@ -33,7 +33,7 @@
 #include "core/io/logger.h"
 #include "os/os.h"
 #include "core/string_formatter.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 static ErrorHandlerList *error_handler_list = nullptr;
@@ -70,7 +70,7 @@ void remove_error_handler(ErrorHandlerList *p_handler) {
     _global_unlock();
 }
 
-void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, se_string_view p_message, ErrorHandlerType p_type) {
+void _err_print_error(const char *p_function, const char *p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
     OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message, (Logger::ErrorType)p_type);
 
@@ -85,7 +85,7 @@ void _err_print_error(const char *p_function, const char *p_file, int p_line, se
     _global_unlock();
 }
 
-void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal) {
+void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, StringView p_index_str, StringView p_size_str, StringView p_message, bool fatal) {
     String fstr(fatal ? "FATAL: " : "");
     String err(fstr + "Index " + p_index_str + " = " + itos(p_index) + " is out of bounds (" + p_size_str + " = " + itos(p_size) + ").");
 

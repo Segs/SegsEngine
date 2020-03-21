@@ -160,7 +160,7 @@ void ProjectSettingsEditor::_notification(int p_what) {
     }
 }
 
-static bool _validate_action_name(se_string_view p_name) {
+static bool _validate_action_name(StringView p_name) {
     for(char c : p_name)
         if (c == '/' || c == ':' || c == '"' ||
                 c == '=' || c == '\\' || c < 32)
@@ -404,7 +404,7 @@ void ProjectSettingsEditor::_press_a_key_confirm() {
     _show_last_added(ie, name);
 }
 
-void ProjectSettingsEditor::_show_last_added(const Ref<InputEvent> &p_event, se_string_view p_name) {
+void ProjectSettingsEditor::_show_last_added(const Ref<InputEvent> &p_event, StringView p_name) {
     TreeItem *r = input_editor->get_root();
 
     String name(p_name);
@@ -816,7 +816,7 @@ void ProjectSettingsEditor::update_plugins() {
     plugin_settings->update_plugins();
 }
 
-void ProjectSettingsEditor::_item_selected(se_string_view p_path) {
+void ProjectSettingsEditor::_item_selected(StringView p_path) {
 
     if (p_path.empty())
         return;
@@ -825,7 +825,7 @@ void ProjectSettingsEditor::_item_selected(se_string_view p_path) {
     popup_copy_to_feature->set_disabled(false);
 }
 
-void ProjectSettingsEditor::_item_adds(se_string_view) {
+void ProjectSettingsEditor::_item_adds(StringView) {
 
     _item_add();
 }
@@ -911,7 +911,7 @@ void ProjectSettingsEditor::_item_del() {
     undo_redo->commit_action();
 }
 
-void ProjectSettingsEditor::_action_check(se_string_view p_action) {
+void ProjectSettingsEditor::_action_check(StringView p_action) {
 
     if (p_action.empty()) {
 
@@ -939,7 +939,7 @@ void ProjectSettingsEditor::_action_check(se_string_view p_action) {
     action_add_error->hide();
 }
 
-void ProjectSettingsEditor::_action_adds(se_string_view) {
+void ProjectSettingsEditor::_action_adds(StringView) {
 
     if (!action_add->is_disabled()) {
         _action_add();
@@ -977,7 +977,7 @@ void ProjectSettingsEditor::_action_add() {
     action_name->clear();
 }
 
-void ProjectSettingsEditor::_item_checked(se_string_view p_item, bool p_check) {
+void ProjectSettingsEditor::_item_checked(StringView p_item, bool p_check) {
 }
 
 void ProjectSettingsEditor::_save() {
@@ -987,7 +987,7 @@ void ProjectSettingsEditor::_save() {
     message->popup_centered(Size2(300, 100) * EDSCALE);
 }
 
-void ProjectSettingsEditor::_settings_prop_edited(se_string_view p_name) {
+void ProjectSettingsEditor::_settings_prop_edited(StringView p_name) {
 
     // Method needed to discard the mandatory argument of the property_edited signal
     _settings_changed();
@@ -1033,7 +1033,7 @@ void ProjectSettingsEditor::_copy_to_platform_about_to_show() {
         presets.insert(p.begin(), p.end());
 
         String custom = EditorExport::get_singleton()->get_export_preset(i)->get_custom_features();
-        Vector<se_string_view> custom_list = StringUtils::split(custom,',');
+        Vector<StringView> custom_list = StringUtils::split(custom,',');
         for (int j = 0; j < custom_list.size(); j++) {
             String f(StringUtils::strip_edges( custom_list[j]));
             if (!f.empty()) {
@@ -1168,7 +1168,7 @@ void ProjectSettingsEditor::add_translation(const UIString &p_translation) {
     _translation_add(StringUtils::to_utf8(p_translation));
 }
 
-void ProjectSettingsEditor::_translation_add(se_string_view p_path) {
+void ProjectSettingsEditor::_translation_add(StringView p_path) {
 
     PoolVector<String> translations =
             ProjectSettings::get_singleton()->get("locale/translations").as<PoolVector<String>>();
@@ -1223,7 +1223,7 @@ void ProjectSettingsEditor::_translation_res_file_open() {
     translation_res_file_open->popup_centered_ratio();
 }
 
-void ProjectSettingsEditor::_translation_res_add(se_string_view p_path) {
+void ProjectSettingsEditor::_translation_res_add(StringView p_path) {
 
     Variant prev;
     Dictionary remaps;
@@ -1252,7 +1252,7 @@ void ProjectSettingsEditor::_translation_res_option_file_open() {
 
     translation_res_option_file_open->popup_centered_ratio();
 }
-void ProjectSettingsEditor::_translation_res_option_add(se_string_view p_path) {
+void ProjectSettingsEditor::_translation_res_option_add(StringView p_path) {
 
     ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"));
 
@@ -1494,7 +1494,7 @@ void ProjectSettingsEditor::_update_translations() {
 
             TreeItem *t = translation_list->create_item(root);
             t->set_editable(0, false);
-            t->set_text(0, StringName(StringUtils::replace_first(translations[i],"res://", se_string_view(""))));
+            t->set_text(0, StringName(StringUtils::replace_first(translations[i],"res://", StringView(""))));
             t->set_tooltip(0, StringName(translations[i]));
             t->set_metadata(0, i);
             t->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));
@@ -1639,7 +1639,7 @@ void ProjectSettingsEditor::_update_translations() {
 
                 TreeItem *t2 = translation_remap_options->create_item(root2);
                 t2->set_editable(0, false);
-                t2->set_text(0, StringName(StringUtils::replace_first(path,"res://", se_string_view())));
+                t2->set_text(0, StringName(StringUtils::replace_first(path,"res://", StringView())));
                 t2->set_tooltip(0, StringName(path));
                 t2->set_metadata(0, j);
                 t2->add_button(0, get_icon("Remove", "EditorIcons"), 0, false, TTR("Remove"));

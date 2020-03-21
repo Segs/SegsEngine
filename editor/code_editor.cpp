@@ -505,13 +505,13 @@ void FindReplaceBar::_editor_text_changed() {
     }
 }
 
-void FindReplaceBar::_search_text_changed(se_string_view p_text) {
+void FindReplaceBar::_search_text_changed(StringView p_text) {
 
     results_count = -1;
     search_current();
 }
 
-void FindReplaceBar::_search_text_entered(se_string_view p_text) {
+void FindReplaceBar::_search_text_entered(StringView p_text) {
 
     if (Input::get_singleton()->is_key_pressed(KEY_SHIFT)) {
         search_prev();
@@ -520,7 +520,7 @@ void FindReplaceBar::_search_text_entered(se_string_view p_text) {
     }
 }
 
-void FindReplaceBar::_replace_text_entered(se_string_view p_text) {
+void FindReplaceBar::_replace_text_entered(StringView p_text) {
 
     if (selection_only->is_pressed() && text_edit->is_selection_active()) {
         _replace_all();
@@ -553,7 +553,7 @@ bool FindReplaceBar::is_selection_only() const {
     return selection_only->is_pressed();
 }
 
-void FindReplaceBar::set_error(se_string_view p_label) {
+void FindReplaceBar::set_error(StringView p_label) {
 
     emit_signal("error", p_label);
 }
@@ -1267,7 +1267,7 @@ void CodeTextEditor::clone_lines_down() {
     text_editor->update();
 }
 
-void CodeTextEditor::toggle_inline_comment(se_string_view delimiter) {
+void CodeTextEditor::toggle_inline_comment(StringView delimiter) {
     text_editor->begin_complex_operation();
     UIString ui_delimiter(StringUtils::from_utf8(delimiter));
     if (text_editor->is_selection_active()) {

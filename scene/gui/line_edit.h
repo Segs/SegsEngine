@@ -168,7 +168,7 @@ public:
     void delete_char();
     void delete_text(int p_from_column, int p_to_column);
     void set_text_uistring(const UIString& p_text);
-    void set_text(se_string_view p_text);
+    void set_text(StringView p_text);
     const UIString &get_text_ui() const;
     String get_text() const;
     void set_placeholder(StringName p_text);
@@ -179,7 +179,7 @@ public:
     int get_cursor_position() const;
     void set_max_length(int p_max_length);
     int get_max_length() const;
-    void append_at_cursor(se_string_view p_text);
+    void append_at_cursor(StringView p_text);
     void clear();
 
     bool cursor_get_blink_enabled() const;

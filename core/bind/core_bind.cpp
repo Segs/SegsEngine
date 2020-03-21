@@ -32,7 +32,7 @@
 
 #include "core/crypto/crypto_core.h"
 #include "core/image.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/io/file_access_compressed.h"
 #include "core/io/file_access_encrypted.h"
 #include "core/io/ip_address.h"
@@ -94,11 +94,11 @@ _ResourceLoader *_ResourceLoader::singleton = nullptr;
 
 IMPL_GDCLASS(_ResourceLoader);
 
-Ref<ResourceInteractiveLoader> _ResourceLoader::load_interactive(se_string_view p_path, se_string_view p_type_hint) {
+Ref<ResourceInteractiveLoader> _ResourceLoader::load_interactive(StringView p_path, StringView p_type_hint) {
     return ResourceLoader::load_interactive(p_path, p_type_hint);
 }
 
-RES _ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, bool p_no_cache) {
+RES _ResourceLoader::load(StringView p_path, StringView p_type_hint, bool p_no_cache) {
 
     Error err = OK;
     RES ret(ResourceLoader::load(p_path, p_type_hint, p_no_cache, &err));
@@ -107,7 +107,7 @@ RES _ResourceLoader::load(se_string_view p_path, se_string_view p_type_hint, boo
     return ret;
 }
 
-PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(se_string_view p_type) {
+PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(StringView p_type) {
 
     Vector<String> exts;
     ResourceLoader::get_recognized_extensions_for_type(p_type, exts);
@@ -124,20 +124,20 @@ void _ResourceLoader::set_abort_on_missing_resources(bool p_abort) {
     ResourceLoader::set_abort_on_missing_resources(p_abort);
 }
 
-Vector<String> _ResourceLoader::get_dependencies(se_string_view p_path) {
+Vector<String> _ResourceLoader::get_dependencies(StringView p_path) {
 
     Vector<String> deps;
     ResourceLoader::get_dependencies(p_path, deps);
     return deps;
 };
 
-bool _ResourceLoader::has_cached(se_string_view p_path) {
+bool _ResourceLoader::has_cached(StringView p_path) {
 
     String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
     return ResourceCache::has(local_path);
 }
 
-bool _ResourceLoader::exists(se_string_view p_path, se_string_view p_type_hint) {
+bool _ResourceLoader::exists(StringView p_path, StringView p_type_hint) {
     return ResourceLoader::exists(p_path, p_type_hint);
 }
 
@@ -157,7 +157,7 @@ _ResourceLoader::_ResourceLoader() {
     singleton = this;
 }
 
-Error _ResourceSaver::save(se_string_view p_path, const RES &p_resource, SaverFlags p_flags) {
+Error _ResourceSaver::save(StringView p_path, const RES &p_resource, SaverFlags p_flags) {
     ERR_FAIL_COND_V_MSG(not p_resource, ERR_INVALID_PARAMETER, "Can't save empty resource to path: " + String(p_path) + ".");
     return ResourceSaver::save(p_path, p_resource, p_flags);
 }
@@ -242,7 +242,7 @@ bool _OS::has_touchscreen_ui_hint() const {
     return OS::get_singleton()->has_touchscreen_ui_hint();
 }
 
-void _OS::set_clipboard(se_string_view p_text) {
+void _OS::set_clipboard(StringView p_text) {
 
     OS::get_singleton()->set_clipboard(p_text);
 }
@@ -500,15 +500,12 @@ Error _OS::shell_open(String p_uri) {
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
-int _OS::execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
+int _OS::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
 
     OS::ProcessID pid = -2;
     int exitcode = 0;
-    List<String> args;
-    for (int i = 0; i < p_arguments.size(); i++)
-        args.push_back(p_arguments[i]);
     String pipe;
-    Error err = OS::get_singleton()->execute(p_path, args, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
+    Error err = OS::get_singleton()->execute(p_path, p_arguments, p_blocking, &pid, &pipe, &exitcode, p_read_stderr);
     p_output.clear();
     p_output.push_back(Variant(pipe));
     if (err != OK)
@@ -544,7 +541,7 @@ String _OS::get_name() const {
 }
 PoolVector<String> _OS::get_cmdline_args() {
 
-    List<String> cmdline = OS::get_singleton()->get_cmdline_args();
+    const Vector<String> &cmdline = OS::get_singleton()->get_cmdline_args();
     PoolVector<String> cmdlinev;
     for (const String & E : cmdline) {
 
@@ -582,7 +579,7 @@ bool _OS::is_ok_left_and_cancel_right() const {
     return OS::get_singleton()->get_swap_ok_cancel();
 }
 
-Error _OS::set_thread_name(se_string_view p_name) {
+Error _OS::set_thread_name(StringView p_name) {
 
     return Thread::set_name(p_name);
 };
@@ -605,7 +602,7 @@ bool _OS::is_vsync_via_compositor_enabled() const {
     return OS::get_singleton()->is_vsync_via_compositor_enabled();
 }
 
-bool _OS::has_feature(se_string_view p_feature) const {
+bool _OS::has_feature(StringView p_feature) const {
 
     return OS::get_singleton()->has_feature(p_feature);
 }
@@ -1033,7 +1030,7 @@ int _OS::get_virtual_keyboard_height() {
     return OS::get_singleton()->get_virtual_keyboard_height();
 }
 
-void _OS::print_all_resources(se_string_view p_to_file) {
+void _OS::print_all_resources(StringView p_to_file) {
 
     OS::get_singleton()->print_all_resources(p_to_file);
 }
@@ -1043,7 +1040,7 @@ void _OS::print_resources_in_use(bool p_short) {
     OS::get_singleton()->print_resources_in_use(p_short);
 }
 
-void _OS::dump_resources_to_file(se_string_view p_file) {
+void _OS::dump_resources_to_file(StringView p_file) {
 
     OS::get_singleton()->dump_resources_to_file(p_file);
 }
@@ -1053,7 +1050,7 @@ String _OS::get_user_data_dir() const {
     return OS::get_singleton()->get_user_data_dir();
 };
 
-Error _OS::native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track) {
+Error _OS::native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track) {
 
     return OS::get_singleton()->native_video_play(p_path, p_volume, p_audio_track, p_subtitle_track);
 };
@@ -1134,17 +1131,17 @@ bool _OS::is_scancode_unicode(uint32_t p_unicode) const {
 
     return keycode_has_unicode(p_unicode);
 }
-int _OS::find_scancode_from_string(se_string_view p_code) const {
+int _OS::find_scancode_from_string(StringView p_code) const {
 
     return find_keycode(p_code);
 }
 
-void _OS::alert(se_string_view p_alert, se_string_view p_title) {
+void _OS::alert(StringView p_alert, StringView p_title) {
 
     OS::get_singleton()->alert(p_alert, p_title);
 }
 
-bool _OS::request_permission(se_string_view p_name) {
+bool _OS::request_permission(StringView p_name) {
 
     return OS::get_singleton()->request_permission(p_name);
 }
@@ -1826,7 +1823,7 @@ _Geometry::_Geometry() {
 
 ///////////////////////// FILE
 
-Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key) {
+Error _File::open_encrypted(StringView p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key) {
 
     Error err = open(p_path, p_mode_flags);
     if (err)
@@ -1843,7 +1840,7 @@ Error _File::open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const
     return OK;
 }
 
-Error _File::open_encrypted_pass(se_string_view p_path, ModeFlags p_mode_flags, se_string_view p_pass) {
+Error _File::open_encrypted_pass(StringView p_path, ModeFlags p_mode_flags, StringView p_pass) {
 
     Error err = open(p_path, p_mode_flags);
     if (err)
@@ -1861,7 +1858,7 @@ Error _File::open_encrypted_pass(se_string_view p_path, ModeFlags p_mode_flags, 
     return OK;
 }
 
-Error _File::open_compressed(se_string_view p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode) {
+Error _File::open_compressed(StringView p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode) {
 
     FileAccessCompressed *fac = memnew(FileAccessCompressed);
 
@@ -1878,7 +1875,7 @@ Error _File::open_compressed(se_string_view p_path, ModeFlags p_mode_flags, Comp
     return OK;
 }
 
-Error _File::open(se_string_view p_path, ModeFlags p_mode_flags) {
+Error _File::open(StringView p_path, ModeFlags p_mode_flags) {
 
     close();
     Error err;
@@ -1902,13 +1899,13 @@ bool _File::is_open() const {
 
 const String & _File::get_path() const {
 
-    ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.");
+    ERR_FAIL_COND_V_MSG(!f, null_string, "File must be opened before use.");
     return f->get_path();
 }
 
 const String & _File::get_path_absolute() const {
 
-    ERR_FAIL_COND_V_MSG(!f, null_se_string, "File must be opened before use.");
+    ERR_FAIL_COND_V_MSG(!f, null_string, "File must be opened before use.");
     return f->get_path_absolute();
 }
 
@@ -2021,12 +2018,12 @@ String _File::get_as_text() const {
     return text;
 }
 
-String _File::get_md5(se_string_view p_path) const {
+String _File::get_md5(StringView p_path) const {
 
     return FileAccess::get_md5(p_path);
 }
 
-String _File::get_sha256(se_string_view p_path) const {
+String _File::get_sha256(StringView p_path) const {
 
     return FileAccess::get_sha256(p_path);
 }
@@ -2109,14 +2106,14 @@ void _File::store_real(real_t p_real) {
     f->store_real(p_real);
 }
 
-void _File::store_string(se_string_view p_string) {
+void _File::store_string(StringView p_string) {
 
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_string(p_string);
 }
 
-void _File::store_pascal_string(se_string_view p_string) {
+void _File::store_pascal_string(StringView p_string) {
 
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
@@ -2130,7 +2127,7 @@ String _File::get_pascal_string() {
     return f->get_pascal_string();
 };
 
-void _File::store_line(se_string_view p_string) {
+void _File::store_line(StringView p_string) {
 
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
     f->store_line(p_string);
@@ -2156,7 +2153,7 @@ void _File::store_buffer(const PoolVector<uint8_t> &p_buffer) {
     f->store_buffer(&r[0], len);
 }
 
-bool _File::file_exists(se_string_view p_name) const {
+bool _File::file_exists(StringView p_name) const {
 
     return FileAccess::exists(p_name);
 }
@@ -2196,7 +2193,7 @@ Variant _File::get_var(bool p_allow_objects) const {
     return v;
 }
 
-uint64_t _File::get_modified_time(se_string_view p_file) const {
+uint64_t _File::get_modified_time(StringView p_file) const {
 
     return FileAccess::get_modified_time(p_file);
 }
@@ -2283,7 +2280,7 @@ _File::~_File() {
 
 ///////////////////////////////////////////////////////
 
-Error _Directory::open(se_string_view p_path) {
+Error _Directory::open(StringView p_path) {
     Error err;
     DirAccess *alt = DirAccess::open(p_path, &err);
 
@@ -2344,7 +2341,7 @@ int _Directory::get_current_drive() {
     return d->get_current_drive();
 }
 
-Error _Directory::change_dir(se_string_view p_dir) {
+Error _Directory::change_dir(StringView p_dir) {
 
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     return d->change_dir(p_dir);
@@ -2354,7 +2351,7 @@ String _Directory::get_current_dir() {
     ERR_FAIL_COND_V_MSG(!d, String(), "Directory must be opened before use.");
     return d->get_current_dir();
 }
-Error _Directory::make_dir(se_string_view p_dir) {
+Error _Directory::make_dir(StringView p_dir) {
 
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_dir)) {
@@ -2365,7 +2362,7 @@ Error _Directory::make_dir(se_string_view p_dir) {
     }
     return d->make_dir(p_dir);
 }
-Error _Directory::make_dir_recursive(se_string_view p_dir) {
+Error _Directory::make_dir_recursive(StringView p_dir) {
 
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_dir)) {
@@ -2377,7 +2374,7 @@ Error _Directory::make_dir_recursive(se_string_view p_dir) {
     return d->make_dir_recursive(p_dir);
 }
 
-bool _Directory::file_exists(se_string_view p_file) {
+bool _Directory::file_exists(StringView p_file) {
 
     ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.");
 
@@ -2388,7 +2385,7 @@ bool _Directory::file_exists(se_string_view p_file) {
     return d->file_exists(p_file);
 }
 
-bool _Directory::dir_exists(se_string_view p_dir) {
+bool _Directory::dir_exists(StringView p_dir) {
     ERR_FAIL_COND_V_MSG(!d, false, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_dir)) {
 
@@ -2408,12 +2405,12 @@ int _Directory::get_space_left() {
     return d->get_space_left() / 1024 * 1024; //return value in megabytes, given binding is int
 }
 
-Error _Directory::copy(se_string_view p_from, se_string_view p_to) {
+Error _Directory::copy(StringView p_from, StringView p_to) {
 
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     return d->copy(p_from, p_to);
 }
-Error _Directory::rename(se_string_view p_from, se_string_view p_to) {
+Error _Directory::rename(StringView p_from, StringView p_to) {
 
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_from)) {
@@ -2425,7 +2422,7 @@ Error _Directory::rename(se_string_view p_from, se_string_view p_to) {
 
     return d->rename(p_from, p_to);
 }
-Error _Directory::remove(se_string_view p_name) {
+Error _Directory::remove(StringView p_name) {
 
     ERR_FAIL_COND_V_MSG(!d, ERR_UNCONFIGURED, "Directory must be opened before use.");
     if (!PathUtils::is_rel_path(p_name)) {
@@ -2499,7 +2496,7 @@ String _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) 
     return ret;
 };
 
-Variant _Marshalls::base64_to_variant(se_string_view p_str, bool p_allow_objects) {
+Variant _Marshalls::base64_to_variant(StringView p_str, bool p_allow_objects) {
 
     int strlen = p_str.size();
     String cstr(p_str);
@@ -2525,7 +2522,7 @@ String _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
     return ret;
 };
 
-PoolVector<uint8_t> _Marshalls::base64_to_raw(se_string_view p_str) {
+PoolVector<uint8_t> _Marshalls::base64_to_raw(StringView p_str) {
 
     int strlen = p_str.size();
     String cstr(p_str);
@@ -2543,14 +2540,14 @@ PoolVector<uint8_t> _Marshalls::base64_to_raw(se_string_view p_str) {
     return buf;
 };
 
-String _Marshalls::utf8_to_base64(se_string_view p_str) {
+String _Marshalls::utf8_to_base64(StringView p_str) {
 
     String ret = CryptoCore::b64_encode_str((const unsigned char *)p_str.data(), p_str.length());
     ERR_FAIL_COND_V(ret.empty(), ret);
     return ret;
 };
 
-String _Marshalls::base64_to_utf8(se_string_view p_str) {
+String _Marshalls::base64_to_utf8(StringView p_str) {
 
     int strlen = p_str.length();
 
@@ -3075,7 +3072,7 @@ bool _Engine::is_in_physics_frame() const {
     return Engine::get_singleton()->is_in_physics_frame();
 }
 
-bool _Engine::has_singleton(se_string_view p_name) const {
+bool _Engine::has_singleton(StringView p_name) const {
 
     return Engine::get_singleton()->has_singleton(StringName(p_name));
 }
@@ -3173,7 +3170,7 @@ Error JSONParseResult::get_error() const {
     return error;
 }
 
-void JSONParseResult::set_error_string(se_string_view p_error_string) {
+void JSONParseResult::set_error_string(StringView p_error_string) {
     error_string = p_error_string;
 }
 
@@ -3204,7 +3201,7 @@ void _JSON::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("parse", {"json"}), &_JSON::parse);
 }
 
-String _JSON::print(const Variant &p_value, se_string_view p_indent, bool p_sort_keys) {
+String _JSON::print(const Variant &p_value, StringView p_indent, bool p_sort_keys) {
     return JSON::print(p_value, p_indent, p_sort_keys);
 }
 

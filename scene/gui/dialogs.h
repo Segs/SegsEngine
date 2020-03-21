@@ -110,10 +110,10 @@ class AcceptDialog : public WindowDialog {
     Button *ok;
     bool hide_on_ok;
 
-    void _custom_action(se_string_view p_action);
+    void _custom_action(StringView p_action);
     void _ok_pressed();
     void _close_pressed() override;
-    void _builtin_text_entered(se_string_view p_text);
+    void _builtin_text_entered(StringView p_text);
     void _update_child_rects();
 
     static bool swap_ok_cancel;
@@ -124,7 +124,7 @@ protected:
     static void _bind_methods();
     virtual void ok_pressed() {}
     virtual void cancel_pressed() {}
-    virtual void custom_action(se_string_view) {}
+    virtual void custom_action(StringView) {}
 
 public:
     Size2 get_minimum_size() const override;
@@ -135,14 +135,14 @@ public:
     void register_text_enter(Node *p_line_edit);
 
     Button *get_ok() { return ok; }
-    Button *add_button(const StringName &p_text, bool p_right = false, se_string_view p_action = se_string_view());
+    Button *add_button(const StringName &p_text, bool p_right = false, StringView p_action = StringView());
     Button *add_cancel(const StringName &p_cancel = StringName());
 
     void set_hide_on_ok(bool p_hide);
     bool get_hide_on_ok() const;
 
     void set_text(const StringName &p_text);
-    void set_text_utf8(se_string_view p_text);
+    void set_text_utf8(StringView p_text);
     String get_text() const;
     UIString get_text_ui() const;
 

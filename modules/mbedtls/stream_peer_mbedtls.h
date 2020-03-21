@@ -56,7 +56,7 @@ protected:
 public:
     void poll() override;
     Error accept_stream(Ref<StreamPeer> p_base, Ref<CryptoKey> p_key, Ref<X509Certificate> p_cert, Ref<X509Certificate> p_ca_chain = Ref<X509Certificate>()) override;
-    Error connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs = false, se_string_view p_for_hostname = {}, Ref<X509Certificate> p_valid_cert = Ref<X509Certificate>()) override;
+    Error connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs = false, StringView p_for_hostname = {}, Ref<X509Certificate> p_valid_cert = Ref<X509Certificate>()) override;
     Status get_status() const override;
 
     void disconnect_from_stream() override;

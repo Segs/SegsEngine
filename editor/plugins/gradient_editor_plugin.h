@@ -66,7 +66,7 @@ class GradientEditorPlugin : public EditorPlugin {
     GDCLASS(GradientEditorPlugin,EditorPlugin)
 
 public:
-    se_string_view get_name() const override { return "ColorRamp"; }
+    StringView get_name() const override { return "ColorRamp"; }
 
     GradientEditorPlugin(EditorNode *p_node);
 };

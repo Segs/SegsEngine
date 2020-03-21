@@ -45,14 +45,14 @@ class EditorSceneImporter : public EditorSceneImporterInterface,public RefCounte
 protected:
     static void _bind_methods();
 public:
-    Node *import_scene_from_other_importer(se_string_view p_path, uint32_t p_flags, int p_bake_fps);
-    Ref<Animation> import_animation_from_other_importer(se_string_view p_path, uint32_t p_flags, int p_bake_fps);
+    Node *import_scene_from_other_importer(StringView p_path, uint32_t p_flags, int p_bake_fps);
+    Ref<Animation> import_animation_from_other_importer(StringView p_path, uint32_t p_flags, int p_bake_fps);
 
 public:
     uint32_t get_import_flags() const override;
     void get_extensions(Vector<String> &r_extensions) const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
-    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
 
     EditorSceneImporter() {}
 };
@@ -71,7 +71,7 @@ public:
     const String &get_source_folder() const;
     const String &get_source_file() const;
     virtual Node *post_import(Node *p_scene);
-    virtual void init(se_string_view p_source_folder, se_string_view p_source_file);
+    virtual void init(StringView p_source_folder, StringView p_source_file);
     EditorScenePostImport();
 };
 
@@ -124,26 +124,26 @@ public:
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
     int get_import_order() const override { return 100; } //after everything
 
     void _find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Transform> &meshes);
 
-    void _make_external_resources(Node *p_node, se_string_view p_base_path, bool p_make_animations, bool p_animations_as_text, bool p_keep_animations, bool p_make_materials, bool p_materials_as_text, bool p_keep_materials, bool p_make_meshes, bool p_meshes_as_text, Map<Ref<Animation>, Ref<Animation> > &p_animations, Map<Ref<Material>, Ref<Material> > &p_materials, Map<Ref<ArrayMesh>, Ref<ArrayMesh> > &p_meshes);
+    void _make_external_resources(Node *p_node, StringView p_base_path, bool p_make_animations, bool p_animations_as_text, bool p_keep_animations, bool p_make_materials, bool p_materials_as_text, bool p_keep_materials, bool p_make_meshes, bool p_meshes_as_text, Map<Ref<Animation>, Ref<Animation> > &p_animations, Map<Ref<Material>, Ref<Material> > &p_materials, Map<Ref<ArrayMesh>, Ref<ArrayMesh> > &p_meshes);
 
     Node *_fix_node(Node *p_node, Node *p_root, Map<Ref<Mesh>, List<Ref<Shape>>> &collision_map, LightBakeMode p_light_bake_mode);
 
     void _create_clips(Node *scene, const Array &p_clips, bool p_bake_all);
     void _filter_anim_tracks(const Ref<Animation>& anim, Set<String> &keep);
-    void _filter_tracks(Node *scene, se_string_view p_text);
+    void _filter_tracks(Node *scene, StringView p_text);
     void _optimize_animations(Node *scene, float p_max_lin_error, float p_max_ang_error, float p_max_angle);
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-            *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+                 Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
-    Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, se_string_view p_path, uint32_t p_flags, int p_bake_fps);
-    Ref<Animation> import_animation_from_other_importer(EditorSceneImporter *p_exception, se_string_view p_path, uint32_t p_flags, int p_bake_fps);
+    Node *import_scene_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps);
+    Ref<Animation> import_animation_from_other_importer(EditorSceneImporter *p_exception, StringView p_path, uint32_t p_flags, int p_bake_fps);
 
     ResourceImporterScene();
 };
@@ -153,6 +153,6 @@ class EditorSceneImporterESCN : public EditorSceneImporterInterface {
 public:
     uint32_t get_import_flags() const override;
     void get_extensions(Vector<String> &r_extensions) const override;
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
-    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override;
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err = nullptr) override;
+    Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override;
 };

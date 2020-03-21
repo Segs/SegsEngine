@@ -235,20 +235,20 @@ Dictionary GDScriptTextDocument::resolve(const Dictionary &p_params) {
 
         String query = data;
 
-        Vector<se_string_view> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
+        Vector<StringView> param_symbols = StringUtils::split(query,(SYMBOL_SEPERATOR), false);
 
         if (param_symbols.size() >= 2) {
 
-            se_string_view class_ = param_symbols[0];
+            StringView class_ = param_symbols[0];
             StringName class_name = StringName(class_);
-            se_string_view member_name = param_symbols[param_symbols.size() - 1];
-            se_string_view inner_class_name;
+            StringView member_name = param_symbols[param_symbols.size() - 1];
+            StringView inner_class_name;
             if (param_symbols.size() >= 3) {
                 inner_class_name = param_symbols[1];
             }
-            const auto members = ws->native_members.find_as(se_string_view(class_name));
+            const auto members = ws->native_members.find_as(StringView(class_name));
             if (members == ws->native_members.end()) {
-                const auto member = members->second.find_as(se_string_view(member_name));
+                const auto member = members->second.find_as(StringView(member_name));
                 if (member!=members->second.end()) {
                     symbol = member->second;
                 }
@@ -409,13 +409,13 @@ GDScriptTextDocument::~GDScriptTextDocument() {
     memdelete(file_checker);
 }
 
-void GDScriptTextDocument::sync_script_content(se_string_view p_path, se_string_view p_content) {
+void GDScriptTextDocument::sync_script_content(StringView p_path, StringView p_content) {
     auto wp = GDScriptLanguageProtocol::get_singleton()->get_workspace();
     String path = wp->get_file_path(p_path);
     wp->parse_script(path, p_content);
 }
 
-void GDScriptTextDocument::show_native_symbol_in_editor(se_string_view p_symbol_id) {
+void GDScriptTextDocument::show_native_symbol_in_editor(StringView p_symbol_id) {
     ScriptEditor::get_singleton()->call_deferred("_help_class_goto", p_symbol_id);
     OS::get_singleton()->move_window_to_foreground();
 }

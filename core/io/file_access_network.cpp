@@ -37,7 +37,7 @@
 #include "core/os/semaphore.h"
 #include "core/os/mutex.h"
 #include "core/os/thread.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/string_formatter.h"
@@ -372,7 +372,7 @@ void FileAccessNetwork::_respond(size_t p_len, Error p_status) {
     D_PRIV()->pages.resize(pc);
 }
 
-Error FileAccessNetwork::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessNetwork::_open(StringView p_path, int p_mode_flags) {
 
     ERR_FAIL_COND_V(p_mode_flags != READ, ERR_UNAVAILABLE);
     if (opened)
@@ -550,7 +550,7 @@ void FileAccessNetwork::store_8(uint8_t p_dest) {
     ERR_FAIL();
 }
 
-bool FileAccessNetwork::file_exists(se_string_view p_path) {
+bool FileAccessNetwork::file_exists(StringView p_path) {
 
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     nc->lock_mutex();
@@ -566,7 +566,7 @@ bool FileAccessNetwork::file_exists(se_string_view p_path) {
     return exists_modtime != 0;
 }
 
-uint64_t FileAccessNetwork::_get_modified_time(se_string_view p_file) {
+uint64_t FileAccessNetwork::_get_modified_time(StringView p_file) {
 
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     nc->lock_mutex();
@@ -582,12 +582,12 @@ uint64_t FileAccessNetwork::_get_modified_time(se_string_view p_file) {
     return exists_modtime;
 }
 
-uint32_t FileAccessNetwork::_get_unix_permissions(se_string_view p_file) {
+uint32_t FileAccessNetwork::_get_unix_permissions(StringView p_file) {
     ERR_PRINT("Getting UNIX permissions from network drives is not implemented yet");
     return 0;
 }
 
-Error FileAccessNetwork::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+Error FileAccessNetwork::_set_unix_permissions(StringView p_file, uint32_t p_permissions) {
     ERR_PRINT("Setting UNIX permissions on network drives is not implemented yet");
     return ERR_UNAVAILABLE;
 }

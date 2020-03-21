@@ -60,7 +60,7 @@ struct ImageLoadPluginResolver : public ResolverInterface
 
 };
 
-bool loader_recognizes(const ImageFormatLoader *ldr,se_string_view p_extension) {
+bool loader_recognizes(const ImageFormatLoader *ldr,StringView p_extension) {
 
     Vector<String> extensions;
     ldr->get_recognized_extensions(extensions);
@@ -83,7 +83,7 @@ void ImageLoader::register_plugin_resolver()
     }
 }
 
-Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom, const LoadParams &params) {
+Error ImageLoader::load_image(StringView p_file, const Ref<Image> &p_image, FileAccess *p_custom, const LoadParams &params) {
     ERR_FAIL_COND_V_MSG(not p_image, ERR_INVALID_PARAMETER, "It's not a reference to a valid Image object.");
 
     register_plugin_resolver();
@@ -126,7 +126,7 @@ Error ImageLoader::load_image(se_string_view p_file, const Ref<Image> &p_image, 
     return ERR_FILE_UNRECOGNIZED;
 }
 
-ImageData ImageLoader::load_image(se_string_view extension, const uint8_t *data, int sz, const LoadParams &params)
+ImageData ImageLoader::load_image(StringView extension, const uint8_t *data, int sz, const LoadParams &params)
 {
     register_plugin_resolver();
 
@@ -164,7 +164,7 @@ void ImageLoader::get_recognized_extensions(Vector<String> &p_extensions) {
     }
 }
 
-ImageFormatLoader *ImageLoader::recognize(se_string_view p_extension) {
+ImageFormatLoader *ImageLoader::recognize(StringView p_extension) {
     register_plugin_resolver();
 
     for (ImageFormatLoader *ldr : loader) {
@@ -203,7 +203,7 @@ void ImageLoader::cleanup() {
 
 /////////////////
 
-RES ResourceFormatLoaderImage::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatLoaderImage::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
@@ -271,12 +271,12 @@ void ResourceFormatLoaderImage::get_recognized_extensions(Vector<String> &p_exte
     p_extensions.push_back("image");
 }
 
-bool ResourceFormatLoaderImage::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderImage::handles_type(StringView p_type) const {
 
-    return p_type == se_string_view("Image");
+    return p_type == StringView("Image");
 }
 
-String ResourceFormatLoaderImage::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderImage::get_resource_type(StringView p_path) const {
 
     return StringUtils::to_lower(PathUtils::get_extension(p_path)) == "image" ? "Image" : String();
 }

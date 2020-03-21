@@ -32,10 +32,10 @@
 
 #include "syslog_logger.h"
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include <syslog.h>
 
-void SyslogLogger::logv(se_string_view p_format, bool p_err) {
+void SyslogLogger::logv(StringView p_format, bool p_err) {
     if (!should_log(p_err)) {
         return;
     }

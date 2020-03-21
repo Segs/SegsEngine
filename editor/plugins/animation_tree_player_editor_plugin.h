@@ -140,8 +140,8 @@ class AnimationTreePlayerEditor : public Control {
     void _edit_oneshot_start();
     void _edit_dialog_animation_changed();
     void _edit_dialog_edit_animation();
-    void _edit_dialog_changeds(se_string_view);
-    void _edit_dialog_changede(se_string_view);
+    void _edit_dialog_changeds(StringView);
+    void _edit_dialog_changede(StringView);
     void _edit_dialog_changedf(float);
     void _edit_dialog_changed();
     void _dialog_changed() const;
@@ -149,7 +149,7 @@ class AnimationTreePlayerEditor : public Control {
     Point2 _get_slot_pos(const StringName &p_node_id, bool p_input, int p_slot);
 
     StringName _add_node(int p_item);
-    void _file_dialog_selected(se_string_view p_path);
+    void _file_dialog_selected(StringView p_path);
 
 protected:
     void _notification(int p_what);
@@ -171,7 +171,7 @@ class AnimationTreePlayerEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return "AnimTree"; }
+    StringView get_name() const override { return "AnimTree"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

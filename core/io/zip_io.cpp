@@ -30,7 +30,7 @@
 
 #include "zip_io.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 
 void *zipio_open(void *data, const char *p_fname, int mode) {
 

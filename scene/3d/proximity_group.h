@@ -77,7 +77,7 @@ public:
     void set_grid_radius(const Vector3 &p_radius);
     Vector3 get_grid_radius() const;
 
-    void broadcast(se_string_view p_name, const Variant& p_params);
+    void broadcast(StringView p_name, const Variant& p_params);
 
     ProximityGroup();
     ~ProximityGroup() override;

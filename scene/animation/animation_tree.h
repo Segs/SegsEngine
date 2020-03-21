@@ -129,13 +129,13 @@ public:
     virtual void get_child_nodes(ListOld<ChildNode> *r_child_nodes);
 
     virtual float process(float p_time, bool p_seek);
-    virtual se_string_view get_caption() const;
+    virtual StringView get_caption() const;
 
     int get_input_count() const;
     String get_input_name(int p_input);
 
     void add_input(const String &p_name);
-    void set_input_name(int p_input, se_string_view p_name);
+    void set_input_name(int p_input, StringView p_name);
     void remove_input(int p_index);
 
     void set_filter_path(const NodePath &p_path, bool p_enable);
@@ -333,7 +333,7 @@ public:
     float get_connection_activity(const StringName &p_path, int p_connection) const;
     void advance(float p_time);
 
-    void rename_parameter(se_string_view p_base, se_string_view p_new_base);
+    void rename_parameter(StringView p_base, StringView p_new_base);
 
     uint64_t get_last_process_pass() const;
     AnimationTree();

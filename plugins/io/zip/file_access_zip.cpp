@@ -40,7 +40,7 @@ class FileAccessZip : public FileAccess {
     mutable bool at_eof;
 
 public:
-    Error _open(se_string_view p_path, int p_mode_flags) override; ///< open a file
+    Error _open(StringView p_path, int p_mode_flags) override; ///< open a file
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
@@ -58,13 +58,13 @@ public:
 
     void flush() override;
     void store_8(uint8_t p_dest) override; ///< store a byte
-    bool file_exists(se_string_view p_name) override; ///< return true if a file exists
+    bool file_exists(StringView p_name) override; ///< return true if a file exists
 
-    uint64_t _get_modified_time(se_string_view/*p_file*/) override { return 0; } // todo
-    uint32_t _get_unix_permissions(se_string_view/*p_file*/) override { return 0; }
-    Error _set_unix_permissions(se_string_view/*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
+    uint64_t _get_modified_time(StringView/*p_file*/) override { return 0; } // todo
+    uint32_t _get_unix_permissions(StringView/*p_file*/) override { return 0; }
+    Error _set_unix_permissions(StringView/*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
 
-    FileAccessZip(se_string_view p_path, const PackedDataFile &p_file);
+    FileAccessZip(StringView p_path, const PackedDataFile &p_file);
     ~FileAccessZip() override;
 };
 
@@ -157,7 +157,7 @@ void ZipArchive::close_handle(unzFile p_file) const {
     memdelete(f);
 }
 
-unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
+unzFile ZipArchive::get_file_handle(StringView p_file) const {
 
     auto iter = files.find_as(p_file);
     ERR_FAIL_COND_V_MSG(!file_exists(p_file), nullptr, "File '" + p_file + " doesn't exist.");
@@ -194,7 +194,7 @@ unzFile ZipArchive::get_file_handle(se_string_view p_file) const {
     return pkg;
 }
 
-bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
+bool ZipArchive::try_open_pack(StringView p_path, bool p_replace_files) {
 
     String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
     //printf("opening zip pack %ls, %i, %i\n", p_name.c_str(), StringUtils::compare(p_name.extension(),"zip",false), p_name.extension().nocasecmp_to("pcz"));
@@ -256,12 +256,12 @@ bool ZipArchive::try_open_pack(se_string_view p_path, bool p_replace_files) {
     return true;
 }
 
-bool ZipArchive::file_exists(se_string_view p_name) const {
+bool ZipArchive::file_exists(StringView p_name) const {
 
     return files.contains_as(p_name);
 }
 
-FileAccess *ZipArchive::get_file(se_string_view p_path, PackedDataFile *p_file) {
+FileAccess *ZipArchive::get_file(StringView p_path, PackedDataFile *p_file) {
 
     return memnew(FileAccessZip(p_path, *p_file));
 }
@@ -293,7 +293,7 @@ ZipArchive::~ZipArchive() {
     packages.clear();
 }
 
-Error FileAccessZip::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessZip::_open(StringView p_path, int p_mode_flags) {
 
     close();
 
@@ -399,12 +399,12 @@ void FileAccessZip::store_8(uint8_t p_dest) {
     ERR_FAIL();
 }
 
-bool FileAccessZip::file_exists(se_string_view p_name) {
+bool FileAccessZip::file_exists(StringView p_name) {
 
     return false;
 }
 
-FileAccessZip::FileAccessZip(se_string_view p_path, const PackedDataFile &p_file) :
+FileAccessZip::FileAccessZip(StringView p_path, const PackedDataFile &p_file) :
         zfile(nullptr) {
     _open(p_path, FileAccess::READ);
 }

@@ -54,7 +54,7 @@ CryptoKey *CryptoKeyMbedTLS::create() {
     return memnew(CryptoKeyMbedTLS);
 }
 
-Error CryptoKeyMbedTLS::load(se_string_view p_path) {
+Error CryptoKeyMbedTLS::load(StringView p_path) {
     ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Key is in use");
 
     PoolByteArray out;
@@ -78,7 +78,7 @@ Error CryptoKeyMbedTLS::load(se_string_view p_path) {
     return OK;
 }
 
-Error CryptoKeyMbedTLS::save(se_string_view p_path) {
+Error CryptoKeyMbedTLS::save(StringView p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE);
     ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save CryptoKeyMbedTLS file '" + String(p_path) + "'.");
 
@@ -103,7 +103,7 @@ X509Certificate *X509CertificateMbedTLS::create() {
     return memnew(X509CertificateMbedTLS);
 }
 
-Error X509CertificateMbedTLS::load(se_string_view p_path) {
+Error X509CertificateMbedTLS::load(StringView p_path) {
     ERR_FAIL_COND_V_MSG(locks, ERR_ALREADY_IN_USE, "Certificate is in use");
 
     PoolByteArray out;
@@ -133,7 +133,7 @@ Error X509CertificateMbedTLS::load_from_memory(const uint8_t *p_buffer, int p_le
     return OK;
 }
 
-Error X509CertificateMbedTLS::save(se_string_view p_path) {
+Error X509CertificateMbedTLS::save(StringView p_path) {
     FileAccess *f = FileAccess::open(p_path, FileAccess::WRITE);
     ERR_FAIL_COND_V_MSG(!f, ERR_INVALID_PARAMETER, "Cannot save X509CertificateMbedTLS file '" + String(p_path) + "'.");
 
@@ -201,7 +201,7 @@ X509CertificateMbedTLS *CryptoMbedTLS::get_default_certificates() {
     return default_certs;
 }
 
-void CryptoMbedTLS::load_default_certificates(se_string_view p_path) {
+void CryptoMbedTLS::load_default_certificates(StringView p_path) {
     ERR_FAIL_COND(default_certs != nullptr);
 
     default_certs = memnew(X509CertificateMbedTLS);
@@ -241,7 +241,7 @@ Ref<CryptoKey> CryptoMbedTLS::generate_rsa(int p_bytes) {
     return out;
 }
 
-Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) {
+Ref<X509Certificate> CryptoMbedTLS::generate_self_signed_certificate(Ref<CryptoKey> p_key, StringView p_issuer_name, StringView p_not_before, StringView p_not_after) {
     Ref<CryptoKeyMbedTLS> key = dynamic_ref_cast<CryptoKeyMbedTLS>(p_key);
     ERR_FAIL_COND_V_MSG(not key, Ref<X509Certificate>(), "Invalid private key argument.");
 

@@ -42,7 +42,7 @@ EditorRun::Status EditorRun::get_status() const {
 
     return status;
 }
-Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
+Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<String> &p_breakpoints, const bool &p_skip_breakpoints) {
 
     Vector<String> args;
 
@@ -194,7 +194,7 @@ Error EditorRun::run(se_string_view p_scene, se_string_view p_custom_args, const
     }
 
     pid = 0;
-    Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
+    Error err = OS::get_singleton()->execute(exec, args, false, &pid);
     ERR_FAIL_COND_V(err, err);
 
     status = STATUS_PLAY;

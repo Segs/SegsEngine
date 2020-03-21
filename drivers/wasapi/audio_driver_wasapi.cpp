@@ -477,7 +477,7 @@ Array AudioDriverWASAPI::get_device_list() {
     return audio_device_get_list(false);
 }
 
-se_string_view  AudioDriverWASAPI::get_device() {
+StringView  AudioDriverWASAPI::get_device() {
     thread_local String name;
     lock();
     name = audio_output.device_name;
@@ -486,7 +486,7 @@ se_string_view  AudioDriverWASAPI::get_device() {
     return name;
 }
 
-void AudioDriverWASAPI::set_device(se_string_view device) {
+void AudioDriverWASAPI::set_device(StringView device) {
 
     lock();
     audio_output.new_device = device;
@@ -842,7 +842,7 @@ Error AudioDriverWASAPI::capture_stop() {
     return FAILED;
 }
 
-void AudioDriverWASAPI::capture_set_device(se_string_view p_name) {
+void AudioDriverWASAPI::capture_set_device(StringView p_name) {
 
     lock();
     audio_input.new_device = p_name;

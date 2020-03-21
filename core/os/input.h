@@ -94,7 +94,7 @@ public:
     virtual StringName get_joy_name(int p_idx) = 0;
     virtual Array get_connected_joypads() = 0;
     virtual void joy_connection_changed(int p_idx, bool p_connected, StringName p_name, StringName p_guid) = 0;
-    virtual void add_joy_mapping(se_string_view p_mapping, bool p_update_existing = false) = 0;
+    virtual void add_joy_mapping(StringView p_mapping, bool p_update_existing = false) = 0;
     virtual void remove_joy_mapping(StringName p_guid) = 0;
     virtual bool is_joy_known(int p_device) = 0;
     virtual StringName get_joy_guid(int p_device) const = 0;
@@ -132,8 +132,8 @@ public:
 
     virtual StringName get_joy_button_string(int p_button) = 0;
     virtual StringName get_joy_axis_string(int p_axis) = 0;
-    virtual int get_joy_button_index_from_string(se_string_view p_button) = 0;
-    virtual int get_joy_axis_index_from_string(se_string_view p_axis) = 0;
+    virtual int get_joy_button_index_from_string(StringView p_button) = 0;
+    virtual int get_joy_axis_index_from_string(StringView p_axis) = 0;
 
     virtual void parse_input_event(const Ref<InputEvent> &p_event) = 0;
     virtual void accumulate_input_event(const Ref<InputEvent> &p_event) = 0;

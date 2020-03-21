@@ -151,7 +151,7 @@ void ShaderTextEditor::_load_theme_settings() {
     get_text_edit()->add_color_override("search_result_border_color", search_result_border_color);
     get_text_edit()->add_color_override("symbol_color", symbol_color);
 
-    Vector<se_string_view> keywords;
+    Vector<StringView> keywords;
     ShaderLanguage::get_keyword_list(&keywords);
 
     if (shader) {
@@ -169,7 +169,7 @@ void ShaderTextEditor::_load_theme_settings() {
         }
     }
 
-    for (se_string_view E : keywords) {
+    for (StringView E : keywords) {
 
         get_text_edit()->add_keyword_color(E, keyword_color);
     }
@@ -479,7 +479,7 @@ void ShaderEditor::edit(const Ref<Shader> &p_shader) {
     // see if already has it
 }
 
-void ShaderEditor::save_external_data(se_string_view p_str) {
+void ShaderEditor::save_external_data(StringView p_str) {
 
     if (not shader) {
         disk_changed->hide();

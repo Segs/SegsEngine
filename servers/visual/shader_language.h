@@ -590,7 +590,7 @@ public:
     static bool is_sampler_type(DataType p_type);
     static Variant constant_value_to_variant(const Vector<ConstantNode::Value> &p_value, DataType p_type, ShaderLanguage::ShaderNode::Uniform::Hint p_hint = ShaderLanguage::ShaderNode::Uniform::HINT_NONE);
 
-    static void get_keyword_list(Vector<se_string_view> *r_keywords);
+    static void get_keyword_list(Vector<StringView> *r_keywords);
     static void get_builtin_funcs(Vector<String> *r_keywords);
 
     struct BuiltInInfo {
@@ -648,7 +648,7 @@ private:
     }
 
     void _set_error_ui(const UIString &p_str);
-    void _set_error(se_string_view p_str);
+    void _set_error(StringView p_str);
 
     static const char *token_names[TK_MAX];
 

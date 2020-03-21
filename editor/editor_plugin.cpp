@@ -176,7 +176,7 @@ void EditorInterface::edit_resource(const Ref<Resource> &p_resource) {
     EditorNode::get_singleton()->edit_resource(p_resource);
 }
 
-void EditorInterface::open_scene_from_path(se_string_view scene_path) {
+void EditorInterface::open_scene_from_path(StringView scene_path) {
 
     if (EditorNode::get_singleton()->is_changing_scene()) {
         return;
@@ -185,7 +185,7 @@ void EditorInterface::open_scene_from_path(se_string_view scene_path) {
     EditorNode::get_singleton()->open_request(scene_path);
 }
 
-void EditorInterface::reload_scene_from_path(se_string_view scene_path) {
+void EditorInterface::reload_scene_from_path(StringView scene_path) {
 
     if (EditorNode::get_singleton()->is_changing_scene()) {
         return;
@@ -216,7 +216,7 @@ ScriptEditor *EditorInterface::get_script_editor() {
     return ScriptEditor::get_singleton();
 }
 
-void EditorInterface::select_file(se_string_view p_file) {
+void EditorInterface::select_file(StringView p_file) {
     EditorNode::get_singleton()->get_filesystem_dock()->select_file(p_file);
 }
 
@@ -228,7 +228,7 @@ const String &EditorInterface::get_current_path() const {
     return EditorNode::get_singleton()->get_filesystem_dock()->get_current_path();
 }
 
-void EditorInterface::inspect_object(Object *p_obj, se_string_view p_for_property) {
+void EditorInterface::inspect_object(Object *p_obj, StringView p_for_property) {
 
     EditorNode::get_singleton()->push_item(p_obj, p_for_property);
 }
@@ -276,7 +276,7 @@ Error EditorInterface::save_scene() {
     return OK;
 }
 
-void EditorInterface::save_scene_as(se_string_view p_scene, bool p_with_preview) {
+void EditorInterface::save_scene_as(StringView p_scene, bool p_with_preview) {
 
     EditorNode::get_singleton()->save_scene_to_path(p_scene, p_with_preview);
 }
@@ -289,7 +289,7 @@ EditorInterface *EditorInterface::singleton = nullptr;
 
 void EditorInterface::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property"}), &EditorInterface::inspect_object, {DEFVAL(se_string_view())});
+    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property"}), &EditorInterface::inspect_object, {DEFVAL(StringView())});
     MethodBinder::bind_method(D_METHOD("get_selection"), &EditorInterface::get_selection);
     MethodBinder::bind_method(D_METHOD("get_editor_settings"), &EditorInterface::get_editor_settings);
     MethodBinder::bind_method(D_METHOD("get_script_editor"), &EditorInterface::get_script_editor);
@@ -334,7 +334,7 @@ void EditorPlugin::remove_custom_type(const StringName &p_type) {
     EditorNode::get_editor_data().remove_custom_type(p_type);
 }
 
-void EditorPlugin::add_autoload_singleton(const StringName &p_name, se_string_view p_path) {
+void EditorPlugin::add_autoload_singleton(const StringName &p_name, StringView p_path) {
     EditorNode::get_singleton()->get_project_settings()->get_autoload_settings()->autoload_add(p_name, p_path);
 }
 
@@ -495,7 +495,7 @@ void EditorPlugin::remove_control_from_container(CustomControlContainer p_locati
     }
 }
 
-void EditorPlugin::add_tool_menu_item(const StringName &p_name, Object *p_handler, se_string_view p_callback, const Variant &p_ud) {
+void EditorPlugin::add_tool_menu_item(const StringName &p_name, Object *p_handler, StringView p_callback, const Variant &p_ud) {
     EditorNode::get_singleton()->add_tool_menu_item(p_name, p_handler, p_callback, p_ud);
 }
 
@@ -526,7 +526,7 @@ void EditorPlugin::notify_scene_changed(const Node *scn_root) {
     emit_signal("scene_changed", Variant(scn_root));
 }
 
-void EditorPlugin::notify_main_screen_changed(se_string_view screen_name) {
+void EditorPlugin::notify_main_screen_changed(StringView screen_name) {
 
     if (last_main_screen_name == screen_name)
         return;
@@ -535,7 +535,7 @@ void EditorPlugin::notify_main_screen_changed(se_string_view screen_name) {
     last_main_screen_name = screen_name;
 }
 
-void EditorPlugin::notify_scene_closed(se_string_view scene_filepath) {
+void EditorPlugin::notify_scene_closed(StringView scene_filepath) {
     emit_signal("scene_closed", scene_filepath);
 }
 
@@ -607,7 +607,7 @@ void EditorPlugin::forward_spatial_force_draw_over_viewport(Control *p_overlay) 
         get_script_instance()->call("forward_spatial_force_draw_over_viewport", Variant(p_overlay));
     }
 }
-se_string_view EditorPlugin::get_name() const {
+StringView EditorPlugin::get_name() const {
     thread_local char namebuf[512];
     if (get_script_instance() && get_script_instance()->has_method("get_plugin_name")) {
         namebuf[0]=0;
@@ -615,7 +615,7 @@ se_string_view EditorPlugin::get_name() const {
         return namebuf;
     }
 
-    return se_string_view();
+    return StringView();
 }
 const Ref<Texture> EditorPlugin::get_icon() const {
 
@@ -759,10 +759,10 @@ public:
     void get_extensions(Vector<String> &p_extensions) const override {
         wrapped->get_extensions(p_extensions);
     }
-    Node *import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
+    Node *import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) override {
         return wrapped->import_scene(p_path,p_flags,p_bake_fps,r_missing_deps,r_err);
     }
-    Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) override {
+    Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) override {
         return wrapped->import_animation(p_path,p_flags,p_bake_fps);
     }
 };

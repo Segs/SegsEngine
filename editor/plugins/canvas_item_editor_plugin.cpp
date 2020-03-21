@@ -38,13 +38,14 @@
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
+#include "editor/animation_track_editor.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
-#include "editor/script_editor_debugger.h"
 #include "editor/scene_tree_dock.h"
+#include "editor/script_editor_debugger.h"
 #include "scene/2d/light_2d.h"
 #include "scene/2d/particles_2d.h"
 #include "scene/2d/polygon_2d.h"
@@ -57,12 +58,10 @@
 #include "scene/main/canvas_layer.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
-#include "scene/resources/packed_scene.h"
 #include "scene/resources/font.h"
+#include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
-
-#include "animation_track_editor.h"
 
 #include "EASTL/sort.h"
 
@@ -5892,7 +5891,7 @@ void CanvasItemEditorViewport::_remove_preview() {
     }
 }
 
-bool CanvasItemEditorViewport::_cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node) {
+bool CanvasItemEditorViewport::_cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node) {
     if (p_desired_node->get_filename() == p_target_scene_path) {
         return true;
     }
@@ -5907,7 +5906,7 @@ bool CanvasItemEditorViewport::_cyclical_dependency_exists(se_string_view p_targ
     return false;
 }
 
-void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_string_view path, const Point2 &p_point) {
+void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, StringView path, const Point2 &p_point) {
     child->set_name(PathUtils::get_basename(PathUtils::get_file(path)));
     Ref<Texture> texture = Ref<Texture>(object_cast<Texture>(ResourceCache::get(path)));
     Size2 texture_size = texture->get_size();
@@ -5932,7 +5931,7 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_strin
     }
 
     // handle with different property for texture
-    se_string_view  property("texture");
+    StringView  property("texture");
     Vector<PropertyInfo> props;
     child->get_property_list(&props);
     for (const PropertyInfo &E : props) {
@@ -5951,14 +5950,14 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_strin
 
     // make visible for certain node type
     if (default_type == "NinePatchRect") {
-        editor_data->get_undo_redo().add_do_property(child, se_string_view("rect/size"), texture_size);
+        editor_data->get_undo_redo().add_do_property(child, StringView("rect/size"), texture_size);
     } else if (default_type == "Polygon2D") {
         PoolVector<Vector2> list;
         list.push_back(Vector2(0, 0));
         list.push_back(Vector2(texture_size.width, 0));
         list.push_back(Vector2(texture_size.width, texture_size.height));
         list.push_back(Vector2(0, texture_size.height));
-        editor_data->get_undo_redo().add_do_property(child, se_string_view("polygon"), Variant(list));
+        editor_data->get_undo_redo().add_do_property(child, StringView("polygon"), Variant(list));
     }
 
     // Compute the global position
@@ -5970,13 +5969,13 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, se_strin
     editor_data->get_undo_redo().add_do_method(child, "set_global_position", target_position);
 }
 
-bool CanvasItemEditorViewport::_create_instance(Node *parent, se_string_view path, const Point2 &p_point) {
+bool CanvasItemEditorViewport::_create_instance(Node *parent, StringView path, const Point2 &p_point) {
     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
     if (not sdata) { // invalid scene
         return false;
     }
 
-    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+    Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
     if (!instanced_scene) { // error on instancing
         return false;
     }
@@ -6021,12 +6020,12 @@ void CanvasItemEditorViewport::_perform_drop_data() {
         return;
     }
 
-    Vector<se_string_view> error_files;
+    Vector<StringView> error_files;
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
     for (int i = 0; i < selected_files.size(); i++) {
-        se_string_view  path = selected_files[i];
+        StringView  path = selected_files[i];
         RES res(ResourceLoader::load(path));
         if (not res) {
             continue;
@@ -6099,10 +6098,10 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
         if (not res) {
             continue;
         }
-        se_string_view type(res->get_class());
+        StringView type(res->get_class());
         if (type == "PackedScene"_sv) {
             Ref<PackedScene> sdata(dynamic_ref_cast<PackedScene>(res));
-            Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+            Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
             if (!instanced_scene) {
                 continue;
             }

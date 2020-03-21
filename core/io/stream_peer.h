@@ -71,8 +71,8 @@ public:
     void put_u64(uint64_t p_val);
     void put_float(float p_val);
     void put_double(double p_val);
-    void put_string(se_string_view p_string);
-    void put_utf8_string(se_string_view p_string);
+    void put_string(StringView p_string);
+    void put_utf8_string(StringView p_string);
     void put_var(const Variant &p_variant, bool p_full_objects = false);
 
     uint8_t get_u8();

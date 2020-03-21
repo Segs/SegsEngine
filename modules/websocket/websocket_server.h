@@ -62,12 +62,12 @@ public:
 
     virtual IP_Address get_peer_address(int p_peer_id) const = 0;
     virtual int get_peer_port(int p_peer_id) const = 0;
-    virtual void disconnect_peer(int p_peer_id, int p_code = 1000, se_string_view p_reason = {}) = 0;
+    virtual void disconnect_peer(int p_peer_id, int p_code = 1000, StringView p_reason = {}) = 0;
 
     void _on_peer_packet(int32_t p_peer_id);
-    void _on_connect(int32_t p_peer_id, se_string_view p_protocol);
+    void _on_connect(int32_t p_peer_id, StringView p_protocol);
     void _on_disconnect(int32_t p_peer_id, bool p_was_clean);
-    void _on_close_request(int32_t p_peer_id, int p_code, se_string_view p_reason);
+    void _on_close_request(int32_t p_peer_id, int p_code, StringView p_reason);
 
     IP_Address get_bind_ip() const;
     void set_bind_ip(const IP_Address &p_bind_ip);

@@ -69,7 +69,7 @@ void InstancePlaceholder::_get_property_list(Vector<PropertyInfo> *p_list) const
     }
 }
 
-void InstancePlaceholder::set_instance_path(se_string_view p_name) {
+void InstancePlaceholder::set_instance_path(StringView p_name) {
 
     path = p_name;
 }

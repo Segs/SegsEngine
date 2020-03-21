@@ -67,12 +67,12 @@ int DirAccess::get_current_drive() {
     return 0;
 }
 
-Error DirAccess::change_dir_utf8(se_string_view p_dir)
+Error DirAccess::change_dir_utf8(StringView p_dir)
 {
     return change_dir(p_dir);
 }
 
-Error DirAccess::make_dir_utf8(se_string_view p_dir)
+Error DirAccess::make_dir_utf8(StringView p_dir)
 {
     return make_dir(p_dir);
 
@@ -139,7 +139,7 @@ Error DirAccess::erase_contents_recursive() {
     return _erase_recursive(this);
 }
 
-Error DirAccess::make_dir_recursive(se_string_view p_dir) {
+Error DirAccess::make_dir_recursive(StringView p_dir) {
 
     if (p_dir.length() < 1) {
         return OK;
@@ -175,11 +175,11 @@ Error DirAccess::make_dir_recursive(se_string_view p_dir) {
 
     full_dir = PathUtils::simplify_path(StringUtils::replace_first(full_dir,base, ""));
 
-    FixedVector<se_string_view,16,true> subdirs;
+    FixedVector<StringView,16,true> subdirs;
     String::split_ref(subdirs,full_dir,'/');
 
     String curpath = base;
-    for (se_string_view dir : subdirs) {
+    for (StringView dir : subdirs) {
 
         curpath = PathUtils::plus_file(curpath,dir);
         Error err = make_dir(curpath);
@@ -192,7 +192,7 @@ Error DirAccess::make_dir_recursive(se_string_view p_dir) {
     return OK;
 }
 
-String DirAccess::fix_path(se_string_view p_path) const {
+String DirAccess::fix_path(StringView p_path) const {
 
     switch (_access_type) {
 
@@ -236,7 +236,7 @@ String DirAccess::fix_path(se_string_view p_path) const {
 
 DirAccess::CreateFunc DirAccess::create_func[ACCESS_MAX] = { nullptr, nullptr, nullptr };
 
-DirAccess *DirAccess::create_for_path(se_string_view p_path) {
+DirAccess *DirAccess::create_for_path(StringView p_path) {
 
     DirAccess *da = nullptr;
     if (StringUtils::begins_with(p_path,"res://")) {
@@ -253,7 +253,7 @@ DirAccess *DirAccess::create_for_path(se_string_view p_path) {
     return da;
 }
 
-DirAccess *DirAccess::open(se_string_view p_path, Error *r_error) {
+DirAccess *DirAccess::open(StringView p_path, Error *r_error) {
 
     DirAccess *da = create_for_path(p_path);
 
@@ -279,7 +279,7 @@ DirAccess *DirAccess::create(AccessType p_access) {
     return da;
 };
 
-String DirAccess::get_full_path(se_string_view p_path, AccessType p_access) {
+String DirAccess::get_full_path(StringView p_path, AccessType p_access) {
 
     DirAccess *d = DirAccess::create(p_access);
     if (!d)
@@ -291,7 +291,7 @@ String DirAccess::get_full_path(se_string_view p_path, AccessType p_access) {
     return full;
 }
 
-Error DirAccess::copy(se_string_view p_from, se_string_view p_to, int p_chmod_flags) {
+Error DirAccess::copy(StringView p_from, StringView p_to, int p_chmod_flags) {
 
     //printf("copy %s -> %s\n",p_from.ascii().get_data(),p_to.ascii().get_data());
     Error err;
@@ -343,7 +343,7 @@ Error DirAccess::copy(se_string_view p_from, se_string_view p_to, int p_chmod_fl
     return err;
 }
 
-void DirAccess::remove_file_or_error(se_string_view  p_path) {
+void DirAccess::remove_file_or_error(StringView  p_path) {
     DirAccess *da = create(ACCESS_FILESYSTEM);
     if (da->file_exists(p_path)) {
         if (da->remove(p_path) != OK) {
@@ -360,7 +360,7 @@ class DirChanger {
     String original_dir;
 
 public:
-    DirChanger(DirAccess *p_da, se_string_view p_dir) :
+    DirChanger(DirAccess *p_da, StringView p_dir) :
         da(p_da),
         original_dir(p_da->get_current_dir()) {
         p_da->change_dir(p_dir);
@@ -371,8 +371,8 @@ public:
     }
 };
 
-Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_chmod_flags) {
-    Vector<se_string_view> dirs;
+Error DirAccess::_copy_dir(DirAccess *p_target_da, StringView  p_to, int p_chmod_flags) {
+    Vector<StringView> dirs;
 
     String curdir = get_current_dir();
     list_dir_begin();
@@ -384,7 +384,7 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_c
             if (current_is_dir())
                 dirs.push_back(n);
             else {
-                se_string_view rel_path = n;
+                StringView rel_path = n;
                 if (!PathUtils::is_rel_path(n)) {
                     list_dir_end();
                     return ERR_BUG;
@@ -402,7 +402,7 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_c
 
     list_dir_end();
 
-    for (se_string_view rel_path : dirs) {
+    for (StringView rel_path : dirs) {
 
         String target_dir = String(p_to) + rel_path;
         if (!p_target_da->dir_exists(target_dir)) {
@@ -424,7 +424,7 @@ Error DirAccess::_copy_dir(DirAccess *p_target_da, se_string_view  p_to, int p_c
     return OK;
 }
 
-Error DirAccess::copy_dir(se_string_view  p_from, se_string_view p_to, int p_chmod_flags) {
+Error DirAccess::copy_dir(StringView  p_from, StringView p_to, int p_chmod_flags) {
     ERR_FAIL_COND_V_MSG(!dir_exists(p_from), ERR_FILE_NOT_FOUND, "Source directory doesn't exist.");
 
     DirAccess *target_da = DirAccess::create_for_path(p_to);
@@ -451,7 +451,7 @@ Error DirAccess::copy_dir(se_string_view  p_from, se_string_view p_to, int p_chm
     return err;
 }
 
-bool DirAccess::exists(se_string_view  p_dir) {
+bool DirAccess::exists(StringView  p_dir) {
 
     DirAccess *da = DirAccess::create_for_path(p_dir);
     bool valid = da->change_dir(p_dir) == OK;

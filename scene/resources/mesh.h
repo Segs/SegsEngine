@@ -34,7 +34,7 @@
 #include "core/math/face3.h"
 #include "core/math/triangle_mesh.h"
 #include "core/resource.h"
-#include "core/se_string.h"
+#include "core/string.h"
 //#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
 #include "servers/visual_server_enums.h"
@@ -231,7 +231,7 @@ public:
     Ref<Material> surface_get_material(int p_idx) const override;
 
     int surface_find_by_name(const String &p_name) const;
-    void surface_set_name(int p_idx, se_string_view p_name);
+    void surface_set_name(int p_idx, StringView p_name);
     String surface_get_name(int p_idx) const;
 
     void add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data);

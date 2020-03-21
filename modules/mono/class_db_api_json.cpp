@@ -41,7 +41,7 @@
 
 #include "core/method_bind_interface.h"
 
-void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) {
+void class_db_api_to_json(StringView p_output_file, ClassDB::APIType p_api) {
     Dictionary classes_dict;
 
     List<StringName> names;
@@ -74,7 +74,7 @@ void class_db_api_to_json(se_string_view p_output_file, ClassDB::APIType p_api) 
 
                 ERR_CONTINUE(ck.first.empty());
 
-                se_string_view name(ck.first);
+                StringView name(ck.first);
                 if (name[0] == '_')
                     continue; // Ignore non-virtual methods that start with an underscore
 

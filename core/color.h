@@ -170,9 +170,9 @@ struct GODOT_EXPORT Color {
 
     static Color hex(uint32_t p_hex);
     static Color hex64(uint64_t p_hex);
-    static Color html(se_string_view p_color);
-    static bool html_is_valid(se_string_view p_color);
-    static Color named(se_string_view p_name);
+    static Color html(StringView p_color);
+    static bool html_is_valid(StringView p_color);
+    static Color named(StringView p_name);
     [[nodiscard]] String to_html(bool p_alpha = true) const;
     [[nodiscard]] static Color from_hsv(float p_h, float p_s, float p_v, float p_a);
     static Color from_rgbe9995(uint32_t p_rgbe);

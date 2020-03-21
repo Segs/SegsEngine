@@ -32,7 +32,7 @@
 
 #include "core/os/file_access.h"
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/vector.h"
 
 /*
@@ -69,7 +69,7 @@ private:
     char *P;
     uint64_t length;
     void unescape(UIString &p_str);
-    Vector<se_string_view> special_characters;
+    Vector<StringView> special_characters;
     String node_name;
     bool node_empty;
     NodeType node_type;
@@ -102,16 +102,16 @@ public:
     int get_attribute_count() const;
     const String &get_attribute_name(int p_idx) const;
     const String &get_attribute_value(int p_idx) const;
-    const String &get_attribute_value(se_string_view p_name) const;
-    bool has_attribute(se_string_view p_name) const;
-    String get_attribute_value_safe(se_string_view p_name) const; // do not print error if doesn't exist
+    const String &get_attribute_value(StringView p_name) const;
+    bool has_attribute(StringView p_name) const;
+    String get_attribute_value_safe(StringView p_name) const; // do not print error if doesn't exist
     bool is_empty() const;
     int get_current_line() const;
 
     void skip_section();
     Error seek(uint64_t p_pos);
 
-    Error open(se_string_view p_path);
+    Error open(StringView p_path);
     Error open_buffer(const PoolVector<uint8_t> &p_buffer);
 
     void close();

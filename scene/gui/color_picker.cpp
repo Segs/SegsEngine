@@ -40,8 +40,8 @@
 #include "core/method_bind.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor_scale.h"
-#include "editor_settings.h"
+#include "editor/editor_scale.h"
+#include "editor/editor_settings.h"
 #endif
 #include "scene/main/viewport.h"
 
@@ -192,7 +192,7 @@ void ColorPicker::_value_changed(double) {
     emit_signal("color_changed", color);
 }
 
-void ColorPicker::_html_entered(se_string_view p_html) {
+void ColorPicker::_html_entered(StringView p_html) {
 
     if (updating || text_is_constructor || !c_text->is_visible())
         return;

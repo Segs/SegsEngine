@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/pair.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/hash_map.h"
 #include "servers/visual/shader_language.h"
 #include "servers/visual/shader_types.h"

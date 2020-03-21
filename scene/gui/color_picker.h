@@ -82,7 +82,7 @@ private:
     float h, s, v;
     Color last_hsv;
 
-    void _html_entered(se_string_view p_html);
+    void _html_entered(StringView p_html);
     void _value_changed(double);
     void _update_controls();
     void _update_color(bool p_update_sliders = true);

@@ -39,7 +39,7 @@
 
 #include "EASTL/sort.h"
 
-extern void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string);
+extern void _write_string(FileAccess *f, int p_tablevel, StringView p_string);
 
 struct _ConstantSort {
 
@@ -47,8 +47,8 @@ struct _ConstantSort {
     int value;
     bool operator<(const _ConstantSort &p_c) const {
 
-        se_string_view left_a = not name.contains("_") ? name : StringUtils::substr(name,0, StringUtils::find(name,"_"));
-        se_string_view left_b = StringUtils::find(p_c.name,"_") == String::npos ? p_c.name : StringUtils::substr(p_c.name,0, StringUtils::find(p_c.name,"_"));
+        StringView left_a = not name.contains("_") ? name : StringUtils::substr(name,0, StringUtils::find(name,"_"));
+        StringView left_b = StringUtils::find(p_c.name,"_") == String::npos ? p_c.name : StringUtils::substr(p_c.name,0, StringUtils::find(p_c.name,"_"));
         if (left_a == left_b)
             return value < p_c.value;
         else
@@ -56,7 +56,7 @@ struct _ConstantSort {
     }
 };
 
-static String _escape_string(se_string_view p_str) {
+static String _escape_string(StringView p_str) {
 
     String ret(p_str);
     ret = StringUtils::replace(ret,"&", "&amp;");
@@ -71,7 +71,7 @@ static String _escape_string(se_string_view p_str) {
     }
     return ret;
 }
-void DocDump::dump(se_string_view p_file) {
+void DocDump::dump(StringView p_file) {
 
     Vector<StringName> class_list;
     ClassDB::get_class_list(&class_list);

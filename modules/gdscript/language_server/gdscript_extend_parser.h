@@ -63,7 +63,7 @@ class ExtendGDScriptParser : public GDScriptParser {
     void update_diagnostics();
 
     void update_symbols();
-    void update_document_links(se_string_view p_code);
+    void update_document_links(StringView p_code);
     void parse_class_symbol(const GDScriptParser::ClassNode *p_class, lsp::DocumentSymbol &r_symbol);
     void parse_function_symbol(const GDScriptParser::FunctionNode *p_func, lsp::DocumentSymbol &r_symbol);
 
@@ -87,16 +87,16 @@ public:
     Error get_left_function_call(const lsp::Position &p_position, lsp::Position &r_func_pos, int &r_arg_index) const;
 
     String get_text_for_completion(const lsp::Position &p_cursor) const;
-    String get_text_for_lookup_symbol(const lsp::Position &p_cursor, se_string_view p_symbol = {}, bool p_func_requred = false) const;
+    String get_text_for_lookup_symbol(const lsp::Position &p_cursor, StringView p_symbol = {}, bool p_func_requred = false) const;
     String get_identifier_under_position(const lsp::Position &p_position, Vector2i &p_offset) const;
     String get_uri() const;
 
     const lsp::DocumentSymbol *get_symbol_defined_at_line(int p_line) const;
-    const lsp::DocumentSymbol *get_member_symbol(se_string_view p_name, se_string_view p_subclass = {}) const;
+    const lsp::DocumentSymbol *get_member_symbol(StringView p_name, StringView p_subclass = {}) const;
     const Vector<lsp::DocumentLink> &get_document_links() const;
 
     const Array &get_member_completions();
     Dictionary generate_api() const;
 
-    Error parse(se_string_view p_code, se_string_view p_path);
+    Error parse(StringView p_code, StringView p_path);
 };

@@ -55,11 +55,11 @@ public:
     virtual ConnectionState get_connection_state() const = 0;
 
     virtual Error initialize(Dictionary p_config = Dictionary()) = 0;
-    virtual Ref<WebRTCDataChannel> create_data_channel(se_string_view p_label, Dictionary p_options = Dictionary()) = 0;
+    virtual Ref<WebRTCDataChannel> create_data_channel(StringView p_label, Dictionary p_options = Dictionary()) = 0;
     virtual Error create_offer() = 0;
-    virtual Error set_remote_description(se_string_view type, se_string_view sdp) = 0;
-    virtual Error set_local_description(se_string_view type, se_string_view sdp) = 0;
-    virtual Error add_ice_candidate(se_string_view sdpMidName, int sdpMlineIndexName, se_string_view sdpName) = 0;
+    virtual Error set_remote_description(StringView type, StringView sdp) = 0;
+    virtual Error set_local_description(StringView type, StringView sdp) = 0;
+    virtual Error add_ice_candidate(StringView sdpMidName, int sdpMlineIndexName, StringView sdpName) = 0;
     virtual Error poll() = 0;
     virtual void close() = 0;
 

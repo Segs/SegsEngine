@@ -46,7 +46,7 @@ class ConnectionInfoDialog : public AcceptDialog {
     void ok_pressed() override;
 
 public:
-    void popup_connections(se_string_view p_method, const Vector<Node *> &p_nodes);
+    void popup_connections(StringView p_method, const Vector<Node *> &p_nodes);
 
     ConnectionInfoDialog();
 };
@@ -178,7 +178,7 @@ protected:
     void _goto_line(int p_line) { goto_line(p_line); }
     void _lookup_symbol(const StringName &p_symbol, int p_row, int p_column);
 
-    void _lookup_connections(int p_row, se_string_view p_method);
+    void _lookup_connections(int p_row, StringView p_method);
 
     void _convert_case(CodeTextEditor::CaseStyle p_case);
 
@@ -225,7 +225,7 @@ public:
 
     bool show_members_overview() override;
 
-    void set_tooltip_request_func(se_string_view p_method, Object *p_obj) override;
+    void set_tooltip_request_func(StringView p_method, Object *p_obj) override;
 
     void set_debugger_active(bool p_active) override;
 

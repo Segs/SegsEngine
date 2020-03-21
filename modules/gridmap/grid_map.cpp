@@ -41,13 +41,13 @@
 #include "servers/navigation_server.h"
 #include "scene/main/scene_tree.h"
 #include "servers/visual_server.h"
-#include "core/se_string.h"
+#include "core/string.h"
 IMPL_GDCLASS(GridMap)
 
 using namespace eastl;
 bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
-    se_string_view name(p_name);
+    StringView name(p_name);
 
     if (name == "data"_sv) {
 
@@ -104,7 +104,7 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
 bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
 
-    se_string_view name(p_name);
+    StringView name(p_name);
 
     if (name == "data"_sv) {
 

@@ -50,13 +50,13 @@ private:
     AccessType _access_type = ACCESS_FILESYSTEM;
     static CreateFunc create_func[ACCESS_MAX]; ///< set this to instance a filesystem object
 
-    Error _copy_dir(DirAccess *p_target_da, se_string_view p_to, int p_chmod_flags);
+    Error _copy_dir(DirAccess *p_target_da, StringView p_to, int p_chmod_flags);
 
 protected:
     String _get_root_path() const;
     String _get_root_string() const;
 
-    String fix_path(se_string_view p_path) const;
+    String fix_path(StringView p_path) const;
     bool next_is_dir;
 
     template <class T>
@@ -77,31 +77,31 @@ public:
     virtual String get_drive(int p_drive) = 0;
     virtual int get_current_drive();
 
-    virtual Error change_dir_utf8(se_string_view p_dir);
-    virtual Error change_dir(se_string_view p_dir) = 0; ///< can be relative or absolute, return false on success
+    virtual Error change_dir_utf8(StringView p_dir);
+    virtual Error change_dir(StringView p_dir) = 0; ///< can be relative or absolute, return false on success
     virtual String get_current_dir() = 0; ///< return current dir location
-    virtual Error make_dir(se_string_view p_dir) = 0;
-    virtual Error make_dir_utf8(se_string_view p_dir);
-    virtual Error make_dir_recursive(se_string_view p_dir);
+    virtual Error make_dir(StringView p_dir) = 0;
+    virtual Error make_dir_utf8(StringView p_dir);
+    virtual Error make_dir_recursive(StringView p_dir);
     virtual Error erase_contents_recursive(); //super dangerous, use with care!
 
-    virtual bool file_exists(se_string_view p_file) = 0;
-    virtual bool dir_exists(se_string_view p_dir) = 0;
-    static bool exists(se_string_view  p_dir);
+    virtual bool file_exists(StringView p_file) = 0;
+    virtual bool dir_exists(StringView p_dir) = 0;
+    static bool exists(StringView  p_dir);
     virtual size_t get_space_left() = 0;
 
-    Error copy_dir(se_string_view p_from, se_string_view p_to, int p_chmod_flags = -1);
-    virtual Error copy(se_string_view p_from, se_string_view p_to, int p_chmod_flags = -1);
-    virtual Error rename(se_string_view p_from, se_string_view p_to) = 0;
-    virtual Error remove(se_string_view p_name) = 0;
+    Error copy_dir(StringView p_from, StringView p_to, int p_chmod_flags = -1);
+    virtual Error copy(StringView p_from, StringView p_to, int p_chmod_flags = -1);
+    virtual Error rename(StringView p_from, StringView p_to) = 0;
+    virtual Error remove(StringView p_name) = 0;
 
     // Meant for editor code when we want to quickly remove a file without custom
     // handling (e.g. removing a cache file).
-    static void remove_file_or_error(se_string_view  p_path);
+    static void remove_file_or_error(StringView  p_path);
 
     [[nodiscard]] virtual String get_filesystem_type() const = 0;
-    static String get_full_path(se_string_view p_path, AccessType p_access);
-    static DirAccess *create_for_path(se_string_view p_path);
+    static String get_full_path(StringView p_path, AccessType p_access);
+    static DirAccess *create_for_path(StringView p_path);
 
     static DirAccess *create(AccessType p_access);
     static DirAccess *create(const char *custom_access_type);
@@ -112,7 +112,7 @@ public:
         create_func[p_access] = _create_builtin<T>;
     }
 
-    static DirAccess *open(se_string_view p_path, Error *r_error = nullptr);
+    static DirAccess *open(StringView p_path, Error *r_error = nullptr);
 
     DirAccess() = default;
     virtual ~DirAccess() = default;

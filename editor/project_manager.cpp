@@ -58,7 +58,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 
-static inline String get_project_key_from_path(se_string_view dir) {
+static inline String get_project_key_from_path(StringView dir) {
     return String(dir).replaced("/", "::");
 }
 IMPL_GDCLASS(ProjectManager)
@@ -309,7 +309,7 @@ private:
         return valid_path;
     }
 
-    void _path_text_changed(se_string_view p_path) {
+    void _path_text_changed(StringView p_path) {
 
         String sp = _test_path();
         if (!sp.empty()) {
@@ -330,12 +330,12 @@ private:
             }
         }
 
-        if (!created_folder_path.empty() && se_string_view(created_folder_path) != p_path) {
+        if (!created_folder_path.empty() && StringView(created_folder_path) != p_path) {
             _remove_created_folder();
         }
     }
 
-    void _file_selected(se_string_view p_path) {
+    void _file_selected(StringView p_path) {
 
         String p(p_path);
         if (mode == MODE_IMPORT) {
@@ -363,7 +363,7 @@ private:
         }
     }
 
-    void _path_selected(se_string_view p_path) {
+    void _path_selected(StringView p_path) {
 
         String sp = PathUtils::simplify_path(p_path);
         project_path->set_text(sp);
@@ -371,7 +371,7 @@ private:
         get_ok()->call_deferred("grab_focus");
     }
 
-    void _install_path_selected(se_string_view p_path) {
+    void _install_path_selected(StringView p_path) {
         String sp = PathUtils::simplify_path(p_path);
         install_path->set_text(sp);
         _path_text_changed(sp);
@@ -435,7 +435,7 @@ private:
         memdelete(d);
     }
 
-    void _text_changed(se_string_view p_text) {
+    void _text_changed(StringView p_text) {
 
         if (mode != MODE_NEW)
             return;
@@ -460,7 +460,7 @@ private:
 
             ProjectSettings *current = memnew(ProjectSettings);
 
-            int err = current->setup(dir2, se_string_view());
+            int err = current->setup(dir2, StringView());
             if (err != OK) {
                 set_message(FormatSN(TTR("Couldn't load project.godot in project path (error %d). It may be missing or corrupted.").asCString(), err), MESSAGE_ERROR);
             } else {
@@ -682,10 +682,10 @@ protected:
     }
 
 public:
-    void set_zip_path(se_string_view p_path) {
+    void set_zip_path(StringView p_path) {
         zip_path = p_path;
     }
-    void set_zip_title(se_string_view p_title) {
+    void set_zip_title(StringView p_title) {
         zip_title = p_title;
     }
 
@@ -694,7 +694,7 @@ public:
         mode = p_mode;
     }
 
-    void set_project_path(se_string_view p_path) {
+    void set_project_path(StringView p_path) {
         project_path->set_text(p_path);
     }
 
@@ -903,6 +903,7 @@ public:
         rs_button->set_button_group(rasterizer_button_group);
         rs_button->set_text(TTR("OpenGL ES 2.0"));
         rs_button->set_meta("driver_name", "GLES2");
+        rs_button->set_disabled(true);
         rvb->add_child(rs_button);
         l = memnew(Label);
         l->set_text(TTR("Lower visual quality\nSome features not available\nWorks on most hardware\nRecommended for web games"));
@@ -1007,7 +1008,7 @@ public:
         Item(const StringName &p_project,
                 const String &p_name,
                 const StringName &p_description,
-                se_string_view p_path,
+                StringView p_path,
                 const String &p_icon,
                 const String &p_main_scene,
                 uint64_t p_last_modified,
@@ -1040,7 +1041,7 @@ public:
 
     void update_dock_menu();
     void load_projects();
-    void set_search_term(se_string_view p_search_term);
+    void set_search_term(StringView p_search_term);
     void set_order_option(ProjectListFilter::FilterOption p_option);
     void sort_projects();
     int get_project_count() const;
@@ -1052,7 +1053,7 @@ public:
     int get_single_selected_index() const;
     bool is_any_project_missing() const;
     void erase_missing_projects();
-    int refresh_project(se_string_view dir_path);
+    int refresh_project(StringView dir_path);
 
 private:
     static void _bind_methods();
@@ -1061,7 +1062,7 @@ private:
     void _panel_draw(Node *p_hb);
     void _panel_input(const Ref<InputEvent> &p_ev, Node *p_hb);
     void _favorite_pressed(Node *p_hb);
-    void _show_project(se_string_view p_path);
+    void _show_project(StringView p_path);
 
     void select_range(int p_begin, int p_end);
     void toggle_select(int p_index);
@@ -1387,7 +1388,7 @@ void ProjectList::create_project_item_control(int p_index) {
     item.control = hb;
 }
 
-void ProjectList::set_search_term(se_string_view p_search_term) {
+void ProjectList::set_search_term(StringView p_search_term) {
     _search_term = p_search_term;
 }
 
@@ -1553,7 +1554,7 @@ void ProjectList::erase_missing_projects() {
     EditorSettings::get_singleton()->save();
 }
 
-int ProjectList::refresh_project(se_string_view dir_path) {
+int ProjectList::refresh_project(StringView dir_path) {
     // Reads editor settings and reloads information about a specific project.
     // If it wasn't loaded and should be in the list, it is added (i.e new project).
     // If it isn't in the list anymore, it is removed.
@@ -1776,7 +1777,7 @@ void ProjectList::_favorite_pressed(Node *p_hb) {
     update_dock_menu();
 }
 
-void ProjectList::_show_project(se_string_view p_path) {
+void ProjectList::_show_project(StringView p_path) {
 
     OS::get_singleton()->shell_open(String("file://") + p_path);
 }
@@ -1980,7 +1981,7 @@ void ProjectManager::_on_projects_updated() {
     _project_list->update_dock_menu();
 }
 
-void ProjectManager::_on_project_created(se_string_view dir) {
+void ProjectManager::_on_project_created(StringView dir) {
     project_filter->clear();
     int i = _project_list->refresh_project(dir);
     _project_list->select_project(i);
@@ -1998,8 +1999,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
 
     int id = (int)p_id;
     if (id == ProjectList::GLOBAL_NEW_WINDOW) {
-        List<String> args;
-        args.push_back("-p");
+        Vector<String> args {"-p"};
         String exec = OS::get_singleton()->get_executable_path();
 
         OS::ProcessID pid = 0;
@@ -2008,8 +2008,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
         String conf = (String)p_meta;
 
         if (!conf.empty()) {
-            List<String> args;
-            args.push_back(conf);
+            Vector<String> args {conf};
             String exec = OS::get_singleton()->get_executable_path();
 
             OS::ProcessID pid = 0;
@@ -2034,12 +2033,10 @@ void ProjectManager::_open_selected_projects() {
 
         print_line("Editing project: " + path + " (" + selected + ")");
 
-        List<String> args;
-
-        args.push_back(("--path"));
-        args.push_back(path);
-
-        args.push_back(("--editor"));
+        Vector<String> args {
+            "--path",path,
+            "--editor"
+        };
 
         if (OS::get_singleton()->is_disable_crash_handler()) {
             args.push_back(("--disable-crash-handler"));
@@ -2150,7 +2147,7 @@ void ProjectManager::_run_project_confirm() {
         String exec = OS::get_singleton()->get_executable_path();
 
         OS::ProcessID pid = 0;
-        Error err = OS::get_singleton()->execute_utf8(exec, args, false, &pid);
+        Error err = OS::get_singleton()->execute(exec, args, false, &pid);
         ERR_FAIL_COND(err);
     }
 }
@@ -2172,7 +2169,7 @@ void ProjectManager::_run_project() {
     }
 }
 
-void ProjectManager::_scan_dir(se_string_view path, Vector<String> *r_projects) {
+void ProjectManager::_scan_dir(StringView path, Vector<String> *r_projects) {
     DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     da->change_dir(path);
     da->list_dir_begin();
@@ -2189,7 +2186,7 @@ void ProjectManager::_scan_dir(se_string_view path, Vector<String> *r_projects) 
     memdelete(da);
 }
 
-void ProjectManager::_scan_begin(se_string_view p_base) {
+void ProjectManager::_scan_begin(StringView p_base) {
 
     print_line(String("Scanning projects at: ") + p_base);
     Vector<String> projects;
@@ -2284,7 +2281,7 @@ void ProjectManager::_language_selected(int p_id) {
 
 void ProjectManager::_restart_confirm() {
 
-    const List<String> &args(OS::get_singleton()->get_cmdline_args());
+    const Vector<String> &args(OS::get_singleton()->get_cmdline_args());
     String exec(OS::get_singleton()->get_executable_path());
     OS::ProcessID pid = 0;
     Error err = OS::get_singleton()->execute(exec, args, false, &pid);
@@ -2300,7 +2297,7 @@ void ProjectManager::_exit_dialog() {
     get_tree()->quit();
 }
 
-void ProjectManager::_install_project(se_string_view p_zip_path, se_string_view p_title) {
+void ProjectManager::_install_project(StringView p_zip_path, StringView p_title) {
 
     npdialog->set_mode(ProjectDialog::MODE_INSTALL);
     npdialog->set_zip_path(p_zip_path);
@@ -2462,6 +2459,7 @@ ProjectManager::ProjectManager() {
     vb->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 8 * EDSCALE);
 
     String cp;
+    cp.push_back(0xC2);
     cp.push_back(0xA9);
     OS::get_singleton()->set_window_title(
             (VERSION_NAME + String(" - ") + TTR("Project Manager") + " - " + cp +
@@ -2617,7 +2615,7 @@ ProjectManager::ProjectManager() {
     language_btn->set_flat(true);
     language_btn->set_focus_mode(Control::FOCUS_NONE);
 
-    Vector<se_string_view> editor_languages;
+    Vector<StringView> editor_languages;
     Vector<PropertyInfo> editor_settings_properties;
     EditorSettings::get_singleton()->get_property_list(&editor_settings_properties);
     for (const PropertyInfo &pi : editor_settings_properties) {
@@ -2627,7 +2625,7 @@ ProjectManager::ProjectManager() {
     }
     String current_lang = EditorSettings::get_singleton()->get("interface/editor/editor_language");
     for (size_t i = 0; i < editor_languages.size(); i++) {
-        se_string_view lang = editor_languages[i];
+        StringView lang = editor_languages[i];
         String lang_name = TranslationServer::get_singleton()->get_locale_name(lang);
         language_btn->add_item(StringName(lang_name + " [" + lang + "]"), i);
         language_btn->set_item_metadata(i, lang);
@@ -2724,7 +2722,7 @@ void ProjectListFilter::_setup_filters(const Vector<String> &options) {
         filter_option->add_item(StringName(options[i]));
 }
 
-void ProjectListFilter::_search_text_changed(se_string_view p_newtext) {
+void ProjectListFilter::_search_text_changed(StringView p_newtext) {
     emit_signal("filter_changed");
 }
 

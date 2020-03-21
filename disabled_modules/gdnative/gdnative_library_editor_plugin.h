@@ -102,7 +102,7 @@ class GDNativeLibraryEditorPlugin : public EditorPlugin {
     Button *button;
 
 public:
-    se_string_view get_name() const override { return ("GDNativeLibrary"); }
+    StringView get_name() const override { return ("GDNativeLibrary"); }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

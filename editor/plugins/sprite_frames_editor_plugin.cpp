@@ -209,7 +209,7 @@ void SpriteFramesEditor::_sheet_spin_changed(double) {
     split_sheet_preview->update();
 }
 
-void SpriteFramesEditor::_prepare_sprite_sheet(se_string_view p_file) {
+void SpriteFramesEditor::_prepare_sprite_sheet(StringView p_file) {
 
     Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(p_file));
     if (not texture) {

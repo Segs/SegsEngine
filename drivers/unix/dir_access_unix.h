@@ -33,7 +33,7 @@
 #if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
 
 #include "core/os/dir_access.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -64,17 +64,17 @@ public:
     int get_drive_count() override;
     String get_drive(int p_drive) override;
 
-    Error change_dir(se_string_view p_dir) override; ///< can be relative or absolute, return false on success
+    Error change_dir(StringView p_dir) override; ///< can be relative or absolute, return false on success
     String get_current_dir() override; ///< return current dir location
-    Error make_dir(se_string_view p_dir) override;
+    Error make_dir(StringView p_dir) override;
 
-    bool file_exists(se_string_view p_file) override;
-    bool dir_exists(se_string_view p_dir) override;
+    bool file_exists(StringView p_file) override;
+    bool dir_exists(StringView p_dir) override;
 
-    virtual uint64_t get_modified_time(se_string_view p_file);
+    virtual uint64_t get_modified_time(StringView p_file);
 
-    Error rename(se_string_view p_path, se_string_view p_new_path) override;
-    Error remove(se_string_view p_path) override;
+    Error rename(StringView p_path, StringView p_new_path) override;
+    Error remove(StringView p_path) override;
 
     size_t get_space_left() override;
 

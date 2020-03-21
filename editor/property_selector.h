@@ -46,7 +46,7 @@ class PropertySelector : public ConfirmationDialog {
     void _sbox_input(const Ref<InputEvent> &p_ie);
 
     void _confirmed();
-    void _text_changed(se_string_view p_newtext);
+    void _text_changed(StringView p_newtext);
 
     EditorHelpBit *help_bit;
 

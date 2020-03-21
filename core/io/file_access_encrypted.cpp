@@ -34,7 +34,7 @@
 #include "core/print_string.h"
 #include "core/variant.h"
 #include "core/string_utils.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include <cstdio>
 
@@ -103,7 +103,7 @@ Error FileAccessEncrypted::open_and_parse(FileAccess *p_base, Span<const uint8_t
     return OK;
 }
 
-Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, se_string_view p_key, Mode p_mode) {
+Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, StringView p_key, Mode p_mode) {
 
     String cs = StringUtils::md5_text(p_key);
     ERR_FAIL_COND_V(cs.length() != 32, ERR_INVALID_PARAMETER);
@@ -113,7 +113,7 @@ Error FileAccessEncrypted::open_and_parse_password(FileAccess *p_base, se_string
     return open_and_parse(p_base, key, p_mode);
 }
 
-Error FileAccessEncrypted::_open(se_string_view p_path, int p_mode_flags) {
+Error FileAccessEncrypted::_open(StringView p_path, int p_mode_flags) {
 
     return OK;
 }
@@ -175,7 +175,7 @@ const String &FileAccessEncrypted::get_path() const {
     if (file)
         return file->get_path();
     else
-        return null_se_string;
+        return null_string;
 }
 
 const String &FileAccessEncrypted::get_path_absolute() const {
@@ -183,7 +183,7 @@ const String &FileAccessEncrypted::get_path_absolute() const {
     if (file)
         return file->get_path_absolute();
     else
-        return null_se_string;
+        return null_string;
 }
 void FileAccessEncrypted::seek(size_t p_position) {
 
@@ -286,7 +286,7 @@ void FileAccessEncrypted::store_8(uint8_t p_dest) {
     }
 }
 
-bool FileAccessEncrypted::file_exists(se_string_view p_name) {
+bool FileAccessEncrypted::file_exists(StringView p_name) {
 
     FileAccess *fa = FileAccess::open(p_name, FileAccess::READ);
     if (!fa)
@@ -295,17 +295,17 @@ bool FileAccessEncrypted::file_exists(se_string_view p_name) {
     return true;
 }
 
-uint64_t FileAccessEncrypted::_get_modified_time(se_string_view p_file) {
+uint64_t FileAccessEncrypted::_get_modified_time(StringView p_file) {
 
     return 0;
 }
 
-uint32_t FileAccessEncrypted::_get_unix_permissions(se_string_view p_file) {
+uint32_t FileAccessEncrypted::_get_unix_permissions(StringView p_file) {
 
     return 0;
 }
 
-Error FileAccessEncrypted::_set_unix_permissions(se_string_view p_file, uint32_t p_permissions) {
+Error FileAccessEncrypted::_set_unix_permissions(StringView p_file, uint32_t p_permissions) {
     ERR_PRINT("Setting UNIX permissions on encrypted files is not implemented yet.");
     return ERR_UNAVAILABLE;
 }

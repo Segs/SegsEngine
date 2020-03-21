@@ -336,7 +336,7 @@ bool EditorSpinSlider::is_hiding_slider() const {
     return hide_slider;
 }
 
-void EditorSpinSlider::set_label(se_string_view p_label) {
+void EditorSpinSlider::set_label(StringView p_label) {
     label = p_label;
     update();
 }
@@ -359,7 +359,7 @@ void EditorSpinSlider::_evaluate_input_text() {
 }
 
 //text_entered signal
-void EditorSpinSlider::_value_input_entered(se_string_view p_text) {
+void EditorSpinSlider::_value_input_entered(StringView p_text) {
     value_input_just_closed = true;
     value_input->hide();
 }

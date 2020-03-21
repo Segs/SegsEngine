@@ -30,7 +30,7 @@
 
 #include "node_path.h"
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/vector.h"
 
@@ -80,7 +80,7 @@ StringName NodePath::get_sname() const {
 
 void NodePath::prepend_period() {
 
-    if (!data->path.empty() && se_string_view(data->path[0]) != "."_sv) {
+    if (!data->path.empty() && StringView(data->path[0]) != "."_sv) {
         data->path.push_front(StaticCString("."));
         hash_cache_valid = false;
     }
@@ -369,11 +369,11 @@ void NodePath::simplify() {
     for (size_t i = 0; i < data->path.size(); i++) {
         if (data->path.size() == 1)
             break;
-        if (se_string_view(data->path[i]) == "."_sv) {
+        if (StringView(data->path[i]) == "."_sv) {
             data->path.erase_at(i);
             i--;
-        } else if (se_string_view(data->path[i]) == ".."_sv && i > 0 && se_string_view(data->path[i - 1]) != "."_sv &&
-                   se_string_view(data->path[i - 1]) != ".."_sv) {
+        } else if (StringView(data->path[i]) == ".."_sv && i > 0 && StringView(data->path[i - 1]) != "."_sv &&
+                   StringView(data->path[i - 1]) != ".."_sv) {
             // remove both
             data->path.erase_at(i - 1);
             data->path.erase_at(i - 1);
@@ -394,7 +394,7 @@ NodePath NodePath::simplified() const {
     return np;
 }
 
-NodePath::NodePath(se_string_view p_path) {
+NodePath::NodePath(StringView p_path) {
 
     data = nullptr;
 
@@ -418,7 +418,7 @@ NodePath::NodePath(se_string_view p_path) {
 
             if (path[i] == ':' || path[i]==0 ) {
 
-                se_string_view str = StringUtils::substr(path,from, i - from);
+                StringView str = StringUtils::substr(path,from, i - from);
                 if (str.empty()) {
                     if (path[i]==0) continue; // Allow end-of-path :
 
@@ -470,7 +470,7 @@ NodePath::NodePath(se_string_view p_path) {
 
             if (!last_is_slash) {
 
-                se_string_view name = StringUtils::substr(path,from, i - from);
+                StringView name = StringUtils::substr(path,from, i - from);
                 ERR_FAIL_INDEX(slice, data->path.size());
                 data->path[slice++] = StringName(name);
             }
@@ -483,7 +483,7 @@ NodePath::NodePath(se_string_view p_path) {
     // part after the final slash
     if (!last_is_slash) {
 
-        se_string_view name = StringUtils::substr(path,from);
+        StringView name = StringUtils::substr(path,from);
         ERR_FAIL_INDEX(slice, data->path.size());
         data->path[slice++] = StringName(name);
     }

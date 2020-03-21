@@ -94,11 +94,11 @@ public:
 
     Vector<String> get_files_to_export() const;
 
-    void add_export_file(se_string_view p_path);
-    void remove_export_file(se_string_view p_path);
-    bool has_export_file(se_string_view p_path);
+    void add_export_file(StringView p_path);
+    void remove_export_file(StringView p_path);
+    bool has_export_file(StringView p_path);
 
-    void set_name(se_string_view p_name);
+    void set_name(StringView p_name);
     const String &get_name() const;
 
     void set_runnable(bool p_enable);
@@ -107,22 +107,22 @@ public:
     void set_export_filter(ExportFilter p_filter);
     ExportFilter get_export_filter() const;
 
-    void set_include_filter(se_string_view p_include);
+    void set_include_filter(StringView p_include);
     const String &get_include_filter() const;
 
-    void set_exclude_filter(se_string_view p_exclude);
+    void set_exclude_filter(StringView p_exclude);
     const String &get_exclude_filter() const;
 
-    void add_patch(se_string_view p_path, int p_at_pos = -1);
-    void set_patch(int p_index, se_string_view p_path);
+    void add_patch(StringView p_path, int p_at_pos = -1);
+    void set_patch(int p_index, StringView p_path);
     const String &get_patch(int p_index);
     void remove_patch(int p_idx);
     const Vector<String> &get_patches() const { return patches; }
 
-    void set_custom_features(se_string_view p_custom_features);
+    void set_custom_features(StringView p_custom_features);
     const String & get_custom_features() const;
 
-    void set_export_path(se_string_view p_path);
+    void set_export_path(StringView p_path);
     const String &get_export_path() const;
 
     void set_script_export_mode(int p_mode);
@@ -140,7 +140,7 @@ struct SharedObject {
     String path;
     Vector<String> tags;
 
-    SharedObject(se_string_view p_path, const Vector<String> &p_tags) :
+    SharedObject(StringView p_path, const Vector<String> &p_tags) :
             path(p_path),
             tags(p_tags) {
     }
@@ -153,7 +153,7 @@ class EditorExportPlatform : public RefCounted {
     GDCLASS(EditorExportPlatform,RefCounted)
 
 public:
-    using EditorExportSaveFunction = Error (*)(void *, se_string_view, const Vector<uint8_t> &, int, int);
+    using EditorExportSaveFunction = Error (*)(void *, StringView, const Vector<uint8_t> &, int, int);
     using EditorExportSaveSharedObject = Error (*)(void *, const SharedObject &);
 
 private:
@@ -163,27 +163,27 @@ private:
     };
 
     void _export_find_resources(EditorFileSystemDirectory *p_dir, Set<String> &p_paths);
-    void _export_find_dependencies(se_string_view p_path, Set<String> &p_paths);
+    void _export_find_dependencies(StringView p_path, Set<String> &p_paths);
 
     void gen_debug_flags(Vector<String> &r_flags, int p_flags);
-    static Error _save_pack_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
-    static Error _save_zip_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
+    static Error _save_pack_file(void *p_userdata, StringView p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
+    static Error _save_zip_file(void *p_userdata, StringView p_path, const Vector<uint8_t> &p_data, int p_file, int p_total);
 
     void _edit_files_with_filter(DirAccess *da, const Vector<String> &p_filters, Set<String> &r_list, bool exclude);
-    void _edit_filter_list(Set<String> &r_list, se_string_view p_filter, bool exclude);
+    void _edit_filter_list(Set<String> &r_list, StringView p_filter, bool exclude);
 
     static Error _add_shared_object(void *p_userdata, const SharedObject &p_so);
 
 protected:
     struct ExportNotifier {
-        ExportNotifier(EditorExportPlatform &p_platform, const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags);
+        ExportNotifier(EditorExportPlatform &p_platform, const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags);
         ~ExportNotifier();
     };
 
     FeatureContainers get_feature_containers(const Ref<EditorExportPreset> &p_preset);
 
-    bool exists_export_template(se_string_view template_file_name, String *err) const;
-    String find_export_template(se_string_view template_file_name, String *err = nullptr) const;
+    bool exists_export_template(StringView template_file_name, String *err) const;
+    String find_export_template(StringView template_file_name, String *err = nullptr) const;
     void gen_export_flags(Vector<String> &r_flags, int p_flags);
 
 public:
@@ -211,12 +211,12 @@ public:
 
     Error export_project_files(const Ref<EditorExportPreset> &p_preset, EditorExportSaveFunction p_func, void *p_udata, EditorExportSaveSharedObject p_so_func = nullptr);
 
-    Error save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, Vector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
+    Error save_pack(const Ref<EditorExportPreset> &p_preset, StringView p_path, Vector<SharedObject> *p_so_files = nullptr, bool p_embed = false, int64_t *r_embedded_start = nullptr, int64_t *r_embedded_size = nullptr);
     Error save_zip(const Ref<EditorExportPreset> &p_preset, const String &p_path);
 
     virtual bool poll_export() { return false; }
     virtual int get_options_count() const { return 0; }
-    virtual const String & get_options_tooltip() const { return null_se_string; }
+    virtual const String & get_options_tooltip() const { return null_string; }
     virtual Ref<ImageTexture> get_option_icon(int p_index) const;
     virtual StringName get_option_label(int p_device) const { return StringName(); }
     virtual StringName get_option_tooltip(int p_device) const { return StringName(); }
@@ -236,9 +236,9 @@ public:
     virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const = 0;
 
     virtual Vector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const = 0;
-    virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) = 0;
-    virtual Error export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0);
-    virtual Error export_zip(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0);
+    virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0) = 0;
+    virtual Error export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0);
+    virtual Error export_zip(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0);
     virtual void get_platform_features(Vector<String> *r_features) = 0;
     virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) = 0;
 
@@ -270,21 +270,21 @@ class EditorExportPlugin : public RefCounted {
     _FORCE_INLINE_ void _export_end() {
     }
 
-    void _export_file_script(se_string_view p_path, se_string_view p_type, const PoolVector<String> &p_features);
-    void _export_begin_script(const PoolVector<String> &p_features, bool p_debug, se_string_view p_path, int p_flags);
+    void _export_file_script(StringView p_path, StringView p_type, const PoolVector<String> &p_features);
+    void _export_begin_script(const PoolVector<String> &p_features, bool p_debug, StringView p_path, int p_flags);
     void _export_end_script();
 
 protected:
     void set_export_preset(const Ref<EditorExportPreset> &p_preset);
     Ref<EditorExportPreset> get_export_preset() const;
 public: // exposed to scripting
-    void add_file(se_string_view p_path, const Vector<uint8_t> &p_file, bool p_remap);
-    void add_shared_object(se_string_view p_path, const Vector<String> &tags);
+    void add_file(StringView p_path, const Vector<uint8_t> &p_file, bool p_remap);
+    void add_shared_object(StringView p_path, const Vector<String> &tags);
     void skip();
 protected:
 
-    virtual void _export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features);
-    virtual void _export_begin(const Set<String> &p_features, bool p_debug, se_string_view p_path, int p_flags);
+    virtual void _export_file(StringView p_path, StringView p_type, const Set<String> &p_features);
+    virtual void _export_begin(const Set<String> &p_features, bool p_debug, StringView p_path, int p_flags);
 
     static void _bind_methods();
 
@@ -343,7 +343,7 @@ class EditorExportPlatformPC : public EditorExportPlatform {
     GDCLASS(EditorExportPlatformPC,EditorExportPlatform)
 
 public:
-    using FixUpEmbeddedPckFunc = Error (*)(se_string_view, int64_t, int64_t);
+    using FixUpEmbeddedPckFunc = Error (*)(StringView, int64_t, int64_t);
 
 private:
     Ref<ImageTexture> logo;
@@ -373,21 +373,21 @@ public:
 
     bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const override;
     Vector<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const override;
-    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
-    virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path);
+    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0) override;
+    virtual Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path);
 
-    void set_extension(se_string_view p_extension, se_string_view p_feature_key = "default");
-    void set_name(se_string_view p_name);
-    void set_os_name(se_string_view p_name);
+    void set_extension(StringView p_extension, StringView p_feature_key = "default");
+    void set_name(StringView p_name);
+    void set_os_name(StringView p_name);
 
     void set_logo(const Ref<Texture> &p_logo);
 
-    void set_release_64(se_string_view p_file);
-    void set_release_32(se_string_view p_file);
-    void set_debug_64(se_string_view p_file);
-    void set_debug_32(se_string_view p_file);
+    void set_release_64(StringView p_file);
+    void set_release_32(StringView p_file);
+    void set_debug_64(StringView p_file);
+    void set_debug_32(StringView p_file);
 
-    void add_platform_feature(se_string_view p_feature);
+    void add_platform_feature(StringView p_feature);
     void get_platform_features(Vector<String> *r_features) override;
     void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) override;
 
@@ -405,6 +405,6 @@ class EditorExportTextSceneToBinaryPlugin : public EditorExportPlugin {
     GDCLASS(EditorExportTextSceneToBinaryPlugin,EditorExportPlugin)
 
 public:
-    void _export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features) override;
+    void _export_file(StringView p_path, StringView p_type, const Set<String> &p_features) override;
     EditorExportTextSceneToBinaryPlugin();
 };

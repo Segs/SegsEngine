@@ -34,7 +34,7 @@
 #include "core/io/compression.h"
 #include "core/method_enum_caster.h"
 #include "core/method_arg_casters.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
 
@@ -60,13 +60,13 @@ protected:
 
 public:
     static _ResourceLoader *get_singleton() { return singleton; }
-    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_type_hint = se_string_view());
-    INVOCABLE RES load(se_string_view p_path, se_string_view p_type_hint = se_string_view(), bool p_no_cache = false);
-    INVOCABLE PoolStringArray get_recognized_extensions_for_type(se_string_view p_type);
+    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_type_hint = StringView());
+    INVOCABLE RES load(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false);
+    INVOCABLE PoolStringArray get_recognized_extensions_for_type(StringView p_type);
     INVOCABLE void set_abort_on_missing_resources(bool p_abort);
-    INVOCABLE Vector<String> get_dependencies(se_string_view p_path);
-    INVOCABLE bool has_cached(se_string_view p_path);
-    INVOCABLE bool exists(se_string_view p_path, se_string_view p_type_hint = se_string_view());
+    INVOCABLE Vector<String> get_dependencies(StringView p_path);
+    INVOCABLE bool has_cached(StringView p_path);
+    INVOCABLE bool exists(StringView p_path, StringView p_type_hint = StringView());
 
     _ResourceLoader();
 };
@@ -91,7 +91,7 @@ public:
 
     static _ResourceSaver *get_singleton() { return singleton; }
 
-    INVOCABLE Error save(se_string_view p_path, const RES &p_resource, SaverFlags p_flags);
+    INVOCABLE Error save(StringView p_path, const RES &p_resource, SaverFlags p_flags);
     INVOCABLE PoolVector<String> get_recognized_extensions(const RES &p_resource);
 
     _ResourceSaver();
@@ -148,7 +148,7 @@ public:
     void set_window_title(const String &p_title);
     int get_mouse_button_state() const;
 
-    void set_clipboard(se_string_view p_text);
+    void set_clipboard(StringView p_text);
     String get_clipboard() const;
 
     void set_video_mode(const Size2 &p_size, bool p_fullscreen, bool p_resizeable, int p_screen = 0);
@@ -210,7 +210,7 @@ public:
     virtual Point2 get_ime_selection() const;
     virtual String get_ime_text() const;
 
-    Error native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track);
+    Error native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track);
     bool native_video_is_playing();
     void native_video_pause();
     void native_video_unpause();
@@ -223,7 +223,7 @@ public:
     int get_low_processor_usage_mode_sleep_usec() const;
 
     String get_executable_path() const;
-    int execute(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
+    int execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
 
     Error kill(int p_pid);
     Error shell_open(String p_uri);
@@ -242,7 +242,7 @@ public:
     String get_model_name() const;
 
     void dump_memory_to_file(const String &p_file);
-    void dump_resources_to_file(se_string_view p_file);
+    void dump_resources_to_file(StringView p_file);
 
     bool has_virtual_keyboard() const;
     void show_virtual_keyboard(const String &p_existing_text = String());
@@ -250,7 +250,7 @@ public:
     int get_virtual_keyboard_height();
 
     void print_resources_in_use(bool p_short = false);
-    void print_all_resources(se_string_view p_to_file);
+    void print_all_resources(StringView p_to_file);
     void print_all_textures_by_size();
     void print_resources_by_type(const Vector<String> &p_types);
 
@@ -262,7 +262,7 @@ public:
 
     String get_scancode_string(uint32_t p_code) const;
     bool is_scancode_unicode(uint32_t p_unicode) const;
-    int find_scancode_from_string(se_string_view p_code) const;
+    int find_scancode_from_string(StringView p_code) const;
 
     void set_use_file_access_save_and_swap(bool p_enable);
 
@@ -326,7 +326,7 @@ public:
 
     String get_user_data_dir() const;
 
-    void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!"));
+    void alert(StringView p_alert, StringView p_title = StringView("ALERT!"));
 
     void set_screen_orientation(ScreenOrientation p_orientation);
     ScreenOrientation get_screen_orientation() const;
@@ -336,7 +336,7 @@ public:
 
     bool is_ok_left_and_cancel_right() const;
 
-    Error set_thread_name(se_string_view p_name);
+    Error set_thread_name(StringView p_name);
 
     void set_use_vsync(bool p_enable);
     bool is_vsync_enabled() const;
@@ -344,9 +344,9 @@ public:
     void set_vsync_via_compositor(bool p_enable);
     bool is_vsync_via_compositor_enabled() const;
 
-    bool has_feature(se_string_view p_feature) const;
+    bool has_feature(StringView p_feature) const;
 
-    bool request_permission(se_string_view p_name);
+    bool request_permission(StringView p_name);
     bool request_permissions();
     PoolVector<String> get_granted_permissions() const;
 
@@ -458,11 +458,11 @@ public:
         COMPRESSION_GZIP = Compression::MODE_GZIP
     };
 
-    Error open_encrypted(se_string_view p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key);
-    Error open_encrypted_pass(se_string_view p_path, ModeFlags p_mode_flags, se_string_view p_pass);
-    Error open_compressed(se_string_view p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode = COMPRESSION_FASTLZ);
+    Error open_encrypted(StringView p_path, ModeFlags p_mode_flags, const Vector<uint8_t> &p_key);
+    Error open_encrypted_pass(StringView p_path, ModeFlags p_mode_flags, StringView p_pass);
+    Error open_compressed(StringView p_path, ModeFlags p_mode_flags, CompressionMode p_compress_mode = COMPRESSION_FASTLZ);
 
-    Error open(se_string_view p_path, ModeFlags p_mode_flags); // open a file.
+    Error open(StringView p_path, ModeFlags p_mode_flags); // open a file.
     void close(); // Close a file.
     bool is_open() const; // True when file is open.
 
@@ -491,8 +491,8 @@ public:
     String get_line() const;
     Vector<String> get_csv_line(int8_t p_delim = ',') const;
     String get_as_text() const;
-    String get_md5(se_string_view p_path) const;
-    String get_sha256(se_string_view p_path) const;
+    String get_md5(StringView p_path) const;
+    String get_sha256(StringView p_path) const;
 
     /* Use this for files WRITTEN in _big_ endian machines (ie, amiga/mac).
      * It's not about the current CPU type but file formats.
@@ -513,20 +513,20 @@ public:
     void store_double(double p_dest);
     void store_real(real_t p_real);
 
-    void store_string(se_string_view p_string);
-    void store_line(se_string_view p_string);
+    void store_string(StringView p_string);
+    void store_line(StringView p_string);
     void store_csv_line(const PoolVector<String> &p_values, int8_t p_delim = ',');
 
-    virtual void store_pascal_string(se_string_view p_string);
+    virtual void store_pascal_string(StringView p_string);
     virtual String get_pascal_string();
 
     void store_buffer(const PoolVector<uint8_t> &p_buffer); // Store an array of bytes.
 
     void store_var(const Variant &p_var, bool p_full_objects = false);
 
-    bool file_exists(se_string_view p_name) const; // Return true if a file exists.
+    bool file_exists(StringView p_name) const; // Return true if a file exists.
 
-    uint64_t get_modified_time(se_string_view p_file) const;
+    uint64_t get_modified_time(StringView p_file) const;
 
     _File();
     ~_File() override;
@@ -542,7 +542,7 @@ protected:
     static void _bind_methods();
 
 public:
-    Error open(se_string_view p_path);
+    Error open(StringView p_path);
 
     Error list_dir_begin(bool p_skip_navigational = false, bool p_skip_hidden = false); // This starts dir listing.
     String get_next();
@@ -554,20 +554,20 @@ public:
     String get_drive(int p_drive);
     int get_current_drive();
 
-    Error change_dir(se_string_view p_dir); // Can be relative or absolute, return false on success.
+    Error change_dir(StringView p_dir); // Can be relative or absolute, return false on success.
     String get_current_dir(); // Return current dir location.
 
-    Error make_dir(se_string_view p_dir);
-    Error make_dir_recursive(se_string_view p_dir);
+    Error make_dir(StringView p_dir);
+    Error make_dir_recursive(StringView p_dir);
 
-    bool file_exists(se_string_view p_file);
-    bool dir_exists(se_string_view p_dir);
+    bool file_exists(StringView p_file);
+    bool dir_exists(StringView p_dir);
 
     int get_space_left();
 
-    Error copy(se_string_view p_from, se_string_view p_to);
-    Error rename(se_string_view p_from, se_string_view p_to);
-    Error remove(se_string_view p_name);
+    Error copy(StringView p_from, StringView p_to);
+    Error rename(StringView p_from, StringView p_to);
+    Error remove(StringView p_name);
 
     _Directory();
     ~_Directory() override;
@@ -590,13 +590,13 @@ public:
     static _Marshalls *get_singleton();
 
     String variant_to_base64(const Variant &p_var, bool p_full_objects = false);
-    Variant base64_to_variant(se_string_view p_str, bool p_allow_objects = false);
+    Variant base64_to_variant(StringView p_str, bool p_allow_objects = false);
 
     String raw_to_base64(const PoolVector<uint8_t> &p_arr);
-    PoolVector<uint8_t> base64_to_raw(se_string_view p_str);
+    PoolVector<uint8_t> base64_to_raw(StringView p_str);
 
-    String utf8_to_base64(se_string_view p_str);
-    String base64_to_utf8(se_string_view p_str);
+    String utf8_to_base64(StringView p_str);
+    String base64_to_utf8(StringView p_str);
 
     _Marshalls() { singleton = this; }
     ~_Marshalls() override { singleton = nullptr; }
@@ -745,7 +745,7 @@ public:
 
     bool is_in_physics_frame() const;
 
-    bool has_singleton(se_string_view p_name) const;
+    bool has_singleton(StringView p_name) const;
     Object *get_singleton_object(const StringName &p_name) const;
 
     void set_editor_hint(bool p_enabled);
@@ -774,7 +774,7 @@ public:
     void set_error(Error p_error);
     Error get_error() const;
 
-    void set_error_string(se_string_view p_error_string);
+    void set_error_string(StringView p_error_string);
     const String &get_error_string() const;
 
     void set_error_line(int p_error_line);
@@ -795,7 +795,7 @@ protected:
 public:
     static _JSON *get_singleton() { return singleton; }
 
-    String print(const Variant &p_value, se_string_view p_indent = {}, bool p_sort_keys = false);
+    String print(const Variant &p_value, StringView p_indent = {}, bool p_sort_keys = false);
     Ref<JSONParseResult> parse(const String &p_json);
 
     _JSON();

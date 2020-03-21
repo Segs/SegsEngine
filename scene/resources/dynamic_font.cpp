@@ -563,7 +563,7 @@ void DynamicFontData::set_font_ptr(const uint8_t *p_font_mem, int p_font_mem_siz
     font_mem_size = p_font_mem_size;
 }
 
-void DynamicFontData::set_font_path(se_string_view p_path) {
+void DynamicFontData::set_font_path(StringView p_path) {
 
     font_path = p_path;
 }
@@ -1189,7 +1189,7 @@ void DynamicFont::update_oversampling() {
 
 /////////////////////////
 
-RES ResourceFormatLoaderDynamicFont::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatLoaderDynamicFont::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -1209,12 +1209,12 @@ void ResourceFormatLoaderDynamicFont::get_recognized_extensions(Vector<String> &
     p_extensions.emplace_back("otf");
 }
 
-bool ResourceFormatLoaderDynamicFont::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderDynamicFont::handles_type(StringView p_type) const {
 
-    return p_type == se_string_view("DynamicFontData");
+    return p_type == StringView("DynamicFontData");
 }
 
-String ResourceFormatLoaderDynamicFont::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderDynamicFont::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "ttf" || el == "otf")

@@ -91,13 +91,13 @@ void print_line(const String &p_string) {
 
     _global_unlock();
 }
-void print_line(se_string_view p_string) {
+void print_line(StringView p_string) {
 
     if (!_print_line_enabled)
         return;
 
     OS::get_singleton()->print(p_string);
-    OS::get_singleton()->print(se_string_view("\n"));
+    OS::get_singleton()->print(StringView("\n"));
 
     _global_lock();
     PrintHandlerList *l = print_handler_list;
@@ -127,7 +127,7 @@ void print_line(se_string_view p_string) {
 
 //    _global_unlock();
 //}
-void print_error(se_string_view p_string) {
+void print_error(StringView p_string) {
 
     if (!_print_error_enabled)
         return;
@@ -152,7 +152,7 @@ void print_error(se_string_view p_string) {
 //        print_line(p_string);
 //    }
 //}
-void print_verbose(se_string_view p_string) {
+void print_verbose(StringView p_string) {
 
     if (OS::get_singleton()->is_stdout_verbose()) {
         print_line(p_string);

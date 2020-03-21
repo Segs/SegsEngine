@@ -46,7 +46,7 @@ public:
 
     // ImageFormatSaver interface
 public:
-    bool can_save(se_string_view extension) override;
+    bool can_save(StringView extension) override;
     void get_saved_extensions(Vector<String> &p_extensions) const override {
         this->get_recognized_extensions(p_extensions);
     }

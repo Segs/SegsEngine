@@ -39,7 +39,7 @@ IMPL_GDCLASS(UPNPDevice)
 VARIANT_ENUM_CAST(UPNPDevice::IGDStatus)
 
 String UPNPDevice::query_external_address() const {
-    ERR_FAIL_COND_V(!is_valid_gateway(), null_se_string);
+    ERR_FAIL_COND_V(!is_valid_gateway(), null_string);
 
     char addr[16];
     int i = UPNP_GetExternalIPAddress(
@@ -47,7 +47,7 @@ String UPNPDevice::query_external_address() const {
             (igd_service_type).data(),
             (char *)&addr);
 
-    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, null_se_string);
+    ERR_FAIL_COND_V(i != UPNPCOMMAND_SUCCESS, null_string);
 
     return String(addr);
 }
@@ -79,9 +79,9 @@ int UPNPDevice::add_port_mapping(int port, int port_internal, const String &desc
     return UPNP::UPNP_RESULT_SUCCESS;
 }
 
-int UPNPDevice::delete_port_mapping(int port, se_string_view proto) const {
+int UPNPDevice::delete_port_mapping(int port, StringView proto) const {
     ERR_FAIL_COND_V(port < 1 || port > 65535, UPNP::UPNP_RESULT_INVALID_PORT);
-    ERR_FAIL_COND_V(proto != se_string_view("UDP") && proto != se_string_view("TCP"), UPNP::UPNP_RESULT_INVALID_PROTOCOL);
+    ERR_FAIL_COND_V(proto != StringView("UDP") && proto != StringView("TCP"), UPNP::UPNP_RESULT_INVALID_PROTOCOL);
 
     int i = UPNP_DeletePortMapping(
             (igd_control_url).data(),

@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "scene_string_names.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 SceneStringNames *SceneStringNames::singleton = nullptr;

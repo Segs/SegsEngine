@@ -53,7 +53,7 @@ protected:
 public:
     OS_Unix();
 
-    void alert(se_string_view p_alert, se_string_view p_title = se_string_view("ALERT!")) override;
+    void alert(StringView p_alert, StringView p_title = StringView("ALERT!")) override;
     String get_stdin_string(bool p_block) override;
 
     //virtual void set_mouse_show(bool p_show);
@@ -66,11 +66,11 @@ public:
     //virtual VideoMode get_video_mode() const;
     //virtual void get_fullscreen_mode_list(Vector<VideoMode> *p_list) const;
 
-    Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
+    Error open_dynamic_library(StringView p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;
-    Error get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional = false) override;
+    Error get_dynamic_library_symbol_handle(void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
-    Error set_cwd(se_string_view p_cwd) override;
+    Error set_cwd(StringView p_cwd) override;
 
     String get_name() const override;
 
@@ -85,13 +85,13 @@ public:
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 
-    bool has_environment(se_string_view p_var) const override;
-    String get_environment(se_string_view p_var) const override;
-    bool set_environment(se_string_view p_var, se_string_view p_value) const override;
+    bool has_environment(StringView p_var) const override;
+    String get_environment(StringView p_var) const override;
+    bool set_environment(StringView p_var, StringView p_value) const override;
     const char * get_locale() const override;
 
     int get_processor_count() const override;
@@ -105,7 +105,7 @@ public:
 
 class UnixTerminalLogger : public StdLogger {
 public:
-    void log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type = ERR_ERROR) override;
+    void log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type = ERR_ERROR) override;
     ~UnixTerminalLogger() override;
 };
 

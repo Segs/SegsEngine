@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <QHash>
+#include <QCryptographicHash>
 #include <QTextStream>
 #include <QDebug>
 #include <QSet>
@@ -1116,26 +1117,41 @@ bool generate_mono_glue(QStringList args) {
         "#define CS_COMPRESSED_H\n",
         "#ifdef TOOLS_ENABLED\n",
         "#include \"core/map.h\"",
-        "#include \"core/se_string.h\"",
+        "#include \"core/string.h\"",
     };
     QStringList inserted_files;
 
-    QDateTime latest_mtime;
     int cs_file_count = 0;
     QDirIterator visitor(src,QDirIterator::Subdirectories);
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    QStringList files;
     while(visitor.hasNext()) {
         QString fname = visitor.next();
-        if(fname.contains("Generated"))
+        if(fname.contains("Generated") || fname.contains("obj/"))
             continue;
         if(!fname.endsWith(".cs"))
             continue;
+        files.push_back(fname);
+    }
+    files.sort();
+    for(const QString & fname : files) {
         QFileInfo fi(fname);
-        if(latest_mtime<fi.lastModified())
-            latest_mtime=fi.lastModified();
+        QFile file(fname);
+        file.open(QFile::ReadOnly);
+        QCryptographicHash hash2(QCryptographicHash::Sha256);
+        QByteArray contents = file.readAll();
+        // remove end of line chars to normalize hash between windows/linux files.
+        contents.replace('\n',"");
+        contents.replace('\r',"");
+        hash.addData(contents);
+        hash2.addData(contents);
+        qDebug() << "Hashing"<<fname<<QString::number(qHash(hash.result()),16);
+
         cs_file_count += 1;
     }
+    auto hashed = hash.result();
 
-    auto glue_version = latest_mtime.toSecsSinceEpoch(); // The latest modified time will do for now
+    auto glue_version = qHash(hashed); // simply hash the array containing sha256
     d.mkpath(QFileInfo(version_dst).path());
     QFile version_header(version_dst);
     if(!version_header.open(QFile::WriteOnly))  {

@@ -397,7 +397,7 @@ public:
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
     virtual bool is_class(const char *p_class) const { return 0==strcmp(p_class,"Object"); }
-    bool wrap_is_class(se_string_view p_class) const;
+    bool wrap_is_class(StringView p_class) const;
     virtual bool is_class_ptr(void *p_ptr) const { return get_type_info_static() == p_ptr; }
 
     _FORCE_INLINE_ const StringName &get_class_name() const {
@@ -446,10 +446,10 @@ public:
 
     /* SCRIPT */
 
-    bool has_meta(se_string_view p_name) const;
-    void set_meta(se_string_view p_name, const Variant &p_value);
-    void remove_meta(se_string_view p_name);
-    Variant get_meta(se_string_view p_name) const;
+    bool has_meta(StringView p_name) const;
+    void set_meta(StringView p_name, const Variant &p_value);
+    void remove_meta(StringView p_name);
+    Variant get_meta(StringView p_name) const;
     void get_meta_list(List<String> *p_list) const;
 
     IObjectTooling *get_tooling_interface() const;

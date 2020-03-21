@@ -454,7 +454,7 @@ void Label::regenerate_word_cache() {
                 total_char_cache++;
             }
 
-            if (i < se_string_view(xl_text).length() && current == ' ') {
+            if (i < StringView(xl_text).length() && current == ' ') {
                 if (line_width > 0 || last == nullptr || last->char_pos != WordCache::CHAR_WRAPLINE) {
                     space_count++;
                     line_width += space_width;

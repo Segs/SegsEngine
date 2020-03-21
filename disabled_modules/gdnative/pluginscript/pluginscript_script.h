@@ -95,7 +95,7 @@ public:
 	void set_source_code(const String &p_code) override;
 	Error reload(bool p_keep_state = false) override;
 	// TODO: load_source_code only allow utf-8 file, should handle bytecode as well ?
-	virtual Error load_source_code(se_string_view p_path);
+	virtual Error load_source_code(StringView p_path);
 
 	bool has_method(const StringName &p_method) const override;
 	MethodInfo get_method_info(const StringName &p_method) const override;

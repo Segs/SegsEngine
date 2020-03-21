@@ -148,7 +148,7 @@ void SceneTreeDock::_unhandled_key_input(const Ref<InputEvent>& p_event) {
     }
 }
 
-void SceneTreeDock::instance(se_string_view p_file) {
+void SceneTreeDock::instance(StringView p_file) {
 
     Node *parent = scene_tree->get_selected();
 
@@ -207,7 +207,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
             break;
         }
 
-        Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+        Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
         if (!instanced_scene) {
             current_option = -1;
             accept->set_text(FormatSN(TTR("Error instancing scene from %s").asCString(), p_files[i].c_str()));
@@ -264,7 +264,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
     editor_data->get_undo_redo().commit_action();
 }
 
-void SceneTreeDock::_replace_with_branch_scene(se_string_view p_file, Node *base) {
+void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_file));
     if (not sdata) {
         accept->set_text(FormatSN(TTR("Error loading scene from %.*s").asCString(), p_file.length(),p_file.data()));
@@ -272,7 +272,7 @@ void SceneTreeDock::_replace_with_branch_scene(se_string_view p_file, Node *base
         return;
     }
 
-    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+    Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
     if (!instanced_scene) {
         accept->set_text(FormatSN(TTR("Error instancing scene from %.*s").asCString(), p_file.length(),p_file.data()));
         accept->popup_centered_minsize();
@@ -311,7 +311,7 @@ void SceneTreeDock::_replace_with_branch_scene(se_string_view p_file, Node *base
     undo_redo->commit_action();
 }
 
-bool SceneTreeDock::_cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node) {
+bool SceneTreeDock::_cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node) {
     int childCount = p_desired_node->get_child_count();
 
     if (_track_inherit(p_target_scene_path, p_desired_node)) {
@@ -329,7 +329,7 @@ bool SceneTreeDock::_cyclical_dependency_exists(se_string_view p_target_scene_pa
     return false;
 }
 
-bool SceneTreeDock::_track_inherit(se_string_view p_target_scene_path, Node *p_desired_node) {
+bool SceneTreeDock::_track_inherit(StringView p_target_scene_path, Node *p_desired_node) {
     Node *p = p_desired_node;
     bool result = false;
     Vector<Node *> instances;
@@ -343,7 +343,7 @@ bool SceneTreeDock::_track_inherit(se_string_view p_target_scene_path, Node *p_d
             String path = ss->get_path();
             Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
             if (data) {
-                p = data->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                p = data->instance(GEN_EDIT_STATE_INSTANCE);
                 if (!p)
                     continue;
                 instances.push_back(p);
@@ -700,13 +700,13 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             editor_data->get_undo_redo().add_do_method(editor, "set_edited_scene", Variant(node));
             editor_data->get_undo_redo().add_do_method(node, "add_child", Variant(root));
             editor_data->get_undo_redo().add_do_method(node, "set_filename", root->get_filename());
-            editor_data->get_undo_redo().add_do_method(root, "set_filename", se_string_view());
+            editor_data->get_undo_redo().add_do_method(root, "set_filename", StringView());
             editor_data->get_undo_redo().add_do_method(node, "set_owner", Variant((Object *)nullptr));
             editor_data->get_undo_redo().add_do_method(root, "set_owner", Variant(node));
             _node_replace_owner(root, root, node, MODE_DO);
 
             editor_data->get_undo_redo().add_undo_method(root, "set_filename", root->get_filename());
-            editor_data->get_undo_redo().add_undo_method(node, "set_filename", se_string_view());
+            editor_data->get_undo_redo().add_undo_method(node, "set_filename", StringView());
             editor_data->get_undo_redo().add_undo_method(node, "remove_child", Variant(root));
             editor_data->get_undo_redo().add_undo_method(editor, "set_edited_scene", Variant(root));
             editor_data->get_undo_redo().add_undo_method(node->get_parent(), "add_child", Variant(node));
@@ -1115,7 +1115,7 @@ void SceneTreeDock::_notification(int p_what) {
             Button *button_2d = memnew(Button);
             beginner_node_shortcuts->add_child(button_2d);
             button_2d->set_text(TTR("2D Scene"));
-            button_2d->set_button_icon(get_icon("Node2D", "EditorIcons"));
+            button_2d->set_button_icon(get_icon("Node2d", "EditorIcons"));
             button_2d->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_2D_SCENE, false));
 
             button_3d = memnew(Button);
@@ -1205,7 +1205,7 @@ void SceneTreeDock::_node_replace_owner(Node *p_base, Node *p_node, Node *p_root
     }
 }
 
-void SceneTreeDock::_load_request(se_string_view p_path) {
+void SceneTreeDock::_load_request(StringView p_path) {
 
     editor->open_request(p_path);
 }
@@ -2183,7 +2183,7 @@ void SceneTreeDock::_import_subscene() {
     editor_data->get_undo_redo().clear_history(); //no undo for now..
 }
 
-void SceneTreeDock::_new_scene_from(se_string_view p_file) {
+void SceneTreeDock::_new_scene_from(StringView p_file) {
 
     const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
@@ -2315,7 +2315,7 @@ void SceneTreeDock::_files_dropped(const Vector<String> &p_files, const NodePath
     _perform_instance_scenes(p_files, node, to_pos);
 }
 
-void SceneTreeDock::_script_dropped(se_string_view p_file, const NodePath& p_to) {
+void SceneTreeDock::_script_dropped(StringView p_file, const NodePath& p_to) {
     Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(p_file));
     ERR_FAIL_COND(not scr);
     Node *n = get_node(p_to);
@@ -2547,7 +2547,7 @@ void SceneTreeDock::_tree_rmb(const Vector2 &p_menu_pos) {
     menu->popup();
 }
 
-void SceneTreeDock::_filter_changed(se_string_view p_filter) {
+void SceneTreeDock::_filter_changed(StringView p_filter) {
 
     scene_tree->set_filter(StringUtils::from_utf8(p_filter));
 }
@@ -2709,7 +2709,7 @@ void SceneTreeDock::_update_create_root_dialog() {
         if (f) {
 
             while (!f->eof_reached()) {
-                se_string_view l = StringUtils::strip_edges(f->get_line());
+                StringView l = StringUtils::strip_edges(f->get_line());
 
                 if (!l.empty()) {
                     Button *button = memnew(Button);
@@ -2738,7 +2738,7 @@ void SceneTreeDock::_update_create_root_dialog() {
     }
 }
 
-void SceneTreeDock::_favorite_root_selected(se_string_view p_class) {
+void SceneTreeDock::_favorite_root_selected(StringView p_class) {
     selected_favorite_root = p_class;
     _tool_selected(TOOL_CREATE_FAVORITE, false);
 }

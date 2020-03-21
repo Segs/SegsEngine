@@ -241,7 +241,7 @@ bool ProgressDialog::task_step(const StringName &p_task, const StringName &p_sta
     Main::iteration(); // this will not work on a lot of platforms, so it's only meant for the editor
     return cancelled;
 }
-bool ProgressDialog::task_step(const StringName &p_task, se_string_view p_state, int p_step, bool p_force_redraw) {
+bool ProgressDialog::task_step(const StringName &p_task, StringView p_state, int p_step, bool p_force_redraw) {
 
     ERR_FAIL_COND_V(!tasks.contains(p_task), cancelled);
 

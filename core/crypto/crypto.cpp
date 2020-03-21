@@ -72,7 +72,7 @@ void X509Certificate::_bind_methods() {
 
 /// Crypto
 
-void (*Crypto::_load_default_certificates)(se_string_view p_path) = nullptr;
+void (*Crypto::_load_default_certificates)(StringView p_path) = nullptr;
 Crypto *(*Crypto::_create)() = nullptr;
 Crypto *Crypto::create() {
     if (_create)
@@ -80,7 +80,7 @@ Crypto *Crypto::create() {
     return memnew(Crypto);
 }
 
-void Crypto::load_default_certificates(se_string_view p_path) {
+void Crypto::load_default_certificates(StringView p_path) {
 
     if (_load_default_certificates)
         _load_default_certificates(p_path);
@@ -102,7 +102,7 @@ Ref<CryptoKey> Crypto::generate_rsa(int p_bytes) {
     ERR_FAIL_V_MSG(Ref<CryptoKey>(), "generate_rsa is not available when mbedtls module is disabled.");
 }
 
-Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_key, se_string_view p_issuer_name, se_string_view p_not_before, se_string_view p_not_after) {
+Ref<X509Certificate> Crypto::generate_self_signed_certificate(Ref<CryptoKey> p_key, StringView p_issuer_name, StringView p_not_before, StringView p_not_after) {
     ERR_FAIL_V_MSG(Ref<X509Certificate>(), "generate_self_signed_certificate is not available when mbedtls module is disabled.");
 }
 
@@ -110,7 +110,7 @@ Crypto::Crypto() = default;
 
 /// Resource loader/saver
 
-RES ResourceFormatLoaderCrypto::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatLoaderCrypto::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "crt") {
@@ -133,12 +133,12 @@ void ResourceFormatLoaderCrypto::get_recognized_extensions(Vector<String> &p_ext
     p_extensions.push_back("key");
 }
 
-bool ResourceFormatLoaderCrypto::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderCrypto::handles_type(StringView p_type) const {
 
     return p_type == "X509Certificate"_sv || p_type == "CryptoKey"_sv;
 }
 
-String ResourceFormatLoaderCrypto::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderCrypto::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "crt")
@@ -148,7 +148,7 @@ String ResourceFormatLoaderCrypto::get_resource_type(se_string_view p_path) cons
     return String();
 }
 
-Error ResourceFormatSaverCrypto::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverCrypto::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     Error err;
     Ref<X509Certificate> cert = dynamic_ref_cast<X509Certificate>(p_resource);

@@ -36,7 +36,7 @@
 #include "core/os/thread_safe.h"
 #include "core/pool_vector.h"
 #include "core/reference.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/self_list.h"
 #include "scene/resources/font.h"
 
@@ -106,7 +106,7 @@ protected:
 
 public:
     void set_font_ptr(const uint8_t *p_font_mem, int p_font_mem_size);
-    void set_font_path(se_string_view p_path);
+    void set_font_path(StringView p_path);
     const String &get_font_path() const;
     void set_force_autohinter(bool p_force);
 

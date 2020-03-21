@@ -94,18 +94,18 @@ class ProjectManager : public Control {
     void _language_selected(int p_id);
     void _restart_confirm();
     void _exit_dialog();
-    void _scan_begin(se_string_view p_base);
+    void _scan_begin(StringView p_base);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
 
     void _confirm_update_settings();
 
     void _load_recent_projects();
-    void _on_project_created(se_string_view dir);
+    void _on_project_created(StringView dir);
     void _on_projects_updated();
     void _update_scroll_position(const UIString &dir);
-    void _scan_dir(se_string_view path, Vector<String> *r_projects);
+    void _scan_dir(StringView path, Vector<String> *r_projects);
 
-    void _install_project(se_string_view p_zip_path, se_string_view p_title);
+    void _install_project(StringView p_zip_path, StringView p_title);
 
     void _dim_window();
     void _unhandled_input(const Ref<InputEvent> &p_ev);
@@ -143,7 +143,7 @@ private:
     bool has_search_box;
     FilterOption _current_filter;
 
-    void _search_text_changed(se_string_view p_newtext);
+    void _search_text_changed(StringView p_newtext);
     void _filter_option_selected(int p_idx);
 
 protected:

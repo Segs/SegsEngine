@@ -211,12 +211,12 @@ void StreamPeer::put_double(double p_val) {
     }
     put_data(buf, 8);
 }
-void StreamPeer::put_string(se_string_view p_string) {
+void StreamPeer::put_string(StringView p_string) {
 
     put_u32(p_string.length());
     put_data((const uint8_t *)p_string.data(), p_string.length());
 }
-void StreamPeer::put_utf8_string(se_string_view p_string) {
+void StreamPeer::put_utf8_string(StringView p_string) {
 
     put_u32(p_string.length());
     put_data((const uint8_t *)p_string.data(), p_string.length());

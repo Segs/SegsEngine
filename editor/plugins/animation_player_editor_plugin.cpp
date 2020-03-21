@@ -373,7 +373,7 @@ void AnimationPlayerEditor::_animation_load() {
     current_option = RESOURCE_LOAD;
 }
 
-void AnimationPlayerEditor::_animation_save_in_path(const Ref<Resource> &p_resource, se_string_view p_path) {
+void AnimationPlayerEditor::_animation_save_in_path(const Ref<Resource> &p_resource, StringView p_path) {
 
     int flg = 0;
     if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
@@ -471,7 +471,7 @@ void AnimationPlayerEditor::_animation_remove_confirmed() {
     undo_redo->commit_action();
 }
 
-void AnimationPlayerEditor::_select_anim_by_name(se_string_view p_anim) {
+void AnimationPlayerEditor::_select_anim_by_name(StringView p_anim) {
 
     int idx = -1;
     for (int i = 0; i < animation->get_item_count(); i++) {
@@ -740,7 +740,7 @@ void AnimationPlayerEditor::_animation_edit() {
     }
 }
 
-void AnimationPlayerEditor::_dialog_action(se_string_view p_file) {
+void AnimationPlayerEditor::_dialog_action(StringView p_file) {
 
     switch (current_option) {
         case RESOURCE_LOAD: {

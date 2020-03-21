@@ -33,7 +33,7 @@
 #include "core/math/basis.h"
 #include "core/print_string.h"
 #include "core/string_formatter.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 

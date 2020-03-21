@@ -69,7 +69,7 @@ public:
         MODE_SAVE_FILE
     };
 
-    using GetIconFunc = Ref<Texture> (*)(se_string_view);
+    using GetIconFunc = Ref<Texture> (*)(StringView);
     using RegisterFunc = void (*)(EditorFileDialog *);
 
     static GetIconFunc get_icon_func;
@@ -169,8 +169,8 @@ private:
     void _item_menu_id_pressed(int p_option);
 
     void _select_drive(int p_idx);
-    void _dir_entered(se_string_view p_dir);
-    void _file_entered(se_string_view p_file);
+    void _dir_entered(StringView p_dir);
+    void _file_entered(StringView p_file);
     void _action_pressed();
     void _save_confirm_pressed();
     void _cancel_pressed();
@@ -191,9 +191,9 @@ private:
     void _save_to_recent();
     //callback function is callback(String p_path,Ref<Texture> preview,Variant udata) preview null if could not load
 
-    void _thumbnail_result(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
-    void _request_single_thumbnail(se_string_view p_path);
+    void _thumbnail_result(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _request_single_thumbnail(StringView p_path);
 
     void _unhandled_input(const Ref<InputEvent> &p_event);
 
@@ -205,7 +205,7 @@ protected:
     //bind helpers
 public:
     void clear_filters();
-    void add_filter(se_string_view p_filter);
+    void add_filter(StringView p_filter);
 
     void set_enable_multiple_selection(bool p_enable);
     Vector<String> get_selected_files() const;
@@ -213,9 +213,9 @@ public:
     String get_current_dir() const;
     String get_current_file() const;
     String get_current_path() const;
-    void set_current_dir(se_string_view p_dir);
-    void set_current_file(se_string_view p_file);
-    void set_current_path(se_string_view p_path);
+    void set_current_dir(StringView p_dir);
+    void set_current_file(StringView p_file);
+    void set_current_path(StringView p_path);
 
     void set_display_mode(DisplayMode p_mode);
     DisplayMode get_display_mode() const;
@@ -252,7 +252,7 @@ class EditorLineEditFileChooser : public HBoxContainer {
     LineEdit *line_edit;
     EditorFileDialog *dialog;
 
-    void _chosen(se_string_view p_text);
+    void _chosen(StringView p_text);
     void _browse();
 
 protected:

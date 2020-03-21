@@ -1201,7 +1201,7 @@ void AnimationTreePlayer::animation_node_set_animation(const StringName &p_node,
     dirty_caches = true;
 }
 
-void AnimationTreePlayer::animation_node_set_master_animation(const StringName &p_node, se_string_view p_master_animation) {
+void AnimationTreePlayer::animation_node_set_master_animation(const StringName &p_node, StringView p_master_animation) {
 
     GET_NODE(NODE_ANIMATION, AnimationTreeNode);
     n->from = p_master_animation;
@@ -1404,7 +1404,7 @@ Ref<Animation> AnimationTreePlayer::animation_node_get_animation(const StringNam
 
 const String & AnimationTreePlayer::animation_node_get_master_animation(const StringName &p_node) const {
 
-    GET_NODE_V(NODE_ANIMATION, AnimationTreeNode, null_se_string);
+    GET_NODE_V(NODE_ANIMATION, AnimationTreeNode, null_string);
     return n->from;
 }
 

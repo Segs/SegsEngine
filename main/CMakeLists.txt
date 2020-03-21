@@ -30,6 +30,9 @@ list(APPEND main_sources ${source_files}
 )
 
 add_library(gen_controllers STATIC ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp)
+set_common_target_properties(gen_controllers)
+target_link_libraries(gen_controllers PUBLIC editor_interface)
+
 
 foreach(tgt ${global_targets})
 

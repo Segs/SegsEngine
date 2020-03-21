@@ -231,7 +231,7 @@ void EditorFileDialog::update_dir() {
     }
 }
 
-void EditorFileDialog::_dir_entered(se_string_view p_dir) {
+void EditorFileDialog::_dir_entered(StringView p_dir) {
 
     dir_access->change_dir(p_dir);
     file->set_text("");
@@ -240,7 +240,7 @@ void EditorFileDialog::_dir_entered(se_string_view p_dir) {
     _push_history();
 }
 
-void EditorFileDialog::_file_entered(se_string_view p_file) {
+void EditorFileDialog::_file_entered(StringView p_file) {
 
     _action_pressed();
 }
@@ -307,7 +307,7 @@ void EditorFileDialog::_post_popup() {
     set_process_unhandled_input(true);
 }
 
-void EditorFileDialog::_thumbnail_result(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
+void EditorFileDialog::_thumbnail_result(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
     if (display_mode == DISPLAY_LIST || not p_preview)
         return;
@@ -322,7 +322,7 @@ void EditorFileDialog::_thumbnail_result(se_string_view p_path, const Ref<Textur
     }
 }
 
-void EditorFileDialog::_thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
+void EditorFileDialog::_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
     set_process(false);
     preview_waiting = false;
@@ -342,7 +342,7 @@ void EditorFileDialog::_thumbnail_done(se_string_view p_path, const Ref<Texture>
     }
 }
 
-void EditorFileDialog::_request_single_thumbnail(se_string_view p_path) {
+void EditorFileDialog::_request_single_thumbnail(StringView p_path) {
 
     if (!FileAccess::exists(p_path))
         return;
@@ -413,10 +413,10 @@ void EditorFileDialog::_action_pressed() {
             for (int i = 0; i < filters.size(); i++) {
 
                 String flt(StringUtils::get_slice(filters[i],";", 0));
-                FixedVector<se_string_view,4,true> parts;
+                FixedVector<StringView,4,true> parts;
                 String::split_ref(parts,flt,',');
-                for (se_string_view alts : parts) {
-                    se_string_view str(StringUtils::strip_edges(alts));
+                for (StringView alts : parts) {
+                    StringView str(StringUtils::strip_edges(alts));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -704,7 +704,7 @@ void EditorFileDialog::update_file_name() {
         String filter_str = filters[idx];
         String file_str = file->get_text();
         String base_name(PathUtils::get_basename(file_str));
-        Vector<se_string_view> filter_substr = StringUtils::split(filter_str,';');
+        Vector<StringView> filter_substr = StringUtils::split(filter_str,';');
         if (filter_substr.size() >= 2) {
             file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_substr[1]));
         } else {
@@ -952,7 +952,7 @@ void EditorFileDialog::clear_filters() {
     update_filters();
     invalidate();
 }
-void EditorFileDialog::add_filter(se_string_view p_filter) {
+void EditorFileDialog::add_filter(StringView p_filter) {
 
     filters.emplace_back(p_filter);
     update_filters();
@@ -970,7 +970,7 @@ String EditorFileDialog::get_current_path() const {
 
     return PathUtils::plus_file(dir->get_text(),file->get_text());
 }
-void EditorFileDialog::set_current_dir(se_string_view p_dir) {
+void EditorFileDialog::set_current_dir(StringView p_dir) {
 
     if (PathUtils::is_rel_path(p_dir))
         dir_access->change_dir(OS::get_singleton()->get_resource_dir());
@@ -978,7 +978,7 @@ void EditorFileDialog::set_current_dir(se_string_view p_dir) {
     update_dir();
     invalidate();
 }
-void EditorFileDialog::set_current_file(se_string_view p_file) {
+void EditorFileDialog::set_current_file(StringView p_file) {
 
     file->set_text(p_file);
     update_dir();
@@ -992,19 +992,19 @@ void EditorFileDialog::set_current_file(se_string_view p_file) {
     if (is_visible_in_tree())
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
 }
-void EditorFileDialog::set_current_path(se_string_view p_path) {
+void EditorFileDialog::set_current_path(StringView p_path) {
 
     if (p_path.empty())
         return;
     auto base_p(PathUtils::path(p_path));
-    if (base_p==se_string_view(".")) {
+    if (base_p==StringView(".")) {
 
         set_current_file(p_path);
         return;
     }
 
-    se_string_view dir = base_p;
-    se_string_view file = PathUtils::get_file(p_path);
+    StringView dir = base_p;
+    StringView file = PathUtils::get_file(p_path);
     set_current_dir(dir);
     set_current_file(file);
 }
@@ -1773,7 +1773,7 @@ void EditorLineEditFileChooser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_file_dialog"), &EditorLineEditFileChooser::get_file_dialog);
 }
 
-void EditorLineEditFileChooser::_chosen(se_string_view p_text) {
+void EditorLineEditFileChooser::_chosen(StringView p_text) {
 
     line_edit->set_text(p_text);
     line_edit->emit_signal("text_entered", p_text);

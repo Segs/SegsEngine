@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "editor_atlas_packer.h"
-#include "se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 #include "EASTL/sort.h"

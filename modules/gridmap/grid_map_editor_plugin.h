@@ -214,7 +214,7 @@ class GridMapEditor : public VBoxContainer {
     void _update_cursor_instance();
     void _update_clip();
 
-    void _text_changed(se_string_view p_text);
+    void _text_changed(StringView p_text);
     void _sbox_input(const Ref<InputEvent> &p_ie);
     void _mesh_library_palette_input(const Ref<InputEvent> &p_ie);
 
@@ -264,7 +264,7 @@ protected:
 
 public:
     bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) override { return grid_map_editor->forward_spatial_input_event(p_camera, p_event); }
-    se_string_view get_name() const override { return "GridMap"; }
+    StringView get_name() const override { return "GridMap"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

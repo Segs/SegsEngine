@@ -35,7 +35,7 @@
 #include "core/os/file_access.h"
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/ustring.h"
 #include "scene/resources/texture.h"
 #include "servers/visual_server.h"
@@ -80,7 +80,7 @@ void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, f
     }
     draw_ui_string(p_canvas_item, p_pos + Point2(ofs, 0), p_text, p_modulate, p_width, p_outline_modulate);
 }
-void Font::draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, se_string_view p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
+void Font::draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, StringView p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
     draw_halign(p_canvas_item, p_pos, p_align, p_width, StringUtils::from_utf8(p_text), p_modulate, p_outline_modulate);
 }
 void Font::draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
@@ -107,7 +107,7 @@ void Font::draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString
         }
     }
 }
-void Font::draw(RID p_canvas_item, const Point2 &p_pos, se_string_view p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
+void Font::draw(RID p_canvas_item, const Point2 &p_pos, StringView p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
     draw_ui_string(p_canvas_item, p_pos, StringUtils::from_utf8(p_text), p_modulate, p_clip_w, p_outline_modulate);
 }
 void Font::update_changes() {
@@ -224,7 +224,7 @@ Vector<Variant> BitmapFont::_get_textures() const {
     return rtextures;
 }
 
-Error BitmapFont::create_from_fnt(se_string_view p_file) {
+Error BitmapFont::create_from_fnt(StringView p_file) {
     using namespace eastl;
     //fnt format used by angelcode bmfont
     //http://www.angelcode.com/products/bmfont/
@@ -240,9 +240,9 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
         String line = (f->get_line());
 
         int delimiter = StringUtils::find(line," ");
-        se_string_view type = StringUtils::substr(line,0, delimiter);
+        StringView type = StringUtils::substr(line,0, delimiter);
         size_t pos = delimiter + 1;
-        Map<se_string_view, se_string_view> keys;
+        Map<StringView, StringView> keys;
 
         while (pos < line.size() && line[pos] == ' ')
             pos++;
@@ -252,9 +252,9 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
             size_t eq = StringUtils::find(line,"=", pos);
             if (eq == String::npos)
                 break;
-            se_string_view key = StringUtils::substr(line,pos, eq - pos);
+            StringView key = StringUtils::substr(line,pos, eq - pos);
             int end = -1;
-            se_string_view value;
+            StringView value;
             if (line[eq + 1] == '"') {
                 end = StringUtils::find(line,"\"", eq + 2);
                 if (end == -1)
@@ -297,7 +297,7 @@ Error BitmapFont::create_from_fnt(se_string_view p_file) {
 
             if (keys.contains("file")) {
 
-                se_string_view base_dir = PathUtils::get_base_dir(p_file);
+                StringView base_dir = PathUtils::get_base_dir(p_file);
                 String file = PathUtils::plus_file(base_dir,(keys["file"]));
                 Ref<Texture> tex = dynamic_ref_cast<Texture>(ResourceLoader::load(file));
                 if (not tex) {
@@ -518,7 +518,7 @@ Size2 Font::get_ui_string_size(const UIString &p_string) const {
     return Size2(w, get_height());
 }
 
-Size2 Font::get_string_size(se_string_view p_string) const {
+Size2 Font::get_string_size(StringView p_string) const {
 
     Size2 res(0, get_height());
     QString a(QString::fromUtf8(p_string.data(),p_string.size()));
@@ -560,7 +560,7 @@ Size2 Font::get_wordwrap_ui_string_size(const UIString &p_string, float p_width)
 
     return Size2(p_width, h);
 }
-Size2 Font::get_wordwrap_string_size(se_string_view p_string, float p_width) const {
+Size2 Font::get_wordwrap_string_size(StringView p_string, float p_width) const {
 
     return get_wordwrap_ui_string_size(StringUtils::from_utf8(p_string),p_width);
 }
@@ -684,7 +684,7 @@ BitmapFont::~BitmapFont() {
 
 ////////////
 
-RES ResourceFormatLoaderBMFont::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatLoaderBMFont::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -707,12 +707,12 @@ void ResourceFormatLoaderBMFont::get_recognized_extensions(Vector<String> &p_ext
     p_extensions.push_back(("fnt"));
 }
 
-bool ResourceFormatLoaderBMFont::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderBMFont::handles_type(StringView p_type) const {
 
-    return (p_type == se_string_view("BitmapFont"));
+    return (p_type == StringView("BitmapFont"));
 }
 
-String ResourceFormatLoaderBMFont::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderBMFont::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "fnt")

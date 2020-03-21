@@ -52,7 +52,7 @@
 #include "core/object_db.h"
 #include "core/os/os.h"
 #include "core/script_language.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/vector.h"
 #include "core/rid.h"
 #include "core/container_tools.h"
@@ -83,7 +83,7 @@ struct _VariantCall {
         uint8_t def_count=0;
         Variant default_args[5] = {};
         VariantType arg_types[5] = {VariantType::NIL};
-        se_string_view arg_names[5] = {};
+        StringView arg_names[5] = {};
         VariantType return_type;
 
         bool _const;
@@ -354,11 +354,11 @@ struct _VariantCall {
     }
     VCALL_SU_LOCALMEM0R(String, capitalize)
     static void _call_String_split(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        Vector<se_string_view> parts(StringUtils::split(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
+        Vector<StringView> parts(StringUtils::split(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_rsplit(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        Vector<se_string_view> parts(StringUtils::rsplit(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
+        Vector<StringView> parts(StringUtils::rsplit(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[2]->as<bool>()));
         r_ret = Variant::from(parts);
     }
     static void _call_String_split_floats(Variant &r_ret, Variant &p_self, const Variant **p_args) {
@@ -1484,7 +1484,7 @@ bool Variant::is_method_const(VariantType p_type, const StringName &p_method) {
     return E->second._const;
 }
 
-Span<const se_string_view> Variant::get_method_argument_names(VariantType p_type, const StringName &p_method) {
+Span<const StringView> Variant::get_method_argument_names(VariantType p_type, const StringName &p_method) {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
 
@@ -1492,7 +1492,7 @@ Span<const se_string_view> Variant::get_method_argument_names(VariantType p_type
     if (E==tf.functions.end())
         return {};
 
-    return Span<const se_string_view>(E->second.arg_names, ptrdiff_t(E->second.arg_count));
+    return Span<const StringView>(E->second.arg_names, ptrdiff_t(E->second.arg_count));
 }
 
 VariantType Variant::get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return) {

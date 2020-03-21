@@ -181,7 +181,7 @@ public:
         return String(p_string.C_Str() ,p_string.length);
     }
 
-    static Ref<Animation> import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
+    static Ref<Animation> import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) {
         return Ref<Animation>();
     }
 
@@ -218,7 +218,7 @@ public:
     /**
       * Find hardcoded textures from assimp which could be in many different directories
       */
-    static void find_texture_path(se_string_view p_path, DirAccess *dir, String &path, bool &found, const String &extension);
+    static void find_texture_path(StringView p_path, DirAccess *dir, String &path, bool &found, const String &extension);
 
     /** find the texture path for the supplied fbx path inside godot
       * very simple lookup for subfolders etc for a texture which may or may not be in a directory
@@ -234,7 +234,7 @@ public:
     /**
       * Load or load from cache image :)
       */
-    static Ref<Image> load_image(ImportState &state, const aiScene *p_scene, se_string_view p_path);
+    static Ref<Image> load_image(ImportState &state, const aiScene *p_scene, StringView p_path);
 
     /* create texture from assimp data, if found in path */
     static bool CreateAssimpTexture(AssimpImporter::ImportState &state,

@@ -95,7 +95,7 @@ Error ImageLoaderPNG::save_image(const ImageData &p_image, FileAccess *p_fileacc
     return OK;
 }
 
-bool ImageLoaderPNG::can_save(se_string_view extension)
+bool ImageLoaderPNG::can_save(StringView extension)
 {
-    return extension==se_string_view("png");
+    return extension==StringView("png");
 }

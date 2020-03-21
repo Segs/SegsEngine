@@ -34,7 +34,7 @@
 #ifdef WINDOWS_ENABLED
 
 #include "core/os/dir_access.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 /**
 	@author Juan Linietsky <reduz@gmail.com>
@@ -69,16 +69,16 @@ public:
 	int get_drive_count() override;
 	String get_drive(int p_drive) override;
 
-	Error change_dir(se_string_view p_dir) override; ///< can be relative or absolute, return false on success
+	Error change_dir(StringView p_dir) override; ///< can be relative or absolute, return false on success
     String get_current_dir() override; ///< return current dir location
 
-	bool file_exists(se_string_view p_file) override;
-	bool dir_exists(se_string_view p_dir) override;
+	bool file_exists(StringView p_file) override;
+	bool dir_exists(StringView p_dir) override;
 
-	Error make_dir(se_string_view p_dir) override;
+	Error make_dir(StringView p_dir) override;
 
-	Error rename(se_string_view p_path, se_string_view p_new_path) override;
-	Error remove(se_string_view p_path) override;
+	Error rename(StringView p_path, StringView p_new_path) override;
+	Error remove(StringView p_path) override;
 
 	//virtual FileType get_file_type() const;
 	size_t get_space_left() override;

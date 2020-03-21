@@ -73,7 +73,7 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
     Error parse_variant(Variant &r_v);
 
 public:
-    void set_local_path(se_string_view p_local_path) override;
+    void set_local_path(StringView p_local_path) override;
     Ref<Resource> get_resource() override;
     Error poll() override;
     int get_stage() const override;
@@ -91,13 +91,13 @@ public:
 
 class ResourceFormatLoaderBinary : public ResourceFormatLoader {
 public:
-    Ref<ResourceInteractiveLoader> load_interactive(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
-    void get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const override;
+    Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
+    void get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
-    bool handles_type(se_string_view /*p_type*/) const override;
-    String get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
-    Error rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) override;
+    bool handles_type(StringView /*p_type*/) const override;
+    String get_resource_type(StringView p_path) const override;
+    void get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
+    Error rename_dependencies(StringView p_path, const HashMap<String, String> &p_map) override;
 };
 
 class ResourceFormatSaverBinaryInstance {
@@ -135,18 +135,18 @@ class ResourceFormatSaverBinaryInstance {
     static void _pad_buffer(FileAccess *f, int p_bytes);
     void _write_variant(const Variant &p_property);
     void _find_resources(const Variant &p_variant, bool p_main = false);
-    static void save_unicode_string(FileAccess *f, se_string_view p_string, bool p_bit_on_len = false);
+    static void save_unicode_string(FileAccess *f, StringView p_string, bool p_bit_on_len = false);
     int get_string_index(const StringName &p_string);
 
 public:
-    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
+    Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0);
     static void write_variant(FileAccess *f, const Variant &p_property, Set<RES> &resource_set, HashMap<RES, int> &external_resources, HashMap<StringName, int> &string_map);
 };
 
 class ResourceFormatSaverBinary : public ResourceFormatSaver {
 public:
     static ResourceFormatSaverBinary *singleton;
-    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
+    Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
     void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
 

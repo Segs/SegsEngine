@@ -273,7 +273,7 @@ protected:
 public:
     LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    void alert(se_string_view p_alert, se_string_view p_title = "ALERT!") override;
+    void alert(StringView p_alert, StringView p_title = "ALERT!") override;
     String get_stdin_string(bool p_block) override;
 
     void set_mouse_mode(MouseMode p_mode) override;
@@ -283,7 +283,7 @@ public:
     Point2 get_mouse_position() const override;
     void update_real_mouse_position();
     int get_mouse_button_state() const override;
-    void set_window_title(se_string_view p_title) override;
+    void set_window_title(StringView p_title) override;
 
     void set_video_mode(const VideoMode &p_video_mode, int p_screen = 0) override;
     VideoMode get_video_mode(int p_screen = 0) const override;
@@ -330,9 +330,9 @@ public:
     Size2 get_layered_buffer_size() override;
     void swap_layered_buffer() override;
 
-    Error open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
+    Error open_dynamic_library(StringView p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;
-    Error get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional = false) override;
+    Error get_dynamic_library_symbol_handle(void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional = false) override;
 
     MainLoop *get_main_loop() const override;
 
@@ -346,20 +346,20 @@ public:
     uint64_t get_system_time_msecs() const override;
 
     bool can_draw() const override;
-    Error set_cwd(se_string_view p_cwd) override;
+    Error set_cwd(StringView p_cwd) override;
 
     void delay_usec(uint32_t p_usec) const override;
     uint64_t get_ticks_usec() const override;
 
-    Error execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
+    Error execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, ProcessID *r_child_id = nullptr, String *r_pipe = nullptr, int *r_exitcode = nullptr, bool read_stderr = false, Mutex *p_pipe_mutex = nullptr) override;
     Error kill(const ProcessID &p_pid) override;
     int get_process_id() const override;
 
-    bool has_environment(se_string_view p_var) const override;
-    String get_environment(se_string_view p_var) const override;
-    bool set_environment(se_string_view p_var, se_string_view p_value) const override;
+    bool has_environment(StringView p_var) const override;
+    String get_environment(StringView p_var) const override;
+    bool set_environment(StringView p_var, StringView p_value) const override;
 
-    void set_clipboard(se_string_view p_text) override;
+    void set_clipboard(StringView p_text) override;
     String get_clipboard() const override;
 
     void set_cursor_shape(CursorShape p_shape) override;
@@ -392,7 +392,7 @@ public:
     void make_rendering_thread() override;
     void swap_buffers() override;
 
-    Error shell_open(se_string_view p_uri) override;
+    Error shell_open(StringView p_uri) override;
 
     void run();
 
@@ -404,7 +404,7 @@ public:
     void _set_use_vsync(bool p_enable) override;
     //virtual bool is_vsync_enabled() const;
 
-    bool _check_internal_feature_support(se_string_view p_feature) override;
+    bool _check_internal_feature_support(StringView p_feature) override;
 
     void disable_crash_handler() override;
     bool is_disable_crash_handler() const override;
@@ -412,7 +412,7 @@ public:
 
     void force_process_input() override;
 
-    Error move_to_trash(se_string_view p_path) override;
+    Error move_to_trash(StringView p_path) override;
 
     void process_and_drop_events() override;
 

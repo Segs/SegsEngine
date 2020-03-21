@@ -229,11 +229,9 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
             if (string_cache.contains(s)) {
                 return string_cache[s];
             }
-
             string_cache[s] = tmpdata.size();
-
-            [[fallthrough]];
-        };
+        }
+        [[fallthrough]];
         case VariantType::NIL:
         case VariantType::BOOL:
         case VariantType::INT:

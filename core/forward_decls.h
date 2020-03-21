@@ -69,7 +69,7 @@ template <class K,class V>
 using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
 
 using String = eastl::basic_string<char, wrap_allocator>;
-using se_string_view = eastl::basic_string_view<char>;
+using StringView = eastl::basic_string_view<char>;
 
 template <class T> struct Hasher;
 

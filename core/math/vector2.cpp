@@ -31,7 +31,7 @@
 #include "vector2.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 real_t Vector2::angle() const {
 

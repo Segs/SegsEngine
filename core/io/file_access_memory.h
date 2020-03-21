@@ -41,11 +41,11 @@ class FileAccessMemory : public FileAccess {
     static FileAccess *create();
 
 public:
-    static void register_file(se_string_view p_name, const Vector<uint8_t> &p_data);
+    static void register_file(StringView p_name, const Vector<uint8_t> &p_data);
     static void cleanup();
 
     virtual Error open_custom(const uint8_t *p_data, int p_len); ///< open a file
-    Error _open(se_string_view p_path, int p_mode_flags) override; ///< open a file
+    Error _open(StringView p_path, int p_mode_flags) override; ///< open a file
     void close() override; ///< close a file
     bool is_open() const override; ///< true when file is open
 
@@ -66,11 +66,11 @@ public:
     void store_8(uint8_t p_byte) override; ///< store a byte
     void store_buffer(const uint8_t *p_src, int p_length) override; ///< store an array of bytes
 
-    bool file_exists(se_string_view p_name) override; ///< return true if a file exists
+    bool file_exists(StringView p_name) override; ///< return true if a file exists
 
-    uint64_t _get_modified_time(se_string_view /*p_file*/) override { return 0; }
-    uint32_t _get_unix_permissions(se_string_view /*p_file*/) override { return 0; }
-    Error _set_unix_permissions(se_string_view /*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
+    uint64_t _get_modified_time(StringView /*p_file*/) override { return 0; }
+    uint32_t _get_unix_permissions(StringView /*p_file*/) override { return 0; }
+    Error _set_unix_permissions(StringView /*p_file*/, uint32_t /*p_permissions*/) override { return FAILED; }
 
     FileAccessMemory();
 };

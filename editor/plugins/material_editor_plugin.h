@@ -94,7 +94,7 @@ class MaterialEditorPlugin : public EditorPlugin {
     GDCLASS(MaterialEditorPlugin,EditorPlugin)
 
 public:
-    se_string_view get_name() const override { return "Material"; }
+    StringView get_name() const override { return "Material"; }
 
     MaterialEditorPlugin(EditorNode *p_node);
 };

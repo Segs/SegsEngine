@@ -152,7 +152,7 @@ void OS_Unix::finalize_core() {
     NetSocketPosix::cleanup();
 }
 
-void OS_Unix::alert(se_string_view p_alert, se_string_view p_title) {
+void OS_Unix::alert(StringView p_alert, StringView p_title) {
 
     fprintf(stderr, "ERROR: [%.*s] %.*s\n", int(p_title.length()),p_title.data(),int(p_alert.length()),p_alert.data());
 }
@@ -166,7 +166,7 @@ String OS_Unix::get_stdin_string(bool p_block) {
         return ret;
     }
 
-    return null_se_string;
+    return null_string;
 }
 
 String OS_Unix::get_name() const {
@@ -275,7 +275,7 @@ uint64_t OS_Unix::get_ticks_usec() const {
     return longtime;
 }
 
-Error OS_Unix::execute(se_string_view p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
+Error OS_Unix::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
 #ifdef __EMSCRIPTEN__
     // Don't compile this code at all to avoid undefined references.
@@ -380,7 +380,7 @@ int OS_Unix::get_process_id() const {
     return getpid();
 };
 
-bool OS_Unix::has_environment(se_string_view p_var) const {
+bool OS_Unix::has_environment(StringView p_var) const {
     if(p_var[p_var.size()]==0)
         return getenv(p_var.data()) != nullptr;
     else {
@@ -402,7 +402,7 @@ const char *OS_Unix::get_locale() const {
     return locale.c_str();
 }
 
-Error OS_Unix::open_dynamic_library(se_string_view p_path, void *&p_library_handle, bool p_also_set_library_path) {
+Error OS_Unix::open_dynamic_library(StringView p_path, void *&p_library_handle, bool p_also_set_library_path) {
 
     String path(p_path);
 
@@ -434,7 +434,7 @@ Error OS_Unix::close_dynamic_library(void *p_library_handle) {
     return OK;
 }
 
-Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, se_string_view p_name, void *&p_symbol_handle, bool p_optional) {
+Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, StringView p_name, void *&p_symbol_handle, bool p_optional) {
     const char *error;
     dlerror(); // Clear existing errors
 
@@ -449,7 +449,7 @@ Error OS_Unix::get_dynamic_library_symbol_handle(void *p_library_handle, se_stri
     return OK;
 }
 
-Error OS_Unix::set_cwd(se_string_view p_cwd) {
+Error OS_Unix::set_cwd(StringView p_cwd) {
 
     if (chdir(String(p_cwd).c_str()) != 0)
         return ERR_CANT_OPEN;
@@ -457,7 +457,7 @@ Error OS_Unix::set_cwd(se_string_view p_cwd) {
     return OK;
 }
 
-String OS_Unix::get_environment(se_string_view p_var) const {
+String OS_Unix::get_environment(StringView p_var) const {
     String zterm(p_var);
     const char *res=getenv(zterm.data());
     if (res)
@@ -465,7 +465,7 @@ String OS_Unix::get_environment(se_string_view p_var) const {
     return String();
 }
 
-bool OS_Unix::set_environment(se_string_view p_var, se_string_view p_value) const {
+bool OS_Unix::set_environment(StringView p_var, StringView p_value) const {
     String zterm(p_var);
     String zval(p_value);
     return setenv(zterm.data(), zval.data(), /* overwrite: */ true) == 0;
@@ -499,12 +499,12 @@ String OS_Unix::get_executable_path() const {
     return qPrintable(QCoreApplication::applicationFilePath());
 }
 
-void UnixTerminalLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
+void UnixTerminalLogger::log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type) {
     if (!should_log(true)) {
         return;
     }
 
-    se_string_view err_details;
+    StringView err_details;
     if (not p_rationale.empty())
         err_details = p_rationale;
     else

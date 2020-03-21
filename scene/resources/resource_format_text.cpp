@@ -89,12 +89,12 @@ class ResourceFormatSaverTextInstance {
     String _write_resource(const RES &res);
 
 public:
-    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0);
+    Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0);
 };
 } // end of anonymous namespace
 ///
 
-void ResourceInteractiveLoaderText::set_local_path(se_string_view p_local_path) {
+void ResourceInteractiveLoaderText::set_local_path(StringView p_local_path) {
 
     res_path = p_local_path;
 }
@@ -210,7 +210,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParserStream *p_
         }
 
         String path = ext_resources[id].path;
-        se_string_view type = ext_resources[id].type;
+        StringView type = ext_resources[id].type;
 
         if (!StringUtils::contains(path,"://") && PathUtils::is_rel_path(path)) {
             // path is relative to file being loaded, so convert to a resource path
@@ -773,7 +773,7 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, Vector<Str
     }
 }
 
-Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_string_view p_path, const HashMap<String, String> &p_map) {
+Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, StringView p_path, const HashMap<String, String> &p_map) {
 
     open(p_f, true);
     ERR_FAIL_COND_V(error != OK, error);
@@ -782,7 +782,7 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_str
 
     FileAccess *fw = nullptr;
 
-    se_string_view base_path = PathUtils::get_base_dir(local_path);
+    StringView base_path = PathUtils::get_base_dir(local_path);
 
     uint64_t tag_end = f->get_position();
 
@@ -835,7 +835,7 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, se_str
             }
 
             if (p_map.contains(path)) {
-                se_string_view np = p_map.at(path);
+                StringView np = p_map.at(path);
                 path = np;
             }
 
@@ -961,7 +961,7 @@ static void bs_save_unicode_string(FileAccess *f, const UIString &p_string, bool
     }
     f->store_buffer((const uint8_t *)utf8.data(), utf8.length() + 1);
 }
-static void bs_save_unicode_string(FileAccess *f, se_string_view p_string, bool p_bit_on_len = false) {
+static void bs_save_unicode_string(FileAccess *f, StringView p_string, bool p_bit_on_len = false) {
 
     if (p_bit_on_len) {
         f->store_32((p_string.length() + 1) | 0x80000000);
@@ -970,7 +970,7 @@ static void bs_save_unicode_string(FileAccess *f, se_string_view p_string, bool 
     }
     f->store_buffer((const uint8_t *)p_string.data(), p_string.length() + 1);
 }
-Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_view p_path) {
+Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, StringView p_path) {
 
     if (error)
         return error;
@@ -1176,12 +1176,12 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
         Vector<PropertyInfo> props;
         packed_scene->get_property_list(&props);
 
-        bs_save_unicode_string(wf, se_string_view("local://0"));
+        bs_save_unicode_string(wf, StringView("local://0"));
         local_pointers_pos.push_back(wf->get_position());
         wf->store_64(0); //temp local offset
 
         local_offsets.push_back(wf2->get_position());
-        bs_save_unicode_string(wf2, se_string_view("PackedScene"));
+        bs_save_unicode_string(wf2, StringView("PackedScene"));
         size_t propcount_ofs = wf2->get_position();
         wf2->store_32(0);
 
@@ -1192,7 +1192,7 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, se_string_v
             if (!(E.usage & PROPERTY_USAGE_STORAGE))
                 continue;
 
-            se_string_view  name = E.name;
+            StringView  name = E.name;
             Variant value = packed_scene->get(StringName(name));
 
             HashMap<StringName, int> empty_string_map; //unused
@@ -1280,7 +1280,7 @@ String ResourceInteractiveLoaderText::recognize(FileAccess *p_f) {
 
 /////////////////////
 
-Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -1291,7 +1291,7 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(se_str
     ERR_FAIL_COND_V(err != OK, Ref<ResourceInteractiveLoader>());
 
     Ref<ResourceInteractiveLoaderText> ria(make_ref_counted<ResourceInteractiveLoaderText>());
-    se_string_view  path = !p_original_path.empty() ? p_original_path : p_path;
+    StringView  path = !p_original_path.empty() ? p_original_path : p_path;
     ria->local_path = ProjectSettings::get_singleton()->localize_path(path);
     ria->res_path = ria->local_path;
     //ria->set_local_path( ProjectSettings::get_singleton()->localize_path(p_path) );
@@ -1300,14 +1300,14 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoaderText::load_interactive(se_str
     return ria;
 }
 
-void ResourceFormatLoaderText::get_recognized_extensions_for_type(se_string_view p_type, Vector<String> &p_extensions) const {
+void ResourceFormatLoaderText::get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const {
 
     if (p_type.empty()) {
         get_recognized_extensions(p_extensions);
         return;
     }
 
-    if (p_type == se_string_view ("PackedScene"))
+    if (p_type == StringView ("PackedScene"))
         p_extensions.push_back(("tscn"));
     else
         p_extensions.push_back(("tres"));
@@ -1319,11 +1319,11 @@ void ResourceFormatLoaderText::get_recognized_extensions(Vector<String> &p_exten
     p_extensions.push_back(("tres"));
 }
 
-bool ResourceFormatLoaderText::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderText::handles_type(StringView p_type) const {
 
     return true;
 }
-String ResourceFormatLoaderText::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderText::get_resource_type(StringView p_path) const {
 
     String ext = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (ext == "tscn")
@@ -1347,7 +1347,7 @@ String ResourceFormatLoaderText::get_resource_type(se_string_view p_path) const 
     return r;
 }
 
-void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types) {
+void ResourceFormatLoaderText::get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
@@ -1362,7 +1362,7 @@ void ResourceFormatLoaderText::get_dependencies(se_string_view p_path, Vector<St
     ria->get_dependencies(f, p_dependencies, p_add_types);
 }
 
-Error ResourceFormatLoaderText::rename_dependencies(se_string_view p_path, const HashMap<String, String> &p_map) {
+Error ResourceFormatLoaderText::rename_dependencies(StringView p_path, const HashMap<String, String> &p_map) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f) {
@@ -1379,7 +1379,7 @@ Error ResourceFormatLoaderText::rename_dependencies(se_string_view p_path, const
 
 ResourceFormatLoaderText *ResourceFormatLoaderText::singleton = nullptr;
 
-Error ResourceFormatLoaderText::convert_file_to_binary(se_string_view p_src_path, se_string_view p_dst_path) {
+Error ResourceFormatLoaderText::convert_file_to_binary(StringView p_src_path, StringView p_dst_path) {
 
     Error err;
     FileAccess *f = FileAccess::open(p_src_path, FileAccess::READ, &err);
@@ -1387,7 +1387,7 @@ Error ResourceFormatLoaderText::convert_file_to_binary(se_string_view p_src_path
     ERR_FAIL_COND_V(err != OK, ERR_CANT_OPEN);
 
     Ref<ResourceInteractiveLoaderText> ria(make_ref_counted<ResourceInteractiveLoaderText>());
-    se_string_view path = p_src_path;
+    StringView path = p_src_path;
     ria->local_path = ProjectSettings::get_singleton()->localize_path(path);
     ria->res_path = ria->local_path;
     //ria->set_local_path( ProjectSettings::get_singleton()->localize_path(p_path) );
@@ -1445,7 +1445,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
             if (not res || external_resources.contains(res))
                 return;
 
-            if (!p_main && (!bundle_resources) && res->get_path().length() && !StringUtils::contains(res->get_path(),"::") ) {
+            if (!p_main && (!bundle_resources) && !res->get_path().empty() && !StringUtils::contains(res->get_path(),"::") ) {
                 if (res->get_path() == local_path) {
                     ERR_PRINT("Circular reference to resource being saved found: '" + local_path + "' will be null next time it's loaded.");
                     return;
@@ -1515,7 +1515,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
     }
 }
 
-Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverTextInstance::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     if (StringUtils::ends_with(p_path,".tscn")) {
         packed_scene = dynamic_ref_cast<PackedScene>(p_resource);
@@ -1833,7 +1833,7 @@ Error ResourceFormatSaverTextInstance::save(se_string_view p_path, const RES &p_
     return OK;
 }
 
-Error ResourceFormatSaverText::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverText::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     if (StringUtils::ends_with(p_path,".sct") && 0!=strcmp(p_resource->get_class(),"PackedScene") ) {
         return ERR_FILE_UNRECOGNIZED;
@@ -1849,7 +1849,7 @@ bool ResourceFormatSaverText::recognize(const RES &p_resource) const {
 }
 void ResourceFormatSaverText::get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const {
 
-    if (se_string_view(p_resource->get_class())==se_string_view("PackedScene"))
+    if (StringView(p_resource->get_class())==StringView("PackedScene"))
         p_extensions.push_back(("tscn")); //text scene
     else
         p_extensions.push_back(("tres")); //text resource

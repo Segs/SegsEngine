@@ -320,8 +320,8 @@ set(generic_core_sources
     pool_vector.cpp
     pool_vector.h
     ring_buffer.h
-    se_string.cpp
-    se_string.h
+    string.cpp
+    string.h
     self_list.h
     set.h
     ustring.cpp
@@ -375,6 +375,8 @@ target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_inte
 target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
 set_common_target_properties(se_core)
+# TODO: this should use interface library common to all targets!
+target_link_libraries(se_core PUBLIC editor_interface)
 
 #add_subdirectory(helper)
 # Build it all as a library
@@ -406,7 +408,7 @@ endif()
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include/SegsEngine
-        FILES_MATCHING PATTERN "*.h"
+        FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
     )
 
     target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})

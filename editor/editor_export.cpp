@@ -149,7 +149,7 @@ Vector<String> EditorExportPreset::get_files_to_export() const {
     return files;
 }
 
-void EditorExportPreset::set_name(se_string_view p_name) {
+void EditorExportPreset::set_name(StringView p_name) {
     name = p_name;
     EditorExport::singleton->save_presets();
 }
@@ -179,7 +179,7 @@ EditorExportPreset::ExportFilter EditorExportPreset::get_export_filter() const {
     return export_filter;
 }
 
-void EditorExportPreset::set_include_filter(se_string_view p_include) {
+void EditorExportPreset::set_include_filter(StringView p_include) {
 
     include_filter = p_include;
     EditorExport::singleton->save_presets();
@@ -190,7 +190,7 @@ const String &EditorExportPreset::get_include_filter() const {
     return include_filter;
 }
 
-void EditorExportPreset::set_export_path(se_string_view p_path) {
+void EditorExportPreset::set_export_path(StringView p_path) {
 
     export_path = p_path;
     /* NOTE(SonerSound): if there is a need to implement a PropertyHint that specifically indicates a relative path,
@@ -207,7 +207,7 @@ const String &EditorExportPreset::get_export_path() const {
     return export_path;
 }
 
-void EditorExportPreset::set_exclude_filter(se_string_view p_exclude) {
+void EditorExportPreset::set_exclude_filter(StringView p_exclude) {
 
     exclude_filter = p_exclude;
     EditorExport::singleton->save_presets();
@@ -218,25 +218,25 @@ const String & EditorExportPreset::get_exclude_filter() const {
     return exclude_filter;
 }
 
-void EditorExportPreset::add_export_file(se_string_view p_path) {
+void EditorExportPreset::add_export_file(StringView p_path) {
 
     selected_files.insert(p_path);
     EditorExport::singleton->save_presets();
 }
 
-void EditorExportPreset::remove_export_file(se_string_view p_path) {
+void EditorExportPreset::remove_export_file(StringView p_path) {
     auto iter = selected_files.find_as(p_path);
     if(iter!=selected_files.end())
         selected_files.erase(iter);
     EditorExport::singleton->save_presets();
 }
 
-bool EditorExportPreset::has_export_file(se_string_view p_path) {
+bool EditorExportPreset::has_export_file(StringView p_path) {
 
     return selected_files.contains_as(p_path);
 }
 
-void EditorExportPreset::add_patch(se_string_view p_path, int p_at_pos) {
+void EditorExportPreset::add_patch(StringView p_path, int p_at_pos) {
 
     if (p_at_pos < 0)
         patches.emplace_back(p_path);
@@ -251,18 +251,18 @@ void EditorExportPreset::remove_patch(int p_idx) {
     EditorExport::singleton->save_presets();
 }
 
-void EditorExportPreset::set_patch(int p_index, se_string_view p_path) {
+void EditorExportPreset::set_patch(int p_index, StringView p_path) {
     ERR_FAIL_INDEX(p_index, patches.size());
     patches[p_index] = p_path;
     EditorExport::singleton->save_presets();
 }
 const String &EditorExportPreset::get_patch(int p_index) {
 
-    ERR_FAIL_INDEX_V(p_index, patches.size(), null_se_string);
+    ERR_FAIL_INDEX_V(p_index, patches.size(), null_string);
     return patches[p_index];
 }
 
-void EditorExportPreset::set_custom_features(se_string_view p_custom_features) {
+void EditorExportPreset::set_custom_features(StringView p_custom_features) {
 
     custom_features = p_custom_features;
     EditorExport::singleton->save_presets();
@@ -351,7 +351,7 @@ void EditorExportPlatform::gen_debug_flags(Vector<String> &r_flags, int p_flags)
     }
 }
 
-Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
+Error EditorExportPlatform::_save_pack_file(void *p_userdata, StringView p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
 
     PackData *pd = (PackData *)p_userdata;
 
@@ -384,7 +384,7 @@ Error EditorExportPlatform::_save_pack_file(void *p_userdata, se_string_view p_p
     return OK;
 }
 
-Error EditorExportPlatform::_save_zip_file(void *p_userdata, se_string_view p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
+Error EditorExportPlatform::_save_zip_file(void *p_userdata, StringView p_path, const Vector<uint8_t> &p_data, int p_file, int p_total) {
 
     String path = StringUtils::replace_first(p_path,"res://", String());
 
@@ -419,7 +419,7 @@ Ref<ImageTexture> EditorExportPlatform::get_option_icon(int p_index) const {
     return dynamic_ref_cast<ImageTexture>(theme->get_icon("Play", "EditorIcons"));
 }
 
-String EditorExportPlatform::find_export_template(se_string_view template_file_name, String *err) const {
+String EditorExportPlatform::find_export_template(StringView template_file_name, String *err) const {
 
     String current_version(VERSION_FULL_CONFIG);
     String template_path = PathUtils::plus_file(
@@ -437,7 +437,7 @@ String EditorExportPlatform::find_export_template(se_string_view template_file_n
     return String();
 }
 
-bool EditorExportPlatform::exists_export_template(se_string_view template_file_name, String *err) const {
+bool EditorExportPlatform::exists_export_template(StringView template_file_name, String *err) const {
     return !find_export_template(template_file_name, err).empty();
 }
 
@@ -469,7 +469,7 @@ void EditorExportPlatform::_export_find_resources(EditorFileSystemDirectory *p_d
     }
 }
 
-void EditorExportPlatform::_export_find_dependencies(se_string_view p_path, Set<String> &p_paths) {
+void EditorExportPlatform::_export_find_dependencies(StringView p_path, Set<String> &p_paths) {
 
     if (p_paths.contains_as(p_path))
         return;
@@ -532,14 +532,14 @@ void EditorExportPlatform::_edit_files_with_filter(DirAccess *da, const Vector<S
     }
 }
 
-void EditorExportPlatform::_edit_filter_list(Set<String> &r_list, se_string_view p_filter, bool exclude) {
+void EditorExportPlatform::_edit_filter_list(Set<String> &r_list, StringView p_filter, bool exclude) {
 
     if (p_filter.empty())
         return;
-    Vector<se_string_view > split = StringUtils::split(p_filter,',');
+    Vector<StringView > split = StringUtils::split(p_filter,',');
     Vector<String> filters;
     for (int i = 0; i < split.size(); i++) {
-        se_string_view  f =StringUtils::strip_edges( split[i]);
+        StringView  f =StringUtils::strip_edges( split[i]);
         if (f.empty())
             continue;
         filters.emplace_back(f);
@@ -563,7 +563,7 @@ Ref<EditorExportPreset> EditorExportPlugin::get_export_preset() const {
     return export_preset;
 }
 
-void EditorExportPlugin::add_file(se_string_view p_path, const Vector<uint8_t> &p_file, bool p_remap) {
+void EditorExportPlugin::add_file(StringView p_path, const Vector<uint8_t> &p_file, bool p_remap) {
 
     ExtraFile ef;
     ef.data = p_file;
@@ -572,19 +572,19 @@ void EditorExportPlugin::add_file(se_string_view p_path, const Vector<uint8_t> &
     extra_files.push_back(ef);
 }
 
-void EditorExportPlugin::add_shared_object(se_string_view p_path, const Vector<String> &tags) {
+void EditorExportPlugin::add_shared_object(StringView p_path, const Vector<String> &tags) {
 
     shared_objects.push_back(SharedObject(p_path, tags));
 }
 
-void EditorExportPlugin::_export_file_script(se_string_view p_path, se_string_view p_type, const PoolVector<String> &p_features) {
+void EditorExportPlugin::_export_file_script(StringView p_path, StringView p_type, const PoolVector<String> &p_features) {
 
     if (get_script_instance()) {
         get_script_instance()->call("_export_file", p_path, p_type, p_features);
     }
 }
 
-void EditorExportPlugin::_export_begin_script(const PoolVector<String> &p_features, bool p_debug, se_string_view p_path, int p_flags) {
+void EditorExportPlugin::_export_begin_script(const PoolVector<String> &p_features, bool p_debug, StringView p_path, int p_flags) {
 
     if (get_script_instance()) {
         get_script_instance()->call("_export_begin", p_features, p_debug, p_path, p_flags);
@@ -598,10 +598,10 @@ void EditorExportPlugin::_export_end_script() {
     }
 }
 
-void EditorExportPlugin::_export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features) {
+void EditorExportPlugin::_export_file(StringView p_path, StringView p_type, const Set<String> &p_features) {
 }
 
-void EditorExportPlugin::_export_begin(const Set<String> &p_features, bool p_debug, se_string_view p_path, int p_flags) {
+void EditorExportPlugin::_export_begin(const Set<String> &p_features, bool p_debug, StringView p_path, int p_flags) {
 }
 
 void EditorExportPlugin::skip() {
@@ -638,10 +638,10 @@ EditorExportPlatform::FeatureContainers EditorExportPlatform::get_feature_contai
 
     if (!p_preset->get_custom_features().empty()) {
 
-        Vector<se_string_view> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
+        Vector<StringView> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
 
         for (size_t i = 0; i < tmp_custom_list.size(); i++) {
-            se_string_view f =StringUtils::strip_edges( tmp_custom_list[i]);
+            StringView f =StringUtils::strip_edges( tmp_custom_list[i]);
             if (!f.empty()) {
                 result.features.emplace(f);
                 result.features_pv.push_back(String(f));
@@ -652,7 +652,7 @@ EditorExportPlatform::FeatureContainers EditorExportPlatform::get_feature_contai
     return result;
 }
 
-EditorExportPlatform::ExportNotifier::ExportNotifier(EditorExportPlatform &p_platform, const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
+EditorExportPlatform::ExportNotifier::ExportNotifier(EditorExportPlatform &p_platform, const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
     FeatureContainers features = p_platform.get_feature_containers(p_preset);
     const Vector<Ref<EditorExportPlugin> > &export_plugins = EditorExport::get_singleton()->get_export_plugins();
     //initial export plugin callback
@@ -745,7 +745,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
             Set<String> remap_features;
 
             for (const String & remap : remaps) {
-                se_string_view feature = StringUtils::get_slice(remap,".", 1);
+                StringView feature = StringUtils::get_slice(remap,".", 1);
                 if (features.contains_as(feature)) {
                     remap_features.insert(feature);
                 }
@@ -763,7 +763,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
                     Vector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
                     err = p_func(p_udata, remapped_path, array, idx, total);
                 } else if (StringUtils::begins_with(remap,"path.")) {
-                    se_string_view feature = StringUtils::get_slice(remap,".", 1);
+                    StringView feature = StringUtils::get_slice(remap,".", 1);
 
                     if (remap_features.contains_as(feature)) {
                         String remapped_path = config->get_value("remap", remap);
@@ -833,10 +833,10 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
     if (!p_preset->get_custom_features().empty()) {
 
-        Vector<se_string_view> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
+        Vector<StringView> tmp_custom_list = StringUtils::split(p_preset->get_custom_features(),',');
 
         for (int i = 0; i < tmp_custom_list.size(); i++) {
-            se_string_view f =StringUtils::strip_edges( tmp_custom_list[i]);
+            StringView f =StringUtils::strip_edges( tmp_custom_list[i]);
             if (!f.empty()) {
                 custom_list.emplace_back(f);
             }
@@ -896,7 +896,7 @@ Error EditorExportPlatform::_add_shared_object(void *p_userdata, const SharedObj
     return OK;
 }
 
-Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, se_string_view p_path, Vector<SharedObject> *p_so_files, bool p_embed, int64_t *r_embedded_start, int64_t *r_embedded_size) {
+Error EditorExportPlatform::save_pack(const Ref<EditorExportPreset> &p_preset, StringView p_path, Vector<SharedObject> *p_so_files, bool p_embed, int64_t *r_embedded_start, int64_t *r_embedded_size) {
 
     EditorProgress ep(("savepack"), TTR("Packing"), 102, true);
 
@@ -1067,12 +1067,12 @@ Error EditorExportPlatform::save_zip(const Ref<EditorExportPreset> &p_preset, co
     return OK;
 }
 
-Error EditorExportPlatform::export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
+Error EditorExportPlatform::export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
     ExportNotifier notifier(*this, p_preset, p_debug, p_path, p_flags);
     return save_pack(p_preset, p_path);
 }
 
-Error EditorExportPlatform::export_zip(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
+Error EditorExportPlatform::export_zip(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
     ExportNotifier notifier(*this, p_preset, p_debug, p_path, p_flags);
     return save_zip(p_preset, String(p_path));
 }
@@ -1502,7 +1502,7 @@ Vector<String> EditorExportPlatformPC::get_binary_extensions(const Ref<EditorExp
     return list;
 }
 
-Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
+Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
     ExportNotifier notifier(*this, p_preset, p_debug, p_path, p_flags);
 
     if (!DirAccess::exists(PathUtils::get_base_dir(p_path))) {
@@ -1534,7 +1534,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
     }
 
     if (!template_path.empty() && !FileAccess::exists(template_path)) {
-        EditorNode::get_singleton()->show_warning(TTR("Template file not found:") + "\n" + se_string_view(template_path));
+        EditorNode::get_singleton()->show_warning(TTR("Template file not found:") + "\n" + StringView(template_path));
         return ERR_FILE_NOT_FOUND;
     }
 
@@ -1584,18 +1584,18 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
     return err;
 }
-Error EditorExportPlatformPC::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) {
+Error EditorExportPlatformPC::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path) {
     return OK;
 }
-void EditorExportPlatformPC::set_extension(se_string_view p_extension, se_string_view p_feature_key) {
+void EditorExportPlatformPC::set_extension(StringView p_extension, StringView p_feature_key) {
     extensions[String(p_feature_key)] = p_extension;
 }
 
-void EditorExportPlatformPC::set_name(se_string_view p_name) {
+void EditorExportPlatformPC::set_name(StringView p_name) {
     name = p_name;
 }
 
-void EditorExportPlatformPC::set_os_name(se_string_view p_name) {
+void EditorExportPlatformPC::set_os_name(StringView p_name) {
     os_name = p_name;
 }
 
@@ -1604,25 +1604,25 @@ void EditorExportPlatformPC::set_logo(const Ref<Texture> &p_logo) {
     logo = dynamic_ref_cast<ImageTexture>(p_logo);
 }
 
-void EditorExportPlatformPC::set_release_64(se_string_view p_file) {
+void EditorExportPlatformPC::set_release_64(StringView p_file) {
 
     release_file_64 = p_file;
 }
 
-void EditorExportPlatformPC::set_release_32(se_string_view p_file) {
+void EditorExportPlatformPC::set_release_32(StringView p_file) {
 
     release_file_32 = p_file;
 }
-void EditorExportPlatformPC::set_debug_64(se_string_view p_file) {
+void EditorExportPlatformPC::set_debug_64(StringView p_file) {
 
     debug_file_64 = p_file;
 }
-void EditorExportPlatformPC::set_debug_32(se_string_view p_file) {
+void EditorExportPlatformPC::set_debug_32(StringView p_file) {
 
     debug_file_32 = p_file;
 }
 
-void EditorExportPlatformPC::add_platform_feature(se_string_view p_feature) {
+void EditorExportPlatformPC::add_platform_feature(StringView p_feature) {
 
     extra_features.insert(p_feature);
 }
@@ -1673,7 +1673,7 @@ EditorExportPlatformPC::EditorExportPlatformPC() {
 
 ///////////////////////
 
-void EditorExportTextSceneToBinaryPlugin::_export_file(se_string_view p_path, se_string_view p_type, const Set<String> &p_features) {
+void EditorExportTextSceneToBinaryPlugin::_export_file(StringView p_path, StringView p_type, const Set<String> &p_features) {
 
     String extension = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (extension != "tres" && extension != "tscn") {

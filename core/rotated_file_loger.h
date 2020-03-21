@@ -1,5 +1,5 @@
 #pragma once
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/io/logger.h"
 
 class FileAccess;
@@ -23,6 +23,6 @@ class RotatedFileLogger : public Logger {
 public:
     RotatedFileLogger(const String &p_base_path, int p_max_files = 10);
 
-    void logv(se_string_view p_msg, bool p_err) override;
+    void logv(StringView p_msg, bool p_err) override;
     ~RotatedFileLogger() override;
 };

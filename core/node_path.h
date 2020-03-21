@@ -97,7 +97,7 @@ public:
         p_path.hash_cache_valid = false;
         p_path.hash_cache = 0;
     }
-    explicit NodePath(se_string_view p_path);
+    explicit NodePath(StringView p_path);
     NodePath();
     ~NodePath();
 };

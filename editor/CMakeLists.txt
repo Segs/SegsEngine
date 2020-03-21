@@ -8,6 +8,8 @@ if(NOT OPTION_TOOLS)
 endif()
 
 add_library(edit_tools STATIC)
+set_common_target_properties(edit_tools)
+target_link_libraries(edit_tools PUBLIC editor_interface)
 
 add_subdirectory(plugin_interfaces)
 
@@ -24,7 +26,7 @@ add_subdirectory(import)
 add_subdirectory(plugins)
 
 # Register exporters
-set(reg_exporters_inc "#include \"register_exporters.h\"\n")
+set(reg_exporters_inc "#include \"editor/register_exporters.h\"\n")
 set(reg_exporters "void register_exporters() {\n")
 foreach(e ${platform_exporters})
     string(REPLACE "/" ";" path_parts ${e})
@@ -85,7 +87,6 @@ foreach(tgt ${global_targets})
     target_link_libraries(edit_tools PRIVATE ${tgt}_core ${tgt}_modules)
     target_link_libraries(edit_tools PRIVATE ${tgt}_plug_registry)
 endforeach()
-set_common_target_properties(edit_tools)
 if(USE_UNITY_BUILDS)
     set_target_properties(edit_tools PROPERTIES UNITY_BUILD ON)
     set_target_properties(edit_tools PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE}) # NOTE: this has been reduce to allow VS2017 to preperly create obj file.

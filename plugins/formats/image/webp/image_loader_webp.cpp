@@ -134,9 +134,9 @@ Error ImageLoaderWEBP::save_image(const ImageData &p_image, FileAccess *p_fileac
     return OK;
 }
 
-bool ImageLoaderWEBP::can_save(se_string_view extension)
+bool ImageLoaderWEBP::can_save(StringView extension)
 {
-    return se_string_view("webp")==extension;
+    return StringView("webp")==extension;
 }
 
 void ImageLoaderWEBP::get_recognized_extensions(Vector<String> &p_extensions) const {

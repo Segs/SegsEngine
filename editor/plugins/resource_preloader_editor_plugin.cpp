@@ -63,7 +63,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
 
     for (int i = 0; i < p_paths.size(); i++) {
 
-        se_string_view path = p_paths[i];
+        StringView path = p_paths[i];
 
         RES resource;
         resource = ResourceLoader::load(path);
@@ -77,7 +77,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
             return; ///beh should show an error i guess
         }
 
-        se_string_view basename = PathUtils::get_basename(PathUtils::get_file(path));
+        StringView basename = PathUtils::get_basename(PathUtils::get_file(path));
         String name(basename);
         int counter = 1;
         while (preloader->has_resource(StringName(name))) {

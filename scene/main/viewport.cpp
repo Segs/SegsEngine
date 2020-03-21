@@ -1434,7 +1434,7 @@ Ref<InputEvent> Viewport::_make_input_local(const Ref<InputEvent> &ev) {
     return ev->xformed_by(ai, -vp_ofs);
 }
 
-void Viewport::_vp_input_text(se_string_view p_text) {
+void Viewport::_vp_input_text(StringView p_text) {
 
     if (gui.key_focus) {
         gui.key_focus->call_va("set_text", p_text);

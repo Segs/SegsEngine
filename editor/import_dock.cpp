@@ -104,7 +104,7 @@ void register_import_dock_classes()
 {
     ImportDockParameters::initialize_class();
 }
-void ImportDock::set_edit_path(se_string_view p_path) {
+void ImportDock::set_edit_path(StringView p_path) {
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
     Error err = config->load(String(p_path) + ".import");
@@ -152,7 +152,7 @@ void ImportDock::set_edit_path(se_string_view p_path) {
 
 void ImportDock::_update_options(const Ref<ConfigFile> &p_config) {
 
-    List<ResourceImporter::ImportOption> options;
+    Vector<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -179,7 +179,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
     clear();
 
     // Use the value that is repeated the most.
-    HashMap<se_string_view, Dictionary> value_frequency;
+    HashMap<StringView, Dictionary> value_frequency;
 
     for (size_t i = 0; i < p_paths.size(); i++) {
 
@@ -215,7 +215,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
 
     ERR_FAIL_COND(params->importer==nullptr);
 
-    List<ResourceImporter::ImportOption> options;
+    Vector<ResourceImporter::ImportOption> options;
     params->importer->get_import_options(&options);
 
     params->properties.clear();
@@ -358,7 +358,7 @@ void ImportDock::_preset_selected(int p_idx) {
         } break;
         default: {
 
-            List<ResourceImporter::ImportOption> options;
+            Vector<ResourceImporter::ImportOption> options;
 
             params->importer->get_import_options(&options, p_idx);
             if (params->checking) {
@@ -390,7 +390,7 @@ void ImportDock::clear() {
     preset->get_popup()->clear();
 }
 
-static bool _find_owners(EditorFileSystemDirectory *efsd, se_string_view p_path) {
+static bool _find_owners(EditorFileSystemDirectory *efsd, StringView p_path) {
 
     if (!efsd)
         return false;

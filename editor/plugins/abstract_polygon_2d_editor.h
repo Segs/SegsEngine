@@ -154,11 +154,11 @@ public:
     void forward_canvas_draw_over_viewport(Control *p_overlay) override { polygon_editor->forward_canvas_draw_over_viewport(p_overlay); }
 
     bool has_main_screen() const override { return false; }
-    se_string_view  get_name() const override { return klass; }
+    StringView  get_name() const override { return klass; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
     void make_visible(bool p_visible) override;
 
-    AbstractPolygon2DEditorPlugin(EditorNode *p_node, AbstractPolygon2DEditor *p_polygon_editor, se_string_view p_class);
+    AbstractPolygon2DEditorPlugin(EditorNode *p_node, AbstractPolygon2DEditor *p_polygon_editor, StringView p_class);
     ~AbstractPolygon2DEditorPlugin() override;
 };

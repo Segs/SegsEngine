@@ -51,7 +51,7 @@ void EditorInspectorPluginStyleBox::parse_begin(Object *p_object) {
     preview->edit(sb);
     add_custom_control(preview);
 }
-bool EditorInspectorPluginStyleBox::parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage) {
+bool EditorInspectorPluginStyleBox::parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) {
     return false; //do not want
 }
 void EditorInspectorPluginStyleBox::parse_end() {

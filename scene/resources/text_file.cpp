@@ -53,7 +53,7 @@ void TextFile::reload_from_file() {
     load_text(path);
 }
 
-Error TextFile::load_text(se_string_view p_path) {
+Error TextFile::load_text(StringView p_path) {
 
     PoolVector<uint8_t> sourcef;
     Error err;

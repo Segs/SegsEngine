@@ -845,12 +845,12 @@ void Translation::_set_messages(const PoolVector<String> &p_messages) {
     }
 }
 
-void Translation::set_locale(se_string_view p_locale) {
+void Translation::set_locale(StringView p_locale) {
 
     String univ_locale = TranslationServer::standardize_locale(p_locale);
 
     if (!TranslationServer::is_locale_valid(univ_locale)) {
-        se_string_view trimmed_locale = TranslationServer::get_language_code(univ_locale);
+        StringView trimmed_locale = TranslationServer::get_language_code(univ_locale);
 
         ERR_FAIL_COND_MSG(!TranslationServer::is_locale_valid(trimmed_locale), "Invalid locale: " + String(trimmed_locale) + ".");
 
@@ -916,7 +916,7 @@ Translation::Translation() :
 
 ///////////////////////////////////////////////
 
-bool TranslationServer::is_locale_valid(se_string_view p_locale) {
+bool TranslationServer::is_locale_valid(StringView p_locale) {
 
     const char **ptr = locale_list;
 
@@ -930,7 +930,7 @@ bool TranslationServer::is_locale_valid(se_string_view p_locale) {
     return false;
 }
 
-String TranslationServer::standardize_locale(se_string_view p_locale) {
+String TranslationServer::standardize_locale(StringView p_locale) {
 
     // Replaces '-' with '_' for macOS Sierra-style locales
     String univ_locale(p_locale);
@@ -948,7 +948,7 @@ String TranslationServer::standardize_locale(se_string_view p_locale) {
 
     return univ_locale;
 }
-se_string_view TranslationServer::get_language_code(se_string_view p_locale) {
+StringView TranslationServer::get_language_code(StringView p_locale) {
 
     ERR_FAIL_COND_V_MSG(p_locale.length() < 2, p_locale, "Invalid locale '" + p_locale + "'.");
     // Most language codes are two letters, but some are three,
@@ -964,12 +964,12 @@ se_string_view TranslationServer::get_language_code(se_string_view p_locale) {
     }
     return StringUtils::left(p_locale,split);
 }
-void TranslationServer::set_locale(se_string_view p_locale) {
+void TranslationServer::set_locale(StringView p_locale) {
 
     String univ_locale = standardize_locale(p_locale);
 
     if (!is_locale_valid(univ_locale)) {
-        se_string_view trimmed_locale = TranslationServer::get_language_code(univ_locale);
+        StringView trimmed_locale = TranslationServer::get_language_code(univ_locale);
         print_verbose(FormatVE("Unsupported locale '%.*s', falling back to '%.*s'.", p_locale.size(), p_locale,
                 trimmed_locale.size(), trimmed_locale));
 
@@ -995,7 +995,7 @@ const String &TranslationServer::get_locale() const {
     return locale;
 }
 
-String TranslationServer::get_locale_name(se_string_view p_locale) const {
+String TranslationServer::get_locale_name(StringView p_locale) const {
 
     auto iter = locale_name_map.find_as(p_locale);
     if(iter==locale_name_map.end())
@@ -1078,7 +1078,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
     // logic, so be sure to propagate changes there when changing things here.
 
     StringName res;
-    se_string_view lang = get_language_code(locale);
+    StringView lang = get_language_code(locale);
     bool near_match = false;
 
     for (const Ref<Translation> &t : translations) {
@@ -1110,7 +1110,7 @@ StringName TranslationServer::translate(const StringName &p_message) const {
 
     if (!res && fallback.length() >= 2) {
         // Try again with the fallback locale.
-        se_string_view fallback_lang = get_language_code(fallback);
+        StringView fallback_lang = get_language_code(fallback);
         near_match = false;
 
         for (const Ref<Translation> &t : translations) {

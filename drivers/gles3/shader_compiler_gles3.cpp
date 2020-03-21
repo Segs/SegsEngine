@@ -132,7 +132,7 @@ static int _get_datatype_alignment(SL::DataType p_type) {
 
     ERR_FAIL_V(0);
 }
-static se_string_view _interpstr(SL::DataInterpolation p_interp) {
+static StringView _interpstr(SL::DataInterpolation p_interp) {
 
     switch (p_interp) {
         case SL::INTERPOLATION_FLAT: return "flat "_sv;
@@ -141,7 +141,7 @@ static se_string_view _interpstr(SL::DataInterpolation p_interp) {
     return "";
 }
 
-static se_string_view _prestr(SL::DataPrecision p_pres) {
+static StringView _prestr(SL::DataPrecision p_pres) {
 
     switch (p_pres) {
         case SL::PRECISION_LOWP: return "lowp ";
@@ -152,7 +152,7 @@ static se_string_view _prestr(SL::DataPrecision p_pres) {
     return "";
 }
 
-static se_string_view _qualstr(SL::ArgumentQualifier p_qual) {
+static StringView _qualstr(SL::ArgumentQualifier p_qual) {
 
     switch (p_qual) {
         case SL::ARGUMENT_QUALIFIER_IN: return "";
@@ -162,7 +162,7 @@ static se_string_view _qualstr(SL::ArgumentQualifier p_qual) {
     return "";
 }
 
-static se_string_view _opstr(SL::Operator p_op) {
+static StringView _opstr(SL::Operator p_op) {
 
     return SL::get_operator_text(p_op);
 }
@@ -825,7 +825,7 @@ Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const String &p_code, 
             ShaderTypes::get_singleton()->get_modes(p_mode), ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
-        Vector<se_string_view> shader;
+        Vector<StringView> shader;
         String::split_ref(shader,p_code,'\n');
 
         for (size_t i = 0; i < shader.size(); i++) {

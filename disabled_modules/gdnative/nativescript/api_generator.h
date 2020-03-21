@@ -35,6 +35,6 @@
 #include "core/error_list.h"
 using String = class QString;
 
-Error generate_c_api(se_string_view p_path);
+Error generate_c_api(StringView p_path);
 
 #endif // API_GENERATOR_H

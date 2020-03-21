@@ -166,7 +166,7 @@ static String _get_var_type(const Variant *p_var) {
 }
 #endif // DEBUG_ENABLED
 
-String GDScriptFunction::_get_call_error(const Variant::CallError &p_err, se_string_view p_where, const Variant **argptrs) const {
+String GDScriptFunction::_get_call_error(const Variant::CallError &p_err, StringView p_where, const Variant **argptrs) const {
 
     String err_text;
 

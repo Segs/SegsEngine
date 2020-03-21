@@ -97,7 +97,7 @@ public:
         return f.file_exists(p_name);
     }
 
-    Error _open(se_string_view p_path, int p_mode_flags) {
+    Error _open(StringView p_path, int p_mode_flags) {
 
         close();
 

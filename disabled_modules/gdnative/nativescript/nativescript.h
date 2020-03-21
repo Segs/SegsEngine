@@ -313,13 +313,13 @@ public:
     void init() override;
     String get_type() const override;
     String get_extension() const override;
-    Error execute_file(se_string_view p_path) override;
+    Error execute_file(StringView p_path) override;
     void finish() override;
     void get_reserved_words(List<String> *p_words) const override;
     void get_comment_delimiters(List<String> *p_delimiters) const override;
     void get_string_delimiters(List<String> *p_delimiters) const override;
-    Ref<Script> get_template(se_string_view p_class_name, const String &p_base_class_name) const override;
-    bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path, List<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
+    Ref<Script> get_template(StringView p_class_name, const String &p_base_class_name) const override;
+    bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error, StringView p_path, List<String> *r_functions, List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
@@ -332,9 +332,9 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
-    void debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_locals(int p_level, Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_stack_level_members(int p_level, Vector<StringView> *p_members, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
+    void debug_get_globals(Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems, int p_max_depth) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems, int p_max_depth) override;
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
@@ -359,8 +359,8 @@ public:
     void set_global_type_tag(int p_idx, StringName p_class_name, const void *p_type_tag);
     const void *get_global_type_tag(int p_idx, StringName p_class_name) const;
 
-    bool handles_global_class_type(se_string_view p_type) const override;
-    String get_global_class_name(se_string_view p_path, String *r_base_type, String *r_icon_path) const override;
+    bool handles_global_class_type(StringView p_type) const override;
+    String get_global_class_name(StringView p_path, String *r_base_type, String *r_icon_path) const override;
 
     void profiling_add_data(StringName p_signature, uint64_t p_time);
 };
@@ -386,14 +386,14 @@ public:
 
 class ResourceFormatLoaderNativeScript : public ResourceFormatLoader {
 public:
-    RES load(se_string_view p_path, const String &p_original_path = String(), Error *r_error = nullptr) override;
+    RES load(StringView p_path, const String &p_original_path = String(), Error *r_error = nullptr) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool handles_type(const String &p_type) const override;
-    String get_resource_type(se_string_view p_path) const override;
+    String get_resource_type(StringView p_path) const override;
 };
 
 class ResourceFormatSaverNativeScript : public ResourceFormatSaver {
-    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
+    Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     bool recognize(const RES &p_resource) const override;
     void get_recognized_extensions(const RES &p_resource, Vector<String> *p_extensions) const override;
 };

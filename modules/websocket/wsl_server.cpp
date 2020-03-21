@@ -47,11 +47,11 @@ WSLServer::PendingPeer::PendingPeer() {
 }
 
 bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocols) {
-    Vector<se_string_view> psa = StringUtils::split(se_string_view((const char *)req_buf),"\r\n");
+    Vector<StringView> psa = StringUtils::split(StringView((const char *)req_buf),"\r\n");
     int len = psa.size();
     ERR_FAIL_COND_V_MSG(len < 4, false, "Not enough response headers, got: " + itos(len) + ", expected >= 4.");
 
-    Vector<se_string_view> req = StringUtils::split(psa[0]," ", false);
+    Vector<StringView> req = StringUtils::split(psa[0]," ", false);
     ERR_FAIL_COND_V_MSG(req.size() < 2, false, "Invalid protocol or status code.");
 
     // Wrong protocol
@@ -59,10 +59,10 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocol
 
     Map<String, String> headers;
     for (int i = 1; i < len; i++) {
-        Vector<se_string_view> header = StringUtils::split(psa[i],":", false, 1);
+        Vector<StringView> header = StringUtils::split(psa[i],":", false, 1);
         ERR_FAIL_COND_V_MSG(header.size() != 2, false, String("Invalid header -> ") + psa[i]);
         String name = StringUtils::to_lower(header[0]);
-        se_string_view value =StringUtils::strip_edges( header[1]);
+        StringView value =StringUtils::strip_edges( header[1]);
         if (headers.contains(name))
             headers[name] += String(",") + value;
         else
@@ -81,12 +81,12 @@ bool WSLServer::PendingPeer::_parse_request(const PoolVector<String> &p_protocol
 #undef _WSL_CHECK
     key = headers["sec-websocket-key"];
     if (headers.contains("sec-websocket-protocol")) {
-        Vector<se_string_view> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
+        Vector<StringView> protos = StringUtils::split(headers["sec-websocket-protocol"],",");
         for (int i = 0; i < protos.size(); i++) {
             auto proto = StringUtils::strip_edges(protos[i]);
             // Check if we have the given protocol
             for (int j = 0; j < p_protocols.size(); j++) {
-                if (proto != se_string_view(p_protocols[j]))
+                if (proto != StringView(p_protocols[j]))
                     continue;
                 protocol = proto;
                 break;
@@ -288,7 +288,7 @@ int WSLServer::get_peer_port(int p_peer_id) const {
     return _peer_map.at(p_peer_id)->get_connected_port();
 }
 
-void WSLServer::disconnect_peer(int p_peer_id, int p_code, se_string_view p_reason) {
+void WSLServer::disconnect_peer(int p_peer_id, int p_code, StringView p_reason) {
     ERR_FAIL_COND(!has_peer(p_peer_id));
 
     get_peer(p_peer_id)->close(p_code, p_reason);

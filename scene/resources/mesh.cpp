@@ -579,9 +579,9 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
         int idx = StringUtils::to_int(StringUtils::substr(p_name,8, sl - 8)) - 1;
         StringName what( StringUtils::get_slice(p_name,'/', 1));
-        if (what == se_string_view("material"))
+        if (what == StringView("material"))
             surface_set_material(idx, refFromRefPtr<Material>(p_value));
-        else if (what == se_string_view("name"))
+        else if (what == StringView("name"))
             surface_set_name(idx, p_value.as<String>());
         return true;
     }
@@ -966,7 +966,7 @@ int ArrayMesh::surface_find_by_name(const String &p_name) const {
     return -1;
 }
 
-void ArrayMesh::surface_set_name(int p_idx, se_string_view p_name) {
+void ArrayMesh::surface_set_name(int p_idx, StringView p_name) {
 
     ERR_FAIL_INDEX(p_idx, surfaces.size());
 

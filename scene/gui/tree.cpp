@@ -174,7 +174,7 @@ bool TreeItem::is_checked(int p_column) const {
     return cells[p_column].checked;
 }
 
-void TreeItem::set_text_utf8(int p_column, se_string_view p_text)
+void TreeItem::set_text_utf8(int p_column, StringView p_text)
 {
     set_text(p_column,StringName(p_text));
 }
@@ -186,7 +186,7 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
 
     if (cells[p_column].mode == TreeItem::CELL_MODE_RANGE) {
 
-        Vector<se_string_view> strings = StringUtils::split(p_text,',');
+        Vector<StringView> strings = StringUtils::split(p_text,',');
         cells[p_column].min = INT_MAX;
         cells[p_column].max = INT_MIN;
         for (size_t i = 0; i < strings.size(); i++) {
@@ -1365,7 +1365,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                         int option = (int)p_item->cells[i].val;
 
                         String s(RTR("(Other)"));
-                        Vector<se_string_view> strings = StringUtils::split(p_item->cells[i].text,',');
+                        Vector<StringView> strings = StringUtils::split(p_item->cells[i].text,',');
                         for (size_t j = 0; j < strings.size(); j++) {
                             int value = j;
                             if (!StringUtils::get_slice(strings[j],':', 1).empty()) {
@@ -1939,7 +1939,7 @@ int Tree::propagate_mouse_event(const Point2i &p_pos, int x_ofs, int y_ofs, bool
                     popup_menu->clear();
                     for (int i = 0; i < StringUtils::get_slice_count(c.text,','); i++) {
 
-                        se_string_view s = StringUtils::get_slice(c.text,',', i);
+                        StringView s = StringUtils::get_slice(c.text,',', i);
                         popup_menu->add_item(StringName(StringUtils::get_slice(s,':', 0)), StringUtils::get_slice(s,':', 1).empty() ? i : StringUtils::to_int(StringUtils::get_slice(s,':', 1)));
                     }
 
@@ -2820,7 +2820,7 @@ bool Tree::edit_selected() {
         popup_menu->clear();
         for (int i = 0; i < StringUtils::get_slice_count(c.text,','); i++) {
 
-            se_string_view s2 = StringUtils::get_slice(c.text,',', i);
+            StringView s2 = StringUtils::get_slice(c.text,',', i);
             popup_menu->add_item(StringName(StringUtils::get_slice(s2,':', 0)), StringUtils::get_slice(s2,':', 1).empty() ? i : StringUtils::to_int(StringUtils::get_slice(s2,':', 1)));
         }
 
@@ -3626,7 +3626,7 @@ void Tree::scroll_to_item(TreeItem *p_item) {
     }
 }
 
-TreeItem *Tree::_search_item_text(TreeItem *p_at, se_string_view p_find, int *r_col, bool p_selectable, bool p_backwards) {
+TreeItem *Tree::_search_item_text(TreeItem *p_at, StringView p_find, int *r_col, bool p_selectable, bool p_backwards) {
 
     TreeItem *from = p_at;
     while (p_at) {
@@ -3651,7 +3651,7 @@ TreeItem *Tree::_search_item_text(TreeItem *p_at, se_string_view p_find, int *r_
     return nullptr;
 }
 
-TreeItem *Tree::search_item_text(se_string_view p_find, int *r_col, bool p_selectable) {
+TreeItem *Tree::search_item_text(StringView p_find, int *r_col, bool p_selectable) {
 
     TreeItem *from = get_selected();
 

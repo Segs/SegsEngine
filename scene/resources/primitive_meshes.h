@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PRIMITIVE_MESHES_H
-#define PRIMITIVE_MESHES_H
+#pragma once
 
 #include "scene/resources/mesh.h"
 
@@ -41,7 +40,7 @@
     Base class for all the classes in this file, handles a number of code functions that are shared among all meshes.
     This class is set apart that it assumes a single surface is always generated for our mesh.
 */
-class PrimitiveMesh : public Mesh {
+class GODOT_EXPORT PrimitiveMesh : public Mesh {
 
     GDCLASS(PrimitiveMesh,Mesh)
 
@@ -99,7 +98,7 @@ public:
 /**
     Mesh for a simple capsule
 */
-class CapsuleMesh : public PrimitiveMesh {
+class GODOT_EXPORT CapsuleMesh : public PrimitiveMesh {
     GDCLASS(CapsuleMesh,PrimitiveMesh)
 
 private:
@@ -131,7 +130,7 @@ public:
 /**
     Similar to test cube but with subdivision support and different texture coordinates
 */
-class CubeMesh : public PrimitiveMesh {
+class GODOT_EXPORT CubeMesh : public PrimitiveMesh {
 
     GDCLASS(CubeMesh,PrimitiveMesh)
 
@@ -338,5 +337,3 @@ protected:
 public:
     PointMesh();
 };
-
-#endif

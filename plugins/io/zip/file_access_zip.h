@@ -64,14 +64,14 @@ private:
 
 public:
 	void close_handle(unzFile p_file) const;
-    unzFile get_file_handle(se_string_view p_file) const;
+    unzFile get_file_handle(StringView p_file) const;
 
 	Error add_package(UIString p_name);
 
-    bool file_exists(se_string_view p_name) const;
+    bool file_exists(StringView p_name) const;
 
-	bool try_open_pack(se_string_view p_path, bool p_replace_files) override;
-    FileAccess *get_file(se_string_view p_path, PackedDataFile *p_file) override;
+	bool try_open_pack(StringView p_path, bool p_replace_files) override;
+    FileAccess *get_file(StringView p_path, PackedDataFile *p_file) override;
 
 	static ZipArchive *get_singleton();
 

@@ -48,7 +48,7 @@ public:
     void set_search_text(String p_pattern);
     void set_whole_words(bool p_whole_word);
     void set_match_case(bool p_match_case);
-    void set_folder(se_string_view folder);
+    void set_folder(StringView folder);
     void set_filter(const Set<String> &exts);
 
     const String & get_search_text() const { return _pattern; }
@@ -70,8 +70,8 @@ protected:
 private:
     void _process();
     void _iterate();
-    void _scan_dir(se_string_view path, PoolVector<String> &out_folders);
-    void _scan_file(se_string_view fpath);
+    void _scan_dir(StringView path, PoolVector<String> &out_folders);
+    void _scan_file(StringView fpath);
 
     // Config
     String _pattern;
@@ -103,7 +103,7 @@ public:
 
     FindInFilesDialog();
 
-    void set_search_text(se_string_view text);
+    void set_search_text(StringView text);
 
     String get_search_text() const;
     bool is_match_case() const;
@@ -115,13 +115,13 @@ protected:
     static void _bind_methods();
 
     void _notification(int p_what);
-    void custom_action(se_string_view p_action) override;
+    void custom_action(StringView p_action) override;
 
 private:
     void _on_folder_button_pressed();
-    void _on_folder_selected(se_string_view path);
-    void _on_search_text_modified(se_string_view text);
-    void _on_search_text_entered(se_string_view text);
+    void _on_folder_selected(StringView path);
+    void _on_search_text_modified(StringView text);
+    void _on_search_text_entered(StringView text);
 
     LineEdit *_search_text_line_edit;
     LineEdit *_folder_line_edit;
@@ -162,12 +162,12 @@ protected:
     void _notification(int p_what);
 
 private:
-    void _on_result_found(se_string_view fpath, int line_number, int begin, int end, const String &text);
+    void _on_result_found(StringView fpath, int line_number, int begin, int end, const String &text);
     void _on_finished();
     void _on_cancel_button_clicked();
     void _on_result_selected();
     void _on_item_edited();
-    void _on_replace_text_changed(se_string_view text);
+    void _on_replace_text_changed(StringView text);
     void _on_replace_all_clicked();
 
     struct Result {
@@ -178,7 +178,7 @@ private:
         float draw_width;
     };
 
-    void apply_replaces_in_file(se_string_view fpath, const Vector<Result> &locations, se_string_view new_text);
+    void apply_replaces_in_file(StringView fpath, const Vector<Result> &locations, StringView new_text);
     void update_replace_buttons();
     String get_replace_text();
 

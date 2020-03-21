@@ -10,11 +10,11 @@ using String = eastl::basic_string<char,wrap_allocator>;
 template<int node_count, bool bEnableOverflow = true>
 using TmpString = eastl::fixed_string<char,node_count,bEnableOverflow,wrap_allocator>;
 
-using se_string_view = eastl::basic_string_view<char>;
+using StringView = eastl::basic_string_view<char>;
 
 constexpr char c_cursor_marker(-1); // invalid utf8 char to symbolize a cursor in a string
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::basic_string<char, wrap_allocator>;
-extern const String null_se_string; // used to return 'null' string reference
+extern const String null_string; // used to return 'null' string reference
 
 template<>
 struct Hasher<String> {
@@ -22,8 +22,8 @@ struct Hasher<String> {
 };
 namespace StringUtils {
 
-static inline uint32_t hash(se_string_view sv) {
-    return uint32_t(eastl::hash<se_string_view>()(sv));
+static inline uint32_t hash(StringView sv) {
+    return uint32_t(eastl::hash<StringView>()(sv));
 }
 }
 namespace eastl {

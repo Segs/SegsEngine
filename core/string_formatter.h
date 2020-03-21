@@ -1,5 +1,5 @@
 #pragma once
-#include "core/se_string.h"
+#include "core/string.h"
 //#include "thirdparty/fmt/fmt/format.h"
 //#include "thirdparty/fmt/fmt/core.h"
 

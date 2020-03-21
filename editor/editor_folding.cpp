@@ -54,7 +54,7 @@ PoolVector<String> EditorFolding::_get_unfolds(const Object *p_object) {
     return sections;
 }
 
-void EditorFolding::save_resource_folding(const RES &p_resource, se_string_view p_path) {
+void EditorFolding::save_resource_folding(const RES &p_resource, StringView p_path) {
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
     PoolVector<String> unfolds = _get_unfolds(p_resource.get());
     config->set_value("folding", "sections_unfolded", unfolds);
@@ -74,7 +74,7 @@ void EditorFolding::_set_unfolds(Object *p_object, const PoolVector<String> &p_u
     }
 }
 
-void EditorFolding::load_resource_folding(const RES& p_resource, se_string_view p_path) {
+void EditorFolding::load_resource_folding(const RES& p_resource, StringView p_path) {
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
@@ -134,7 +134,7 @@ void EditorFolding::_fill_folds(const Node *p_root, const Node *p_node, Array &p
         _fill_folds(p_root, p_node->get_child(i), p_folds, resource_folds, nodes_folded, resources);
     }
 }
-void EditorFolding::save_scene_folding(const Node *p_scene, se_string_view p_path) {
+void EditorFolding::save_scene_folding(const Node *p_scene, StringView p_path) {
     FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
     if (!file_check->file_exists(p_path)) //This can happen when creating scene from FilesystemDock. It has path, but no file.
         return;
@@ -154,7 +154,7 @@ void EditorFolding::save_scene_folding(const Node *p_scene, se_string_view p_pat
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);
     config->save(file);
 }
-void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
+void EditorFolding::load_scene_folding(Node *p_scene, StringView p_path) {
 
     Ref<ConfigFile> config(make_ref_counted<ConfigFile>());
 
@@ -215,7 +215,7 @@ void EditorFolding::load_scene_folding(Node *p_scene, se_string_view p_path) {
     }
 }
 
-bool EditorFolding::has_folding_data(se_string_view p_path) {
+bool EditorFolding::has_folding_data(StringView p_path) {
 
     String file = String(PathUtils::get_file(p_path)) + "-folding-" + StringUtils::md5_text(p_path) + ".cfg";
     file = PathUtils::plus_file(EditorSettings::get_singleton()->get_project_settings_dir(),file);

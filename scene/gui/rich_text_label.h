@@ -32,7 +32,7 @@
 
 #include "rich_text_effect.h"
 #include "scene/gui/scroll_bar.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 struct RichTextItem;
 struct RichTextItemFrame;
@@ -179,7 +179,7 @@ private:
     RichTextItem *_get_prev_item(RichTextItem *p_item, bool p_free = false);
 
     Rect2 _get_text_rect();
-    Ref<RichTextEffect> _get_custom_effect_by_code(se_string_view p_bbcode_identifier);
+    Ref<RichTextEffect> _get_custom_effect_by_code(StringView p_bbcode_identifier);
 
     void _update_all_lines();
 
@@ -191,7 +191,7 @@ protected:
 
 public:
     String get_text();
-    void add_text(se_string_view p_text);
+    void add_text(StringView p_text);
     void add_text_uistring(const UIString &p_text);
     void add_image(const Ref<Texture> &p_image, const int p_width = 0, const int p_height = 0);
     void add_newline();
@@ -256,16 +256,16 @@ public:
     bool is_selection_enabled() const;
     void selection_copy();
 
-    Error parse_bbcode(se_string_view p_bbcode);
-    Error append_bbcode(se_string_view p_bbcode);
+    Error parse_bbcode(StringView p_bbcode);
+    Error append_bbcode(StringView p_bbcode);
 
     void set_use_bbcode(bool p_enable);
     bool is_using_bbcode() const;
 
-    void set_bbcode(se_string_view p_bbcode);
+    void set_bbcode(StringView p_bbcode);
     const String &get_bbcode() const;
 
-    void set_text_utf8(se_string_view p_string);
+    void set_text_utf8(StringView p_string);
     void set_text(const UIString &p_string);
 
     void set_visible_characters(int p_visible);

@@ -45,7 +45,7 @@
 #include "EASTL/sort.h"
 
 //NOTE: this function is also used in doc_dump.cpp
-void _write_string(FileAccess *f, int p_tablevel, se_string_view p_string) {
+void _write_string(FileAccess *f, int p_tablevel, StringView p_string) {
 
     if (p_string.empty())
         return;
@@ -627,10 +627,10 @@ void DocData::generate(bool p_basic_types) {
             }
             pd.name = s.name;
             pd.type = StringName(s.ptr->get_class());
-            while (ClassDB::get_parent_class(pd.type) != se_string_view("Object"))
+            while (ClassDB::get_parent_class(pd.type) != StringView("Object"))
                 pd.type = ClassDB::get_parent_class(pd.type);
             if (StringUtils::begins_with(pd.type,"_"))
-                pd.type = StringName(StringUtils::substr(pd.type,1, se_string_view(pd.type).size()));
+                pd.type = StringName(StringUtils::substr(pd.type,1, StringView(pd.type).size()));
             c.properties.push_back(pd);
         }
     }
@@ -682,10 +682,10 @@ void DocData::generate(bool p_basic_types) {
                 c.methods.push_back(md);
             }
 
-            Vector<Pair<se_string_view, Variant> > cinfo;
+            Vector<Pair<StringView, Variant> > cinfo;
             lang->get_public_constants(&cinfo);
 
-            for (const Pair<se_string_view, Variant> & E : cinfo) {
+            for (const Pair<StringView, Variant> & E : cinfo) {
 
                 ConstantDoc cd;
                 cd.name = E.first;
@@ -699,7 +699,7 @@ void DocData::generate(bool p_basic_types) {
 static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &methods) {
 
     const String section(parser->get_node_name());
-    se_string_view element = StringUtils::substr(section,0, section.length() - 1);
+    StringView element = StringUtils::substr(section,0, section.length() - 1);
 
     while (parser->read() == OK) {
 
@@ -762,7 +762,7 @@ static Error _parse_methods(Ref<XMLParser> &parser, Vector<DocData::MethodDoc> &
     return OK;
 }
 
-Error DocData::load_classes(se_string_view p_dir) {
+Error DocData::load_classes(StringView p_dir) {
 
     Error err;
     DirAccessRef da = DirAccess::open(p_dir, &err);
@@ -788,7 +788,7 @@ Error DocData::load_classes(se_string_view p_dir) {
 
     return OK;
 }
-Error DocData::erase_classes(se_string_view p_dir) {
+Error DocData::erase_classes(StringView p_dir) {
 
     Error err;
     DirAccessRef da = DirAccess::open(p_dir, &err);
@@ -992,7 +992,7 @@ Error DocData::_load(Ref<XMLParser> parser) {
     return OK;
 }
 
-Error DocData::save_classes(se_string_view p_default_path, const HashMap<StringName, String> &p_class_path) {
+Error DocData::save_classes(StringView p_default_path, const HashMap<StringName, String> &p_class_path) {
 
     for (eastl::pair<const StringName,ClassDoc> &E : class_list) {
 

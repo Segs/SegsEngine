@@ -35,7 +35,7 @@
 #include "core/method_bind.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include "editor/editor_node.h"
 IMPL_GDCLASS(GDNativeLibrarySingletonEditor)

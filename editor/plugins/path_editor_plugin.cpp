@@ -648,7 +648,7 @@ Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Spatial *p_spatial)
     return ref;
 }
 
-se_string_view PathSpatialGizmoPlugin::get_name() const {
+StringView PathSpatialGizmoPlugin::get_name() const {
     return "Path";
 }
 

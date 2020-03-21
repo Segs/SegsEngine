@@ -1915,7 +1915,7 @@ void TextEdit::_notification(int p_what) {
                 int spacing = 0;
                 for (int i = 0; i < sc; i++) {
 
-                    se_string_view l = StringUtils::get_slice(completion_hint,"\n", i);
+                    StringView l = StringUtils::get_slice(completion_hint,"\n", i);
                     int len = font->get_string_size(l).x;
                     max_w = MAX(len, max_w);
                     if (i == 0) {
@@ -1946,7 +1946,7 @@ void TextEdit::_notification(int p_what) {
                 for (int i = 0; i < sc; i++) {
                     int begin = 0;
                     int end = 0;
-                    se_string_view l = StringUtils::get_slice(completion_hint,"\n", i);
+                    StringView l = StringUtils::get_slice(completion_hint,"\n", i);
                     //TODO: replace construction of Strings here with 'char' search
                     if (StringUtils::contains(l,c_cursor_marker)) {
                         begin = font->get_string_size(StringUtils::substr(l,0, StringUtils::find(l,c_cursor_marker))).x;
@@ -4945,7 +4945,7 @@ void TextEdit::insert_text_at_cursor(const UIString &p_text) {
     _insert_text_at_cursor(p_text);
     update();
 }
-void TextEdit::insert_text_at_cursor_utf8(se_string_view _text) {
+void TextEdit::insert_text_at_cursor_utf8(StringView _text) {
     insert_text_at_cursor(StringUtils::from_utf8(_text));
 }
 Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
@@ -5316,7 +5316,7 @@ void TextEdit::clear_colors() {
     update();
 }
 
-void TextEdit::add_keyword_color(se_string_view p_keyword, const Color &p_color) {
+void TextEdit::add_keyword_color(StringView p_keyword, const Color &p_color) {
 
     m_priv->keywords[StringUtils::from_utf8(p_keyword)] = p_color;
     m_priv->syntax_highlighting_cache.clear();
@@ -5326,7 +5326,7 @@ void TextEdit::add_keyword_color(se_string_view p_keyword, const Color &p_color)
 bool TextEdit::has_keyword_color_uistr(const UIString& p_keyword) const {
     return m_priv->keywords.contains(p_keyword);
 }
-bool TextEdit::has_keyword_color(se_string_view p_keyword) const {
+bool TextEdit::has_keyword_color(StringView p_keyword) const {
     return m_priv->keywords.contains(StringUtils::from_utf8(p_keyword));
 }
 Color TextEdit::get_keyword_color_uistr(const UIString& p_keyword) const {
@@ -5335,14 +5335,14 @@ Color TextEdit::get_keyword_color_uistr(const UIString& p_keyword) const {
     ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color());
     return iter->second;
 }
-Color TextEdit::get_keyword_color(se_string_view p_keyword) const {
+Color TextEdit::get_keyword_color(StringView p_keyword) const {
 
     auto iter = m_priv->keywords.find(StringUtils::from_utf8(p_keyword));
     ERR_FAIL_COND_V(iter==m_priv->keywords.end(), Color());
     return iter->second;
 }
 
-void TextEdit::add_color_region(se_string_view p_begin_key, se_string_view p_end_key, const Color &p_color, bool p_line_only) {
+void TextEdit::add_color_region(StringView p_begin_key, StringView p_end_key, const Color &p_color, bool p_line_only) {
 
     m_priv->color_regions.emplace_back(StringUtils::from_utf8(p_begin_key), StringUtils::from_utf8(p_end_key), p_color, p_line_only);
     m_priv->syntax_highlighting_cache.clear();
@@ -5350,7 +5350,7 @@ void TextEdit::add_color_region(se_string_view p_begin_key, se_string_view p_end
     update();
 }
 
-void TextEdit::add_member_keyword(se_string_view p_keyword, const Color &p_color) {
+void TextEdit::add_member_keyword(StringView p_keyword, const Color &p_color) {
     m_priv->member_keywords[StringUtils::from_utf8(p_keyword)] = p_color;
     m_priv->syntax_highlighting_cache.clear();
     update();
@@ -5661,7 +5661,7 @@ int TextEdit::_get_column_pos_of_word(const UIString &p_key, const UIString &p_s
     return col;
 }
 
-PoolVector<int> TextEdit::_search_bind(se_string_view _key, uint32_t p_search_flags, int p_from_line, int p_from_column) const {
+PoolVector<int> TextEdit::_search_bind(StringView _key, uint32_t p_search_flags, int p_from_line, int p_from_column) const {
 
     UIString p_key(StringUtils::from_utf8(_key));
     int col, line;
@@ -6464,7 +6464,7 @@ bool TextEdit::is_insert_text_operation() {
     return (current_op.type == TextOperation::TYPE_INSERT);
 }
 
-void TextEdit::set_text_utf8(se_string_view p_text)
+void TextEdit::set_text_utf8(StringView p_text)
 {
     set_text(StringUtils::from_utf8(p_text));
 }
@@ -6944,7 +6944,7 @@ void TextEdit::set_tooltip_request_func(Object *p_obj, const StringName &p_funct
     tooltip_ud = p_udata;
 }
 
-void TextEdit::set_line(int line, se_string_view _new_text) {
+void TextEdit::set_line(int line, StringView _new_text) {
     UIString new_text(StringUtils::from_utf8(_new_text));
     if (line < 0 || line > m_priv->text.size())
         return;

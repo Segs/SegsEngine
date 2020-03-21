@@ -141,7 +141,7 @@ static void _display_error_with_code(const String &p_error, const CONTAINER &p_c
 
     int line = 1;
     String total_code = String::joined(p_code,"");
-    Vector<se_string_view> lines;
+    Vector<StringView> lines;
     String::split_ref(lines,total_code,'\n');
 
     for (size_t j = 0; j < lines.size(); j++) {
@@ -212,10 +212,10 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     }
 
     //keep them around during the function
-    se_string_view code_string;
-    se_string_view code_string2;
-    se_string_view code_globals;
-    se_string_view material_string;
+    StringView code_string;
+    StringView code_string2;
+    StringView code_globals;
+    StringView material_string;
 
     CustomCode *cc = nullptr;
 
@@ -533,7 +533,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     return &v;
 }
 
-GLint ShaderGLES3::get_uniform_location(se_string_view p_name) const {
+GLint ShaderGLES3::get_uniform_location(StringView p_name) const {
 
     ERR_FAIL_COND_V(!version, -1);
     return glGetUniformLocation(version->id, p_name.data());
@@ -581,7 +581,7 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
             } else {
 
                 vertex_code1 = code.substr(0, cpos);
-                se_string_view code2 = se_string_view(code).substr(cpos + globals_tag.length());
+                StringView code2 = StringView(code).substr(cpos + globals_tag.length());
 
                 cpos = code2.find(code_tag);
                 if (cpos == code2.npos) {
@@ -601,7 +601,7 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
         String material_tag("\nMATERIAL_UNIFORMS");
         String code_tag("\nFRAGMENT_SHADER_CODE");
         String light_code_tag("\nLIGHT_SHADER_CODE");
-        se_string_view code(fragment_code);
+        StringView code(fragment_code);
         auto cpos = code.find(material_tag);
         if (cpos == code.npos) {
             fragment_code0 = code;
@@ -621,7 +621,7 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
         fragment_code1 = code.substr(0, cpos);
         //print_line("CODE1:\n"+String(fragment_code1.data()));
 
-        se_string_view code2 = se_string_view(code).substr(cpos + globals_tag.length());
+        StringView code2 = StringView(code).substr(cpos + globals_tag.length());
         cpos = code2.find(light_code_tag);
 
         if (cpos == code2.npos) {
@@ -631,7 +631,7 @@ void ShaderGLES3::setup(const char **p_conditional_defines, int p_conditional_co
         fragment_code2 = code2.substr(0, cpos);
         //print_line("CODE2:\n"+String(fragment_code2.data()));
 
-        se_string_view code3 = code2.substr(cpos + light_code_tag.length());
+        StringView code3 = code2.substr(cpos + light_code_tag.length());
 
         cpos = code3.find(code_tag);
         if (cpos == code3.npos) {

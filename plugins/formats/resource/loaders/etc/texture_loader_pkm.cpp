@@ -46,7 +46,7 @@ struct ETC1Header {
     uint16_t origHeight;
 };
 
-RES ResourceFormatPKM::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatPKM::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_CANT_OPEN;
@@ -106,12 +106,12 @@ void ResourceFormatPKM::get_recognized_extensions(Vector<String> &p_extensions) 
     p_extensions.push_back("pkm");
 }
 
-bool ResourceFormatPKM::handles_type(se_string_view p_type) const {
+bool ResourceFormatPKM::handles_type(StringView p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Texture");
 }
 
-String ResourceFormatPKM::get_resource_type(se_string_view p_path) const {
+String ResourceFormatPKM::get_resource_type(StringView p_path) const {
 
     if (StringUtils::to_lower(PathUtils::get_extension(p_path)) == "pkm")
         return "ImageTexture";

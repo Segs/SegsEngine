@@ -56,7 +56,7 @@ struct ErrorHandlerList {
 /**
  * Pointer to the error macro printing function. Reassign to any function to have errors printed
  */
-    using ErrorHandlerFunc = void (*)(void *, se_string_view, se_string_view, int, se_string_view, se_string_view, ErrorHandlerType);
+    using ErrorHandlerFunc = void (*)(void *, StringView, StringView, int, StringView, StringView, ErrorHandlerType);
 
     ErrorHandlerFunc errfunc = nullptr;
     void *userdata = nullptr;
@@ -65,8 +65,8 @@ struct ErrorHandlerList {
 
 GODOT_EXPORT void add_error_handler(ErrorHandlerList *p_handler);
 GODOT_EXPORT void remove_error_handler(ErrorHandlerList *p_handler);
-GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, se_string_view p_error, se_string_view p_message ={}, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
-GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, se_string_view p_index_str, se_string_view p_size_str, se_string_view p_message, bool fatal = false);
+GODOT_EXPORT void _err_print_error(const char *p_function, const char *p_file, int p_line, StringView p_error, StringView p_message ={}, ErrorHandlerType p_type = ERR_HANDLER_ERROR);
+GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, StringView p_index_str, StringView p_size_str, StringView p_message, bool fatal = false);
 
 
 #ifndef _STR

@@ -56,7 +56,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
 
     if (!tile_map.contains(id))
         create_tile(id);
-    se_string_view what(StringUtils::substr(p_name,slash + 1));
+    StringView what(StringUtils::substr(p_name,slash + 1));
 
     if (what == "name"_sv)
         tile_set_name(id, p_value.as<String>());
@@ -80,7 +80,7 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
         bool is_autotile = p_value;
         if (is_autotile)
             tile_set_tile_mode(id, AUTO_TILE);
-    } else if (StringUtils::left(what,9) == se_string_view("autotile/")) {
+    } else if (StringUtils::left(what,9) == StringView("autotile/")) {
         what = StringName(StringUtils::right(what,9));
         if (what == "bitmask_mode"_sv)
             autotile_set_bitmask_mode(id, (BitmaskMode)((int)p_value));
@@ -235,7 +235,7 @@ bool TileSet::_get(const StringName &p_name, Variant &r_ret) const {
 
     ERR_FAIL_COND_V(!tile_map.contains(id), false);
 
-    se_string_view what = StringUtils::substr(n,slash + 1);
+    StringView what = StringUtils::substr(n,slash + 1);
 
     if (what == "name"_sv)
         r_ret = tile_get_name(id);
@@ -721,7 +721,7 @@ Vector2 TileSet::atlastile_get_subtile_by_priority(int p_id, const Node *p_tilem
     }
 }
 
-void TileSet::tile_set_name(int p_id, se_string_view p_name) {
+void TileSet::tile_set_name(int p_id, StringView p_name) {
 
     ERR_FAIL_COND(!tile_map.contains(p_id));
     tile_map[p_id].name = p_name;
@@ -731,7 +731,7 @@ void TileSet::tile_set_name(int p_id, se_string_view p_name) {
 
 const String &TileSet::tile_get_name(int p_id) const {
 
-    ERR_FAIL_COND_V(!tile_map.contains(p_id), null_se_string);
+    ERR_FAIL_COND_V(!tile_map.contains(p_id), null_string);
     return tile_map.at(p_id).name;
 }
 
@@ -1149,11 +1149,11 @@ int TileSet::get_last_unused_tile_id() const {
         return 0;
 }
 
-int TileSet::find_tile_by_name(se_string_view p_name) const {
+int TileSet::find_tile_by_name(StringView p_name) const {
 
     for (const eastl::pair<const int,TileData> &E : tile_map) {
 
-        if (p_name == se_string_view(E.second.name))
+        if (p_name == StringView(E.second.name))
             return E.first;
     }
     return -1;

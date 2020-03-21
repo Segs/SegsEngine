@@ -67,7 +67,7 @@ void ScriptDebuggerRemote::_send_video_memory() {
     }
 }
 
-Error ScriptDebuggerRemote::connect_to_host(se_string_view p_host, uint16_t p_port) {
+Error ScriptDebuggerRemote::connect_to_host(StringView p_host, uint16_t p_port) {
 
     IP_Address ip;
     if (StringUtils::is_valid_ip_address(p_host))
@@ -104,7 +104,7 @@ Error ScriptDebuggerRemote::connect_to_host(se_string_view p_host, uint16_t p_po
     return OK;
 }
 
-void ScriptDebuggerRemote::_put_variable(se_string_view p_name, const Variant &p_variable) {
+void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_variable) {
 
     packet_peer_stream->put_var(p_name);
 
@@ -126,7 +126,7 @@ void ScriptDebuggerRemote::_put_variable(se_string_view p_name, const Variant &p
     }
 }
 
-void ScriptDebuggerRemote::_save_node(ObjectID id, se_string_view p_path) {
+void ScriptDebuggerRemote::_save_node(ObjectID id, StringView p_path) {
 
     Node *node = object_cast<Node>(ObjectDB::get_instance(id));
     ERR_FAIL_COND(!node);
@@ -459,7 +459,7 @@ void ScriptDebuggerRemote::line_poll() {
     poll_every++;
 }
 
-void ScriptDebuggerRemote::_err_handler(void *ud, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type) {
+void ScriptDebuggerRemote::_err_handler(void *ud, StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type) {
 
     if (p_type == ERR_HANDLER_SCRIPT)
         return; //ignore script errors, those go through debugger
@@ -715,7 +715,7 @@ void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const String &p_p
     if (!obj)
         return;
     //TODO: SEGS: fix this madness..
-    se_string_view prop_name = p_property;
+    StringView prop_name = p_property;
     if (StringUtils::begins_with(p_property,"Members/")) {
         auto last_slash = StringUtils::rfind(p_property,'/');
         prop_name = p_property.substr(last_slash+1);
@@ -1018,7 +1018,7 @@ void ScriptDebuggerRemote::send_message(const String &p_message, const Array &p_
     mutex->unlock();
 }
 
-void ScriptDebuggerRemote::send_error(se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_err, se_string_view p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
+void ScriptDebuggerRemote::send_error(StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) {
 
     OutputError oe;
     oe.error = p_err;

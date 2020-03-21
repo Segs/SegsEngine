@@ -82,7 +82,7 @@ void EditorHistory::cleanup_history() {
         current = history.size() - 1;
 }
 
-void EditorHistory::_add_object(ObjectID p_object, se_string_view p_property, int p_level_change, bool p_inspector_only) {
+void EditorHistory::_add_object(ObjectID p_object, StringView p_property, int p_level_change, bool p_inspector_only) {
 
     Object *obj = ObjectDB::get_instance(p_object);
     ERR_FAIL_COND(!obj);
@@ -127,22 +127,22 @@ void EditorHistory::_add_object(ObjectID p_object, se_string_view p_property, in
 
 void EditorHistory::add_object_inspector_only(ObjectID p_object) {
 
-    _add_object(p_object, null_se_string, -1, true);
+    _add_object(p_object, null_string, -1, true);
 }
 
 void EditorHistory::add_object(ObjectID p_object) {
 
-    _add_object(p_object, null_se_string, -1);
+    _add_object(p_object, null_string, -1);
 }
 
-void EditorHistory::add_object(ObjectID p_object, se_string_view p_subprop) {
+void EditorHistory::add_object(ObjectID p_object, StringView p_subprop) {
 
     _add_object(p_object, p_subprop, -1);
 }
 
 void EditorHistory::add_object(ObjectID p_object, int p_relevel) {
 
-    _add_object(p_object, null_se_string, p_relevel);
+    _add_object(p_object, null_string, p_relevel);
 }
 
 int EditorHistory::get_history_len() {
@@ -246,11 +246,11 @@ ObjectID EditorHistory::get_path_object(int p_index) const {
 String EditorHistory::get_path_property(int p_index) const {
 
     if (current < 0 || current >= history.size())
-        return null_se_string;
+        return null_string;
 
     const History &h = history[current];
 
-    ERR_FAIL_INDEX_V(p_index, h.path.size(), null_se_string);
+    ERR_FAIL_INDEX_V(p_index, h.path.size(), null_string);
 
     return h.path[p_index].property;
 }
@@ -298,7 +298,7 @@ Vector<EditorPlugin *> EditorData::get_subeditors(Object *p_object) {
     return sub_plugins;
 }
 
-EditorPlugin *EditorData::get_editor(se_string_view p_name) {
+EditorPlugin *EditorData::get_editor(StringView p_name) {
 
     for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -318,7 +318,7 @@ void EditorData::copy_object_params(Object *p_object) {
 
     for (const PropertyInfo &E : pinfo) {
 
-        if (!(E.usage & PROPERTY_USAGE_EDITOR) || E.name == se_string_view("script") || E.name == se_string_view("scripts"))
+        if (!(E.usage & PROPERTY_USAGE_EDITOR) || E.name == StringView("script") || E.name == StringView("scripts"))
             continue;
 
         PropertyData pd;
@@ -366,7 +366,7 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
         int idx = -1;
         for (int i = 0; i < editor_plugins.size(); i++) {
 
-            if (editor_plugins[i]->get_name() == se_string_view(name)) {
+            if (editor_plugins[i]->get_name() == StringView(name)) {
                 idx = i;
                 break;
             }
@@ -640,7 +640,7 @@ bool EditorData::check_and_update_scene(int p_idx) {
         Error err = pscene->pack(edited_scene[p_idx].root);
         ERR_FAIL_COND_V(err != OK, false);
         ep.step(TTR("Updating scene..."), 1);
-        Node *new_scene = pscene->instance(PackedScene::GEN_EDIT_STATE_MAIN);
+        Node *new_scene = pscene->instance(GEN_EDIT_STATE_MAIN);
         ERR_FAIL_COND_V(!new_scene, false);
 
         //transfer selection
@@ -774,7 +774,7 @@ StringName EditorData::get_scene_title(int p_idx) const {
     return StringName(name);
 }
 
-void EditorData::set_scene_path(int p_idx, se_string_view p_path) {
+void EditorData::set_scene_path(int p_idx, StringView p_path) {
 
     ERR_FAIL_INDEX(p_idx, edited_scene.size());
     edited_scene[p_idx].path = p_path;
@@ -914,11 +914,11 @@ Ref<Script> EditorData::script_class_load_script(StringName p_class) const {
     if (!ScriptServer::is_global_class(p_class))
         return Ref<Script>();
 
-    se_string_view path = ScriptServer::get_global_class_path(p_class);
+    StringView path = ScriptServer::get_global_class_path(p_class);
     return dynamic_ref_cast<Script>(ResourceLoader::load(path, "Script"));
 }
 
-void EditorData::script_class_set_icon_path(const StringName & p_class, se_string_view p_icon_path) {
+void EditorData::script_class_set_icon_path(const StringName & p_class, StringView p_icon_path) {
     _script_class_icon_paths[p_class] = p_icon_path;
 }
 
@@ -938,14 +938,14 @@ String EditorData::script_class_get_icon_path(const StringName &p_class) const {
     return ret;
 }
 
-StringName EditorData::script_class_get_name(se_string_view p_path) const {
+StringName EditorData::script_class_get_name(StringView p_path) const {
     auto iter = _script_class_file_to_path.find_as(p_path);
     if(iter==_script_class_file_to_path.end())
         return StringName();
     return iter->second;
 }
 
-void EditorData::script_class_set_name(se_string_view p_path, const StringName &p_class) {
+void EditorData::script_class_set_name(StringView p_path, const StringName &p_class) {
     _script_class_file_to_path[String(p_path)] = p_class;
 }
 

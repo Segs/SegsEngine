@@ -43,7 +43,7 @@ WebSocketClient::WebSocketClient() {
 WebSocketClient::~WebSocketClient() {
 }
 
-Error WebSocketClient::connect_to_url(se_string_view p_url, const PoolStringArray &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
+Error WebSocketClient::connect_to_url(StringView p_url, const PoolStringArray &p_protocols, bool gd_mp_api, const PoolVector<String> &p_custom_headers) {
     _is_multiplayer = gd_mp_api;
 
     String host(p_url);
@@ -122,7 +122,7 @@ void WebSocketClient::_on_connect(String p_protocol) {
     }
 }
 
-void WebSocketClient::_on_close_request(int p_code, se_string_view p_reason) {
+void WebSocketClient::_on_close_request(int p_code, StringView p_reason) {
 
     emit_signal("server_close_request", p_code, p_reason);
 }

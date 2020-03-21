@@ -874,7 +874,7 @@ void AbstractPolygon2DEditorPlugin::make_visible(bool p_visible) {
     }
 }
 
-AbstractPolygon2DEditorPlugin::AbstractPolygon2DEditorPlugin(EditorNode *p_node, AbstractPolygon2DEditor *p_polygon_editor, se_string_view p_class) :
+AbstractPolygon2DEditorPlugin::AbstractPolygon2DEditorPlugin(EditorNode *p_node, AbstractPolygon2DEditor *p_polygon_editor, StringView p_class) :
         polygon_editor(p_polygon_editor),
         editor(p_node),
         klass(p_class) {

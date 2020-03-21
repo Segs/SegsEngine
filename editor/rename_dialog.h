@@ -50,7 +50,7 @@ class RenameDialog : public ConfirmationDialog {
     void ok_pressed() override { rename(); }
     void _cancel_pressed() {}
     void _features_toggled(bool pressed);
-    void _insert_text(se_string_view text);
+    void _insert_text(StringView text);
     void _update_substitute();
     bool _is_main_field(LineEdit *line_edit);
 
@@ -59,9 +59,9 @@ class RenameDialog : public ConfirmationDialog {
     String _substitute(const String &subject, const Node *node, int count);
     String _regex(const String &pattern, const String &subject, const String &replacement);
     String _postprocess(const String &subject);
-    void _update_preview(se_string_view new_text = se_string_view());
+    void _update_preview(StringView new_text = StringView());
     void _update_preview_int(int new_value = 0);
-    static void _error_handler(void *p_self, se_string_view p_func, se_string_view p_file, int p_line, se_string_view p_error, se_string_view p_errorexp, ErrorHandlerType p_type);
+    static void _error_handler(void *p_self, StringView p_func, StringView p_file, int p_line, StringView p_error, StringView p_errorexp, ErrorHandlerType p_type);
 
     SceneTreeEditor *scene_tree_editor;
     UndoRedo *undo_redo;

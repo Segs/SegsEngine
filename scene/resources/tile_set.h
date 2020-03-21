@@ -32,7 +32,7 @@
 
 #include "core/array.h"
 #include "core/resource.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/map.h"
 #include "scene/2d/light_occluder_2d.h"
 #include "scene/2d/navigation_polygon.h"
@@ -169,7 +169,7 @@ public:
     void autotile_set_bitmask_mode(int p_id, BitmaskMode p_mode);
     BitmaskMode autotile_get_bitmask_mode(int p_id) const;
 
-    void tile_set_name(int p_id, se_string_view p_name);
+    void tile_set_name(int p_id, StringView p_name);
     const String &tile_get_name(int p_id) const;
 
     void tile_set_texture(int p_id, const Ref<Texture> &p_texture);
@@ -268,7 +268,7 @@ public:
 
     bool is_tile_bound(int p_drawn_id, int p_neighbor_id);
 
-    int find_tile_by_name(se_string_view p_name) const;
+    int find_tile_by_name(StringView p_name) const;
     void get_tile_list(Vector<int> *p_tiles) const;
 
     void clear();

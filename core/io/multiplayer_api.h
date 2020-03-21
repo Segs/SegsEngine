@@ -35,7 +35,7 @@
 #include "core/map.h"
 #include "core/hash_map.h"
 #include "core/set.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 enum MultiplayerAPI_NetworkCommands {
     NETWORK_COMMAND_REMOTE_CALL,

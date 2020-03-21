@@ -71,19 +71,19 @@ class GroupDialog : public WindowDialog {
     UndoRedo *undo_redo;
     void _group_selected();
 
-    void _remove_filter_changed(se_string_view p_filter);
-    void _add_filter_changed(se_string_view p_filter);
+    void _remove_filter_changed(StringView p_filter);
+    void _add_filter_changed(StringView p_filter);
 
     void _add_pressed();
     void _removed_pressed();
-    void _add_group_pressed(se_string_view p_name);
+    void _add_group_pressed(StringView p_name);
 
     void _group_renamed();
-    void _rename_group_item(se_string_view p_old_name, se_string_view p_new_name);
+    void _rename_group_item(StringView p_old_name, StringView p_new_name);
 
     void _add_group(const StringName &p_name);
     void _delete_group_pressed(Object *p_item, int p_column, int p_id);
-    void _delete_group_item(se_string_view p_name);
+    void _delete_group_item(StringView p_name);
 
     bool _can_edit(Node *p_node, const StringName &p_group);
 
@@ -116,7 +116,7 @@ class GroupsEditor : public VBoxContainer {
     UndoRedo *undo_redo;
 
     void update_tree();
-    void _add_group(se_string_view p_group = se_string_view ());
+    void _add_group(StringView p_group = StringView ());
     void _remove_group(Object *p_item, int p_column, int p_id);
     void _close();
 

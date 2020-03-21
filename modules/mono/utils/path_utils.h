@@ -36,9 +36,9 @@
 
 namespace path {
 
-String join(se_string_view p_a, se_string_view p_b);
-String join(se_string_view p_a, se_string_view p_b, se_string_view p_c);
-String join(se_string_view p_a, se_string_view p_b, se_string_view p_c, se_string_view p_d);
+String join(StringView p_a, StringView p_b);
+String join(StringView p_a, StringView p_b, StringView p_c);
+String join(StringView p_a, StringView p_b, StringView p_c, StringView p_d);
 
 String find_executable(const UIString &p_name);
 
@@ -49,15 +49,15 @@ String cwd();
  * Obtains a normalized absolute path to p_path. Symbolic links are
  * not resolved. The path p_path might not exist in the file system.
  */
-String abspath(se_string_view p_path);
+String abspath(StringView p_path);
 
 /**
  * Obtains a normalized path to p_path with symbolic links resolved.
  * The resulting path might be either a relative or an absolute path.
  */
-String realpath(se_string_view p_path);
+String realpath(StringView p_path);
 
-String relative_to(se_string_view p_path, se_string_view p_relative_to);
+String relative_to(StringView p_path, StringView p_relative_to);
 
 } // namespace path
 

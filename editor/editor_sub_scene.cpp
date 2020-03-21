@@ -37,13 +37,13 @@
 
 IMPL_GDCLASS(EditorSubScene)
 
-void EditorSubScene::_path_selected(se_string_view p_path) {
+void EditorSubScene::_path_selected(StringView p_path) {
 
     path->set_text(p_path);
     _path_changed(p_path);
 }
 
-void EditorSubScene::_path_changed(se_string_view p_path) {
+void EditorSubScene::_path_changed(StringView p_path) {
 
     tree->clear();
 

@@ -413,7 +413,7 @@ Vector<float> Collada::_read_float_array(XMLParser &parser) {
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse float data
             String str = parser.get_node_data();
-            array = StringUtils::split_floats_mk(str,se_string_view(splitters,4), false);
+            array = StringUtils::split_floats_mk(str,StringView(splitters,4), false);
             //array=str.split_floats(" ",false);
         } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END)
             break; // end parsing text
@@ -2516,7 +2516,7 @@ int Collada::get_uv_channel(String p_name) {
     return channel_map[p_name];
 }
 
-Error Collada::load(se_string_view p_path, int p_flags) {
+Error Collada::load(StringView p_path, int p_flags) {
 
     Ref<XMLParser> parserr(make_ref_counted<XMLParser>());
     XMLParser &parser = *parserr;

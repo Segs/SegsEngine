@@ -31,7 +31,7 @@
 #include "undo_redo.h"
 
 #include "core/os/os.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -180,7 +180,7 @@ struct UndoRedo::PrivateData
             }
         }
     }
-    void create_action(se_string_view p_name, MergeMode p_mode) {
+    void create_action(StringView p_name, MergeMode p_mode) {
 
         uint32_t ticks = OS::get_singleton()->get_ticks_msec();
 
@@ -262,7 +262,7 @@ struct UndoRedo::PrivateData
         }
         actions[current_action + 1].undo_ops.push_back(undo_op);
     }
-    void add_do_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
+    void add_do_property(Object *p_object, StringView p_property, const Variant &p_value) {
 
         Operation do_op;
         do_op.object = p_object->get_instance_id();
@@ -274,7 +274,7 @@ struct UndoRedo::PrivateData
         do_op.args[0] = p_value;
         actions[current_action + 1].do_ops.push_back(do_op);
     }
-    void add_undo_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
+    void add_undo_property(Object *p_object, StringView p_property, const Variant &p_value) {
         // No undo if the merge mode is MERGE_ENDS
         if (merge_mode == MERGE_ENDS)
             return;
@@ -354,7 +354,7 @@ struct UndoRedo::PrivateData
 void UndoRedo::create_action_ui(const StringName &p_name, MergeMode p_mode) {
     pimpl->create_action(p_name,p_mode);
 }
-void UndoRedo::create_action(se_string_view p_name, MergeMode p_mode) {
+void UndoRedo::create_action(StringView p_name, MergeMode p_mode) {
     pimpl->create_action(p_name,p_mode);
 }
 void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
@@ -364,7 +364,7 @@ void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIA
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_method(p_object,p_method,VARIANT_ARG_PASS);
 }
-//void UndoRedo::add_do_method(Object *p_object, se_string_view p_method, VARIANT_ARG_DECLARE) {
+//void UndoRedo::add_do_method(Object *p_object, StringView p_method, VARIANT_ARG_DECLARE) {
 
 //    ERR_FAIL_COND();
 //    ERR_FAIL_COND();
@@ -379,21 +379,21 @@ void UndoRedo::add_undo_method(Object *p_object, const StringName &p_method, VAR
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_undo_method(p_object,p_method,VARIANT_ARG_PASS);
 }
-//void UndoRedo::add_undo_method(Object *p_object, se_string_view p_method, VARIANT_ARG_DECLARE) {
+//void UndoRedo::add_undo_method(Object *p_object, StringView p_method, VARIANT_ARG_DECLARE) {
 
 //    ERR_FAIL_COND();
 //    ERR_FAIL_COND();
 //    ERR_FAIL_COND();
 //    pimpl->add_undo_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
 //}
-void UndoRedo::add_do_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
+void UndoRedo::add_do_property(Object *p_object, StringView p_property, const Variant &p_value) {
 
     ERR_FAIL_COND(p_object == nullptr);
     ERR_FAIL_COND(pimpl->action_level <= 0);
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_property(p_object,p_property,p_value);
 }
-void UndoRedo::add_undo_property(Object *p_object, se_string_view p_property, const Variant &p_value) {
+void UndoRedo::add_undo_property(Object *p_object, StringView p_property, const Variant &p_value) {
 
     ERR_FAIL_COND(p_object == nullptr);
     ERR_FAIL_COND(pimpl->action_level <= 0);
@@ -460,7 +460,7 @@ void UndoRedo::clear_history(bool p_increase_version) {
     }
 }
 
-se_string_view UndoRedo::get_current_action_name() const {
+StringView UndoRedo::get_current_action_name() const {
 
     ERR_FAIL_COND_V(pimpl->action_level > 0, {});
     if (pimpl->current_action < 0)

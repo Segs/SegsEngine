@@ -79,7 +79,7 @@ class GODOT_EXPORT StringName {
 public:
     operator const void *() const;
 
-    bool operator==(se_string_view p_name) const {
+    bool operator==(StringView p_name) const {
 
         if (!_data) {
             return p_name.empty();
@@ -89,9 +89,9 @@ public:
     }
 
     bool operator==(const char *p_name) const noexcept {
-        return *this==se_string_view(p_name);
+        return *this==StringView(p_name);
     }
-    bool operator!=(se_string_view p_name) const {
+    bool operator!=(StringView p_name) const {
         return !(operator==(p_name));
     }
     bool operator<(const StringName &p_name) const {
@@ -114,7 +114,7 @@ public:
         return _data != p_name._data;
     }
 
-    StringName& operator=(StringName &&p_name)
+    StringName& operator=(StringName &&p_name) noexcept
     {
         if(this==&p_name)
             return *this;
@@ -127,9 +127,9 @@ public:
 
     StringName& operator=(const StringName &p_name);
     explicit operator UIString() const;
-    operator se_string_view() const noexcept
+    operator StringView() const noexcept
     {
-        return se_string_view(asCString());
+        return StringView(asCString());
     }
 
     [[nodiscard]] UIString asString() const;
@@ -154,7 +154,7 @@ public:
         p_name._data = nullptr;
     }
     //TODO: mark StringName(const String &p_name) explicit, it allocates some memory, even if COW'ed
-    explicit StringName(se_string_view p_name);
+    explicit StringName(StringView p_name);
 
     StringName(const StaticCString &p_static_string) {
         _data = nullptr;
@@ -185,7 +185,7 @@ public:
             unref();
     }
 };
-GODOT_EXPORT StringName operator+(StringName v,se_string_view sv);
+GODOT_EXPORT StringName operator+(StringName v,StringView sv);
 extern const Vector<StringName> g_null_stringname_vec;
 
 struct WrapAlphaCompare
@@ -195,11 +195,11 @@ struct WrapAlphaCompare
     }
 };
 struct SNSVComparer {
-    bool operator()(const StringName &s,se_string_view b) const {
-        return se_string_view(s)<b;
+    bool operator()(const StringName &s,StringView b) const {
+        return StringView(s)<b;
     }
-    bool operator()(se_string_view a,const StringName &b) const {
-        return a<se_string_view(b);
+    bool operator()(StringView a,const StringName &b) const {
+        return a<StringView(b);
     }
 };
 namespace eastl {

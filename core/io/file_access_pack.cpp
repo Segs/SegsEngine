@@ -34,7 +34,7 @@
 
 #include <cstdio>
 
-Error PackedData::add_pack(se_string_view p_path, bool p_replace_files) {
+Error PackedData::add_pack(StringView p_path, bool p_replace_files) {
 
     for (auto & source : sources) {
 
@@ -47,7 +47,7 @@ Error PackedData::add_pack(se_string_view p_path, bool p_replace_files) {
     return ERR_FILE_UNRECOGNIZED;
 }
 
-void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files) {
+void PackedData::add_path(StringView pkg_path, StringView path, uint64_t ofs, uint64_t size, const uint8_t *p_md5, PackSourceInterface *p_src, bool p_replace_files) {
 
     PathMD5 pmd5(StringUtils::md5_buffer(path));
     //printf("adding path %ls, %lli, %lli\n", path.c_str(), pmd5.a, pmd5.b);
@@ -72,10 +72,10 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
 
         if (StringUtils::contains(p,'/')) { //in a subdir
 
-            Vector<se_string_view> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
+            Vector<StringView> ds = StringUtils::split(PathUtils::get_base_dir(p),'/');
 
-            for (se_string_view sv : ds) {
-                auto iter =  cd->subdirs.find_as<se_string_view>(sv);
+            for (StringView sv : ds) {
+                auto iter =  cd->subdirs.find_as<StringView>(sv);
                 if (iter==cd->subdirs.end()) {
 
                     PackedDir *pd = memnew(PackedDir);
@@ -88,7 +88,7 @@ void PackedData::add_path(se_string_view pkg_path, se_string_view path, uint64_t
                 }
             }
         }
-        se_string_view filename = PathUtils::get_file(path);
+        StringView filename = PathUtils::get_file(path);
         // Don't add as a file if the path points to a directory
         if (!filename.empty()) {
             cd->files.insert(filename);
@@ -203,7 +203,7 @@ String DirAccessPack::get_drive(int p_drive) {
     return String();
 }
 
-Error DirAccessPack::change_dir(se_string_view p_dir) {
+Error DirAccessPack::change_dir(StringView p_dir) {
 
     String nd = PathUtils::from_native_path(p_dir);
     bool absolute = false;
@@ -222,7 +222,7 @@ Error DirAccessPack::change_dir(se_string_view p_dir) {
         absolute = true;
     }
 
-    Vector<se_string_view> paths = StringUtils::split(nd,'/');
+    Vector<StringView> paths = StringUtils::split(nd,'/');
 
     PackedData::PackedDir *pd;
 
@@ -268,28 +268,28 @@ String DirAccessPack::get_current_dir() {
     return "res://" + p;
 }
 
-bool DirAccessPack::file_exists(se_string_view p_file) {
+bool DirAccessPack::file_exists(StringView p_file) {
     p_file = fix_path(p_file);
 
     return current->files.contains_as(p_file);
 }
 
-bool DirAccessPack::dir_exists(se_string_view p_dir) {
+bool DirAccessPack::dir_exists(StringView p_dir) {
     p_dir = fix_path(p_dir);
 
     return current->subdirs.contains_as(p_dir);
 }
 
-Error DirAccessPack::make_dir(se_string_view p_dir) {
+Error DirAccessPack::make_dir(StringView p_dir) {
 
     return ERR_UNAVAILABLE;
 }
 
-Error DirAccessPack::rename(se_string_view p_from, se_string_view p_to) {
+Error DirAccessPack::rename(StringView p_from, StringView p_to) {
 
     return ERR_UNAVAILABLE;
 }
-Error DirAccessPack::remove(se_string_view p_name) {
+Error DirAccessPack::remove(StringView p_name) {
 
     return ERR_UNAVAILABLE;
 }

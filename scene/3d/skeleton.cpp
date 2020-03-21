@@ -75,9 +75,9 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
         return false;
 
     int which = StringUtils::to_int(StringUtils::get_slice(p_path,'/', 1));
-    se_string_view what = StringUtils::get_slice(p_path,'/', 2);
+    StringView what = StringUtils::get_slice(p_path,'/', 2);
 
-    if (which == bones.size() && what == se_string_view("name")) {
+    if (which == bones.size() && what == StringView("name")) {
 
         add_bone(p_value.as<String>());
         return true;
@@ -85,15 +85,15 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
 
     ERR_FAIL_INDEX_V(which, bones.size(), false);
 
-    if (what == se_string_view("parent"))
+    if (what == StringView("parent"))
         set_bone_parent(which, p_value);
-    else if (what == se_string_view("rest"))
+    else if (what == StringView("rest"))
         set_bone_rest(which, p_value);
-    else if (what == se_string_view("enabled"))
+    else if (what == StringView("enabled"))
         set_bone_enabled(which, p_value);
-    else if (what == se_string_view("pose"))
+    else if (what == StringView("pose"))
         set_bone_pose(which, p_value);
-    else if (what == se_string_view("bound_children")) {
+    else if (what == StringView("bound_children")) {
         Array children = p_value;
 
         if (is_inside_tree()) {
@@ -121,21 +121,21 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
         return false;
 
     int which = StringUtils::to_int(StringUtils::get_slice(p_path,'/', 1));
-    se_string_view what = StringUtils::get_slice(p_path,'/', 2);
+    StringView what = StringUtils::get_slice(p_path,'/', 2);
 
     ERR_FAIL_INDEX_V(which, bones.size(), false);
 
-    if (what == se_string_view("name"))
+    if (what == StringView("name"))
         r_ret = get_bone_name(which);
-    else if (what == se_string_view("parent"))
+    else if (what == StringView("parent"))
         r_ret = get_bone_parent(which);
-    else if (what == se_string_view("rest"))
+    else if (what == StringView("rest"))
         r_ret = get_bone_rest(which);
-    else if (what == se_string_view("enabled"))
+    else if (what == StringView("enabled"))
         r_ret = is_bone_enabled(which);
-    else if (what == se_string_view("pose"))
+    else if (what == StringView("pose"))
         r_ret = get_bone_pose(which);
-    else if (what == se_string_view("bound_children")) {
+    else if (what == StringView("bound_children")) {
         Array children;
 
         for (uint32_t E : bones[which].nodes_bound) {
@@ -359,7 +359,7 @@ Transform Skeleton::get_bone_global_pose(int p_bone) const {
 }
 
 // skeleton creation api
-void Skeleton::add_bone(se_string_view p_name) {
+void Skeleton::add_bone(StringView p_name) {
 
     ERR_FAIL_COND(p_name.empty() || StringUtils::contains(p_name,':') || StringUtils::contains(p_name,'/'));
 
@@ -376,7 +376,7 @@ void Skeleton::add_bone(se_string_view p_name) {
     _make_dirty();
     update_gizmo();
 }
-int Skeleton::find_bone(se_string_view p_name) const {
+int Skeleton::find_bone(StringView p_name) const {
 
     for (int i = 0; i < bones.size(); i++) {
 
@@ -388,7 +388,7 @@ int Skeleton::find_bone(se_string_view p_name) const {
 }
 const String &Skeleton::get_bone_name(int p_bone) const {
 
-    ERR_FAIL_INDEX_V(p_bone, bones.size(), null_se_string);
+    ERR_FAIL_INDEX_V(p_bone, bones.size(), null_string);
 
     return bones[p_bone].name;
 }

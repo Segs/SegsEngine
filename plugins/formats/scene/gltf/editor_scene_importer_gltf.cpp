@@ -578,7 +578,7 @@ namespace {
 
         return OK;
     }
-    Error _parse_json(se_string_view p_path, GLTFState& state) {
+    Error _parse_json(StringView p_path, GLTFState& state) {
 
         Error err;
         FileAccessRef f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -603,7 +603,7 @@ namespace {
         return OK;
     }
 
-    Error _parse_glb(se_string_view p_path, GLTFState& state) {
+    Error _parse_glb(StringView p_path, GLTFState& state) {
 
         Error err;
         FileAccessRef f = FileAccess::open(p_path, FileAccess::READ, &err);
@@ -887,7 +887,7 @@ namespace {
         return buf;
     }
 
-    Error _parse_buffers(GLTFState& state, se_string_view p_base_path) {
+    Error _parse_buffers(GLTFState& state, StringView p_base_path) {
 
         if (!state.json.has("buffers"))
             return OK;
@@ -1585,7 +1585,7 @@ namespace {
         return OK;
     }
 
-    Error _parse_images(GLTFState& state, se_string_view p_base_path) {
+    Error _parse_images(GLTFState& state, StringView p_base_path) {
 
         if (!state.json.has("images"))
             return OK;
@@ -3173,26 +3173,27 @@ namespace {
         for (GLTFNodeIndex node_i = 0; node_i < state.nodes.size(); ++node_i) {
             const GLTFNode* node = state.nodes[node_i];
 
-            if (node->skin >= 0 && node->mesh >= 0) {
-                const GLTFSkinIndex skin_i = node->skin;
+            if (node->skin < 0 || node->mesh < 0)
+                continue;
 
-                auto mi_element = state.scene_nodes.find(node_i);
-                MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
-                ERR_FAIL_COND(mi == nullptr);
+            const GLTFSkinIndex skin_i = node->skin;
 
-                    const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;
-                const GLTFSkeleton& gltf_skeleton = state.skeletons[skel_i];
-                Skeleton* skeleton = gltf_skeleton.godot_skeleton;
-                ERR_FAIL_COND(skeleton == nullptr);
+            auto mi_element = state.scene_nodes.find(node_i);
+            MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
+            ERR_FAIL_COND(mi == nullptr);
 
-                    mi->get_parent()->remove_child(mi);
-                skeleton->add_child(mi);
-                mi->set_owner(scene_root);
+            const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;
+            const GLTFSkeleton& gltf_skeleton = state.skeletons[skel_i];
+            Skeleton* skeleton = gltf_skeleton.godot_skeleton;
+            ERR_FAIL_COND(skeleton == nullptr);
 
-                mi->set_skin(state.skins[skin_i].godot_skin);
-                mi->set_skeleton_path(mi->get_path_to(skeleton));
-                mi->set_transform(Transform());
-            }
+            mi->get_parent()->remove_child(mi);
+            skeleton->add_child(mi);
+            mi->set_owner(scene_root);
+
+            mi->set_skin(state.skins[skin_i].godot_skin);
+            mi->set_skeleton_path(mi->get_path_to(skeleton));
+            mi->set_transform(Transform());
         }
     }
 
@@ -3229,7 +3230,7 @@ namespace {
 
 
 
-Node *EditorSceneImporterGLTF::import_scene(se_string_view p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
+Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     GLTFState state;
 
@@ -3350,7 +3351,7 @@ void EditorSceneImporterGLTF::get_extensions(Vector<String>& r_extensions) const
     r_extensions.push_back("glb");
 }
 
-Ref<Animation> EditorSceneImporterGLTF::import_animation(se_string_view p_path, uint32_t p_flags, int p_bake_fps) {
+Ref<Animation> EditorSceneImporterGLTF::import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) {
 
     return Ref<Animation>();
 }

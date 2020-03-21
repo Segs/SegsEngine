@@ -32,7 +32,7 @@
 
 #include "core/resource.h"
 #include "core/map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "mesh.h"
 #include "scene/3d/navigation_mesh_instance.h"
 #include "shape.h"
@@ -73,7 +73,7 @@ protected:
 
 public:
     void create_item(int p_item);
-    void set_item_name(int p_item, se_string_view p_name);
+    void set_item_name(int p_item, StringView p_name);
     void set_item_mesh(int p_item, const Ref<Mesh> &p_mesh);
     void set_item_navmesh(int p_item, const Ref<NavigationMesh> &p_navmesh);
     void set_item_navmesh_transform(int p_item, const Transform &p_transform);
@@ -91,7 +91,7 @@ public:
 
     void clear();
 
-    int find_item_by_name(se_string_view p_name) const;
+    int find_item_by_name(StringView p_name) const;
 
     Vector<int> get_item_list() const;
     int get_last_unused_item_id() const;

@@ -167,7 +167,7 @@ bool Main::is_project_manager() {
     return project_manager;
 }
 
-static String unescape_cmdline(se_string_view p_str) {
+static String unescape_cmdline(StringView p_str) {
     return String(p_str).replaced("%20", " ");
 }
 
@@ -404,6 +404,7 @@ struct ResourcePluginResolver : public ResolverInterface
  *   start() does it own argument parsing for a subset of the command line arguments described
  *   in help, it's a bit messy and should be globalized with the setup() parsing somehow.
  */
+#include <QDir>
 Error Main::setup(bool p_second_phase) {
     RID_OwnerBase::init_rid();
 
@@ -417,7 +418,6 @@ Error Main::setup(bool p_second_phase) {
 #else
     OS::register_feature("release");
 #endif
-
     OS::get_singleton()->initialize_core();
     engine = memnew(Engine);
 
@@ -451,8 +451,8 @@ Error Main::setup(bool p_second_phase) {
     MAIN_PRINT("Main: Parse CMDLine");
 
     /* argument parsing and main creation */
-    List<String> args;
-    List<String> main_args;
+    Vector<String> args;
+    Vector<String> main_args;
     QStringList q_args = qApp->arguments();
     String execpath = StringUtils::to_utf8(q_args.takeFirst());
 
@@ -460,7 +460,7 @@ Error Main::setup(bool p_second_phase) {
         args.push_back(StringUtils::to_utf8(arg));
     }
 
-    List<String>::iterator I = args.begin();
+    Vector<String>::iterator I = args.begin();
 
     for(String &a : args) {
 
@@ -481,7 +481,7 @@ Error Main::setup(bool p_second_phase) {
     String remotefs;
     String remotefs_pass;
 
-    Vector<se_string_view> breakpoints;
+    Vector<StringView> breakpoints;
     bool use_custom_res = true;
     bool force_res = false;
     bool saw_vsync_via_compositor_override = false;
@@ -494,11 +494,12 @@ Error Main::setup(bool p_second_phase) {
         packed_data = memnew(PackedData);
 
     add_plugin_resolver(new ArchivePluginResolver(packed_data));
+    auto z = QDir::currentPath();
 
     I = args.begin();
     while (I!= args.end()) {
 
-        List<String>::iterator N = eastl::next(I);
+        Vector<String>::iterator N = eastl::next(I);
 
         if (*I == "-h" || *I == "--help" || *I == "/?") { // display help
 
@@ -771,11 +772,11 @@ Error Main::setup(bool p_second_phase) {
 
             path = PathUtils::path(file);
 
-            if (OS::get_singleton()->set_cwd(path) == OK) {
+            //if (OS::get_singleton()->set_cwd(path) == OK) {
                 // path already specified, don't override
-            } else {
+            //} else {
                 project_path = path;
-            }
+            //}
 #ifdef TOOLS_ENABLED
             //editor = true;
 #endif
@@ -970,7 +971,7 @@ Error Main::setup(bool p_second_phase) {
     if (script_debugger) {
         //there is a debugger, parse breakpoints
 
-        for (se_string_view bp : breakpoints) {
+        for (StringView bp : breakpoints) {
 
             auto sp = StringUtils::find_last(bp,':');
             ERR_CONTINUE_MSG(sp == String::npos, "Invalid breakpoint: '" + bp + "', expected file:line format.");
@@ -1045,7 +1046,7 @@ Error Main::setup(bool p_second_phase) {
     if (quiet_stdout)
         _print_line_enabled = false;
 
-    OS::get_singleton()->set_cmdline(execpath, main_args);
+    OS::get_singleton()->set_cmdline(execpath, eastl::move(main_args));
 
     GLOBAL_DEF("rendering/quality/driver/driver_name", "GLES3");
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/driver/driver_name",
@@ -1508,9 +1509,9 @@ bool Main::start() {
 
     main_timer_sync.init(OS::get_singleton()->get_ticks_usec());
 
-    const List<String> &args(OS::get_singleton()->get_cmdline_args());
-    for (List<String>::const_iterator i = args.begin(); i!=args.end(); ++i) {
-        List<String>::const_iterator next = i;
+    const Vector<String> &args(OS::get_singleton()->get_cmdline_args());
+    for (Vector<String>::const_iterator i = args.begin(); i!=args.end(); ++i) {
+        Vector<String>::const_iterator next = i;
         ++next;
         bool has_next = next!=args.end();
 
@@ -1550,7 +1551,7 @@ bool Main::start() {
 #ifdef TOOLS_ENABLED
             } else if (*i == "--doctool") {
                 doc_tool = *next;
-                List<String>::const_iterator j = next;
+                Vector<String>::const_iterator j = next;
                 ++j;
                 for ( ; j != args.end(); ++j)
                     removal_docs.push_back(*j);
@@ -2318,10 +2319,10 @@ void Main::cleanup() {
     if (OS::get_singleton()->is_restart_on_exit_set()) {
         //attempt to restart with arguments
         String exec = OS::get_singleton()->get_executable_path();
-        List<String> args = OS::get_singleton()->get_restart_on_exit_arguments();
+        Vector<String> args = OS::get_singleton()->get_restart_on_exit_arguments();
         OS::ProcessID pid = 0;
         OS::get_singleton()->execute(exec, args, false, &pid);
-        OS::get_singleton()->set_restart_on_exit(false, List<String>()); //clear list (uses memory)
+        OS::get_singleton()->set_restart_on_exit(false, Vector<String>()); //clear list (uses memory)
     }
 
     unregister_core_driver_types();

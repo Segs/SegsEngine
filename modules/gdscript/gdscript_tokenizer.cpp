@@ -36,7 +36,7 @@
 #include "core/variant.h"
 #include "core/math/vector2.h"
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 #include "gdscript_functions.h"
@@ -456,7 +456,7 @@ void GDScriptTokenizerText::_make_type(const VariantType &p_type) {
 //    tk.col = column;
 //    tk_rb_pos = (tk_rb_pos + 1) % TK_RB_SIZE;
 //}
-void GDScriptTokenizerText::_make_error(se_string_view p_error) {
+void GDScriptTokenizerText::_make_error(StringView p_error) {
 
     error_flag = true;
     last_error = p_error.data();
@@ -547,14 +547,14 @@ void GDScriptTokenizerText::_advance() {
                     }
                 }
 #ifdef DEBUG_ENABLED
-                se_string_view comment_content = StringUtils::trim_prefix(StringUtils::trim_prefix(comment,"#")," ");
+                StringView comment_content = StringUtils::trim_prefix(StringUtils::trim_prefix(comment,"#")," ");
                 if (StringUtils::begins_with(comment_content,"warning-ignore:")) {
-                    se_string_view code = StringUtils::get_slice(comment_content,':', 1);
+                    StringView code = StringUtils::get_slice(comment_content,':', 1);
                     warning_skips.push_back(Pair<int, String>(line, StringUtils::to_lower(StringUtils::strip_edges(code))));
                 } else if (StringUtils::begins_with(comment_content,"warning-ignore-all:")) {
-                    se_string_view code = StringUtils::get_slice(comment_content,':', 1);
+                    StringView code = StringUtils::get_slice(comment_content,':', 1);
                     warning_global_skips.insert(StringUtils::to_lower(StringUtils::strip_edges(code)));
-                } else if (StringUtils::strip_edges(comment_content) == se_string_view("warnings-disable")) {
+                } else if (StringUtils::strip_edges(comment_content) == StringView("warnings-disable")) {
                     ignore_warnings = true;
                 }
 #endif // DEBUG_ENABLED
@@ -1087,7 +1087,7 @@ void GDScriptTokenizerText::_advance() {
     }
 }
 
-void GDScriptTokenizerText::set_code(se_string_view p_code) {
+void GDScriptTokenizerText::set_code(StringView p_code) {
 
     code = p_code;
     len = p_code.length();
@@ -1314,7 +1314,7 @@ Error GDScriptTokenizerBuffer::set_code_buffer(const Vector<uint8_t> &p_buffer) 
     return OK;
 }
 
-Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code) {
+Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(StringView p_code) {
 
     Vector<uint8_t> buf;
 
@@ -1416,7 +1416,7 @@ Vector<uint8_t> GDScriptTokenizerBuffer::parse_code_string(se_string_view p_code
 
     for (eastl::pair<const int,StringName> &E : rev_identifier_map) {
 
-        se_string_view cs(E.second);
+        StringView cs(E.second);
         int len = cs.length() + 1;
         int extra = 4 - (len % 4);
         if (extra == 4)

@@ -187,15 +187,15 @@ void GroupDialog::_removed_pressed() {
     undo_redo->commit_action();
 }
 
-void GroupDialog::_remove_filter_changed(se_string_view p_filter) {
+void GroupDialog::_remove_filter_changed(StringView p_filter) {
     _group_selected();
 }
 
-void GroupDialog::_add_filter_changed(se_string_view p_filter) {
+void GroupDialog::_add_filter_changed(StringView p_filter) {
     _group_selected();
 }
 
-void GroupDialog::_add_group_pressed(se_string_view p_name) {
+void GroupDialog::_add_group_pressed(StringView p_name) {
     _add_group(StringName(add_group_text->get_text()));
     add_group_text->clear();
 }
@@ -274,7 +274,7 @@ void GroupDialog::_group_renamed() {
     undo_redo->commit_action();
 }
 
-void GroupDialog::_rename_group_item(se_string_view p_old_name, se_string_view p_new_name) {
+void GroupDialog::_rename_group_item(StringView p_old_name, StringView p_new_name) {
     if (!is_visible()) {
         return; // No need to edit the dialog if it's not being used.
     }
@@ -342,7 +342,7 @@ void GroupDialog::_delete_group_pressed(Object *p_item, int p_column, int p_id) 
     undo_redo->commit_action();
 }
 
-void GroupDialog::_delete_group_item(se_string_view p_name) {
+void GroupDialog::_delete_group_item(StringView p_name) {
     if (!is_visible()) {
         return; // No need to edit the dialog if it's not being used.
     }
@@ -459,7 +459,7 @@ GroupDialog::GroupDialog() {
     Button *add_group_button = memnew(Button);
     add_group_button->set_text("Add");
     chbc->add_child(add_group_button);
-    add_group_button->connect("pressed", this, "_add_group_pressed", varray(se_string_view()));
+    add_group_button->connect("pressed", this, "_add_group_pressed", varray(StringView()));
 
     VBoxContainer *vbc_add = memnew(VBoxContainer);
     hbc->add_child(vbc_add);
@@ -555,7 +555,7 @@ GroupDialog::GroupDialog() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GroupsEditor::_add_group(se_string_view p_group) {
+void GroupsEditor::_add_group(StringView p_group) {
 
     if (!node)
         return;
@@ -609,7 +609,7 @@ void GroupsEditor::_remove_group(Object *p_item, int p_column, int p_id) {
 struct _GroupInfoComparator {
 
     bool operator()(const Node::GroupInfo &p_a, const Node::GroupInfo &p_b) const {
-        return se_string_view(p_a.name) < se_string_view(p_b.name);
+        return StringView(p_a.name) < StringView(p_b.name);
     }
 };
 
@@ -708,7 +708,7 @@ GroupsEditor::GroupsEditor() {
     add = memnew(Button);
     add->set_text(TTR("Add"));
     hbc->add_child(add);
-    add->connect("pressed", this, "_add_group", varray(se_string_view()));
+    add->connect("pressed", this, "_add_group", varray(StringView()));
 
     tree = memnew(Tree);
     tree->set_hide_root(true);

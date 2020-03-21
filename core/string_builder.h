@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include "core/vector.h"
 
@@ -46,7 +46,7 @@ class StringBuilder {
     Vector<int32_t> appended_strings;
 
 public:
-    StringBuilder &append(se_string_view p_string);
+    StringBuilder &append(StringView p_string);
     StringBuilder &append(const char *p_cstring);
 
     _FORCE_INLINE_ StringBuilder &operator+(const String &p_string) {

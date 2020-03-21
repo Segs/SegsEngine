@@ -1302,7 +1302,7 @@ void LineEdit::set_text_uistring(const UIString& p_text) {
     cursor_pos = 0;
     m_priv->window_pos = 0;
 }
-void LineEdit::set_text(se_string_view p_text) {
+void LineEdit::set_text(StringView p_text) {
 
     clear_internal();
     append_at_cursor(p_text);
@@ -1425,7 +1425,7 @@ void LineEdit::set_window_pos(int p_pos) {
     if (m_priv->window_pos < 0) m_priv->window_pos = 0;
 }
 
-void LineEdit::append_at_cursor(se_string_view _text) {
+void LineEdit::append_at_cursor(StringView _text) {
 
     UIString p_text(StringUtils::from_utf8(_text));
     if ((max_length <= 0) || (m_priv->text.length() + p_text.length() <= max_length)) {
@@ -1763,7 +1763,7 @@ void LineEdit::update_cached_width() {
     }
 }
 void LineEdit::update_placeholder_width() {
-    if ((max_length <= 0) || (se_string_view(placeholder_translated).length() <= max_length)) {
+    if ((max_length <= 0) || (StringView(placeholder_translated).length() <= max_length)) {
         Ref<Font> font = get_font("font");
         cached_placeholder_width = 0;
         if (font != nullptr) {

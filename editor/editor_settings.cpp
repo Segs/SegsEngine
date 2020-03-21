@@ -45,7 +45,7 @@
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/version.h"
 #include "editor/editor_node.h"
 #include "editor/translations.gen.h"
@@ -81,7 +81,7 @@ bool EditorSettings::_set_only(const StringName &p_name, const Variant &p_value)
 
     _THREAD_SAFE_METHOD_
 
-    if (se_string_view(p_name) == se_string_view("shortcuts")) {
+    if (StringView(p_name) == StringView("shortcuts")) {
 
         Array arr = p_value;
         ERR_FAIL_COND_V(!arr.empty() && arr.size() & 1, true);
@@ -276,15 +276,15 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
         // Some locales are not properly supported currently in Godot due to lack of font shaping
         // (e.g. Arabic or Hindi), so even though we have work in progress translations for them,
         // we skip them as they don't render properly. (GH-28577)
-        const se_string_view locales_to_skip[10] = {"ar","bn","fa","he","hi","ml","si","ta","te","ur"};
+        const StringView locales_to_skip[10] = {"ar","bn","fa","he","hi","ml","si","ta","te","ur"};
 
-        se_string_view best;
+        StringView best;
 
         EditorTranslationList *etl = _editor_translations;
 
         while (etl->data) {
 
-            const se_string_view &locale = etl->lang;
+            const StringView &locale = etl->lang;
             // Skip locales which we can't render properly (see above comment).
             // Test against language code without regional variants (e.g. ur_PK).
             auto lang_code = StringUtils::get_slice(locale,'_', 0);
@@ -703,8 +703,8 @@ void EditorSettings::_load_default_text_editor_theme() {
 
 }
 
-bool EditorSettings::_save_text_editor_theme(se_string_view p_file) {
-    se_string_view theme_section("color_theme");
+bool EditorSettings::_save_text_editor_theme(StringView p_file) {
+    StringView theme_section("color_theme");
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>()); // hex is better?
 
     Vector<StringName> keys;
@@ -723,8 +723,8 @@ bool EditorSettings::_save_text_editor_theme(se_string_view p_file) {
 
     return err == OK;
 }
-bool EditorSettings::_is_default_text_editor_theme(se_string_view p_theme_name) {
-    return p_theme_name == se_string_view("default") || p_theme_name == se_string_view("adaptive") || p_theme_name == se_string_view("custom");
+bool EditorSettings::_is_default_text_editor_theme(StringView p_theme_name) {
+    return p_theme_name == StringView("default") || p_theme_name == StringView("adaptive") || p_theme_name == StringView("custom");
 }
 
 static Dictionary _get_builtin_script_templates() {
@@ -747,7 +747,7 @@ static Dictionary _get_builtin_script_templates() {
     return templates;
 }
 
-static void _create_script_templates(se_string_view p_path) {
+static void _create_script_templates(StringView p_path) {
 
     Dictionary templates = _get_builtin_script_templates();
     Vector<Variant> keys(templates.get_key_list());
@@ -1238,7 +1238,7 @@ String EditorSettings::get_feature_profiles_dir() const {
 
 // Metadata
 
-void EditorSettings::set_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_data) {
+void EditorSettings::set_project_metadata(StringView p_section, StringView p_key, const Variant& p_data) {
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
     String path = PathUtils::plus_file(get_project_settings_dir(),"project_metadata.cfg");
     Error err = cf->load(path);
@@ -1249,7 +1249,7 @@ void EditorSettings::set_project_metadata(se_string_view p_section, se_string_vi
     ERR_FAIL_COND_MSG(err != OK, "Cannot save editor settings to file '" + path + "'.");
 }
 
-Variant EditorSettings::get_project_metadata(se_string_view p_section, se_string_view p_key, const Variant& p_default) const {
+Variant EditorSettings::get_project_metadata(StringView p_section, StringView p_key, const Variant& p_default) const {
     Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
     String path = PathUtils::plus_file(get_project_settings_dir(),"project_metadata.cfg");
     Error err = cf->load(path);
@@ -1331,7 +1331,7 @@ void EditorSettings::list_text_editor_themes() {
         d->list_dir_begin();
         String file = d->get_next();
         while (!file.empty()) {
-            if (PathUtils::get_extension(file) == se_string_view("tet") &&
+            if (PathUtils::get_extension(file) == StringView("tet") &&
                     !_is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_basename(file)))) {
                 custom_themes.emplace_back(PathUtils::get_basename(file));
             }
@@ -1384,7 +1384,7 @@ void EditorSettings::load_text_editor_theme() {
     // if it doesn't load just use what is currently loaded
 }
 
-bool EditorSettings::import_text_editor_theme(se_string_view p_file) {
+bool EditorSettings::import_text_editor_theme(StringView p_file) {
 
     if (!StringUtils::ends_with(p_file,".tet")) {
         return false;
@@ -1414,7 +1414,7 @@ bool EditorSettings::save_text_editor_theme() {
     return _save_text_editor_theme(theme_path);
 }
 
-bool EditorSettings::save_text_editor_theme_as(se_string_view _file) {
+bool EditorSettings::save_text_editor_theme_as(StringView _file) {
     String p_file(_file);
     if (!StringUtils::ends_with(p_file,".tet")) {
         p_file += ".tet";
@@ -1427,7 +1427,7 @@ bool EditorSettings::save_text_editor_theme_as(se_string_view _file) {
 
         // switch to theme is saved in the theme directory
         list_text_editor_themes();
-        se_string_view theme_name = PathUtils::get_file(StringUtils::substr(p_file,0, p_file.length() - 4));
+        StringView theme_name = PathUtils::get_file(StringUtils::substr(p_file,0, p_file.length() - 4));
 
         if (PathUtils::get_base_dir(p_file) == get_text_editor_themes_dir()) {
             _initial_set("text_editor/theme/color_theme", theme_name);
@@ -1442,7 +1442,7 @@ bool EditorSettings::is_default_text_editor_theme() {
     String p_file = get("text_editor/theme/color_theme");
     return _is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_file(p_file)));
 }
-Vector<String> EditorSettings::get_script_templates(se_string_view p_extension, se_string_view p_custom_path) {
+Vector<String> EditorSettings::get_script_templates(StringView p_extension, StringView p_custom_path) {
 
     Vector<String> templates;
     String template_dir = get_script_templates_dir();
@@ -1472,12 +1472,12 @@ String EditorSettings::get_editor_layouts_config() const {
 
 // Shortcuts
 
-void EditorSettings::add_shortcut(se_string_view p_name, Ref<ShortCut> &p_shortcut) {
+void EditorSettings::add_shortcut(StringView p_name, Ref<ShortCut> &p_shortcut) {
 
     shortcuts[String(p_name)] = p_shortcut;
 }
 
-bool EditorSettings::is_shortcut(se_string_view p_name, const Ref<InputEvent> &p_event) const {
+bool EditorSettings::is_shortcut(StringView p_name, const Ref<InputEvent> &p_event) const {
 
     const Map<String, Ref<ShortCut> >::const_iterator E = shortcuts.find_as(p_name);
     ERR_FAIL_COND_V_MSG(E==shortcuts.end(), false, "Unknown Shortcut: " + String(p_name) + ".");
@@ -1485,7 +1485,7 @@ bool EditorSettings::is_shortcut(se_string_view p_name, const Ref<InputEvent> &p
     return E->second->is_shortcut(p_event);
 }
 
-Ref<ShortCut> EditorSettings::get_shortcut(se_string_view p_name) const {
+Ref<ShortCut> EditorSettings::get_shortcut(StringView p_name) const {
 
     const Map<String, Ref<ShortCut> >::const_iterator E = shortcuts.find_as(p_name);
     if (E==shortcuts.end())
@@ -1502,7 +1502,7 @@ void EditorSettings::get_shortcut_list(Vector<String> *r_shortcuts) {
     }
 }
 
-Ref<ShortCut> ED_GET_SHORTCUT(se_string_view p_path) {
+Ref<ShortCut> ED_GET_SHORTCUT(StringView p_path) {
 
     if (!EditorSettings::get_singleton()) {
         return Ref<ShortCut>();
@@ -1518,7 +1518,7 @@ struct ShortCutMapping {
     const char *path;
     uint32_t keycode;
 };
-Ref<ShortCut> ED_SHORTCUT(se_string_view p_path, const StringName &p_name, uint32_t p_keycode) {
+Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t p_keycode) {
 
 #ifdef OSX_ENABLED
     // Use Cmd+Backspace as a general replacement for Delete shortcuts on macOS

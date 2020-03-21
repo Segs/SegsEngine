@@ -91,9 +91,9 @@ class InspectorDock : public VBoxContainer {
     void _menu_option(int p_option);
 
     void _new_resource();
-    void _load_resource(se_string_view p_type = StringName());
+    void _load_resource(StringView p_type = StringName());
     void _open_resource_selector() { _load_resource(); } // just used to call from arg-less signal
-    void _resource_file_selected(se_string_view p_file);
+    void _resource_file_selected(StringView p_file);
     void _save_resource(bool save_as) const;
     void _unref_resource() const;
     void _copy_resource() const;
@@ -109,8 +109,8 @@ class InspectorDock : public VBoxContainer {
     void _select_history(int p_idx) const;
     void _prepare_history();
 
-    void _property_keyed(se_string_view p_keyed, const Variant &p_value, bool p_advance);
-    void _transform_keyed(Object *sp, se_string_view p_sub, const Transform &p_key);
+    void _property_keyed(StringView p_keyed, const Variant &p_value, bool p_advance);
+    void _transform_keyed(Object *sp, StringView p_sub, const Transform &p_key);
 
 protected:
     static void _bind_methods();
@@ -120,7 +120,7 @@ public:
     void go_back();
     void update_keying();
     void edit_resource(const Ref<Resource> &p_resource);
-    void open_resource(se_string_view p_type);
+    void open_resource(StringView p_type);
     void clear();
     void set_warning(const StringName &p_message);
     void update(Object *p_object);

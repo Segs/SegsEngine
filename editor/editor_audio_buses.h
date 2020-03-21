@@ -197,14 +197,14 @@ class EditorAudioBuses : public VBoxContainer {
     EditorFileDialog *file_dialog;
     bool new_layout;
 
-    void _file_dialog_callback(se_string_view p_string);
+    void _file_dialog_callback(StringView p_string);
 
 protected:
     static void _bind_methods();
     void _notification(int p_what);
 
 public:
-    void open_layout(se_string_view p_path);
+    void open_layout(StringView p_path);
 
     static EditorAudioBuses *register_editor();
 
@@ -270,7 +270,7 @@ class AudioBusesEditorPlugin : public EditorPlugin {
     EditorAudioBuses *audio_bus_editor;
 
 public:
-    se_string_view get_name() const override { return "SampleLibrary"; }
+    StringView get_name() const override { return "SampleLibrary"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_node) override;
     bool handles(Object *p_node) const override;

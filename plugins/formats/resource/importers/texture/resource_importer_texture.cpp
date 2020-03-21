@@ -189,7 +189,7 @@ StringName ResourceImporterTexture::get_preset_name(int p_idx) const {
     return StaticCString(preset_names[p_idx],true);
 }
 
-void ResourceImporterTexture::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterTexture::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "compress/lossy_quality", PropertyHint::Range, "0,1,0.01"), 0.7));
@@ -211,7 +211,7 @@ void ResourceImporterTexture::get_import_options(List<ImportOption> *r_options, 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PropertyHint::Range, "0.001,100,0.001"), 1.0));
 }
 
-void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_view p_to_path, int p_compress_mode,
+void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p_to_path, int p_compress_mode,
         float p_lossy_quality, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags,
         bool p_streamable, bool p_detect_3d, bool p_detect_srgb, bool p_force_rgbe, bool p_detect_normal,
         bool p_force_normal, bool p_force_po2_for_compressed) {
@@ -368,8 +368,8 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, se_string_vi
     memdelete(f);
 }
 
-Error ResourceImporterTexture::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterTexture::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+                                      Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     int compress_mode = p_options.at("compress/mode");
     float lossy = p_options.at("compress/lossy_quality");
@@ -562,7 +562,7 @@ String ResourceImporterTexture::get_import_settings_string() const {
     return s;
 }
 
-bool ResourceImporterTexture::are_import_settings_valid(se_string_view p_path) const {
+bool ResourceImporterTexture::are_import_settings_valid(StringView p_path) const {
 
     //will become invalid if formats are missing to import
     Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);

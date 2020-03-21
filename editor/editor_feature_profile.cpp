@@ -137,12 +137,12 @@ bool EditorFeatureProfile::is_feature_disabled(Feature p_feature) const {
     return features_disabled[p_feature];
 }
 
-se_string_view EditorFeatureProfile::get_feature_name(Feature p_feature) {
+StringView EditorFeatureProfile::get_feature_name(Feature p_feature) {
     ERR_FAIL_INDEX_V(p_feature, FEATURE_MAX, {});
     return feature_names[p_feature];
 }
 
-Error EditorFeatureProfile::save_to_file(se_string_view p_path) {
+Error EditorFeatureProfile::save_to_file(StringView p_path) {
 
     Dictionary json;
     json["type"] = "feature_profile";
@@ -188,7 +188,7 @@ Error EditorFeatureProfile::save_to_file(se_string_view p_path) {
     return OK;
 }
 
-Error EditorFeatureProfile::load_from_file(se_string_view p_path) {
+Error EditorFeatureProfile::load_from_file(StringView p_path) {
 
     Error err;
     String text = FileAccess::get_file_as_string(p_path, &err);
@@ -234,7 +234,7 @@ Error EditorFeatureProfile::load_from_file(se_string_view p_path) {
 
     if (json.has("disabled_properties")) {
         Array disabled_properties_arr = json["disabled_properties"];
-        FixedVector<se_string_view,4,true> parts;
+        FixedVector<StringView,4,true> parts;
         for (int i = 0; i < disabled_properties_arr.size(); i++) {
             String s = disabled_properties_arr[i];
             String::split_ref(parts,s,':');
@@ -328,7 +328,7 @@ String EditorFeatureProfileManager::_get_selected_profile() {
     return profile_list->get_item_metadata(idx);
 }
 
-void EditorFeatureProfileManager::_update_profile_list(se_string_view p_select_profile) {
+void EditorFeatureProfileManager::_update_profile_list(StringView p_select_profile) {
 
     String selected_profile;
     if (p_select_profile.empty()) { //default, keep
@@ -483,7 +483,7 @@ void EditorFeatureProfileManager::_profile_selected(int p_what) {
     _update_selected_profile();
 }
 
-void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const StringName &p_class, se_string_view p_selected) {
+void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const StringName &p_class, StringView p_selected) {
 
     TreeItem *class_item = class_list->create_item(p_parent);
     class_item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
@@ -738,7 +738,7 @@ void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths
         }
 
         String dst_file = PathUtils::plus_file(EditorSettings::get_singleton()->get_feature_profiles_dir(),basefile);
-        se_string_view basename(PathUtils::get_basename(basefile));
+        StringView basename(PathUtils::get_basename(basefile));
         if (FileAccess::exists(dst_file)) {
             EditorNode::get_singleton()->show_warning(FormatSN(
                     TTR("Profile '%.*s' already exists. Remove it first before importing, import aborted.").asCString(),
@@ -760,7 +760,7 @@ void EditorFeatureProfileManager::_import_profiles(const Vector<String> &p_paths
     _update_profile_list();
 }
 
-void EditorFeatureProfileManager::_export_profile(se_string_view p_path) {
+void EditorFeatureProfileManager::_export_profile(StringView p_path) {
 
     ERR_FAIL_COND(not edited);
     Error err = edited->save_to_file(p_path);

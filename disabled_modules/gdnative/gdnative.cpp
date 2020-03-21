@@ -69,10 +69,10 @@ GDNativeLibrary::~GDNativeLibrary() {
 
 bool GDNativeLibrary::_set(const StringName &p_name, const Variant &p_property) {
 
-    se_string_view name(p_name);
+    StringView name(p_name);
 
     if (StringUtils::begins_with(name,"entry/")) {
-        se_string_view key = StringUtils::substr(name,6, name.length() - 6);
+        StringView key = StringUtils::substr(name,6, name.length() - 6);
 
         config_file->set_value("entry", key, p_property);
 
@@ -82,7 +82,7 @@ bool GDNativeLibrary::_set(const StringName &p_name, const Variant &p_property) 
     }
 
     if (StringUtils::begins_with(name,"dependency/")) {
-        se_string_view key = StringUtils::substr(name,11, name.length() - 11);
+        StringView key = StringUtils::substr(name,11, name.length() - 11);
 
         config_file->set_value("dependencies", key, p_property);
 
@@ -95,10 +95,10 @@ bool GDNativeLibrary::_set(const StringName &p_name, const Variant &p_property) 
 }
 
 bool GDNativeLibrary::_get(const StringName &p_name, Variant &r_property) const {
-    se_string_view name = p_name;
+    StringView name = p_name;
 
     if (StringUtils::begins_with(name,"entry/")) {
-        se_string_view key = StringUtils::substr(name,6, name.length() - 6);
+        StringView key = StringUtils::substr(name,6, name.length() - 6);
 
         r_property = config_file->get_value("entry",key);
 
@@ -106,7 +106,7 @@ bool GDNativeLibrary::_get(const StringName &p_name, Variant &r_property) const 
     }
 
     if (StringUtils::begins_with(name,"dependency/")) {
-        se_string_view key = StringUtils::substr(name,11, name.length() - 11);
+        StringView key = StringUtils::substr(name,11, name.length() - 11);
 
         r_property = config_file->get_value("dependencies", key);
 
@@ -169,7 +169,7 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
 
         for (String &key : entry_keys) {
 
-            Vector<se_string_view> tags = StringUtils::split(key,'.');
+            Vector<StringView> tags = StringUtils::split(key,'.');
 
             bool skip = false;
             for (int i = 0; i < tags.size(); i++) {
@@ -201,7 +201,7 @@ void GDNativeLibrary::set_config_file(Ref<ConfigFile> p_config_file) {
         for (List<String>::Element *E = dependency_keys.front(); E; E = E->next()) {
             const String &key = E->deref();
 
-            Vector<se_string_view> tags = StringUtils::split(key,'.');
+            Vector<StringView> tags = StringUtils::split(key,'.');
 
             bool skip = false;
             for (int i = 0; i < tags.size(); i++) {
@@ -497,7 +497,7 @@ Error GDNative::get_symbol(StringName p_procedure_name, void *&r_handle, bool p_
     return result;
 }
 
-RES GDNativeLibraryResourceLoader::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES GDNativeLibraryResourceLoader::load(StringView p_path, StringView p_original_path, Error *r_error) {
     Ref<GDNativeLibrary> lib(make_ref_counted<GDNativeLibrary>());
 
     Ref<ConfigFile> config = lib->get_config_file();
@@ -517,18 +517,18 @@ void GDNativeLibraryResourceLoader::get_recognized_extensions(Vector<String> &p_
     p_extensions.push_back("gdnlib");
 }
 
-bool GDNativeLibraryResourceLoader::handles_type(se_string_view p_type) const {
-    return p_type == se_string_view("GDNativeLibrary");
+bool GDNativeLibraryResourceLoader::handles_type(StringView p_type) const {
+    return p_type == StringView("GDNativeLibrary");
 }
 
-String GDNativeLibraryResourceLoader::get_resource_type(se_string_view p_path) const {
+String GDNativeLibraryResourceLoader::get_resource_type(StringView p_path) const {
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "gdnlib")
         return "GDNativeLibrary";
     return String();
 }
 
-Error GDNativeLibraryResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error GDNativeLibraryResourceSaver::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<GDNativeLibrary> lib = dynamic_ref_cast<GDNativeLibrary>(p_resource);
 

@@ -665,7 +665,7 @@ class CanvasItemEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    se_string_view get_name() const override { return "2D"; }
+    StringView get_name() const override { return "2D"; }
     bool has_main_screen() const override { return true; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -709,10 +709,10 @@ class CanvasItemEditorViewport : public Control {
     void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
 
-    bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
+    bool _cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node);
     bool _only_packed_scenes_selected() const;
-    void _create_nodes(Node *parent, Node *child, se_string_view path, const Point2 &p_point);
-    bool _create_instance(Node *parent, se_string_view path, const Point2 &p_point);
+    void _create_nodes(Node *parent, Node *child, StringView path, const Point2 &p_point);
+    bool _create_instance(Node *parent, StringView path, const Point2 &p_point);
     void _perform_drop_data();
     void _show_resource_type_selector();
 

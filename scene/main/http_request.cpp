@@ -105,7 +105,7 @@ static Error _request(HTTPRequestData &impl) {
     return impl.client->connect_to_host(impl.url, impl.port, impl.use_ssl, impl.validate_ssl);
 }
 
-Error _parse_url(HTTPRequestData &impl,se_string_view p_url) {
+Error _parse_url(HTTPRequestData &impl,StringView p_url) {
 
     impl.url = p_url;
     impl.use_ssl = false;
@@ -393,11 +393,11 @@ static void _thread_func(void *p_userdata) {
     hrdat->thread_done = true;
 }
 } // end of anonymous namespace
-void HTTPRequest::_redirect_request(se_string_view /*p_new_url*/) {
+void HTTPRequest::_redirect_request(StringView /*p_new_url*/) {
 }
 
 #define IMPLD() ((HTTPRequestData*)m_impl)
-Error HTTPRequest::request(se_string_view p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, se_string_view p_request_data) {
+Error HTTPRequest::request(StringView p_url, const Vector<String> &p_custom_headers, bool p_ssl_validate_domain, HTTPClient::Method p_method, StringView p_request_data) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), ERR_UNCONFIGURED);
     ERR_FAIL_COND_V_MSG(IMPLD()->requesting, ERR_BUSY, "HTTPRequest is processing a request. Wait for completion or cancel it before attempting a new one.");
@@ -521,7 +521,7 @@ int HTTPRequest::get_body_size_limit() const {
     return IMPLD()->body_size_limit;
 }
 
-void HTTPRequest::set_download_file(se_string_view p_file) {
+void HTTPRequest::set_download_file(StringView p_file) {
 
     ERR_FAIL_COND(get_http_client_status() != HTTPClient::STATUS_DISCONNECTED);
 
@@ -585,7 +585,7 @@ void HTTPRequest::_timeout() {
 
 void HTTPRequest::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(se_string_view())});
+    MethodBinder::bind_method(D_METHOD("request", {"url", "custom_headers", "ssl_validate_domain", "method", "request_data"}), &HTTPRequest::request, {DEFVAL(PoolStringArray()), DEFVAL(true), DEFVAL(HTTPClient::METHOD_GET), DEFVAL(StringView())});
     MethodBinder::bind_method(D_METHOD("cancel_request"), &HTTPRequest::cancel_request);
 
     MethodBinder::bind_method(D_METHOD("get_http_client_status"), &HTTPRequest::get_http_client_status);

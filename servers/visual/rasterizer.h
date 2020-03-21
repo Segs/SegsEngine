@@ -207,7 +207,7 @@ public:
     virtual void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) = 0;
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
-    virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
+    virtual void texture_set_path(RID p_texture, StringView p_path) = 0;
     virtual const String &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;

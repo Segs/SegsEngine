@@ -51,7 +51,7 @@ IMPL_GDCLASS(ItemListEditorPlugin)
 bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 0));
-    se_string_view what = StringUtils::get_slice(p_name,'/', 1);
+    StringView what = StringUtils::get_slice(p_name,'/', 1);
 
     if (what == "text"_sv)
         set_item_text(idx, p_value);
@@ -85,7 +85,7 @@ bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
 bool ItemListPlugin::_get(const StringName &p_name, Variant &r_ret) const {
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 0));
-    se_string_view what = StringUtils::get_slice(p_name,'/', 1);
+    StringView what = StringUtils::get_slice(p_name,'/', 1);
 
     if (what == "text"_sv)
         r_ret = get_item_text(idx);

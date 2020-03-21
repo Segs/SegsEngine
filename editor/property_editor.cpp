@@ -343,7 +343,7 @@ UIString CustomPropertyEditor::get_name() const {
     return name;
 }
 
-bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, se_string_view p_hint_text) {
+bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType p_type, const Variant &p_variant, PropertyHint p_hint, StringView p_hint_text) {
 
     using namespace eastl;
 
@@ -443,10 +443,10 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
             } else if (hint == PropertyHint::Enum) {
 
-                Vector<se_string_view> options = StringUtils::split(hint_text,',');
+                Vector<StringView> options = StringUtils::split(hint_text,',');
                 int current_val = 0;
                 for (int i = 0; i < options.size(); i++) {
-                    Vector<se_string_view> text_split = StringUtils::split(options[i],':');
+                    Vector<StringView> text_split = StringUtils::split(options[i],':');
                     if (text_split.size() != 1)
                         current_val = StringUtils::to_int(text_split[1]);
                     menu->add_item(StringName(text_split[0]));
@@ -525,9 +525,9 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 easing_draw->show();
                 set_size(Size2(200, 150) * EDSCALE);
             } else if (hint == PropertyHint::Flags) {
-                Vector<se_string_view> flags = StringUtils::split(hint_text,',');
+                Vector<StringView> flags = StringUtils::split(hint_text,',');
                 for (int i = 0; i < flags.size(); i++) {
-                    se_string_view flag = flags[i];
+                    StringView flag = flags[i];
                     if (flag.empty())
                         continue;
                     menu->add_check_item_utf8(flag, i);
@@ -568,7 +568,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
                 config_action_buttons(names);
             } else if (hint == PropertyHint::Enum) {
 
-                Vector<se_string_view> options = StringUtils::split(hint_text,',');
+                Vector<StringView> options = StringUtils::split(hint_text,',');
                 for (int i = 0; i < options.size(); i++) {
                     menu->add_item(StringName(options[i]), i);
                 }
@@ -670,11 +670,11 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
 
                 MAKE_PROPSELECT
                 VariantType type = VariantType::NIL;
-                se_string_view tname(hint_text);
+                StringView tname(hint_text);
                 if (StringUtils::contains(tname,'.'))
                     tname = StringUtils::get_slice(tname,".", 0);
                 for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-                    if (tname == se_string_view(Variant::get_type_name(VariantType(i)))) {
+                    if (tname == StringView(Variant::get_type_name(VariantType(i)))) {
                         type = VariantType(VariantType(i));
                     }
                 }
@@ -910,7 +910,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
             if (hint != PropertyHint::ResourceType)
                 break;
 
-            if (p_name == se_string_view("script") && hint_text == "Script" && object_cast<Node>(owner)) {
+            if (p_name == StringView("script") && hint_text == "Script" && object_cast<Node>(owner)) {
                 menu->add_icon_item(get_icon("Script", "EditorIcons"), TTR("New Script"), OBJ_MENU_NEW_SCRIPT);
                 menu->add_separator();
             } else if (!hint_text.empty()) {
@@ -1078,7 +1078,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, se_string_view p_name, VariantT
     return true;
 }
 
-void CustomPropertyEditor::_file_selected(se_string_view p_file) {
+void CustomPropertyEditor::_file_selected(StringView p_file) {
 
     switch (type) {
 
@@ -1288,7 +1288,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                     file->clear_filters();
 
                     if (!hint_text.empty()) {
-                        Vector<se_string_view> extensions = StringUtils::split(hint_text,',');
+                        Vector<StringView> extensions = StringUtils::split(hint_text,',');
                         for (int i = 0; i < extensions.size(); i++) {
 
                             String filter(extensions[i]);
@@ -1540,13 +1540,13 @@ void CustomPropertyEditor::_create_dialog_callback() {
     emit_signal("variant_changed");
 }
 
-void CustomPropertyEditor::_create_selected_property(se_string_view p_prop) {
+void CustomPropertyEditor::_create_selected_property(StringView p_prop) {
 
     v = p_prop;
     emit_signal("variant_changed");
 }
 
-void CustomPropertyEditor::_modified(se_string_view p_string) {
+void CustomPropertyEditor::_modified(StringView p_string) {
 
     if (updating)
         return;
@@ -1725,7 +1725,7 @@ void CustomPropertyEditor::_modified(se_string_view p_string) {
     updating = false;
 }
 
-real_t CustomPropertyEditor::_parse_real_expression(se_string_view text) {
+real_t CustomPropertyEditor::_parse_real_expression(StringView text) {
     Ref<Expression> expr(make_ref_counted<Expression>());
     Error err = expr->parse(text);
     real_t out;
@@ -1867,7 +1867,7 @@ void CustomPropertyEditor::config_value_editors(int p_amount, int p_columns, int
         }
     }
 }
-void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<se_string_view> &p_strings) {
+void CustomPropertyEditor::config_value_editors_utf8(int p_amount, int p_columns, int p_label_w, const Vector<StringView> &p_strings) {
 
     int cell_width = 95;
     int cell_height = 25;

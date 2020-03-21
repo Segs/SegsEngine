@@ -113,12 +113,12 @@ void EditorSettingsDialog::popup_edit_settings() {
     _focus_current_search_box();
 }
 
-void EditorSettingsDialog::_filter_shortcuts(se_string_view p_filter) {
+void EditorSettingsDialog::_filter_shortcuts(StringView p_filter) {
     shortcut_filter = p_filter;
     _update_shortcuts();
 }
 
-void EditorSettingsDialog::_undo_redo_callback(void *p_self, se_string_view p_name) {
+void EditorSettingsDialog::_undo_redo_callback(void *p_self, StringView p_name) {
     EditorNode::get_log()->add_message_utf8(p_name, EditorLog::MSG_TYPE_EDITOR);
 }
 

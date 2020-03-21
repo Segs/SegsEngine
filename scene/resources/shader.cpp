@@ -178,7 +178,7 @@ Shader::~Shader() {
 }
 ////////////
 
-RES ResourceFormatLoaderShader::load(se_string_view p_path, se_string_view p_original_path, Error *r_error) {
+RES ResourceFormatLoaderShader::load(StringView p_path, StringView p_original_path, Error *r_error) {
 
     if (r_error)
         *r_error = ERR_FILE_CANT_OPEN;
@@ -200,12 +200,12 @@ void ResourceFormatLoaderShader::get_recognized_extensions(Vector<String> &p_ext
     p_extensions.push_back("shader");
 }
 
-bool ResourceFormatLoaderShader::handles_type(se_string_view p_type) const {
+bool ResourceFormatLoaderShader::handles_type(StringView p_type) const {
 
-    return (p_type == se_string_view("Shader"));
+    return (p_type == StringView("Shader"));
 }
 
-String ResourceFormatLoaderShader::get_resource_type(se_string_view p_path) const {
+String ResourceFormatLoaderShader::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "shader")
@@ -213,7 +213,7 @@ String ResourceFormatLoaderShader::get_resource_type(se_string_view p_path) cons
     return String();
 }
 
-Error ResourceFormatSaverShader::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaverShader::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     Ref<Shader> shader = dynamic_ref_cast<Shader>(p_resource);
     ERR_FAIL_COND_V(not shader, ERR_INVALID_PARAMETER);

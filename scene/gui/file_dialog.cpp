@@ -149,7 +149,7 @@ void FileDialog::update_dir() {
     deselect_items();
 }
 
-void FileDialog::_dir_entered(se_string_view p_dir) {
+void FileDialog::_dir_entered(StringView p_dir) {
 
     dir_access->change_dir(p_dir);
     file->set_text("");
@@ -157,7 +157,7 @@ void FileDialog::_dir_entered(se_string_view p_dir) {
     update_dir();
 }
 
-void FileDialog::_file_entered(se_string_view p_file) {
+void FileDialog::_file_entered(StringView p_file) {
 
     _action_pressed();
 }
@@ -245,10 +245,10 @@ void FileDialog::_action_pressed() {
             // match all filters
             for (int i = 0; i < filters.size(); i++) {
 
-                se_string_view flt = StringUtils::get_slice(filters[i],(';'), 0);
+                StringView flt = StringUtils::get_slice(filters[i],(';'), 0);
                 for (int j = 0; j < StringUtils::get_slice_count(flt,','); j++) {
 
-                    se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), j));
+                    StringView str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), j));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -263,11 +263,11 @@ void FileDialog::_action_pressed() {
                 idx--;
             if (idx >= 0 && idx < filters.size()) {
 
-                se_string_view flt = StringUtils::get_slice(filters[idx],(';'), 0);
+                StringView flt = StringUtils::get_slice(filters[idx],(';'), 0);
                 int filterSliceCount = StringUtils::get_slice_count(flt,',');
                 for (int j = 0; j < filterSliceCount; j++) {
 
-                    se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), j));
+                    StringView str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), j));
                     if (StringUtils::match(f,str)) {
                         valid = true;
                         break;
@@ -275,7 +275,7 @@ void FileDialog::_action_pressed() {
                 }
 
                 if (!valid && filterSliceCount > 0) {
-                    se_string_view str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), 0));
+                    StringView str = StringUtils::strip_edges(StringUtils::get_slice(flt,(','), 0));
                     f += StringUtils::substr(str,1, str.length() - 1);
                     file->set_text(PathUtils::get_file(f));
                     valid = true;
@@ -433,7 +433,6 @@ void FileDialog::update_file_list() {
     ListOld<String> files;
     ListOld<String> dirs;
 
-    bool is_hidden;
     String item;
 
     while (!(item = dir_access->get_next()).empty()) {
@@ -441,7 +440,7 @@ void FileDialog::update_file_list() {
         if (item == "." || item == "..")
             continue;
 
-        is_hidden = dir_access->current_is_hidden();
+        bool is_hidden = dir_access->current_is_hidden();
 
         if (show_hidden_files || !is_hidden) {
             if (!dir_access->current_is_dir())
@@ -479,7 +478,7 @@ void FileDialog::update_file_list() {
         // match all filters
         for (int i = 0; i < filters.size(); i++) {
 
-            se_string_view f = StringUtils::get_slice(filters[i],";", 0);
+            StringView f = StringUtils::get_slice(filters[i],";", 0);
             for (int j = 0; j < StringUtils::get_slice_count(f,','); j++) {
 
                 patterns.emplace_back(StringUtils::strip_edges(StringUtils::get_slice(f,",", j)));
@@ -492,7 +491,7 @@ void FileDialog::update_file_list() {
 
         if (idx >= 0 && idx < filters.size()) {
 
-            se_string_view f = StringUtils::get_slice(filters[idx],";", 0);
+            StringView f = StringUtils::get_slice(filters[idx],";", 0);
             for (int j = 0; j < StringUtils::get_slice_count(f,','); j++) {
 
                 patterns.emplace_back(StringUtils::strip_edges(StringUtils::get_slice(f,',', j)));
@@ -562,7 +561,7 @@ void FileDialog::update_filters() {
         const int max_filters = 5;
 
         for (int i = 0; i < MIN(max_filters, filters.size()); i++) {
-            se_string_view flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
+            StringView flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
             if (i > 0)
                 all_filters += ',';
             all_filters += flt;
@@ -575,8 +574,8 @@ void FileDialog::update_filters() {
     }
     for (int i = 0; i < filters.size(); i++) {
 
-        se_string_view flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
-        se_string_view desc = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1));
+        StringView flt = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 0));
+        StringView desc = StringUtils::strip_edges(StringUtils::get_slice(filters[i],";", 1));
         if (desc.length())
             filter->add_item(tr(StringName(desc)) + " ( " + flt + " )");
         else
@@ -592,7 +591,7 @@ void FileDialog::clear_filters() {
     update_filters();
     invalidate();
 }
-void FileDialog::add_filter(se_string_view p_filter) {
+void FileDialog::add_filter(StringView p_filter) {
 
     filters.emplace_back(p_filter);
     update_filters();
@@ -621,13 +620,13 @@ String FileDialog::get_current_path() const {
 
     return PathUtils::plus_file(dir->get_text(),file->get_text());
 }
-void FileDialog::set_current_dir(se_string_view p_dir) {
+void FileDialog::set_current_dir(StringView p_dir) {
 
     dir_access->change_dir(p_dir);
     update_dir();
     invalidate();
 }
-void FileDialog::set_current_file(se_string_view p_file) {
+void FileDialog::set_current_file(StringView p_file) {
 
     file->set_text(p_file);
     update_dir();
@@ -639,17 +638,17 @@ void FileDialog::set_current_file(se_string_view p_file) {
             file->grab_focus();
     }
 }
-void FileDialog::set_current_path(se_string_view p_path) {
+void FileDialog::set_current_path(StringView p_path) {
 
     if (p_path.empty())
         return;
     auto base_p(PathUtils::path(p_path));
-    if (base_p==se_string_view(".")) {
+    if (base_p==StringView(".")) {
         set_current_file(p_path);
     } else {
 
-        se_string_view dir = base_p;
-        se_string_view file = PathUtils::get_file(base_p);
+        StringView dir = base_p;
+        StringView file = PathUtils::get_file(base_p);
         set_current_dir(dir);
         set_current_file(file);
     }
@@ -1013,7 +1012,7 @@ void LineEditFileChooser::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_file_dialog"), &LineEditFileChooser::get_file_dialog);
 }
 
-void LineEditFileChooser::_chosen(se_string_view p_text) {
+void LineEditFileChooser::_chosen(StringView p_text) {
 
     line_edit->set_text(p_text);
     line_edit->emit_signal("text_entered", p_text);

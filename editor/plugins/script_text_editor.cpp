@@ -50,7 +50,7 @@ IMPL_GDCLASS(ScriptTextEditor)
 void ConnectionInfoDialog::ok_pressed() {
 }
 
-void ConnectionInfoDialog::popup_connections(se_string_view p_method, const Vector<Node *> &p_nodes) {
+void ConnectionInfoDialog::popup_connections(StringView p_method, const Vector<Node *> &p_nodes) {
     method->set_text(StringName(p_method));
 
     tree->clear();
@@ -325,7 +325,7 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     for (size_t i=0,fin=types.size(); i<fin; ++i) {
 
-        se_string_view n(types[i].asCString());
+        StringView n(types[i].asCString());
         if (StringUtils::begins_with(n,"_"))
             n = StringUtils::substr(n,1, n.length());
 
@@ -345,7 +345,7 @@ void ScriptTextEditor::_set_theme_for_script() {
     Vector<PropertyInfo> props;
     ProjectSettings::get_singleton()->get_property_list(&props);
     for (const PropertyInfo &E : props) {
-        se_string_view s(E.name);
+        StringView s(E.name);
         if (!StringUtils::begins_with(s,"autoload/")) {
             continue;
         }
@@ -361,8 +361,8 @@ void ScriptTextEditor::_set_theme_for_script() {
 
     for (const String &comment : comments) {
 
-        se_string_view beg = StringUtils::get_slice(comment," ", 0);
-        se_string_view end = StringUtils::get_slice_count(comment,' ') > 1 ? StringUtils::get_slice(comment," ", 1) : se_string_view();
+        StringView beg = StringUtils::get_slice(comment," ", 0);
+        StringView end = StringUtils::get_slice_count(comment,' ') > 1 ? StringUtils::get_slice(comment," ", 1) : StringView();
 
         text_edit->add_color_region(beg, end, colors_cache.comment_color, end.empty());
     }
@@ -372,8 +372,8 @@ void ScriptTextEditor::_set_theme_for_script() {
     script->get_language()->get_string_delimiters(&strings);
     for (const String &string : strings) {
 
-        se_string_view beg = StringUtils::get_slice(string," ", 0);
-        se_string_view end = StringUtils::get_slice_count(string,' ') > 1 ? StringUtils::get_slice(string," ", 1) : se_string_view();
+        StringView beg = StringUtils::get_slice(string," ", 0);
+        StringView end = StringUtils::get_slice_count(string,' ') > 1 ? StringUtils::get_slice(string," ", 1) : StringView();
         text_edit->add_color_region(beg, end, colors_cache.string_color, end.empty());
     }
 }
@@ -1017,8 +1017,8 @@ void ScriptTextEditor::_update_connected_methods() {
                 int line = -1;
 
                 for (int j = 0; j < functions.size(); j++) {
-                    se_string_view name = StringUtils::get_slice(functions[j],":", 0);
-                    if (name == se_string_view(connection.method)) {
+                    StringView name = StringUtils::get_slice(functions[j],":", 0);
+                    if (name == StringView(connection.method)) {
                         line = StringUtils::to_int(StringUtils::get_slice(functions[j],":", 1));
                         text_edit->set_line_info_icon(line - 1, get_parent_control()->get_icon("Slot", "EditorIcons"), connection.method);
                         methods_found.insert(connection.method);
@@ -1049,7 +1049,7 @@ void ScriptTextEditor::_update_connected_methods() {
     }
 }
 
-void ScriptTextEditor::_lookup_connections(int p_row, se_string_view p_method) {
+void ScriptTextEditor::_lookup_connections(int p_row, StringView p_method) {
     Node *base = get_tree()->get_edited_scene_root();
     if (!base) {
         return;
@@ -1170,7 +1170,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
                 end = tx->get_line_count() - 1;
             }
             scr->get_language()->auto_indent_code(text, begin, end);
-            Vector<se_string_view> lines = StringUtils::split(text,'\n');
+            Vector<StringView> lines = StringUtils::split(text,'\n');
             for (int i = begin; i <= end; ++i) {
                 tx->set_line(i, lines[i]);
             }
@@ -1208,13 +1208,13 @@ void ScriptTextEditor::_edit_option(int p_op) {
         case EDIT_EVALUATE: {
 
             Expression expression;
-            Vector<se_string_view> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
+            Vector<StringView> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
             Vector<String> results;
 
             for (size_t i = 0; i < lines.size(); i++) {
-                se_string_view line = lines[i];
+                StringView line = lines[i];
                 //extract the whitespace at the beginning
-                se_string_view whitespace = StringUtils::substr(line,0, line.size() - StringUtils::strip_edges(line,true, false).size());
+                StringView whitespace = StringUtils::substr(line,0, line.size() - StringUtils::strip_edges(line,true, false).size());
 
                 if (expression.parse(line) == OK) {
                     Variant result = expression.execute(Array(), Variant(), false);
@@ -1382,7 +1382,7 @@ void ScriptTextEditor::_edit_option_toggle_inline_comment() {
     script->get_language()->get_comment_delimiters(&comment_delimiters);
 
     for (const String &E : comment_delimiters) {
-        se_string_view script_delimiter = E;
+        StringView script_delimiter = E;
         if ( not StringUtils::contains(script_delimiter,' ')) {
             delimiter = script_delimiter;
             break;
@@ -1467,7 +1467,7 @@ void ScriptTextEditor::get_breakpoints(Vector<int> *p_breakpoints) {
     code_editor->get_text_edit()->get_breakpoints(p_breakpoints);
 }
 
-void ScriptTextEditor::set_tooltip_request_func(se_string_view p_method, Object *p_obj) {
+void ScriptTextEditor::set_tooltip_request_func(StringView p_method, Object *p_obj) {
 
     code_editor->get_text_edit()->set_tooltip_request_func(p_obj, StringName(p_method), Variant(this));
 }

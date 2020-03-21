@@ -68,7 +68,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     for (const StringName &E : keys) {
 
         //hash string
-        se_string_view cs(E);
+        StringView cs(E);
         uint32_t h = hash(0, E.asCString());
         Pair<int, String> p;
         p.first = idx;
@@ -76,7 +76,7 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
         buckets[h % size].push_back(p);
 
         //compress string
-        se_string_view src_s(p_from->get_message(E));
+        StringView src_s(p_from->get_message(E));
         _PHashTranslationCmp ps;
         ps.orig_len = src_s.size();
         ps.offset = total_compression_size;

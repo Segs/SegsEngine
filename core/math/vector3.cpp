@@ -31,7 +31,7 @@
 #include "vector3.h"
 
 #include "core/math/basis.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 void Vector3::rotate(const Vector3 &p_axis, real_t p_phi) {

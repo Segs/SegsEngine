@@ -49,7 +49,7 @@ bool GDMonoAssembly::in_preload = false;
 
 Vector<String> GDMonoAssembly::search_dirs;
 
-void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,se_string_view p_custom_config, se_string_view p_custom_bcl_dir) {
+void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,StringView p_custom_config, StringView p_custom_bcl_dir) {
 
     String framework_dir;
 
@@ -80,13 +80,14 @@ void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,se_string_vi
     if (p_custom_config.empty()) {
         r_search_dirs.push_back(GodotSharpDirs::get_res_assemblies_dir());
     } else {
-        String api_config = p_custom_config == se_string_view("Release") ? "Release" : "Debug";
+        String api_config = p_custom_config == StringView("Release") ? "Release" : "Debug";
         r_search_dirs.push_back(PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),api_config));
     }
 
     r_search_dirs.push_back(GodotSharpDirs::get_res_assemblies_base_dir());
     r_search_dirs.push_back(OS::get_singleton()->get_resource_dir());
     r_search_dirs.push_back(PathUtils::get_base_dir(OS::get_singleton()->get_executable_path()));
+    r_search_dirs.push_back(PathUtils::get_base_dir(OS::get_singleton()->working_directory()));
 
 #ifdef TOOLS_ENABLED
     r_search_dirs.push_back(GodotSharpDirs::get_data_editor_tools_dir());
@@ -196,7 +197,7 @@ MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, vo
     return res ? res->get_assembly() : nullptr;
 }
 
-GDMonoAssembly *GDMonoAssembly::_load_assembly_search(se_string_view p_name, const Vector<String> &p_search_dirs, bool p_refonly) {
+GDMonoAssembly *GDMonoAssembly::_load_assembly_search(StringView p_name, const Vector<String> &p_search_dirs, bool p_refonly) {
 
     GDMonoAssembly *res = nullptr;
     String path;
@@ -260,7 +261,7 @@ String GDMonoAssembly::find_assembly(const String &p_name) {
     return String();
 }
 
-GDMonoAssembly *GDMonoAssembly::_load_assembly_from(se_string_view p_name, se_string_view p_path, bool p_refonly) {
+GDMonoAssembly *GDMonoAssembly::_load_assembly_from(StringView p_name, StringView p_path, bool p_refonly) {
 
     GDMonoAssembly *assembly = memnew(GDMonoAssembly(p_name, p_path));
 
@@ -514,7 +515,7 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
     return match;
 }
 
-GDMonoAssembly *GDMonoAssembly::load_from(se_string_view  p_name, se_string_view p_path, bool p_refonly) {
+GDMonoAssembly *GDMonoAssembly::load_from(StringView  p_name, StringView p_path, bool p_refonly) {
 
     GDMonoAssembly **loaded_asm = GDMono::get_singleton()->get_loaded_assembly(p_name);
     if (loaded_asm)
@@ -528,7 +529,7 @@ GDMonoAssembly *GDMonoAssembly::load_from(se_string_view  p_name, se_string_view
     return res;
 }
 
-GDMonoAssembly::GDMonoAssembly(se_string_view p_name, se_string_view p_path) {
+GDMonoAssembly::GDMonoAssembly(StringView p_name, StringView p_path) {
 
     loaded = false;
     gdobject_class_cache_updated = false;

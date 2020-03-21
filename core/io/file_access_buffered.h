@@ -32,7 +32,7 @@
 
 #include "core/os/file_access.h"
 #include "core/vector.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class FileAccessBuffered : public FileAccess {
 

@@ -98,10 +98,10 @@ public:
         values.clear();
     }
 
-    String get_var_value(se_string_view p_var) const {
+    String get_var_value(StringView p_var) const {
 
         for (const eastl::pair<const StringName,Variant> &E : values) {
-            se_string_view v = StringUtils::get_slice(E.first,"/", 1);
+            StringView v = StringUtils::get_slice(E.first,"/", 1);
             if (v == p_var)
                 return E.second;
         }
@@ -109,7 +109,7 @@ public:
         return String();
     }
 
-    void add_property(const StringName &p_name, const Variant &p_value, const PropertyHint &p_hint, se_string_view p_hint_string) {
+    void add_property(const StringName &p_name, const Variant &p_value, const PropertyHint &p_hint, StringView p_hint_string) {
 
         PropertyInfo pinfo;
         pinfo.name = p_name;
@@ -336,7 +336,7 @@ void ScriptEditorDebugger::_scene_tree_rmb_selected(const Vector2 &p_position) {
     item_menu->popup();
 }
 
-void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
+void ScriptEditorDebugger::_file_selected(StringView p_file) {
     switch (file_dialog_mode) {
         case SAVE_NODE: {
             Array msg;
@@ -382,7 +382,7 @@ void ScriptEditorDebugger::_file_selected(se_string_view p_file) {
     }
 }
 
-void ScriptEditorDebugger::_scene_tree_property_value_edited(se_string_view p_prop, const Variant &p_value) {
+void ScriptEditorDebugger::_scene_tree_property_value_edited(StringView p_prop, const Variant &p_value) {
 
     Array msg;
     msg.push_back("set_object_property");
@@ -613,7 +613,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                     String path = var;
                     if (path.contains("::")) {
                         // built-in resource
-                        se_string_view base_path = StringUtils::get_slice(path,"::", 0);
+                        StringView base_path = StringUtils::get_slice(path,"::", 0);
                         if (ResourceLoader::get_resource_type(base_path) == "PackedScene") {
                             if (!EditorNode::get_singleton()->is_scene_open(base_path)) {
                                 EditorNode::get_singleton()->load_scene(base_path);
@@ -1054,8 +1054,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
                 item.signature = profiler_signature[signature];
 
-                se_string_view name = profiler_signature[signature];
-                Vector<se_string_view> strings = StringUtils::split(name,"::");
+                StringView name = profiler_signature[signature];
+                Vector<StringView> strings = StringUtils::split(name,"::");
                 if (strings.size() == 3) {
                     item.name = strings[2];
                     item.script = strings[0];
@@ -1637,7 +1637,7 @@ void ScriptEditorDebugger::_export_csv() {
     file_dialog->popup_centered_ratio();
 }
 
-String ScriptEditorDebugger::get_var_value(se_string_view p_var) const {
+String ScriptEditorDebugger::get_var_value(StringView p_var) const {
     if (!breaked)
         return String();
     return variables->get_var_value(p_var);
@@ -1661,7 +1661,7 @@ int ScriptEditorDebugger::_get_node_path_cache(const NodePath &p_path) {
     return last_path_id;
 }
 
-int ScriptEditorDebugger::_get_res_path_cache(se_string_view p_path) {
+int ScriptEditorDebugger::_get_res_path_cache(StringView p_path) {
 
     Map<String, int>::iterator E = res_path_cache.find_as(p_path);
 
@@ -1867,7 +1867,7 @@ void ScriptEditorDebugger::update_live_edit_root() {
     live_edit_root->set_text_uistring(StringUtils::from_utf8((String)np));
 }
 
-void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, se_string_view p_type, se_string_view p_name) {
+void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, StringView p_type, StringView p_name) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1879,7 +1879,7 @@ void ScriptEditorDebugger::live_debug_create_node(const NodePath &p_parent, se_s
     }
 }
 
-void ScriptEditorDebugger::live_debug_instance_node(const NodePath &p_parent, se_string_view p_path, se_string_view p_name) {
+void ScriptEditorDebugger::live_debug_instance_node(const NodePath &p_parent, StringView p_path, StringView p_name) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1920,7 +1920,7 @@ void ScriptEditorDebugger::live_debug_restore_node(ObjectID p_id, const NodePath
         ppeer->put_var(msg);
     }
 }
-void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, se_string_view p_new_name) {
+void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, StringView p_new_name) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1930,7 +1930,7 @@ void ScriptEditorDebugger::live_debug_duplicate_node(const NodePath &p_at, se_st
         ppeer->put_var(msg);
     }
 }
-void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, se_string_view p_new_name, int p_at_pos) {
+void ScriptEditorDebugger::live_debug_reparent_node(const NodePath &p_at, const NodePath &p_new_place, StringView p_new_name, int p_at_pos) {
 
     if (live_debug && connection) {
         Array msg;
@@ -1981,7 +1981,7 @@ void ScriptEditorDebugger::set_camera_override(CameraOverride p_override) {
 
     camera_override = p_override;
 }
-void ScriptEditorDebugger::set_breakpoint(se_string_view p_path, int p_line, bool p_enabled) {
+void ScriptEditorDebugger::set_breakpoint(StringView p_path, int p_line, bool p_enabled) {
 
     if (connection) {
         Array msg;
@@ -2491,10 +2491,10 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         perf_monitors->set_hide_root(true);
         for (int i = 0; i < Performance::MONITOR_MAX; i++) {
 
-            se_string_view n(Performance::get_singleton()->get_monitor_name(Performance::Monitor(i)));
+            StringView n(Performance::get_singleton()->get_monitor_name(Performance::Monitor(i)));
             Performance::MonitorType mtype = Performance::get_singleton()->get_monitor_type(Performance::Monitor(i));
-            se_string_view base = StringUtils::get_slice(n,"/", 0);
-            se_string_view name = StringUtils::get_slice(n,"/", 1);
+            StringView base = StringUtils::get_slice(n,"/", 0);
+            StringView name = StringUtils::get_slice(n,"/", 1);
             auto iter = bases.find_as(base);
             if (iter==bases.end()) {
                 TreeItem *b = perf_monitors->create_item(root);

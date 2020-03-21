@@ -6,8 +6,6 @@ find_package(EnTT)
 
 set_and_check(ENTT_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
 
-if(NOT CMAKE_VERSION VERSION_LESS "3.0")
-    include("${CMAKE_CURRENT_LIST_DIR}/editor_engine_Targets.cmake")
-endif()
+include("${CMAKE_CURRENT_LIST_DIR}/editor_engine_Targets.cmake")
 
 check_required_components("@PROJECT_NAME@")

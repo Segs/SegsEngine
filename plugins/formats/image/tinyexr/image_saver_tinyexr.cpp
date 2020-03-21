@@ -31,7 +31,7 @@
 #include "image_saver_tinyexr.h"
 #include "core/math/math_funcs.h"
 #include "core/image_data.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include "thirdparty/tinyexr/tinyexr.h"
 
@@ -265,7 +265,7 @@ Error prepare_exr_save(EXRImage &image,EXRHeader &header, const ImageData &p_img
 
     return OK;
 }
-Error save_exr(se_string_view p_path, const ImageData &p_img, bool p_grayscale) {
+Error save_exr(StringView p_path, const ImageData &p_img, bool p_grayscale) {
     EXRImage image;
     EXRHeader header;
     auto res = prepare_exr_save(image,header,p_img,p_grayscale);

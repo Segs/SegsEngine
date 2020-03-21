@@ -92,8 +92,8 @@ class EditorHelpSearch::Runner : public RefCounted {
     bool _phase_member_items();
     bool _phase_select_match();
 
-    bool _match_string(const String &p_term, se_string_view p_string) const;
-    void _match_item(TreeItem *p_item, se_string_view p_text);
+    bool _match_string(const String &p_term, StringView p_string) const;
+    void _match_item(TreeItem *p_item, StringView p_text);
     TreeItem *_create_class_hierarchy(const ClassMatch &p_match);
     TreeItem *_create_class_item(TreeItem *p_parent, const DocData::ClassDoc *p_doc, bool p_gray);
     TreeItem *_create_method_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::MethodDoc *p_doc);
@@ -101,12 +101,12 @@ class EditorHelpSearch::Runner : public RefCounted {
     TreeItem *_create_constant_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::ConstantDoc *p_doc);
     TreeItem *_create_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc);
     TreeItem *_create_theme_property_item(TreeItem *p_parent, const DocData::ClassDoc *p_class_doc, const DocData::PropertyDoc *p_doc);
-    TreeItem *_create_member_item(TreeItem *p_parent, const StringName &p_class_name, se_string_view p_icon, const String &p_name, se_string_view p_type, se_string_view p_metatype, se_string_view p_tooltip);
+    TreeItem *_create_member_item(TreeItem *p_parent, const StringName &p_class_name, StringView p_icon, const String &p_name, StringView p_type, StringView p_metatype, StringView p_tooltip);
 
 public:
     bool work(uint64_t slot = 100000);
 
-    Runner(Control *p_icon_service, Tree *p_results_tree, se_string_view p_term, int p_search_flags);
+    Runner(Control *p_icon_service, Tree *p_results_tree, StringView p_term, int p_search_flags);
 };
 
 void EditorHelpSearch::_update_icons() {
@@ -152,7 +152,7 @@ void EditorHelpSearch::_search_box_gui_input(const Ref<InputEvent> &p_event) {
     }
 }
 
-void EditorHelpSearch::_search_box_text_changed(se_string_view p_text) {
+void EditorHelpSearch::_search_box_text_changed(StringView p_text) {
 
     _update_results();
 }
@@ -234,7 +234,7 @@ void EditorHelpSearch::popup_dialog() {
     popup_dialog(search_box->get_text());
 }
 
-void EditorHelpSearch::popup_dialog(se_string_view p_term) {
+void EditorHelpSearch::popup_dialog(StringView p_term) {
 
     // Restore valid window bounds or pop up at default size.
     Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "search_help", Rect2());
@@ -513,13 +513,13 @@ bool EditorHelpSearch::Runner::_phase_select_match() {
     return true;
 }
 
-bool EditorHelpSearch::Runner::_match_string(const String &p_term, se_string_view p_string) const {
+bool EditorHelpSearch::Runner::_match_string(const String &p_term, StringView p_string) const {
 
     return StringUtils::is_subsequence_of(p_term, p_string,
             search_flags & SEARCH_CASE_SENSITIVE ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
 }
 
-void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, se_string_view p_text) {
+void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, StringView p_text) {
 
     if (!matched_item) {
         if (search_flags & SEARCH_CASE_SENSITIVE) {
@@ -630,8 +630,8 @@ TreeItem *EditorHelpSearch::Runner::_create_theme_property_item(TreeItem *p_pare
 }
 
 TreeItem *EditorHelpSearch::Runner::_create_member_item(TreeItem *p_parent, const StringName &p_class_name,
-        se_string_view p_icon, const String &p_name, se_string_view p_type, se_string_view p_metatype,
-        se_string_view p_tooltip) {
+        StringView p_icon, const String &p_name, StringView p_type, StringView p_metatype,
+        StringView p_tooltip) {
 
     Ref<Texture> icon;
     String text;
@@ -671,7 +671,7 @@ bool EditorHelpSearch::Runner::work(uint64_t slot) {
     return true;
 }
 
-EditorHelpSearch::Runner::Runner(Control *p_icon_service, Tree *p_results_tree, se_string_view p_term, int p_search_flags) :
+EditorHelpSearch::Runner::Runner(Control *p_icon_service, Tree *p_results_tree, StringView p_term, int p_search_flags) :
         ui_service(p_icon_service),
         results_tree(p_results_tree),
         term((p_search_flags & SEARCH_CASE_SENSITIVE) == 0 ? StringUtils::to_lower(StringUtils::strip_edges(p_term)) : StringUtils::strip_edges( p_term)),

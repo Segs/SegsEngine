@@ -97,7 +97,7 @@ public:
     };
 
     using BakeBeginFunc = void (*)(int);
-    using BakeStepFunc = void (*)(int, se_string_view);
+    using BakeStepFunc = void (*)(int, StringView);
     using BakeEndFunc = void (*)();
 
 private:

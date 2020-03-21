@@ -35,7 +35,7 @@
 #include "core/list.h"
 #include "core/os/memory.h"
 #include "core/print_string.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/vector.h"
@@ -74,7 +74,7 @@ Error DirAccessUnix::list_dir_begin() {
     return OK;
 }
 
-bool DirAccessUnix::file_exists(se_string_view _file) {
+bool DirAccessUnix::file_exists(StringView _file) {
 
     String p_file(_file);
     GLOBAL_LOCK_FUNCTION
@@ -94,7 +94,7 @@ bool DirAccessUnix::file_exists(se_string_view _file) {
     return success;
 }
 
-bool DirAccessUnix::dir_exists(se_string_view _dir) {
+bool DirAccessUnix::dir_exists(StringView _dir) {
 
     String p_dir(_dir);
     GLOBAL_LOCK_FUNCTION
@@ -110,7 +110,7 @@ bool DirAccessUnix::dir_exists(se_string_view _dir) {
     return (success && S_ISDIR(flags.st_mode));
 }
 
-uint64_t DirAccessUnix::get_modified_time(se_string_view _file) {
+uint64_t DirAccessUnix::get_modified_time(StringView _file) {
     String p_file(_file);
     if (PathUtils::is_rel_path(p_file))
         p_file = PathUtils::plus_file(current_dir,p_file);
@@ -241,7 +241,7 @@ static void _get_drives(Vector<String> *vec) {
         if (fd) {
             char string[1024];
             while (fgets(string, 1024, fd)) {
-                se_string_view string_sv(string);
+                StringView string_sv(string);
                 // Parse only file:// links
                 if (string_sv.starts_with("file://")) {
                     // Strip any unwanted edges on the strings and push_back if it's not a duplicate
@@ -276,7 +276,7 @@ String DirAccessUnix::get_drive(int p_drive) {
     return list[p_drive];
 }
 
-Error DirAccessUnix::make_dir(se_string_view _dir) {
+Error DirAccessUnix::make_dir(StringView _dir) {
     String p_dir(_dir);
     GLOBAL_LOCK_FUNCTION
 
@@ -299,7 +299,7 @@ Error DirAccessUnix::make_dir(se_string_view _dir) {
     return ERR_CANT_CREATE;
 }
 
-Error DirAccessUnix::change_dir(se_string_view _dir) {
+Error DirAccessUnix::change_dir(StringView _dir) {
 
     GLOBAL_LOCK_FUNCTION
 
@@ -357,7 +357,7 @@ String DirAccessUnix::get_current_dir() {
     return current_dir;
 }
 
-Error DirAccessUnix::rename(se_string_view _path, se_string_view _new_path) {
+Error DirAccessUnix::rename(StringView _path, StringView _new_path) {
     String p_path(_path);
     String p_new_path(_new_path);
 
@@ -374,7 +374,7 @@ Error DirAccessUnix::rename(se_string_view _path, se_string_view _new_path) {
     return ::rename(p_path.data(), p_new_path.data()) == 0 ? OK : FAILED;
 }
 
-Error DirAccessUnix::remove(se_string_view _path) {
+Error DirAccessUnix::remove(StringView _path) {
 
     String p_path(_path);
     if (PathUtils::is_rel_path(p_path))

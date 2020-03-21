@@ -142,7 +142,7 @@ public:
     void set_data(Span<const uint8_t> p_data);
     PoolVector<uint8_t> get_data() const;
 
-    Error save_to_wav(se_string_view p_path);
+    Error save_to_wav(StringView p_path);
 
     Ref<AudioStreamPlayback> instance_playback() override;
     String get_stream_name() const override;

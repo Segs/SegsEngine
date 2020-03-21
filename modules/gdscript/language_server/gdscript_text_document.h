@@ -45,8 +45,8 @@ protected:
     void didOpen(const Variant &p_param);
     void didChange(const Variant &p_param);
 
-    void sync_script_content(se_string_view p_path, se_string_view p_content);
-    void show_native_symbol_in_editor(se_string_view p_symbol_id);
+    void sync_script_content(StringView p_path, StringView p_content);
+    void show_native_symbol_in_editor(StringView p_symbol_id);
 
     Array native_member_completions;
 

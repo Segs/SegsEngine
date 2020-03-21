@@ -35,7 +35,7 @@
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
-#include "editor_scale.h"
+#include "editor/editor_scale.h"
 #include "modules/visual_script/visual_script.h"
 #include "modules/visual_script/visual_script_builtin_funcs.h"
 #include "modules/visual_script/visual_script_flow_control.h"
@@ -48,7 +48,7 @@
 
 IMPL_GDCLASS(VisualScriptPropertySelector)
 
-void VisualScriptPropertySelector::_text_changed(se_string_view p_newtext) {
+void VisualScriptPropertySelector::_text_changed(StringView p_newtext) {
     _update_search();
 }
 
@@ -215,7 +215,7 @@ void VisualScriptPropertySelector::_update_search() {
             }
         for(const MethodInfo & M : methods) {
 
-            se_string_view name = StringUtils::get_slice(M.name,':', 0);
+            StringView name = StringUtils::get_slice(M.name,':', 0);
             if (StringUtils::begins_with(name,"_") && !(M.flags & METHOD_FLAG_VIRTUAL))
                 continue;
 
@@ -334,7 +334,7 @@ void VisualScriptPropertySelector::create_visualscript_item(StringName name, Tre
     }
 }
 
-void VisualScriptPropertySelector::get_visual_node_names(se_string_view root_filter, const Set<String> &p_modifiers, bool &found, TreeItem *const root, LineEdit *const search_box) {
+void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter, const Set<String> &p_modifiers, bool &found, TreeItem *const root, LineEdit *const search_box) {
     Map<String, TreeItem *> path_cache;
 
     ListOld<String> fnodes;
@@ -344,10 +344,10 @@ void VisualScriptPropertySelector::get_visual_node_names(se_string_view root_fil
         if (!StringUtils::begins_with(E->deref(),root_filter)) {
             continue;
         }
-        Vector<se_string_view> path = StringUtils::split(E->deref(),'/');
+        Vector<StringView> path = StringUtils::split(E->deref(),'/');
         // check if the name has the filter
         bool in_filter = false;
-        Vector<se_string_view> tx_filters = StringUtils::split(search_box->get_text(),' ');
+        Vector<StringView> tx_filters = StringUtils::split(search_box->get_text(),' ');
         for (size_t i = 0; i < tx_filters.size(); i++) {
             in_filter = tx_filters[i].empty();
             if (StringUtils::contains(E->deref(),tx_filters[i])) {
@@ -477,7 +477,7 @@ void VisualScriptPropertySelector::_item_selected() {
     auto T = dd->class_list.find(class_type);
     if (T!=dd->class_list.end()) {
         for (size_t i = 0; i < T->second.methods.size(); i++) {
-            Vector<se_string_view> functions = StringUtils::rsplit(name,"/", false, 1);
+            Vector<StringView> functions = StringUtils::rsplit(name,"/", false, 1);
             if (T->second.methods[i].name == functions[functions.size() - 1]) {
                 text = T->second.methods[i].description;
             }
@@ -529,7 +529,7 @@ void VisualScriptPropertySelector::_notification(int p_what) {
     }
 }
 
-void VisualScriptPropertySelector::select_method_from_base_type(se_string_view p_base, const UIString &p_current, const bool p_virtuals_only, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_method_from_base_type(StringView p_base, const UIString &p_current, const bool p_virtuals_only, const bool p_connecting, bool clear_text) {
 
     base_type = p_base;
     selected = p_current;
@@ -554,7 +554,7 @@ void VisualScriptPropertySelector::set_type_filter(Vector<VariantType> &&p_type_
     type_filter = eastl::move(p_type_filter);
 }
 
-void VisualScriptPropertySelector::select_from_base_type(se_string_view p_base, const UIString &p_current, bool p_virtuals_only, bool p_seq_connect, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_base_type(StringView p_base, const UIString &p_current, bool p_virtuals_only, bool p_seq_connect, const bool p_connecting, bool clear_text) {
 
     base_type = p_base;
     selected = p_current;
@@ -624,7 +624,7 @@ void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, co
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_action(se_string_view p_type, const UIString &p_current, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_action(StringView p_type, const UIString &p_current, const bool p_connecting, bool clear_text) {
     base_type = p_type;
     selected = p_current;
     type = VariantType::NIL;
@@ -646,7 +646,7 @@ void VisualScriptPropertySelector::select_from_action(se_string_view p_type, con
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_instance(Object *p_instance, const UIString &p_current, const bool p_connecting, se_string_view p_basetype, bool clear_text) {
+void VisualScriptPropertySelector::select_from_instance(Object *p_instance, const UIString &p_current, const bool p_connecting, StringView p_basetype, bool clear_text) {
     base_type = p_basetype;
     selected = p_current;
     type = VariantType::NIL;
@@ -668,7 +668,7 @@ void VisualScriptPropertySelector::select_from_instance(Object *p_instance, cons
     _update_search();
 }
 
-void VisualScriptPropertySelector::select_from_visual_script(se_string_view p_base, const bool p_connecting, bool clear_text) {
+void VisualScriptPropertySelector::select_from_visual_script(StringView p_base, const bool p_connecting, bool clear_text) {
     base_type = p_base;
     selected = "";
     type = VariantType::NIL;

@@ -34,7 +34,7 @@
 #include "core/list.h"
 #include "core/map.h"
 #include "core/object.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 struct _IP_ResolverPrivate;
 
@@ -73,7 +73,7 @@ protected:
     static IP *singleton;
     static void _bind_methods();
 
-    virtual IP_Address _resolve_hostname(se_string_view p_hostname, Type p_type = TYPE_ANY) = 0;
+    virtual IP_Address _resolve_hostname(StringView p_hostname, Type p_type = TYPE_ANY) = 0;
 
     static IP *(*_create)();
 
@@ -89,7 +89,7 @@ public:
         Vector<IP_Address> ip_addresses;
     };
 
-    IP_Address resolve_hostname(se_string_view p_hostname, Type p_type = TYPE_ANY);
+    IP_Address resolve_hostname(StringView p_hostname, Type p_type = TYPE_ANY);
     // async resolver hostname
     ResolverID resolve_hostname_queue_item(const String &p_hostname, Type p_type = TYPE_ANY);
     ResolverStatus get_resolve_item_status(ResolverID p_id) const;

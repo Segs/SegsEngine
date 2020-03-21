@@ -87,7 +87,7 @@ MainLoop::~MainLoop()
 
 }
 
-void MainLoop::input_text(se_string_view p_text) {
+void MainLoop::input_text(StringView p_text) {
 
     if (get_script_instance())
         get_script_instance()->call("_input_text", p_text);

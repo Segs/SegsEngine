@@ -66,7 +66,7 @@ void AnimationNodeAnimation::get_parameter_list(Vector<PropertyInfo> *r_list) co
 }
 void AnimationNodeAnimation::_validate_property(PropertyInfo &property) const {
 
-    if (se_string_view(property.name) != se_string_view("animation") || !get_editable_animation_list)
+    if (StringView(property.name) != StringView("animation") || !get_editable_animation_list)
         return;
 
     Vector<String> names = get_editable_animation_list();
@@ -137,7 +137,7 @@ float AnimationNodeAnimation::process(float p_time, bool p_seek) {
     return anim_size - time;
 }
 
-se_string_view AnimationNodeAnimation::get_caption() const {
+StringView AnimationNodeAnimation::get_caption() const {
     return ("Animation");
 }
 
@@ -228,7 +228,7 @@ AnimationNodeOneShot::MixMode AnimationNodeOneShot::get_mix_mode() const {
     return mix;
 }
 
-se_string_view AnimationNodeOneShot::get_caption() const {
+StringView AnimationNodeOneShot::get_caption() const {
     return "OneShot";
 }
 
@@ -404,7 +404,7 @@ Variant AnimationNodeAdd2::get_parameter_default_value(const StringName &p_param
     return 0;
 }
 
-se_string_view AnimationNodeAdd2::get_caption() const {
+StringView AnimationNodeAdd2::get_caption() const {
     return ("Add2");
 }
 void AnimationNodeAdd2::set_use_sync(bool p_sync) {
@@ -456,7 +456,7 @@ Variant AnimationNodeAdd3::get_parameter_default_value(const StringName &p_param
     return 0;
 }
 
-se_string_view AnimationNodeAdd3::get_caption() const {
+StringView AnimationNodeAdd3::get_caption() const {
     return ("Add3");
 }
 void AnimationNodeAdd3::set_use_sync(bool p_sync) {
@@ -509,7 +509,7 @@ Variant AnimationNodeBlend2::get_parameter_default_value(const StringName &p_par
     return 0; //for blend amount
 }
 
-se_string_view AnimationNodeBlend2::get_caption() const {
+StringView AnimationNodeBlend2::get_caption() const {
     return ("Blend2");
 }
 
@@ -560,7 +560,7 @@ Variant AnimationNodeBlend3::get_parameter_default_value(const StringName &p_par
     return 0; //for blend amount
 }
 
-se_string_view AnimationNodeBlend3::get_caption() const {
+StringView AnimationNodeBlend3::get_caption() const {
     return ("Blend3");
 }
 
@@ -608,7 +608,7 @@ Variant AnimationNodeTimeScale::get_parameter_default_value(const StringName &p_
     return 1.0; //initial timescale
 }
 
-se_string_view AnimationNodeTimeScale::get_caption() const {
+StringView AnimationNodeTimeScale::get_caption() const {
     return ("TimeScale");
 }
 
@@ -638,7 +638,7 @@ Variant AnimationNodeTimeSeek::get_parameter_default_value(const StringName &p_p
     return 1.0; //initial timescale
 }
 
-se_string_view AnimationNodeTimeSeek::get_caption() const {
+StringView AnimationNodeTimeSeek::get_caption() const {
     return ("Seek");
 }
 
@@ -693,7 +693,7 @@ Variant AnimationNodeTransition::get_parameter_default_value(const StringName &p
     }
 }
 
-se_string_view AnimationNodeTransition::get_caption() const {
+StringView AnimationNodeTransition::get_caption() const {
     return "Transition";
 }
 
@@ -727,14 +727,14 @@ bool AnimationNodeTransition::is_input_set_as_auto_advance(int p_input) const {
     return inputs[p_input].auto_advance;
 }
 
-void AnimationNodeTransition::set_input_caption(int p_input, se_string_view p_name) {
+void AnimationNodeTransition::set_input_caption(int p_input, StringView p_name) {
     ERR_FAIL_INDEX(p_input, MAX_INPUTS);
     inputs[p_input].name = p_name;
     set_input_name(p_input, p_name);
 }
 
 const String & AnimationNodeTransition::get_input_caption(int p_input) const {
-    ERR_FAIL_INDEX_V(p_input, MAX_INPUTS, null_se_string);
+    ERR_FAIL_INDEX_V(p_input, MAX_INPUTS, null_string);
     return inputs[p_input].name;
 }
 
@@ -821,8 +821,8 @@ float AnimationNodeTransition::process(float p_time, bool p_seek) {
 void AnimationNodeTransition::_validate_property(PropertyInfo &property) const {
 
     if (StringUtils::begins_with(property.name,"input_")) {
-        se_string_view n = StringUtils::get_slice(StringUtils::get_slice(property.name,'/', 0),'_', 1);
-        if (n != se_string_view("count")) {
+        StringView n = StringUtils::get_slice(StringUtils::get_slice(property.name,'/', 0),'_', 1);
+        if (n != StringView("count")) {
             int idx = StringUtils::to_int(n);
             if (idx >= enabled_inputs) {
                 property.usage = 0;
@@ -879,7 +879,7 @@ AnimationNodeTransition::AnimationNodeTransition() {
 
 /////////////////////
 
-se_string_view AnimationNodeOutput::get_caption() const {
+StringView AnimationNodeOutput::get_caption() const {
     return ("Output");
 }
 
@@ -1100,7 +1100,7 @@ void AnimationNodeBlendTree::get_node_connections(ListOld<NodeConnection> *r_con
     }
 }
 
-se_string_view AnimationNodeBlendTree::get_caption() const {
+StringView AnimationNodeBlendTree::get_caption() const {
     return ("BlendTree");
 }
 
@@ -1137,9 +1137,9 @@ bool AnimationNodeBlendTree::_set(const StringName &p_name, const Variant &p_val
     if (StringUtils::begins_with(p_name,"nodes/")) {
 
         StringName node_name(StringUtils::get_slice(p_name,'/', 1));
-        se_string_view what(StringUtils::get_slice(p_name,'/', 2));
+        StringView what(StringUtils::get_slice(p_name,'/', 2));
 
-        if (what == se_string_view("node")) {
+        if (what == StringView("node")) {
             Ref<AnimationNode> anode = refFromRefPtr<AnimationNode>(p_value);
             if (anode) {
                 add_node(node_name, anode);
@@ -1147,7 +1147,7 @@ bool AnimationNodeBlendTree::_set(const StringName &p_name, const Variant &p_val
             return true;
         }
 
-        if (what == se_string_view("position")) {
+        if (what == StringView("position")) {
 
             if (nodes.contains(node_name)) {
                 nodes[node_name].position = p_value;
@@ -1172,16 +1172,16 @@ bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) cons
 
     if (StringUtils::begins_with(p_name,"nodes/")) {
         StringName node_name(StringUtils::get_slice(p_name,'/', 1));
-        se_string_view what = StringUtils::get_slice(p_name,'/', 2);
+        StringView what = StringUtils::get_slice(p_name,'/', 2);
 
-        if (what == se_string_view("node")) {
+        if (what == StringView("node")) {
             if (nodes.contains(node_name)) {
                 r_ret = nodes.at(node_name).node;
                 return true;
             }
         }
 
-        if (what == se_string_view("position")) {
+        if (what == StringView("position")) {
 
             if (nodes.contains(node_name)) {
                 r_ret = nodes.at(node_name).position;
@@ -1219,7 +1219,7 @@ void AnimationNodeBlendTree::_get_property_list(Vector<PropertyInfo> *p_list) co
 
     for (const StringName &E : names) {
         StringName name(E);
-        if (E != se_string_view("output")) {
+        if (E != StringView("output")) {
             p_list->emplace_back(VariantType::OBJECT, StringName(String("nodes/") + name + "/node"), PropertyHint::ResourceType, "AnimationNode", PROPERTY_USAGE_NOEDITOR);
         }
         p_list->emplace_back(VariantType::VECTOR2, StringName(String("nodes/") + name + "/position"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR);

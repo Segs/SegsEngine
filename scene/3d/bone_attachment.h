@@ -31,7 +31,7 @@
 #pragma once
 
 #include "scene/3d/skeleton.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 class GODOT_EXPORT BoneAttachment : public Spatial {
 

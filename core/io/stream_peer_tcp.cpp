@@ -332,7 +332,7 @@ uint16_t StreamPeerTCP::get_connected_port() const {
     return peer_port;
 }
 
-Error StreamPeerTCP::_connect(se_string_view p_address, int p_port) {
+Error StreamPeerTCP::_connect(StringView p_address, int p_port) {
 
     IP_Address ip;
     String s(p_address);

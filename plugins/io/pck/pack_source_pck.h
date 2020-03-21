@@ -7,6 +7,6 @@ class PackedSourcePCK : public QObject, public PackSourceInterface {
     Q_INTERFACES(PackSourceInterface)
     Q_OBJECT
 public:
-    bool try_open_pack(se_string_view p_path, bool p_replace_files) override;
-    FileAccess *get_file(se_string_view p_path, PackedDataFile *p_file) override;
+    bool try_open_pack(StringView p_path, bool p_replace_files) override;
+    FileAccess *get_file(StringView p_path, PackedDataFile *p_file) override;
 };

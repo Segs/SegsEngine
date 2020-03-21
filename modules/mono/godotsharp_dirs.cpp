@@ -33,7 +33,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 
 #ifdef TOOLS_ENABLED
@@ -160,8 +160,8 @@ private:
         sln_filepath = plus_file(base_path,appname_safe + ".sln");
         csproj_filepath = plus_file(base_path,appname_safe + ".csproj");
 #endif
-
-        String exe_dir = get_base_dir(OS::get_singleton()->get_executable_path());
+        
+        String exe_dir(PathUtils::path(OS::get_singleton()->get_executable_path()));
 
 #ifdef TOOLS_ENABLED
 

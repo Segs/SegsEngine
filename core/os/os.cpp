@@ -44,11 +44,13 @@
 #include "core/type_info.h"
 #include "core/string_utils.inl"
 #include "servers/audio_server.h"
-#include "version_generated.gen.h"
+#include "core/version_generated.gen.h"
 
 #include "EASTL/fixed_hash_set.h"
 #include "EASTL/string_view.h"
 #include <QtCore/QStandardPaths>
+#include <QtCore/QDir>
+
 
 #include <codecvt>
 
@@ -56,7 +58,7 @@ using namespace eastl;
 
 namespace {
 static String s_os_machine_id;
-eastl::fixed_hash_set<se_string_view,16,4,true> s_dynamic_features;
+eastl::fixed_hash_set<StringView,16,4,true> s_dynamic_features;
 } // end of anonymous namespace
 
 OS *OS::singleton = nullptr;
@@ -123,12 +125,12 @@ void OS::add_logger(Logger *p_logger) {
     }
 }
 
-void OS::print_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, Logger::ErrorType p_type) {
+void OS::print_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, Logger::ErrorType p_type) {
 
     _logger->log_error(p_function, p_file, p_line, p_code, p_rationale, p_type);
 }
 
-void OS::print(se_string_view p_msg) {
+void OS::print(StringView p_msg) {
     _logger->logv(p_msg, false);
 }
 
@@ -137,7 +139,7 @@ void OS::print(se_string_view p_msg) {
 //    _logger->logv(p_msg.constData(), false);
 //};
 
-void OS::printerr(se_string_view p_format) {
+void OS::printerr(StringView p_format) {
     _logger->logv(p_format, true);
 };
 
@@ -169,7 +171,7 @@ int OS::get_low_processor_usage_mode_sleep_usec() const {
     return low_processor_usage_mode_sleep_usec;
 }
 
-void OS::set_clipboard(se_string_view p_text) {
+void OS::set_clipboard(StringView p_text) {
 
     _local_clipboard = p_text;
 }
@@ -183,13 +185,15 @@ String OS::get_executable_path() const {
     return _execpath;
 }
 
-Error OS::execute_utf8(se_string_view p_path, const Vector<String> &p_arguments, bool p_blocking,
+String OS::working_directory() const {
+    return StringUtils::to_utf8(QDir::currentPath());
+}
+
+Error OS::execute_utf8(StringView p_path, const Vector<String> &p_arguments, bool p_blocking,
         OS::ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
     //TODO: SEGS: use QProcess ?
-    List<String> converted_args;
-    for(String a : p_arguments)
-        converted_args.emplace_back(std::move(a));
-    return execute(p_path,converted_args,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
+
+    return execute(p_path, p_arguments,p_blocking,r_child_id,r_pipe,r_exitcode,read_stderr,p_pipe_mutex);
 }
 
 int OS::get_process_id() const {
@@ -252,7 +256,7 @@ OS::CursorShape OS::get_cursor_shape() const {
 void OS::set_custom_mouse_cursor(const RES &p_cursor, CursorShape p_shape, const Vector2 &p_hotspot) {
 }
 
-void OS::print_all_resources(se_string_view p_to_file) {
+void OS::print_all_resources(StringView p_to_file) {
 
     ERR_FAIL_COND(!p_to_file.empty() && _OSPRF);
     if (!p_to_file.empty()) {
@@ -280,7 +284,7 @@ void OS::print_resources_in_use(bool p_short) {
     ResourceCache::dump(nullptr, p_short);
 }
 
-void OS::dump_resources_to_file(se_string_view p_file) {
+void OS::dump_resources_to_file(StringView p_file) {
 
     ResourceCache::dump(p_file);
 }
@@ -310,7 +314,7 @@ const char *OS::get_locale() const {
 }
 
 // Helper function to ensure that a dir name/path will be valid on the OS
-String OS::get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separator) const {
+String OS::get_safe_dir_name(StringView p_dir_name, bool p_allow_dir_separator) const {
 
     constexpr char invalid_chars[7] = {':','*','?', '\\', '<','>','|'};
 
@@ -333,7 +337,7 @@ String OS::get_safe_dir_name(se_string_view p_dir_name, bool p_allow_dir_separat
 String OS::get_godot_dir_name() const {
 
     // Default to lowercase, so only override when different case is needed
-    return StringUtils::to_lower(se_string_view(VERSION_SHORT_NAME));
+    return StringUtils::to_lower(StringView(VERSION_SHORT_NAME));
 }
 
 // OS equivalent of XDG_DATA_HOME
@@ -379,7 +383,7 @@ String OS::get_system_dir(SystemDir p_dir) {
     return StringUtils::to_utf8(QStandardPaths::standardLocations(translated).front());
 }
 
-Error OS::shell_open(se_string_view p_uri) {
+Error OS::shell_open(StringView p_uri) {
     //TODO: use qt desktop services here
     return ERR_UNAVAILABLE;
 };
@@ -391,10 +395,10 @@ Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIS
 
         print(qPrintable(UIString("%1\n--------\n%2\n").arg(p_title,p_description)));
         for (int i = 0; i < p_buttons.size(); i++) {
-            if (i > 0) print(se_string_view(", "));
+            if (i > 0) print(StringView(", "));
             print(qPrintable(UIString("%1=%2").arg(i + 1).arg(p_buttons[i])));
         }
-        print(se_string_view("\n"));
+        print(StringView("\n"));
         String res(StringUtils::strip_edges(get_stdin_string()));
         if (!is_numeric(res))
             continue;
@@ -439,7 +443,7 @@ uint64_t OS::get_static_memory_peak_usage() const {
     return Memory::get_mem_max_usage();
 }
 
-Error OS::set_cwd(se_string_view p_cwd) {
+Error OS::set_cwd(StringView p_cwd) {
 
     return ERR_CANT_OPEN;
 }
@@ -495,10 +499,10 @@ String OS::get_model_name() const {
     return String("GenericDevice");
 }
 
-void OS::set_cmdline(se_string_view p_execpath, const List<String> &p_args) {
+void OS::set_cmdline(StringView p_execpath, Vector<String> &&p_args) {
 
     _execpath = p_execpath;
-    _cmdline = p_args;
+    _cmdline = eastl::move(p_args);
 };
 
 void OS::release_rendering_thread() {
@@ -521,7 +525,7 @@ int OS::get_processor_count() const {
     return 1;
 }
 
-Error OS::native_video_play(se_string_view p_path, float p_volume, se_string_view p_audio_track, se_string_view p_subtitle_track) {
+Error OS::native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track) {
 
     return FAILED;
 };
@@ -600,9 +604,9 @@ void OS::set_has_server_feature_callback(HasServerFeatureCallback p_callback) {
     has_server_feature_callback = p_callback;
 }
 
-bool OS::has_feature(se_string_view p_feature) {
+bool OS::has_feature(StringView p_feature) {
 
-    if (p_feature == se_string_view(get_name()))
+    if (p_feature == StringView(get_name()))
         return true;
     if constexpr(sizeof(void *) == 8) {
         if (p_feature == "64"_sv) {
@@ -696,17 +700,13 @@ const char *OS::get_audio_driver_name(int p_driver) const {
     return AudioDriverManager::get_driver(p_driver)->get_name();
 }
 
-void OS::set_restart_on_exit(bool p_restart, const List<String> &p_restart_arguments) {
+void OS::set_restart_on_exit(bool p_restart, const Vector<String> &p_restart_arguments) {
     restart_on_exit = p_restart;
     restart_commandline = p_restart_arguments;
 }
 
 bool OS::is_restart_on_exit_set() const {
     return restart_on_exit;
-}
-
-List<String> OS::get_restart_on_exit_arguments() const {
-    return restart_commandline;
 }
 
 PoolVector<String> OS::get_granted_permissions() const { return PoolVector<String>(); }

@@ -108,7 +108,7 @@ public:
 
     struct ExecuteThreadArgs {
         String path;
-        List<String> args;
+        Vector<String> args;
         String output;
         Thread *execute_output_thread;
         Mutex *execute_output_mutex;
@@ -441,11 +441,11 @@ private:
     List<String> previous_scenes;
     bool opening_prev;
 
-    void _dialog_action(se_string_view p_file);
+    void _dialog_action(StringView p_file);
 
     void _edit_current();
-    void _dialog_display_save_error(se_string_view p_file, Error p_error);
-    void _dialog_display_load_error(se_string_view p_file, Error p_error);
+    void _dialog_display_save_error(StringView p_file, Error p_error);
+    void _dialog_display_load_error(StringView p_file, Error p_error);
 
     int current_option;
     void _menu_option(int p_option);
@@ -471,8 +471,8 @@ private:
     void _editor_select_next();
     void _editor_select_prev();
     void _editor_select(int p_which);
-    void _set_scene_metadata(se_string_view p_file, int p_idx = -1);
-    void _get_scene_metadata(se_string_view p_file);
+    void _set_scene_metadata(StringView p_file, int p_idx = -1);
+    void _get_scene_metadata(StringView p_file);
     void _update_title();
     void _update_scene_tabs();
     void _version_control_menu_option(int p_idx);
@@ -482,13 +482,13 @@ private:
 
     int _save_external_resources();
 
-    bool _validate_scene_recursive(se_string_view p_filename, Node *p_node);
-    void _save_scene(se_string_view p_file, int idx = -1);
+    bool _validate_scene_recursive(StringView p_filename, Node *p_node);
+    void _save_scene(StringView p_file, int idx = -1);
     void _save_all_scenes();
     int _next_unsaved_scene(bool p_valid_filename, int p_start = 0);
-    void _discard_changes(se_string_view p_str = se_string_view ());
+    void _discard_changes(StringView p_str = StringView ());
 
-    void _inherit_request(se_string_view p_file);
+    void _inherit_request(StringView p_file);
     void _instance_request(const Vector<String> &p_files);
 
     void _display_top_editors(bool p_display);
@@ -498,17 +498,17 @@ private:
     void _quick_opened();
     void _quick_run();
 
-    void _run(bool p_current = false, se_string_view p_custom = se_string_view());
+    void _run(bool p_current = false, StringView p_custom = StringView());
 
     void _save_optimized();
     void _import_action(const UIString &p_action);
     void _import(const UIString &p_file);
-    void _add_to_recent_scenes(se_string_view p_scene);
+    void _add_to_recent_scenes(StringView p_scene);
     void _update_recent_scenes();
     void _open_recent_scene(int p_idx);
     void _global_menu_action(const Variant &p_id, const Variant &p_meta);
     void _dropped_files(const Vector<String> &p_files, int p_screen);
-    void _add_dropped_files_recursive(const Vector<String> &p_files, se_string_view to_path);
+    void _add_dropped_files_recursive(const Vector<String> &p_files, StringView to_path);
     UIString _recent_scene;
 
     void _exit_editor();
@@ -517,7 +517,7 @@ private:
 
     void _unhandled_input(const Ref<InputEvent> &p_event);
 
-    static void _load_error_notify(void *p_ud, se_string_view p_text);
+    static void _load_error_notify(void *p_ud, StringView p_text);
 
     bool has_main_screen() const { return true; }
 
@@ -532,7 +532,7 @@ private:
     bool _initializing_addons;
     HashMap<StringName, EditorPlugin *> plugin_addons;
 
-    static Ref<Texture> _file_dialog_get_icon(se_string_view p_path);
+    static Ref<Texture> _file_dialog_get_icon(StringView p_path);
     static void _file_dialog_register(FileDialog *p_dialog);
     static void _file_dialog_unregister(FileDialog *p_dialog);
     static void _editor_file_dialog_register(EditorFileDialog *p_dialog);
@@ -547,11 +547,11 @@ private:
     void _mark_unsaved_scenes();
 
     void _find_node_types(Node *p_node, int &count_2d, int &count_3d);
-    void _save_scene_with_preview(se_string_view p_file, int p_idx = -1);
+    void _save_scene_with_preview(StringView p_file, int p_idx = -1);
 
     Map<String, Set<String> > dependency_errors;
 
-    static void _dependency_error_report(void *ud, se_string_view p_path, se_string_view p_dep, se_string_view p_type) {
+    static void _dependency_error_report(void *ud, StringView p_path, StringView p_dep, StringView p_type) {
         EditorNode *en = (EditorNode *)ud;
         en->dependency_errors[String(p_path)].insert(String(p_dep) + "::" + p_type);
     }
@@ -577,7 +577,7 @@ private:
     bool restoring_scenes;
     Vector<Ref<EditorResourceConversionPlugin> > resource_conversion_plugins;
 
-    bool _find_scene_in_use(Node *p_node, se_string_view p_path) const;
+    bool _find_scene_in_use(Node *p_node, StringView p_path) const;
 
     void _dock_select_input(const Ref<InputEvent> &p_input);
     void _dock_move_left();
@@ -592,7 +592,7 @@ private:
     void _scene_tab_exit();
     void _scene_tab_input(const Ref<InputEvent> &p_input);
     void _reposition_active_tab(int idx_to);
-    void _thumbnail_done(se_string_view p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
+    void _thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata);
     void _scene_tab_script_edited(int p_tab);
 
     Dictionary _get_main_scene_state();
@@ -602,14 +602,14 @@ private:
 
     void _save_docks();
     void _load_docks();
-    void _save_docks_to_config(Ref<ConfigFile> p_layout, se_string_view p_section);
-    void _load_docks_from_config(Ref<ConfigFile> p_layout, se_string_view p_section);
+    void _save_docks_to_config(Ref<ConfigFile> p_layout, StringView p_section);
+    void _load_docks_from_config(Ref<ConfigFile> p_layout, StringView p_section);
     void _update_dock_slots_visibility();
     void _dock_tab_changed(int p_tab);
 
 
-    void _save_open_scenes_to_config(Ref<ConfigFile> p_layout, se_string_view p_section);
-    void _load_open_scenes_from_config(Ref<ConfigFile> p_layout, se_string_view p_section);
+    void _save_open_scenes_to_config(Ref<ConfigFile> p_layout, StringView p_section);
+    void _load_open_scenes_from_config(Ref<ConfigFile> p_layout, StringView p_section);
 
     void _update_layouts_menu();
     void _layout_menu_option(int p_id);
@@ -618,12 +618,12 @@ private:
 
     void _update_addon_config();
 
-    static void _file_access_close_error_notify(se_string_view p_str);
+    static void _file_access_close_error_notify(StringView p_str);
 
     void _toggle_distraction_free_mode();
 
 
-    void _inherit_imported(se_string_view p_action);
+    void _inherit_imported(StringView p_action);
     void _open_imported();
 
     void _save_default_environment();
@@ -637,14 +637,14 @@ private:
     PrintHandlerList print_handler;
     static void _print_handler(void *p_this, const String &p_string, bool p_error);
 
-    static void _resource_saved(const RES& p_resource, se_string_view p_path);
-    static void _resource_loaded(RES p_resource, se_string_view p_path);
+    static void _resource_saved(const RES& p_resource, StringView p_path);
+    static void _resource_loaded(RES p_resource, StringView p_path);
 
     void _resources_changed(const PoolVector<String> &p_resources);
 
     void _feature_profile_changed();
     bool _is_class_editor_disabled_by_feature_profile(const StringName &p_class);
-    Ref<ImageTexture> _load_custom_class_icon(se_string_view p_path) const;
+    Ref<ImageTexture> _load_custom_class_icon(StringView p_path) const;
 
 protected:
     void _notification(int p_what);
@@ -701,11 +701,11 @@ public:
 
     void edit_node(Node *p_node);
     void edit_resource(const Ref<Resource> &p_resource);
-    void open_resource(se_string_view p_type);
+    void open_resource(StringView p_type);
 
-    void save_resource_in_path(const Ref<Resource> &p_resource, se_string_view p_path);
+    void save_resource_in_path(const Ref<Resource> &p_resource, StringView p_path);
     void save_resource(const Ref<Resource> &p_resource);
-    void save_resource_as(const Ref<Resource> &p_resource, se_string_view p_at_path = se_string_view());
+    void save_resource_as(const Ref<Resource> &p_resource, StringView p_at_path = StringView());
 
     void merge_from_scene() { _menu_option_confirm(FILE_IMPORT_SUBSCENE, false); }
 
@@ -715,7 +715,7 @@ public:
 
     static HBoxContainer *get_menu_hb() { return singleton->menu_hb; }
 
-    void push_item(Object *p_object, se_string_view p_property = {}, bool p_inspector_only = false);
+    void push_item(Object *p_object, StringView p_property = {}, bool p_inspector_only = false);
     void edit_item(Object *p_object);
     void edit_item_resource(RES p_resource);
     bool item_has_editor(Object *p_object);
@@ -723,7 +723,7 @@ public:
 
     void select_editor_by_name(const StringName &p_name);
 
-    void open_request(se_string_view p_path);
+    void open_request(StringView p_path);
 
     bool is_changing_scene() const;
 
@@ -736,13 +736,13 @@ public:
 
     Viewport *get_scene_root() { return scene_root; } //root of the scene being edited
 
-    void fix_dependencies(se_string_view p_for_file);
+    void fix_dependencies(StringView p_for_file);
     void clear_scene() { _cleanup_scene(); }
     int new_scene();
-    Error load_scene(se_string_view p_scene, bool p_ignore_broken_deps = false, bool p_set_inherited = false, bool p_clear_errors = true, bool p_force_open_imported = false);
-    Error load_resource(se_string_view p_resource, bool p_ignore_broken_deps = false);
+    Error load_scene(StringView p_scene, bool p_ignore_broken_deps = false, bool p_set_inherited = false, bool p_clear_errors = true, bool p_force_open_imported = false);
+    Error load_resource(StringView p_resource, bool p_ignore_broken_deps = false);
 
-    bool is_scene_open(se_string_view p_path);
+    bool is_scene_open(StringView p_path);
 
     void set_current_version(uint64_t p_version);
     void set_current_scene(int p_idx);
@@ -753,7 +753,7 @@ public:
 
     static VSplitContainer *get_top_split() { return singleton->top_split; }
 
-    void request_instance_scene(se_string_view p_path);
+    void request_instance_scene(StringView p_path);
     void request_instance_scenes(const Vector<String> &p_files);
     FileSystemDock *get_filesystem_dock();
     ImportDock *get_import_dock();
@@ -779,9 +779,9 @@ public:
     void show_accept(const StringName &p_text, const StringName &p_title);
     void show_warning(const StringName &p_text, const StringName &p_title = TTR("Warning!"));
 
-    void _copy_warning(se_string_view p_str);
+    void _copy_warning(StringView p_str);
 
-    Error export_preset(se_string_view p_preset, se_string_view p_path, bool p_debug, bool p_pack_only);
+    Error export_preset(StringView p_preset, StringView p_path, bool p_debug, bool p_pack_only);
 
     static void register_editor_types();
     static void unregister_editor_types();
@@ -790,7 +790,7 @@ public:
     Control *get_theme_base() { return gui_base->get_parent_control(); }
 
     GODOT_EXPORT static void add_io_error(const StringName &p_error);
-    GODOT_EXPORT static void add_io_error_utf8(se_string_view p_error);
+    GODOT_EXPORT static void add_io_error_utf8(StringView p_error);
 
     static void progress_add_task(const StringName &p_task, const StringName &p_label, int p_steps, bool p_can_cancel = false);
     static bool progress_task_step(const StringName &p_task, const StringName &p_state, int p_step = -1, bool p_force_refresh = true);
@@ -800,14 +800,14 @@ public:
     static void progress_task_step_bg(const StringName &p_task, int p_step = -1);
     static void progress_end_task_bg(const StringName &p_task);
 
-    void save_scene_to_path(se_string_view p_file, bool p_with_preview = true) {
+    void save_scene_to_path(StringView p_file, bool p_with_preview = true) {
         if (p_with_preview)
             _save_scene_with_preview(p_file);
         else
             _save_scene(p_file);
     }
 
-    bool is_scene_in_use(se_string_view p_path);
+    bool is_scene_in_use(StringView p_path);
 
     void scan_import_changes();
 
@@ -815,7 +815,7 @@ public:
 
     void open_export_template_manager();
 
-    void reload_scene(se_string_view p_path);
+    void reload_scene(StringView p_path);
 
     bool is_exiting() const { return exiting; }
 
@@ -831,7 +831,7 @@ public:
     Variant drag_resource(const Ref<Resource> &p_res, Control *p_from);
     Variant drag_files_and_dirs(const Vector<String> &p_paths, Control *p_from);
 
-    void add_tool_menu_item(const StringName &p_name, Object *p_handler, se_string_view p_callback, const Variant &p_ud = Variant());
+    void add_tool_menu_item(const StringName &p_name, Object *p_handler, StringView p_callback, const Variant &p_ud = Variant());
     void add_tool_submenu_item(const StringName &p_name, PopupMenu *p_submenu);
     void remove_tool_menu_item(const StringName &p_name);
 
@@ -847,7 +847,7 @@ public:
     void update_keying() const;
     bool has_scenes_in_session();
 
-    int execute_and_show_output(const StringName &p_title, se_string_view p_path, const List<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
+    int execute_and_show_output(const StringName &p_title, StringView p_path, const Vector<String> &p_arguments, bool p_close_on_ok = true, bool p_close_on_errors = false);
 
     EditorNode();
     ~EditorNode() override;

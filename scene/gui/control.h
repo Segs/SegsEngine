@@ -32,7 +32,7 @@
 
 #include "core/math/transform_2d.h"
 #include "core/hash_map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/rid.h"
 #include "scene/2d/canvas_item.h"
 
@@ -442,10 +442,10 @@ public:
 
     /* TOOLTIP */
 
-    void set_tooltip_utf8(se_string_view p_tooltip);
+    void set_tooltip_utf8(StringView p_tooltip);
     void set_tooltip(const StringName &p_tooltip);
     virtual StringName get_tooltip(const Point2 &p_pos) const;
-    virtual Control *make_custom_tooltip(se_string_view p_text) const;
+    virtual Control *make_custom_tooltip(StringView p_text) const;
 
     /* CURSOR */
 

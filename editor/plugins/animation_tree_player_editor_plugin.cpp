@@ -135,12 +135,12 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     return size;
 }
 
-void AnimationTreePlayerEditor::_edit_dialog_changede(se_string_view) {
+void AnimationTreePlayerEditor::_edit_dialog_changede(StringView) {
 
     edit_dialog->hide();
 }
 
-void AnimationTreePlayerEditor::_edit_dialog_changeds(se_string_view s) {
+void AnimationTreePlayerEditor::_edit_dialog_changeds(StringView s) {
 
     _edit_dialog_changed();
 }
@@ -1109,7 +1109,7 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
     return sn_name;
 };
 
-void AnimationTreePlayerEditor::_file_dialog_selected(se_string_view p_path) {
+void AnimationTreePlayerEditor::_file_dialog_selected(StringView p_path) {
 
     switch (file_op) {
 
@@ -1218,7 +1218,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
                 Skeleton *s = object_cast<Skeleton>(n);
                 if (s) {
 
-                    se_string_view skelbase = StringUtils::substr(E,0, StringUtils::find(E,":"));
+                    StringView skelbase = StringUtils::substr(E,0, StringUtils::find(E,":"));
 
                     int bidx = s->find_bone(np.get_subname(0));
 

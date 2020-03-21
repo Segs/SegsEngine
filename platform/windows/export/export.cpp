@@ -37,7 +37,7 @@
 #include "platform/windows/logo.gen.h"
 
 namespace WIN_Export_CPP { namespace  {
-static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
+static Error fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
 
     // Patch the header of the "pck" section in the PE file so that it corresponds to the embedded data
 
@@ -114,15 +114,15 @@ static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start,
 }
 
 class EditorExportPlatformWindows : public EditorExportPlatformPC {
-    void _rcedit_add_data(const Ref<EditorExportPreset> &p_preset, se_string_view p_path);
-    Error _code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path);
+    void _rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path);
+    Error _code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path);
 public:
-    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags = 0) override;
-    Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) override;
+    Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags = 0) override;
+    Error sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path) override;
     void get_export_options(Vector<ExportOption> *r_options) override;
 };
 
-Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path) {
+Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path) {
     if (p_preset->get("codesign/enable")) {
         return _code_sign(p_preset, p_path);
     } else {
@@ -130,7 +130,7 @@ Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPres
     }
 }
 
-Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, se_string_view p_path, int p_flags) {
+Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path, int p_flags) {
     Error err = EditorExportPlatformPC::export_project(p_preset, p_debug, p_path, p_flags);
 
     if (err != OK) {
@@ -171,7 +171,7 @@ void EditorExportPlatformWindows::get_export_options(Vector<EditorExportPlatform
     r_options->push_back(ExportOption(PropertyInfo(VariantType::STRING, "application/trademarks"), ""));
 }
 
-void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
+void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
     String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
 
     if (rcedit_path.empty()) {
@@ -207,7 +207,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
     String trademarks = p_preset->get("application/trademarks");
     String comments = p_preset->get("application/comments");
 
-    List<String> args;
+    Vector<String> args;
     args.emplace_back(p_path);
     if (!icon_path.empty()) {
         args.push_back(("--set-icon"));
@@ -256,8 +256,8 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
 #endif
 }
 
-Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, se_string_view p_path) {
-    List<String> args;
+Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
+    Vector<String> args;
 
 #ifdef WINDOWS_ENABLED
     String signtool_path = EditorSettings::get_singleton()->get("export/windows/signtool");

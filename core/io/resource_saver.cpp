@@ -54,7 +54,7 @@ static eastl::deque<Ref<ResourceFormatSaver>> saver;
 bool ResourceSaver::timestamp_on_save = false;
 ResourceSavedCallback ResourceSaver::save_callback = nullptr;
 
-Error ResourceFormatSaver::save(se_string_view p_path, const Ref<Resource> &p_resource, uint32_t p_flags) {
+Error ResourceFormatSaver::save(StringView p_path, const Ref<Resource> &p_resource, uint32_t p_flags) {
 
     if (get_script_instance() && get_script_instance()->has_method("save")) {
         return (Error)get_script_instance()->call("save", p_path, p_resource, p_flags).operator int64_t();
@@ -110,9 +110,9 @@ void ResourceFormatSaver::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "recognize", PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
 }
 
-Error ResourceSaver::save(se_string_view p_path, const RES &p_resource, uint32_t p_flags) {
+Error ResourceSaver::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
-    se_string_view extension = PathUtils::get_extension(p_path);
+    StringView extension = PathUtils::get_extension(p_path);
     Error err = ERR_FILE_UNRECOGNIZED;
 
     for (const Ref<ResourceFormatSaver> & s : saver) {
@@ -200,7 +200,7 @@ void ResourceSaver::remove_resource_format_saver(const Ref<ResourceFormatSaver>&
     saver.erase(iter);
 }
 
-Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(se_string_view path) {
+Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(StringView path) {
     for (const Ref<ResourceFormatSaver> & s : saver) {
         if (s->get_script_instance() && s->get_script_instance()->get_script()->get_path() == path) {
             return s;
@@ -209,7 +209,7 @@ Ref<ResourceFormatSaver> ResourceSaver::_find_custom_resource_format_saver(se_st
     return Ref<ResourceFormatSaver>();
 }
 
-bool ResourceSaver::add_custom_resource_format_saver(se_string_view script_path) {
+bool ResourceSaver::add_custom_resource_format_saver(StringView script_path) {
 
     if (_find_custom_resource_format_saver(script_path))
         return false;
@@ -234,7 +234,7 @@ bool ResourceSaver::add_custom_resource_format_saver(se_string_view script_path)
     return true;
 }
 
-void ResourceSaver::remove_custom_resource_format_saver(se_string_view script_path) {
+void ResourceSaver::remove_custom_resource_format_saver(StringView script_path) {
 
     Ref<ResourceFormatSaver> custom_saver = _find_custom_resource_format_saver(script_path);
     if (custom_saver)
@@ -254,7 +254,7 @@ void ResourceSaver::add_custom_savers() {
         StringName base_class = ScriptServer::get_global_class_native_base(class_name);
 
         if (base_class == custom_saver_base_class) {
-            se_string_view path = ScriptServer::get_global_class_path(class_name);
+            StringView path = ScriptServer::get_global_class_path(class_name);
             add_custom_resource_format_saver(path);
         }
     }

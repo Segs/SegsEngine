@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "windows_terminal_logger.h"
-#include "string_formatter.h"
+#include "core/string_formatter.h"
 
 #ifdef WINDOWS_ENABLED
 
@@ -37,7 +37,7 @@
 #include <cstring>
 #include <windows.h>
 
-void WindowsTerminalLogger::logv(se_string_view p_format , bool p_err) {
+void WindowsTerminalLogger::logv(StringView p_format , bool p_err) {
 	if (!should_log(p_err)) {
 		return;
 	}
@@ -61,7 +61,7 @@ void WindowsTerminalLogger::logv(se_string_view p_format , bool p_err) {
 #endif
 }
 
-void WindowsTerminalLogger::log_error(se_string_view p_function, se_string_view p_file, int p_line, se_string_view p_code, se_string_view p_rationale, ErrorType p_type) {
+void WindowsTerminalLogger::log_error(StringView p_function, StringView p_file, int p_line, StringView p_code, StringView p_rationale, ErrorType p_type) {
 	if (!should_log(true)) {
 		return;
 	}

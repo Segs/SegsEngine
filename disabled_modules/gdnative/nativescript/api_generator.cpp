@@ -41,7 +41,7 @@
 #include "core/method_bind_interface.h"
 #include "core/pair.h"
 #include "core/ustring.h"
-#include "core/se_string.h"
+#include "core/string.h"
 
 #include "EASTL/sort.h"
 #include <QJsonArray>
@@ -114,8 +114,8 @@ struct SignalAPI {
 };
 
 struct EnumAPI {
-    se_string_view name;
-    Vector<Pair<int, se_string_view> > values;
+    StringView name;
+    Vector<Pair<int, StringView> > values;
 };
 
 struct ClassAPI {
@@ -409,7 +409,7 @@ List<ClassAPI> generate_c_api_classes() {
                     enum_api.values.push_back(Pair<int, String>(int_val, val_e.asCString()));
                 }
                 eastl::sort(enum_api.values.begin(),enum_api.values.end(),
-                            [](const Pair<int, se_string_view> &A, const Pair<int, se_string_view> &B)->bool { return A.first<B.first;});
+                            [](const Pair<int, StringView> &A, const Pair<int, StringView> &B)->bool { return A.first<B.first;});
                 class_api.enums.push_back(enum_api);
             }
         }
@@ -503,7 +503,7 @@ static String generate_c_api_json(const List<ClassAPI> &p_api) {
             QJsonObject edef;
             edef["name"] = e.name.data();
             QJsonObject evals;
-            for (const Pair<int, se_string_view> &val_e : e.values) {
+            for (const Pair<int, StringView> &val_e : e.values) {
                 evals[val_e.second.data()] = val_e.first;
             }
             edef["values"] = evals;
@@ -522,7 +522,7 @@ static String generate_c_api_json(const List<ClassAPI> &p_api) {
  * Saves the whole Godot API to a JSON file located at
  *  p_path
  */
-Error generate_c_api(se_string_view p_path) {
+Error generate_c_api(StringView p_path) {
 
 #ifndef TOOLS_ENABLED
     return ERR_BUG;

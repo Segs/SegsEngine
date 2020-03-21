@@ -161,7 +161,7 @@ class AnimationPlayerEditor : public VBoxContainer {
         } capture;
     } onion;
 
-    void _select_anim_by_name(se_string_view p_anim);
+    void _select_anim_by_name(StringView p_anim);
     double _get_editor_step() const;
     void _play_pressed();
     void _play_from_pressed();
@@ -175,7 +175,7 @@ class AnimationPlayerEditor : public VBoxContainer {
     void _animation_name_edited();
     void _animation_load();
 
-    void _animation_save_in_path(const Ref<Resource> &p_resource, se_string_view p_path);
+    void _animation_save_in_path(const Ref<Resource> &p_resource, StringView p_path);
     void _animation_save(const Ref<Resource> &p_resource);
     void _animation_save_as(const Ref<Resource> &p_resource);
 
@@ -186,7 +186,7 @@ class AnimationPlayerEditor : public VBoxContainer {
     void _animation_duplicate();
     void _animation_resource_edit();
     void _scale_changed(const String &p_scale);
-    void _dialog_action(se_string_view p_file);
+    void _dialog_action(StringView p_file);
     void _seek_frame_changed(const UIString &p_frame);
     void _seek_value_changed(float p_value, bool p_set = false);
     void _blend_editor_next_changed(const int p_idx);
@@ -258,7 +258,7 @@ public:
     Dictionary get_state() const override { return anim_editor->get_state(); }
     void set_state(const Dictionary &p_state) override { anim_editor->set_state(p_state); }
 
-    se_string_view get_name() const override { return "Anim"; }
+    StringView get_name() const override { return "Anim"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

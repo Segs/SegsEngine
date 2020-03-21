@@ -219,14 +219,14 @@ public:
     void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) {}
     void texture_bind(RID p_texture, uint32_t p_texture_no) {}
 
-    void texture_set_path(RID p_texture, se_string_view p_path) {
+    void texture_set_path(RID p_texture, StringView p_path) {
         DummyTexture *t = texture_owner.getornull(p_texture);
         ERR_FAIL_COND(!t);
         t->path = p_path;
     }
     const String &texture_get_path(RID p_texture) const {
         DummyTexture *t = texture_owner.getornull(p_texture);
-        ERR_FAIL_COND_V(!t, null_se_string)
+        ERR_FAIL_COND_V(!t, null_string)
         return t->path;
     }
 

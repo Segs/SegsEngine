@@ -36,17 +36,17 @@ public:
     int get_preset_count() const override;
     StringName get_preset_name(int p_idx) const override;
 
-    void get_import_options(List<ImportOption> *r_options, int p_preset = 0) const override;
+    void get_import_options(Vector<ImportOption> *r_options, int p_preset = 0) const override;
     bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const override;
 
-    void _save_tex(const Vector<Ref<Image>> &p_images, se_string_view p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags);
+    void _save_tex(const Vector<Ref<Image>> &p_images, StringView p_to_path, int p_compress_mode, ImageCompressMode p_vram_compression, bool p_mipmaps, int p_texture_flags);
 
-    Error import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-            *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
+    Error import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+        Vector<String> *r_platform_variants, Vector<String> *r_gen_files = nullptr, Variant *r_metadata = nullptr) override;
 
     void update_imports();
 
-    bool are_import_settings_valid(se_string_view p_path) const override;
+    bool are_import_settings_valid(StringView p_path) const override;
     String get_import_settings_string() const override;
 
     void set_3d(bool p_3d) { is_3d = p_3d; }
@@ -56,7 +56,7 @@ public:
 public:
     int get_import_order() const override {return 0;}
     StringName get_option_group_file() const override { return StringName(); }
-    Error import_group_file(se_string_view /*p_group_file*/, const Map<String, HashMap<StringName, Variant> > & /*p_source_file_options*/, const Map<String, String> & /*p_base_paths*/) override {
+    Error import_group_file(StringView /*p_group_file*/, const Map<String, HashMap<StringName, Variant> > & /*p_source_file_options*/, const Map<String, String> & /*p_base_paths*/) override {
         return ERR_UNAVAILABLE;
     }
 };

@@ -110,7 +110,7 @@ public:
 // when display signal documentation.
 class ConnectionsDockTree : public Tree {
 
-    Control *make_custom_tooltip(se_string_view p_text) const override;
+    Control *make_custom_tooltip(StringView p_text) const override;
 };
 
 class ConnectionsDock : public VBoxContainer {

@@ -84,12 +84,12 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
     static AnimationNodeBlendTreeEditor *singleton;
 
     void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which);
-    void _node_renamed(se_string_view p_text, const Ref<AnimationNode>& p_node);
+    void _node_renamed(StringView p_text, const Ref<AnimationNode>& p_node);
     void _node_renamed_focus_out(Node *le, const Ref<AnimationNode>& p_node);
 
 
-    void _connection_request(se_string_view p_from, int p_from_index, se_string_view p_to, int p_to_index);
-    void _disconnection_request(se_string_view p_from, int p_from_index, se_string_view p_to, int p_to_index);
+    void _connection_request(StringView p_from, int p_from_index, StringView p_to, int p_to_index);
+    void _disconnection_request(StringView p_from, int p_from_index, StringView p_to, int p_to_index);
 
     void _scroll_changed(const Vector2 &p_scroll);
     void _node_selected(Object *p_node);
@@ -104,10 +104,10 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
     void _filter_edited();
     void _filter_toggled();
 
-    void _property_changed(const StringName &p_property, const Variant &p_value, se_string_view p_field, bool p_changing);
+    void _property_changed(const StringName &p_property, const Variant &p_value, StringView p_field, bool p_changing);
     void _removed_from_graph();
 
-    void _file_opened(se_string_view p_file);
+    void _file_opened(StringView p_file);
 
     enum {
         MENU_LOAD_FILE = 1000,
@@ -122,7 +122,7 @@ protected:
 public:
     static AnimationNodeBlendTreeEditor *get_singleton() { return singleton; }
 
-    void add_custom_type(se_string_view p_name, const Ref<Script> &p_script);
+    void add_custom_type(StringView p_name, const Ref<Script> &p_script);
     void remove_custom_type(const Ref<Script> &p_script);
 
     Size2 get_minimum_size() const override;

@@ -107,7 +107,7 @@ Error StreamPeerMbedTLS::_do_handshake() {
     return OK;
 }
 
-Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs, se_string_view p_for_hostname, Ref<X509Certificate> p_ca_certs) {
+Error StreamPeerMbedTLS::connect_to_stream(Ref<StreamPeer> p_base, bool p_validate_certs, StringView p_for_hostname, Ref<X509Certificate> p_ca_certs) {
 
     ERR_FAIL_COND_V(not p_base, ERR_INVALID_PARAMETER);
 

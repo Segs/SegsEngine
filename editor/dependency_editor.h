@@ -53,9 +53,9 @@ class DependencyEditor : public AcceptDialog {
     String editing;
     List<String> missing;
 
-    void _fix_and_find(EditorFileSystemDirectory *efsd, Map<se_string_view, Map<String, String> > &candidates);
+    void _fix_and_find(EditorFileSystemDirectory *efsd, Map<StringView, Map<String, String> > &candidates);
 
-    void _searched(se_string_view p_path);
+    void _searched(StringView p_path);
     void _load_pressed(Object *p_item, int p_cell, int p_button);
     void _fix_all();
     void _update_list();
@@ -66,7 +66,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(se_string_view p_path);
+    void edit(StringView p_path);
     DependencyEditor();
 };
 
@@ -91,7 +91,7 @@ private:
     };
 
 public:
-    void show(se_string_view p_path);
+    void show(StringView p_path);
     DependencyEditorOwners(EditorNode *p_editor);
 };
 
@@ -120,7 +120,7 @@ class DependencyRemoveDialog : public ConfirmationDialog {
         }
     };
 
-    void _find_files_in_removed_folder(EditorFileSystemDirectory *efsd, se_string_view p_folder);
+    void _find_files_in_removed_folder(EditorFileSystemDirectory *efsd, StringView p_folder);
     void _find_all_removed_dependencies(EditorFileSystemDirectory *efsd, Vector<RemovedDependency> &p_removed);
     void _build_removed_dependency_tree(const Vector<RemovedDependency> &p_removed);
 
@@ -149,10 +149,10 @@ private:
     Label *text;
     Tree *files;
     void ok_pressed() override;
-    void custom_action(se_string_view) override;
+    void custom_action(StringView) override;
 
 public:
-    void show(Mode p_mode, se_string_view p_for_file, const Vector<String> &report);
+    void show(Mode p_mode, StringView p_for_file, const Vector<String> &report);
     DependencyErrorDialog();
 };
 

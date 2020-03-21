@@ -128,7 +128,7 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
     String pn(p_name);
     auto slash = StringUtils::find(pn,": ");
     if (slash != String::npos && pn.length() > slash) {
-        se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
+        StringView type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
         if (type == "key"_sv && index < keys.size()) {
 
@@ -177,7 +177,7 @@ bool DictionaryPropertyEdit::_get(const StringName &p_name, Variant &r_ret) cons
 
     if (slash != String::npos && pn.length() > slash) {
 
-        se_string_view type = StringUtils::substr(pn,slash + 2, pn.length());
+        StringView type = StringUtils::substr(pn,slash + 2, pn.length());
         int index = StringUtils::to_int(StringUtils::substr(pn,0, slash));
 
         if (type == "key"_sv && index < keys.size()) {

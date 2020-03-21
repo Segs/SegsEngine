@@ -602,9 +602,9 @@ private:
 
     MultiplayerAPI_RPCMode rpc_mode;
 
-    void _set_error(se_string_view p_error, int p_line = -1, int p_column = -1);
+    void _set_error(StringView p_error, int p_line = -1, int p_column = -1);
 #ifdef DEBUG_ENABLED
-    void _add_warning(int p_code, int p_line=-1, const std::initializer_list<se_string_view> &p_symbols={});
+    void _add_warning(int p_code, int p_line=-1, const std::initializer_list<StringView> &p_symbols={});
 #endif // DEBUG_ENABLED
     bool _recover_from_completion();
 
@@ -656,7 +656,7 @@ private:
 #endif // DEBUG_ENABLED
     }
 
-    Error _parse(se_string_view p_base_path);
+    Error _parse(StringView p_base_path);
 
 public:
     bool has_error() const;
@@ -666,8 +666,8 @@ public:
 #ifdef DEBUG_ENABLED
     const Dequeue<GDScriptWarning> &get_warnings() const { return warnings; }
 #endif // DEBUG_ENABLED
-    Error parse(se_string_view p_code, se_string_view p_base_path = {}, bool p_just_validate = false, se_string_view p_self_path = {}, bool p_for_completion = false, Set<int> *r_safe_lines = nullptr, bool p_dependencies_only = false);
-    Error parse_bytecode(const Vector<uint8_t> &p_bytecode, se_string_view p_base_path = {}, se_string_view p_self_path = {});
+    Error parse(StringView p_code, StringView p_base_path = {}, bool p_just_validate = false, StringView p_self_path = {}, bool p_for_completion = false, Set<int> *r_safe_lines = nullptr, bool p_dependencies_only = false);
+    Error parse_bytecode(const Vector<uint8_t> &p_bytecode, StringView p_base_path = {}, StringView p_self_path = {});
 
     bool is_tool_script() const;
     const Node *get_parse_tree() const;

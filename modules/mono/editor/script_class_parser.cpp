@@ -631,7 +631,7 @@ Error ScriptClassParser::parse(const String &p_code) {
 
     return OK;
 }
-static se_string_view get_preprocessor_directive(se_string_view p_line, size_t p_from) {
+static StringView get_preprocessor_directive(StringView p_line, size_t p_from) {
     CRASH_COND(p_line[p_from] != '#');
     p_from++;
     size_t i = p_from;
@@ -642,9 +642,9 @@ static se_string_view get_preprocessor_directive(se_string_view p_line, size_t p
     return p_line.substr(p_from, i - p_from);
 }
 
-static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) {
+static void run_dummy_preprocessor(String &r_source, StringView p_filepath) {
     using namespace eastl;
-    Vector<se_string_view> lines = StringUtils::split(r_source,'\n', /* p_allow_empty: */ true);
+    Vector<StringView> lines = StringUtils::split(r_source,'\n', /* p_allow_empty: */ true);
 
     bool *include_lines = memnew_arr(bool, lines.size());
 
@@ -652,7 +652,7 @@ static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) 
     Vector<bool> is_branch_being_compiled;
 
     for (size_t i = 0; i < lines.size(); i++) {
-        const se_string_view line = lines[i];
+        const StringView line = lines[i];
 
         const size_t line_len = line.length();
 
@@ -669,7 +669,7 @@ static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) 
                 // First non-whitespace char of the line is '#'
                 include_lines[i] = false;
 
-                se_string_view directive = get_preprocessor_directive(line, j);
+                StringView directive = get_preprocessor_directive(line, j);
 
                 if (directive == "if"_sv) {
                     if_level++;
@@ -710,7 +710,7 @@ static void run_dummy_preprocessor(String &r_source, se_string_view p_filepath) 
     }
 }
 
-Error ScriptClassParser::parse_file(se_string_view p_filepath) {
+Error ScriptClassParser::parse_file(StringView p_filepath) {
 
     String source;
 

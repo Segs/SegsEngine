@@ -71,14 +71,14 @@ StringName ResourceImporterBitMap::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterBitMap::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterBitMap::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "create_from", PropertyHint::Enum, "Black & White,Alpha"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "threshold", PropertyHint::Range, "0,1,0.01"), 0.5));
 }
 
-Error ResourceImporterBitMap::import(se_string_view p_source_file, se_string_view p_save_path,
-        const HashMap<StringName, Variant> &p_options, Vector<String> *r_platform_variants, Vector<String> *
+Error ResourceImporterBitMap::import(StringView p_source_file, StringView p_save_path,
+        const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String> *r_platform_variants, Vector<String> *
         r_gen_files,
         Variant *r_metadata) {
 

@@ -280,8 +280,8 @@ void ShaderMaterial::get_argument_options(const StringName &p_function, int p_id
     const char * quote_style = "\"";
 #endif
 
-    se_string_view f(p_function);
-    if ((f == se_string_view("get_shader_param") || f == se_string_view("set_shader_param")) && p_idx == 0) {
+    StringView f(p_function);
+    if ((f == StringView("get_shader_param") || f == StringView("set_shader_param")) && p_idx == 0) {
 
         if (shader) {
             Vector<PropertyInfo> pl;
@@ -1455,13 +1455,13 @@ Ref<Texture> SpatialMaterial::get_texture_by_name(const StringName& p_name) cons
     return Ref<Texture>();
 }
 
-void SpatialMaterial::_validate_feature(se_string_view text, Feature feature, PropertyInfo &property) const {
+void SpatialMaterial::_validate_feature(StringView text, Feature feature, PropertyInfo &property) const {
     if (StringUtils::begins_with(property.name,text) && property.name != StringName(String(text) + "_enabled") && !features[feature]) {
         property.usage = 0;
     }
 }
 
-void SpatialMaterial::_validate_high_end(se_string_view text, PropertyInfo &property) const {
+void SpatialMaterial::_validate_high_end(StringView text, PropertyInfo &property) const {
     if (StringUtils::begins_with(property.name.asCString(),text)) {
         property.usage |= PROPERTY_USAGE_HIGH_END_GFX;
     }

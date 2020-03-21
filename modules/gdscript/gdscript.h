@@ -123,7 +123,7 @@ class GDScript : public Script {
 
     GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
 
-    void _set_subclass_path(Ref<GDScript> &p_sc, se_string_view p_path);
+    void _set_subclass_path(Ref<GDScript> &p_sc, StringView p_path);
 
 #ifdef TOOLS_ENABLED
     HashSet<PlaceHolderScriptInstance *> placeholders;
@@ -186,15 +186,15 @@ public:
     bool instance_has(const Object *p_this) const override;
 
     bool has_source_code() const override;
-    se_string_view get_source_code() const override;
+    StringView get_source_code() const override;
     void set_source_code(String p_code) override;
     void update_exports() override;
 
     Error reload(bool p_keep_state = false) override;
 
-    void set_script_path(se_string_view p_path) { path = p_path; } //because subclasses need a path too...
-    Error load_source_code(se_string_view p_path);
-    Error load_byte_code(se_string_view p_path);
+    void set_script_path(StringView p_path) { path = p_path; } //because subclasses need a path too...
+    Error load_source_code(StringView p_path);
+    Error load_byte_code(StringView p_path);
 
     Vector<uint8_t> get_as_byte_code() const;
 
@@ -267,7 +267,7 @@ public:
 
     ScriptLanguage *get_language() override;
 
-    void set_path(se_string_view p_path);
+    void set_path(StringView p_path);
 
     void reload_members();
 
@@ -371,8 +371,8 @@ class GDScriptLanguage : public ScriptLanguage {
 public:
     int calls;
 
-    bool debug_break(se_string_view p_error, bool p_allow_continue = true);
-    bool debug_break_parse(se_string_view p_file, int p_line, se_string_view p_error);
+    bool debug_break(StringView p_error, bool p_allow_continue = true);
+    bool debug_break_parse(StringView p_file, int p_line, StringView p_error);
 
     _FORCE_INLINE_ void enter_function(GDScriptInstance *p_instance, GDScriptFunction *p_function, Variant *p_stack, int *p_ip, int *p_line) {
 
@@ -455,28 +455,28 @@ public:
     void init() override;
     String get_type() const override;
     String get_extension() const override;
-    Error execute_file(se_string_view p_path) override;
+    Error execute_file(StringView p_path) override;
     void finish() override;
 
     /* EDITOR FUNCTIONS */
     void get_reserved_words(Vector<String> *p_words) const override;
     void get_comment_delimiters(Vector<String> *p_delimiters) const override;
     void get_string_delimiters(Vector<String> *p_delimiters) const override;
-    virtual String _get_processed_template(se_string_view p_template, se_string_view p_base_class_name) const;
-    Ref<Script> get_template(se_string_view p_class_name, se_string_view p_base_class_name) const override;
+    virtual String _get_processed_template(StringView p_template, StringView p_base_class_name) const;
+    Ref<Script> get_template(StringView p_class_name, StringView p_base_class_name) const override;
     bool is_using_templates() override;
-    void make_template(se_string_view p_class_name, se_string_view p_base_class_name, const Ref<Script> &p_script) override;
-    bool validate(se_string_view p_script, int &r_line_error, int &r_col_error, String &r_test_error, se_string_view p_path = {}, Vector
+    void make_template(StringView p_class_name, StringView p_base_class_name, const Ref<Script> &p_script) override;
+    bool validate(StringView p_script, int &r_line_error, int &r_col_error, String &r_test_error, StringView p_path = {}, Vector
             <String> *r_functions = nullptr, Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
     bool supports_builtin_mode() const override;
     bool can_inherit_from_file() override { return true; }
-    int find_function(se_string_view p_function, se_string_view p_code) const override;
+    int find_function(StringView p_function, StringView p_code) const override;
     String make_function(const String &p_class, const StringName &p_name, const PoolVector<String> &p_args) const override;
-    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, Vector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) override;
+    Error complete_code(const String &p_code, StringView p_path, Object *p_owner, Vector<ScriptCodeCompletionOption> *r_options, bool &r_forced, String &r_call_hint) override;
 #ifdef TOOLS_ENABLED
-    Error lookup_code(se_string_view p_code, se_string_view p_symbol, se_string_view p_path, Object *p_owner, LookupResult &r_result) override;
+    Error lookup_code(StringView p_code, StringView p_symbol, StringView p_path, Object *p_owner, LookupResult &r_result) override;
 #endif
     virtual const char *_get_indentation() const;
     void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
@@ -495,7 +495,7 @@ public:
     void debug_get_stack_level_members(int p_level, Vector<String> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     ScriptInstance *debug_get_stack_level_instance(int p_level) override;
     void debug_get_globals(Vector<String> *p_globals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    String debug_parse_stack_level_expression(int p_level, se_string_view p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
+    String debug_parse_stack_level_expression(int p_level, StringView p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
     void reload_all_scripts() override;
     void reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) override;
@@ -503,7 +503,7 @@ public:
     void frame() override;
 
     void get_public_functions(Vector<MethodInfo> *p_functions) const override;
-    void get_public_constants(Vector<Pair<se_string_view, Variant>> *p_constants) const override;
+    void get_public_constants(Vector<Pair<StringView, Variant>> *p_constants) const override;
 
     void profiling_start() override;
     void profiling_stop() override;
@@ -517,8 +517,8 @@ public:
 
     /* GLOBAL CLASSES */
 
-    bool handles_global_class_type(se_string_view p_type) const override;
-    StringName get_global_class_name(se_string_view p_path, String *r_base_type = nullptr, String *r_icon_path = nullptr) const override;
+    bool handles_global_class_type(StringView p_type) const override;
+    StringName get_global_class_name(StringView p_path, String *r_base_type = nullptr, String *r_icon_path = nullptr) const override;
 
     void add_orphan_subclass(const String &p_qualified_name, const ObjectID &p_subclass);
     Ref<GDScript> get_orphan_subclass(const String &p_qualified_name);
@@ -529,16 +529,16 @@ public:
 
 class ResourceFormatLoaderGDScript : public ResourceFormatLoader {
 public:
-    RES load(se_string_view p_path, se_string_view p_original_path = se_string_view(), Error *r_error = nullptr) override;
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error *r_error = nullptr) override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
-    bool handles_type(se_string_view p_type) const override;
-    String get_resource_type(se_string_view p_path) const override;
-    void get_dependencies(se_string_view p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
+    bool handles_type(StringView p_type) const override;
+    String get_resource_type(StringView p_path) const override;
+    void get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types = false) override;
 };
 
 class ResourceFormatSaverGDScript : public ResourceFormatSaver {
 public:
-    Error save(se_string_view p_path, const RES &p_resource, uint32_t p_flags = 0) override;
+    Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0) override;
     void get_recognized_extensions(const RES &p_resource, Vector<String> &p_extensions) const override;
     bool recognize(const RES &p_resource) const override;
 };

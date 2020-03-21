@@ -36,7 +36,7 @@
 
 #include "core/hash_map.h"
 #include "core/map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "gd_mono_utils.h"
 
 class GDMonoAssembly {
@@ -105,8 +105,8 @@ class GDMonoAssembly {
     static MonoAssembly *_search_hook(MonoAssemblyName *aname, void *user_data, bool refonly);
     static MonoAssembly *_preload_hook(MonoAssemblyName *aname, char **assemblies_path, void *user_data, bool refonly);
 
-    static GDMonoAssembly *_load_assembly_from(se_string_view p_name, se_string_view p_path, bool p_refonly);
-    static GDMonoAssembly *_load_assembly_search(se_string_view p_name, const Vector<String> &p_search_dirs, bool p_refonly);
+    static GDMonoAssembly *_load_assembly_from(StringView p_name, StringView p_path, bool p_refonly);
+    static GDMonoAssembly *_load_assembly_search(StringView p_name, const Vector<String> &p_search_dirs, bool p_refonly);
     static void _wrap_mono_assembly(MonoAssembly *assembly);
 
     friend class GDMono;
@@ -132,11 +132,11 @@ public:
 
     static String find_assembly(const String &p_name);
 
-    static void fill_search_dirs(Vector<String> &r_search_dirs, se_string_view p_custom_config = se_string_view(), se_string_view p_custom_bcl_dir = se_string_view());
+    static void fill_search_dirs(Vector<String> &r_search_dirs, StringView p_custom_config = StringView(), StringView p_custom_bcl_dir = StringView());
 
-    static GDMonoAssembly *load_from(se_string_view p_name, se_string_view p_path, bool p_refonly);
+    static GDMonoAssembly *load_from(StringView p_name, StringView p_path, bool p_refonly);
 
-    GDMonoAssembly(se_string_view p_name, se_string_view p_path = se_string_view());
+    GDMonoAssembly(StringView p_name, StringView p_path = StringView());
     ~GDMonoAssembly();
 };
 

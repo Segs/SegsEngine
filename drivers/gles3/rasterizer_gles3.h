@@ -30,8 +30,8 @@
 
 #pragma once
 
-#include "error_list.h"                 // for Error
-#include "reference.h"                  // for Ref
+#include "core/error_list.h"                 // for Error
+#include "core/reference.h"                  // for Ref
 #include "servers/visual/rasterizer.h"  // for Rasterizer, RasterizerCanvas ...
 class Image;
 class RID;

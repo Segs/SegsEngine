@@ -436,7 +436,7 @@ Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, in
                     p_stream->saved = cchar;
 
                     r_token.type = TK_IDENTIFIER;
-                    r_token.value = Variant::from(se_string_view(tmp_str_buf));
+                    r_token.value = Variant::from(StringView(tmp_str_buf));
                     return OK;
                 } else {
                     r_err_str = "Unexpected character.";
@@ -987,7 +987,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             return OK;
 
-        } else if (id == se_string_view("PoolVector2Array") || id == "Vector2Array") {
+        } else if (id == StringView("PoolVector2Array") || id == "Vector2Array") {
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);

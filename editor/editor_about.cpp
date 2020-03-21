@@ -79,7 +79,7 @@ TextureRect *EditorAbout::get_logo() const {
     return _logo;
 }
 
-ScrollContainer *EditorAbout::_populate_list(se_string_view p_name, const Vector<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
+ScrollContainer *EditorAbout::_populate_list(StringView p_name, const Vector<StringName> &p_sections, const char *const *const p_src[], const int p_flag_single_column) {
 
     ScrollContainer *sc = memnew(ScrollContainer);
     sc->set_name(p_name);

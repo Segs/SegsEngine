@@ -39,7 +39,7 @@
 #include "core/os/keyboard.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/sort_array.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
@@ -605,7 +605,7 @@ void SpatialEditorViewport::_compute_edit(const Point2 &p_point) {
     }
 }
 
-static int _get_key_modifier_setting(se_string_view p_property) {
+static int _get_key_modifier_setting(StringView p_property) {
 
     switch (EditorSettings::get_singleton()->get(StringName(p_property)).as<int>()) {
 
@@ -2071,7 +2071,7 @@ Point2i SpatialEditorViewport::_get_warped_mouse_motion(const Ref<InputEventMous
     return relative;
 }
 
-static bool is_shortcut_pressed(se_string_view p_path) {
+static bool is_shortcut_pressed(StringView p_path) {
     Ref<ShortCut> shortcut = ED_GET_SHORTCUT(p_path);
     if (not shortcut) {
         return false;
@@ -3334,7 +3334,7 @@ void SpatialEditorViewport::_remove_preview() {
     }
 }
 
-bool SpatialEditorViewport::_cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node) {
+bool SpatialEditorViewport::_cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node) {
     if (p_desired_node->get_filename() == p_target_scene_path) {
         return true;
     }
@@ -3349,7 +3349,7 @@ bool SpatialEditorViewport::_cyclical_dependency_exists(se_string_view p_target_
     return false;
 }
 
-bool SpatialEditorViewport::_create_instance(Node *parent, se_string_view path, const Point2 &p_point) {
+bool SpatialEditorViewport::_create_instance(Node *parent, StringView path, const Point2 &p_point) {
     RES res(ResourceLoader::load(path));
 
     Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
@@ -3367,7 +3367,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, se_string_view path, 
             if (not scene) { // invalid scene
                 return false;
             } else {
-                instanced_scene = scene->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                instanced_scene = scene->instance(GEN_EDIT_STATE_INSTANCE);
             }
         }
     }
@@ -3458,7 +3458,7 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
             ResourceLoader::get_recognized_extensions_for_type("PackedScene", scene_extensions);
             Vector<String> mesh_extensions;
             ResourceLoader::get_recognized_extensions_for_type("Mesh", mesh_extensions);
-            eastl::fixed_hash_set<se_string_view,64,16> fast_check;
+            eastl::fixed_hash_set<StringView,64,16> fast_check;
             for(const String &s : scene_extensions)
                 fast_check.emplace(s);
             for(const String &s : mesh_extensions)
@@ -3473,15 +3473,15 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
                     continue;
                 }
 
-                se_string_view type(res->get_class());
-                if (type == se_string_view("PackedScene")) {
+                StringView type(res->get_class());
+                if (type == StringView("PackedScene")) {
                     Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(files[i]));
-                    Node *instanced_scene = sdata->instance(PackedScene::GEN_EDIT_STATE_INSTANCE);
+                    Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
                     if (!instanced_scene) {
                         continue;
                     }
                     memdelete(instanced_scene);
-                } else if (type == se_string_view("Mesh") || type == se_string_view("ArrayMesh") || type == se_string_view("PrimitiveMesh")) {
+                } else if (type == StringView("Mesh") || type == StringView("ArrayMesh") || type == StringView("PrimitiveMesh")) {
                     Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(ResourceLoader::load(files[i]));
                     if (not mesh) {
                         continue;
@@ -4259,7 +4259,7 @@ Dictionary SpatialEditor::get_state() const {
     for (size_t i = 0; i < gizmo_plugins_by_name.size(); i++) {
         if (!gizmo_plugins_by_name[i]->can_be_hidden()) continue;
         int state = gizmos_menu->get_item_state(gizmos_menu->get_item_index(i));
-        se_string_view name = gizmo_plugins_by_name[i]->get_name();
+        StringView name = gizmo_plugins_by_name[i]->get_name();
         gizmos_status[name] = state;
     }
 
@@ -4351,7 +4351,7 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
             if (!gizmo_plugins_by_name[j]->can_be_hidden()) continue;
             int state = EditorSpatialGizmoPlugin::VISIBLE;
             for (const Variant &k :keys) {
-                if (gizmo_plugins_by_name[j]->get_name() == se_string_view(k.as<String>())) {
+                if (gizmo_plugins_by_name[j]->get_name() == StringView(k.as<String>())) {
                     state = gizmos_status[k];
                     break;
                 }
@@ -5072,7 +5072,7 @@ void SpatialEditor::_update_gizmos_menu() {
         if (!gizmo_plugins_by_name[i]->can_be_hidden())
             continue;
 
-        se_string_view plugin_name = gizmo_plugins_by_name[i]->get_name();
+        StringView plugin_name = gizmo_plugins_by_name[i]->get_name();
         const int plugin_state = gizmo_plugins_by_name[i]->get_state();
         gizmos_menu->add_multistate_item(TTR(plugin_name), 3, plugin_state, i);
         const int idx = gizmos_menu->get_item_index(i);
@@ -6126,7 +6126,7 @@ SpatialEditorPlugin::SpatialEditorPlugin(EditorNode *p_node) {
 SpatialEditorPlugin::~SpatialEditorPlugin() {
 }
 
-void EditorSpatialGizmoPlugin::create_material(se_string_view p_name, const Color &p_color, bool p_billboard, bool p_on_top, bool p_use_vertex_color) {
+void EditorSpatialGizmoPlugin::create_material(StringView p_name, const Color &p_color, bool p_billboard, bool p_on_top, bool p_use_vertex_color) {
 
     Color instanced_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/instanced", Color(0.7f, 0.7f, 0.7f, 0.6f));
 
@@ -6251,7 +6251,7 @@ Ref<SpatialMaterial> EditorSpatialGizmoPlugin::get_material(const String &p_name
     return mat;
 }
 
-se_string_view EditorSpatialGizmoPlugin::get_name() const {
+StringView EditorSpatialGizmoPlugin::get_name() const {
     thread_local char buf[512];
     buf[0]=0;
     if (get_script_instance() && get_script_instance()->has_method("get_name")) {

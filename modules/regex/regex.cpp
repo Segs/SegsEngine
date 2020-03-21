@@ -31,7 +31,7 @@
 #include "regex.h"
 
 #include "core/method_bind.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/os/memory.h"
 

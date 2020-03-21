@@ -36,7 +36,7 @@
 #include "scene/resources/texture.h"
 
 namespace X11_Export_CPP { namespace  {
-static Error fixup_embedded_pck(se_string_view p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
+static Error fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int64_t p_embedded_size) {
 
     // Patch the header of the "pck" section in the ELF file so that it corresponds to the embedded data
 

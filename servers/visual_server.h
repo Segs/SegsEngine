@@ -36,7 +36,7 @@
 #include "core/math/transform_2d.h"
 #include "core/object.h"
 #include "core/rid.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/variant.h"
 #include "servers/visual_server_enums.h"
 
@@ -53,13 +53,14 @@ public:
     Vector<int> m_bones;
     Vector<int> m_indices;
     bool m_vertices_2d;
-    explicit SurfaceArrays(Vector<Vector3> && positions) :
+
+    explicit SurfaceArrays(Vector<Vector3> && positions) noexcept :
         m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
         m_vertices_2d(false)
     {
 
     }
-    explicit SurfaceArrays(Vector<Vector2> && positions) :
+    explicit SurfaceArrays(Vector<Vector2> && positions) noexcept :
         m_position_data(eastl::move(positions),eastl::I_LIVE_DANGEROUSLY),
         m_vertices_2d(true)
     {
@@ -191,8 +192,8 @@ public:
         return res;
     }
     SurfaceArrays() noexcept = default;
-    SurfaceArrays(SurfaceArrays &&) = default;
-    SurfaceArrays &operator=(SurfaceArrays &&) = default;
+    SurfaceArrays(SurfaceArrays &&) noexcept = default;
+    SurfaceArrays &operator=(SurfaceArrays &&) noexcept = default;
     // Move only type!
     SurfaceArrays(const SurfaceArrays &) = delete;
     SurfaceArrays & operator=(const SurfaceArrays &) = delete;
@@ -265,7 +266,7 @@ public:
     virtual void texture_set_size_override(RID p_texture, int p_width, int p_height, int p_depth_3d) = 0;
     virtual void texture_bind(RID p_texture, uint32_t p_texture_no) = 0;
 
-    virtual void texture_set_path(RID p_texture, se_string_view p_path) = 0;
+    virtual void texture_set_path(RID p_texture, StringView p_path) = 0;
     virtual const String &texture_get_path(RID p_texture) const = 0;
 
     virtual void texture_set_shrink_all_x2_on_set_data(bool p_enable) = 0;

@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/translation_helpers.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/line_edit.h"
@@ -108,7 +108,7 @@ public:
 
     Size2 get_minimum_size() const override;
 
-    void set_label(se_string_view p_label);
+    void set_label(StringView p_label);
     const String &get_label() const;
 
     void set_read_only(bool p_read_only);
@@ -157,7 +157,7 @@ public:
     float get_name_split_ratio() const;
 
     void set_object_and_property(Object *p_object, const StringName &p_property);
-    Control *make_custom_tooltip(se_string_view p_text) const override;
+    Control *make_custom_tooltip(StringView p_text) const override;
 
     const String &get_tooltip_text() const;
 
@@ -185,13 +185,13 @@ protected:
 
 public:
     void add_custom_control(Control *control);
-    void add_property_editor(se_string_view p_for_property, Control *p_prop);
-    void add_property_editor_for_multiple_properties(se_string_view p_label, const Vector<String> &p_properties, Control *p_prop);
+    void add_property_editor(StringView p_for_property, Control *p_prop);
+    void add_property_editor_for_multiple_properties(StringView p_label, const Vector<String> &p_properties, Control *p_prop);
 
     virtual bool can_handle(Object *p_object);
     virtual void parse_begin(Object *p_object);
-    virtual void parse_category(Object *p_object, se_string_view p_parse_category);
-    virtual bool parse_property(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage);
+    virtual void parse_category(Object *p_object, StringView p_parse_category);
+    virtual bool parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage);
     virtual void parse_end();
 };
 
@@ -210,7 +210,7 @@ protected:
 
 public:
     Size2 get_minimum_size() const override;
-    Control *make_custom_tooltip(se_string_view p_text) const override;
+    Control *make_custom_tooltip(StringView p_text) const override;
 
     const String &get_tooltip_text() const;
 
@@ -238,7 +238,7 @@ protected:
 public:
     Size2 get_minimum_size() const override;
 
-    void setup(se_string_view p_section, se_string_view p_label, Object *p_object, const Color &p_bg_color, bool p_foldable);
+    void setup(StringView p_section, StringView p_label, Object *p_object, const Color &p_bg_color, bool p_foldable);
     VBoxContainer *get_vbox();
     void unfold();
     void fold();
@@ -301,26 +301,26 @@ class EditorInspector : public ScrollContainer {
     String property_prefix; //used for sectioned inspector
     StringName object_class;
 
-    void _edit_set(se_string_view p_name, const Variant &p_value, bool p_refresh_all, se_string_view p_changed_field);
+    void _edit_set(StringView p_name, const Variant &p_value, bool p_refresh_all, StringView p_changed_field);
 
-    void _property_changed(se_string_view p_path, const Variant &p_value, se_string_view p_name = se_string_view(), bool changing = false);
-    void _property_changed_update_all(se_string_view p_path, const Variant &p_value, se_string_view p_name = {}, bool p_changing = false);
+    void _property_changed(StringView p_path, const Variant &p_value, StringView p_name = StringView(), bool changing = false);
+    void _property_changed_update_all(StringView p_path, const Variant &p_value, StringView p_name = {}, bool p_changing = false);
     void _multiple_properties_changed(const Vector<String> &p_paths, Array p_values);
     void _property_keyed(const StringName &p_path, bool p_advance);
-    void _property_keyed_with_value(se_string_view p_path, const Variant &p_value, bool p_advance);
+    void _property_keyed_with_value(StringView p_path, const Variant &p_value, bool p_advance);
 
     void _property_checked(const StringName &p_path, bool p_checked);
 
-    void _resource_selected(se_string_view p_path, const RES& p_resource);
+    void _resource_selected(StringView p_path, const RES& p_resource);
     void _property_selected(const StringName &p_path, int p_focusable);
-    void _object_id_selected(se_string_view p_path, ObjectID p_id);
+    void _object_id_selected(StringView p_path, ObjectID p_id);
 
     void _node_removed(Node *p_node);
 
     void _changed_callback(Object *p_changed, StringName p_prop) override;
-    void _edit_request_change(Object *p_object, se_string_view p_prop);
+    void _edit_request_change(Object *p_object, StringView p_prop);
 
-    void _filter_changed(se_string_view p_text);
+    void _filter_changed(StringView p_text);
     void _parse_added_editors(VBoxContainer *current_vbox, const Ref<EditorInspectorPlugin>& ped);
 
     void _vscroll_changed(double);
@@ -338,7 +338,7 @@ public:
     static void remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin);
     static void cleanup_plugins();
 
-    static EditorProperty *instantiate_property_editor(Object *p_object, VariantType p_type, se_string_view p_path, PropertyHint p_hint, se_string_view p_hint_text, int p_usage);
+    static EditorProperty *instantiate_property_editor(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage);
 
     void set_undo_redo(UndoRedo *p_undo_redo);
 

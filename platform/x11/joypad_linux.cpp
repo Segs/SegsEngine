@@ -219,7 +219,7 @@ void JoypadLinux::monitor_joypads() {
     }
 }
 
-int JoypadLinux::get_joy_from_path(se_string_view p_path) const {
+int JoypadLinux::get_joy_from_path(StringView p_path) const {
 
     for (int i = 0; i < JOYPADS_MAX; i++) {
 
@@ -375,14 +375,14 @@ void JoypadLinux::open_joypad(const char *p_path) {
             uint16_t product = BSWAP16(inpid.product);
             uint16_t version = BSWAP16(inpid.version);
 
-            sprintf(uid + se_string_view(uid).length(), "%04x%04x%04x%04x%04x%04x", vendor, 0, product, 0, version, 0);
+            sprintf(uid + StringView(uid).length(), "%04x%04x%04x%04x%04x%04x", vendor, 0, product, 0, version, 0);
             input->joy_connection_changed(joy_num, true, name, StringName(uid));
         } else {
             String uidname(uid);
-            int uidlen = MIN(se_string_view(name).length(), 11);
+            int uidlen = MIN(StringView(name).length(), 11);
             for (int i = 0; i < uidlen; i++) {
 
-                uidname += _hex_str(se_string_view(name)[i]);
+                uidname += _hex_str(StringView(name)[i]);
             }
             uidname += "00";
             input->joy_connection_changed(joy_num, true, name, StringName(uidname));

@@ -73,14 +73,14 @@ StringName ResourceImporterCSVTranslation::get_preset_name(int p_idx) const {
     return "";
 }
 
-void ResourceImporterCSVTranslation::get_import_options(List<ImportOption> *r_options, int p_preset) const {
+void ResourceImporterCSVTranslation::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "compress"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
 }
 
-Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_string_view p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String>
-        *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
+    Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     bool compress = p_options.at("compress").as<bool>();
 
@@ -103,7 +103,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
 
     for (int i = 1; i < line.size(); i++) {
 
-        se_string_view  locale = line[i];
+        StringView  locale = line[i];
         ERR_FAIL_COND_V_MSG(!TranslationServer::is_locale_valid(locale), ERR_PARSE_ERROR, "Error importing CSV translation: '" + locale + "' is not a valid locale.");
 
         locales.push_back(String(locale));
@@ -116,7 +116,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
 
     while (line.size() == locales.size() + 1) {
 
-        se_string_view  key = line[0];
+        StringView  key = line[0];
         if (!key.empty()) {
 
             for (int i = 1; i < line.size(); i++) {
@@ -127,8 +127,8 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
         line = f->get_csv_line(delimiter);
     }
 
-    for (int i = 0; i < translations.size(); i++) {
-        Ref<Translation> xlt = translations[i];
+    for (auto & translation : translations) {
+        Ref<Translation> xlt = translation;
 
         if (compress) {
             Ref<PHashTranslation> cxl(make_ref_counted<PHashTranslation>());
@@ -136,7 +136,7 @@ Error ResourceImporterCSVTranslation::import(se_string_view p_source_file, se_st
             xlt = cxl;
         }
 
-        String save_path = String(PathUtils::get_basename(p_source_file)) + "." + translations[i]->get_locale() + ".translation";
+        String save_path = String(PathUtils::get_basename(p_source_file)) + "." + translation->get_locale() + ".translation";
 
         ResourceSaver::save(save_path, xlt);
         if (r_gen_files) {

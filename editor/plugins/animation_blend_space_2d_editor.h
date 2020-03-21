@@ -92,7 +92,7 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 	void _update_space();
 
 	void _config_changed(double);
-	void _labels_changed(se_string_view);
+	void _labels_changed(StringView);
 	void _snap_toggled();
 
 	PopupMenu *menu;
@@ -126,7 +126,7 @@ class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 
 	EditorFileDialog *open_file;
 	Ref<AnimationNode> file_loaded;
-    void _file_opened(se_string_view p_file);
+    void _file_opened(StringView p_file);
 
 	enum {
 		MENU_LOAD_FILE = 1000,

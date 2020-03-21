@@ -141,9 +141,9 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
     int over_node_what;
 
     String prev_name;
-    void _name_edited(se_string_view p_text);
+    void _name_edited(StringView p_text);
     void _name_edited_focus_out();
-    void _open_editor(se_string_view p_name);
+    void _open_editor(StringView p_name);
     void _scroll_changed(double);
 
     void _clip_src_line_to_rect(Vector2 &r_from, Vector2 &r_to, const Rect2 &p_rect);
@@ -167,7 +167,7 @@ class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
 
     EditorFileDialog *open_file;
     Ref<AnimationNode> file_loaded;
-    void _file_opened(se_string_view p_file);
+    void _file_opened(StringView p_file);
 
     enum {
         MENU_LOAD_FILE = 1000,

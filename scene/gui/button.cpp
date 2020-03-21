@@ -244,7 +244,7 @@ void Button::set_text(const StringName &p_text) {
     Object_change_notify(this,"text");
     minimum_size_changed();
 }
-void Button::set_text_utf8(se_string_view p_text)
+void Button::set_text_utf8(StringView p_text)
 {
     if (text == p_text)
         return;

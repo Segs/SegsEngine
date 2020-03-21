@@ -72,10 +72,10 @@ private:
 
 public:
     Error set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer, int p_out_packets) override;
-    Error connect_to_host(se_string_view p_host, se_string_view p_path, uint16_t p_port, bool p_ssl, const PoolVector<String> &p_protocol = {}, const PoolVector<String> &p_custom_headers = PoolVector<String>()) override;
+    Error connect_to_host(StringView p_host, StringView p_path, uint16_t p_port, bool p_ssl, const PoolVector<String> &p_protocol = {}, const PoolVector<String> &p_custom_headers = PoolVector<String>()) override;
     int get_max_packet_size() const override;
     Ref<WebSocketPeer> get_peer(int p_peer_id) const override;
-    void disconnect_from_host(int p_code = 1000, se_string_view p_reason = {}) override;
+    void disconnect_from_host(int p_code = 1000, StringView p_reason = {}) override;
     IP_Address get_connected_host() const override;
     uint16_t get_connected_port() const override;
     ConnectionStatus get_connection_status() const override;

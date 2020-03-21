@@ -224,8 +224,12 @@ namespace eastl
 
         this_type& operator=(const this_type& x);
         this_type& operator=(std::initializer_list<value_type> ilist);
+#if EASTL_LF3D_EXTENSIONS
+        //BUG: this breaks some assumptions, but hopefully we can live with this and faster move assignment?
+        this_type& operator=(this_type&& x) noexcept;
+#else
         this_type& operator=(this_type&& x); // TODO(c++17): noexcept(allocator_traits<Allocator>::propagate_on_container_move_assignment::value || allocator_traits<Allocator>::is_always_equal::value)
-
+#endif
         void swap(this_type& x); // TODO(c++17): noexcept(allocator_traits<Allocator>::propagate_on_container_move_assignment::value || allocator_traits<Allocator>::is_always_equal::value)
 
         void assign(size_type n, const value_type& value);
@@ -738,7 +742,11 @@ namespace eastl
 
     template <typename T, typename Allocator>
     typename vector<T, Allocator>::this_type&
+#if EASTL_LF3D_EXTENSIONS
+    vector<T, Allocator>::operator=(this_type&& x) noexcept
+#else
     vector<T, Allocator>::operator=(this_type&& x)
+#endif
     {
         if(this != &x)
         {

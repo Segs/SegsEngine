@@ -106,7 +106,7 @@ bool ItemList::is_item_tooltip_enabled(int p_idx) const {
     return items[p_idx].tooltip_enabled;
 }
 
-void ItemList::set_item_tooltip_utf8(int p_idx, se_string_view p_tooltip) {
+void ItemList::set_item_tooltip_utf8(int p_idx, StringView p_tooltip) {
 
     ERR_FAIL_INDEX(p_idx, items.size());
 
@@ -1170,8 +1170,8 @@ void ItemList::_notification(int p_what) {
                     float ofs = 0;
                     int line = 0;
                     for (int j = 0; j <= ss; j++) {
-
-                        int cs = j < ss ? font->get_char_size(item_text[j], item_text[j + 1]).x : 0;
+                        CharType next_char = (j+1>=item_text.size()) ? CharType(0) : item_text[j + 1];
+                        int cs = j < ss ? font->get_char_size(item_text[j], next_char).x : 0;
                         if (ofs + cs > max_len || j == ss) {
                             line_limit_cache[line] = j;
                             line_size_cache[line] = ofs;
@@ -1201,7 +1201,10 @@ void ItemList::_notification(int p_what) {
                             if (line >= max_text_lines)
                                 break;
                         }
-                        ofs += drawer.draw_char(get_canvas_item(), text_ofs + Vector2(ofs + (max_len - line_size_cache[line]) / 2, line * (font_height + line_separation)).floor(), item_text[j], item_text[j + 1], modulate);
+                        CharType next =  ((j+1)>=item_text.size()) ? CharType(0) : item_text[j + 1];
+                        ofs += drawer.draw_char(get_canvas_item(),
+                                text_ofs + Vector2(ofs + (max_len - line_size_cache[line]) / 2, line *(font_height + line_separation)).floor(),
+                                item_text[j], next, modulate);
                     }
 
                     //special multiline mode

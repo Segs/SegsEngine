@@ -74,7 +74,7 @@ void ImageSaver::register_plugin_resolver()
     }
 }
 
-Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
+Error ImageSaver::save_image(StringView p_file, const Ref<Image> &p_image, FileAccess *p_custom, float p_quality) {
     ERR_FAIL_COND_V(not p_image, ERR_INVALID_PARAMETER);
 
     register_plugin_resolver();
@@ -89,7 +89,7 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
         }
     }
 
-    se_string_view extension = PathUtils::get_extension(p_file);
+    StringView extension = PathUtils::get_extension(p_file);
 
     for (ImageFormatSaver * g_saver : g_savers) {
 
@@ -115,7 +115,7 @@ Error ImageSaver::save_image(se_string_view p_file, const Ref<Image> &p_image, F
     return ERR_FILE_UNRECOGNIZED;
 }
 
-Error ImageSaver::save_image(se_string_view ext, const Ref<Image> & p_image, Vector<uint8_t> &tgt, float p_quality)
+Error ImageSaver::save_image(StringView ext, const Ref<Image> & p_image, Vector<uint8_t> &tgt, float p_quality)
 {
     register_plugin_resolver();
     ImageData result_data;
@@ -146,7 +146,7 @@ void ImageSaver::get_recognized_extensions(Vector<String> &p_extensions) {
     }
 }
 
-ImageFormatSaver *ImageSaver::recognize(se_string_view p_extension) {
+ImageFormatSaver *ImageSaver::recognize(StringView p_extension) {
     register_plugin_resolver();
 
     for (ImageFormatSaver *g_saver : g_savers) {

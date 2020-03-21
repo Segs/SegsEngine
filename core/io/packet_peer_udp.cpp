@@ -48,7 +48,7 @@ void PacketPeerUDP::set_broadcast_enabled(bool p_enabled) {
         _sock->set_broadcasting_enabled(p_enabled);
 }
 
-Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, se_string_view p_if_name) {
+Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, StringView p_if_name) {
 
     ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
     ERR_FAIL_COND_V(!p_multi_address.is_valid(), ERR_INVALID_PARAMETER);
@@ -63,7 +63,7 @@ Error PacketPeerUDP::join_multicast_group(IP_Address p_multi_address, se_string_
     return _sock->join_multicast_group(p_multi_address, p_if_name);
 }
 
-Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, se_string_view p_if_name) {
+Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, StringView p_if_name) {
 
     ERR_FAIL_COND_V(not _sock, ERR_UNAVAILABLE);
     ERR_FAIL_COND_V(!_sock->is_open(), ERR_UNCONFIGURED);

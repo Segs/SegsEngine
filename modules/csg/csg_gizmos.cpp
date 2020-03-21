@@ -32,7 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/translation_helpers.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "editor/editor_settings.h"
 ///////////
 IMPL_GDCLASS(CSGShapeSpatialGizmoPlugin)
@@ -309,7 +309,7 @@ bool CSGShapeSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
     return object_cast<CSGSphere>(p_spatial) || object_cast<CSGBox>(p_spatial) || object_cast<CSGCylinder>(p_spatial) || object_cast<CSGTorus>(p_spatial) || object_cast<CSGMesh>(p_spatial) || object_cast<CSGPolygon>(p_spatial);
 }
 
-se_string_view CSGShapeSpatialGizmoPlugin::get_name() const {
+StringView CSGShapeSpatialGizmoPlugin::get_name() const {
     return "CSGShapes";
 }
 

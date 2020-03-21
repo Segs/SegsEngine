@@ -85,12 +85,12 @@ class EditorAutoloadSettings : public VBoxContainer {
     void _autoload_edited();
     void _autoload_button_pressed(Object *p_item, int p_column, int p_button);
     void _autoload_activated();
-    void _autoload_path_text_changed(se_string_view p_path);
-    void _autoload_text_entered(se_string_view p_name);
-    void _autoload_text_changed(se_string_view p_name);
-    void _autoload_open(se_string_view path);
-    void _autoload_file_callback(se_string_view p_path);
-    Node *_create_autoload(se_string_view p_path);
+    void _autoload_path_text_changed(StringView p_path);
+    void _autoload_text_entered(StringView p_name);
+    void _autoload_text_changed(StringView p_name);
+    void _autoload_open(StringView path);
+    void _autoload_file_callback(StringView p_path);
+    Node *_create_autoload(StringView p_path);
 
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_control);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_control) const;
@@ -102,7 +102,7 @@ protected:
 
 public:
     void update_autoload();
-    bool autoload_add(const StringName &p_name, se_string_view p_path);
+    bool autoload_add(const StringName &p_name, StringView p_path);
     void autoload_remove(const StringName &p_name);
 
     EditorAutoloadSettings();

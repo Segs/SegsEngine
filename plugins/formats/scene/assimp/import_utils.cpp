@@ -24,7 +24,7 @@ float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
     return 0;
 }
 
-void AssimpUtils::find_texture_path(se_string_view p_path, DirAccess *dir, String &path, bool &found, const String &extension) {
+void AssimpUtils::find_texture_path(StringView p_path, DirAccess *dir, String &path, bool &found, const String &extension) {
     FixedVector<String,32,true> paths;
     using namespace PathUtils;
     paths.emplace_back(String(get_basename(path)) + extension);
@@ -74,7 +74,7 @@ void AssimpUtils::find_texture_path(const String &r_p_path, String &r_path, bool
     Vector<String> exts;
     ImageLoader::get_recognized_extensions(exts);
 
-    Vector<se_string_view> split_path = StringUtils::split(get_basename(r_path),'*');
+    Vector<StringView> split_path = StringUtils::split(get_basename(r_path),'*');
     if (split_path.size() == 2) {
         r_found = true;
         return;
@@ -110,7 +110,7 @@ void AssimpUtils::set_texture_mapping_mode(aiTextureMapMode *map_mode, Ref<Image
     texture->set_flags(flags);
 }
 
-Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, se_string_view p_path) {
+Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, StringView p_path) {
     using namespace PathUtils;
     Map<String, Ref<Image> >::iterator match = state.path_to_image_cache.find_as(p_path);
 
@@ -119,7 +119,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, s
         return match->second;
     }
 
-    Vector<se_string_view> split_path = StringUtils::split(get_basename(p_path),'*');
+    Vector<StringView> split_path = StringUtils::split(get_basename(p_path),'*');
     if (split_path.size() == 2) {
         size_t texture_idx = StringUtils::to_int(split_path[1]);
         ERR_FAIL_COND_V(texture_idx >= p_scene->mNumTextures, Ref<Image>());

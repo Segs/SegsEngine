@@ -36,7 +36,7 @@
 #include "core/math/camera_matrix.h"
 #include "core/color.h"
 #include "core/variant.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/vector.h"
 #include "core/set.h"
 #include "core/math/aabb.h"
@@ -315,7 +315,7 @@ public:
         CUSTOM_SHADER_DISABLED = 0
     };
 
-    GLint get_uniform_location(se_string_view p_name) const;
+    GLint get_uniform_location(StringView p_name) const;
     GLint get_uniform_location(int p_index) const;
 
     static _FORCE_INLINE_ ShaderGLES3 *get_active() { return active; }

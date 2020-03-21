@@ -64,7 +64,7 @@ bool GDScriptCompiler::_is_class_member_property(GDScript *owner, const StringNa
     return ClassDB::has_property(nc->get_name(), p_name);
 }
 
-void GDScriptCompiler::_set_error(se_string_view p_error, const GDScriptParser::Node *p_node) {
+void GDScriptCompiler::_set_error(StringView p_error, const GDScriptParser::Node *p_node) {
 
     if (!error.empty())
         return;
@@ -1644,7 +1644,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
         is_initializer = true;
     }
 
-    if (p_for_ready || (p_func && p_func->name == se_string_view("_ready"))) {
+    if (p_for_ready || (p_func && p_func->name == StringView("_ready"))) {
         //parse initializer for class members
         if (!p_class->ready->statements.empty()) {
             Error err = _parse_block(codegen, p_class->ready, stack_level);

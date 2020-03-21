@@ -34,14 +34,14 @@
 #include "core/class_db.h"
 #include "core/list.h"
 #include "editor/doc/doc_data.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/pool_vector.h"
 #include "core/string_utils.h"
 
 namespace lsp {
 
 typedef String DocumentUri;
-inline String marked_documentation(se_string_view p_bbcode);
+inline String marked_documentation(StringView p_bbcode);
 /**
  * Text documents are identified using a URI. On the protocol level, URIs are passed as strings.
  */
@@ -750,7 +750,7 @@ struct MarkupContent {
         kind = MarkupKind::Markdown;
     }
 
-    MarkupContent(se_string_view p_value) {
+    MarkupContent(StringView p_value) {
         value = p_value;
         kind = MarkupKind::Markdown;
     }
@@ -1170,7 +1170,7 @@ struct DocumentSymbol {
         return dict;
     }
 
-    void symbol_tree_as_list(se_string_view p_uri, Vector<DocumentedSymbolInformation> &r_list, se_string_view p_container = {}, bool p_join_name = false) const {
+    void symbol_tree_as_list(StringView p_uri, Vector<DocumentedSymbolInformation> &r_list, StringView p_container = {}, bool p_join_name = false) const {
         DocumentedSymbolInformation si;
         if (p_join_name && !p_container.empty()) {
             si.name = String(p_container) + ">" + name;
@@ -1266,15 +1266,15 @@ namespace FoldingRangeKind {
 /**
      * Folding range for a comment
      */
-static const se_string_view Comment("comment");
+static const StringView Comment("comment");
 /**
      * Folding range for a imports or includes
      */
-static const se_string_view Imports("imports");
+static const StringView Imports("imports");
 /**
      * Folding range for a region (e.g. `#region`)
      */
-static const se_string_view Region("region");
+static const StringView Region("region");
 } // namespace FoldingRangeKind
 
 /**
@@ -1307,7 +1307,7 @@ struct FoldingRange {
      * is used to categorize folding ranges and used by commands like 'Fold all comments'. See
      * [FoldingRangeKind](#FoldingRangeKind) for an enumeration of standardized kinds.
      */
-    se_string_view kind = FoldingRangeKind::Region;
+    StringView kind = FoldingRangeKind::Region;
 
     _FORCE_INLINE_ Dictionary to_json() const {
         Dictionary dict;
@@ -1712,11 +1712,11 @@ struct GodotCapabilities {
 };
 
 /** Format BBCode documentation from DocData to markdown */
-inline String marked_documentation(se_string_view p_bbcode) {
+inline String marked_documentation(StringView p_bbcode) {
     using namespace StringUtils;
     String markdown(strip_edges(p_bbcode));
 
-    Vector<se_string_view> lines = split(markdown,'\n');
+    Vector<StringView> lines = split(markdown,'\n');
     bool in_code_block = false;
     int code_block_indent = -1;
 
@@ -1724,7 +1724,7 @@ inline String marked_documentation(se_string_view p_bbcode) {
     for (size_t i = 0; i < lines.size(); i++) {
         String line(lines[i]);
         auto block_start = find(line,"[codeblock]");
-        if (block_start != se_string_view::npos) {
+        if (block_start != StringView::npos) {
             code_block_indent = block_start;
             in_code_block = true;
             line = "\n";

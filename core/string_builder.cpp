@@ -29,10 +29,10 @@
 /*************************************************************************/
 
 #include "string_builder.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include <cstring>
 
-StringBuilder &StringBuilder::append(se_string_view p_string) {
+StringBuilder &StringBuilder::append(StringView p_string) {
 
     if (p_string.empty())
         return *this;

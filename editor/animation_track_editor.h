@@ -165,7 +165,7 @@ class AnimationTrackEdit : public Control {
 
     void _menu_selected(int p_index);
 
-    void _path_entered(se_string_view p_text);
+    void _path_entered(StringView p_text);
     void _play_position_draw();
     bool _is_value_key_valid(const Variant &p_key_value, VariantType &r_valid_type) const;
 
@@ -233,7 +233,7 @@ class AnimationTrackEditPlugin : public RefCounted {
     GDCLASS(AnimationTrackEditPlugin,RefCounted)
 
 public:
-    virtual AnimationTrackEdit *create_value_track_edit(Object *p_object, VariantType p_type, const StringName &p_property, PropertyHint p_hint, se_string_view p_hint_string, int p_usage);
+    virtual AnimationTrackEdit *create_value_track_edit(Object *p_object, VariantType p_type, const StringName &p_property, PropertyHint p_hint, StringView p_hint_string, int p_usage);
     virtual AnimationTrackEdit *create_audio_track_edit();
     virtual AnimationTrackEdit *create_animation_track_edit(Object *p_object);
 };
@@ -334,7 +334,7 @@ class AnimationTrackEditor : public VBoxContainer {
 
     void _add_track(int p_type);
     void _new_track_node_selected(const NodePath& p_path);
-    void _new_track_property_selected(se_string_view p_name);
+    void _new_track_property_selected(StringView p_name);
 
     void _update_step_spinbox();
 
@@ -504,9 +504,9 @@ public:
     void cleanup();
 
     void set_anim_pos(float p_pos);
-    void insert_node_value_key(Node *p_node, se_string_view p_property, const Variant &p_value, bool p_only_if_exists = false);
-    void insert_value_key(se_string_view p_property, const Variant &p_value, bool p_advance);
-    void insert_transform_key(Spatial *p_node, se_string_view p_sub, const Transform &p_xform);
+    void insert_node_value_key(Node *p_node, StringView p_property, const Variant &p_value, bool p_only_if_exists = false);
+    void insert_value_key(StringView p_property, const Variant &p_value, bool p_advance);
+    void insert_transform_key(Spatial *p_node, StringView p_sub, const Transform &p_xform);
 
     void show_select_node_warning(bool p_show);
 

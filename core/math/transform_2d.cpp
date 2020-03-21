@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "transform_2d.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_formatter.h"
 

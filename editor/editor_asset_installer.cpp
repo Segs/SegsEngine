@@ -84,7 +84,7 @@ void EditorAssetInstaller::_item_edited() {
     updating = false;
 }
 
-void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
+void EditorAssetInstaller::open(StringView p_path, int p_depth) {
 
     package_path = p_path;
     Set<String> files_sorted;
@@ -114,7 +114,7 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
         ret = unzGoToNextFile(pkg);
     }
 
-    Map<se_string_view, Ref<Texture> > extension_guess;
+    Map<StringView, Ref<Texture> > extension_guess;
     {
         extension_guess["png"] = get_icon("ImageTexture", "EditorIcons");
         extension_guess["jpg"] = get_icon("ImageTexture", "EditorIcons");
@@ -185,7 +185,7 @@ void EditorAssetInstaller::open(se_string_view p_path, int p_depth) {
             dir_map[path] = ti;
             ti->set_text_utf8(0, String(PathUtils::get_file(path)) + "/");
             ti->set_icon(0, get_icon("folder", "FileDialog"));
-            ti->set_metadata(0, se_string_view());
+            ti->set_metadata(0, StringView());
         } else {
             String file(PathUtils::get_file(path));
             String extension(StringUtils::to_lower(PathUtils::get_extension(file)));

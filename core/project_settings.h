@@ -35,7 +35,7 @@
 #include "core/property_info.h"
 #include "core/set.h"
 #include "core/hash_map.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/string_name.h"
 #include "core/list.h"
 
@@ -91,22 +91,22 @@ protected:
 
     static ProjectSettings *singleton;
 public:
-    Error _load_settings_text(se_string_view p_path);
-    Error _load_settings_binary(se_string_view p_path);
-    Error _load_settings_text_or_binary(se_string_view p_text_path, se_string_view p_bin_path);
+    Error _load_settings_text(StringView p_path);
+    Error _load_settings_binary(StringView p_path);
+    Error _load_settings_text_or_binary(StringView p_text_path, StringView p_bin_path);
 
-    Error _save_settings_text(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
-    Error _save_settings_binary(se_string_view p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_text(StringView p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
+    Error _save_settings_binary(StringView p_file, const HashMap<String, List<String> > &props, const CustomMap &p_custom = CustomMap(), const String &p_custom_features = {});
 
-    Error _save_custom_bnd(se_string_view p_file);
+    Error _save_custom_bnd(StringView p_file);
 
     void _convert_to_last_version(int p_from_version);
 
-    bool _load_resource_pack(se_string_view p_pack, bool p_replace_files = true);
+    bool _load_resource_pack(StringView p_pack, bool p_replace_files = true);
 
     void _add_property_info_bind(const Dictionary &p_info);
 
-    Error _setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards = false);
+    Error _setup(StringView p_path, StringView p_main_pack, bool p_upwards = false);
 
 protected:
     static void _bind_methods();
@@ -118,13 +118,13 @@ public:
     Variant get_setting(const StringName &p_setting) const;
 
     bool has_setting(const StringName &p_var) const;
-    String localize_path(se_string_view p_path) const;
-    String globalize_path(se_string_view p_path) const;
+    String localize_path(StringView p_path) const;
+    String globalize_path(StringView p_path) const;
 
     void set_initial_value(const StringName &p_name, const Variant &p_value);
     void set_restart_if_changed(const StringName &p_name, bool p_restart);
-    bool property_can_revert(se_string_view p_name);
-    Variant property_get_revert(se_string_view p_name);
+    bool property_can_revert(StringView p_name);
+    Variant property_get_revert(StringView p_name);
 
     const String &get_resource_path() const;
 
@@ -135,9 +135,9 @@ public:
     void set_order(const StringName &p_name, int p_order);
     void set_builtin_order(const StringName &p_name);
 
-    Error setup(se_string_view p_path, se_string_view p_main_pack, bool p_upwards = false);
+    Error setup(StringView p_path, StringView p_main_pack, bool p_upwards = false);
 
-    Error save_custom(se_string_view p_path = {}, const CustomMap &p_custom = CustomMap(), const Vector<String> &p_custom_features = {}, bool p_merge_with_current = true);
+    Error save_custom(StringView p_path = {}, const CustomMap &p_custom = CustomMap(), const Vector<String> &p_custom_features = {}, bool p_merge_with_current = true);
     Error save();
     void set_custom_property_info(const StringName &p_prop, const PropertyInfo &p_info);
     const HashMap<StringName, PropertyInfo> &get_custom_property_info() const;
@@ -152,7 +152,7 @@ public:
 
     void set_registering_order(bool p_enable);
 
-    bool has_custom_feature(se_string_view p_feature) const;
+    bool has_custom_feature(StringView p_feature) const;
 
     ProjectSettings();
     ~ProjectSettings() override;

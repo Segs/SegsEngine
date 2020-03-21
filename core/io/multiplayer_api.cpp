@@ -405,7 +405,7 @@ Node *MultiplayerAPI::_process_get_node(int p_from, const uint8_t *p_packet, int
 
         ERR_FAIL_COND_V_MSG(ofs >= p_packet_len, nullptr, "Invalid packet received. Size smaller than declared.");
 
-        se_string_view paths((const char *)&p_packet[ofs], p_packet_len - ofs);
+        StringView paths((const char *)&p_packet[ofs], p_packet_len - ofs);
 
         NodePath np = (NodePath)paths;
 
@@ -523,7 +523,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
     ERR_FAIL_COND_MSG(p_packet_len < 5, "Invalid packet received. Size too small.");
     int id = decode_uint32(&p_packet[1]);
 
-    se_string_view paths((const char *)&p_packet[5], p_packet_len - 5);
+    StringView paths((const char *)&p_packet[5], p_packet_len - 5);
 
     NodePath path(paths);
 
@@ -556,7 +556,7 @@ void MultiplayerAPI::_process_confirm_path(int p_from, const uint8_t *p_packet, 
 
     ERR_FAIL_COND_MSG(p_packet_len < 2, "Invalid packet received. Size too small.");
 
-    se_string_view paths((const char *)&p_packet[1], p_packet_len - 1);
+    StringView paths((const char *)&p_packet[1], p_packet_len - 1);
 
     NodePath path(paths);
 

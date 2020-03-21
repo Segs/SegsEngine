@@ -45,23 +45,23 @@ bool GraphNode::_set(const StringName &p_name, const Variant &p_value) {
         return false;
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1));
-    se_string_view what = StringUtils::get_slice(p_name,"/", 2);
+    StringView what = StringUtils::get_slice(p_name,"/", 2);
 
     Slot si;
     if (slot_info.contains(idx))
         si = slot_info[idx];
 
-    if (what == se_string_view("left_enabled"))
+    if (what == StringView("left_enabled"))
         si.enable_left = p_value;
-    else if (what == se_string_view("left_type"))
+    else if (what == StringView("left_type"))
         si.type_left = p_value;
-    else if (what == se_string_view("left_color"))
+    else if (what == StringView("left_color"))
         si.color_left = p_value;
-    else if (what == se_string_view("right_enabled"))
+    else if (what == StringView("right_enabled"))
         si.enable_right = p_value;
-    else if (what == se_string_view("right_type"))
+    else if (what == StringView("right_type"))
         si.type_right = p_value;
-    else if (what == se_string_view("right_color"))
+    else if (what == StringView("right_color"))
         si.color_right = p_value;
     else
         return false;
@@ -79,7 +79,7 @@ bool GraphNode::_get(const StringName &p_name, Variant &r_ret) const {
     }
 
     int idx = StringUtils::to_int(StringUtils::get_slice(p_name,"/", 1));
-    se_string_view what = StringUtils::get_slice(p_name,"/", 2);
+    StringView what = StringUtils::get_slice(p_name,"/", 2);
 
     Slot si=slot_info.at(idx,{});
 
@@ -414,7 +414,7 @@ Size2 GraphNode::get_minimum_size() const {
     return minsize + sb->get_minimum_size();
 }
 
-void GraphNode::set_title(se_string_view _title) {
+void GraphNode::set_title(StringView _title) {
     if (title == _title)
         return;
     title = _title;

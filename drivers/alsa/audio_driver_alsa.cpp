@@ -74,7 +74,7 @@ Error AudioDriverALSA::init_device() {
     if (device_name == "Default") {
         status = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, SND_PCM_NONBLOCK);
     } else {
-        se_string_view device = device_name;
+        StringView device = device_name;
         int pos = StringUtils::find(device,";");
         if (pos != -1) {
             device = StringUtils::substr(device,0, pos);
@@ -287,12 +287,12 @@ Array AudioDriverALSA::get_device_list() {
     return list;
 }
 
-se_string_view AudioDriverALSA::get_device() {
+StringView AudioDriverALSA::get_device() {
 
     return device_name;
 }
 
-void AudioDriverALSA::set_device(se_string_view device) {
+void AudioDriverALSA::set_device(StringView device) {
 
     lock();
     new_device = device;

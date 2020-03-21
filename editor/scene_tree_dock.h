@@ -32,7 +32,7 @@
 
 #include "scene/gui/box_container.h"
 #include "core/pair.h"
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/map.h"
 
 
@@ -175,11 +175,11 @@ class SceneTreeDock : public VBoxContainer {
     };
 
     void _node_replace_owner(Node *p_base, Node *p_node, Node *p_root, ReplaceOwnerMode p_mode = MODE_BIDI);
-    void _load_request(se_string_view p_path);
+    void _load_request(StringView p_path);
     void _script_open_request(const Ref<Script> &p_script);
 
-    bool _cyclical_dependency_exists(se_string_view p_target_scene_path, Node *p_desired_node);
-    bool _track_inherit(se_string_view p_target_scene_path, Node *p_desired_node);
+    bool _cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node);
+    bool _track_inherit(StringView p_target_scene_path, Node *p_desired_node);
 
     void _node_selected();
     void _node_renamed();
@@ -201,7 +201,7 @@ class SceneTreeDock : public VBoxContainer {
 
     void _import_subscene();
 
-    void _new_scene_from(se_string_view p_file);
+    void _new_scene_from(StringView p_file);
 
     bool _validate_no_foreign();
     void _selection_changed();
@@ -214,15 +214,15 @@ class SceneTreeDock : public VBoxContainer {
 
     void _nodes_dragged(const Array& p_nodes, const NodePath& p_to, int p_type);
     void _files_dropped(const Vector<String> &p_files, const NodePath& p_to, int p_type);
-    void _script_dropped(se_string_view p_file, const NodePath& p_to);
+    void _script_dropped(StringView p_file, const NodePath& p_to);
     void _quick_open();
 
     void _tree_rmb(const Vector2 &p_menu_pos);
 
-    void _filter_changed(se_string_view p_filter);
+    void _filter_changed(StringView p_filter);
 
     void _perform_instance_scenes(Span<const String> p_files, Node *parent, int p_pos);
-    void _replace_with_branch_scene(se_string_view p_file, Node *base);
+    void _replace_with_branch_scene(StringView p_file, Node *base);
 
     void _file_selected(UIString p_file);
 
@@ -230,7 +230,7 @@ class SceneTreeDock : public VBoxContainer {
     void _local_tree_selected();
 
     void _update_create_root_dialog();
-    void _favorite_root_selected(se_string_view p_class);
+    void _favorite_root_selected(StringView p_class);
 
     void _feature_profile_changed();
 
@@ -249,7 +249,7 @@ public:
 
     void import_subscene();
     void set_edited_scene(Node *p_scene);
-    void instance(se_string_view p_file);
+    void instance(StringView p_file);
     void instance_scenes(const Vector<String> &p_files, Node *p_parent = nullptr);
     void set_selected(Node *p_node, bool p_emit_selected = false);
     void fill_path_renames(Node *p_node, Node *p_new_parent, Vector<Pair<NodePath, NodePath> > &p_renames);

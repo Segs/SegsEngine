@@ -39,20 +39,20 @@ IMPL_GDCLASS(FileTypeCache)
 
 FileTypeCache *FileTypeCache::singleton = nullptr;
 
-bool FileTypeCache::has_file(se_string_view p_path) const {
+bool FileTypeCache::has_file(StringView p_path) const {
 
     GLOBAL_LOCK_FUNCTION
     return file_type_map.contains_as(p_path);
 }
 
-String FileTypeCache::get_file_type(se_string_view p_path) const {
+String FileTypeCache::get_file_type(StringView p_path) const {
 
     GLOBAL_LOCK_FUNCTION
     auto iter = file_type_map.find_as(p_path);
     ERR_FAIL_COND_V(iter==file_type_map.end(), String());
     return iter->second;
 }
-void FileTypeCache::set_file_type(se_string_view p_path, se_string_view p_type) {
+void FileTypeCache::set_file_type(StringView p_path, StringView p_type) {
 
     GLOBAL_LOCK_FUNCTION
     file_type_map[String(p_path)] = p_type;

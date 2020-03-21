@@ -31,7 +31,7 @@
 #ifndef SCRIPT_CLASS_PARSER_H
 #define SCRIPT_CLASS_PARSER_H
 
-#include "core/se_string.h"
+#include "core/string.h"
 #include "core/variant.h"
 #include "core/vector.h"
 
@@ -100,7 +100,7 @@ private:
 
 public:
     Error parse(const String &p_code);
-    Error parse_file(se_string_view p_filepath);
+    Error parse_file(StringView p_filepath);
 
     const String &get_error() {
         return error_str;

@@ -66,16 +66,16 @@ public:
     void init() override;
     String get_type() const override;
     String get_extension() const override;
-    Error execute_file(se_string_view p_path) override;
+    Error execute_file(StringView p_path) override;
     void finish() override;
 
     /* EDITOR FUNCTIONS */
     void get_reserved_words(List<String> *p_words) const override;
     void get_comment_delimiters(List<String> *p_delimiters) const override;
     void get_string_delimiters(List<String> *p_delimiters) const override;
-    Ref<Script> get_template(se_string_view p_class_name, const String &p_base_class_name) const override;
+    Ref<Script> get_template(StringView p_class_name, const String &p_base_class_name) const override;
     bool validate(const String &p_script, int &r_line_error, int &r_col_error, String &r_test_error,
-            se_string_view p_path = String(), List<String> *r_functions = nullptr,
+            StringView p_path = String(), List<String> *r_functions = nullptr,
             List<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const override;
     Script *create_script() const override;
     bool has_named_classes() const override;
@@ -83,7 +83,7 @@ public:
     bool can_inherit_from_file() override { return true; }
     int find_function(const String &p_function, const String &p_code) const override;
     String make_function(const String &p_class, const String &p_name, const PoolStringArray &p_args) const override;
-    Error complete_code(const String &p_code, se_string_view p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) override;
+    Error complete_code(const String &p_code, StringView p_path, Object *p_owner, List<ScriptCodeCompletionOption> *r_options, bool &r_force, String &r_call_hint) override;
     void auto_indent_code(String &p_code, int p_from_line, int p_to_line) const override;
     void add_global_constant(const StringName &p_variable, const Variant &p_value) override;
 
@@ -100,9 +100,9 @@ public:
     int debug_get_stack_level_line(int p_level) const override;
     String debug_get_stack_level_function(int p_level) const override;
     String debug_get_stack_level_source(int p_level) const override;
-    void debug_get_stack_level_locals(int p_level, Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_stack_level_members(int p_level, Vector<se_string_view> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
-    void debug_get_globals(Vector<se_string_view> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_locals(int p_level, Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_stack_level_members(int p_level, Vector<StringView> *p_members, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
+    void debug_get_globals(Vector<StringView> *p_locals, Vector<Variant> *p_values, int p_max_subitems = -1, int p_max_depth = -1) override;
     String debug_parse_stack_level_expression(int p_level, const String &p_expression, int p_max_subitems = -1, int p_max_depth = -1) override;
 
     // virtual Vector<StackInfo> debug_get_current_stack_info() { return Vector<StackInfo>(); }

@@ -89,7 +89,7 @@ public:
     };
 
     float get_monitor(Monitor p_monitor) const;
-    se_string_view get_monitor_name(Monitor p_monitor) const;
+    StringView get_monitor_name(Monitor p_monitor) const;
 
     MonitorType get_monitor_type(Monitor p_monitor) const;
 
