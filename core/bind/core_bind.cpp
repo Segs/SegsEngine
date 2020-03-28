@@ -91,6 +91,10 @@ static const unsigned int MONTH_DAYS_TABLE[2][12] = {
     { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
 };
 
+_ResourceManager* _ResourceManager::singleton = nullptr;
+
+IMPL_GDCLASS(_ResourceManager);
+
 Ref<ResourceInteractiveLoader> _ResourceManager::load_interactive(StringView p_path, StringView p_type_hint) {
     return gResourceManager().load_interactive(p_path, p_type_hint);
 }
@@ -155,10 +159,6 @@ PoolVector<String> _ResourceManager::get_recognized_extensions(const RES &p_reso
     }
     return ret;
 }
-
-_ResourceManager* _ResourceManager::singleton = nullptr;
-
-IMPL_GDCLASS(_ResourceManager);
 
 void _ResourceManager::_bind_methods() {
 

@@ -63,11 +63,8 @@
         <member name="ProjectSettings" type="ProjectSettings" setter="" getter="">
             The [ProjectSettings] singleton.
         </member>
-        <member name="ResourceLoader" type="ResourceLoader" setter="" getter="">
-            The [ResourceLoader] singleton.
-        </member>
-        <member name="ResourceSaver" type="ResourceSaver" setter="" getter="">
-            The [ResourceSaver] singleton.
+        <member name="ResourceManager" type="ResourceManager" setter="" getter="">
+            The [ResourceManager] singleton.
         </member>
         <member name="TranslationServer" type="TranslationServer" setter="" getter="">
             The [TranslationServer] singleton.

@@ -1172,7 +1172,7 @@ void FileSystemDock::_update_resource_paths_after_move(const HashMap<String, Str
 void FileSystemDock::_update_dependencies_after_move(const HashMap<String, String> &p_renames) const {
     //The following code assumes that the following holds:
     // 1) EditorFileSystem contains the old paths/folder structure from before the rename/move.
-    // 2) ResourceLoader can use the new paths without needing to call rescan.
+    // 2) ResourceManager can use the new paths without needing to call rescan.
     Vector<String> remaps;
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
     for (int i = 0; i < remaps.size(); ++i) {
