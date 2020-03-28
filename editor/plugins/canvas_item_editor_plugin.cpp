@@ -5847,7 +5847,7 @@ void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) cons
 
     bool add_preview = false;
     for (const String &path : files) {
-        RES res(ResourceLoader::load(path));
+        RES res(gResourceManager().load(path));
         ERR_FAIL_COND(not res);
         Ref<Texture> texture = Ref<Texture>(object_cast<Texture>(res.get()));
         Ref<PackedScene> scene = Ref<PackedScene>(object_cast<PackedScene>(res.get()));
@@ -5970,7 +5970,7 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, StringVi
 }
 
 bool CanvasItemEditorViewport::_create_instance(Node *parent, StringView path, const Point2 &p_point) {
-    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
+    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(path));
     if (not sdata) { // invalid scene
         return false;
     }
@@ -6026,7 +6026,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
 
     for (int i = 0; i < selected_files.size(); i++) {
         StringView  path = selected_files[i];
-        RES res(ResourceLoader::load(path));
+        RES res(gResourceManager().load(path));
         if (not res) {
             continue;
         }
@@ -6094,7 +6094,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
     Vector<String> files(d["files"].as<Vector<String>>());
     bool can_instance = false;
     for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
-        RES res(ResourceLoader::load(files[i]));
+        RES res(gResourceManager().load(files[i]));
         if (not res) {
             continue;
         }
@@ -6150,7 +6150,7 @@ void CanvasItemEditorViewport::_show_resource_type_selector() {
 bool CanvasItemEditorViewport::_only_packed_scenes_selected() const {
 
     for (int i = 0; i < selected_files.size(); ++i) {
-        if (0!=strcmp(ResourceLoader::load(selected_files[i])->get_class(),"PackedScene")) {
+        if (0!=strcmp(gResourceManager().load(selected_files[i])->get_class(),"PackedScene")) {
             return false;
         }
     }

@@ -48,6 +48,8 @@
 #include "EASTL/sort.h"
 #include <QHash>
 
+#include "core/resource/resource_manager.h"
+
 struct ColladaImport {
 
     Collada collada;
@@ -381,7 +383,7 @@ Error ColladaImport::_create_material(const String &p_target) {
             if (StringUtils::begins_with(texfile,"/")) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(texfile, "Texture")));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(texfile, "Texture")));
             if (texture) {
 
                 material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, texture);
@@ -406,7 +408,7 @@ Error ColladaImport::_create_material(const String &p_target) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
 
-            Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(texfile, "Texture"));
+            Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(texfile, "Texture"));
             if (texture) {
                 material->set_texture(SpatialMaterial::TEXTURE_METALLIC, texture);
                 material->set_specular(1.0);
@@ -433,7 +435,7 @@ Error ColladaImport::_create_material(const String &p_target) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
 
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(texfile, "Texture")));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(texfile, "Texture")));
             if (texture) {
 
                 material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
@@ -463,7 +465,7 @@ Error ColladaImport::_create_material(const String &p_target) {
                 texfile = StringUtils::replace_first(texfile,"/", "res://");
             }
 
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(texfile, "Texture")));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(texfile, "Texture")));
             if (texture) {
                 material->set_feature(SpatialMaterial::FEATURE_NORMAL_MAPPING, true);
                 material->set_texture(SpatialMaterial::TEXTURE_NORMAL, texture);

@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/global_constants.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor_node.h"
 #include "editor_scale.h"
@@ -51,8 +52,8 @@ void EditorAutoloadSettings::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         Vector<String> afn;
-        ResourceLoader::get_recognized_extensions_for_type("Script", afn);
-        ResourceLoader::get_recognized_extensions_for_type("PackedScene", afn);
+        gResourceManager().get_recognized_extensions_for_type("Script", afn);
+        gResourceManager().get_recognized_extensions_for_type("PackedScene", afn);
 
         EditorFileDialog *file_dialog = autoload_add_path->get_file_dialog();
 
@@ -308,7 +309,7 @@ void EditorAutoloadSettings::_autoload_activated() {
 }
 
 void EditorAutoloadSettings::_autoload_open(StringView fpath) {
-    if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
+    if (gResourceManager().get_resource_type(fpath) == "PackedScene") {
         EditorNode::get_singleton()->open_request(fpath);
     } else {
         EditorNode::get_singleton()->load_resource(fpath);
@@ -350,7 +351,7 @@ void EditorAutoloadSettings::_autoload_text_changed(StringView p_name) {
 }
 
 Node *EditorAutoloadSettings::_create_autoload(StringView p_path) {
-    RES res(ResourceLoader::load(p_path));
+    RES res(gResourceManager().load(p_path));
     ERR_FAIL_COND_V_MSG(not res, nullptr, String("Can't autoload: ") + p_path + ".");
     Node *n = nullptr;
     if (res->is_class("PackedScene")) {

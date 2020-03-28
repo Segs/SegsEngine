@@ -55,7 +55,7 @@ void EditorSubScene::_path_changed(StringView p_path) {
     if (p_path.empty())
         return;
 
-    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_path, "PackedScene"));
+    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_path, "PackedScene"));
 
     if (not ps)
         return;
@@ -263,7 +263,7 @@ EditorSubScene::EditorSubScene() {
 
     file_dialog = memnew(EditorFileDialog);
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
+    gResourceManager().get_recognized_extensions_for_type("PackedScene", extensions);
 
     for (const String &E : extensions) {
 

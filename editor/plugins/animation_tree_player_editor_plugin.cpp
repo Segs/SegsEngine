@@ -1120,7 +1120,7 @@ void AnimationTreePlayerEditor::_file_dialog_selected(StringView p_path) {
 
                 StringName node = _add_node(AnimationTreePlayer::NODE_ANIMATION);
 
-                auto anim = dynamic_ref_cast<Animation>(ResourceLoader::load(files[i]));
+                auto anim = dynamic_ref_cast<Animation>(gResourceManager().load(files[i]));
                 anim_tree->animation_node_set_animation(node, anim);
                 //anim_tree->node_set_name(node, PathUtils::get_file(files[i]));
             }

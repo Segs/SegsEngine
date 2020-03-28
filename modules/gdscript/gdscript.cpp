@@ -46,6 +46,7 @@
 #include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 
 #include "EASTL/deque.h"
 #include "EASTL/sort.h"
@@ -456,7 +457,7 @@ bool GDScript::_update_exports() {
                 if (!path.empty()) {
                     if (path != get_path()) {
 
-                        Ref<GDScript> bf = dynamic_ref_cast<GDScript>(ResourceLoader::load(path));
+                        Ref<GDScript> bf = dynamic_ref_cast<GDScript>(gResourceManager().load(path));
 
                         if (bf) {
 

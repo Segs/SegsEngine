@@ -41,6 +41,7 @@
 #include "core/string_formatter.h"
 #include "core/object_tooling.h"
 #include "core/property_info.h"
+#include "core/resource/resource_manager.h"
 #include "core/string.h"
 #include "core/translation_helpers.h"
 #include "core/variant.h"
@@ -2132,7 +2133,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
             for (int i = 0; i < files.size(); i++) {
 
-                Ref<Resource> res(ResourceLoader::load(files[i].as<String>()));
+                Ref<Resource> res(gResourceManager().load(files[i].as<String>()));
                 if (not res)
                     continue;
 

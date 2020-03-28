@@ -32,9 +32,8 @@
 
 #include "core/class_db.h"
 #include "core/io/marshalls.h"
-#include "core/io/resource_saver.h"
-#include "core/list.h"
 #include "core/os/file_access.h"
+#include "core/resource/resource_manager.h"
 #include "scene/resources/audio_stream_sample.h"
 
 IMPL_GDCLASS(ResourceImporterWAV)
@@ -536,7 +535,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     sample->set_loop_end(loop_end);
     sample->set_stereo(format_channels == 2);
 
-    ResourceSaver::save(String(p_save_path) + ".sample", sample);
+    gResourceManager().save(String(p_save_path) + ".sample", sample);
 
     return OK;
 }

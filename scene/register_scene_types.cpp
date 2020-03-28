@@ -33,6 +33,7 @@
 #include "core/class_db.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "scene/2d/animated_sprite.h"
 #include "scene/2d/area_2d.h"
 #include "scene/2d/audio_stream_player_2d.h"
@@ -601,28 +602,28 @@ void register_scene_types() {
 
 
     resource_loader_dynamic_font = make_ref_counted<ResourceFormatLoaderDynamicFont>();
-    ResourceLoader::add_resource_format_loader(resource_loader_dynamic_font);
+    gResourceManager().add_resource_format_loader(resource_loader_dynamic_font);
 
     resource_loader_stream_texture = make_ref_counted<ResourceFormatLoaderStreamTexture>();
-    ResourceLoader::add_resource_format_loader(resource_loader_stream_texture);
+    gResourceManager().add_resource_format_loader(resource_loader_stream_texture);
 
     resource_loader_texture_layered = make_ref_counted<ResourceFormatLoaderTextureLayered>();
-    ResourceLoader::add_resource_format_loader(resource_loader_texture_layered);
+    gResourceManager().add_resource_format_loader(resource_loader_texture_layered);
 
     resource_saver_text = make_ref_counted<ResourceFormatSaverText>();
-    ResourceSaver::add_resource_format_saver(resource_saver_text, true);
+    gResourceManager().add_resource_format_saver(resource_saver_text, true);
 
     resource_loader_text = make_ref_counted<ResourceFormatLoaderText>();
-    ResourceLoader::add_resource_format_loader(resource_loader_text, true);
+    gResourceManager().add_resource_format_loader(resource_loader_text, true);
 
     resource_saver_shader = make_ref_counted<ResourceFormatSaverShader>();
-    ResourceSaver::add_resource_format_saver(resource_saver_shader, true);
+    gResourceManager().add_resource_format_saver(resource_saver_shader, true);
 
     resource_loader_shader = make_ref_counted<ResourceFormatLoaderShader>();
-    ResourceLoader::add_resource_format_loader(resource_loader_shader, true);
+    gResourceManager().add_resource_format_loader(resource_loader_shader, true);
 
     resource_loader_bmfont = make_ref_counted<ResourceFormatLoaderBMFont>();
-    ResourceLoader::add_resource_format_loader(resource_loader_bmfont, true);
+    gResourceManager().add_resource_format_loader(resource_loader_bmfont, true);
 
     OS::get_singleton()->yield(); //may take time to init
 
@@ -1123,7 +1124,7 @@ void register_scene_types() {
 
     Ref<Font> font;
     if (!font_path.empty()) {
-        font = dynamic_ref_cast<Font>(ResourceLoader::load(font_path));
+        font = dynamic_ref_cast<Font>(gResourceManager().load(font_path));
         if (not font) {
             ERR_PRINT("Error loading custom font '" + font_path + "'");
         }
@@ -1133,7 +1134,7 @@ void register_scene_types() {
     make_default_theme(default_theme_hidpi, font);
 
     if (!theme_path.empty()) {
-        Ref<Theme> theme = dynamic_ref_cast<Theme>(ResourceLoader::load(theme_path));
+        Ref<Theme> theme = dynamic_ref_cast<Theme>(gResourceManager().load(theme_path));
         if (theme) {
             Theme::set_project_default(theme);
             if (font) {
@@ -1149,30 +1150,30 @@ void unregister_scene_types() {
 
     clear_default_theme();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_dynamic_font);
+    gResourceManager().remove_resource_format_loader(resource_loader_dynamic_font);
     resource_loader_dynamic_font.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_texture_layered);
+    gResourceManager().remove_resource_format_loader(resource_loader_texture_layered);
     resource_loader_texture_layered.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_stream_texture);
+    gResourceManager().remove_resource_format_loader(resource_loader_stream_texture);
     resource_loader_stream_texture.unref();
 
     DynamicFont::finish_dynamic_fonts();
 
-    ResourceSaver::remove_resource_format_saver(resource_saver_text);
+    gResourceManager().remove_resource_format_saver(resource_saver_text);
     resource_saver_text.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_text);
+    gResourceManager().remove_resource_format_loader(resource_loader_text);
     resource_loader_text.unref();
 
-    ResourceSaver::remove_resource_format_saver(resource_saver_shader);
+    gResourceManager().remove_resource_format_saver(resource_saver_shader);
     resource_saver_shader.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_shader);
+    gResourceManager().remove_resource_format_loader(resource_loader_shader);
     resource_loader_shader.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_bmfont);
+    gResourceManager().remove_resource_format_loader(resource_loader_bmfont);
     resource_loader_bmfont.unref();
 
     //SpatialMaterial is not initialised when 3D is disabled, so it shouldn't be cleaned up either

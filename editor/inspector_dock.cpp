@@ -153,7 +153,7 @@ void InspectorDock::_load_resource(StringView p_type) {
     load_resource_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type(p_type, extensions);
+    gResourceManager().get_recognized_extensions_for_type(p_type, extensions);
 
     load_resource_dialog->clear_filters();
     for (const String &ext : extensions) {
@@ -164,7 +164,7 @@ void InspectorDock::_load_resource(StringView p_type) {
 }
 
 void InspectorDock::_resource_file_selected(StringView p_file) {
-    RES res(ResourceLoader::load(p_file));
+    RES res(gResourceManager().load(p_file));
 
     if (not res) {
         warning_dialog->set_text(TTR("Failed to load resource."));

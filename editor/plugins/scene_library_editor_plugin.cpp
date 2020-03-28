@@ -122,7 +122,7 @@ void SceneLibraryEditor::_import_scene(Node *p_scene,const Ref<SceneLibrary> &p_
 
 void SceneLibraryEditor::_import_scene_cbk(StringView p_str) {
 
-    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_str, "PackedScene"));
+    Ref<PackedScene> ps = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_str, "PackedScene"));
     ERR_FAIL_COND(not ps);
     Node *scene = ps->instance();
 
@@ -185,7 +185,7 @@ SceneLibraryEditor::SceneLibraryEditor(EditorNode *p_editor) {
     file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     //not for now?
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
+    gResourceManager().get_recognized_extensions_for_type("PackedScene", extensions);
     file->clear_filters();
     file->set_title(TTR("Import Scene"));
     for (const String & ext : extensions) {

@@ -37,6 +37,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_log.h"
@@ -234,7 +235,7 @@ void VisualShaderEditor::update_custom_nodes() {
         if (ScriptServer::get_global_class_native_base(class_list[i]) == "VisualShaderNodeCustom") {
 
             StringView script_path = ScriptServer::get_global_class_path(class_list[i]);
-            Ref<Resource> res = ResourceLoader::load(script_path);
+            Ref<Resource> res = gResourceManager().load(script_path);
             ERR_FAIL_COND(not res);
             ERR_FAIL_COND(!res->is_class("Script"));
             Ref<Script> script = dynamic_ref_cast<Script>(res);
@@ -1316,7 +1317,7 @@ void VisualShaderEditor::_add_custom_node(StringView p_path) {
 
 void VisualShaderEditor::_add_texture_node(StringView p_path) {
     VisualShaderNodeTexture *texture = (VisualShaderNodeTexture *)_add_node(texture_node_option_idx, -1);
-    texture->set_texture(dynamic_ref_cast<Texture>(ResourceLoader::load(p_path)));
+    texture->set_texture(dynamic_ref_cast<Texture>(gResourceManager().load(p_path)));
 }
 VisualShaderNode *VisualShaderEditor::_add_node(int p_idx, int p_op_idx) {
 
@@ -2154,39 +2155,39 @@ bool VisualShaderEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 
 void VisualShaderEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    if (p_from == graph) {
+    if (p_from != graph)
+        return;
 
-        Dictionary d = p_data;
+    Dictionary d = p_data;
 
-        if (d.has("id")) {
-            int idx = d["id"];
-            saved_node_pos = p_point;
-            saved_node_pos_dirty = true;
-            _add_node(idx, add_options[idx].sub_func);
-        } else if (d.has("files")) {
-            if (d["files"].get_type() == VariantType::POOL_STRING_ARRAY) {
+    if (d.has("id")) {
+        int idx = d["id"];
+        saved_node_pos = p_point;
+        saved_node_pos_dirty = true;
+        _add_node(idx, add_options[idx].sub_func);
+        return;
+    }
+    if (!d.has("files") || d["files"].get_type() != VariantType::POOL_STRING_ARRAY)
+        return;
 
-                int j = 0;
-                PoolVector<String> arr = d["files"].as<PoolVector<String>>();
-                for (int i = 0; i < arr.size(); i++) {
+    int j = 0;
+    PoolVector<String> arr = d["files"].as<PoolVector<String>>();
+    for (int i = 0; i < arr.size(); i++) {
 
-                    const String type = ResourceLoader::get_resource_type(arr[i]);
-                    if (type == "GDScript") {
-                        Ref<Script> script(dynamic_ref_cast<Script>(ResourceLoader::load(arr[i])));
-                        if (script->get_instance_base_type() == "VisualShaderNodeCustom") {
-                            saved_node_pos = p_point + Vector2(0, j * 210 * EDSCALE);
-                            saved_node_pos_dirty = true;
-                            _add_custom_node(arr[i]);
-                            j++;
-                        }
-                    } else if (ClassDB::get_parent_class(StringName(type)) == "Texture") {
-                        saved_node_pos = p_point + Vector2(0, j * 210 * EDSCALE);
-                        saved_node_pos_dirty = true;
-                        _add_texture_node(arr[i]);
-                        j++;
-                    }
-                }
+        const String type = gResourceManager().get_resource_type(arr[i]);
+        if (type == "GDScript") {
+            Ref<Script> script(dynamic_ref_cast<Script>(gResourceManager().load(arr[i])));
+            if (script->get_instance_base_type() == "VisualShaderNodeCustom") {
+                saved_node_pos = p_point + Vector2(0, j * 210 * EDSCALE);
+                saved_node_pos_dirty = true;
+                _add_custom_node(arr[i]);
+                j++;
             }
+        } else if (ClassDB::get_parent_class(StringName(type)) == "Texture") {
+            saved_node_pos = p_point + Vector2(0, j * 210 * EDSCALE);
+            saved_node_pos_dirty = true;
+            _add_texture_node(arr[i]);
+            j++;
         }
     }
 }

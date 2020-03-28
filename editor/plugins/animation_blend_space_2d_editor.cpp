@@ -31,7 +31,7 @@
 #include "animation_blend_space_2d_editor.h"
 #include "editor/editor_scale.h"
 
-#include "core/io/resource_loader.h"
+#include "core/resource/resource_manager.h"
 #include "core/math/delaunay.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
@@ -302,7 +302,7 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_gui_input(const Ref<InputEven
 
 void AnimationNodeBlendSpace2DEditor::_file_opened(StringView p_file) {
 
-    file_loaded = dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
+    file_loaded = dynamic_ref_cast<AnimationNode>(gResourceManager().load(p_file));
     if (file_loaded) {
         _add_menu_type(MENU_LOAD_FILE_CONFIRM);
     }
@@ -315,7 +315,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
 
         open_file->clear_filters();
         Vector<String> filters;
-        ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
+        gResourceManager().get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }

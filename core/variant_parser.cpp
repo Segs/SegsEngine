@@ -854,7 +854,7 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
                 get_token(p_stream, token, line, r_err_str);
                 if (token.type == TK_STRING) {
                     String path = token.value.as<String>();
-                    RES res(ResourceLoader::load(path));
+                    RES res(gResourceManager().load(path));
                     if (not res) {
                         r_err_str = "Can't load resource at path: '" + path + "'.";
                         return ERR_PARSE_ERROR;

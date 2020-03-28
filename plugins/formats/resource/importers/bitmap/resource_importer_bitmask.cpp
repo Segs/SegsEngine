@@ -32,7 +32,7 @@
 #include "core/image.h"
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
-#include "core/io/resource_saver.h"
+#include "core/resource/resource_manager.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/texture.h"
 
@@ -112,7 +112,7 @@ Error ResourceImporterBitMap::import(StringView p_source_file, StringView p_save
         }
     }
 
-    return ResourceSaver::save(String(p_save_path) + ".res", bitmap);
+    return gResourceManager().save(String(p_save_path) + ".res", bitmap);
 }
 
 ResourceImporterBitMap::ResourceImporterBitMap() {

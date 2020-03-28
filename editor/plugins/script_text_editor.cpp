@@ -798,7 +798,7 @@ void ScriptEditor::_update_modified_scripts_for_external_editor(const Ref<Script
 
         if (last_date != date) {
 
-            Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), String(script->get_class()), true));
+            Ref<Script> rel_script = dynamic_ref_cast<Script>(gResourceManager().load(script->get_path(), String(script->get_class()), true));
             ERR_CONTINUE(not rel_script);
             script->set_source_code(String(rel_script->get_source_code()));
             script->set_last_modified_time(rel_script->get_last_modified_time());
@@ -886,7 +886,7 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
         EditorNode::get_singleton()->load_resource(ScriptServer::get_global_class_path(p_symbol));
     } else if (PathUtils::is_resource_file(p_symbol)) {
         Vector<String> scene_extensions;
-        ResourceLoader::get_recognized_extensions_for_type(("PackedScene"), scene_extensions);
+        gResourceManager().get_recognized_extensions_for_type(("PackedScene"), scene_extensions);
 
         if (scene_extensions.contains(String(PathUtils::get_extension(p_symbol)))) {
             EditorNode::get_singleton()->load_scene(p_symbol);

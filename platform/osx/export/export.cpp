@@ -32,7 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/io/marshalls.h"
-#include "core/io/resource_saver.h"
+#include "core/resource/resource_manager.h"
 #include "core/io/zip_io.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
@@ -259,7 +259,7 @@ void EditorExportPlatformOSX::_make_icon(const Ref<Image> &p_icon, Vector<uint8_
             // Encode PNG icon.
             it->create_from_image(copy);
             String path(PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"icon.png"));
-            ResourceSaver::save(path, it);
+            gResourceManager().save(path, it);
 
             FileAccess *f = FileAccess::open(path, FileAccess::READ);
             if (!f) {

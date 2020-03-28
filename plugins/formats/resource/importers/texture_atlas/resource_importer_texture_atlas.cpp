@@ -36,6 +36,7 @@
 #include "core/io/image_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
+#include "core/resource/resource_manager.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/texture.h"
 
@@ -108,7 +109,7 @@ Error ResourceImporterTextureAtlas::import(StringView p_source_file, StringView 
 
     String target_file = String(p_save_path) + ".tex";
 
-    ResourceSaver::save(target_file, RES(broken_texture));
+    gResourceManager().save(target_file, RES(broken_texture));
 
     return OK;
 }
@@ -405,7 +406,7 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
         }
 
         String save_path(p_base_paths.at(E.first) + ".res");
-        ResourceSaver::save(save_path, Ref<Resource>(texture));
+        gResourceManager().save(save_path, Ref<Resource>(texture));
     }
 
     return OK;

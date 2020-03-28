@@ -38,6 +38,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor_feature_profile.h"
 #include "editor_node.h"
@@ -857,7 +858,7 @@ void FileSystemDock::_select_file(StringView p_path, bool p_select_in_favorites)
             fpath = StringUtils::substr(fpath,0, fpath.length() - 1);
         }
     } else if (fpath != "Favorites") {
-        if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
+        if (gResourceManager().get_resource_type(fpath) == "PackedScene") {
             editor->open_request(fpath);
         } else {
             editor->load_resource(fpath);
@@ -1057,7 +1058,7 @@ void FileSystemDock::_try_move_item(const FileOrFolder &p_item, StringView p_new
         // Update scene if it is open.
         for (int i = 0; i < file_changed_paths.size(); ++i) {
             String new_item_path = p_item.is_file ? new_path : StringUtils::replace_first(file_changed_paths[i],old_path, new_path);
-            if (ResourceLoader::get_resource_type(new_item_path) == "PackedScene" && editor->is_scene_open(file_changed_paths[i])) {
+            if (gResourceManager().get_resource_type(new_item_path) == "PackedScene" && editor->is_scene_open(file_changed_paths[i])) {
                 EditorData *ed = &editor->get_editor_data();
                 for (int j = 0; j < ed->get_edited_scene_count(); j++) {
                     if (ed->get_scene_path(j) == file_changed_paths[i]) {
@@ -1178,9 +1179,9 @@ void FileSystemDock::_update_dependencies_after_move(const HashMap<String, Strin
         //Because we haven't called a rescan yet the found remap might still be an old path itself.
         String file = p_renames.contains(remaps[i]) ? p_renames.at(remaps[i]) : remaps[i];
         print_verbose("Remapping dependencies for: " + file);
-        Error err = ResourceLoader::rename_dependencies(file, p_renames);
+        Error err = gResourceManager().rename_dependencies(file, p_renames);
         if (err == OK) {
-            if (ResourceLoader::get_resource_type(file) == "PackedScene")
+            if (gResourceManager().get_resource_type(file) == "PackedScene")
                 editor->reload_scene(file);
         } else {
             EditorNode::get_singleton()->add_io_error_utf8(TTR("Unable to update dependencies:") + "\n" + remaps[i] + "\n");
@@ -1246,7 +1247,7 @@ void FileSystemDock::_save_scenes_after_move(const HashMap<String, String> &p_re
 
     for (size_t i = 0; i < remaps.size(); ++i) {
         const String &file = p_renames.contains(remaps[i]) ? p_renames.at(remaps[i]) : remaps[i];
-        if (ResourceLoader::get_resource_type(file) == "PackedScene") {
+        if (gResourceManager().get_resource_type(file) == "PackedScene") {
             new_filenames.emplace_back(file);
         }
     }
@@ -1306,7 +1307,7 @@ void FileSystemDock::_make_scene_confirm() {
     StringView extension(PathUtils::get_extension(scene_name));
     Vector<String> extensions;
     Ref<PackedScene> sd(make_ref_counted<PackedScene>());
-    ResourceSaver::get_recognized_extensions(sd, extensions);
+    gResourceManager().get_recognized_extensions(sd, extensions);
 
     bool extension_correct = false;
     for (size_t i=0,fin=extensions.size(); i<fin; ++i) {

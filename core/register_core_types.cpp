@@ -72,6 +72,7 @@
 #include "core/script_language.h"
 #include "core/translation.h"
 #include "core/undo_redo.h"
+#include "resource/resource_manager.h"
 
 static Ref<ResourceFormatSaverBinary> resource_saver_binary;
 static Ref<ResourceFormatLoaderBinary> resource_loader_binary;
@@ -81,8 +82,7 @@ static Ref<TranslationLoaderPO> resource_format_po;
 static Ref<ResourceFormatSaverCrypto> resource_format_saver_crypto;
 static Ref<ResourceFormatLoaderCrypto> resource_format_loader_crypto;
 
-static _ResourceLoader *_resource_loader = nullptr;
-static _ResourceSaver *_resource_saver = nullptr;
+static _ResourceManager *_resource_manger = nullptr;
 static _OS *_os = nullptr;
 static _Engine *_engine = nullptr;
 static _ClassDB *_classdb = nullptr;
@@ -109,7 +109,7 @@ void register_core_types() {
     _global_mutex = memnew(Mutex);
 
     StringName::setup();
-    ResourceLoader::initialize();
+    gResourceManager().initialize();
 
     register_global_constants();
     register_variant_methods();
@@ -123,21 +123,21 @@ void register_core_types() {
     ResourceFormatLoaderImage::initialize_class();
 
     resource_format_po = make_ref_counted<TranslationLoaderPO>();
-    ResourceLoader::add_resource_format_loader(resource_format_po);
+    gResourceManager().add_resource_format_loader(resource_format_po);
 
     resource_saver_binary = make_ref_counted<ResourceFormatSaverBinary>();
-    ResourceSaver::add_resource_format_saver(resource_saver_binary);
+    gResourceManager().add_resource_format_saver(resource_saver_binary);
     //TODO: SEGS: this is a hack to provide PNG resource saver
-    ResourceSaver::add_resource_format_saver(make_ref_counted<ResourceFormatSaver>());
+    gResourceManager().add_resource_format_saver(make_ref_counted<ResourceFormatSaver>());
 
     resource_loader_binary = make_ref_counted<ResourceFormatLoaderBinary>();
-    ResourceLoader::add_resource_format_loader(resource_loader_binary);
+    gResourceManager().add_resource_format_loader(resource_loader_binary);
 
     resource_format_importer = make_ref_counted<ResourceFormatImporter>();
-    ResourceLoader::add_resource_format_loader(resource_format_importer);
+    gResourceManager().add_resource_format_loader(resource_format_importer);
 
     resource_format_image = make_ref_counted<ResourceFormatLoaderImage>();
-    ResourceLoader::add_resource_format_loader(resource_format_image);
+    gResourceManager().add_resource_format_loader(resource_format_image);
 
     ClassDB::register_class<Object>();
 
@@ -182,9 +182,9 @@ void register_core_types() {
     ResourceFormatLoaderCrypto::initialize_class();
 
     resource_format_saver_crypto = make_ref_counted<ResourceFormatSaverCrypto>();
-    ResourceSaver::add_resource_format_saver(resource_format_saver_crypto);
+    gResourceManager().add_resource_format_saver(resource_format_saver_crypto);
     resource_format_loader_crypto = make_ref_counted<ResourceFormatLoaderCrypto>();
-    ResourceLoader::add_resource_format_loader(resource_format_loader_crypto);
+    gResourceManager().add_resource_format_loader(resource_format_loader_crypto);
 
     ClassDB::register_virtual_class<IP>();
     ClassDB::register_virtual_class<PacketPeer>();
@@ -228,8 +228,7 @@ void register_core_types() {
 
     ip = IP::create();
     _Geometry::initialize_class();
-    _ResourceLoader::initialize_class();
-    _ResourceSaver::initialize_class();
+    _ResourceManager::initialize_class();
     _OS::initialize_class();
     _Engine::initialize_class();
     _ClassDB::initialize_class();
@@ -238,8 +237,7 @@ void register_core_types() {
 
     _geometry = memnew(_Geometry);
 
-    _resource_loader = memnew(_ResourceLoader);
-    _resource_saver = memnew(_ResourceSaver);
+    _resource_manger = memnew(_ResourceManager);
     _os = memnew(_OS);
     _engine = memnew(_Engine);
     _classdb = memnew(_ClassDB);
@@ -263,8 +261,7 @@ void register_core_singletons() {
     ClassDB::register_class<ProjectSettings>();
     ClassDB::register_virtual_class<IP>();
     ClassDB::register_class<_Geometry>();
-    ClassDB::register_class<_ResourceLoader>();
-    ClassDB::register_class<_ResourceSaver>();
+    ClassDB::register_class<_ResourceManager>();
     ClassDB::register_class<_OS>();
     ClassDB::register_class<_Engine>();
     ClassDB::register_class<_ClassDB>();
@@ -278,8 +275,7 @@ void register_core_singletons() {
     en->add_singleton(Engine::Singleton(StaticCString("ProjectSettings"), ProjectSettings::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("IP"), IP::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("Geometry"), _Geometry::get_singleton()));
-    en->add_singleton(Engine::Singleton(StaticCString("ResourceLoader"), _ResourceLoader::get_singleton()));
-    en->add_singleton(Engine::Singleton(StaticCString("ResourceSaver"), _ResourceSaver::get_singleton()));
+    en->add_singleton(Engine::Singleton(StaticCString("ResourceManager"), _ResourceManager::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("OS"), _OS::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("Engine"), _Engine::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("ClassDB"), _classdb));
@@ -292,8 +288,7 @@ void register_core_singletons() {
 
 void unregister_core_types() {
 
-    memdelete(_resource_loader);
-    memdelete(_resource_saver);
+    memdelete(_resource_manger);
     memdelete(_os);
     memdelete(_engine);
     memdelete(_classdb);
@@ -302,31 +297,30 @@ void unregister_core_types() {
 
     memdelete(_geometry);
 
-    ResourceLoader::remove_resource_format_loader(resource_format_image);
+    gResourceManager().remove_resource_format_loader(resource_format_image);
     resource_format_image.unref();
 
-    ResourceSaver::remove_resource_format_saver(resource_saver_binary);
+    gResourceManager().remove_resource_format_saver(resource_saver_binary);
     resource_saver_binary.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_binary);
+    gResourceManager().remove_resource_format_loader(resource_loader_binary);
     resource_loader_binary.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_format_importer);
+    gResourceManager().remove_resource_format_loader(resource_format_importer);
     resource_format_importer.unref();
 
-    ResourceLoader::remove_resource_format_loader(resource_format_po);
+    gResourceManager().remove_resource_format_loader(resource_format_po);
     resource_format_po.unref();
 
-    ResourceSaver::remove_resource_format_saver(resource_format_saver_crypto);
+    gResourceManager().remove_resource_format_saver(resource_format_saver_crypto);
     resource_format_saver_crypto.unref();
-    ResourceLoader::remove_resource_format_loader(resource_format_loader_crypto);
+    gResourceManager().remove_resource_format_loader(resource_format_loader_crypto);
     resource_format_loader_crypto.unref();
 
     if (ip)
         memdelete(ip);
 
-    ResourceLoader::finalize();
-    ResourceSaver::finalize();
+    gResourceManager().finalize();
     ClassDB::cleanup_defaults();
     ObjectDB::cleanup();
 

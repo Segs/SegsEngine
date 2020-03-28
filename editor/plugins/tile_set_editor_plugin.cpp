@@ -637,7 +637,7 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     texture_dialog->clear_filters();
     Vector<String> extensions;
 
-    ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
+    gResourceManager().get_recognized_extensions_for_type("Texture", extensions);
     for (const String &ext : extensions) {
 
         texture_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
@@ -751,7 +751,7 @@ void TileSetEditor::_on_texture_list_selected(int p_index) {
 void TileSetEditor::_on_textures_added(const PoolVector<String> &p_paths) {
     int invalid_count = 0;
     for (int i = 0; i < p_paths.size(); i++) {
-        Ref<Texture> t = dynamic_ref_cast<Texture>(ResourceLoader::load(p_paths[i]));
+        Ref<Texture> t = dynamic_ref_cast<Texture>(gResourceManager().load(p_paths[i]));
 
         ERR_CONTINUE_MSG(not t, "'" + p_paths[i] + "' is not a valid texture.");
 

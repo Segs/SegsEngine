@@ -36,7 +36,6 @@
 #include "core/io/config_file.h"
 #include "core/io/file_access_memory.h"
 #include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
 #include "core/io/translation_loader_po.h"
 #include "core/io/ip.h"
 #include "core/os/dir_access.h"
@@ -55,6 +54,8 @@
 
 #include "EASTL/sort.h"
 #include <QtCore/QResource>
+
+#include "core/resource/resource_manager.h"
 
 #define _SYSTEM_CERTS_PATH ""
 
@@ -933,7 +934,7 @@ void EditorSettings::create() {
 
         memdelete(dir);
 
-        singleton = dynamic_ref_cast<EditorSettings>(ResourceLoader::load(config_file_path, "EditorSettings"));
+        singleton = dynamic_ref_cast<EditorSettings>(gResourceManager().load(config_file_path, "EditorSettings"));
 
         if (not singleton) {
             WARN_PRINT("Could not open config file.");
@@ -1061,7 +1062,7 @@ void EditorSettings::save() {
         return;
     }
     assert(singleton->reference_get_count()>=1);
-    Error err = ResourceSaver::save(singleton->config_file_path, singleton);
+    Error err = gResourceManager().save(singleton->config_file_path, singleton);
 
     if (err != OK) {
         ERR_PRINT("Error saving editor settings to " + singleton->config_file_path);

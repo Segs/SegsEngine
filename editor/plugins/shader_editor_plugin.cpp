@@ -31,11 +31,11 @@
 #include "shader_editor_plugin.h"
 
 #include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
@@ -455,7 +455,7 @@ void ShaderEditor::_check_for_external_edit() {
 
 void ShaderEditor::_reload_shader_from_disk() {
 
-    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(ResourceLoader::load(shader->get_path(), shader->get_class(), true));
+    Ref<Shader> rel_shader = dynamic_ref_cast<Shader>(gResourceManager().load(shader->get_path(), shader->get_class(), true));
     ERR_FAIL_COND(not rel_shader);
 
     shader->set_code(rel_shader->get_code());
@@ -489,7 +489,7 @@ void ShaderEditor::save_external_data(StringView p_str) {
     apply_shaders();
     if (not shader->get_path().empty() && not PathUtils::is_internal_path(shader->get_path()) ) {
         //external shader, save it
-        ResourceSaver::save(shader->get_path(), shader);
+        gResourceManager().save(shader->get_path(), shader);
     }
 
     disk_changed->hide();

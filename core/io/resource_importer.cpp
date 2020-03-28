@@ -32,7 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/io/config_file.h"
-#include "core/io/resource_loader.h"
+#include "core/resource/resource_manager.h"
 #include "core/os/os.h"
 #include "core/property_info.h"
 #include "core/string.h"
@@ -119,7 +119,7 @@ RES ResourceFormatImporter::load(StringView p_path, StringView p_original_path, 
         return RES();
     }
 
-    RES res(ResourceLoader::_load(pat.path, p_path, pat.type, false, r_error));
+    RES res(gResourceManager().load_internal(pat.path, p_path, pat.type, false, r_error));
 
 #ifdef TOOLS_ENABLED
     if (res) {
@@ -374,7 +374,7 @@ void ResourceFormatImporter::get_dependencies(StringView p_path, Vector<String> 
         return;
     }
 
-    ResourceLoader::get_dependencies(pat.path, p_dependencies, p_add_types);
+    gResourceManager().get_dependencies(pat.path, p_dependencies, p_add_types);
 }
 
 ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(StringView p_name) const {

@@ -39,6 +39,8 @@
 #include "gdscript_tokenizer.h"
 #include <QResource>
 
+#include "core/resource/resource_manager.h"
+
 GDScriptLanguage *script_language_gd = nullptr;
 Ref<ResourceFormatLoaderGDScript> resource_loader_gd;
 Ref<ResourceFormatSaverGDScript> resource_saver_gd;
@@ -164,10 +166,10 @@ void register_gdscript_types() {
     ScriptServer::register_language(script_language_gd);
 
     resource_loader_gd = make_ref_counted<ResourceFormatLoaderGDScript>();
-    ResourceLoader::add_resource_format_loader(resource_loader_gd);
+    gResourceManager().add_resource_format_loader(resource_loader_gd);
 
     resource_saver_gd = make_ref_counted<ResourceFormatSaverGDScript>();
-    ResourceSaver::add_resource_format_saver(resource_saver_gd);
+    gResourceManager().add_resource_format_saver(resource_saver_gd);
 
 #ifdef TOOLS_ENABLED
     ScriptEditor::register_create_syntax_highlighter_function(GDScriptSyntaxHighlighter::create);
@@ -182,9 +184,9 @@ void unregister_gdscript_types() {
     if (script_language_gd)
         memdelete(script_language_gd);
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_gd);
+    gResourceManager().remove_resource_format_loader(resource_loader_gd);
     resource_loader_gd.unref();
 
-    ResourceSaver::remove_resource_format_saver(resource_saver_gd);
+    gResourceManager().remove_resource_format_saver(resource_saver_gd);
     resource_saver_gd.unref();
 }

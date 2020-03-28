@@ -54,8 +54,9 @@
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "EASTL/sort.h"
+#include "core/resource/resource_manager.h"
 
-VARIANT_ENUM_CAST(_ResourceSaver::SaverFlags);
+VARIANT_ENUM_CAST(_ResourceManager::SaverFlags);
 VARIANT_ENUM_CAST(_OS::VideoDriver);
 VARIANT_ENUM_CAST(_OS::Weekday);
 VARIANT_ENUM_CAST(_OS::Month);
@@ -90,27 +91,23 @@ static const unsigned int MONTH_DAYS_TABLE[2][12] = {
     { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
 };
 
-_ResourceLoader *_ResourceLoader::singleton = nullptr;
-
-IMPL_GDCLASS(_ResourceLoader);
-
-Ref<ResourceInteractiveLoader> _ResourceLoader::load_interactive(StringView p_path, StringView p_type_hint) {
-    return ResourceLoader::load_interactive(p_path, p_type_hint);
+Ref<ResourceInteractiveLoader> _ResourceManager::load_interactive(StringView p_path, StringView p_type_hint) {
+    return gResourceManager().load_interactive(p_path, p_type_hint);
 }
 
-RES _ResourceLoader::load(StringView p_path, StringView p_type_hint, bool p_no_cache) {
+RES _ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_cache) {
 
     Error err = OK;
-    RES ret(ResourceLoader::load(p_path, p_type_hint, p_no_cache, &err));
+    RES ret(gResourceManager().load(p_path, p_type_hint, p_no_cache, &err));
 
     ERR_FAIL_COND_V_MSG(err != OK, ret, "Error loading resource: '" + String(p_path) + "'.");
     return ret;
 }
 
-PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(StringView p_type) {
+PoolStringArray _ResourceManager::get_recognized_extensions_for_type(StringView p_type) {
 
     Vector<String> exts;
-    ResourceLoader::get_recognized_extensions_for_type(p_type, exts);
+    gResourceManager().get_recognized_extensions_for_type(p_type, exts);
     PoolStringArray ret;
     for (const String & E : exts) {
         ret.push_back(E);
@@ -119,54 +116,38 @@ PoolStringArray _ResourceLoader::get_recognized_extensions_for_type(StringView p
     return ret;
 }
 
-void _ResourceLoader::set_abort_on_missing_resources(bool p_abort) {
+void _ResourceManager::set_abort_on_missing_resources(bool p_abort) {
 
-    ResourceLoader::set_abort_on_missing_resources(p_abort);
+    gResourceManager().set_abort_on_missing_resources(p_abort);
 }
 
-Vector<String> _ResourceLoader::get_dependencies(StringView p_path) {
+Vector<String> _ResourceManager::get_dependencies(StringView p_path) {
 
     Vector<String> deps;
-    ResourceLoader::get_dependencies(p_path, deps);
+    gResourceManager().get_dependencies(p_path, deps);
     return deps;
 };
 
-bool _ResourceLoader::has_cached(StringView p_path) {
+bool _ResourceManager::has_cached(StringView p_path) {
 
     String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
     return ResourceCache::has(local_path);
 }
 
-bool _ResourceLoader::exists(StringView p_path, StringView p_type_hint) {
-    return ResourceLoader::exists(p_path, p_type_hint);
+bool _ResourceManager::exists(StringView p_path, StringView p_type_hint) {
+    return gResourceManager().exists(p_path, p_type_hint);
 }
 
-void _ResourceLoader::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL(String())});
-    MethodBinder::bind_method(D_METHOD("load", {"path", "type_hint", "no_cache"}), &_ResourceLoader::load, {DEFVAL(String()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("get_recognized_extensions_for_type", {"type"}), &_ResourceLoader::get_recognized_extensions_for_type);
-    MethodBinder::bind_method(D_METHOD("set_abort_on_missing_resources", {"abort"}), &_ResourceLoader::set_abort_on_missing_resources);
-    MethodBinder::bind_method(D_METHOD("get_dependencies", {"path"}), &_ResourceLoader::get_dependencies);
-    MethodBinder::bind_method(D_METHOD("has_cached", {"path"}), &_ResourceLoader::has_cached);
-    MethodBinder::bind_method(D_METHOD("exists", {"path", "type_hint"}), &_ResourceLoader::exists, {DEFVAL(String())});
-}
-
-_ResourceLoader::_ResourceLoader() {
-
-    singleton = this;
-}
-
-Error _ResourceSaver::save(StringView p_path, const RES &p_resource, SaverFlags p_flags) {
+Error _ResourceManager::save(StringView p_path, const RES &p_resource, SaverFlags p_flags) {
     ERR_FAIL_COND_V_MSG(not p_resource, ERR_INVALID_PARAMETER, "Can't save empty resource to path: " + String(p_path) + ".");
-    return ResourceSaver::save(p_path, p_resource, p_flags);
+    return gResourceManager().save(p_path, p_resource, p_flags);
 }
 
-PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resource) {
+PoolVector<String> _ResourceManager::get_recognized_extensions(const RES &p_resource) {
 
     ERR_FAIL_COND_V_MSG(not p_resource, PoolVector<String>(), "It's not a reference to a valid Resource object.");
     Vector<String> exts;
-    ResourceSaver::get_recognized_extensions(p_resource, exts);
+    gResourceManager().get_recognized_extensions(p_resource, exts);
     PoolVector<String> ret;
     for (int i = 0, fin = exts.size(); i < fin; ++i) {
 
@@ -175,14 +156,22 @@ PoolVector<String> _ResourceSaver::get_recognized_extensions(const RES &p_resour
     return ret;
 }
 
-_ResourceSaver *_ResourceSaver::singleton = nullptr;
+_ResourceManager* _ResourceManager::singleton = nullptr;
 
-IMPL_GDCLASS(_ResourceSaver);
+IMPL_GDCLASS(_ResourceManager);
 
-void _ResourceSaver::_bind_methods() {
+void _ResourceManager::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("save", {"path", "resource", "flags"}), &_ResourceSaver::save, {DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("get_recognized_extensions", {"type"}), &_ResourceSaver::get_recognized_extensions);
+    MethodBinder::bind_method(D_METHOD("save", {"path", "resource", "flags"}), &_ResourceManager::save, {DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("get_recognized_extensions", {"type"}), &_ResourceManager::get_recognized_extensions);
+
+    MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceManager::load_interactive, {DEFVAL(String())});
+    MethodBinder::bind_method(D_METHOD("load", {"path", "type_hint", "no_cache"}), &_ResourceManager::load, {DEFVAL(String()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("get_recognized_extensions_for_type", {"type"}), &_ResourceManager::get_recognized_extensions_for_type);
+    MethodBinder::bind_method(D_METHOD("set_abort_on_missing_resources", {"abort"}), &_ResourceManager::set_abort_on_missing_resources);
+    MethodBinder::bind_method(D_METHOD("get_dependencies", {"path"}), &_ResourceManager::get_dependencies);
+    MethodBinder::bind_method(D_METHOD("has_cached", {"path"}), &_ResourceManager::has_cached);
+    MethodBinder::bind_method(D_METHOD("exists", {"path", "type_hint"}), &_ResourceManager::exists, {DEFVAL(String())});
 
     BIND_ENUM_CONSTANT(FLAG_RELATIVE_PATHS)
     BIND_ENUM_CONSTANT(FLAG_BUNDLE_RESOURCES)
@@ -193,7 +182,7 @@ void _ResourceSaver::_bind_methods() {
     BIND_ENUM_CONSTANT(FLAG_REPLACE_SUBRESOURCE_PATHS)
 }
 
-_ResourceSaver::_ResourceSaver() {
+_ResourceManager::_ResourceManager() {
 
     singleton = this;
 }

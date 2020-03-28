@@ -30,9 +30,6 @@
 
 #include "rich_text_label.h"
 
-#include <utility>
-
-#include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/object.h"
 #include "core/os/input_event.h"
@@ -44,6 +41,8 @@
 #include "scene/scene_string_names.h"
 #include "core/string_utils.inl"
 #include <regex>
+
+#include "core/resource/resource_manager.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
@@ -2484,7 +2483,7 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
                 end = p_bbcode.length();
             StringView image = StringUtils::substr(p_bbcode,brk_end + 1, end - brk_end - 1);
 
-            Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(image, ("Texture")));
+            Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(image, ("Texture")));
             if (texture)
                 add_image(texture);
 
@@ -2510,7 +2509,7 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
 
             StringView image = p_bbcode.substr(brk_end + 1, end - brk_end - 1);
 
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(image, "Texture")));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(image, "Texture")));
             if (texture)
                 add_image(texture, width, height);
 
@@ -2566,7 +2565,7 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
 
             StringView fnt = StringUtils::substr(tag,5, tag.length());
 
-            Ref<Font> font = dynamic_ref_cast<Font>(ResourceLoader::load(fnt, ("Font")));
+            Ref<Font> font = dynamic_ref_cast<Font>(gResourceManager().load(fnt, ("Font")));
             if (font)
                 push_font(font);
             else

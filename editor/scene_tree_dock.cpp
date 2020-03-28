@@ -31,7 +31,6 @@
 #include "editor_feature_profile.h"
 #include "scene_tree_dock.h"
 
-#include "core/io/resource_saver.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
@@ -52,6 +51,8 @@
 #include "editor/rename_dialog.h"
 #include "editor/reparent_dialog.h"
 #include "editor/scene_tree_dock.h"
+
+#include "core/resource/resource_manager.h"
 #include "editor/script_create_dialog.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
@@ -198,7 +199,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
 
     for (int i = 0; i < p_files.size(); i++) {
 
-        Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_files[i]));
+        Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_files[i]));
         if (not sdata) {
             current_option = -1;
             accept->set_text(FormatSN(TTR("Error loading scene from %s").asCString(), p_files[i].c_str()));
@@ -265,7 +266,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
 }
 
 void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
-    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_file));
+    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_file));
     if (not sdata) {
         accept->set_text(FormatSN(TTR("Error loading scene from %.*s").asCString(), p_file.length(),p_file.data()));
         accept->popup_centered_minsize();
@@ -341,7 +342,7 @@ bool SceneTreeDock::_track_inherit(StringView p_target_scene_path, Node *p_desir
         Ref<SceneState> ss = p->get_scene_inherited_state();
         if (ss) {
             String path = ss->get_path();
-            Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
+            Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(gResourceManager().load(path));
             if (data) {
                 p = data->instance(GEN_EDIT_STATE_INSTANCE);
                 if (!p)
@@ -823,7 +824,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             Vector<String> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
-            ResourceSaver::get_recognized_extensions(sd, extensions);
+            gResourceManager().get_recognized_extensions(sd, extensions);
             new_scene_from_dialog->clear_filters();
             for (size_t i = 0; i < extensions.size(); i++) {
                 new_scene_from_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
@@ -986,7 +987,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 StringName name(StringUtils::get_slice(selected_favorite_root,' ', 0));
                 if (ScriptServer::is_global_class(name)) {
                     new_node = object_cast<Node>(ClassDB::instance(ScriptServer::get_global_class_native_base(name)));
-                    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(name), "Script"));
+                    Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(name), "Script"));
                     if (new_node && script) {
                         new_node->set_script(script.get_ref_ptr());
                         new_node->set_name(name);
@@ -2218,9 +2219,9 @@ void SceneTreeDock::_new_scene_from(StringView p_file) {
 
         int flg = 0;
         if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
-            flg |= ResourceSaver::FLAG_COMPRESS;
+            flg |= ResourceManager::FLAG_COMPRESS;
 
-        err = ResourceSaver::save(p_file, sdata, flg);
+        err = gResourceManager().save(p_file, sdata, flg);
         if (err != OK) {
             accept->set_text(TTR("Error saving scene."));
             accept->popup_centered_minsize();
@@ -2316,7 +2317,7 @@ void SceneTreeDock::_files_dropped(const Vector<String> &p_files, const NodePath
 }
 
 void SceneTreeDock::_script_dropped(StringView p_file, const NodePath& p_to) {
-    Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(p_file));
+    Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(p_file));
     ERR_FAIL_COND(not scr);
     Node *n = get_node(p_to);
     if (n) {

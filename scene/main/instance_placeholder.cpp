@@ -31,9 +31,9 @@
 #include "instance_placeholder.h"
 
 #include "core/method_bind.h"
-#include "core/io/resource_loader.h"
 #include "scene/resources/packed_scene.h"
 #include "core/pool_vector.h"
+#include "core/resource/resource_manager.h"
 
 IMPL_GDCLASS(InstancePlaceholder)
 
@@ -91,7 +91,7 @@ Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene
     if (p_custom_scene)
         ps = p_custom_scene;
     else
-        ps = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
+        ps = dynamic_ref_cast<PackedScene>(gResourceManager().load(path, "PackedScene"));
 
     if (!ps)
         return nullptr;

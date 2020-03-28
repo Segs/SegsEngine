@@ -35,6 +35,7 @@
 #include "core/os/file_access.h"
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "core/string.h"
 #include "core/ustring.h"
 #include "scene/resources/texture.h"
@@ -299,7 +300,7 @@ Error BitmapFont::create_from_fnt(StringView p_file) {
 
                 StringView base_dir = PathUtils::get_base_dir(p_file);
                 String file = PathUtils::plus_file(base_dir,(keys["file"]));
-                Ref<Texture> tex = dynamic_ref_cast<Texture>(ResourceLoader::load(file));
+                Ref<Texture> tex = dynamic_ref_cast<Texture>(gResourceManager().load(file));
                 if (not tex) {
                     ERR_PRINT("Can't load font texture!");
                 } else {

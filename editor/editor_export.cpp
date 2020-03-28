@@ -36,12 +36,11 @@
 #include "core/crypto/crypto_core.h"
 #include "core/io/config_file.h"
 #include "core/io/file_access_pack.h" // PACK_HEADER_MAGIC, PACK_FORMAT_VERSION
-#include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
 #include "core/io/zip_io.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/version.h"
 #include "editor/editor_file_system.h"
@@ -688,7 +687,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
         Vector<String> files = p_preset->get_files_to_export();
         for (int i = 0; i < files.size(); i++) {
-            if (scenes_only && ResourceLoader::get_resource_type(files[i]) != "PackedScene")
+            if (scenes_only && gResourceManager().get_resource_type(files[i]) != "PackedScene")
                 continue;
 
             _export_find_dependencies(files[i], paths);
@@ -729,7 +728,7 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
     for (const String &path : paths) {
 
-        String type = ResourceLoader::get_resource_type(path);
+        String type = gResourceManager().get_resource_type(path);
 
         if (FileAccess::exists(path + ".import")) {
             //file is imported, replace by what it imports

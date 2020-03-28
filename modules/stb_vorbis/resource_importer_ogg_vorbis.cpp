@@ -31,9 +31,8 @@
 #include "resource_importer_ogg_vorbis.h"
 
 #include "core/class_db.h"
-#include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
-#include "scene/resources/texture.h"
+#include "core/resource/resource_manager.h"
 
 IMPL_GDCLASS(ResourceImporterOGGVorbis)
 
@@ -106,7 +105,7 @@ Error ResourceImporterOGGVorbis::import(StringView p_source_file, StringView p_s
     ogg_stream->set_loop(loop);
     ogg_stream->set_loop_offset(loop_offset);
 
-    return ResourceSaver::save(String(p_save_path) + ".oggstr", ogg_stream);
+    return gResourceManager().save(String(p_save_path) + ".oggstr", ogg_stream);
 }
 
 ResourceImporterOGGVorbis::ResourceImporterOGGVorbis() {

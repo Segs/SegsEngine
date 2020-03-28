@@ -30,7 +30,6 @@
 
 #include "translation.h"
 
-#include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "core/os/main_loop.h"
 #include "core/print_string.h"
@@ -38,6 +37,7 @@
 #include "core/string_formatter.h"
 #include "core/method_bind.h"
 #include "core/pool_vector.h"
+#include "core/resource/resource_manager.h"
 
 IMPL_GDCLASS(Translation)
 IMPL_GDCLASS(TranslationServer)
@@ -987,7 +987,7 @@ void TranslationServer::set_locale(StringView p_locale) {
         OS::get_singleton()->get_main_loop()->notification(MainLoop::NOTIFICATION_TRANSLATION_CHANGED);
     }
 
-    ResourceLoader::reload_translation_remaps();
+    gResourceRemapper().reload_translation_remaps();
 }
 
 const String &TranslationServer::get_locale() const {
@@ -1161,7 +1161,7 @@ bool TranslationServer::_load_translations(const StringName &p_from) {
 
             for (int i = 0; i < tcount; i++) {
 
-                Ref<Translation> tr(dynamic_ref_cast<Translation>(ResourceLoader::load(r[i])));
+                Ref<Translation> tr(dynamic_ref_cast<Translation>(gResourceManager().load(r[i])));
                 if (tr)
                     add_translation(tr);
             }

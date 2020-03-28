@@ -44,6 +44,7 @@
 #define FORMAT_VERSION 2
 
 #include "core/os/dir_access.h"
+#include "core/resource/resource_manager.h"
 #include "core/version.h"
 
 #include "EASTL/sort.h"
@@ -99,7 +100,7 @@ void ResourceInteractiveLoaderText::set_local_path(StringView p_local_path) {
     res_path = p_local_path;
 }
 
-Ref<Resource> ResourceInteractiveLoaderText::get_resource() {
+const Ref<Resource> &ResourceInteractiveLoaderText::get_resource() {
 
     return resource;
 }
@@ -217,7 +218,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParserStream *p_
             path = ProjectSettings::get_singleton()->localize_path(PathUtils::plus_file(PathUtils::get_base_dir(res_path),path));
         }
 
-        r_res = ResourceLoader::load(path, type);
+        r_res = gResourceManager().load(path, type);
 
         if (not r_res) {
             WARN_PRINT("Couldn't load external resource: " + path);
@@ -481,17 +482,17 @@ Error ResourceInteractiveLoaderText::poll() {
             path = remaps[path];
         }
 
-        RES res(ResourceLoader::load(path, type));
+        RES res(gResourceManager().load(path, type));
 
         if (not res) {
 
-            if (ResourceLoader::get_abort_on_missing_resources()) {
+            if (gResourceManager().get_abort_on_missing_resources()) {
                 error = ERR_FILE_CORRUPT;
                 error_text = "[ext_resource] referenced nonexistent resource at: " + path;
                 _printerr();
                 return error;
             } else {
-                ResourceLoader::notify_dependency_error(local_path, path, type);
+                gResourceManager().notify_dependency_error(local_path, path, type);
             }
         } else {
 
@@ -1528,10 +1529,10 @@ Error ResourceFormatSaverTextInstance::save(StringView p_path, const RES &p_reso
 
     local_path = ProjectSettings::get_singleton()->localize_path(p_path);
 
-    relative_paths = p_flags & ResourceSaver::FLAG_RELATIVE_PATHS;
-    skip_editor = p_flags & ResourceSaver::FLAG_OMIT_EDITOR_PROPERTIES;
-    bundle_resources = p_flags & ResourceSaver::FLAG_BUNDLE_RESOURCES;
-    takeover_paths = p_flags & ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS;
+    relative_paths = p_flags & ResourceManager::FLAG_RELATIVE_PATHS;
+    skip_editor = p_flags & ResourceManager::FLAG_OMIT_EDITOR_PROPERTIES;
+    bundle_resources = p_flags & ResourceManager::FLAG_BUNDLE_RESOURCES;
+    takeover_paths = p_flags & ResourceManager::FLAG_REPLACE_SUBRESOURCE_PATHS;
     if (!StringUtils::begins_with(p_path,"res://")) {
         takeover_paths = false;
     }

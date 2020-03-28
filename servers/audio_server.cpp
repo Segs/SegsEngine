@@ -38,6 +38,7 @@
 #include "core/os/os.h"
 #include "core/object_tooling.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "scene/resources/audio_stream_sample.h"
 
@@ -1120,8 +1121,8 @@ void AudioServer::load_default_bus_layout() {
 
     String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
-    if (ResourceLoader::exists(layout_path)) {
-        Ref<AudioBusLayout> default_layout = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(layout_path));
+    if (gResourceManager().exists(layout_path)) {
+        Ref<AudioBusLayout> default_layout = dynamic_ref_cast<AudioBusLayout>(gResourceManager().load(layout_path));
         if (default_layout) {
             set_bus_layout(default_layout);
         }

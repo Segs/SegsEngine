@@ -36,7 +36,7 @@
 
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
+#include "core/resource/resource_manager.h"
 #include "core/message_queue.h"
 #include "core/os/file_access.h"
 #include "core/os/mutex.h"
@@ -69,7 +69,7 @@ Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(StringView p_pat
         return refFromRefPtr<Texture>(get_script_instance()->call("generate_from_path", p_path, p_size));
     }
 
-    RES res(ResourceLoader::load(p_path));
+    RES res(gResourceManager().load(p_path));
     if (not res)
         return Ref<Texture>();
     return generate(res, p_size);
@@ -148,7 +148,7 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
     if (p_item.resource)
         type = p_item.resource->get_class();
     else
-        type = ResourceLoader::get_resource_type(p_item.path);
+        type = gResourceManager().get_resource_type(p_item.path);
 
     if (type.empty()) {
         r_texture = Ref<ImageTexture>();
@@ -203,9 +203,9 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
         if (r_texture) {
             //wow it generated a preview... save cache
             bool has_small_texture = r_small_texture;
-            ResourceSaver::save(String(cache_base) + ".png", r_texture);
+            gResourceManager().save(String(cache_base) + ".png", r_texture);
             if (has_small_texture) {
-                ResourceSaver::save(String(cache_base) + "_small.png", r_small_texture);
+                gResourceManager().save(String(cache_base) + "_small.png", r_small_texture);
             }
             FileAccess *f = FileAccess::open(String(cache_base) + ".txt", FileAccess::WRITE);
             ERR_FAIL_COND_MSG(!f, "Cannot create file '" + cache_base + ".txt'. Check user write permissions.");

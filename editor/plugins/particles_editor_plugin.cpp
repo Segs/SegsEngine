@@ -247,7 +247,7 @@ ParticlesEditorBase::ParticlesEditorBase() {
     emission_tree_dialog->connect("selected", this, "_node_selected");
 
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("Mesh", extensions);
+    gResourceManager().get_recognized_extensions_for_type("Mesh", extensions);
 
     emission_file_dialog->clear_filters();
     for (const String & ext : extensions) {

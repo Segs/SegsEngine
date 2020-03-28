@@ -915,7 +915,7 @@ Ref<Script> EditorData::script_class_load_script(StringName p_class) const {
         return Ref<Script>();
 
     StringView path = ScriptServer::get_global_class_path(p_class);
-    return dynamic_ref_cast<Script>(ResourceLoader::load(path, "Script"));
+    return dynamic_ref_cast<Script>(gResourceManager().load(path, "Script"));
 }
 
 void EditorData::script_class_set_icon_path(const StringName & p_class, StringView p_icon_path) {

@@ -1294,7 +1294,7 @@ Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme) {
 
     String custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
     if (!custom_theme.empty()) {
-        theme = dynamic_ref_cast<Theme>(ResourceLoader::load(custom_theme));
+        theme = dynamic_ref_cast<Theme>(gResourceManager().load(custom_theme));
     }
 
     if (not theme) {

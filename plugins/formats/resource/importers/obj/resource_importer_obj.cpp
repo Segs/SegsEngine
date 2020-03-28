@@ -30,10 +30,10 @@
 
 #include "resource_importer_obj.h"
 
-#include "core/io/resource_saver.h"
 #include "core/io/resource_loader.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
+#include "core/resource/resource_manager.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/animation.h"
@@ -141,7 +141,7 @@ static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialM
                 path = PathUtils::plus_file(base_path,p);
             }
 
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(path)));
 
             if (texture) {
                 current->set_texture(SpatialMaterial::TEXTURE_ALBEDO, texture);
@@ -161,7 +161,7 @@ static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialM
                 path = PathUtils::plus_file(base_path,p);
             }
 
-            Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(path));
+            Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(path));
 
             if (texture) {
                 current->set_texture(SpatialMaterial::TEXTURE_METALLIC, texture);
@@ -181,7 +181,7 @@ static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialM
                 path = PathUtils::plus_file(base_path,p);
             }
 
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(path)));
 
             if (texture) {
                 current->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, texture);
@@ -195,7 +195,7 @@ static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialM
             String p(StringUtils::strip_edges(StringUtils::replace(StringUtils::replace(l,"map_bump", ""),"\\", "/")));
             String path = PathUtils::plus_file(base_path,p);
 
-            Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(path)));
+            Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(path)));
 
             if (texture) {
                 current->set_feature(SpatialMaterial::FEATURE_NORMAL_MAPPING, true);
@@ -521,7 +521,7 @@ Error ResourceImporterOBJ::import(StringView p_source_file, StringView p_save_pa
 
     String save_path = String(p_save_path) + ".mesh";
 
-    err = ResourceSaver::save(save_path, meshes.front());
+    err = gResourceManager().save(save_path, meshes.front());
 
     ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save Mesh to file '" + save_path + "'.");
 
