@@ -415,7 +415,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
 void AnimationNodeStateMachineEditor::_file_opened(StringView p_file) {
 
-    file_loaded =dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
+    file_loaded =dynamic_ref_cast<AnimationNode>(gResourceManager().load(p_file));
     if (file_loaded) {
         _add_menu_type(MENU_LOAD_FILE_CONFIRM);
     }
@@ -430,7 +430,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
 
         open_file->clear_filters();
         Vector<String> filters;
-        ResourceLoader::get_recognized_extensions_for_type("AnimationRootNode", filters);
+        gResourceManager().get_recognized_extensions_for_type("AnimationRootNode", filters);
         for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }

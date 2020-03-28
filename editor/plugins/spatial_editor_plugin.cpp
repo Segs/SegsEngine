@@ -3298,7 +3298,7 @@ AABB SpatialEditorViewport::_calculate_spatial_bounds(const Spatial *p_parent, b
 void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
     for (size_t i = 0; i < files.size(); i++) {
         const String &path = files[i];
-        RES res(ResourceLoader::load(path));
+        RES res(gResourceManager().load(path));
         ERR_CONTINUE(not res);
         Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
         Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
@@ -3350,7 +3350,7 @@ bool SpatialEditorViewport::_cyclical_dependency_exists(StringView p_target_scen
 }
 
 bool SpatialEditorViewport::_create_instance(Node *parent, StringView path, const Point2 &p_point) {
-    RES res(ResourceLoader::load(path));
+    RES res(gResourceManager().load(path));
 
     Ref<PackedScene> scene = dynamic_ref_cast<PackedScene>(res);
     Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(res);
@@ -3418,7 +3418,7 @@ void SpatialEditorViewport::_perform_drop_data() {
 
     for (size_t i = 0; i < selected_files.size(); i++) {
         const String &path = selected_files[i];
-        RES res(ResourceLoader::load(path));
+        RES res(gResourceManager().load(path));
         if (not res) {
             continue;
         }
@@ -3455,9 +3455,9 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
             Vector<String> files(d["files"].as<Vector<String>>());
 
             Vector<String> scene_extensions;
-            ResourceLoader::get_recognized_extensions_for_type("PackedScene", scene_extensions);
+            gResourceManager().get_recognized_extensions_for_type("PackedScene", scene_extensions);
             Vector<String> mesh_extensions;
-            ResourceLoader::get_recognized_extensions_for_type("Mesh", mesh_extensions);
+            gResourceManager().get_recognized_extensions_for_type("Mesh", mesh_extensions);
             eastl::fixed_hash_set<StringView,64,16> fast_check;
             for(const String &s : scene_extensions)
                 fast_check.emplace(s);
@@ -3468,21 +3468,21 @@ bool SpatialEditorViewport::can_drop_data_fw(const Point2 &p_point, const Varian
                 if (!fast_check.contains(PathUtils::get_extension(files[i])))
                     continue;
 
-                RES res(ResourceLoader::load(files[i]));
+                RES res(gResourceManager().load(files[i]));
                 if (not res) {
                     continue;
                 }
 
                 StringView type(res->get_class());
                 if (type == StringView("PackedScene")) {
-                    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(files[i]));
+                    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(files[i]));
                     Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
                     if (!instanced_scene) {
                         continue;
                     }
                     memdelete(instanced_scene);
                 } else if (type == StringView("Mesh") || type == StringView("ArrayMesh") || type == StringView("PrimitiveMesh")) {
-                    Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(ResourceLoader::load(files[i]));
+                    Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(gResourceManager().load(files[i]));
                     if (not mesh) {
                         continue;
                     }

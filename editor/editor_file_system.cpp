@@ -42,6 +42,7 @@
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/variant_parser.h"
 #include "editor_node.h"
 #include "editor_resource_preview.h"
@@ -814,8 +815,8 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 }
 
                 if (fc->type.empty()) {
-                    fi->type = StringName(ResourceLoader::get_resource_type(path));
-                    fi->import_group_file = ResourceLoader::get_import_group_file(path);
+                    fi->type = StringName(gResourceManager().get_resource_type(path));
+                    fi->import_group_file = gResourceManager().get_import_group_file(path);
                     //there is also the chance that file type changed due to reimport, must probably check this somehow here
                     //(or kind of note it for next time in another file?)
                     //note: I think this should not happen any longer..
@@ -828,7 +829,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
                 fi->modified_time = 0;
                 fi->import_modified_time = 0;
-                fi->import_valid = ResourceLoader::is_import_valid(path);
+                fi->import_valid = gResourceManager().is_import_valid(path);
 
                 ItemAction ia;
                 ia.action = ItemAction::ACTION_FILE_TEST_REIMPORT;
@@ -850,7 +851,7 @@ void EditorFileSystem::_scan_new_dir(EditorFileSystemDirectory *p_dir, DirAccess
                 fi->script_class_icon_path = fc->script_class_icon_path;
             } else {
                 //new or modified time
-                fi->type = StringName(ResourceLoader::get_resource_type(path));
+                fi->type = StringName(gResourceManager().get_resource_type(path));
                 fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
                 fi->deps = _get_dependencies(path);
                 fi->modified_time = mt;
@@ -948,10 +949,10 @@ void EditorFileSystem::_scan_fs_changes(EditorFileSystemDirectory *p_dir, const 
                     String path = PathUtils::plus_file(cd,fi->file);
                     fi->modified_time = FileAccess::get_modified_time(path);
                     fi->import_modified_time = 0;
-                    fi->type = StringName(ResourceLoader::get_resource_type(path));
+                    fi->type = StringName(gResourceManager().get_resource_type(path));
                     fi->script_class_name = _get_global_script_class(fi->type, path, &fi->script_class_extends, &fi->script_class_icon_path);
-                    fi->import_valid = ResourceLoader::is_import_valid(path);
-                    fi->import_group_file = ResourceLoader::get_import_group_file(path);
+                    fi->import_valid = gResourceManager().is_import_valid(path);
+                    fi->import_group_file = gResourceManager().get_import_group_file(path);
 
                     {
                         ItemAction ia;
@@ -1423,7 +1424,7 @@ void EditorFileSystem::_save_late_updated_files() {
 Vector<String> EditorFileSystem::_get_dependencies(StringView p_path) {
 
     Vector<String> deps;
-    ResourceLoader::get_dependencies(p_path, deps);
+    gResourceManager().get_dependencies(p_path, deps);
 
     return deps;
 }
@@ -1486,10 +1487,10 @@ void EditorFileSystem::update_script_classes() {
     // Rescan custom loaders and savers.
     // Doing the following here because the `filesystem_changed` signal fires multiple times and isn't always followed by script classes update.
     // So I thought it's better to do this when script classes really get updated
-    ResourceLoader::remove_custom_loaders();
-    ResourceLoader::add_custom_loaders();
-    ResourceSaver::remove_custom_savers();
-    ResourceSaver::add_custom_savers();
+    gResourceManager().remove_custom_loaders();
+    gResourceManager().add_custom_loaders();
+    gResourceManager().remove_custom_savers();
+    gResourceManager().add_custom_savers();
 }
 
 void EditorFileSystem::_queue_update_script_classes() {
@@ -1525,7 +1526,7 @@ void EditorFileSystem::update_file(StringView p_file) {
         return;
     }
 
-    String type = ResourceLoader::get_resource_type(p_file);
+    String type = gResourceManager().get_resource_type(p_file);
 
     if (cpos == -1) {
 
@@ -1543,7 +1544,7 @@ void EditorFileSystem::update_file(StringView p_file) {
         EditorFileSystemDirectory::FileInfo *fi = memnew(EditorFileSystemDirectory::FileInfo);
         fi->file = PathUtils::get_file(p_file);
         fi->import_modified_time = 0;
-        fi->import_valid = ResourceLoader::is_import_valid(p_file);
+        fi->import_valid = gResourceManager().is_import_valid(p_file);
 
         if (idx == fs->files.size()) {
             fs->files.push_back(fi);
@@ -1562,10 +1563,10 @@ void EditorFileSystem::update_file(StringView p_file) {
 
     fs->files[cpos]->type = StringName(type);
     fs->files[cpos]->script_class_name = _get_global_script_class(type, p_file, &fs->files[cpos]->script_class_extends, &fs->files[cpos]->script_class_icon_path);
-    fs->files[cpos]->import_group_file = ResourceLoader::get_import_group_file(p_file);
+    fs->files[cpos]->import_group_file = gResourceManager().get_import_group_file(p_file);
     fs->files[cpos]->modified_time = FileAccess::get_modified_time(p_file);
     fs->files[cpos]->deps = _get_dependencies(p_file);
-    fs->files[cpos]->import_valid = ResourceLoader::is_import_valid(p_file);
+    fs->files[cpos]->import_valid = gResourceManager().is_import_valid(p_file);
 
     // Update preview
     EditorResourcePreview::get_singleton()->check_for_invalidation(p_file);
@@ -1918,7 +1919,7 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
     fs->files[cpos]->import_modified_time = FileAccess::get_modified_time(p_file + ".import");
     fs->files[cpos]->deps = _get_dependencies(p_file);
     fs->files[cpos]->type = importer->get_resource_type();
-    fs->files[cpos]->import_valid = ResourceLoader::is_import_valid(p_file);
+    fs->files[cpos]->import_valid = gResourceManager().is_import_valid(p_file);
 
     //if file is currently up, maybe the source it was loaded from changed, so import math must be updated for it
     //to reload properly
@@ -2204,7 +2205,7 @@ void EditorFileSystem::_update_extensions() {
     import_extensions.clear();
 
     Vector<String> extensionsl;
-    ResourceLoader::get_recognized_extensions_for_type("", extensionsl);
+    gResourceManager().get_recognized_extensions_for_type("", extensionsl);
     for (const String &E : extensionsl) {
 
         valid_extensions.insert(E);
@@ -2220,7 +2221,7 @@ void EditorFileSystem::_update_extensions() {
 
 EditorFileSystem::EditorFileSystem() {
     __thread__safe__.reset(new Mutex);
-    ResourceLoader::import = _resource_import;
+    g_import_func = _resource_import;
     reimport_on_missing_imported_files = GLOBAL_DEF("editor/reimport_missing_imported_files", true);
 
     singleton = this;

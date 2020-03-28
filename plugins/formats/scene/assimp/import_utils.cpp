@@ -1,5 +1,7 @@
 #include "import_utils.h"
 
+#include "core/resource/resource_manager.h"
+
 float AssimpUtils::get_fbx_fps(int32_t time_mode, const aiScene *p_scene) {
     switch (time_mode) {
     case AssetImportFbx::TIME_MODE_DEFAULT: return 24; //hack
@@ -153,7 +155,7 @@ Ref<Image> AssimpUtils::load_image(ImportState &state, const aiScene *p_scene, S
         }
         return Ref<Image>();
     } else {
-        RES loaded(ResourceLoader::load(p_path));
+        RES loaded(gResourceManager().load(p_path));
         if(loaded) {
             Ref<Image> image;
             Ref<Texture> texture(dynamic_ref_cast<Texture>(loaded));

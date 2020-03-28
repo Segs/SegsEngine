@@ -31,10 +31,10 @@
 #include "editor_preview_plugins.h"
 
 #include "core/io/file_access_memory.h"
-#include "core/io/resource_loader.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -837,7 +837,7 @@ bool EditorFontPreviewPlugin::handles(StringView p_type) const {
 
 Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, const Size2 &p_size) const {
 
-    RES res = ResourceLoader::load(p_path);
+    RES res = gResourceManager().load(p_path);
     Ref<DynamicFont> sampled_font;
     if (res->is_class("DynamicFont")) {
         sampled_font = dynamic_ref_cast<DynamicFont>(res->duplicate());

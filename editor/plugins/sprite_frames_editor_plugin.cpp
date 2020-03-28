@@ -54,7 +54,7 @@ void SpriteFramesEditor::_open_sprite_sheet() {
 
     file_split_sheet->clear_filters();
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
+    gResourceManager().get_recognized_extensions_for_type("Texture", extensions);
     for (const String &ext : extensions) {
         file_split_sheet->add_filter("*." + ext);
     }
@@ -211,7 +211,7 @@ void SpriteFramesEditor::_sheet_spin_changed(double) {
 
 void SpriteFramesEditor::_prepare_sprite_sheet(StringView p_file) {
 
-    Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(p_file));
+    Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(p_file));
     if (not texture) {
         EditorNode::get_singleton()->show_warning("Unable to load images");
         ERR_FAIL_COND(not texture);
@@ -263,7 +263,7 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
 
     for (int i = 0; i < p_path.size(); i++) {
 
-        Ref<Texture> resource = dynamic_ref_cast<Texture>(ResourceLoader::load(p_path[i]));
+        Ref<Texture> resource = dynamic_ref_cast<Texture>(gResourceManager().load(p_path[i]));
 
         if (not resource) {
             dialog->set_text(TTR("ERROR: Couldn't load frame resource!"));
@@ -306,7 +306,7 @@ void SpriteFramesEditor::_load_pressed() {
 
     file->clear_filters();
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("Texture", extensions);
+    gResourceManager().get_recognized_extensions_for_type("Texture", extensions);
     for (const String &ext : extensions)
         file->add_filter("*." + ext);
 

@@ -256,7 +256,7 @@ BindDefInfo genClassBinders(const QString header_path,QVector<GD_Class> &src)
         {
             ts << QString("void %1::_bind_methods() {\n").arg(cl.name);
             for(const auto &bn : cl.bindable_definitions) {
-                //MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_ResourceLoader::load_interactive, {DEFVAL("")});
+                //MethodBinder::bind_method(D_METHOD("load_interactive", {"path", "type_hint"}), &_gResourceManager()._interactive, {DEFVAL("")});
 
                 ts << indent+QString("MethodBinder::bind_method(%1,").arg(genDesc(bn));
                 ts << QString("&%1::%2").arg(cl.name,bn.name);

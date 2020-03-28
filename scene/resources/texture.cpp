@@ -45,6 +45,7 @@
 #include "core/object_tooling.h"
 #include "core/os/os.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
+#include "core/resource/resource_manager.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/mesh.h"
 #include "servers/visual_server.h"
@@ -117,7 +118,7 @@ namespace  {
         for (ImageFormatSaver *svr : all_savers)
         {
             if (svr->can_save("png"))
-                ResourceSaver::add_resource_format_saver(Ref<ResourceSaverImage>(make_ref_counted<ResourceSaverImage>(svr)));
+                gResourceManager().add_resource_format_saver(Ref<ResourceSaverImage>(make_ref_counted<ResourceSaverImage>(svr)));
 
         }
     }
@@ -189,7 +190,7 @@ Texture::Texture() {
 
 void ImageTexture::reload_from_file() {
 
-    String path = ResourceLoader::path_remap(get_path());
+    String path = gResourceRemapper().path_remap(get_path());
     if (!PathUtils::is_resource_file(path))
         return;
 
@@ -914,8 +915,8 @@ void StreamTexture::reload_from_file() {
     if (!PathUtils::is_resource_file(path))
         return;
 
-    path = ResourceLoader::path_remap(path); //remap for translation
-    path = ResourceLoader::import_remap(path); //remap for import
+    path = gResourceRemapper().path_remap(path); //remap for translation
+    path = gResourceRemapper().import_remap(path); //remap for import
     if (!PathUtils::is_resource_file(path))
         return;
 

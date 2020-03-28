@@ -31,7 +31,6 @@
 #include "editor_audio_buses.h"
 
 #include "core/method_bind.h"
-#include "core/io/resource_saver.h"
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
@@ -41,6 +40,7 @@
 #include "filesystem_dock.h"
 #include "scene/resources/font.h"
 #include "core/os/input.h"
+#include "core/resource/resource_manager.h"
 #include "servers/audio_server.h"
 #include "scene/resources/style_box.h"
 
@@ -1223,7 +1223,7 @@ void EditorAudioBuses::_drop_at_index(int p_bus, int p_index) {
 void EditorAudioBuses::_server_save() {
 
     Ref<AudioBusLayout> state = AudioServer::get_singleton()->generate_bus_layout();
-    ResourceSaver::save(edited_path, state);
+    gResourceManager().save(edited_path, state);
 }
 
 void EditorAudioBuses::_select_layout() {
@@ -1262,7 +1262,7 @@ void EditorAudioBuses::_load_default_layout() {
 
     String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
 
-    Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(layout_path,"",true));
+    Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(gResourceManager().load(layout_path,"",true));
     if (not state) {
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("There is no '%s' file.").asCString(), layout_path.c_str()));
         return;
@@ -1279,7 +1279,7 @@ void EditorAudioBuses::_load_default_layout() {
 void EditorAudioBuses::_file_dialog_callback(StringView p_string) {
 
     if (file_dialog->get_mode() == EditorFileDialog::MODE_OPEN_FILE) {
-        Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(p_string,"",true));
+        Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(gResourceManager().load(p_string,"",true));
         if (not state) {
             EditorNode::get_singleton()->show_warning(TTR("Invalid file, not an audio bus layout."));
             return;
@@ -1299,7 +1299,7 @@ void EditorAudioBuses::_file_dialog_callback(StringView p_string) {
             AudioServer::get_singleton()->set_bus_layout(empty_state);
         }
 
-        Error err = ResourceSaver::save(p_string, AudioServer::get_singleton()->generate_bus_layout());
+        Error err = gResourceManager().save(p_string, AudioServer::get_singleton()->generate_bus_layout());
 
         if (err != OK) {
             EditorNode::get_singleton()->show_warning(StringName(String("Error saving file: ") + p_string));
@@ -1402,7 +1402,7 @@ EditorAudioBuses::EditorAudioBuses() {
 
     file_dialog = memnew(EditorFileDialog);
     Vector<String> ext;
-    ResourceLoader::get_recognized_extensions_for_type("AudioBusLayout", ext);
+    gResourceManager().get_recognized_extensions_for_type("AudioBusLayout", ext);
     for (const String &E : ext) {
         file_dialog->add_filter("*." + E + "; Audio Bus Layout");
     }
@@ -1416,7 +1416,7 @@ void EditorAudioBuses::open_layout(StringView p_path) {
 
     EditorNode::get_singleton()->make_bottom_panel_item_visible(this);
 
-    Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(ResourceLoader::load(p_path,"",true));
+    Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(gResourceManager().load(p_path,"",true));
     if (not state) {
         EditorNode::get_singleton()->show_warning(TTR("Invalid file, not an audio bus layout."));
         return;

@@ -2243,7 +2243,7 @@ Image::AlphaMode Image::detect_alpha() const {
 
 Error Image::load(StringView p_path) {
 #ifdef DEBUG_ENABLED
-    if (StringUtils::begins_with(p_path,"res://") && ResourceLoader::exists(p_path)) {
+    if (StringUtils::begins_with(p_path,"res://") && gResourceManager().exists(p_path)) {
         WARN_PRINT("Loaded resource as image file, this will not work on export: '" + String(p_path) + "'. Instead, import the image file as an Image resource and load it normally as a resource.");
     }
 #endif

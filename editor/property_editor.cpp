@@ -166,7 +166,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
                     Vector<String> extensions;
                     for (int i = 0; i < StringUtils::get_slice_count(type,','); i++) {
 
-                        ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
+                        gResourceManager().get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
                     }
 
                     Set<String> valid_extensions;
@@ -1103,7 +1103,7 @@ void CustomPropertyEditor::_file_selected(StringView p_file) {
 
             StringName type = hint == PropertyHint::ResourceType ? StringName(hint_text) : StringName();
 
-            RES res(ResourceLoader::load(p_file, type));
+            RES res(gResourceManager().load(p_file, type));
             if (not res) {
                 error->set_text(TTR("Error loading file: Not a resource!"));
                 error->popup_centered_minsize();
@@ -1389,7 +1389,7 @@ void CustomPropertyEditor::_action_pressed(int p_which) {
                 Vector<String> extensions;
                 StringName type = hint == PropertyHint::ResourceType ? StringName(hint_text) : StringName();
 
-                ResourceLoader::get_recognized_extensions_for_type(type, extensions);
+                gResourceManager().get_recognized_extensions_for_type(type, extensions);
                 file->clear_filters();
                 for (const String &E : extensions) {
 

@@ -33,13 +33,13 @@
 #include "core/engine.h"
 #include "core/io/ip.h"
 #include "core/io/marshalls.h"
-#include "core/io/resource_saver.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/string_utils.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "scene/main/node.h"
 #include "scene/main/scene_tree.h"
@@ -133,7 +133,7 @@ void ScriptDebuggerRemote::_save_node(ObjectID id, StringView p_path) {
 
     Ref<PackedScene> ps(make_ref_counted<PackedScene>());
     ps->pack(node);
-    ResourceSaver::save(p_path, ps);
+    gResourceManager().save(p_path, ps);
 }
 
 void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) {

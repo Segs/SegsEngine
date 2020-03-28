@@ -35,7 +35,6 @@
 #include "core/core_string_names.h"
 #include "core/engine.h"
 #include "core/io/multiplayer_api.h"
-#include "core/io/resource_loader.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/face3.h"
@@ -50,6 +49,7 @@
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
+#include "core/resource/resource_manager.h"
 #include "core/string.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
@@ -515,7 +515,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
                     if (for_completion && ScriptCodeCompletionCache::get_singleton() && FileAccess::exists(path)) {
                         res = ScriptCodeCompletionCache::get_singleton()->get_cached_resource(path);
                     } else if (!for_completion || FileAccess::exists(path)) {
-                        res = ResourceLoader::load(path);
+                        res = gResourceManager().load(path);
                     }
                 } else {
 
@@ -852,7 +852,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
 
                 if (!dependencies_only) {
                     if (!bfn && ScriptServer::is_global_class(identifier)) {
-                        Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(identifier)));
+                        Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(identifier)));
                         if (scr && scr->is_valid()) {
                             ConstantNode *constant = alloc_node<ConstantNode>();
                             constant->value = scr;
@@ -5283,7 +5283,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                 }
                 path = PathUtils::simplify_path(PathUtils::plus_file(base,path));
             }
-            script = dynamic_ref_cast<GDScript>(ResourceLoader::load(path));
+            script = dynamic_ref_cast<GDScript>(gResourceManager().load(path));
             if (not script) {
                 _set_error("Couldn't load the base class: " + path, p_class->line);
                 return;
@@ -5325,7 +5325,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
             Ref<GDScript> base_script;
 
             if (ScriptServer::is_global_class(base)) {
-                base_script = dynamic_ref_cast<GDScript>(ResourceLoader::load(ScriptServer::get_global_class_path(base)));
+                base_script = dynamic_ref_cast<GDScript>(gResourceManager().load(ScriptServer::get_global_class_path(base)));
                 if (not base_script) {
                     _set_error("The class \"" + String(base) + "\" couldn't be fully loaded (script error or cyclic dependency).", p_class->line);
                     return;
@@ -5348,7 +5348,7 @@ void GDScriptParser::_determine_inheritance(ClassNode *p_class, bool p_recursive
                         if (!StringUtils::begins_with(singleton_path,"res://")) {
                             singleton_path = "res://" + singleton_path;
                         }
-                        base_script = dynamic_ref_cast<GDScript>(ResourceLoader::load(singleton_path));
+                        base_script = dynamic_ref_cast<GDScript>(gResourceManager().load(singleton_path));
                         if (not base_script) {
                             _set_error("Class '" + String(base) + "' could not be fully loaded (script error or cyclic inheritance).", p_class->line);
                             return;
@@ -5686,7 +5686,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
                     result.kind = DataType::CLASS;
                     result.class_type = static_cast<ClassNode *>(head);
                 } else {
-                    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(script_path));
+                    Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(script_path));
                     Ref<GDScript> gds = dynamic_ref_cast<GDScript>(script);
                     if (gds) {
                         if (!gds->is_valid()) {
@@ -5727,7 +5727,7 @@ GDScriptParser::DataType GDScriptParser::_resolve_type(const DataType &p_source,
                 }
             }
             if (!singleton_path.empty()) {
-                Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(singleton_path));
+                Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(singleton_path));
                 Ref<GDScript> gds = dynamic_ref_cast<GDScript>(script);
                 if (gds) {
                     if (!gds->is_valid()) {
@@ -7558,7 +7558,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
         }
 
         if (ScriptServer::is_global_class(p_identifier)) {
-            Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(p_identifier)));
+            Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(p_identifier)));
             if (scr) {
                 DataType result;
                 result.has_type = true;
@@ -7611,7 +7611,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_identifier_type(const DataType 
                 if (!StringUtils::begins_with(script,"res://")) {
                     script = "res://" + script;
                 }
-                Ref<Script> singleton = dynamic_ref_cast<Script>(ResourceLoader::load(script));
+                Ref<Script> singleton = dynamic_ref_cast<Script>(gResourceManager().load(script));
                 if (singleton) {
                     DataType result;
                     result.has_type = true;

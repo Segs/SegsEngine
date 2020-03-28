@@ -39,6 +39,7 @@
 #include "core/math/math_defs.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/resource/resource_manager.h"
 #include "scene/3d/bone_attachment.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/mesh_instance.h"
@@ -55,6 +56,7 @@
 #include "EASTL/deque.h"
 
 #include <QtCore/QRegularExpression>
+
 
 namespace {
     /*******************************************************************************************************/
@@ -1617,7 +1619,7 @@ namespace {
                 else {
 
                     uri = StringUtils::replace(PathUtils::plus_file(p_base_path, uri), "\\", "/"); //fix for windows
-                    Ref<Texture> texture(dynamic_ref_cast<Texture>(ResourceLoader::load(uri)));
+                    Ref<Texture> texture(dynamic_ref_cast<Texture>(gResourceManager().load(uri)));
                     state.images.push_back(texture);
                     continue;
                 }

@@ -32,10 +32,10 @@
 
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/animation_track_editor.h"
 #include "editor/editor_settings.h"
@@ -46,6 +46,7 @@
 #include "editor/scene_tree_dock.h"
 
 // For onion skinning.
+#include "core/resource/resource_manager.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "scene/main/viewport.h"
@@ -363,7 +364,7 @@ void AnimationPlayerEditor::_animation_load() {
     file->clear_filters();
     Vector<String> extensions;
 
-    ResourceLoader::get_recognized_extensions_for_type("Animation", extensions);
+    gResourceManager().get_recognized_extensions_for_type("Animation", extensions);
     for (const String &E : extensions) {
 
         file->add_filter("*." + E + " ; " + StringUtils::to_upper(E));
@@ -377,10 +378,10 @@ void AnimationPlayerEditor::_animation_save_in_path(const Ref<Resource> &p_resou
 
     int flg = 0;
     if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
-        flg |= ResourceSaver::FLAG_COMPRESS;
+        flg |= ResourceManager::FLAG_COMPRESS;
 
     String path = ProjectSettings::get_singleton()->localize_path(p_path);
-    Error err = ResourceSaver::save(path, p_resource, flg | ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS);
+    Error err = gResourceManager().save(path, p_resource, flg | ResourceManager::FLAG_REPLACE_SUBRESOURCE_PATHS);
 
     if (err != OK) {
         accept->set_text(TTR("Error saving resource!"));
@@ -406,7 +407,7 @@ void AnimationPlayerEditor::_animation_save_as(const Ref<Resource> &p_resource) 
     file->set_mode(EditorFileDialog::MODE_SAVE_FILE);
 
     Vector<String> extensions;
-    ResourceSaver::get_recognized_extensions(p_resource, extensions);
+    gResourceManager().get_recognized_extensions(p_resource, extensions);
     file->clear_filters();
     for (size_t i = 0; i < extensions.size(); i++) {
 
@@ -746,7 +747,7 @@ void AnimationPlayerEditor::_dialog_action(StringView p_file) {
         case RESOURCE_LOAD: {
             ERR_FAIL_COND(!player);
 
-            Ref<Resource> res = ResourceLoader::load(p_file, "Animation");
+            Ref<Resource> res = gResourceManager().load(p_file, "Animation");
             ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + String(p_file) + "'."); 
             ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + String(p_file) + "' is not Animation."); 
             if (StringUtils::contains(p_file,'/')) {

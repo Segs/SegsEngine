@@ -37,13 +37,13 @@
 #include "core/engine.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
-#include "core/io/resource_loader.h"
 #include "core/project_settings.h"
 #include "scene/2d/node_2d.h"
 #include "scene/3d/spatial.h"
 #include "scene/gui/control.h"
 #include "scene/main/instance_placeholder.h"
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 
 #include "EASTL/sort.h"
 #include "EASTL/deque.h"
@@ -266,7 +266,7 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
                 String path = variants[n.instance & FLAG_MASK];
                 if (disable_placeholders) {
 
-                    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path, "PackedScene"));
+                    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(path, "PackedScene"));
                     ERR_FAIL_COND_V(not sdata, nullptr);
                     node = sdata->instance(p_edit_state == GEN_EDIT_STATE_DISABLED ? GEN_EDIT_STATE_DISABLED : GEN_EDIT_STATE_INSTANCE);
                     ERR_FAIL_COND_V(!node, nullptr);
@@ -469,7 +469,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
                     nd.instance |= FLAG_INSTANCE_IS_PLACEHOLDER;
                 } else {
                     //must instance ourselves
-                    Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(ResourceLoader::load(p_node->get_filename()));
+                    Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_node->get_filename()));
                     if (not instance) {
                         return ERR_CANT_OPEN;
                     }
@@ -885,7 +885,7 @@ Error SceneState::pack(Node *p_scene) {
     //if using scene inheritance, pack the scene it inherits from
     if (scene->get_scene_inherited_state()) {
         String path = scene->get_scene_inherited_state()->get_path();
-        Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(ResourceLoader::load(path));
+        Ref<PackedScene> instance = dynamic_ref_cast<PackedScene>(gResourceManager().load(path));
         if (instance) {
 
             base_scene_idx = _vm_get_variant(instance, variant_map);

@@ -2136,7 +2136,7 @@ EditorPropertyRID::EditorPropertyRID() {
 
 void EditorPropertyResource::_file_selected(StringView p_path) {
 
-    RES res(ResourceLoader::load(p_path));
+    RES res(gResourceManager().load(p_path));
 
     ERR_FAIL_COND_MSG(not res, "Cannot load resource from path '" + (String)p_path + "'.");
 
@@ -2184,7 +2184,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             Vector<String> extensions;
             for (int i = 0; i <StringUtils::get_slice_count( type,','); i++) {
 
-                ResourceLoader::get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
+                gResourceManager().get_recognized_extensions_for_type(StringUtils::get_slice(type,',', i), extensions);
             }
 
             Set<String> valid_extensions;
@@ -2354,7 +2354,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
             if (ScriptServer::is_global_class(intype)) {
                 obj = ClassDB::instance(ScriptServer::get_global_class_native_base(intype));
                 if (obj) {
-                    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(intype)));
+                    Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(intype)));
                     if (script) {
                         obj->set_script(Variant(script));
                     }
@@ -2891,7 +2891,7 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
 
         if (files.size() == 1) {
             String file = files[0];
-            RES res(ResourceLoader::load(file));
+            RES res(gResourceManager().load(file));
             if (res) {
                 emit_changed(get_edited_property(), res);
                 update_property();

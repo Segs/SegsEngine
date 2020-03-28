@@ -31,7 +31,6 @@
 #include "project_manager.h"
 
 #include "core/io/config_file.h"
-#include "core/io/resource_saver.h"
 #include "core/io/stream_peer_ssl.h"
 #include "core/io/zip_io.h"
 #include "core/method_bind.h"
@@ -50,11 +49,9 @@
 #include "editor_themes.h"
 #include "scene/gui/center_container.h"
 #include "scene/gui/line_edit.h"
-#include "scene/gui/margin_container.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/separator.h"
 #include "scene/gui/texture_rect.h"
-#include "scene/gui/tool_button.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 
@@ -505,7 +502,7 @@ private:
                     if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, {}, false) != OK) {
                         set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
                     } else {
-                        ResourceSaver::save(PathUtils::plus_file(dir,"icon.png"), get_icon("DefaultProjectIcon", "EditorIcons"));
+                        gResourceManager().save(PathUtils::plus_file(dir,"icon.png"), get_icon("DefaultProjectIcon", "EditorIcons"));
 
                         FileAccess *f = FileAccess::open(PathUtils::plus_file(dir,"default_env.tres"), FileAccess::WRITE);
                         if (!f) {

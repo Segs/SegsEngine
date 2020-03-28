@@ -1,0 +1,1060 @@
+#include "resource_manager.h"
+
+#include "core/io/resource_saver.h"
+#include "core/io/resource_loader.h"
+#include "core/io/resource_format_loader.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
+#include "core/project_settings.h"
+#include "core/object_tooling.h"
+#include "core/os/file_access.h"
+#include "core/script_language.h"
+#include "core/class_db.h"
+#include "core/os/mutex.h"
+#include "core/os/rw_lock.h"
+#include "core/io/resource_importer.h"
+#include "core/plugin_interfaces/ResourceLoaderInterface.h"
+#include "core/print_string.h"
+#include "core/variant_parser.h"
+#include "core/translation.h"
+#include "core/pool_vector.h"
+
+#include "EASTL/deque.h"
+
+namespace {
+ResourceRemapper s_resource_remapper;
+ResourceManager s_resource_manager;
+eastl::deque<Ref<ResourceFormatSaver>> s_savers;
+eastl::deque<Ref<ResourceFormatLoader>> s_loaders;
+ResourceSavedCallback save_callback;
+
+Mutex* loading_map_mutex;
+HashMap<LoadingMapKey, int, Hasher<LoadingMapKey> > loading_map;
+HashSet<const Resource*> remapped_list;
+HashMap<String, Vector<String> > translation_remaps;
+HashMap<String, String> path_remaps;
+ResourceLoadedCallback _loaded_callback;
+
+/**
+ * @brief The ResourceFormatLoaderWrap class is meant as a wrapper for a plugin-based resource format loaders.
+ */
+class ResourceFormatLoaderWrap final : public ResourceFormatLoader {
+
+protected:
+    ResourceLoaderInterface* m_wrapped;
+public:
+    RES load(StringView p_path, StringView p_original_path = StringView(), Error* r_error = nullptr) override {
+        return m_wrapped->load(p_path, p_original_path, r_error);
+    }
+    void get_recognized_extensions(Vector<String>& p_extensions) const final {
+        m_wrapped->get_recognized_extensions(p_extensions);
+    }
+    bool handles_type(StringView p_type) const final {
+        return m_wrapped->handles_type(p_type);
+    }
+    String get_resource_type(StringView p_path) const final {
+        return m_wrapped->get_resource_type(p_path);
+    }
+
+    ResourceFormatLoaderWrap(ResourceLoaderInterface* w) : m_wrapped(w) {}
+    ~ResourceFormatLoaderWrap() override = default;
+    bool wrapped_same(const ResourceLoaderInterface* wrapped) const { return m_wrapped == wrapped; }
+};
+
+Ref<ResourceFormatLoader> createLoaderWrap(ResourceLoaderInterface* iface)
+{
+    //TODO: SEGS: verify that we don't create multiple wrappers for the same interface ?
+    return make_ref_counted<ResourceFormatLoaderWrap>(iface);
+}
+
+Ref<ResourceFormatLoader> _find_custom_resource_format_loader(StringView path) {
+    for (const auto & ldr : s_loaders) {
+        if (ldr->get_script_instance() && ldr->get_script_instance()->get_script()->get_path() == path) {
+            return ldr;
+        }
+    }
+    return Ref<ResourceFormatLoader>();
+}
+bool _add_to_loading_map(StringView p_path) {
+
+    bool success;
+    if (loading_map_mutex) {
+        loading_map_mutex->lock();
+    }
+
+    LoadingMapKey key;
+    key.path = p_path;
+    key.thread = Thread::get_caller_id();
+
+    if (loading_map.contains(key)) {
+        success = false;
+    }
+    else {
+        loading_map[key] = true;
+        success = true;
+    }
+
+    if (loading_map_mutex) {
+        loading_map_mutex->unlock();
+    }
+
+    return success;
+}
+
+void _remove_from_loading_map(StringView p_path) {
+    if (loading_map_mutex) {
+        loading_map_mutex->lock();
+    }
+
+    LoadingMapKey key;
+    key.path = p_path;
+    key.thread = Thread::get_caller_id();
+
+    loading_map.erase(key);
+
+    if (loading_map_mutex) {
+        loading_map_mutex->unlock();
+    }
+}
+
+void _remove_from_loading_map_and_thread(StringView p_path, Thread::ID p_thread) {
+    if (loading_map_mutex) {
+        loading_map_mutex->lock();
+    }
+
+    LoadingMapKey key;
+    key.path = p_path;
+    key.thread = p_thread;
+
+    loading_map.erase(key);
+
+    if (loading_map_mutex) {
+        loading_map_mutex->unlock();
+    }
+}
+RES _load(StringView p_path, StringView p_original_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
+
+    bool found = false;
+
+    // Try all loaders and pick the first match for the type hint
+    for (size_t i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(p_path, p_type_hint)) {
+            continue;
+        }
+        found = true;
+        RES res(s_loaders[i]->load(p_path, !p_original_path.empty() ? p_original_path : p_path, r_error));
+        if (not res) {
+            continue;
+        }
+
+        return res;
+    }
+
+    ERR_FAIL_COND_V_MSG(found, RES(), "Failed loading resource: " + String(p_path) + ".");
+#ifdef TOOLS_ENABLED
+    FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
+    ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
+#endif
+    ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".");
+}
+
+String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
+    using namespace StringUtils;
+    String new_path(p_path);
+
+    if (translation_remaps.contains(new_path)) {
+        // translation_remaps has the following format:
+        //   { "res://path.png": PoolStringArray( "res://path-ru.png:ru", "res://path-de.png:de" ) }
+
+        // To find the path of the remapped resource, we extract the locale name after
+        // the last ':' to match the project locale.
+        // We also fall back in case of regional locales as done in TranslationServer::translate
+        // (e.g. 'ru_RU' -> 'ru' if the former has no specific mapping).
+
+        String locale = TranslationServer::get_singleton()->get_locale();
+        ERR_FAIL_COND_V_MSG(locale.length() < 2, new_path, "Could not remap path '" + p_path + "' for translation as configured locale '" + locale + "' is invalid.");
+        String lang(TranslationServer::get_language_code(locale));
+
+        Vector<String>& res_remaps = translation_remaps[new_path];
+        bool near_match = false;
+
+        for (size_t i = 0; i < res_remaps.size(); i++) {
+            auto split = res_remaps[i].rfind(':');
+            if (split == String::npos) {
+                continue;
+            }
+
+            StringView l = strip_edges(right(res_remaps[i], split + 1));
+            if (locale == l) { // Exact match.
+                new_path = res_remaps[i].left(split);
+                break;
+            }
+            else if (near_match) {
+                continue; // Already found near match, keep going for potential exact match.
+            }
+
+            // No exact match (e.g. locale 'ru_RU' but remap is 'ru'), let's look further
+            // for a near match (same language code, i.e. first 2 or 3 letters before
+            // regional code, if included).
+            if (lang == TranslationServer::get_language_code(l)) {
+                // Language code matches, that's a near match. Keep looking for exact match.
+                near_match = true;
+                new_path = res_remaps[i].left(split);
+                continue;
+            }
+        }
+
+        if (r_translation_remapped) {
+            *r_translation_remapped = true;
+        }
+    }
+
+    if (path_remaps.contains(new_path)) {
+        new_path = path_remaps[new_path];
+    }
+
+    if (new_path == p_path) { // Did not remap.
+        // Try file remap.
+        Error err;
+        FileAccess* f = FileAccess::open(String(p_path) + ".remap", FileAccess::READ, &err);
+
+        if (f) {
+
+            VariantParserStream* stream = VariantParser::get_file_stream(f);
+
+            String assign;
+            Variant value;
+            VariantParser::Tag next_tag;
+
+            int lines = 0;
+            String error_text;
+            while (true) {
+
+                assign = Variant().as<String>();
+                next_tag.fields.clear();
+                next_tag.name.clear();
+
+                err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
+                if (err == ERR_FILE_EOF) {
+                    break;
+                }
+                else if (err != OK) {
+                    ERR_PRINT("Parse error: " + String(p_path) + ".remap:" + ::to_string(lines) + " error: " + error_text + ".");
+                    break;
+                }
+
+                if (assign == "path") {
+                    new_path = value.as<String>();
+                    break;
+                }
+                else if (next_tag.name != "remap") {
+                    break;
+                }
+            }
+            VariantParser::release_stream(stream);
+            memdelete(f);
+        }
+    }
+
+    return new_path;
+}
+
+
+} // end of anonymous namespace
+
+
+ResourceManager::ResourceManager()
+{
+}
+
+void ResourceManager::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
+
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
+
+    if (p_at_front) {
+        s_savers.push_front(p_format_saver);
+    }
+    else {
+        s_savers.push_back(p_format_saver);
+    }
+}
+Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p_flags) {
+
+    StringView extension = PathUtils::get_extension(p_path);
+    Error err = ERR_FILE_UNRECOGNIZED;
+
+    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+
+        if (!s->recognize(p_resource))
+            continue;
+
+        Vector<String> extensions;
+        bool recognized = false;
+        s->get_recognized_extensions(p_resource, extensions);
+
+        for (auto& ext : extensions) {
+
+            if (StringUtils::compare(ext, extension, StringUtils::CaseInsensitive) == 0)
+                recognized = true;
+        }
+
+        if (!recognized)
+            continue;
+
+        const String& old_path(p_resource->get_path());
+
+        String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+
+        RES rwcopy(p_resource);
+        if (p_flags & FLAG_CHANGE_PATH)
+            rwcopy->set_path(local_path);
+
+        err = s->save(p_path, p_resource, p_flags);
+
+        if (err == OK) {
+
+            Object_set_edited(p_resource.get(), false);
+#ifdef TOOLS_ENABLED
+            if (timestamp_on_save) {
+                uint64_t mt = FileAccess::get_modified_time(p_path);
+                p_resource->set_last_modified_time(mt);
+            }
+#endif
+
+            if (p_flags & FLAG_CHANGE_PATH)
+                rwcopy->set_path(old_path);
+
+            if (save_callback && StringUtils::begins_with(p_path, "res://"))
+                save_callback(p_resource, p_path);
+
+            return OK;
+        }
+    }
+
+    return err;
+}
+
+void ResourceManager::set_save_callback(ResourceSavedCallback p_callback) {
+
+    save_callback = p_callback;
+}
+
+void ResourceManager::get_recognized_extensions(const RES& p_resource, Vector<String>& p_extensions) {
+
+    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+
+        s->get_recognized_extensions(p_resource, p_extensions);
+    }
+}
+
+void ResourceManager::remove_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver) {
+
+    ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
+    // Find saver
+    auto iter = eastl::find(s_savers.begin(), s_savers.end(), p_format_saver);
+    ERR_FAIL_COND(iter == s_savers.end()); // Not found
+
+    s_savers.erase(iter);
+}
+
+Ref<ResourceFormatSaver> ResourceManager::_find_custom_resource_format_saver(StringView path) {
+    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+        if (s->get_script_instance() && s->get_script_instance()->get_script()->get_path() == path) {
+            return s;
+        }
+    }
+    return Ref<ResourceFormatSaver>();
+}
+
+void ResourceManager::remove_custom_savers() {
+
+    Vector<Ref<ResourceFormatSaver> > custom_savers;
+    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+        if (s->get_script_instance()) {
+            custom_savers.push_back(s);
+        }
+    }
+
+    for (const Ref<ResourceFormatSaver>& saver : custom_savers) {
+        remove_resource_format_saver(saver);
+    }
+}
+
+bool ResourceManager::add_custom_resource_format_saver(StringView script_path) {
+
+    if (_find_custom_resource_format_saver(script_path))
+        return false;
+
+    Ref<Resource> res = load(script_path);
+    ERR_FAIL_COND_V(not res, false);
+    ERR_FAIL_COND_V(!res->is_class("Script"), false);
+
+    Ref<Script> s = dynamic_ref_cast<Script>(res);
+    StringName ibt = s->get_instance_base_type();
+    bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatSaver");
+    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceSaver: " + String(script_path) + ".");
+
+    Object* obj = ClassDB::instance(ibt);
+
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource saver, expected 'ResourceFormatSaver' inheritance, got: " + String(ibt) + ".");
+
+    auto* crl = object_cast<ResourceFormatSaver>(obj);
+    crl->set_script(s.get_ref_ptr());
+    add_resource_format_saver(Ref<ResourceFormatSaver>(crl));
+
+    return true;
+}
+
+void ResourceManager::remove_custom_resource_format_saver(StringView script_path) {
+
+    Ref<ResourceFormatSaver> custom_saver = _find_custom_resource_format_saver(script_path);
+    if (custom_saver)
+        remove_resource_format_saver(custom_saver);
+}
+
+void ResourceManager::add_custom_savers() {
+    // Custom resource savers exploits global class names
+
+    StringName custom_saver_base_class(ResourceFormatSaver::get_class_static_name());
+
+    Vector<StringName> global_classes;
+    ScriptServer::get_global_class_list(&global_classes);
+
+    for (const StringName& class_name : global_classes) {
+
+        StringName base_class = ScriptServer::get_global_class_native_base(class_name);
+
+        if (base_class == custom_saver_base_class) {
+            StringView path = ScriptServer::get_global_class_path(class_name);
+            add_custom_resource_format_saver(path);
+        }
+    }
+}
+
+
+bool ResourceManager::add_custom_resource_format_loader(StringView script_path) {
+
+    if (_find_custom_resource_format_loader(script_path))
+        return false;
+
+    Ref<Resource> res = ResourceManager::load(script_path);
+    ERR_FAIL_COND_V(not res, false);
+    ERR_FAIL_COND_V(!res->is_class("Script"), false);
+
+    Ref<Script> s(dynamic_ref_cast<Script>(res));
+    StringName ibt = s->get_instance_base_type();
+    bool valid_type = ClassDB::is_parent_class(ibt, "ResourceFormatLoader");
+    ERR_FAIL_COND_V_MSG(!valid_type, false, "Script does not inherit a CustomResourceLoader: " + String(script_path) + ".");
+
+    Object* obj = ClassDB::instance(ibt);
+
+    ERR_FAIL_COND_V_MSG(obj == nullptr, false, "Cannot instance script as custom resource loader, expected 'ResourceFormatLoader' inheritance, got: " + String(ibt) + ".");
+
+    auto* crl = object_cast<ResourceFormatLoader>(obj);
+    crl->set_script(s.get_ref_ptr());
+    add_resource_format_loader(Ref<ResourceFormatLoader>(crl));
+
+    return true;
+}
+
+void ResourceManager::remove_custom_resource_format_loader(StringView script_path) {
+
+    Ref<ResourceFormatLoader> custom_loader = _find_custom_resource_format_loader(script_path);
+    if (custom_loader)
+        remove_resource_format_loader(custom_loader);
+}
+
+void ResourceManager::add_custom_loaders() {
+    // Custom loaders registration exploits global class names
+
+    StringName custom_loader_base_class = ResourceFormatLoader::get_class_static_name();
+
+    Vector<StringName> global_classes;
+    ScriptServer::get_global_class_list(&global_classes);
+
+    for (size_t i = 0, fin = global_classes.size(); i < fin; ++i) {
+
+        StringName class_name = global_classes[i];
+        StringName base_class = ScriptServer::get_global_class_native_base(class_name);
+
+        if (base_class == custom_loader_base_class) {
+            StringView path = ScriptServer::get_global_class_path(class_name);
+            add_custom_resource_format_loader(path);
+        }
+    }
+}
+
+void ResourceManager::remove_custom_loaders() {
+
+    Vector<Ref<ResourceFormatLoader> > custom_loaders;
+    for (auto &ldr : s_loaders) {
+        if (ldr->get_script_instance()) {
+            custom_loaders.push_back(ldr);
+        }
+    }
+
+    for (int i = 0; i < custom_loaders.size(); ++i) {
+        remove_resource_format_loader(custom_loaders[i]);
+    }
+}
+void ResourceManager::get_recognized_extensions_for_type(StringView p_type, Vector<String>& p_extensions) {
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+        s_loaders[i]->get_recognized_extensions_for_type(p_type, p_extensions);
+    }
+}
+RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
+
+    if (r_error)
+        *r_error = ERR_CANT_OPEN;
+
+    String local_path;
+    if (PathUtils::is_rel_path(p_path))
+        local_path = String("res://") + p_path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+
+    if (!p_no_cache) {
+
+        {
+            bool success = _add_to_loading_map(local_path);
+            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
+        }
+
+        //lock first if possible
+        if (ResourceCache::lock) {
+            ResourceCache::lock->read_lock();
+        }
+
+        //get ptr
+        Resource* rptr = ResourceCache::get_unguarded(local_path);
+
+        if (rptr) {
+            RES res(rptr);
+            //it is possible this resource was just freed in a thread. If so, this referencing will not work and resource is considered not cached
+            if (res) {
+                //referencing is fine
+                if (r_error)
+                    *r_error = OK;
+                if (ResourceCache::lock) {
+                    ResourceCache::lock->read_unlock();
+                }
+                _remove_from_loading_map(local_path);
+                return res;
+            }
+        }
+        if (ResourceCache::lock) {
+            ResourceCache::lock->read_unlock();
+        }
+    }
+
+    bool xl_remapped = false;
+    String path = _path_remap(local_path, &xl_remapped);
+
+    if (path.empty()) {
+        if (!p_no_cache) {
+            _remove_from_loading_map(local_path);
+        }
+        ERR_FAIL_V_MSG(RES(), "Remapping '" + local_path + "' failed.");
+    }
+
+    print_verbose("Loading resource: " + path);
+    RES res(_load(path, local_path, p_type_hint, p_no_cache, r_error));
+
+    if (not res) {
+        if (!p_no_cache) {
+            _remove_from_loading_map(local_path);
+        }
+        print_verbose("Failed loading resource: " + path);
+        return RES();
+    }
+    if (!p_no_cache)
+        res->set_path(local_path);
+
+    if (xl_remapped)
+        res->set_as_translation_remapped(true);
+
+    Object_set_edited(res.get(), false);
+
+#ifdef TOOLS_ENABLED
+    if (timestamp_on_load) {
+        uint64_t mt = FileAccess::get_modified_time(path);
+        //printf("mt %s: %lli\n",remapped_path.utf8().get_data(),mt);
+        res->set_last_modified_time(mt);
+    }
+#endif
+
+    if (!p_no_cache) {
+        _remove_from_loading_map(local_path);
+    }
+
+    if (_loaded_callback) {
+        _loaded_callback(res, p_path);
+    }
+
+    return res;
+}
+
+RES ResourceManager::load_internal(StringView p_path, StringView p_original_path, StringView p_type_hint, bool p_no_cache, Error* r_error)
+{
+    return _load(p_path, p_original_path, p_type_hint, p_no_cache, r_error);
+}
+
+bool ResourceManager::exists(StringView p_path, StringView p_type_hint) {
+
+    String local_path;
+    if (PathUtils::is_rel_path(p_path))
+        local_path = String("res://") + p_path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+
+    if (ResourceCache::has(local_path)) {
+
+        return true; // If cached, it probably exists
+    }
+
+    bool xl_remapped = false;
+    String path = _path_remap(local_path, &xl_remapped);
+
+    // Try all loaders and pick the first match for the type hint
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(path, p_type_hint)) {
+            continue;
+        }
+
+        if (s_loaders[i]->exists(path))
+            return true;
+    }
+
+    return false;
+}
+
+Ref<ResourceInteractiveLoader> ResourceManager::load_interactive(StringView p_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
+
+    if (r_error)
+        *r_error = ERR_CANT_OPEN;
+
+    String local_path;
+    if (PathUtils::is_rel_path(p_path))
+        local_path = String("res://") + p_path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+
+    if (!p_no_cache) {
+
+        bool success = _add_to_loading_map(local_path);
+        ERR_FAIL_COND_V_MSG(!success, Ref<ResourceInteractiveLoader>(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
+
+        if (ResourceCache::has(local_path)) {
+
+            print_verbose("Loading resource: " + local_path + " (cached)");
+            Ref<Resource> res_cached(ResourceCache::get(local_path));
+            Ref<ResourceInteractiveLoaderDefault> ril(make_ref_counted<ResourceInteractiveLoaderDefault>());
+
+            ril->resource = res_cached;
+            ril->path_loading = local_path;
+            ril->path_loading_thread = Thread::get_caller_id();
+            return ril;
+        }
+    }
+
+    bool xl_remapped = false;
+    String path = _path_remap(local_path, &xl_remapped);
+    if (path.empty()) {
+        if (!p_no_cache) {
+            _remove_from_loading_map(local_path);
+        }
+        ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "Remapping '" + local_path + "' failed.");
+    }
+
+    print_verbose("Loading resource: " + path);
+
+    bool found = false;
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(path, p_type_hint))
+            continue;
+        found = true;
+        Ref<ResourceInteractiveLoader> ril = s_loaders[i]->load_interactive(path, local_path, r_error);
+        if (not ril)
+            continue;
+        if (!p_no_cache) {
+            ril->set_local_path(local_path);
+            ril->path_loading = local_path;
+            ril->path_loading_thread = Thread::get_caller_id();
+        }
+
+        if (xl_remapped)
+            ril->set_translation_remapped(true);
+
+        return ril;
+    }
+
+    if (!p_no_cache) {
+        _remove_from_loading_map(local_path);
+    }
+
+    ERR_FAIL_COND_V_MSG(found, Ref<ResourceInteractiveLoader>(), "Failed loading resource: " + path + ".");
+
+    ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "No loader found for resource: " + path + ".");
+}
+
+void ResourceManager::add_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader, bool p_at_front) {
+
+    ERR_FAIL_COND(not p_format_loader);
+
+    if (p_at_front) {
+        s_loaders.push_front(p_format_loader);
+    }
+    else {
+        s_loaders.push_back(p_format_loader);
+    }
+}
+
+void ResourceManager::add_resource_format_loader(ResourceLoaderInterface* p_format_loader, bool p_at_front)
+{
+    ERR_FAIL_COND(not p_format_loader);
+#ifdef DEBUG_ENABLED
+    for (auto & s_loader : s_loaders)
+    {
+        Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(s_loader);
+        if (fmt) {
+            ERR_FAIL_COND(fmt->wrapped_same(p_format_loader));
+        }
+    }
+#endif
+    add_resource_format_loader(createLoaderWrap(p_format_loader), p_at_front);
+}
+void ResourceManager::remove_resource_format_loader(const ResourceLoaderInterface* p_format_loader) {
+
+    if (unlikely(not p_format_loader)) {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
+        return;
+    }
+    eastl::erase_if(s_loaders,[p_format_loader](const Ref<ResourceFormatLoader> &v)->bool
+    {
+            Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(v);
+            return (fmt && fmt->wrapped_same(p_format_loader));
+
+    });
+
+}
+void ResourceManager::remove_resource_format_loader(const Ref<ResourceFormatLoader>& p_format_loader) {
+
+    if (unlikely(not p_format_loader)) {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
+        return;
+    }
+    eastl::erase_if(s_loaders, [p_format_loader](const Ref<ResourceFormatLoader>& v)->bool {
+            return (v == p_format_loader);
+    });
+}
+
+int ResourceManager::get_import_order(StringView p_path) {
+
+    String path = _path_remap(p_path);
+
+    String local_path;
+    if (PathUtils::is_rel_path(path))
+        local_path = "res://" + path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(local_path))
+            continue;
+        /*
+        if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
+            continue;
+        */
+
+        return s_loaders[i]->get_import_order(p_path);
+    }
+
+    return 0;
+}
+
+void ResourceManager::remove_from_loading_map_and_thread(StringView p_path, Thread::ID p_thread) {
+    _remove_from_loading_map_and_thread(p_path,p_thread);
+}
+
+String ResourceManager::get_import_group_file(StringView p_path) {
+    String path = _path_remap(p_path);
+
+    String local_path;
+    if (PathUtils::is_rel_path(path))
+        local_path = "res://" + path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(local_path))
+            continue;
+        /*
+        if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
+            continue;
+        */
+
+        return s_loaders[i]->get_import_group_file(p_path);
+    }
+
+    return String(); //not found
+}
+
+bool ResourceManager::is_import_valid(StringView p_path) {
+
+    String path = _path_remap(p_path);
+
+    String local_path;
+    if (PathUtils::is_rel_path(path))
+        local_path = "res://" + path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(local_path))
+            continue;
+        /*
+        if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
+            continue;
+        */
+
+        return s_loaders[i]->is_import_valid(p_path);
+    }
+
+    return false; //not found
+}
+
+bool ResourceManager::is_imported(StringView p_path) {
+
+    String path = _path_remap(p_path);
+
+    String local_path;
+    if (PathUtils::is_rel_path(path))
+        local_path = "res://" + path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(local_path))
+            continue;
+        /*
+        if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
+            continue;
+        */
+
+        return s_loaders[i]->is_imported(p_path);
+    }
+
+    return false; //not found
+}
+
+void ResourceManager::get_dependencies(StringView p_path, Vector<String>& p_dependencies, bool p_add_types) {
+
+    String path = _path_remap(p_path);
+
+    String local_path;
+    if (PathUtils::is_rel_path(path))
+        local_path = "res://" + path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(local_path))
+            continue;
+        /*
+        if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
+            continue;
+        */
+
+        s_loaders[i]->get_dependencies(local_path, p_dependencies, p_add_types);
+    }
+}
+
+Error ResourceManager::rename_dependencies(StringView p_path, const HashMap<String, String>& p_map) {
+
+    String path = _path_remap(p_path);
+
+    String local_path;
+    if (PathUtils::is_rel_path(path))
+        local_path = "res://" + path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        if (!s_loaders[i]->recognize_path(local_path))
+            continue;
+        /*
+        if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
+            continue;
+        */
+
+        return s_loaders[i]->rename_dependencies(local_path, p_map);
+    }
+
+    return OK; // ??
+}
+
+String ResourceManager::get_resource_type(StringView p_path) {
+
+    String local_path;
+    if (PathUtils::is_rel_path(p_path))
+        local_path = String("res://") + p_path;
+    else
+        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+
+    for (int i = 0; i < s_loaders.size(); i++) {
+
+        String result = s_loaders[i]->get_resource_type(local_path);
+        if (not result.empty())
+            return result;
+    }
+
+    return String();
+}
+
+
+String ResourceRemapper::import_remap(StringView p_path) {
+
+    if (ResourceFormatImporter::get_singleton()->recognize_path(p_path)) {
+
+        return ResourceFormatImporter::get_singleton()->get_internal_resource_path(p_path);
+    }
+
+    return String(p_path);
+}
+
+String ResourceRemapper::path_remap(StringView p_path) {
+    return _path_remap(p_path);
+}
+
+void ResourceRemapper::remove_remap(const Resource *r) {
+    remapped_list.erase(r);
+}
+
+void ResourceRemapper::reload_translation_remaps() {
+    Vector<const Resource*> to_reload;
+    {
+        RWLockRead read_lock(ResourceCache::lock);
+        to_reload.assign(remapped_list.begin(), remapped_list.end());
+    }
+
+
+    //now just make sure to not delete any of these resources while changing locale..
+    for (const Resource* r : to_reload) {
+        const_cast<Resource* >(r)->reload_from_file();
+    }
+}
+
+void ResourceRemapper::load_translation_remaps() {
+
+    if (!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
+        return;
+
+    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+    Vector<Variant> keys(remaps.get_key_list());
+    for (const Variant& E : keys) {
+
+        Array langs = remaps[E];
+        Vector<String> lang_remaps;
+        lang_remaps.reserve(langs.size());
+        for (int i = 0; i < langs.size(); i++) {
+            lang_remaps.emplace_back(langs[i].as<String>());
+        }
+
+        translation_remaps[E.as<String>()] = lang_remaps;
+    }
+}
+
+void ResourceRemapper::clear_translation_remaps() {
+    translation_remaps.clear();
+}
+
+void ResourceRemapper::load_path_remaps() {
+
+    if (!ProjectSettings::get_singleton()->has_setting("path_remap/remapped_paths"))
+        return;
+
+    PoolVector<String> remaps = ProjectSettings::get_singleton()->get("path_remap/remapped_paths");
+    int rc = remaps.size();
+    ERR_FAIL_COND(rc & 1); //must be even
+    PoolVector<String>::Read r = remaps.read();
+
+    for (int i = 0; i < rc; i += 2) {
+
+        path_remaps[r[i]] = r[i + 1];
+    }
+}
+
+void ResourceRemapper::clear_path_remaps() {
+
+    path_remaps.clear();
+}
+
+void ResourceManager::set_load_callback(ResourceLoadedCallback p_callback) {
+    _loaded_callback = p_callback;
+}
+
+
+
+void ResourceManager::initialize() {
+
+#ifndef NO_THREADS
+    loading_map_mutex = memnew(Mutex);
+#endif
+}
+
+void ResourceManager::finalize()
+{
+    s_savers.clear();
+#ifndef NO_THREADS
+    for (const auto& e : loading_map) {
+        ERR_PRINT("Exited while resource is being loaded: " + e.first.path);
+    }
+    loading_map.clear();
+    memdelete(loading_map_mutex);
+    loading_map_mutex = nullptr;
+    for (auto& ldr : s_loaders)
+        ldr.reset();
+#endif
+}
+ResourceManager& gResourceManager() {
+    return s_resource_manager;
+}
+
+
+void ResourceRemapper::set_as_translation_remapped(const Resource* r, bool p_remapped) {
+
+    if (remapped_list.contains(r) == p_remapped)
+        return;
+
+    if (ResourceCache::lock) {
+        ResourceCache::lock->write_lock();
+    }
+
+    if (p_remapped) {
+        remapped_list.insert(r);
+    }
+    else {
+        remapped_list.erase(r);
+    }
+
+    if (ResourceCache::lock) {
+        ResourceCache::lock->write_unlock();
+    }
+}
+
+bool ResourceRemapper::is_translation_remapped(const Resource *resource) {
+    return remapped_list.contains(resource);
+}
+ResourceRemapper& gResourceRemapper() {
+    return s_resource_remapper;
+}

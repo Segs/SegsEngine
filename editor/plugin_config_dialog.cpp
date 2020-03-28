@@ -32,6 +32,7 @@
 #include "core/io/config_file.h"
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
+#include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 #include "editor/project_settings_editor.h"
@@ -95,14 +96,14 @@ void PluginConfigDialog::_on_confirmed() {
             GDScriptLanguage::get_singleton()->make_template("", "", gdscript);
             String script_path(PathUtils::plus_file(path,script_edit->get_text()));
             gdscript->set_path(script_path);
-            ResourceSaver::save(script_path, gdscript);
+            gResourceManager().save(script_path, gdscript);
             script = gdscript;
         } else {
             String script_path(PathUtils::plus_file(path,script_edit->get_text()));
             StringView class_name(PathUtils::get_basename(PathUtils::get_file(script_path)));
             script = ScriptServer::get_language(lang_idx)->get_template(class_name, "EditorPlugin");
             script->set_path(script_path);
-            ResourceSaver::save(script_path, script);
+            gResourceManager().save(script_path, script);
         }
 
         emit_signal("plugin_ready", Variant(script), active_edit->is_pressed() ? subfolder_edit->get_text() : StringView());

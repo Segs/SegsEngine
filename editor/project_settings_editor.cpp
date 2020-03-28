@@ -37,6 +37,7 @@
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
@@ -123,14 +124,14 @@ void ProjectSettingsEditor::_notification(int p_what) {
             popup_add->add_icon_item(get_icon("Mouse", "EditorIcons"), TTR("Mouse Button"), INPUT_MOUSE_BUTTON);
 
             Vector<String> tfn;
-            ResourceLoader::get_recognized_extensions_for_type("Translation", tfn);
+            gResourceManager().get_recognized_extensions_for_type("Translation", tfn);
             for (const String &E : tfn) {
 
                 translation_file_open->add_filter("*." + E);
             }
 
             Vector<String> rfn;
-            ResourceLoader::get_recognized_extensions_for_type("Resource", rfn);
+            gResourceManager().get_recognized_extensions_for_type("Resource", rfn);
             for (const String &E : rfn) {
                 translation_res_file_open->add_filter("*." + E);
                 translation_res_option_file_open->add_filter("*." + E);

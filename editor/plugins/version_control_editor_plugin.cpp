@@ -118,7 +118,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     StringName selected_addon(set_up_choice->get_item_text_utf8(id));
 
     StringView path = ScriptServer::get_global_class_path(selected_addon);
-    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+    Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(path));
     ERR_FAIL_COND_MSG(not script,"VCS Addon path is invalid"); 
 
     EditorVCSInterface *vcs_interface = memnew(EditorVCSInterface);
@@ -370,7 +370,7 @@ void VersionControlEditorPlugin::fetch_available_vcs_addon_names() {
     for (int i = 0; i != global_classes.size(); i++) {
 
         StringView path = ScriptServer::get_global_class_path(global_classes[i]);
-        Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+        Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(path));
         ERR_FAIL_COND(not script);
         if (script->get_instance_base_type() == "EditorVCSInterface") {
 

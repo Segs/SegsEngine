@@ -30,10 +30,10 @@
 
 #include "dependency_editor.h"
 
-#include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_file_system.h"
@@ -53,7 +53,7 @@ void DependencyEditor::_searched(StringView p_path) {
     HashMap<String, String> dep_rename;
     dep_rename[replacing] = p_path;
 
-    ResourceLoader::rename_dependencies(editing, dep_rename);
+    gResourceManager().rename_dependencies(editing, dep_rename);
 
     _update_list();
     _update_file();
@@ -68,7 +68,7 @@ void DependencyEditor::_load_pressed(Object *p_item, int p_cell, int p_button) {
 
     search->clear_filters();
     Vector<String> ext;
-    ResourceLoader::get_recognized_extensions_for_type(ti->get_metadata(0).as<String>(), ext);
+    gResourceManager().get_recognized_extensions_for_type(ti->get_metadata(0).as<String>(), ext);
     for (const String &E : ext) {
         search->add_filter("*" + E);
     }
@@ -160,7 +160,7 @@ void DependencyEditor::_fix_all() {
 
     if (!remaps.empty()) {
 
-        ResourceLoader::rename_dependencies(editing, remaps);
+        gResourceManager().rename_dependencies(editing, remaps);
 
         _update_list();
         _update_file();
@@ -175,7 +175,7 @@ void DependencyEditor::_update_file() {
 void DependencyEditor::_update_list() {
 
     Vector<String> deps;
-    ResourceLoader::get_dependencies(editing, deps, true);
+    gResourceManager().get_dependencies(editing, deps, true);
 
     tree->clear();
     missing.clear();
@@ -297,7 +297,7 @@ void DependencyEditorOwners::_select_file(int p_idx) {
 
     String fpath(owners->get_item_text(p_idx));
 
-    if (ResourceLoader::get_resource_type(fpath) == "PackedScene") {
+    if (gResourceManager().get_resource_type(fpath) == "PackedScene") {
         editor->open_request(fpath);
         hide();
         emit_signal("confirmed");

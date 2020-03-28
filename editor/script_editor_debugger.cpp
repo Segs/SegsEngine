@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
@@ -614,7 +615,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                     if (path.contains("::")) {
                         // built-in resource
                         StringView base_path = StringUtils::get_slice(path,"::", 0);
-                        if (ResourceLoader::get_resource_type(base_path) == "PackedScene") {
+                        if (gResourceManager().get_resource_type(base_path) == "PackedScene") {
                             if (!EditorNode::get_singleton()->is_scene_open(base_path)) {
                                 EditorNode::get_singleton()->load_scene(base_path);
                             }
@@ -622,7 +623,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                             EditorNode::get_singleton()->load_resource(base_path);
                         }
                     }
-                    var = ResourceLoader::load(path);
+                    var = gResourceManager().load(path);
 
                     if (pinfo.hint_string == "Script") {
                         if (debugObj->get_script() != var) {
@@ -1464,7 +1465,7 @@ void ScriptEditorDebugger::_clear_execution() {
 
     Dictionary d = ti->get_metadata(0);
 
-    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"].as<String>()));
+    stack_script = dynamic_ref_cast<Script>(gResourceManager().load(d["file"].as<String>()));
     emit_signal("clear_execution", stack_script);
     stack_script.unref();
 }
@@ -1608,7 +1609,7 @@ void ScriptEditorDebugger::_stack_dump_frame_selected() {
 
     Dictionary d = ti->get_metadata(0);
 
-    stack_script = dynamic_ref_cast<Script>(ResourceLoader::load(d["file"].as<String>()));
+    stack_script = dynamic_ref_cast<Script>(gResourceManager().load(d["file"].as<String>()));
     emit_signal("goto_script_line", stack_script, int(d["line"]) - 1);
     emit_signal("set_execution", stack_script, int(d["line"]) - 1);
     stack_script.unref();
@@ -2024,7 +2025,7 @@ void ScriptEditorDebugger::_error_selected() {
         return;
     }
 
-    Ref<Script> s = dynamic_ref_cast<Script>(ResourceLoader::load(meta[0].as<String>()));
+    Ref<Script> s = dynamic_ref_cast<Script>(gResourceManager().load(meta[0].as<String>()));
     emit_signal("goto_script_line", s, int(meta[1]) - 1);
 }
 
@@ -2168,7 +2169,7 @@ void ScriptEditorDebugger::_item_menu_id_pressed(int p_option) {
 
             Vector<String> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
-            ResourceSaver::get_recognized_extensions(sd, extensions);
+            gResourceManager().get_recognized_extensions(sd, extensions);
             file_dialog->clear_filters();
             for (size_t i = 0; i < extensions.size(); i++) {
                 file_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));

@@ -57,7 +57,7 @@ void register_mono_types() {
     ResourceLoader::add_resource_format_loader(resource_loader_cs);
 
     resource_saver_cs=make_ref_counted<ResourceFormatSaverCSharpScript>();
-    ResourceSaver::add_resource_format_saver(resource_saver_cs);
+    gResourceManager().add_resource_format_saver(resource_saver_cs);
 #if 0
 #endif
 }

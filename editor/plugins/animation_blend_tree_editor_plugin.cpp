@@ -30,7 +30,7 @@
 
 #include "animation_blend_tree_editor_plugin.h"
 
-#include "core/io/resource_loader.h"
+#include "core/resource/resource_manager.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
@@ -275,7 +275,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
 
 void AnimationNodeBlendTreeEditor::_file_opened(StringView p_file) {
 
-    file_loaded = dynamic_ref_cast<AnimationNode>(ResourceLoader::load(p_file));
+    file_loaded = dynamic_ref_cast<AnimationNode>(gResourceManager().load(p_file));
     if (file_loaded) {
         _add_node(MENU_LOAD_FILE_CONFIRM);
     }
@@ -291,7 +291,7 @@ void AnimationNodeBlendTreeEditor::_add_node(int p_idx) {
 
         open_file->clear_filters();
         Vector<String> filters;
-        ResourceLoader::get_recognized_extensions_for_type("AnimationNode", filters);
+        gResourceManager().get_recognized_extensions_for_type("AnimationNode", filters);
         for (const String &E : filters) {
             open_file->add_filter("*." + E);
         }

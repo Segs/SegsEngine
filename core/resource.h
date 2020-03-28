@@ -171,7 +171,8 @@ using RES = Ref<Resource>;
 
 class GODOT_EXPORT ResourceCache {
     friend class Resource;
-    friend class ResourceLoader; //need the lock
+    friend class ResourceManager; //need the lock
+    friend class ResourceRemapper; //need the lock
     static RWLock *lock;
     friend void unregister_core_types();
     static void clear();

@@ -32,7 +32,6 @@
 
 #include <utility>
 
-#include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/input.h"
@@ -42,6 +41,7 @@
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/container_tools.h"
+#include "core/resource/resource_manager.h"
 #include "editor/inspector_dock.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/editor_node.h"
@@ -123,7 +123,7 @@ public:
         if (E==cached.end()) {
 
             Cache c;
-            c.cache = ResourceLoader::load(p_path);
+            c.cache = gResourceManager().load(p_path);
             E = cached.emplace(String(p_path), c).first;
         }
 
@@ -538,10 +538,10 @@ void ScriptEditor::_open_recent_script(int p_idx) {
     // if its not on disk its a help file or deleted
     if (FileAccess::exists(path)) {
         Vector<String> extensions;
-        ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
+        gResourceManager().get_recognized_extensions_for_type("Script", extensions);
 
         if (extensions.contains(String(PathUtils::get_extension(path)))) {
-            Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+            Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(path));
             if (script) {
                 edit(script, true);
                 return;
@@ -558,14 +558,14 @@ void ScriptEditor::_open_recent_script(int p_idx) {
     } else if (StringUtils::contains(path,"::")) {
         // built-in script
         StringView res_path = StringUtils::get_slice(path,"::", 0);
-        if (ResourceLoader::get_resource_type(res_path) == "PackedScene") {
+        if (gResourceManager().get_resource_type(res_path) == "PackedScene") {
             if (!EditorNode::get_singleton()->is_scene_open(res_path)) {
                 EditorNode::get_singleton()->load_scene(res_path);
             }
         } else {
             EditorNode::get_singleton()->load_resource(res_path);
         }
-        Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+        Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(path));
         if (script) {
             edit(script, true);
             return;
@@ -804,7 +804,7 @@ void ScriptEditor::_reload_scripts() {
 
         Ref<Script> script = dynamic_ref_cast<Script>(edited_res);
         if (script != nullptr) {
-            Ref<Script> rel_script = dynamic_ref_cast<Script>(ResourceLoader::load(script->get_path(), script->get_class(), true));
+            Ref<Script> rel_script = dynamic_ref_cast<Script>(gResourceManager().load(script->get_path(), script->get_class(), true));
             ERR_CONTINUE(not rel_script);
             script->set_source_code(String(rel_script->get_source_code()));
             script->set_last_modified_time(rel_script->get_last_modified_time());
@@ -929,9 +929,9 @@ void ScriptEditor::_file_dialog_action(StringView p_file) {
         case ACT_FILE_OPEN: {
 
             Vector<String> extensions;
-            ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
+            gResourceManager().get_recognized_extensions_for_type("Script", extensions);
             if (ContainerUtils::contains(extensions,PathUtils::get_extension(p_file))) {
-                Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(p_file));
+                Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(p_file));
                 if (not scr) {
                     editor->show_warning(TTR("Could not load file at:") + "\n\n" + p_file, TTR("Error!"));
                     file_dialog_option = -1;
@@ -1038,7 +1038,7 @@ void ScriptEditor::_menu_option(int p_option) {
             file_dialog_option = ACT_FILE_OPEN;
 
             Vector<String> extensions;
-            ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
+            gResourceManager().get_recognized_extensions_for_type("Script", extensions);
             file_dialog->clear_filters();
             for (const String & ext : extensions) {
                 file_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
@@ -1057,13 +1057,13 @@ void ScriptEditor::_menu_option(int p_option) {
             previous_scripts.pop_back();
 
             Vector<String> extensions;
-            ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
+            gResourceManager().get_recognized_extensions_for_type("Script", extensions);
             bool built_in = !PathUtils::is_resource_file(path);
 
             if (ContainerUtils::contains(extensions,PathUtils::get_extension(path)) || built_in) {
                 if (built_in) {
                     StringView res_path = StringUtils::get_slice(path,"::", 0);
-                    if (ResourceLoader::get_resource_type(res_path) == "PackedScene") {
+                    if (gResourceManager().get_resource_type(res_path) == "PackedScene") {
                         if (!EditorNode::get_singleton()->is_scene_open(res_path)) {
                             EditorNode::get_singleton()->load_scene(res_path);
                         script_editor->call_deferred("_menu_option", p_option);
@@ -1075,7 +1075,7 @@ void ScriptEditor::_menu_option(int p_option) {
                     }
                 }
 
-                Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+                Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(path));
                 if (not scr) {
                     editor->show_warning(TTR("Could not load file at:") + "\n\n" + path, TTR("Error!"));
                     file_dialog_option = -1;
@@ -1220,7 +1220,7 @@ void ScriptEditor::_menu_option(int p_option) {
                     file_dialog_option = FILE_SAVE_AS;
 
                     Vector<String> extensions;
-                    ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
+                    gResourceManager().get_recognized_extensions_for_type("Script", extensions);
                     file_dialog->clear_filters();
                     file_dialog->set_current_dir(PathUtils::get_base_dir(text_file->get_path()));
                     file_dialog->set_current_file(PathUtils::get_file(text_file->get_path()));
@@ -2001,7 +2001,7 @@ Ref<TextFile> ScriptEditor::_load_text_file(StringView p_path, Error *r_error) {
     }
 
     String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
-    String path = ResourceLoader::path_remap(local_path);
+    String path = gResourceRemapper().path_remap(local_path);
 
     TextFile *text_file = memnew(TextFile);
     Ref<TextFile> text_res(text_file);
@@ -2012,7 +2012,7 @@ Ref<TextFile> ScriptEditor::_load_text_file(StringView p_path, Error *r_error) {
     text_file->set_file_path(local_path);
     text_file->set_path(local_path, true);
 
-    if (ResourceLoader::get_timestamp_on_load()) {
+    if (gResourceManager().get_timestamp_on_load()) {
         text_file->set_last_modified_time(FileAccess::get_modified_time(path));
     }
 
@@ -2042,7 +2042,7 @@ Error ScriptEditor::_save_text_file(Ref<TextFile> p_text_file, StringView p_path
     file->close();
     memdelete(file);
 
-    if (ResourceSaver::get_timestamp_on_save()) {
+    if (gResourceManager().get_timestamp_on_save()) {
         p_text_file->set_last_modified_time(FileAccess::get_modified_time(p_path));
     }
 
@@ -2512,7 +2512,7 @@ bool ScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
             const String &file(files[i]);
             if (file.empty() || !FileAccess::exists(file))
                 continue;
-            Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(file));
+            Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(file));
             if (scr) {
                 return true;
             }
@@ -2582,7 +2582,7 @@ void ScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
             const String &file(files[i]);
             if (file.empty() || !FileAccess::exists(file))
                 continue;
-            Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(file));
+            Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(file));
             if (scr) {
                 edit(scr);
                 if (tab_container->get_child_count() > num_tabs_before) {
@@ -2706,7 +2706,7 @@ void ScriptEditor::set_window_layout(Ref<ConfigFile> p_layout) {
     restoring_layout = true;
 
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("Script", extensions);
+    gResourceManager().get_recognized_extensions_for_type("Script", extensions);
 
     for (int i = 0; i < scripts.size(); i++) {
 
@@ -2721,7 +2721,7 @@ void ScriptEditor::set_window_layout(Ref<ConfigFile> p_layout) {
             continue;
 
         if (ContainerUtils::contains(extensions,PathUtils::get_extension(path))) {
-            Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(path));
+            Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(path));
             if (not scr) {
                 continue;
             }
@@ -3006,7 +3006,7 @@ void ScriptEditor::_help_search(StringView p_text) {
 
 void ScriptEditor::_open_script_request(StringView p_path) {
 
-    Ref<Script> script = dynamic_ref_cast<Script>(ResourceLoader::load(p_path));
+    Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(p_path));
     if (script) {
         script_editor->edit(script, false);
         return;
@@ -3050,8 +3050,8 @@ void ScriptEditor::_on_find_in_files_requested(StringView text) {
 
 void ScriptEditor::_on_find_in_files_result_selected(StringView fpath, int line_number, int begin, int end) {
 
-    if (ResourceLoader::exists(fpath)) {
-        RES res(ResourceLoader::load(fpath));
+    if (gResourceManager().exists(fpath)) {
+        RES res(gResourceManager().load(fpath));
 
         if (PathUtils::get_extension(fpath) == StringView("shader")) {
             ShaderEditorPlugin *shader_editor = object_cast<ShaderEditorPlugin>(
@@ -3534,7 +3534,7 @@ void ScriptEditorPlugin::edit(Object *p_object) {
         StringView res_path = StringUtils::get_slice(p_script->get_path(), "::", 0);
 
         if (_is_built_in_script(p_script)) {
-            if (ResourceLoader::get_resource_type(res_path) == "PackedScene") {
+            if (gResourceManager().get_resource_type(res_path) == "PackedScene") {
                 if (!EditorNode::get_singleton()->is_scene_open(res_path)) {
                     EditorNode::get_singleton()->load_scene(res_path);
                 }

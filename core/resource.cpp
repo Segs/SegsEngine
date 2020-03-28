@@ -47,6 +47,8 @@
 #include "core/method_bind.h"
 #include <QMetaProperty>
 
+#include "resource/resource_manager.h"
+
 namespace {
     HashMap<String, Resource *> cached_resources;
 
@@ -163,7 +165,7 @@ void Resource::reload_from_file() {
     if (!PathUtils::is_resource_file(path))
         return;
 
-    Ref<Resource> s = ResourceLoader::load(ResourceLoader::path_remap(path), get_class(), true);
+    Ref<Resource> s = gResourceManager().load(gResourceRemapper().path_remap(path), get_class(), true);
 
     if (not s)
         return;
@@ -374,27 +376,11 @@ Node *(*Resource::_get_local_scene_func)() = nullptr;
 
 void Resource::set_as_translation_remapped(bool p_remapped) {
 
-    if (ResourceLoader::remapped_list.contains(this) == p_remapped)
-        return;
-
-    if (ResourceCache::lock) {
-        ResourceCache::lock->write_lock();
-    }
-
-    if (p_remapped) {
-        ResourceLoader::remapped_list.insert(this);
-    } else {
-        ResourceLoader::remapped_list.erase(this);
-    }
-
-    if (ResourceCache::lock) {
-        ResourceCache::lock->write_unlock();
-    }
+    gResourceRemapper().set_as_translation_remapped(this, p_remapped);
 }
 
 bool Resource::is_translation_remapped() const {
-
-    return ResourceLoader::remapped_list.contains(const_cast<Resource *>(this));
+    return gResourceRemapper().is_translation_remapped(this);
 }
 
 #ifdef TOOLS_ENABLED
@@ -501,7 +487,8 @@ Resource::~Resource() {
         RWLockWrite wr_guard(ResourceCache::lock);
         cached_resources.erase(impl_data->path_cache);
     }
-    ResourceLoader::remapped_list.erase(this);
+    gResourceRemapper().remove_remap(this);
+    
     if (!impl_data->owners.empty()) {
         WARN_PRINT("Resource is still owned.");
     }

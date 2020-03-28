@@ -16,7 +16,7 @@ using RES = Ref<Resource>;
 class GODOT_EXPORT ResourceInteractiveLoader : public RefCounted {
 
     GDCLASS(ResourceInteractiveLoader, RefCounted)
-    friend class ResourceLoader;
+    friend class ResourceManager;
     String path_loading;
     Thread::ID path_loading_thread;
 
@@ -25,7 +25,7 @@ protected:
 
 public:
     virtual void set_local_path(StringView p_local_path) = 0;
-    virtual Ref<Resource> get_resource() = 0;
+    virtual const Ref<Resource> &get_resource() = 0;
     virtual Error poll() = 0;
     virtual int get_stage() const = 0;
     virtual int get_stage_count() const = 0;
@@ -34,6 +34,25 @@ public:
 
     ResourceInteractiveLoader() = default;
     ~ResourceInteractiveLoader() override;
+};
+
+class ResourceInteractiveLoaderDefault : public ResourceInteractiveLoader {
+
+    GDCLASS(ResourceInteractiveLoaderDefault, ResourceInteractiveLoader)
+
+public:
+    Ref<Resource> resource;
+
+    void set_local_path(StringView /*p_local_path*/) override {
+        /*scene->set_filename(p_local_path);*/
+    }
+    const Ref<Resource> &get_resource() override { return resource; }
+    Error poll() override { return ERR_FILE_EOF; }
+    int get_stage() const override { return 1; }
+    int get_stage_count() const override { return 1; }
+    void set_translation_remapped(bool p_remapped) override;
+
+    ResourceInteractiveLoaderDefault() = default;
 };
 
 class GODOT_EXPORT ResourceFormatLoader : public RefCounted {

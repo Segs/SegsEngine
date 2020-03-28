@@ -35,6 +35,7 @@
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 
@@ -823,7 +824,7 @@ VisualScriptTypeCast::TypeGuess VisualScriptTypeCast::guess_output_type(TypeGues
     TypeGuess tg;
     tg.type = VariantType::OBJECT;
     if (!script.empty()) {
-        tg.script = dynamic_ref_cast<Script>(ResourceLoader::load(script));
+        tg.script = dynamic_ref_cast<Script>(gResourceManager().load(script));
     }
     //if (not tg.script) {
     //	tg.gdclass = base_type;

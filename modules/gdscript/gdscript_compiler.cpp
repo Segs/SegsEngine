@@ -33,7 +33,7 @@
 #include "gdscript.h"
 
 #include "core/class_db.h"
-#include "core/io/resource_loader.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_utils.h"
 
 using namespace eastl;
@@ -344,7 +344,7 @@ int GDScriptCompiler::_parse_expression(CodeGen &codegen, const GDScriptParser::
                     return -1;
                 }
 
-                RES res(ResourceLoader::load(ScriptServer::get_global_class_path(identifier)));
+                RES res(gResourceManager().load(ScriptServer::get_global_class_path(identifier)));
                 if (not res) {
                     _set_error("Can't load global class " + String(identifier) + ", cyclic reference?", p_expression);
                     return -1;

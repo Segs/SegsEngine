@@ -32,6 +32,7 @@
 
 #include "core/io/resource_saver.h"
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "scene/resources/packed_scene.h"
@@ -999,7 +1000,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
                     if (FileAccess::exists(ext_name) && p_keep_animations) {
                         // try to keep custom animation tracks
                         Ref<Animation> old_anim = dynamic_ref_cast<Animation>(
-                                ResourceLoader::load(ext_name, String("Animation"), true));
+                                gResourceManager().load(ext_name, String("Animation"), true));
                         if (old_anim) {
                             // meergeee
                             for (int i = 0; i < old_anim->get_track_count(); i++) {
@@ -1012,7 +1013,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
                     }
 
                     anim->set_path(ext_name, true); // if not set, then its never saved externally
-                    ResourceSaver::save(ext_name, anim, ResourceSaver::FLAG_CHANGE_PATH);
+                    gResourceManager().save(ext_name, anim, ResourceManager::FLAG_CHANGE_PATH);
                     p_animations[anim] = anim;
                 }
             }
@@ -1040,12 +1041,12 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
 
                     if (p_keep_materials && FileAccess::exists(ext_name)) {
                         // if exists, use it
-                        p_materials[mat] = dynamic_ref_cast<Material>(ResourceLoader::load(ext_name));
+                        p_materials[mat] = dynamic_ref_cast<Material>(gResourceManager().load(ext_name));
                     } else {
 
-                        ResourceSaver::save(ext_name, mat, ResourceSaver::FLAG_CHANGE_PATH);
+                        gResourceManager().save(ext_name, mat, ResourceManager::FLAG_CHANGE_PATH);
                         p_materials[mat] = dynamic_ref_cast<Material>(
-                                ResourceLoader::load(ext_name, "", true)); // disable loading from the cache.
+                                gResourceManager().load(ext_name, "", true)); // disable loading from the cache.
                     }
                 }
 
@@ -1074,8 +1075,8 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
                                 ext_name = PathUtils::plus_file(p_base_path, _make_extname(mesh->get_name()) + ".mesh");
                             }
 
-                            ResourceSaver::save(ext_name, mesh, ResourceSaver::FLAG_CHANGE_PATH);
-                            p_meshes[mesh] = dynamic_ref_cast<ArrayMesh>(ResourceLoader::load(ext_name));
+                            gResourceManager().save(ext_name, mesh, ResourceManager::FLAG_CHANGE_PATH);
+                            p_meshes[mesh] = dynamic_ref_cast<ArrayMesh>(gResourceManager().load(ext_name));
                             p_node->set(E.name, p_meshes[mesh]);
                             mesh_just_added = true;
                         }
@@ -1103,11 +1104,11 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
 
                                     if (p_keep_materials && FileAccess::exists(ext_name)) {
                                         // if exists, use it
-                                        p_materials[mat] = dynamic_ref_cast<Material>(ResourceLoader::load(ext_name));
+                                        p_materials[mat] = dynamic_ref_cast<Material>(gResourceManager().load(ext_name));
                                     } else {
 
-                                        ResourceSaver::save(ext_name, mat, ResourceSaver::FLAG_CHANGE_PATH);
-                                        p_materials[mat] = dynamic_ref_cast<Material>(ResourceLoader::load(
+                                        gResourceManager().save(ext_name, mat, ResourceManager::FLAG_CHANGE_PATH);
+                                        p_materials[mat] = dynamic_ref_cast<Material>(gResourceManager().load(
                                                 ext_name, "", true)); // disable loading from the cache.
                                     }
                                 }
@@ -1127,8 +1128,8 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
                                             ext_name = PathUtils::plus_file(
                                                     p_base_path, _make_extname(mesh->get_name()) + ".mesh");
                                         }
-                                        ResourceSaver::save(ext_name, mesh, ResourceSaver::FLAG_CHANGE_PATH);
-                                        p_meshes[mesh] = dynamic_ref_cast<ArrayMesh>(ResourceLoader::load(ext_name));
+                                        gResourceManager().save(ext_name, mesh, ResourceManager::FLAG_CHANGE_PATH);
+                                        p_meshes[mesh] = dynamic_ref_cast<ArrayMesh>(gResourceManager().load(ext_name));
                                     }
                                 }
                             }
@@ -1157,7 +1158,7 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/root_name"), "Scene Root"));
 
     Vector<String> script_extentions;
-    ResourceLoader::get_recognized_extensions_for_type("Script", script_extentions);
+    gResourceManager().get_recognized_extensions_for_type("Script", script_extentions);
 
     String script_ext_hint;
 
@@ -1377,7 +1378,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
     Ref<Script> root_script;
     if (ScriptServer::is_global_class(root_type)) {
-        root_script = dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(root_type)));
+        root_script = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(root_type)));
         root_type = ScriptServer::get_global_class_base(root_type);
     }
 
@@ -1526,7 +1527,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     Ref<EditorScenePostImport> post_import_script;
 
     if (!post_import_script_path.empty()) {
-        Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(post_import_script_path));
+        Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(post_import_script_path));
         if (not scr) {
             EditorNode::add_io_error(
                     TTR("Couldn't load post-import script:") + StringView(" " + post_import_script_path));
@@ -1573,7 +1574,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
             Ref<PackedScene> packer(make_ref_counted<PackedScene>());
             packer->pack(child);
-            err = ResourceSaver::save(path, packer); // do not take over, let the changed files reload themselves
+            err = gResourceManager().save(path, packer); // do not take over, let the changed files reload themselves
             ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + path + "'.");
         }
     }
@@ -1581,7 +1582,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     Ref<PackedScene> packer(make_ref_counted<PackedScene>());
     packer->pack(scene);
     print_verbose("Saving scene to: " + String(p_save_path) + ".scn");
-    err = ResourceSaver::save(
+    err = gResourceManager().save(
             String(p_save_path) + ".scn", packer); // do not take over, let the changed files reload themselves
     ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot save scene to file '" + String(p_save_path) + ".scn'.");
 

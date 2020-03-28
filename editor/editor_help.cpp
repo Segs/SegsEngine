@@ -1381,7 +1381,7 @@ static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
                 end = bbcode.length();
             StringView image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
 
-            Ref<Texture> texture = dynamic_ref_cast<Texture>(ResourceLoader::load(PathUtils::plus_file(base_path,image), "Texture"));
+            Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(PathUtils::plus_file(base_path,image), "Texture"));
             if (texture)
                 p_rt->add_image(texture);
 
@@ -1437,7 +1437,7 @@ static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
 
             StringView fnt = StringUtils::substr(tag,5, tag.length());
 
-            Ref<Font> font = dynamic_ref_cast<Font>(ResourceLoader::load(PathUtils::plus_file(base_path,fnt), "Font"));
+            Ref<Font> font = dynamic_ref_cast<Font>(gResourceManager().load(PathUtils::plus_file(base_path,fnt), "Font"));
             if (font)
                 p_rt->push_font(font);
             else {

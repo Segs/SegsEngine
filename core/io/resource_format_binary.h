@@ -74,7 +74,7 @@ class ResourceInteractiveLoaderBinary : public ResourceInteractiveLoader {
 
 public:
     void set_local_path(StringView p_local_path) override;
-    Ref<Resource> get_resource() override;
+    const Ref<Resource> &get_resource() override;
     Error poll() override;
     int get_stage() const override;
     int get_stage_count() const override;

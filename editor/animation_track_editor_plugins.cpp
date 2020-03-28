@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/audio_stream_preview.h"
 #include "editor_resource_preview.h"
@@ -983,7 +984,7 @@ bool AnimationTrackEditTypeAudio::can_drop_data(const Point2 &p_point, const Var
 
             if (files.size() == 1) {
                 const String &file = files[0];
-                Ref<AudioStream> res = dynamic_ref_cast<AudioStream>(ResourceLoader::load(file));
+                Ref<AudioStream> res = dynamic_ref_cast<AudioStream>(gResourceManager().load(file));
                 if (res) {
                     return true;
                 }
@@ -1007,7 +1008,7 @@ void AnimationTrackEditTypeAudio::drop_data(const Point2 &p_point, const Variant
 
             if (files.size() == 1) {
                 const String &file = files[0];
-                stream = dynamic_ref_cast<AudioStream>(ResourceLoader::load(file));
+                stream = dynamic_ref_cast<AudioStream>(gResourceManager().load(file));
             }
         }
 

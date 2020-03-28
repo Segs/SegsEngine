@@ -164,6 +164,8 @@
 #include "EASTL/sort.h"
 #include <cstdio>
 
+#include "core/resource/resource_manager.h"
+
 EditorNode *EditorNode::singleton = nullptr;
 
 IMPL_GDCLASS(EditorNode)
@@ -646,7 +648,7 @@ void EditorNode::_resources_reimported(const Vector<String> &p_resources) {
     int current_tab = scene_tabs->get_current_tab();
 
     for (int i = 0; i < p_resources.size(); i++) {
-        String file_type = ResourceLoader::get_resource_type(p_resources[i]);
+        String file_type = gResourceManager().get_resource_type(p_resources[i]);
         if (file_type == "PackedScene") {
             scenes.push_back(p_resources[i]);
             // reload later if needed, first go with normal resources
@@ -731,7 +733,7 @@ Error EditorNode::load_resource(StringView p_resource, bool p_ignore_broken_deps
     dependency_errors.clear();
 
     Error err;
-    RES res(ResourceLoader::load(p_resource, {}, false, &err));
+    RES res(gResourceManager().load(p_resource, {}, false, &err));
     ERR_FAIL_COND_V(not res, ERR_CANT_OPEN);
     if (p_ignore_broken_deps) {
         inspector_dock->edit_resource(res);
@@ -770,13 +772,13 @@ void EditorNode::save_resource_in_path(const Ref<Resource> &p_resource, StringVi
     editor_data.apply_changes_in_editors();
     int flg = 0;
     if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
-        flg |= ResourceSaver::FLAG_COMPRESS;
+        flg |= ResourceManager::FLAG_COMPRESS;
 
     String path = ProjectSettings::get_singleton()->localize_path(p_path);
-    Error err = ResourceSaver::save(path, p_resource, flg | ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS);
+    Error err = gResourceManager().save(path, p_resource, flg | ResourceManager::FLAG_REPLACE_SUBRESOURCE_PATHS);
 
     if (err != OK) {
-        if (ResourceLoader::is_imported(p_resource->get_path())) {
+        if (gResourceManager().is_imported(p_resource->get_path())) {
             show_accept(TTR("Imported resources can't be saved."), TTR("OK"));
         } else {
             show_accept(TTR("Error saving resource!"), TTR("OK"));
@@ -819,7 +821,7 @@ void EditorNode::save_resource_as(const Ref<Resource> &p_resource, StringView p_
     current_option = RESOURCE_SAVE_AS;
     Vector<String> extensions;
     Ref<PackedScene> sd(make_ref_counted<PackedScene>());
-    ResourceSaver::get_recognized_extensions(p_resource, extensions);
+    gResourceManager().get_recognized_extensions(p_resource, extensions);
     file->clear_filters();
 
     Vector<String> preferred;
@@ -1011,7 +1013,7 @@ bool EditorNode::_find_and_save_resource(const RES &p_res, Map<RES, bool> &proce
     if (PathUtils::is_resource_file(p_res->get_path())) {
         if (changed || subchanged) {
             // save
-            ResourceSaver::save(p_res->get_path(), p_res, flags);
+            gResourceManager().save(p_res->get_path(), p_res, flags);
         }
         processed[p_res] = false; // because it's a file
         return false;
@@ -1231,8 +1233,8 @@ int EditorNode::_save_external_resources() {
 
     int flg = 0;
     if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
-        flg |= ResourceSaver::FLAG_COMPRESS;
-    flg |= ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS;
+        flg |= ResourceManager::FLAG_COMPRESS;
+    flg |= ResourceManager::FLAG_REPLACE_SUBRESOURCE_PATHS;
 
     Set<Ref<Resource>> edited_subresources;
     int saved = 0;
@@ -1244,7 +1246,7 @@ int EditorNode::_save_external_resources() {
             continue;
         // not only check if this resourec is edited, check contained subresources too
         if (_find_edited_resources(res, edited_subresources)) {
-            ResourceSaver::save(res->get_path(), res, flg);
+            gResourceManager().save(res->get_path(), res, flg);
             saved++;
         }
     }
@@ -1317,10 +1319,10 @@ void EditorNode::_save_scene(StringView p_file, int idx) {
 
     int flg = 0;
     if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
-        flg |= ResourceSaver::FLAG_COMPRESS;
-    flg |= ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS;
+        flg |= ResourceManager::FLAG_COMPRESS;
+    flg |= ResourceManager::FLAG_REPLACE_SUBRESOURCE_PATHS;
 
-    err = ResourceSaver::save(p_file, sdata, flg);
+    err = gResourceManager().save(p_file, sdata, flg);
 
     _save_external_resources();
 
@@ -1489,7 +1491,7 @@ void EditorNode::_dialog_action(StringView p_file) {
 
             Ref<MeshLibrary> ml;
             if (file_export_lib_merge->is_pressed() && FileAccess::exists(p_file)) {
-                ml = dynamic_ref_cast<MeshLibrary>(ResourceLoader::load(p_file, "MeshLibrary"));
+                ml = dynamic_ref_cast<MeshLibrary>(gResourceManager().load(p_file, "MeshLibrary"));
 
                 if (not ml) {
                     show_accept(TTR("Can't load MeshLibrary for merging!"), TTR("OK"));
@@ -1503,7 +1505,7 @@ void EditorNode::_dialog_action(StringView p_file) {
 
             MeshLibraryEditor::update_library_file(editor_data.get_edited_scene_root(), ml, true);
 
-            Error err = ResourceSaver::save(p_file, ml);
+            Error err = gResourceManager().save(p_file, ml);
             if (err) {
                 show_accept(TTR("Error saving MeshLibrary!"), TTR("OK"));
                 return;
@@ -1514,7 +1516,7 @@ void EditorNode::_dialog_action(StringView p_file) {
 
             Ref<TileSet> tileset;
             if (FileAccess::exists(p_file) && file_export_lib_merge->is_pressed()) {
-                tileset = dynamic_ref_cast<TileSet>(ResourceLoader::load(p_file, "TileSet"));
+                tileset = dynamic_ref_cast<TileSet>(gResourceManager().load(p_file, "TileSet"));
 
                 if (not tileset) {
                     show_accept(TTR("Can't load TileSet for merging!"), TTR("OK"));
@@ -1527,7 +1529,7 @@ void EditorNode::_dialog_action(StringView p_file) {
 
             TileSetEditor::update_library_file(editor_data.get_edited_scene_root(), tileset, true);
 
-            Error err = ResourceSaver::save(p_file, tileset);
+            Error err = gResourceManager().save(p_file, tileset);
             if (err) {
 
                 show_accept(TTR("Error saving TileSet!"), TTR("OK"));
@@ -1789,7 +1791,7 @@ void EditorNode::_edit_current() {
                         "documentation relevant to importing scenes to better understand this workflow.");
             } else {
                 if ((!get_edited_scene() || base_path != get_edited_scene()->get_filename()) &&
-                        ResourceLoader::get_resource_type(base_path) == "PackedScene") {
+                    gResourceManager().get_resource_type(base_path) == "PackedScene") {
                     editable_warning = TTR("This resource belongs to a scene that was instanced or inherited.\nChanges "
                                            "to it won't be kept when saving the current scene.");
                 }
@@ -2079,7 +2081,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
             Vector<String> extensions;
-            ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
+            gResourceManager().get_recognized_extensions_for_type("PackedScene", extensions);
             file->clear_filters();
             for (const String &ext : extensions) {
 
@@ -2207,7 +2209,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             Vector<String> extensions;
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
-            ResourceSaver::get_recognized_extensions(sd, extensions);
+            gResourceManager().get_recognized_extensions(sd, extensions);
             file->clear_filters();
             for (const String &ext : extensions) {
 
@@ -2269,7 +2271,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             Vector<String> extensions;
             Ref<MeshLibrary> ml(make_ref_counted<MeshLibrary>());
-            ResourceSaver::get_recognized_extensions(ml, extensions);
+            gResourceManager().get_recognized_extensions(ml, extensions);
             file_export_lib->clear_filters();
             for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
                 file_export_lib->add_filter("*." + extensions[i]);
@@ -2289,7 +2291,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             Vector<String> extensions;
             Ref<TileSet> ml(make_ref_counted<TileSet>());
-            ResourceSaver::get_recognized_extensions(ml, extensions);
+            gResourceManager().get_recognized_extensions(ml, extensions);
             file_export_lib->clear_filters();
             for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
                 file_export_lib->add_filter("*." + extensions[i]);
@@ -2678,7 +2680,7 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
 
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
             Vector<String> extensions;
-            ResourceLoader::get_recognized_extensions_for_type("PackedScene", extensions);
+            gResourceManager().get_recognized_extensions_for_type("PackedScene", extensions);
             file->clear_filters();
             for (const String &ext : extensions) {
 
@@ -3096,7 +3098,7 @@ void EditorNode::set_addon_plugin_enabled(const StringName &p_addon, bool p_enab
     // Only try to load the script if it has a name. Else, the plugin has no init script.
     if (script_path.length() > 0) {
         script_path = PathUtils::plus_file(PathUtils::plus_file("res://addons", p_addon), script_path);
-        script = dynamic_ref_cast<Script>(ResourceLoader::load(script_path));
+        script = dynamic_ref_cast<Script>(gResourceManager().load(script_path));
 
         if (not script) {
             show_warning(FormatSN(TTR("Unable to load addon script from path: '%s'.").asCString(), script_path.c_str()));
@@ -3398,7 +3400,7 @@ Error EditorNode::load_scene(StringView p_scene, bool p_ignore_broken_deps, bool
     dependency_errors.clear();
 
     Error err;
-    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(lpath, "", true, &err));
+    Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(lpath, "", true, &err));
     if (not sdata) {
 
         _dialog_display_load_error(lpath, err);
@@ -3679,8 +3681,8 @@ bool EditorNode::is_scene_in_use(StringView p_path) {
 
 void EditorNode::register_editor_types() {
 
-    ResourceLoader::set_timestamp_on_load(true);
-    ResourceSaver::set_timestamp_on_save(true);
+    gResourceManager().set_timestamp_on_load(true);
+    gResourceManager().set_timestamp_on_save(true);
 
     EditorAssetInstaller::initialize_class();
     CreateDialog::initialize_class();
@@ -4109,7 +4111,7 @@ Ref<Texture> EditorNode::get_class_icon(const StringName &p_class, const StringN
         }
 
         Ref<Script> script =
-                dynamic_ref_cast<Script>(ResourceLoader::load(ScriptServer::get_global_class_path(p_class), "Script"));
+                dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(p_class), "Script"));
 
         while (script) {
             String current_icon_path;
@@ -4811,7 +4813,7 @@ bool EditorNode::ensure_main_scene(bool p_from_native) {
         return false;
     }
 
-    if (ResourceLoader::get_resource_type(main_scene) != "PackedScene") {
+    if (gResourceManager().get_resource_type(main_scene) != "PackedScene") {
 
         current_option = -1;
         pick_main_scene->set_text(
@@ -5960,8 +5962,8 @@ EditorNode::EditorNode() {
 
     EditorHelp::generate_doc(); // before any editor classes are created
     SceneState::set_disable_placeholders(true);
-    ResourceLoader::clear_translation_remaps(); // no remaps using during editor
-    ResourceLoader::clear_path_remaps();
+    gResourceRemapper().clear_translation_remaps(); // no remaps using during editor
+    gResourceRemapper().clear_path_remaps();
 
     InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
 
@@ -6026,7 +6028,7 @@ EditorNode::EditorNode() {
     // Define a minimum window size to prevent UI elements from overlapping or being cut off
     OS::get_singleton()->set_min_window_size(Size2(1024, 600) * EDSCALE);
 
-    ResourceLoader::set_abort_on_missing_resources(false);
+    gResourceManager().set_abort_on_missing_resources(false);
     FileDialog::set_default_show_hidden_files(
             EditorSettings::get_singleton()->get("filesystem/file_dialog/show_hidden_files"));
     EditorFileDialog::set_default_show_hidden_files(
@@ -6035,8 +6037,8 @@ EditorNode::EditorNode() {
                                                        ->get("filesystem/file_dialog/display_mode")
                                                        .
                                                        operator int());
-    ResourceLoader::set_error_notify_func(this, _load_error_notify);
-    ResourceLoader::set_dependency_error_notify_func(this, _dependency_error_report);
+    gResourceManager().set_error_notify_func(this, _load_error_notify);
+    gResourceManager().set_dependency_error_notify_func(this, _dependency_error_report);
 
     { // register importers at the beginning, so dialogs are created with the right extensions
         static bool resource_importers_registered = false;
@@ -6980,7 +6982,7 @@ EditorNode::EditorNode() {
     file_script->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
     file_script->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     Vector<String> sexts;
-    ResourceLoader::get_recognized_extensions_for_type("Script", sexts);
+    gResourceManager().get_recognized_extensions_for_type("Script", sexts);
     for (const String &E : sexts) {
         file_script->add_filter("*." + E);
     }
@@ -7198,8 +7200,8 @@ EditorNode::EditorNode() {
     print_handler.userdata = this;
     add_print_handler(&print_handler);
 
-    ResourceSaver::set_save_callback(_resource_saved);
-    ResourceLoader::set_load_callback(_resource_loaded);
+    gResourceManager().set_save_callback(_resource_saved);
+    gResourceManager().set_load_callback(_resource_loaded);
 
 #ifdef OSX_ENABLED
     ED_SHORTCUT("editor/editor_2d", TTR("Open 2D Editor"), KEY_MASK_ALT | KEY_1);

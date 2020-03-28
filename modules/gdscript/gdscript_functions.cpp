@@ -53,6 +53,7 @@
 #include "core/pool_vector.h"
 #include "core/print_string.h"
 #include "core/reference.h"
+#include "core/resource/resource_manager.h"
 #include "core/string.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.h"
@@ -1079,7 +1080,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                 r_error.expected = VariantType::STRING;
                 r_ret = Variant();
             } else {
-                r_ret = ResourceLoader::load(p_args[0]->as<String>());
+                r_ret = gResourceManager().load(p_args[0]->as<String>());
             }
 
         } break;
@@ -1184,7 +1185,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                 return;
             }
 
-            Ref<Script> scr = dynamic_ref_cast<Script>(ResourceLoader::load(d["@path"].as<String>()));
+            Ref<Script> scr = dynamic_ref_cast<Script>(gResourceManager().load(d["@path"].as<String>()));
             if (not scr) {
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;

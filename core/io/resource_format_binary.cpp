@@ -46,6 +46,7 @@
 #include "core/object_tooling.h"
 
 #include "EASTL/sort.h"
+#include "core/resource/resource_manager.h"
 //#define print_bl(m_what) print_line(m_what)
 #define print_bl(m_what) (void)(m_what)
 
@@ -325,7 +326,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                 case OBJECT_INTERNAL_RESOURCE: {
                     uint32_t index = f->get_32();
                     String path = res_path + "::" + ::to_string(index);
-                    RES res(ResourceLoader::load(path));
+                    RES res(gResourceManager().load(path));
                     if (not res) {
                         WARN_PRINT("Couldn't load resource: " + path);
                     }
@@ -347,7 +348,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                         path = remaps[path];
                     }
 
-                    RES res(ResourceLoader::load(path, exttype));
+                    RES res(gResourceManager().load(path, exttype));
 
                     if (not res) {
                         WARN_PRINT(("Couldn't load resource: " + path));
@@ -372,7 +373,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
                             path = ProjectSettings::get_singleton()->localize_path(PathUtils::plus_file(PathUtils::get_base_dir(res_path),path));
                         }
 
-                        RES res(ResourceLoader::load(path, exttype));
+                        RES res(gResourceManager().load(path, exttype));
 
                         if (not res) {
                             WARN_PRINT(("Couldn't load resource: " + path));
@@ -580,7 +581,7 @@ void ResourceInteractiveLoaderBinary::set_local_path(StringView p_local_path) {
     res_path = p_local_path;
 }
 
-Ref<Resource> ResourceInteractiveLoaderBinary::get_resource() {
+const Ref<Resource> &ResourceInteractiveLoaderBinary::get_resource() {
 
     return resource;
 }
@@ -598,12 +599,12 @@ Error ResourceInteractiveLoaderBinary::poll() {
         if (remaps.contains(path)) {
             path = remaps[path];
         }
-        RES res(ResourceLoader::load(path, external_resources[s].type));
+        RES res(gResourceManager().load(path, external_resources[s].type));
         if (not res) {
 
-            if (!ResourceLoader::get_abort_on_missing_resources()) {
+            if (!gResourceManager().get_abort_on_missing_resources()) {
 
-                ResourceLoader::notify_dependency_error(local_path, path, external_resources[s].type);
+                gResourceManager().notify_dependency_error(local_path, path, external_resources[s].type);
             } else {
 
                 error = ERR_FILE_MISSING_DEPENDENCIES;
@@ -1702,7 +1703,7 @@ int ResourceFormatSaverBinaryInstance::get_string_index(const StringName &p_stri
 Error ResourceFormatSaverBinaryInstance::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {
 
     Error err;
-    if (p_flags & ResourceSaver::FLAG_COMPRESS) {
+    if (p_flags & ResourceManager::FLAG_COMPRESS) {
         FileAccessCompressed *fac = memnew(FileAccessCompressed);
         fac->configure("RSCC");
         f = fac;
@@ -1716,11 +1717,11 @@ Error ResourceFormatSaverBinaryInstance::save(StringView p_path, const RES &p_re
 
     ERR_FAIL_COND_V_MSG(err != OK, err, "Cannot create file '" + String(p_path) + "'.");
 
-    relative_paths = p_flags & ResourceSaver::FLAG_RELATIVE_PATHS;
-    skip_editor = p_flags & ResourceSaver::FLAG_OMIT_EDITOR_PROPERTIES;
-    bundle_resources = p_flags & ResourceSaver::FLAG_BUNDLE_RESOURCES;
-    big_endian = p_flags & ResourceSaver::FLAG_SAVE_BIG_ENDIAN;
-    takeover_paths = p_flags & ResourceSaver::FLAG_REPLACE_SUBRESOURCE_PATHS;
+    relative_paths = p_flags & ResourceManager::FLAG_RELATIVE_PATHS;
+    skip_editor = p_flags & ResourceManager::FLAG_OMIT_EDITOR_PROPERTIES;
+    bundle_resources = p_flags & ResourceManager::FLAG_BUNDLE_RESOURCES;
+    big_endian = p_flags & ResourceManager::FLAG_SAVE_BIG_ENDIAN;
+    takeover_paths = p_flags & ResourceManager::FLAG_REPLACE_SUBRESOURCE_PATHS;
 
     if (!StringUtils::begins_with(p_path,"res://"))
         takeover_paths = false;
@@ -1730,7 +1731,7 @@ Error ResourceFormatSaverBinaryInstance::save(StringView p_path, const RES &p_re
 
     _find_resources(p_resource, true);
 
-    if (!(p_flags & ResourceSaver::FLAG_COMPRESS)) {
+    if (!(p_flags & ResourceManager::FLAG_COMPRESS)) {
         //save header compressed
         static const uint8_t header[4] = { 'R', 'S', 'R', 'C' };
         f->store_buffer(header, 4);

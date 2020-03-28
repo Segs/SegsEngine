@@ -31,8 +31,8 @@
 #include "resource_preloader_editor_plugin.h"
 
 #include "core/method_bind.h"
-#include "core/io/resource_loader.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -66,7 +66,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
         StringView path = p_paths[i];
 
         RES resource;
-        resource = ResourceLoader::load(path);
+        resource = gResourceManager().load(path);
 
         if (not resource) {
             dialog->set_text(TTR("ERROR: Couldn't load resource!"));
@@ -100,7 +100,7 @@ void ResourcePreloaderEditor::_load_pressed() {
 
     file->clear_filters();
     Vector<String> extensions;
-    ResourceLoader::get_recognized_extensions_for_type("", extensions);
+    gResourceManager().get_recognized_extensions_for_type("", extensions);
     for (const String & ext : extensions)
         file->add_filter("*." + ext);
 

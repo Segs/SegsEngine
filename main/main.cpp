@@ -50,6 +50,7 @@
 #include "core/script_language.h"
 #include "core/translation.h"
 #include "core/rotated_file_loger.h"
+#include "core/resource/resource_manager.h"
 #include "core/version.h"
 #include "core/version_hash.gen.h"
 #include "drivers/register_driver_types.h"
@@ -366,7 +367,7 @@ struct ResourcePluginResolver : public ResolverInterface
         auto interface = qobject_cast<ResourceLoaderInterface *>(ob);
         if(interface) {
             print_line(String("Adding resource loader plugin:")+ob->metaObject()->className());
-            ResourceLoader::add_resource_format_loader(interface);
+            gResourceManager().add_resource_format_loader(interface);
             res=true;
         }
         return res;
@@ -375,7 +376,7 @@ struct ResourcePluginResolver : public ResolverInterface
         auto interface = qobject_cast<ResourceLoaderInterface *>(ob);
         if(interface) {
             print_line(String("Removing resource loader plugin:")+ob->metaObject()->className());
-            ResourceLoader::remove_resource_format_loader(interface);
+            gResourceManager().remove_resource_format_loader(interface);
         }
     }
 };
@@ -1423,7 +1424,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     if (!String(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image")).empty()) {
 
         Ref<Texture> cursor = dynamic_ref_cast<Texture>(
-                ResourceLoader::load(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image").as<String>()));
+                gResourceManager().load(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image").as<String>()));
         if (cursor) {
             Vector2 hotspot = ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image_hotspot");
             Input::get_singleton()->set_custom_mouse_cursor(cursor, Input::CURSOR_ARROW, hotspot);
@@ -1463,9 +1464,9 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
         translation_server->set_locale(locale);
     }
     translation_server->load_translations();
-    ResourceLoader::load_translation_remaps(); //load remaps for resources
 
-    ResourceLoader::load_path_remaps();
+    gResourceRemapper().load_translation_remaps(); //load remaps for resources
+    gResourceRemapper().load_path_remaps();
 
     audio_server->load_default_bus_layout();
 
@@ -1659,7 +1660,7 @@ bool Main::start() {
 
     } else if (!script.empty()) {
 
-        Ref<Script> script_res = dynamic_ref_cast<Script>(ResourceLoader::load(script));
+        Ref<Script> script_res = dynamic_ref_cast<Script>(gResourceManager().load(script));
         ERR_FAIL_COND_V_MSG(not script_res, false, "Can't load script: " + script);
 
         if (check_only) {
@@ -1725,8 +1726,8 @@ bool Main::start() {
         }
 #endif
 
-        ResourceLoader::add_custom_loaders();
-        ResourceSaver::add_custom_savers();
+        gResourceManager().add_custom_loaders();
+        gResourceManager().add_custom_savers();
         if (!project_manager && !editor) { // game
             if (!game_path.empty() || !script.empty()) {
                 if (script_debugger && script_debugger->is_remote()) {
@@ -1773,7 +1774,7 @@ bool Main::start() {
                         path = StringUtils::substr(path,1, path.length() - 1);
                     }
 
-                    RES res(ResourceLoader::load(path));
+                    RES res(gResourceManager().load(path));
                     ERR_CONTINUE_MSG(not res, "Can't autoload: " + path);
                     Node *n = nullptr;
                     if (res->is_class("PackedScene")) {
@@ -1955,7 +1956,7 @@ bool Main::start() {
         Crypto::load_default_certificates(GLOBAL_DEF("network/ssl/certificates", "").as<String>());
             if (!game_path.empty()) {
                 Node *scene = nullptr;
-                Ref<PackedScene> scenedata = dynamic_ref_cast<PackedScene>(ResourceLoader::load(local_game_path));
+                Ref<PackedScene> scenedata = dynamic_ref_cast<PackedScene>(gResourceManager().load(local_game_path));
                 if (scenedata)
                     scene = scenedata->instance();
 
@@ -2243,8 +2244,8 @@ void Main::cleanup() {
         script_debugger->idle_poll();
     }
 
-    ResourceLoader::remove_custom_loaders();
-    ResourceSaver::remove_custom_savers();
+    gResourceManager().remove_custom_loaders();
+    gResourceManager().remove_custom_savers();
 
     message_queue->flush();
     memdelete(message_queue);
@@ -2263,8 +2264,8 @@ void Main::cleanup() {
     OS::get_singleton()->_execpath = "";
     OS::get_singleton()->_local_clipboard = "";
 
-    ResourceLoader::clear_translation_remaps();
-    ResourceLoader::clear_path_remaps();
+    gResourceRemapper().clear_translation_remaps();
+    gResourceRemapper().clear_path_remaps();
 
     ScriptServer::finish_languages();
 

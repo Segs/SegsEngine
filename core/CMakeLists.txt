@@ -125,6 +125,8 @@ set(core_sources
     plugin_interfaces/ResourceImporterInterface.h
     plugin_interfaces/ResourceLoaderInterface.h
     plugin_interfaces/load_params.h
+	resource/resource_manager.h
+	resource/resource_manager.cpp
 
     class_db.cpp
     class_db.h

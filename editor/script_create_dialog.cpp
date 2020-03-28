@@ -290,7 +290,7 @@ void ScriptCreateDialog::_create_new() {
 
     Ref<Script> scr;
     if (!script_template.empty()) {
-        scr = dynamic_ref_cast<Script>(ResourceLoader::load(script_template));
+        scr = dynamic_ref_cast<Script>(gResourceManager().load(script_template));
         if (not scr) {
             alert->set_text(FormatSN(TTR("Error loading template '%s'").asCString(), script_template.c_str()));
             alert->popup_centered();
@@ -311,7 +311,7 @@ void ScriptCreateDialog::_create_new() {
     if (!is_built_in) {
         String lpath = ProjectSettings::get_singleton()->localize_path(file_path->get_text());
         scr->set_path(lpath);
-        Error err = ResourceSaver::save(lpath, scr, ResourceSaver::FLAG_CHANGE_PATH);
+        Error err = gResourceManager().save(lpath, scr, ResourceManager::FLAG_CHANGE_PATH);
         if (err != OK) {
             alert->set_text(TTR("Error - Could not create script in filesystem."));
             alert->popup_centered();
@@ -326,7 +326,7 @@ void ScriptCreateDialog::_create_new() {
 void ScriptCreateDialog::_load_exist() {
 
     String path = file_path->get_text();
-    RES p_script(ResourceLoader::load(path, "Script"));
+    RES p_script(gResourceManager().load(path, "Script"));
     if (not p_script) {
         alert->set_text(FormatSN(TTR("Error loading script from %s").asCString(), path.c_str()));
         alert->popup_centered();

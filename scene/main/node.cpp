@@ -2066,7 +2066,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 
     } else if ((p_flags & DUPLICATE_USE_INSTANCING) && !get_filename().empty()) {
 
-        Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
+        Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(gResourceManager().load(get_filename()));
         ERR_FAIL_COND_V(not res, nullptr);
         PackedGenEditState ges = GEN_EDIT_STATE_DISABLED;
 #ifdef TOOLS_ENABLED
@@ -2264,7 +2264,7 @@ void Node::_duplicate_and_reown(Node *p_new_parent, const HashMap<Node *, Node *
 
     if (!get_filename().empty()) {
 
-        Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(ResourceLoader::load(get_filename()));
+        Ref<PackedScene> res = dynamic_ref_cast<PackedScene>(gResourceManager().load(get_filename()));
         ERR_FAIL_COND(not res);
         node = res->instance();
         ERR_FAIL_COND(!node);

@@ -34,12 +34,12 @@
 #include "scene/main/scene_tree.h"
 #include "core/io/config_file.h"
 #include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 
@@ -565,7 +565,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
             String image_path = PathUtils::plus_file(save_path, mesh_name);
             Ref<Texture> texture;
 
-            if (ResourceLoader::import) {
+            if (g_import_func) {
 
                 bool srgb = false;
                 if (false && hdr) {
@@ -591,8 +591,8 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
                     config->save(image_path + ".import");
                 }
 
-                ResourceLoader::import(image_path);
-                texture = dynamic_ref_cast<Texture>(ResourceLoader::load(image_path)); // if already loaded, it will be updated on refocus?
+                g_import_func(image_path);
+                texture = dynamic_ref_cast<Texture>(gResourceManager().load(image_path)); // if already loaded, it will be updated on refocus?
             } else {
 
                 image_path += ".text";
@@ -609,7 +609,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
                 tex->create_from_image(image, tex_flags);
 
-                err = ResourceSaver::save(image_path, tex, ResourceSaver::FLAG_CHANGE_PATH);
+                err = gResourceManager().save(image_path, tex, ResourceManager::FLAG_CHANGE_PATH);
                 if (set_path) {
                     tex->set_path(image_path);
                 }

@@ -32,8 +32,8 @@
 
 #include "core/compressed_translation.h"
 #include "core/io/resource_saver.h"
-#include "core/list.h"
 #include "core/os/file_access.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_utils.h"
 #include "core/translation.h"
 
@@ -138,7 +138,7 @@ Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringVie
 
         String save_path = String(PathUtils::get_basename(p_source_file)) + "." + translation->get_locale() + ".translation";
 
-        ResourceSaver::save(save_path, xlt);
+        gResourceManager().save(save_path, xlt);
         if (r_gen_files) {
             r_gen_files->push_back(save_path);
         }

@@ -52,30 +52,11 @@ class recursive_mutex;
 }
 using Mutex = std::recursive_mutex;
 
-class _ResourceLoader : public Object {
-    GDCLASS(_ResourceLoader, Object)
+class _ResourceManager : public Object {
+    GDCLASS(_ResourceManager, Object)
     HAS_BINDS
 protected:
-    static _ResourceLoader *singleton;
-
-public:
-    static _ResourceLoader *get_singleton() { return singleton; }
-    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_type_hint = StringView());
-    INVOCABLE RES load(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false);
-    INVOCABLE PoolStringArray get_recognized_extensions_for_type(StringView p_type);
-    INVOCABLE void set_abort_on_missing_resources(bool p_abort);
-    INVOCABLE Vector<String> get_dependencies(StringView p_path);
-    INVOCABLE bool has_cached(StringView p_path);
-    INVOCABLE bool exists(StringView p_path, StringView p_type_hint = StringView());
-
-    _ResourceLoader();
-};
-
-class _ResourceSaver : public Object {
-    GDCLASS(_ResourceSaver, Object)
-    HAS_BINDS
-protected:
-    static _ResourceSaver *singleton;
+    static _ResourceManager*singleton;
 
 public:
     enum SaverFlags {
@@ -89,12 +70,19 @@ public:
         FLAG_REPLACE_SUBRESOURCE_PATHS = 64,
     };
 
-    static _ResourceSaver *get_singleton() { return singleton; }
+    static _ResourceManager*get_singleton() { return singleton; }
 
     INVOCABLE Error save(StringView p_path, const RES &p_resource, SaverFlags p_flags);
     INVOCABLE PoolVector<String> get_recognized_extensions(const RES &p_resource);
 
-    _ResourceSaver();
+    INVOCABLE Ref<ResourceInteractiveLoader> load_interactive(StringView p_path, StringView p_type_hint = StringView());
+    INVOCABLE RES load(StringView p_path, StringView p_type_hint = StringView(), bool p_no_cache = false);
+    INVOCABLE PoolStringArray get_recognized_extensions_for_type(StringView p_type);
+    INVOCABLE void set_abort_on_missing_resources(bool p_abort);
+    INVOCABLE Vector<String> get_dependencies(StringView p_path);
+    INVOCABLE bool has_cached(StringView p_path);
+    INVOCABLE bool exists(StringView p_path, StringView p_type_hint = StringView());
+    _ResourceManager();
 };
 
 class MainLoop;
