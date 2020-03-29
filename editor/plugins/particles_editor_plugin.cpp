@@ -34,6 +34,8 @@
 #include "core/io/resource_loader.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
+#include "core/resource/resource_manager.h"
+
 #include "editor/editor_node.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/scene_tree_dock.h"

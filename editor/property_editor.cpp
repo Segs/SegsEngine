@@ -43,6 +43,7 @@
 #include "core/pair.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor/array_property_edit.h"
 #include "editor/create_dialog.h"

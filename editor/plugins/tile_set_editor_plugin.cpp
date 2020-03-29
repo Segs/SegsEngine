@@ -34,6 +34,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"

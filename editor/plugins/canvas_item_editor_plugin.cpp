@@ -36,6 +36,7 @@
 #include "core/os/keyboard.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/animation_track_editor.h"
@@ -6024,7 +6025,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
 
     editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
 
-    for (int i = 0; i < selected_files.size(); i++) {
+    for (size_t i = 0; i < selected_files.size(); i++) {
         StringView  path = selected_files[i];
         RES res(gResourceManager().load(path));
         if (not res) {

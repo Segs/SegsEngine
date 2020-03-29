@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/create_dialog.h"

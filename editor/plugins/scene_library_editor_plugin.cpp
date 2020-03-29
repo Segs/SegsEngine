@@ -31,6 +31,7 @@
 #include "scene_library_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "core/string_formatter.h"

@@ -32,6 +32,7 @@
 
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "doc_data_compressed.gen.h"
 #include "editor/plugins/script_editor_plugin.h"

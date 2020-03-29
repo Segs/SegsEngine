@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/script_language.h"
 #include "core/string_builder.h"

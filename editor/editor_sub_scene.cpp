@@ -30,10 +30,11 @@
 
 #include "editor_sub_scene.h"
 
+#include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
 #include "scene/gui/margin_container.h"
 #include "scene/resources/packed_scene.h"
-#include "core/method_bind.h"
 
 IMPL_GDCLASS(EditorSubScene)
 

@@ -42,6 +42,7 @@
 //#include "core/map.h"
 #include "core/node_path.h"
 #include "core/hash_map.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"

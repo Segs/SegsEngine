@@ -33,6 +33,7 @@
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"

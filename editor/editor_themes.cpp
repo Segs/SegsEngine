@@ -37,6 +37,7 @@
 #include "core/io/resource_loader.h"
 #include "core/io/image_loader.h"
 #include "core/print_string.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_utils.inl"
 #include "plugins/formats/image/svg/image_loader_svg.h"
 #include "scene/resources/font.h"

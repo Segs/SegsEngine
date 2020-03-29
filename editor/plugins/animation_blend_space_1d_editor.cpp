@@ -34,6 +34,7 @@
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
+#include "core/resource/resource_manager.h"
 #include "editor/editor_scale.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/resources/font.h"

@@ -35,6 +35,7 @@
 #include "core/math/expression.h"
 #include "core/os/keyboard.h"
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"

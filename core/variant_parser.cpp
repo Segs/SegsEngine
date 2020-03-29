@@ -48,6 +48,7 @@
 #include "core/os/keyboard.h"
 #include "core/pool_vector.h"
 #include "core/property_info.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_utils.inl"
 #include "core/ustring.h"
 #include "core/variant.h"

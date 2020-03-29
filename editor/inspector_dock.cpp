@@ -30,14 +30,15 @@
 
 #include "inspector_dock.h"
 
-#include "create_dialog.h"
 #include "core/method_bind.h"
+#include "core/object_db.h"
+#include "core/resource/resource_manager.h"
+#include "create_dialog.h"
+#include "editor/animation_track_editor.h"
 #include "editor/editor_node.h"
 #include "editor/editor_path.h"
 #include "editor/editor_settings.h"
-#include "editor/animation_track_editor.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
-#include "core/object_db.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
 

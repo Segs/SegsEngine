@@ -59,7 +59,7 @@ public:
     GDScriptNativeClass(const StringName &p_name);
 };
 
-class GDScript : public Script {
+class GODOT_EXPORT GDScript : public Script {
 
     GDCLASS(GDScript,Script)
 

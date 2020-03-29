@@ -39,6 +39,7 @@
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "core/plugin_interfaces/PluginDeclarations.h"
 #include "core/print_string.h"
+#include "core/resource/resource_manager.h"
 #include "plugins/plugin_registry.h"
 
 #include "thirdparty/misc/hq2x.h"

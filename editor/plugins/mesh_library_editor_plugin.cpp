@@ -31,9 +31,11 @@
 #include "mesh_library_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
+#include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
-#include "core/string_formatter.h"
 #include "main/main.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/navigation_mesh_instance.h"
@@ -41,7 +43,6 @@
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "spatial_editor_plugin.h"
-#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(MeshLibraryEditor)
 IMPL_GDCLASS(MeshLibraryEditorPlugin)
