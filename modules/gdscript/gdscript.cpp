@@ -98,7 +98,7 @@ Object *GDScriptNativeClass::instance() {
     return ClassDB::instance(name);
 }
 
-GDScriptInstance *GDScript::_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error) {
+GDScriptInstance *GDScript::_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Callable::CallError &r_error) {
 
     /* STEP 1, CREATE */
 
@@ -129,7 +129,7 @@ GDScriptInstance *GDScript::_create_instance(const Variant **p_args, int p_argco
 
     initializer->call(instance, p_args, p_argcount, r_error);
 
-    if (r_error.error != Variant::CallError::CALL_OK) {
+    if (r_error.error != Callable::CallError::CALL_OK) {
         instance->script = Ref<GDScript>();
         instance->owner->set_script_instance(nullptr);
 #ifndef NO_THREADS
@@ -140,23 +140,23 @@ GDScriptInstance *GDScript::_create_instance(const Variant **p_args, int p_argco
         GDScriptLanguage::singleton->lock->unlock();
 #endif
 
-        ERR_FAIL_COND_V(r_error.error != Variant::CallError::CALL_OK, nullptr); // error constructing.
+        ERR_FAIL_COND_V(r_error.error != Callable::CallError::CALL_OK, nullptr); // error constructing.
     }
 
     //@TODO make thread safe
     return instance;
 }
 
-Variant GDScript::_new(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant GDScript::_new(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     /* STEP 1, CREATE */
 
     if (!valid) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
         return Variant();
     }
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
     REF ref;
     Object *owner = nullptr;
 
@@ -339,7 +339,7 @@ ScriptInstance *GDScript::instance_create(Object *p_this) {
         }
     }
 
-    Variant::CallError unchecked_error;
+    Callable::CallError unchecked_error;
     return _create_instance(nullptr, 0, p_this, object_cast<RefCounted>(p_this) != nullptr, unchecked_error);
 }
 
@@ -646,7 +646,7 @@ void GDScript::get_members(HashSet<StringName> *p_members) {
     }
 }
 
-Variant GDScript::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant GDScript::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     GDScript *top = this;
     while (top) {
@@ -986,18 +986,18 @@ bool GDScriptInstance::set(const StringName &p_name, const Variant &p_value) {
             const GDScript::MemberInfo *member = &E->second;
             if (member->setter) {
                 const Variant *val = &p_value;
-                Variant::CallError err;
+                Callable::CallError err;
                 call(member->setter, &val, 1, err);
-                if (err.error == Variant::CallError::CALL_OK) {
+                if (err.error == Callable::CallError::CALL_OK) {
                     return true; //function exists, call was successful
                 }
             } else {
                 if (!member->data_type.is_type(p_value)) {
                     // Try conversion
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     const Variant *value = &p_value;
                     Variant converted = Variant::construct(member->data_type.builtin_type, &value, 1, ce);
-                    if (ce.error == Variant::CallError::CALL_OK) {
+                    if (ce.error == Callable::CallError::CALL_OK) {
                         members[member->index] = converted;
                         return true;
                     } else {
@@ -1020,9 +1020,9 @@ bool GDScriptInstance::set(const StringName &p_name, const Variant &p_value) {
             Variant name = p_name;
             const Variant *args[2] = { &name, &p_value };
 
-            Variant::CallError err;
+            Callable::CallError err;
             Variant ret = E->second->call(this, (const Variant **)args, 2, err);
-            if (err.error == Variant::CallError::CALL_OK && ret.get_type() == VariantType::BOOL && ret.operator bool())
+            if (err.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::BOOL && ret.operator bool())
                 return true;
         }
         sptr = sptr->_base;
@@ -1040,9 +1040,9 @@ bool GDScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
             const Map<StringName, GDScript::MemberInfo>::const_iterator E = script->member_indices.find(p_name);
             if (E!=script->member_indices.end()) {
                 if (E->second.getter) {
-                    Variant::CallError err;
+                    Callable::CallError err;
                     r_ret = const_cast<GDScriptInstance *>(this)->call(E->second.getter, nullptr, 0, err);
-                    if (err.error == Variant::CallError::CALL_OK) {
+                    if (err.error == Callable::CallError::CALL_OK) {
                         return true;
                     }
                 }
@@ -1071,9 +1071,9 @@ bool GDScriptInstance::get(const StringName &p_name, Variant &r_ret) const {
                 Variant name = p_name;
                 const Variant *args[1] = { &name };
 
-                Variant::CallError err;
+                Callable::CallError err;
                 Variant ret = const_cast<GDScriptFunction *>(E->second)->call(const_cast<GDScriptInstance *>(this), (const Variant **)args, 1, err);
-                if (err.error == Variant::CallError::CALL_OK && ret.get_type() != VariantType::NIL) {
+                if (err.error == Callable::CallError::CALL_OK && ret.get_type() != VariantType::NIL) {
                     r_ret = ret;
                     return true;
                 }
@@ -1114,9 +1114,9 @@ void GDScriptInstance::get_property_list(Vector<PropertyInfo> *p_properties) con
         const Map<StringName, GDScriptFunction *>::const_iterator E = sptr->member_functions.find(GDScriptLanguage::get_singleton()->strings._get_property_list);
         if (E!=sptr->member_functions.end()) {
 
-            Variant::CallError err;
+            Callable::CallError err;
             Variant ret = const_cast<GDScriptFunction *>(E->second)->call(const_cast<GDScriptInstance *>(this), nullptr, 0, err);
-            if (err.error == Variant::CallError::CALL_OK) {
+            if (err.error == Callable::CallError::CALL_OK) {
 
                 ERR_FAIL_COND_MSG(ret.get_type() != VariantType::ARRAY, "Wrong type for _get_property_list, must be an array of dictionaries.");
 
@@ -1201,7 +1201,7 @@ bool GDScriptInstance::has_method(const StringName &p_method) const {
 
     return false;
 }
-Variant GDScriptInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant GDScriptInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     GDScript *sptr = script.get();
     while (sptr) {
@@ -1211,14 +1211,14 @@ Variant GDScriptInstance::call(const StringName &p_method, const Variant **p_arg
         }
         sptr = sptr->_base;
     }
-    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
     return Variant();
 }
 
 void GDScriptInstance::call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) {
 
     GDScript *sptr = script.get();
-    Variant::CallError ce;
+    Callable::CallError ce;
 
     while (sptr) {
         Map<StringName, GDScriptFunction *>::iterator E = sptr->member_functions.find(p_method);
@@ -1234,7 +1234,7 @@ void GDScriptInstance::_ml_call_reversed(GDScript *sptr, const StringName &p_met
     if (sptr->_base)
         _ml_call_reversed(sptr->_base, p_method, p_args, p_argcount);
 
-    Variant::CallError ce;
+    Callable::CallError ce;
 
     Map<StringName, GDScriptFunction *>::iterator E = sptr->member_functions.find(p_method);
     if (E!=sptr->member_functions.end()) {
@@ -1259,9 +1259,9 @@ void GDScriptInstance::notification(int p_notification) {
     while (sptr) {
         Map<StringName, GDScriptFunction *>::iterator E = sptr->member_functions.find(GDScriptLanguage::get_singleton()->strings._notification);
         if (E!=sptr->member_functions.end()) {
-            Variant::CallError err;
+            Callable::CallError err;
             E->second->call(this, args, 1, err);
-            if (err.error != Variant::CallError::CALL_OK) {
+            if (err.error != Callable::CallError::CALL_OK) {
                 //print error about notification call
             }
         }
@@ -1271,9 +1271,9 @@ void GDScriptInstance::notification(int p_notification) {
 
 String GDScriptInstance::to_string(bool *r_valid) {
     if (has_method(CoreStringNames::get_singleton()->_to_string)) {
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = call(CoreStringNames::get_singleton()->_to_string, nullptr, 0, ce);
-        if (ce.error == Variant::CallError::CALL_OK) {
+        if (ce.error == Callable::CallError::CALL_OK) {
             if (ret.get_type() != VariantType::STRING) {
                 if (r_valid)
                     *r_valid = false;

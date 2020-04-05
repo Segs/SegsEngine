@@ -1710,7 +1710,7 @@ bool CSharpInstance::has_method(const StringName &p_method) const {
     return false;
 }
 
-Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
     if (!script) {
         ERR_FAIL_V(Variant());
     }
@@ -1720,7 +1720,7 @@ Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args,
     MonoObject *mono_object = get_mono_object();
 
     if (!mono_object) {
-        r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
+        r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
         ERR_FAIL_V(Variant());
     }
 
@@ -1732,7 +1732,7 @@ Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args,
         if (method) {
             MonoObject *return_value = method->invoke(mono_object, p_args);
 
-            r_error.error = Variant::CallError::CALL_OK;
+            r_error.error = Callable::CallError::CALL_OK;
 
             if (return_value) {
                 return GDMonoMarshal::mono_object_to_variant(return_value);
@@ -1744,7 +1744,7 @@ Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args,
         top = top->get_parent_class();
     }
 
-    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
 
     return Variant();
 }
@@ -2710,11 +2710,11 @@ void CSharpScript::_clear() {
     script_class = nullptr;
 }
 
-Variant CSharpScript::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant CSharpScript::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (unlikely(GDMono::get_singleton() == nullptr)) {
         // Probably not the best error but eh.
-        r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
+        r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
         return Variant();
     }
 
@@ -2910,7 +2910,7 @@ StringName CSharpScript::get_instance_base_type() const {
         return StringName();
 }
 
-CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error) {
+CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Callable::CallError &r_error) {
 
     GD_MONO_ASSERT_THREAD_ATTACHED;
     /* STEP 1, CREATE */
@@ -2973,7 +2973,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
         CRASH_COND(die == true);
 
         p_owner->set_script_instance(nullptr);
-        r_error.error = Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL;
+        r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
         ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
     }
 
@@ -2999,14 +2999,14 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
     return instance;
 }
 
-Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant CSharpScript::_new(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (!valid) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
         return Variant();
     }
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_NULL_V(native, Variant());
 
@@ -3056,7 +3056,7 @@ ScriptInstance *CSharpScript::instance_create(Object *p_this) {
     }
 
     GD_MONO_SCOPE_THREAD_ATTACH;
-    Variant::CallError unchecked_error;
+    Callable::CallError unchecked_error;
     return _create_instance(nullptr, 0, p_this, object_cast<RefCounted>(p_this) != nullptr, unchecked_error);
 }
 

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  vehicle_body.h                                                       */
+/*  vehicle_body_3d.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -32,13 +32,13 @@
 
 #include "scene/3d/physics_body.h"
 
-class VehicleBody;
+class VehicleBody3D;
 
-class VehicleWheel : public Spatial {
+class VehicleWheel : public Node3D {
 
-    GDCLASS(VehicleWheel,Spatial)
+    GDCLASS(VehicleWheel,Node3D)
 
-    friend class VehicleBody;
+    friend class VehicleBody3D;
 
     Transform m_worldTransform;
     Transform local_xform;
@@ -60,7 +60,7 @@ class VehicleWheel : public Spatial {
     real_t m_maxSuspensionForce = 6000;
     bool m_bIsFrontWheel = false;
 
-    VehicleBody *body=nullptr;
+    VehicleBody3D *body=nullptr;
 
     //btVector3	m_wheelAxleCS; // const or modified by steering ?
 
@@ -150,9 +150,9 @@ public:
     VehicleWheel();
 };
 
-class VehicleBody : public RigidBody {
+class VehicleBody3D : public RigidBody {
 
-    GDCLASS(VehicleBody,RigidBody)
+    GDCLASS(VehicleBody3D,RigidBody)
 
     float engine_force;
     float brake;
@@ -205,5 +205,5 @@ public:
     void set_steering(float p_steering);
     float get_steering() const;
 
-    VehicleBody();
+    VehicleBody3D();
 };

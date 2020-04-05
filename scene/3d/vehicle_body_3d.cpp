@@ -28,14 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "vehicle_body.h"
+#include "vehicle_body_3d.h"
+
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 
 #define ROLLING_INFLUENCE_FIX
 
 IMPL_GDCLASS(VehicleWheel)
-IMPL_GDCLASS(VehicleBody)
+IMPL_GDCLASS(VehicleBody3D)
 
 class btVehicleJacobianEntry {
 public:
@@ -87,7 +88,7 @@ void VehicleWheel::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        VehicleBody *cb = object_cast<VehicleBody>(get_parent());
+        VehicleBody3D *cb = object_cast<VehicleBody3D>(get_parent());
         if (!cb)
             return;
         body = cb;
@@ -100,7 +101,7 @@ void VehicleWheel::_notification(int p_what) {
     }
     else if (p_what == NOTIFICATION_EXIT_TREE) {
 
-        VehicleBody *cb = object_cast<VehicleBody>(get_parent());
+        VehicleBody3D *cb = object_cast<VehicleBody3D>(get_parent());
         if (!cb)
             return;
         cb->wheels.erase_first(this);
@@ -109,8 +110,8 @@ void VehicleWheel::_notification(int p_what) {
 }
 
 StringName VehicleWheel::get_configuration_warning() const {
-    if (!object_cast<VehicleBody>(get_parent())) {
-        return TTR("VehicleWheel serves to provide a wheel system to a VehicleBody. Please use it as a child of a VehicleBody.");
+    if (!object_cast<VehicleBody3D>(get_parent())) {
+        return TTR("VehicleWheel serves to provide a wheel system to a VehicleBody3D. Please use it as a child of a VehicleBody3D.");
     }
 
     return StringName();
@@ -286,7 +287,7 @@ void VehicleWheel::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
-    ADD_GROUP("VehicleBody Motion", "");
+    ADD_GROUP("VehicleBody3D Motion", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_traction"), "set_use_as_traction", "is_used_as_traction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_steering"), "set_use_as_steering", "is_used_as_steering");
     ADD_GROUP("Wheel", "wheel_");
@@ -367,7 +368,7 @@ VehicleWheel::VehicleWheel() {
     body = nullptr;
 }
 
-void VehicleBody::_update_wheel_transform(VehicleWheel &wheel, PhysicsDirectBodyState *s) {
+void VehicleBody3D::_update_wheel_transform(VehicleWheel &wheel, PhysicsDirectBodyState *s) {
 
     wheel.m_raycastInfo.m_isInContact = false;
 
@@ -384,7 +385,7 @@ void VehicleBody::_update_wheel_transform(VehicleWheel &wheel, PhysicsDirectBody
     wheel.m_raycastInfo.m_wheelAxleWS = chassisTrans.get_basis().xform(wheel.m_wheelAxleCS).normalized();
 }
 
-void VehicleBody::_update_wheel(int p_idx, PhysicsDirectBodyState *s) {
+void VehicleBody3D::_update_wheel(int p_idx, PhysicsDirectBodyState *s) {
 
     VehicleWheel &wheel = *wheels[p_idx];
     _update_wheel_transform(wheel, s);
@@ -409,7 +410,7 @@ void VehicleBody::_update_wheel(int p_idx, PhysicsDirectBodyState *s) {
             wheel.m_raycastInfo.m_hardPointWS + wheel.m_raycastInfo.m_wheelDirectionWS * wheel.m_raycastInfo.m_suspensionLength);
 }
 
-real_t VehicleBody::_ray_cast(int p_idx, PhysicsDirectBodyState *s) {
+real_t VehicleBody3D::_ray_cast(int p_idx, PhysicsDirectBodyState *s) {
 
     VehicleWheel &wheel = *wheels[p_idx];
 
@@ -492,7 +493,7 @@ real_t VehicleBody::_ray_cast(int p_idx, PhysicsDirectBodyState *s) {
     return depth;
 }
 
-void VehicleBody::_update_suspension(PhysicsDirectBodyState *s) {
+void VehicleBody3D::_update_suspension(PhysicsDirectBodyState *s) {
 
     real_t chassisMass = mass;
 
@@ -537,7 +538,7 @@ void VehicleBody::_update_suspension(PhysicsDirectBodyState *s) {
 }
 
 //bilateral constraint between two dynamic objects
-void VehicleBody::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vector3 &pos1,
+void VehicleBody3D::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vector3 &pos1,
         PhysicsBody *body2, const Vector3 &pos2, const Vector3 &normal, real_t &impulse, const real_t p_rollInfluence) {
 
     real_t normalLenSqr = normal.length_squared();
@@ -615,7 +616,7 @@ void VehicleBody::_resolve_single_bilateral(PhysicsDirectBodyState *s, const Vec
 #endif
 }
 
-VehicleBody::btVehicleWheelContactPoint::btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse) :
+VehicleBody3D::btVehicleWheelContactPoint::btVehicleWheelContactPoint(PhysicsDirectBodyState *s, PhysicsBody *body1, const Vector3 &frictionPosWorld, const Vector3 &frictionDirectionWorld, real_t maxImpulse) :
         m_s(s),
         m_body1(body1),
         m_frictionPositionWorld(frictionPosWorld),
@@ -646,7 +647,7 @@ VehicleBody::btVehicleWheelContactPoint::btVehicleWheelContactPoint(PhysicsDirec
     m_jacDiagABInv = relaxation / (denom0 + denom1);
 }
 
-real_t VehicleBody::_calc_rolling_friction(btVehicleWheelContactPoint &contactPoint) {
+real_t VehicleBody3D::_calc_rolling_friction(btVehicleWheelContactPoint &contactPoint) {
 
     real_t j1 = 0.f;
 
@@ -677,7 +678,7 @@ real_t VehicleBody::_calc_rolling_friction(btVehicleWheelContactPoint &contactPo
 }
 
 static const real_t sideFrictionStiffness2 = real_t(1.0);
-void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
+void VehicleBody3D::_update_friction(PhysicsDirectBodyState *s) {
 
     //calculate the impulse, so that the wheels don't move sidewards
     int numWheel = wheels.size();
@@ -829,7 +830,7 @@ void VehicleBody::_update_friction(PhysicsDirectBodyState *s) {
     }
 }
 
-void VehicleBody::_direct_state_changed(Object *p_state) {
+void VehicleBody3D::_direct_state_changed(Object *p_state) {
 
     RigidBody::_direct_state_changed(p_state);
 
@@ -899,7 +900,7 @@ void VehicleBody::_direct_state_changed(Object *p_state) {
     state = nullptr;
 }
 
-void VehicleBody::set_engine_force(float p_engine_force) {
+void VehicleBody3D::set_engine_force(float p_engine_force) {
 
     engine_force = p_engine_force;
     for (int i = 0; i < wheels.size(); i++) {
@@ -909,12 +910,12 @@ void VehicleBody::set_engine_force(float p_engine_force) {
     }
 }
 
-float VehicleBody::get_engine_force() const {
+float VehicleBody3D::get_engine_force() const {
 
     return engine_force;
 }
 
-void VehicleBody::set_brake(float p_brake) {
+void VehicleBody3D::set_brake(float p_brake) {
 
     brake = p_brake;
     for (int i = 0; i < wheels.size(); i++) {
@@ -922,12 +923,12 @@ void VehicleBody::set_brake(float p_brake) {
         wheelInfo.m_brake = p_brake;
     }
 }
-float VehicleBody::get_brake() const {
+float VehicleBody3D::get_brake() const {
 
     return brake;
 }
 
-void VehicleBody::set_steering(float p_steering) {
+void VehicleBody3D::set_steering(float p_steering) {
 
     m_steeringValue = p_steering;
     for (int i = 0; i < wheels.size(); i++) {
@@ -936,21 +937,21 @@ void VehicleBody::set_steering(float p_steering) {
             wheelInfo.m_steering = p_steering;
     }
 }
-float VehicleBody::get_steering() const {
+float VehicleBody3D::get_steering() const {
 
     return m_steeringValue;
 }
 
-void VehicleBody::_bind_methods() {
+void VehicleBody3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_engine_force", {"engine_force"}), &VehicleBody::set_engine_force);
-    MethodBinder::bind_method(D_METHOD("get_engine_force"), &VehicleBody::get_engine_force);
+    MethodBinder::bind_method(D_METHOD("set_engine_force", {"engine_force"}), &VehicleBody3D::set_engine_force);
+    MethodBinder::bind_method(D_METHOD("get_engine_force"), &VehicleBody3D::get_engine_force);
 
-    MethodBinder::bind_method(D_METHOD("set_brake", {"brake"}), &VehicleBody::set_brake);
-    MethodBinder::bind_method(D_METHOD("get_brake"), &VehicleBody::get_brake);
+    MethodBinder::bind_method(D_METHOD("set_brake", {"brake"}), &VehicleBody3D::set_brake);
+    MethodBinder::bind_method(D_METHOD("get_brake"), &VehicleBody3D::get_brake);
 
-    MethodBinder::bind_method(D_METHOD("set_steering", {"steering"}), &VehicleBody::set_steering);
-    MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleBody::get_steering);
+    MethodBinder::bind_method(D_METHOD("set_steering", {"steering"}), &VehicleBody3D::set_steering);
+    MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleBody3D::get_steering);
 
     ADD_GROUP("Motion", "");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
@@ -958,7 +959,7 @@ void VehicleBody::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
 }
 
-VehicleBody::VehicleBody() {
+VehicleBody3D::VehicleBody3D() {
 
     m_pitchControl = 0;
     m_currentVehicleSpeedKmHour = real_t(0.);

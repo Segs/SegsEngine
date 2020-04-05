@@ -283,7 +283,7 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
         }
     }
 
-    Spatial *s = object_cast<Spatial>(p_at_node);
+    Node3D *s = object_cast<Node3D>(p_at_node);
 
     if (!mi && s) {
         Array meshes = p_at_node->call_va("get_bake_meshes");

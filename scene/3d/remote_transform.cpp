@@ -56,7 +56,7 @@ void RemoteTransform::_update_remote() {
     if (!cache)
         return;
 
-    Spatial *n = object_cast<Spatial>(ObjectDB::get_instance(cache));
+    Node3D *n = object_cast<Node3D>(ObjectDB::get_instance(cache));
     if (!n)
         return;
 
@@ -186,8 +186,8 @@ void RemoteTransform::force_update_cache() {
 
 StringName RemoteTransform::get_configuration_warning() const {
 
-    if (!has_node(remote_node) || !object_cast<Spatial>(get_node(remote_node))) {
-        return TTR("The \"Remote Path\" property must point to a valid Spatial or Spatial-derived node to work.");
+    if (!has_node(remote_node) || !object_cast<Node3D>(get_node(remote_node))) {
+        return TTR("The \"Remote Path\" property must point to a valid Node3D or Node3D-derived node to work.");
     }
 
     return StringName();
@@ -209,7 +209,7 @@ void RemoteTransform::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_update_scale", {"update_remote_scale"}), &RemoteTransform::set_update_scale);
     MethodBinder::bind_method(D_METHOD("get_update_scale"), &RemoteTransform::get_update_scale);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "remote_path", PropertyHint::NodePathValidTypes, "Spatial"), "set_remote_node", "get_remote_node");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "remote_path", PropertyHint::NodePathValidTypes, "Node3D"), "set_remote_node", "get_remote_node");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_global_coordinates"), "set_use_global_coordinates", "get_use_global_coordinates");
 
     ADD_GROUP("Update", "update_");

@@ -265,9 +265,9 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
         }
     }
 #endif
-    if (object_cast<Spatial>(p_node)) {
+    if (object_cast<Node3D>(p_node)) {
 
-        Spatial *spatial = object_cast<Spatial>(p_node);
+        Node3D *spatial = object_cast<Node3D>(p_node);
         p_accumulated_transform = p_accumulated_transform * spatial->get_transform();
     }
 
@@ -465,7 +465,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
         p_node->get_tree()->get_nodes_in_group(p_nav_mesh->get_source_group_name(), &parse_nodes);
     }
 
-    Transform navmesh_xform = object_cast<Spatial>(p_node)->get_transform().affine_inverse();
+    Transform navmesh_xform = object_cast<Node3D>(p_node)->get_transform().affine_inverse();
     for (Node * E : parse_nodes) {
         int geometry_type = p_nav_mesh->get_parsed_geometry_type();
         uint32_t collision_mask = p_nav_mesh->get_collision_mask();

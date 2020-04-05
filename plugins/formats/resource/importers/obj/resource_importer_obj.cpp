@@ -35,7 +35,7 @@
 #include "core/print_string.h"
 #include "core/resource/resource_manager.h"
 #include "scene/3d/mesh_instance.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/texture.h"
@@ -441,7 +441,7 @@ Node *ResourceImporterOBJ::import_scene(StringView p_path, uint32_t p_flags, int
         return nullptr;
     }
 
-    Spatial *scene = memnew(Spatial);
+    Node3D *scene = memnew(Node3D);
 
     for (const Ref<Mesh> &E : meshes) {
 

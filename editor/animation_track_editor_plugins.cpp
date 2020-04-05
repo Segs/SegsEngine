@@ -37,7 +37,7 @@
 #include "editor/audio_stream_preview.h"
 #include "editor_resource_preview.h"
 #include "editor_scale.h"
-#include "scene/2d/animated_sprite.h"
+#include "scene/2d/animated_sprite_2d.h"
 #include "scene/2d/sprite.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/animation/animation_player.h"
@@ -395,7 +395,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         if (vframes > 1) {
             size.y /= vframes;
         }
-    } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
+    } else if (object_cast<AnimatedSprite2D>(object) || object_cast<AnimatedSprite3D>(object)) {
 
         Ref<SpriteFrames> sf(object->call_va("get_sprite_frames"));
         if (not sf) {
@@ -489,7 +489,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
         region.position.x += region.size.x * coords.x;
         region.position.y += region.size.y * coords.y;
 
-    } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
+    } else if (object_cast<AnimatedSprite2D>(object) || object_cast<AnimatedSprite3D>(object)) {
 
         Ref<SpriteFrames> sf(object->call_va("get_sprite_frames"));
         if (not sf) {

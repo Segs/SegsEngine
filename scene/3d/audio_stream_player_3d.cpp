@@ -31,7 +31,7 @@
 #include "audio_stream_player_3d.h"
 #include "core/engine.h"
 #include "core/object_tooling.h"
-#include "scene/3d/area.h"
+#include "scene/3d/area_3d.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/listener.h"
 #include "scene/main/viewport.h"
@@ -401,13 +401,13 @@ void AudioStreamPlayer3D::_notification(int p_what) {
             PhysicsDirectSpaceState::ShapeResult sr[MAX_INTERSECT_AREAS];
 
             int areas = space_state->intersect_point(global_pos, sr, MAX_INTERSECT_AREAS, HashSet<RID>(), area_mask, false, true);
-            Area *area = nullptr;
+            Area3D *area = nullptr;
 
             for (int i = 0; i < areas; i++) {
                 if (!sr[i].collider)
                     continue;
 
-                Area *tarea = object_cast<Area>(sr[i].collider);
+                Area3D *tarea = object_cast<Area3D>(sr[i].collider);
                 if (!tarea)
                     continue;
 
@@ -428,7 +428,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                     continue;
 
                 bool listener_is_camera = true;
-                Spatial *listener_node = camera;
+                Node3D *listener_node = camera;
 
                 Listener *listener = vp->get_listener();
                 if (listener) {

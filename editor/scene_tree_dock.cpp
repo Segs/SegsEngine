@@ -396,8 +396,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 if (ClassDB::is_parent_class(current_edited_scene_root->get_class_name(), "Node2D"))
                     preferred = "Node2D";
-                else if (ClassDB::is_parent_class(current_edited_scene_root->get_class_name(), "Spatial"))
-                    preferred = "Spatial";
+                else if (ClassDB::is_parent_class(current_edited_scene_root->get_class_name(), "Node3D"))
+                    preferred = "Node3D";
             }
             create_dialog->set_preferred_search_result_type(preferred);
             create_dialog->popup_create(true);
@@ -1003,7 +1003,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             } else {
                 switch (p_tool) {
                     case TOOL_CREATE_2D_SCENE: new_node = memnew(Node2D); break;
-                    case TOOL_CREATE_3D_SCENE: new_node = memnew(Spatial); break;
+                    case TOOL_CREATE_3D_SCENE: new_node = memnew(Node3D); break;
                     case TOOL_CREATE_USER_INTERFACE: {
                         Control *node = memnew(Control);
                         node->set_anchors_and_margins_preset(PRESET_WIDE); //more useful for resizable UIs.
@@ -1122,7 +1122,7 @@ void SceneTreeDock::_notification(int p_what) {
             button_3d = memnew(Button);
             beginner_node_shortcuts->add_child(button_3d);
             button_3d->set_text(TTR("3D Scene"));
-            button_3d->set_button_icon(get_icon("Spatial", "EditorIcons"));
+            button_3d->set_button_icon(get_icon("Node3D", "EditorIcons"));
             button_3d->connect("pressed", this, "_tool_selected", make_binds(TOOL_CREATE_3D_SCENE, false));
 
             Button *button_ui = memnew(Button);
@@ -1625,8 +1625,8 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
         if (p_keep_global_xform) {
             if (object_cast<Node2D>(node))
                 editor_data->get_undo_redo().add_do_method(node, "set_global_transform", object_cast<Node2D>(node)->get_global_transform());
-            if (object_cast<Spatial>(node))
-                editor_data->get_undo_redo().add_do_method(node, "set_global_transform", object_cast<Spatial>(node)->get_global_transform());
+            if (object_cast<Node3D>(node))
+                editor_data->get_undo_redo().add_do_method(node, "set_global_transform", object_cast<Node3D>(node)->get_global_transform());
             if (object_cast<Control>(node))
                 editor_data->get_undo_redo().add_do_method(node, "set_global_position", object_cast<Control>(node)->get_global_position());
         }
@@ -1667,8 +1667,8 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
         if (p_keep_global_xform) {
             if (object_cast<Node2D>(node))
                 editor_data->get_undo_redo().add_undo_method(node, "set_transform", object_cast<Node2D>(node)->get_transform());
-            if (object_cast<Spatial>(node))
-                editor_data->get_undo_redo().add_undo_method(node, "set_transform", object_cast<Spatial>(node)->get_transform());
+            if (object_cast<Node3D>(node))
+                editor_data->get_undo_redo().add_undo_method(node, "set_transform", object_cast<Node3D>(node)->get_transform());
             if (object_cast<Control>(node))
                 editor_data->get_undo_redo().add_undo_method(node, "set_position", object_cast<Control>(node)->get_position());
         }

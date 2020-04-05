@@ -407,7 +407,7 @@ public:
 
         } canvas_item;
 
-        struct Spatial {
+        struct Node3D {
 
             enum BlendMode {
                 BLEND_MODE_MIX,

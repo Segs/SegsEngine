@@ -30,16 +30,16 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/spatial_velocity_tracker.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/environment.h"
 
 struct Frustum;
 
-class GODOT_EXPORT Camera : public Spatial {
+class GODOT_EXPORT Camera : public Node3D {
 
-    GDCLASS(Camera,Spatial)
+    GDCLASS(Camera,Node3D)
 
 public:
     enum Projection {

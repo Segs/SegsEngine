@@ -48,7 +48,7 @@
 			<return type="RID">
 			</return>
 			<description>
-				Creates an [Area].
+                Creates an [Area3D].
 			</description>
 		</method>
 		<method name="area_get_object_instance_id" qualifiers="const">

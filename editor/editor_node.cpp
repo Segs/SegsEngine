@@ -1092,7 +1092,7 @@ void EditorNode::_find_node_types(Node *p_node, int &count_2d, int &count_3d) {
 
     if (p_node->is_class("CanvasItem"))
         count_2d++;
-    else if (p_node->is_class("Spatial"))
+    else if (p_node->is_class("Node3D"))
         count_3d++;
 
     for (int i = 0; i < p_node->get_child_count(); i++)
@@ -2763,10 +2763,10 @@ void EditorNode::_tool_menu_option(int p_idx) {
                 Object *handler = ObjectDB::get_instance(params[0]);
                 StringName callback = params[1];
                 Variant *ud = &params[2];
-                Variant::CallError ce;
+                Callable::CallError ce;
 
                 handler->call(callback, (const Variant **)&ud, 1, ce);
-                if (ce.error != Variant::CallError::CALL_OK) {
+                if (ce.error != Callable::CallError::CALL_OK) {
                     String err = Variant::get_call_error_text(handler, callback, (const Variant **)&ud, 1, ce);
                     ERR_PRINT("Error calling function from tool menu: " + err);
                 }

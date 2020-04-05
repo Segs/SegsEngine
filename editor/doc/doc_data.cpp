@@ -377,7 +377,7 @@ void DocData::generate(bool p_basic_types) {
             if (skip_setter_getter_methods && setters_getters.contains(E.name)) {
                 // Don't skip parametric setters and getters, i.e. method which require
                 // one or more parameters to define what property should be set or retrieved.
-                // E.g. CPUParticles::set_param(Parameter param, float value).
+                // E.g. CPUParticles3D::set_param(Parameter param, float value).
                 if (E.arguments.empty() /* getter */ || (E.arguments.size() == 1 && E.return_val.type == VariantType::NIL) /* setter */) {
                     continue;
                 }
@@ -534,7 +534,7 @@ void DocData::generate(bool p_basic_types) {
         ClassDoc &c = class_list[cname];
         c.name = cname;
 
-        Variant::CallError cerror;
+        Callable::CallError cerror;
         Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
 
         Vector<MethodInfo> method_list;

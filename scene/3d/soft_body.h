@@ -70,7 +70,7 @@ public:
     struct PinnedPoint {
         int point_index;
         NodePath spatial_attachment_path;
-        Spatial *spatial_attachment; // Cache
+        Node3D *spatial_attachment; // Cache
         Vector3 offset;
 
         PinnedPoint();

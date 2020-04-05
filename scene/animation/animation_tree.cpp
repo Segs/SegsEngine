@@ -620,7 +620,7 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                     } break;
                     case Animation::TYPE_TRANSFORM: {
 
-                        Spatial *spatial = object_cast<Spatial>(child);
+                        Node3D *spatial = object_cast<Node3D>(child);
 
                         if (!spatial) {
                             ERR_PRINT("AnimationTree: '" + String(E) + "', transform track does not point to spatial:  '" + String(path) + "'");

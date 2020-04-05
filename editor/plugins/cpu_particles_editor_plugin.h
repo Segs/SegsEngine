@@ -31,7 +31,7 @@
 #pragma once
 
 #include "editor/plugins/particles_editor_plugin.h"
-#include "scene/3d/cpu_particles.h"
+#include "scene/3d/cpu_particles_3d.h"
 
 class CPUParticlesEditor : public ParticlesEditorBase {
 
@@ -46,7 +46,7 @@ class CPUParticlesEditor : public ParticlesEditorBase {
 
     };
 
-    CPUParticles *node;
+    CPUParticles3D *node;
 
     void _menu_option(int);
 
@@ -60,7 +60,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(CPUParticles *p_particles);
+    void edit(CPUParticles3D *p_particles);
     CPUParticlesEditor();
 };
 

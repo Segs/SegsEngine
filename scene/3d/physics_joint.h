@@ -32,11 +32,11 @@
 #define PHYSICS_JOINT_H
 
 #include "scene/3d/physics_body.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 
-class Joint : public Spatial {
+class Joint : public Node3D {
 
-	GDCLASS(Joint,Spatial)
+	GDCLASS(Joint,Node3D)
 
 	RID ba, bb;
 

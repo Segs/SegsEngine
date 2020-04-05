@@ -28,13 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VECTOR3I_H
-#define VECTOR3I_H
+#pragma once
 
 #include "core/typedefs.h"
-#include "core/ustring.h"
+#include "core/error_macros.h"
+#include "core/forward_decls.h"
 
-struct Vector3i {
+struct GODOT_EXPORT Vector3i {
 
 	enum Axis {
 		AXIS_X,
@@ -75,37 +75,37 @@ struct Vector3i {
 
 	/* Operators */
 
-	_FORCE_INLINE_ Vector3i &operator+=(const Vector3i &p_v);
-	_FORCE_INLINE_ Vector3i operator+(const Vector3i &p_v) const;
-	_FORCE_INLINE_ Vector3i &operator-=(const Vector3i &p_v);
-	_FORCE_INLINE_ Vector3i operator-(const Vector3i &p_v) const;
-	_FORCE_INLINE_ Vector3i &operator*=(const Vector3i &p_v);
-	_FORCE_INLINE_ Vector3i operator*(const Vector3i &p_v) const;
-	_FORCE_INLINE_ Vector3i &operator/=(const Vector3i &p_v);
-	_FORCE_INLINE_ Vector3i operator/(const Vector3i &p_v) const;
+    _FORCE_INLINE_ Vector3i &operator+=(const Vector3i &p_v);
+    _FORCE_INLINE_ Vector3i operator+(const Vector3i &p_v) const;
+    _FORCE_INLINE_ Vector3i &operator-=(const Vector3i &p_v);
+    _FORCE_INLINE_ Vector3i operator-(const Vector3i &p_v) const;
+    _FORCE_INLINE_ Vector3i &operator*=(const Vector3i &p_v);
+    _FORCE_INLINE_ Vector3i operator*(const Vector3i &p_v) const;
+    _FORCE_INLINE_ Vector3i &operator/=(const Vector3i &p_v);
+    _FORCE_INLINE_ Vector3i operator/(const Vector3i &p_v) const;
 
-	_FORCE_INLINE_ Vector3i &operator*=(int32_t p_scalar);
-	_FORCE_INLINE_ Vector3i operator*(int32_t p_scalar) const;
-	_FORCE_INLINE_ Vector3i &operator/=(int32_t p_scalar);
-	_FORCE_INLINE_ Vector3i operator/(int32_t p_scalar) const;
+    _FORCE_INLINE_ Vector3i &operator*=(int32_t p_scalar);
+    _FORCE_INLINE_ Vector3i operator*(int32_t p_scalar) const;
+    _FORCE_INLINE_ Vector3i &operator/=(int32_t p_scalar);
+    _FORCE_INLINE_ Vector3i operator/(int32_t p_scalar) const;
 
-	_FORCE_INLINE_ Vector3i operator-() const;
+    _FORCE_INLINE_ Vector3i operator-() const;
 
-	_FORCE_INLINE_ bool operator==(const Vector3i &p_v) const;
-	_FORCE_INLINE_ bool operator!=(const Vector3i &p_v) const;
-	_FORCE_INLINE_ bool operator<(const Vector3i &p_v) const;
-	_FORCE_INLINE_ bool operator<=(const Vector3i &p_v) const;
-	_FORCE_INLINE_ bool operator>(const Vector3i &p_v) const;
-	_FORCE_INLINE_ bool operator>=(const Vector3i &p_v) const;
+    _FORCE_INLINE_ bool operator==(const Vector3i &p_v) const;
+    _FORCE_INLINE_ bool operator!=(const Vector3i &p_v) const;
+    _FORCE_INLINE_ bool operator<(const Vector3i &p_v) const;
+    _FORCE_INLINE_ bool operator<=(const Vector3i &p_v) const;
+    _FORCE_INLINE_ bool operator>(const Vector3i &p_v) const;
+    _FORCE_INLINE_ bool operator>=(const Vector3i &p_v) const;
 
 	operator String() const;
 
-	_FORCE_INLINE_ Vector3i(int32_t p_x, int32_t p_y, int32_t p_z) {
+    _FORCE_INLINE_ Vector3i(int32_t p_x, int32_t p_y, int32_t p_z) {
 		x = p_x;
 		y = p_y;
 		z = p_z;
 	}
-	_FORCE_INLINE_ Vector3i() { x = y = z = 0; }
+    _FORCE_INLINE_ Vector3i() { x = y = z = 0; }
 };
 
 Vector3i Vector3i::abs() const {
@@ -268,5 +268,3 @@ void Vector3i::zero() {
 
 	x = y = z = 0;
 }
-
-#endif // VECTOR3I_H

@@ -40,7 +40,7 @@ class CSGShapeSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
 	GDCLASS(CSGShapeSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-	bool has_gizmo(Spatial *p_spatial) override;
+	bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
 	int get_priority() const override;
 	bool is_selectable_when_hidden() const override;

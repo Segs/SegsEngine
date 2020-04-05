@@ -76,10 +76,10 @@ void EditorScript::_run() {
         return;
     }
 
-    Variant::CallError ce;
-    ce.error = Variant::CallError::CALL_OK;
+    Callable::CallError ce;
+    ce.error = Callable::CallError::CALL_OK;
     get_script_instance()->call("_run", nullptr, 0, ce);
-    if (ce.error != Variant::CallError::CALL_OK) {
+    if (ce.error != Callable::CallError::CALL_OK) {
         EditorNode::add_io_error(FormatSN(
                 TTR("Couldn't run script:\n %s\nDid you forget the '_run' method?").asCString(), s->get_path().c_str()));
     }

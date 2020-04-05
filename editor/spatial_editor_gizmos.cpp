@@ -39,7 +39,7 @@
 #include "scene/3d/baked_lightmap.h"
 #include "scene/3d/collision_polygon.h"
 #include "scene/3d/collision_shape.h"
-#include "scene/3d/cpu_particles.h"
+#include "scene/3d/cpu_particles_3d.h"
 #include "scene/3d/gi_probe.h"
 #include "scene/3d/light.h"
 #include "scene/3d/listener.h"
@@ -49,13 +49,13 @@
 #include "scene/3d/physics_joint.h"
 #include "scene/3d/portal.h"
 #include "scene/3d/position_3d.h"
-#include "scene/3d/ray_cast.h"
+#include "scene/3d/ray_cast_3d.h"
 #include "scene/3d/reflection_probe.h"
 #include "scene/3d/room_instance.h"
 #include "scene/3d/soft_body.h"
 #include "scene/3d/spring_arm.h"
 #include "scene/3d/sprite_3d.h"
-#include "scene/3d/vehicle_body.h"
+#include "scene/3d/vehicle_body_3d.h"
 #include "scene/3d/visibility_notifier.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/box_shape.h"
@@ -192,13 +192,13 @@ void EditorSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool
     gizmo_plugin->commit_handle(this, p_idx, p_restore, p_cancel);
 }
 
-void EditorSpatialGizmo::set_spatial_node(Spatial *p_node) {
+void EditorSpatialGizmo::set_spatial_node(Node3D *p_node) {
 
     ERR_FAIL_NULL(p_node);
     spatial_node = p_node;
 }
 
-void EditorSpatialGizmo::Instance::create_instance(Spatial *p_base, bool p_hidden) {
+void EditorSpatialGizmo::Instance::create_instance(Node3D *p_base, bool p_hidden) {
 
     instance = VisualServer::get_singleton()->instance_create2(mesh->get_rid(), p_base->get_world()->get_scenario());
     VisualServer::get_singleton()->instance_attach_object_instance_id(instance, p_base->get_instance_id());
@@ -834,7 +834,7 @@ LightSpatialGizmoPlugin::LightSpatialGizmoPlugin() {
     create_handle_material("handles_billboard", true);
 }
 
-bool LightSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool LightSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Light>(p_spatial) != nullptr;
 }
 
@@ -1124,7 +1124,7 @@ AudioStreamPlayer3DSpatialGizmoPlugin::AudioStreamPlayer3DSpatialGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool AudioStreamPlayer3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool AudioStreamPlayer3DSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<AudioStreamPlayer3D>(p_spatial) != nullptr;
 }
 
@@ -1272,7 +1272,7 @@ CameraSpatialGizmoPlugin::CameraSpatialGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool CameraSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool CameraSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Camera>(p_spatial) != nullptr;
 }
 
@@ -1482,7 +1482,7 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     ClippedCamera *clipcam = object_cast<ClippedCamera>(camera);
     if (clipcam) {
-        Spatial *parent = object_cast<Spatial>(camera->get_parent());
+        Node3D *parent = object_cast<Node3D>(camera->get_parent());
         if (!parent) {
             return;
         }
@@ -1523,7 +1523,7 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
 MeshInstanceSpatialGizmoPlugin::MeshInstanceSpatialGizmoPlugin() = default;
 
-bool MeshInstanceSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool MeshInstanceSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<MeshInstance>(p_spatial) != nullptr && object_cast<SoftBody>(p_spatial) == nullptr;
 }
 
@@ -1559,7 +1559,7 @@ void MeshInstanceSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 /////
 Sprite3DSpatialGizmoPlugin::Sprite3DSpatialGizmoPlugin() = default;
 
-bool Sprite3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool Sprite3DSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Sprite3D>(p_spatial) != nullptr;
 }
 
@@ -1624,7 +1624,7 @@ Position3DSpatialGizmoPlugin::Position3DSpatialGizmoPlugin() {
     pos3d_mesh->surface_set_material(0, mat);
 }
 
-bool Position3DSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool Position3DSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Position3D>(p_spatial) != nullptr;
 }
 
@@ -1651,7 +1651,7 @@ SkeletonSpatialGizmoPlugin::SkeletonSpatialGizmoPlugin() {
     create_material("skeleton_material", gizmo_color);
 }
 
-bool SkeletonSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool SkeletonSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Skeleton>(p_spatial) != nullptr;
 }
 
@@ -1856,7 +1856,7 @@ PhysicalBoneSpatialGizmoPlugin::PhysicalBoneSpatialGizmoPlugin() {
     create_material("joint_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint", Color(0.5f, 0.8f, 1)));
 }
 
-bool PhysicalBoneSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool PhysicalBoneSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<PhysicalBone>(p_spatial) != nullptr;
 }
 
@@ -2102,8 +2102,8 @@ RayCastSpatialGizmoPlugin::RayCastSpatialGizmoPlugin() {
     create_material("shape_material_disabled", gizmo_color_disabled);
 }
 
-bool RayCastSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
-    return object_cast<RayCast>(p_spatial) != nullptr;
+bool RayCastSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
+    return object_cast<RayCast3D>(p_spatial) != nullptr;
 }
 
 StringView RayCastSpatialGizmoPlugin::get_name() const {
@@ -2116,7 +2116,7 @@ int RayCastSpatialGizmoPlugin::get_priority() const {
 
 void RayCastSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
-    RayCast *raycast = object_cast<RayCast>(p_gizmo->get_spatial_node());
+    RayCast3D *raycast = object_cast<RayCast3D>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 
@@ -2150,7 +2150,7 @@ SpringArmSpatialGizmoPlugin::SpringArmSpatialGizmoPlugin() {
     create_material("shape_material", gizmo_color);
 }
 
-bool SpringArmSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool SpringArmSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<SpringArm>(p_spatial) != nullptr;
 }
 
@@ -2170,7 +2170,7 @@ VehicleWheelSpatialGizmoPlugin::VehicleWheelSpatialGizmoPlugin() {
     create_material("shape_material", gizmo_color);
 }
 
-bool VehicleWheelSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool VehicleWheelSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<VehicleWheel>(p_spatial) != nullptr;
 }
 
@@ -2247,7 +2247,7 @@ SoftBodySpatialGizmoPlugin::SoftBodySpatialGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool SoftBodySpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool SoftBodySpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<SoftBody>(p_spatial) != nullptr;
 }
 
@@ -2323,7 +2323,7 @@ VisibilityNotifierGizmoPlugin::VisibilityNotifierGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool VisibilityNotifierGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool VisibilityNotifierGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<VisibilityNotifier>(p_spatial) != nullptr;
 }
 
@@ -2480,8 +2480,8 @@ CPUParticlesGizmoPlugin::CPUParticlesGizmoPlugin() {
     create_icon_material("particles_icon", SpatialEditor::get_singleton()->get_icon("GizmoCPUParticles", "EditorIcons"));
 }
 
-bool CPUParticlesGizmoPlugin::has_gizmo(Spatial *p_spatial) {
-    return object_cast<CPUParticles>(p_spatial) != nullptr;
+bool CPUParticlesGizmoPlugin::has_gizmo(Node3D *p_spatial) {
+    return object_cast<CPUParticles3D>(p_spatial) != nullptr;
 }
 
 StringView CPUParticlesGizmoPlugin::get_name() const {
@@ -2512,7 +2512,7 @@ ParticlesGizmoPlugin::ParticlesGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool ParticlesGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool ParticlesGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Particles>(p_spatial) != nullptr;
 }
 
@@ -2684,7 +2684,7 @@ ReflectionProbeGizmoPlugin::ReflectionProbeGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool ReflectionProbeGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool ReflectionProbeGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<ReflectionProbe>(p_spatial) != nullptr;
 }
 
@@ -2871,7 +2871,7 @@ GIProbeGizmoPlugin::GIProbeGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool GIProbeGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool GIProbeGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<GIProbe>(p_spatial) != nullptr;
 }
 
@@ -3117,7 +3117,7 @@ void BakedIndirectLightGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, i
     ur->commit_action();
 }
 
-bool BakedIndirectLightGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool BakedIndirectLightGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<BakedLightmap>(p_spatial) != nullptr;
 }
 
@@ -3182,7 +3182,7 @@ CollisionShapeSpatialGizmoPlugin::CollisionShapeSpatialGizmoPlugin() {
     create_handle_material("handles");
 }
 
-bool CollisionShapeSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool CollisionShapeSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<CollisionShape>(p_spatial) != nullptr;
 }
 
@@ -3817,7 +3817,7 @@ CollisionPolygonSpatialGizmoPlugin::CollisionPolygonSpatialGizmoPlugin() {
     create_material("shape_material_disabled", gizmo_color_disabled);
 }
 
-bool CollisionPolygonSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool CollisionPolygonSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<CollisionPolygon>(p_spatial) != nullptr;
 }
 
@@ -3867,7 +3867,7 @@ NavigationMeshSpatialGizmoPlugin::NavigationMeshSpatialGizmoPlugin() {
     create_material("navigation_solid_material_disabled", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/navigation_solid_disabled", Color(0.7f, 0.7f, 0.7f, 0.4f)));
 }
 
-bool NavigationMeshSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool NavigationMeshSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<NavigationMeshInstance>(p_spatial) != nullptr;
 }
 
@@ -4232,7 +4232,7 @@ JointSpatialGizmoPlugin::JointSpatialGizmoPlugin() {
     create_material("joint_body_b_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_b", Color(0.6f, 0.9f, 1)));
 }
 
-bool JointSpatialGizmoPlugin::has_gizmo(Spatial *p_spatial) {
+bool JointSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
     return object_cast<Joint>(p_spatial) != nullptr;
 }
 
@@ -4249,14 +4249,14 @@ void JointSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     p_gizmo->clear();
 
-    Spatial *node_body_a = nullptr;
+    Node3D *node_body_a = nullptr;
     if (!joint->get_node_a().is_empty()) {
-        node_body_a = object_cast<Spatial>(joint->get_node(joint->get_node_a()));
+        node_body_a = object_cast<Node3D>(joint->get_node(joint->get_node_a()));
     }
 
-    Spatial *node_body_b = nullptr;
+    Node3D *node_body_b = nullptr;
     if (!joint->get_node_b().is_empty()) {
-        node_body_b = object_cast<Spatial>(joint->get_node(joint->get_node_b()));
+        node_body_b = object_cast<Node3D>(joint->get_node(joint->get_node_b()));
     }
 
     if (!node_body_a && !node_body_b) {

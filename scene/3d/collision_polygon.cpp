@@ -30,7 +30,7 @@
 
 #include "collision_polygon.h"
 
-#include "collision_object.h"
+#include "scene/3d/collision_object_3d.h"
 #include "scene/resources/concave_polygon_shape.h"
 #include "scene/resources/convex_polygon_shape.h"
 #include "core/method_bind.h"
@@ -89,7 +89,7 @@ void CollisionPolygon::_notification(int p_what) {
     switch (p_what) {
 
         case NOTIFICATION_PARENTED: {
-            parent = object_cast<CollisionObject>(get_parent());
+            parent = object_cast<CollisionObject3D>(get_parent());
             if (parent) {
                 owner_id = parent->create_shape_owner(this);
                 _build_polygon();
@@ -167,8 +167,8 @@ bool CollisionPolygon::is_disabled() const {
 
 StringName CollisionPolygon::get_configuration_warning() const {
 
-    if (!object_cast<CollisionObject>(get_parent())) {
-        return TTR("CollisionPolygon only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
+    if (!object_cast<CollisionObject3D>(get_parent())) {
+        return TTR("CollisionPolygon only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 
     if (polygon.empty()) {

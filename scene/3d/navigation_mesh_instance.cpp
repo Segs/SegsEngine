@@ -87,7 +87,7 @@ void NavigationMeshInstance::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
-            Spatial *c = this;
+            Node3D *c = this;
             while (c) {
 
                 navigation = object_cast<Navigation>(c);
@@ -214,13 +214,13 @@ StringName NavigationMeshInstance::get_configuration_warning() const {
     if (!navmesh) {
         return TTR("A NavigationMesh resource must be set or created for this node to work.");
     }
-    const Spatial *c = this;
+    const Node3D *c = this;
     while (c) {
 
         if (object_cast<Navigation>(c))
             return StringName();
 
-        c = object_cast<Spatial>(c->get_parent());
+        c = object_cast<Node3D>(c->get_parent());
     }
 
     return TTR("NavigationMeshInstance must be a child or grandchild to a Navigation node. It only provides navigation data.");

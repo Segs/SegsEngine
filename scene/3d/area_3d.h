@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  area.h                                                               */
+/*  area_3d.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,12 +31,12 @@
 #pragma once
 
 #include "core/vset.h"
-#include "scene/3d/collision_object.h"
+#include "scene/3d/collision_object_3d.h"
 #include "core/map.h"
 
-class Area : public CollisionObject {
+class Area3D : public CollisionObject3D {
 
-	GDCLASS(Area,CollisionObject)
+    GDCLASS(Area3D,CollisionObject3D)
 
 public:
 	enum SpaceOverride {
@@ -208,6 +208,6 @@ public:
 	void set_reverb_uniformity(float p_uniformity);
 	float get_reverb_uniformity() const;
 
-	Area();
-	~Area() override;
+    Area3D();
+    ~Area3D() override;
 };

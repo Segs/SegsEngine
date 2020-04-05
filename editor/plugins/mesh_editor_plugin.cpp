@@ -143,7 +143,7 @@ MeshEditor::MeshEditor() {
     light2->set_color(Color(0.7f, 0.7f, 0.7f));
     viewport->add_child(light2);
 
-    rotation = memnew(Spatial);
+    rotation = memnew(Node3D);
     viewport->add_child(rotation);
     mesh_instance = memnew(MeshInstance);
     rotation->add_child(mesh_instance);

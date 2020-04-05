@@ -35,7 +35,7 @@
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "scene/2d/animated_sprite.h"
+#include "scene/2d/animated_sprite_2d.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/main/scene_tree.h"
@@ -216,7 +216,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (enabler[ENABLER_PAUSE_ANIMATED_SPRITES]) {
 
-        AnimatedSprite *as = object_cast<AnimatedSprite>(p_node);
+        AnimatedSprite2D *as = object_cast<AnimatedSprite2D>(p_node);
         if (as) {
             add = true;
         }
@@ -303,7 +303,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
         }
     }
     {
-        AnimatedSprite *as = object_cast<AnimatedSprite>(p_node);
+        AnimatedSprite2D *as = object_cast<AnimatedSprite2D>(p_node);
 
         if (as) {
 

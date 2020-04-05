@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  cpu_particles.cpp                                                    */
+/*  cpu_particles_3d.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "cpu_particles.h"
+#include "cpu_particles_3d.h"
 
 #include "scene/3d/camera.h"
 #include "scene/3d/particles.h"
@@ -41,22 +41,22 @@
 #include "core/os/mutex.h"
 #include "core/translation_helpers.h"
 
-IMPL_GDCLASS(CPUParticles)
-VARIANT_ENUM_CAST(CPUParticles::DrawOrder)
-VARIANT_ENUM_CAST(CPUParticles::Parameter)
-VARIANT_ENUM_CAST(CPUParticles::Flags)
-VARIANT_ENUM_CAST(CPUParticles::EmissionShape)
+IMPL_GDCLASS(CPUParticles3D)
+VARIANT_ENUM_CAST(CPUParticles3D::DrawOrder)
+VARIANT_ENUM_CAST(CPUParticles3D::Parameter)
+VARIANT_ENUM_CAST(CPUParticles3D::Flags)
+VARIANT_ENUM_CAST(CPUParticles3D::EmissionShape)
 
-AABB CPUParticles::get_aabb() const {
+AABB CPUParticles3D::get_aabb() const {
 
     return AABB();
 }
-Vector<Face3> CPUParticles::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> CPUParticles3D::get_faces(uint32_t p_usage_flags) const {
 
     return Vector<Face3>();
 }
 
-void CPUParticles::set_emitting(bool p_emitting) {
+void CPUParticles3D::set_emitting(bool p_emitting) {
 
     if (emitting == p_emitting)
         return;
@@ -71,7 +71,7 @@ void CPUParticles::set_emitting(bool p_emitting) {
     }
 }
 
-void CPUParticles::set_amount(int p_amount) {
+void CPUParticles3D::set_amount(int p_amount) {
 
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
 
@@ -89,97 +89,97 @@ void CPUParticles::set_amount(int p_amount) {
 
     particle_order.resize(p_amount);
 }
-void CPUParticles::set_lifetime(float p_lifetime) {
+void CPUParticles3D::set_lifetime(float p_lifetime) {
 
     ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
 }
 
-void CPUParticles::set_one_shot(bool p_one_shot) {
+void CPUParticles3D::set_one_shot(bool p_one_shot) {
 
     one_shot = p_one_shot;
 }
 
-void CPUParticles::set_pre_process_time(float p_time) {
+void CPUParticles3D::set_pre_process_time(float p_time) {
 
     pre_process_time = p_time;
 }
-void CPUParticles::set_explosiveness_ratio(float p_ratio) {
+void CPUParticles3D::set_explosiveness_ratio(float p_ratio) {
 
     explosiveness_ratio = p_ratio;
 }
-void CPUParticles::set_randomness_ratio(float p_ratio) {
+void CPUParticles3D::set_randomness_ratio(float p_ratio) {
 
     randomness_ratio = p_ratio;
 }
-void CPUParticles::set_lifetime_randomness(float p_random) {
+void CPUParticles3D::set_lifetime_randomness(float p_random) {
 
     lifetime_randomness = p_random;
 }
-void CPUParticles::set_use_local_coordinates(bool p_enable) {
+void CPUParticles3D::set_use_local_coordinates(bool p_enable) {
 
     local_coords = p_enable;
 }
-void CPUParticles::set_speed_scale(float p_scale) {
+void CPUParticles3D::set_speed_scale(float p_scale) {
 
     speed_scale = p_scale;
 }
 
-bool CPUParticles::is_emitting() const {
+bool CPUParticles3D::is_emitting() const {
 
     return emitting;
 }
-int CPUParticles::get_amount() const {
+int CPUParticles3D::get_amount() const {
 
     return particles.size();
 }
-float CPUParticles::get_lifetime() const {
+float CPUParticles3D::get_lifetime() const {
 
     return lifetime;
 }
-bool CPUParticles::get_one_shot() const {
+bool CPUParticles3D::get_one_shot() const {
 
     return one_shot;
 }
 
-float CPUParticles::get_pre_process_time() const {
+float CPUParticles3D::get_pre_process_time() const {
 
     return pre_process_time;
 }
-float CPUParticles::get_explosiveness_ratio() const {
+float CPUParticles3D::get_explosiveness_ratio() const {
 
     return explosiveness_ratio;
 }
-float CPUParticles::get_randomness_ratio() const {
+float CPUParticles3D::get_randomness_ratio() const {
 
     return randomness_ratio;
 }
-float CPUParticles::get_lifetime_randomness() const {
+float CPUParticles3D::get_lifetime_randomness() const {
 
     return lifetime_randomness;
 }
 
-bool CPUParticles::get_use_local_coordinates() const {
+bool CPUParticles3D::get_use_local_coordinates() const {
 
     return local_coords;
 }
 
-float CPUParticles::get_speed_scale() const {
+float CPUParticles3D::get_speed_scale() const {
 
     return speed_scale;
 }
 
-void CPUParticles::set_draw_order(DrawOrder p_order) {
+void CPUParticles3D::set_draw_order(DrawOrder p_order) {
 
     draw_order = p_order;
 }
 
-CPUParticles::DrawOrder CPUParticles::get_draw_order() const {
+CPUParticles3D::DrawOrder CPUParticles3D::get_draw_order() const {
 
     return draw_order;
 }
 
-void CPUParticles::set_mesh(const Ref<Mesh> &p_mesh) {
+void CPUParticles3D::set_mesh(const Ref<Mesh> &p_mesh) {
 
     mesh = p_mesh;
     if (mesh) {
@@ -189,28 +189,28 @@ void CPUParticles::set_mesh(const Ref<Mesh> &p_mesh) {
     }
 }
 
-Ref<Mesh> CPUParticles::get_mesh() const {
+Ref<Mesh> CPUParticles3D::get_mesh() const {
 
     return mesh;
 }
 
-void CPUParticles::set_fixed_fps(int p_count) {
+void CPUParticles3D::set_fixed_fps(int p_count) {
     fixed_fps = p_count;
 }
 
-int CPUParticles::get_fixed_fps() const {
+int CPUParticles3D::get_fixed_fps() const {
     return fixed_fps;
 }
 
-void CPUParticles::set_fractional_delta(bool p_enable) {
+void CPUParticles3D::set_fractional_delta(bool p_enable) {
     fractional_delta = p_enable;
 }
 
-bool CPUParticles::get_fractional_delta() const {
+bool CPUParticles3D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName CPUParticles::get_configuration_warning() const {
+StringName CPUParticles3D::get_configuration_warning() const {
 
     String warnings;
 
@@ -240,13 +240,13 @@ StringName CPUParticles::get_configuration_warning() const {
                                         get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET))) {
         if (!warnings.empty())
             warnings += '\n';
-        warnings += "- " + TTR("CPUParticles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
+        warnings += "- " + TTR("CPUParticles3D animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
     }
 
     return StringName(warnings);
 }
 
-void CPUParticles::restart() {
+void CPUParticles3D::restart() {
 
     time = 0;
     inactive_time = 0;
@@ -266,62 +266,62 @@ void CPUParticles::restart() {
     set_emitting(true);
 }
 
-void CPUParticles::set_direction(Vector3 p_direction) {
+void CPUParticles3D::set_direction(Vector3 p_direction) {
 
     direction = p_direction;
 }
 
-Vector3 CPUParticles::get_direction() const {
+Vector3 CPUParticles3D::get_direction() const {
 
     return direction;
 }
 
-void CPUParticles::set_spread(float p_spread) {
+void CPUParticles3D::set_spread(float p_spread) {
 
     spread = p_spread;
 }
 
-float CPUParticles::get_spread() const {
+float CPUParticles3D::get_spread() const {
 
     return spread;
 }
 
-void CPUParticles::set_flatness(float p_flatness) {
+void CPUParticles3D::set_flatness(float p_flatness) {
 
     flatness = p_flatness;
 }
-float CPUParticles::get_flatness() const {
+float CPUParticles3D::get_flatness() const {
 
     return flatness;
 }
 
-void CPUParticles::set_param(Parameter p_param, float p_value) {
+void CPUParticles3D::set_param(Parameter p_param, float p_value) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     parameters[p_param] = p_value;
 }
-float CPUParticles::get_param(Parameter p_param) const {
+float CPUParticles3D::get_param(Parameter p_param) const {
 
     ERR_FAIL_INDEX_V(p_param, PARAM_MAX, 0);
 
     return parameters[p_param];
 }
 
-void CPUParticles::set_param_randomness(Parameter p_param, float p_value) {
+void CPUParticles3D::set_param_randomness(Parameter p_param, float p_value) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
     randomness[p_param] = p_value;
 }
-float CPUParticles::get_param_randomness(Parameter p_param) const {
+float CPUParticles3D::get_param_randomness(Parameter p_param) const {
 
     ERR_FAIL_INDEX_V(p_param, PARAM_MAX, 0);
 
     return randomness[p_param];
 }
 
-void CPUParticles::set_param_curve(Parameter p_param, const Ref<Curve> &p_curve) {
+void CPUParticles3D::set_param_curve(Parameter p_param, const Ref<Curve> &p_curve) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
 
@@ -330,34 +330,34 @@ void CPUParticles::set_param_curve(Parameter p_param, const Ref<Curve> &p_curve)
     if(p_curve)
         p_curve->ensure_default_setup(range_to_set.curve_min,range_to_set.curve_max);
 }
-Ref<Curve> CPUParticles::get_param_curve(Parameter p_param) const {
+Ref<Curve> CPUParticles3D::get_param_curve(Parameter p_param) const {
 
     ERR_FAIL_INDEX_V(p_param, PARAM_MAX, Ref<Curve>());
 
     return curve_parameters[p_param];
 }
 
-void CPUParticles::set_color(const Color &p_color) {
+void CPUParticles3D::set_color(const Color &p_color) {
 
     color = p_color;
 }
 
-Color CPUParticles::get_color() const {
+Color CPUParticles3D::get_color() const {
 
     return color;
 }
 
-void CPUParticles::set_color_ramp(const Ref<Gradient> &p_ramp) {
+void CPUParticles3D::set_color_ramp(const Ref<Gradient> &p_ramp) {
 
     color_ramp = p_ramp;
 }
 
-Ref<Gradient> CPUParticles::get_color_ramp() const {
+Ref<Gradient> CPUParticles3D::get_color_ramp() const {
 
     return color_ramp;
 }
 
-void CPUParticles::set_particle_flag(Flags p_flag, bool p_enable) {
+void CPUParticles3D::set_particle_flag(Flags p_flag, bool p_enable) {
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
     flags[p_flag] = p_enable;
     if (p_flag == FLAG_DISABLE_Z) {
@@ -365,78 +365,78 @@ void CPUParticles::set_particle_flag(Flags p_flag, bool p_enable) {
     }
 }
 
-bool CPUParticles::get_particle_flag(Flags p_flag) const {
+bool CPUParticles3D::get_particle_flag(Flags p_flag) const {
     ERR_FAIL_INDEX_V(p_flag, FLAG_MAX, false);
     return flags[p_flag];
 }
 
-void CPUParticles::set_emission_shape(EmissionShape p_shape) {
+void CPUParticles3D::set_emission_shape(EmissionShape p_shape) {
     ERR_FAIL_INDEX(p_shape, EMISSION_SHAPE_MAX);
 
     emission_shape = p_shape;
 }
 
-void CPUParticles::set_emission_sphere_radius(float p_radius) {
+void CPUParticles3D::set_emission_sphere_radius(float p_radius) {
 
     emission_sphere_radius = p_radius;
 }
 
-void CPUParticles::set_emission_box_extents(Vector3 p_extents) {
+void CPUParticles3D::set_emission_box_extents(Vector3 p_extents) {
 
     emission_box_extents = p_extents;
 }
 
-void CPUParticles::set_emission_points(const PoolVector<Vector3> &p_points) {
+void CPUParticles3D::set_emission_points(const PoolVector<Vector3> &p_points) {
 
     emission_points = p_points;
 }
 
-void CPUParticles::set_emission_normals(const PoolVector<Vector3> &p_normals) {
+void CPUParticles3D::set_emission_normals(const PoolVector<Vector3> &p_normals) {
 
     emission_normals = p_normals;
 }
 
-void CPUParticles::set_emission_colors(const PoolVector<Color> &p_colors) {
+void CPUParticles3D::set_emission_colors(const PoolVector<Color> &p_colors) {
 
     emission_colors = p_colors;
 }
 
-float CPUParticles::get_emission_sphere_radius() const {
+float CPUParticles3D::get_emission_sphere_radius() const {
 
     return emission_sphere_radius;
 }
-Vector3 CPUParticles::get_emission_box_extents() const {
+Vector3 CPUParticles3D::get_emission_box_extents() const {
 
     return emission_box_extents;
 }
-PoolVector<Vector3> CPUParticles::get_emission_points() const {
+PoolVector<Vector3> CPUParticles3D::get_emission_points() const {
 
     return emission_points;
 }
-PoolVector<Vector3> CPUParticles::get_emission_normals() const {
+PoolVector<Vector3> CPUParticles3D::get_emission_normals() const {
 
     return emission_normals;
 }
 
-PoolVector<Color> CPUParticles::get_emission_colors() const {
+PoolVector<Color> CPUParticles3D::get_emission_colors() const {
 
     return emission_colors;
 }
 
-CPUParticles::EmissionShape CPUParticles::get_emission_shape() const {
+CPUParticles3D::EmissionShape CPUParticles3D::get_emission_shape() const {
     return emission_shape;
 }
-void CPUParticles::set_gravity(const Vector3 &p_gravity) {
+void CPUParticles3D::set_gravity(const Vector3 &p_gravity) {
 
     gravity = p_gravity;
 }
 
-Vector3 CPUParticles::get_gravity() const {
+Vector3 CPUParticles3D::get_gravity() const {
 
     return gravity;
 }
 
-void CPUParticles::_validate_property(PropertyInfo &property) const {
+void CPUParticles3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "color" && color_ramp) {
         property.usage = 0;
@@ -463,7 +463,7 @@ void CPUParticles::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void CPUParticles::_update_internal() {
+void CPUParticles3D::_update_internal() {
 
     if (particles.empty() == 0 || !is_visible_in_tree()) {
         _set_redraw(false);
@@ -538,7 +538,7 @@ void CPUParticles::_update_internal() {
     }
 }
 
-void CPUParticles::_particles_process(float p_delta) {
+void CPUParticles3D::_particles_process(float p_delta) {
     using namespace ParticleUtils;
 
     p_delta *= speed_scale;
@@ -963,7 +963,7 @@ void CPUParticles::_particles_process(float p_delta) {
     }
 }
 
-void CPUParticles::_update_particle_data_buffer() {
+void CPUParticles3D::_update_particle_data_buffer() {
 #ifndef NO_THREADS
     update_mutex->lock();
 #endif
@@ -1062,7 +1062,7 @@ void CPUParticles::_update_particle_data_buffer() {
 #endif
 }
 
-void CPUParticles::_set_redraw(bool p_redraw) {
+void CPUParticles3D::_set_redraw(bool p_redraw) {
     if (redraw == p_redraw)
         return;
     redraw = p_redraw;
@@ -1086,7 +1086,7 @@ void CPUParticles::_set_redraw(bool p_redraw) {
 #endif
 }
 
-void CPUParticles::_update_render_thread() {
+void CPUParticles3D::_update_render_thread() {
 
 #ifndef NO_THREADS
     update_mutex->lock();
@@ -1101,7 +1101,7 @@ void CPUParticles::_update_render_thread() {
 #endif
 }
 
-void CPUParticles::_notification(int p_what) {
+void CPUParticles3D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
         set_process_internal(emitting);
@@ -1165,7 +1165,7 @@ void CPUParticles::_notification(int p_what) {
     }
 }
 
-void CPUParticles::convert_from_particles(Node *p_particles) {
+void CPUParticles3D::convert_from_particles(Node *p_particles) {
 
     Particles *particles = object_cast<Particles>(p_particles);
     ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
@@ -1234,42 +1234,42 @@ void CPUParticles::convert_from_particles(Node *p_particles) {
 #undef CONVERT_PARAM
 }
 
-void CPUParticles::_bind_methods() {
+void CPUParticles3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &CPUParticles::set_emitting);
-    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &CPUParticles::set_amount);
-    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &CPUParticles::set_lifetime);
-    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &CPUParticles::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &CPUParticles::set_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &CPUParticles::set_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &CPUParticles::set_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", {"random"}), &CPUParticles::set_lifetime_randomness);
-    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &CPUParticles::set_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &CPUParticles::set_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &CPUParticles::set_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &CPUParticles::set_speed_scale);
+    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &CPUParticles3D::set_emitting);
+    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &CPUParticles3D::set_amount);
+    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &CPUParticles3D::set_lifetime);
+    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &CPUParticles3D::set_one_shot);
+    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &CPUParticles3D::set_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &CPUParticles3D::set_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &CPUParticles3D::set_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", {"random"}), &CPUParticles3D::set_lifetime_randomness);
+    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &CPUParticles3D::set_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &CPUParticles3D::set_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &CPUParticles3D::set_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &CPUParticles3D::set_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("is_emitting"), &CPUParticles::is_emitting);
-    MethodBinder::bind_method(D_METHOD("get_amount"), &CPUParticles::get_amount);
-    MethodBinder::bind_method(D_METHOD("get_lifetime"), &CPUParticles::get_lifetime);
-    MethodBinder::bind_method(D_METHOD("get_one_shot"), &CPUParticles::get_one_shot);
-    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &CPUParticles::get_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &CPUParticles::get_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &CPUParticles::get_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &CPUParticles::get_lifetime_randomness);
-    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &CPUParticles::get_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &CPUParticles::get_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &CPUParticles::get_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &CPUParticles::get_speed_scale);
+    MethodBinder::bind_method(D_METHOD("is_emitting"), &CPUParticles3D::is_emitting);
+    MethodBinder::bind_method(D_METHOD("get_amount"), &CPUParticles3D::get_amount);
+    MethodBinder::bind_method(D_METHOD("get_lifetime"), &CPUParticles3D::get_lifetime);
+    MethodBinder::bind_method(D_METHOD("get_one_shot"), &CPUParticles3D::get_one_shot);
+    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &CPUParticles3D::get_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &CPUParticles3D::get_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &CPUParticles3D::get_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &CPUParticles3D::get_lifetime_randomness);
+    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &CPUParticles3D::get_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &CPUParticles3D::get_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &CPUParticles3D::get_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &CPUParticles3D::get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &CPUParticles::set_draw_order);
+    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &CPUParticles3D::set_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("get_draw_order"), &CPUParticles::get_draw_order);
+    MethodBinder::bind_method(D_METHOD("get_draw_order"), &CPUParticles3D::get_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &CPUParticles::set_mesh);
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &CPUParticles::get_mesh);
+    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &CPUParticles3D::set_mesh);
+    MethodBinder::bind_method(D_METHOD("get_mesh"), &CPUParticles3D::get_mesh);
 
-    MethodBinder::bind_method(D_METHOD("restart"), &CPUParticles::restart);
+    MethodBinder::bind_method(D_METHOD("restart"), &CPUParticles3D::restart);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
@@ -1294,57 +1294,57 @@ void CPUParticles::_bind_methods() {
 
     ////////////////////////////////
 
-    MethodBinder::bind_method(D_METHOD("set_direction", {"direction"}), &CPUParticles::set_direction);
-    MethodBinder::bind_method(D_METHOD("get_direction"), &CPUParticles::get_direction);
+    MethodBinder::bind_method(D_METHOD("set_direction", {"direction"}), &CPUParticles3D::set_direction);
+    MethodBinder::bind_method(D_METHOD("get_direction"), &CPUParticles3D::get_direction);
 
-    MethodBinder::bind_method(D_METHOD("set_spread", {"degrees"}), &CPUParticles::set_spread);
-    MethodBinder::bind_method(D_METHOD("get_spread"), &CPUParticles::get_spread);
+    MethodBinder::bind_method(D_METHOD("set_spread", {"degrees"}), &CPUParticles3D::set_spread);
+    MethodBinder::bind_method(D_METHOD("get_spread"), &CPUParticles3D::get_spread);
 
-    MethodBinder::bind_method(D_METHOD("set_flatness", {"amount"}), &CPUParticles::set_flatness);
-    MethodBinder::bind_method(D_METHOD("get_flatness"), &CPUParticles::get_flatness);
+    MethodBinder::bind_method(D_METHOD("set_flatness", {"amount"}), &CPUParticles3D::set_flatness);
+    MethodBinder::bind_method(D_METHOD("get_flatness"), &CPUParticles3D::get_flatness);
 
-    MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &CPUParticles::set_param);
-    MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &CPUParticles::get_param);
+    MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &CPUParticles3D::set_param);
+    MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &CPUParticles3D::get_param);
 
-    MethodBinder::bind_method(D_METHOD("set_param_randomness", {"param", "randomness"}), &CPUParticles::set_param_randomness);
-    MethodBinder::bind_method(D_METHOD("get_param_randomness", {"param"}), &CPUParticles::get_param_randomness);
+    MethodBinder::bind_method(D_METHOD("set_param_randomness", {"param", "randomness"}), &CPUParticles3D::set_param_randomness);
+    MethodBinder::bind_method(D_METHOD("get_param_randomness", {"param"}), &CPUParticles3D::get_param_randomness);
 
-    MethodBinder::bind_method(D_METHOD("set_param_curve", {"param", "curve"}), &CPUParticles::set_param_curve);
-    MethodBinder::bind_method(D_METHOD("get_param_curve", {"param"}), &CPUParticles::get_param_curve);
+    MethodBinder::bind_method(D_METHOD("set_param_curve", {"param", "curve"}), &CPUParticles3D::set_param_curve);
+    MethodBinder::bind_method(D_METHOD("get_param_curve", {"param"}), &CPUParticles3D::get_param_curve);
 
-    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &CPUParticles::set_color);
-    MethodBinder::bind_method(D_METHOD("get_color"), &CPUParticles::get_color);
+    MethodBinder::bind_method(D_METHOD("set_color", {"color"}), &CPUParticles3D::set_color);
+    MethodBinder::bind_method(D_METHOD("get_color"), &CPUParticles3D::get_color);
 
-    MethodBinder::bind_method(D_METHOD("set_color_ramp", {"ramp"}), &CPUParticles::set_color_ramp);
-    MethodBinder::bind_method(D_METHOD("get_color_ramp"), &CPUParticles::get_color_ramp);
+    MethodBinder::bind_method(D_METHOD("set_color_ramp", {"ramp"}), &CPUParticles3D::set_color_ramp);
+    MethodBinder::bind_method(D_METHOD("get_color_ramp"), &CPUParticles3D::get_color_ramp);
 
-    MethodBinder::bind_method(D_METHOD("set_particle_flag", {"flag", "enable"}), &CPUParticles::set_particle_flag);
-    MethodBinder::bind_method(D_METHOD("get_particle_flag", {"flag"}), &CPUParticles::get_particle_flag);
+    MethodBinder::bind_method(D_METHOD("set_particle_flag", {"flag", "enable"}), &CPUParticles3D::set_particle_flag);
+    MethodBinder::bind_method(D_METHOD("get_particle_flag", {"flag"}), &CPUParticles3D::get_particle_flag);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_shape", {"shape"}), &CPUParticles::set_emission_shape);
-    MethodBinder::bind_method(D_METHOD("get_emission_shape"), &CPUParticles::get_emission_shape);
+    MethodBinder::bind_method(D_METHOD("set_emission_shape", {"shape"}), &CPUParticles3D::set_emission_shape);
+    MethodBinder::bind_method(D_METHOD("get_emission_shape"), &CPUParticles3D::get_emission_shape);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_sphere_radius", {"radius"}), &CPUParticles::set_emission_sphere_radius);
-    MethodBinder::bind_method(D_METHOD("get_emission_sphere_radius"), &CPUParticles::get_emission_sphere_radius);
+    MethodBinder::bind_method(D_METHOD("set_emission_sphere_radius", {"radius"}), &CPUParticles3D::set_emission_sphere_radius);
+    MethodBinder::bind_method(D_METHOD("get_emission_sphere_radius"), &CPUParticles3D::get_emission_sphere_radius);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_box_extents", {"extents"}), &CPUParticles::set_emission_box_extents);
-    MethodBinder::bind_method(D_METHOD("get_emission_box_extents"), &CPUParticles::get_emission_box_extents);
+    MethodBinder::bind_method(D_METHOD("set_emission_box_extents", {"extents"}), &CPUParticles3D::set_emission_box_extents);
+    MethodBinder::bind_method(D_METHOD("get_emission_box_extents"), &CPUParticles3D::get_emission_box_extents);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_points", {"array"}), &CPUParticles::set_emission_points);
-    MethodBinder::bind_method(D_METHOD("get_emission_points"), &CPUParticles::get_emission_points);
+    MethodBinder::bind_method(D_METHOD("set_emission_points", {"array"}), &CPUParticles3D::set_emission_points);
+    MethodBinder::bind_method(D_METHOD("get_emission_points"), &CPUParticles3D::get_emission_points);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_normals", {"array"}), &CPUParticles::set_emission_normals);
-    MethodBinder::bind_method(D_METHOD("get_emission_normals"), &CPUParticles::get_emission_normals);
+    MethodBinder::bind_method(D_METHOD("set_emission_normals", {"array"}), &CPUParticles3D::set_emission_normals);
+    MethodBinder::bind_method(D_METHOD("get_emission_normals"), &CPUParticles3D::get_emission_normals);
 
-    MethodBinder::bind_method(D_METHOD("set_emission_colors", {"array"}), &CPUParticles::set_emission_colors);
-    MethodBinder::bind_method(D_METHOD("get_emission_colors"), &CPUParticles::get_emission_colors);
+    MethodBinder::bind_method(D_METHOD("set_emission_colors", {"array"}), &CPUParticles3D::set_emission_colors);
+    MethodBinder::bind_method(D_METHOD("get_emission_colors"), &CPUParticles3D::get_emission_colors);
 
-    MethodBinder::bind_method(D_METHOD("get_gravity"), &CPUParticles::get_gravity);
-    MethodBinder::bind_method(D_METHOD("set_gravity", {"accel_vec"}), &CPUParticles::set_gravity);
+    MethodBinder::bind_method(D_METHOD("get_gravity"), &CPUParticles3D::get_gravity);
+    MethodBinder::bind_method(D_METHOD("set_gravity", {"accel_vec"}), &CPUParticles3D::set_gravity);
 
-    MethodBinder::bind_method(D_METHOD("convert_from_particles", {"particles"}), &CPUParticles::convert_from_particles);
+    MethodBinder::bind_method(D_METHOD("convert_from_particles", {"particles"}), &CPUParticles3D::convert_from_particles);
 
-    MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles::_update_render_thread);
+    MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles3D::_update_render_thread);
 
     ADD_GROUP("Emission Shape", "emission_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");
@@ -1441,7 +1441,7 @@ void CPUParticles::_bind_methods() {
     BIND_ENUM_CONSTANT(EMISSION_SHAPE_MAX)
 }
 
-CPUParticles::CPUParticles() {
+CPUParticles3D::CPUParticles3D() {
 
     time = 0;
     inactive_time = 0;
@@ -1510,7 +1510,7 @@ CPUParticles::CPUParticles() {
 
 }
 
-CPUParticles::~CPUParticles() {
+CPUParticles3D::~CPUParticles3D() {
     VisualServer::get_singleton()->free_rid(multimesh);
 
 #ifndef NO_THREADS

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  animated_sprite.cpp                                                  */
+/*  animated_sprite_2d.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "animated_sprite.h"
+#include "animated_sprite_2d.h"
 
 #include "core/os/os.h"
 #include "scene/scene_string_names.h"
@@ -37,42 +37,44 @@
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 #include "EASTL/sort.h"
+
 IMPL_GDCLASS(SpriteFrames)
-IMPL_GDCLASS(AnimatedSprite)
+IMPL_GDCLASS(AnimatedSprite2D)
 
 #define NORMAL_SUFFIX "_normal"
+#define SPECULAR_SUFFIX "_specular"
 
 #ifdef TOOLS_ENABLED
 
-Dictionary AnimatedSprite::_edit_get_state() const {
+Dictionary AnimatedSprite2D::_edit_get_state() const {
     Dictionary state = Node2D::_edit_get_state();
     state["offset"] = offset;
     return state;
 }
 
-void AnimatedSprite::_edit_set_state(const Dictionary &p_state) {
+void AnimatedSprite2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
     set_offset(p_state["offset"]);
 }
 
-void AnimatedSprite::_edit_set_pivot(const Point2 &p_pivot) {
+void AnimatedSprite2D::_edit_set_pivot(const Point2 &p_pivot) {
     set_offset(get_offset() - p_pivot);
     set_position(get_transform().xform(p_pivot));
 }
 
-Point2 AnimatedSprite::_edit_get_pivot() const {
+Point2 AnimatedSprite2D::_edit_get_pivot() const {
     return Vector2();
 }
 
-bool AnimatedSprite::_edit_use_pivot() const {
+bool AnimatedSprite2D::_edit_use_pivot() const {
     return true;
 }
 
-Rect2 AnimatedSprite::_edit_get_rect() const {
+Rect2 AnimatedSprite2D::_edit_get_rect() const {
     return _get_rect();
 }
 
-bool AnimatedSprite::_edit_use_rect() const {
+bool AnimatedSprite2D::_edit_use_rect() const {
     if (not frames || !frames->has_animation(animation) || frame < 0 || frame >= frames->get_frame_count(animation)) {
         return false;
     }
@@ -83,11 +85,11 @@ bool AnimatedSprite::_edit_use_rect() const {
 }
 #endif
 
-Rect2 AnimatedSprite::get_anchorable_rect() const {
+Rect2 AnimatedSprite2D::get_anchorable_rect() const {
     return _get_rect();
 }
 
-Rect2 AnimatedSprite::_get_rect() const {
+Rect2 AnimatedSprite2D::_get_rect() const {
     if (not frames || !frames->has_animation(animation) || frame < 0 || frame >= frames->get_frame_count(animation)) {
         return Rect2();
     }
@@ -343,7 +345,7 @@ SpriteFrames::SpriteFrames() {
     add_animation(SceneStringNames::get_singleton()->_default);
 }
 
-void AnimatedSprite::_validate_property(PropertyInfo &property) const {
+void AnimatedSprite2D::_validate_property(PropertyInfo &property) const {
 
     if (not frames)
         return;
@@ -385,7 +387,7 @@ void AnimatedSprite::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void AnimatedSprite::_notification(int p_what) {
+void AnimatedSprite2D::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_INTERNAL_PROCESS: {
@@ -486,7 +488,7 @@ void AnimatedSprite::_notification(int p_what) {
     }
 }
 
-void AnimatedSprite::set_sprite_frames(const Ref<SpriteFrames> &p_frames) {
+void AnimatedSprite2D::set_sprite_frames(const Ref<SpriteFrames> &p_frames) {
 
     if (frames)
         frames->disconnect("changed", this, "_res_changed");
@@ -506,12 +508,12 @@ void AnimatedSprite::set_sprite_frames(const Ref<SpriteFrames> &p_frames) {
     update_configuration_warning();
 }
 
-Ref<SpriteFrames> AnimatedSprite::get_sprite_frames() const {
+Ref<SpriteFrames> AnimatedSprite2D::get_sprite_frames() const {
 
     return frames;
 }
 
-void AnimatedSprite::set_frame(int p_frame) {
+void AnimatedSprite2D::set_frame(int p_frame) {
 
     if (not frames) {
         return;
@@ -535,12 +537,12 @@ void AnimatedSprite::set_frame(int p_frame) {
     Object_change_notify(this,"frame");
     emit_signal(SceneStringNames::get_singleton()->frame_changed);
 }
-int AnimatedSprite::get_frame() const {
+int AnimatedSprite2D::get_frame() const {
 
     return frame;
 }
 
-void AnimatedSprite::set_speed_scale(float p_speed_scale) {
+void AnimatedSprite2D::set_speed_scale(float p_speed_scale) {
 
     float elapsed = _get_frame_duration() - timeout;
 
@@ -551,56 +553,56 @@ void AnimatedSprite::set_speed_scale(float p_speed_scale) {
     timeout -= elapsed;
 }
 
-float AnimatedSprite::get_speed_scale() const {
+float AnimatedSprite2D::get_speed_scale() const {
 
     return speed_scale;
 }
 
-void AnimatedSprite::set_centered(bool p_center) {
+void AnimatedSprite2D::set_centered(bool p_center) {
 
     centered = p_center;
     update();
     item_rect_changed();
 }
 
-bool AnimatedSprite::is_centered() const {
+bool AnimatedSprite2D::is_centered() const {
 
     return centered;
 }
 
-void AnimatedSprite::set_offset(const Point2 &p_offset) {
+void AnimatedSprite2D::set_offset(const Point2 &p_offset) {
 
     offset = p_offset;
     update();
     item_rect_changed();
     Object_change_notify(this,"offset");
 }
-Point2 AnimatedSprite::get_offset() const {
+Point2 AnimatedSprite2D::get_offset() const {
 
     return offset;
 }
 
-void AnimatedSprite::set_flip_h(bool p_flip) {
+void AnimatedSprite2D::set_flip_h(bool p_flip) {
 
     hflip = p_flip;
     update();
 }
-bool AnimatedSprite::is_flipped_h() const {
+bool AnimatedSprite2D::is_flipped_h() const {
 
     return hflip;
 }
 
-void AnimatedSprite::set_flip_v(bool p_flip) {
+void AnimatedSprite2D::set_flip_v(bool p_flip) {
 
     vflip = p_flip;
     update();
 }
-bool AnimatedSprite::is_flipped_v() const {
+bool AnimatedSprite2D::is_flipped_v() const {
 
     return vflip;
 }
 
-void AnimatedSprite::_res_changed() {
+void AnimatedSprite2D::_res_changed() {
 
     set_frame(frame);
     Object_change_notify(this,"frame");
@@ -608,7 +610,7 @@ void AnimatedSprite::_res_changed() {
     update();
 }
 
-void AnimatedSprite::_set_playing(bool p_playing) {
+void AnimatedSprite2D::_set_playing(bool p_playing) {
 
     if (playing == p_playing)
         return;
@@ -617,12 +619,12 @@ void AnimatedSprite::_set_playing(bool p_playing) {
     set_process_internal(playing);
 }
 
-bool AnimatedSprite::_is_playing() const {
+bool AnimatedSprite2D::_is_playing() const {
 
     return playing;
 }
 
-void AnimatedSprite::play(const StringName &p_animation, const bool p_backwards) {
+void AnimatedSprite2D::play(const StringName &p_animation, const bool p_backwards) {
 
     backwards = p_backwards;
 
@@ -635,17 +637,17 @@ void AnimatedSprite::play(const StringName &p_animation, const bool p_backwards)
     _set_playing(true);
 }
 
-void AnimatedSprite::stop() {
+void AnimatedSprite2D::stop() {
 
     _set_playing(false);
 }
 
-bool AnimatedSprite::is_playing() const {
+bool AnimatedSprite2D::is_playing() const {
 
     return playing;
 }
 
-float AnimatedSprite::_get_frame_duration() {
+float AnimatedSprite2D::_get_frame_duration() {
     if (frames && frames->has_animation(animation)) {
         float speed = frames->get_animation_speed(animation) * speed_scale;
         if (speed > 0) {
@@ -655,7 +657,7 @@ float AnimatedSprite::_get_frame_duration() {
     return 0.0;
 }
 
-void AnimatedSprite::_reset_timeout() {
+void AnimatedSprite2D::_reset_timeout() {
 
     if (!playing)
         return;
@@ -664,7 +666,7 @@ void AnimatedSprite::_reset_timeout() {
     is_over = false;
 }
 
-void AnimatedSprite::set_animation(const StringName &p_animation) {
+void AnimatedSprite2D::set_animation(const StringName &p_animation) {
 
     ERR_FAIL_COND_MSG(frames == nullptr, vformat(("There is no animation with name '%s'."), p_animation)); 
     ERR_FAIL_COND_MSG(not frames->animation_name_map().contains(p_animation), FormatVE("There is no animation with name '%s'.",p_animation.asCString())); 
@@ -678,12 +680,12 @@ void AnimatedSprite::set_animation(const StringName &p_animation) {
     Object_change_notify(this);
     update();
 }
-StringName AnimatedSprite::get_animation() const {
+StringName AnimatedSprite2D::get_animation() const {
 
     return animation;
 }
 
-StringName AnimatedSprite::get_configuration_warning() const {
+StringName AnimatedSprite2D::get_configuration_warning() const {
 
     if (not frames) {
         return TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite to display frames.");
@@ -692,40 +694,40 @@ StringName AnimatedSprite::get_configuration_warning() const {
     return StringName();
 }
 
-void AnimatedSprite::_bind_methods() {
+void AnimatedSprite2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_sprite_frames", {"sprite_frames"}), &AnimatedSprite::set_sprite_frames);
-    MethodBinder::bind_method(D_METHOD("get_sprite_frames"), &AnimatedSprite::get_sprite_frames);
+    MethodBinder::bind_method(D_METHOD("set_sprite_frames", {"sprite_frames"}), &AnimatedSprite2D::set_sprite_frames);
+    MethodBinder::bind_method(D_METHOD("get_sprite_frames"), &AnimatedSprite2D::get_sprite_frames);
 
-    MethodBinder::bind_method(D_METHOD("set_animation", {"animation"}), &AnimatedSprite::set_animation);
-    MethodBinder::bind_method(D_METHOD("get_animation"), &AnimatedSprite::get_animation);
+    MethodBinder::bind_method(D_METHOD("set_animation", {"animation"}), &AnimatedSprite2D::set_animation);
+    MethodBinder::bind_method(D_METHOD("get_animation"), &AnimatedSprite2D::get_animation);
 
-    MethodBinder::bind_method(D_METHOD("_set_playing", {"playing"}), &AnimatedSprite::_set_playing);
-    MethodBinder::bind_method(D_METHOD("_is_playing"), &AnimatedSprite::_is_playing);
+    MethodBinder::bind_method(D_METHOD("_set_playing", {"playing"}), &AnimatedSprite2D::_set_playing);
+    MethodBinder::bind_method(D_METHOD("_is_playing"), &AnimatedSprite2D::_is_playing);
 
-    MethodBinder::bind_method(D_METHOD("play", {"anim", "backwards"}), &AnimatedSprite::play, {DEFVAL(StringName()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("stop"), &AnimatedSprite::stop);
-    MethodBinder::bind_method(D_METHOD("is_playing"), &AnimatedSprite::is_playing);
+    MethodBinder::bind_method(D_METHOD("play", {"anim", "backwards"}), &AnimatedSprite2D::play, {DEFVAL(StringName()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("stop"), &AnimatedSprite2D::stop);
+    MethodBinder::bind_method(D_METHOD("is_playing"), &AnimatedSprite2D::is_playing);
 
-    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &AnimatedSprite::set_centered);
-    MethodBinder::bind_method(D_METHOD("is_centered"), &AnimatedSprite::is_centered);
+    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &AnimatedSprite2D::set_centered);
+    MethodBinder::bind_method(D_METHOD("is_centered"), &AnimatedSprite2D::is_centered);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &AnimatedSprite::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &AnimatedSprite::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &AnimatedSprite2D::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset"), &AnimatedSprite2D::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &AnimatedSprite::set_flip_h);
-    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &AnimatedSprite::is_flipped_h);
+    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &AnimatedSprite2D::set_flip_h);
+    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &AnimatedSprite2D::is_flipped_h);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &AnimatedSprite::set_flip_v);
-    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &AnimatedSprite::is_flipped_v);
+    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &AnimatedSprite2D::set_flip_v);
+    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &AnimatedSprite2D::is_flipped_v);
 
-    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &AnimatedSprite::set_frame);
-    MethodBinder::bind_method(D_METHOD("get_frame"), &AnimatedSprite::get_frame);
+    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &AnimatedSprite2D::set_frame);
+    MethodBinder::bind_method(D_METHOD("get_frame"), &AnimatedSprite2D::get_frame);
 
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"speed_scale"}), &AnimatedSprite::set_speed_scale);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &AnimatedSprite::get_speed_scale);
+    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"speed_scale"}), &AnimatedSprite2D::set_speed_scale);
+    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &AnimatedSprite2D::get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("_res_changed"), &AnimatedSprite::_res_changed);
+    MethodBinder::bind_method(D_METHOD("_res_changed"), &AnimatedSprite2D::_res_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("animation_finished"));
@@ -741,7 +743,7 @@ void AnimatedSprite::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
 }
 
-AnimatedSprite::AnimatedSprite() {
+AnimatedSprite2D::AnimatedSprite2D() {
 
     centered = true;
     hflip = false;

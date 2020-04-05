@@ -548,16 +548,16 @@ void Object::get_method_list(Vector<MethodInfo> *p_list) const {
     }
 }
 
-Variant Object::_call_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Object::_call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 1) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 0;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
         return Variant();
@@ -568,22 +568,22 @@ Variant Object::_call_bind(const Variant **p_args, int p_argcount, Variant::Call
     return call(method, &p_args[1], p_argcount - 1, r_error);
 }
 
-Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 1) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 0;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
         return Variant();
     }
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     StringName method = p_args[0]->as<StringName>();
 
@@ -593,31 +593,31 @@ Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Vari
 }
 
 #ifdef DEBUG_ENABLED
-static void _test_call_error(const StringName &p_func, const Variant::CallError &error) {
+static void _test_call_error(const StringName &p_func, const Callable::CallError &error) {
 
     switch (error.error) {
 
-        case Variant::CallError::CALL_OK:
-        case Variant::CallError::CALL_ERROR_INVALID_METHOD: break;
-        case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
+        case Callable::CallError::CALL_OK:
+        case Callable::CallError::CALL_ERROR_INVALID_METHOD: break;
+        case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
             ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Invalid type for argument " +
                          itos(error.argument) + ", expected " + Variant::get_type_name(error.expected) + ".");
             break;
         }
-        case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
+        case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
             ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too many arguments, expected " +
                          itos(error.argument) + ".");
             break;
         }
-        case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
+        case Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
 
             ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too few arguments, expected " +
                          itos(error.argument) + ".");
             break;
         }
-        case Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL: break;
+        case Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL: break;
     }
 }
 #else
@@ -643,7 +643,7 @@ void Object::call_multilevel(const StringName &p_method, const Variant **p_args,
     //Variant ret;
     OBJ_DEBUG_LOCK
 
-    Variant::CallError error;
+    Callable::CallError error;
 
     if (script_instance) {
         script_instance->call_multilevel(p_method, p_args, p_argcount);
@@ -663,7 +663,7 @@ void Object::call_multilevel_reversed(const StringName &p_method, const Variant 
 
     MethodBind *method = ClassDB::get_method(get_class_name(), p_method);
 
-    Variant::CallError error;
+    Callable::CallError error;
     OBJ_DEBUG_LOCK
 
     if (method) {
@@ -717,9 +717,9 @@ Variant Object::callv(const StringName &p_method, const Array &p_args) {
         }
     }
 
-    Variant::CallError ce;
+    Callable::CallError ce;
     Variant ret = call(p_method, argptrs, argc, ce);
-    if (ce.error != Variant::CallError::CALL_OK) {
+    if (ce.error != Callable::CallError::CALL_OK) {
         ERR_FAIL_V_MSG(Variant(), "Error calling method from 'callv': " + Variant::get_call_error_text(this, p_method, argptrs, argc, ce) + ".");
     }
     return ret;
@@ -735,7 +735,7 @@ Variant Object::call_va(const StringName &p_name, VARIANT_ARG_DECLARE) {
         argc++;
     }
 
-    Variant::CallError error;
+    Callable::CallError error;
 
     Variant ret = call(p_name, argptr, argc, error);
     return ret;
@@ -752,38 +752,38 @@ void Object::call_multilevel(const StringName &p_name, VARIANT_ARG_DECLARE) {
         argc++;
     }
 
-    //Variant::CallError error;
+    //Callable::CallError error;
     call_multilevel(p_name, argptr, argc);
 }
 
-Variant Object::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Object::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     if (p_method == CoreStringNames::get_singleton()->_free) {
 //free must be here, before anything, always ready
 #ifdef DEBUG_ENABLED
         if (p_argcount != 0) {
             r_error.argument = 0;
-            r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
+            r_error.error = Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
             return Variant();
         }
         if (object_cast<RefCounted>(this)) {
             r_error.argument = 0;
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
             ERR_FAIL_V_MSG(Variant(), "Can't 'free' a reference.");
         }
 
         if (private_data->_lock_index.get() > 1) {
             r_error.argument = 0;
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
             ERR_FAIL_V_MSG(Variant(), "Object is locked and can't be freed.");
         }
 
 #endif
         //must be here, must be before everything,
         memdelete(this);
-        r_error.error = Variant::CallError::CALL_OK;
+        r_error.error = Callable::CallError::CALL_OK;
         return Variant();
     }
 
@@ -794,15 +794,15 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
         //force jumptable
         switch (r_error.error) {
 
-            case Variant::CallError::CALL_OK:
+            case Callable::CallError::CALL_OK:
                 return ret;
-            case Variant::CallError::CALL_ERROR_INVALID_METHOD:
+            case Callable::CallError::CALL_ERROR_INVALID_METHOD:
                 break;
-            case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT:
-            case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS:
-            case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS:
+            case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT:
+            case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS:
+            case Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS:
                 return ret;
-            case Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL: {
+            case Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL: {
             }
         }
     }
@@ -813,7 +813,7 @@ Variant Object::call(const StringName &p_method, const Variant **p_args, int p_a
 
         ret = method->call(this, p_args, p_argcount, r_error);
     } else {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
     }
 
     return ret;
@@ -1009,19 +1009,19 @@ struct _ObjectSignalDisconnectData {
     StringName method;
 };
 
-Variant Object::_emit_signal(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Object::_emit_signal(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+    r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
 
     ERR_FAIL_COND_V(p_argcount < 1, Variant());
     if (p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
         ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
     }
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     StringName signal = p_args[0]->as<StringName>();
 
@@ -1100,17 +1100,17 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         if (c.flags & ObjectNS::CONNECT_QUEUED) {
             MessageQueue::get_singleton()->push_call(target->get_instance_id(), c.method, args, argc, true);
         } else {
-            Variant::CallError ce;
+            Callable::CallError ce;
             _emitting = true;
             target->call(c.method, args, argc, ce);
             _emitting = false;
 
-            if (ce.error != Variant::CallError::CALL_OK) {
+            if (ce.error != Callable::CallError::CALL_OK) {
 #ifdef DEBUG_ENABLED
                 if (c.flags & ObjectNS::CONNECT_PERSIST && Engine::get_singleton()->is_editor_hint() && (script.is_null() || !refFromRefPtr<Script>(script)->is_tool()))
                     continue;
 #endif
-                if (ce.error == Variant::CallError::CALL_ERROR_INVALID_METHOD && !ClassDB::class_exists(target->get_class_name())) {
+                if (ce.error == Callable::CallError::CALL_ERROR_INVALID_METHOD && !ClassDB::class_exists(target->get_class_name())) {
                     // most likely object is not initialized yet, do not throw error.
                 } else {
                     ERR_PRINT("Error calling method from signal '" + String(p_name) +
@@ -1694,7 +1694,7 @@ VariantType Object::get_static_property_type_indexed(const Vector<StringName> &p
         return VariantType::NIL;
     }
 
-    Variant::CallError ce;
+    Callable::CallError ce;
     Variant check = Variant::construct(t, nullptr, 0, ce);
 
     for (size_t i = 1; i < p_path.size(); i++) {

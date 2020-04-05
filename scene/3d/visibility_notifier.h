@@ -32,12 +32,12 @@
 
 #include "core/hash_set.h"
 #include "core/hash_map.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 
 class Camera;
-class VisibilityNotifier : public Spatial {
+class VisibilityNotifier : public Node3D {
 
-	GDCLASS(VisibilityNotifier,Spatial)
+	GDCLASS(VisibilityNotifier,Node3D)
 
     HashSet<Camera *> cameras;
 

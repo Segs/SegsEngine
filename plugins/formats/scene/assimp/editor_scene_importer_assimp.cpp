@@ -347,7 +347,7 @@ aiBone *EditorSceneImporterAssimp::get_bone_from_stack(ImportState &state, aiStr
     return nullptr;
 }
 
-Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *scene, const uint32_t p_flags,
+Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *scene, const uint32_t p_flags,
                                                     int p_bake_fps, const int32_t p_max_bone_weights) {
     ERR_FAIL_COND_V(scene == nullptr, nullptr);
 
@@ -390,7 +390,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             String node_name = AssimpUtils::get_assimp_string(element_assimp_node->mName);
             //print_verbose("node: " + node_name);
 
-            Spatial *spatial = nullptr;
+            Node3D *spatial = nullptr;
             Transform transform = AssimpUtils::assimp_matrix_transform(element_assimp_node->mTransformation);
 
             // retrieve this node bone
@@ -411,7 +411,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             } else if (bone != nullptr) {
                 continue;
             } else {
-                spatial = memnew(Spatial);
+                spatial = memnew(Node3D);
             }
 
             ERR_CONTINUE_MSG(spatial == nullptr, "Assimp Import - are we out of ram?");
@@ -428,11 +428,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             // flat node map parent lookup tool
             state.flat_node_map.emplace(element_assimp_node, spatial);
 
-            HashMap<const aiNode *, Spatial *>::iterator parent_lookup = state.flat_node_map.find(parent_assimp_node);
+            HashMap<const aiNode *, Node3D *>::iterator parent_lookup = state.flat_node_map.find(parent_assimp_node);
 
             // note: this always fails on the root node :) keep that in mind this is by design
             if (parent_lookup!=state.flat_node_map.end()) {
-                Spatial *parent_node = parent_lookup->second;
+                Node3D *parent_node = parent_lookup->second;
 
                 ERR_FAIL_COND_V_MSG(parent_node == NULL, state.root, "Parent node invalid even though lookup successful, out of ram?");
 
@@ -509,11 +509,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
 
         print_verbose("generating mesh phase from skeletal mesh");
 
-        Vector<Spatial *> cleanup_template_nodes;
+        Vector<Node3D *> cleanup_template_nodes;
 
-        for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
+        for (const eastl::pair<const aiNode *, Node3D *> &key_value_pair : state.flat_node_map) {
             const aiNode *assimp_node = key_value_pair.first;
-            Spatial *mesh_template = key_value_pair.second;
+            Node3D *mesh_template = key_value_pair.second;
 
             ERR_CONTINUE(assimp_node == nullptr);
             ERR_CONTINUE(mesh_template == nullptr);
@@ -567,7 +567,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             }
         }
 
-        for (Spatial * element : cleanup_template_nodes) {
+        for (Node3D * element : cleanup_template_nodes) {
             if (element) {
                 memdelete(element);
             }
@@ -602,9 +602,9 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
 }
 // I really do not like this but need to figure out a better way of removing it later.
 Node *EditorSceneImporterAssimp::get_node_by_name(ImportState &state, StringView name) {
-    for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
+    for (const eastl::pair<const aiNode *, Node3D *> &key_value_pair : state.flat_node_map) {
         const aiNode *assimp_node = key_value_pair.first;
-        Spatial *node = key_value_pair.second;
+        Node3D *node = key_value_pair.second;
 
         String node_name = AssimpUtils::get_assimp_string(assimp_node->mName);
         if (node_name == name && node) {
@@ -1415,7 +1415,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
  * Create a light for the scene
  * Automatically caches lights for lookup later
  */
-Spatial *EditorSceneImporterAssimp::create_light(
+Node3D *EditorSceneImporterAssimp::create_light(
         ImportState &state,
         const String &node_name,
         Transform &look_at_transform) {
@@ -1461,7 +1461,7 @@ Spatial *EditorSceneImporterAssimp::create_light(
 /**
  * Create camera for the scene
  */
-Spatial *EditorSceneImporterAssimp::create_camera(
+Node3D *EditorSceneImporterAssimp::create_camera(
         ImportState &state,
         const String &node_name,
         Transform &look_at_transform) {

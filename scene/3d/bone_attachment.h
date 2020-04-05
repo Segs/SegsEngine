@@ -33,9 +33,9 @@
 #include "scene/3d/skeleton.h"
 #include "core/string.h"
 
-class GODOT_EXPORT BoneAttachment : public Spatial {
+class GODOT_EXPORT BoneAttachment : public Node3D {
 
-	GDCLASS(BoneAttachment,Spatial)
+	GDCLASS(BoneAttachment,Node3D)
 
 	bool bound;
     String bone_name;

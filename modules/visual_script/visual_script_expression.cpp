@@ -1241,7 +1241,7 @@ public:
 
     //virtual int get_working_memory_size() const { return 0; }
     //execute by parsing the tree directly
-    virtual bool _execute(const Variant **p_inputs, VisualScriptExpression::ENode *p_node, Variant &r_ret, String &r_error_str, Variant::CallError &ce) {
+    virtual bool _execute(const Variant **p_inputs, VisualScriptExpression::ENode *p_node, Variant &r_ret, String &r_error_str, Callable::CallError &ce) {
 
         switch (p_node->type) {
             case VisualScriptExpression::ENode::TYPE_INPUT: {
@@ -1383,7 +1383,7 @@ public:
 
                 r_ret = Variant::construct(constructor->data_type, (const Variant **)argp.data(), argp.size(), ce);
 
-                if (ce.error != Variant::CallError::CALL_OK) {
+                if (ce.error != Callable::CallError::CALL_OK) {
                     r_error_str = FormatVE("Invalid arguments to construct '%s'.",Variant::get_type_name(constructor->data_type));
                     return true;
                 }
@@ -1410,7 +1410,7 @@ public:
 
                 VisualScriptBuiltinFunc::exec_func(bifunc->func, (const Variant **)argp.data(), &r_ret, ce, r_error_str);
 
-                if (ce.error != Variant::CallError::CALL_OK) {
+                if (ce.error != Callable::CallError::CALL_OK) {
                     r_error_str = "Builtin Call Failed. " + r_error_str;
                     return true;
                 }
@@ -1442,7 +1442,7 @@ public:
 
                 r_ret = base.call(call->method, (const Variant **)argp.data(), argp.size(), ce);
 
-                if (ce.error != Variant::CallError::CALL_OK) {
+                if (ce.error != Callable::CallError::CALL_OK) {
                     r_error_str = "On call to '" + String(call->method) + "':";
                     return true;
                 }
@@ -1452,17 +1452,17 @@ public:
         return false;
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
         if (!expression->root || expression->error_set) {
             r_error_str = expression->error_str;
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
             return 0;
         }
 
         bool error = _execute(p_inputs, expression->root, *p_outputs[0], r_error_str, r_error);
-        if (error && r_error.error == Variant::CallError::CALL_OK) {
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+        if (error && r_error.error == Callable::CallError::CALL_OK) {
+            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
         }
 
 #ifdef DEBUG_ENABLED
@@ -1470,7 +1470,7 @@ public:
 
             r_error_str += FormatVE("Can't convert expression result from %s to %s.",
                     Variant::get_type_name(p_outputs[0]->get_type()), Variant::get_type_name(expression->output_type));
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
         }
 #endif
 

@@ -32,12 +32,12 @@
 
 #include "core/math/face3.h"
 #include "core/rid.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/material.h"
 
-class GODOT_EXPORT VisualInstance : public Spatial {
+class GODOT_EXPORT VisualInstance : public Node3D {
 
-    GDCLASS(VisualInstance,Spatial)
+    GDCLASS(VisualInstance,Node3D)
 
     OBJ_CATEGORY("3D Visual Nodes")
 

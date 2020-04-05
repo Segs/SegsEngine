@@ -71,20 +71,20 @@ void MethodBind::set_name(const StringName &p_name) {
 
 #endif
 
-Variant MethodBind::call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)
+Variant MethodBind::call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error)
 {
 #ifdef DEBUG_METHODS_ENABLED
     if(!is_vararg())
     {
         if (p_arg_count>get_argument_count()) {
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
+            r_error.error=Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
             r_error.argument=get_argument_count();
             return Variant();
 
         }
         if (p_arg_count<(get_argument_count()-get_default_argument_count())) {
 
-            r_error.error=Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+            r_error.error=Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
             r_error.argument=get_argument_count()-get_default_argument_count();
             return Variant();
         }

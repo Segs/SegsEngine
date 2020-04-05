@@ -32,11 +32,11 @@
 #define NAVIGATION_H
 
 #include "scene/3d/navigation_mesh_instance.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 
-class Navigation : public Spatial {
+class Navigation : public Node3D {
 
-    GDCLASS(Navigation, Spatial);
+    GDCLASS(Navigation, Node3D);
 
     RID map;
 

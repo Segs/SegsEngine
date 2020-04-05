@@ -166,8 +166,8 @@ void Joint::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_exclude_nodes_from_collision", {"enable"}), &Joint::set_exclude_nodes_from_collision);
     MethodBinder::bind_method(D_METHOD("get_exclude_nodes_from_collision"), &Joint::get_exclude_nodes_from_collision);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_a", PropertyHint::NodePathValidTypes, "CollisionObject"), "set_node_a", "get_node_a");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_b", PropertyHint::NodePathValidTypes, "CollisionObject"), "set_node_b", "get_node_b");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_a", PropertyHint::NodePathValidTypes, "CollisionObject3D"), "set_node_a", "get_node_a");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "nodes/node_b", PropertyHint::NodePathValidTypes, "CollisionObject3D"), "set_node_b", "get_node_b");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "solver/priority", PropertyHint::Range, "1,8,1"), "set_solver_priority", "get_solver_priority");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision/exclude_nodes"), "set_exclude_nodes_from_collision", "get_exclude_nodes_from_collision");

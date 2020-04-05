@@ -50,7 +50,7 @@ void InterpolatedCamera::_notification(int p_what) {
                 break;
             if (has_node(target)) {
 
-                Spatial *node = object_cast<Spatial>(get_node(target));
+                Node3D *node = object_cast<Node3D>(get_node(target));
                 if (!node)
                     break;
 
@@ -87,10 +87,10 @@ void InterpolatedCamera::_notification(int p_what) {
 void InterpolatedCamera::_set_target(const Object *p_target) {
 
     ERR_FAIL_NULL(p_target);
-    set_target(object_cast<Spatial>(p_target));
+    set_target(object_cast<Node3D>(p_target));
 }
 
-void InterpolatedCamera::set_target(const Spatial *p_target) {
+void InterpolatedCamera::set_target(const Node3D *p_target) {
 
     ERR_FAIL_NULL(p_target);
     target = get_path_to(p_target);

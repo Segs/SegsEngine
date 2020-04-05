@@ -33,7 +33,7 @@
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
-#include "scene/3d/path.h"
+#include "scene/3d/path_3d.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/world.h"
 #include "servers/physics_server.h"
@@ -1783,7 +1783,7 @@ CSGBrush *CSGPolygon::_build_brush() {
     if (triangles.size() < 3)
         return nullptr;
 
-    Path *path = nullptr;
+    Path3D *path = nullptr;
     Ref<Curve3D> curve;
 
     // get bounds for our polygon
@@ -1810,7 +1810,7 @@ CSGBrush *CSGPolygon::_build_brush() {
         Node *n = get_node(path_node);
         if (!n)
             return nullptr;
-        path = object_cast<Path>(n);
+        path = object_cast<Path3D>(n);
         if (!path)
             return nullptr;
 
@@ -2321,7 +2321,7 @@ void CSGPolygon::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "spin_degrees", PropertyHint::Range, "1,360,0.1"), "set_spin_degrees", "get_spin_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "spin_sides", PropertyHint::Range, "3,64,1"), "set_spin_sides", "get_spin_sides");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "path_node", PropertyHint::NodePathValidTypes, "Path"), "set_path_node", "get_path_node");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "path_node", PropertyHint::NodePathValidTypes, "Path3D"), "set_path_node", "get_path_node");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_interval", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_path_interval", "get_path_interval");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "path_rotation", PropertyHint::Enum, "Polygon,Path,PathFollow"), "set_path_rotation", "get_path_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_local"), "set_path_local", "is_path_local");

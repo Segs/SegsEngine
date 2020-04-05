@@ -231,7 +231,7 @@ private:
     friend class Node;
     //optimization
     friend class CanvasItem;
-    friend class Spatial;
+    friend class Node3D;
     friend class Viewport;
 
     SelfList<Node>::List xform_change_list;
@@ -271,8 +271,8 @@ protected:
 
 public:
     Array _get_nodes_in_group(const StringName &p_group);
-    Variant _call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _call_group_flags(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _call_group(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
 public:
     enum GroupCallFlags {

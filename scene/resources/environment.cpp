@@ -982,7 +982,7 @@ void Environment::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "background_sky", PropertyHint::ResourceType, "Sky"), "set_sky", "get_sky");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "background_sky_custom_fov", PropertyHint::Range, "0,180,0.1"), "set_sky_custom_fov", "get_sky_custom_fov");
     ADD_PROPERTY(PropertyInfo(VariantType::BASIS, "background_sky_orientation"), "set_sky_orientation", "get_sky_orientation");
-    // Only display rotation in degrees in the inspector (like in Spatial).
+    // Only display rotation in degrees in the inspector (like in Node3D).
     // This avoids displaying the same information twice.
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "background_sky_rotation", PropertyHint::None, "", 0), "set_sky_rotation", "get_sky_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "background_sky_rotation_degrees", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_sky_rotation_degrees", "get_sky_rotation_degrees");

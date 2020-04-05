@@ -136,9 +136,9 @@ public:
     SpriteFrames();
 };
 
-class AnimatedSprite : public Node2D {
+class AnimatedSprite2D : public Node2D {
 
-    GDCLASS(AnimatedSprite,Node2D)
+    GDCLASS(AnimatedSprite2D,Node2D)
 
     Ref<SpriteFrames> frames;
     bool playing;
@@ -214,5 +214,5 @@ public:
     Color get_modulate() const;
 
     StringName get_configuration_warning() const override;
-    AnimatedSprite();
+    AnimatedSprite2D();
 };

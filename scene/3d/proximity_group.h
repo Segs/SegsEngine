@@ -30,12 +30,12 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "core/map.h"
 
-class ProximityGroup : public Spatial {
+class ProximityGroup : public Node3D {
 
-    GDCLASS(ProximityGroup,Spatial)
+    GDCLASS(ProximityGroup,Node3D)
 
     OBJ_CATEGORY("3D");
 

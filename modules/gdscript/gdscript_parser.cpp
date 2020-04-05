@@ -1758,7 +1758,7 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
                         vptr = (const Variant **)&ptrs[0];
                     }
 
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     Variant v;
 
                     if (op->arguments[0]->type == Node::TYPE_TYPE) {
@@ -1770,7 +1770,7 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
                         GDScriptFunctions::call(func, vptr, ptrs.size(), v, ce);
                     }
 
-                    if (ce.error != Variant::CallError::CALL_OK) {
+                    if (ce.error != Callable::CallError::CALL_OK) {
 
                         String errwhere;
                         if (op->arguments[0]->type == Node::TYPE_TYPE) {
@@ -1784,16 +1784,16 @@ GDScriptParser::Node *GDScriptParser::_reduce_expression(Node *p_node, bool p_to
 
                         switch (ce.error) {
 
-                            case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
+                            case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
                                 _set_error("Invalid argument (#" + ::to_string(ce.argument + 1) + ") for " + errwhere + ".");
 
                             } break;
-                            case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
+                            case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
                                 _set_error("Too many arguments for " + errwhere + ".");
                             } break;
-                            case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
+                            case Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
 
                                 _set_error("Too few arguments for " + errwhere + ".");
                             } break;
@@ -4831,7 +4831,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                 }
 
 #ifdef TOOLS_ENABLED
-                Variant::CallError ce;
+                Callable::CallError ce;
                 member.default_value = Variant::construct(member._export.type, nullptr, 0, ce);
 #endif
                 if (tokenizer->get_token() == GDScriptTokenizer::TK_OP_ASSIGN) {
@@ -4899,7 +4899,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                         if (cn->value.get_type() != VariantType::NIL) {
                             if (member._export.type != VariantType::NIL && cn->value.get_type() != member._export.type) {
                                 if (Variant::can_convert(cn->value.get_type(), member._export.type)) {
-                                    Variant::CallError err;
+                                    Callable::CallError err;
                                     const Variant *args = &cn->value;
                                     cn->value = Variant::construct(member._export.type, &args, 1, err);
                                 } else {
@@ -5958,9 +5958,9 @@ GDScriptParser::DataType GDScriptParser::_get_operation_type(const Variant::Oper
         a_ref = make_ref_counted<RefCounted>();
         a = a_ref;
     } else {
-        Variant::CallError err;
+        Callable::CallError err;
         a = Variant::construct(a_type, nullptr, 0, err);
-        if (err.error != Variant::CallError::CALL_OK) {
+        if (err.error != Callable::CallError::CALL_OK) {
             r_valid = false;
             return DataType();
         }
@@ -5971,9 +5971,9 @@ GDScriptParser::DataType GDScriptParser::_get_operation_type(const Variant::Oper
         b_ref = make_ref_counted<RefCounted>();
         b = b_ref;
     } else {
-        Variant::CallError err;
+        Callable::CallError err;
         b = Variant::construct(b_type, nullptr, 0, err);
-        if (err.error != Variant::CallError::CALL_OK) {
+        if (err.error != Callable::CallError::CALL_OK) {
             r_valid = false;
             return DataType();
         }
@@ -6241,7 +6241,7 @@ GDScriptParser::Node *GDScriptParser::_get_default_value_for_type(const DataType
             result = alloc_node<DictionaryNode>();
         } else {
             ConstantNode *c = alloc_node<ConstantNode>();
-            Variant::CallError err;
+            Callable::CallError err;
             c->value = Variant::construct(p_type.builtin_type, NULL, 0, err);
             result = c;
         }
@@ -6553,7 +6553,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                                     result.has_type = false;
                                 } break;
                                 default: {
-                                    Variant::CallError err;
+                                    Callable::CallError err;
                                     Variant temp = Variant::construct(base_type.builtin_type, nullptr, 0, err);
 
                                     bool valid = false;
@@ -6678,7 +6678,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                                         break;
                                     }
                                     default: {
-                                        Variant::CallError err;
+                                        Callable::CallError err;
                                         Variant temp = Variant::construct(base_type.builtin_type, nullptr, 0, err);
 
                                         bool valid = false;
@@ -7109,7 +7109,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
             }
 
             if (base_type.kind == DataType::BUILTIN) {
-                Variant::CallError err;
+                Callable::CallError err;
                 Variant tmp = Variant::construct(base_type.builtin_type, nullptr, 0, err);
 
                 if (check_types) {

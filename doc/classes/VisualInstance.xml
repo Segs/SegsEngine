@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VisualInstance" inherits="Spatial" version="4.0">
+<class name="VisualInstance" inherits="Node3D" version="4.0">
 	<brief_description>
 		Parent of all visual 3D nodes.
 	</brief_description>
@@ -44,7 +44,7 @@
 			</return>
 			<description>
 				Returns the transformed [AABB] (also known as the bounding box) for this [VisualInstance].
-				Transformed in this case means the [AABB] plus the position, rotation, and scale of the [Spatial]'s [Transform].
+				Transformed in this case means the [AABB] plus the position, rotation, and scale of the [Node3D]'s [Transform].
 			</description>
 		</method>
 		<method name="set_base">

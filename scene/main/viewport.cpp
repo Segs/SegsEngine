@@ -39,9 +39,9 @@
 #include "core/project_settings.h"
 #include "scene/2d/collision_object_2d.h"
 #include "scene/3d/camera.h"
-#include "scene/3d/collision_object.h"
+#include "scene/3d/collision_object_3d.h"
 #include "scene/3d/listener.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/world_environment.h"
 #include "scene/gui/control.h"
 #include "scene/gui/label.h"
@@ -255,7 +255,7 @@ void Viewport::update_worlds() {
     find_world()->_update(get_tree()->get_frame());
 }
 
-void Viewport::_collision_object_input_event(CollisionObject *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
+void Viewport::_collision_object_input_event(CollisionObject3D *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
 
     Transform object_transform = p_object->get_global_transform();
     Transform camera_transform = p_camera->get_global_transform();
@@ -435,7 +435,7 @@ void Viewport::_notification(int p_what) {
 
 #ifndef _3D_DISABLED
                 Vector2 last_pos(1e20f, 1e20f);
-                CollisionObject *last_object = nullptr;
+                CollisionObject3D *last_object = nullptr;
                 ObjectID last_id = 0;
 #endif
                 PhysicsDirectSpaceState::RayResult result;
@@ -619,7 +619,7 @@ void Viewport::_notification(int p_what) {
 
                     if (physics_object_capture != 0) {
 
-                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_capture));
+                        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(physics_object_capture));
                         if (co && camera) {
                             _collision_object_input_event(co, camera, ev, Vector3(), Vector3(), 0);
                             captured = true;
@@ -659,7 +659,7 @@ void Viewport::_notification(int p_what) {
                                 ObjectID new_collider = 0;
                                 if (col) {
 
-                                    CollisionObject *co = object_cast<CollisionObject>(result.collider);
+                                    CollisionObject3D *co = object_cast<CollisionObject3D>(result.collider);
                                     if (co) {
 
                                         _collision_object_input_event(co, camera, ev, result.position, result.normal, result.shape);
@@ -676,7 +676,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (physics_object_over) {
 
-                                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_over));
+                                        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(physics_object_over));
                                         if (co) {
                                             co->_mouse_exit();
                                         }
@@ -684,7 +684,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (new_collider) {
 
-                                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(new_collider));
+                                        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(new_collider));
                                         if (co) {
                                             co->_mouse_enter();
                                         }
@@ -1080,9 +1080,9 @@ void Viewport::_propagate_enter_world(Node *p_node) {
         if (!p_node->is_inside_tree()) //may not have entered scene yet
             return;
 
-        if (object_cast<Spatial>(p_node) || object_cast<WorldEnvironment>(p_node)) {
+        if (object_cast<Node3D>(p_node) || object_cast<WorldEnvironment>(p_node)) {
 
-            p_node->notification(Spatial::NOTIFICATION_ENTER_WORLD);
+            p_node->notification(Node3D::NOTIFICATION_ENTER_WORLD);
         } else {
             Viewport *v = object_cast<Viewport>(p_node);
             if (v) {
@@ -1117,9 +1117,9 @@ void Viewport::_propagate_exit_world(Node *p_node) {
         if (!p_node->is_inside_tree()) //may have exited scene already
             return;
 
-        if (object_cast<Spatial>(p_node) || object_cast<WorldEnvironment>(p_node)) {
+        if (object_cast<Node3D>(p_node) || object_cast<WorldEnvironment>(p_node)) {
 
-            p_node->notification(Spatial::NOTIFICATION_EXIT_WORLD);
+            p_node->notification(Node3D::NOTIFICATION_EXIT_WORLD);
         } else {
             Viewport *v = object_cast<Viewport>(p_node);
             if (v) {
@@ -2727,7 +2727,7 @@ void Viewport::_drop_physics_mouseover() {
 
 #ifndef _3D_DISABLED
     if (physics_object_over) {
-        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_over));
+        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(physics_object_over));
         if (co) {
             co->_mouse_exit();
         }

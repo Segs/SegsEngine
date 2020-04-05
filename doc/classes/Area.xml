@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Area" inherits="CollisionObject" version="4.0">
+<class name="Area3D" inherits="CollisionObject3D" version="4.0">
 	<brief_description>
 		General-purpose area node for detection and 3D physics influence.
 	</brief_description>
 	<description>
-		3D area that detects [CollisionObject] nodes overlapping, entering, or exiting. Can also alter or override local physics parameters (gravity, damping).
+        3D area that detects [CollisionObject3D] nodes overlapping, entering, or exiting. Can also alter or override local physics parameters (gravity, damping).
 	</description>
 	<tutorials>
 	</tutorials>
@@ -31,7 +31,7 @@
 			<return type="Array">
 			</return>
 			<description>
-				Returns a list of intersecting [Area]s. For performance reasons (collisions are all processed at the same time) this list is modified once during the physics step, not immediately after objects are moved. Consider using signals instead.
+                Returns a list of intersecting [Area3D]s. For performance reasons (collisions are all processed at the same time) this list is modified once during the physics step, not immediately after objects are moved. Consider using signals instead.
 			</description>
 		</method>
 		<method name="get_overlapping_bodies" qualifiers="const">
@@ -70,7 +70,7 @@
 			<argument index="1" name="value" type="bool">
 			</argument>
 			<description>
-				Set/clear individual bits on the layer mask. This simplifies editing this [Area]'s layers.
+                Set/clear individual bits on the layer mask. This simplifies editing this [Area3D]'s layers.
 			</description>
 		</method>
 		<method name="set_collision_mask_bit">
@@ -81,7 +81,7 @@
 			<argument index="1" name="value" type="bool">
 			</argument>
 			<description>
-				Set/clear individual bits on the collision mask. This simplifies editing which [Area] layers this [Area] scans.
+                Set/clear individual bits on the collision mask. This simplifies editing which [Area3D] layers this [Area3D] scans.
 			</description>
 		</method>
 	</methods>
@@ -137,20 +137,20 @@
 		<member name="reverb_bus_uniformity" type="float" setter="set_reverb_uniformity" getter="get_reverb_uniformity" default="0.0">
 			The degree to which this area's reverb is a uniform effect. Ranges from [code]0[/code] to [code]1[/code] with [code]0.1[/code] precision.
 		</member>
-		<member name="space_override" type="int" setter="set_space_override_mode" getter="get_space_override_mode" enum="Area.SpaceOverride" default="0">
+        <member name="space_override" type="int" setter="set_space_override_mode" getter="get_space_override_mode" enum="Area3D.SpaceOverride" default="0">
 			Override mode for gravity and damping calculations within this area. See [enum SpaceOverride] for possible values.
 		</member>
 	</members>
 	<signals>
 		<signal name="area_entered">
-			<argument index="0" name="area" type="Area">
+            <argument index="0" name="area" type="Area3D">
 			</argument>
 			<description>
 				Emitted when another area enters.
 			</description>
 		</signal>
 		<signal name="area_exited">
-			<argument index="0" name="area" type="Area">
+            <argument index="0" name="area" type="Area3D">
 			</argument>
 			<description>
 				Emitted when another area exits.
@@ -159,7 +159,7 @@
 		<signal name="area_shape_entered">
 			<argument index="0" name="area_id" type="int">
 			</argument>
-			<argument index="1" name="area" type="Area">
+            <argument index="1" name="area" type="Area3D">
 			</argument>
 			<argument index="2" name="area_shape" type="int">
 			</argument>
@@ -172,7 +172,7 @@
 		<signal name="area_shape_exited">
 			<argument index="0" name="area_id" type="int">
 			</argument>
-			<argument index="1" name="area" type="Area">
+            <argument index="1" name="area" type="Area3D">
 			</argument>
 			<argument index="2" name="area_shape" type="int">
 			</argument>

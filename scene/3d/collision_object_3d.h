@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  collision_object.h                                                   */
+/*  collision_object_3d.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -30,13 +30,13 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/shape.h"
 #include "core/map.h"
 
-class CollisionObject : public Spatial {
+class CollisionObject3D : public Node3D {
 
-    GDCLASS(CollisionObject,Spatial)
+    GDCLASS(CollisionObject3D,Node3D)
 
     struct ShapeData {
 
@@ -67,7 +67,7 @@ class CollisionObject : public Spatial {
     void _update_pickable();
 
 protected:
-    CollisionObject(RID p_rid, bool p_area);
+    CollisionObject3D(RID p_rid, bool p_area);
 
     void _notification(int p_what);
     static void _bind_methods();
@@ -109,6 +109,6 @@ public:
 
     StringName get_configuration_warning() const override;
 
-    CollisionObject();
-    ~CollisionObject() override;
+    CollisionObject3D();
+    ~CollisionObject3D() override;
 };

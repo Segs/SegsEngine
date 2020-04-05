@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/rid.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/skin.h"
 #include "core/string.h"
 
@@ -64,9 +64,9 @@ public:
     Ref<Skin> get_skin() const;
     ~SkinReference();
 };
-class GODOT_EXPORT Skeleton : public Spatial {
+class GODOT_EXPORT Skeleton : public Node3D {
 
-    GDCLASS(Skeleton,Spatial)
+    GDCLASS(Skeleton,Node3D)
 private:
     friend class SkinReference;
     struct Bone {

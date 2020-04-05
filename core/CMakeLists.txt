@@ -246,6 +246,8 @@ set(generic_core_sources
     math/vector2.h
     math/vector3.cpp
     math/vector3.h
+    math/vector3i.cpp
+    math/vector3i.h
 
     os/dir_access.cpp
     os/dir_access.h

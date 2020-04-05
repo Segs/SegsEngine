@@ -36,13 +36,13 @@
 #include "core/math/vector3.h"
 #include "scene/main/node.h"
 
-class Spatial;
+class Node3D;
 class Navigation;
 
 class NavigationAgent : public Node {
     GDCLASS(NavigationAgent, Node);
 
-    Spatial *agent_parent;
+    Node3D *agent_parent;
     Navigation *navigation;
 
     RID agent;

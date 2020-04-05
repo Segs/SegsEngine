@@ -253,7 +253,7 @@
 #include "scene/animation/skeleton_ik.h"
 #include "scene/resources/skin.h"
 #include "scene/3d/soft_body.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/spatial_velocity_tracker.h"
 #include "scene/resources/sphere_shape.h"
 #include "scene/gui/spin_box.h"
@@ -7346,383 +7346,383 @@ Object* godot_icall_ButtonGroup_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_CPUParticles_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_CPUParticles3D_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles *>(ptr)->set_emitting(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emitting(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
+void godot_icall_CPUParticles3D_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<CPUParticles *>(ptr)->set_amount(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_amount(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_lifetime_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_lifetime_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_lifetime(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_lifetime(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_CPUParticles3D_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles *>(ptr)->set_one_shot(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_one_shot(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_pre_process_time(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_pre_process_time(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_explosiveness_ratio(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_explosiveness_ratio(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_randomness_ratio(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_randomness_ratio(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_lifetime_randomness_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_lifetime_randomness_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_lifetime_randomness(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_lifetime_randomness(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_CPUParticles3D_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles *>(ptr)->set_use_local_coordinates(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_use_local_coordinates(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
+void godot_icall_CPUParticles3D_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<CPUParticles *>(ptr)->set_fixed_fps(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_fixed_fps(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_CPUParticles3D_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles *>(ptr)->set_fractional_delta(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_fractional_delta(arg1_in);
 }
 
-void godot_icall_CPUParticles_set_speed_scale_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_speed_scale(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_speed_scale(arg1_in);
 }
 
-MonoBoolean godot_icall_CPUParticles_is_emitting_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_CPUParticles3D_is_emitting_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles *>(ptr)->is_emitting();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->is_emitting();
     return static_cast<MonoBoolean>(ret);
 }
 
-int32_t godot_icall_CPUParticles_get_amount_1f886eb0(Object * ptr) {
+int32_t godot_icall_CPUParticles3D_get_amount_1f886eb0(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_amount();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_amount();
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_CPUParticles_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_lifetime();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_lifetime();
     *arg_ret = (float)ret;
 }
 
-MonoBoolean godot_icall_CPUParticles_get_one_shot_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_CPUParticles3D_get_one_shot_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_one_shot();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_one_shot();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_CPUParticles_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_pre_process_time();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_pre_process_time();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_explosiveness_ratio();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_explosiveness_ratio();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_randomness_ratio();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_randomness_ratio();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_get_lifetime_randomness_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_lifetime_randomness_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_lifetime_randomness();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_lifetime_randomness();
     *arg_ret = (float)ret;
 }
 
-MonoBoolean godot_icall_CPUParticles_get_use_local_coordinates_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_CPUParticles3D_get_use_local_coordinates_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_use_local_coordinates();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_use_local_coordinates();
     return static_cast<MonoBoolean>(ret);
 }
 
-int32_t godot_icall_CPUParticles_get_fixed_fps_1f886eb0(Object * ptr) {
+int32_t godot_icall_CPUParticles3D_get_fixed_fps_1f886eb0(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_fixed_fps();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_fixed_fps();
     return static_cast<int32_t>(ret);
 }
 
-MonoBoolean godot_icall_CPUParticles_get_fractional_delta_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_CPUParticles3D_get_fractional_delta_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_fractional_delta();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_fractional_delta();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_CPUParticles_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_speed_scale();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_speed_scale();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_set_draw_order_2112a4ca(Object * ptr, int32_t arg1) {
+void godot_icall_CPUParticles3D_set_draw_order_2112a4ca(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<CPUParticles *>(ptr)->set_draw_order((CPUParticles::DrawOrder)arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_draw_order((CPUParticles3D::DrawOrder)arg1_in);
 }
 
-int32_t godot_icall_CPUParticles_get_draw_order_57695d85(Object * ptr) {
+int32_t godot_icall_CPUParticles3D_get_draw_order_57695d85(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_draw_order();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_draw_order();
     return (int32_t)ret;
 }
 
-void godot_icall_CPUParticles_set_mesh_d5d30806(Object * ptr, Object * arg1) {
+void godot_icall_CPUParticles3D_set_mesh_d5d30806(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles *>(ptr)->set_mesh(AutoRef(arg1));
+    static_cast<CPUParticles3D *>(ptr)->set_mesh(AutoRef(arg1));
 }
 
-MonoObject* godot_icall_CPUParticles_get_mesh_1372d766(Object * ptr) {
+MonoObject* godot_icall_CPUParticles3D_get_mesh_1372d766(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles *>(ptr)->get_mesh();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_mesh();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_CPUParticles_restart_c8e54a7b(Object * ptr) {
+void godot_icall_CPUParticles3D_restart_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles *>(ptr)->restart();
+    static_cast<CPUParticles3D *>(ptr)->restart();
 }
 
-void godot_icall_CPUParticles_set_direction_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+void godot_icall_CPUParticles3D_set_direction_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<CPUParticles *>(ptr)->set_direction(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_direction(arg1_in);
 }
 
-void godot_icall_CPUParticles_get_direction_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_CPUParticles3D_get_direction_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_direction();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_direction();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_CPUParticles_set_spread_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_spread_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_spread(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_spread(arg1_in);
 }
 
-void godot_icall_CPUParticles_get_spread_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_spread_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_spread();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_spread();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_set_flatness_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_flatness_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_flatness(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_flatness(arg1_in);
 }
 
-void godot_icall_CPUParticles_get_flatness_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_flatness_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_flatness();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_flatness();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_set_param_a810fa37(Object * ptr, int32_t arg1, float* arg2) {
+void godot_icall_CPUParticles3D_set_param_a810fa37(Object * ptr, int32_t arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<CPUParticles *>(ptr)->set_param((CPUParticles::Parameter)arg1_in, arg2_in);
+    static_cast<CPUParticles3D *>(ptr)->set_param((CPUParticles3D::Parameter)arg1_in, arg2_in);
 }
 
-void godot_icall_CPUParticles_get_param_6b4f30f5(Object * ptr, int32_t arg1, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_param_6b4f30f5(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles *>(ptr)->get_param((CPUParticles::Parameter)arg1_in);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param((CPUParticles3D::Parameter)arg1_in);
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_set_param_randomness_a810fa37(Object * ptr, int32_t arg1, float* arg2) {
+void godot_icall_CPUParticles3D_set_param_randomness_a810fa37(Object * ptr, int32_t arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<CPUParticles *>(ptr)->set_param_randomness((CPUParticles::Parameter)arg1_in, arg2_in);
+    static_cast<CPUParticles3D *>(ptr)->set_param_randomness((CPUParticles3D::Parameter)arg1_in, arg2_in);
 }
 
-void godot_icall_CPUParticles_get_param_randomness_6b4f30f5(Object * ptr, int32_t arg1, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_param_randomness_6b4f30f5(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles *>(ptr)->get_param_randomness((CPUParticles::Parameter)arg1_in);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param_randomness((CPUParticles3D::Parameter)arg1_in);
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_set_param_curve_6fa1bca6(Object * ptr, int32_t arg1, Object * arg2) {
+void godot_icall_CPUParticles3D_set_param_curve_6fa1bca6(Object * ptr, int32_t arg1, Object * arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<CPUParticles *>(ptr)->set_param_curve((CPUParticles::Parameter)arg1_in, AutoRef(arg2));
+    static_cast<CPUParticles3D *>(ptr)->set_param_curve((CPUParticles3D::Parameter)arg1_in, AutoRef(arg2));
 }
 
-MonoObject* godot_icall_CPUParticles_get_param_curve_c99d09e2(Object * ptr, int32_t arg1) {
+MonoObject* godot_icall_CPUParticles3D_get_param_curve_c99d09e2(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles *>(ptr)->get_param_curve((CPUParticles::Parameter)arg1_in);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param_curve((CPUParticles3D::Parameter)arg1_in);
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_CPUParticles_set_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
+void godot_icall_CPUParticles3D_set_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
     ERR_FAIL_NULL(ptr);
     Color arg1_in = MARSHALLED_IN(Color, arg1);
-    static_cast<CPUParticles *>(ptr)->set_color(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_color(arg1_in);
 }
 
-void godot_icall_CPUParticles_get_color_304394ba(Object * ptr, GDMonoMarshal::M_Color* arg_ret) {
+void godot_icall_CPUParticles3D_get_color_304394ba(Object * ptr, GDMonoMarshal::M_Color* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_color();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_color();
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
-void godot_icall_CPUParticles_set_color_ramp_487c5873(Object * ptr, Object * arg1) {
+void godot_icall_CPUParticles3D_set_color_ramp_487c5873(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles *>(ptr)->set_color_ramp(AutoRef(arg1));
+    static_cast<CPUParticles3D *>(ptr)->set_color_ramp(AutoRef(arg1));
 }
 
-MonoObject* godot_icall_CPUParticles_get_color_ramp_76d5a6f1(Object * ptr) {
+MonoObject* godot_icall_CPUParticles3D_get_color_ramp_76d5a6f1(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles *>(ptr)->get_color_ramp();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_color_ramp();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_CPUParticles_set_particle_flag_440013aa(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+void godot_icall_CPUParticles3D_set_particle_flag_440013aa(Object * ptr, int32_t arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<CPUParticles *>(ptr)->set_particle_flag((CPUParticles::Flags)arg1_in, arg2_in);
+    static_cast<CPUParticles3D *>(ptr)->set_particle_flag((CPUParticles3D::Flags)arg1_in, arg2_in);
 }
 
-MonoBoolean godot_icall_CPUParticles_get_particle_flag_8b445db5(Object * ptr, int32_t arg1) {
+MonoBoolean godot_icall_CPUParticles3D_get_particle_flag_8b445db5(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles *>(ptr)->get_particle_flag((CPUParticles::Flags)arg1_in);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_particle_flag((CPUParticles3D::Flags)arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_CPUParticles_set_emission_shape_1801db0(Object * ptr, int32_t arg1) {
+void godot_icall_CPUParticles3D_set_emission_shape_1801db0(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<CPUParticles *>(ptr)->set_emission_shape((CPUParticles::EmissionShape)arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_shape((CPUParticles3D::EmissionShape)arg1_in);
 }
 
-int32_t godot_icall_CPUParticles_get_emission_shape_12316583(Object * ptr) {
+int32_t godot_icall_CPUParticles3D_get_emission_shape_12316583(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles *>(ptr)->get_emission_shape();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_shape();
     return (int32_t)ret;
 }
 
-void godot_icall_CPUParticles_set_emission_sphere_radius_904508bb(Object * ptr, float* arg1) {
+void godot_icall_CPUParticles3D_set_emission_sphere_radius_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles *>(ptr)->set_emission_sphere_radius(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_sphere_radius(arg1_in);
 }
 
-void godot_icall_CPUParticles_get_emission_sphere_radius_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_CPUParticles3D_get_emission_sphere_radius_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_emission_sphere_radius();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_sphere_radius();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_CPUParticles_set_emission_box_extents_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+void godot_icall_CPUParticles3D_set_emission_box_extents_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<CPUParticles *>(ptr)->set_emission_box_extents(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_box_extents(arg1_in);
 }
 
-void godot_icall_CPUParticles_get_emission_box_extents_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_CPUParticles3D_get_emission_box_extents_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_emission_box_extents();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_box_extents();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_CPUParticles_set_emission_points_88c6a314(Object * ptr, MonoArray* arg1) {
+void godot_icall_CPUParticles3D_set_emission_points_88c6a314(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
-    static_cast<CPUParticles *>(ptr)->set_emission_points(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_points(arg1_in);
 }
 
-MonoArray* godot_icall_CPUParticles_get_emission_points_36607e58(Object * ptr) {
+MonoArray* godot_icall_CPUParticles3D_get_emission_points_36607e58(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles *>(ptr)->get_emission_points();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_points();
     return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
 }
 
-void godot_icall_CPUParticles_set_emission_normals_88c6a314(Object * ptr, MonoArray* arg1) {
+void godot_icall_CPUParticles3D_set_emission_normals_88c6a314(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
-    static_cast<CPUParticles *>(ptr)->set_emission_normals(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_normals(arg1_in);
 }
 
-MonoArray* godot_icall_CPUParticles_get_emission_normals_36607e58(Object * ptr) {
+MonoArray* godot_icall_CPUParticles3D_get_emission_normals_36607e58(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles *>(ptr)->get_emission_normals();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_normals();
     return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
 }
 
-void godot_icall_CPUParticles_set_emission_colors_22e90985(Object * ptr, MonoArray* arg1) {
+void godot_icall_CPUParticles3D_set_emission_colors_22e90985(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     PoolColorArray arg1_in = GDMonoMarshal::mono_array_to_PoolColorArray(arg1);
-    static_cast<CPUParticles *>(ptr)->set_emission_colors(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_colors(arg1_in);
 }
 
-MonoArray* godot_icall_CPUParticles_get_emission_colors_e048d8e7(Object * ptr) {
+MonoArray* godot_icall_CPUParticles3D_get_emission_colors_e048d8e7(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles *>(ptr)->get_emission_colors();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_colors();
     return GDMonoMarshal::PoolColorArray_to_mono_array(ret);
 }
 
-void godot_icall_CPUParticles_get_gravity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_CPUParticles3D_get_gravity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles *>(ptr)->get_gravity();
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_gravity();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_CPUParticles_set_gravity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+void godot_icall_CPUParticles3D_set_gravity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<CPUParticles *>(ptr)->set_gravity(arg1_in);
+    static_cast<CPUParticles3D *>(ptr)->set_gravity(arg1_in);
 }
 
-void godot_icall_CPUParticles_convert_from_particles_598860a7(Object * ptr, Object * arg1) {
+void godot_icall_CPUParticles3D_convert_from_particles_598860a7(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles *>(ptr)->convert_from_particles((Node*)arg1);
+    static_cast<CPUParticles3D *>(ptr)->convert_from_particles((Node*)arg1);
 }
 
-Object* godot_icall_CPUParticles_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "CPUParticles")
+Object* godot_icall_CPUParticles3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "CPUParticles3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -8708,7 +8708,7 @@ MonoObject* godot_icall_CSharpScript_new_e5975f9d(Object * ptr, MonoArray* arg1)
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[0 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<CSharpScript *>(ptr)->_new(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -10392,135 +10392,135 @@ Object* godot_icall_ClippedCamera_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_CollisionObject_set_ray_pickable_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_CollisionObject3D_set_ray_pickable_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CollisionObject *>(ptr)->set_ray_pickable(arg1_in);
+    static_cast<CollisionObject3D *>(ptr)->set_ray_pickable(arg1_in);
 }
 
-MonoBoolean godot_icall_CollisionObject_is_ray_pickable_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_CollisionObject3D_is_ray_pickable_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CollisionObject *>(ptr)->is_ray_pickable();
+    auto ret = static_cast<CollisionObject3D *>(ptr)->is_ray_pickable();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_CollisionObject_set_capture_input_on_drag_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_CollisionObject3D_set_capture_input_on_drag_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CollisionObject *>(ptr)->set_capture_input_on_drag(arg1_in);
+    static_cast<CollisionObject3D *>(ptr)->set_capture_input_on_drag(arg1_in);
 }
 
-MonoBoolean godot_icall_CollisionObject_get_capture_input_on_drag_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_CollisionObject3D_get_capture_input_on_drag_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CollisionObject *>(ptr)->get_capture_input_on_drag();
+    auto ret = static_cast<CollisionObject3D *>(ptr)->get_capture_input_on_drag();
     return static_cast<MonoBoolean>(ret);
 }
 
-RID* godot_icall_CollisionObject_get_rid_6623661e(Object * ptr) {
+RID* godot_icall_CollisionObject3D_get_rid_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CollisionObject *>(ptr)->get_rid();
+    auto ret = static_cast<CollisionObject3D *>(ptr)->get_rid();
     return memnew(RID(ret));
 }
 
-uint32_t godot_icall_CollisionObject_create_shape_owner_16add217(Object * ptr, Object * arg1) {
+uint32_t godot_icall_CollisionObject3D_create_shape_owner_16add217(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<CollisionObject *>(ptr)->create_shape_owner((Object*)arg1);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->create_shape_owner((Object*)arg1);
     return static_cast<uint32_t>(ret);
 }
 
-void godot_icall_CollisionObject_remove_shape_owner_966aab97(Object * ptr, uint32_t arg1) {
+void godot_icall_CollisionObject3D_remove_shape_owner_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<CollisionObject *>(ptr)->remove_shape_owner(arg1_in);
+    static_cast<CollisionObject3D *>(ptr)->remove_shape_owner(arg1_in);
 }
 
-Array* godot_icall_CollisionObject_get_shape_owners_d80382d4(Object * ptr) {
+Array* godot_icall_CollisionObject3D_get_shape_owners_d80382d4(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CollisionObject *>(ptr)->_get_shape_owners();
+    auto ret = static_cast<CollisionObject3D *>(ptr)->_get_shape_owners();
     return memnew(Array(Variant::from(ret)));
 }
 
-void godot_icall_CollisionObject_shape_owner_set_transform_9412c56e(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg2) {
+void godot_icall_CollisionObject3D_shape_owner_set_transform_9412c56e(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
     Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<CollisionObject *>(ptr)->shape_owner_set_transform(arg1_in, arg2_in);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_set_transform(arg1_in, arg2_in);
 }
 
-void godot_icall_CollisionObject_shape_owner_get_transform_b92094ef(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg_ret) {
+void godot_icall_CollisionObject3D_shape_owner_get_transform_b92094ef(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject *>(ptr)->shape_owner_get_transform(arg1_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_transform(arg1_in);
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
-MonoObject* godot_icall_CollisionObject_shape_owner_get_owner_5b891387(Object * ptr, uint32_t arg1) {
+MonoObject* godot_icall_CollisionObject3D_shape_owner_get_owner_5b891387(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject *>(ptr)->shape_owner_get_owner(arg1_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_owner(arg1_in);
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
-void godot_icall_CollisionObject_shape_owner_set_disabled_5111c220(Object * ptr, uint32_t arg1, MonoBoolean arg2) {
+void godot_icall_CollisionObject3D_shape_owner_set_disabled_5111c220(Object * ptr, uint32_t arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<CollisionObject *>(ptr)->shape_owner_set_disabled(arg1_in, arg2_in);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_set_disabled(arg1_in, arg2_in);
 }
 
-MonoBoolean godot_icall_CollisionObject_is_shape_owner_disabled_242501fd(Object * ptr, uint32_t arg1) {
+MonoBoolean godot_icall_CollisionObject3D_is_shape_owner_disabled_242501fd(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject *>(ptr)->is_shape_owner_disabled(arg1_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->is_shape_owner_disabled(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_CollisionObject_shape_owner_add_shape_4d99221(Object * ptr, uint32_t arg1, Object * arg2) {
+void godot_icall_CollisionObject3D_shape_owner_add_shape_4d99221(Object * ptr, uint32_t arg1, Object * arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<CollisionObject *>(ptr)->shape_owner_add_shape(arg1_in, AutoRef(arg2));
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_add_shape(arg1_in, AutoRef(arg2));
 }
 
-int32_t godot_icall_CollisionObject_shape_owner_get_shape_count_c289d68a(Object * ptr, uint32_t arg1) {
+int32_t godot_icall_CollisionObject3D_shape_owner_get_shape_count_c289d68a(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject *>(ptr)->shape_owner_get_shape_count(arg1_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape_count(arg1_in);
     return static_cast<int32_t>(ret);
 }
 
-MonoObject* godot_icall_CollisionObject_shape_owner_get_shape_ea16b84(Object * ptr, uint32_t arg1, int32_t arg2) {
+MonoObject* godot_icall_CollisionObject3D_shape_owner_get_shape_ea16b84(Object * ptr, uint32_t arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<CollisionObject *>(ptr)->shape_owner_get_shape(arg1_in, arg2_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape(arg1_in, arg2_in);
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-int32_t godot_icall_CollisionObject_shape_owner_get_shape_index_5251d601(Object * ptr, uint32_t arg1, int32_t arg2) {
+int32_t godot_icall_CollisionObject3D_shape_owner_get_shape_index_5251d601(Object * ptr, uint32_t arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<CollisionObject *>(ptr)->shape_owner_get_shape_index(arg1_in, arg2_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape_index(arg1_in, arg2_in);
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_CollisionObject_shape_owner_remove_shape_e86fd299(Object * ptr, uint32_t arg1, int32_t arg2) {
+void godot_icall_CollisionObject3D_shape_owner_remove_shape_e86fd299(Object * ptr, uint32_t arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<CollisionObject *>(ptr)->shape_owner_remove_shape(arg1_in, arg2_in);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_remove_shape(arg1_in, arg2_in);
 }
 
-void godot_icall_CollisionObject_shape_owner_clear_shapes_966aab97(Object * ptr, uint32_t arg1) {
+void godot_icall_CollisionObject3D_shape_owner_clear_shapes_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<CollisionObject *>(ptr)->shape_owner_clear_shapes(arg1_in);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_clear_shapes(arg1_in);
 }
 
-uint32_t godot_icall_CollisionObject_shape_find_owner_52dccd8b(Object * ptr, int32_t arg1) {
+uint32_t godot_icall_CollisionObject3D_shape_find_owner_52dccd8b(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<CollisionObject *>(ptr)->shape_find_owner(arg1_in);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_find_owner(arg1_in);
     return static_cast<uint32_t>(ret);
 }
 
@@ -16018,7 +16018,7 @@ MonoObject* godot_icall_FuncRef_call_func_e5975f9d(Object * ptr, MonoArray* arg1
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[0 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<FuncRef *>(ptr)->call_func(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -16063,7 +16063,7 @@ MonoObject* godot_icall_GDScript_new_e5975f9d(Object * ptr, MonoArray* arg1) {
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[0 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<GDScript *>(ptr)->_new(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -19438,7 +19438,7 @@ NodePath* godot_icall_InterpolatedCamera_get_target_path_bf425768(Object * ptr) 
 
 void godot_icall_InterpolatedCamera_set_target_ad798950(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<InterpolatedCamera *>(ptr)->set_target(object_cast<Spatial>(arg1));
+    static_cast<InterpolatedCamera *>(ptr)->set_target(object_cast<Node3D>(arg1));
 }
 
 void godot_icall_InterpolatedCamera_set_speed_904508bb(Object * ptr, float* arg1) {
@@ -24456,7 +24456,7 @@ MonoObject* godot_icall_Node_rpc_a1852e0c(Object * ptr, MonoString* arg1, MonoAr
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[1 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<Node *>(ptr)->_rpc_bind(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -24474,7 +24474,7 @@ MonoObject* godot_icall_Node_rpc_unreliable_a1852e0c(Object * ptr, MonoString* a
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[1 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<Node *>(ptr)->_rpc_unreliable_bind(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -24494,7 +24494,7 @@ MonoObject* godot_icall_Node_rpc_id_3cfddb0(Object * ptr, int32_t arg1, MonoStri
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[2 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<Node *>(ptr)->_rpc_id_bind(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -24514,7 +24514,7 @@ MonoObject* godot_icall_Node_rpc_unreliable_id_3cfddb0(Object * ptr, int32_t arg
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[2 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<Node *>(ptr)->_rpc_unreliable_id_bind(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -24836,7 +24836,7 @@ Object* godot_icall_NoiseTexture_Ctor(MonoObject* obj) {
 
 void godot_icall_Object_free_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    Variant::CallError err;
+    Callable::CallError err;
 
     static_cast<Object *>(ptr)->call("free",nullptr,0,err);
 }
@@ -24975,7 +24975,7 @@ void godot_icall_Object_emit_signal_450df26(Object * ptr, MonoString* arg1, Mono
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[1 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     static_cast<Object *>(ptr)->_emit_signal(call_args.data(), total_length, vcall_error);
 }
 
@@ -24992,7 +24992,7 @@ MonoObject* godot_icall_Object_call_a1852e0c(Object * ptr, MonoString* arg1, Mon
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[1 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<Object *>(ptr)->_call_bind(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -25010,7 +25010,7 @@ void godot_icall_Object_call_deferred_450df26(Object * ptr, MonoString* arg1, Mo
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[1 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     static_cast<Object *>(ptr)->_call_deferred_bind(call_args.data(), total_length, vcall_error);
 }
 
@@ -26607,19 +26607,19 @@ Object* godot_icall_ParticlesMaterial_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Path_set_curve_77a8e9c1(Object * ptr, Object * arg1) {
+void godot_icall_Path3D_set_curve_77a8e9c1(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Path *>(ptr)->set_curve(AutoRef(arg1));
+    static_cast<Path3D *>(ptr)->set_curve(AutoRef(arg1));
 }
 
-MonoObject* godot_icall_Path_get_curve_b58a38a3(Object * ptr) {
+MonoObject* godot_icall_Path3D_get_curve_b58a38a3(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Path *>(ptr)->get_curve();
+    auto ret = static_cast<Path3D *>(ptr)->get_curve();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-Object* godot_icall_Path_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Path")
+Object* godot_icall_Path3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Path3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -26644,89 +26644,89 @@ Object* godot_icall_Path2D_Ctor(MonoObject* obj) {
 void godot_icall_PathFollow_set_offset_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow *>(ptr)->set_offset(arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_offset(arg1_in);
 }
 
 void godot_icall_PathFollow_get_offset_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow *>(ptr)->get_offset();
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_offset();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_PathFollow_set_h_offset_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow *>(ptr)->set_h_offset(arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_h_offset(arg1_in);
 }
 
 void godot_icall_PathFollow_get_h_offset_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow *>(ptr)->get_h_offset();
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_h_offset();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_PathFollow_set_v_offset_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow *>(ptr)->set_v_offset(arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_v_offset(arg1_in);
 }
 
 void godot_icall_PathFollow_get_v_offset_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow *>(ptr)->get_v_offset();
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_v_offset();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_PathFollow_set_unit_offset_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow *>(ptr)->set_unit_offset(arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_unit_offset(arg1_in);
 }
 
 void godot_icall_PathFollow_get_unit_offset_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow *>(ptr)->get_unit_offset();
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_unit_offset();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_PathFollow_set_rotation_mode_5bf2100(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<PathFollow *>(ptr)->set_rotation_mode((PathFollow::RotationMode)arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_rotation_mode((PathFollow3D::RotationMode)arg1_in);
 }
 
 int32_t godot_icall_PathFollow_get_rotation_mode_e8cd06d3(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<PathFollow *>(ptr)->get_rotation_mode();
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_rotation_mode();
     return (int32_t)ret;
 }
 
 void godot_icall_PathFollow_set_cubic_interpolation_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PathFollow *>(ptr)->set_cubic_interpolation(arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_cubic_interpolation(arg1_in);
 }
 
 MonoBoolean godot_icall_PathFollow_get_cubic_interpolation_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PathFollow *>(ptr)->get_cubic_interpolation();
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_cubic_interpolation();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_PathFollow_set_loop_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PathFollow *>(ptr)->set_loop(arg1_in);
+    static_cast<PathFollow3D *>(ptr)->set_loop(arg1_in);
 }
 
 MonoBoolean godot_icall_PathFollow_has_loop_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PathFollow *>(ptr)->has_loop();
+    auto ret = static_cast<PathFollow3D *>(ptr)->has_loop();
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_PathFollow_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "PathFollow")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "PathFollow3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -31085,154 +31085,154 @@ void godot_icall_Range_unshare_c8e54a7b(Object * ptr) {
     static_cast<Range *>(ptr)->unshare();
 }
 
-void godot_icall_RayCast_set_enabled_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_RayCast3D_set_enabled_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RayCast *>(ptr)->set_enabled(arg1_in);
+    static_cast<RayCast3D *>(ptr)->set_enabled(arg1_in);
 }
 
-MonoBoolean godot_icall_RayCast_is_enabled_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_RayCast3D_is_enabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RayCast *>(ptr)->is_enabled();
+    auto ret = static_cast<RayCast3D *>(ptr)->is_enabled();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_RayCast_set_cast_to_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+void godot_icall_RayCast3D_set_cast_to_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<RayCast *>(ptr)->set_cast_to(arg1_in);
+    static_cast<RayCast3D *>(ptr)->set_cast_to(arg1_in);
 }
 
-void godot_icall_RayCast_get_cast_to_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_RayCast3D_get_cast_to_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<RayCast *>(ptr)->get_cast_to();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_cast_to();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-MonoBoolean godot_icall_RayCast_is_colliding_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_RayCast3D_is_colliding_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RayCast *>(ptr)->is_colliding();
+    auto ret = static_cast<RayCast3D *>(ptr)->is_colliding();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_RayCast_force_raycast_update_c8e54a7b(Object * ptr) {
+void godot_icall_RayCast3D_force_raycast_update_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RayCast *>(ptr)->force_raycast_update();
+    static_cast<RayCast3D *>(ptr)->force_raycast_update();
 }
 
-MonoObject* godot_icall_RayCast_get_collider_5bd95814(Object * ptr) {
+MonoObject* godot_icall_RayCast3D_get_collider_5bd95814(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<RayCast *>(ptr)->get_collider();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_collider();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
-int32_t godot_icall_RayCast_get_collider_shape_1f886eb0(Object * ptr) {
+int32_t godot_icall_RayCast3D_get_collider_shape_1f886eb0(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<RayCast *>(ptr)->get_collider_shape();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_collider_shape();
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_RayCast_get_collision_point_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_RayCast3D_get_collision_point_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<RayCast *>(ptr)->get_collision_point();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_collision_point();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_RayCast_get_collision_normal_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_RayCast3D_get_collision_normal_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<RayCast *>(ptr)->get_collision_normal();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_collision_normal();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_RayCast_add_exception_rid_a7039b4e(Object * ptr, RID* arg1) {
+void godot_icall_RayCast3D_add_exception_rid_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RayCast *>(ptr)->add_exception_rid(*arg1);
+    static_cast<RayCast3D *>(ptr)->add_exception_rid(*arg1);
 }
 
-void godot_icall_RayCast_add_exception_ad798950(Object * ptr, Object * arg1) {
+void godot_icall_RayCast3D_add_exception_ad798950(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RayCast *>(ptr)->add_exception((Object*)arg1);
+    static_cast<RayCast3D *>(ptr)->add_exception((Object*)arg1);
 }
 
-void godot_icall_RayCast_remove_exception_rid_a7039b4e(Object * ptr, RID* arg1) {
+void godot_icall_RayCast3D_remove_exception_rid_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RayCast *>(ptr)->remove_exception_rid(*arg1);
+    static_cast<RayCast3D *>(ptr)->remove_exception_rid(*arg1);
 }
 
-void godot_icall_RayCast_remove_exception_ad798950(Object * ptr, Object * arg1) {
+void godot_icall_RayCast3D_remove_exception_ad798950(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RayCast *>(ptr)->remove_exception((Object*)arg1);
+    static_cast<RayCast3D *>(ptr)->remove_exception((Object*)arg1);
 }
 
-void godot_icall_RayCast_clear_exceptions_c8e54a7b(Object * ptr) {
+void godot_icall_RayCast3D_clear_exceptions_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RayCast *>(ptr)->clear_exceptions();
+    static_cast<RayCast3D *>(ptr)->clear_exceptions();
 }
 
-void godot_icall_RayCast_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
+void godot_icall_RayCast3D_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<RayCast *>(ptr)->set_collision_mask(arg1_in);
+    static_cast<RayCast3D *>(ptr)->set_collision_mask(arg1_in);
 }
 
-uint32_t godot_icall_RayCast_get_collision_mask_54cc76d5(Object * ptr) {
+uint32_t godot_icall_RayCast3D_get_collision_mask_54cc76d5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<RayCast *>(ptr)->get_collision_mask();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_collision_mask();
     return static_cast<uint32_t>(ret);
 }
 
-void godot_icall_RayCast_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+void godot_icall_RayCast3D_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<RayCast *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
+    static_cast<RayCast3D *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
 }
 
-MonoBoolean godot_icall_RayCast_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
+MonoBoolean godot_icall_RayCast3D_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<RayCast *>(ptr)->get_collision_mask_bit(arg1_in);
+    auto ret = static_cast<RayCast3D *>(ptr)->get_collision_mask_bit(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_RayCast_set_exclude_parent_body_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_RayCast3D_set_exclude_parent_body_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RayCast *>(ptr)->set_exclude_parent_body(arg1_in);
+    static_cast<RayCast3D *>(ptr)->set_exclude_parent_body(arg1_in);
 }
 
-MonoBoolean godot_icall_RayCast_get_exclude_parent_body_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_RayCast3D_get_exclude_parent_body_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RayCast *>(ptr)->get_exclude_parent_body();
+    auto ret = static_cast<RayCast3D *>(ptr)->get_exclude_parent_body();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_RayCast_set_collide_with_areas_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_RayCast3D_set_collide_with_areas_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RayCast *>(ptr)->set_collide_with_areas(arg1_in);
+    static_cast<RayCast3D *>(ptr)->set_collide_with_areas(arg1_in);
 }
 
-MonoBoolean godot_icall_RayCast_is_collide_with_areas_enabled_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_RayCast3D_is_collide_with_areas_enabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RayCast *>(ptr)->is_collide_with_areas_enabled();
+    auto ret = static_cast<RayCast3D *>(ptr)->is_collide_with_areas_enabled();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_RayCast_set_collide_with_bodies_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_RayCast3D_set_collide_with_bodies_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RayCast *>(ptr)->set_collide_with_bodies(arg1_in);
+    static_cast<RayCast3D *>(ptr)->set_collide_with_bodies(arg1_in);
 }
 
-MonoBoolean godot_icall_RayCast_is_collide_with_bodies_enabled_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_RayCast3D_is_collide_with_bodies_enabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RayCast *>(ptr)->is_collide_with_bodies_enabled();
+    auto ret = static_cast<RayCast3D *>(ptr)->is_collide_with_bodies_enabled();
     return static_cast<MonoBoolean>(ret);
 }
 
-Object* godot_icall_RayCast_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "RayCast")
+Object* godot_icall_RayCast3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "RayCast3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -33255,7 +33255,7 @@ MonoObject* godot_icall_SceneTree_call_group_flags_d792278f(Object * ptr, int32_
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[3 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<SceneTree *>(ptr)->_call_group_flags(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -33292,7 +33292,7 @@ MonoObject* godot_icall_SceneTree_call_group_f1b3fbca(Object * ptr, MonoString* 
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[2 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<SceneTree *>(ptr)->_call_group(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -34676,187 +34676,187 @@ Object* godot_icall_SoftBody_Ctor(MonoObject* obj) {
 void godot_icall_Spatial_set_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
     ERR_FAIL_NULL(ptr);
     Transform arg1_in = MARSHALLED_IN(Transform, arg1);
-    static_cast<Spatial *>(ptr)->set_transform(arg1_in);
+    static_cast<Node3D *>(ptr)->set_transform(arg1_in);
 }
 
 void godot_icall_Spatial_get_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Spatial *>(ptr)->get_transform();
+    auto ret = static_cast<Node3D *>(ptr)->get_transform();
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 void godot_icall_Spatial_set_translation_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->set_translation(arg1_in);
+    static_cast<Node3D *>(ptr)->set_translation(arg1_in);
 }
 
 void godot_icall_Spatial_get_translation_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Spatial *>(ptr)->get_translation();
+    auto ret = static_cast<Node3D *>(ptr)->get_translation();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Spatial_set_rotation_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->set_rotation(arg1_in);
+    static_cast<Node3D *>(ptr)->set_rotation(arg1_in);
 }
 
 void godot_icall_Spatial_get_rotation_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Spatial *>(ptr)->get_rotation();
+    auto ret = static_cast<Node3D *>(ptr)->get_rotation();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Spatial_set_rotation_degrees_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->set_rotation_degrees(arg1_in);
+    static_cast<Node3D *>(ptr)->set_rotation_degrees(arg1_in);
 }
 
 void godot_icall_Spatial_get_rotation_degrees_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Spatial *>(ptr)->get_rotation_degrees();
+    auto ret = static_cast<Node3D *>(ptr)->get_rotation_degrees();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Spatial_set_scale_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->set_scale(arg1_in);
+    static_cast<Node3D *>(ptr)->set_scale(arg1_in);
 }
 
 void godot_icall_Spatial_get_scale_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Spatial *>(ptr)->get_scale();
+    auto ret = static_cast<Node3D *>(ptr)->get_scale();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Spatial_set_global_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
     ERR_FAIL_NULL(ptr);
     Transform arg1_in = MARSHALLED_IN(Transform, arg1);
-    static_cast<Spatial *>(ptr)->set_global_transform(arg1_in);
+    static_cast<Node3D *>(ptr)->set_global_transform(arg1_in);
 }
 
 void godot_icall_Spatial_get_global_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Spatial *>(ptr)->get_global_transform();
+    auto ret = static_cast<Node3D *>(ptr)->get_global_transform();
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 MonoObject* godot_icall_Spatial_get_parent_spatial_5ca237df(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Spatial *>(ptr)->get_parent_spatial();
+    auto ret = static_cast<Node3D *>(ptr)->get_parent_spatial();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
 void godot_icall_Spatial_set_ignore_transform_notification_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Spatial *>(ptr)->set_ignore_transform_notification(arg1_in);
+    static_cast<Node3D *>(ptr)->set_ignore_transform_notification(arg1_in);
 }
 
 void godot_icall_Spatial_set_as_toplevel_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Spatial *>(ptr)->set_as_toplevel(arg1_in);
+    static_cast<Node3D *>(ptr)->set_as_toplevel(arg1_in);
 }
 
 MonoBoolean godot_icall_Spatial_is_set_as_toplevel_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Spatial *>(ptr)->is_set_as_toplevel();
+    auto ret = static_cast<Node3D *>(ptr)->is_set_as_toplevel();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Spatial_set_disable_scale_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Spatial *>(ptr)->set_disable_scale(arg1_in);
+    static_cast<Node3D *>(ptr)->set_disable_scale(arg1_in);
 }
 
 MonoBoolean godot_icall_Spatial_is_scale_disabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Spatial *>(ptr)->is_scale_disabled();
+    auto ret = static_cast<Node3D *>(ptr)->is_scale_disabled();
     return static_cast<MonoBoolean>(ret);
 }
 
 MonoObject* godot_icall_Spatial_get_world_1e353b0f(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Spatial *>(ptr)->get_world();
+    auto ret = static_cast<Node3D *>(ptr)->get_world();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
 void godot_icall_Spatial_force_update_transform_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->force_update_transform();
+    static_cast<Node3D *>(ptr)->force_update_transform();
 }
 
 void godot_icall_Spatial_update_gizmo_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->update_gizmo();
+    static_cast<Node3D *>(ptr)->update_gizmo();
 }
 
 void godot_icall_Spatial_set_gizmo_b6a1956d(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->set_gizmo(AutoRef(arg1));
+    static_cast<Node3D *>(ptr)->set_gizmo(AutoRef(arg1));
 }
 
 MonoObject* godot_icall_Spatial_get_gizmo_748173ff(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Spatial *>(ptr)->get_gizmo();
+    auto ret = static_cast<Node3D *>(ptr)->get_gizmo();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
 void godot_icall_Spatial_set_visible_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Spatial *>(ptr)->set_visible(arg1_in);
+    static_cast<Node3D *>(ptr)->set_visible(arg1_in);
 }
 
 MonoBoolean godot_icall_Spatial_is_visible_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Spatial *>(ptr)->is_visible();
+    auto ret = static_cast<Node3D *>(ptr)->is_visible();
     return static_cast<MonoBoolean>(ret);
 }
 
 MonoBoolean godot_icall_Spatial_is_visible_in_tree_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Spatial *>(ptr)->is_visible_in_tree();
+    auto ret = static_cast<Node3D *>(ptr)->is_visible_in_tree();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Spatial_show_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->show();
+    static_cast<Node3D *>(ptr)->show();
 }
 
 void godot_icall_Spatial_hide_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->hide();
+    static_cast<Node3D *>(ptr)->hide();
 }
 
 void godot_icall_Spatial_set_notify_local_transform_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Spatial *>(ptr)->set_notify_local_transform(arg1_in);
+    static_cast<Node3D *>(ptr)->set_notify_local_transform(arg1_in);
 }
 
 MonoBoolean godot_icall_Spatial_is_local_transform_notification_enabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Spatial *>(ptr)->is_local_transform_notification_enabled();
+    auto ret = static_cast<Node3D *>(ptr)->is_local_transform_notification_enabled();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Spatial_set_notify_transform_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Spatial *>(ptr)->set_notify_transform(arg1_in);
+    static_cast<Node3D *>(ptr)->set_notify_transform(arg1_in);
 }
 
 MonoBoolean godot_icall_Spatial_is_transform_notification_enabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Spatial *>(ptr)->is_transform_notification_enabled();
+    auto ret = static_cast<Node3D *>(ptr)->is_transform_notification_enabled();
     return static_cast<MonoBoolean>(ret);
 }
 
@@ -34864,86 +34864,86 @@ void godot_icall_Spatial_rotate_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3*
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<Spatial *>(ptr)->rotate(arg1_in, arg2_in);
+    static_cast<Node3D *>(ptr)->rotate(arg1_in, arg2_in);
 }
 
 void godot_icall_Spatial_global_rotate_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<Spatial *>(ptr)->global_rotate(arg1_in, arg2_in);
+    static_cast<Node3D *>(ptr)->global_rotate(arg1_in, arg2_in);
 }
 
 void godot_icall_Spatial_global_scale_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->global_scale(arg1_in);
+    static_cast<Node3D *>(ptr)->global_scale(arg1_in);
 }
 
 void godot_icall_Spatial_global_translate_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->global_translate(arg1_in);
+    static_cast<Node3D *>(ptr)->global_translate(arg1_in);
 }
 
 void godot_icall_Spatial_rotate_object_local_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<Spatial *>(ptr)->rotate_object_local(arg1_in, arg2_in);
+    static_cast<Node3D *>(ptr)->rotate_object_local(arg1_in, arg2_in);
 }
 
 void godot_icall_Spatial_scale_object_local_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->scale_object_local(arg1_in);
+    static_cast<Node3D *>(ptr)->scale_object_local(arg1_in);
 }
 
 void godot_icall_Spatial_translate_object_local_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->translate_object_local(arg1_in);
+    static_cast<Node3D *>(ptr)->translate_object_local(arg1_in);
 }
 
 void godot_icall_Spatial_rotate_x_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Spatial *>(ptr)->rotate_x(arg1_in);
+    static_cast<Node3D *>(ptr)->rotate_x(arg1_in);
 }
 
 void godot_icall_Spatial_rotate_y_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Spatial *>(ptr)->rotate_y(arg1_in);
+    static_cast<Node3D *>(ptr)->rotate_y(arg1_in);
 }
 
 void godot_icall_Spatial_rotate_z_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Spatial *>(ptr)->rotate_z(arg1_in);
+    static_cast<Node3D *>(ptr)->rotate_z(arg1_in);
 }
 
 void godot_icall_Spatial_translate_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Spatial *>(ptr)->translate(arg1_in);
+    static_cast<Node3D *>(ptr)->translate(arg1_in);
 }
 
 void godot_icall_Spatial_orthonormalize_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->orthonormalize();
+    static_cast<Node3D *>(ptr)->orthonormalize();
 }
 
 void godot_icall_Spatial_set_identity_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Spatial *>(ptr)->set_identity();
+    static_cast<Node3D *>(ptr)->set_identity();
 }
 
 void godot_icall_Spatial_look_at_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<Spatial *>(ptr)->look_at(arg1_in, arg2_in);
+    static_cast<Node3D *>(ptr)->look_at(arg1_in, arg2_in);
 }
 
 void godot_icall_Spatial_look_at_from_position_8d29af1e(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, GDMonoMarshal::M_Vector3* arg3) {
@@ -34951,25 +34951,25 @@ void godot_icall_Spatial_look_at_from_position_8d29af1e(Object * ptr, GDMonoMars
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
     Vector3 arg3_in = MARSHALLED_IN(Vector3, arg3);
-    static_cast<Spatial *>(ptr)->look_at_from_position(arg1_in, arg2_in, arg3_in);
+    static_cast<Node3D *>(ptr)->look_at_from_position(arg1_in, arg2_in, arg3_in);
 }
 
 void godot_icall_Spatial_to_local_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Spatial *>(ptr)->to_local(arg1_in);
+    auto ret = static_cast<Node3D *>(ptr)->to_local(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Spatial_to_global_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Spatial *>(ptr)->to_global(arg1_in);
+    auto ret = static_cast<Node3D *>(ptr)->to_global(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 Object* godot_icall_Spatial_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Spatial")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Node3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -41117,7 +41117,7 @@ MonoObject* godot_icall_TreeItem_call_recursive_a1852e0c(Object * ptr, MonoStrin
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[1 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     auto ret = static_cast<TreeItem *>(ptr)->_call_recursive_bind(call_args.data(), total_length, vcall_error);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
@@ -41617,7 +41617,7 @@ void godot_icall_UndoRedo_add_do_method_a0841b08(Object * ptr, Object * arg1, Mo
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[2 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     static_cast<UndoRedo *>(ptr)->_add_do_method(call_args.data(), total_length, vcall_error);
 }
 
@@ -41636,7 +41636,7 @@ void godot_icall_UndoRedo_add_undo_method_a0841b08(Object * ptr, Object * arg1, 
         varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
         call_args[2 + i] = &varargs[i];
     }
-    Variant::CallError vcall_error;
+    Callable::CallError vcall_error;
     static_cast<UndoRedo *>(ptr)->_add_undo_method(call_args.data(), total_length, vcall_error);
 }
 
@@ -41742,44 +41742,44 @@ Object* godot_icall_VSplitContainer_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_VehicleBody_set_engine_force_904508bb(Object * ptr, float* arg1) {
+void godot_icall_VehicleBody3D_set_engine_force_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<VehicleBody *>(ptr)->set_engine_force(arg1_in);
+    static_cast<VehicleBody3D *>(ptr)->set_engine_force(arg1_in);
 }
 
-void godot_icall_VehicleBody_get_engine_force_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_VehicleBody3D_get_engine_force_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VehicleBody *>(ptr)->get_engine_force();
+    auto ret = static_cast<VehicleBody3D *>(ptr)->get_engine_force();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_VehicleBody_set_brake_904508bb(Object * ptr, float* arg1) {
+void godot_icall_VehicleBody3D_set_brake_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<VehicleBody *>(ptr)->set_brake(arg1_in);
+    static_cast<VehicleBody3D *>(ptr)->set_brake(arg1_in);
 }
 
-void godot_icall_VehicleBody_get_brake_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_VehicleBody3D_get_brake_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VehicleBody *>(ptr)->get_brake();
+    auto ret = static_cast<VehicleBody3D *>(ptr)->get_brake();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_VehicleBody_set_steering_904508bb(Object * ptr, float* arg1) {
+void godot_icall_VehicleBody3D_set_steering_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<VehicleBody *>(ptr)->set_steering(arg1_in);
+    static_cast<VehicleBody3D *>(ptr)->set_steering(arg1_in);
 }
 
-void godot_icall_VehicleBody_get_steering_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_VehicleBody3D_get_steering_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VehicleBody *>(ptr)->get_steering();
+    auto ret = static_cast<VehicleBody3D *>(ptr)->get_steering();
     *arg_ret = (float)ret;
 }
 
-Object* godot_icall_VehicleBody_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "VehicleBody")
+Object* godot_icall_VehicleBody3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "VehicleBody3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -50694,7 +50694,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_BoxShape_Ctor", (void*)godot_icall_BoxShape_Ctor},
 	{"Godot.NativeCalls::godot_icall_Button_Ctor", (void*)godot_icall_Button_Ctor},
 	{"Godot.NativeCalls::godot_icall_ButtonGroup_Ctor", (void*)godot_icall_ButtonGroup_Ctor},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_Ctor", (void*)godot_icall_CPUParticles_Ctor},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_Ctor", (void*)godot_icall_CPUParticles3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_CPUParticles2D_Ctor", (void*)godot_icall_CPUParticles2D_Ctor},
 	{"Godot.NativeCalls::godot_icall_CSGBox_Ctor", (void*)godot_icall_CSGBox_Ctor},
 	{"Godot.NativeCalls::godot_icall_CSGCombiner_Ctor", (void*)godot_icall_CSGCombiner_Ctor},
@@ -50857,7 +50857,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_Particles_Ctor", (void*)godot_icall_Particles_Ctor},
 	{"Godot.NativeCalls::godot_icall_Particles2D_Ctor", (void*)godot_icall_Particles2D_Ctor},
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_Ctor", (void*)godot_icall_ParticlesMaterial_Ctor},
-	{"Godot.NativeCalls::godot_icall_Path_Ctor", (void*)godot_icall_Path_Ctor},
+    {"Godot.NativeCalls::godot_icall_Path3D_Ctor", (void*)godot_icall_Path3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_Path2D_Ctor", (void*)godot_icall_Path2D_Ctor},
 	{"Godot.NativeCalls::godot_icall_PathFollow_Ctor", (void*)godot_icall_PathFollow_Ctor},
 	{"Godot.NativeCalls::godot_icall_PathFollow2D_Ctor", (void*)godot_icall_PathFollow2D_Ctor},
@@ -50890,7 +50890,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_ProxyTexture_Ctor", (void*)godot_icall_ProxyTexture_Ctor},
 	{"Godot.NativeCalls::godot_icall_QuadMesh_Ctor", (void*)godot_icall_QuadMesh_Ctor},
 	{"Godot.NativeCalls::godot_icall_RandomNumberGenerator_Ctor", (void*)godot_icall_RandomNumberGenerator_Ctor},
-	{"Godot.NativeCalls::godot_icall_RayCast_Ctor", (void*)godot_icall_RayCast_Ctor},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_Ctor", (void*)godot_icall_RayCast3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_RayCast2D_Ctor", (void*)godot_icall_RayCast2D_Ctor},
 	{"Godot.NativeCalls::godot_icall_RayShape_Ctor", (void*)godot_icall_RayShape_Ctor},
 	{"Godot.NativeCalls::godot_icall_RayShape2D_Ctor", (void*)godot_icall_RayShape2D_Ctor},
@@ -50973,7 +50973,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_VSeparator_Ctor", (void*)godot_icall_VSeparator_Ctor},
 	{"Godot.NativeCalls::godot_icall_VSlider_Ctor", (void*)godot_icall_VSlider_Ctor},
 	{"Godot.NativeCalls::godot_icall_VSplitContainer_Ctor", (void*)godot_icall_VSplitContainer_Ctor},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_Ctor", (void*)godot_icall_VehicleBody_Ctor},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_Ctor", (void*)godot_icall_VehicleBody3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_VehicleWheel_Ctor", (void*)godot_icall_VehicleWheel_Ctor},
 	{"Godot.NativeCalls::godot_icall_VideoPlayer_Ctor", (void*)godot_icall_VideoPlayer_Ctor},
 	{"Godot.NativeCalls::godot_icall_Viewport_Ctor", (void*)godot_icall_Viewport_Ctor},
@@ -52168,68 +52168,68 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_Button_is_flat_68fe5f59", (void*)godot_icall_Button_is_flat_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_ButtonGroup_get_pressed_button_6f36e66e", (void*)godot_icall_ButtonGroup_get_pressed_button_6f36e66e},
 	{"Godot.NativeCalls::godot_icall_ButtonGroup_get_buttons_d80382d4", (void*)godot_icall_ButtonGroup_get_buttons_d80382d4},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emitting_ba24800b", (void*)godot_icall_CPUParticles_set_emitting_ba24800b},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_amount_e1ae93bc", (void*)godot_icall_CPUParticles_set_amount_e1ae93bc},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_lifetime_904508bb", (void*)godot_icall_CPUParticles_set_lifetime_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_one_shot_ba24800b", (void*)godot_icall_CPUParticles_set_one_shot_ba24800b},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_pre_process_time_904508bb", (void*)godot_icall_CPUParticles_set_pre_process_time_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_explosiveness_ratio_904508bb", (void*)godot_icall_CPUParticles_set_explosiveness_ratio_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_randomness_ratio_904508bb", (void*)godot_icall_CPUParticles_set_randomness_ratio_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_lifetime_randomness_904508bb", (void*)godot_icall_CPUParticles_set_lifetime_randomness_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_use_local_coordinates_ba24800b", (void*)godot_icall_CPUParticles_set_use_local_coordinates_ba24800b},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_fixed_fps_e1ae93bc", (void*)godot_icall_CPUParticles_set_fixed_fps_e1ae93bc},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_fractional_delta_ba24800b", (void*)godot_icall_CPUParticles_set_fractional_delta_ba24800b},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_speed_scale_904508bb", (void*)godot_icall_CPUParticles_set_speed_scale_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_is_emitting_68fe5f59", (void*)godot_icall_CPUParticles_is_emitting_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_amount_1f886eb0", (void*)godot_icall_CPUParticles_get_amount_1f886eb0},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_lifetime_4edcd7a9", (void*)godot_icall_CPUParticles_get_lifetime_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_one_shot_68fe5f59", (void*)godot_icall_CPUParticles_get_one_shot_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_pre_process_time_4edcd7a9", (void*)godot_icall_CPUParticles_get_pre_process_time_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_explosiveness_ratio_4edcd7a9", (void*)godot_icall_CPUParticles_get_explosiveness_ratio_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_randomness_ratio_4edcd7a9", (void*)godot_icall_CPUParticles_get_randomness_ratio_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_lifetime_randomness_4edcd7a9", (void*)godot_icall_CPUParticles_get_lifetime_randomness_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_use_local_coordinates_68fe5f59", (void*)godot_icall_CPUParticles_get_use_local_coordinates_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_fixed_fps_1f886eb0", (void*)godot_icall_CPUParticles_get_fixed_fps_1f886eb0},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_fractional_delta_68fe5f59", (void*)godot_icall_CPUParticles_get_fractional_delta_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_speed_scale_4edcd7a9", (void*)godot_icall_CPUParticles_get_speed_scale_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_draw_order_2112a4ca", (void*)godot_icall_CPUParticles_set_draw_order_2112a4ca},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_draw_order_57695d85", (void*)godot_icall_CPUParticles_get_draw_order_57695d85},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_mesh_d5d30806", (void*)godot_icall_CPUParticles_set_mesh_d5d30806},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_mesh_1372d766", (void*)godot_icall_CPUParticles_get_mesh_1372d766},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_restart_c8e54a7b", (void*)godot_icall_CPUParticles_restart_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_direction_6df7471d", (void*)godot_icall_CPUParticles_set_direction_6df7471d},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_direction_9b4ea24f", (void*)godot_icall_CPUParticles_get_direction_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_spread_904508bb", (void*)godot_icall_CPUParticles_set_spread_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_spread_4edcd7a9", (void*)godot_icall_CPUParticles_get_spread_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_flatness_904508bb", (void*)godot_icall_CPUParticles_set_flatness_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_flatness_4edcd7a9", (void*)godot_icall_CPUParticles_get_flatness_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_param_a810fa37", (void*)godot_icall_CPUParticles_set_param_a810fa37},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_param_6b4f30f5", (void*)godot_icall_CPUParticles_get_param_6b4f30f5},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_param_randomness_a810fa37", (void*)godot_icall_CPUParticles_set_param_randomness_a810fa37},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_param_randomness_6b4f30f5", (void*)godot_icall_CPUParticles_get_param_randomness_6b4f30f5},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_param_curve_6fa1bca6", (void*)godot_icall_CPUParticles_set_param_curve_6fa1bca6},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_param_curve_c99d09e2", (void*)godot_icall_CPUParticles_get_param_curve_c99d09e2},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_color_f2e3b5aa", (void*)godot_icall_CPUParticles_set_color_f2e3b5aa},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_color_304394ba", (void*)godot_icall_CPUParticles_get_color_304394ba},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_color_ramp_487c5873", (void*)godot_icall_CPUParticles_set_color_ramp_487c5873},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_color_ramp_76d5a6f1", (void*)godot_icall_CPUParticles_get_color_ramp_76d5a6f1},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_particle_flag_440013aa", (void*)godot_icall_CPUParticles_set_particle_flag_440013aa},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_particle_flag_8b445db5", (void*)godot_icall_CPUParticles_get_particle_flag_8b445db5},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emission_shape_1801db0", (void*)godot_icall_CPUParticles_set_emission_shape_1801db0},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_emission_shape_12316583", (void*)godot_icall_CPUParticles_get_emission_shape_12316583},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emission_sphere_radius_904508bb", (void*)godot_icall_CPUParticles_set_emission_sphere_radius_904508bb},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_emission_sphere_radius_4edcd7a9", (void*)godot_icall_CPUParticles_get_emission_sphere_radius_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emission_box_extents_6df7471d", (void*)godot_icall_CPUParticles_set_emission_box_extents_6df7471d},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_emission_box_extents_9b4ea24f", (void*)godot_icall_CPUParticles_get_emission_box_extents_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emission_points_88c6a314", (void*)godot_icall_CPUParticles_set_emission_points_88c6a314},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_emission_points_36607e58", (void*)godot_icall_CPUParticles_get_emission_points_36607e58},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emission_normals_88c6a314", (void*)godot_icall_CPUParticles_set_emission_normals_88c6a314},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_emission_normals_36607e58", (void*)godot_icall_CPUParticles_get_emission_normals_36607e58},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_emission_colors_22e90985", (void*)godot_icall_CPUParticles_set_emission_colors_22e90985},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_emission_colors_e048d8e7", (void*)godot_icall_CPUParticles_get_emission_colors_e048d8e7},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_get_gravity_9b4ea24f", (void*)godot_icall_CPUParticles_get_gravity_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_set_gravity_6df7471d", (void*)godot_icall_CPUParticles_set_gravity_6df7471d},
-	{"Godot.NativeCalls::godot_icall_CPUParticles_convert_from_particles_598860a7", (void*)godot_icall_CPUParticles_convert_from_particles_598860a7},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emitting_ba24800b", (void*)godot_icall_CPUParticles3D_set_emitting_ba24800b},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_amount_e1ae93bc", (void*)godot_icall_CPUParticles3D_set_amount_e1ae93bc},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_lifetime_904508bb", (void*)godot_icall_CPUParticles3D_set_lifetime_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_one_shot_ba24800b", (void*)godot_icall_CPUParticles3D_set_one_shot_ba24800b},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_pre_process_time_904508bb", (void*)godot_icall_CPUParticles3D_set_pre_process_time_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_explosiveness_ratio_904508bb", (void*)godot_icall_CPUParticles3D_set_explosiveness_ratio_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_randomness_ratio_904508bb", (void*)godot_icall_CPUParticles3D_set_randomness_ratio_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_lifetime_randomness_904508bb", (void*)godot_icall_CPUParticles3D_set_lifetime_randomness_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_use_local_coordinates_ba24800b", (void*)godot_icall_CPUParticles3D_set_use_local_coordinates_ba24800b},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_fixed_fps_e1ae93bc", (void*)godot_icall_CPUParticles3D_set_fixed_fps_e1ae93bc},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_fractional_delta_ba24800b", (void*)godot_icall_CPUParticles3D_set_fractional_delta_ba24800b},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_speed_scale_904508bb", (void*)godot_icall_CPUParticles3D_set_speed_scale_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_is_emitting_68fe5f59", (void*)godot_icall_CPUParticles3D_is_emitting_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_amount_1f886eb0", (void*)godot_icall_CPUParticles3D_get_amount_1f886eb0},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_lifetime_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_lifetime_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_one_shot_68fe5f59", (void*)godot_icall_CPUParticles3D_get_one_shot_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_pre_process_time_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_pre_process_time_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_explosiveness_ratio_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_explosiveness_ratio_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_randomness_ratio_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_randomness_ratio_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_lifetime_randomness_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_lifetime_randomness_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_use_local_coordinates_68fe5f59", (void*)godot_icall_CPUParticles3D_get_use_local_coordinates_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_fixed_fps_1f886eb0", (void*)godot_icall_CPUParticles3D_get_fixed_fps_1f886eb0},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_fractional_delta_68fe5f59", (void*)godot_icall_CPUParticles3D_get_fractional_delta_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_speed_scale_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_speed_scale_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_draw_order_2112a4ca", (void*)godot_icall_CPUParticles3D_set_draw_order_2112a4ca},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_draw_order_57695d85", (void*)godot_icall_CPUParticles3D_get_draw_order_57695d85},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_mesh_d5d30806", (void*)godot_icall_CPUParticles3D_set_mesh_d5d30806},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_mesh_1372d766", (void*)godot_icall_CPUParticles3D_get_mesh_1372d766},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_restart_c8e54a7b", (void*)godot_icall_CPUParticles3D_restart_c8e54a7b},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_direction_6df7471d", (void*)godot_icall_CPUParticles3D_set_direction_6df7471d},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_direction_9b4ea24f", (void*)godot_icall_CPUParticles3D_get_direction_9b4ea24f},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_spread_904508bb", (void*)godot_icall_CPUParticles3D_set_spread_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_spread_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_spread_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_flatness_904508bb", (void*)godot_icall_CPUParticles3D_set_flatness_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_flatness_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_flatness_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_param_a810fa37", (void*)godot_icall_CPUParticles3D_set_param_a810fa37},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_param_6b4f30f5", (void*)godot_icall_CPUParticles3D_get_param_6b4f30f5},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_param_randomness_a810fa37", (void*)godot_icall_CPUParticles3D_set_param_randomness_a810fa37},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_param_randomness_6b4f30f5", (void*)godot_icall_CPUParticles3D_get_param_randomness_6b4f30f5},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_param_curve_6fa1bca6", (void*)godot_icall_CPUParticles3D_set_param_curve_6fa1bca6},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_param_curve_c99d09e2", (void*)godot_icall_CPUParticles3D_get_param_curve_c99d09e2},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_color_f2e3b5aa", (void*)godot_icall_CPUParticles3D_set_color_f2e3b5aa},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_color_304394ba", (void*)godot_icall_CPUParticles3D_get_color_304394ba},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_color_ramp_487c5873", (void*)godot_icall_CPUParticles3D_set_color_ramp_487c5873},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_color_ramp_76d5a6f1", (void*)godot_icall_CPUParticles3D_get_color_ramp_76d5a6f1},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_particle_flag_440013aa", (void*)godot_icall_CPUParticles3D_set_particle_flag_440013aa},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_particle_flag_8b445db5", (void*)godot_icall_CPUParticles3D_get_particle_flag_8b445db5},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emission_shape_1801db0", (void*)godot_icall_CPUParticles3D_set_emission_shape_1801db0},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_emission_shape_12316583", (void*)godot_icall_CPUParticles3D_get_emission_shape_12316583},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emission_sphere_radius_904508bb", (void*)godot_icall_CPUParticles3D_set_emission_sphere_radius_904508bb},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_emission_sphere_radius_4edcd7a9", (void*)godot_icall_CPUParticles3D_get_emission_sphere_radius_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emission_box_extents_6df7471d", (void*)godot_icall_CPUParticles3D_set_emission_box_extents_6df7471d},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_emission_box_extents_9b4ea24f", (void*)godot_icall_CPUParticles3D_get_emission_box_extents_9b4ea24f},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emission_points_88c6a314", (void*)godot_icall_CPUParticles3D_set_emission_points_88c6a314},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_emission_points_36607e58", (void*)godot_icall_CPUParticles3D_get_emission_points_36607e58},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emission_normals_88c6a314", (void*)godot_icall_CPUParticles3D_set_emission_normals_88c6a314},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_emission_normals_36607e58", (void*)godot_icall_CPUParticles3D_get_emission_normals_36607e58},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_emission_colors_22e90985", (void*)godot_icall_CPUParticles3D_set_emission_colors_22e90985},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_emission_colors_e048d8e7", (void*)godot_icall_CPUParticles3D_get_emission_colors_e048d8e7},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_get_gravity_9b4ea24f", (void*)godot_icall_CPUParticles3D_get_gravity_9b4ea24f},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_set_gravity_6df7471d", (void*)godot_icall_CPUParticles3D_set_gravity_6df7471d},
+    {"Godot.NativeCalls::godot_icall_CPUParticles3D_convert_from_particles_598860a7", (void*)godot_icall_CPUParticles3D_convert_from_particles_598860a7},
 	{"Godot.NativeCalls::godot_icall_CPUParticles2D_set_emitting_ba24800b", (void*)godot_icall_CPUParticles2D_set_emitting_ba24800b},
 	{"Godot.NativeCalls::godot_icall_CPUParticles2D_set_amount_e1ae93bc", (void*)godot_icall_CPUParticles2D_set_amount_e1ae93bc},
 	{"Godot.NativeCalls::godot_icall_CPUParticles2D_set_lifetime_904508bb", (void*)godot_icall_CPUParticles2D_set_lifetime_904508bb},
@@ -52638,26 +52638,26 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_ClippedCamera_set_clip_to_bodies_ba24800b", (void*)godot_icall_ClippedCamera_set_clip_to_bodies_ba24800b},
 	{"Godot.NativeCalls::godot_icall_ClippedCamera_is_clip_to_bodies_enabled_68fe5f59", (void*)godot_icall_ClippedCamera_is_clip_to_bodies_enabled_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_ClippedCamera_clear_exceptions_c8e54a7b", (void*)godot_icall_ClippedCamera_clear_exceptions_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_set_ray_pickable_ba24800b", (void*)godot_icall_CollisionObject_set_ray_pickable_ba24800b},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_is_ray_pickable_68fe5f59", (void*)godot_icall_CollisionObject_is_ray_pickable_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_set_capture_input_on_drag_ba24800b", (void*)godot_icall_CollisionObject_set_capture_input_on_drag_ba24800b},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_get_capture_input_on_drag_68fe5f59", (void*)godot_icall_CollisionObject_get_capture_input_on_drag_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_get_rid_6623661e", (void*)godot_icall_CollisionObject_get_rid_6623661e},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_create_shape_owner_16add217", (void*)godot_icall_CollisionObject_create_shape_owner_16add217},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_remove_shape_owner_966aab97", (void*)godot_icall_CollisionObject_remove_shape_owner_966aab97},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_get_shape_owners_d80382d4", (void*)godot_icall_CollisionObject_get_shape_owners_d80382d4},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_set_transform_9412c56e", (void*)godot_icall_CollisionObject_shape_owner_set_transform_9412c56e},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_get_transform_b92094ef", (void*)godot_icall_CollisionObject_shape_owner_get_transform_b92094ef},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_get_owner_5b891387", (void*)godot_icall_CollisionObject_shape_owner_get_owner_5b891387},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_set_disabled_5111c220", (void*)godot_icall_CollisionObject_shape_owner_set_disabled_5111c220},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_is_shape_owner_disabled_242501fd", (void*)godot_icall_CollisionObject_is_shape_owner_disabled_242501fd},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_add_shape_4d99221", (void*)godot_icall_CollisionObject_shape_owner_add_shape_4d99221},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_get_shape_count_c289d68a", (void*)godot_icall_CollisionObject_shape_owner_get_shape_count_c289d68a},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_get_shape_ea16b84", (void*)godot_icall_CollisionObject_shape_owner_get_shape_ea16b84},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_get_shape_index_5251d601", (void*)godot_icall_CollisionObject_shape_owner_get_shape_index_5251d601},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_remove_shape_e86fd299", (void*)godot_icall_CollisionObject_shape_owner_remove_shape_e86fd299},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_owner_clear_shapes_966aab97", (void*)godot_icall_CollisionObject_shape_owner_clear_shapes_966aab97},
-	{"Godot.NativeCalls::godot_icall_CollisionObject_shape_find_owner_52dccd8b", (void*)godot_icall_CollisionObject_shape_find_owner_52dccd8b},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_set_ray_pickable_ba24800b", (void*)godot_icall_CollisionObject3D_set_ray_pickable_ba24800b},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_is_ray_pickable_68fe5f59", (void*)godot_icall_CollisionObject3D_is_ray_pickable_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_set_capture_input_on_drag_ba24800b", (void*)godot_icall_CollisionObject3D_set_capture_input_on_drag_ba24800b},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_get_capture_input_on_drag_68fe5f59", (void*)godot_icall_CollisionObject3D_get_capture_input_on_drag_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_get_rid_6623661e", (void*)godot_icall_CollisionObject3D_get_rid_6623661e},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_create_shape_owner_16add217", (void*)godot_icall_CollisionObject3D_create_shape_owner_16add217},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_remove_shape_owner_966aab97", (void*)godot_icall_CollisionObject3D_remove_shape_owner_966aab97},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_get_shape_owners_d80382d4", (void*)godot_icall_CollisionObject3D_get_shape_owners_d80382d4},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_set_transform_9412c56e", (void*)godot_icall_CollisionObject3D_shape_owner_set_transform_9412c56e},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_get_transform_b92094ef", (void*)godot_icall_CollisionObject3D_shape_owner_get_transform_b92094ef},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_get_owner_5b891387", (void*)godot_icall_CollisionObject3D_shape_owner_get_owner_5b891387},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_set_disabled_5111c220", (void*)godot_icall_CollisionObject3D_shape_owner_set_disabled_5111c220},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_is_shape_owner_disabled_242501fd", (void*)godot_icall_CollisionObject3D_is_shape_owner_disabled_242501fd},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_add_shape_4d99221", (void*)godot_icall_CollisionObject3D_shape_owner_add_shape_4d99221},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_get_shape_count_c289d68a", (void*)godot_icall_CollisionObject3D_shape_owner_get_shape_count_c289d68a},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_get_shape_ea16b84", (void*)godot_icall_CollisionObject3D_shape_owner_get_shape_ea16b84},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_get_shape_index_5251d601", (void*)godot_icall_CollisionObject3D_shape_owner_get_shape_index_5251d601},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_remove_shape_e86fd299", (void*)godot_icall_CollisionObject3D_shape_owner_remove_shape_e86fd299},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_owner_clear_shapes_966aab97", (void*)godot_icall_CollisionObject3D_shape_owner_clear_shapes_966aab97},
+    {"Godot.NativeCalls::godot_icall_CollisionObject3D_shape_find_owner_52dccd8b", (void*)godot_icall_CollisionObject3D_shape_find_owner_52dccd8b},
 	{"Godot.NativeCalls::godot_icall_CollisionObject2D_get_rid_6623661e", (void*)godot_icall_CollisionObject2D_get_rid_6623661e},
 	{"Godot.NativeCalls::godot_icall_CollisionObject2D_set_pickable_ba24800b", (void*)godot_icall_CollisionObject2D_set_pickable_ba24800b},
 	{"Godot.NativeCalls::godot_icall_CollisionObject2D_is_pickable_68fe5f59", (void*)godot_icall_CollisionObject2D_is_pickable_68fe5f59},
@@ -55016,8 +55016,8 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_set_gravity_6df7471d", (void*)godot_icall_ParticlesMaterial_set_gravity_6df7471d},
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_set_lifetime_randomness_904508bb", (void*)godot_icall_ParticlesMaterial_set_lifetime_randomness_904508bb},
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_get_lifetime_randomness_4edcd7a9", (void*)godot_icall_ParticlesMaterial_get_lifetime_randomness_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_Path_set_curve_77a8e9c1", (void*)godot_icall_Path_set_curve_77a8e9c1},
-	{"Godot.NativeCalls::godot_icall_Path_get_curve_b58a38a3", (void*)godot_icall_Path_get_curve_b58a38a3},
+    {"Godot.NativeCalls::godot_icall_Path3D_set_curve_77a8e9c1", (void*)godot_icall_Path3D_set_curve_77a8e9c1},
+    {"Godot.NativeCalls::godot_icall_Path3D_get_curve_b58a38a3", (void*)godot_icall_Path3D_get_curve_b58a38a3},
 	{"Godot.NativeCalls::godot_icall_Path2D_set_curve_76a8e85c", (void*)godot_icall_Path2D_set_curve_76a8e85c},
 	{"Godot.NativeCalls::godot_icall_Path2D_get_curve_b48a3710", (void*)godot_icall_Path2D_get_curve_b48a3710},
 	{"Godot.NativeCalls::godot_icall_PathFollow_set_offset_904508bb", (void*)godot_icall_PathFollow_set_offset_904508bb},
@@ -55696,31 +55696,31 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_Range_is_lesser_allowed_68fe5f59", (void*)godot_icall_Range_is_lesser_allowed_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_Range_share_598860a7", (void*)godot_icall_Range_share_598860a7},
 	{"Godot.NativeCalls::godot_icall_Range_unshare_c8e54a7b", (void*)godot_icall_Range_unshare_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_enabled_ba24800b", (void*)godot_icall_RayCast_set_enabled_ba24800b},
-	{"Godot.NativeCalls::godot_icall_RayCast_is_enabled_68fe5f59", (void*)godot_icall_RayCast_is_enabled_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_cast_to_6df7471d", (void*)godot_icall_RayCast_set_cast_to_6df7471d},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_cast_to_9b4ea24f", (void*)godot_icall_RayCast_get_cast_to_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_RayCast_is_colliding_68fe5f59", (void*)godot_icall_RayCast_is_colliding_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_RayCast_force_raycast_update_c8e54a7b", (void*)godot_icall_RayCast_force_raycast_update_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_collider_5bd95814", (void*)godot_icall_RayCast_get_collider_5bd95814},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_collider_shape_1f886eb0", (void*)godot_icall_RayCast_get_collider_shape_1f886eb0},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_collision_point_9b4ea24f", (void*)godot_icall_RayCast_get_collision_point_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_collision_normal_9b4ea24f", (void*)godot_icall_RayCast_get_collision_normal_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_RayCast_add_exception_rid_a7039b4e", (void*)godot_icall_RayCast_add_exception_rid_a7039b4e},
-	{"Godot.NativeCalls::godot_icall_RayCast_add_exception_ad798950", (void*)godot_icall_RayCast_add_exception_ad798950},
-	{"Godot.NativeCalls::godot_icall_RayCast_remove_exception_rid_a7039b4e", (void*)godot_icall_RayCast_remove_exception_rid_a7039b4e},
-	{"Godot.NativeCalls::godot_icall_RayCast_remove_exception_ad798950", (void*)godot_icall_RayCast_remove_exception_ad798950},
-	{"Godot.NativeCalls::godot_icall_RayCast_clear_exceptions_c8e54a7b", (void*)godot_icall_RayCast_clear_exceptions_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_collision_mask_966aab97", (void*)godot_icall_RayCast_set_collision_mask_966aab97},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_collision_mask_54cc76d5", (void*)godot_icall_RayCast_get_collision_mask_54cc76d5},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_collision_mask_bit_4ae8febd", (void*)godot_icall_RayCast_set_collision_mask_bit_4ae8febd},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_collision_mask_bit_7f690926", (void*)godot_icall_RayCast_get_collision_mask_bit_7f690926},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_exclude_parent_body_ba24800b", (void*)godot_icall_RayCast_set_exclude_parent_body_ba24800b},
-	{"Godot.NativeCalls::godot_icall_RayCast_get_exclude_parent_body_68fe5f59", (void*)godot_icall_RayCast_get_exclude_parent_body_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_collide_with_areas_ba24800b", (void*)godot_icall_RayCast_set_collide_with_areas_ba24800b},
-	{"Godot.NativeCalls::godot_icall_RayCast_is_collide_with_areas_enabled_68fe5f59", (void*)godot_icall_RayCast_is_collide_with_areas_enabled_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_RayCast_set_collide_with_bodies_ba24800b", (void*)godot_icall_RayCast_set_collide_with_bodies_ba24800b},
-	{"Godot.NativeCalls::godot_icall_RayCast_is_collide_with_bodies_enabled_68fe5f59", (void*)godot_icall_RayCast_is_collide_with_bodies_enabled_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_enabled_ba24800b", (void*)godot_icall_RayCast3D_set_enabled_ba24800b},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_is_enabled_68fe5f59", (void*)godot_icall_RayCast3D_is_enabled_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_cast_to_6df7471d", (void*)godot_icall_RayCast3D_set_cast_to_6df7471d},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_cast_to_9b4ea24f", (void*)godot_icall_RayCast3D_get_cast_to_9b4ea24f},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_is_colliding_68fe5f59", (void*)godot_icall_RayCast3D_is_colliding_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_force_raycast_update_c8e54a7b", (void*)godot_icall_RayCast3D_force_raycast_update_c8e54a7b},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_collider_5bd95814", (void*)godot_icall_RayCast3D_get_collider_5bd95814},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_collider_shape_1f886eb0", (void*)godot_icall_RayCast3D_get_collider_shape_1f886eb0},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_collision_point_9b4ea24f", (void*)godot_icall_RayCast3D_get_collision_point_9b4ea24f},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_collision_normal_9b4ea24f", (void*)godot_icall_RayCast3D_get_collision_normal_9b4ea24f},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_add_exception_rid_a7039b4e", (void*)godot_icall_RayCast3D_add_exception_rid_a7039b4e},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_add_exception_ad798950", (void*)godot_icall_RayCast3D_add_exception_ad798950},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_remove_exception_rid_a7039b4e", (void*)godot_icall_RayCast3D_remove_exception_rid_a7039b4e},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_remove_exception_ad798950", (void*)godot_icall_RayCast3D_remove_exception_ad798950},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_clear_exceptions_c8e54a7b", (void*)godot_icall_RayCast3D_clear_exceptions_c8e54a7b},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_collision_mask_966aab97", (void*)godot_icall_RayCast3D_set_collision_mask_966aab97},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_collision_mask_54cc76d5", (void*)godot_icall_RayCast3D_get_collision_mask_54cc76d5},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_collision_mask_bit_4ae8febd", (void*)godot_icall_RayCast3D_set_collision_mask_bit_4ae8febd},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_collision_mask_bit_7f690926", (void*)godot_icall_RayCast3D_get_collision_mask_bit_7f690926},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_exclude_parent_body_ba24800b", (void*)godot_icall_RayCast3D_set_exclude_parent_body_ba24800b},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_get_exclude_parent_body_68fe5f59", (void*)godot_icall_RayCast3D_get_exclude_parent_body_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_collide_with_areas_ba24800b", (void*)godot_icall_RayCast3D_set_collide_with_areas_ba24800b},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_is_collide_with_areas_enabled_68fe5f59", (void*)godot_icall_RayCast3D_is_collide_with_areas_enabled_68fe5f59},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_set_collide_with_bodies_ba24800b", (void*)godot_icall_RayCast3D_set_collide_with_bodies_ba24800b},
+    {"Godot.NativeCalls::godot_icall_RayCast3D_is_collide_with_bodies_enabled_68fe5f59", (void*)godot_icall_RayCast3D_is_collide_with_bodies_enabled_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_RayCast2D_set_enabled_ba24800b", (void*)godot_icall_RayCast2D_set_enabled_ba24800b},
 	{"Godot.NativeCalls::godot_icall_RayCast2D_is_enabled_68fe5f59", (void*)godot_icall_RayCast2D_is_enabled_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_RayCast2D_set_cast_to_6df7471e", (void*)godot_icall_RayCast2D_set_cast_to_6df7471e},
@@ -57308,12 +57308,12 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_UndoRedo_get_version_4bb7c348", (void*)godot_icall_UndoRedo_get_version_4bb7c348},
 	{"Godot.NativeCalls::godot_icall_UndoRedo_redo_68fe5f59", (void*)godot_icall_UndoRedo_redo_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_UndoRedo_undo_68fe5f59", (void*)godot_icall_UndoRedo_undo_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_set_engine_force_904508bb", (void*)godot_icall_VehicleBody_set_engine_force_904508bb},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_get_engine_force_4edcd7a9", (void*)godot_icall_VehicleBody_get_engine_force_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_set_brake_904508bb", (void*)godot_icall_VehicleBody_set_brake_904508bb},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_get_brake_4edcd7a9", (void*)godot_icall_VehicleBody_get_brake_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_set_steering_904508bb", (void*)godot_icall_VehicleBody_set_steering_904508bb},
-	{"Godot.NativeCalls::godot_icall_VehicleBody_get_steering_4edcd7a9", (void*)godot_icall_VehicleBody_get_steering_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_set_engine_force_904508bb", (void*)godot_icall_VehicleBody3D_set_engine_force_904508bb},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_get_engine_force_4edcd7a9", (void*)godot_icall_VehicleBody3D_get_engine_force_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_set_brake_904508bb", (void*)godot_icall_VehicleBody3D_set_brake_904508bb},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_get_brake_4edcd7a9", (void*)godot_icall_VehicleBody3D_get_brake_4edcd7a9},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_set_steering_904508bb", (void*)godot_icall_VehicleBody3D_set_steering_904508bb},
+    {"Godot.NativeCalls::godot_icall_VehicleBody3D_get_steering_4edcd7a9", (void*)godot_icall_VehicleBody3D_get_steering_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_VehicleWheel_set_radius_904508bb", (void*)godot_icall_VehicleWheel_set_radius_904508bb},
 	{"Godot.NativeCalls::godot_icall_VehicleWheel_get_radius_4edcd7a9", (void*)godot_icall_VehicleWheel_get_radius_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_VehicleWheel_set_suspension_rest_length_904508bb", (void*)godot_icall_VehicleWheel_set_suspension_rest_length_904508bb},

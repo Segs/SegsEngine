@@ -9,7 +9,7 @@
         The visual server can be used to bypass the scene system entirely.
         Resources are created using the [code]*_create[/code] functions.
         All objects are drawn to a viewport. You can use the [Viewport] attached to the [SceneTree] or you can create one yourself with [method viewport_create]. When using a custom scenario or canvas, the scenario or canvas needs to be attached to the viewport using [method viewport_set_scenario] or [method viewport_attach_canvas].
-        In 3D, all visual objects must be associated with a scenario. The scenario is a visual representation of the world. If accessing the visual server from a running game, the scenario can be accessed from the scene tree from any [Spatial] node with [method Spatial.get_world]. Otherwise, a scenario can be created with [method scenario_create].
+        In 3D, all visual objects must be associated with a scenario. The scenario is a visual representation of the world. If accessing the visual server from a running game, the scenario can be accessed from the scene tree from any [Node3D] node with [method Node3D.get_world]. Otherwise, a scenario can be created with [method scenario_create].
         Similarly in 2D, a canvas is needed to draw all canvas items.
         In 3D, all visible objects are comprised of a resource and an instance. A resource can be a mesh, a particle system, a light, or any other 3D object. In order to be visible resources must be attached to an instance using [method instance_set_base]. The instance must also be attached to the scenario using [method instance_set_scenario] in order to be visible.
         In 2D, all visible objects are some form of canvas item. In order to be visible, a canvas item needs to be the child of a canvas attached to a viewport, or it needs to be the child of another canvas item that is eventually attached to the canvas.
@@ -2021,7 +2021,7 @@
             <argument index="1" name="transform" type="Transform">
             </argument>
             <description>
-                Sets the world space transform of the instance. Equivalent to [member Spatial.transform].
+                Sets the world space transform of the instance. Equivalent to [member Node3D.transform].
             </description>
         </method>
         <method name="instance_set_use_lightmap">
@@ -2045,7 +2045,7 @@
             <argument index="1" name="visible" type="bool">
             </argument>
             <description>
-                Sets whether an instance is drawn or not. Equivalent to [member Spatial.visible].
+                Sets whether an instance is drawn or not. Equivalent to [member Node3D.visible].
             </description>
         </method>
         <method name="instances_cull_aabb" qualifiers="const">

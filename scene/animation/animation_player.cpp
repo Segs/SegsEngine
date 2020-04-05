@@ -282,7 +282,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
             // special cases and caches for transform tracks
 
             // cache spatial
-            p_anim->node_cache[i]->spatial = object_cast<Spatial>(child);
+            p_anim->node_cache[i]->spatial = object_cast<Node3D>(child);
             // cache skeleton
             p_anim->node_cache[i]->skeleton = object_cast<Skeleton>(child);
             if (p_anim->node_cache[i]->skeleton) {

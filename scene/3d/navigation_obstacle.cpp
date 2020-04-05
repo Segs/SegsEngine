@@ -74,7 +74,7 @@ void NavigationObstacle::_notification(int p_what) {
             set_physics_process_internal(false);
         } break;
         case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-            Spatial *spatial = object_cast<Spatial>(get_parent());
+            Node3D *spatial = object_cast<Node3D>(get_parent());
             if (spatial) {
                 NavigationServer::get_singleton()->agent_set_position(agent, spatial->get_global_transform().origin);
             }
@@ -121,7 +121,7 @@ Node *NavigationObstacle::get_navigation_node() const {
 }
 
 StringName NavigationObstacle::get_configuration_warning() const {
-    if (!object_cast<Spatial>(get_parent())) {
+    if (!object_cast<Node3D>(get_parent())) {
 
         return TTR("The NavigationObstacle only serves to provide collision avoidance to a spatial object.");
     }
@@ -150,7 +150,7 @@ void NavigationObstacle::update_agent_shape() {
             radius = MAX(radius, r);
         }
     }
-    Spatial *spa = object_cast<Spatial>(node);
+    Node3D *spa = object_cast<Node3D>(node);
     if (spa) {
         Vector3 s = spa->get_global_transform().basis.get_scale();
         radius *= MAX(s.x, MAX(s.y, s.z));

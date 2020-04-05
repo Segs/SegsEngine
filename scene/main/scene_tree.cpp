@@ -1361,9 +1361,9 @@ void SceneMainLoop::_update_listener_2d() {
 }
 */
 
-Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 3, Variant());
     ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant());
@@ -1384,9 +1384,9 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Var
     return Variant();
 }
 
-Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 2, Variant());
     ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());

@@ -154,7 +154,7 @@ class SkeletonIK : public Node {
     int max_iterations;
 
     Skeleton *skeleton;
-    Spatial *target_node_override;
+    Node3D *target_node_override;
     FabrikInverseKinematic::Task *task;
 
 protected:

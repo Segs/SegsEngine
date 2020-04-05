@@ -311,7 +311,7 @@ void Skeleton::_notification(int p_what) {
 
                     Object *obj = ObjectDB::get_instance(E);
                     ERR_CONTINUE(!obj);
-                    Spatial *sp = object_cast<Spatial>(obj);
+                    Node3D *sp = object_cast<Node3D>(obj);
                     ERR_CONTINUE(!sp);
                     sp->set_transform(b.pose_global);
                 }
@@ -759,7 +759,7 @@ void _physical_bones_add_remove_collision_exception(bool p_add, Node *p_node, RI
         _physical_bones_add_remove_collision_exception(p_add, p_node->get_child(i), p_exception);
     }
 
-    CollisionObject *co = object_cast<CollisionObject>(p_node);
+    CollisionObject3D *co = object_cast<CollisionObject3D>(p_node);
     if (co) {
         if (p_add) {
             PhysicsServer::get_singleton()->body_add_collision_exception(co->get_rid(), p_exception);

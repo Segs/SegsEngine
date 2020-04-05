@@ -2129,9 +2129,9 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
         case VS::SHADER_SPATIAL: {
 
-            p_shader->spatial.blend_mode = Shader::Spatial::BLEND_MODE_MIX;
-            p_shader->spatial.depth_draw_mode = Shader::Spatial::DEPTH_DRAW_OPAQUE;
-            p_shader->spatial.cull_mode = Shader::Spatial::CULL_MODE_BACK;
+            p_shader->spatial.blend_mode = Shader::Node3D::BLEND_MODE_MIX;
+            p_shader->spatial.depth_draw_mode = Shader::Node3D::DEPTH_DRAW_OPAQUE;
+            p_shader->spatial.cull_mode = Shader::Node3D::CULL_MODE_BACK;
             p_shader->spatial.uses_alpha = false;
             p_shader->spatial.uses_alpha_scissor = false;
             p_shader->spatial.uses_discard = false;
@@ -2146,19 +2146,19 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->spatial.writes_modelview_or_projection = false;
             p_shader->spatial.uses_world_coordinates = false;
 
-            shaders.actions_scene.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_ADD);
-            shaders.actions_scene.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_MIX);
-            shaders.actions_scene.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_SUB);
-            shaders.actions_scene.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Spatial::BLEND_MODE_MUL);
+            shaders.actions_scene.render_mode_values[StringName("blend_add")] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_ADD);
+            shaders.actions_scene.render_mode_values["blend_mix"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_MIX);
+            shaders.actions_scene.render_mode_values["blend_sub"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_SUB);
+            shaders.actions_scene.render_mode_values["blend_mul"] = Pair<int *, int>(&p_shader->spatial.blend_mode, Shader::Node3D::BLEND_MODE_MUL);
 
-            shaders.actions_scene.render_mode_values["depth_draw_opaque"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Spatial::DEPTH_DRAW_OPAQUE);
-            shaders.actions_scene.render_mode_values["depth_draw_always"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Spatial::DEPTH_DRAW_ALWAYS);
-            shaders.actions_scene.render_mode_values["depth_draw_never"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Spatial::DEPTH_DRAW_NEVER);
-            shaders.actions_scene.render_mode_values["depth_draw_alpha_prepass"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS);
+            shaders.actions_scene.render_mode_values["depth_draw_opaque"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_OPAQUE);
+            shaders.actions_scene.render_mode_values["depth_draw_always"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_ALWAYS);
+            shaders.actions_scene.render_mode_values["depth_draw_never"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_NEVER);
+            shaders.actions_scene.render_mode_values["depth_draw_alpha_prepass"] = Pair<int *, int>(&p_shader->spatial.depth_draw_mode, Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS);
 
-            shaders.actions_scene.render_mode_values["cull_front"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Spatial::CULL_MODE_FRONT);
-            shaders.actions_scene.render_mode_values["cull_back"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Spatial::CULL_MODE_BACK);
-            shaders.actions_scene.render_mode_values["cull_disabled"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Spatial::CULL_MODE_DISABLED);
+            shaders.actions_scene.render_mode_values["cull_front"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_FRONT);
+            shaders.actions_scene.render_mode_values["cull_back"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_BACK);
+            shaders.actions_scene.render_mode_values["cull_disabled"] = Pair<int *, int>(&p_shader->spatial.cull_mode, Shader::Node3D::CULL_MODE_DISABLED);
 
             shaders.actions_scene.render_mode_flags["unshaded"] = &p_shader->spatial.unshaded;
             shaders.actions_scene.render_mode_flags["depth_test_disable"] = &p_shader->spatial.no_depth_test;
@@ -3031,8 +3031,8 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
 
         if (material->shader && material->shader->mode == VS::SHADER_SPATIAL) {
 
-            if (material->shader->spatial.blend_mode == Shader::Spatial::BLEND_MODE_MIX &&
-                    (!material->shader->spatial.uses_alpha || material->shader->spatial.depth_draw_mode == Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS)) {
+            if (material->shader->spatial.blend_mode == Shader::Node3D::BLEND_MODE_MIX &&
+                    (!material->shader->spatial.uses_alpha || material->shader->spatial.depth_draw_mode == Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS)) {
                 can_cast_shadow = true;
             }
 

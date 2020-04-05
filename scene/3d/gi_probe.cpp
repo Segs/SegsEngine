@@ -366,7 +366,7 @@ void GIProbe::_find_meshes(Node *p_at_node, Vector<GIProbe::PlotMesh> &plot_mesh
         }
     }
 
-    Spatial *s = object_cast<Spatial>(p_at_node);
+    Node3D *s = object_cast<Node3D>(p_at_node);
     if (s) {
 
         if (s->is_visible_in_tree()) {

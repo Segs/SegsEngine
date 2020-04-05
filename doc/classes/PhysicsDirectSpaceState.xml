@@ -41,7 +41,7 @@
 			<description>
 				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters] object, against the space. If it collides with more than one shape, the nearest one is selected. The returned object is a dictionary containing the following fields:
 				[code]collider_id[/code]: The colliding object's ID.
-				[code]linear_velocity[/code]: The colliding object's velocity [Vector3]. If the object is an [Area], the result is [code](0, 0, 0)[/code].
+                [code]linear_velocity[/code]: The colliding object's velocity [Vector3]. If the object is an [Area3D], the result is [code](0, 0, 0)[/code].
 				[code]normal[/code]: The object's surface normal at the intersection point.
 				[code]point[/code]: The intersection point.
 				[code]rid[/code]: The intersecting object's [RID].
@@ -73,7 +73,7 @@
 				[code]rid[/code]: The intersecting object's [RID].
 				[code]shape[/code]: The shape index of the colliding shape.
 				If the ray did not intersect anything, then an empty dictionary is returned instead.
-				Additionally, the method can take an [code]exclude[/code] array of objects or [RID]s that are to be excluded from collisions, a [code]collision_mask[/code] bitmask representing the physics layers to check in, or booleans to determine if the ray should collide with [PhysicsBody]s or [Area]s, respectively.
+                Additionally, the method can take an [code]exclude[/code] array of objects or [RID]s that are to be excluded from collisions, a [code]collision_mask[/code] bitmask representing the physics layers to check in, or booleans to determine if the ray should collide with [PhysicsBody]s or [Area3D]s, respectively.
 			</description>
 		</method>
 		<method name="intersect_shape">

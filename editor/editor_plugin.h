@@ -39,7 +39,7 @@
 #include "scene/resources/texture.h"
 
 class EditorNode;
-class Spatial;
+class Node3D;
 class Camera;
 class EditorSelection;
 class EditorExport;

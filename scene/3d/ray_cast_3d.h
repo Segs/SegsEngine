@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  path.h                                                               */
+/*  ray_cast_3d.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -30,83 +30,77 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
-#include "scene/resources/curve.h"
+#include "scene/3d/node_3d.h"
+#include "core/hash_set.h"
+#include "core/rid.h"
 
-class GODOT_EXPORT Path : public Spatial {
+class Material;
 
-    GDCLASS(Path,Spatial)
+class RayCast3D : public Node3D {
 
-    Ref<Curve3D> curve;
+    GDCLASS(RayCast3D,Node3D)
 
-    void _curve_changed();
+    HashSet<RID> exclude;
+    Vector3 collision_point;
+    Vector3 collision_normal;
+    Vector3 cast_to;
+    Ref<Material> debug_material;
+    Node *debug_shape;
 
-protected:
-    void _notification(int p_what);
-    static void _bind_methods();
+	ObjectID against;
+	int against_shape;
+	uint32_t collision_mask;
+    bool exclude_parent_body;
+    bool collide_with_areas;
+    bool collide_with_bodies;
+    bool enabled;
+    bool collided;
 
-public:
-    void set_curve(const Ref<Curve3D> &p_curve);
-    Ref<Curve3D> get_curve() const;
 
-    Path();
-};
 
-class GODOT_EXPORT PathFollow : public Spatial {
-
-    GDCLASS(PathFollow,Spatial)
-
-public:
-    enum RotationMode {
-
-        ROTATION_NONE,
-        ROTATION_Y,
-        ROTATION_XY,
-        ROTATION_XYZ,
-        ROTATION_ORIENTED
-    };
-
-private:
-    Path *path;
-    real_t delta_offset; // change in offset since last _update_transform
-    real_t offset;
-    real_t h_offset;
-    real_t v_offset;
-    bool cubic;
-    bool loop;
-    RotationMode rotation_mode;
-
-    void _update_transform();
+    void _create_debug_shape();
+    void _update_debug_shape();
+    void _clear_debug_shape();
 
 protected:
-    void _validate_property(PropertyInfo &property) const override;
-
-    void _notification(int p_what);
-    static void _bind_methods();
+	void _notification(int p_what);
+	void _update_raycast_state();
+	static void _bind_methods();
 
 public:
-    void set_offset(float p_offset);
-    float get_offset() const;
+	void set_collide_with_areas(bool p_clip);
+	bool is_collide_with_areas_enabled() const;
 
-    void set_h_offset(float p_h_offset);
-    float get_h_offset() const;
+	void set_collide_with_bodies(bool p_clip);
+	bool is_collide_with_bodies_enabled() const;
 
-    void set_v_offset(float p_v_offset);
-    float get_v_offset() const;
+	void set_enabled(bool p_enabled);
+	bool is_enabled() const;
 
-    void set_unit_offset(float p_unit_offset);
-    float get_unit_offset() const;
+	void set_cast_to(const Vector3 &p_point);
+	Vector3 get_cast_to() const;
 
-    void set_loop(bool p_loop);
-    bool has_loop() const;
+	void set_collision_mask(uint32_t p_mask);
+	uint32_t get_collision_mask() const;
 
-    void set_rotation_mode(RotationMode p_rotation_mode);
-    RotationMode get_rotation_mode() const;
+	void set_collision_mask_bit(int p_bit, bool p_value);
+	bool get_collision_mask_bit(int p_bit) const;
 
-    void set_cubic_interpolation(bool p_enable);
-    bool get_cubic_interpolation() const;
+	void set_exclude_parent_body(bool p_exclude_parent_body);
+	bool get_exclude_parent_body() const;
 
-    StringName get_configuration_warning() const override;
+	void force_raycast_update();
+	bool is_colliding() const;
+	Object *get_collider() const;
+	int get_collider_shape() const;
+	Vector3 get_collision_point() const;
+	Vector3 get_collision_normal() const;
 
-    PathFollow();
+	void add_exception_rid(const RID &p_rid);
+	void add_exception(const Object *p_object);
+	void remove_exception_rid(const RID &p_rid);
+	void remove_exception(const Object *p_object);
+	void clear_exceptions();
+
+    RayCast3D();
 };

@@ -43,7 +43,7 @@
 #include "scene/3d/physics_body.h"
 #include "scene/3d/portal.h"
 #include "scene/3d/room_instance.h"
-#include "scene/3d/vehicle_body.h"
+#include "scene/3d/vehicle_body_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/box_shape.h"
@@ -452,7 +452,7 @@ Node *ResourceImporterScene::_fix_node(
             String empty_draw_type = String(p_node->get_meta("empty_draw_type"));
             StaticBody *sb = memnew(StaticBody);
             sb->set_name(_fixstr(name, "colonly"));
-            object_cast<Spatial>(sb)->set_transform(object_cast<Spatial>(p_node)->get_transform());
+            object_cast<Node3D>(sb)->set_transform(object_cast<Node3D>(p_node)->get_transform());
             p_node->replace_by(sb);
             memdelete(p_node);
             p_node = nullptr;
@@ -467,7 +467,7 @@ Node *ResourceImporterScene::_fix_node(
                 rayShape->set_length(1);
                 colshape->set_shape(Ref<Shape>(rayShape));
                 colshape->set_name("RayShape");
-                object_cast<Spatial>(sb)->rotate_x(Math_PI / 2);
+                object_cast<Node3D>(sb)->rotate_x(Math_PI / 2);
             } else if (empty_draw_type == "IMAGE") {
                 PlaneShape *planeShape = memnew(PlaneShape);
                 colshape->set_shape(Ref<Shape>(planeShape));
@@ -586,7 +586,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<NavigationMesh> nmesh(make_ref_counted<NavigationMesh>());
         nmesh->create_from_mesh(mesh);
         nmi->set_navigation_mesh(nmesh);
-        object_cast<Spatial>(nmi)->set_transform(mi->get_transform());
+        object_cast<Node3D>(nmi)->set_transform(mi->get_transform());
         p_node->replace_by(nmi);
         memdelete(p_node);
         p_node = nmi;
@@ -595,8 +595,8 @@ Node *ResourceImporterScene::_fix_node(
         if (isroot) return p_node;
 
         Node *owner = p_node->get_owner();
-        Spatial *s = object_cast<Spatial>(p_node);
-        VehicleBody *bv = memnew(VehicleBody);
+        Node3D *s = object_cast<Node3D>(p_node);
+        VehicleBody3D *bv = memnew(VehicleBody3D);
         String n(_fixstr(p_node->get_name(), "vehicle"));
         bv->set_name(n);
         p_node->replace_by(bv);
@@ -614,7 +614,7 @@ Node *ResourceImporterScene::_fix_node(
         if (isroot) return p_node;
 
         Node *owner = p_node->get_owner();
-        Spatial *s = object_cast<Spatial>(p_node);
+        Node3D *s = object_cast<Node3D>(p_node);
         VehicleWheel *bv = memnew(VehicleWheel);
         String n(_fixstr(p_node->get_name(), "wheel"));
         bv->set_name(n);
@@ -950,7 +950,7 @@ void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Trans
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
 
         if (mesh && !meshes.contains(mesh)) {
-            Spatial *s = mi;
+            Node3D *s = mi;
             Transform transform;
             while (s) {
                 transform = transform * s->get_transform();
@@ -1154,7 +1154,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
 void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Spatial"));
+            PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Node3D"));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/root_name"), "Scene Root"));
 
     Vector<String> script_extentions;
@@ -1386,7 +1386,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         root_type = ScriptServer::get_global_class_base(root_type);
     }
 
-    if (root_type != StringView("Spatial")) {
+    if (root_type != StringView("Node3D")) {
         Node *base_node = object_cast<Node>(ClassDB::instance(root_type));
 
         if (base_node) {
@@ -1401,9 +1401,9 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         scene->set_script(Variant(root_script));
     }
 
-    if (object_cast<Spatial>(scene)) {
+    if (object_cast<Node3D>(scene)) {
         float root_scale = p_options.at("nodes/root_scale");
-        object_cast<Spatial>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
+        object_cast<Node3D>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
     }
 
     if (p_options.at("nodes/root_name") != "Scene Root")

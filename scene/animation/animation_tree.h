@@ -33,7 +33,7 @@
 #include "scene/animation/animation_player.h"
 #include "core/hash_map.h"
 #include "scene/3d/skeleton.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
 
 class AnimationNodeBlendTree;
@@ -191,7 +191,7 @@ private:
     };
 
     struct TrackCacheTransform : public TrackCache {
-        Spatial *spatial;
+        Node3D *spatial;
         Skeleton *skeleton;
         int bone_idx;
         Vector3 loc;

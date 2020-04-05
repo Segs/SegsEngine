@@ -145,16 +145,16 @@ Array PhysicsBody::get_collision_exceptions() {
 void PhysicsBody::add_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
-    CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
+    CollisionObject3D *collision_object = object_cast<CollisionObject3D>(p_node);
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject3D.");
     PhysicsServer::get_singleton()->body_add_collision_exception(get_rid(), collision_object->get_rid());
 }
 
 void PhysicsBody::remove_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
-    CollisionObject *collision_object = object_cast<CollisionObject>(p_node);
-    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject.");
+    CollisionObject3D *collision_object = object_cast<CollisionObject3D>(p_node);
+    ERR_FAIL_COND_MSG(!collision_object, "Collision exception only works between two CollisionObject3D.");
     PhysicsServer::get_singleton()->body_remove_collision_exception(get_rid(), collision_object->get_rid());
 }
 
@@ -190,7 +190,7 @@ void PhysicsBody::_bind_methods() {
 }
 
 PhysicsBody::PhysicsBody(PhysicsServer::BodyMode p_mode) :
-        CollisionObject(PhysicsServer::get_singleton()->body_create(p_mode), false) {
+        CollisionObject3D(PhysicsServer::get_singleton()->body_create(p_mode), false) {
 
     collision_layer = 1;
     collision_mask = 1;
@@ -817,7 +817,7 @@ StringName RigidBody::get_configuration_warning() const {
 
     Transform t = get_transform();
 
-    String warning(CollisionObject::get_configuration_warning());
+    String warning(CollisionObject3D::get_configuration_warning());
 
     if ((get_mode() == MODE_RIGID || get_mode() == MODE_CHARACTER) && (ABS(t.basis.get_axis(0).length() - 1.0) > 0.05 || ABS(t.basis.get_axis(1).length() - 1.0) > 0.05 || ABS(t.basis.get_axis(2).length() - 1.0) > 0.05)) {
         if (!warning.empty()) {
@@ -1372,7 +1372,7 @@ Object *KinematicCollision::get_collider_shape() const {
 
     Object *collider = get_collider();
     if (collider) {
-        CollisionObject *obj2d = object_cast<CollisionObject>(collider);
+        CollisionObject3D *obj2d = object_cast<CollisionObject3D>(collider);
         if (obj2d) {
             uint32_t ownerid = obj2d->shape_find_owner(collision.collider_shape);
             return obj2d->shape_owner_get_owner(ownerid);

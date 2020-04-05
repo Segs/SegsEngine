@@ -47,8 +47,8 @@ public:
     };
 
     using CommitNotifyCallback = void (*)(void *, StringView);
-    Variant _add_do_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _add_undo_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _add_do_method(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _add_undo_method(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
     using MethodNotifyCallback = void (*)(void *, Object *, const StringName &, const Variant &, const Variant &, const Variant &, const Variant &, const Variant &);
     using PropertyNotifyCallback = void (*)(void *, Object *, const StringName &, const Variant &);

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="RayCast" inherits="Spatial" version="4.0">
+<class name="RayCast3D" inherits="Node3D" version="4.0">
 	<brief_description>
 		Query the closest object intersecting a ray.
 	</brief_description>
 	<description>
-		A RayCast represents a line from its origin to its destination position, [code]cast_to[/code]. It is used to query the 3D space in order to find the closest object along the path of the ray.
-		RayCast can ignore some objects by adding them to the exception list via [code]add_exception[/code] or by setting proper filtering with collision layers and masks.
-		RayCast can be configured to report collisions with [Area]s ([member collide_with_areas]) and/or [PhysicsBody]s ([member collide_with_bodies]).
+        A RayCast3D represents a line from its origin to its destination position, [code]cast_to[/code]. It is used to query the 3D space in order to find the closest object along the path of the ray.
+        RayCast3D can ignore some objects by adding them to the exception list via [code]add_exception[/code] or by setting proper filtering with collision layers and masks.
+        RayCast3D can be configured to report collisions with [Area3D]s ([member collide_with_areas]) and/or [PhysicsBody]s ([member collide_with_bodies]).
 		Only enabled raycasts will be able to query the space and report collisions.
-		RayCast calculates intersection every physics frame (see [Node]), and the result is cached so it can be used later until the next frame. If multiple queries are required between physics frames (or during the same frame), use [method force_raycast_update] after adjusting the raycast.
+        RayCast3D calculates intersection every physics frame (see [Node]), and the result is cached so it can be used later until the next frame. If multiple queries are required between physics frames (or during the same frame), use [method force_raycast_update] after adjusting the raycast.
 	</description>
 	<tutorials>
 		<link>https://docs.godotengine.org/en/latest/tutorials/physics/ray-casting.html</link>
@@ -127,10 +127,10 @@
 	</methods>
 	<members>
 		<member name="cast_to" type="Vector3" setter="set_cast_to" getter="get_cast_to" default="Vector3( 0, -1, 0 )">
-			The ray's destination point, relative to the RayCast's [code]position[/code].
+            The ray's destination point, relative to the RayCast3D's [code]position[/code].
 		</member>
 		<member name="collide_with_areas" type="bool" setter="set_collide_with_areas" getter="is_collide_with_areas_enabled" default="false">
-			If [code]true[/code], collision with [Area]s will be reported.
+            If [code]true[/code], collision with [Area3D]s will be reported.
 		</member>
 		<member name="collide_with_bodies" type="bool" setter="set_collide_with_bodies" getter="is_collide_with_bodies_enabled" default="true">
 			If [code]true[/code], collision with [PhysicsBody]s will be reported.
@@ -142,7 +142,7 @@
 			If [code]true[/code], collisions will be reported.
 		</member>
 		<member name="exclude_parent" type="bool" setter="set_exclude_parent_body" getter="get_exclude_parent_body" default="true">
-			If [code]true[/code], collisions will be ignored for this RayCast's immediate parent.
+            If [code]true[/code], collisions will be ignored for this RayCast3D's immediate parent.
 		</member>
 	</members>
 	<constants>

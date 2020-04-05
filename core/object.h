@@ -298,7 +298,7 @@ private:
 public:
     void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
     bool _has_user_signal(const StringName &p_name) const;
-    Variant _emit_signal(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _emit_signal(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Array _get_signal_list() const;
     Array _get_signal_connection_list(StringName p_signal) const;
     Array _get_incoming_connections() const;
@@ -343,8 +343,8 @@ public:
     void cancel_delete();
 
     virtual void _changed_callback(Object *p_changed, StringName p_prop);
-    Variant _call_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
     virtual const StringName *_get_class_namev() const {
         if (!_class_name)
@@ -425,7 +425,7 @@ public:
     bool has_method(const StringName &p_method) const;
     void get_method_list(Vector<MethodInfo> *p_list) const;
     Variant callv(const StringName &p_method, const Array &p_args);
-    virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
 

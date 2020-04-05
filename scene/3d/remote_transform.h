@@ -30,11 +30,11 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "core/node_path.h"
 
-class RemoteTransform : public Spatial {
-	GDCLASS(RemoteTransform,Spatial)
+class RemoteTransform : public Node3D {
+	GDCLASS(RemoteTransform,Node3D)
 
 
 	NodePath remote_node;

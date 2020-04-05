@@ -476,10 +476,10 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
         p_offset += vlen;
     }
 
-    Variant::CallError ce;
+    Callable::CallError ce;
 
     p_node->call(p_name, (const Variant **)argp.data(), argc, ce);
-    if (ce.error != Variant::CallError::CALL_OK) {
+    if (ce.error != Callable::CallError::CALL_OK) {
         String error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.data(), argc, ce);
         error = "RPC - " + error;
         ERR_PRINT(error);
@@ -811,10 +811,10 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (call_local_native) {
         int temp_id = rpc_sender_id;
         rpc_sender_id = get_network_unique_id();
-        Variant::CallError ce;
+        Callable::CallError ce;
         p_node->call(p_method, p_arg, p_argcount, ce);
         rpc_sender_id = temp_id;
-        if (ce.error != Variant::CallError::CALL_OK) {
+        if (ce.error != Callable::CallError::CALL_OK) {
             String error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
             error = "rpc() aborted in local call:  - " + error + ".";
             ERR_PRINT(error);
@@ -825,11 +825,11 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (call_local_script) {
         int temp_id = rpc_sender_id;
         rpc_sender_id = get_network_unique_id();
-        Variant::CallError ce;
-        ce.error = Variant::CallError::CALL_OK;
+        Callable::CallError ce;
+        ce.error = Callable::CallError::CALL_OK;
         p_node->get_script_instance()->call(p_method, p_arg, p_argcount, ce);
         rpc_sender_id = temp_id;
-        if (ce.error != Variant::CallError::CALL_OK) {
+        if (ce.error != Callable::CallError::CALL_OK) {
             String error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
             error = "rpc() aborted in script local call:  - " + error + ".";
             ERR_PRINT(error);

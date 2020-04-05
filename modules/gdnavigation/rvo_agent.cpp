@@ -76,7 +76,7 @@ void RvoAgent::dispatch_callback() {
         callback.id = ObjectID(0);
     }
 
-    Variant::CallError responseCallError;
+    Callable::CallError responseCallError;
 
     callback.new_velocity = Vector3(agent.newVelocity_.x(), agent.newVelocity_.y(), agent.newVelocity_.z());
 

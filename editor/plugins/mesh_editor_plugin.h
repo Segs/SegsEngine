@@ -49,7 +49,7 @@ class MeshEditor : public ViewportContainer {
 
     Viewport *viewport;
     MeshInstance *mesh_instance;
-    Spatial *rotation;
+    Node3D *rotation;
     DirectionalLight *light1;
     DirectionalLight *light2;
     Camera *camera;

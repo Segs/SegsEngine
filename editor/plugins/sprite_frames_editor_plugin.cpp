@@ -495,7 +495,7 @@ static void _find_anim_sprites(Node *p_node, Vector<Node *> *r_nodes, const Ref<
         return;
 
     {
-        AnimatedSprite *as = object_cast<AnimatedSprite>(p_node);
+        AnimatedSprite2D *as = object_cast<AnimatedSprite2D>(p_node);
         if (as && as->get_sprite_frames() == p_sfames) {
             r_nodes->push_back(p_node);
         }
@@ -1088,7 +1088,7 @@ void SpriteFramesEditorPlugin::edit(Object *p_object) {
     frames_editor->set_undo_redo(get_undo_redo());
 
     SpriteFrames *s;
-    AnimatedSprite *animated_sprite = object_cast<AnimatedSprite>(p_object);
+    AnimatedSprite2D *animated_sprite = object_cast<AnimatedSprite2D>(p_object);
     if (animated_sprite) {
         s = animated_sprite->get_sprite_frames().get();
     } else {
@@ -1100,7 +1100,7 @@ void SpriteFramesEditorPlugin::edit(Object *p_object) {
 
 bool SpriteFramesEditorPlugin::handles(Object *p_object) const {
 
-    AnimatedSprite *animated_sprite = object_cast<AnimatedSprite>(p_object);
+    AnimatedSprite2D *animated_sprite = object_cast<AnimatedSprite2D>(p_object);
     if (animated_sprite && animated_sprite->get_sprite_frames().get()) {
         return true;
     } else {

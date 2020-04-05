@@ -31,17 +31,17 @@
 #ifndef COLLISION_SHAPE_H
 #define COLLISION_SHAPE_H
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/shape.h"
-class CollisionObject;
-class CollisionShape : public Spatial {
+class CollisionObject3D;
+class CollisionShape : public Node3D {
 
-    GDCLASS(CollisionShape,Spatial)
+    GDCLASS(CollisionShape,Node3D)
 
     OBJ_CATEGORY("3D Physics Nodes");
 
     Ref<Shape> shape;
-    CollisionObject *parent;
+    CollisionObject3D *parent;
     Node *debug_shape;
 
     uint32_t owner_id;

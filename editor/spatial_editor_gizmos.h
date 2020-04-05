@@ -40,7 +40,7 @@ class LightSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(LightSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
 
@@ -58,7 +58,7 @@ class AudioStreamPlayer3DSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(AudioStreamPlayer3DSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
 
@@ -76,7 +76,7 @@ class CameraSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(CameraSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
 
@@ -94,7 +94,7 @@ class MeshInstanceSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(MeshInstanceSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     bool can_be_hidden() const override;
@@ -108,7 +108,7 @@ class Sprite3DSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(Sprite3DSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     bool can_be_hidden() const override;
@@ -125,7 +125,7 @@ class Position3DSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     Vector<Vector3> cursor_points;
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -138,7 +138,7 @@ class SkeletonSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(SkeletonSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -151,7 +151,7 @@ class PhysicalBoneSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(PhysicalBoneSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -177,7 +177,7 @@ class RayCastSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(RayCastSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -190,7 +190,7 @@ class SpringArmSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(SpringArmSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -203,7 +203,7 @@ class VehicleWheelSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(VehicleWheelSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -216,7 +216,7 @@ class SoftBodySpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(SoftBodySpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     bool is_selectable_when_hidden() const override;
@@ -235,7 +235,7 @@ class VisibilityNotifierGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(VisibilityNotifierGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -252,7 +252,7 @@ class CPUParticlesGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(CPUParticlesGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     bool is_selectable_when_hidden() const override;
@@ -265,7 +265,7 @@ class ParticlesGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(ParticlesGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     bool is_selectable_when_hidden() const override;
@@ -284,7 +284,7 @@ class ReflectionProbeGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(ReflectionProbeGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -302,7 +302,7 @@ class GIProbeGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(GIProbeGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -320,7 +320,7 @@ class BakedIndirectLightGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(BakedIndirectLightGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -338,7 +338,7 @@ class CollisionShapeSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(CollisionShapeSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -355,7 +355,7 @@ class CollisionPolygonSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(CollisionPolygonSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -375,7 +375,7 @@ class NavigationMeshSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     };
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;
@@ -403,7 +403,7 @@ class JointSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(JointSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 public:
-    bool has_gizmo(Spatial *p_spatial) override;
+    bool has_gizmo(Node3D *p_spatial) override;
     StringView get_name() const override;
     int get_priority() const override;
     void redraw(EditorSpatialGizmo *p_gizmo) override;

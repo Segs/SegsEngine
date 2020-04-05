@@ -47,7 +47,7 @@ protected:
 	void _set_target(const Object *p_target);
 
 public:
-	void set_target(const Spatial *p_target);
+	void set_target(const Node3D *p_target);
 	void set_target_path(const NodePath &p_path);
 	NodePath get_target_path() const;
 

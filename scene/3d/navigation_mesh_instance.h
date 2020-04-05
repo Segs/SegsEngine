@@ -30,15 +30,15 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/navigation_mesh.h"
 
 class Navigation;
 
-class NavigationMeshInstance : public Spatial {
+class NavigationMeshInstance : public Node3D {
 
-    GDCLASS(NavigationMeshInstance, Spatial);
+    GDCLASS(NavigationMeshInstance, Node3D);
 
     bool enabled;
     RID region;

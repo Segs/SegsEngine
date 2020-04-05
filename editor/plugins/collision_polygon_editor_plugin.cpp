@@ -497,7 +497,7 @@ void Polygon3DEditor::edit(Node *p_collision_polygon) {
 
     if (p_collision_polygon) {
 
-        node = object_cast<Spatial>(p_collision_polygon);
+        node = object_cast<Node3D>(p_collision_polygon);
         //Enable the pencil tool if the polygon is empty
         if (node->call_va("get_polygon").as<PoolVector<Vector2>>().empty()) {
             _menu_option(MODE_CREATE);
@@ -588,7 +588,7 @@ void Polygon3DEditorPlugin::edit(Object *p_object) {
 
 bool Polygon3DEditorPlugin::handles(Object *p_object) const {
 
-    return object_cast<Spatial>(p_object) && bool(p_object->call_va("_is_editable_3d_polygon"));
+    return object_cast<Node3D>(p_object) && bool(p_object->call_va("_is_editable_3d_polygon"));
 }
 
 void Polygon3DEditorPlugin::make_visible(bool p_visible) {

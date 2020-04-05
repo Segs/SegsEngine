@@ -62,7 +62,7 @@ class Polygon3DEditor : public HBoxContainer {
 
     EditorNode *editor;
     Panel *panel;
-    Spatial *node;
+    Node3D *node;
     ImmediateGeometry *imgeom;
     MeshInstance *pointsm;
     Ref<ArrayMesh> m;

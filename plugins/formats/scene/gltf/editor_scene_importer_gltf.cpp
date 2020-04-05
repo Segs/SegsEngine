@@ -50,7 +50,7 @@
 #include "scene/resources/material.h"
 #include "scene/resources/texture.h"
 #include "scene/3d/skeleton.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 
 #include "EASTL/sort.h"
 #include "EASTL/deque.h"
@@ -2893,20 +2893,20 @@ namespace {
         return camera;
     }
 
-    Spatial* _generate_spatial(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+    Node3D* _generate_spatial(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
 
-        Spatial* spatial = memnew(Spatial);
+        Node3D* spatial = memnew(Node3D);
         print_verbose("glTF: Creating spatial for: " + gltf_node->name);
 
         return spatial;
     }
 
-    void _generate_scene_node(GLTFState& state, Node* scene_parent, Spatial* scene_root, const GLTFNodeIndex node_index) {
+    void _generate_scene_node(GLTFState& state, Node* scene_parent, Node3D* scene_root, const GLTFNodeIndex node_index) {
 
         const GLTFNode* gltf_node = state.nodes[node_index];
 
-        Spatial* current_node = nullptr;
+        Node3D* current_node = nullptr;
 
         // Is our parent a skeleton
         Skeleton* active_skeleton = object_cast<Skeleton>(scene_parent);
@@ -3179,7 +3179,7 @@ namespace {
         ap->add_animation(StringName(name), animation);
     }
 
-    void _process_mesh_instances(GLTFState& state, Spatial* scene_root) {
+    void _process_mesh_instances(GLTFState& state, Node3D* scene_root) {
         for (GLTFNodeIndex node_i = 0; node_i < state.nodes.size(); ++node_i) {
             const GLTFNode* node = state.nodes[node_i];
 
@@ -3207,9 +3207,9 @@ namespace {
         }
     }
 
-    Spatial* _generate_scene(GLTFState& state, const int p_bake_fps) {
+    Node3D* _generate_scene(GLTFState& state, const int p_bake_fps) {
 
-        Spatial* root = memnew(Spatial);
+        Node3D* root = memnew(Node3D);
 
         // scene_name is already unique
         root->set_name(state.scene_name);
@@ -3346,7 +3346,7 @@ Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags,
     _assign_scene_names(state);
 
     /* STEP 17 MAKE SCENE! */
-    Spatial *scene = _generate_scene(state, p_bake_fps);
+    Node3D *scene = _generate_scene(state, p_bake_fps);
 
     return scene;
 }

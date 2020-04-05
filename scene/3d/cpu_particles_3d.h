@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  cpu_particles.h                                                      */
+/*  cpu_particles_3d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -38,9 +38,9 @@ class Curve;
 class Mesh;
 class Gradient;
 
-class CPUParticles : public GeometryInstance {
+class CPUParticles3D : public GeometryInstance {
 private:
-    GDCLASS(CPUParticles,GeometryInstance)
+    GDCLASS(CPUParticles3D,GeometryInstance)
 
 public:
     enum DrawOrder : int8_t {
@@ -286,7 +286,7 @@ public:
 
     void convert_from_particles(Node *p_particles);
 
-    CPUParticles();
-    ~CPUParticles() override;
+    CPUParticles3D();
+    ~CPUParticles3D() override;
 };
 

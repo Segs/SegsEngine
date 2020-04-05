@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="EditorSpatialGizmo" inherits="SpatialGizmo" version="4.0">
+<class name="EditorSpatialGizmo" inherits="Node3DGizmo" version="4.0">
 	<brief_description>
-		Custom gizmo for editing Spatial objects.
+		Custom gizmo for editing Node3D objects.
 	</brief_description>
 	<description>
-		Custom gizmo that is used for providing custom visualization and editing (handles) for 3D Spatial objects. See [EditorSpatialGizmoPlugin] for more information.
+		Custom gizmo that is used for providing custom visualization and editing (handles) for 3D Node3D objects. See [EditorSpatialGizmoPlugin] for more information.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -131,10 +131,10 @@
 			</description>
 		</method>
 		<method name="get_spatial_node" qualifiers="const">
-			<return type="Spatial">
+			<return type="Node3D">
 			</return>
 			<description>
-				Returns the Spatial node associated with this gizmo.
+				Returns the Node3D node associated with this gizmo.
 			</description>
 		</method>
 		<method name="is_handle_highlighted" qualifiers="virtual">
@@ -150,7 +150,7 @@
 			<return type="void">
 			</return>
 			<description>
-				This function is called when the Spatial this gizmo refers to changes (the [method Spatial.update_gizmo] is called).
+				This function is called when the Node3D this gizmo refers to changes (the [method Node3D.update_gizmo] is called).
 			</description>
 		</method>
 		<method name="set_handle" qualifiers="virtual">

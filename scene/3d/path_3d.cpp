@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  path.cpp                                                             */
+/*  path_3d.cpp                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,21 +28,21 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "path.h"
+#include "path_3d.h"
 
 #include "core/engine.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 
-IMPL_GDCLASS(Path)
-IMPL_GDCLASS(PathFollow)
-VARIANT_ENUM_CAST(PathFollow::RotationMode);
+IMPL_GDCLASS(Path3D)
+IMPL_GDCLASS(PathFollow3D)
+VARIANT_ENUM_CAST(PathFollow3D::RotationMode);
 
-void Path::_notification(int p_what) {
+void Path3D::_notification(int p_what) {
 }
 
-void Path::_curve_changed() {
+void Path3D::_curve_changed() {
 
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
         update_gizmo();
@@ -50,11 +50,11 @@ void Path::_curve_changed() {
         emit_signal("curve_changed");
     }
 
-    // update the configuration warnings of all children of type PathFollow
-    // previously used for PathFollowOriented (now enforced orientation is done in PathFollow)
+    // update the configuration warnings of all children of type PathFollow3D
+    // previously used for PathFollowOriented (now enforced orientation is done in PathFollow3D)
     if (is_inside_tree()) {
         for (int i = 0; i < get_child_count(); i++) {
-            PathFollow *child = object_cast<PathFollow>(get_child(i));
+            PathFollow3D *child = object_cast<PathFollow3D>(get_child(i));
             if (child) {
                 child->update_configuration_warning();
             }
@@ -62,7 +62,7 @@ void Path::_curve_changed() {
     }
 }
 
-void Path::set_curve(const Ref<Curve3D> &p_curve) {
+void Path3D::set_curve(const Ref<Curve3D> &p_curve) {
 
     if (curve) {
         curve->disconnect("changed", this, "_curve_changed");
@@ -76,30 +76,30 @@ void Path::set_curve(const Ref<Curve3D> &p_curve) {
     _curve_changed();
 }
 
-Ref<Curve3D> Path::get_curve() const {
+Ref<Curve3D> Path3D::get_curve() const {
 
     return curve;
 }
 
-void Path::_bind_methods() {
+void Path3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &Path::set_curve);
-    MethodBinder::bind_method(D_METHOD("get_curve"), &Path::get_curve);
-    MethodBinder::bind_method(D_METHOD("_curve_changed"), &Path::_curve_changed);
+    MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &Path3D::set_curve);
+    MethodBinder::bind_method(D_METHOD("get_curve"), &Path3D::get_curve);
+    MethodBinder::bind_method(D_METHOD("_curve_changed"), &Path3D::_curve_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve3D"), "set_curve", "get_curve");
 
     ADD_SIGNAL(MethodInfo("curve_changed"));
 }
 
-Path::Path() {
+Path3D::Path3D() {
 
     set_curve(make_ref_counted<Curve3D>()); //create one by default
 }
 
 //////////////
 
-void PathFollow::_update_transform() {
+void PathFollow3D::_update_transform() {
 
     if (!path)
         return;
@@ -219,7 +219,7 @@ void PathFollow::_update_transform() {
     set_transform(t);
 }
 
-void PathFollow::_notification(int p_what) {
+void PathFollow3D::_notification(int p_what) {
 
     switch (p_what) {
 
@@ -227,7 +227,7 @@ void PathFollow::_notification(int p_what) {
 
             Node *parent = get_parent();
             if (parent) {
-                path = object_cast<Path>(parent);
+                path = object_cast<Path3D>(parent);
                 if (path) {
                     _update_transform();
                 }
@@ -241,17 +241,17 @@ void PathFollow::_notification(int p_what) {
     }
 }
 
-void PathFollow::set_cubic_interpolation(bool p_enable) {
+void PathFollow3D::set_cubic_interpolation(bool p_enable) {
 
     cubic = p_enable;
 }
 
-bool PathFollow::get_cubic_interpolation() const {
+bool PathFollow3D::get_cubic_interpolation() const {
 
     return cubic;
 }
 
-void PathFollow::_validate_property(PropertyInfo &property) const {
+void PathFollow3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "offset") {
 
@@ -263,45 +263,45 @@ void PathFollow::_validate_property(PropertyInfo &property) const {
     }
 }
 
-StringName PathFollow::get_configuration_warning() const {
+StringName PathFollow3D::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
         return StringName();
 
-    if (!object_cast<Path>(get_parent())) {
-        return TTR("PathFollow only works when set as a child of a Path node.");
+    if (!object_cast<Path3D>(get_parent())) {
+        return TTR("PathFollow3D only works when set as a child of a Path3D node.");
     } else {
-        Path *path = object_cast<Path>(get_parent());
+        Path3D *path = object_cast<Path3D>(get_parent());
         if (path->get_curve() && !path->get_curve()->is_up_vector_enabled() && rotation_mode == ROTATION_ORIENTED) {
-            return TTR("PathFollow's ROTATION_ORIENTED requires \"Up Vector\" to be enabled in its parent Path's Curve resource.");
+            return TTR("PathFollow3D's ROTATION_ORIENTED requires \"Up Vector\" to be enabled in its parent Path3D's Curve resource.");
         }
     }
 
     return StringName();
 }
 
-void PathFollow::_bind_methods() {
+void PathFollow3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &PathFollow::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &PathFollow::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &PathFollow3D::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset"), &PathFollow3D::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_h_offset", {"h_offset"}), &PathFollow::set_h_offset);
-    MethodBinder::bind_method(D_METHOD("get_h_offset"), &PathFollow::get_h_offset);
+    MethodBinder::bind_method(D_METHOD("set_h_offset", {"h_offset"}), &PathFollow3D::set_h_offset);
+    MethodBinder::bind_method(D_METHOD("get_h_offset"), &PathFollow3D::get_h_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_v_offset", {"v_offset"}), &PathFollow::set_v_offset);
-    MethodBinder::bind_method(D_METHOD("get_v_offset"), &PathFollow::get_v_offset);
+    MethodBinder::bind_method(D_METHOD("set_v_offset", {"v_offset"}), &PathFollow3D::set_v_offset);
+    MethodBinder::bind_method(D_METHOD("get_v_offset"), &PathFollow3D::get_v_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_unit_offset", {"unit_offset"}), &PathFollow::set_unit_offset);
-    MethodBinder::bind_method(D_METHOD("get_unit_offset"), &PathFollow::get_unit_offset);
+    MethodBinder::bind_method(D_METHOD("set_unit_offset", {"unit_offset"}), &PathFollow3D::set_unit_offset);
+    MethodBinder::bind_method(D_METHOD("get_unit_offset"), &PathFollow3D::get_unit_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_rotation_mode", {"rotation_mode"}), &PathFollow::set_rotation_mode);
-    MethodBinder::bind_method(D_METHOD("get_rotation_mode"), &PathFollow::get_rotation_mode);
+    MethodBinder::bind_method(D_METHOD("set_rotation_mode", {"rotation_mode"}), &PathFollow3D::set_rotation_mode);
+    MethodBinder::bind_method(D_METHOD("get_rotation_mode"), &PathFollow3D::get_rotation_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_cubic_interpolation", {"enable"}), &PathFollow::set_cubic_interpolation);
-    MethodBinder::bind_method(D_METHOD("get_cubic_interpolation"), &PathFollow::get_cubic_interpolation);
+    MethodBinder::bind_method(D_METHOD("set_cubic_interpolation", {"enable"}), &PathFollow3D::set_cubic_interpolation);
+    MethodBinder::bind_method(D_METHOD("get_cubic_interpolation"), &PathFollow3D::get_cubic_interpolation);
 
-    MethodBinder::bind_method(D_METHOD("set_loop", {"loop"}), &PathFollow::set_loop);
-    MethodBinder::bind_method(D_METHOD("has_loop"), &PathFollow::has_loop);
+    MethodBinder::bind_method(D_METHOD("set_loop", {"loop"}), &PathFollow3D::set_loop);
+    MethodBinder::bind_method(D_METHOD("has_loop"), &PathFollow3D::has_loop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset", PropertyHint::Range, "0,10000,0.01,or_lesser,or_greater"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_offset", PropertyHint::Range, "0,1,0.0001,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
@@ -318,7 +318,7 @@ void PathFollow::_bind_methods() {
     BIND_ENUM_CONSTANT(ROTATION_ORIENTED)
 }
 
-void PathFollow::set_offset(float p_offset) {
+void PathFollow3D::set_offset(float p_offset) {
     delta_offset = p_offset - offset;
     offset = p_offset;
 
@@ -345,42 +345,42 @@ void PathFollow::set_offset(float p_offset) {
 }
 
 
-void PathFollow::set_h_offset(float p_h_offset) {
+void PathFollow3D::set_h_offset(float p_h_offset) {
 
     h_offset = p_h_offset;
     if (path)
         _update_transform();
 }
 
-float PathFollow::get_h_offset() const {
+float PathFollow3D::get_h_offset() const {
 
     return h_offset;
 }
 
-void PathFollow::set_v_offset(float p_v_offset) {
+void PathFollow3D::set_v_offset(float p_v_offset) {
 
     v_offset = p_v_offset;
     if (path)
         _update_transform();
 }
 
-float PathFollow::get_v_offset() const {
+float PathFollow3D::get_v_offset() const {
 
     return v_offset;
 }
 
-float PathFollow::get_offset() const {
+float PathFollow3D::get_offset() const {
 
     return offset;
 }
 
-void PathFollow::set_unit_offset(float p_unit_offset) {
+void PathFollow3D::set_unit_offset(float p_unit_offset) {
 
     if (path && path->get_curve() && path->get_curve()->get_baked_length())
         set_offset(p_unit_offset * path->get_curve()->get_baked_length());
 }
 
-float PathFollow::get_unit_offset() const {
+float PathFollow3D::get_unit_offset() const {
 
     if (path && path->get_curve() && path->get_curve()->get_baked_length())
         return get_offset() / path->get_curve()->get_baked_length();
@@ -388,7 +388,7 @@ float PathFollow::get_unit_offset() const {
         return 0;
 }
 
-void PathFollow::set_rotation_mode(RotationMode p_rotation_mode) {
+void PathFollow3D::set_rotation_mode(RotationMode p_rotation_mode) {
 
     rotation_mode = p_rotation_mode;
 
@@ -396,22 +396,22 @@ void PathFollow::set_rotation_mode(RotationMode p_rotation_mode) {
     _update_transform();
 }
 
-PathFollow::RotationMode PathFollow::get_rotation_mode() const {
+PathFollow3D::RotationMode PathFollow3D::get_rotation_mode() const {
 
     return rotation_mode;
 }
 
-void PathFollow::set_loop(bool p_loop) {
+void PathFollow3D::set_loop(bool p_loop) {
 
     loop = p_loop;
 }
 
-bool PathFollow::has_loop() const {
+bool PathFollow3D::has_loop() const {
 
     return loop;
 }
 
-PathFollow::PathFollow() {
+PathFollow3D::PathFollow3D() {
 
     offset = 0;
     delta_offset = 0;

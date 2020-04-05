@@ -781,7 +781,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         if (value.get_type() != left_type) {
                             //different type? for now convert
                             //not the same, reconvert
-                            Variant::CallError ce;
+                            Callable::CallError ce;
                             const Variant *existingp = &value;
                             value = Variant::construct(left_type, &existingp, 1, ce, false);
                         }
@@ -3834,7 +3834,7 @@ void VisualScriptEditor::_default_value_edited(Node *p_button, int p_id, int p_i
     Variant existing = vsn->get_default_input_value(p_input_port);
     if (pinfo.type != VariantType::NIL && existing.get_type() != pinfo.type) {
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         const Variant *existingp = &existing;
         existing = Variant::construct(pinfo.type, &existingp, 1, ce, false);
     }

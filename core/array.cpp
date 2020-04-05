@@ -46,9 +46,9 @@ struct _ArrayVariantSortCustom {
     bool operator()(const Variant &p_l, const Variant &p_r) const {
 
         const Variant *args[2] = { &p_l, &p_r };
-        Variant::CallError err;
+        Callable::CallError err;
         bool res = obj->call(func, args, 2, err).as<bool>();
-        if (err.error != Variant::CallError::CALL_OK)
+        if (err.error != Callable::CallError::CALL_OK)
             res = false;
         return res;
     }

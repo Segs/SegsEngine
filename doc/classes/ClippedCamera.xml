@@ -4,7 +4,7 @@
 		A [Camera] that includes collision.
 	</brief_description>
 	<description>
-		This node extends [Camera] to add collisions with [Area] and/or [PhysicsBody] nodes. The camera cannot move through colliding objects.
+        This node extends [Camera] to add collisions with [Area3D] and/or [PhysicsBody] nodes. The camera cannot move through colliding objects.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -84,7 +84,7 @@
 	</methods>
 	<members>
 		<member name="clip_to_areas" type="bool" setter="set_clip_to_areas" getter="is_clip_to_areas_enabled" default="false">
-			If [code]true[/code], the camera stops on contact with [Area]s.
+            If [code]true[/code], the camera stops on contact with [Area3D]s.
 		</member>
 		<member name="clip_to_bodies" type="bool" setter="set_clip_to_bodies" getter="is_clip_to_bodies_enabled" default="true">
 			If [code]true[/code], the camera stops on contact with [PhysicsBody]s.

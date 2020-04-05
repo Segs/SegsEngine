@@ -31,14 +31,14 @@
 #pragma once
 
 #include "core/vset.h"
-#include "scene/3d/collision_object.h"
+#include "scene/3d/collision_object_3d.h"
 #include "scene/resources/physics_material.h"
 #include "servers/physics_server.h"
 #include "skeleton.h"
 
-class PhysicsBody : public CollisionObject {
+class PhysicsBody : public CollisionObject3D {
 
-    GDCLASS(PhysicsBody,CollisionObject)
+    GDCLASS(PhysicsBody,CollisionObject3D)
 
     uint32_t collision_layer;
     uint32_t collision_mask;

@@ -30,7 +30,7 @@
 
 #include "spring_arm.h"
 #include "core/engine.h"
-#include "scene/3d/collision_object.h"
+#include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/sphere_shape.h"
 #include "servers/physics_server.h"
@@ -151,7 +151,7 @@ void SpringArm::process_spring() {
 
     for (int i = get_child_count() - 1; 0 <= i; --i) {
 
-        Spatial *child = object_cast<Spatial>(get_child(i));
+        Node3D *child = object_cast<Node3D>(get_child(i));
         if (child) {
             childs_transform.basis = child->get_global_transform().basis;
             child->set_global_transform(childs_transform);

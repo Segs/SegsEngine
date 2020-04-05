@@ -30,13 +30,13 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "core/hash_set.h"
 #include "core/rid.h"
 
 class Shape;
-class SpringArm : public Spatial {
-	GDCLASS(SpringArm,Spatial)
+class SpringArm : public Node3D {
+	GDCLASS(SpringArm,Node3D)
 
 	Ref<Shape> shape;
     HashSet<RID> excluded_objects;

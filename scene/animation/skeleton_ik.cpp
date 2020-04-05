@@ -539,7 +539,7 @@ void SkeletonIK::stop() {
 Transform SkeletonIK::_get_target_transform() {
 
     if (!target_node_override && !target_node_path_override.is_empty())
-        target_node_override = object_cast<Spatial>(get_node(target_node_path_override));
+        target_node_override = object_cast<Node3D>(get_node(target_node_path_override));
 
     if (target_node_override)
         return target_node_override->get_global_transform();

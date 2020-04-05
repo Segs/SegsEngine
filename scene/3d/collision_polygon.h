@@ -30,14 +30,14 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/shape.h"
 #include "core/math/vector2.h"
 
-class CollisionObject;
-class CollisionPolygon : public Spatial {
+class CollisionObject3D;
+class CollisionPolygon : public Node3D {
 
-	GDCLASS(CollisionPolygon,Spatial)
+	GDCLASS(CollisionPolygon,Node3D)
 
 protected:
     AABB aabb;
@@ -45,7 +45,7 @@ protected:
 	float depth;
 
 	uint32_t owner_id;
-	CollisionObject *parent;
+	CollisionObject3D *parent;
 
 	bool disabled;
 

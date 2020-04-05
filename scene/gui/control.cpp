@@ -688,9 +688,9 @@ bool Control::has_point(const Point2 &p_point) const {
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p = &v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->has_point, &p, 1, ce);
-        if (ce.error == Variant::CallError::CALL_OK) {
+        if (ce.error == Callable::CallError::CALL_OK) {
             return ret;
         }
     }
@@ -722,9 +722,9 @@ Variant Control::get_drag_data(const Point2 &p_point) {
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p = &v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->get_drag_data, &p, 1, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return ret;
     }
 
@@ -744,9 +744,9 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->can_drop_data, p, 2, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return ret;
     }
 
@@ -766,9 +766,9 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->drop_data, p, 2, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return;
     }
 }
@@ -806,9 +806,9 @@ Size2 Control::get_minimum_size() const {
     ScriptInstance *si = const_cast<Control *>(this)->get_script_instance();
     if (si) {
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant s = si->call(SceneStringNames::get_singleton()->_get_minimum_size, nullptr, 0, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return s;
     }
     return Size2();
@@ -2612,9 +2612,9 @@ bool Control::is_text_field() const {
     if (get_script_instance()) {
         Variant v=p_point;
         const Variant *p[2]={&v,&p_data};
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call("is_text_field",p,2,ce);
-        if (ce.error==Variant::CallError::CALL_OK)
+        if (ce.error==Callable::CallError::CALL_OK)
             return ret;
     }
   */

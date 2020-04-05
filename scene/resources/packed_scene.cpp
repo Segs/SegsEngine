@@ -39,7 +39,7 @@
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
 #include "scene/2d/node_2d.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/gui/control.h"
 #include "scene/main/instance_placeholder.h"
 #include "core/method_bind.h"
@@ -303,8 +303,8 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
                 }
                 WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.");
                 if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
-                    if (object_cast<Spatial>(ret_nodes[n.parent])) {
-                        obj = memnew(Spatial);
+                    if (object_cast<Node3D>(ret_nodes[n.parent])) {
+                        obj = memnew(Node3D);
                     } else if (object_cast<Control>(ret_nodes[n.parent])) {
                         obj = memnew(Control);
                     } else if (object_cast<Node2D>(ret_nodes[n.parent])) {

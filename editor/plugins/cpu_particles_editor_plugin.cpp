@@ -79,7 +79,7 @@ void CPUParticlesEditor::_menu_option(int p_option) {
     }
 }
 
-void CPUParticlesEditor::edit(CPUParticles *p_particles) {
+void CPUParticlesEditor::edit(CPUParticles3D *p_particles) {
 
     base_node = p_particles;
     node = p_particles;
@@ -96,10 +96,10 @@ void CPUParticlesEditor::_generate_emission_points() {
     }
 
     if (normals.size() == 0) {
-        node->set_emission_shape(CPUParticles::EMISSION_SHAPE_POINTS);
+        node->set_emission_shape(CPUParticles3D::EMISSION_SHAPE_POINTS);
         node->set_emission_points(points);
     } else {
-        node->set_emission_shape(CPUParticles::EMISSION_SHAPE_DIRECTED_POINTS);
+        node->set_emission_shape(CPUParticles3D::EMISSION_SHAPE_DIRECTED_POINTS);
         node->set_emission_points(points);
         node->set_emission_normals(normals);
     }
@@ -129,7 +129,7 @@ CPUParticlesEditor::CPUParticlesEditor() {
 
 void CPUParticlesEditorPlugin::edit(Object *p_object) {
 
-    particles_editor->edit(object_cast<CPUParticles>(p_object));
+    particles_editor->edit(object_cast<CPUParticles3D>(p_object));
 }
 
 bool CPUParticlesEditorPlugin::handles(Object *p_object) const {

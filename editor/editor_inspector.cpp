@@ -950,7 +950,7 @@ bool EditorInspectorPlugin::parse_property(Object *p_object, VariantType p_type,
             &arg[0], &arg[1], &arg[2], &arg[3], &arg[4], &arg[5]
         };
 
-        Variant::CallError err;
+        Callable::CallError err;
         return get_script_instance()->call("parse_property", (const Variant **)&argptr, 6, err);
     }
     return false;
@@ -2126,7 +2126,7 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
             object->get_property_list(&pinfo);
             for (const PropertyInfo &E : pinfo) {
                 if (E.name == p_path) {
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     to_create = Variant::construct(E.type, nullptr, 0, ce);
                     break;
                 }

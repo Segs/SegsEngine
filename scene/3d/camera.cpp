@@ -30,14 +30,14 @@
 
 #include "camera.h"
 
-#include "collision_object.h"
 #include "core/engine.h"
 #include "core/math/camera_matrix.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
-#include "servers/physics_server.h"
 #include "scene/resources/world.h"
+#include "servers/physics_server.h"
 
 IMPL_GDCLASS(Camera)
 IMPL_GDCLASS(ClippedCamera)
@@ -119,7 +119,7 @@ void Camera::_notification(int p_what) {
         case NOTIFICATION_ENTER_WORLD: {
 
             // Needs to track the Viewport  because it's needed on NOTIFICATION_EXIT_WORLD
-            // and Spatial will handle it first, including clearing its reference to the Viewport,
+            // and Node3D will handle it first, including clearing its reference to the Viewport,
             // therefore making it impossible to subclasses to access it
             viewport = get_viewport();
             ERR_FAIL_COND(!viewport);
@@ -755,7 +755,7 @@ Transform ClippedCamera::get_camera_transform() const {
 void ClippedCamera::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS || p_what == NOTIFICATION_INTERNAL_PHYSICS_PROCESS) {
 
-        Spatial *parent = object_cast<Spatial>(get_parent());
+        Node3D *parent = object_cast<Node3D>(get_parent());
         if (!parent) {
             return;
         }
@@ -846,7 +846,7 @@ void ClippedCamera::add_exception_rid(const RID &p_rid) {
 void ClippedCamera::add_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object);
-    const CollisionObject *co = object_cast<CollisionObject>(p_object);
+    const CollisionObject3D *co = object_cast<CollisionObject3D>(p_object);
     if (!co)
         return;
     add_exception_rid(co->get_rid());
@@ -860,7 +860,7 @@ void ClippedCamera::remove_exception_rid(const RID &p_rid) {
 void ClippedCamera::remove_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object);
-    const CollisionObject *co = object_cast<CollisionObject>(p_object);
+    const CollisionObject3D *co = object_cast<CollisionObject3D>(p_object);
     if (!co)
         return;
     remove_exception_rid(co->get_rid());

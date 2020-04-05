@@ -257,7 +257,7 @@ public:
                         VariantType t = VariantType(int(p_value));
 
                         if (t != args[idx].get_type()) {
-                            Variant::CallError err;
+                            Callable::CallError err;
                             if (Variant::can_convert(args[idx].get_type(), t)) {
                                 Variant old = args[idx];
                                 Variant *ptrs[1] = { &old };
@@ -915,7 +915,7 @@ public:
                                 VariantType t = VariantType(int(p_value));
 
                                 if (t != args[idx].get_type()) {
-                                    Variant::CallError err;
+                                    Callable::CallError err;
                                     if (Variant::can_convert(args[idx].get_type(), t)) {
                                         Variant old = args[idx];
                                         Variant *ptrs[1] = { &old };
@@ -3151,7 +3151,7 @@ AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_
             &args[5]
         };
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_value_track_edit", (const Variant **)&argptrs, 6, ce).as<Object *>());
     }
     return nullptr;
@@ -3566,7 +3566,7 @@ void AnimationTrackEditor::_insert_delay() {
     insert_queue = false;
 }
 
-void AnimationTrackEditor::insert_transform_key(Spatial *p_node, StringView p_sub, const Transform &p_xform) {
+void AnimationTrackEditor::insert_transform_key(Node3D *p_node, StringView p_sub, const Transform &p_xform) {
 
     if (!keying)
         return;
@@ -4458,8 +4458,8 @@ void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
     ERR_FAIL_COND(!node);
     NodePath path_to = root->get_path_to(node);
 
-    if (adding_track_type == Animation::TYPE_TRANSFORM && !node->is_class("Spatial")) {
-        EditorNode::get_singleton()->show_warning(TTR("Transform tracks only apply to Spatial-based nodes."));
+    if (adding_track_type == Animation::TYPE_TRANSFORM && !node->is_class("Node3D")) {
+        EditorNode::get_singleton()->show_warning(TTR("Transform tracks only apply to Node3D-based nodes."));
         return;
     }
 
@@ -4651,10 +4651,10 @@ void AnimationTrackEditor::_insert_key_from_track(float p_ofs, int p_track) {
                 EditorNode::get_singleton()->show_warning(TTR("Track path is invalid, so can't add a key."));
                 return;
             }
-            Spatial *base = object_cast<Spatial>(root->get_node(animation->track_get_path(p_track)));
+            Node3D *base = object_cast<Node3D>(root->get_node(animation->track_get_path(p_track)));
 
             if (!base) {
-                EditorNode::get_singleton()->show_warning(TTR("Track is not of type Spatial, can't insert key"));
+                EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
                 return;
             }
 
@@ -4764,7 +4764,7 @@ void AnimationTrackEditor::_add_method_key(const StringName &p_method) {
                     Variant arg = E.default_arguments[i - first_defarg];
                     params.push_back(arg);
                 } else {
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     Variant arg = Variant::construct(E.arguments[i].type, nullptr, 0, ce);
                     params.push_back(arg);
                 }

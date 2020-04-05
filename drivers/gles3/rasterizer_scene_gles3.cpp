@@ -1054,7 +1054,7 @@ bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_m
     SCOPE_AUTONAMED
 
     /* this is handled outside
-    if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Spatial::CULL_MODE_DISABLED) {
+    if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Node3D::CULL_MODE_DISABLED) {
         glDisable(GL_CULL_FACE);
     } else {
         glEnable(GL_CULL_FACE);
@@ -1078,25 +1078,25 @@ bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_m
 
     if (state.current_depth_draw != p_material->shader->spatial.depth_draw_mode) {
         switch (p_material->shader->spatial.depth_draw_mode) {
-            case RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS: {
+            case RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS: {
                 glDepthMask(p_depth_pass);
                 // If some transparent objects write to depth, we need to re-copy depth texture when we need it
                 if (p_alpha_pass && !state.used_depth_prepass) {
                     state.prepared_depth_texture = false;
                 }
             } break;
-            case RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_OPAQUE: {
+            case RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_OPAQUE: {
 
                 glDepthMask(!p_alpha_pass);
             } break;
-            case RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_ALWAYS: {
+            case RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_ALWAYS: {
                 glDepthMask(GL_TRUE);
                 // If some transparent objects write to depth, we need to re-copy depth texture when we need it
                 if (p_alpha_pass) {
                     state.prepared_depth_texture = false;
                 }
             } break;
-            case RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_NEVER: {
+            case RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_NEVER: {
                 glDepthMask(GL_FALSE);
             } break;
         }
@@ -2075,7 +2075,7 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
             if (p_alpha_pass || p_directional_add) {
                 int desired_blend_mode;
                 if (p_directional_add) {
-                    desired_blend_mode = RasterizerStorageGLES3::Shader::Spatial::BLEND_MODE_ADD;
+                    desired_blend_mode = RasterizerStorageGLES3::Shader::Node3D::BLEND_MODE_ADD;
                 } else {
                     desired_blend_mode = material->shader->spatial.blend_mode;
                 }
@@ -2084,7 +2084,7 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
 
                     switch (desired_blend_mode) {
 
-                        case RasterizerStorageGLES3::Shader::Spatial::BLEND_MODE_MIX: {
+                        case RasterizerStorageGLES3::Shader::Node3D::BLEND_MODE_MIX: {
                             glBlendEquation(GL_FUNC_ADD);
                             if (storage->frame.current_rt && storage->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_TRANSPARENT]) {
                                 glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -2093,18 +2093,18 @@ void RasterizerSceneGLES3::_render_list(RenderList::Element **p_elements, int p_
                             }
 
                         } break;
-                        case RasterizerStorageGLES3::Shader::Spatial::BLEND_MODE_ADD: {
+                        case RasterizerStorageGLES3::Shader::Node3D::BLEND_MODE_ADD: {
 
                             glBlendEquation(GL_FUNC_ADD);
                             glBlendFunc(p_alpha_pass ? GL_SRC_ALPHA : GL_ONE, GL_ONE);
 
                         } break;
-                        case RasterizerStorageGLES3::Shader::Spatial::BLEND_MODE_SUB: {
+                        case RasterizerStorageGLES3::Shader::Node3D::BLEND_MODE_SUB: {
 
                             glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
                         } break;
-                        case RasterizerStorageGLES3::Shader::Spatial::BLEND_MODE_MUL: {
+                        case RasterizerStorageGLES3::Shader::Node3D::BLEND_MODE_MUL: {
                             glBlendEquation(GL_FUNC_ADD);
                             if (storage->frame.current_rt && storage->frame.current_rt->flags[RasterizerStorage::RENDER_TARGET_TRANSPARENT]) {
                                 glBlendFuncSeparate(GL_DST_COLOR, GL_ZERO, GL_DST_ALPHA, GL_ZERO);
@@ -2251,16 +2251,16 @@ void RasterizerSceneGLES3::_add_geometry(RasterizerStorageGLES3::Geometry *p_geo
 void RasterizerSceneGLES3::_add_geometry_with_material(RasterizerStorageGLES3::Geometry *p_geometry, InstanceBase *p_instance, RasterizerStorageGLES3::GeometryOwner *p_owner, RasterizerStorageGLES3::Material *p_material, bool p_depth_pass, bool p_shadow_pass) {
 
     bool has_base_alpha = (p_material->shader->spatial.uses_alpha && !p_material->shader->spatial.uses_alpha_scissor) || p_material->shader->spatial.uses_screen_texture || p_material->shader->spatial.uses_depth_texture;
-    bool has_blend_alpha = p_material->shader->spatial.blend_mode != RasterizerStorageGLES3::Shader::Spatial::BLEND_MODE_MIX;
+    bool has_blend_alpha = p_material->shader->spatial.blend_mode != RasterizerStorageGLES3::Shader::Node3D::BLEND_MODE_MIX;
     bool has_alpha = has_base_alpha || has_blend_alpha;
 
     bool mirror = p_instance->mirror;
     bool no_cull = false;
 
-    if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Spatial::CULL_MODE_DISABLED) {
+    if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Node3D::CULL_MODE_DISABLED) {
         no_cull = true;
         mirror = false;
-    } else if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Spatial::CULL_MODE_FRONT) {
+    } else if (p_material->shader->spatial.cull_mode == RasterizerStorageGLES3::Shader::Node3D::CULL_MODE_FRONT) {
         mirror = !mirror;
     }
 
@@ -2278,10 +2278,10 @@ void RasterizerSceneGLES3::_add_geometry_with_material(RasterizerStorageGLES3::G
 
     if (p_depth_pass) {
 
-        if (has_blend_alpha || p_material->shader->spatial.uses_depth_texture || (has_base_alpha && p_material->shader->spatial.depth_draw_mode != RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS) || p_material->shader->spatial.depth_draw_mode == RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_NEVER || p_material->shader->spatial.no_depth_test || p_instance->cast_shadows == VS::SHADOW_CASTING_SETTING_OFF)
+        if (has_blend_alpha || p_material->shader->spatial.uses_depth_texture || (has_base_alpha && p_material->shader->spatial.depth_draw_mode != RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS) || p_material->shader->spatial.depth_draw_mode == RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_NEVER || p_material->shader->spatial.no_depth_test || p_instance->cast_shadows == VS::SHADOW_CASTING_SETTING_OFF)
             return; //bye
 
-        if (!p_material->shader->spatial.uses_alpha_scissor && !p_material->shader->spatial.writes_modelview_or_projection && !p_material->shader->spatial.uses_vertex && !p_material->shader->spatial.uses_discard && p_material->shader->spatial.depth_draw_mode != RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS) {
+        if (!p_material->shader->spatial.uses_alpha_scissor && !p_material->shader->spatial.writes_modelview_or_projection && !p_material->shader->spatial.uses_vertex && !p_material->shader->spatial.uses_discard && p_material->shader->spatial.depth_draw_mode != RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS) {
             //shader does not use discard and does not write a vertex position, use generic material
             if (p_instance->cast_shadows == VS::SHADOW_CASTING_SETTING_DOUBLE_SIDED) {
                 p_material = storage->material_owner.getptr(!p_shadow_pass && p_material->shader->spatial.uses_world_coordinates ? default_worldcoord_material_twosided : default_material_twosided);
@@ -2362,7 +2362,7 @@ void RasterizerSceneGLES3::_add_geometry_with_material(RasterizerStorageGLES3::G
         e->sort_key |= SORT_KEY_UNSHADED_FLAG;
     }
 
-    if (p_depth_pass && p_material->shader->spatial.depth_draw_mode == RasterizerStorageGLES3::Shader::Spatial::DEPTH_DRAW_ALPHA_PREPASS) {
+    if (p_depth_pass && p_material->shader->spatial.depth_draw_mode == RasterizerStorageGLES3::Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS) {
         e->sort_key |= RenderList::SORT_KEY_OPAQUE_PRE_PASS;
     }
 

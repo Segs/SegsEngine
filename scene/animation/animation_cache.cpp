@@ -99,12 +99,12 @@ void AnimationCache::_update_cache() {
                 ERR_CONTINUE_MSG(animation->track_get_type(i) == Animation::TYPE_TRANSFORM, "Transform tracks can't have a subpath: " + (String)np + ".");
             }
 
-            Spatial *sp = object_cast<Spatial>(node);
+            Node3D *sp = object_cast<Node3D>(node);
 
             if (!sp) {
 
                 path_cache.push_back(Path());
-                ERR_CONTINUE_MSG(!sp, "Transform track not of type Spatial: " + (String)np + ".");
+                ERR_CONTINUE_MSG(!sp, "Transform track not of type Node3D: " + (String)np + ".");
             }
 
             if (np.get_subname_count() == 1) {
@@ -223,7 +223,7 @@ void AnimationCache::set_track_value(int p_idx, const Variant &p_value) {
     p.object->set_indexed(p.subpath, p_value);
 }
 
-void AnimationCache::call_track(int p_idx, const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+void AnimationCache::call_track(int p_idx, const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (cache_dirty)
         _update_cache();
@@ -288,7 +288,7 @@ void AnimationCache::set_all(float p_time, float p_delta) {
 
                     const Vector<Variant> &args = animation->method_track_get_params(i, E->deref());
                     StringName name = animation->method_track_get_name(i, E->deref());
-                    Variant::CallError err;
+                    Callable::CallError err;
 
                     if (args.empty()) {
 

@@ -835,7 +835,7 @@ void ProjectSettingsEditor::_item_add() {
 
     // Initialize the property with the default value for the given type.
     // The type list starts at 1 (as we exclude Nil), so add 1 to the selected value.
-    Variant::CallError ce;
+    Callable::CallError ce;
     const Variant value = Variant::construct(VariantType(type->get_selected() + 1), nullptr, 0, ce);
 
     String catname(StringUtils::strip_edges(category->get_text()));

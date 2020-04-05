@@ -36,7 +36,7 @@
 #include "editor/project_settings_editor.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/3d/skeleton.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/surface_tool.h"
@@ -57,7 +57,7 @@ namespace AssimpImporter {
 struct ImportState {
 
     String path;
-    Spatial *root;
+    Node3D *root;
     const aiScene *assimp_scene;
     uint32_t max_bone_weights;
 
@@ -73,7 +73,7 @@ struct ImportState {
     // Generation 3 - determinisitic iteration
     // to lower potential recursion errors
     Vector<const aiNode *> nodes;
-    HashMap<const aiNode *, Spatial *> flat_node_map;
+    HashMap<const aiNode *, Node3D *> flat_node_map;
     AnimationPlayer *animation_player;
 
     // Generation 3 - deterministic armatures
@@ -103,7 +103,7 @@ struct RecursiveState {
     RecursiveState(
             Transform &_node_transform,
             Skeleton *_skeleton,
-            Spatial *_new_node,
+            Node3D *_new_node,
             const String &_node_name,
             const aiNode *_assimp_node,
             Node *_parent_node,
@@ -118,7 +118,7 @@ struct RecursiveState {
 
     Transform &node_transform;
     Skeleton *skeleton;
-    Spatial *new_node;
+    Node3D *new_node;
     const String &node_name;
     const aiNode *assimp_node;
     Node *parent_node;

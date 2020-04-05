@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VehicleBody" inherits="RigidBody" version="4.0">
+<class name="VehicleBody3D" inherits="RigidBody" version="4.0">
 	<brief_description>
 		Physics body that simulates the behavior of a car.
 	</brief_description>
 	<description>
 		This node implements all the physics logic needed to simulate a car. It is based on the raycast vehicle system commonly found in physics engines. You will need to add a [CollisionShape] for the main body of your vehicle and add [VehicleWheel] nodes for the wheels. You should also add a [MeshInstance] to this node for the 3D model of your car but this model should not include meshes for the wheels. You should control the vehicle by using the [member brake], [member engine_force], and [member steering] properties and not change the position or orientation of this node directly.
-		[b]Note:[/b] The origin point of your VehicleBody will determine the center of gravity of your vehicle so it is better to keep this low and move the [CollisionShape] and [MeshInstance] upwards.
+        [b]Note:[/b] The origin point of your VehicleBody3D will determine the center of gravity of your vehicle so it is better to keep this low and move the [CollisionShape] and [MeshInstance] upwards.
 	</description>
 	<tutorials>
 	</tutorials>

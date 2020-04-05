@@ -109,7 +109,7 @@ struct _VariantCall {
             for(const Variant & v : p_defaultarg)
                 default_args[def_count++] = v;
         }
-        bool verify_arguments(const Variant **p_args, Variant::CallError &r_error) {
+        bool verify_arguments(const Variant **p_args, Callable::CallError &r_error) {
 
             if (arg_count == 0)
                 return true;
@@ -121,7 +121,7 @@ struct _VariantCall {
                 if (tptr[i] == VariantType::NIL || tptr[i] == p_args[i]->type)
                     continue; // all good
                 if (!Variant::can_convert(p_args[i]->type, tptr[i])) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
                     r_error.argument = i;
                     r_error.expected = tptr[i];
                     return false;
@@ -130,10 +130,10 @@ struct _VariantCall {
             return true;
         }
 
-        void call(Variant &r_ret, Variant &p_self, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+        void call(Variant &r_ret, Variant &p_self, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 #ifdef DEBUG_ENABLED
             if (p_argcount > arg_count) {
-                r_error.error = Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
+                r_error.error = Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
                 r_error.argument = arg_count;
                 return;
             } else
@@ -142,7 +142,7 @@ struct _VariantCall {
                 int def_argcount = def_count;
 #ifdef DEBUG_ENABLED
                 if (p_argcount < (arg_count - def_argcount)) {
-                    r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+                    r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
                     r_error.argument = arg_count - def_argcount;
                     return;
                 }
@@ -1253,28 +1253,28 @@ _VariantCall::TypeFunc *_VariantCall::type_funcs = nullptr;
 _VariantCall::ConstructFunc *_VariantCall::construct_funcs = nullptr;
 _VariantCall::ConstantData *_VariantCall::constant_data = nullptr;
 
-Variant Variant::call(const StringName &p_method, const Variant **p_args, int p_argcount, CallError &r_error) {
+Variant Variant::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     Variant ret;
     call_ptr(p_method, p_args, p_argcount, &ret, r_error);
     return ret;
 }
 
-void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, CallError &r_error) {
+void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, Callable::CallError &r_error) {
     Variant ret;
 
     if (type == VariantType::OBJECT) {
         //call object
         Object *obj = _get_obj().obj;
         if (!obj) {
-            r_error.error = CallError::CALL_ERROR_INSTANCE_IS_NULL;
+            r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
             return;
         }
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
             //only if debugging!
             if (!ObjectDB::instance_validate(obj)) {
-                r_error.error = CallError::CALL_ERROR_INSTANCE_IS_NULL;
+                r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
                 return;
             }
         }
@@ -1286,12 +1286,12 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
 
     } else {
 
-        r_error.error = Variant::CallError::CALL_OK;
+        r_error.error = Callable::CallError::CALL_OK;
 
         auto E = _VariantCall::type_funcs[(int)type].functions.find(p_method);
 #ifdef DEBUG_ENABLED
         if (E==_VariantCall::type_funcs[(int)type].functions.end()) {
-            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
             return;
         }
 #endif
@@ -1299,18 +1299,18 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
         funcdata.call(ret, *this, p_args, p_argcount, r_error);
     }
 
-    if (r_error.error == Variant::CallError::CALL_OK && r_ret)
+    if (r_error.error == Callable::CallError::CALL_OK && r_ret)
         *r_ret = ret;
 }
 
 #define VCALL(m_type, m_method) _VariantCall::_call_##m_type##_##m_method
 
-Variant Variant::construct(const VariantType p_type, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict) {
+Variant Variant::construct(const VariantType p_type, const Variant **p_args, int p_argcount, Callable::CallError &r_error, bool p_strict) {
 
-    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
     ERR_FAIL_INDEX_V(int(p_type), int(VariantType::VARIANT_MAX), Variant());
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
     if (p_argcount == 0) { //generic construct
 
         switch (p_type) {
@@ -1425,7 +1425,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             //validate parameters
             for (int i = 0; i < cd.arg_count; i++) {
                 if (!Variant::can_convert(p_args[i]->type, cd.arg_types[i])) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; //no such constructor
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT; //no such constructor
                     r_error.argument = i;
                     r_error.expected = cd.arg_types[i];
                     return Variant();
@@ -1437,7 +1437,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             return v;
         }
     }
-    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD; //no such constructor
+    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD; //no such constructor
     return Variant();
 }
 

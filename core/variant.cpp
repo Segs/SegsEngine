@@ -1683,9 +1683,9 @@ Variant::operator RID() const {
             ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
         }
 #endif
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->get_rid, nullptr, 0, ce);
-        if (ce.error == Variant::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
+        if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
             return ret;
         }
         return RID();
@@ -3050,24 +3050,24 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
         argc++;
     }
 
-    CallError error;
+    Callable::CallError error;
 
     Variant ret = call(p_method, argptr, argc, error);
 
     switch (error.error) {
 
-        case CallError::CALL_ERROR_INVALID_ARGUMENT: {
+        case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
             String err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
             ERR_PRINT(err);
 
         } break;
-        case CallError::CALL_ERROR_INVALID_METHOD: {
+        case Callable::CallError::CALL_ERROR_INVALID_METHOD: {
 
             String err = "Invalid method '" + String(p_method) + "' for type '" + Variant::get_type_name(type) + "'.";
             ERR_PRINT(err);
         } break;
-        case CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
+        case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
             String err = "Too many arguments for method '" + String(p_method) + "'";
             ERR_PRINT(err);
@@ -3092,26 +3092,26 @@ String Variant::get_construct_string() const {
     return vars;
 }
 
-String Variant::get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce) {
+String Variant::get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce) {
 
     String err_text;
 
-    if (ce.error == Variant::CallError::CALL_ERROR_INVALID_ARGUMENT) {
+    if (ce.error == Callable::CallError::CALL_ERROR_INVALID_ARGUMENT) {
         int errorarg = ce.argument;
         if (p_argptrs) {
             err_text = "Cannot convert argument " + itos(errorarg + 1) + " from " + Variant::get_type_name(p_argptrs[errorarg]->get_type()) + " to " + Variant::get_type_name(ce.expected) + ".";
         } else {
             err_text = "Cannot convert argument " + itos(errorarg + 1) + " from [missing argptr, type unknown] to " + Variant::get_type_name(ce.expected) + ".";
         }
-    } else if (ce.error == Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS) {
         err_text = "Method expected " + itos(ce.argument) + " arguments, but called with " + itos(p_argcount) + ".";
-    } else if (ce.error == Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS) {
         err_text = "Method expected " + itos(ce.argument) + " arguments, but called with " + itos(p_argcount) + ".";
-    } else if (ce.error == Variant::CallError::CALL_ERROR_INVALID_METHOD) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_INVALID_METHOD) {
         err_text = "Method not found.";
-    } else if (ce.error == Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL) {
         err_text = "Instance is null";
-    } else if (ce.error == Variant::CallError::CALL_OK) {
+    } else if (ce.error == Callable::CallError::CALL_OK) {
         return "Call OK";
     }
 

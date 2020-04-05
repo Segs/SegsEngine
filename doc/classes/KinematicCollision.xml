@@ -25,7 +25,7 @@
 			The colliding body's shape.
 		</member>
 		<member name="collider_shape_index" type="int" setter="" getter="get_collider_shape_index" default="0">
-			The colliding shape's index. See [CollisionObject].
+            The colliding shape's index. See [CollisionObject3D].
 		</member>
 		<member name="collider_velocity" type="Vector3" setter="" getter="get_collider_velocity" default="Vector3( 0, 0, 0 )">
 			The colliding object's velocity.

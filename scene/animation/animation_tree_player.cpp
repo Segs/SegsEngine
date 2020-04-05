@@ -1719,7 +1719,7 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
         tr.id = id;
         tr.object = resource ? (Object *)resource.get() : (Object *)child;
         tr.skeleton = object_cast<Skeleton>(child);
-        tr.spatial = object_cast<Spatial>(child);
+        tr.spatial = object_cast<Node3D>(child);
         tr.bone_idx = bone_idx;
         if (bone_idx == -1) tr.subpath = leftover_path;
 

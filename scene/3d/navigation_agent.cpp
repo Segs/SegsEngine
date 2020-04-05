@@ -105,7 +105,7 @@ void NavigationAgent::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_READY: {
 
-            agent_parent = object_cast<Spatial>(get_parent());
+            agent_parent = object_cast<Node3D>(get_parent());
 
             NavigationServer::get_singleton()->agent_set_callback(agent, this, "_avoidance_done");
 
@@ -301,7 +301,7 @@ void NavigationAgent::_avoidance_done(Vector3 p_new_velocity) {
 }
 
 StringName NavigationAgent::get_configuration_warning() const {
-    if (!object_cast<Spatial>(get_parent())) {
+    if (!object_cast<Node3D>(get_parent())) {
         return TTR("The NavigationAgent can be used only under a spatial node.");
     }
 

@@ -82,7 +82,7 @@ void CollisionShape::_notification(int p_what) {
     switch (p_what) {
 
         case NOTIFICATION_PARENTED: {
-            parent = object_cast<CollisionObject>(get_parent());
+            parent = object_cast<CollisionObject3D>(get_parent());
             if (parent) {
                 owner_id = parent->create_shape_owner(this);
                 if (shape) {
@@ -121,8 +121,8 @@ void CollisionShape::resource_changed(const RES& res) {
 
 StringName CollisionShape::get_configuration_warning() const {
 
-    if (!object_cast<CollisionObject>(get_parent())) {
-        return TTR("CollisionShape only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
+    if (!object_cast<CollisionObject3D>(get_parent())) {
+        return TTR("CollisionShape only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 
     if (not shape) {

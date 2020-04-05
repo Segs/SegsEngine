@@ -676,14 +676,14 @@ void GridMap::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_WORLD: {
 
-            Spatial *c = this;
+            Node3D *c = this;
             while (c) {
                 navigation = object_cast<Navigation>(c);
                 if (navigation) {
                     break;
                 }
 
-                c = object_cast<Spatial>(c->get_parent());
+                c = object_cast<Node3D>(c->get_parent());
             }
 
             last_transform = get_global_transform();

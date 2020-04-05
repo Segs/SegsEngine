@@ -47,7 +47,7 @@ class World;
 class Label;
 class Timer;
 class Viewport;
-class CollisionObject;
+class CollisionObject3D;
 
 class ViewportTexture : public Texture {
 
@@ -240,7 +240,7 @@ private:
 
     } physics_last_mouse_state;
 
-    void _collision_object_input_event(CollisionObject *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape);
+    void _collision_object_input_event(CollisionObject3D *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape);
 
     bool handle_input_locally;
     bool local_input_handled;

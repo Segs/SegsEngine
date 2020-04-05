@@ -31,16 +31,16 @@
 #ifndef AUDIO_STREAM_PLAYER_3D_H
 #define AUDIO_STREAM_PLAYER_3D_H
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/spatial_velocity_tracker.h"
 #include "servers/audio/audio_filter_sw.h"
 #include "servers/audio/audio_stream.h"
 #include "servers/audio_server.h"
 
 class Camera;
-class AudioStreamPlayer3D : public Spatial {
+class AudioStreamPlayer3D : public Node3D {
 
-	GDCLASS(AudioStreamPlayer3D,Spatial)
+	GDCLASS(AudioStreamPlayer3D,Node3D)
 
 public:
 	enum AttenuationModel {

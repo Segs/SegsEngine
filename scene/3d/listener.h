@@ -30,12 +30,12 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/main/viewport.h"
 
-class Listener : public Spatial {
+class Listener : public Node3D {
 
-	GDCLASS(Listener,Spatial)
+	GDCLASS(Listener,Node3D)
 
 private:
 	bool force_change;

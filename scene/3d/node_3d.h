@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  spatial.h                                                            */
+/*  node_3d.h                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -46,9 +46,9 @@ struct PositionedMeshInfo {
     Transform transform;
 };
 
-class GODOT_EXPORT SpatialGizmo : public RefCounted {
+class GODOT_EXPORT Node3DGizmo : public RefCounted {
 
-    GDCLASS(SpatialGizmo,RefCounted)
+    GDCLASS(Node3DGizmo,RefCounted)
 
 public:
     virtual void create() = 0;
@@ -57,13 +57,13 @@ public:
     virtual void redraw() = 0;
     virtual void free() = 0;
 
-    SpatialGizmo();
-    ~SpatialGizmo() override {}
+    Node3DGizmo();
+    ~Node3DGizmo() override {}
 };
 
-class GODOT_EXPORT Spatial : public Node {
+class GODOT_EXPORT Node3D : public Node {
 
-    GDCLASS(Spatial,Node)
+    GDCLASS(Node3D,Node)
 
     OBJ_CATEGORY("3D");
 
@@ -87,8 +87,8 @@ class GODOT_EXPORT Spatial : public Node {
         Viewport *viewport;
 
         int children_lock;
-        Spatial *parent;
-        Vector<Spatial *> children;
+        Node3D *parent;
+        Vector<Node3D *> children;
 
         bool toplevel_active;
         bool toplevel;
@@ -102,7 +102,7 @@ class GODOT_EXPORT Spatial : public Node {
         bool disable_scale;
 
 #ifdef TOOLS_ENABLED
-        Ref<SpatialGizmo> gizmo;
+        Ref<Node3DGizmo> gizmo;
         bool gizmo_disabled;
         bool gizmo_dirty;
 #endif
@@ -111,7 +111,7 @@ class GODOT_EXPORT Spatial : public Node {
 
     void _update_gizmo();
     void _notify_dirty();
-    void _propagate_transform_changed(Spatial *p_origin);
+    void _propagate_transform_changed(Node3D *p_origin);
 
     void _propagate_visibility_changed();
 public:
@@ -133,7 +133,7 @@ public:
         NOTIFICATION_LOCAL_TRANSFORM_CHANGED = 44,
     };
 
-    Spatial *get_parent_spatial() const;
+    Node3D *get_parent_spatial() const;
 
     Ref<World> get_world() const;
 
@@ -166,8 +166,8 @@ public:
 
     void set_disable_gizmo(bool p_enabled);
     void update_gizmo();
-    void set_gizmo(const Ref<SpatialGizmo> &p_gizmo);
-    Ref<SpatialGizmo> get_gizmo() const;
+    void set_gizmo(const Ref<Node3DGizmo> &p_gizmo);
+    Ref<Node3DGizmo> get_gizmo() const;
 
     _FORCE_INLINE_ bool is_inside_world() const { return data.inside_world; }
 
@@ -211,6 +211,6 @@ public:
 
     void force_update_transform();
 
-    Spatial();
-    ~Spatial() override;
+    Node3D();
+    ~Node3D() override;
 };

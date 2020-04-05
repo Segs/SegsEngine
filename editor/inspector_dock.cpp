@@ -319,7 +319,7 @@ void InspectorDock::_property_keyed(StringView p_keyed, const Variant &p_value, 
 }
 
 void InspectorDock::_transform_keyed(Object *sp, StringView p_sub, const Transform &p_key) {
-    Spatial *s = object_cast<Spatial>(sp);
+    Node3D *s = object_cast<Node3D>(sp);
     if (!s)
         return;
     AnimationPlayerEditor::singleton->get_track_editor()->insert_transform_key(s, p_sub, p_key);
