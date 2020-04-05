@@ -889,6 +889,7 @@ void EditorPlugin::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_spatial_gui_input", PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_plugin_name"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::OBJECT, "get_plugin_icon"));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "get_plugin_icon"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "has_main_screen"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("make_visible", PropertyInfo(VariantType::BOOL, "visible")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("edit", PropertyInfo(VariantType::OBJECT, "object")));

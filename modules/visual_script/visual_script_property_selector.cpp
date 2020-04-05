@@ -359,7 +359,7 @@ void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter,
             continue;
         }
 
-        bool in_modifier = false | p_modifiers.empty();
+        bool in_modifier = p_modifiers.empty();
         for (Set<String>::iterator F = p_modifiers.begin(); F!=p_modifiers.end() && in_modifier; ++F) {
             if (StringUtils::contains(StringUtils::from_utf8(E->deref()),StringUtils::from_utf8(*F),StringUtils::CaseInsensitive))
                 in_modifier = true;

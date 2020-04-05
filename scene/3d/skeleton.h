@@ -47,9 +47,12 @@ class GODOT_EXPORT SkinReference : public RefCounted {
     GDCLASS(SkinReference, RefCounted)
     friend class Skeleton;
 
+    Vector<uint32_t> skin_bone_indices;
     Skeleton *skeleton_node;
     RID skeleton;
     Ref<Skin> skin;
+    uint32_t *skin_bone_indices_ptrs;
+    uint64_t skeleton_version = 0;
     uint32_t bind_count = 0;
     void _skin_changed();
 
@@ -114,6 +117,8 @@ private:
     Vector<int> process_order;
     bool process_order_dirty;
     bool dirty;
+
+    uint64_t version;
 
     void _skin_changed();
     void _make_dirty();

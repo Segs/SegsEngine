@@ -518,7 +518,7 @@ Control *ConnectionsDockTree::make_custom_tooltip(StringView p_text) const {
     String text(String(TTR("Signal:")) + " [u][b]" + parts[0] + "[/b][/u]");
     text += String(StringUtils::strip_edges(parts[1])) + "\n";
     text += StringUtils::strip_edges(parts[2]);
-    help_bit->set_text(text);
+
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
     return help_bit;
 }

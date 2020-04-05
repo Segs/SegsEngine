@@ -1194,6 +1194,7 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                                               "Built-In,Files (.material),Files (.tres)",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             materials_out ? 1 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "skins/use_named_skins"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "materials/keep_on_reimport"), materials_out));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "meshes/compress"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "meshes/ensure_tangents"), true));
@@ -1365,6 +1366,9 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
     if (int(p_options.at("materials/location")) == 0)
         import_flags |= EditorSceneImporter::IMPORT_MATERIALS_IN_INSTANCES;
+
+    if (bool(p_options.at("skins/use_named_skins")))
+        import_flags |= EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
     Error err = OK;
     Node *scene = importer->import_scene(src_path, import_flags, fps, &r_missing_deps, &err);

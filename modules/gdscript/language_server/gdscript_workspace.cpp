@@ -54,7 +54,7 @@ void GDScriptWorkspace::remove_cache_parser(StringView p_path) {
     auto parser = parse_results.find_as(p_path);
     auto script = scripts.find_as(p_path);
     if (parser!=parse_results.end() && script!=scripts.end()) {
-        if (script->second && script->second == script->second) {
+        if (script->second && script->second == parser->second) {
             memdelete(script->second);
         } else {
             memdelete(script->second);
@@ -121,7 +121,7 @@ void GDScriptWorkspace::reload_all_workspace_scripts() {
             if (S!=parse_results.end()) {
                 err_msg += "\n" + S->second->get_error();
             }
-            ERR_CONTINUE_MSG(err != OK,err_msg); 
+            ERR_CONTINUE_MSG(err != OK,err_msg);
         }
     }
 }

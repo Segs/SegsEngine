@@ -46,6 +46,7 @@ void SkinReference::_skin_changed() {
     if (skeleton_node) {
         skeleton_node->_make_dirty();
     }
+    skeleton_version = 0;
 }
 
 void SkinReference::_bind_methods() {
@@ -325,13 +326,52 @@ void Skeleton::_notification(int p_what) {
                 if (E->bind_count != bind_count) {
                     VisualServer::get_singleton()->skeleton_allocate(skeleton, bind_count);
                     E->bind_count = bind_count;
+                    E->skin_bone_indices.resize(bind_count);
+                    E->skin_bone_indices_ptrs = E->skin_bone_indices.data();
                 }
 
+                if (E->skeleton_version != version) {
+
+                    for (uint32_t i = 0; i < bind_count; i++) {
+                        StringName bind_name = skin->get_bind_name(i);
+
+                        if (bind_name != StringName()) {
+                            //bind name used, use this
+                            bool found = false;
+                            for (int j = 0; j < len; j++) {
+                                if (bonesptr[j].name == bind_name) {
+                                    E->skin_bone_indices_ptrs[i] = j;
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if (!found) {
+                                ERR_PRINT("Skin bind #" + itos(i) + " contains named bind '" + String(bind_name) + "' but Skeleton has no bone by that name.");
+                                E->skin_bone_indices_ptrs[i] = 0;
+                            }
+                        } else if (skin->get_bind_bone(i) >= 0) {
+                            int bind_index = skin->get_bind_bone(i);
+                            if (bind_index >= len) {
+                                ERR_PRINT("Skin bind #" + itos(i) + " contains bone index bind: " + itos(bind_index) + " , which is greater than the skeleton bone count: " + itos(len) + ".");
+                                E->skin_bone_indices_ptrs[i] = 0;
+                            } else {
+                                E->skin_bone_indices_ptrs[i] = bind_index;
+                            }
+                        } else {
+                            ERR_PRINT("Skin bind #" + itos(i) + " does not contain a name nor a bone index.");
+                            E->skin_bone_indices_ptrs[i] = 0;
+                        }
+                    }
+
+                    E->skeleton_version = version;
+                }
                 for (uint32_t i = 0; i < bind_count; i++) {
-                    uint32_t bone_index = skin->get_bind_bone(i);
+                    uint32_t bone_index = E->skin_bone_indices_ptrs[i];
                     ERR_CONTINUE(bone_index >= (uint32_t)len);
                     vs->skeleton_bone_set_transform(skeleton, i, bonesptr[bone_index].pose_global * skin->get_bind_pose(i));
                 }
+
             }
             dirty = false;
         } break;
@@ -372,6 +412,7 @@ void Skeleton::add_bone(StringView p_name) {
     b.name = p_name;
     bones.push_back(b);
     process_order_dirty = true;
+    version++;
 
     _make_dirty();
     update_gizmo();
@@ -521,6 +562,7 @@ void Skeleton::clear_bones() {
 
     bones.clear();
     process_order_dirty = true;
+    version++;
 
     _make_dirty();
 }
@@ -852,6 +894,7 @@ void Skeleton::_bind_methods() {
 Skeleton::Skeleton() {
 
     dirty = false;
+    version = 1;
     process_order_dirty = true;
 }
 

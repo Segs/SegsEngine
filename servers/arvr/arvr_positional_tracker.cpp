@@ -45,6 +45,7 @@ void ARVRPositionalTracker::_bind_methods() {
 
     // this class is read only from GDScript, so we only have access to getters..
     MethodBinder::bind_method(D_METHOD("get_type"), &ARVRPositionalTracker::get_type);
+    MethodBinder::bind_method(D_METHOD("get_tracker_id"), &ARVRPositionalTracker::get_tracker_id);
     MethodBinder::bind_method(D_METHOD("get_name"), &ARVRPositionalTracker::get_name);
     MethodBinder::bind_method(D_METHOD("get_joy_id"), &ARVRPositionalTracker::get_joy_id);
     MethodBinder::bind_method(D_METHOD("get_tracks_orientation"), &ARVRPositionalTracker::get_tracks_orientation);

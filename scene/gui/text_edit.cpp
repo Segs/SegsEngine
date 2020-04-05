@@ -2066,6 +2066,41 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
         }
     }
 
+    UIString line = m_priv->text[cursor.line];
+
+    bool in_single_quote = false;
+    bool in_double_quote = false;
+
+    int c = 0;
+    while (c < line.length()) {
+        if (line[c] == '\\') {
+            c++; // Skip quoted anything.
+
+            if (cursor.column == c) {
+                break;
+            }
+        } else {
+            if (line[c] == '\'' && !in_double_quote) {
+                in_single_quote = !in_single_quote;
+            } else if (line[c] == '"' && !in_single_quote) {
+                in_double_quote = !in_double_quote;
+            }
+        }
+
+        c++;
+
+        if (cursor.column == c) {
+            break;
+        }
+    }
+
+    //	Disallow inserting duplicated quotes while already in string
+    if ((in_single_quote || in_double_quote) && (ch == '"' || ch == '\'')) {
+        insert_text_at_cursor(QString::fromRawData(ch_single,1));
+        cursor_set_column(cursor_position_to_move);
+
+        return;
+    }
     insert_text_at_cursor(QString::fromRawData(ch_pair,2));
     cursor_set_column(cursor_position_to_move);
 }

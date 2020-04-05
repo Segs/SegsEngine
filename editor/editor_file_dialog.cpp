@@ -696,6 +696,7 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 }
 
 void EditorFileDialog::update_file_name() {
+    using namespace StringUtils;
     int idx = filter->get_selected() - 1;
     if ((idx == -1 && filter->get_item_count() == 2) || (filter->get_item_count() > 2 && idx >= 0 && idx < filter->get_item_count() - 2)) {
         if (idx == -1)
@@ -704,11 +705,11 @@ void EditorFileDialog::update_file_name() {
         String filter_str = filters[idx];
         String file_str = file->get_text();
         String base_name(PathUtils::get_basename(file_str));
-        Vector<StringView> filter_substr = StringUtils::split(filter_str,';');
+        Vector<StringView> filter_substr = split(filter_str,';');
         if (filter_substr.size() >= 2) {
-            file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(filter_substr[1]));
+            file_str = base_name + "." + to_lower(lstrip(strip_edges(filter_substr[0]),"*."));
         } else {
-            file_str = base_name + "." + StringUtils::to_lower(StringUtils::strip_edges(PathUtils::get_extension(filter_str)));
+            file_str = base_name + "." + to_lower(strip_edges(PathUtils::get_extension(filter_str)));
         }
         file->set_text(file_str);
     }

@@ -36,30 +36,230 @@ struct Transform2D;
 
 struct GODOT_EXPORT Rect2 {
 
-	Point2 position;
-	Size2 size;
+    Point2 position;
+    Size2 size;
 
-	const Vector2 &get_position() const { return position; }
-	void set_position(const Vector2 &p_pos) { position = p_pos; }
-	const Vector2 &get_size() const { return size; }
-	void set_size(const Vector2 &p_size) { size = p_size; }
+    const Vector2 &get_position() const { return position; }
+    void set_position(const Vector2 &p_pos) { position = p_pos; }
+    const Vector2 &get_size() const { return size; }
+    void set_size(const Vector2 &p_size) { size = p_size; }
 
-	real_t get_area() const { return size.width * size.height; }
+    real_t get_area() const { return size.width * size.height; }
 
-	bool intersects(const Rect2 &p_rect) const {
-		if (position.x >= (p_rect.position.x + p_rect.size.width))
-			return false;
-		if ((position.x + size.width) <= p_rect.position.x)
-			return false;
-		if (position.y >= (p_rect.position.y + p_rect.size.height))
-			return false;
-		if ((position.y + size.height) <= p_rect.position.y)
-			return false;
+    inline bool intersects(const Rect2 &p_rect, const bool p_include_borders = false) const {
+        if (p_include_borders) {
+            if (position.x > (p_rect.position.x + p_rect.size.width))
+                return false;
+            if ((position.x + size.width) < p_rect.position.x)
+                return false;
+            if (position.y > (p_rect.position.y + p_rect.size.height))
+                return false;
+            if ((position.y + size.height) < p_rect.position.y)
+                return false;
+        } else {
+            if (position.x >= (p_rect.position.x + p_rect.size.width))
+                return false;
+            if ((position.x + size.width) <= p_rect.position.x)
+                return false;
+            if (position.y >= (p_rect.position.y + p_rect.size.height))
+                return false;
+            if ((position.y + size.height) <= p_rect.position.y)
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-    bool intersects_touch(const Rect2 &p_rect) const {
+    real_t distance_to(const Vector2 &p_point) const {
+
+        real_t dist = 0.0;
+        bool inside = true;
+
+        if (p_point.x < position.x) {
+            real_t d = position.x - p_point.x;
+            dist = d;
+            inside = false;
+        }
+        if (p_point.y < position.y) {
+            real_t d = position.y - p_point.y;
+            dist = inside ? d : MIN(dist, d);
+            inside = false;
+        }
+        if (p_point.x >= (position.x + size.x)) {
+            real_t d = p_point.x - (position.x + size.x);
+            dist = inside ? d : MIN(dist, d);
+            inside = false;
+        }
+        if (p_point.y >= (position.y + size.y)) {
+            real_t d = p_point.y - (position.y + size.y);
+            dist = inside ? d : MIN(dist, d);
+            inside = false;
+        }
+
+        if (inside)
+            return 0;
+        else
+            return dist;
+    }
+
+    bool intersects_transformed(const Transform2D &p_xform, const Rect2 &p_rect) const;
+
+    bool intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 *r_pos = nullptr, Point2 *r_normal = nullptr) const;
+
+    bool encloses(const Rect2 &p_rect) const {
+
+        return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
+               ((p_rect.position.x + p_rect.size.x) <= (position.x + size.x)) &&
+               ((p_rect.position.y + p_rect.size.y) <= (position.y + size.y));
+    }
+
+    _FORCE_INLINE_ bool has_no_area() const {
+
+        return (size.x <= 0 || size.y <= 0);
+    }
+
+    Rect2 clip(const Rect2 &p_rect) const { /// return a clipped rect
+
+        Rect2 new_rect = p_rect;
+
+        if (!intersects(new_rect))
+            return Rect2();
+
+        new_rect.position.x = MAX(p_rect.position.x, position.x);
+        new_rect.position.y = MAX(p_rect.position.y, position.y);
+
+        Point2 p_rect_end = p_rect.position + p_rect.size;
+        Point2 end = position + size;
+
+        new_rect.size.x = MIN(p_rect_end.x, end.x) - new_rect.position.x;
+        new_rect.size.y = MIN(p_rect_end.y, end.y) - new_rect.position.y;
+
+        return new_rect;
+    }
+
+    Rect2 merge(const Rect2 &p_rect) const { ///< return a merged rect
+
+        Rect2 new_rect;
+
+        new_rect.position.x = MIN(p_rect.position.x, position.x);
+        new_rect.position.y = MIN(p_rect.position.y, position.y);
+
+        new_rect.size.x = MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
+        new_rect.size.y = MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
+
+        new_rect.size = new_rect.size - new_rect.position; //make relative again
+
+        return new_rect;
+    }
+
+    bool has_point(const Point2 &p_point) const {
+        if (p_point.x < position.x)
+            return false;
+        if (p_point.y < position.y)
+            return false;
+
+        if (p_point.x >= (position.x + size.x))
+            return false;
+        if (p_point.y >= (position.y + size.y))
+            return false;
+
+        return true;
+    }
+    bool is_equal_approx(Rect2 p_rect) const {
+
+        return position.is_equal_approx(p_rect.position) && size.is_equal_approx(p_rect.size);
+    }
+
+    bool operator==(const Rect2 &p_rect) const { return position == p_rect.position && size == p_rect.size; }
+    bool operator!=(const Rect2 &p_rect) const { return position != p_rect.position || size != p_rect.size; }
+
+    Rect2 grow(real_t p_by) const {
+
+        Rect2 g = *this;
+        g.position.x -= p_by;
+        g.position.y -= p_by;
+        g.size.width += p_by * 2;
+        g.size.height += p_by * 2;
+        return g;
+    }
+
+    Rect2 grow_margin(Margin p_margin, real_t p_amount) const {
+        Rect2 g = *this;
+        g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
+                (Margin::Top == p_margin) ? p_amount : 0,
+                (Margin::Right == p_margin) ? p_amount : 0,
+                (Margin::Bottom == p_margin) ? p_amount : 0);
+        return g;
+    }
+
+    Rect2 grow_individual(real_t p_left, real_t p_top, real_t p_right, real_t p_bottom) const {
+
+        Rect2 g = *this;
+        g.position.x -= p_left;
+        g.position.y -= p_top;
+        g.size.width += p_left + p_right;
+        g.size.height += p_top + p_bottom;
+
+        return g;
+    }
+
+    _FORCE_INLINE_ Rect2 expand(const Vector2 &p_vector) const {
+
+        Rect2 r = *this;
+        r.expand_to(p_vector);
+        return r;
+    }
+
+    void expand_to(const Vector2 &p_vector) { //in place function for speed
+
+        Vector2 begin = position;
+        Vector2 end = position + size;
+
+        if (p_vector.x < begin.x)
+            begin.x = p_vector.x;
+        if (p_vector.y < begin.y)
+            begin.y = p_vector.y;
+
+        if (p_vector.x > end.x)
+            end.x = p_vector.x;
+        if (p_vector.y > end.y)
+            end.y = p_vector.y;
+
+        position = begin;
+        size = end - begin;
+    }
+
+    _FORCE_INLINE_ Rect2 abs() const {
+
+        return Rect2(Point2(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0)), size.abs());
+    }
+
+    operator String() const;
+
+    Rect2() = default;
+    Rect2(real_t p_x, real_t p_y, real_t p_width, real_t p_height) :
+            position(Point2(p_x, p_y)),
+            size(Size2(p_width, p_height)) {
+    }
+    Rect2(const Point2 &p_pos, const Size2 &p_size) :
+            position(p_pos),
+            size(p_size) {
+    }
+};
+
+struct Rect2i {
+
+    Point2i position;
+    Size2i size;
+
+    const Point2i &get_position() const { return position; }
+    void set_position(const Point2i &p_position) { position = p_position; }
+    const Size2i &get_size() const { return size; }
+    void set_size(const Size2i &p_size) { size = p_size; }
+
+    int get_area() const { return size.width * size.height; }
+
+    bool intersects(const Rect2i &p_rect) const {
         if (position.x > (p_rect.position.x + p_rect.size.width))
             return false;
         if ((position.x + size.width) < p_rect.position.x)
@@ -72,341 +272,139 @@ struct GODOT_EXPORT Rect2 {
         return true;
     }
 
-	real_t distance_to(const Vector2 &p_point) const {
-
-		real_t dist = 0.0;
-		bool inside = true;
-
-		if (p_point.x < position.x) {
-			real_t d = position.x - p_point.x;
-			dist = d;
-			inside = false;
-		}
-		if (p_point.y < position.y) {
-			real_t d = position.y - p_point.y;
-			dist = inside ? d : MIN(dist, d);
-			inside = false;
-		}
-		if (p_point.x >= (position.x + size.x)) {
-			real_t d = p_point.x - (position.x + size.x);
-			dist = inside ? d : MIN(dist, d);
-			inside = false;
-		}
-		if (p_point.y >= (position.y + size.y)) {
-			real_t d = p_point.y - (position.y + size.y);
-			dist = inside ? d : MIN(dist, d);
-			inside = false;
-		}
-
-		if (inside)
-			return 0;
-		else
-			return dist;
-	}
-
-	bool intersects_transformed(const Transform2D &p_xform, const Rect2 &p_rect) const;
-
-	bool intersects_segment(const Point2 &p_from, const Point2 &p_to, Point2 *r_pos = nullptr, Point2 *r_normal = nullptr) const;
-
-    bool encloses(const Rect2 &p_rect) const {
+    bool encloses(const Rect2i &p_rect) const {
 
         return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
-               ((p_rect.position.x + p_rect.size.x) <= (position.x + size.x)) &&
-               ((p_rect.position.y + p_rect.size.y) <= (position.y + size.y));
+               ((p_rect.position.x + p_rect.size.x) < (position.x + size.x)) &&
+               ((p_rect.position.y + p_rect.size.y) < (position.y + size.y));
     }
 
     _FORCE_INLINE_ bool has_no_area() const {
 
-		return (size.x <= 0 || size.y <= 0);
-	}
-
-	Rect2 clip(const Rect2 &p_rect) const { /// return a clipped rect
-
-		Rect2 new_rect = p_rect;
-
-		if (!intersects(new_rect))
-			return Rect2();
-
-		new_rect.position.x = MAX(p_rect.position.x, position.x);
-		new_rect.position.y = MAX(p_rect.position.y, position.y);
-
-		Point2 p_rect_end = p_rect.position + p_rect.size;
-		Point2 end = position + size;
-
-		new_rect.size.x = MIN(p_rect_end.x, end.x) - new_rect.position.x;
-		new_rect.size.y = MIN(p_rect_end.y, end.y) - new_rect.position.y;
-
-		return new_rect;
-	}
-
-	Rect2 merge(const Rect2 &p_rect) const { ///< return a merged rect
-
-		Rect2 new_rect;
-
-		new_rect.position.x = MIN(p_rect.position.x, position.x);
-		new_rect.position.y = MIN(p_rect.position.y, position.y);
-
-		new_rect.size.x = MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
-		new_rect.size.y = MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
-
-		new_rect.size = new_rect.size - new_rect.position; //make relative again
-
-		return new_rect;
-	}
-
-	bool has_point(const Point2 &p_point) const {
-		if (p_point.x < position.x)
-			return false;
-		if (p_point.y < position.y)
-			return false;
-
-		if (p_point.x >= (position.x + size.x))
-			return false;
-		if (p_point.y >= (position.y + size.y))
-			return false;
-
-		return true;
-	}
-    bool is_equal_approx(Rect2 p_rect) const {
-
-        return position.is_equal_approx(p_rect.position) && size.is_equal_approx(p_rect.size);
+        return (size.x <= 0 || size.y <= 0);
     }
 
-	bool operator==(const Rect2 &p_rect) const { return position == p_rect.position && size == p_rect.size; }
-	bool operator!=(const Rect2 &p_rect) const { return position != p_rect.position || size != p_rect.size; }
+    Rect2i clip(const Rect2i &p_rect) const { /// return a clipped rect
 
-	Rect2 grow(real_t p_by) const {
+        Rect2i new_rect = p_rect;
 
-		Rect2 g = *this;
-		g.position.x -= p_by;
-		g.position.y -= p_by;
-		g.size.width += p_by * 2;
-		g.size.height += p_by * 2;
-		return g;
-	}
+        if (!intersects(new_rect))
+            return Rect2i();
 
-	Rect2 grow_margin(Margin p_margin, real_t p_amount) const {
-		Rect2 g = *this;
-		g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
-				(Margin::Top == p_margin) ? p_amount : 0,
-				(Margin::Right == p_margin) ? p_amount : 0,
-				(Margin::Bottom == p_margin) ? p_amount : 0);
-		return g;
-	}
+        new_rect.position.x = MAX(p_rect.position.x, position.x);
+        new_rect.position.y = MAX(p_rect.position.y, position.y);
 
-	Rect2 grow_individual(real_t p_left, real_t p_top, real_t p_right, real_t p_bottom) const {
+        Point2 p_rect_end = p_rect.position + p_rect.size;
+        Point2 end = position + size;
 
-		Rect2 g = *this;
-		g.position.x -= p_left;
-		g.position.y -= p_top;
-		g.size.width += p_left + p_right;
-		g.size.height += p_top + p_bottom;
+        new_rect.size.x = (int)(MIN(p_rect_end.x, end.x) - new_rect.position.x);
+        new_rect.size.y = (int)(MIN(p_rect_end.y, end.y) - new_rect.position.y);
 
-		return g;
-	}
+        return new_rect;
+    }
 
-	_FORCE_INLINE_ Rect2 expand(const Vector2 &p_vector) const {
+    Rect2i merge(const Rect2i &p_rect) const { ///< return a merged rect
 
-		Rect2 r = *this;
-		r.expand_to(p_vector);
-		return r;
-	}
+        Rect2i new_rect;
 
-	void expand_to(const Vector2 &p_vector) { //in place function for speed
+        new_rect.position.x = MIN(p_rect.position.x, position.x);
+        new_rect.position.y = MIN(p_rect.position.y, position.y);
 
-		Vector2 begin = position;
-		Vector2 end = position + size;
+        new_rect.size.x = MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
+        new_rect.size.y = MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
 
-		if (p_vector.x < begin.x)
-			begin.x = p_vector.x;
-		if (p_vector.y < begin.y)
-			begin.y = p_vector.y;
+        new_rect.size = new_rect.size - new_rect.position; //make relative again
 
-		if (p_vector.x > end.x)
-			end.x = p_vector.x;
-		if (p_vector.y > end.y)
-			end.y = p_vector.y;
+        return new_rect;
+    }
+    bool has_point(const Point2 &p_point) const {
+        if (p_point.x < position.x)
+            return false;
+        if (p_point.y < position.y)
+            return false;
 
-		position = begin;
-		size = end - begin;
-	}
+        if (p_point.x >= (position.x + size.x))
+            return false;
+        if (p_point.y >= (position.y + size.y))
+            return false;
 
-	_FORCE_INLINE_ Rect2 abs() const {
+        return true;
+    }
 
-		return Rect2(Point2(position.x + MIN(size.x, 0), position.y + MIN(size.y, 0)), size.abs());
-	}
+    bool operator==(const Rect2i &p_rect) const { return position == p_rect.position && size == p_rect.size; }
+    bool operator!=(const Rect2i &p_rect) const { return position != p_rect.position || size != p_rect.size; }
 
-	operator String() const;
+    Rect2i grow(int p_by) const {
 
-	Rect2() = default;
-	Rect2(real_t p_x, real_t p_y, real_t p_width, real_t p_height) :
-			position(Point2(p_x, p_y)),
-			size(Size2(p_width, p_height)) {
-	}
-	Rect2(const Point2 &p_pos, const Size2 &p_size) :
-			position(p_pos),
-			size(p_size) {
-	}
-};
+        Rect2i g = *this;
+        g.position.x -= p_by;
+        g.position.y -= p_by;
+        g.size.width += p_by * 2;
+        g.size.height += p_by * 2;
+        return g;
+    }
 
-struct Rect2i {
+    Rect2i grow_margin(Margin p_margin, int p_amount) const {
+        Rect2i g = *this;
+        g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
+                (Margin::Top == p_margin) ? p_amount : 0,
+                (Margin::Right == p_margin) ? p_amount : 0,
+                (Margin::Bottom == p_margin) ? p_amount : 0);
+        return g;
+    }
 
-	Point2i position;
-	Size2i size;
+    Rect2i grow_individual(int p_left, int p_top, int p_right, int p_bottom) const {
 
-	const Point2i &get_position() const { return position; }
-	void set_position(const Point2i &p_position) { position = p_position; }
-	const Size2i &get_size() const { return size; }
-	void set_size(const Size2i &p_size) { size = p_size; }
+        Rect2i g = *this;
+        g.position.x -= p_left;
+        g.position.y -= p_top;
+        g.size.width += p_left + p_right;
+        g.size.height += p_top + p_bottom;
 
-	int get_area() const { return size.width * size.height; }
+        return g;
+    }
 
-	bool intersects(const Rect2i &p_rect) const {
-		if (position.x > (p_rect.position.x + p_rect.size.width))
-			return false;
-		if ((position.x + size.width) < p_rect.position.x)
-			return false;
-		if (position.y > (p_rect.position.y + p_rect.size.height))
-			return false;
-		if ((position.y + size.height) < p_rect.position.y)
-			return false;
+    _FORCE_INLINE_ Rect2i expand(const Vector2i &p_vector) const {
 
-		return true;
-	}
+        Rect2i r = *this;
+        r.expand_to(p_vector);
+        return r;
+    }
 
-	bool encloses(const Rect2i &p_rect) const {
+    void expand_to(const Point2i &p_vector) {
 
-		return (p_rect.position.x >= position.x) && (p_rect.position.y >= position.y) &&
-			   ((p_rect.position.x + p_rect.size.x) < (position.x + size.x)) &&
-			   ((p_rect.position.y + p_rect.size.y) < (position.y + size.y));
-	}
+        Point2i begin = position;
+        Point2i end = position + size;
 
-	_FORCE_INLINE_ bool has_no_area() const {
+        if (p_vector.x < begin.x)
+            begin.x = p_vector.x;
+        if (p_vector.y < begin.y)
+            begin.y = p_vector.y;
 
-		return (size.x <= 0 || size.y <= 0);
-	}
+        if (p_vector.x > end.x)
+            end.x = p_vector.x;
+        if (p_vector.y > end.y)
+            end.y = p_vector.y;
 
-	Rect2i clip(const Rect2i &p_rect) const { /// return a clipped rect
+        position = begin;
+        size = end - begin;
+    }
 
-		Rect2i new_rect = p_rect;
+    operator String() const;
 
-		if (!intersects(new_rect))
-			return Rect2i();
-
-		new_rect.position.x = MAX(p_rect.position.x, position.x);
-		new_rect.position.y = MAX(p_rect.position.y, position.y);
-
-		Point2 p_rect_end = p_rect.position + p_rect.size;
-		Point2 end = position + size;
-
-		new_rect.size.x = (int)(MIN(p_rect_end.x, end.x) - new_rect.position.x);
-		new_rect.size.y = (int)(MIN(p_rect_end.y, end.y) - new_rect.position.y);
-
-		return new_rect;
-	}
-
-	Rect2i merge(const Rect2i &p_rect) const { ///< return a merged rect
-
-		Rect2i new_rect;
-
-		new_rect.position.x = MIN(p_rect.position.x, position.x);
-		new_rect.position.y = MIN(p_rect.position.y, position.y);
-
-		new_rect.size.x = MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
-		new_rect.size.y = MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
-
-		new_rect.size = new_rect.size - new_rect.position; //make relative again
-
-		return new_rect;
-	}
-	bool has_point(const Point2 &p_point) const {
-		if (p_point.x < position.x)
-			return false;
-		if (p_point.y < position.y)
-			return false;
-
-		if (p_point.x >= (position.x + size.x))
-			return false;
-		if (p_point.y >= (position.y + size.y))
-			return false;
-
-		return true;
-	}
-
-	bool operator==(const Rect2i &p_rect) const { return position == p_rect.position && size == p_rect.size; }
-	bool operator!=(const Rect2i &p_rect) const { return position != p_rect.position || size != p_rect.size; }
-
-	Rect2i grow(int p_by) const {
-
-		Rect2i g = *this;
-		g.position.x -= p_by;
-		g.position.y -= p_by;
-		g.size.width += p_by * 2;
-		g.size.height += p_by * 2;
-		return g;
-	}
-
-	Rect2i grow_margin(Margin p_margin, int p_amount) const {
-		Rect2i g = *this;
-		g = g.grow_individual((Margin::Left == p_margin) ? p_amount : 0,
-				(Margin::Top == p_margin) ? p_amount : 0,
-				(Margin::Right == p_margin) ? p_amount : 0,
-				(Margin::Bottom == p_margin) ? p_amount : 0);
-		return g;
-	}
-
-	Rect2i grow_individual(int p_left, int p_top, int p_right, int p_bottom) const {
-
-		Rect2i g = *this;
-		g.position.x -= p_left;
-		g.position.y -= p_top;
-		g.size.width += p_left + p_right;
-		g.size.height += p_top + p_bottom;
-
-		return g;
-	}
-
-	_FORCE_INLINE_ Rect2i expand(const Vector2i &p_vector) const {
-
-		Rect2i r = *this;
-		r.expand_to(p_vector);
-		return r;
-	}
-
-	void expand_to(const Point2i &p_vector) {
-
-		Point2i begin = position;
-		Point2i end = position + size;
-
-		if (p_vector.x < begin.x)
-			begin.x = p_vector.x;
-		if (p_vector.y < begin.y)
-			begin.y = p_vector.y;
-
-		if (p_vector.x > end.x)
-			end.x = p_vector.x;
-		if (p_vector.y > end.y)
-			end.y = p_vector.y;
-
-		position = begin;
-		size = end - begin;
-	}
-
-	operator String() const;
-
-	operator Rect2() const { return Rect2(position, size); }
+    operator Rect2() const { return Rect2(position, size); }
     constexpr Rect2i(const Rect2 &p_r2) :
-			position(p_r2.position),
-			size(p_r2.size) {
-	}
+            position(p_r2.position),
+            size(p_r2.size) {
+    }
     constexpr Rect2i() = default;
     constexpr Rect2i(int p_x, int p_y, int p_width, int p_height) :
-			position(p_x, p_y),
-			size(p_width, p_height) {
-	}
-	Rect2i(const Point2 &p_pos, const Size2 &p_size) :
-			position(p_pos),
-			size(p_size) {
-	}
+            position(p_x, p_y),
+            size(p_width, p_height) {
+    }
+    Rect2i(const Point2 &p_pos, const Size2 &p_size) :
+            position(p_pos),
+            size(p_size) {
+    }
 };
 

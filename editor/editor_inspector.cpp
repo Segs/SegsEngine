@@ -792,6 +792,21 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
     text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+
+    auto slices = StringUtils::split(p_text,"::", false);
+    if (!slices.empty()) {
+        StringView property_name = StringUtils::strip_edges(slices[0]);
+        String text = String(TTR("Property:").asCString()) + " [u][b]" + property_name + "[/b][/u]";
+
+        if (slices.size() > 1) {
+            StringView property_doc = StringUtils::strip_edges(slices[1]);
+            if (property_name != property_doc) {
+                text += "\n" + property_doc;
+            }
+        }
+        help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+    }
+
     return help_bit;
 }
 
@@ -1012,11 +1027,19 @@ Control *EditorInspectorCategory::make_custom_tooltip(StringView p_text) const {
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = String("[u][b]") + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
-    text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
-    help_bit->set_text(text);
-    help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
-    return help_bit;
+    auto slices = StringUtils::split(p_text,"::", false);
+    if (!slices.empty()) {
+        auto property_name = StringUtils::strip_edges(slices[0]);
+        String text = "[u][b]" + String(property_name) + "[/b][/u]";
+
+        if (slices.size() > 1) {
+            auto property_doc = StringUtils::strip_edges(slices[1]);
+            if (property_name != property_doc) {
+                text += "\n" + property_doc;
+            }
+        }
+        help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+    }    return help_bit;
 }
 
 Size2 EditorInspectorCategory::get_minimum_size() const {

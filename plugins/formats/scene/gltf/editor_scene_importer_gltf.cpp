@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -226,6 +226,7 @@ namespace {
         // A mapping from the joint indices (in the order of joints_original) to the
         // Godot Skeleton's bone_indices
         HashMap<int, int> joint_i_to_bone_i;
+        Map<int, StringName> joint_i_to_name;
 
         // The Actual Skin that will be created as a mapping between the IBM's of this skin
         // to the generated skeleton for the mesh instances.
@@ -316,6 +317,7 @@ namespace {
 
         HashMap<GLTFNodeIndex, Node*> scene_nodes;
 
+        bool use_named_skin_binds;
         ~GLTFState() {
             for (int i = 0; i < nodes.size(); i++) {
                 memdelete(nodes[i]);
@@ -439,27 +441,6 @@ namespace {
         ERR_FAIL_V(p_values[0]);
     }
 
-    GLTFType _get_type_from_str(const UIString& p_string) {
-
-        if (p_string == "SCALAR")
-            return TYPE_SCALAR;
-
-        if (p_string == "VEC2")
-            return TYPE_VEC2;
-        if (p_string == "VEC3")
-            return TYPE_VEC3;
-        if (p_string == "VEC4")
-            return TYPE_VEC4;
-
-        if (p_string == "MAT2")
-            return TYPE_MAT2;
-        if (p_string == "MAT3")
-            return TYPE_MAT3;
-        if (p_string == "MAT4")
-            return TYPE_MAT4;
-
-        ERR_FAIL_V(TYPE_SCALAR);
-    }
     const char* _get_component_type_name(const uint32_t p_component) {
 
         switch (p_component) {
@@ -965,7 +946,27 @@ namespace {
 
         return OK;
     }
+    GLTFType _get_type_from_str(const String &p_string) {
 
+    if (p_string == "SCALAR")
+        return TYPE_SCALAR;
+
+    if (p_string == "VEC2")
+        return TYPE_VEC2;
+    if (p_string == "VEC3")
+        return TYPE_VEC3;
+    if (p_string == "VEC4")
+        return TYPE_VEC4;
+
+    if (p_string == "MAT2")
+        return TYPE_MAT2;
+    if (p_string == "MAT3")
+        return TYPE_MAT3;
+    if (p_string == "MAT4")
+        return TYPE_MAT4;
+
+    ERR_FAIL_V(TYPE_SCALAR);
+}
     Error _parse_accessors(GLTFState& state) {
 
         ERR_FAIL_COND_V(!state.json.has("accessors"), ERR_FILE_CORRUPT);
@@ -2519,9 +2520,11 @@ namespace {
 
             const GLTFSkeleton& skeleton = state.skeletons[skin.skeleton];
 
-            for (int joint_index = 0; joint_index < skin.joints_original.size(); ++joint_index) {
+            for (size_t joint_index = 0; joint_index < skin.joints_original.size(); ++joint_index) {
                 const GLTFNodeIndex node_i = skin.joints_original[joint_index];
                 const GLTFNode* node = state.nodes[node_i];
+
+                skin.joint_i_to_name.emplace(joint_index, StringName(node->name));
 
                 const int bone_index = skeleton.godot_skeleton->find_bone(node->name);
                 ERR_FAIL_COND_V(bone_index < 0, FAILED);
@@ -2543,13 +2546,18 @@ namespace {
             const bool has_ibms = !gltf_skin.inverse_binds.empty();
 
             for (int joint_i = 0; joint_i < gltf_skin.joints_original.size(); ++joint_i) {
-                int bone_i = gltf_skin.joint_i_to_bone_i[joint_i];
 
+                Transform xform;
                 if (has_ibms) {
-                    skin->add_bind(bone_i, gltf_skin.inverse_binds[joint_i]);
+                    xform = gltf_skin.inverse_binds[joint_i];
                 }
-                else {
-                    skin->add_bind(bone_i, Transform());
+
+                if (state.use_named_skin_binds) {
+                    StringName name = gltf_skin.joint_i_to_name[joint_i];
+                    skin->add_named_bind(name, xform);
+                } else {
+                    int bone_i = gltf_skin.joint_i_to_bone_i[joint_i];
+                    skin->add_bind(bone_i, xform);
                 }
             }
 
@@ -3230,8 +3238,6 @@ namespace {
 }
 
 
-
-
 Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     GLTFState state;
@@ -3259,6 +3265,7 @@ Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags,
 
     state.major_version = StringUtils::to_int(StringUtils::get_slice(version,".", 0));
     state.minor_version = StringUtils::to_int(StringUtils::get_slice(version,".", 1));
+    state.use_named_skin_binds = p_flags & IMPORT_USE_NAMED_SKIN_BINDS;
 
     /* STEP 0 PARSE SCENE */
     Error err = _parse_scenes(state);

@@ -908,6 +908,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     Ref<StyleBoxFlat> style_panel_invisible_top = dynamic_ref_cast<StyleBoxFlat>(style_content_panel->duplicate());
     int stylebox_offset = theme->get_font("tab_fg", "TabContainer")->get_height() + theme->get_stylebox("tab_fg", "TabContainer")->get_minimum_size().height + theme->get_stylebox("panel", "TabContainer")->get_default_margin(Margin::Top);
     style_panel_invisible_top->set_expand_margin_size(Margin::Top, -stylebox_offset);
+    style_panel_invisible_top->set_default_margin(Margin::Top, 0);
     theme->set_stylebox("BottomPanelDebuggerOverride", "EditorStyles", style_panel_invisible_top);
 
     // LineEdit

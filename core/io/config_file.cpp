@@ -36,6 +36,7 @@
 #include "core/method_bind.h"
 #include "core/string_utils.inl"
 #include "core/pool_vector.h"
+#include "core/string_formatter.h"
 
 #include "EASTL/unique_ptr.h"
 
@@ -75,17 +76,20 @@ void ConfigFile::set_value(StringView _section, StringView _key, const Variant &
         values[p_section][p_key] = p_value;
     }
 }
-Variant ConfigFile::get_value(StringView _section, StringView _key, const Variant& p_default) const {
+Variant ConfigFile::get_value(StringView _section, StringView _key, const Variant &p_default) const {
     String p_section(_section);
     String p_key(_key);
     auto iter_section = values.find(p_section);
-    if (iter_section==values.end()) {
-        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.");
+    if (iter_section == values.end()) {
+        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, Variant(),
+                FormatSN("Couldn't find the given section \"%.*s\" and key \"%.*s\", and no default was given.",
+                        p_section.size(), p_section.data(), p_key.size(), p_key.data()));
         return p_default;
     }
     auto iter_key = iter_section->second.find(p_key);
-    if (iter_key==iter_section->second.end()) {
-        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default, "Couldn't find the given section/key and no default was given.");
+    if (iter_key == iter_section->second.end()) {
+        ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, p_default,
+                "Couldn't find the given section/key and no default was given.");
         return p_default;
     }
     return iter_key->second;
@@ -114,12 +118,18 @@ Vector<String> ConfigFile::get_section_keys(StringView _section) const {
 }
 void ConfigFile::erase_section(StringView p_section) {
 
+    ERR_FAIL_COND_MSG(!values.contains_as(p_section),
+            FormatSN("Cannot erase nonexistent section \"%.*s\".", p_section.size(), p_section.data()));
     values.erase(String(p_section));
 }
 void ConfigFile::erase_section_key(StringView p_section, StringView p_key) {
 
     auto iter=values.find_as(p_section);
-    ERR_FAIL_COND_MSG(iter==values.end(), "Cannot erase key from nonexistent section '" + String(p_section) + "'.");
+    ERR_FAIL_COND_MSG(iter == values.end(), FormatSN("Cannot erase key '%.*s' from nonexistent section '%.*s'.",
+                                                    p_key.size(), p_key.data(), p_section.size(), p_section.data()));
+
+    ERR_FAIL_COND_MSG(!iter->second.contains_as(p_key), FormatSN("Cannot erase nonexistent key \"%s\" from section \"%s\".",
+                                                                 p_key.size(), p_key.data(), p_section.size(), p_section.data()));
 
     iter->second.erase_as(p_key);
 }
@@ -279,12 +289,13 @@ Error ConfigFile::_parse(StringView p_path, VariantParserStream *p_stream) {
         next_tag.fields.clear();
         next_tag.name.clear();
 
-        Error err = VariantParser::parse_tag_assign_eof(p_stream, lines, error_text, next_tag, assign, value, nullptr, true);
+        Error err = VariantParser::parse_tag_assign_eof(
+                p_stream, lines, error_text, next_tag, assign, value, nullptr, true);
         if (err == ERR_FILE_EOF) {
             return OK;
         } else if (err != OK) {
-            ERR_PRINT("ConfgFile - " + String(p_path) + ":" + ::to_string(lines) +
-                      " error: " + error_text + ".");
+            ERR_PRINT(FormatSN(
+                    "ConfigFile parse error at %.*s:%d: %s.", p_path.size(), p_path.data(), lines, error_text.c_str()));
             return err;
         }
 
@@ -316,10 +327,8 @@ void ConfigFile::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("save", {"path"}), &ConfigFile::save);
 
     MethodBinder::bind_method(D_METHOD("load_encrypted", {"path", "key"}), &ConfigFile::load_encrypted);
-    MethodBinder::bind_method(D_METHOD("load_encrypted_pass", {"path", "pass"}), &ConfigFile::load_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("load_encrypted_pass", {"path", "password"}), &ConfigFile::load_encrypted_pass);
 
     MethodBinder::bind_method(D_METHOD("save_encrypted", {"path", "key"}), &ConfigFile::save_encrypted);
-    MethodBinder::bind_method(D_METHOD("save_encrypted_pass", {"path", "pass"}), &ConfigFile::save_encrypted_pass);
+    MethodBinder::bind_method(D_METHOD("save_encrypted_pass", {"path", "password"}), &ConfigFile::save_encrypted_pass);
 }
-
-ConfigFile::ConfigFile() = default;

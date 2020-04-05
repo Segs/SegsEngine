@@ -75,5 +75,4 @@ public:
     Error save_encrypted(StringView p_path, const Vector<uint8_t> &p_key);
     Error save_encrypted_pass(StringView p_path, StringView p_pass);
 
-    ConfigFile();
 };

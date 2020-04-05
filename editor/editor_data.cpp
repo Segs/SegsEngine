@@ -437,18 +437,21 @@ void EditorData::restore_editor_global_states() {
 }
 
 void EditorData::paste_object_params(Object *p_object) {
-
-    for (const PropertyData &E : clipboard) {
-
-        p_object->set(E.name, E.value);
+    ERR_FAIL_NULL(p_object);
+    undo_redo.create_action(TTR("Paste Params"));
+    for (const auto &E : clipboard) {
+        const StringName &name = E.name;
+        undo_redo.add_do_property(p_object, name, E.value);
+        undo_redo.add_undo_property(p_object, name, p_object->get(name));
     }
+    undo_redo.commit_action();
 }
 
 bool EditorData::call_build() {
 
     bool result = true;
 
-    for (int i = 0; i < editor_plugins.size() && result; i++) {
+    for (size_t i = 0; i < editor_plugins.size() && result; i++) {
 
         result &= editor_plugins[i]->build();
     }

@@ -80,7 +80,6 @@ void Tween::_add_pending_command(StringName p_key, const Variant &p_arg1, const 
         count = 0;
 
     // Add the specified arguments to the command
-    // TODO: Make this a switch statement?
     if (count > 0)
         cmd.arg[0] = p_arg1;
     if (count > 1)
@@ -434,7 +433,7 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
     Variant result;
 
 #define APPLY_EQUATION(element) \
-    r.element = _run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, i.element, d.element, p_data.duration);
+    r.element = _run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, i.element, d.element, p_data.duration)
 
     // What type of data are we interpolating?
     switch (initial_val.get_type()) {
@@ -462,8 +461,22 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
             // Execute the equation and mutate the r vector
             // This uses the custom APPLY_EQUATION macro defined above
-            APPLY_EQUATION(x)
-            APPLY_EQUATION(y)
+            APPLY_EQUATION(x);
+            APPLY_EQUATION(y);
+            result = r;
+        } break;
+
+        case VariantType::RECT2: {
+            // Get the Rect2 for initial and delta value
+            Rect2 i = initial_val;
+            Rect2 d = delta_val;
+            Rect2 r;
+
+            // Execute the equation for the position and size of Rect2
+            APPLY_EQUATION(position.x);
+            APPLY_EQUATION(position.y);
+            APPLY_EQUATION(size.x);
+            APPLY_EQUATION(size.y);
             result = r;
         } break;
 
@@ -478,26 +491,6 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
             APPLY_EQUATION(x);
             APPLY_EQUATION(y);
             APPLY_EQUATION(z);
-            result = r;
-        } break;
-
-        case VariantType::BASIS: {
-            // Get the basis for initial and delta values
-            Basis i = initial_val;
-            Basis d = delta_val;
-            Basis r;
-
-            // Execute the equation on all the basis and mutate the r basis
-            // This uses the custom APPLY_EQUATION macro defined above
-            APPLY_EQUATION(elements[0][0]);
-            APPLY_EQUATION(elements[0][1]);
-            APPLY_EQUATION(elements[0][2]);
-            APPLY_EQUATION(elements[1][0]);
-            APPLY_EQUATION(elements[1][1]);
-            APPLY_EQUATION(elements[1][2]);
-            APPLY_EQUATION(elements[2][0]);
-            APPLY_EQUATION(elements[2][1]);
-            APPLY_EQUATION(elements[2][2]);
             result = r;
         } break;
 
@@ -547,6 +540,27 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
             APPLY_EQUATION(size.z);
             result = r;
         } break;
+
+        case VariantType::BASIS: {
+            // Get the basis for initial and delta values
+            Basis i = initial_val;
+            Basis d = delta_val;
+            Basis r;
+
+            // Execute the equation on all the basis and mutate the r basis
+            // This uses the custom APPLY_EQUATION macro defined above
+            APPLY_EQUATION(elements[0][0]);
+            APPLY_EQUATION(elements[0][1]);
+            APPLY_EQUATION(elements[0][2]);
+            APPLY_EQUATION(elements[1][0]);
+            APPLY_EQUATION(elements[1][1]);
+            APPLY_EQUATION(elements[1][2]);
+            APPLY_EQUATION(elements[2][0]);
+            APPLY_EQUATION(elements[2][1]);
+            APPLY_EQUATION(elements[2][2]);
+            result = r;
+        } break;
+
         case VariantType::TRANSFORM: {
             // Get the transforms for the initial and delta values
             Transform i = initial_val;
@@ -1116,25 +1130,17 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             delta_val = final_val.operator Vector2() - initial_val.operator Vector2();
             break;
 
+        case VariantType::RECT2: {
+            // Build a new Rect2 and use the new position and sizes to make a delta
+            Rect2 i = initial_val;
+            Rect2 f = final_val;
+            delta_val = Rect2(f.position - i.position, f.size - i.size);
+        } break;
+
         case VariantType::VECTOR3:
             // Convert to Vectors and find the delta
             delta_val = final_val.operator Vector3() - initial_val.operator Vector3();
             break;
-
-        case VariantType::BASIS: {
-            // Build a new basis which is the delta between the initial and final values
-            Basis i = initial_val;
-            Basis f = final_val;
-            delta_val = Basis(f.elements[0][0] - i.elements[0][0],
-                    f.elements[0][1] - i.elements[0][1],
-                    f.elements[0][2] - i.elements[0][2],
-                    f.elements[1][0] - i.elements[1][0],
-                    f.elements[1][1] - i.elements[1][1],
-                    f.elements[1][2] - i.elements[1][2],
-                    f.elements[2][0] - i.elements[2][0],
-                    f.elements[2][1] - i.elements[2][1],
-                    f.elements[2][2] - i.elements[2][2]);
-        } break;
 
         case VariantType::TRANSFORM2D: {
             // Build a new transform which is the difference between the initial and final values
@@ -1160,6 +1166,21 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             AABB i = initial_val;
             AABB f = final_val;
             delta_val = AABB(f.position - i.position, f.size - i.size);
+        } break;
+
+        case VariantType::BASIS: {
+            // Build a new basis which is the delta between the initial and final values
+            Basis i = initial_val;
+            Basis f = final_val;
+            delta_val = Basis(f.elements[0][0] - i.elements[0][0],
+                    f.elements[0][1] - i.elements[0][1],
+                    f.elements[0][2] - i.elements[0][2],
+                    f.elements[1][0] - i.elements[1][0],
+                    f.elements[1][1] - i.elements[1][1],
+                    f.elements[1][2] - i.elements[1][2],
+                    f.elements[2][0] - i.elements[2][0],
+                    f.elements[2][1] - i.elements[2][1],
+                    f.elements[2][2] - i.elements[2][2]);
         } break;
 
         case VariantType::TRANSFORM: {
@@ -1190,10 +1211,33 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             delta_val = Color(f.r - i.r, f.g - i.g, f.b - i.b, f.a - i.a);
         } break;
 
-        default:
-            // TODO: Should move away from a 'magic string'?
-            ERR_PRINT("Invalid param type, except(int/real/vector2/vector/matrix/matrix32/quat/aabb/transform/color)");
+        default: {
+            static const VariantType supported_types[] = {
+                VariantType::BOOL,
+                VariantType::INT,
+                VariantType::REAL,
+                VariantType::VECTOR2,
+                VariantType::RECT2,
+                VariantType::VECTOR3,
+                VariantType::TRANSFORM2D,
+                VariantType::QUAT,
+                VariantType::AABB,
+                VariantType::BASIS,
+                VariantType::TRANSFORM,
+                VariantType::COLOR,
+            };
+
+            String error_msg = "Invalid parameter type. Supported types are: ";
+            for (VariantType vt : supported_types) {
+                if (vt != supported_types[0]) {
+                    error_msg += ", ";
+                }
+                error_msg += Variant::get_type_name(vt);
+            }
+            error_msg += ".";
+            ERR_PRINT(error_msg);
             return false;
+        }
     }
     return true;
 }
