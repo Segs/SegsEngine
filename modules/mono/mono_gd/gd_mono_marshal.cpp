@@ -63,9 +63,9 @@ VariantType managed_to_variant_type(const ManagedType &p_type) {
             return VariantType::INT;
 
         case MONO_TYPE_R4:
-            return VariantType::REAL;
+            return VariantType::FLOAT;
         case MONO_TYPE_R8:
-            return VariantType::REAL;
+            return VariantType::FLOAT;
 
         case MONO_TYPE_STRING: {
             return VariantType::STRING;
@@ -574,7 +574,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                     int32_t val = p_var->operator signed int();
                     return BOX_INT32(val);
                 }
-                case VariantType::REAL: {
+                case VariantType::FLOAT: {
 #ifdef REAL_T_IS_DOUBLE
                     double val = p_var->operator double();
                     return BOX_DOUBLE(val);

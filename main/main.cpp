@@ -1892,7 +1892,7 @@ bool Main::start() {
                                                              PropertyHint::Enum, "ignore,keep,keep_width,keep_height,expand"));
             GLOBAL_DEF("display/window/stretch/shrink", 1.0);
             ProjectSettings::get_singleton()->set_custom_property_info("display/window/stretch/shrink",
-                    PropertyInfo(VariantType::REAL, "display/window/stretch/shrink", PropertyHint::Range, "1.0,8.0,0.1"));
+                    PropertyInfo(VariantType::FLOAT, "display/window/stretch/shrink", PropertyHint::Range, "1.0,8.0,0.1"));
             sml->set_auto_accept_quit(GLOBAL_DEF("application/config/auto_accept_quit", true));
             sml->set_quit_on_go_back(GLOBAL_DEF("application/config/quit_on_go_back", true));
             GLOBAL_DEF("gui/common/snap_controls_to_pixels", true);

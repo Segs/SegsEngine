@@ -380,7 +380,7 @@ void TileSet::_get_property_list(Vector<PropertyInfo> *p_list) const {
         p_list->emplace_back(VariantType::VECTOR2, StringName(pre + "shape_transform"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR);
         p_list->emplace_back(VariantType::OBJECT, StringName(pre + "shape"), PropertyHint::ResourceType, "Shape2D", PROPERTY_USAGE_NOEDITOR);
         p_list->emplace_back(VariantType::BOOL, StringName(pre + "shape_one_way"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR);
-        p_list->emplace_back(VariantType::REAL,StringName( pre + "shape_one_way_margin"), PropertyHint::Range, "0,128,0.01", PROPERTY_USAGE_NOEDITOR);
+        p_list->emplace_back(VariantType::FLOAT,StringName( pre + "shape_one_way_margin"), PropertyHint::Range, "0,128,0.01", PROPERTY_USAGE_NOEDITOR);
         p_list->emplace_back(VariantType::ARRAY, StringName(pre + "shapes"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR);
         p_list->emplace_back(VariantType::INT, StringName(pre + "z_index"), PropertyHint::Range, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1",PROPERTY_USAGE_NOEDITOR);
     }

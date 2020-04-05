@@ -156,7 +156,7 @@ void DocDump::dump(StringView p_file) {
                                     default_arg_text = "false";
                                 break;
                             case VariantType::INT:
-                            case VariantType::REAL:
+                            case VariantType::FLOAT:
                                 //keep it
                                 break;
                             case VariantType::STRING:

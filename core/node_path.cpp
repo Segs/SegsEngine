@@ -69,15 +69,6 @@ void NodePath::_update_hash_cache() const {
     hash_cache = h;
 }
 
-StringName NodePath::get_sname() const {
-
-    if (data && data->path.size() == 1 && data->subpath.empty()) {
-        return data->path[0];
-    } else {
-        return StringName(asString());
-    }
-}
-
 void NodePath::prepend_period() {
 
     if (!data->path.empty() && StringView(data->path[0]) != "."_sv) {

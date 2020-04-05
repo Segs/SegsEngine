@@ -1032,7 +1032,7 @@ void AudioServer::init() {
 
     channel_disable_threshold_db = GLOBAL_DEF_RST("audio/channel_disable_threshold_db", -60.0);
     channel_disable_frames = float(GLOBAL_DEF_RST("audio/channel_disable_time", 2.0)) * get_mix_rate();
-    ProjectSettings::get_singleton()->set_custom_property_info("audio/channel_disable_time", PropertyInfo(VariantType::REAL, "audio/channel_disable_time", PropertyHint::Range, "0,5,0.01,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("audio/channel_disable_time", PropertyInfo(VariantType::FLOAT, "audio/channel_disable_time", PropertyHint::Range, "0,5,0.01,or_greater"));
     buffer_size = 1024; //hardcoded for now
 
     init_channels_and_buffers();
@@ -1397,7 +1397,7 @@ void AudioServer::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bus_count"), "set_bus_count", "get_bus_count");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "device"), "set_device", "get_device");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rate_scale"), "set_global_rate_scale", "get_global_rate_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "global_rate_scale"), "set_global_rate_scale", "get_global_rate_scale");
 
     ADD_SIGNAL(MethodInfo("bus_layout_changed"));
 
@@ -1633,8 +1633,8 @@ void AudioBusLayout::_get_property_list(Vector<PropertyInfo> *p_list) const {
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/solo"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/mute"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
         p_list->push_back(PropertyInfo(VariantType::BOOL, StringName("bus/" + itos(i) + "/bypass_fx"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/volume_db"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
-        p_list->push_back(PropertyInfo(VariantType::REAL, StringName("bus/" + itos(i) + "/send"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::FLOAT, StringName("bus/" + itos(i) + "/volume_db"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
+        p_list->push_back(PropertyInfo(VariantType::FLOAT, StringName("bus/" + itos(i) + "/send"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
 
         for (int j = 0; j < D()->buses[i].effects.size(); j++) {
             p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName("bus/" + itos(i) + "/effect/" + itos(j) + "/effect"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));

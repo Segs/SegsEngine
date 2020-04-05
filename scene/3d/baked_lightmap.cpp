@@ -187,7 +187,7 @@ void BakedLightmapData::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bounds", "get_bounds");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "cell_space_transform", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_space_transform", "get_cell_space_transform");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_subdiv", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_subdiv", "get_cell_subdiv");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_energy", "get_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_energy", "get_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "octree", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_octree", "get_octree");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "user_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_user_data", "_get_user_data");
 }
@@ -844,16 +844,16 @@ void BakedLightmap::_bind_methods() {
     ClassDB::set_method_flags(get_class_static_name(), StringName("debug_bake"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_GROUP("Bake", "bake_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_bake_cell_size", "get_bake_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_bake_cell_size", "get_bake_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_quality", PropertyHint::Enum, "Low,Medium,High"), "set_bake_quality", "get_bake_quality");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_mode", PropertyHint::Enum, "ConeTrace,RayTrace"), "set_bake_mode", "get_bake_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_energy", PropertyHint::Range, "0,32,0.01"), "set_energy", "get_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_energy", PropertyHint::Range, "0,32,0.01"), "set_energy", "get_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bake_hdr"), "set_hdr", "is_hdr");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "bake_extents"), "set_extents", "get_extents");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_default_texels_per_unit"), "set_bake_default_texels_per_unit", "get_bake_default_texels_per_unit");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_default_texels_per_unit"), "set_bake_default_texels_per_unit", "get_bake_default_texels_per_unit");
     ADD_GROUP("Capture", "capture_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "capture_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_capture_cell_size", "get_capture_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "capture_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_capture_cell_size", "get_capture_cell_size");
     ADD_GROUP("Data", "");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "image_path", PropertyHint::Dir), "set_image_path", "get_image_path");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "light_data", PropertyHint::ResourceType, "BakedLightmapData"), "set_light_data", "get_light_data");

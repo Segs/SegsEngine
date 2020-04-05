@@ -166,7 +166,7 @@ void Joint2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_a", PropertyHint::NodePathValidTypes, "CollisionObject2D"), "set_node_a", "get_node_a");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "node_b", PropertyHint::NodePathValidTypes, "CollisionObject2D"), "set_node_b", "get_node_b");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bias", PropertyHint::Range, "0,0.9,0.001"), "set_bias", "get_bias");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bias", PropertyHint::Range, "0,0.9,0.001"), "set_bias", "get_bias");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_collision"), "set_exclude_nodes_from_collision", "get_exclude_nodes_from_collision");
 }
 
@@ -223,7 +223,7 @@ void PinJoint2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_softness", {"softness"}), &PinJoint2D::set_softness);
     MethodBinder::bind_method(D_METHOD("get_softness"), &PinJoint2D::get_softness);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "softness", PropertyHint::ExpRange, "0.00,16,0.01"), "set_softness", "get_softness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "softness", PropertyHint::ExpRange, "0.00,16,0.01"), "set_softness", "get_softness");
 }
 
 PinJoint2D::PinJoint2D() {
@@ -293,8 +293,8 @@ void GrooveJoint2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_initial_offset", {"offset"}), &GrooveJoint2D::set_initial_offset);
     MethodBinder::bind_method(D_METHOD("get_initial_offset"), &GrooveJoint2D::get_initial_offset);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "initial_offset", PropertyHint::ExpRange, "1,65535,1"), "set_initial_offset", "get_initial_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "initial_offset", PropertyHint::ExpRange, "1,65535,1"), "set_initial_offset", "get_initial_offset");
 }
 
 GrooveJoint2D::GrooveJoint2D() {
@@ -402,10 +402,10 @@ void DampedSpringJoint2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_damping", {"damping"}), &DampedSpringJoint2D::set_damping);
     MethodBinder::bind_method(D_METHOD("get_damping"), &DampedSpringJoint2D::get_damping);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rest_length", PropertyHint::ExpRange, "0,65535,1"), "set_rest_length", "get_rest_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "stiffness", PropertyHint::ExpRange, "0.1,64,0.1"), "set_stiffness", "get_stiffness");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping", PropertyHint::ExpRange, "0.01,16,0.01"), "set_damping", "get_damping");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::ExpRange, "1,65535,1"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rest_length", PropertyHint::ExpRange, "0,65535,1"), "set_rest_length", "get_rest_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "stiffness", PropertyHint::ExpRange, "0.1,64,0.1"), "set_stiffness", "get_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "damping", PropertyHint::ExpRange, "0.01,16,0.01"), "set_damping", "get_damping");
 }
 
 DampedSpringJoint2D::DampedSpringJoint2D() {

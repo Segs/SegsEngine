@@ -518,23 +518,23 @@ void ProceduralSky::_bind_methods() {
     ADD_GROUP("Sky", "sky_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_top_color"), "set_sky_top_color", "get_sky_top_color");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sky_horizon_color"), "set_sky_horizon_color", "get_sky_horizon_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sky_curve", PropertyHint::ExpEasing), "set_sky_curve", "get_sky_curve");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sky_energy", PropertyHint::Range, "0,64,0.01"), "set_sky_energy", "get_sky_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sky_curve", PropertyHint::ExpEasing), "set_sky_curve", "get_sky_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sky_energy", PropertyHint::Range, "0,64,0.01"), "set_sky_energy", "get_sky_energy");
 
     ADD_GROUP("Ground", "ground_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "ground_bottom_color"), "set_ground_bottom_color", "get_ground_bottom_color");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "ground_horizon_color"), "set_ground_horizon_color", "get_ground_horizon_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ground_curve", PropertyHint::ExpEasing), "set_ground_curve", "get_ground_curve");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ground_energy", PropertyHint::Range, "0,64,0.01"), "set_ground_energy", "get_ground_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ground_curve", PropertyHint::ExpEasing), "set_ground_curve", "get_ground_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ground_energy", PropertyHint::Range, "0,64,0.01"), "set_ground_energy", "get_ground_energy");
 
     ADD_GROUP("Sun", "sun_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "sun_color"), "set_sun_color", "get_sun_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_latitude", PropertyHint::Range, "-180,180,0.01"), "set_sun_latitude", "get_sun_latitude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_longitude", PropertyHint::Range, "-180,180,0.01"), "set_sun_longitude", "get_sun_longitude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_angle_min", PropertyHint::Range, "0,360,0.01"), "set_sun_angle_min", "get_sun_angle_min");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_angle_max", PropertyHint::Range, "0,360,0.01"), "set_sun_angle_max", "get_sun_angle_max");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_curve", PropertyHint::ExpEasing), "set_sun_curve", "get_sun_curve");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sun_energy", PropertyHint::Range, "0,64,0.01"), "set_sun_energy", "get_sun_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sun_latitude", PropertyHint::Range, "-180,180,0.01"), "set_sun_latitude", "get_sun_latitude");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sun_longitude", PropertyHint::Range, "-180,180,0.01"), "set_sun_longitude", "get_sun_longitude");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sun_angle_min", PropertyHint::Range, "0,360,0.01"), "set_sun_angle_min", "get_sun_angle_min");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sun_angle_max", PropertyHint::Range, "0,360,0.01"), "set_sun_angle_max", "get_sun_angle_max");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sun_curve", PropertyHint::ExpEasing), "set_sun_curve", "get_sun_curve");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sun_energy", PropertyHint::Range, "0,64,0.01"), "set_sun_energy", "get_sun_energy");
 
     ADD_GROUP("Texture", "texture_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "texture_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_texture_size", "get_texture_size");

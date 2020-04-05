@@ -79,13 +79,13 @@ void NavigationAgent2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_avoidance_done", {"new_velocity"}),&NavigationAgent2D::_avoidance_done);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.1,500,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "neighbor_dist", PropertyHint::Range, "0.1,100000,0.01"), "set_neighbor_dist", "get_neighbor_dist");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,500,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "neighbor_dist", PropertyHint::Range, "0.1,100000,0.01"), "set_neighbor_dist", "get_neighbor_dist");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_neighbors", PropertyHint::Range, "1,10000,1"), "set_max_neighbors", "get_max_neighbors");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_horizon", PropertyHint::Range, "0.1,10000,0.01"), "set_time_horizon", "get_time_horizon");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_speed", PropertyHint::Range, "0.1,100000,0.01"), "set_max_speed", "get_max_speed");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "path_max_distance", PropertyHint::Range, "10,100,1"), "set_path_max_distance", "get_path_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_horizon", PropertyHint::Range, "0.1,10000,0.01"), "set_time_horizon", "get_time_horizon");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_speed", PropertyHint::Range, "0.1,100000,0.01"), "set_max_speed", "get_max_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_max_distance", PropertyHint::Range, "10,100,1"), "set_path_max_distance", "get_path_max_distance");
 
     ADD_SIGNAL(MethodInfo("path_changed"));
     ADD_SIGNAL(MethodInfo("target_reached"));

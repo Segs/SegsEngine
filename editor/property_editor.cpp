@@ -403,12 +403,12 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
         } break;
         case VariantType::INT:
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (hint == PropertyHint::Range) {
 
                 int c = StringUtils::get_slice_count(hint_text,',');
-                float min = 0, max = 100, step = type == VariantType::REAL ? .01f : 1;
+                float min = 0, max = 100, step = type == VariantType::FLOAT ? .01f : 1;
                 if (c >= 1) {
 
                     if (!StringUtils::get_slice(hint_text,',', 0).empty())
@@ -1121,7 +1121,7 @@ void CustomPropertyEditor::_file_selected(StringView p_file) {
 
 void CustomPropertyEditor::_type_create_selected(int p_idx) {
 
-    if (type == VariantType::INT || type == VariantType::REAL) {
+    if (type == VariantType::INT || type == VariantType::FLOAT) {
 
         float newval = 0;
         switch (p_idx) {
@@ -1567,7 +1567,7 @@ void CustomPropertyEditor::_modified(StringView p_string) {
             emit_signal("variant_changed");
 
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (hint != PropertyHint::ExpEasing) {
                 String text = value_editor[0]->get_text();
@@ -1754,7 +1754,7 @@ void CustomPropertyEditor::_range_modified(double p_value) {
 
 void CustomPropertyEditor::_focus_enter() {
     switch (type) {
-        case VariantType::REAL:
+        case VariantType::FLOAT:
         case VariantType::STRING:
         case VariantType::VECTOR2:
         case VariantType::RECT2:
@@ -1780,7 +1780,7 @@ void CustomPropertyEditor::_focus_enter() {
 
 void CustomPropertyEditor::_focus_exit() {
     switch (type) {
-        case VariantType::REAL:
+        case VariantType::FLOAT:
         case VariantType::STRING:
         case VariantType::VECTOR2:
         case VariantType::RECT2:

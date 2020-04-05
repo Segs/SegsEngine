@@ -146,10 +146,10 @@ void PhysicsDirectBodyState::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("integrate_forces"), &PhysicsDirectBodyState::integrate_forces);
     MethodBinder::bind_method(D_METHOD("get_space_state"), &PhysicsDirectBodyState::get_space_state);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step"), "", "get_step");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "inverse_mass"), "", "get_inverse_mass");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_angular_damp"), "", "get_total_angular_damp");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_linear_damp"), "", "get_total_linear_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step"), "", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inverse_mass"), "", "get_inverse_mass");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "total_angular_damp"), "", "get_total_angular_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "total_linear_damp"), "", "get_total_linear_damp");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "inverse_inertia"), "", "get_inverse_inertia");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "total_gravity"), "", "get_total_gravity");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "center_of_mass"), "", "get_center_of_mass");
@@ -269,7 +269,7 @@ void PhysicsShapeQueryParameters::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, itos(int8_t(VariantType::_RID)) + ":"), "set_exclude", "get_exclude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0,100,0.01"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0,100,0.01"), "set_margin", "get_margin");
     //ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape2D"), "set_shape", ""); // FIXME: Lacks a getter
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "shape_rid"), "set_shape_rid", "get_shape_rid");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "transform"), "set_transform", "get_transform");

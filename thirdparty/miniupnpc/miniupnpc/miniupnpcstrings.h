@@ -2,7 +2,7 @@
 #define MINIUPNPCSTRINGS_H_INCLUDED
 
 #define OS_STRING ""
-#define MINIUPNPC_VERSION_STRING "2.1"
+#define MINIUPNPC_VERSION_STRING ""
 
 #if 0
 /* according to "UPnP Device Architecture 1.0" */

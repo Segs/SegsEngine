@@ -67,7 +67,7 @@ enum {
     VARIANT_NIL = 1,
     VARIANT_BOOL = 2,
     VARIANT_INT = 3,
-    VARIANT_REAL = 4,
+    VARIANT_FLOAT = 4,
     VARIANT_STRING = 5,
     VARIANT_VECTOR2 = 10,
     VARIANT_RECT2 = 11,
@@ -162,7 +162,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
 
             r_v = int64_t(f->get_64());
         } break;
-        case VARIANT_REAL: {
+        case VARIANT_FLOAT: {
 
             r_v = f->get_real();
         } break;
@@ -1268,7 +1268,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
             }
 
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             double d = p_property.as<float>();
             float fl = d;
@@ -1277,7 +1277,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
                 f->store_double(d);
             } else {
 
-                f->store_32(VARIANT_REAL);
+                f->store_32(VARIANT_FLOAT);
                 f->store_real(fl);
             }
 

@@ -1583,7 +1583,7 @@ void ItemList::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width", PropertyHint::Range, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
     ADD_GROUP("Icon", "");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "icon_mode", PropertyHint::Enum, "Top,Left"), "set_icon_mode", "get_icon_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "icon_scale"), "set_icon_scale", "get_icon_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "icon_scale"), "set_icon_scale", "get_icon_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "fixed_icon_size"), "set_fixed_icon_size", "get_fixed_icon_size");
 
     BIND_ENUM_CONSTANT(ICON_MODE_TOP)

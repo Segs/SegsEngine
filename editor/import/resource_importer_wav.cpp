@@ -85,7 +85,7 @@ void ResourceImporterWAV::get_import_options(Vector<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/8_bit"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/mono"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/max_rate", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "force/max_rate_hz", PropertyHint::ExpRange, "11025,192000,1"), 44100));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "force/max_rate_hz", PropertyHint::ExpRange, "11025,192000,1"), 44100));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/trim"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/normalize"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/loop"), false));

@@ -2293,7 +2293,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, Vector<Property
                 pi.type = VariantType::POOL_INT_ARRAY;
             } break;
             case ShaderLanguage::TYPE_FLOAT: {
-                pi.type = VariantType::REAL;
+                pi.type = VariantType::FLOAT;
                 if (u.hint == ShaderLanguage::ShaderNode::Uniform::HINT_RANGE) {
                     pi.hint = PropertyHint::Range;
                     char buf[128];

@@ -1426,7 +1426,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             p_store_string_func(p_store_string_ud, ::to_string(p_variant.operator int64_t()));
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             String s = rtosfix(p_variant.as<float>());
             if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))

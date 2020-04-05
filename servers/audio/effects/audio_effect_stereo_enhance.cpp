@@ -150,9 +150,9 @@ void AudioEffectStereoEnhance::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_surround", {"amount"}), &AudioEffectStereoEnhance::set_surround);
     MethodBinder::bind_method(D_METHOD("get_surround"), &AudioEffectStereoEnhance::get_surround);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pan_pullout", PropertyHint::Range, "0,4,0.01"), "set_pan_pullout", "get_pan_pullout");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_pullout_ms", PropertyHint::Range, "0,50,0.01"), "set_time_pullout", "get_time_pullout");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "surround", PropertyHint::Range, "0,1,0.01"), "set_surround", "get_surround");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pan_pullout", PropertyHint::Range, "0,4,0.01"), "set_pan_pullout", "get_pan_pullout");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_pullout_ms", PropertyHint::Range, "0,50,0.01"), "set_time_pullout", "get_time_pullout");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "surround", PropertyHint::Range, "0,1,0.01"), "set_surround", "get_surround");
 }
 
 AudioEffectStereoEnhance::AudioEffectStereoEnhance() {

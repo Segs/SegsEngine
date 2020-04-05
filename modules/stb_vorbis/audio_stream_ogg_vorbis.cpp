@@ -273,7 +273,7 @@ void AudioStreamOGGVorbis::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "loop_offset"), "set_loop_offset", "get_loop_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "loop_offset"), "set_loop_offset", "get_loop_offset");
 }
 
 AudioStreamOGGVorbis::AudioStreamOGGVorbis() {

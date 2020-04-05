@@ -3046,7 +3046,7 @@ void RichTextLabel::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bbcode_text", PropertyHint::MultilineText), "set_bbcode", "get_bbcode");
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1"), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "meta_underlined"), "set_meta_underline", "is_meta_underlined");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_size", PropertyHint::Range, "0,24,1"), "set_tab_size", "get_tab_size");

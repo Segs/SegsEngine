@@ -66,7 +66,7 @@ void AudioEffectPanner::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_pan", {"cpanume"}), &AudioEffectPanner::set_pan);
     MethodBinder::bind_method(D_METHOD("get_pan"), &AudioEffectPanner::get_pan);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pan", PropertyHint::Range, "-1,1,0.01"), "set_pan", "get_pan");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pan", PropertyHint::Range, "-1,1,0.01"), "set_pan", "get_pan");
 }
 
 AudioEffectPanner::AudioEffectPanner() {

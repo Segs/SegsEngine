@@ -288,7 +288,7 @@ void VisualScriptPropertySelector::_update_search() {
             if (type == VariantType::BOOL) {
                 get_visual_node_names("operators/logic/", Set<String>(), found, root, search_box);
             }
-            if (type == VariantType::BOOL || type == VariantType::INT || type == VariantType::REAL || type == VariantType::VECTOR2 || type == VariantType::VECTOR3) {
+            if (type == VariantType::BOOL || type == VariantType::INT || type == VariantType::FLOAT || type == VariantType::VECTOR2 || type == VariantType::VECTOR3) {
                 get_visual_node_names("operators/math/", Set<String>(), found, root, search_box);
             }
         }

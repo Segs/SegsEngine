@@ -113,7 +113,7 @@ void LineShape2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_d"), &LineShape2D::get_d);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "normal"), "set_normal", "get_normal");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "d"), "set_d", "get_d");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "d"), "set_d", "get_d");
 }
 
 LineShape2D::LineShape2D() :

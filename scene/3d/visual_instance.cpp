@@ -305,7 +305,7 @@ void GeometryInstance::_bind_methods() {
     ADD_GROUP("Geometry", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material_override", PropertyHint::ResourceType, "ShaderMaterial,SpatialMaterial"), "set_material_override", "get_material_override");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cast_shadow", PropertyHint::Enum, "Off,On,Double-Sided,Shadows Only"), "set_cast_shadows_setting", "get_cast_shadows_setting");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "extra_cull_margin", PropertyHint::Range, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "extra_cull_margin", PropertyHint::Range, "0,16384,0.01"), "set_extra_cull_margin", "get_extra_cull_margin");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "use_in_baked_light"), "set_flag", "get_flag", FLAG_USE_BAKED_LIGHT);
 
     ADD_GROUP("LOD", "lod_");

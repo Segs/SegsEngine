@@ -419,7 +419,7 @@ VariantType fromQVariantType(QVariant::Type t) {
     case QVariant::ULongLong:
         return VariantType::INT;
     case QVariant::Double:
-        return VariantType::REAL;
+        return VariantType::FLOAT;
     case QVariant::Char:
         return VariantType::INT;
     default:

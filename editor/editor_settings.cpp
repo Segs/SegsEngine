@@ -322,7 +322,7 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("interface/editor/display_scale", 0);
     hints["interface/editor/display_scale"] = PropertyInfo(VariantType::INT, "interface/editor/display_scale", PropertyHint::Enum, "Auto,75%,100%,125%,150%,175%,200%,Custom", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/custom_display_scale", 1.0f);
-    hints["interface/editor/custom_display_scale"] = PropertyInfo(VariantType::REAL, "interface/editor/custom_display_scale", PropertyHint::Range, "0.5,3,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
+    hints["interface/editor/custom_display_scale"] = PropertyInfo(VariantType::FLOAT, "interface/editor/custom_display_scale", PropertyHint::Range, "0.5,3,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/main_font_size", 14);
     hints["interface/editor/main_font_size"] = PropertyInfo(VariantType::INT, "interface/editor/main_font_size", PropertyHint::Range, "8,48,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/code_font_size", 14);
@@ -338,9 +338,9 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     hints["interface/editor/code_font"] = PropertyInfo(VariantType::STRING, "interface/editor/code_font", PropertyHint::GlobalFile, "*.ttf,*.otf", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/editor/dim_editor_on_dialog_popup", true);
     _initial_set("interface/editor/low_processor_mode_sleep_usec", 6900); // ~144 FPS
-    hints["interface/editor/low_processor_mode_sleep_usec"] = PropertyInfo(VariantType::REAL, "interface/editor/low_processor_mode_sleep_usec", PropertyHint::Range, "1,100000,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
+    hints["interface/editor/low_processor_mode_sleep_usec"] = PropertyInfo(VariantType::FLOAT, "interface/editor/low_processor_mode_sleep_usec", PropertyHint::Range, "1,100000,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
     _initial_set("interface/editor/unfocused_low_processor_mode_sleep_usec", 50000); // 20 FPS
-    hints["interface/editor/unfocused_low_processor_mode_sleep_usec"] = PropertyInfo(VariantType::REAL, "interface/editor/unfocused_low_processor_mode_sleep_usec", PropertyHint::Range, "1,100000,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
+    hints["interface/editor/unfocused_low_processor_mode_sleep_usec"] = PropertyInfo(VariantType::FLOAT, "interface/editor/unfocused_low_processor_mode_sleep_usec", PropertyHint::Range, "1,100000,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED);
 
     _initial_set("interface/editor/separate_distraction_mode", false);
 
@@ -359,15 +359,15 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("interface/theme/accent_color", Color(0.41f, 0.61f, 0.91f));
     hints["interface/theme/accent_color"] = PropertyInfo(VariantType::COLOR, "interface/theme/accent_color", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/theme/contrast", 0.25);
-    hints["interface/theme/contrast"] = PropertyInfo(VariantType::REAL, "interface/theme/contrast", PropertyHint::Range, "0.01, 1, 0.01");
+    hints["interface/theme/contrast"] = PropertyInfo(VariantType::FLOAT, "interface/theme/contrast", PropertyHint::Range, "0.01, 1, 0.01");
     _initial_set("interface/theme/relationship_line_opacity", 0.1);
-    hints["interface/theme/relationship_line_opacity"] = PropertyInfo(VariantType::REAL, "interface/theme/relationship_line_opacity", PropertyHint::Range, "0.00, 1, 0.01");
+    hints["interface/theme/relationship_line_opacity"] = PropertyInfo(VariantType::FLOAT, "interface/theme/relationship_line_opacity", PropertyHint::Range, "0.00, 1, 0.01");
     _initial_set("interface/theme/highlight_tabs", false);
     _initial_set("interface/theme/border_size", 1);
     _initial_set("interface/theme/use_graph_node_headers", false);
     hints["interface/theme/border_size"] = PropertyInfo(VariantType::INT, "interface/theme/border_size", PropertyHint::Range, "0,2,1", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/theme/additional_spacing", 0);
-    hints["interface/theme/additional_spacing"] = PropertyInfo(VariantType::REAL, "interface/theme/additional_spacing", PropertyHint::Range, "0,5,0.1", PROPERTY_USAGE_DEFAULT);
+    hints["interface/theme/additional_spacing"] = PropertyInfo(VariantType::FLOAT, "interface/theme/additional_spacing", PropertyHint::Range, "0,5,0.1", PROPERTY_USAGE_DEFAULT);
     _initial_set("interface/theme/custom_theme", "");
     hints["interface/theme/custom_theme"] = PropertyInfo(VariantType::STRING, "interface/theme/custom_theme", PropertyHint::GlobalFile, "*.res,*.tres,*.theme", PROPERTY_USAGE_DEFAULT);
 
@@ -484,15 +484,15 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     _initial_set("text_editor/cursor/block_caret", false);
     _initial_set("text_editor/cursor/caret_blink", true);
     _initial_set("text_editor/cursor/caret_blink_speed", 0.5);
-    hints["text_editor/cursor/caret_blink_speed"] = PropertyInfo(VariantType::REAL, "text_editor/cursor/caret_blink_speed", PropertyHint::Range, "0.1, 10, 0.01");
+    hints["text_editor/cursor/caret_blink_speed"] = PropertyInfo(VariantType::FLOAT, "text_editor/cursor/caret_blink_speed", PropertyHint::Range, "0.1, 10, 0.01");
     _initial_set("text_editor/cursor/right_click_moves_caret", true);
 
     // Completion
     _initial_set("text_editor/completion/idle_parse_delay", 2.0);
-    hints["text_editor/completion/idle_parse_delay"] = PropertyInfo(VariantType::REAL, "text_editor/completion/idle_parse_delay", PropertyHint::Range, "0.1, 10, 0.01");
+    hints["text_editor/completion/idle_parse_delay"] = PropertyInfo(VariantType::FLOAT, "text_editor/completion/idle_parse_delay", PropertyHint::Range, "0.1, 10, 0.01");
     _initial_set("text_editor/completion/auto_brace_complete", true);
     _initial_set("text_editor/completion/code_complete_delay", 0.3);
-    hints["text_editor/completion/code_complete_delay"] = PropertyInfo(VariantType::REAL, "text_editor/completion/code_complete_delay", PropertyHint::Range, "0.01, 5, 0.01");
+    hints["text_editor/completion/code_complete_delay"] = PropertyInfo(VariantType::FLOAT, "text_editor/completion/code_complete_delay", PropertyHint::Range, "0.01, 5, 0.01");
     _initial_set("text_editor/completion/put_callhint_tooltip_below_current_line", true);
     _initial_set("text_editor/completion/callhint_tooltip_offset", Vector2());
     _initial_set("text_editor/completion/complete_file_paths", true);
@@ -549,24 +549,24 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
 
     // 3D: Navigation feel
     _initial_set("editors/3d/navigation_feel/orbit_sensitivity", 0.4);
-    hints["editors/3d/navigation_feel/orbit_sensitivity"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/orbit_sensitivity", PropertyHint::Range, "0.0, 2, 0.01");
+    hints["editors/3d/navigation_feel/orbit_sensitivity"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/orbit_sensitivity", PropertyHint::Range, "0.0, 2, 0.01");
 
     _initial_set("editors/3d/navigation_feel/orbit_inertia", 0.05);
-    hints["editors/3d/navigation_feel/orbit_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/orbit_inertia", PropertyHint::Range, "0.0, 1, 0.01");
+    hints["editors/3d/navigation_feel/orbit_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/orbit_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/navigation_feel/translation_inertia", 0.15);
-    hints["editors/3d/navigation_feel/translation_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/translation_inertia", PropertyHint::Range, "0.0, 1, 0.01");
+    hints["editors/3d/navigation_feel/translation_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/translation_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/navigation_feel/zoom_inertia", 0.075);
-    hints["editors/3d/navigation_feel/zoom_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/zoom_inertia", PropertyHint::Range, "0.0, 1, 0.01");
+    hints["editors/3d/navigation_feel/zoom_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/zoom_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/navigation_feel/manipulation_orbit_inertia", 0.075);
-    hints["editors/3d/navigation_feel/manipulation_orbit_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/manipulation_orbit_inertia", PropertyHint::Range, "0.0, 1, 0.01");
+    hints["editors/3d/navigation_feel/manipulation_orbit_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/manipulation_orbit_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/navigation_feel/manipulation_translation_inertia", 0.075);
-    hints["editors/3d/navigation_feel/manipulation_translation_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/navigation_feel/manipulation_translation_inertia", PropertyHint::Range, "0.0, 1, 0.01");
+    hints["editors/3d/navigation_feel/manipulation_translation_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/manipulation_translation_inertia", PropertyHint::Range, "0.0, 1, 0.01");
 
     // 3D: Freelook
     _initial_set("editors/3d/freelook/freelook_inertia", 0.1f);
-    hints["editors/3d/freelook/freelook_inertia"] = PropertyInfo(VariantType::REAL, "editors/3d/freelook/freelook_inertia", PropertyHint::Range, "0.0, 1, 0.01");
+    hints["editors/3d/freelook/freelook_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/freelook/freelook_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/freelook/freelook_base_speed", 5.0f);
-    hints["editors/3d/freelook/freelook_base_speed"] = PropertyInfo(VariantType::REAL, "editors/3d/freelook/freelook_base_speed", PropertyHint::Range, "0.0, 10, 0.01");
+    hints["editors/3d/freelook/freelook_base_speed"] = PropertyInfo(VariantType::FLOAT, "editors/3d/freelook/freelook_base_speed", PropertyHint::Range, "0.0, 10, 0.01");
     _initial_set("editors/3d/freelook/freelook_activation_modifier", 0);
     hints["editors/3d/freelook/freelook_activation_modifier"] = PropertyInfo(VariantType::INT, "editors/3d/freelook/freelook_activation_modifier", PropertyHint::Enum, "None,Shift,Alt,Meta,Ctrl");
     _initial_set("editors/3d/freelook/freelook_speed_zoom_link", false);

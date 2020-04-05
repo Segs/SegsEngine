@@ -415,7 +415,7 @@ static StringName variant_type_to_managed_name(StringName p_var_type_name) {
     if (p_var_type_name == Variant::get_type_name(VariantType::OBJECT))
         return "Godot.Object";
 
-    if (p_var_type_name == Variant::get_type_name(VariantType::REAL)) {
+    if (p_var_type_name == Variant::get_type_name(VariantType::FLOAT)) {
 #ifdef REAL_T_IS_DOUBLE
         return "double";
 #else

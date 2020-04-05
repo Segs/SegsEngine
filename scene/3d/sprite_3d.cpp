@@ -352,8 +352,8 @@ void SpriteBase3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate"), "set_modulate", "get_modulate");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "opacity", PropertyHint::Range, "0,1,0.01"), "set_opacity", "get_opacity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pixel_size", PropertyHint::Range, "0.0001,128,0.0001"), "set_pixel_size", "get_pixel_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "opacity", PropertyHint::Range, "0,1,0.01"), "set_opacity", "get_opacity");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pixel_size", PropertyHint::Range, "0.0001,128,0.0001"), "set_pixel_size", "get_pixel_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis", PropertyHint::Enum, "X-Axis,Y-Axis,Z-Axis"), "set_axis", "get_axis");
     ADD_GROUP("Flags", "");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "billboard", PropertyHint::Enum, "Disabled,Enabled,Y-Billboard"), "set_billboard_mode", "get_billboard_mode");

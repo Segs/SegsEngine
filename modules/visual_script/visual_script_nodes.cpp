@@ -2296,7 +2296,7 @@ PropertyInfo VisualScriptMathConstant::get_input_value_port_info(int p_idx) cons
 
 PropertyInfo VisualScriptMathConstant::get_output_value_port_info(int p_idx) const {
 
-    return PropertyInfo(VariantType::REAL, StaticCString(const_name[constant],true));
+    return PropertyInfo(VariantType::FLOAT, StaticCString(const_name[constant],true));
 }
 
 StringView VisualScriptMathConstant::get_caption() const {

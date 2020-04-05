@@ -395,14 +395,14 @@ void SoftBody::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "parent_collision_ignore", PropertyHint::PropertyOfVariantType, "Parent collision object"), "set_parent_collision_ignore", "get_parent_collision_ignore");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "simulation_precision", PropertyHint::Range, "1,100,1"), "set_simulation_precision", "get_simulation_precision");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_mass", PropertyHint::Range, "0.01,10000,1"), "set_total_mass", "get_total_mass");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "linear_stiffness", PropertyHint::Range, "0,1,0.01"), "set_linear_stiffness", "get_linear_stiffness");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "areaAngular_stiffness", PropertyHint::Range, "0,1,0.01"), "set_areaAngular_stiffness", "get_areaAngular_stiffness");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "volume_stiffness", PropertyHint::Range, "0,1,0.01"), "set_volume_stiffness", "get_volume_stiffness");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pressure_coefficient"), "set_pressure_coefficient", "get_pressure_coefficient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "damping_coefficient", PropertyHint::Range, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drag_coefficient", PropertyHint::Range, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pose_matching_coefficient", PropertyHint::Range, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "total_mass", PropertyHint::Range, "0.01,10000,1"), "set_total_mass", "get_total_mass");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "linear_stiffness", PropertyHint::Range, "0,1,0.01"), "set_linear_stiffness", "get_linear_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "areaAngular_stiffness", PropertyHint::Range, "0,1,0.01"), "set_areaAngular_stiffness", "get_areaAngular_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "volume_stiffness", PropertyHint::Range, "0,1,0.01"), "set_volume_stiffness", "get_volume_stiffness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pressure_coefficient"), "set_pressure_coefficient", "get_pressure_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "damping_coefficient", PropertyHint::Range, "0,1,0.01"), "set_damping_coefficient", "get_damping_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "drag_coefficient", PropertyHint::Range, "0,1,0.01"), "set_drag_coefficient", "get_drag_coefficient");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pose_matching_coefficient", PropertyHint::Range, "0,1,0.01"), "set_pose_matching_coefficient", "get_pose_matching_coefficient");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ray_pickable"), "set_ray_pickable", "is_ray_pickable");
 }

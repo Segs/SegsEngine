@@ -3129,7 +3129,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                             args.push_back(op->arguments[i]);
                             if (constant && op->arguments[i]->type == Node::TYPE_CONSTANT) {
                                 ConstantNode *c = static_cast<ConstantNode *>(op->arguments[i]);
-                                if (c->value.get_type() == VariantType::REAL || c->value.get_type() == VariantType::INT) {
+                                if (c->value.get_type() == VariantType::FLOAT || c->value.get_type() == VariantType::INT) {
                                     constants.push_back(c->value);
                                     constant = true;
                                 }
@@ -4241,7 +4241,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                                     [[fallthrough]];
                                 }
-                                case VariantType::REAL: {
+                                case VariantType::FLOAT: {
 
                                     if (tokenizer->get_token() == GDScriptTokenizer::TK_IDENTIFIER && tokenizer->get_token_identifier() == "EASE") {
                                         current_export.hint = PropertyHint::ExpEasing;
@@ -5980,10 +5980,10 @@ GDScriptParser::DataType GDScriptParser::_get_operation_type(const Variant::Oper
     }
 
     // Avoid division by zero
-    if (a_type == VariantType::INT || a_type == VariantType::REAL) {
+    if (a_type == VariantType::INT || a_type == VariantType::FLOAT) {
         Variant::evaluate(Variant::OP_ADD, a, 1, a, r_valid);
     }
-    if (b_type == VariantType::INT || b_type == VariantType::REAL) {
+    if (b_type == VariantType::INT || b_type == VariantType::FLOAT) {
         Variant::evaluate(Variant::OP_ADD, b, 1, b, r_valid);
     }
     if (a_type == VariantType::STRING && b_type != VariantType::ARRAY) {
@@ -6627,7 +6627,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                                     case VariantType::POOL_VECTOR3_ARRAY:
                                     case VariantType::ARRAY:
                                     case VariantType::STRING: {
-                                        error = index_type.builtin_type != VariantType::INT && index_type.builtin_type != VariantType::REAL;
+                                        error = index_type.builtin_type != VariantType::INT && index_type.builtin_type != VariantType::FLOAT;
                                     } break;
                                     // Expect String only
                                     case VariantType::RECT2:
@@ -6643,7 +6643,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                                     case VariantType::TRANSFORM2D:
                                     case VariantType::BASIS:
                                     case VariantType::TRANSFORM: {
-                                        error = index_type.builtin_type != VariantType::INT && index_type.builtin_type != VariantType::REAL &&
+                                        error = index_type.builtin_type != VariantType::INT && index_type.builtin_type != VariantType::FLOAT &&
                                                 index_type.builtin_type != VariantType::STRING;
                                     } break;
                                     // Expect String or int
@@ -6713,7 +6713,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                             case VariantType::NIL:
                             case VariantType::BOOL:
                             case VariantType::INT:
-                            case VariantType::REAL:
+                            case VariantType::FLOAT:
                             case VariantType::NODE_PATH:
                             case VariantType::_RID: {
                                 _set_error("Can't index on a value of type \"" + base_type.to_string() + "\".", op->line);
@@ -6729,7 +6729,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                             case VariantType::VECTOR2:
                             case VariantType::VECTOR3:
                             case VariantType::QUAT: {
-                                result.builtin_type = VariantType::REAL;
+                                result.builtin_type = VariantType::FLOAT;
                             } break;
                                 // Return color
                             case VariantType::POOL_COLOR_ARRAY: {
@@ -7018,7 +7018,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
                         break;
                     } else {
 #ifdef DEBUG_ENABLED
-                        if (arg_type.kind == DataType::BUILTIN && arg_type.builtin_type == VariantType::INT && par_types[i].kind == DataType::BUILTIN && par_types[i].builtin_type == VariantType::REAL) {
+                        if (arg_type.kind == DataType::BUILTIN && arg_type.builtin_type == VariantType::INT && par_types[i].kind == DataType::BUILTIN && par_types[i].builtin_type == VariantType::FLOAT) {
                             _add_warning(GDScriptWarning::NARROWING_CONVERSION, p_call->line, {(Variant::get_type_name(tn->vtype))});
                         }
                         if (par_types[i].may_yield && p_call->arguments[i + 1]->type == Node::TYPE_OPERATOR) {
@@ -7259,7 +7259,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_function_call_type(const Operat
                 _mark_line_as_unsafe(p_call->line);
             }
         } else {
-            if (arg_type.kind == DataType::BUILTIN && arg_type.builtin_type == VariantType::INT && par_type.kind == DataType::BUILTIN && par_type.builtin_type == VariantType::REAL) {
+            if (arg_type.kind == DataType::BUILTIN && arg_type.builtin_type == VariantType::INT && par_type.kind == DataType::BUILTIN && par_type.builtin_type == VariantType::FLOAT) {
                 _add_warning(GDScriptWarning::NARROWING_CONVERSION, p_call->line, {callee_name});
             }
         }
@@ -8117,7 +8117,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
                             lv->assign = convert_call;
                             lv->assign_op->arguments[1] = convert_call;
 #ifdef DEBUG_ENABLED
-                            if (lv->datatype.builtin_type == VariantType::INT && assign_type.builtin_type == VariantType::REAL) {
+                            if (lv->datatype.builtin_type == VariantType::INT && assign_type.builtin_type == VariantType::FLOAT) {
                                 _add_warning(GDScriptWarning::NARROWING_CONVERSION, lv->line);
                             }
 #endif // DEBUG_ENABLED
@@ -8252,7 +8252,7 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
                                     type_match = true; // Since we are converting, the type is matching
                                 }
 #ifdef DEBUG_ENABLED
-                                if (lh_type.builtin_type == VariantType::INT && rh_type.builtin_type == VariantType::REAL) {
+                                if (lh_type.builtin_type == VariantType::INT && rh_type.builtin_type == VariantType::FLOAT) {
                                     _add_warning(GDScriptWarning::NARROWING_CONVERSION, op->line);
                                 }
 #endif // DEBUG_ENABLED

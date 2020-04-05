@@ -734,7 +734,7 @@ void EditorPropertyDictionary::update_property() {
                     prop = editor;
 
                 } break;
-                case VariantType::REAL: {
+                case VariantType::FLOAT: {
 
                     EditorPropertyFloat *editor = memnew(EditorPropertyFloat);
                     editor->setup(-100000, 100000, 0.001, true, false, true, true);

@@ -98,7 +98,7 @@ void Position2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_set_gizmo_extents", {"extents"}), &Position2D::set_gizmo_extents);
     MethodBinder::bind_method(D_METHOD("_get_gizmo_extents"), &Position2D::get_gizmo_extents);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gizmo_extents", PropertyHint::Range, "0,1000,0.1,or_greater", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_gizmo_extents", "_get_gizmo_extents");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gizmo_extents", PropertyHint::Range, "0,1000,0.1,or_greater", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_gizmo_extents", "_get_gizmo_extents");
 }
 
 Position2D::Position2D() {

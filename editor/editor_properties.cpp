@@ -3071,7 +3071,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 add_property_editor(p_path, editor);
             }
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (p_hint == PropertyHint::ExpEasing) {
                 EditorPropertyEasing *editor = memnew(EditorPropertyEasing);

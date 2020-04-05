@@ -32,7 +32,7 @@
 
 #include "core/os/file_access.h"
 #include "editor/editor_export.h"
-#include "platform/x11/logo.gen.h"
+#include "platform/linuxbsd/logo.gen.h"
 #include "scene/resources/texture.h"
 
 namespace X11_Export_CPP { namespace  {
@@ -146,13 +146,13 @@ static Error fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int
 
 }
 
-void register_x11_exporter() {
+void register_linuxbsd_exporter() {
     using namespace X11_Export_CPP;
     EditorExportPlatformPC::initialize_class();
 
     Ref<EditorExportPlatformPC> platform(make_ref_counted<EditorExportPlatformPC>());
 
-    Ref<Image> img(make_ref_counted<Image>(_x11_logo));
+    Ref<Image> img(make_ref_counted<Image>(_linuxbsd_logo));
     Ref<ImageTexture> logo(make_ref_counted<ImageTexture>());
     logo->create_from_image(img);
     platform->set_logo(logo);

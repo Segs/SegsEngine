@@ -197,7 +197,7 @@ void VisualScriptYield::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_wait_time"), &VisualScriptYield::get_wait_time);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Frame,Physics Frame,Time", PROPERTY_USAGE_NOEDITOR), "set_yield_mode", "get_yield_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wait_time"), "set_wait_time", "get_wait_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "wait_time"), "set_wait_time", "get_wait_time");
 
     BIND_ENUM_CONSTANT(YIELD_FRAME)
     BIND_ENUM_CONSTANT(YIELD_PHYSICS_FRAME)

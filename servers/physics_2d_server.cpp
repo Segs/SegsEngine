@@ -166,13 +166,13 @@ void Physics2DDirectBodyState::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("integrate_forces"), &Physics2DDirectBodyState::integrate_forces);
     MethodBinder::bind_method(D_METHOD("get_space_state"), &Physics2DDirectBodyState::get_space_state);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step"), "", "get_step");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "inverse_mass"), "", "get_inverse_mass");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "inverse_inertia"), "", "get_inverse_inertia");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_angular_damp"), "", "get_total_angular_damp");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "total_linear_damp"), "", "get_total_linear_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step"), "", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inverse_mass"), "", "get_inverse_mass");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inverse_inertia"), "", "get_inverse_inertia");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "total_angular_damp"), "", "get_total_angular_damp");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "total_linear_damp"), "", "get_total_linear_damp");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "total_gravity"), "", "get_total_gravity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "angular_velocity"), "set_angular_velocity", "get_angular_velocity");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "angular_velocity"), "set_angular_velocity", "get_angular_velocity");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "linear_velocity"), "set_linear_velocity", "get_linear_velocity");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sleeping"), "set_sleep_state", "is_sleeping");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform"), "set_transform", "get_transform");
@@ -298,7 +298,7 @@ void Physics2DShapeQueryParameters::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, (itos(int8_t(VariantType::_RID)) + ":")), "set_exclude", "get_exclude");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0,100,0.01"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0,100,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "motion"), "set_motion", "get_motion");
     //ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape2D"), "set_shape", ""); // FIXME: Lacks a getter
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "shape_rid"), "set_shape_rid", "get_shape_rid");

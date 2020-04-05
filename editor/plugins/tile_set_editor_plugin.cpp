@@ -3498,7 +3498,7 @@ void TilesetEditorContext::_get_property_list(Vector<PropertyInfo> *p_list) cons
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "selected_collision", PropertyHint::ResourceType, tileset_editor->edited_collision_shape->get_class()));
         if (tileset_editor->edited_collision_shape) {
             p_list->push_back(PropertyInfo(VariantType::BOOL, "selected_collision_one_way", PropertyHint::None));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "selected_collision_one_way_margin", PropertyHint::None));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "selected_collision_one_way_margin", PropertyHint::None));
         }
     }
     if (tileset_editor->edit_mode == TileSetEditor::EDITMODE_NAVIGATION && tileset_editor->edited_navigation_shape) {

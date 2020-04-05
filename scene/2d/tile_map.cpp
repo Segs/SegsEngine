@@ -1914,8 +1914,8 @@ void TileMap::_bind_methods() {
     ADD_GROUP("Collision", "collision_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_parent", PropertyHint::None, ""), "set_collision_use_parent", "get_collision_use_parent");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use_kinematic", PropertyHint::None, ""), "set_collision_use_kinematic", "get_collision_use_kinematic");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_friction", PropertyHint::Range, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "collision_bounce", PropertyHint::Range, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision_friction", PropertyHint::Range, "0,1,0.01"), "set_collision_friction", "get_collision_friction");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision_bounce", PropertyHint::Range, "0,1,0.01"), "set_collision_bounce", "get_collision_bounce");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers2DPhysics), "set_collision_layer", "get_collision_layer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers2DPhysics), "set_collision_mask", "get_collision_mask");
 

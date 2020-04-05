@@ -453,7 +453,7 @@ void AnimationNode::_bind_methods() {
         mi.return_val.usage = PROPERTY_USAGE_NIL_IS_VARIANT;
         BIND_VMETHOD(mi);
     }
-    BIND_VMETHOD(MethodInfo("process", PropertyInfo(VariantType::REAL, "time"), PropertyInfo(VariantType::BOOL, "seek")));
+    BIND_VMETHOD(MethodInfo("process", PropertyInfo(VariantType::FLOAT, "time"), PropertyInfo(VariantType::BOOL, "seek")));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_caption"));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "has_filter"));
 

@@ -1133,7 +1133,7 @@ static bool _guess_expression_type(GDScriptCompletionContext &p_context, const G
                         v2 = 1;
                         v2_use_value = false;
                     }
-                    if (vop == Variant::OP_DIVIDE && v2.get_type() == VariantType::REAL) {
+                    if (vop == Variant::OP_DIVIDE && v2.get_type() == VariantType::FLOAT) {
                         v2 = 1.0;
                         v2_use_value = false;
                     }

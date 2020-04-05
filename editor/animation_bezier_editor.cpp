@@ -1155,16 +1155,16 @@ void AnimationBezierTrackEdit::_bind_methods() {
     MethodBinder::bind_method("_clear_selection_for_anim", &AnimationBezierTrackEdit::_clear_selection_for_anim);
     MethodBinder::bind_method("_select_at_anim", &AnimationBezierTrackEdit::_select_at_anim);
 
-    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::REAL, "position"), PropertyInfo(VariantType::BOOL, "drag")));
+    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::FLOAT, "position"), PropertyInfo(VariantType::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("remove_request", PropertyInfo(VariantType::INT, "track")));
-    ADD_SIGNAL(MethodInfo("insert_key", PropertyInfo(VariantType::REAL, "ofs")));
+    ADD_SIGNAL(MethodInfo("insert_key", PropertyInfo(VariantType::FLOAT, "ofs")));
     ADD_SIGNAL(MethodInfo("select_key", PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::BOOL, "single")));
     ADD_SIGNAL(MethodInfo("deselect_key", PropertyInfo(VariantType::INT, "index")));
     ADD_SIGNAL(MethodInfo("clear_selection"));
     ADD_SIGNAL(MethodInfo("close_request"));
 
     ADD_SIGNAL(MethodInfo("move_selection_begin"));
-    ADD_SIGNAL(MethodInfo("move_selection", PropertyInfo(VariantType::REAL, "ofs")));
+    ADD_SIGNAL(MethodInfo("move_selection", PropertyInfo(VariantType::FLOAT, "ofs")));
     ADD_SIGNAL(MethodInfo("move_selection_commit"));
     ADD_SIGNAL(MethodInfo("move_selection_cancel"));
 }

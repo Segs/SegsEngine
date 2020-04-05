@@ -490,7 +490,7 @@ void ImageTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_reload_hook", {"rid"}), &ImageTexture::_reload_hook);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage", PropertyHint::Enum, "Uncompressed,Compress Lossy,Compress Lossless"), "set_storage", "get_storage");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lossy_quality", PropertyHint::Range, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lossy_quality", PropertyHint::Range, "0.0,1.0,0.01"), "set_lossy_storage_quality", "get_lossy_storage_quality");
 
     BIND_ENUM_CONSTANT(STORAGE_RAW)
     BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY)
@@ -1712,7 +1712,7 @@ void CubeMap::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter"), "set_flags", "get_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "storage_mode", PropertyHint::Enum, "Raw,Lossy Compressed,Lossless Compressed"), "set_storage", "get_storage");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lossy_storage_quality"), "set_lossy_storage_quality", "get_lossy_storage_quality");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lossy_storage_quality"), "set_lossy_storage_quality", "get_lossy_storage_quality");
 
     BIND_ENUM_CONSTANT(STORAGE_RAW)
     BIND_ENUM_CONSTANT(STORAGE_COMPRESS_LOSSY)
@@ -2227,11 +2227,11 @@ void AnimatedTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_proxy"), &AnimatedTexture::_update_proxy);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frames", PropertyHint::Range, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fps", PropertyHint::Range, "0,1024,0.1"), "set_fps", "get_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fps", PropertyHint::Range, "0,1024,0.1"), "set_fps", "get_fps");
 
     for (int i = 0; i < MAX_FRAMES; i++) {
         ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame_" + itos(i) + "/texture"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("frame_" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("frame_" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
     }
 
     BIND_CONSTANT(MAX_FRAMES);

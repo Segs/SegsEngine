@@ -32,6 +32,7 @@
 
 #include "core/engine.h"
 #include "core/class_db.h"
+#include "core/resource/resource_manager.h"
 
 #include "csharp_script.h"
 #include "signal_awaiter_utils.h"
@@ -54,7 +55,7 @@ void register_mono_types() {
     ScriptServer::register_language(script_language_cs);
 
     resource_loader_cs= make_ref_counted<ResourceFormatLoaderCSharpScript>();
-    ResourceLoader::add_resource_format_loader(resource_loader_cs);
+    gResourceManager().add_resource_format_loader(resource_loader_cs);
 
     resource_saver_cs=make_ref_counted<ResourceFormatSaverCSharpScript>();
     gResourceManager().add_resource_format_saver(resource_saver_cs);
@@ -68,10 +69,10 @@ void unregister_mono_types() {
     if (script_language_cs)
         memdelete(script_language_cs);
 
-    ResourceLoader::remove_resource_format_loader(resource_loader_cs);
+    gResourceManager().remove_resource_format_loader(resource_loader_cs);
     resource_loader_cs.unref();
 
-    ResourceSaver::remove_resource_format_saver(resource_saver_cs);
+    gResourceManager().remove_resource_format_saver(resource_saver_cs);
     resource_saver_cs.unref();
 
     if (_godotsharp)

@@ -319,14 +319,14 @@ void PathFollow2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_lookahead", {"lookahead"}), &PathFollow2D::set_lookahead);
     MethodBinder::bind_method(D_METHOD("get_lookahead"), &PathFollow2D::get_lookahead);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset", PropertyHint::Range, "0,10000,0.01,or_lesser,or_greater"), "set_offset", "get_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_offset", PropertyHint::Range, "0,1,0.0001,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "h_offset"), "set_h_offset", "get_h_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_offset"), "set_v_offset", "get_v_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset", PropertyHint::Range, "0,10000,0.01,or_lesser,or_greater"), "set_offset", "get_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_offset", PropertyHint::Range, "0,1,0.0001,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_unit_offset", "get_unit_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "h_offset"), "set_h_offset", "get_h_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "v_offset"), "set_v_offset", "get_v_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rotate"), "set_rotate", "is_rotating");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cubic_interp"), "set_cubic_interpolation", "get_cubic_interpolation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lookahead", PropertyHint::Range, "0.001,1024.0,0.001"), "set_lookahead", "get_lookahead");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lookahead", PropertyHint::Range, "0.001,1024.0,0.001"), "set_lookahead", "get_lookahead");
 }
 
 void PathFollow2D::set_offset(float p_offset) {

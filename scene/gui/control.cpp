@@ -2941,10 +2941,10 @@ void Control::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"))
 
     ADD_GROUP("Anchor", "anchor_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_top", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_right", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_bottom", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_top", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_right", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_bottom", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Bottom);
 
     ADD_GROUP("Margin", "margin_");
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_left", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", (int)Margin::Left);
@@ -2961,7 +2961,7 @@ void Control::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PropertyHint::None, "", 0), "_set_global_position", "get_global_position");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
@@ -2986,7 +2986,7 @@ void Control::_bind_methods() {
     ADD_GROUP("Size Flags", "size_flags_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
     ADD_GROUP("Theme", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");

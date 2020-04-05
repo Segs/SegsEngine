@@ -276,8 +276,8 @@ void AudioEffectSpectrumAnalyzer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_fft_size", {"size"}), &AudioEffectSpectrumAnalyzer::set_fft_size);
     MethodBinder::bind_method(D_METHOD("get_fft_size"), &AudioEffectSpectrumAnalyzer::get_fft_size);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "buffer_length", PropertyHint::Range, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "tap_back_pos", PropertyHint::Range, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "buffer_length", PropertyHint::Range, "0.1,4,0.1"), "set_buffer_length", "get_buffer_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tap_back_pos", PropertyHint::Range, "0.1,4,0.1"), "set_tap_back_pos", "get_tap_back_pos");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
 
     BIND_ENUM_CONSTANT(FFT_SIZE_256)

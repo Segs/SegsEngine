@@ -355,8 +355,8 @@ void AudioEffectPitchShift::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_fft_size", {"size"}), &AudioEffectPitchShift::set_fft_size);
     MethodBinder::bind_method(D_METHOD("get_fft_size"), &AudioEffectPitchShift::get_fft_size);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PropertyHint::Range, "0.01,16,0.01"), "set_pitch_scale", "get_pitch_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "oversampling", PropertyHint::Range, "4,32,1"), "set_oversampling", "get_oversampling");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pitch_scale", PropertyHint::Range, "0.01,16,0.01"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "oversampling", PropertyHint::Range, "4,32,1"), "set_oversampling", "get_oversampling");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fft_size", PropertyHint::Enum, "256,512,1024,2048,4096"), "set_fft_size", "get_fft_size");
 
     BIND_ENUM_CONSTANT(FFT_SIZE_256)

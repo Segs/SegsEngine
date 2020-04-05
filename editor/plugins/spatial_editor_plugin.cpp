@@ -5979,7 +5979,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
     EDITOR_DEF("editors/3d/manipulator_gizmo_size", 80);
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/3d/manipulator_gizmo_size", PropertyHint::Range, "16,1024,1"));
     EDITOR_DEF("editors/3d/manipulator_gizmo_opacity", 0.4);
-    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::REAL, "editors/3d/manipulator_gizmo_opacity", PropertyHint::Range, "0,1,0.01"));
+    EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::FLOAT, "editors/3d/manipulator_gizmo_opacity", PropertyHint::Range, "0,1,0.01"));
 
     over_gizmo_handle = -1;
 }

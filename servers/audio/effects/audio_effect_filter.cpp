@@ -170,9 +170,9 @@ void AudioEffectFilter::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_db", {"amount"}), &AudioEffectFilter::set_db);
     MethodBinder::bind_method(D_METHOD("get_db"), &AudioEffectFilter::get_db);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_cutoff", "get_cutoff");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "resonance", PropertyHint::Range, "0,1,0.01"), "set_resonance", "get_resonance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gain", PropertyHint::Range, "0,4,0.01"), "set_gain", "get_gain");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_cutoff", "get_cutoff");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "resonance", PropertyHint::Range, "0,1,0.01"), "set_resonance", "get_resonance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gain", PropertyHint::Range, "0,4,0.01"), "set_gain", "get_gain");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "db", PropertyHint::Enum, "6 dB,12 dB,18 dB,24 dB"), "set_db", "get_db");
 
     BIND_ENUM_CONSTANT(FILTER_6DB)

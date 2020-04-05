@@ -2989,8 +2989,8 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_priority"), "set_process_priority", "get_process_priority");
 
 
-    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::REAL, "delta")))
-    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::REAL, "delta")))
+    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::FLOAT, "delta")))
+    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::FLOAT, "delta")))
     BIND_VMETHOD(MethodInfo("_enter_tree"))
     BIND_VMETHOD(MethodInfo("_exit_tree"))
     BIND_VMETHOD(MethodInfo("_ready"))

@@ -543,16 +543,16 @@ void Camera::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "keep_aspect", PropertyHint::Enum, "Keep Width,Keep Height"), "set_keep_aspect_mode", "get_keep_aspect_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cull_mask", PropertyHint::Layers3DRenderer), "set_cull_mask", "get_cull_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "h_offset"), "set_h_offset", "get_h_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_offset"), "set_v_offset", "get_v_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "h_offset"), "set_h_offset", "get_h_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "v_offset"), "set_v_offset", "get_v_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "doppler_tracking", PropertyHint::Enum, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "projection", PropertyHint::Enum, "Perspective,Orthogonal,Frustum"), "set_projection", "get_projection");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "current"), "set_current", "is_current");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "fov", PropertyHint::Range, "1,179,0.1"), "set_fov", "get_fov");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size", PropertyHint::Range, "0.1,16384,0.01"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fov", PropertyHint::Range, "1,179,0.1"), "set_fov", "get_fov");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size", PropertyHint::Range, "0.1,16384,0.01"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frustum_offset"), "set_frustum_offset", "get_frustum_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "near", PropertyHint::ExpRange, "0.01,8192,0.01,or_greater"), "set_znear", "get_znear");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "far", PropertyHint::ExpRange, "0.1,8192,0.1,or_greater"), "set_zfar", "get_zfar");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "near", PropertyHint::ExpRange, "0.01,8192,0.01,or_greater"), "set_znear", "get_znear");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "far", PropertyHint::ExpRange, "0.1,8192,0.1,or_greater"), "set_zfar", "get_zfar");
 
     BIND_ENUM_CONSTANT(PROJECTION_PERSPECTIVE)
     BIND_ENUM_CONSTANT(PROJECTION_ORTHOGONAL)
@@ -926,7 +926,7 @@ void ClippedCamera::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("clear_exceptions"), &ClippedCamera::clear_exceptions);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0,32,0.01"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0,32,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle"), "set_process_mode", "get_process_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 

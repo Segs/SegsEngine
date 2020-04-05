@@ -180,7 +180,7 @@ void ConnectDialog::_add_bind() {
     switch (vt) {
         case VariantType::BOOL: value = false; break;
         case VariantType::INT: value = 0; break;
-        case VariantType::REAL: value = 0.0; break;
+        case VariantType::FLOAT: value = 0.0; break;
         case VariantType::STRING: value = ""; break;
         case VariantType::VECTOR2: value = Vector2(); break;
         case VariantType::RECT2: value = Rect2(); break;
@@ -427,7 +427,7 @@ ConnectDialog::ConnectDialog() {
     add_bind_hb->add_child(type_list);
     type_list->add_item("bool", (int)VariantType::BOOL);
     type_list->add_item("int", (int)VariantType::INT);
-    type_list->add_item("real", (int)VariantType::REAL);
+    type_list->add_item("real", (int)VariantType::FLOAT);
     type_list->add_item("String", (int)VariantType::STRING);
     type_list->add_item("Vector2", (int)VariantType::VECTOR2);
     type_list->add_item("Rect2", (int)VariantType::RECT2);

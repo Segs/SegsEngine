@@ -1676,14 +1676,14 @@ void AnimationPlayer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_animation", PropertyHint::Enum, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_ANIMATE_AS_TRIGGER), "set_current_animation", "get_current_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "assigned_animation", PropertyHint::None, "", 0), "set_assigned_animation", "get_assigned_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "autoplay", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_autoplay", "get_autoplay");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "current_animation_length", PropertyHint::None, "", 0), "", "get_current_animation_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "current_animation_position", PropertyHint::None, "", 0), "", "get_current_animation_position");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "current_animation_length", PropertyHint::None, "", 0), "", "get_current_animation_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "current_animation_position", PropertyHint::None, "", 0), "", "get_current_animation_position");
 
     ADD_GROUP("Playback Options", "playback_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PropertyHint::Enum, "Physics,Idle,Manual"), "set_animation_process_mode", "get_animation_process_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "playback_default_blend_time", PropertyHint::Range, "0,4096,0.01"), "set_default_blend_time", "get_default_blend_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "playback_default_blend_time", PropertyHint::Range, "0,4096,0.01"), "set_default_blend_time", "get_default_blend_time");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playback_active", PropertyHint::None, "", 0), "set_active", "is_active");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "playback_speed", PropertyHint::Range, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "playback_speed", PropertyHint::Range, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "method_call_mode", PropertyHint::Enum, "Deferred,Immediate"), "set_method_call_mode", "get_method_call_mode");
 
     ADD_SIGNAL(MethodInfo("animation_finished", PropertyInfo(VariantType::STRING, "anim_name")));

@@ -187,7 +187,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
         if (!p_args[m_arg]->is_num()) {                                      \
             r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; \
             r_error.argument = m_arg;                                        \
-            r_error.expected = VariantType::REAL;                                \
+            r_error.expected = VariantType::FLOAT;                           \
             r_ret = Variant();                                               \
             return;                                                          \
         }\
@@ -298,7 +298,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
                 int64_t i = *p_args[0];
                 r_ret = ABS(i);
-            } else if (p_args[0]->get_type() == VariantType::REAL) {
+            } else if (p_args[0]->get_type() == VariantType::FLOAT) {
 
                 double r = *p_args[0];
                 r_ret = Math::abs(r);
@@ -306,7 +306,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
-                r_error.expected = VariantType::REAL;
+                r_error.expected = VariantType::FLOAT;
                 r_ret = Variant();
             }
         } break;
@@ -316,7 +316,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
                 int64_t i = *p_args[0];
                 r_ret = i < 0 ? -1 : (i > 0 ? +1 : 0);
-            } else if (p_args[0]->get_type() == VariantType::REAL) {
+            } else if (p_args[0]->get_type() == VariantType::FLOAT) {
 
                 real_t r = *p_args[0];
                 r_ret = r < 0.0f ? -1.0f : (r > 0.0f ? +1.0f : 0.0f);
@@ -324,7 +324,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
-                r_error.expected = VariantType::REAL;
+                r_error.expected = VariantType::FLOAT;
                 r_ret = Variant();
             }
         } break;
@@ -386,7 +386,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
             VALIDATE_ARG_COUNT(3);
             VALIDATE_ARG_NUM(2);
             const double t = (double)*p_args[2];
-            switch (p_args[0]->get_type() == p_args[1]->get_type() ? p_args[0]->get_type() : VariantType::REAL) {
+            switch (p_args[0]->get_type() == p_args[1]->get_type() ? p_args[0]->get_type() : VariantType::FLOAT) {
                 case VariantType::VECTOR2: {
                     r_ret = ((Vector2)*p_args[0]).linear_interpolate((Vector2)*p_args[1], t);
                 } break;
@@ -1387,7 +1387,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
         case INSTANCE_FROM_ID: {
 
             VALIDATE_ARG_COUNT(1);
-            if (p_args[0]->get_type() != VariantType::INT && p_args[0]->get_type() != VariantType::REAL) {
+            if (p_args[0]->get_type() != VariantType::INT && p_args[0]->get_type() != VariantType::FLOAT) {
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
                 r_error.expected = VariantType::INT;
@@ -1559,69 +1559,69 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
     switch (p_func) {
 
         case MATH_SIN: {
-            MethodInfo mi("sin", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("sin", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
 
         } break;
         case MATH_COS: {
-            MethodInfo mi("cos", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("cos", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_TAN: {
-            MethodInfo mi("tan", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("tan", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_SINH: {
-            MethodInfo mi("sinh", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("sinh", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_COSH: {
-            MethodInfo mi("cosh", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("cosh", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_TANH: {
-            MethodInfo mi("tanh", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("tanh", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ASIN: {
-            MethodInfo mi("asin", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("asin", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ACOS: {
-            MethodInfo mi("acos", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("acos", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ATAN: {
-            MethodInfo mi("atan", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("atan", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ATAN2: {
-            MethodInfo mi("atan2", PropertyInfo(VariantType::REAL, "y"), PropertyInfo(VariantType::REAL, "x"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("atan2", PropertyInfo(VariantType::FLOAT, "y"), PropertyInfo(VariantType::FLOAT, "x"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_SQRT: {
-            MethodInfo mi("sqrt", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("sqrt", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_FMOD: {
-            MethodInfo mi("fmod", PropertyInfo(VariantType::REAL, "a"), PropertyInfo(VariantType::REAL, "b"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("fmod", PropertyInfo(VariantType::FLOAT, "a"), PropertyInfo(VariantType::FLOAT, "b"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_FPOSMOD: {
-            MethodInfo mi("fposmod", PropertyInfo(VariantType::REAL, "a"), PropertyInfo(VariantType::REAL, "b"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("fposmod", PropertyInfo(VariantType::FLOAT, "a"), PropertyInfo(VariantType::FLOAT, "b"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_POSMOD: {
@@ -1630,114 +1630,114 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
             return mi;
         } break;
         case MATH_FLOOR: {
-            MethodInfo mi("floor", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("floor", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_CEIL: {
-            MethodInfo mi("ceil", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("ceil", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ROUND: {
-            MethodInfo mi("round", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("round", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ABS: {
-            MethodInfo mi("abs", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("abs", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_SIGN: {
-            MethodInfo mi("sign", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("sign", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_POW: {
-            MethodInfo mi("pow", PropertyInfo(VariantType::REAL, "base"), PropertyInfo(VariantType::REAL, "exp"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("pow", PropertyInfo(VariantType::FLOAT, "base"), PropertyInfo(VariantType::FLOAT, "exp"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_LOG: {
-            MethodInfo mi("log", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("log", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_EXP: {
-            MethodInfo mi("exp", PropertyInfo(VariantType::REAL, "s"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("exp", PropertyInfo(VariantType::FLOAT, "s"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_ISNAN: {
-            MethodInfo mi("is_nan", PropertyInfo(VariantType::REAL, "s"));
+            MethodInfo mi("is_nan", PropertyInfo(VariantType::FLOAT, "s"));
             mi.return_val.type = VariantType::BOOL;
             return mi;
         } break;
         case MATH_ISINF: {
-            MethodInfo mi("is_inf", PropertyInfo(VariantType::REAL, "s"));
+            MethodInfo mi("is_inf", PropertyInfo(VariantType::FLOAT, "s"));
             mi.return_val.type = VariantType::BOOL;
             return mi;
         } break;
         case MATH_ISEQUALAPPROX: {
-            MethodInfo mi("is_equal_approx", PropertyInfo(VariantType::REAL, "a"), PropertyInfo(VariantType::REAL, "b"));
+            MethodInfo mi("is_equal_approx", PropertyInfo(VariantType::FLOAT, "a"), PropertyInfo(VariantType::FLOAT, "b"));
             mi.return_val.type = VariantType::BOOL;
             return mi;
         } break;
         case MATH_ISZEROAPPROX: {
-            MethodInfo mi("is_zero_approx", PropertyInfo(VariantType::REAL, "s"));
+            MethodInfo mi("is_zero_approx", PropertyInfo(VariantType::FLOAT, "s"));
             mi.return_val.type = VariantType::BOOL;
             return mi;
         } break;
         case MATH_EASE: {
-            MethodInfo mi("ease", PropertyInfo(VariantType::REAL, "s"), PropertyInfo(VariantType::REAL, "curve"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("ease", PropertyInfo(VariantType::FLOAT, "s"), PropertyInfo(VariantType::FLOAT, "curve"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         }
         case MATH_STEP_DECIMALS: {
-            MethodInfo mi("step_decimals", PropertyInfo(VariantType::REAL, "step"));
+            MethodInfo mi("step_decimals", PropertyInfo(VariantType::FLOAT, "step"));
             mi.return_val.type = VariantType::INT;
             return mi;
         }
         case MATH_STEPIFY: {
-            MethodInfo mi("stepify", PropertyInfo(VariantType::REAL, "s"), PropertyInfo(VariantType::REAL, "step"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("stepify", PropertyInfo(VariantType::FLOAT, "s"), PropertyInfo(VariantType::FLOAT, "step"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         }
         case MATH_LERP: {
-            MethodInfo mi("lerp", PropertyInfo(VariantType::NIL, "from"), PropertyInfo(VariantType::NIL, "to"), PropertyInfo(VariantType::REAL, "weight"));
+            MethodInfo mi("lerp", PropertyInfo(VariantType::NIL, "from"), PropertyInfo(VariantType::NIL, "to"), PropertyInfo(VariantType::FLOAT, "weight"));
             mi.return_val.type = VariantType::NIL;
             mi.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
             return mi;
         }
         case MATH_LERP_ANGLE: {
-            MethodInfo mi("lerp_angle", PropertyInfo(VariantType::REAL, "from"), PropertyInfo(VariantType::REAL, "to"), PropertyInfo(VariantType::REAL, "weight"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("lerp_angle", PropertyInfo(VariantType::FLOAT, "from"), PropertyInfo(VariantType::FLOAT, "to"), PropertyInfo(VariantType::FLOAT, "weight"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_INVERSE_LERP: {
-            MethodInfo mi("inverse_lerp", PropertyInfo(VariantType::REAL, "from"), PropertyInfo(VariantType::REAL, "to"), PropertyInfo(VariantType::REAL, "weight"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("inverse_lerp", PropertyInfo(VariantType::FLOAT, "from"), PropertyInfo(VariantType::FLOAT, "to"), PropertyInfo(VariantType::FLOAT, "weight"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_RANGE_LERP: {
-            MethodInfo mi("range_lerp", PropertyInfo(VariantType::REAL, "value"), PropertyInfo(VariantType::REAL, "istart"), PropertyInfo(VariantType::REAL, "istop"), PropertyInfo(VariantType::REAL, "ostart"), PropertyInfo(VariantType::REAL, "ostop"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("range_lerp", PropertyInfo(VariantType::FLOAT, "value"), PropertyInfo(VariantType::FLOAT, "istart"), PropertyInfo(VariantType::FLOAT, "istop"), PropertyInfo(VariantType::FLOAT, "ostart"), PropertyInfo(VariantType::FLOAT, "ostop"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_SMOOTHSTEP: {
-            MethodInfo mi("smoothstep", PropertyInfo(VariantType::REAL, "from"), PropertyInfo(VariantType::REAL, "to"), PropertyInfo(VariantType::REAL, "weight"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("smoothstep", PropertyInfo(VariantType::FLOAT, "from"), PropertyInfo(VariantType::FLOAT, "to"), PropertyInfo(VariantType::FLOAT, "weight"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_MOVE_TOWARD: {
-            MethodInfo mi("move_toward", PropertyInfo(VariantType::REAL, "from"), PropertyInfo(VariantType::REAL, "to"), PropertyInfo(VariantType::REAL, "delta"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("move_toward", PropertyInfo(VariantType::FLOAT, "from"), PropertyInfo(VariantType::FLOAT, "to"), PropertyInfo(VariantType::FLOAT, "delta"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_DECTIME: {
-            MethodInfo mi("dectime", PropertyInfo(VariantType::REAL, "value"), PropertyInfo(VariantType::REAL, "amount"), PropertyInfo(VariantType::REAL, "step"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("dectime", PropertyInfo(VariantType::FLOAT, "value"), PropertyInfo(VariantType::FLOAT, "amount"), PropertyInfo(VariantType::FLOAT, "step"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_RANDOMIZE: {
@@ -1752,12 +1752,12 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
         } break;
         case MATH_RANDF: {
             MethodInfo mi("randf");
-            mi.return_val.type = VariantType::REAL;
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_RANDOM: {
-            MethodInfo mi("rand_range", PropertyInfo(VariantType::REAL, "from"), PropertyInfo(VariantType::REAL, "to"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("rand_range", PropertyInfo(VariantType::FLOAT, "from"), PropertyInfo(VariantType::FLOAT, "to"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_SEED: {
@@ -1771,32 +1771,32 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
             return mi;
         } break;
         case MATH_DEG2RAD: {
-            MethodInfo mi("deg2rad", PropertyInfo(VariantType::REAL, "deg"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("deg2rad", PropertyInfo(VariantType::FLOAT, "deg"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_RAD2DEG: {
-            MethodInfo mi("rad2deg", PropertyInfo(VariantType::REAL, "rad"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("rad2deg", PropertyInfo(VariantType::FLOAT, "rad"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_LINEAR2DB: {
-            MethodInfo mi("linear2db", PropertyInfo(VariantType::REAL, "nrg"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("linear2db", PropertyInfo(VariantType::FLOAT, "nrg"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_DB2LINEAR: {
-            MethodInfo mi("db2linear", PropertyInfo(VariantType::REAL, "db"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("db2linear", PropertyInfo(VariantType::FLOAT, "db"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case MATH_POLAR2CARTESIAN: {
-            MethodInfo mi("polar2cartesian", PropertyInfo(VariantType::REAL, "r"), PropertyInfo(VariantType::REAL, "th"));
+            MethodInfo mi("polar2cartesian", PropertyInfo(VariantType::FLOAT, "r"), PropertyInfo(VariantType::FLOAT, "th"));
             mi.return_val.type = VariantType::VECTOR2;
             return mi;
         } break;
         case MATH_CARTESIAN2POLAR: {
-            MethodInfo mi("cartesian2polar", PropertyInfo(VariantType::REAL, "x"), PropertyInfo(VariantType::REAL, "y"));
+            MethodInfo mi("cartesian2polar", PropertyInfo(VariantType::FLOAT, "x"), PropertyInfo(VariantType::FLOAT, "y"));
             mi.return_val.type = VariantType::VECTOR2;
             return mi;
         } break;
@@ -1806,24 +1806,24 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
             return mi;
         } break;
         case MATH_WRAPF: {
-            MethodInfo mi("wrapf", PropertyInfo(VariantType::REAL, "value"), PropertyInfo(VariantType::REAL, "min"), PropertyInfo(VariantType::REAL, "max"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("wrapf", PropertyInfo(VariantType::FLOAT, "value"), PropertyInfo(VariantType::FLOAT, "min"), PropertyInfo(VariantType::FLOAT, "max"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case LOGIC_MAX: {
-            MethodInfo mi("max", PropertyInfo(VariantType::REAL, "a"), PropertyInfo(VariantType::REAL, "b"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("max", PropertyInfo(VariantType::FLOAT, "a"), PropertyInfo(VariantType::FLOAT, "b"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
 
         } break;
         case LOGIC_MIN: {
-            MethodInfo mi("min", PropertyInfo(VariantType::REAL, "a"), PropertyInfo(VariantType::REAL, "b"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("min", PropertyInfo(VariantType::FLOAT, "a"), PropertyInfo(VariantType::FLOAT, "b"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case LOGIC_CLAMP: {
-            MethodInfo mi("clamp", PropertyInfo(VariantType::REAL, "value"), PropertyInfo(VariantType::REAL, "min"), PropertyInfo(VariantType::REAL, "max"));
-            mi.return_val.type = VariantType::REAL;
+            MethodInfo mi("clamp", PropertyInfo(VariantType::FLOAT, "value"), PropertyInfo(VariantType::FLOAT, "min"), PropertyInfo(VariantType::FLOAT, "max"));
+            mi.return_val.type = VariantType::FLOAT;
             return mi;
         } break;
         case LOGIC_NEAREST_PO2: {
@@ -2039,7 +2039,7 @@ MethodInfo GDScriptFunctions::get_info(Function p_func) {
         }
         case COLORN: {
 
-            MethodInfo mi("ColorN", PropertyInfo(VariantType::STRING, "name"), PropertyInfo(VariantType::REAL, "alpha"));
+            MethodInfo mi("ColorN", PropertyInfo(VariantType::STRING, "name"), PropertyInfo(VariantType::FLOAT, "alpha"));
             mi.default_arguments.push_back(1.0f);
             mi.return_val.type = VariantType::COLOR;
             return mi;

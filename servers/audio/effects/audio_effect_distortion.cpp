@@ -179,10 +179,10 @@ void AudioEffectDistortion::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_post_gain"), &AudioEffectDistortion::get_post_gain);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Clip,ATan,LoFi,Overdrive,WaveShape"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pre_gain", PropertyHint::Range, "-60,60,0.01"), "set_pre_gain", "get_pre_gain");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "keep_hf_hz", PropertyHint::Range, "1,20500,1"), "set_keep_hf_hz", "get_keep_hf_hz");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "drive", PropertyHint::Range, "0,1,0.01"), "set_drive", "get_drive");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "post_gain", PropertyHint::Range, "-80,24,0.01"), "set_post_gain", "get_post_gain");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pre_gain", PropertyHint::Range, "-60,60,0.01"), "set_pre_gain", "get_pre_gain");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "keep_hf_hz", PropertyHint::Range, "1,20500,1"), "set_keep_hf_hz", "get_keep_hf_hz");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "drive", PropertyHint::Range, "0,1,0.01"), "set_drive", "get_drive");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "post_gain", PropertyHint::Range, "-80,24,0.01"), "set_post_gain", "get_post_gain");
 
     BIND_ENUM_CONSTANT(MODE_CLIP)
     BIND_ENUM_CONSTANT(MODE_ATAN)

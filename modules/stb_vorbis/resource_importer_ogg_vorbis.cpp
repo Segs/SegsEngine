@@ -75,7 +75,7 @@ StringName ResourceImporterOGGVorbis::get_preset_name(int p_idx) const {
 void ResourceImporterOGGVorbis::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "loop"), true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "loop_offset"), 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "loop_offset"), 0));
 }
 
 Error ResourceImporterOGGVorbis::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,

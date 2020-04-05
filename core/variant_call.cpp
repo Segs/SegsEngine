@@ -1320,7 +1320,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             // atomic types
             case VariantType::BOOL: return Variant(false);
             case VariantType::INT: return 0;
-            case VariantType::REAL: return 0.0f;
+            case VariantType::FLOAT: return 0.0f;
             case VariantType::STRING:
                 return String();
 
@@ -1374,7 +1374,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             case VariantType::INT: {
                 return (int64_t(*p_args[0]));
             }
-            case VariantType::REAL: {
+            case VariantType::FLOAT: {
                 return real_t(*p_args[0]);
             }
             case VariantType::STRING: {
@@ -1786,7 +1786,7 @@ void register_variant_methods() {
     ADDFUNC0R(STRING, BOOL, String, is_valid_ip_address)
     ADDFUNC0R(STRING, BOOL, String, is_valid_filename)
     ADDFUNC0R(STRING, INT, String, to_int)
-    ADDFUNC0R(STRING, REAL, String, to_float)
+    ADDFUNC0R(STRING, FLOAT, String, to_float)
     ADDFUNC0R(STRING, INT, String, hex_to_int)
     ADDFUNC1R(STRING, STRING, String, pad_decimals, INT, "digits")
     ADDFUNC1R(STRING, STRING, String, pad_zeros, INT, "digits")
@@ -1797,40 +1797,40 @@ void register_variant_methods() {
     ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, to_utf8)
 
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, normalized)
-    ADDFUNC0R(VECTOR2, REAL, Vector2, length)
-    ADDFUNC0R(VECTOR2, REAL, Vector2, angle)
-    ADDFUNC0R(VECTOR2, REAL, Vector2, length_squared)
+    ADDFUNC0R(VECTOR2, FLOAT, Vector2, length)
+    ADDFUNC0R(VECTOR2, FLOAT, Vector2, angle)
+    ADDFUNC0R(VECTOR2, FLOAT, Vector2, length_squared)
     ADDFUNC0R(VECTOR2, BOOL, Vector2, is_normalized)
     ADDFUNC1R(VECTOR2, BOOL, Vector2, is_equal_approx, VECTOR2, "v");
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, direction_to, VECTOR2, "b")
-    ADDFUNC1R(VECTOR2, REAL, Vector2, distance_to, VECTOR2, "to")
-    ADDFUNC1R(VECTOR2, REAL, Vector2, distance_squared_to, VECTOR2, "to")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, posmod, REAL, "mod")
+    ADDFUNC1R(VECTOR2, FLOAT, Vector2, distance_to, VECTOR2, "to")
+    ADDFUNC1R(VECTOR2, FLOAT, Vector2, distance_squared_to, VECTOR2, "to")
+    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, posmod, FLOAT, "mod")
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, posmodv, VECTOR2, "modv")
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, project, VECTOR2, "b")
-    ADDFUNC1R(VECTOR2, REAL, Vector2, angle_to, VECTOR2, "to")
-    ADDFUNC1R(VECTOR2, REAL, Vector2, angle_to_point, VECTOR2, "to")
-    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, linear_interpolate, VECTOR2, "b", REAL, "t")
-    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, slerp, VECTOR2, "b", REAL, "t")
-    ADDFUNC4R(VECTOR2, VECTOR2, Vector2, cubic_interpolate, VECTOR2, "b", VECTOR2, "pre_a", VECTOR2, "post_b", REAL, "t")
-    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, move_toward, VECTOR2, "to", REAL, "delta")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, rotated, REAL, "phi")
+    ADDFUNC1R(VECTOR2, FLOAT, Vector2, angle_to, VECTOR2, "to")
+    ADDFUNC1R(VECTOR2, FLOAT, Vector2, angle_to_point, VECTOR2, "to")
+    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, linear_interpolate, VECTOR2, "b", FLOAT, "t")
+    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, slerp, VECTOR2, "b", FLOAT, "t")
+    ADDFUNC4R(VECTOR2, VECTOR2, Vector2, cubic_interpolate, VECTOR2, "b", VECTOR2, "pre_a", VECTOR2, "post_b", FLOAT, "t")
+    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, move_toward, VECTOR2, "to", FLOAT, "delta")
+    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, rotated, FLOAT, "phi")
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, tangent)
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, floor)
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, ceil)
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, round)
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, snapped, VECTOR2, "by")
-    ADDFUNC0R(VECTOR2, REAL, Vector2, aspect)
-    ADDFUNC1R(VECTOR2, REAL, Vector2, dot, VECTOR2, "with")
+    ADDFUNC0R(VECTOR2, FLOAT, Vector2, aspect)
+    ADDFUNC1R(VECTOR2, FLOAT, Vector2, dot, VECTOR2, "with")
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, slide, VECTOR2, "n")
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, bounce, VECTOR2, "n")
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, reflect, VECTOR2, "n")
-    ADDFUNC1R(VECTOR2, REAL, Vector2, cross, VECTOR2, "with")
+    ADDFUNC1R(VECTOR2, FLOAT, Vector2, cross, VECTOR2, "with")
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, abs)
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, clamped, REAL, "length")
+    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, clamped, FLOAT, "length")
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, sign)
 
-    ADDFUNC0R(RECT2, REAL, Rect2, get_area)
+    ADDFUNC0R(RECT2, FLOAT, Rect2, get_area)
     ADDFUNC2R(RECT2, BOOL, Rect2, intersects, RECT2, "b", BOOL,"include_borders", false)
     ADDFUNC1R(RECT2, BOOL, Rect2, encloses, RECT2, "b")
     ADDFUNC0R(RECT2, BOOL, Rect2, has_no_area)
@@ -1838,28 +1838,28 @@ void register_variant_methods() {
     ADDFUNC1R(RECT2, RECT2, Rect2, merge, RECT2, "b")
     ADDFUNC1R(RECT2, BOOL, Rect2, has_point, VECTOR2, "point")
     ADDFUNC1R(RECT2, BOOL, Rect2, is_equal_approx, RECT2, "rect")
-    ADDFUNC1R(RECT2, RECT2, Rect2, grow, REAL, "by")
-    ADDFUNC2R(RECT2, RECT2, Rect2, grow_margin, INT, "margin", REAL, "by")
-    ADDFUNC4R(RECT2, RECT2, Rect2, grow_individual, REAL, "left", REAL, "top", REAL, "right", REAL, " bottom")
+    ADDFUNC1R(RECT2, RECT2, Rect2, grow, FLOAT, "by")
+    ADDFUNC2R(RECT2, RECT2, Rect2, grow_margin, INT, "margin", FLOAT, "by")
+    ADDFUNC4R(RECT2, RECT2, Rect2, grow_individual, FLOAT, "left", FLOAT, "top", FLOAT, "right", FLOAT, " bottom")
     ADDFUNC1R(RECT2, RECT2, Rect2, expand, VECTOR2, "to")
     ADDFUNC0R(RECT2, RECT2, Rect2, abs)
 
     ADDFUNC0R(VECTOR3, INT, Vector3, min_axis)
     ADDFUNC0R(VECTOR3, INT, Vector3, max_axis)
-    ADDFUNC0R(VECTOR3, REAL, Vector3, length)
-    ADDFUNC0R(VECTOR3, REAL, Vector3, length_squared)
+    ADDFUNC0R(VECTOR3, FLOAT, Vector3, length)
+    ADDFUNC0R(VECTOR3, FLOAT, Vector3, length_squared)
     ADDFUNC0R(VECTOR3, BOOL, Vector3, is_normalized)
     ADDFUNC1R(VECTOR3, BOOL, Vector3, is_equal_approx, VECTOR3, "v");
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, normalized)
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, inverse)
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, snapped, VECTOR3, "by")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, rotated, VECTOR3, "axis", REAL, "phi")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, linear_interpolate, VECTOR3, "b", REAL, "t")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, slerp, VECTOR3, "b", REAL, "t")
-    ADDFUNC4R(VECTOR3, VECTOR3, Vector3, cubic_interpolate, VECTOR3, "b", VECTOR3, "pre_a", VECTOR3, "post_b", REAL, "t")
+    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, rotated, VECTOR3, "axis", FLOAT, "phi")
+    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, linear_interpolate, VECTOR3, "b", FLOAT, "t")
+    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, slerp, VECTOR3, "b", FLOAT, "t")
+    ADDFUNC4R(VECTOR3, VECTOR3, Vector3, cubic_interpolate, VECTOR3, "b", VECTOR3, "pre_a", VECTOR3, "post_b", FLOAT, "t")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, direction_to, VECTOR3, "b")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, move_toward, VECTOR3, "to", REAL, "delta")
-    ADDFUNC1R(VECTOR3, REAL, Vector3, dot, VECTOR3, "b")
+    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, move_toward, VECTOR3, "to", FLOAT, "delta")
+    ADDFUNC1R(VECTOR3, FLOAT, Vector3, dot, VECTOR3, "b")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, cross, VECTOR3, "b")
     ADDFUNC1R(VECTOR3, BASIS, Vector3, outer, VECTOR3, "b")
     ADDFUNC0R(VECTOR3, BASIS, Vector3, to_diagonal_matrix)
@@ -1867,12 +1867,12 @@ void register_variant_methods() {
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, floor)
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, ceil)
     ADDFUNC0R(VECTOR3, VECTOR3, Vector3, round)
-    ADDFUNC1R(VECTOR3, REAL, Vector3, distance_to, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, REAL, Vector3, distance_squared_to, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, posmod, REAL, "mod")
+    ADDFUNC1R(VECTOR3, FLOAT, Vector3, distance_to, VECTOR3, "b")
+    ADDFUNC1R(VECTOR3, FLOAT, Vector3, distance_squared_to, VECTOR3, "b")
+    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, posmod, FLOAT, "mod")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, posmodv, VECTOR3, "modv")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, project, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, REAL, Vector3, angle_to, VECTOR3, "to")
+    ADDFUNC1R(VECTOR3, FLOAT, Vector3, angle_to, VECTOR3, "to")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, slide, VECTOR3, "n")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, bounce, VECTOR3, "n")
     ADDFUNC1R(VECTOR3, VECTOR3, Vector3, reflect, VECTOR3, "n")
@@ -1883,27 +1883,27 @@ void register_variant_methods() {
     ADDFUNC0R(PLANE, VECTOR3, Plane, get_any_point)
     ADDFUNC1R(PLANE, BOOL, Plane, is_equal_approx, PLANE, "plane")
     ADDFUNC1R(PLANE, BOOL, Plane, is_point_over, VECTOR3, "point")
-    ADDFUNC1R(PLANE, REAL, Plane, distance_to, VECTOR3, "point")
-    ADDFUNC2R(PLANE, BOOL, Plane, has_point, VECTOR3, "point", REAL, "epsilon", CMP_EPSILON)
+    ADDFUNC1R(PLANE, FLOAT, Plane, distance_to, VECTOR3, "point")
+    ADDFUNC2R(PLANE, BOOL, Plane, has_point, VECTOR3, "point", FLOAT, "epsilon", CMP_EPSILON)
     ADDFUNC1R(PLANE, VECTOR3, Plane, project, VECTOR3, "point")
     ADDFUNC2R(PLANE, VECTOR3, Plane, intersect_3, PLANE, "b", PLANE, "c")
     ADDFUNC2R(PLANE, VECTOR3, Plane, intersects_ray, VECTOR3, "from", VECTOR3, "dir")
     ADDFUNC2R(PLANE, VECTOR3, Plane, intersects_segment, VECTOR3, "begin", VECTOR3, "end")
 
-    ADDFUNC0R(QUAT, REAL, Quat, length)
-    ADDFUNC0R(QUAT, REAL, Quat, length_squared)
+    ADDFUNC0R(QUAT, FLOAT, Quat, length)
+    ADDFUNC0R(QUAT, FLOAT, Quat, length_squared)
     ADDFUNC0R(QUAT, QUAT, Quat, normalized)
     ADDFUNC0R(QUAT, BOOL, Quat, is_normalized)
     ADDFUNC1R(QUAT, BOOL, Quat, is_equal_approx, QUAT, "quat")
     ADDFUNC0R(QUAT, QUAT, Quat, inverse)
-    ADDFUNC1R(QUAT, REAL, Quat, dot, QUAT, "b")
+    ADDFUNC1R(QUAT, FLOAT, Quat, dot, QUAT, "b")
     ADDFUNC1R(QUAT, VECTOR3, Quat, xform, VECTOR3, "v")
-    ADDFUNC2R(QUAT, QUAT, Quat, slerp, QUAT, "b", REAL, "t")
-    ADDFUNC2R(QUAT, QUAT, Quat, slerpni, QUAT, "b", REAL, "t")
-    ADDFUNC4R(QUAT, QUAT, Quat, cubic_slerp, QUAT, "b", QUAT, "pre_a", QUAT, "post_b", REAL, "t")
+    ADDFUNC2R(QUAT, QUAT, Quat, slerp, QUAT, "b", FLOAT, "t")
+    ADDFUNC2R(QUAT, QUAT, Quat, slerpni, QUAT, "b", FLOAT, "t")
+    ADDFUNC4R(QUAT, QUAT, Quat, cubic_slerp, QUAT, "b", QUAT, "pre_a", QUAT, "post_b", FLOAT, "t")
     ADDFUNC0R(QUAT, VECTOR3, Quat, get_euler)
     ADDFUNC1(QUAT, NIL, Quat, set_euler, VECTOR3, "euler")
-    ADDFUNC2(QUAT, NIL, Quat, set_axis_angle, VECTOR3, "axis", REAL, "angle")
+    ADDFUNC2(QUAT, NIL, Quat, set_axis_angle, VECTOR3, "axis", FLOAT, "angle")
 
     ADDFUNC0R(COLOR, INT, Color, to_argb32)
     ADDFUNC0R(COLOR, INT, Color, to_abgr32)
@@ -1911,15 +1911,15 @@ void register_variant_methods() {
     ADDFUNC0R(COLOR, INT, Color, to_argb64)
     ADDFUNC0R(COLOR, INT, Color, to_abgr64)
     ADDFUNC0R(COLOR, INT, Color, to_rgba64)
-    ADDFUNC0R(COLOR, REAL, Color, get_v)
+    ADDFUNC0R(COLOR, FLOAT, Color, get_v)
     ADDFUNC0R(COLOR, COLOR, Color, inverted)
     ADDFUNC0R(COLOR, COLOR, Color, contrasted)
-    ADDFUNC2R(COLOR, COLOR, Color, linear_interpolate, COLOR, "b", REAL, "t")
+    ADDFUNC2R(COLOR, COLOR, Color, linear_interpolate, COLOR, "b", FLOAT, "t")
     ADDFUNC1R(COLOR, COLOR, Color, blend, COLOR, "over")
-    ADDFUNC1R(COLOR, COLOR, Color, lightened, REAL, "amount")
-    ADDFUNC1R(COLOR, COLOR, Color, darkened, REAL, "amount")
+    ADDFUNC1R(COLOR, COLOR, Color, lightened, FLOAT, "amount")
+    ADDFUNC1R(COLOR, COLOR, Color, darkened, FLOAT, "amount")
     ADDFUNC1R(COLOR, STRING, Color, to_html, BOOL, "with_alpha", {true})
-    ADDFUNC4R(COLOR, COLOR, Color, from_hsv, REAL, "h", REAL, "s", REAL, "v", REAL, "a", {1.0})
+    ADDFUNC4R(COLOR, COLOR, Color, from_hsv, FLOAT, "h", FLOAT, "s", FLOAT, "v", FLOAT, "a", {1.0})
 
     ADDFUNC0R(_RID, INT, RID, get_id)
 
@@ -2006,12 +2006,12 @@ void register_variant_methods() {
 
     ADDFUNC0R(POOL_REAL_ARRAY, INT, PoolRealArray, size)
     ADDFUNC0R(POOL_REAL_ARRAY, INT, PoolRealArray, empty)
-    ADDFUNC2(POOL_REAL_ARRAY, NIL, PoolRealArray, set, INT, "idx", REAL, "value")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, push_back, REAL, "value")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, append, REAL, "value")
+    ADDFUNC2(POOL_REAL_ARRAY, NIL, PoolRealArray, set, INT, "idx", FLOAT, "value")
+    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, push_back, FLOAT, "value")
+    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, append, FLOAT, "value")
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, append_array, POOL_REAL_ARRAY, "array")
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_REAL_ARRAY, INT, PoolRealArray, insert, INT, "idx", REAL, "value")
+    ADDFUNC2R(POOL_REAL_ARRAY, INT, PoolRealArray, insert, INT, "idx", FLOAT, "value")
     ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, resize, INT, "idx")
     ADDFUNC0(POOL_REAL_ARRAY, NIL, PoolRealArray, invert)
 
@@ -2062,7 +2062,7 @@ void register_variant_methods() {
 
     //pointerbased
 
-    ADDFUNC0R(AABB, REAL, AABB, get_area)
+    ADDFUNC0R(AABB, FLOAT, AABB, get_area)
     ADDFUNC0R(AABB, BOOL, AABB, has_no_area)
     ADDFUNC0R(AABB, BOOL, AABB, has_no_surface)
     ADDFUNC1R(AABB, BOOL, AABB, intersects, AABB, "with")
@@ -2075,85 +2075,85 @@ void register_variant_methods() {
     ADDFUNC1R(AABB, VECTOR3, AABB, get_support, VECTOR3, "dir")
     ADDFUNC0R(AABB, VECTOR3, AABB, get_longest_axis)
     ADDFUNC0R(AABB, INT, AABB, get_longest_axis_index)
-    ADDFUNC0R(AABB, REAL, AABB, get_longest_axis_size)
+    ADDFUNC0R(AABB, FLOAT, AABB, get_longest_axis_size)
     ADDFUNC0R(AABB, VECTOR3, AABB, get_shortest_axis)
     ADDFUNC0R(AABB, INT, AABB, get_shortest_axis_index)
-    ADDFUNC0R(AABB, REAL, AABB, get_shortest_axis_size)
+    ADDFUNC0R(AABB, FLOAT, AABB, get_shortest_axis_size)
     ADDFUNC1R(AABB, AABB, AABB, expand, VECTOR3, "to_point")
-    ADDFUNC1R(AABB, AABB, AABB, grow, REAL, "by")
+    ADDFUNC1R(AABB, AABB, AABB, grow, FLOAT, "by")
     ADDFUNC1R(AABB, VECTOR3, AABB, get_endpoint, INT, "idx")
 
     ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, inverse)
     ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, affine_inverse)
-    ADDFUNC0R(TRANSFORM2D, REAL, Transform2D, get_rotation)
+    ADDFUNC0R(TRANSFORM2D, FLOAT, Transform2D, get_rotation)
     ADDFUNC0R(TRANSFORM2D, VECTOR2, Transform2D, get_origin)
     ADDFUNC0R(TRANSFORM2D, VECTOR2, Transform2D, get_scale)
     ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, orthonormalized)
-    ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, rotated, REAL, "phi")
+    ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, rotated, FLOAT, "phi")
     ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, scaled, VECTOR2, "scale")
     ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, translated, VECTOR2, "offset")
     ADDFUNC1R(TRANSFORM2D, NIL, Transform2D, xform, NIL, "v")
     ADDFUNC1R(TRANSFORM2D, NIL, Transform2D, xform_inv, NIL, "v")
     ADDFUNC1R(TRANSFORM2D, VECTOR2, Transform2D, basis_xform, VECTOR2, "v")
     ADDFUNC1R(TRANSFORM2D, VECTOR2, Transform2D, basis_xform_inv, VECTOR2, "v")
-    ADDFUNC2R(TRANSFORM2D, TRANSFORM2D, Transform2D, interpolate_with, TRANSFORM2D, "transform", REAL, "weight")
+    ADDFUNC2R(TRANSFORM2D, TRANSFORM2D, Transform2D, interpolate_with, TRANSFORM2D, "transform", FLOAT, "weight")
 
     ADDFUNC0R(BASIS, BASIS, Basis, inverse)
     ADDFUNC0R(BASIS, BASIS, Basis, transposed)
     ADDFUNC0R(BASIS, BASIS, Basis, orthonormalized)
-    ADDFUNC0R(BASIS, REAL, Basis, determinant)
-    ADDFUNC2R(BASIS, BASIS, Basis, rotated, VECTOR3, "axis", REAL, "phi")
+    ADDFUNC0R(BASIS, FLOAT, Basis, determinant)
+    ADDFUNC2R(BASIS, BASIS, Basis, rotated, VECTOR3, "axis", FLOAT, "phi")
     ADDFUNC1R(BASIS, BASIS, Basis, scaled, VECTOR3, "scale")
     ADDFUNC0R(BASIS, VECTOR3, Basis, get_scale)
     ADDFUNC0R(BASIS, VECTOR3, Basis, get_euler)
-    ADDFUNC1R(BASIS, REAL, Basis, tdotx, VECTOR3, "with")
-    ADDFUNC1R(BASIS, REAL, Basis, tdoty, VECTOR3, "with")
-    ADDFUNC1R(BASIS, REAL, Basis, tdotz, VECTOR3, "with")
+    ADDFUNC1R(BASIS, FLOAT, Basis, tdotx, VECTOR3, "with")
+    ADDFUNC1R(BASIS, FLOAT, Basis, tdoty, VECTOR3, "with")
+    ADDFUNC1R(BASIS, FLOAT, Basis, tdotz, VECTOR3, "with")
     ADDFUNC1R(BASIS, VECTOR3, Basis, xform, VECTOR3, "v")
     ADDFUNC1R(BASIS, VECTOR3, Basis, xform_inv, VECTOR3, "v")
     ADDFUNC0R(BASIS, INT, Basis, get_orthogonal_index)
-    ADDFUNC2R(BASIS, BASIS, Basis, slerp, BASIS, "b", REAL, "t")
-    ADDFUNC2R(BASIS, BOOL, Basis, is_equal_approx, BASIS, "b", REAL, "epsilon", CMP_EPSILON)
+    ADDFUNC2R(BASIS, BASIS, Basis, slerp, BASIS, "b", FLOAT, "t")
+    ADDFUNC2R(BASIS, BOOL, Basis, is_equal_approx, BASIS, "b", FLOAT, "epsilon", CMP_EPSILON)
     ADDFUNC0R(BASIS, QUAT, Basis, get_rotation_quat)
 
     ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, inverse)
     ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, affine_inverse)
     ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, orthonormalized)
-    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, rotated, VECTOR3, "axis", REAL, "phi")
+    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, rotated, VECTOR3, "axis", FLOAT, "phi")
     ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, scaled, VECTOR3, "scale")
     ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, translated, VECTOR3, "offset")
     ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, looking_at, VECTOR3, "target", VECTOR3, "up")
-    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, interpolate_with, TRANSFORM, "transform", REAL, "weight")
+    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, interpolate_with, TRANSFORM, "transform", FLOAT, "weight")
     ADDFUNC1R(TRANSFORM, NIL, Transform, xform, NIL, "v")
     ADDFUNC1R(TRANSFORM, NIL, Transform, xform_inv, NIL, "v")
 
     /* REGISTER CONSTRUCTORS */
 
-    _VariantCall::add_constructor(_VariantCall::Vector2_init1, VariantType::VECTOR2, "x", VariantType::REAL, "y", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Vector2_init1, VariantType::VECTOR2, "x", VariantType::FLOAT, "y", VariantType::FLOAT);
 
     _VariantCall::add_constructor(_VariantCall::Rect2_init1, VariantType::RECT2, "position", VariantType::VECTOR2, "size", VariantType::VECTOR2);
-    _VariantCall::add_constructor(_VariantCall::Rect2_init2, VariantType::RECT2, "x", VariantType::REAL, "y", VariantType::REAL, "width", VariantType::REAL, "height", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Rect2_init2, VariantType::RECT2, "x", VariantType::FLOAT, "y", VariantType::FLOAT, "width", VariantType::FLOAT, "height", VariantType::FLOAT);
 
-    _VariantCall::add_constructor(_VariantCall::Transform2D_init2, VariantType::TRANSFORM2D, "rotation", VariantType::REAL, "position", VariantType::VECTOR2);
+    _VariantCall::add_constructor(_VariantCall::Transform2D_init2, VariantType::TRANSFORM2D, "rotation", VariantType::FLOAT, "position", VariantType::VECTOR2);
     _VariantCall::add_constructor(_VariantCall::Transform2D_init3, VariantType::TRANSFORM2D, "x_axis", VariantType::VECTOR2, "y_axis", VariantType::VECTOR2, "origin", VariantType::VECTOR2);
 
-    _VariantCall::add_constructor(_VariantCall::Vector3_init1, VariantType::VECTOR3, "x", VariantType::REAL, "y", VariantType::REAL, "z", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Vector3_init1, VariantType::VECTOR3, "x", VariantType::FLOAT, "y", VariantType::FLOAT, "z", VariantType::FLOAT);
 
-    _VariantCall::add_constructor(_VariantCall::Plane_init1, VariantType::PLANE, "a", VariantType::REAL, "b", VariantType::REAL, "c", VariantType::REAL, "d", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Plane_init1, VariantType::PLANE, "a", VariantType::FLOAT, "b", VariantType::FLOAT, "c", VariantType::FLOAT, "d", VariantType::FLOAT);
     _VariantCall::add_constructor(_VariantCall::Plane_init2, VariantType::PLANE, "v1", VariantType::VECTOR3, "v2", VariantType::VECTOR3, "v3", VariantType::VECTOR3);
-    _VariantCall::add_constructor(_VariantCall::Plane_init3, VariantType::PLANE, "normal", VariantType::VECTOR3, "d", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Plane_init3, VariantType::PLANE, "normal", VariantType::VECTOR3, "d", VariantType::FLOAT);
 
-    _VariantCall::add_constructor(_VariantCall::Quat_init1, VariantType::QUAT, "x", VariantType::REAL, "y", VariantType::REAL, "z", VariantType::REAL, "w", VariantType::REAL);
-    _VariantCall::add_constructor(_VariantCall::Quat_init2, VariantType::QUAT, "axis", VariantType::VECTOR3, "angle", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Quat_init1, VariantType::QUAT, "x", VariantType::FLOAT, "y", VariantType::FLOAT, "z", VariantType::FLOAT, "w", VariantType::FLOAT);
+    _VariantCall::add_constructor(_VariantCall::Quat_init2, VariantType::QUAT, "axis", VariantType::VECTOR3, "angle", VariantType::FLOAT);
     _VariantCall::add_constructor(_VariantCall::Quat_init3, VariantType::QUAT, "euler", VariantType::VECTOR3);
 
-    _VariantCall::add_constructor(_VariantCall::Color_init1, VariantType::COLOR, "r", VariantType::REAL, "g", VariantType::REAL, "b", VariantType::REAL, "a", VariantType::REAL);
-    _VariantCall::add_constructor(_VariantCall::Color_init2, VariantType::COLOR, "r", VariantType::REAL, "g", VariantType::REAL, "b", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Color_init1, VariantType::COLOR, "r", VariantType::FLOAT, "g", VariantType::FLOAT, "b", VariantType::FLOAT, "a", VariantType::FLOAT);
+    _VariantCall::add_constructor(_VariantCall::Color_init2, VariantType::COLOR, "r", VariantType::FLOAT, "g", VariantType::FLOAT, "b", VariantType::FLOAT);
 
     _VariantCall::add_constructor(_VariantCall::AABB_init1, VariantType::AABB, "position", VariantType::VECTOR3, "size", VariantType::VECTOR3);
 
     _VariantCall::add_constructor(_VariantCall::Basis_init1, VariantType::BASIS, "x_axis", VariantType::VECTOR3, "y_axis", VariantType::VECTOR3, "z_axis", VariantType::VECTOR3);
-    _VariantCall::add_constructor(_VariantCall::Basis_init2, VariantType::BASIS, "axis", VariantType::VECTOR3, "phi", VariantType::REAL);
+    _VariantCall::add_constructor(_VariantCall::Basis_init2, VariantType::BASIS, "axis", VariantType::VECTOR3, "phi", VariantType::FLOAT);
 
     _VariantCall::add_constructor(_VariantCall::Transform_init1, VariantType::TRANSFORM, "x_axis", VariantType::VECTOR3, "y_axis", VariantType::VECTOR3, "z_axis", VariantType::VECTOR3, "origin", VariantType::VECTOR3);
     _VariantCall::add_constructor(_VariantCall::Transform_init2, VariantType::TRANSFORM, "basis", VariantType::BASIS, "origin", VariantType::VECTOR3);

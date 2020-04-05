@@ -261,7 +261,7 @@ void ARVRController::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRController::get_rumble);
     MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRController::set_rumble);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRController::get_mesh);
@@ -553,7 +553,7 @@ StringName ARVROrigin::get_configuration_warning() const {
 void ARVROrigin::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_world_scale", {"world_scale"}), &ARVROrigin::set_world_scale);
     MethodBinder::bind_method(D_METHOD("get_world_scale"), &ARVROrigin::get_world_scale);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "world_scale"), "set_world_scale", "get_world_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "world_scale"), "set_world_scale", "get_world_scale");
 };
 
 void ARVROrigin::set_tracked_camera(ARVRCamera *p_tracked_camera) {

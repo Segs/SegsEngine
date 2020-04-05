@@ -99,7 +99,7 @@ enum class VariantType : int8_t {
     // atomic types
     BOOL,
     INT,
-    REAL,
+    FLOAT,
     STRING,
 
     // math types
@@ -180,7 +180,7 @@ public:
     static bool can_convert_strict(VariantType p_type_from, VariantType p_type_to);
 
     [[nodiscard]] bool is_ref() const;
-    _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::REAL; }
+    _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::FLOAT; }
     _FORCE_INLINE_ bool is_array() const { return type >= VariantType::ARRAY; }
     [[nodiscard]] bool is_shared() const;
     [[nodiscard]] bool is_zero() const;
@@ -271,8 +271,8 @@ public:
     constexpr Variant(uint32_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(int64_t p_int)   : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(uint64_t p_int)  : type(VariantType::INT),_data(p_int) { }
-    constexpr Variant(float p_float) : type(VariantType::REAL),_data(p_float) { }
-    constexpr Variant(double p_float) : type(VariantType::REAL),_data(p_float) { }
+    constexpr Variant(float p_float) : type(VariantType::FLOAT),_data(p_float) { }
+    constexpr Variant(double p_float) : type(VariantType::FLOAT),_data(p_float) { }
     Variant(QChar p_char);
     //explicit Variant(const String &p_string);
     Variant(const char *p_string);

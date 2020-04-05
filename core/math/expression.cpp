@@ -223,7 +223,7 @@ int Expression::get_func_argument_count(BuiltinFunc p_func) {
     if (!p_inputs[m_arg]->is_num()) {                                    \
         r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT; \
         r_error.argument = m_arg;                                        \
-        r_error.expected = VariantType::REAL;                                \
+        r_error.expected = VariantType::FLOAT;                           \
         return;                                                          \
     }
 
@@ -325,7 +325,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
                 int64_t i = *p_inputs[0];
                 *r_return = ABS(i);
-            } else if (p_inputs[0]->get_type() == VariantType::REAL) {
+            } else if (p_inputs[0]->get_type() == VariantType::FLOAT) {
 
                 real_t r = p_inputs[0]->as<float>();
                 *r_return = Math::abs(r);
@@ -333,7 +333,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
-                r_error.expected = VariantType::REAL;
+                r_error.expected = VariantType::FLOAT;
             }
         } break;
         case MATH_SIGN: {
@@ -342,7 +342,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
                 int64_t i = *p_inputs[0];
                 *r_return = i < 0 ? -1 : (i > 0 ? +1 : 0);
-            } else if (p_inputs[0]->get_type() == VariantType::REAL) {
+            } else if (p_inputs[0]->get_type() == VariantType::FLOAT) {
 
                 real_t r = p_inputs[0]->as<float>();
                 *r_return = r < 0.0f ? -1.0f : (r > 0.0f ? +1.0f : 0.0f);
@@ -350,7 +350,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
                 r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = 0;
-                r_error.expected = VariantType::REAL;
+                r_error.expected = VariantType::FLOAT;
             }
         } break;
         case MATH_POW: {

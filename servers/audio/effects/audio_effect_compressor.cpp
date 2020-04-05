@@ -234,12 +234,12 @@ void AudioEffectCompressor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_sidechain", {"sidechain"}), &AudioEffectCompressor::set_sidechain);
     MethodBinder::bind_method(D_METHOD("get_sidechain"), &AudioEffectCompressor::get_sidechain);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "threshold", PropertyHint::Range, "-60,0,0.1"), "set_threshold", "get_threshold");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ratio", PropertyHint::Range, "1,48,0.1"), "set_ratio", "get_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "gain", PropertyHint::Range, "-20,20,0.1"), "set_gain", "get_gain");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attack_us", PropertyHint::Range, "20,2000,1"), "set_attack_us", "get_attack_us");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "release_ms", PropertyHint::Range, "20,2000,1"), "set_release_ms", "get_release_ms");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mix", PropertyHint::Range, "0,1,0.01"), "set_mix", "get_mix");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "threshold", PropertyHint::Range, "-60,0,0.1"), "set_threshold", "get_threshold");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ratio", PropertyHint::Range, "1,48,0.1"), "set_ratio", "get_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gain", PropertyHint::Range, "-20,20,0.1"), "set_gain", "get_gain");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "attack_us", PropertyHint::Range, "20,2000,1"), "set_attack_us", "get_attack_us");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "release_ms", PropertyHint::Range, "20,2000,1"), "set_release_ms", "get_release_ms");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "mix", PropertyHint::Range, "0,1,0.01"), "set_mix", "get_mix");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "sidechain", PropertyHint::Enum), "set_sidechain", "get_sidechain");
 }
 

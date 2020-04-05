@@ -142,7 +142,7 @@ namespace {
             } else {
 
                 Variant defval = vsnode->get_input_port_default_value(i);
-                if (defval.get_type() == VariantType::REAL || defval.get_type() == VariantType::INT) {
+                if (defval.get_type() == VariantType::FLOAT || defval.get_type() == VariantType::INT) {
                     float val = defval;
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tfloat " + inputs[i] + " = " + FormatVE("%.5f", val) + ";\n";

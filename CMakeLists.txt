@@ -149,7 +149,7 @@ set(platform_exporters)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     # include platform specific options now
-    include(platform/x11/options.cmake)
+    include(platform/linuxbsd/options.cmake)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     # include platform specific options now
     include(platform/windows/options.cmake)
@@ -277,7 +277,7 @@ add_subdirectory(plugins)
 add_subdirectory(main)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_subdirectory(platform/x11)
+    add_subdirectory(platform/linuxbsd)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_subdirectory(platform/windows)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")

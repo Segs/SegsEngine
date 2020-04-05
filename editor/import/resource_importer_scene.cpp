@@ -1180,7 +1180,7 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                           p_preset == PRESET_SEPARATE_MESHES_MATERIALS_AND_ANIMATIONS;
 
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::REAL, "nodes/root_scale", PropertyHint::Range, "0.001,1000,0.001"), 1.0));
+            PropertyInfo(VariantType::FLOAT, "nodes/root_scale", PropertyHint::Range, "0.001,1000,0.001"), 1.0));
     r_options->push_back(ImportOption(
             PropertyInfo(VariantType::STRING, "nodes/custom_script", PropertyHint::File, StringName(script_ext_hint)),
             ""));
@@ -1206,14 +1206,14 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                     PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             0));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::REAL, "meshes/lightmap_texel_size", PropertyHint::Range, "0.001,100,0.001"),
+            PropertyInfo(VariantType::FLOAT, "meshes/lightmap_texel_size", PropertyHint::Range, "0.001,100,0.001"),
             0.1));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "external_files/store_in_subdir"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/import", PropertyHint::None, "",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             true));
     r_options->push_back(
-            ImportOption(PropertyInfo(VariantType::REAL, "animation/fps", PropertyHint::Range, "1,120,1"), 15));
+            ImportOption(PropertyInfo(VariantType::FLOAT, "animation/fps", PropertyHint::Range, "1,120,1"), 15));
     r_options->push_back(ImportOption(
             PropertyInfo(VariantType::STRING, "animation/filter_script", PropertyHint::MultilineText), ""));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "animation/storage", PropertyHint::Enum,
@@ -1224,9 +1224,9 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/enabled", PropertyHint::None,
                                               "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_linear_error"), 0.05));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_angular_error"), 0.01));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_angle"), 22));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "animation/optimizer/max_linear_error"), 0.05));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "animation/optimizer/max_angular_error"), 0.01));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "animation/optimizer/max_angle"), 22));
     r_options->push_back(
             ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/remove_unused_tracks"), true));
     r_options->push_back(

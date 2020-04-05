@@ -91,7 +91,7 @@ void NoiseTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PropertyHint::Range, "1,2048,1,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "seamless"), "set_seamless", "get_seamless");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "as_normalmap"), "set_as_normalmap", "is_normalmap");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bump_strength", PropertyHint::Range, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bump_strength", PropertyHint::Range, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "noise", PropertyHint::ResourceType, "OpenSimplexNoise"), "set_noise", "get_noise");
 }
 

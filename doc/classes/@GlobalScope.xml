@@ -1451,7 +1451,7 @@
         <constant name="INT" value="2" enum="VariantType">
             Variable is of type [int].
         </constant>
-        <constant name="REAL" value="3" enum="VariantType">
+        <constant name="FLOAT" value="3" enum="VariantType">
             Variable is of type [float] (real).
         </constant>
         <constant name="STRING" value="4" enum="VariantType">

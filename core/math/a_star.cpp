@@ -615,8 +615,8 @@ void AStar::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_point_path", {"from_id", "to_id"}), &AStar::get_point_path);
     MethodBinder::bind_method(D_METHOD("get_id_path", {"from_id", "to_id"}), &AStar::get_id_path);
 
-    BIND_VMETHOD(MethodInfo(VariantType::REAL, "_estimate_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
-    BIND_VMETHOD(MethodInfo(VariantType::REAL, "_compute_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
+    BIND_VMETHOD(MethodInfo(VariantType::FLOAT, "_estimate_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
+    BIND_VMETHOD(MethodInfo(VariantType::FLOAT, "_compute_cost", PropertyInfo(VariantType::INT, "from_id"), PropertyInfo(VariantType::INT, "to_id")));
 }
 
 AStar::AStar() {

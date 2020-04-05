@@ -102,8 +102,8 @@ void CylinderShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CylinderShape::set_height);
     MethodBinder::bind_method(D_METHOD("get_height"), &CylinderShape::get_height);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.01,4096,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "0.01,4096,0.01"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.01,4096,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.01,4096,0.01"), "set_height", "get_height");
 }
 
 CylinderShape::CylinderShape() :

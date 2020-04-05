@@ -373,7 +373,7 @@ static Color _color_from_type(VariantType p_type, bool dark_theme = true) {
 
             case VariantType::BOOL: color = Color(0.55f, 0.65f, 0.94f); break;
             case VariantType::INT: color = Color(0.49f, 0.78f, 0.94f); break;
-            case VariantType::REAL: color = Color(0.38f, 0.85f, 0.96f); break;
+            case VariantType::FLOAT: color = Color(0.38f, 0.85f, 0.96f); break;
             case VariantType::STRING: color = Color(0.42f, 0.65f, 0.93f); break;
 
             case VariantType::VECTOR2: color = Color(0.74f, 0.57f, 0.95f); break;
@@ -410,7 +410,7 @@ static Color _color_from_type(VariantType p_type, bool dark_theme = true) {
 
             case VariantType::BOOL: color = Color(0.43f, 0.56f, 0.92f); break;
             case VariantType::INT: color = Color(0.31f, 0.7f, 0.91f); break;
-            case VariantType::REAL: color = Color(0.15f, 0.8f, 0.94f); break;
+            case VariantType::FLOAT: color = Color(0.15f, 0.8f, 0.94f); break;
             case VariantType::STRING: color = Color(0.27f, 0.56f, 0.91f); break;
 
             case VariantType::VECTOR2: color = Color(0.68f, 0.46f, 0.93f); break;
@@ -2913,8 +2913,8 @@ void VisualScriptEditor::_graph_connected(StringView p_from, int p_from_slot, St
         if (to_type != VariantType::NIL && from_type != VariantType::NIL && to_type != from_type) {
             // add a constructor node between the ports
             bool exceptions = false; // true if there are any exceptions
-            exceptions = exceptions || (to_type == VariantType::INT && from_type == VariantType::REAL);
-            exceptions = exceptions || (to_type == VariantType::REAL && from_type == VariantType::INT);
+            exceptions = exceptions || (to_type == VariantType::INT && from_type == VariantType::FLOAT);
+            exceptions = exceptions || (to_type == VariantType::FLOAT && from_type == VariantType::INT);
             if (Variant::can_convert(from_type, to_type) && !exceptions) {
                 MethodInfo mi;
                 mi.name = Variant::interned_type_name(to_type);

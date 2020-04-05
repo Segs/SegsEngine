@@ -84,7 +84,7 @@ void SphereShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &SphereShape::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &SphereShape::get_radius);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0,4096,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0,4096,0.01"), "set_radius", "get_radius");
 }
 
 SphereShape::SphereShape() :

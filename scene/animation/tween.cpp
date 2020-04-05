@@ -165,7 +165,7 @@ void Tween::_get_property_list(Vector<PropertyInfo> *p_list) const {
     // Add the property info for the Tween object
     p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/active", PropertyHint::None, ""));
     p_list->push_back(PropertyInfo(VariantType::BOOL, "playback/repeat", PropertyHint::None, ""));
-    p_list->push_back(PropertyInfo(VariantType::REAL, "playback/speed", PropertyHint::Range, "-64,64,0.01"));
+    p_list->push_back(PropertyInfo(VariantType::FLOAT, "playback/speed", PropertyHint::Range, "-64,64,0.01"));
 }
 
 void Tween::_notification(int p_what) {
@@ -258,14 +258,14 @@ void Tween::_bind_methods() {
 
     // Add the Tween signals
     ADD_SIGNAL(MethodInfo("tween_started", PropertyInfo(VariantType::OBJECT, "object"), PropertyInfo(VariantType::NODE_PATH, "key")));
-    ADD_SIGNAL(MethodInfo("tween_step", PropertyInfo(VariantType::OBJECT, "object"), PropertyInfo(VariantType::NODE_PATH, "key"), PropertyInfo(VariantType::REAL, "elapsed"), PropertyInfo(VariantType::OBJECT, "value")));
+    ADD_SIGNAL(MethodInfo("tween_step", PropertyInfo(VariantType::OBJECT, "object"), PropertyInfo(VariantType::NODE_PATH, "key"), PropertyInfo(VariantType::FLOAT, "elapsed"), PropertyInfo(VariantType::OBJECT, "value")));
     ADD_SIGNAL(MethodInfo("tween_completed", PropertyInfo(VariantType::OBJECT, "object"), PropertyInfo(VariantType::NODE_PATH, "key")));
     ADD_SIGNAL(MethodInfo("tween_all_completed"));
 
     // Add the properties and tie them to the getters and setters
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "repeat"), "set_repeat", "is_repeat");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "playback_process_mode", PropertyHint::Enum, "Physics,Idle"), "set_tween_process_mode", "get_tween_process_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "playback_speed", PropertyHint::Range, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "playback_speed", PropertyHint::Range, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
 
     // Bind Idle vs Physics process
     BIND_ENUM_CONSTANT(TWEEN_PROCESS_PHYSICS)
@@ -354,9 +354,9 @@ Variant Tween::_get_final_val(const InterpolateData &p_data) const {
                 ERR_FAIL_COND_V(error.error != Variant::CallError::CALL_OK, p_data.initial_val);
             }
 
-            // If we're looking at an INT value, instead convert it to a REAL
+            // If we're looking at an INT value, instead convert it to a FLOAT
             // This is better for interpolation
-            if (final_val.get_type() == VariantType::INT) final_val = final_val.operator real_t();
+            if (final_val.get_type() == VariantType::INT) final_val = final_val.as<float>();
 
             return final_val;
         }
@@ -448,7 +448,7 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
             result = (int)_run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, (int)initial_val, (int)delta_val, p_data.duration);
             break;
 
-        case VariantType::REAL:
+        case VariantType::FLOAT:
             // Run the REAL specific equation
             result = _run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, (real_t)initial_val, (real_t)delta_val, p_data.duration);
             break;
@@ -1120,7 +1120,7 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             delta_val = (int)final_val - (int)initial_val;
             break;
 
-        case VariantType::REAL:
+        case VariantType::FLOAT:
             // Convert to REAL and find the delta
             delta_val = (real_t)final_val - (real_t)initial_val;
             break;
@@ -1215,7 +1215,7 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             static const VariantType supported_types[] = {
                 VariantType::BOOL,
                 VariantType::INT,
-                VariantType::REAL,
+                VariantType::FLOAT,
                 VariantType::VECTOR2,
                 VariantType::RECT2,
                 VariantType::VECTOR3,

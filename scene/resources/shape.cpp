@@ -100,7 +100,7 @@ void Shape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &Shape::set_margin);
     MethodBinder::bind_method(D_METHOD("get_margin"), &Shape::get_margin);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "margin", PropertyHint::Range, "0.001,10,0.001"), "set_margin", "get_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0.001,10,0.001"), "set_margin", "get_margin");
 }
 
 Shape::Shape() :

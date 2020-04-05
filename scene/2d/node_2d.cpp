@@ -442,14 +442,14 @@ void Node2D::_bind_methods() {
 
     ADD_GROUP("Transform", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rotation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform", PropertyHint::None, "", 0), "set_transform", "get_transform");
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_position", PropertyHint::None, "", 0), "set_global_position", "get_global_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation", PropertyHint::None, "", 0), "set_global_rotation", "get_global_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation_degrees", PropertyHint::None, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "global_rotation", PropertyHint::None, "", 0), "set_global_rotation", "get_global_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "global_rotation_degrees", PropertyHint::None, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_scale", PropertyHint::None, "", 0), "set_global_scale", "get_global_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_transform", PropertyHint::None, "", 0), "set_global_transform", "get_global_transform");
 

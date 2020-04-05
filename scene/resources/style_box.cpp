@@ -112,10 +112,10 @@ void StyleBox::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw", {"canvas_item", "rect"}), &StyleBox::draw);
 
     ADD_GROUP("Content Margin", "content_margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_left", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_right", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_top", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "content_margin_bottom", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "content_margin_left", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "content_margin_right", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "content_margin_top", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "content_margin_bottom", PropertyHint::Range, "-1,2048,1"), "set_default_margin", "get_default_margin", (int)Margin::Bottom);
 }
 
 StyleBox::StyleBox() {
@@ -344,15 +344,15 @@ void StyleBoxTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PropertyHint::ResourceType, "Texture"), "set_normal_map", "get_normal_map");
     ADD_PROPERTY(PropertyInfo(VariantType::RECT2, "region_rect"), "set_region_rect", "get_region_rect");
     ADD_GROUP("Margin", "margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_left", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_right", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_top", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "margin_bottom", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "margin_left", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "margin_right", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "margin_top", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "margin_bottom", PropertyHint::Range, "0,2048,1"), "set_margin_size", "get_margin_size", (int)Margin::Bottom);
     ADD_GROUP("Expand Margin", "expand_margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_left", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_right", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_top", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_bottom", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_left", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_right", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_top", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_bottom", PropertyHint::Range, "0,2048,1"), "set_expand_margin_size", "get_expand_margin_size", (int)Margin::Bottom);
     ADD_GROUP("Axis Stretch", "axis_stretch_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_horizontal", PropertyHint::Enum, "Stretch,Tile,Tile Fit"), "set_h_axis_stretch_mode", "get_h_axis_stretch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_vertical", PropertyHint::Enum, "Stretch,Tile,Tile Fit"), "set_v_axis_stretch_mode", "get_v_axis_stretch_mode");
@@ -937,10 +937,10 @@ void StyleBoxFlat::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "corner_detail", PropertyHint::Range, "1,20,1"), "set_corner_detail", "get_corner_detail");
 
     ADD_GROUP("Expand Margin", "expand_margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_left", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_right", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_top", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "expand_margin_bottom", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_left", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_right", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_top", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "expand_margin_bottom", PropertyHint::Range, "0,2048,1"), "set_expand_margin", "get_expand_margin", (int)Margin::Bottom);
 
     ADD_GROUP("Shadow", "shadow_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "shadow_color"), "set_shadow_color", "get_shadow_color");
@@ -1039,8 +1039,8 @@ void StyleBoxLine::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_vertical"), &StyleBoxLine::is_vertical);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "grow_begin", PropertyHint::Range, "-300,300,1"), "set_grow_begin", "get_grow_begin");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "grow_end", PropertyHint::Range, "-300,300,1"), "set_grow_end", "get_grow_end");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "grow_begin", PropertyHint::Range, "-300,300,1"), "set_grow_begin", "get_grow_begin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "grow_end", PropertyHint::Range, "-300,300,1"), "set_grow_end", "get_grow_end");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "thickness", PropertyHint::Range, "0,10"), "set_thickness", "get_thickness");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vertical"), "set_vertical", "is_vertical");
 }

@@ -2467,7 +2467,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             } else {
                 if (return_info.type == VariantType::INT) {
                     imethod.return_type.cname = _get_int_type_name_from_meta(arg_meta.size()>0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE);
-                } else if (return_info.type == VariantType::REAL) {
+                } else if (return_info.type == VariantType::FLOAT) {
                     imethod.return_type.cname = _get_float_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE);
                 } else {
                     imethod.return_type.cname = Variant::interned_type_name(return_info.type);
@@ -2498,7 +2498,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
                 } else {
                     if (arginfo.type == VariantType::INT) {
                         iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i+1) ? arg_meta[i+1] : GodotTypeInfo::METADATA_NONE);
-                    } else if (arginfo.type == VariantType::REAL) {
+                    } else if (arginfo.type == VariantType::FLOAT) {
                         iarg.type.cname = _get_float_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
                     } else if (arginfo.type == VariantType::STRING) {
                         iarg.type.cname = _get_string_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE);
@@ -2671,7 +2671,7 @@ bool BindingsGenerator::_arg_default_value_from_variant(const Variant &p_val, Ar
                 r_iarg.default_argument = "(%s)" + r_iarg.default_argument;
             }
             break;
-        case VariantType::REAL:
+        case VariantType::FLOAT:
 #ifndef REAL_T_IS_DOUBLE
             r_iarg.default_argument += "f";
 #endif

@@ -244,8 +244,8 @@ void ReflectionProbe::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_update_mode"), &ReflectionProbe::get_update_mode);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "update_mode", PropertyHint::Enum, "Once,Always"), "set_update_mode", "get_update_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "intensity", PropertyHint::Range, "0,1,0.01"), "set_intensity", "get_intensity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PropertyHint::ExpRange, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "intensity", PropertyHint::Range, "0,1,0.01"), "set_intensity", "get_intensity");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_distance", PropertyHint::ExpRange, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "origin_offset"), "set_origin_offset", "get_origin_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "box_projection"), "set_enable_box_projection", "is_box_projection_enabled");
@@ -255,8 +255,8 @@ void ReflectionProbe::_bind_methods() {
     ADD_GROUP("Interior", "interior_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior_enable"), "set_as_interior", "is_set_as_interior");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "interior_ambient_color", PropertyHint::ColorNoAlpha), "set_interior_ambient", "get_interior_ambient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_energy", PropertyHint::Range, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_contrib", PropertyHint::Range, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interior_ambient_energy", PropertyHint::Range, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interior_ambient_contrib", PropertyHint::Range, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
 
     BIND_ENUM_CONSTANT(UPDATE_ONCE)
     BIND_ENUM_CONSTANT(UPDATE_ALWAYS)

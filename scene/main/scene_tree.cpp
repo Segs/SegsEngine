@@ -422,7 +422,7 @@ void SceneTreeTimer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_time_left", {"time"}), &SceneTreeTimer::set_time_left);
     MethodBinder::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_left"), "set_time_left", "get_time_left");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_left"), "set_time_left", "get_time_left");
 
     ADD_SIGNAL(MethodInfo("timeout"));
 }

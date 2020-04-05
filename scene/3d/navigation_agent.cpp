@@ -85,14 +85,14 @@ void NavigationAgent::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_avoidance_done", {"new_velocity"}),&NavigationAgent::_avoidance_done);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.1,100,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent_height_offset", PropertyHint::Range, "-100.0,100,0.01"), "set_agent_height_offset", "get_agent_height_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "neighbor_dist", PropertyHint::Range, "0.1,10000,0.01"), "set_neighbor_dist", "get_neighbor_dist");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,100,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "agent_height_offset", PropertyHint::Range, "-100.0,100,0.01"), "set_agent_height_offset", "get_agent_height_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "neighbor_dist", PropertyHint::Range, "0.1,10000,0.01"), "set_neighbor_dist", "get_neighbor_dist");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_neighbors", PropertyHint::Range, "1,10000,1"), "set_max_neighbors", "get_max_neighbors");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_horizon", PropertyHint::Range, "0.01,100,0.01"), "set_time_horizon", "get_time_horizon");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_speed", PropertyHint::Range, "0.1,10000,0.01"), "set_max_speed", "get_max_speed");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "path_max_distance", PropertyHint::Range, "0.01,100,0.1"), "set_path_max_distance", "get_path_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_horizon", PropertyHint::Range, "0.01,100,0.01"), "set_time_horizon", "get_time_horizon");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_speed", PropertyHint::Range, "0.1,10000,0.01"), "set_max_speed", "get_max_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_max_distance", PropertyHint::Range, "0.01,100,0.1"), "set_path_max_distance", "get_path_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ignore_y"), "set_ignore_y", "get_ignore_y");
 
     ADD_SIGNAL(MethodInfo("path_changed"));

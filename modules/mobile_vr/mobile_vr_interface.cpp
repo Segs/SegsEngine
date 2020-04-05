@@ -221,13 +221,13 @@ void MobileVRInterface::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_k2", {"k"}), &MobileVRInterface::set_k2);
 	ClassDB::bind_method(D_METHOD("get_k2"), &MobileVRInterface::get_k2);
 
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "eye_height", PropertyHint::Range, "0.0,3.0,0.1"), "set_eye_height", "get_eye_height");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "iod", PropertyHint::Range, "4.0,10.0,0.1"), "set_iod", "get_iod");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "display_width", PropertyHint::Range, "5.0,25.0,0.1"), "set_display_width", "get_display_width");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "display_to_lens", PropertyHint::Range, "5.0,25.0,0.1"), "set_display_to_lens", "get_display_to_lens");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "oversample", PropertyHint::Range, "1.0,2.0,0.1"), "set_oversample", "get_oversample");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "k1", PropertyHint::Range, "0.1,10.0,0.0001"), "set_k1", "get_k1");
-    ADD_PROPERTY(PropertyInfo(Variant::REAL, "k2", PropertyHint::Range, "0.1,10.0,0.0001"), "set_k2", "get_k2");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "eye_height", PropertyHint::Range, "0.0,3.0,0.1"), "set_eye_height", "get_eye_height");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "iod", PropertyHint::Range, "4.0,10.0,0.1"), "set_iod", "get_iod");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "display_width", PropertyHint::Range, "5.0,25.0,0.1"), "set_display_width", "get_display_width");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "display_to_lens", PropertyHint::Range, "5.0,25.0,0.1"), "set_display_to_lens", "get_display_to_lens");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "oversample", PropertyHint::Range, "1.0,2.0,0.1"), "set_oversample", "get_oversample");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "k1", PropertyHint::Range, "0.1,10.0,0.0001"), "set_k1", "get_k1");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "k2", PropertyHint::Range, "0.1,10.0,0.0001"), "set_k2", "get_k2");
 }
 
 void MobileVRInterface::set_eye_height(const real_t p_eye_height) {

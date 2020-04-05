@@ -104,7 +104,7 @@ void MeshInstance::_get_property_list(Vector<PropertyInfo> *p_list) const {
     eastl::sort(ls.begin(), ls.end());
 
     for (const StringName &E : ls) {
-        p_list->push_back(PropertyInfo(VariantType::REAL, E, PropertyHint::Range, "0,1,0.00001"));
+        p_list->push_back(PropertyInfo(VariantType::FLOAT, E, PropertyHint::Range, "0,1,0.00001"));
     }
 
     if (mesh) {

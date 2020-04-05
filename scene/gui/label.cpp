@@ -700,7 +700,7 @@ void Label::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "is_clipping_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "uppercase"), "set_uppercase", "is_uppercase");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PropertyHint::Range, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PropertyHint::Range, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
 }

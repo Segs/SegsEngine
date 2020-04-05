@@ -1321,7 +1321,7 @@ void GraphEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scroll_offset"), "set_scroll_ofs", "get_scroll_ofs");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "snap_distance"), "set_snap", "get_snap");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_snap"), "set_use_snap", "is_using_snap");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "zoom"), "set_zoom", "get_zoom");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "zoom"), "set_zoom", "get_zoom");
 
     ADD_SIGNAL(MethodInfo("connection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));
     ADD_SIGNAL(MethodInfo("disconnection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));

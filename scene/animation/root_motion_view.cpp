@@ -193,8 +193,8 @@ void RootMotionView::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "animation_path", PropertyHint::NodePathValidTypes, "AnimationTree"), "set_animation_path", "get_animation_path");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell_size", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "zero_y"), "set_zero_y", "get_zero_y");
 }
 

@@ -40,7 +40,7 @@
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TabContainer)
-VARIANT_ENUM_CAST(TabContainer::TabAlign);
+VARIANT_ENUM_CAST(TabContainer::TabAlign)
 
 int TabContainer::_get_top_margin() const {
 
@@ -894,8 +894,8 @@ bool TabContainer::get_tab_hidden(int p_tab) const {
     ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_hidden"))
         return child->get_meta("_tab_hidden");
-    else
-        return false;
+
+    return false;
 }
 
 void TabContainer::get_translatable_strings(List<StringName> *p_strings) const {

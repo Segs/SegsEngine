@@ -157,7 +157,7 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             }
 
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (type & ENCODE_FLAG_64) {
                 ERR_FAIL_COND_V(len < 8, ERR_INVALID_DATA);
@@ -819,7 +819,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 flags |= ENCODE_FLAG_64;
             }
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             double d = p_variant.as<float>();
             float f = d;
@@ -886,7 +886,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 r_len += 4;
             }
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (flags & ENCODE_FLAG_64) {
                 if (buf) {

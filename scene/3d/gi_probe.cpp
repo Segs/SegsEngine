@@ -193,15 +193,15 @@ void GIProbeData::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_compressed"), &GIProbeData::is_compressed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bounds", "get_bounds");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell_size", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_size", "get_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "to_cell_xform", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_to_cell_xform", "get_to_cell_xform");
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "dynamic_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_dynamic_data", "get_dynamic_data");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dynamic_range", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_dynamic_range", "get_dynamic_range");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "energy", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_energy", "get_energy");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bias", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bias", "get_bias");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "normal_bias", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_normal_bias", "get_normal_bias");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "propagation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_propagation", "get_propagation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "energy", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_energy", "get_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bias", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bias", "get_bias");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "normal_bias", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_normal_bias", "get_normal_bias");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "propagation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_propagation", "get_propagation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_interior", "is_interior");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compress", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_compress", "is_compressed");
 }
@@ -541,10 +541,10 @@ void GIProbe::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdiv", PropertyHint::Enum, "64,128,256,512"), "set_subdiv", "get_subdiv");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dynamic_range", PropertyHint::Range, "1,16,1"), "set_dynamic_range", "get_dynamic_range");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_energy", "get_energy");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bias", PropertyHint::Range, "0,4,0.001"), "set_bias", "get_bias");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "normal_bias", PropertyHint::Range, "0,4,0.001"), "set_normal_bias", "get_normal_bias");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_energy", "get_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bias", PropertyHint::Range, "0,4,0.001"), "set_bias", "get_bias");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "normal_bias", PropertyHint::Range, "0,4,0.001"), "set_normal_bias", "get_normal_bias");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior"), "set_interior", "is_interior");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compress"), "set_compress", "is_compressed");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "data", PropertyHint::ResourceType, "GIProbeData", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE), "set_probe_data", "get_probe_data");

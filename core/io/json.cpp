@@ -76,7 +76,7 @@ String JSON::_print_var(const Variant &p_var, StringView p_indent, int p_cur_ind
         case VariantType::NIL: return "null";
         case VariantType::BOOL: return p_var.operator bool() ? "true" : "false";
         case VariantType::INT: return itos(p_var);
-        case VariantType::REAL: return rtos(p_var.as<float>());
+        case VariantType::FLOAT: return rtos(p_var.as<float>());
         case VariantType::POOL_INT_ARRAY:
         case VariantType::POOL_REAL_ARRAY:
         case VariantType::POOL_STRING_ARRAY:

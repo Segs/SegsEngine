@@ -759,17 +759,17 @@ void Camera2D::_bind_methods() {
 
     ADD_GROUP("Smoothing", "smoothing_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smoothing_enabled"), "set_enable_follow_smoothing", "is_follow_smoothing_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
 
     ADD_GROUP("Offset", "offset_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset_h", PropertyHint::Range, "-1,1,0.01"), "set_h_offset", "get_h_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset_v", PropertyHint::Range, "-1,1,0.01"), "set_v_offset", "get_v_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset_h", PropertyHint::Range, "-1,1,0.01"), "set_h_offset", "get_h_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset_v", PropertyHint::Range, "-1,1,0.01"), "set_v_offset", "get_v_offset");
 
     ADD_GROUP("Drag Margin", "drag_margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_left", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_top", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_right", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_bottom", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_left", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_top", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_right", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_bottom", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Bottom);
 
     ADD_GROUP("Editor", "editor_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_screen"), "set_screen_drawing_enabled", "is_screen_drawing_enabled");

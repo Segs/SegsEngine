@@ -395,13 +395,13 @@ void SkeletonIK::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "root_bone"), "set_root_bone", "get_root_bone");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "tip_bone"), "set_tip_bone", "get_tip_bone");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interpolation", PropertyHint::Range, "0,1,0.001"), "set_interpolation", "get_interpolation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interpolation", PropertyHint::Range, "0,1,0.001"), "set_interpolation", "get_interpolation");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "target"), "set_target_transform", "get_target_transform");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "override_tip_basis"), "set_override_tip_basis", "is_override_tip_basis");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_magnet"), "set_use_magnet", "is_using_magnet");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "magnet"), "set_magnet_position", "get_magnet_position");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "target_node"), "set_target_node", "get_target_node");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_distance"), "set_min_distance", "get_min_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "min_distance"), "set_min_distance", "get_min_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_iterations"), "set_max_iterations", "get_max_iterations");
 }
 

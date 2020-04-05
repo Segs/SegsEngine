@@ -1794,7 +1794,7 @@ void TextEdit::_notification(int p_what) {
             }
 
             bool completion_below = false;
-            if (completion_active) {
+            if (completion_active && completion_options.size() > 0) {
                 // Code completion box.
                 Ref<StyleBox> csb = get_stylebox("completion");
                 int maxlines = get_constant("completion_lines");
@@ -1802,13 +1802,14 @@ void TextEdit::_notification(int p_what) {
                 int scrollw = get_constant("completion_scroll_width");
                 Color scrollc = get_color("completion_scroll_color");
 
-                int lines = MIN(completion_options.size(), maxlines);
+                const int completion_options_size = completion_options.size();
+                int lines = MIN(completion_options_size, maxlines);
                 int w = 0;
                 int h = lines * get_row_height();
                 int nofs = m_priv->cache.font->get_string_size(completion_base).width;
 
-                if (completion_options.size() < 50) {
-                    for (int i = 0; i < completion_options.size(); i++) {
+                if (completion_options_size < 50) {
+                    for (int i = 0; i < completion_options_size; i++) {
                         int w2 = MIN(m_priv->cache.font->get_string_size(completion_options[i].display).x, cmax_width);
                         if (w2 > w)
                             w = w2;
@@ -1839,7 +1840,7 @@ void TextEdit::_notification(int p_what) {
 
                 completion_rect.size.width = w + 2;
                 completion_rect.size.height = h;
-                if (completion_options.size() <= maxlines)
+                if (completion_options_size <= maxlines)
                     scrollw = 0;
 
                 draw_style_box(csb, Rect2(completion_rect.position - csb->get_offset(), completion_rect.size + csb->get_minimum_size() + Size2(scrollw, 0)));
@@ -1847,14 +1848,14 @@ void TextEdit::_notification(int p_what) {
                 if (m_priv->cache.completion_background_color.a > 0.01f) {
                     VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(completion_rect.position, completion_rect.size + Size2(scrollw, 0)), m_priv->cache.completion_background_color);
                 }
-                int line_from = CLAMP(completion_index - lines / 2, 0, completion_options.size() - lines);
+                int line_from = CLAMP(completion_index - lines / 2, 0, completion_options_size - lines);
                 VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(completion_rect.position.x, completion_rect.position.y + (completion_index - line_from) * get_row_height()), Size2(completion_rect.size.width, get_row_height())), m_priv->cache.completion_selected_color);
                 draw_rect(Rect2(completion_rect.position + Vector2(icon_area_size.x + icon_hsep, 0), Size2(MIN(nofs, completion_rect.size.width - (icon_area_size.x + icon_hsep)), completion_rect.size.height)), m_priv->cache.completion_existing_color);
 
                 for (int i = 0; i < lines; i++) {
 
                     int l = line_from + i;
-                    ERR_CONTINUE(l < 0 || l >= completion_options.size());
+                    ERR_CONTINUE(l < 0 || l >= completion_options_size);
                     Color text_color = m_priv->cache.completion_font_color;
                     for (size_t j = 0; j < m_priv->color_regions.size(); j++) {
                         if (StringUtils::begins_with(StringUtils::from_utf8(completion_options[l].insert_text),m_priv->color_regions[j].begin_key)) {
@@ -1881,8 +1882,8 @@ void TextEdit::_notification(int p_what) {
 
                 if (scrollw) {
                     // Draw a small scroll rectangle to show a position in the options.
-                    float r = maxlines / (float)completion_options.size();
-                    float o = line_from / (float)completion_options.size();
+                    float r = (float)maxlines / completion_options_size;
+                    float o = (float)line_from / completion_options_size;
                     draw_rect(Rect2(completion_rect.position.x + completion_rect.size.width, completion_rect.position.y + o * completion_rect.size.y, scrollw, completion_rect.size.y * r), scrollc);
                 }
 
@@ -2015,7 +2016,7 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
 
     int cursor_position_to_move = cursor_get_column() + 1;
 
-    CharType ch_single[2] = { ch, 0 };
+    UIString ch_single = QString(1,ch) ;
     CharType ch_single_pair[2] = { _get_right_pair_symbol(ch), 0 };
     CharType ch_pair[3] = { ch, _get_right_pair_symbol(ch), 0 };
 
@@ -2048,14 +2049,14 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
 
     if ((ch == '\'' || ch == '"') &&
             cursor_get_column() > 0 && _te_is_text_char(m_priv->text[cursor.line][cursor_get_column() - 1]) && !_is_pair_right_symbol(m_priv->text[cursor.line][cursor_get_column()])) {
-        insert_text_at_cursor(QString::fromRawData(ch_single,1));
+        insert_text_at_cursor(ch_single);
         cursor_set_column(cursor_position_to_move);
         return;
     }
 
     if (cursor_get_column() < m_priv->text[cursor.line].length()) {
         if (_te_is_text_char(m_priv->text[cursor.line][cursor_get_column()])) {
-            insert_text_at_cursor(QString::fromRawData(ch_single,1));
+            insert_text_at_cursor(ch_single);
             cursor_set_column(cursor_position_to_move);
             return;
         }
@@ -2070,6 +2071,7 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
 
     bool in_single_quote = false;
     bool in_double_quote = false;
+    bool found_comment = false;
 
     int c = 0;
     while (c < line.length()) {
@@ -2079,7 +2081,12 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
             if (cursor.column == c) {
                 break;
             }
-        } else {
+        }
+        else if (!in_single_quote && !in_double_quote && line[c] == '#') {
+            found_comment = true;
+            break;
+        }
+        else {
             if (line[c] == '\'' && !in_double_quote) {
                 in_single_quote = !in_single_quote;
             } else if (line[c] == '"' && !in_single_quote) {
@@ -2093,10 +2100,17 @@ void TextEdit::_consume_pair_symbol(CharType ch) {
             break;
         }
     }
+    // Do not need to duplicate quotes while in comments
+    if (found_comment) {
+        insert_text_at_cursor(ch_single);
+        cursor_set_column(cursor_position_to_move);
+
+        return;
+    }
 
     //	Disallow inserting duplicated quotes while already in string
     if ((in_single_quote || in_double_quote) && (ch == '"' || ch == '\'')) {
-        insert_text_at_cursor(QString::fromRawData(ch_single,1));
+        insert_text_at_cursor(ch_single);
         cursor_set_column(cursor_position_to_move);
 
         return;
@@ -7374,10 +7388,10 @@ void TextEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shortcut_keys_enabled"), "set_shortcut_keys_enabled", "is_shortcut_keys_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "selecting_enabled"), "set_selecting_enabled", "is_selecting_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_scrolling"), "set_smooth_scroll_enable", "is_smooth_scroll_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "v_scroll_speed"), "set_v_scroll_speed", "get_v_scroll_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "v_scroll_speed"), "set_v_scroll_speed", "get_v_scroll_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hiding_enabled"), "set_hiding_enabled", "is_hiding_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "wrap_enabled"), "set_wrap_enabled", "is_wrap_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "scroll_vertical"), "set_v_scroll", "get_v_scroll");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "scroll_vertical"), "set_v_scroll", "get_v_scroll");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "scroll_horizontal"), "set_h_scroll", "get_h_scroll");
 
     ADD_GROUP("Minimap", "minimap_");
@@ -7387,7 +7401,7 @@ void TextEdit::_bind_methods() {
     ADD_GROUP("Caret", "caret_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_block_mode"), "cursor_set_block_mode", "cursor_is_block_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_blink"), "cursor_set_blink_enabled", "cursor_get_blink_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_moving_by_right_click"), "set_right_click_moves_caret", "is_right_click_moving_caret");
 
     ADD_SIGNAL(MethodInfo("cursor_changed"));
@@ -7407,7 +7421,7 @@ void TextEdit::_bind_methods() {
     BIND_ENUM_CONSTANT(MENU_MAX)
 
     GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec", 3);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::REAL, "gui/timers/text_edit_idle_detect_sec", PropertyHint::Range, "0,10,0.01,or_greater")); // No negative numbers.
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/text_edit_idle_detect_sec", PropertyHint::Range, "0,10,0.01,or_greater")); // No negative numbers.
 }
 
 TextEdit::TextEdit() {
