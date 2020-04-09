@@ -762,9 +762,9 @@ void _physical_bones_add_remove_collision_exception(bool p_add, Node *p_node, RI
     CollisionObject3D *co = object_cast<CollisionObject3D>(p_node);
     if (co) {
         if (p_add) {
-            PhysicsServer::get_singleton()->body_add_collision_exception(co->get_rid(), p_exception);
+            PhysicsServer3D::get_singleton()->body_add_collision_exception(co->get_rid(), p_exception);
         } else {
-            PhysicsServer::get_singleton()->body_remove_collision_exception(co->get_rid(), p_exception);
+            PhysicsServer3D::get_singleton()->body_remove_collision_exception(co->get_rid(), p_exception);
         }
     }
 }

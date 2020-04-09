@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  bone_attachment.cpp                                                  */
+/*  bone_attachment_3d.cpp                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "bone_attachment.h"
+#include "bone_attachment_3d.h"
 #include "core/method_bind.h"
 
-IMPL_GDCLASS(BoneAttachment)
-void BoneAttachment::_validate_property(PropertyInfo &property) const {
+IMPL_GDCLASS(BoneAttachment3D)
+void BoneAttachment3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "bone_name") {
         Skeleton *parent = object_cast<Skeleton>(get_parent());
@@ -56,7 +56,7 @@ void BoneAttachment::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void BoneAttachment::_check_bind() {
+void BoneAttachment3D::_check_bind() {
 
     Skeleton *sk = object_cast<Skeleton>(get_parent());
     if (sk) {
@@ -70,7 +70,7 @@ void BoneAttachment::_check_bind() {
     }
 }
 
-void BoneAttachment::_check_unbind() {
+void BoneAttachment3D::_check_unbind() {
 
     if (bound) {
 
@@ -86,7 +86,7 @@ void BoneAttachment::_check_unbind() {
     }
 }
 
-void BoneAttachment::set_bone_name(const String &p_name) {
+void BoneAttachment3D::set_bone_name(const String &p_name) {
 
     if (is_inside_tree())
         _check_unbind();
@@ -99,7 +99,7 @@ void BoneAttachment::set_bone_name(const String &p_name) {
 
 
 
-void BoneAttachment::_notification(int p_what) {
+void BoneAttachment3D::_notification(int p_what) {
 
     switch (p_what) {
 
@@ -114,13 +114,13 @@ void BoneAttachment::_notification(int p_what) {
     }
 }
 
-BoneAttachment::BoneAttachment() {
+BoneAttachment3D::BoneAttachment3D() {
     bound = false;
 }
 
-void BoneAttachment::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_bone_name", {"bone_name"}), &BoneAttachment::set_bone_name);
-    MethodBinder::bind_method(D_METHOD("get_bone_name"), &BoneAttachment::get_bone_name);
+void BoneAttachment3D::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("set_bone_name", {"bone_name"}), &BoneAttachment3D::set_bone_name);
+    MethodBinder::bind_method(D_METHOD("get_bone_name"), &BoneAttachment3D::get_bone_name);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bone_name"), "set_bone_name", "get_bone_name");
 }

@@ -36,7 +36,7 @@
 #include "core/method_bind.h"
 #include "physics_body_2d.h"
 #include "scene/main/scene_tree.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 IMPL_GDCLASS(RayCast2D)
 
@@ -210,7 +210,7 @@ void RayCast2D::_update_raycast_state() {
     Ref<World2D> w2d = get_world_2d();
     ERR_FAIL_COND(not w2d);
 
-    Physics2DDirectSpaceState *dss = Physics2DServer::get_singleton()->space_get_direct_state(w2d->get_space());
+    PhysicsDirectSpaceState2D *dss = PhysicsServer2D::get_singleton()->space_get_direct_state(w2d->get_space());
     ERR_FAIL_COND(!dss);
 
     Transform2D gt = get_global_transform();
@@ -219,7 +219,7 @@ void RayCast2D::_update_raycast_state() {
     if (to == Vector2())
         to = Vector2(0, 0.01);
 
-    Physics2DDirectSpaceState::RayResult rr;
+    PhysicsDirectSpaceState2D::RayResult rr;
 
     if (dss->intersect_ray(gt.get_origin(), gt.xform(to), rr, exclude, collision_mask, collide_with_bodies, collide_with_areas)) {
 

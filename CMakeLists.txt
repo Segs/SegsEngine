@@ -30,6 +30,7 @@ include(CMakeParseArguments)
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(AUTOGEN_TARGETS_FOLDER ON)
 
 # Tell cmake to honor CXX_VISIBILITY_PRESET and ignore it
 cmake_policy(SET CMP0063 NEW)
@@ -366,3 +367,4 @@ install(
 )
 
 export(PACKAGE SegsEngine)
+

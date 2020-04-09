@@ -38,7 +38,6 @@
 #include "drivers/windows/dir_access_windows.h"
 #include "drivers/windows/file_access_windows.h"
 #include "drivers/windows/rw_lock_windows.h"
-#include "drivers/windows/semaphore_windows.h"
 #include "drivers/windows/thread_windows.h"
 #include "joypad_windows.h"
 #include "lang_table.h"
@@ -55,6 +54,8 @@
 #include <process.h>
 #include <regstr.h>
 #include <shlobj.h>
+
+#include "core/print_string.h"
 
 static const WORD MAX_CONSOLE_LINES = 1500;
 
@@ -216,7 +217,6 @@ void OS_Windows::initialize_core() {
     borderless = false;
 
     ThreadWindows::make_default();
-    SemaphoreWindows::make_default();
     RWLockWindows::make_default();
 
     FileAccess::make_default<FileAccessWindows>(FileAccess::ACCESS_RESOURCES);

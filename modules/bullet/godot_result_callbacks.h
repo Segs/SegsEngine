@@ -31,7 +31,7 @@
 #ifndef GODOT_RESULT_CALLBACKS_H
 #define GODOT_RESULT_CALLBACKS_H
 
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 #include <BulletCollision/BroadphaseCollision/btBroadphaseProxy.h>
 #include <btBulletDynamicsCommon.h>

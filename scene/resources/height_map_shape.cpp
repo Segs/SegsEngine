@@ -30,7 +30,7 @@
 
 #include "height_map_shape.h"
 
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 #include "core/math/vector2.h"
 
@@ -89,7 +89,7 @@ void HeightMapShape::_update_shape() {
     d["heights"] = map_data;
     d["min_height"] = min_height;
     d["max_height"] = max_height;
-    PhysicsServer::get_singleton()->shape_set_data(get_shape(), d);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), d);
     Shape::_update_shape();
 }
 
@@ -195,7 +195,7 @@ void HeightMapShape::_bind_methods() {
 }
 
 HeightMapShape::HeightMapShape() :
-        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_HEIGHTMAP)) {
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_HEIGHTMAP)) {
 
     map_width = 2;
     map_depth = 2;

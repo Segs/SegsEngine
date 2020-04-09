@@ -43,7 +43,7 @@
 #include "BulletSoftBody/btSoftBodyHelpers.h"
 #include "collision_object_bullet.h"
 #include "scene/resources/mesh.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 #ifdef x11_None
 /// This is required to re add the macro None defined by x11 compiler

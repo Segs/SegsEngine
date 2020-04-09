@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  semaphore_windows.cpp                                                */
+/*  bone_attachment.h                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,72 +28,32 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "semaphore_windows.h"
+#pragma once
 
-#if defined(WINDOWS_ENABLED)
+#include "scene/3d/skeleton.h"
+#include "core/string.h"
 
-#include "core/os/memory.h"
-#include "core/error_macros.h"
+class GODOT_EXPORT BoneAttachment3D : public Node3D {
 
-Error SemaphoreWindows::wait() {
+	GDCLASS(BoneAttachment3D,Node3D)
 
-    WaitForSingleObjectEx(semaphore, INFINITE, false);
-    return OK;
-}
-Error SemaphoreWindows::post() {
+	bool bound;
+    String bone_name;
 
-    ReleaseSemaphore(semaphore, 1, nullptr);
-    return OK;
-}
-int SemaphoreWindows::get() const {
-    long previous;
-    switch (WaitForSingleObjectEx(semaphore, 0, false)) {
-        case WAIT_OBJECT_0: {
-            ERR_FAIL_COND_V(!ReleaseSemaphore(semaphore, 1, &previous), -1);
-            return previous + 1;
-        }
-        case WAIT_TIMEOUT: {
-            return 0;
-        }
-        default: {
-        }
+	void _check_bind();
+	void _check_unbind();
+
+protected:
+	void _validate_property(PropertyInfo &property) const override;
+	void _notification(int p_what);
+
+	static void _bind_methods();
+
+public:
+    void set_bone_name(const String &p_name);
+    const String &get_bone_name() const {
+        return bone_name;
     }
 
-    ERR_FAIL_V(-1);
-}
-
-SemaphoreOld *SemaphoreWindows::create_semaphore_windows() {
-
-    return memnew(SemaphoreWindows);
-}
-
-void SemaphoreWindows::make_default() {
-
-    create_func = create_semaphore_windows;
-}
-
-SemaphoreWindows::SemaphoreWindows() {
-
-#ifdef UWP_ENABLED
-    semaphore = CreateSemaphoreEx(
-            nullptr,
-            0,
-            0xFFFFFFF, //wathever
-            nullptr,
-            0,
-            SEMAPHORE_ALL_ACCESS);
-#else
-    semaphore = CreateSemaphore(
-            nullptr,
-            0,
-            0xFFFFFFF, //wathever
-            nullptr);
-#endif
-}
-
-SemaphoreWindows::~SemaphoreWindows() {
-
-    CloseHandle(semaphore);
-}
-
-#endif
+	BoneAttachment3D();
+};

@@ -30,7 +30,7 @@
 
 #include "rectangle_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -38,7 +38,7 @@ IMPL_GDCLASS(RectangleShape2D)
 
 void RectangleShape2D::_update_shape() {
 
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), extents);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), extents);
     emit_changed();
 }
 
@@ -73,7 +73,7 @@ void RectangleShape2D::_bind_methods() {
 }
 
 RectangleShape2D::RectangleShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->rectangle_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->rectangle_shape_create()) {
 
     extents = Vector2(10, 10);
     _update_shape();

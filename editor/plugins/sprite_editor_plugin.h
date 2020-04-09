@@ -28,12 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SPRITE_EDITOR_PLUGIN_H
-#define SPRITE_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/gui/spin_box.h"
 
 class SpriteEditor : public Control {
@@ -49,7 +48,7 @@ class SpriteEditor : public Control {
 
     Menu selected_menu_item;
 
-    Sprite *node;
+    Sprite2D *node;
 
     MenuButton *options;
 
@@ -92,7 +91,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(Sprite *p_sprite);
+    void edit(Sprite2D *p_sprite);
     SpriteEditor();
 };
 
@@ -104,7 +103,7 @@ class SpriteEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    StringView get_name() const override { return "Sprite"; }
+    StringView get_name() const override { return "Sprite2D"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
@@ -113,5 +112,3 @@ public:
     SpriteEditorPlugin(EditorNode *p_node);
     ~SpriteEditorPlugin() override;
 };
-
-#endif // SPRITE_EDITOR_PLUGIN_H

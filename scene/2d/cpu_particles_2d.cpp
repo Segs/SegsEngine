@@ -36,7 +36,7 @@
 #include "core/os/mutex.h"
 #include "core/translation_helpers.h"
 #include "scene/2d/canvas_item.h"
-#include "scene/2d/particles_2d.h"
+#include "scene/2d/gpu_particles_2d.h"
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/particles_material.h"
 #include "servers/visual_server.h"
@@ -1107,8 +1107,8 @@ void CPUParticles2D::_update_internal() {
 
 }
 void CPUParticles2D::convert_from_particles(Node *p_particles) {
-    Particles2D *particles = object_cast<Particles2D>(p_particles);
-    ERR_FAIL_COND_MSG(!particles, "Only Particles2D nodes can be converted to CPUParticles2D.");
+    GPUParticles2D *particles = object_cast<GPUParticles2D>(p_particles);
+    ERR_FAIL_COND_MSG(!particles, "Only GPUParticles2D nodes can be converted to CPUParticles2D.");
 
     set_emitting(particles->is_emitting());
     set_amount(particles->get_amount());
@@ -1232,7 +1232,7 @@ void CPUParticles2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "");
-    // No visibility_rect property contrarily to Particles2D, it's updated automatically.
+    // No visibility_rect property contrarily to GPUParticles2D, it's updated automatically.
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order", "get_draw_order");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");

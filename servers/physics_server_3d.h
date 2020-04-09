@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  physics_server.h                                                     */
+/*  physics_server_3d.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -225,17 +225,17 @@ public:
     PhysicsShapeQueryResult();
 };
 
-class PhysicsServer : public Object {
+class PhysicsServer3D : public Object {
 
-    GDCLASS(PhysicsServer,Object)
+    GDCLASS(PhysicsServer3D,Object)
 
-    static PhysicsServer *singleton;
+    static PhysicsServer3D *singleton;
 
 protected:
     static void _bind_methods();
 
 public:
-    static PhysicsServer *get_singleton();
+    static PhysicsServer3D *get_singleton();
 
     enum ShapeType {
         SHAPE_PLANE, ///< plane:"plane"
@@ -776,11 +776,11 @@ public:
 
     virtual int get_process_info(ProcessInfo p_info) = 0;
 
-    PhysicsServer();
-    ~PhysicsServer() override;
+    PhysicsServer3D();
+    ~PhysicsServer3D() override;
 };
 
-using CreatePhysicsServerCallback = PhysicsServer *(*)();
+using CreatePhysicsServerCallback = PhysicsServer3D *(*)();
 
 class PhysicsServerManager {
     struct ClassInfo {
@@ -815,8 +815,8 @@ public:
     static int find_server_id(const StringName &p_name);
     static int get_servers_count();
     static StringName get_server_name(int p_id);
-    static PhysicsServer *new_default_server();
-    static PhysicsServer *new_server(const StringName &p_name);
+    static PhysicsServer3D *new_default_server();
+    static PhysicsServer3D *new_server(const StringName &p_name);
     static void cleanup();
 };
-GODOT_EXPORT PhysicsServer * initialize_3d_physics();
+GODOT_EXPORT PhysicsServer3D * initialize_3d_physics();

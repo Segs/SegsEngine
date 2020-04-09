@@ -45,7 +45,7 @@
 #include "core/method_bind.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 #include "node.h"
 #include "scene/debugger/script_debugger_remote.h"
 #include "scene/resources/dynamic_font.h"
@@ -53,8 +53,8 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
-#include "servers/physics_2d_server.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/physics_server_3d.h"
 #include "viewport.h"
 
 #include <cstdio>
@@ -1255,8 +1255,8 @@ void SceneTree::set_pause(bool p_enabled) {
     if (p_enabled == pause)
         return;
     pause = p_enabled;
-    PhysicsServer::get_singleton()->set_active(!p_enabled);
-    Physics2DServer::get_singleton()->set_active(!p_enabled);
+    PhysicsServer3D::get_singleton()->set_active(!p_enabled);
+    PhysicsServer2D::get_singleton()->set_active(!p_enabled);
     if (get_root())
         get_root()->propagate_notification(p_enabled ? Node::NOTIFICATION_PAUSED : Node::NOTIFICATION_UNPAUSED);
 }

@@ -30,7 +30,7 @@
 
 #include "segment_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -49,7 +49,7 @@ void SegmentShape2D::_update_shape() {
     Rect2 r;
     r.position = a;
     r.size = b;
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), r);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), r);
     emit_changed();
 }
 
@@ -99,7 +99,7 @@ void SegmentShape2D::_bind_methods() {
 }
 
 SegmentShape2D::SegmentShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->segment_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->segment_shape_create()) {
 
     a = Vector2();
     b = Vector2(0, 10);
@@ -113,7 +113,7 @@ void RayShape2D::_update_shape() {
     Dictionary d;
     d["length"] = length;
     d["slips_on_slope"] = slips_on_slope;
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), d);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), d);
     emit_changed();
 }
 
@@ -175,7 +175,7 @@ bool RayShape2D::get_slips_on_slope() const {
 }
 
 RayShape2D::RayShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->ray_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->ray_shape_create()) {
 
     length = 20;
     slips_on_slope = false;

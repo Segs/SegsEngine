@@ -28,7 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "sprite.h"
+#include "sprite_2d.h"
+
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "core/os/os.h"
@@ -36,52 +37,52 @@
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
 
-IMPL_GDCLASS(Sprite)
+IMPL_GDCLASS(Sprite2D)
 #ifdef TOOLS_ENABLED
-Dictionary Sprite::_edit_get_state() const {
+Dictionary Sprite2D::_edit_get_state() const {
     Dictionary state = Node2D::_edit_get_state();
     state["offset"] = offset;
     return state;
 }
 
-void Sprite::_edit_set_state(const Dictionary &p_state) {
+void Sprite2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
     set_offset(p_state["offset"]);
 }
 
-void Sprite::_edit_set_pivot(const Point2 &p_pivot) {
+void Sprite2D::_edit_set_pivot(const Point2 &p_pivot) {
     set_offset(get_offset() - p_pivot);
     set_position(get_transform().xform(p_pivot));
 }
 
-Point2 Sprite::_edit_get_pivot() const {
+Point2 Sprite2D::_edit_get_pivot() const {
     return Vector2();
 }
 
-bool Sprite::_edit_use_pivot() const {
+bool Sprite2D::_edit_use_pivot() const {
     return true;
 }
 
-Rect2 Sprite::_edit_get_rect() const {
+Rect2 Sprite2D::_edit_get_rect() const {
     return get_rect();
 }
 
-bool Sprite::_edit_use_rect() const {
+bool Sprite2D::_edit_use_rect() const {
     return texture;
 }
 
-bool Sprite::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
+bool Sprite2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     return is_pixel_opaque(p_point);
 }
 
 #endif
 
-Rect2 Sprite::get_anchorable_rect() const {
+Rect2 Sprite2D::get_anchorable_rect() const {
     return get_rect();
 }
 
-void Sprite::_get_rects(Rect2 &r_src_rect, Rect2 &r_dst_rect, bool &r_filter_clip) const {
+void Sprite2D::_get_rects(Rect2 &r_src_rect, Rect2 &r_dst_rect, bool &r_filter_clip) const {
 
     Rect2 base_rect;
 
@@ -115,7 +116,7 @@ void Sprite::_get_rects(Rect2 &r_src_rect, Rect2 &r_dst_rect, bool &r_filter_cli
         r_dst_rect.size.y = -r_dst_rect.size.y;
 }
 
-void Sprite::_notification(int p_what) {
+void Sprite2D::_notification(int p_what) {
 
     switch (p_what) {
 
@@ -140,7 +141,7 @@ void Sprite::_notification(int p_what) {
     }
 }
 
-void Sprite::set_texture(const Ref<Texture> &p_texture) {
+void Sprite2D::set_texture(const Ref<Texture> &p_texture) {
 
     if (p_texture == texture)
         return;
@@ -159,67 +160,67 @@ void Sprite::set_texture(const Ref<Texture> &p_texture) {
     Object_change_notify(this,"texture");
 }
 
-void Sprite::set_normal_map(const Ref<Texture> &p_texture) {
+void Sprite2D::set_normal_map(const Ref<Texture> &p_texture) {
 
     normal_map = p_texture;
     update();
 }
 
-Ref<Texture> Sprite::get_normal_map() const {
+Ref<Texture> Sprite2D::get_normal_map() const {
 
     return normal_map;
 }
 
-Ref<Texture> Sprite::get_texture() const {
+Ref<Texture> Sprite2D::get_texture() const {
 
     return texture;
 }
 
-void Sprite::set_centered(bool p_center) {
+void Sprite2D::set_centered(bool p_center) {
 
     centered = p_center;
     update();
     item_rect_changed();
 }
 
-bool Sprite::is_centered() const {
+bool Sprite2D::is_centered() const {
 
     return centered;
 }
 
-void Sprite::set_offset(const Point2 &p_offset) {
+void Sprite2D::set_offset(const Point2 &p_offset) {
 
     offset = p_offset;
     update();
     item_rect_changed();
     Object_change_notify(this,"offset");
 }
-Point2 Sprite::get_offset() const {
+Point2 Sprite2D::get_offset() const {
 
     return offset;
 }
 
-void Sprite::set_flip_h(bool p_flip) {
+void Sprite2D::set_flip_h(bool p_flip) {
 
     hflip = p_flip;
     update();
 }
-bool Sprite::is_flipped_h() const {
+bool Sprite2D::is_flipped_h() const {
 
     return hflip;
 }
 
-void Sprite::set_flip_v(bool p_flip) {
+void Sprite2D::set_flip_v(bool p_flip) {
 
     vflip = p_flip;
     update();
 }
-bool Sprite::is_flipped_v() const {
+bool Sprite2D::is_flipped_v() const {
 
     return vflip;
 }
 
-void Sprite::set_region(bool p_region) {
+void Sprite2D::set_region(bool p_region) {
 
     if (p_region == region)
         return;
@@ -228,12 +229,12 @@ void Sprite::set_region(bool p_region) {
     update();
 }
 
-bool Sprite::is_region() const {
+bool Sprite2D::is_region() const {
 
     return region;
 }
 
-void Sprite::set_region_rect(const Rect2 &p_region_rect) {
+void Sprite2D::set_region_rect(const Rect2 &p_region_rect) {
 
     if (region_rect == p_region_rect)
         return;
@@ -246,21 +247,21 @@ void Sprite::set_region_rect(const Rect2 &p_region_rect) {
     Object_change_notify(this,"region_rect");
 }
 
-Rect2 Sprite::get_region_rect() const {
+Rect2 Sprite2D::get_region_rect() const {
 
     return region_rect;
 }
 
-void Sprite::set_region_filter_clip(bool p_enable) {
+void Sprite2D::set_region_filter_clip(bool p_enable) {
     region_filter_clip = p_enable;
     update();
 }
 
-bool Sprite::is_region_filter_clip_enabled() const {
+bool Sprite2D::is_region_filter_clip_enabled() const {
     return region_filter_clip;
 }
 
-void Sprite::set_frame(int p_frame) {
+void Sprite2D::set_frame(int p_frame) {
 
     ERR_FAIL_INDEX(p_frame, vframes * hframes);
 
@@ -274,23 +275,23 @@ void Sprite::set_frame(int p_frame) {
     emit_signal(SceneStringNames::get_singleton()->frame_changed);
 }
 
-int Sprite::get_frame() const {
+int Sprite2D::get_frame() const {
 
     return frame;
 }
 
-void Sprite::set_frame_coords(const Vector2 &p_coord) {
+void Sprite2D::set_frame_coords(const Vector2 &p_coord) {
     ERR_FAIL_INDEX(int(p_coord.x), hframes);
     ERR_FAIL_INDEX(int(p_coord.y), vframes);
 
     set_frame(int(p_coord.y) * hframes + int(p_coord.x));
 }
 
-Vector2 Sprite::get_frame_coords() const {
+Vector2 Sprite2D::get_frame_coords() const {
     return Vector2(frame % hframes, frame / hframes);
 }
 
-void Sprite::set_vframes(int p_amount) {
+void Sprite2D::set_vframes(int p_amount) {
 
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of vframes cannot be smaller than 1.");
     vframes = p_amount;
@@ -298,12 +299,12 @@ void Sprite::set_vframes(int p_amount) {
     item_rect_changed();
     Object_change_notify(this);
 }
-int Sprite::get_vframes() const {
+int Sprite2D::get_vframes() const {
 
     return vframes;
 }
 
-void Sprite::set_hframes(int p_amount) {
+void Sprite2D::set_hframes(int p_amount) {
 
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of hframes cannot be smaller than 1.");
     hframes = p_amount;
@@ -311,12 +312,12 @@ void Sprite::set_hframes(int p_amount) {
     item_rect_changed();
     Object_change_notify(this);
 }
-int Sprite::get_hframes() const {
+int Sprite2D::get_hframes() const {
 
     return hframes;
 }
 
-bool Sprite::is_pixel_opaque(const Point2 &p_point) const {
+bool Sprite2D::is_pixel_opaque(const Point2 &p_point) const {
 
     if (not texture)
         return false;
@@ -364,7 +365,7 @@ bool Sprite::is_pixel_opaque(const Point2 &p_point) const {
     return texture->is_pixel_opaque((int)q.x, (int)q.y);
 }
 
-Rect2 Sprite::get_rect() const {
+Rect2 Sprite2D::get_rect() const {
 
     if (not texture)
         return Rect2(0, 0, 1, 1);
@@ -389,7 +390,7 @@ Rect2 Sprite::get_rect() const {
     return Rect2(ofs, s);
 }
 
-void Sprite::_validate_property(PropertyInfo &property) const {
+void Sprite2D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "frame") {
         property.hint = PropertyHint::Range;
@@ -401,7 +402,7 @@ void Sprite::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void Sprite::_texture_changed() {
+void Sprite2D::_texture_changed() {
 
     // Changes to the texture need to trigger an update to make
     // the editor redraw the sprite with the updated texture.
@@ -410,52 +411,52 @@ void Sprite::_texture_changed() {
     }
 }
 
-void Sprite::_bind_methods() {
+void Sprite2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Sprite::set_texture);
-    MethodBinder::bind_method(D_METHOD("get_texture"), &Sprite::get_texture);
+    MethodBinder::bind_method(D_METHOD("set_texture", {"texture"}), &Sprite2D::set_texture);
+    MethodBinder::bind_method(D_METHOD("get_texture"), &Sprite2D::get_texture);
 
-    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &Sprite::set_normal_map);
-    MethodBinder::bind_method(D_METHOD("get_normal_map"), &Sprite::get_normal_map);
+    MethodBinder::bind_method(D_METHOD("set_normal_map", {"normal_map"}), &Sprite2D::set_normal_map);
+    MethodBinder::bind_method(D_METHOD("get_normal_map"), &Sprite2D::get_normal_map);
 
-    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &Sprite::set_centered);
-    MethodBinder::bind_method(D_METHOD("is_centered"), &Sprite::is_centered);
+    MethodBinder::bind_method(D_METHOD("set_centered", {"centered"}), &Sprite2D::set_centered);
+    MethodBinder::bind_method(D_METHOD("is_centered"), &Sprite2D::is_centered);
 
-    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Sprite::set_offset);
-    MethodBinder::bind_method(D_METHOD("get_offset"), &Sprite::get_offset);
+    MethodBinder::bind_method(D_METHOD("set_offset", {"offset"}), &Sprite2D::set_offset);
+    MethodBinder::bind_method(D_METHOD("get_offset"), &Sprite2D::get_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &Sprite::set_flip_h);
-    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &Sprite::is_flipped_h);
+    MethodBinder::bind_method(D_METHOD("set_flip_h", {"flip_h"}), &Sprite2D::set_flip_h);
+    MethodBinder::bind_method(D_METHOD("is_flipped_h"), &Sprite2D::is_flipped_h);
 
-    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &Sprite::set_flip_v);
-    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &Sprite::is_flipped_v);
+    MethodBinder::bind_method(D_METHOD("set_flip_v", {"flip_v"}), &Sprite2D::set_flip_v);
+    MethodBinder::bind_method(D_METHOD("is_flipped_v"), &Sprite2D::is_flipped_v);
 
-    MethodBinder::bind_method(D_METHOD("set_region", {"enabled"}), &Sprite::set_region);
-    MethodBinder::bind_method(D_METHOD("is_region"), &Sprite::is_region);
+    MethodBinder::bind_method(D_METHOD("set_region", {"enabled"}), &Sprite2D::set_region);
+    MethodBinder::bind_method(D_METHOD("is_region"), &Sprite2D::is_region);
 
-    MethodBinder::bind_method(D_METHOD("is_pixel_opaque", {"pos"}), &Sprite::is_pixel_opaque);
+    MethodBinder::bind_method(D_METHOD("is_pixel_opaque", {"pos"}), &Sprite2D::is_pixel_opaque);
 
-    MethodBinder::bind_method(D_METHOD("set_region_rect", {"rect"}), &Sprite::set_region_rect);
-    MethodBinder::bind_method(D_METHOD("get_region_rect"), &Sprite::get_region_rect);
+    MethodBinder::bind_method(D_METHOD("set_region_rect", {"rect"}), &Sprite2D::set_region_rect);
+    MethodBinder::bind_method(D_METHOD("get_region_rect"), &Sprite2D::get_region_rect);
 
-    MethodBinder::bind_method(D_METHOD("set_region_filter_clip", {"enabled"}), &Sprite::set_region_filter_clip);
-    MethodBinder::bind_method(D_METHOD("is_region_filter_clip_enabled"), &Sprite::is_region_filter_clip_enabled);
+    MethodBinder::bind_method(D_METHOD("set_region_filter_clip", {"enabled"}), &Sprite2D::set_region_filter_clip);
+    MethodBinder::bind_method(D_METHOD("is_region_filter_clip_enabled"), &Sprite2D::is_region_filter_clip_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &Sprite::set_frame);
-    MethodBinder::bind_method(D_METHOD("get_frame"), &Sprite::get_frame);
+    MethodBinder::bind_method(D_METHOD("set_frame", {"frame"}), &Sprite2D::set_frame);
+    MethodBinder::bind_method(D_METHOD("get_frame"), &Sprite2D::get_frame);
 
-    MethodBinder::bind_method(D_METHOD("set_frame_coords", {"coords"}), &Sprite::set_frame_coords);
-    MethodBinder::bind_method(D_METHOD("get_frame_coords"), &Sprite::get_frame_coords);
+    MethodBinder::bind_method(D_METHOD("set_frame_coords", {"coords"}), &Sprite2D::set_frame_coords);
+    MethodBinder::bind_method(D_METHOD("get_frame_coords"), &Sprite2D::get_frame_coords);
 
-    MethodBinder::bind_method(D_METHOD("set_vframes", {"vframes"}), &Sprite::set_vframes);
-    MethodBinder::bind_method(D_METHOD("get_vframes"), &Sprite::get_vframes);
+    MethodBinder::bind_method(D_METHOD("set_vframes", {"vframes"}), &Sprite2D::set_vframes);
+    MethodBinder::bind_method(D_METHOD("get_vframes"), &Sprite2D::get_vframes);
 
-    MethodBinder::bind_method(D_METHOD("set_hframes", {"hframes"}), &Sprite::set_hframes);
-    MethodBinder::bind_method(D_METHOD("get_hframes"), &Sprite::get_hframes);
+    MethodBinder::bind_method(D_METHOD("set_hframes", {"hframes"}), &Sprite2D::set_hframes);
+    MethodBinder::bind_method(D_METHOD("get_hframes"), &Sprite2D::get_hframes);
 
-    MethodBinder::bind_method(D_METHOD("get_rect"), &Sprite::get_rect);
+    MethodBinder::bind_method(D_METHOD("get_rect"), &Sprite2D::get_rect);
 
-    MethodBinder::bind_method(D_METHOD("_texture_changed"), &Sprite::_texture_changed);
+    MethodBinder::bind_method(D_METHOD("_texture_changed"), &Sprite2D::_texture_changed);
 
     ADD_SIGNAL(MethodInfo("frame_changed"));
     ADD_SIGNAL(MethodInfo("texture_changed"));
@@ -479,7 +480,7 @@ void Sprite::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "region_filter_clip"), "set_region_filter_clip", "is_region_filter_clip_enabled");
 }
 
-Sprite::Sprite() {
+Sprite2D::Sprite2D() {
 
     centered = true;
     hflip = false;
@@ -493,4 +494,4 @@ Sprite::Sprite() {
     hframes = 1;
 }
 
-Sprite::~Sprite() = default;
+Sprite2D::~Sprite2D() = default;

@@ -70,7 +70,7 @@ public:
     Error connect_to_host(IP_Address p_host, uint16_t p_port) override;
     Error poll(PollType p_type, int timeout) const override;
     Error recv(uint8_t *p_buffer, int p_len, int &r_read) override;
-    Error recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port) override;
+    Error recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port, bool p_peek = false) override;
     Error send(const uint8_t *p_buffer, int p_len, int &r_sent) override;
     Error sendto(const uint8_t *p_buffer, int p_len, int &r_sent, IP_Address p_ip, uint16_t p_port) override;
     Ref<NetSocket> accept(IP_Address &r_ip, uint16_t &r_port) override;

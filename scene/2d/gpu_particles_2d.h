@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  particles_2d.h                                                       */
+/*  gpu_particles_2d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,16 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PARTICLES_2D_H
-#define PARTICLES_2D_H
+#pragma once
 
 #include "core/rid.h"
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
 
-class Particles2D : public Node2D {
+class GPUParticles2D : public Node2D {
 private:
-    GDCLASS(Particles2D,Node2D)
+    GDCLASS(GPUParticles2D,Node2D)
 
 public:
     enum DrawOrder {
@@ -118,9 +117,6 @@ public:
 
     void restart();
     Rect2 capture_rect() const;
-    Particles2D();
-    ~Particles2D() override;
+    GPUParticles2D();
+    ~GPUParticles2D() override;
 };
-
-
-#endif // PARTICLES_2D_H

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="PhysicsDirectSpaceState" inherits="Object" version="4.0">
 	<brief_description>
-		Direct access object to a space in the [PhysicsServer].
+		Direct access object to a space in the [PhysicsServer3D].
 	</brief_description>
 	<description>
-		Direct access object to a space in the [PhysicsServer]. It's used mainly to do queries against objects and areas residing in a given space.
+		Direct access object to a space in the [PhysicsServer3D]. It's used mainly to do queries against objects and areas residing in a given space.
 	</description>
 	<tutorials>
 		<link>https://docs.godotengine.org/en/latest/tutorials/physics/ray-casting.html</link>

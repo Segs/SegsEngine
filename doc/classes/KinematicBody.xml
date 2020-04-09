@@ -15,7 +15,7 @@
         <method name="get_axis_lock" qualifiers="const">
             <return type="bool">
             </return>
-            <argument index="0" name="axis" type="int" enum="PhysicsServer.BodyAxis">
+            <argument index="0" name="axis" type="int" enum="PhysicsServer3D.BodyAxis">
             </argument>
             <description>
                 Returns [code]true[/code] if the specified [code]axis[/code] is locked. See also [member move_lock_x], [member move_lock_y] and [member move_lock_z].
@@ -140,7 +140,7 @@
         <method name="set_axis_lock">
             <return type="void">
             </return>
-            <argument index="0" name="axis" type="int" enum="PhysicsServer.BodyAxis">
+            <argument index="0" name="axis" type="int" enum="PhysicsServer3D.BodyAxis">
             </argument>
             <argument index="1" name="lock" type="bool">
             </argument>

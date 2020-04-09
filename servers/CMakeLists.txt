@@ -98,10 +98,10 @@ physics_2d/space_2d_sw.cpp
 physics_2d/space_2d_sw.h
 physics_2d/step_2d_sw.cpp
 physics_2d/step_2d_sw.h
-physics_2d_server.cpp
-physics_2d_server.h
-physics_server.cpp
-physics_server.h
+physics_server_2d.cpp
+physics_server_2d.h
+physics_server_3d.cpp
+physics_server_3d.h
 register_server_types.cpp
 register_server_types.h
 server_wrap_mt_common.h

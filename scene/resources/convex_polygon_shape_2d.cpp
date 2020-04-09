@@ -31,7 +31,7 @@
 #include "convex_polygon_shape_2d.h"
 
 #include "core/math/geometry.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -48,7 +48,7 @@ void ConvexPolygonShape2D::_update_shape() {
     if (Geometry::is_polygon_clockwise(final_points)) { //needs to be counter clockwise
         eastl::reverse(final_points.begin(),final_points.end());
     }
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), final_points);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), final_points);
     emit_changed();
 }
 
@@ -109,5 +109,5 @@ Rect2 ConvexPolygonShape2D::get_rect() const {
 }
 
 ConvexPolygonShape2D::ConvexPolygonShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->convex_polygon_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->convex_polygon_shape_create()) {
 }

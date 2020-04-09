@@ -85,7 +85,7 @@
 		<method name="get_axis_lock" qualifiers="const">
 			<return type="bool">
 			</return>
-			<argument index="0" name="axis" type="int" enum="PhysicsServer.BodyAxis">
+			<argument index="0" name="axis" type="int" enum="PhysicsServer3D.BodyAxis">
 			</argument>
 			<description>
 				Returns [code]true[/code] if the specified linear or rotational axis is locked.
@@ -102,7 +102,7 @@
 		<method name="set_axis_lock">
 			<return type="void">
 			</return>
-			<argument index="0" name="axis" type="int" enum="PhysicsServer.BodyAxis">
+			<argument index="0" name="axis" type="int" enum="PhysicsServer3D.BodyAxis">
 			</argument>
 			<argument index="1" name="lock" type="bool">
 			</argument>

@@ -30,7 +30,7 @@
 
 #include "visibility_notifier_2d.h"
 
-#include "particles_2d.h"
+#include "gpu_particles_2d.h"
 
 #include "core/engine.h"
 #include "core/method_bind.h"
@@ -224,7 +224,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (enabler[ENABLER_PAUSE_PARTICLES]) {
 
-        Particles2D *ps = object_cast<Particles2D>(p_node);
+        GPUParticles2D *ps = object_cast<GPUParticles2D>(p_node);
         if (ps) {
             add = true;
         }
@@ -315,7 +315,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
     }
 
     {
-        Particles2D *ps = object_cast<Particles2D>(p_node);
+        GPUParticles2D *ps = object_cast<GPUParticles2D>(p_node);
 
         if (ps) {
 

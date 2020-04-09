@@ -36,7 +36,7 @@
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
 
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 
 IMPL_GDCLASS(ScrollBar)
 IMPL_GDCLASS(HScrollBar)

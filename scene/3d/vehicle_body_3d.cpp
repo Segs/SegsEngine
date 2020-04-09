@@ -972,7 +972,7 @@ VehicleBody3D::VehicleBody3D() {
     ccd = false;
 
     exclude.insert(get_rid());
-    //PhysicsServer::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    //PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
 
     set_mass(40);
 }

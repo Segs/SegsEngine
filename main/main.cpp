@@ -33,35 +33,34 @@
 #include "core/class_db.h"
 #include "core/crypto/crypto.h"
 #include "core/external_profiler.h"
+#include "core/input/input_default.h"
 #include "core/input_map.h"
 #include "core/io/file_access_network.h"
 #include "core/io/file_access_pack.h"
-
 #include "core/io/image_loader.h"
 #include "core/io/ip.h"
-#include "plugins/plugin_registry_interface.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/register_core_types.h"
+#include "core/resource/resource_manager.h"
+#include "core/rotated_file_loger.h"
 #include "core/script_debugger_local.h"
 #include "core/script_language.h"
 #include "core/translation.h"
-#include "core/rotated_file_loger.h"
-#include "core/resource/resource_manager.h"
 #include "core/version.h"
 #include "core/version_hash.gen.h"
 #include "drivers/register_driver_types.h"
 #include "main/app_icon.gen.h"
-#include "main/input_default.h"
 #include "main/main_timer_sync.h"
 #include "main/performance.h"
 #include "main/splash.gen.h"
 #include "main/splash_editor.gen.h"
 #include "main/tests/test_main.h"
 #include "modules/register_module_types.h"
+#include "plugins/plugin_registry_interface.h"
 
 #include "scene/debugger/script_debugger_remote.h"
 #include "scene/main/scene_tree.h"
@@ -73,8 +72,8 @@
 #include "servers/camera_server.h"
 #include "servers/navigation_server.h"
 #include "servers/navigation_2d_server.h"
-#include "servers/physics_2d_server.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/physics_server_3d.h"
 #include "core/string_formatter.h"
 #include "servers/register_server_types.h"
 
@@ -110,8 +109,8 @@ static MessageQueue *message_queue = nullptr;
 static AudioServer *audio_server = nullptr;
 static CameraServer *camera_server = nullptr;
 static ARVRServer *arvr_server = nullptr;
-static PhysicsServer *physics_server = nullptr;
-static Physics2DServer *physics_2d_server = nullptr;
+static PhysicsServer3D *physics_server_3d = nullptr;
+static PhysicsServer2D *physics_server_2d = nullptr;
 static NavigationServer *navigation_server = nullptr;
 static Navigation2DServer *navigation_2d_server = nullptr;
 // We error out if setup2() doesn't turn this true
@@ -184,30 +183,30 @@ static String get_full_version_string() {
 void initialize_physics() {
 
     /// 3D Physics Server
-    physics_server = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
-    if (!physics_server) {
+    physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
+    if (!physics_server_3d) {
         // Physics server not found, Use the default physics
-        physics_server = PhysicsServerManager::new_default_server();
+        physics_server_3d = PhysicsServerManager::new_default_server();
     }
-    ERR_FAIL_COND(!physics_server);
-    physics_server->init();
+    ERR_FAIL_COND(!physics_server_3d);
+    physics_server_3d->init();
 
     /// 2D Physics server
-    physics_2d_server = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->get(Physics2DServerManager::setting_property_name));
-    if (!physics_2d_server) {
+    physics_server_2d = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->get(Physics2DServerManager::setting_property_name));
+    if (!physics_server_2d) {
         // Physics server not found, Use the default physics
-        physics_2d_server = Physics2DServerManager::new_default_server();
+        physics_server_2d = Physics2DServerManager::new_default_server();
     }
-    ERR_FAIL_COND(!physics_2d_server);
-    physics_2d_server->init();
+    ERR_FAIL_COND(!physics_server_2d);
+    physics_server_2d->init();
 }
 
 void finalize_physics() {
-    physics_server->finish();
-    memdelete(physics_server);
+    physics_server_3d->finish();
+    memdelete(physics_server_3d);
 
-    physics_2d_server->finish();
-    memdelete(physics_2d_server);
+    physics_server_2d->finish();
+    memdelete(physics_server_2d);
 
     Physics2DServerManager::cleanup();
     PhysicsServerManager::cleanup();
@@ -2095,11 +2094,11 @@ bool Main::iteration() {
 
         uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
-        PhysicsServer::get_singleton()->sync();
-        PhysicsServer::get_singleton()->flush_queries();
+        PhysicsServer3D::get_singleton()->sync();
+        PhysicsServer3D::get_singleton()->flush_queries();
 
-        Physics2DServer::get_singleton()->sync();
-        Physics2DServer::get_singleton()->flush_queries();
+        PhysicsServer2D::get_singleton()->sync();
+        PhysicsServer2D::get_singleton()->flush_queries();
 
         if (OS::get_singleton()->get_main_loop()->iteration(frame_slice * time_scale)) {
             exit = true;
@@ -2108,11 +2107,11 @@ bool Main::iteration() {
 
         message_queue->flush();
 
-        PhysicsServer::get_singleton()->step(frame_slice * time_scale);
+        PhysicsServer3D::get_singleton()->step(frame_slice * time_scale);
         NavigationServer::get_singleton_mut()->step(frame_slice * time_scale);
 
-        Physics2DServer::get_singleton()->end_sync();
-        Physics2DServer::get_singleton()->step(frame_slice * time_scale);
+        PhysicsServer2D::get_singleton()->end_sync();
+        PhysicsServer2D::get_singleton()->step(frame_slice * time_scale);
 
         message_queue->flush();
 

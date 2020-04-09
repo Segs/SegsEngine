@@ -141,7 +141,7 @@ void Physics2DServerSW::shape_set_custom_solver_bias(RID p_shape, real_t p_bias)
     shape->set_custom_bias(p_bias);
 }
 
-Physics2DServer::ShapeType Physics2DServerSW::shape_get_type(RID p_shape) const {
+PhysicsServer2D::ShapeType Physics2DServerSW::shape_get_type(RID p_shape) const {
 
     const Shape2DSW *shape = shape_owner.get(p_shape);
     ERR_FAIL_COND_V(!shape, SHAPE_CUSTOM);
@@ -312,7 +312,7 @@ int Physics2DServerSW::space_get_contact_count(RID p_space) const {
     return space->get_debug_contact_count();
 }
 
-Physics2DDirectSpaceState *Physics2DServerSW::space_get_direct_state(RID p_space) {
+PhysicsDirectSpaceState2D *Physics2DServerSW::space_get_direct_state(RID p_space) {
 
     Space2DSW *space = space_owner.get(p_space);
     ERR_FAIL_COND_V(!space, nullptr);
@@ -366,7 +366,7 @@ void Physics2DServerSW::area_set_space_override_mode(RID p_area, AreaSpaceOverri
     area->set_space_override_mode(p_mode);
 }
 
-Physics2DServer::AreaSpaceOverrideMode Physics2DServerSW::area_get_space_override_mode(RID p_area) const {
+PhysicsServer2D::AreaSpaceOverrideMode Physics2DServerSW::area_get_space_override_mode(RID p_area) const {
 
     const Area2DSW *area = area_owner.get(p_area);
     ERR_FAIL_COND_V(!area, AREA_SPACE_OVERRIDE_DISABLED);
@@ -631,7 +631,7 @@ void Physics2DServerSW::body_set_mode(RID p_body, BodyMode p_mode) {
     body->set_mode(p_mode);
 };
 
-Physics2DServer::BodyMode Physics2DServerSW::body_get_mode(RID p_body) const {
+PhysicsServer2D::BodyMode Physics2DServerSW::body_get_mode(RID p_body) const {
 
     Body2DSW *body = body_owner.get(p_body);
     ERR_FAIL_COND_V(!body, BODY_MODE_STATIC);
@@ -1069,7 +1069,7 @@ int Physics2DServerSW::body_test_ray_separation(RID p_body, const Transform2D &p
     return body->get_space()->test_body_ray_separation(body, p_transform, p_infinite_inertia, r_recover_motion, r_results, p_result_max, p_margin);
 }
 
-Physics2DDirectBodyState *Physics2DServerSW::body_get_direct_state(RID p_body) {
+PhysicsDirectBodyState2D *Physics2DServerSW::body_get_direct_state(RID p_body) {
 
     ERR_FAIL_COND_V_MSG((using_threads && !doing_sync), nullptr, "Body state is inaccessible right now, wait for iteration or physics process notification.");
 
@@ -1224,7 +1224,7 @@ real_t Physics2DServerSW::damped_string_joint_get_param(RID p_joint, DampedStrin
     return dsj->get_param(p_param);
 }
 
-Physics2DServer::JointType Physics2DServerSW::joint_get_type(RID p_joint) const {
+PhysicsServer2D::JointType Physics2DServerSW::joint_get_type(RID p_joint) const {
 
     Joint2DSW *joint = joint_owner.get(p_joint);
     ERR_FAIL_COND_V(!joint, JOINT_PIN);

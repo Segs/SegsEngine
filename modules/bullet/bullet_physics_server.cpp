@@ -155,9 +155,9 @@ void BulletPhysicsServer::shape_set_custom_solver_bias(RID p_shape, real_t p_bia
     //WARN_PRINT("Bias not supported by Bullet physics engine");
 }
 
-PhysicsServer::ShapeType BulletPhysicsServer::shape_get_type(RID p_shape) const {
+PhysicsServer3D::ShapeType BulletPhysicsServer::shape_get_type(RID p_shape) const {
     ShapeBullet *shape = shape_owner.getornull(p_shape);
-    ERR_FAIL_COND_V(!shape, PhysicsServer::SHAPE_CUSTOM);
+    ERR_FAIL_COND_V(!shape, PhysicsServer3D::SHAPE_CUSTOM);
     return shape->get_type();
 }
 
@@ -284,9 +284,9 @@ void BulletPhysicsServer::area_set_space_override_mode(RID p_area, AreaSpaceOver
     area->set_spOv_mode(p_mode);
 }
 
-PhysicsServer::AreaSpaceOverrideMode BulletPhysicsServer::area_get_space_override_mode(RID p_area) const {
+PhysicsServer3D::AreaSpaceOverrideMode BulletPhysicsServer::area_get_space_override_mode(RID p_area) const {
     AreaBullet *area = area_owner.getornull(p_area);
-    ERR_FAIL_COND_V(!area, PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED);
+    ERR_FAIL_COND_V(!area, PhysicsServer3D::AREA_SPACE_OVERRIDE_DISABLED);
 
     return area->get_spOv_mode();
 }
@@ -498,13 +498,13 @@ RID BulletPhysicsServer::body_get_space(RID p_body) const {
     return space->get_self();
 }
 
-void BulletPhysicsServer::body_set_mode(RID p_body, PhysicsServer::BodyMode p_mode) {
+void BulletPhysicsServer::body_set_mode(RID p_body, PhysicsServer3D::BodyMode p_mode) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND(!body);
     body->set_mode(p_mode);
 }
 
-PhysicsServer::BodyMode BulletPhysicsServer::body_get_mode(RID p_body) const {
+PhysicsServer3D::BodyMode BulletPhysicsServer::body_get_mode(RID p_body) const {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND_V(!body, BODY_MODE_STATIC);
     return body->get_mode();
@@ -1191,7 +1191,7 @@ bool BulletPhysicsServer::soft_body_is_point_pinned(RID p_body, int p_point_inde
     return body->get_node_mass(p_point_index);
 }
 
-PhysicsServer::JointType BulletPhysicsServer::joint_get_type(RID p_joint) const {
+PhysicsServer3D::JointType BulletPhysicsServer::joint_get_type(RID p_joint) const {
     JointBullet *joint = joint_owner.get(p_joint);
     ERR_FAIL_COND_V(!joint, JOINT_PIN);
     return joint->get_type();

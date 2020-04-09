@@ -54,7 +54,7 @@ void SpriteEditor::_node_removed(Node *p_node) {
     }
 }
 
-void SpriteEditor::edit(Sprite *p_sprite) {
+void SpriteEditor::edit(Sprite2D *p_sprite) {
 
     node = p_sprite;
 }
@@ -176,7 +176,7 @@ void SpriteEditor::_update_mesh_data() {
 
     Ref<Texture> texture = node->get_texture();
     if (not texture) {
-        err_dialog->set_text(TTR("Sprite is empty!"));
+        err_dialog->set_text(TTR("Sprite2D is empty!"));
         err_dialog->popup_centered_minsize();
         return;
     }
@@ -512,8 +512,8 @@ SpriteEditor::SpriteEditor() {
 
     CanvasItemEditor::get_singleton()->add_control_to_menu_panel(options);
 
-    options->set_text(TTR("Sprite"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite", "EditorIcons"));
+    options->set_text(TTR("Sprite2D"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite2D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Convert to Mesh2D"), MENU_OPTION_CONVERT_TO_MESH_2D);
     options->get_popup()->add_item(TTR("Convert to Polygon2D"), MENU_OPTION_CONVERT_TO_POLYGON_2D);
@@ -577,12 +577,12 @@ SpriteEditor::SpriteEditor() {
 
 void SpriteEditorPlugin::edit(Object *p_object) {
 
-    sprite_editor->edit(object_cast<Sprite>(p_object));
+    sprite_editor->edit(object_cast<Sprite2D>(p_object));
 }
 
 bool SpriteEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("Sprite");
+    return p_object->is_class("Sprite2D");
 }
 
 void SpriteEditorPlugin::make_visible(bool p_visible) {

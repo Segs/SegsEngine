@@ -584,7 +584,7 @@
                 Linearly interpolates between two angles (in radians) by a normalized value.
                 Similar to [method lerp], but interpolates correctly when the angles wrap around [constant @GDScript.TAU].
                 [codeblock]
-                extends Sprite
+                extends Sprite2D
                 var elapsed = 0.0
                 func _process(delta):
                     var min_angle = deg2rad(0.0)
@@ -1216,7 +1216,7 @@
             <description>
                 Returns whether the given class exists in [ClassDB].
                 [codeblock]
-                type_exists("Sprite") # Returns true
+                type_exists("Sprite2D") # Returns true
                 type_exists("Variant") # Returns false
                 [/codeblock]
             </description>

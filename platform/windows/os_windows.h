@@ -39,7 +39,7 @@
 #include "drivers/wasapi/audio_driver_wasapi.h"
 #include "drivers/winmidi/midi_driver_winmidi.h"
 #include "key_mapping_windows.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 #include "servers/audio_server.h"
 #include "servers/visual/rasterizer.h"
 #include "servers/visual_server.h"

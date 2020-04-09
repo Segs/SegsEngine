@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  physics_2d_server.h                                                  */
+/*  physics_server_2d.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -38,11 +38,11 @@
 
 #include <utility>
 
-class Physics2DDirectSpaceState;
+class PhysicsDirectSpaceState2D;
 
-class Physics2DDirectBodyState : public Object {
+class PhysicsDirectBodyState2D : public Object {
 
-    GDCLASS(Physics2DDirectBodyState,Object)
+    GDCLASS(PhysicsDirectBodyState2D,Object)
 
 protected:
     static void _bind_methods();
@@ -91,19 +91,19 @@ public:
     virtual real_t get_step() const = 0;
     virtual void integrate_forces();
 
-    virtual Physics2DDirectSpaceState *get_space_state() = 0;
+    virtual PhysicsDirectSpaceState2D *get_space_state() = 0;
 
-    Physics2DDirectBodyState();
+    PhysicsDirectBodyState2D();
 };
 
-class Physics2DShapeQueryResult;
+class PhysicsShapeQueryResult2D;
 
 //used for script
-class Physics2DShapeQueryParameters : public RefCounted {
+class PhysicsShapeQueryParameters2D : public RefCounted {
 
-    GDCLASS(Physics2DShapeQueryParameters,RefCounted)
+    GDCLASS(PhysicsShapeQueryParameters2D,RefCounted)
 
-    friend class Physics2DDirectSpaceState;
+    friend class PhysicsDirectSpaceState2D;
     RID shape;
     Transform2D transform;
     Vector2 motion;
@@ -143,21 +143,21 @@ public:
     void set_exclude(const PoolVector<RID> &p_exclude);
     PoolVector<RID> get_exclude() const;
 
-    Physics2DShapeQueryParameters();
+    PhysicsShapeQueryParameters2D();
 };
 
-class Physics2DDirectSpaceState : public Object {
+class PhysicsDirectSpaceState2D : public Object {
 
-    GDCLASS(Physics2DDirectSpaceState,Object)
+    GDCLASS(PhysicsDirectSpaceState2D,Object)
 public:
     Dictionary _intersect_ray(const Vector2 &p_from, const Vector2 &p_to, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_point(const Vector2 &p_point, int p_max_results = 32, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_point_on_canvas(const Vector2 &p_point, ObjectID p_canvas_intance_id, int p_max_results = 32, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_layers = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
-    Array _intersect_point_impl(const Vector2 &p_point, int p_max_results, const Vector<RID> &p_exclud, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_filter_by_canvas = false, ObjectID p_canvas_instance_id = 0);
-    Array _intersect_shape(const Ref<Physics2DShapeQueryParameters> &p_shape_query, int p_max_results = 32);
-    Array _cast_motion(const Ref<Physics2DShapeQueryParameters> &p_shape_query);
-    Array _collide_shape(const Ref<Physics2DShapeQueryParameters> &p_shape_query, int p_max_results = 32);
-    Dictionary _get_rest_info(const Ref<Physics2DShapeQueryParameters> &p_shape_query);
+    Array _intersect_point_impl(const Vector2 &p_point, int p_max_results, const Vector<RID> &p_exclud, uint32_t p_layers, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_filter_by_canvas = false, ObjectID p_canvas_instance_id = {});
+    Array _intersect_shape(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query, int p_max_results = 32);
+    Array _cast_motion(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query);
+    Array _collide_shape(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query, int p_max_results = 32);
+    Dictionary _get_rest_info(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query);
 
 protected:
     static void _bind_methods();
@@ -207,16 +207,16 @@ public:
 
     virtual bool rest_info(RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, float p_margin, ShapeRestInfo *r_info, const HashSet<RID> &p_exclude = HashSet<RID>(), uint32_t p_collision_layer = 0xFFFFFFFF, bool p_collide_with_bodies = true, bool p_collide_with_areas = false) = 0;
 
-    Physics2DDirectSpaceState();
+    PhysicsDirectSpaceState2D();
 };
 
-class Physics2DShapeQueryResult : public RefCounted {
+class PhysicsShapeQueryResult2D : public RefCounted {
 
-    GDCLASS(Physics2DShapeQueryResult,RefCounted)
+    GDCLASS(PhysicsShapeQueryResult2D,RefCounted)
 
-    Vector<Physics2DDirectSpaceState::ShapeResult> result;
+    Vector<PhysicsDirectSpaceState2D::ShapeResult> result;
 
-    friend class Physics2DDirectSpaceState;
+    friend class PhysicsDirectSpaceState2D;
 
 protected:
     static void _bind_methods();
@@ -228,16 +228,16 @@ public:
     Object *get_result_object(int p_idx) const;
     int get_result_object_shape(int p_idx) const;
 
-    Physics2DShapeQueryResult();
+    PhysicsShapeQueryResult2D();
 };
 
 class Physics2DTestMotionResult;
 
-class Physics2DServer : public Object {
+class PhysicsServer2D : public Object {
 
-    GDCLASS(Physics2DServer,Object)
+    GDCLASS(PhysicsServer2D,Object)
 
-    static Physics2DServer *singleton;
+    static PhysicsServer2D *singleton;
 public:
     virtual bool _body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, float p_margin = 0.08, const Ref<Physics2DTestMotionResult> &p_result = Ref<Physics2DTestMotionResult>());
 
@@ -245,7 +245,7 @@ protected:
     static void _bind_methods();
 
 public:
-    static Physics2DServer *get_singleton();
+    static PhysicsServer2D *get_singleton();
 
     enum ShapeType {
         SHAPE_LINE, ///< plane:"plane"
@@ -300,7 +300,7 @@ public:
     virtual real_t space_get_param(RID p_space, SpaceParameter p_param) const = 0;
 
     // this function only works on physics process, errors and returns null otherwise
-    virtual Physics2DDirectSpaceState *space_get_direct_state(RID p_space) = 0;
+    virtual PhysicsDirectSpaceState2D *space_get_direct_state(RID p_space) = 0;
 
     virtual void space_set_debug_contacts(RID p_space, int p_max_contacts) = 0;
     virtual const Vector<Vector2> &space_get_contacts(RID p_space) const = 0;
@@ -494,7 +494,7 @@ public:
     virtual void body_set_pickable(RID p_body, bool p_pickable) = 0;
 
     // this function only works on physics process, errors and returns null otherwise
-    virtual Physics2DDirectBodyState *body_get_direct_state(RID p_body) = 0;
+    virtual PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) = 0;
 
     struct MotionResult {
 
@@ -606,23 +606,23 @@ public:
 
     virtual int get_process_info(ProcessInfo p_info) = 0;
 
-    Physics2DServer();
-    ~Physics2DServer() override;
+    PhysicsServer2D();
+    ~PhysicsServer2D() override;
 };
 
 class Physics2DTestMotionResult : public RefCounted {
 
     GDCLASS(Physics2DTestMotionResult,RefCounted)
 
-    Physics2DServer::MotionResult result;
+    PhysicsServer2D::MotionResult result;
     bool colliding;
-    friend class Physics2DServer;
+    friend class PhysicsServer2D;
 
 protected:
     static void _bind_methods();
 
 public:
-    Physics2DServer::MotionResult *get_result_ptr() const { return const_cast<Physics2DServer::MotionResult *>(&result); }
+    PhysicsServer2D::MotionResult *get_result_ptr() const { return const_cast<PhysicsServer2D::MotionResult *>(&result); }
 
     //bool is_colliding() const;
     Vector2 get_motion() const;
@@ -639,7 +639,7 @@ public:
     Physics2DTestMotionResult();
 };
 
-using CreatePhysics2DServerCallback = Physics2DServer *(*)();
+using CreatePhysics2DServerCallback = PhysicsServer2D *(*)();
 
 class Physics2DServerManager {
 
@@ -658,8 +658,8 @@ public:
     static int find_server_id(const StringName &p_name);
     static int get_servers_count();
     static StringName get_server_name(int p_id);
-    static Physics2DServer *new_default_server();
-    static Physics2DServer *new_server(const StringName &p_name);
+    static PhysicsServer2D *new_default_server();
+    static PhysicsServer2D *new_server(const StringName &p_name);
     static void cleanup();
 };
-GODOT_EXPORT Physics2DServer *initialize_2d_physics();
+GODOT_EXPORT PhysicsServer2D *initialize_2d_physics();

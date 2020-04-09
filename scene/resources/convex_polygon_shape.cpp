@@ -30,7 +30,7 @@
 
 #include "convex_polygon_shape.h"
 #include "core/math/quick_hull.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ConvexPolygonShape)
@@ -59,7 +59,7 @@ Vector<Vector3> ConvexPolygonShape::get_debug_mesh_lines() {
 
 void ConvexPolygonShape::_update_shape() {
 
-    PhysicsServer::get_singleton()->shape_set_data(get_shape(), points);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), points);
     Shape::_update_shape();
 }
 
@@ -88,5 +88,5 @@ void ConvexPolygonShape::_bind_methods() {
 }
 
 ConvexPolygonShape::ConvexPolygonShape() :
-        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_CONVEX_POLYGON)) {
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CONVEX_POLYGON)) {
 }

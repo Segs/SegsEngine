@@ -37,7 +37,7 @@
 #include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/world.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 IMPL_GDCLASS(Camera)
 IMPL_GDCLASS(ClippedCamera)
@@ -791,7 +791,7 @@ void ClippedCamera::_notification(int p_what) {
             }
 
             if (!all_equal) {
-                PhysicsServer::get_singleton()->shape_set_data(pyramid_shape, Variant::from(local_points));
+                PhysicsServer3D::get_singleton()->shape_set_data(pyramid_shape, Variant::from(local_points));
                 points = local_points;
             }
         }
@@ -945,10 +945,10 @@ ClippedCamera::ClippedCamera() {
     collision_mask = 1;
     set_notify_local_transform(Engine::get_singleton()->is_editor_hint());
     points.resize(5);
-    pyramid_shape = PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_CONVEX_POLYGON);
+    pyramid_shape = PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CONVEX_POLYGON);
     clip_to_areas = false;
     clip_to_bodies = true;
 }
 ClippedCamera::~ClippedCamera() {
-    PhysicsServer::get_singleton()->free_rid(pyramid_shape);
+    PhysicsServer3D::get_singleton()->free_rid(pyramid_shape);
 }

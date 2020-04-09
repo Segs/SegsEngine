@@ -648,7 +648,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
                         ti->set_text_utf8(0, F);
                         ti->set_selectable(0, false);
                         ti->set_editable(0, false);
-                        ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
+                        ti->set_icon(0, get_icon("BoneAttachment3D", "EditorIcons"));
                     } else {
                         ti = parenthood[accum];
                     }
@@ -659,7 +659,7 @@ bool AnimationNodeBlendTreeEditor::_update_filters(const Ref<AnimationNode> &ano
                 ti->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
                 ti->set_text_utf8(0, concat);
                 ti->set_checked(0, anode->is_path_filtered(path));
-                ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
+                ti->set_icon(0, get_icon("BoneAttachment3D", "EditorIcons"));
                 ti->set_metadata(0, path);
 
             } else {

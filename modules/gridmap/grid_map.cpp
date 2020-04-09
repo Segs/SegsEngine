@@ -314,10 +314,10 @@ void GridMap::set_cell_item(int p_x, int p_y, int p_z, int p_item, int p_rot) {
         //create octant because it does not exist
         Octant *g = memnew(Octant);
         g->dirty = true;
-        g->static_body = PhysicsServer::get_singleton()->body_create(PhysicsServer::BODY_MODE_STATIC);
-        PhysicsServer::get_singleton()->body_attach_object_instance_id(g->static_body, get_instance_id());
-        PhysicsServer::get_singleton()->body_set_collision_layer(g->static_body, collision_layer);
-        PhysicsServer::get_singleton()->body_set_collision_mask(g->static_body, collision_mask);
+        g->static_body = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
+        PhysicsServer3D::get_singleton()->body_attach_object_instance_id(g->static_body, get_instance_id());
+        PhysicsServer3D::get_singleton()->body_set_collision_layer(g->static_body, collision_layer);
+        PhysicsServer3D::get_singleton()->body_set_collision_mask(g->static_body, collision_mask);
         SceneTree *st = SceneTree::get_singleton();
 
         if (st && st->is_debugging_collisions_hint()) {
@@ -400,7 +400,7 @@ void GridMap::_octant_transform(const OctantKey &p_key) {
 
     ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
-    PhysicsServer::get_singleton()->body_set_state(g.static_body, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
+    PhysicsServer3D::get_singleton()->body_set_state(g.static_body, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
 
     if (g.collision_debug_instance.is_valid()) {
         VisualServer::get_singleton()->instance_set_transform(g.collision_debug_instance, get_global_transform());
@@ -418,7 +418,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         return false;
 
     //erase body shapes
-    PhysicsServer::get_singleton()->body_clear_shapes(g.static_body);
+    PhysicsServer3D::get_singleton()->body_clear_shapes(g.static_body);
 
     //erase body shapes debug
     if (g.collision_debug.is_valid()) {
@@ -494,7 +494,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
             // add the item's shape
             if (not wr[i].shape)
                 continue;
-            PhysicsServer::get_singleton()->body_add_shape(g.static_body, wr[i].shape->get_rid(), xform * wr[i].local_transform);
+            PhysicsServer3D::get_singleton()->body_add_shape(g.static_body, wr[i].shape->get_rid(), xform * wr[i].local_transform);
             if (g.collision_debug.is_valid()) {
                 wr[i].shape->add_vertices_to_array(col_debug, xform * wr[i].local_transform);
             }
@@ -576,8 +576,8 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
 
 void GridMap::_reset_physic_bodies_collision_filters() {
     for (eastl::pair<const OctantKey,Octant *> &E : octant_map) {
-        PhysicsServer::get_singleton()->body_set_collision_layer(E.second->static_body, collision_layer);
-        PhysicsServer::get_singleton()->body_set_collision_mask(E.second->static_body, collision_mask);
+        PhysicsServer3D::get_singleton()->body_set_collision_layer(E.second->static_body, collision_layer);
+        PhysicsServer3D::get_singleton()->body_set_collision_mask(E.second->static_body, collision_mask);
     }
 }
 
@@ -585,8 +585,8 @@ void GridMap::_octant_enter_world(const OctantKey &p_key) {
 
     ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
-    PhysicsServer::get_singleton()->body_set_state(g.static_body, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
-    PhysicsServer::get_singleton()->body_set_space(g.static_body, get_world()->get_space());
+    PhysicsServer3D::get_singleton()->body_set_state(g.static_body, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+    PhysicsServer3D::get_singleton()->body_set_space(g.static_body, get_world()->get_space());
 
     if (g.collision_debug_instance.is_valid()) {
         VisualServer::get_singleton()->instance_set_scenario(g.collision_debug_instance, get_world()->get_scenario());
@@ -619,8 +619,8 @@ void GridMap::_octant_exit_world(const OctantKey &p_key) {
 
     ERR_FAIL_COND(!octant_map.contains(p_key));
     Octant &g = *octant_map[p_key];
-    PhysicsServer::get_singleton()->body_set_state(g.static_body, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
-    PhysicsServer::get_singleton()->body_set_space(g.static_body, RID());
+    PhysicsServer3D::get_singleton()->body_set_state(g.static_body, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+    PhysicsServer3D::get_singleton()->body_set_space(g.static_body, RID());
 
     if (g.collision_debug_instance.is_valid()) {
 
@@ -652,7 +652,7 @@ void GridMap::_octant_clean_up(const OctantKey &p_key) {
     if (g.collision_debug_instance.is_valid())
         VisualServer::get_singleton()->free_rid(g.collision_debug_instance);
 
-    PhysicsServer::get_singleton()->free_rid(g.static_body);
+    PhysicsServer3D::get_singleton()->free_rid(g.static_body);
 
     //erase navigation
     for (eastl::pair<const IndexKey,Octant::NavMesh> &E : g.navmesh_ids) {

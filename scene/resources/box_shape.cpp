@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "box_shape.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(BoxShape)
@@ -53,7 +53,7 @@ Vector<Vector3> BoxShape::get_debug_mesh_lines() {
 
 void BoxShape::_update_shape() {
 
-    PhysicsServer::get_singleton()->shape_set_data(get_shape(), extents);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), extents);
     Shape::_update_shape();
 }
 
@@ -79,7 +79,7 @@ void BoxShape::_bind_methods() {
 }
 
 BoxShape::BoxShape() :
-        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_BOX)) {
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_BOX)) {
 
     set_extents(Vector3(1, 1, 1));
 }

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  sprite.h                                                             */
+/*  sprite_2d.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,15 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SPRITE_H
-#define SPRITE_H
+#pragma once
 
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
 
-class Sprite : public Node2D {
+class Sprite2D : public Node2D {
 
-    GDCLASS(Sprite,Node2D)
+    GDCLASS(Sprite2D,Node2D)
 
     Ref<Texture> texture;
     Ref<Texture> normal_map;
@@ -123,8 +122,6 @@ public:
     Rect2 get_rect() const;
     Rect2 get_anchorable_rect() const override;
 
-    Sprite();
-    ~Sprite() override;
+    Sprite2D();
+    ~Sprite2D() override;
 };
-
-#endif // SPRITE_H

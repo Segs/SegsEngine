@@ -36,7 +36,7 @@
 #include "scene/3d/listener.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "scene/resources/world.h"
 
 IMPL_GDCLASS(AudioStreamPlayer3D)
@@ -396,7 +396,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
             //check if any area is diverting sound into a bus
 
-            PhysicsDirectSpaceState *space_state = PhysicsServer::get_singleton()->space_get_direct_state(world->get_space());
+            PhysicsDirectSpaceState *space_state = PhysicsServer3D::get_singleton()->space_get_direct_state(world->get_space());
 
             PhysicsDirectSpaceState::ShapeResult sr[MAX_INTERSECT_AREAS];
 

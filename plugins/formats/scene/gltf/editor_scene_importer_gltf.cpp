@@ -40,7 +40,7 @@
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/resource/resource_manager.h"
-#include "scene/3d/bone_attachment.h"
+#include "scene/3d/bone_attachment_3d.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/mesh_instance.h"
 #include "scene/animation/animation_player.h"
@@ -2839,12 +2839,12 @@ namespace {
         }
     }
 
-    BoneAttachment* _generate_bone_attachment(GLTFState& state, Skeleton* skeleton, const GLTFNodeIndex node_index) {
+    BoneAttachment3D* _generate_bone_attachment(GLTFState& state, Skeleton* skeleton, const GLTFNodeIndex node_index) {
 
         const GLTFNode* gltf_node = state.nodes[node_index];
         const GLTFNode* bone_node = state.nodes[gltf_node->parent];
 
-        BoneAttachment* bone_attachment = memnew(BoneAttachment);
+        BoneAttachment3D* bone_attachment = memnew(BoneAttachment3D);
         print_verbose("glTF: Creating bone attachment for: " + gltf_node->name);
 
         ERR_FAIL_COND_V(!bone_node->joint, nullptr);
@@ -2930,13 +2930,13 @@ namespace {
 
         // If we have an active skeleton, and the node is node skinned, we need to create a bone attachment
         if (current_node == nullptr && active_skeleton != nullptr && gltf_node->skin < 0) {
-            BoneAttachment* bone_attachment = _generate_bone_attachment(state, active_skeleton, node_index);
+            BoneAttachment3D* bone_attachment = _generate_bone_attachment(state, active_skeleton, node_index);
 
             scene_parent->add_child(bone_attachment);
             bone_attachment->set_owner(scene_root);
 
             // There is no gltf_node that represent this, so just directly create a unique name
-            bone_attachment->set_name(_gen_unique_name(state, "BoneAttachment"));
+            bone_attachment->set_name(_gen_unique_name(state, "BoneAttachment3D"));
 
             // We change the scene_parent to our bone attachment now. We do not set current_node because we want to make the node
             // and attach it to the bone_attachment

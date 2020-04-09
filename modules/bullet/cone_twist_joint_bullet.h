@@ -45,9 +45,9 @@ class ConeTwistJointBullet : public JointBullet {
 public:
 	ConeTwistJointBullet(RigidBodyBullet *rbA, RigidBodyBullet *rbB, const Transform &rbAFrame, const Transform &rbBFrame);
 
-	PhysicsServer::JointType get_type() const override { return PhysicsServer::JOINT_CONE_TWIST; }
+	PhysicsServer3D::JointType get_type() const override { return PhysicsServer3D::JOINT_CONE_TWIST; }
 
-	void set_param(PhysicsServer::ConeTwistJointParam p_param, real_t p_value);
-	real_t get_param(PhysicsServer::ConeTwistJointParam p_param) const;
+	void set_param(PhysicsServer3D::ConeTwistJointParam p_param, real_t p_value);
+	real_t get_param(PhysicsServer3D::ConeTwistJointParam p_param) const;
 };
 #endif

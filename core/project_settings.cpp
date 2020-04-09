@@ -43,7 +43,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/variant_parser.h"
 #include "core/method_bind.h"
 

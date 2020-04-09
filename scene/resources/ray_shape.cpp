@@ -30,7 +30,7 @@
 
 #include "ray_shape.h"
 
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(RayShape)
@@ -44,7 +44,7 @@ void RayShape::_update_shape() {
     Dictionary d;
     d["length"] = length;
     d["slips_on_slope"] = slips_on_slope;
-    PhysicsServer::get_singleton()->shape_set_data(get_shape(), d);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), d);
     Shape::_update_shape();
 }
 
@@ -86,7 +86,7 @@ void RayShape::_bind_methods() {
 }
 
 RayShape::RayShape() :
-        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_RAY)) {
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_RAY)) {
 
     length = 1.0;
     slips_on_slope = false;

@@ -48,10 +48,10 @@
 #include "editor/scene_tree_dock.h"
 #include "editor/script_editor_debugger.h"
 #include "scene/2d/light_2d.h"
-#include "scene/2d/particles_2d.h"
+#include "scene/2d/gpu_particles_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/2d/skeleton_2d.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/2d/touch_screen_button.h"
 #include "scene/gui/grid_container.h"
 #include "scene/gui/nine_patch_rect.h"
@@ -5857,7 +5857,7 @@ void CanvasItemEditorViewport::_create_preview(const Vector<String> &files) cons
             continue;
 
         if (texture != nullptr) {
-            Sprite *sprite = memnew(Sprite);
+            Sprite2D *sprite = memnew(Sprite2D);
             sprite->set_texture(texture);
             sprite->set_modulate(Color(1, 1, 1, 0.7f));
             preview_node->add_child(sprite);
@@ -5936,7 +5936,7 @@ void CanvasItemEditorViewport::_create_nodes(Node *parent, Node *child, StringVi
     Vector<PropertyInfo> props;
     child->get_property_list(&props);
     for (const PropertyInfo &E : props) {
-        if (E.name == "config/texture") { // Particles2D
+        if (E.name == "config/texture") { // GPUParticles2D
             property = "config/texture";
             break;
         } else if (E.name == "texture/texture") { // Polygon2D
@@ -6051,8 +6051,8 @@ void CanvasItemEditorViewport::_perform_drop_data() {
                 Node *child;
                 if (default_type == "Light2D")
                     child = memnew(Light2D);
-                else if (default_type == "Particles2D")
-                    child = memnew(Particles2D);
+                else if (default_type == "GPUParticles2D")
+                    child = memnew(GPUParticles2D);
                 else if (default_type == "Polygon2D")
                     child = memnew(Polygon2D);
                 else if (default_type == "TouchScreenButton")
@@ -6062,7 +6062,7 @@ void CanvasItemEditorViewport::_perform_drop_data() {
                 else if (default_type == "NinePatchRect")
                     child = memnew(NinePatchRect);
                 else
-                    child = memnew(Sprite); // default
+                    child = memnew(Sprite2D); // default
 
                 _create_nodes(target_node, child, path, drop_pos);
             }
@@ -6222,11 +6222,11 @@ void CanvasItemEditorViewport::_bind_methods() {
 }
 
 CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasItemEditor *p_canvas_item_editor) {
-    default_type = "Sprite";
+    default_type = "Sprite2D";
     // Node2D
-    types.push_back(StringName("Sprite"));
+    types.push_back(StringName("Sprite2D"));
     types.push_back(StringName("Light2D"));
-    types.push_back(StringName("Particles2D"));
+    types.push_back(StringName("GPUParticles2D"));
     types.push_back(StringName("Polygon2D"));
     types.push_back(StringName("TouchScreenButton"));
     // Control

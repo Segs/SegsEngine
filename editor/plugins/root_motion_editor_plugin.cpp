@@ -159,7 +159,7 @@ void EditorPropertyRootMotion::_node_assign() {
                         ti->set_text_utf8(0, F);
                         ti->set_selectable(0, true);
                         ti->set_editable(0, false);
-                        ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
+                        ti->set_icon(0, get_icon("BoneAttachment3D", "EditorIcons"));
                         ti->set_metadata(0, accum);
                     } else {
                         ti = parenthood[accum];
@@ -168,7 +168,7 @@ void EditorPropertyRootMotion::_node_assign() {
 
                 ti->set_selectable(0, true);
                 ti->set_text_utf8(0, concat);
-                ti->set_icon(0, get_icon("BoneAttachment", "EditorIcons"));
+                ti->set_icon(0, get_icon("BoneAttachment3D", "EditorIcons"));
                 ti->set_metadata(0, path);
                 if (path == current) {
                     ti->select(0);

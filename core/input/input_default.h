@@ -34,7 +34,7 @@
 #include "core/hash_map.h"
 #include "core/map.h"
 #include "core/os/input.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/os/thread_safe.h"
 #include "core/set.h"
 #include "core/ustring.h"

@@ -36,7 +36,7 @@
 #include "mesh_instance.h"
 #include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 IMPL_GDCLASS(RayCast3D)
 
@@ -204,7 +204,7 @@ void RayCast3D::_update_raycast_state() {
     Ref<World> w3d = get_world();
     ERR_FAIL_COND(not w3d);
 
-    PhysicsDirectSpaceState *dss = PhysicsServer::get_singleton()->space_get_direct_state(w3d->get_space());
+    PhysicsDirectSpaceState *dss = PhysicsServer3D::get_singleton()->space_get_direct_state(w3d->get_space());
     ERR_FAIL_COND(!dss);
 
     Transform gt = get_global_transform();

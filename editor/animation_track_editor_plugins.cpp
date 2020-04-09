@@ -38,7 +38,7 @@
 #include "editor_resource_preview.h"
 #include "editor_scale.h"
 #include "scene/2d/animated_sprite_2d.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/font.h"
@@ -373,7 +373,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 
     Size2 size;
 
-    if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
+    if (object_cast<Sprite2D>(object) || object_cast<Sprite3D>(object)) {
 
         Ref<Texture> texture(object->call_va("get_texture"));
         if (not texture) {
@@ -452,7 +452,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
     Ref<Texture> texture;
     Rect2 region;
 
-    if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
+    if (object_cast<Sprite2D>(object) || object_cast<Sprite3D>(object)) {
 
         texture = refFromVariant<Texture>(object->call_va("get_texture"));
         if (not texture) {
@@ -1315,14 +1315,14 @@ AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Obj
         return audio;
     }
 
-    if (p_property == "frame" && (p_object->is_class("Sprite") || p_object->is_class("Sprite3D") || p_object->is_class("AnimatedSprite") || p_object->is_class("AnimatedSprite3D"))) {
+    if (p_property == "frame" && (p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D") || p_object->is_class("AnimatedSprite") || p_object->is_class("AnimatedSprite3D"))) {
 
         AnimationTrackEditSpriteFrame *sprite = memnew(AnimationTrackEditSpriteFrame);
         sprite->set_node(p_object);
         return sprite;
     }
 
-    if (p_property == "frame_coords" && (p_object->is_class("Sprite") || p_object->is_class("Sprite3D"))) {
+    if (p_property == "frame_coords" && (p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D"))) {
 
         AnimationTrackEditSpriteFrame *sprite = memnew(AnimationTrackEditSpriteFrame);
         sprite->set_as_coords();

@@ -31,7 +31,7 @@
 #include "item_list.h"
 
 #include "core/method_bind.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "scene/resources/font.h"

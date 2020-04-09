@@ -114,8 +114,6 @@ set(core_sources
     os/alloc_wrapper.h
     os/input.cpp
     os/input.h
-    os/input_event.cpp
-    os/input_event.h
     os/main_loop.cpp
     os/main_loop.h
     plugin_interfaces/ImageLoaderInterface.cpp
@@ -357,6 +355,25 @@ add_subdirectory(plugin_interfaces)
 add_subdirectory(service_interfaces)
 add_subdirectory(crypto)
 
+#######################################################################################################################################################################
+# Add 'input' entries, cmake failes to generate proper list of sources when core_sources is extended by ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp
+# in subdirectory :|
+#######################################################################################################################################################################
+file(GLOB controller_databases "${CMAKE_CURRENT_SOURCE_DIR}/input/gamecontroller_db/*.txt" )
+
+add_custom_command(
+    COMMAND editor_to_header controllers ${CMAKE_CURRENT_BINARY_DIR}/input/default_controller_mappings.gen.cpp ${controller_databases}
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/input/default_controller_mappings.gen.cpp
+    DEPENDS editor_to_header ${controller_databases}
+    COMMENT "Generating controllers header"
+)
+
+file(GLOB source_files "input/*.cpp")
+file(GLOB headers_files "input/*.h")
+list(APPEND core_sources ${source_files} ${headers_files} ${CMAKE_CURRENT_BINARY_DIR}/input/default_controller_mappings.gen.cpp)
+
+
+
 add_library(se_core STATIC ${generic_core_sources})
 set_target_properties(se_core PROPERTIES AUTOMOC TRUE)
 #target_precompile_headers(se_core PRIVATE precompiled.h)
@@ -385,6 +402,7 @@ target_link_libraries(se_core PUBLIC editor_interface)
 #add_subdirectory(helper)
 # Build it all as a library
 # Make binders
+
 foreach(tgt ${global_targets})
     OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" OFF)
 
@@ -393,31 +411,25 @@ foreach(tgt ${global_targets})
         ${core_sources} ${tool_core_sources}
         service_interfaces/CoreInterface.h
     )
-if(USE_PRECOMPILED_HEADERS)
-    foreach(tgt ${global_targets})
-        target_precompile_headers(${tgt}_core REUSE_FROM se_core)
-    endforeach()
-endif()
+    if(USE_PRECOMPILED_HEADERS)
+        foreach(tgt ${global_targets})
+            target_precompile_headers(${tgt}_core REUSE_FROM se_core)
+        endforeach()
+    endif()
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
-    target_link_libraries(${tgt}_core PUBLIC se_core)
-    target_link_libraries(${tgt}_core PUBLIC EASTL_Import zlib_interface concurrent_queue)
+    target_link_libraries(${tgt}_core PUBLIC se_core EASTL_Import zlib_interface concurrent_queue)
 
-
-
-    target_link_libraries(${tgt}_engine PRIVATE EASTL )
-    target_link_libraries(${tgt}_engine INTERFACE EASTL_Import )
-    target_link_libraries(${tgt}_engine PRIVATE minizip)
-    target_link_libraries(${tgt}_engine INTERFACE minizip_interface)
+    target_link_libraries(${tgt}_engine PRIVATE EASTL minizip)
+    target_link_libraries(${tgt}_engine INTERFACE EASTL_Import minizip_interface)
     INSTALL (
         DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION include/SegsEngine
         FILES_MATCHING PATTERN "*.h" PATTERN "*.inl"
     )
 
-    target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS})
     target_include_directories(${tgt}_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
-    target_include_directories(${tgt}_core PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
+    target_include_directories(${tgt}_core PRIVATE ${Qt5Core_PRIVATE_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
     set_target_properties(${tgt}_core PROPERTIES AUTOMOC TRUE)
 
     target_include_directories(${tgt}_engine INTERFACE
@@ -426,9 +438,17 @@ endif()
     )
 
     set_common_target_properties(${tgt}_core)
-if(USE_UNITY_BUILDS)
-    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
-    set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
-endif()
-
+    if(USE_UNITY_BUILDS)
+        set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD ON)
+        set_target_properties(${tgt}_core PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
+    endif()
 endforeach()
+
+file(
+     GLOB_RECURSE tree_source_list RELATIVE
+     "${CMAKE_CURRENT_SOURCE_DIR}"
+     *.c *.cpp *.h
+)
+message(tree_source_list " " ${tree_source_list})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${tree_source_list})
+

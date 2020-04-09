@@ -44,12 +44,12 @@ IMPL_GDCLASS(Particles2DEditorPlugin)
 
 void Particles2DEditorPlugin::edit(Object *p_object) {
 
-    particles = object_cast<Particles2D>(p_object);
+    particles = object_cast<GPUParticles2D>(p_object);
 }
 
 bool Particles2DEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("Particles2D");
+    return p_object->is_class("GPUParticles2D");
 }
 
 void Particles2DEditorPlugin::make_visible(bool p_visible) {
@@ -354,7 +354,7 @@ void Particles2DEditorPlugin::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         menu->get_popup()->connect("id_pressed", this, "_menu_callback");
-        menu->set_button_icon(menu->get_popup()->get_icon("Particles2D", "EditorIcons"));
+        menu->set_button_icon(menu->get_popup()->get_icon("GPUParticles2D", "EditorIcons"));
         file->connect("file_selected", this, "_file_selected");
     }
 }

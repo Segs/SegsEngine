@@ -153,13 +153,13 @@
 #include "editor/scene_tree_dock.h"
 #include "editor/script_editor_debugger.h"
 #include "fileserver/editor_file_server.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 #include "main/main.h"
 #include "scene/gui/tabs.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 #include "EASTL/sort.h"
 #include <cstdio>
@@ -5956,8 +5956,8 @@ EditorNode::EditorNode() {
     VisualServer::get_singleton()->textures_keep_original(true);
     VisualServer::get_singleton()->set_debug_generate_wireframes(true);
 
-    PhysicsServer::get_singleton()->set_active(false); // no physics by default if editor
-    Physics2DServer::get_singleton()->set_active(false); // no physics by default if editor
+    PhysicsServer3D::get_singleton()->set_active(false); // no physics by default if editor
+    PhysicsServer2D::get_singleton()->set_active(false); // no physics by default if editor
     ScriptServer::set_scripting_enabled(false); // no scripting by default if editor
 
     EditorHelp::generate_doc(); // before any editor classes are created

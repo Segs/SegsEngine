@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Particles2D" inherits="Node2D" version="4.0">
+<class name="GPUParticles2D" inherits="Node2D" version="4.0">
 	<brief_description>
 		2D particle emitter.
 	</brief_description>
 	<description>
-		2D particle node used to create a variety of particle systems and effects. [Particles2D] features an emitter that generates some number of particles at a given rate.
+		2D particle node used to create a variety of particle systems and effects. [GPUParticles2D] features an emitter that generates some number of particles at a given rate.
 		Use the [code]process_material[/code] property to add a [ParticlesMaterial] to configure particle appearance and behavior. Alternatively, you can add a [ShaderMaterial] which will be applied to all particles.
 	</description>
 	<tutorials>
@@ -30,7 +30,7 @@
 		<member name="amount" type="int" setter="set_amount" getter="get_amount" default="8">
 			Number of particles emitted in one emission cycle.
 		</member>
-		<member name="draw_order" type="int" setter="set_draw_order" getter="get_draw_order" enum="Particles2D.DrawOrder" default="0">
+		<member name="draw_order" type="int" setter="set_draw_order" getter="get_draw_order" enum="GPUParticles2D.DrawOrder" default="0">
 			Particle draw order. Uses [enum DrawOrder] values.
 		</member>
 		<member name="emitting" type="bool" setter="set_emitting" getter="is_emitting" default="true">

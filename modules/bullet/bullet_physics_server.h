@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/rid.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 /**
     @author AndreaCatania
@@ -45,8 +45,8 @@ class JointBullet;
 class CollisionObjectBullet;
 class RigidCollisionObjectBullet;
 
-class BulletPhysicsServer : public PhysicsServer {
-    GDCLASS(BulletPhysicsServer,PhysicsServer)
+class BulletPhysicsServer : public PhysicsServer3D {
+    GDCLASS(BulletPhysicsServer,PhysicsServer3D)
 
     friend class BulletPhysicsDirectSpaceState;
 

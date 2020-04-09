@@ -31,7 +31,7 @@
 #include "concave_polygon_shape.h"
 
 #include "core/pool_vector.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 #include "core/set.h"
 
@@ -108,13 +108,13 @@ real_t ConcavePolygonShape::get_enclosing_radius() const {
 
 void ConcavePolygonShape::set_faces(const PoolVector<Vector3> &p_faces) {
 
-    PhysicsServer::get_singleton()->shape_set_data(get_shape(), p_faces);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), p_faces);
     notify_change_to_owners();
 }
 
 PoolVector<Vector3> ConcavePolygonShape::get_faces() const {
 
-    return PhysicsServer::get_singleton()->shape_get_data(get_shape());
+    return PhysicsServer3D::get_singleton()->shape_get_data(get_shape());
 }
 
 void ConcavePolygonShape::_bind_methods() {
@@ -125,7 +125,7 @@ void ConcavePolygonShape::_bind_methods() {
 }
 
 ConcavePolygonShape::ConcavePolygonShape() :
-        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_CONCAVE_POLYGON)) {
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CONCAVE_POLYGON)) {
 
     //set_planes(Vector3(1,1,1));
 }

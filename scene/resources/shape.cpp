@@ -34,7 +34,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/material.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(Shape)
@@ -61,7 +61,7 @@ real_t Shape::get_margin() const {
 
 void Shape::set_margin(real_t p_margin) {
     margin = p_margin;
-    PhysicsServer::get_singleton()->shape_set_margin(shape, margin);
+    PhysicsServer3D::get_singleton()->shape_set_margin(shape, margin);
 }
 
 Ref<ArrayMesh> Shape::get_debug_mesh() {
@@ -117,5 +117,5 @@ Shape::Shape(RID p_shape) :
 
 Shape::~Shape() {
 
-    PhysicsServer::get_singleton()->free_rid(shape);
+    PhysicsServer3D::get_singleton()->free_rid(shape);
 }

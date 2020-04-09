@@ -32,7 +32,7 @@
 
 #include "core/os/os.h"
 #include "core/pool_vector.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 
 uint8_t MIDIDriver::last_received_message = 0x00;
 MIDIDriver *MIDIDriver::singleton = nullptr;

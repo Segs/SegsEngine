@@ -944,7 +944,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
     hbc->add_child(load);
 
     load_sheet = memnew(ToolButton);
-    load_sheet->set_tooltip(TTR("Add Frames from a Sprite Sheet"));
+    load_sheet->set_tooltip(TTR("Add Frames from a Sprite2D Sheet"));
     hbc->add_child(load_sheet);
 
     hbc->add_child(memnew(VSeparator));
@@ -1077,7 +1077,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
     split_sheet_vb->add_child(splite_sheet_scroll);
 
     file_split_sheet = memnew(EditorFileDialog);
-    file_split_sheet->set_title(TTR("Create Frames from Sprite Sheet"));
+    file_split_sheet->set_title(TTR("Create Frames from Sprite2D Sheet"));
     file_split_sheet->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(file_split_sheet);
     file_split_sheet->connect("file_selected", this, "_prepare_sprite_sheet");

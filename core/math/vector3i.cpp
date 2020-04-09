@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  bone_attachment.h                                                    */
+/*  vector3i.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,32 +28,31 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
+#include "vector3i.h"
 
-#include "scene/3d/skeleton.h"
 #include "core/string.h"
+#include "core/string_utils.h"
 
-class GODOT_EXPORT BoneAttachment : public Node3D {
+void Vector3i::set_axis(int p_axis, int32_t p_value) {
+	ERR_FAIL_INDEX(p_axis, 3);
+	coord[p_axis] = p_value;
+}
+int32_t Vector3i::get_axis(int p_axis) const {
 
-	GDCLASS(BoneAttachment,Node3D)
+	ERR_FAIL_INDEX_V(p_axis, 3, 0);
+	return operator[](p_axis);
+}
 
-	bool bound;
-    String bone_name;
+int Vector3i::min_axis() const {
 
-	void _check_bind();
-	void _check_unbind();
+	return x < y ? (x < z ? 0 : 2) : (y < z ? 1 : 2);
+}
+int Vector3i::max_axis() const {
 
-protected:
-	void _validate_property(PropertyInfo &property) const override;
-	void _notification(int p_what);
+	return x < y ? (y < z ? 2 : 1) : (x < z ? 2 : 0);
+}
 
-	static void _bind_methods();
+Vector3i::operator String() const {
 
-public:
-    void set_bone_name(const String &p_name);
-    const String &get_bone_name() const {
-        return bone_name;
-    }
-
-	BoneAttachment();
-};
+	return (itos(x) + ", " + itos(y) + ", " + itos(z));
+}

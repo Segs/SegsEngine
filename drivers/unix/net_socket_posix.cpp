@@ -566,7 +566,7 @@ Error NetSocketPosix::recv(uint8_t *p_buffer, int p_len, int &r_read) {
     return OK;
 }
 
-Error NetSocketPosix::recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port) {
+Error NetSocketPosix::recvfrom(uint8_t *p_buffer, int p_len, int &r_read, IP_Address &r_ip, uint16_t &r_port, bool p_peek) {
     ERR_FAIL_COND_V(!is_open(), ERR_UNCONFIGURED);
 
     struct sockaddr_storage from;

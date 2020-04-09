@@ -30,7 +30,7 @@
 
 #include "concave_polygon_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -55,13 +55,13 @@ bool ConcavePolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, fl
 
 void ConcavePolygonShape2D::set_segments(const PoolVector<Vector2> &p_segments) {
 
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), Variant(p_segments));
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), Variant(p_segments));
     emit_changed();
 }
 
 PoolVector<Vector2> ConcavePolygonShape2D::get_segments() const {
 
-    return Physics2DServer::get_singleton()->shape_get_data(get_rid());
+    return PhysicsServer2D::get_singleton()->shape_get_data(get_rid());
 }
 
 real_t ConcavePolygonShape2D::get_enclosing_radius() const {
@@ -117,7 +117,7 @@ void ConcavePolygonShape2D::_bind_methods() {
 }
 
 ConcavePolygonShape2D::ConcavePolygonShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->concave_polygon_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->concave_polygon_shape_create()) {
     PoolVector<Vector2> empty;
     set_segments(empty);
 }

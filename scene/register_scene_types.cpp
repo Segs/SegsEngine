@@ -55,7 +55,7 @@
 #include "scene/2d/navigation_obstacle_2d.h"
 #include "scene/2d/parallax_background.h"
 #include "scene/2d/parallax_layer.h"
-#include "scene/2d/particles_2d.h"
+#include "scene/2d/gpu_particles_2d.h"
 #include "scene/2d/path_2d.h"
 #include "scene/2d/path_texture.h"
 #include "scene/2d/physics_body_2d.h"
@@ -64,7 +64,7 @@
 #include "scene/2d/ray_cast_2d.h"
 #include "scene/2d/remote_transform_2d.h"
 #include "scene/2d/skeleton_2d.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/2d/tile_map.h"
 #include "scene/2d/touch_screen_button.h"
 #include "scene/2d/visibility_notifier_2d.h"
@@ -184,7 +184,7 @@
 #include "scene/3d/arvr_nodes.h"
 #include "scene/3d/audio_stream_player_3d.h"
 #include "scene/3d/baked_lightmap.h"
-#include "scene/3d/bone_attachment.h"
+#include "scene/3d/bone_attachment_3d.h"
 #include "scene/3d/camera.h"
 #include "scene/3d/collision_polygon.h"
 #include "scene/3d/collision_shape.h"
@@ -419,7 +419,7 @@ void register_scene_types() {
     Node2D::initialize_class();
     YSort::initialize_class();
     ParallaxBackground::initialize_class();
-    Particles2D::initialize_class();
+    GPUParticles2D::initialize_class();
     PinJoint2D::initialize_class();
     GrooveJoint2D::initialize_class();
     DampedSpringJoint2D::initialize_class();
@@ -448,7 +448,7 @@ void register_scene_types() {
     ParallaxLayer::initialize_class();
     TileMap::initialize_class();
     Polygon2D::initialize_class();
-    Sprite::initialize_class();
+    Sprite2D::initialize_class();
     TouchScreenButton::initialize_class();
     CanvasItemMaterial::initialize_class();
     BackBufferCopy::initialize_class();
@@ -550,7 +550,7 @@ void register_scene_types() {
     SpringArm::initialize_class();
     WorldEnvironment::initialize_class();
     CollisionShape::initialize_class();
-    BoneAttachment::initialize_class();
+    BoneAttachment3D::initialize_class();
     Sprite3D::initialize_class();
     AnimatedSprite3D::initialize_class();
     MeshInstance::initialize_class();
@@ -811,7 +811,7 @@ void register_scene_types() {
     ClassDB::register_class<SoftBody>();
 
     ClassDB::register_class<SkeletonIK>();
-    ClassDB::register_class<BoneAttachment>();
+    ClassDB::register_class<BoneAttachment3D>();
 
     ClassDB::register_class<VehicleBody3D>();
     ClassDB::register_class<VehicleWheel>();
@@ -919,9 +919,9 @@ void register_scene_types() {
     CanvasItemMaterial::init_shaders();
     ClassDB::register_class<Node2D>();
     ClassDB::register_class<CPUParticles2D>();
-    ClassDB::register_class<Particles2D>();
+    ClassDB::register_class<GPUParticles2D>();
     //ClassDB::register_class<ParticleAttractor2D>();
-    ClassDB::register_class<Sprite>();
+    ClassDB::register_class<Sprite2D>();
     //ClassDB::register_type<ViewportSprite>();
     ClassDB::register_class<SpriteFrames>();
     ClassDB::register_class<AnimatedSprite2D>();

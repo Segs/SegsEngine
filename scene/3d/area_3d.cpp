@@ -34,7 +34,7 @@
 #include "core/method_bind.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio_server.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 IMPL_GDCLASS(Area3D)
 VARIANT_ENUM_CAST(Area3D::SpaceOverride);
@@ -42,7 +42,7 @@ VARIANT_ENUM_CAST(Area3D::SpaceOverride);
 void Area3D::set_space_override_mode(SpaceOverride p_mode) {
 
     space_override = p_mode;
-    PhysicsServer::get_singleton()->area_set_space_override_mode(get_rid(), PhysicsServer::AreaSpaceOverrideMode(p_mode));
+    PhysicsServer3D::get_singleton()->area_set_space_override_mode(get_rid(), PhysicsServer3D::AreaSpaceOverrideMode(p_mode));
 }
 Area3D::SpaceOverride Area3D::get_space_override_mode() const {
 
@@ -52,7 +52,7 @@ Area3D::SpaceOverride Area3D::get_space_override_mode() const {
 void Area3D::set_gravity_is_point(bool p_enabled) {
 
     gravity_is_point = p_enabled;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_GRAVITY_IS_POINT, p_enabled);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_GRAVITY_IS_POINT, p_enabled);
 }
 bool Area3D::is_gravity_a_point() const {
 
@@ -62,7 +62,7 @@ bool Area3D::is_gravity_a_point() const {
 void Area3D::set_gravity_distance_scale(real_t p_scale) {
 
     gravity_distance_scale = p_scale;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_GRAVITY_DISTANCE_SCALE, p_scale);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_GRAVITY_DISTANCE_SCALE, p_scale);
 }
 
 real_t Area3D::get_gravity_distance_scale() const {
@@ -72,7 +72,7 @@ real_t Area3D::get_gravity_distance_scale() const {
 void Area3D::set_gravity_vector(const Vector3 &p_vec) {
 
     gravity_vec = p_vec;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_GRAVITY_VECTOR, p_vec);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_GRAVITY_VECTOR, p_vec);
 }
 Vector3 Area3D::get_gravity_vector() const {
 
@@ -82,7 +82,7 @@ Vector3 Area3D::get_gravity_vector() const {
 void Area3D::set_gravity(real_t p_gravity) {
 
     gravity = p_gravity;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_GRAVITY, p_gravity);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_GRAVITY, p_gravity);
 }
 real_t Area3D::get_gravity() const {
 
@@ -91,7 +91,7 @@ real_t Area3D::get_gravity() const {
 void Area3D::set_linear_damp(real_t p_linear_damp) {
 
     linear_damp = p_linear_damp;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_LINEAR_DAMP, p_linear_damp);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_LINEAR_DAMP, p_linear_damp);
 }
 real_t Area3D::get_linear_damp() const {
 
@@ -101,7 +101,7 @@ real_t Area3D::get_linear_damp() const {
 void Area3D::set_angular_damp(real_t p_angular_damp) {
 
     angular_damp = p_angular_damp;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_ANGULAR_DAMP, p_angular_damp);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP, p_angular_damp);
 }
 
 real_t Area3D::get_angular_damp() const {
@@ -112,7 +112,7 @@ real_t Area3D::get_angular_damp() const {
 void Area3D::set_priority(real_t p_priority) {
 
     priority = p_priority;
-    PhysicsServer::get_singleton()->area_set_param(get_rid(), PhysicsServer::AREA_PARAM_PRIORITY, p_priority);
+    PhysicsServer3D::get_singleton()->area_set_param(get_rid(), PhysicsServer3D::AREA_PARAM_PRIORITY, p_priority);
 }
 real_t Area3D::get_priority() const {
 
@@ -155,7 +155,7 @@ void Area3D::_body_exit_tree(ObjectID p_id) {
 
 void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_body_shape, int p_area_shape) {
 
-    bool body_in = p_status == PhysicsServer::AREA_BODY_ADDED;
+    bool body_in = p_status == PhysicsServer3D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
 
     Object *obj = ObjectDB::get_instance(objid);
@@ -303,11 +303,11 @@ void Area3D::set_monitoring(bool p_enable) {
 
     if (monitoring) {
 
-        PhysicsServer::get_singleton()->area_set_monitor_callback(get_rid(), this, SceneStringNames::get_singleton()->_body_inout);
-        PhysicsServer::get_singleton()->area_set_area_monitor_callback(get_rid(), this, SceneStringNames::get_singleton()->_area_inout);
+        PhysicsServer3D::get_singleton()->area_set_monitor_callback(get_rid(), this, SceneStringNames::get_singleton()->_body_inout);
+        PhysicsServer3D::get_singleton()->area_set_area_monitor_callback(get_rid(), this, SceneStringNames::get_singleton()->_area_inout);
     } else {
-        PhysicsServer::get_singleton()->area_set_monitor_callback(get_rid(), nullptr, StringName());
-        PhysicsServer::get_singleton()->area_set_area_monitor_callback(get_rid(), nullptr, StringName());
+        PhysicsServer3D::get_singleton()->area_set_monitor_callback(get_rid(), nullptr, StringName());
+        PhysicsServer3D::get_singleton()->area_set_area_monitor_callback(get_rid(), nullptr, StringName());
         _clear_monitoring();
     }
 }
@@ -348,7 +348,7 @@ void Area3D::_area_exit_tree(ObjectID p_id) {
 
 void Area3D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_area_shape, int p_self_shape) {
 
-    bool area_in = p_status == PhysicsServer::AREA_BODY_ADDED;
+    bool area_in = p_status == PhysicsServer3D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
 
     Object *obj = ObjectDB::get_instance(objid);
@@ -441,14 +441,14 @@ Array Area3D::get_overlapping_bodies() const {
 
 void Area3D::set_monitorable(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false)."); 
+    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer3D::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false)."); 
 
     if (p_enable == monitorable)
         return;
 
     monitorable = p_enable;
 
-    PhysicsServer::get_singleton()->area_set_monitorable(get_rid(), monitorable);
+    PhysicsServer3D::get_singleton()->area_set_monitorable(get_rid(), monitorable);
 }
 
 bool Area3D::is_monitorable() const {
@@ -494,7 +494,7 @@ bool Area3D::overlaps_body(Node *p_body) const {
 void Area3D::set_collision_mask(uint32_t p_mask) {
 
     collision_mask = p_mask;
-    PhysicsServer::get_singleton()->area_set_collision_mask(get_rid(), p_mask);
+    PhysicsServer3D::get_singleton()->area_set_collision_mask(get_rid(), p_mask);
 }
 
 uint32_t Area3D::get_collision_mask() const {
@@ -504,7 +504,7 @@ uint32_t Area3D::get_collision_mask() const {
 void Area3D::set_collision_layer(uint32_t p_layer) {
 
     collision_layer = p_layer;
-    PhysicsServer::get_singleton()->area_set_collision_layer(get_rid(), p_layer);
+    PhysicsServer3D::get_singleton()->area_set_collision_layer(get_rid(), p_layer);
 }
 
 uint32_t Area3D::get_collision_layer() const {
@@ -741,7 +741,7 @@ void Area3D::_bind_methods() {
 }
 
 Area3D::Area3D() :
-        CollisionObject3D(PhysicsServer::get_singleton()->area_create(), true) {
+        CollisionObject3D(PhysicsServer3D::get_singleton()->area_create(), true) {
 
     space_override = SPACE_OVERRIDE_DISABLED;
     set_gravity(9.8f);

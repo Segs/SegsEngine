@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  physics_server.cpp                                                   */
+/*  physics_server_3d.cpp                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "physics_server.h"
+#include "physics_server_3d.h"
 
 #include "core/object_db.h"
 #include "core/method_bind.h"
@@ -39,28 +39,28 @@ IMPL_GDCLASS(PhysicsDirectBodyState)
 IMPL_GDCLASS(PhysicsShapeQueryParameters)
 IMPL_GDCLASS(PhysicsDirectSpaceState)
 IMPL_GDCLASS(PhysicsShapeQueryResult)
-IMPL_GDCLASS(PhysicsServer)
+IMPL_GDCLASS(PhysicsServer3D)
 
-VARIANT_ENUM_CAST(PhysicsServer::ShapeType);
-VARIANT_ENUM_CAST(PhysicsServer::SpaceParameter);
-VARIANT_ENUM_CAST(PhysicsServer::AreaParameter);
-VARIANT_ENUM_CAST(PhysicsServer::AreaSpaceOverrideMode);
-VARIANT_ENUM_CAST(PhysicsServer::BodyMode);
-VARIANT_ENUM_CAST(PhysicsServer::BodyParameter);
-VARIANT_ENUM_CAST(PhysicsServer::BodyState);
-VARIANT_ENUM_CAST(PhysicsServer::BodyAxis);
-VARIANT_ENUM_CAST(PhysicsServer::PinJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::JointType);
-VARIANT_ENUM_CAST(PhysicsServer::HingeJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::HingeJointFlag);
-VARIANT_ENUM_CAST(PhysicsServer::SliderJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::ConeTwistJointParam);
-VARIANT_ENUM_CAST(PhysicsServer::G6DOFJointAxisParam);
-VARIANT_ENUM_CAST(PhysicsServer::G6DOFJointAxisFlag);
-VARIANT_ENUM_CAST(PhysicsServer::AreaBodyStatus);
-VARIANT_ENUM_CAST(PhysicsServer::ProcessInfo);
+VARIANT_ENUM_CAST(PhysicsServer3D::ShapeType);
+VARIANT_ENUM_CAST(PhysicsServer3D::SpaceParameter);
+VARIANT_ENUM_CAST(PhysicsServer3D::AreaParameter);
+VARIANT_ENUM_CAST(PhysicsServer3D::AreaSpaceOverrideMode);
+VARIANT_ENUM_CAST(PhysicsServer3D::BodyMode);
+VARIANT_ENUM_CAST(PhysicsServer3D::BodyParameter);
+VARIANT_ENUM_CAST(PhysicsServer3D::BodyState);
+VARIANT_ENUM_CAST(PhysicsServer3D::BodyAxis);
+VARIANT_ENUM_CAST(PhysicsServer3D::PinJointParam);
+VARIANT_ENUM_CAST(PhysicsServer3D::JointType);
+VARIANT_ENUM_CAST(PhysicsServer3D::HingeJointParam);
+VARIANT_ENUM_CAST(PhysicsServer3D::HingeJointFlag);
+VARIANT_ENUM_CAST(PhysicsServer3D::SliderJointParam);
+VARIANT_ENUM_CAST(PhysicsServer3D::ConeTwistJointParam);
+VARIANT_ENUM_CAST(PhysicsServer3D::G6DOFJointAxisParam);
+VARIANT_ENUM_CAST(PhysicsServer3D::G6DOFJointAxisFlag);
+VARIANT_ENUM_CAST(PhysicsServer3D::AreaBodyStatus);
+VARIANT_ENUM_CAST(PhysicsServer3D::ProcessInfo);
 
-PhysicsServer *PhysicsServer::singleton = nullptr;
+PhysicsServer3D *PhysicsServer3D::singleton = nullptr;
 
 void PhysicsDirectBodyState::integrate_forces() {
 
@@ -94,7 +94,7 @@ Object *PhysicsDirectBodyState::get_contact_collider_object(int p_contact_idx) c
     return obj;
 }
 
-PhysicsServer *PhysicsServer::get_singleton() {
+PhysicsServer3D *PhysicsServer3D::get_singleton() {
 
     return singleton;
 }
@@ -430,129 +430,129 @@ void PhysicsShapeQueryResult::_bind_methods() {
 
 ///////////////////////////////////////
 
-void PhysicsServer::_bind_methods() {
+void PhysicsServer3D::_bind_methods() {
 
 #ifndef _3D_DISABLED
 
-    MethodBinder::bind_method(D_METHOD("shape_create", {"type"}), &PhysicsServer::shape_create);
-    MethodBinder::bind_method(D_METHOD("shape_set_data", {"shape", "data"}), &PhysicsServer::shape_set_data);
+    MethodBinder::bind_method(D_METHOD("shape_create", {"type"}), &PhysicsServer3D::shape_create);
+    MethodBinder::bind_method(D_METHOD("shape_set_data", {"shape", "data"}), &PhysicsServer3D::shape_set_data);
 
-    MethodBinder::bind_method(D_METHOD("shape_get_type", {"shape"}), &PhysicsServer::shape_get_type);
-    MethodBinder::bind_method(D_METHOD("shape_get_data", {"shape"}), &PhysicsServer::shape_get_data);
+    MethodBinder::bind_method(D_METHOD("shape_get_type", {"shape"}), &PhysicsServer3D::shape_get_type);
+    MethodBinder::bind_method(D_METHOD("shape_get_data", {"shape"}), &PhysicsServer3D::shape_get_data);
 
-    MethodBinder::bind_method(D_METHOD("space_create"), &PhysicsServer::space_create);
-    MethodBinder::bind_method(D_METHOD("space_set_active", {"space", "active"}), &PhysicsServer::space_set_active);
-    MethodBinder::bind_method(D_METHOD("space_is_active", {"space"}), &PhysicsServer::space_is_active);
-    MethodBinder::bind_method(D_METHOD("space_set_param", {"space", "param", "value"}), &PhysicsServer::space_set_param);
-    MethodBinder::bind_method(D_METHOD("space_get_param", {"space", "param"}), &PhysicsServer::space_get_param);
-    MethodBinder::bind_method(D_METHOD("space_get_direct_state", {"space"}), &PhysicsServer::space_get_direct_state);
+    MethodBinder::bind_method(D_METHOD("space_create"), &PhysicsServer3D::space_create);
+    MethodBinder::bind_method(D_METHOD("space_set_active", {"space", "active"}), &PhysicsServer3D::space_set_active);
+    MethodBinder::bind_method(D_METHOD("space_is_active", {"space"}), &PhysicsServer3D::space_is_active);
+    MethodBinder::bind_method(D_METHOD("space_set_param", {"space", "param", "value"}), &PhysicsServer3D::space_set_param);
+    MethodBinder::bind_method(D_METHOD("space_get_param", {"space", "param"}), &PhysicsServer3D::space_get_param);
+    MethodBinder::bind_method(D_METHOD("space_get_direct_state", {"space"}), &PhysicsServer3D::space_get_direct_state);
 
-    MethodBinder::bind_method(D_METHOD("area_create"), &PhysicsServer::area_create);
-    MethodBinder::bind_method(D_METHOD("area_set_space", {"area", "space"}), &PhysicsServer::area_set_space);
-    MethodBinder::bind_method(D_METHOD("area_get_space", {"area"}), &PhysicsServer::area_get_space);
+    MethodBinder::bind_method(D_METHOD("area_create"), &PhysicsServer3D::area_create);
+    MethodBinder::bind_method(D_METHOD("area_set_space", {"area", "space"}), &PhysicsServer3D::area_set_space);
+    MethodBinder::bind_method(D_METHOD("area_get_space", {"area"}), &PhysicsServer3D::area_get_space);
 
-    MethodBinder::bind_method(D_METHOD("area_set_space_override_mode", {"area", "mode"}), &PhysicsServer::area_set_space_override_mode);
-    MethodBinder::bind_method(D_METHOD("area_get_space_override_mode", {"area"}), &PhysicsServer::area_get_space_override_mode);
+    MethodBinder::bind_method(D_METHOD("area_set_space_override_mode", {"area", "mode"}), &PhysicsServer3D::area_set_space_override_mode);
+    MethodBinder::bind_method(D_METHOD("area_get_space_override_mode", {"area"}), &PhysicsServer3D::area_get_space_override_mode);
 
-    MethodBinder::bind_method(D_METHOD("area_add_shape", {"area", "shape", "transform", "disabled"}), &PhysicsServer::area_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("area_set_shape", {"area", "shape_idx", "shape"}), &PhysicsServer::area_set_shape);
-    MethodBinder::bind_method(D_METHOD("area_set_shape_transform", {"area", "shape_idx", "transform"}), &PhysicsServer::area_set_shape_transform);
-    MethodBinder::bind_method(D_METHOD("area_set_shape_disabled", {"area", "shape_idx", "disabled"}), &PhysicsServer::area_set_shape_disabled);
+    MethodBinder::bind_method(D_METHOD("area_add_shape", {"area", "shape", "transform", "disabled"}), &PhysicsServer3D::area_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("area_set_shape", {"area", "shape_idx", "shape"}), &PhysicsServer3D::area_set_shape);
+    MethodBinder::bind_method(D_METHOD("area_set_shape_transform", {"area", "shape_idx", "transform"}), &PhysicsServer3D::area_set_shape_transform);
+    MethodBinder::bind_method(D_METHOD("area_set_shape_disabled", {"area", "shape_idx", "disabled"}), &PhysicsServer3D::area_set_shape_disabled);
 
-    MethodBinder::bind_method(D_METHOD("area_get_shape_count", {"area"}), &PhysicsServer::area_get_shape_count);
-    MethodBinder::bind_method(D_METHOD("area_get_shape", {"area", "shape_idx"}), &PhysicsServer::area_get_shape);
-    MethodBinder::bind_method(D_METHOD("area_get_shape_transform", {"area", "shape_idx"}), &PhysicsServer::area_get_shape_transform);
+    MethodBinder::bind_method(D_METHOD("area_get_shape_count", {"area"}), &PhysicsServer3D::area_get_shape_count);
+    MethodBinder::bind_method(D_METHOD("area_get_shape", {"area", "shape_idx"}), &PhysicsServer3D::area_get_shape);
+    MethodBinder::bind_method(D_METHOD("area_get_shape_transform", {"area", "shape_idx"}), &PhysicsServer3D::area_get_shape_transform);
 
-    MethodBinder::bind_method(D_METHOD("area_remove_shape", {"area", "shape_idx"}), &PhysicsServer::area_remove_shape);
-    MethodBinder::bind_method(D_METHOD("area_clear_shapes", {"area"}), &PhysicsServer::area_clear_shapes);
+    MethodBinder::bind_method(D_METHOD("area_remove_shape", {"area", "shape_idx"}), &PhysicsServer3D::area_remove_shape);
+    MethodBinder::bind_method(D_METHOD("area_clear_shapes", {"area"}), &PhysicsServer3D::area_clear_shapes);
 
-    MethodBinder::bind_method(D_METHOD("area_set_collision_layer", {"area", "layer"}), &PhysicsServer::area_set_collision_layer);
-    MethodBinder::bind_method(D_METHOD("area_set_collision_mask", {"area", "mask"}), &PhysicsServer::area_set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("area_set_collision_layer", {"area", "layer"}), &PhysicsServer3D::area_set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("area_set_collision_mask", {"area", "mask"}), &PhysicsServer3D::area_set_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("area_set_param", {"area", "param", "value"}), &PhysicsServer::area_set_param);
-    MethodBinder::bind_method(D_METHOD("area_set_transform", {"area", "transform"}), &PhysicsServer::area_set_transform);
+    MethodBinder::bind_method(D_METHOD("area_set_param", {"area", "param", "value"}), &PhysicsServer3D::area_set_param);
+    MethodBinder::bind_method(D_METHOD("area_set_transform", {"area", "transform"}), &PhysicsServer3D::area_set_transform);
 
-    MethodBinder::bind_method(D_METHOD("area_get_param", {"area", "param"}), &PhysicsServer::area_get_param);
-    MethodBinder::bind_method(D_METHOD("area_get_transform", {"area"}), &PhysicsServer::area_get_transform);
+    MethodBinder::bind_method(D_METHOD("area_get_param", {"area", "param"}), &PhysicsServer3D::area_get_param);
+    MethodBinder::bind_method(D_METHOD("area_get_transform", {"area"}), &PhysicsServer3D::area_get_transform);
 
-    MethodBinder::bind_method(D_METHOD("area_attach_object_instance_id", {"area", "id"}), &PhysicsServer::area_attach_object_instance_id);
-    MethodBinder::bind_method(D_METHOD("area_get_object_instance_id", {"area"}), &PhysicsServer::area_get_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("area_attach_object_instance_id", {"area", "id"}), &PhysicsServer3D::area_attach_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("area_get_object_instance_id", {"area"}), &PhysicsServer3D::area_get_object_instance_id);
 
-    MethodBinder::bind_method(D_METHOD("area_set_monitor_callback", {"area", "receiver", "method"}), &PhysicsServer::area_set_monitor_callback);
-    MethodBinder::bind_method(D_METHOD("area_set_area_monitor_callback", {"area", "receiver", "method"}), &PhysicsServer::area_set_area_monitor_callback);
-    MethodBinder::bind_method(D_METHOD("area_set_monitorable", {"area", "monitorable"}), &PhysicsServer::area_set_monitorable);
+    MethodBinder::bind_method(D_METHOD("area_set_monitor_callback", {"area", "receiver", "method"}), &PhysicsServer3D::area_set_monitor_callback);
+    MethodBinder::bind_method(D_METHOD("area_set_area_monitor_callback", {"area", "receiver", "method"}), &PhysicsServer3D::area_set_area_monitor_callback);
+    MethodBinder::bind_method(D_METHOD("area_set_monitorable", {"area", "monitorable"}), &PhysicsServer3D::area_set_monitorable);
 
-    MethodBinder::bind_method(D_METHOD("area_set_ray_pickable", {"area", "enable"}), &PhysicsServer::area_set_ray_pickable);
-    MethodBinder::bind_method(D_METHOD("area_is_ray_pickable", {"area"}), &PhysicsServer::area_is_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("area_set_ray_pickable", {"area", "enable"}), &PhysicsServer3D::area_set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("area_is_ray_pickable", {"area"}), &PhysicsServer3D::area_is_ray_pickable);
 
-    MethodBinder::bind_method(D_METHOD("body_create", {"mode", "init_sleeping"}), &PhysicsServer::body_create, {DEFVAL(BODY_MODE_RIGID), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("body_create", {"mode", "init_sleeping"}), &PhysicsServer3D::body_create, {DEFVAL(BODY_MODE_RIGID), DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("body_set_space", {"body", "space"}), &PhysicsServer::body_set_space);
-    MethodBinder::bind_method(D_METHOD("body_get_space", {"body"}), &PhysicsServer::body_get_space);
+    MethodBinder::bind_method(D_METHOD("body_set_space", {"body", "space"}), &PhysicsServer3D::body_set_space);
+    MethodBinder::bind_method(D_METHOD("body_get_space", {"body"}), &PhysicsServer3D::body_get_space);
 
-    MethodBinder::bind_method(D_METHOD("body_set_mode", {"body", "mode"}), &PhysicsServer::body_set_mode);
-    MethodBinder::bind_method(D_METHOD("body_get_mode", {"body"}), &PhysicsServer::body_get_mode);
+    MethodBinder::bind_method(D_METHOD("body_set_mode", {"body", "mode"}), &PhysicsServer3D::body_set_mode);
+    MethodBinder::bind_method(D_METHOD("body_get_mode", {"body"}), &PhysicsServer3D::body_get_mode);
 
-    MethodBinder::bind_method(D_METHOD("body_set_collision_layer", {"body", "layer"}), &PhysicsServer::body_set_collision_layer);
-    MethodBinder::bind_method(D_METHOD("body_get_collision_layer", {"body"}), &PhysicsServer::body_get_collision_layer);
+    MethodBinder::bind_method(D_METHOD("body_set_collision_layer", {"body", "layer"}), &PhysicsServer3D::body_set_collision_layer);
+    MethodBinder::bind_method(D_METHOD("body_get_collision_layer", {"body"}), &PhysicsServer3D::body_get_collision_layer);
 
-    MethodBinder::bind_method(D_METHOD("body_set_collision_mask", {"body", "mask"}), &PhysicsServer::body_set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("body_get_collision_mask", {"body"}), &PhysicsServer::body_get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("body_set_collision_mask", {"body", "mask"}), &PhysicsServer3D::body_set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("body_get_collision_mask", {"body"}), &PhysicsServer3D::body_get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("body_add_shape", {"body", "shape", "transform", "disabled"}), &PhysicsServer::body_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("body_set_shape", {"body", "shape_idx", "shape"}), &PhysicsServer::body_set_shape);
-    MethodBinder::bind_method(D_METHOD("body_set_shape_transform", {"body", "shape_idx", "transform"}), &PhysicsServer::body_set_shape_transform);
-    MethodBinder::bind_method(D_METHOD("body_set_shape_disabled", {"body", "shape_idx", "disabled"}), &PhysicsServer::body_set_shape_disabled);
+    MethodBinder::bind_method(D_METHOD("body_add_shape", {"body", "shape", "transform", "disabled"}), &PhysicsServer3D::body_add_shape, {DEFVAL(Transform()), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("body_set_shape", {"body", "shape_idx", "shape"}), &PhysicsServer3D::body_set_shape);
+    MethodBinder::bind_method(D_METHOD("body_set_shape_transform", {"body", "shape_idx", "transform"}), &PhysicsServer3D::body_set_shape_transform);
+    MethodBinder::bind_method(D_METHOD("body_set_shape_disabled", {"body", "shape_idx", "disabled"}), &PhysicsServer3D::body_set_shape_disabled);
 
-    MethodBinder::bind_method(D_METHOD("body_get_shape_count", {"body"}), &PhysicsServer::body_get_shape_count);
-    MethodBinder::bind_method(D_METHOD("body_get_shape", {"body", "shape_idx"}), &PhysicsServer::body_get_shape);
-    MethodBinder::bind_method(D_METHOD("body_get_shape_transform", {"body", "shape_idx"}), &PhysicsServer::body_get_shape_transform);
+    MethodBinder::bind_method(D_METHOD("body_get_shape_count", {"body"}), &PhysicsServer3D::body_get_shape_count);
+    MethodBinder::bind_method(D_METHOD("body_get_shape", {"body", "shape_idx"}), &PhysicsServer3D::body_get_shape);
+    MethodBinder::bind_method(D_METHOD("body_get_shape_transform", {"body", "shape_idx"}), &PhysicsServer3D::body_get_shape_transform);
 
-    MethodBinder::bind_method(D_METHOD("body_remove_shape", {"body", "shape_idx"}), &PhysicsServer::body_remove_shape);
-    MethodBinder::bind_method(D_METHOD("body_clear_shapes", {"body"}), &PhysicsServer::body_clear_shapes);
+    MethodBinder::bind_method(D_METHOD("body_remove_shape", {"body", "shape_idx"}), &PhysicsServer3D::body_remove_shape);
+    MethodBinder::bind_method(D_METHOD("body_clear_shapes", {"body"}), &PhysicsServer3D::body_clear_shapes);
 
-    MethodBinder::bind_method(D_METHOD("body_attach_object_instance_id", {"body", "id"}), &PhysicsServer::body_attach_object_instance_id);
-    MethodBinder::bind_method(D_METHOD("body_get_object_instance_id", {"body"}), &PhysicsServer::body_get_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("body_attach_object_instance_id", {"body", "id"}), &PhysicsServer3D::body_attach_object_instance_id);
+    MethodBinder::bind_method(D_METHOD("body_get_object_instance_id", {"body"}), &PhysicsServer3D::body_get_object_instance_id);
 
-    MethodBinder::bind_method(D_METHOD("body_set_enable_continuous_collision_detection", {"body", "enable"}), &PhysicsServer::body_set_enable_continuous_collision_detection);
-    MethodBinder::bind_method(D_METHOD("body_is_continuous_collision_detection_enabled", {"body"}), &PhysicsServer::body_is_continuous_collision_detection_enabled);
+    MethodBinder::bind_method(D_METHOD("body_set_enable_continuous_collision_detection", {"body", "enable"}), &PhysicsServer3D::body_set_enable_continuous_collision_detection);
+    MethodBinder::bind_method(D_METHOD("body_is_continuous_collision_detection_enabled", {"body"}), &PhysicsServer3D::body_is_continuous_collision_detection_enabled);
 
-    MethodBinder::bind_method(D_METHOD("body_set_param", {"body", "param", "value"}), &PhysicsServer::body_set_param);
-    MethodBinder::bind_method(D_METHOD("body_get_param", {"body", "param"}), &PhysicsServer::body_get_param);
+    MethodBinder::bind_method(D_METHOD("body_set_param", {"body", "param", "value"}), &PhysicsServer3D::body_set_param);
+    MethodBinder::bind_method(D_METHOD("body_get_param", {"body", "param"}), &PhysicsServer3D::body_get_param);
 
-    MethodBinder::bind_method(D_METHOD("body_set_kinematic_safe_margin", {"body", "margin"}), &PhysicsServer::body_set_kinematic_safe_margin);
-    MethodBinder::bind_method(D_METHOD("body_get_kinematic_safe_margin", {"body"}), &PhysicsServer::body_get_kinematic_safe_margin);
+    MethodBinder::bind_method(D_METHOD("body_set_kinematic_safe_margin", {"body", "margin"}), &PhysicsServer3D::body_set_kinematic_safe_margin);
+    MethodBinder::bind_method(D_METHOD("body_get_kinematic_safe_margin", {"body"}), &PhysicsServer3D::body_get_kinematic_safe_margin);
 
-    MethodBinder::bind_method(D_METHOD("body_set_state", {"body", "state", "value"}), &PhysicsServer::body_set_state);
-    MethodBinder::bind_method(D_METHOD("body_get_state", {"body", "state"}), &PhysicsServer::body_get_state);
+    MethodBinder::bind_method(D_METHOD("body_set_state", {"body", "state", "value"}), &PhysicsServer3D::body_set_state);
+    MethodBinder::bind_method(D_METHOD("body_get_state", {"body", "state"}), &PhysicsServer3D::body_get_state);
 
-    MethodBinder::bind_method(D_METHOD("body_add_central_force", {"body", "force"}), &PhysicsServer::body_add_central_force);
-    MethodBinder::bind_method(D_METHOD("body_add_force", {"body", "force", "position"}), &PhysicsServer::body_add_force);
-    MethodBinder::bind_method(D_METHOD("body_add_torque", {"body", "torque"}), &PhysicsServer::body_add_torque);
+    MethodBinder::bind_method(D_METHOD("body_add_central_force", {"body", "force"}), &PhysicsServer3D::body_add_central_force);
+    MethodBinder::bind_method(D_METHOD("body_add_force", {"body", "force", "position"}), &PhysicsServer3D::body_add_force);
+    MethodBinder::bind_method(D_METHOD("body_add_torque", {"body", "torque"}), &PhysicsServer3D::body_add_torque);
 
-    MethodBinder::bind_method(D_METHOD("body_apply_central_impulse", {"body", "impulse"}), &PhysicsServer::body_apply_central_impulse);
-    MethodBinder::bind_method(D_METHOD("body_apply_impulse", {"body", "position", "impulse"}), &PhysicsServer::body_apply_impulse);
-    MethodBinder::bind_method(D_METHOD("body_apply_torque_impulse", {"body", "impulse"}), &PhysicsServer::body_apply_torque_impulse);
-    MethodBinder::bind_method(D_METHOD("body_set_axis_velocity", {"body", "axis_velocity"}), &PhysicsServer::body_set_axis_velocity);
+    MethodBinder::bind_method(D_METHOD("body_apply_central_impulse", {"body", "impulse"}), &PhysicsServer3D::body_apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("body_apply_impulse", {"body", "position", "impulse"}), &PhysicsServer3D::body_apply_impulse);
+    MethodBinder::bind_method(D_METHOD("body_apply_torque_impulse", {"body", "impulse"}), &PhysicsServer3D::body_apply_torque_impulse);
+    MethodBinder::bind_method(D_METHOD("body_set_axis_velocity", {"body", "axis_velocity"}), &PhysicsServer3D::body_set_axis_velocity);
 
-    MethodBinder::bind_method(D_METHOD("body_set_axis_lock", {"body", "axis", "lock"}), &PhysicsServer::body_set_axis_lock);
-    MethodBinder::bind_method(D_METHOD("body_is_axis_locked", {"body", "axis"}), &PhysicsServer::body_is_axis_locked);
+    MethodBinder::bind_method(D_METHOD("body_set_axis_lock", {"body", "axis", "lock"}), &PhysicsServer3D::body_set_axis_lock);
+    MethodBinder::bind_method(D_METHOD("body_is_axis_locked", {"body", "axis"}), &PhysicsServer3D::body_is_axis_locked);
 
-    MethodBinder::bind_method(D_METHOD("body_add_collision_exception", {"body", "excepted_body"}), &PhysicsServer::body_add_collision_exception);
-    MethodBinder::bind_method(D_METHOD("body_remove_collision_exception", {"body", "excepted_body"}), &PhysicsServer::body_remove_collision_exception);
+    MethodBinder::bind_method(D_METHOD("body_add_collision_exception", {"body", "excepted_body"}), &PhysicsServer3D::body_add_collision_exception);
+    MethodBinder::bind_method(D_METHOD("body_remove_collision_exception", {"body", "excepted_body"}), &PhysicsServer3D::body_remove_collision_exception);
 
-    MethodBinder::bind_method(D_METHOD("body_set_max_contacts_reported", {"body", "amount"}), &PhysicsServer::body_set_max_contacts_reported);
-    MethodBinder::bind_method(D_METHOD("body_get_max_contacts_reported", {"body"}), &PhysicsServer::body_get_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("body_set_max_contacts_reported", {"body", "amount"}), &PhysicsServer3D::body_set_max_contacts_reported);
+    MethodBinder::bind_method(D_METHOD("body_get_max_contacts_reported", {"body"}), &PhysicsServer3D::body_get_max_contacts_reported);
 
-    MethodBinder::bind_method(D_METHOD("body_set_omit_force_integration", {"body", "enable"}), &PhysicsServer::body_set_omit_force_integration);
-    MethodBinder::bind_method(D_METHOD("body_is_omitting_force_integration", {"body"}), &PhysicsServer::body_is_omitting_force_integration);
+    MethodBinder::bind_method(D_METHOD("body_set_omit_force_integration", {"body", "enable"}), &PhysicsServer3D::body_set_omit_force_integration);
+    MethodBinder::bind_method(D_METHOD("body_is_omitting_force_integration", {"body"}), &PhysicsServer3D::body_is_omitting_force_integration);
 
-    MethodBinder::bind_method(D_METHOD("body_set_force_integration_callback", {"body", "receiver", "method", "userdata"}), &PhysicsServer::body_set_force_integration_callback, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("body_set_force_integration_callback", {"body", "receiver", "method", "userdata"}), &PhysicsServer3D::body_set_force_integration_callback, {DEFVAL(Variant())});
 
-    MethodBinder::bind_method(D_METHOD("body_set_ray_pickable", {"body", "enable"}), &PhysicsServer::body_set_ray_pickable);
-    MethodBinder::bind_method(D_METHOD("body_is_ray_pickable", {"body"}), &PhysicsServer::body_is_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("body_set_ray_pickable", {"body", "enable"}), &PhysicsServer3D::body_set_ray_pickable);
+    MethodBinder::bind_method(D_METHOD("body_is_ray_pickable", {"body"}), &PhysicsServer3D::body_is_ray_pickable);
 
-    MethodBinder::bind_method(D_METHOD("body_get_direct_state", {"body"}), &PhysicsServer::body_get_direct_state);
+    MethodBinder::bind_method(D_METHOD("body_get_direct_state", {"body"}), &PhysicsServer3D::body_get_direct_state);
 
     /* JOINT API */
 
@@ -562,15 +562,15 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(JOINT_CONE_TWIST)
     BIND_ENUM_CONSTANT(JOINT_6DOF)
 
-    MethodBinder::bind_method(D_METHOD("joint_create_pin", {"body_A", "local_A", "body_B", "local_B"}), &PhysicsServer::joint_create_pin);
-    MethodBinder::bind_method(D_METHOD("pin_joint_set_param", {"joint", "param", "value"}), &PhysicsServer::pin_joint_set_param);
-    MethodBinder::bind_method(D_METHOD("pin_joint_get_param", {"joint", "param"}), &PhysicsServer::pin_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("joint_create_pin", {"body_A", "local_A", "body_B", "local_B"}), &PhysicsServer3D::joint_create_pin);
+    MethodBinder::bind_method(D_METHOD("pin_joint_set_param", {"joint", "param", "value"}), &PhysicsServer3D::pin_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("pin_joint_get_param", {"joint", "param"}), &PhysicsServer3D::pin_joint_get_param);
 
-    MethodBinder::bind_method(D_METHOD("pin_joint_set_local_a", {"joint", "local_A"}), &PhysicsServer::pin_joint_set_local_a);
-    MethodBinder::bind_method(D_METHOD("pin_joint_get_local_a", {"joint"}), &PhysicsServer::pin_joint_get_local_a);
+    MethodBinder::bind_method(D_METHOD("pin_joint_set_local_a", {"joint", "local_A"}), &PhysicsServer3D::pin_joint_set_local_a);
+    MethodBinder::bind_method(D_METHOD("pin_joint_get_local_a", {"joint"}), &PhysicsServer3D::pin_joint_get_local_a);
 
-    MethodBinder::bind_method(D_METHOD("pin_joint_set_local_b", {"joint", "local_B"}), &PhysicsServer::pin_joint_set_local_b);
-    MethodBinder::bind_method(D_METHOD("pin_joint_get_local_b", {"joint"}), &PhysicsServer::pin_joint_get_local_b);
+    MethodBinder::bind_method(D_METHOD("pin_joint_set_local_b", {"joint", "local_B"}), &PhysicsServer3D::pin_joint_set_local_b);
+    MethodBinder::bind_method(D_METHOD("pin_joint_get_local_b", {"joint"}), &PhysicsServer3D::pin_joint_get_local_b);
 
     BIND_ENUM_CONSTANT(PIN_JOINT_BIAS)
     BIND_ENUM_CONSTANT(PIN_JOINT_DAMPING)
@@ -588,18 +588,18 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(HINGE_JOINT_FLAG_USE_LIMIT)
     BIND_ENUM_CONSTANT(HINGE_JOINT_FLAG_ENABLE_MOTOR)
 
-    MethodBinder::bind_method(D_METHOD("joint_create_hinge", {"body_A", "hinge_A", "body_B", "hinge_B"}), &PhysicsServer::joint_create_hinge);
+    MethodBinder::bind_method(D_METHOD("joint_create_hinge", {"body_A", "hinge_A", "body_B", "hinge_B"}), &PhysicsServer3D::joint_create_hinge);
 
-    MethodBinder::bind_method(D_METHOD("hinge_joint_set_param", {"joint", "param", "value"}), &PhysicsServer::hinge_joint_set_param);
-    MethodBinder::bind_method(D_METHOD("hinge_joint_get_param", {"joint", "param"}), &PhysicsServer::hinge_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_set_param", {"joint", "param", "value"}), &PhysicsServer3D::hinge_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_get_param", {"joint", "param"}), &PhysicsServer3D::hinge_joint_get_param);
 
-    MethodBinder::bind_method(D_METHOD("hinge_joint_set_flag", {"joint", "flag", "enabled"}), &PhysicsServer::hinge_joint_set_flag);
-    MethodBinder::bind_method(D_METHOD("hinge_joint_get_flag", {"joint", "flag"}), &PhysicsServer::hinge_joint_get_flag);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_set_flag", {"joint", "flag", "enabled"}), &PhysicsServer3D::hinge_joint_set_flag);
+    MethodBinder::bind_method(D_METHOD("hinge_joint_get_flag", {"joint", "flag"}), &PhysicsServer3D::hinge_joint_get_flag);
 
-    MethodBinder::bind_method(D_METHOD("joint_create_slider", {"body_A", "local_ref_A", "body_B", "local_ref_B"}), &PhysicsServer::joint_create_slider);
+    MethodBinder::bind_method(D_METHOD("joint_create_slider", {"body_A", "local_ref_A", "body_B", "local_ref_B"}), &PhysicsServer3D::joint_create_slider);
 
-    MethodBinder::bind_method(D_METHOD("slider_joint_set_param", {"joint", "param", "value"}), &PhysicsServer::slider_joint_set_param);
-    MethodBinder::bind_method(D_METHOD("slider_joint_get_param", {"joint", "param"}), &PhysicsServer::slider_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("slider_joint_set_param", {"joint", "param", "value"}), &PhysicsServer3D::slider_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("slider_joint_get_param", {"joint", "param"}), &PhysicsServer3D::slider_joint_get_param);
 
     BIND_ENUM_CONSTANT(SLIDER_JOINT_LINEAR_LIMIT_UPPER)
     BIND_ENUM_CONSTANT(SLIDER_JOINT_LINEAR_LIMIT_LOWER)
@@ -626,10 +626,10 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(SLIDER_JOINT_ANGULAR_ORTHOGONAL_DAMPING)
     BIND_ENUM_CONSTANT(SLIDER_JOINT_MAX)
 
-    MethodBinder::bind_method(D_METHOD("joint_create_cone_twist", {"body_A", "local_ref_A", "body_B", "local_ref_B"}), &PhysicsServer::joint_create_cone_twist);
+    MethodBinder::bind_method(D_METHOD("joint_create_cone_twist", {"body_A", "local_ref_A", "body_B", "local_ref_B"}), &PhysicsServer3D::joint_create_cone_twist);
 
-    MethodBinder::bind_method(D_METHOD("cone_twist_joint_set_param", {"joint", "param", "value"}), &PhysicsServer::cone_twist_joint_set_param);
-    MethodBinder::bind_method(D_METHOD("cone_twist_joint_get_param", {"joint", "param"}), &PhysicsServer::cone_twist_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("cone_twist_joint_set_param", {"joint", "param", "value"}), &PhysicsServer3D::cone_twist_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("cone_twist_joint_get_param", {"joint", "param"}), &PhysicsServer3D::cone_twist_joint_get_param);
 
     BIND_ENUM_CONSTANT(CONE_TWIST_JOINT_SWING_SPAN)
     BIND_ENUM_CONSTANT(CONE_TWIST_JOINT_TWIST_SPAN)
@@ -659,24 +659,24 @@ void PhysicsServer::_bind_methods() {
     BIND_ENUM_CONSTANT(G6DOF_JOINT_FLAG_ENABLE_MOTOR)
     BIND_ENUM_CONSTANT(G6DOF_JOINT_FLAG_ENABLE_LINEAR_MOTOR)
 
-    MethodBinder::bind_method(D_METHOD("joint_get_type", {"joint"}), &PhysicsServer::joint_get_type);
+    MethodBinder::bind_method(D_METHOD("joint_get_type", {"joint"}), &PhysicsServer3D::joint_get_type);
 
-    MethodBinder::bind_method(D_METHOD("joint_set_solver_priority", {"joint", "priority"}), &PhysicsServer::joint_set_solver_priority);
-    MethodBinder::bind_method(D_METHOD("joint_get_solver_priority", {"joint"}), &PhysicsServer::joint_get_solver_priority);
+    MethodBinder::bind_method(D_METHOD("joint_set_solver_priority", {"joint", "priority"}), &PhysicsServer3D::joint_set_solver_priority);
+    MethodBinder::bind_method(D_METHOD("joint_get_solver_priority", {"joint"}), &PhysicsServer3D::joint_get_solver_priority);
 
-    MethodBinder::bind_method(D_METHOD("joint_create_generic_6dof", {"body_A", "local_ref_A", "body_B", "local_ref_B"}), &PhysicsServer::joint_create_generic_6dof);
+    MethodBinder::bind_method(D_METHOD("joint_create_generic_6dof", {"body_A", "local_ref_A", "body_B", "local_ref_B"}), &PhysicsServer3D::joint_create_generic_6dof);
 
-    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_param", {"joint", "axis", "param", "value"}), &PhysicsServer::generic_6dof_joint_set_param);
-    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_param", {"joint", "axis", "param"}), &PhysicsServer::generic_6dof_joint_get_param);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_param", {"joint", "axis", "param", "value"}), &PhysicsServer3D::generic_6dof_joint_set_param);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_param", {"joint", "axis", "param"}), &PhysicsServer3D::generic_6dof_joint_get_param);
 
-    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_flag", {"joint", "axis", "flag", "enable"}), &PhysicsServer::generic_6dof_joint_set_flag);
-    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_flag", {"joint", "axis", "flag"}), &PhysicsServer::generic_6dof_joint_get_flag);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_set_flag", {"joint", "axis", "flag", "enable"}), &PhysicsServer3D::generic_6dof_joint_set_flag);
+    MethodBinder::bind_method(D_METHOD("generic_6dof_joint_get_flag", {"joint", "axis", "flag"}), &PhysicsServer3D::generic_6dof_joint_get_flag);
 
-    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &PhysicsServer::free_rid);
+    MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &PhysicsServer3D::free_rid);
 
-    MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &PhysicsServer::set_active);
+    MethodBinder::bind_method(D_METHOD("set_active", {"active"}), &PhysicsServer3D::set_active);
 
-    MethodBinder::bind_method(D_METHOD("get_process_info", {"process_info"}), &PhysicsServer::get_process_info);
+    MethodBinder::bind_method(D_METHOD("get_process_info", {"process_info"}), &PhysicsServer3D::get_process_info);
 
     BIND_ENUM_CONSTANT(SHAPE_PLANE)
     BIND_ENUM_CONSTANT(SHAPE_RAY)
@@ -750,13 +750,13 @@ void PhysicsServer::_bind_methods() {
 #endif
 }
 
-PhysicsServer::PhysicsServer() {
+PhysicsServer3D::PhysicsServer3D() {
 
     ERR_FAIL_COND(singleton != nullptr);
     singleton = this;
 }
 
-PhysicsServer::~PhysicsServer() {
+PhysicsServer3D::~PhysicsServer3D() {
 
     singleton = nullptr;
 }
@@ -813,12 +813,12 @@ StringName PhysicsServerManager::get_server_name(int p_id) {
     return physics_servers[p_id].name;
 }
 
-PhysicsServer *PhysicsServerManager::new_default_server() {
+PhysicsServer3D *PhysicsServerManager::new_default_server() {
     ERR_FAIL_COND_V(default_server_id == -1, nullptr);
     return physics_servers[default_server_id].create_callback();
 }
 
-PhysicsServer *PhysicsServerManager::new_server(const StringName &p_name) {
+PhysicsServer3D *PhysicsServerManager::new_server(const StringName &p_name) {
     int id = find_server_id(p_name);
     if (id == -1) {
         return nullptr;
@@ -833,13 +833,13 @@ void PhysicsServerManager::cleanup()
     default_server_id = -1;
     default_server_priority = -1;
 }
-PhysicsServer * initialize_3d_physics() {
-    PhysicsServer *physics_server = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
-    if (!physics_server) {
+PhysicsServer3D * initialize_3d_physics() {
+    PhysicsServer3D *physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
+    if (!physics_server_3d) {
         // Physics server not found, Use the default physics
-        physics_server = PhysicsServerManager::new_default_server();
+        physics_server_3d = PhysicsServerManager::new_default_server();
     }
-    ERR_FAIL_COND_V(!physics_server,nullptr);
-    physics_server->init();
-    return physics_server;
+    ERR_FAIL_COND_V(!physics_server_3d,nullptr);
+    physics_server_3d->init();
+    return physics_server_3d;
 }

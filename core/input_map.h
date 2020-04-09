@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/object.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/map.h"
 #include "core/list.h"
 

@@ -30,7 +30,7 @@
 
 #include "line_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 #include "servers/visual_server.h"
 #include "core/method_bind.h"
 
@@ -55,7 +55,7 @@ void LineShape2D::_update_shape() {
     Array arr;
     arr.push_back(normal);
     arr.push_back(d);
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), arr);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), arr);
     emit_changed();
 }
 
@@ -117,7 +117,7 @@ void LineShape2D::_bind_methods() {
 }
 
 LineShape2D::LineShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->line_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->line_shape_create()) {
 
     normal = Vector2(0, -1);
     d = 0;

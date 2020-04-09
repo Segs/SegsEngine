@@ -54,11 +54,11 @@
         <member name="Performance" type="Performance" setter="" getter="">
             The [Performance] singleton.
         </member>
-        <member name="Physics2DServer" type="Physics2DServer" setter="" getter="">
-            The [Physics2DServer] singleton.
+        <member name="PhysicsServer2D" type="PhysicsServer2D" setter="" getter="">
+            The [PhysicsServer2D] singleton.
         </member>
-        <member name="PhysicsServer" type="PhysicsServer" setter="" getter="">
-            The [PhysicsServer] singleton.
+        <member name="PhysicsServer3D" type="PhysicsServer3D" setter="" getter="">
+            The [PhysicsServer3D] singleton.
         </member>
         <member name="ProjectSettings" type="ProjectSettings" setter="" getter="">
             The [ProjectSettings] singleton.

@@ -30,7 +30,7 @@
 
 #include "plane_shape.h"
 
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(PlaneShape)
@@ -67,7 +67,7 @@ Vector<Vector3> PlaneShape::get_debug_mesh_lines() {
 
 void PlaneShape::_update_shape() {
 
-    PhysicsServer::get_singleton()->shape_set_data(get_shape(), plane);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), plane);
     Shape::_update_shape();
 }
 
@@ -93,7 +93,7 @@ void PlaneShape::_bind_methods() {
 }
 
 PlaneShape::PlaneShape() :
-        Shape(PhysicsServer::get_singleton()->shape_create(PhysicsServer::SHAPE_PLANE)) {
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_PLANE)) {
 
     set_plane(Plane(0, 1, 0, 0));
 }

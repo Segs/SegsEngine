@@ -33,7 +33,7 @@
 #include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/sphere_shape.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(SpringArm)

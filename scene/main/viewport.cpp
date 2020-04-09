@@ -55,7 +55,7 @@
 #include "scene/main/timer.h"
 #include "scene/resources/mesh.h"
 #include "scene/scene_string_names.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 IMPL_GDCLASS(ViewportTexture)
 IMPL_GDCLASS(Viewport)
@@ -318,11 +318,11 @@ void Viewport::_notification(int p_what) {
             add_to_group("_viewports");
             if (get_tree()->is_debugging_collisions_hint()) {
                 //2D
-                Physics2DServer::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
+                PhysicsServer2D::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
                 contact_2d_debug = VisualServer::get_singleton()->canvas_item_create();
                 VisualServer::get_singleton()->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
                 //3D
-                PhysicsServer::get_singleton()->space_set_debug_contacts(find_world()->get_space(), get_tree()->get_collision_debug_contact_count());
+                PhysicsServer3D::get_singleton()->space_set_debug_contacts(find_world()->get_space(), get_tree()->get_collision_debug_contact_count());
                 contact_3d_debug_multimesh = VisualServer::get_singleton()->multimesh_create();
                 VisualServer::get_singleton()->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), VS::MULTIMESH_TRANSFORM_3D, VS::MULTIMESH_COLOR_8BIT);
                 VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
@@ -413,8 +413,8 @@ void Viewport::_notification(int p_what) {
                 VisualServer::get_singleton()->canvas_item_clear(contact_2d_debug);
                 VisualServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
-                const Vector<Vector2> &points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
-                int point_count = Physics2DServer::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
+                const Vector<Vector2> &points = PhysicsServer2D::get_singleton()->space_get_contacts(find_world_2d()->get_space());
+                int point_count = PhysicsServer2D::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
                 Color ccol = get_tree()->get_debug_collision_contact_color();
 
                 for (int i = 0; i < point_count; i++) {
@@ -425,8 +425,8 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_3d_debug_multimesh.is_valid()) {
 
-                const Vector<Vector3> & points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
-                int point_count = PhysicsServer::get_singleton()->space_get_contact_count(find_world()->get_space());
+                const Vector<Vector3> & points = PhysicsServer3D::get_singleton()->space_get_contacts(find_world()->get_space());
+                int point_count = PhysicsServer3D::get_singleton()->space_get_contact_count(find_world()->get_space());
 
                 VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
             }
@@ -439,7 +439,7 @@ void Viewport::_notification(int p_what) {
                 ObjectID last_id = 0;
 #endif
                 PhysicsDirectSpaceState::RayResult result;
-                Physics2DDirectSpaceState *ss2d = Physics2DServer::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
+                PhysicsDirectSpaceState2D *ss2d = PhysicsServer2D::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
 
                 if (physics_has_last_mousepos) {
                     // if no mouse event exists, create a motion one. This is necessary because objects or camera may have moved.
@@ -544,7 +544,7 @@ void Viewport::_notification(int p_what) {
 
                         uint64_t frame = get_tree()->get_frame();
 
-                        Physics2DDirectSpaceState::ShapeResult res[64];
+                        PhysicsDirectSpaceState2D::ShapeResult res[64];
                         for (CanvasLayer * E : canvas_layers) {
                             Transform2D canvas_transform;
                             ObjectID canvas_layer_id;
@@ -652,7 +652,7 @@ void Viewport::_notification(int p_what) {
                             Vector3 from = camera->project_ray_origin(pos);
                             Vector3 dir = camera->project_ray_normal(pos);
 
-                            PhysicsDirectSpaceState *space = PhysicsServer::get_singleton()->space_get_direct_state(find_world()->get_space());
+                            PhysicsDirectSpaceState *space = PhysicsServer3D::get_singleton()->space_get_direct_state(find_world()->get_space());
                             if (space) {
 
                                 bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);

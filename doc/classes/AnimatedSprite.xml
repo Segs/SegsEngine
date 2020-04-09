@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="AnimatedSprite" inherits="Node2D" version="4.0">
 	<brief_description>
-		Sprite node that can use multiple textures for animation.
+		Sprite2D node that can use multiple textures for animation.
 	</brief_description>
 	<description>
 		Animations are created using a [SpriteFrames] resource, which can be configured in the editor via the SpriteFrames panel.
